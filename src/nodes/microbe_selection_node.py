@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from src.state import EnzymeCrewState
 from src.schemas.evidence import EvidenceRecord
 from src.tools.microbe_recommender import recommend_microbes
+from src.utils.organism_aggregator import aggregate_organisms
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,16 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
 
     candidates = recommend_microbes(top_uids, environment="wastewater", top_k=len(top_uids))
 
+    # OrganismAggregator（框架 §3.3）：将「单酶→菌」映射按候选菌聚合。
+    # enzyme_score 取自 ranked_enzymes（模型真实排序分）；CI 同源。
+    enzyme_scores = {}
+    enzyme_cis = {}
+    for e in (state.ranked_enzymes or []):
+        enzyme_scores[e.uid] = e.score
+        if e.ensemble_ci is not None:
+            enzyme_cis[e.uid] = e.ensemble_ci
+    organism_candidates = aggregate_organisms(candidates, enzyme_scores, enzyme_cis)
+
     uncertainty_flags = list(state.uncertainty_flags)
     if not candidates:
         uncertainty_flags.append(
@@ -50,6 +61,11 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
         status = "empty_no_mapping"
     else:
         status = "uniprot_organism_mapping"
+        # D2/D3 降级假设显式留痕（聚合层）
+        uncertainty_flags.append(
+            "organism_aggregator: cumulative_score 基于临时 confidence 折算（D2 未定）"
+            "与 tax_id 主键聚合（D3 未定），排序仅供参考，待学生定稿"
+        )
 
     evidence = EvidenceRecord(
         stage="microbe",
@@ -61,12 +77,25 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
             "source_db": "UniProt",
             "status": status,
             "sample_organisms": [c.organism_name for c in candidates[:3]],
+            # 聚合层三层证据可见（原始数据优先原则）
+            "aggregated_organisms": len(organism_candidates),
+            "top_organisms": [
+                {
+                    "organism": o.organism_name,
+                    "tax_id": o.organism_uid,
+                    "cumulative_score": o.cumulative_score,
+                    "supporting_enzymes": o.supporting_enzymes,
+                    "evidence_levels": o.evidence_levels,
+                }
+                for o in organism_candidates[:3]
+            ],
         },
         timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
     return {
         "microbe_candidates": candidates,
+        "organism_candidates": organism_candidates,
         "uncertainty_flags": uncertainty_flags,
         "evidence_chain": state.evidence_chain + [evidence],
     }

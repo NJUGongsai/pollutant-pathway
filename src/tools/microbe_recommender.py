@@ -19,19 +19,45 @@ logger = logging.getLogger(__name__)
 UNIPROT_REST = "https://rest.uniprot.org/uniprotkb/{uid}.json"
 _HTTP_TIMEOUT = 15.0
 
+# evidence_level → confidence 折算（临时默认，D2 归一化策略学生未定，见 trait/框架 §8 D2）
+# reviewed(SwissProt)=实验级高置信；unreviewed(TrEMBL)=自动注释降一档。
+_CONFIDENCE_BY_EVIDENCE = {
+    "reviewed": 1.0,
+    "unreviewed": 0.5,
+    "predicted": 0.25,
+}
+_DEFAULT_CONFIDENCE = 0.5  # evidence_level 未知时的保守默认
+
+
+def _evidence_level_from_entry_type(entry_type: Optional[str]) -> Optional[str]:
+    """UniProt entryType 字符串 → evidence_level。
+
+    entryType 形如 'UniProtKB reviewed (Swiss-Prot)' / 'UniProtKB unreviewed (TrEMBL)'。
+    无法判定时返回 None（由上层降级处理，不编造）。
+    """
+    if not entry_type:
+        return None
+    low = entry_type.lower()
+    if "unreviewed" in low:
+        return "unreviewed"
+    if "reviewed" in low:
+        return "reviewed"
+    return None
+
 
 def query_organism_by_uid(uid: str) -> Optional[dict]:
     """
-    查询单个 UniProt UID 对应的来源生物信息。
+    查询单个 UniProt UID 对应的来源生物信息 + 证据分级。
 
-    返回 {"organism_name": str, "tax_id": int|None, "source_db": "UniProt"}；
+    返回 {"organism_name": str, "tax_id": int|None, "source_db": "UniProt",
+           "evidence_level": str|None, "confidence": float}；
     查询失败（网络异常 / 404 / 结构缺失）返回 None，由上层决定是否降级。
     """
     url = UNIPROT_REST.format(uid=uid)
     try:
         resp = httpx.get(
             url,
-            params={"fields": "organism_name,organism_id"},
+            params={"fields": "organism_name,organism_id,reviewed"},
             headers={"Accept": "application/json"},
             timeout=_HTTP_TIMEOUT,
         )
@@ -51,10 +77,14 @@ def query_organism_by_uid(uid: str) -> Optional[dict]:
         name = org.get("scientificName")
         if not name:
             return None
+        evidence_level = _evidence_level_from_entry_type(data.get("entryType"))
+        confidence = _CONFIDENCE_BY_EVIDENCE.get(evidence_level, _DEFAULT_CONFIDENCE)
         return {
             "organism_name": name,
             "tax_id": org.get("taxonId"),
             "source_db": "UniProt",
+            "evidence_level": evidence_level,
+            "confidence": confidence,
         }
     except (ValueError, KeyError) as e:
         logger.warning(f"[microbe_recommender] UniProt 响应解析失败 uid={uid}: {e}")
@@ -94,8 +124,11 @@ def recommend_microbes(
                 habitat_match=None,  # M4b 未立项，不做污水适配评估
                 growth_conditions=None,
                 source_db=info["source_db"],
+                evidence_level=info.get("evidence_level"),
+                confidence=info.get("confidence"),
                 rationale=(
-                    f"UniProt organism 字段映射（目标环境 {environment} 未做性状适配评估，"
+                    f"UniProt organism 字段映射（evidence_level="
+                    f"{info.get('evidence_level') or '未知'}；目标环境 {environment} 未做性状适配评估，"
                     f"待 M4b metaTraits 集成）"
                 ),
             )

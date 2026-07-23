@@ -12,6 +12,7 @@ from src.schemas.evidence import (
     # M5 扩展
     RerankedEnzyme,
     MicrobeCandidate,
+    OrganismCandidate,
     TraitRecord,
     PredictedReaction,
     IntentClassification,
@@ -54,6 +55,8 @@ class EnzymeCrewState(BaseModel):
 
     # ====== M5: MicrobeSelectionNode 输出 ======
     microbe_candidates: Optional[List[MicrobeCandidate]] = None
+    # OrganismAggregator 聚合输出（菌→支持酶集合，按 cumulative_score 降序）
+    organism_candidates: Optional[List[OrganismCandidate]] = None
 
     # ====== M5: TraitFilterNode 输出 ======
     trait_records: Optional[List[TraitRecord]] = None

@@ -75,12 +75,27 @@ def evidence_synthesis_node(state: EnzymeCrewState) -> dict:
             lines.append(f"  - {e.uid}: rerank={e.reranked_rank} ({e.rerank_rationale[:40]})")
 
     if state.microbe_candidates:
-        lines.append(f"\n## 推荐微生物 ({len(state.microbe_candidates)} 个)")
+        lines.append(f"\n## 推荐微生物 ({len(state.microbe_candidates)} 个，单酶→菌映射)")
         for m in state.microbe_candidates[:5]:
             tax = f"taxID:{m.tax_id}" if m.tax_id else "taxID:?"
+            ev = m.evidence_level or "未知"
             lines.append(
-                f"  - {m.organism_name} ({tax}, enzyme: {m.enzyme_uid}, 来源: {m.source_db})"
+                f"  - {m.organism_name} ({tax}, enzyme: {m.enzyme_uid}, 来源: {m.source_db}, 证据: {ev})"
             )
+
+    # OrganismAggregator 聚合结果（菌→支持酶集合，三层证据不坠缩）
+    if state.organism_candidates:
+        lines.append(f"\n## 候选菌聚合 ({len(state.organism_candidates)} 个，按 cumulative_score 降序)")
+        for o in state.organism_candidates[:5]:
+            ci = f", avgCI={o.avg_ensemble_ci}" if o.avg_ensemble_ci else ""
+            lines.append(
+                f"  - {o.organism_name} (taxID:{o.organism_uid}): "
+                f"cumulative_score={o.cumulative_score}, "
+                f"支持酶 {len(o.supporting_enzymes)} 个 {o.supporting_enzymes}, "
+                f"evidence={o.evidence_levels}{ci}"
+            )
+        if state.organism_candidates[0].aggregation_notes:
+            lines.append(f"  > 聚合假设: {state.organism_candidates[0].aggregation_notes}")
 
     # 性状筛选状态（M4b 锁定说明）
     if trait_ev:

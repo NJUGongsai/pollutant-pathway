@@ -62,14 +62,32 @@ class RerankedEnzyme(BaseModel):
 
 
 class MicrobeCandidate(BaseModel):
-    """推荐微生物（M5: MicrobeSelectionNode 输出）"""
+    """推荐微生物（M5: MicrobeSelectionNode 输出）——单酶→菌事实映射"""
     organism_name: str
     tax_id: Optional[int] = None
     enzyme_uid: str             # 该微生物携带的目标酶
     habitat_match: Optional[str] = None   # 与污水环境的匹配度描述
     growth_conditions: Optional[str] = None
     source_db: Optional[str] = None       # UniProt / KEGG / 文献
+    # M4a 证据分级（框架 §3.2 OrganismHit 契约：UniProt SwissProt=reviewed / TrEMBL=unreviewed）
+    evidence_level: Optional[Literal["reviewed", "unreviewed", "predicted"]] = None
+    confidence: Optional[float] = None    # 由 evidence_level 折算（D2 未定，当前为临时默认）
     rationale: Optional[str] = None
+
+
+class OrganismCandidate(BaseModel):
+    """聚合后的候选菌（M5: OrganismAggregator 输出，框架 §3.3）
+
+    将多条 MicrobeCandidate（酶→菌）按候选菌聚合：一个菌可能被多个酶支持。
+    排序主键 = cumulative_score。三层证据（酶分 / evidence_level / CI）均保留不坠缩（原始数据优先原则）。
+    """
+    organism_uid: str                     # tax_id 字符串；缺失时用 organism_name 作为键
+    organism_name: str
+    supporting_enzymes: List[str]         # 该菌里包含的候选酶 UID
+    cumulative_score: float               # 排序主键 = sum(enzyme_score × confidence)
+    avg_ensemble_ci: Optional[tuple[float, float]] = None
+    evidence_levels: List[str] = Field(default_factory=list)  # 支持酶的 evidence_level 分布（三层证据可见）
+    aggregation_notes: Optional[str] = None  # D2/D3 假设等说明
 
 
 class TraitRecord(BaseModel):
