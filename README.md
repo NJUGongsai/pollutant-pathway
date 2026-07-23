@@ -58,11 +58,11 @@ pip install -e .            # 或 pip install -e ".[dev]" 装测试依赖
 cp .env.example .env        # 填入实际 LLM / EnzymeCAGE 配置
 ```
 
-### 本地 Dry-run（无需 GPU / 无需 EnzymeCAGE 真实模型）
+### 本地 Dry-run（以 mock 替代 EnzymeCAGE 推理，仅验证流程，不产出真实排序）
+
+设置 `ENZYMECAGE_DRY_RUN=1` 后，`enzymecage_client` 用 md5 确定性 mock 顶替对 EnzymeCAGE 真实权重的调用——因此**本地无需 GPU、无需加载 EnzymeCAGE 模型即可跑通全链路**，但输出仅用于 pool 构造与流程贯通验证，**不构成真实排序证据**（真实排序须在晨羽生产环境运行）。
 
 ```bash
-# ENZYMECAGE_DRY_RUN=1 时 enzymecage_client 走 md5-based deterministic mock，
-# 仅用于 pool 构造与流程贯通验证，不构成真实排序证据
 ENZYMECAGE_DRY_RUN=1 python3 main.py '帮我找能降解己烷(CCCCCC)的酶' --mode m5
 ```
 
