@@ -1,0 +1,17 @@
+
+---STDERR---
+2026-07-22 14:28:38,260 [enzymecrew] INFO: ============================================================
+2026-07-22 14:28:38,260 [enzymecrew] INFO: EnzymeCrew Pipeline Start (mode=m3)
+2026-07-22 14:28:38,260 [enzymecrew] INFO: Query: 帮我找能降解己烷(CCCCCC)的酶
+2026-07-22 14:28:38,261 [enzymecrew] INFO: ============================================================
+2026-07-22 14:28:38,270 [src.nodes.orchestrator_node] INFO: [OrchestratorNode] M3 mode: fixed route (enzyme_recommendation)
+2026-07-22 14:28:38,271 [src.nodes.substrate_node] INFO: [SubstrateNode] Processing query: 帮我找能降解己烷(CCCCCC)的酶...
+2026-07-22 14:28:38,273 [src.tools.substrate_parser] INFO: Direct SMILES detected: CCCCCC
+2026-07-22 14:28:38,273 [src.nodes.reaction_node] INFO: [ReactionNode] Retrieving reactions for: CCCCCC
+2026-07-22 14:28:38,273 [src.tools.reaction_retriever] WARNING: [DRY_RUN] reaction_retriever 返回 mock 候选反应，不构成任何相似性证据
+2026-07-22 14:28:38,273 [src.nodes.enzyme_pool_node] INFO: [EnzymePoolNode] Building pool from 3 reactions
+2026-07-22 14:28:38,273 [src.tools.enzyme_pool_builder] WARNING: [DRY_RUN] enzyme_pool_builder 返回 mock B pool，不构成任何真实 pool provenance
+2026-07-22 14:28:38,274 [src.nodes.enzymecage_node] INFO: [EnzymeCAGENode] Ranking 15 enzymes against reaction: CCCCCC.O=O>>CCCCCCO_mock0...
+2026-07-22 14:28:38,274 [src.tools.enzymecage_client] INFO: Calling EnzymeCAGE (mode=DRY_RUN): 15 UIDs, top_k=10, reaction=CCCCCC.O=O>>CCCCCCO_mock0...
+2026-07-22 14:28:38,274 [src.tools.enzymecage_client] WARNING: [DRY_RUN] mock predict 返回 10 条伪结果，不构成任何真实排序证据
+2026-07-22 14:28:38,274 [enzymecrew] INFO: Pipeline SUCCESS: 10 enzymes ranked

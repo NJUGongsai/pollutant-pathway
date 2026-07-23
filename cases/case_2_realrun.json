@@ -1,0 +1,32 @@
+{
+  "case_id": "case_2_realrun",
+  "case_name": "B-primary 真跑：酒石酸（RHEA:15413，D4 有18 个 UID）",
+  "role": "触达 wrapper.predict 的最小案例：substrate → reaction (自匹配) → pool via B → EnzymeCAGE rank",
+  "created": "2026-07-22",
+  "provenance": "agent_side_realrun_probe (route_c index row rhea_master=15413)",
+  "authoring_notes": "从 route_c/reference_reaction_index.csv.gz 挑一条 substrate SMILES 短且 D4 UID 数量适中的真实反应：'O=C(O)[C@H](O)[C@@H](O)C(=O)O>>O.O=C(O)CC(=O)C(=O)O'。substrate SMILES 直接放进 query，fuzzy retrieval 100% 命中自身。M3D2 B-primary 硬约束：rhea → EC (rhea2ec.tsv) → UID (route_b/ec_to_uid) → D4 白名单 → pool_B_size=31 (非空优先 B，C 也有 33 但不用) → wrapper.predict 拿 top-10。",
+
+  "query": "帮我找能催化 O=C(O)[C@H](O)[C@@H](O)C(=O)O 的酶",
+  "mode": "m3",
+
+  "expected": {
+    "should_fail_closed": false,
+    "substrate": {
+      "smiles": "O=C(O)[C@H](O)[C@@H](O)C(=O)O",
+      "source_in": ["user_smiles", "llm_parsed"]
+    },
+    "reaction": {
+      "min_num_candidates": 1
+    },
+    "pool": {
+      "route_used": "B",
+      "min_pool_size": 1
+    },
+    "ranking": {
+      "min_num_ranked": 1
+    },
+    "evidence_chain_stages": ["substrate", "reaction", "pool", "ranking"]
+  },
+
+  "realrun_notes": "本 case 用于晨羽 4090D 真跑；DRY_RUN=0，触达 wrapper.predict。首次 mmap 加载预计冷启动数分钟。"
+}

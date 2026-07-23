@@ -1,0 +1,31 @@
+
+======================================================================
+[CASE] case_2_realrun :: C-fallback 真跑：酒石酸（RHEA:15413，D4 有 18 个 UID）
+[CASE] query: 帮我找能催化 O=C(O)[C@H](O)[C@@H](O)C(=O)O 的酶
+[CASE] mode:  m3
+[CASE] DRY_RUN env: 0
+[CASE] outdir: /root/projects/enzymecage_crew/reports/dryrun/case_2_realrun_20260722T081015Z
+======================================================================
+[08:10:16] DEPRECATION WARNING: please use MorganGenerator
+
+[RESULT] status=success
+[RESULT] evidence_chain_len=4
+[RESULT] ranked_enzymes_len=10
+
+[VERDICT] FAIL  (8/9 checks passed)
+  ✓ fail_closed_semantics: expected=False actual=False
+  ✓ substrate_smiles: expected='O=C(O)[C@H](O)[C@@H](O)C(=O)O' actual='O=C(O)[C@H](O)[C@@H](O)C(=O)O'
+  ✗ pool_route_used: expected='C' actual='B'
+  ✓ pool_size_min: expected='>= 1' actual=31
+  ✓ num_ranked_min: expected='>= 1' actual=10
+  ✓ evidence_stage:substrate: expected='present' actual=True
+  ✓ evidence_stage:reaction: expected='present' actual=True
+  ✓ evidence_stage:pool: expected='present' actual=True
+  ✓ evidence_stage:ranking: expected='present' actual=True
+
+[SAVED] /root/projects/enzymecage_crew/reports/dryrun/case_2_realrun_20260722T081015Z
+
+======================================================================
+[SUMMARY] 0/1 cases PASSED
+======================================================================
+  [FAIL] case_2_realrun  C-fallback 真跑：酒石酸（RHEA:15413，D4 有 18 个 UID）

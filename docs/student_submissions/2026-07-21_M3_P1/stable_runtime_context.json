@@ -1,0 +1,60 @@
+{
+  "contract_version": "enzymecage_m3_p1_stable_runtime_context_v1",
+  "d4_wrapper_root": {
+    "stable_logical_path": "/root/projects/EnzymeCAGE-master/HPC_Returned_Result_Summaries/d4b1a_wrapper_hash_relative_path_final_package_correction_20260716",
+    "realpath": "/usrdata/EnzymeCAGE_data/EnzymeCAGE-master/HPC_Returned_Result_Summaries/d4b1a_wrapper_hash_relative_path_final_package_correction_20260716",
+    "manifest_sha256": "944fe2d22b6b43808a1d6a6250ad62e652a4b52e7e7b36d91a58a012fecd326d",
+    "final_status": "D4B1_PASS_VALIDATOR_REPORT_AND_UID_MAPPING_RECORD_CORRECTED_READY_FOR_LOCAL_AUDIT",
+    "manifest_verified": true,
+    "readable": true
+  },
+  "enzymecage_v1_package_root": {
+    "stable_logical_path": "/root/projects/EnzymeCAGE-master/HPC_Returned_Result_Summaries/enzymecage_v1_20260714",
+    "realpath": "/usrdata/EnzymeCAGE_data/EnzymeCAGE-master/HPC_Returned_Result_Summaries/enzymecage_v1_20260714",
+    "manifest_sha256": "87d884d1dc0ffd46ab54a834dc3a5be3434530ca9b1e9a7bb72819afa12ac426",
+    "manifest_verified": true,
+    "business_model": "enzymecage_v1_3b_ensemble_20260714",
+    "readable": true
+  },
+  "enzymecage_code_root": {
+    "stable_logical_path": "/usrdata/EnzymeCAGE_data/EnzymeCAGE-master",
+    "realpath": "/usrdata/EnzymeCAGE_data/EnzymeCAGE-master",
+    "rxn_similarity_sha256": "aa1e8ba972b284071c2c6790fce8eb1dc42a13f9fd30aaa9919632d5ef6824a0",
+    "readable": true
+  },
+  "python_environment": {
+    "activation_command": "source /usrdata/EnzymeCAGE_envs/enzymecage_py312/bin/activate",
+    "python_executable": "/usrdata/EnzymeCAGE_envs/enzymecage_py312/bin/python",
+    "python_realpath": "/usr/bin/python3.12",
+    "python_version": "3.12.3",
+    "pydantic_version": "2.12.5",
+    "pydantic_core_version": "2.41.5",
+    "annotated_types_version": "0.7.0",
+    "typing_extensions_version": "4.15.0",
+    "typing_inspection_version": "0.4.2",
+    "torch_version": "2.7.1+cu126",
+    "pyyaml_version": "6.0.2",
+    "purelib": "/usrdata/EnzymeCAGE_envs/enzymecage_py312/lib/python3.12/site-packages",
+    "pydantic_installation_scope": "stable_virtual_environment",
+    "temporary_overlay_used": false,
+    "import_only_wrapper_probe_passed": true,
+    "runtime_initialized": false
+  },
+  "gpu_visibility": {
+    "method": "MANUAL_CUDA_VISIBLE_DEVICES",
+    "activation_pattern": "export CUDA_VISIBLE_DEVICES=<one physical GPU index>",
+    "visible_device_contract": 1,
+    "gpu_selected_in_preflight": false,
+    "model_loaded_in_preflight": false
+  },
+  "m3_data_assets": {
+    "stable_logical_path": "/root/projects/EnzymeCAGE-master/HPC_Returned_Result_Summaries/m3_agent_data_assets",
+    "realpath": "/usrdata/EnzymeCAGE_data/EnzymeCAGE-master/HPC_Returned_Result_Summaries/m3_agent_data_assets",
+    "manifest_sha256": "db875a42c9e4fe79a4490d974dbba6c2a7778ef092844787559f5f26166e6d26",
+    "manifest_verified": true,
+    "tar_sha256": "734964077898de8dd3abd167fe1285d1d905f33296abe687edc54bcf65858dc1",
+    "tar_bytes": 9334420,
+    "readable": true
+  },
+  "m3_p1_student_unlock_condition_6_2": "PASS"
+}

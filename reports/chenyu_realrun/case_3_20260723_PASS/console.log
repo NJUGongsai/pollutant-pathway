@@ -1,0 +1,13 @@
+
+---STDERR---
+2026-07-23 05:10:06,064 [enzymecrew] INFO: ============================================================
+2026-07-23 05:10:06,064 [enzymecrew] INFO: EnzymeCrew Pipeline Start (mode=m3)
+2026-07-23 05:10:06,064 [enzymecrew] INFO: Query: 帮我找能降解 XXXXXXX_INVALID_SMILES_ZZZZZ 的酶
+2026-07-23 05:10:06,064 [enzymecrew] INFO: ============================================================
+2026-07-23 05:10:06,085 [src.nodes.orchestrator_node] INFO: [OrchestratorNode] M3 mode: fixed route (enzyme_recommendation)
+2026-07-23 05:10:06,085 [src.nodes.substrate_node] INFO: [SubstrateNode] Processing query: 帮我找能降解 XXXXXXX_INVALID_SMILES_ZZZZZ 的酶...
+2026-07-23 05:10:06,086 [src.tools.substrate_parser] INFO: Calling LLM for chemical name extraction...
+2026-07-23 05:10:19,109 [httpx] INFO: HTTP Request: POST https://llm-wzzp25arjhtoh8j2.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-23 05:10:19,110 [src.nodes.substrate_node] ERROR: [SubstrateNode] Failed: 无法从用户输入中提取化学名: 无法识别底物
+2026-07-23 05:10:19,110 [src.graph] WARNING: [Router] Fail-closed: SubstrateNode: 无法从用户输入中提取化学名: 无法识别底物
+2026-07-23 05:10:19,111 [enzymecrew] ERROR: Pipeline FAILED: SubstrateNode: 无法从用户输入中提取化学名: 无法识别底物

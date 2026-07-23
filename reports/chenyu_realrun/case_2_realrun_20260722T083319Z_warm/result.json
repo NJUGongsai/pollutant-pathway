@@ -1,0 +1,114 @@
+{
+  "status": "success",
+  "query": "帮我找能催化 O=C(O)[C@H](O)[C@@H](O)C(=O)O 的酶",
+  "substrate_smiles": "O=C(O)[C@H](O)[C@@H](O)C(=O)O",
+  "pool_route": "B",
+  "pool_size": 31,
+  "ranked_enzymes": [
+    {
+      "uid": "Q8XBK7",
+      "score": 0.6708638727664947,
+      "rank": 1
+    },
+    {
+      "uid": "Q31WX3",
+      "score": 0.6425188243389129,
+      "rank": 2
+    },
+    {
+      "uid": "Q3YXI2",
+      "score": 0.6423731565475463,
+      "rank": 3
+    },
+    {
+      "uid": "Q58690",
+      "score": 0.6382183581590652,
+      "rank": 4
+    },
+    {
+      "uid": "Q0TD45",
+      "score": 0.6289493858814239,
+      "rank": 5
+    },
+    {
+      "uid": "P05847",
+      "score": 0.6243611872196198,
+      "rank": 6
+    },
+    {
+      "uid": "Q8FDG8",
+      "score": 0.5953932881355286,
+      "rank": 7
+    },
+    {
+      "uid": "Q1R6S0",
+      "score": 0.5852574646472931,
+      "rank": 8
+    },
+    {
+      "uid": "P0AC35",
+      "score": 0.449556328356266,
+      "rank": 9
+    },
+    {
+      "uid": "P0AC37",
+      "score": 0.41975924707949164,
+      "rank": 10
+    }
+  ],
+  "evidence_chain": [
+    {
+      "stage": "substrate",
+      "action": "parsed_substrate_via_user_smiles",
+      "data": {
+        "smiles": "O=C(O)[C@H](O)[C@@H](O)C(=O)O",
+        "name": null,
+        "source": "user_smiles"
+      },
+      "timestamp": "2026-07-22T08:33:21.123799+00:00"
+    },
+    {
+      "stage": "reaction",
+      "action": "retrieved_similar_reactions",
+      "data": {
+        "substrate_smiles": "O=C(O)[C@H](O)[C@@H](O)C(=O)O",
+        "num_candidates": 10,
+        "top_score": 1.0,
+        "top_reaction": "O=C(O)[C@H](O)[C@@H](O)C(=O)O>>O.O=C(O)CC(=O)C(=O)O"
+      },
+      "timestamp": "2026-07-22T08:33:21.257403+00:00"
+    },
+    {
+      "stage": "pool",
+      "action": "built_pool_via_B_route",
+      "data": {
+        "route_used": "B",
+        "pool_size": 31,
+        "pool_b_size": 31,
+        "pool_c_size": 33,
+        "sample_uids": [
+          "Q58690",
+          "Q44471",
+          "Q0TD45",
+          "P05847",
+          "Q1R6R9"
+        ]
+      },
+      "timestamp": "2026-07-22T08:33:21.926883+00:00"
+    },
+    {
+      "stage": "ranking",
+      "action": "enzymecage_v1_ensemble_ranking",
+      "data": {
+        "model_version": "v1_20260714",
+        "pool_size": 31,
+        "route_used": "B",
+        "num_ranked": 10,
+        "top1_uid": "Q8XBK7",
+        "top1_score": 0.6708638727664947,
+        "reaction_smiles": "O=C(O)[C@H](O)[C@@H](O)C(=O)O>>O.O=C(O)CC(=O)C(=O)O"
+      },
+      "timestamp": "2026-07-22T08:37:12.280460+00:00"
+    }
+  ]
+}

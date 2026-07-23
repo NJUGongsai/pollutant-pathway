@@ -1,0 +1,12 @@
+
+---STDERR---
+2026-07-22 14:25:42,410 [enzymecrew] INFO: ============================================================
+2026-07-22 14:25:42,410 [enzymecrew] INFO: EnzymeCrew Pipeline Start (mode=m3)
+2026-07-22 14:25:42,410 [enzymecrew] INFO: Query: 帮我找能降解 XXXXXXX_INVALID_SMILES_ZZZZZ 的酶
+2026-07-22 14:25:42,410 [enzymecrew] INFO: ============================================================
+2026-07-22 14:25:42,420 [src.nodes.orchestrator_node] INFO: [OrchestratorNode] M3 mode: fixed route (enzyme_recommendation)
+2026-07-22 14:25:42,420 [src.nodes.substrate_node] INFO: [SubstrateNode] Processing query: 帮我找能降解 XXXXXXX_INVALID_SMILES_ZZZZZ 的酶...
+2026-07-22 14:25:42,420 [src.tools.substrate_parser] INFO: Calling LLM for substrate parsing...
+2026-07-22 14:25:42,572 [src.nodes.substrate_node] ERROR: [SubstrateNode] Failed: DashScope API error: 401 - Invalid API-key provided.
+2026-07-22 14:25:42,572 [src.graph] WARNING: [Router] Fail-closed: SubstrateNode: DashScope API error: 401 - Invalid API-key provided.
+2026-07-22 14:25:42,572 [enzymecrew] ERROR: Pipeline FAILED: SubstrateNode: DashScope API error: 401 - Invalid API-key provided.

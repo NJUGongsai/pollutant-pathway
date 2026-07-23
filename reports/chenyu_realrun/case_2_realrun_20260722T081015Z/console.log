@@ -1,0 +1,68 @@
+Ignore product information of reaction!
+in_feat_dim: 4864
+Ignore product information of reaction!
+in_feat_dim: 4864
+Ignore product information of reaction!
+in_feat_dim: 4864
+Ignore product information of reaction!
+in_feat_dim: 4864
+Ignore product information of reaction!
+in_feat_dim: 4864
+1 reactions have only one class!
+1 reactions have only one class!
+1 reactions have only one class!
+1 reactions have only one class!
+1 reactions have only one class!
+
+---STDERR---
+2026-07-22 08:10:16,654 [enzymecrew] INFO: ============================================================
+2026-07-22 08:10:16,654 [enzymecrew] INFO: EnzymeCrew Pipeline Start (mode=m3)
+2026-07-22 08:10:16,654 [enzymecrew] INFO: Query: 帮我找能催化 O=C(O)[C@H](O)[C@@H](O)C(=O)O 的酶
+2026-07-22 08:10:16,654 [enzymecrew] INFO: ============================================================
+2026-07-22 08:10:16,672 [src.nodes.orchestrator_node] INFO: [OrchestratorNode] M3 mode: fixed route (enzyme_recommendation)
+2026-07-22 08:10:16,673 [src.nodes.substrate_node] INFO: [SubstrateNode] Processing query: 帮我找能催化 O=C(O)[C@H](O)[C@@H](O)C(=O)O 的酶...
+2026-07-22 08:10:16,678 [src.tools.substrate_parser] INFO: Direct SMILES detected: O=C(O)[C@H](O)[C@@H](O)C(=O)O
+2026-07-22 08:10:16,679 [src.nodes.reaction_node] INFO: [ReactionNode] Retrieving reactions for: O=C(O)[C@H](O)[C@@H](O)C(=O)O
+2026-07-22 08:10:16,731 [src.tools.reaction_retriever] INFO: Loaded 4051 reference reactions (rhea=4051, ec=0)
+2026-07-22 08:10:16,731 [src.tools.reaction_retriever] INFO: Loading Morgan radius=8 fingerprints from /root/projects/EnzymeCAGE-master/HPC_Returned_Result_Summaries/m3_agent_data_assets/assets/route_c/reference_morgan_radius8.pkl...
+2026-07-22 08:10:16,795 [src.tools.reaction_retriever] INFO: [v1 schema] radius=8 fingerprint_type=rdkit_sparse_count_morgan rdkit_version=2026.03.3
+2026-07-22 08:10:16,795 [src.tools.reaction_retriever] INFO: Loaded 4000 molecule fingerprints
+2026-07-22 08:10:16,818 [src.tools.reaction_retriever] INFO: Retrieved 10 similar reactions (top score: 1.0)
+2026-07-22 08:10:16,819 [src.nodes.enzyme_pool_node] INFO: [EnzymePoolNode] Building pool from 10 reactions
+2026-07-22 08:10:16,820 [src.tools.enzyme_pool_builder] INFO: Loading Rhea→EC from /root/projects/EnzymeCAGE-master/HPC_Returned_Result_Summaries/m3_agent_data_assets/assets/rhea140/rhea2ec.tsv...
+2026-07-22 08:10:16,978 [src.tools.enzyme_pool_builder] INFO: Loaded 7613 Rhea→EC mappings
+2026-07-22 08:10:16,978 [src.tools.enzyme_pool_builder] INFO: Loading fair EC→UID from /root/projects/EnzymeCAGE-master/HPC_Returned_Result_Summaries/m3_agent_data_assets/assets/route_b/ec_to_uid_query_excluded.csv.gz...
+2026-07-22 08:10:17,262 [src.tools.enzyme_pool_builder] INFO: Loaded 2320 EC entries (fair)
+2026-07-22 08:10:17,262 [src.tools.enzyme_pool_builder] INFO: Loading D4 UID whitelist from /root/projects/EnzymeCAGE-master/HPC_Returned_Result_Summaries/m3_agent_data_assets/assets/d4/uid_asset_availability.csv.gz...
+2026-07-22 08:10:17,574 [src.tools.enzyme_pool_builder] INFO: Loaded 107705 D4 complete-asset UIDs
+2026-07-22 08:10:17,574 [src.tools.enzyme_pool_builder] INFO: B route: 31 → 31 UIDs after D4 whitelist
+2026-07-22 08:10:17,575 [src.tools.enzyme_pool_builder] INFO: B route: 7 ECs → 31 UIDs
+2026-07-22 08:10:17,658 [src.tools.enzyme_pool_builder] INFO: Loaded route-C index: has_uid_col=True, rxn_to_uids=4051, rxn_to_ecs=0
+2026-07-22 08:10:17,658 [src.tools.enzyme_pool_builder] INFO: C route: 33 → 33 UIDs after D4 whitelist
+2026-07-22 08:10:17,658 [src.tools.enzyme_pool_builder] INFO: C route (direct reaction→UID): 33 UIDs
+2026-07-22 08:10:17,660 [src.tools.enzyme_pool_builder] INFO: Route decision: B-primary (|B|=31, |C|=33 for provenance)
+2026-07-22 08:10:17,674 [src.nodes.enzymecage_node] INFO: [EnzymeCAGENode] Ranking 31 enzymes against reaction: O=C(O)[C@H](O)[C@@H](O)C(=O)O>>O.O=C(O)CC(=O)C(=O)...
+2026-07-22 08:10:17,674 [src.tools.enzymecage_client] INFO: Calling EnzymeCAGE (mode=IMPORT): 31 UIDs, top_k=10, reaction=O=C(O)[C@H](O)[C@@H](O)C(=O)O>>O.O=C(O)CC(=O)C(=O)O...
+2026-07-22 08:10:19,365 [src.tools.enzymecage_client] INFO: EnzymeCAGE wrapper 加载成功（model_version=v1_20260714）
+/usr/local/lib/python3.12/dist-packages/numpy/_core/fromnumeric.py:3860: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/usr/local/lib/python3.12/dist-packages/numpy/_core/_methods.py:144: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/usr/local/lib/python3.12/dist-packages/numpy/_core/fromnumeric.py:3860: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/usr/local/lib/python3.12/dist-packages/numpy/_core/_methods.py:144: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/usr/local/lib/python3.12/dist-packages/numpy/_core/fromnumeric.py:3860: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/usr/local/lib/python3.12/dist-packages/numpy/_core/_methods.py:144: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/usr/local/lib/python3.12/dist-packages/numpy/_core/fromnumeric.py:3860: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/usr/local/lib/python3.12/dist-packages/numpy/_core/_methods.py:144: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/usr/local/lib/python3.12/dist-packages/numpy/_core/fromnumeric.py:3860: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/usr/local/lib/python3.12/dist-packages/numpy/_core/_methods.py:144: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+2026-07-22 08:20:06,837 [src.tools.enzymecage_client] INFO: EnzymeCAGE 返回 10 条 ranked_enzymes (evidence_hash=7e9ece7090d67e88...)
+2026-07-22 08:20:06,838 [enzymecrew] INFO: Pipeline SUCCESS: 10 enzymes ranked

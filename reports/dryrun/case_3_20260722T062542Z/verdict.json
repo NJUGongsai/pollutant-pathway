@@ -1,0 +1,30 @@
+{
+  "case_id": "case_3",
+  "case_name": "Fail-closed 路径：无效底物 SMILES",
+  "timestamp": "20260722T062542Z",
+  "outdir": "reports/dryrun/case_3_20260722T062542Z",
+  "passed": true,
+  "num_checks": 3,
+  "checks": [
+    {
+      "name": "fail_closed_semantics",
+      "expected": true,
+      "actual": true,
+      "ok": true
+    },
+    {
+      "name": "fail_at_expected_stage",
+      "expected": "stage in ['reaction', 'substrate']",
+      "actual": "substrate",
+      "ok": true
+    },
+    {
+      "name": "evidence_chain_min_len",
+      "expected": ">= 0",
+      "actual": 0,
+      "ok": true
+    }
+  ],
+  "result_status": "failed",
+  "result_error": "SubstrateNode: DashScope API error: 401 - Invalid API-key provided."
+}

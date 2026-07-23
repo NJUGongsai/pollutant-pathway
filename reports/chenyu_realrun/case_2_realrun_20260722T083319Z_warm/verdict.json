@@ -1,0 +1,66 @@
+{
+  "case_id": "case_2_realrun",
+  "case_name": "B-primary 真跑：酒石酸（RHEA:15413，D4 有18 个 UID）",
+  "timestamp": "20260722T083319Z",
+  "outdir": "reports/dryrun/case_2_realrun_20260722T083319Z",
+  "passed": true,
+  "num_checks": 9,
+  "checks": [
+    {
+      "name": "fail_closed_semantics",
+      "expected": false,
+      "actual": false,
+      "ok": true
+    },
+    {
+      "name": "substrate_smiles",
+      "expected": "O=C(O)[C@H](O)[C@@H](O)C(=O)O",
+      "actual": "O=C(O)[C@H](O)[C@@H](O)C(=O)O",
+      "ok": true
+    },
+    {
+      "name": "pool_route_used",
+      "expected": "B",
+      "actual": "B",
+      "ok": true
+    },
+    {
+      "name": "pool_size_min",
+      "expected": ">= 1",
+      "actual": 31,
+      "ok": true
+    },
+    {
+      "name": "num_ranked_min",
+      "expected": ">= 1",
+      "actual": 10,
+      "ok": true
+    },
+    {
+      "name": "evidence_stage:substrate",
+      "expected": "present",
+      "actual": true,
+      "ok": true
+    },
+    {
+      "name": "evidence_stage:reaction",
+      "expected": "present",
+      "actual": true,
+      "ok": true
+    },
+    {
+      "name": "evidence_stage:pool",
+      "expected": "present",
+      "actual": true,
+      "ok": true
+    },
+    {
+      "name": "evidence_stage:ranking",
+      "expected": "present",
+      "actual": true,
+      "ok": true
+    }
+  ],
+  "result_status": "success",
+  "result_error": null
+}

@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 测试
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 环境变量
+.env
+.env.local
+
+# 数据（学生提供，不入库）
+data/rhea/*.tsv
+data/reference_fingerprints/*.pkl
+data/reference_fingerprints/*.npy
+data/d4_assets/*.json
+data/d4_assets/*.csv
+
+# 模型 checkpoint（不入库）
+*.pt
+*.pth
+*.ckpt
+*.bin
+
+# 第三方参考代码（EnzymeCAGE 官方仓库克隆，不重分发，见 README 获取方式）
+EnzymeCAGE_ref/
+
+# OS
+.DS_Store
+Thumbs.db

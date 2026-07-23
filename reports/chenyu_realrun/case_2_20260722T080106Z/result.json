@@ -1,0 +1,27 @@
+{
+  "status": "failed",
+  "error": "EnzymePoolNode: B and C both empty. Fail closed.",
+  "evidence_chain": [
+    {
+      "stage": "substrate",
+      "action": "parsed_substrate_via_user_smiles",
+      "data": {
+        "smiles": "CCCCCC",
+        "name": null,
+        "source": "user_smiles"
+      },
+      "timestamp": "2026-07-22T08:01:07.474392+00:00"
+    },
+    {
+      "stage": "reaction",
+      "action": "retrieved_similar_reactions",
+      "data": {
+        "substrate_smiles": "CCCCCC",
+        "num_candidates": 10,
+        "top_score": 0.5714,
+        "top_reaction": "CCCCCCCC.O=O.[Fe+2].[Fe+2]>>CCCCCCCCO.O.[Fe+3].[Fe+3]"
+      },
+      "timestamp": "2026-07-22T08:01:07.598471+00:00"
+    }
+  ]
+}
