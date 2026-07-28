@@ -23,6 +23,7 @@ from src.nodes.enzymecage_node import enzymecage_node
 from src.nodes.reaction_prediction_node import reaction_prediction_node
 from src.nodes.llm_reranking_node import llm_reranking_node
 from src.nodes.microbe_selection_node import microbe_selection_node
+from src.nodes.organism_selection_node import organism_selection_node
 from src.nodes.trait_filter_node import trait_filter_node
 from src.nodes.evidence_synthesis_node import evidence_synthesis_node
 
@@ -77,7 +78,17 @@ def route_after_reranking(state: EnzymeCrewState) -> str:
 
 
 def route_after_microbe(state: EnzymeCrewState) -> str:
-    """M5: microbe 后路由"""
+    """M5: microbe(映射+聚合) 后路由 → 选菌层"""
+    if state.fail_closed or state.error:
+        return "end"
+    return "organism_selection"
+
+
+def route_after_organism_selection(state: EnzymeCrewState) -> str:
+    """M5: 选菌层后路由。
+
+    选菌 LLM 为硬依赖：若节点置 fail_closed（LLM 不可用）则显式终止，不静默透传。
+    """
     if state.fail_closed or state.error:
         return "end"
     return "trait"
@@ -111,6 +122,7 @@ def build_graph() -> StateGraph:
     workflow.add_node("enzymecage", enzymecage_node)
     workflow.add_node("reranking", llm_reranking_node)                  # M5
     workflow.add_node("microbe", microbe_selection_node)                # M5
+    workflow.add_node("organism_selection", organism_selection_node)    # M5 选菌层（LLM 硬依赖）
     workflow.add_node("trait", trait_filter_node)                       # M5
     workflow.add_node("synthesis", evidence_synthesis_node)             # M5
 
@@ -167,10 +179,17 @@ def build_graph() -> StateGraph:
         {"microbe": "microbe", "end": END},
     )
 
-    # microbe → trait
+    # microbe → organism_selection（选菌层）
     workflow.add_conditional_edges(
         "microbe",
         route_after_microbe,
+        {"organism_selection": "organism_selection", "end": END},
+    )
+
+    # organism_selection → trait / end（选菌 LLM 硬依赖，fail_closed → end）
+    workflow.add_conditional_edges(
+        "organism_selection",
+        route_after_organism_selection,
         {"trait": "trait", "end": END},
     )
 

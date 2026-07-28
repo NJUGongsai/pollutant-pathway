@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 from src.state import EnzymeCrewState
 from src.schemas.evidence import EvidenceRecord
-from src.tools.microbe_recommender import recommend_microbes
+from src.tools.microbe_recommender import map_enzyme_hosts, microbe_candidates_from_provenance
 from src.utils.organism_aggregator import aggregate_organisms
 
 logger = logging.getLogger(__name__)
@@ -41,17 +41,13 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
 
     logger.info(f"[MicrobeSelectionNode] Mapping {len(top_uids)} enzymes to organisms...")
 
-    candidates = recommend_microbes(top_uids, environment="wastewater", top_k=len(top_uids))
+    # 单次网络查询：酶 UID → reviewed UniProt 宿主 + KEGG multiplicity（原始证据维度透传，MT-D1/D2）
+    provenance_map = map_enzyme_hosts(top_uids)
+    candidates = microbe_candidates_from_provenance(provenance_map, top_uids, environment="wastewater")
 
-    # OrganismAggregator（框架 §3.3）：将「单酶→菌」映射按候选菌聚合。
-    # enzyme_score 取自 ranked_enzymes（模型真实排序分）；CI 同源。
-    enzyme_scores = {}
-    enzyme_cis = {}
-    for e in (state.ranked_enzymes or []):
-        enzyme_scores[e.uid] = e.score
-        if e.ensemble_ci is not None:
-            enzyme_cis[e.uid] = e.ensemble_ci
-    organism_candidates = aggregate_organisms(candidates, enzyme_scores, enzyme_cis)
+    # OrganismAggregator（框架 §3.3）：按 reviewed 宿主的 NCBI taxon 聚合酶排序。
+    # 组内 (rank, uid) 排序键与支持酶 score/rank/CI 取自 ranked_enzymes（模型真实排序，同源）。
+    organism_candidates = aggregate_organisms(state.ranked_enzymes or [], provenance_map)
 
     uncertainty_flags = list(state.uncertainty_flags)
     if not candidates:
@@ -61,11 +57,7 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
         status = "empty_no_mapping"
     else:
         status = "uniprot_organism_mapping"
-        # D2/D3 降级假设显式留痕（聚合层）
-        uncertainty_flags.append(
-            "organism_aggregator: cumulative_score 基于临时 confidence 折算（D2 未定）"
-            "与 tax_id 主键聚合（D3 未定），排序仅供参考，待学生定稿"
-        )
+        # MT-D2/D3（2026-07-18 裁定）已实装：排序=支持酶数降序+taxid 升序，不产 confidence float。
 
     evidence = EvidenceRecord(
         stage="microbe",
@@ -82,10 +74,27 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
             "top_organisms": [
                 {
                     "organism": o.organism_name,
-                    "tax_id": o.organism_uid,
-                    "cumulative_score": o.cumulative_score,
-                    "supporting_enzymes": o.supporting_enzymes,
-                    "evidence_levels": o.evidence_levels,
+                    "ncbi_taxon_id": o.ncbi_taxon_id,
+                    "default_order_rank": o.default_order_rank,
+                    "supporting_enzyme_count": o.supporting_enzyme_count,
+                    "supporting_enzymes": [se.uid for se in o.supporting_enzymes],
+                    "per_enzyme_source_provenance": [
+                        {
+                            "enzyme_uid": p.enzyme_uid,
+                            "reviewed_taxon": (
+                                p.uniprot_reviewed.ncbi_taxon_id if p.uniprot_reviewed else None
+                            ),
+                            "annotation_score": (
+                                p.uniprot_reviewed.annotation_score if p.uniprot_reviewed else None
+                            ),
+                            "protein_existence": (
+                                p.uniprot_reviewed.protein_existence if p.uniprot_reviewed else None
+                            ),
+                            "kegg_multiplicity": (p.kegg.multiplicity if p.kegg else None),
+                            "kegg_state": (p.kegg.state if p.kegg else None),
+                        }
+                        for p in o.per_enzyme_source_provenance
+                    ],
                 }
                 for o in organism_candidates[:3]
             ],

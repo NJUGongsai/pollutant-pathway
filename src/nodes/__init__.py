@@ -9,6 +9,7 @@ from src.nodes.orchestrator_node import orchestrator_node
 from src.nodes.reaction_prediction_node import reaction_prediction_node
 from src.nodes.llm_reranking_node import llm_reranking_node
 from src.nodes.microbe_selection_node import microbe_selection_node
+from src.nodes.organism_selection_node import organism_selection_node
 from src.nodes.trait_filter_node import trait_filter_node
 from src.nodes.evidence_synthesis_node import evidence_synthesis_node
 
@@ -23,6 +24,7 @@ __all__ = [
     "reaction_prediction_node",
     "llm_reranking_node",
     "microbe_selection_node",
+    "organism_selection_node",
     "trait_filter_node",
     "evidence_synthesis_node",
 ]

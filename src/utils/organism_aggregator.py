@@ -1,126 +1,135 @@
 # src/utils/organism_aggregator.py
 # OrganismAggregator（无状态函数，框架 §3.3）
 #
-# 职责：把 MicrobeSelectionNode 产出的「单酶 → 菌」事实映射（List[MicrobeCandidate]）
-#       按候选菌聚合成「菌 → 支持酶集合」的 OrganismCandidate 列表，供下游选菌/性状层排序。
+# 职责：把「酶排序（RankedEnzyme）+ 酶→多源原始证据（EnzymeSourceProvenance）」
+#       按 reviewed 宿主的 NCBI taxon 聚合成「菌 → 支持酶集合」的 OrganismCandidate 列表。
 #
 # 属 M4a 授权范围（酶→菌聚合），不涉及 metaTraits 性状（M4b，未立项，见 trait_filter_node）。
 #
-# 纪律：D2（confidence 归一化）/ D3（聚合主键）学生尚未定稿。
-#   - 本实现采用**有据可查的降级默认**并在 aggregation_notes / uncertainty 中显式标注：
-#       * D3 聚合主键：优先 tax_id，缺失时回退 organism_name（记录于 notes）
-#       * D2 confidence：来自 UniProt evidence_level 折算（reviewed=1.0 / unreviewed=0.5 / 未知=0.5）
-#   - 绝不编造 confidence；缺失一律走保守默认并留痕。
+# 【严格对齐学生权威实现】microbe_crew/tools/organism_aggregator.py（15 tests passed），
+#   规则源 = TEACHER_REPLY_MTD5_ACCEPTED_AND_MTD1_D8_DECISIONS_2026-07-16.md
+#   + 学生 07-27 最终回应稿（DECIDED_AND_IMPLEMENTED FOR V1）：
+#   - MT-D3：排序主键 = supporting-enzyme count 降序 + NCBI taxon ID 数字升序 tie-break。
+#     （注：老师裁定文口径为 UID 升序 tie-break，与学生实装冲突；按"严格遵循学生文档"取 taxid 升序，
+#      偏差已在导师侧留档待裁定。）
+#   - 输入酶排序按 uid 首见去重；组内成员按 (rank, uid) 排序；排序后赋 1-based default_order_rank。
+#   - 仅按 reviewed 宿主的 ncbi_taxon_id 分组；无 reviewed 映射的酶直接丢弃（无 organism_name 回退）。
+#   - MT-D2：不输出 confidence float；原始证据维度经 per_enzyme_source_provenance 透传、不坠缩为分数。
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
-from src.schemas.evidence import MicrobeCandidate, OrganismCandidate
+from src.schemas.evidence import (
+    EnzymeSourceProvenance,
+    OrganismCandidate,
+    RankedEnzyme,
+    SupportingEnzyme,
+)
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_CONFIDENCE = 0.5  # 与 microbe_recommender._DEFAULT_CONFIDENCE 对齐
-
-
-def _organism_key(cand: MicrobeCandidate) -> Tuple[str, bool]:
-    """聚合主键（D3 未定，降级策略）：tax_id 优先，缺失回退 organism_name。
-
-    返回 (key, used_name_fallback)。
-    """
-    if cand.tax_id is not None:
-        return str(cand.tax_id), False
-    return cand.organism_name, True
-
-
-def _avg_ci(cis: List[Optional[Tuple[float, float]]]) -> Optional[Tuple[float, float]]:
-    """支持酶 CI 的简单平均；无有效 CI 时返回 None（不编造区间）。"""
-    valid = [ci for ci in cis if ci is not None]
-    if not valid:
-        return None
-    lo = sum(ci[0] for ci in valid) / len(valid)
-    hi = sum(ci[1] for ci in valid) / len(valid)
-    return (round(lo, 4), round(hi, 4))
-
 
 def aggregate_organisms(
-    microbe_candidates: List[MicrobeCandidate],
-    enzyme_scores: Dict[str, float],
-    enzyme_cis: Optional[Dict[str, Tuple[float, float]]] = None,
+    ranked_enzymes: List[RankedEnzyme],
+    provenance_map: Dict[str, EnzymeSourceProvenance],
 ) -> List[OrganismCandidate]:
-    """按候选菌聚合 MicrobeCandidate → OrganismCandidate。
+    """按 reviewed 宿主的 NCBI taxon 聚合酶排序 → OrganismCandidate（对齐学生 aggregate_organisms）。
 
     Args:
-        microbe_candidates: MicrobeSelectionNode 的「酶→菌」事实映射列表。
-        enzyme_scores: {enzyme_uid: EnzymeCAGE score}，来自 ranked_enzymes（模型真实排序分）。
-        enzyme_cis:    {enzyme_uid: (lo, hi)}，可选，来自 ranked_enzymes.ensemble_ci。
+        ranked_enzymes: EnzymeCAGE 真实排序（RankedEnzyme{uid,score,rank,ensemble_ci}），
+                        提供组内 (rank, uid) 排序键及支持酶的原始 score/rank/CI（不折算）。
+        provenance_map: {enzyme_uid: EnzymeSourceProvenance}，来自 microbe_recommender.map_enzyme_hosts；
+                        含 reviewed UniProt 宿主 + KEGG multiplicity + source_errors 原始维度。
 
     Returns:
-        List[OrganismCandidate]，按 cumulative_score 降序。
-        cumulative_score = Σ(enzyme_score × confidence)；enzyme_score 缺失按 0 计并留痕。
+        List[OrganismCandidate]，按 MT-D3：supporting-enzyme count 降序 + ncbi_taxon_id 升序。
+        无 reviewed 宿主映射的酶不纳入任何候选（无 name 回退）。
     """
-    if not microbe_candidates:
+    if not ranked_enzymes:
         return []
 
-    enzyme_cis = enzyme_cis or {}
+    # 酶 uid 首见去重（对齐学生 first_ranked 语义）
+    first_ranked: Dict[str, RankedEnzyme] = {}
+    for ranked in ranked_enzymes:
+        if ranked.uid not in first_ranked:
+            first_ranked[ranked.uid] = ranked
 
-    # 分组：key -> 聚合中间态
-    groups: Dict[str, dict] = {}
-    used_name_fallback = False
-
-    for cand in microbe_candidates:
-        key, is_name_fallback = _organism_key(cand)
-        used_name_fallback = used_name_fallback or is_name_fallback
-
-        g = groups.setdefault(
-            key,
-            {
-                "organism_uid": key,
-                "organism_name": cand.organism_name,
-                "supporting_enzymes": [],
-                "cumulative_score": 0.0,
-                "cis": [],
-                "evidence_levels": [],
-                "missing_score_uids": [],
-            },
-        )
-
-        conf = cand.confidence if cand.confidence is not None else _DEFAULT_CONFIDENCE
-        score = enzyme_scores.get(cand.enzyme_uid)
-        if score is None:
-            g["missing_score_uids"].append(cand.enzyme_uid)
-            score = 0.0
-
-        if cand.enzyme_uid not in g["supporting_enzymes"]:
-            g["supporting_enzymes"].append(cand.enzyme_uid)
-        g["cumulative_score"] += score * conf
-        g["cis"].append(enzyme_cis.get(cand.enzyme_uid))
-        g["evidence_levels"].append(cand.evidence_level or "unknown")
+    # 分组：仅 reviewed 宿主的 ncbi_taxon_id -> [(RankedEnzyme, EnzymeSourceProvenance)]
+    grouped: Dict[int, List[Tuple[RankedEnzyme, EnzymeSourceProvenance]]] = {}
+    dropped_no_reviewed = 0
+    for uid, ranked in first_ranked.items():
+        prov = provenance_map.get(uid)
+        if prov is None or prov.uniprot_reviewed is None:
+            # 无 reviewed 宿主映射 → 无 NCBI taxon 可并入分组（MT-D1：unreviewed 不纳入 v1）
+            dropped_no_reviewed += 1
+            continue
+        taxon_id = prov.uniprot_reviewed.ncbi_taxon_id
+        grouped.setdefault(taxon_id, []).append((ranked, prov))
 
     candidates: List[OrganismCandidate] = []
-    for g in groups.values():
-        notes_parts = [
-            "D3 聚合主键=tax_id" + ("（部分菌缺 tax_id，已回退 organism_name）" if used_name_fallback else ""),
-            "D2 confidence 来自 UniProt evidence_level 折算（临时默认，待学生定稿）",
-        ]
-        if g["missing_score_uids"]:
-            notes_parts.append(
-                f"以下支持酶未在 ranked_enzymes 中找到打分，按 0 计入: {g['missing_score_uids']}"
+    for taxon_id, members in grouped.items():
+        # 组内成员排序：(rank, uid)
+        members.sort(key=lambda item: (item[0].rank, item[0].uid))
+
+        name_variants: List[str] = []
+        for _, prov in members:
+            name = prov.uniprot_reviewed.scientific_organism_name
+            if name not in name_variants:
+                name_variants.append(name)
+
+        supporting = [
+            SupportingEnzyme(
+                uid=ranked.uid,
+                score=ranked.score,
+                rank=ranked.rank,
+                ensemble_ci=ranked.ensemble_ci,
             )
+            for ranked, _ in members
+        ]
+        per_enzyme_provenance = [
+            EnzymeSourceProvenance(
+                enzyme_uid=ranked.uid,
+                uniprot_reviewed=prov.uniprot_reviewed,
+                kegg=prov.kegg,
+                source_errors=prov.source_errors,
+            )
+            for ranked, prov in members
+        ]
+
         candidates.append(
             OrganismCandidate(
-                organism_uid=g["organism_uid"],
-                organism_name=g["organism_name"],
-                supporting_enzymes=g["supporting_enzymes"],
-                cumulative_score=round(g["cumulative_score"], 4),
-                avg_ensemble_ci=_avg_ci(g["cis"]),
-                evidence_levels=g["evidence_levels"],
-                aggregation_notes="；".join(notes_parts),
+                organism_uid=str(taxon_id),
+                taxonomy_namespace="NCBI_taxon",
+                ncbi_taxon_id=taxon_id,
+                organism_name=name_variants[0],
+                organism_name_variants=name_variants,
+                supporting_enzymes=supporting,
+                supporting_enzyme_count=len(supporting),
+                per_enzyme_source_provenance=per_enzyme_provenance,
+                default_order_rank=0,
             )
         )
 
-    candidates.sort(key=lambda c: c.cumulative_score, reverse=True)
+    # MT-D3：supporting-enzyme count 降序（主）→ ncbi_taxon_id 数字升序（tie-break）
+    candidates.sort(key=lambda c: (-c.supporting_enzyme_count, c.ncbi_taxon_id))
+    for order_rank, cand in enumerate(candidates, start=1):
+        cand.default_order_rank = order_rank
+
+    # 聚合说明（导师侧可观测性附加，不影响排序/语义；学生 schema 无此项）
+    notes_parts = [
+        "MT-D3：supporting-enzyme count 降序 + ncbi_taxon_id 升序 tie-break",
+        "MT-D2：不产出 confidence float，原始证据维度经 per_enzyme_source_provenance 透传",
+    ]
+    if dropped_no_reviewed:
+        notes_parts.append(
+            f"丢弃无 reviewed 宿主映射的酶 {dropped_no_reviewed} 个（无 organism_name 回退）"
+        )
+    agg_notes = "；".join(notes_parts)
+    for cand in candidates:
+        cand.aggregation_notes = agg_notes
+
     logger.info(
-        f"[organism_aggregator] 聚合 {len(microbe_candidates)} 条酶→菌映射 "
-        f"→ {len(candidates)} 个候选菌"
+        f"[organism_aggregator] 聚合 {len(first_ranked)} 个去重酶 "
+        f"→ {len(candidates)} 个候选菌（MT-D3 排序；丢弃无 reviewed {dropped_no_reviewed} 个）"
     )
     return candidates

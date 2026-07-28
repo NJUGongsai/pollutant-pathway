@@ -85,17 +85,45 @@ def evidence_synthesis_node(state: EnzymeCrewState) -> dict:
 
     # OrganismAggregator 聚合结果（菌→支持酶集合，三层证据不坠缩）
     if state.organism_candidates:
-        lines.append(f"\n## 候选菌聚合 ({len(state.organism_candidates)} 个，按 cumulative_score 降序)")
+        lines.append(f"\n## 候选菌聚合 ({len(state.organism_candidates)} 个，按支持酶数降序、ncbi_taxon_id 升序 tie-break（MT-D3）)")
         for o in state.organism_candidates[:5]:
-            ci = f", avgCI={o.avg_ensemble_ci}" if o.avg_ensemble_ci else ""
+            uids = [se.uid for se in o.supporting_enzymes]
+            scores = [se.score for se in o.supporting_enzymes]
+            # MT-D2 原始维度透传（reviewed 状态 / annotation score / protein existence / KEGG multiplicity），
+            # 不折算 confidence float。
+            src_dims = []
+            for p in o.per_enzyme_source_provenance:
+                up = p.uniprot_reviewed
+                kegg = p.kegg
+                src_dims.append(
+                    f"{p.enzyme_uid}[reviewed"
+                    + (f",annot={up.annotation_score},pe={up.protein_existence}" if up else "")
+                    + (f",kegg={kegg.multiplicity}/{kegg.state}" if kegg else "")
+                    + "]"
+                )
             lines.append(
-                f"  - {o.organism_name} (taxID:{o.organism_uid}): "
-                f"cumulative_score={o.cumulative_score}, "
-                f"支持酶 {len(o.supporting_enzymes)} 个 {o.supporting_enzymes}, "
-                f"evidence={o.evidence_levels}{ci}"
+                f"  - #{o.default_order_rank} {o.organism_name} (taxID:{o.ncbi_taxon_id}): "
+                f"支持酶 {o.supporting_enzyme_count} 个 {uids}, "
+                f"酶分={scores}, "
+                f"原始证据={src_dims}"
             )
         if state.organism_candidates[0].aggregation_notes:
             lines.append(f"  > 聚合假设: {state.organism_candidates[0].aggregation_notes}")
+
+    # 选菌层（D6 有界理由；MT-D3 名次不变，LLM 仅解释、不重排/不增删）
+    if state.organism_recommendations:
+        lines.append(
+            f"\n## 选菌推荐 ({len(state.organism_recommendations)} 个，D6 有界理由；M4b/M4c 未授权，无 trait_score 融合)"
+        )
+        for r in state.organism_recommendations[:5]:
+            lines.append(
+                f"  - #{r.default_order_rank} {r.organism_name} (taxID:{r.ncbi_taxon_id}) "
+                f"[{r.recommendation_status}]：{r.rationale}"
+            )
+            if r.cited_evidence:
+                lines.append(f"    引用 evidence({len(r.cited_evidence)}): {r.cited_evidence}")
+            if r.uncertainty_flags:
+                lines.append(f"    不确定: {r.uncertainty_flags}")
 
     # 性状筛选状态（M4b 锁定说明）
     if trait_ev:
