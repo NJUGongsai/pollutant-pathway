@@ -10,8 +10,10 @@
 #   规则源 = TEACHER_REPLY_MTD5_ACCEPTED_AND_MTD1_D8_DECISIONS_2026-07-16.md
 #   + 学生 07-27 最终回应稿（DECIDED_AND_IMPLEMENTED FOR V1）：
 #   - MT-D3：排序主键 = supporting-enzyme count 降序 + NCBI taxon ID 数字升序 tie-break。
-#     （注：老师裁定文口径为 UID 升序 tie-break，与学生实装冲突；按"严格遵循学生文档"取 taxid 升序，
-#      偏差已在导师侧留档待裁定。）
+#     （已裁定：TEACHER_REPLY_M3_P1_UNLOCK_...2026-07-21.md §MT-TQ-01 明确采纳 NCBI taxon ID
+#      数字升序、不切换为 enzyme UID 升序——理由：taxon ID 是聚合后唯一生产主键，UID tie-break
+#      存在"用哪条 UID 代表 taxon 组"的二义性。早期 07-16 裁定文的 "UID 升序" 表述已被 §MT-TQ-01
+#      supersede；文档—代码口径一致，无遗留冲突。）
 #   - 输入酶排序按 uid 首见去重；组内成员按 (rank, uid) 排序；排序后赋 1-based default_order_rank。
 #   - 仅按 reviewed 宿主的 ncbi_taxon_id 分组；无 reviewed 映射的酶直接丢弃（无 organism_name 回退）。
 #   - MT-D2：不输出 confidence float；原始证据维度经 per_enzyme_source_provenance 透传、不坠缩为分数。

@@ -75,6 +75,8 @@ v1 **不输出** `organism_confidence` float。确定性代码透传原始证据
 
 ### MT-D3：OrganismAggregator 排序主键 → **延后，v1 先锁 B**
 
+> ⚠️ **口径更新（2026-07-21）**：下文 "UID 升序 tie-break" 已被后续裁定 `TEACHER_REPLY_M3_P1_UNLOCK_CASE1_REBOUND_AND_METATRAITS_M4A_ADJUDICATION_2026-07-21.md` §MT-TQ-01 **supersede**。最终口径：**supporting-enzyme count 降序 + NCBI taxon ID 数字升序 tie-break**（不切换为 enzyme UID 升序）。理由：taxon ID 是聚合后唯一生产主键、生物学场景更自然的稳定序；UID tie-break 存在"用哪条 UID 代表 taxon 组"的二义性。学生 07-27 实装与此一致（15 tests，含 tie-break 用例）。下文原文保留作历史快照。
+
 M4a smoke 同时报告 A/B/C 三种排序的差异，但 v1 默认实现锁 **B（supporting-enzyme 数量降序 + UID 升序 tie-break）**，理由：
 
 - B 最简单、无未校准乘积、可复现
