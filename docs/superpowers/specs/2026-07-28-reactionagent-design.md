@@ -1,142 +1,167 @@
-# ReactionAgent 设计文档
+# ReactionAgent 设计文档（v2 · 诚实评估先行 + 增强版不训练 agent）
 
-> 日期：2026-07-28
+> 日期：2026-07-28（v2 取代同日 v1）
 > 范围：`CC/branch/ReactionAgent`（本地 LangChain/LangGraph 单 agent，全新工程）
-> 目标：输入未知污染物底物 X → agent 检索最相似的已知反应 A→B，学习其可迁移的反应特征，**有依据地**逐跳推测 X 的多步降解路径。
-> 定位：这是把已验证的 `extract_rea_trans_fea` 引擎（真实 novel 判别力 2.8× 随机）从"确定性脚本"升级为"会推理的 agent"，而非重做化学。
+> 目标：输入未知污染物底物 X → agent 从**多条**相似已知反应 A→B 归纳可迁移的转化概念，**有依据地**逐跳推测 X 的多步降解路径；证据不足时**拒答**。
+> 定位：把已验证的 `extract_rea_trans_fea` 引擎升级为"证据编排器"，并**先建立诚实的端到端评估**再动刀。
+> v1→v2 的原因：外部评审核对代码后确认——现有 67.1% 是"条件排序"指标（用了 oracle donor 选择 + held-out 共反应物 + 仅字符串去重），端到端真实能力未知，**首要瓶颈很可能是覆盖/生成与评估诚实性，而非 DRFP 排序**。v1（LLM 薄壳包旧引擎）会继承此天花板，故调整。
 
 ---
 
 ## 1. 目标与非目标
 
 ### 1.1 目标
-- 构建一个**本地 LangGraph 单 tool-calling agent（自由推理 / ReAct 风格）**：LLM 自主决定每一步调用哪个工具。
-- 输入一个污染物 SMILES `X`（真实 novel，库里可以没有），输出一条**多步线性降解路径** `X → Y → Z → …`，每一步都附完整证据。
-- LLM 的价值集中在两处历史痛点：
-  - **A（选参照反应）**：不再只靠底物 Morgan 相似度，而是让 LLM 读候选参照反应（含催化酶/EC/相似度）后**推理**哪条转化逻辑最该迁移到当前底物。
-  - **B（学特征 + 生成产物）**：让 LLM 审视 RDKit 生成的候选产物 + 可信度 + 证据后择优，并可组合多条参照反应。
+- **P0 先行**：建立诚实的端到端 benchmark，定位瓶颈是"覆盖"还是"排序"。
+- **增强版不训练 agent**：本地 LangGraph 单 tool-calling agent（自由推理），LLM 编排确定性工具，产出多步降解路径 + 每步**证据卡**。
+- 直击两处历史痛点：
+  - **A（选参照反应）**：从"单 donor 最近邻"改为"**多 support 证据集**"，LLM 在上下文中归纳共同转化（≈ transformation prototype，无需训练 encoder）。
+  - **B（学特征 + 生成）**：**多尺度模板**（radius 0/1/2）+ RDKit 确定性生成，攻 35% 覆盖天花板；LLM 做**证据融合 listwise 择优**，DRFP 降为诸特征之一。
+- **拒答**：证据不足时输出"无法有依据推测"，而非强给高分。
 
-### 1.2 非目标（本期不做）
-- 不做分支降解网络（树/DAG）——但架构预留，见 §7。
-- 不接入 EnzymeCAGE 3B 大模型做几何背书（Step 3b）——留 HPC，未来单独接。
-- 不集成到 EnzymeCrew 10 节点主干（`reaction_prediction` 节点接线另立 plan）。
-- LLM **不**直接生成产物 SMILES（避免幻觉、保价键守恒）。
+### 1.2 非目标（本期不做，架构留插槽）
+- 不训练任何模型（site 模型 / listwise ranker / episodic 元学习 / template-free Transformer）。
+- 不接入 EnzymeCAGE 3B 酶兼容性、不引入 EnzymeMap/ECREACT/enviPath 新数据层。
+- 不做分支降解网络（v1 线性路径，架构预留树）。
+- LLM 不直接生成产物 SMILES（避免幻觉、保价键守恒）。
 
 ---
 
-## 2. 核心架构决策（本次头脑风暴确定，不可动摇的地基）
+## 2. 核心架构决策（本次头脑风暴 + 评审确定的地基）
 
 | 决策点 | 结论 | 理由 |
 |---|---|---|
-| LLM 角色 | **编排大脑**：RDKit 从 A→B 确定性提取可迁移规则，LLM 只负责选择与组合 | 化学 100% 可追溯、价键守恒、零幻觉，贴合"有依据推测"底线 |
-| 输出形态 | **多步线性路径**（v1），架构预留分支树（v2） | "反应路径"需多跳；agent 迭代 loop 的价值正在于决定展开谁、何时停 |
-| 部署 | **agent 本地跑，数据资产同步到本地** | v1 用不到 3B，所需资产都是中小文件；本地循环零延迟、可离线迭代 |
-| 框架 | **LangChain(1.0)/LangGraph 单 tool-calling agent** | 单 agent 自由推理，工具可插拔 |
-| LLM 自主度 | **自由推理（ReAct）**：LLM 自主决定工具调用顺序与次数 | 最"agent"，让 LLM 真正推理 A→B 迁移 |
+| 顺序 | **诚实 benchmark（P0）先行**，再建 agent | 排序器再强也救不回没生成的产物；先定位瓶颈 |
+| LLM 角色 | 编排大脑：RDKit 确定性提规则/生成，LLM 选择/归纳/择优/拒答 | 化学可追溯、价键守恒、零幻觉 |
+| 证据 | **多 support 证据集**（非单 donor），LLM 上下文归纳 prototype | 攻"选错 donor"；无需训练 encoder |
+| 生成 | **多尺度模板 radius 0/1/2** + RDKit RunReactants | 直接攻 35% 覆盖天花板 |
+| 排序 | **证据融合 listwise**（LLM 综合多信号），DRFP 仅为一特征 | 单一 max-Tanimoto 易被偶然近邻抬高 |
+| 兜底 | **拒答**（低证据/适用域外） | "有依据"= 完整可审计推理链，含反证与适用域 |
+| 输出 | 多步线性路径（预留树）+ 每步**证据卡** | |
+| 部署/框架 | 本地 · 数据同步本地 · LangChain(1.0)/LangGraph 单 agent | v1 已定，不变 |
 
 ---
 
-## 3. 系统总览
+## 3. 潜变量推理骨架（LLM 的思考结构）
+
+不直接学 `X→Y`，而让 agent 显式沿以下链条推理，使**错误可定位**：
 
 ```
-输入：污染物 SMILES X
-  │
-  ▼
-┌─────────────────────────────────────────────────────────┐
-│ LangGraph 单 agent（自由推理循环）                        │
-│  系统提示编码策略 + "有依据"底线；LLM 自主编排下列工具：    │
-│                                                          │
-│  每一跳 (current = X，之后 = 上一跳选定产物)：              │
-│   ① retrieve_reference_reactions(current)  → 候选 A→B     │
-│   ② [LLM 推理] 选最该迁移的参照反应（解 A）                 │
-│   ③ extract_and_apply_template(donor,current) → 候选 Y'   │
-│   ④ score_candidates(current, Y', enzyme)  → 可信度+证据   │
-│   ⑤ [LLM 审候选] 择优 + 写理由（解 B）                     │
-│   ⑥ [LLM 决策] 继续展开 / 停止                             │
-└─────────────────────────────────────────────────────────┘
-  │
-  ▼
-输出：PathwayState（路径链 + 每步完整证据）
+X → 转化族 T → X 上反应位点 S → 局部图编辑 Δ → 候选产物 Y → 催化酶/EC E →(可选)环境 C
 ```
 
-**停止条件**（满足任一即停止继续展开当前链）：
-- 达到最大深度（默认 **5 跳**）；
-- `is_terminal(product)` 判定为矿化/终点；
-- 该跳无有效候选产物；
-- 该跳最高可信度 < 阈值（默认 **0.3**）——该步仍记录并标注"低可信"，但不再向下展开。
+- 本期 `T/S/Δ` 由**多尺度模板 + RDKit + LLM 归纳**近似（不训练模型）；`E` 来自酶反查；`C` 留插槽。
+- 证据卡按此链条组织，便于诊断（T 错=检索/分类；S 错=区域选择性；Y 无效=化学约束；E 错=酶兼容性）。
 
 ---
 
-## 4. 工具集（确定性，全本地，包装已验证模块）
+## 4. Phase 0：诚实评估基准（先行交付物）
 
-所有工具是**纯确定性**函数，直接复用 `extract_rea_trans_fea` 已验证的核心逻辑（移植到 `core/`）。
+**目的**：把 `verify_substrate_retrieval.py` 的"条件排序"升级为端到端诚实评估，产出漏斗，定位瓶颈。
 
-| 工具 | 签名（概念） | 职责 | 底层来源 |
-|---|---|---|---|
-| `retrieve_reference_reactions` | `(smiles, k=5) → List[RefReaction]` | 只凭底物 Morgan 检索 top-k 候选参照反应，每条带：反应 A>>B、底物相似度、催化酶 UniProt、EC | `chenyu_features.retrieve_by_substrate` + `enzyme_lookup.enzymes_for_reaction` |
-| `extract_and_apply_template` | `(donor_reaction, substrate) → List[Candidate]` | 对 donor 用 MCS 中心(radius=1) 提放宽 SMARTS 模板，RunReactants 套到 substrate，返回价键合法候选产物 | `pipeline.extract_reaction_center/extract_template/apply_template_to_molecule` |
-| `score_candidates` | `(substrate, candidates, enzyme_uniprot) → List[ScoredCandidate]` | 候选反应现算 DRFP，与该酶反应族取 max Tanimoto → 可信度 + best_match 先例 | `reaction_scorer.score_candidates` + `enzyme_lookup.reactions_for_enzyme` |
-| `is_terminal` | `(smiles) → bool` | 判断分子是否达降解终点（简单规则：碳数≤1 / 已完全氧化为 CO₂/小分子等），供停止决策 | 新增（轻量规则） |
+**必须修正**（逐条对应评审）：
+1. **去 oracle donor 选择**：donor 不得依据"其候选是否含 Y_true"来挑；改为固定策略（如取检索 top-1/或 LLM 选），所有结果照单计入。
+2. **不使用 held-out 共反应物**：输入只有主底物 X；共反应物按未知处理（或显式定义为输入才可用）。
+3. **所有 X 进分母**：生成失败/无 donor/无候选都计入端到端分母。
+4. **canonical reaction identity 去重**：canonicalize + 反应图编辑层面去重；同一 substrate→product 对同组；同一反应多 UniProt 不跨 train/test。
+5. **命中判定收紧**：考虑计量数，避免 `issubset` 把"多带片段"的候选误判命中。
+6. **错误谱系**：替换 `except: pass`，记录失败类型。
 
-**工具设计原则**：
-- 工具返回**结构化、可读**的结果（含证据字段），让 LLM 能基于证据推理，而非黑盒。
-- 反应中心分工遵循既有规范：**MCS 中心用于模板迁移（生成）**；chenyu 真值中心仅用于打分场景（本期打分走 DRFP-酶集，不用真值中心做迁移）。
-- 工具无副作用、可独立单测。
+**产出漏斗指标**：
+```
+所有测试 X → 可解析 → 有适用 donor/family → ≥1 候选
+→ 真产物 ∈ top-K（generation recall）→ top-1/top-3（end-to-end）→ 高置信子集准确率（selective）
+```
+**拆分**：至少 random（sanity）+ scaffold split + reaction-family split；报 confidence–coverage 曲线。
+**验收**：得到端到端 top-1/top-3、逐阶段 recall、以及"覆盖 vs 排序"谁是主瓶颈的明确结论。
 
 ---
 
-## 5. 状态与证据结构
+## 5. Agent 架构（P0 之后）
 
+### 5.1 推理循环（LangGraph，自由推理）
+```
+输入 X
+ ▼
+每一跳 (current = X，之后 = 上一跳选定产物)：
+ ① multi_view_retrieve(current)      → 多样化 support 证据集（全局+局部 motif）
+ ② [LLM 归纳] 从 support set 抽象"共同转化 T"，形成假设（可多个）← 解 A
+ ③ generate_candidates(support, current) → 多尺度模板(0/1/2) RDKit 生成候选 Y'（价键合法）
+ ④ collect_evidence(current, Y')     → 每候选汇集：DRFP-酶集、多donor共识、适用域、酶/EC
+ ⑤ [LLM listwise 择优 + 拒答]        → 综合证据挑本跳产物并写理由；证据不足→拒答 ← 解 B
+ ⑥ [LLM 决策] 继续展开 / 停止
+ ▼
+输出：PathwayState（路径链 + 每步证据卡）；或 status=abstained
+```
+**停止条件**：矿化/终点 · 无候选 · 达深度上限（默认 5）· 最高证据分 < 阈值（默认 0.3，标注低可信/拒答）。
+
+### 5.2 工具集（确定性，全本地）
+| 工具 | 职责 | 底层来源 |
+|---|---|---|
+| `multi_view_retrieve(smiles, k)` | 全局 Morgan + 局部反应中心 motif 双视角检索，MMR 去近重复，返回**多样化 support set**（每条带 A>>B/相似度/酶/EC） | `chenyu_features` + `enzyme_lookup`（扩多视角） |
+| `generate_candidates(support_reactions, substrate)` | 对每条 support 提**多尺度模板 radius∈{0,1,2}**，RDKit 生成候选 Y'，跨 support/尺度合并去重 | `pipeline`（扩多尺度） |
+| `collect_evidence(substrate, candidates, enzymes)` | 每候选汇集证据：DRFP-酶集相似度（top-m 聚合非单 max）、多 donor 共识计数、适用域标记、酶/EC、best_match 先例 | `reaction_scorer`（扩聚合）+ `enzyme_lookup` |
+| `check_conservation(substrate, product)` | 价键/质量/元素守恒、电荷标准化、碎裂过滤（进 LLM 择优前的硬门） | 新增（RDKit 规则） |
+| `is_terminal(smiles)` | 矿化/终点判断 | 新增（轻量规则） |
+
+**设计原则**：工具返回结构化、含证据字段的可读结果；反应中心分工遵循既有规范（MCS 用于生成，chenyu 真值仅打分场景）；工具无副作用、可单测。
+
+### 5.3 证据卡 / 状态
 ```python
 @dataclass
-class StepEvidence:
-    substrate: str              # 该跳输入底物
-    product: str                # 该跳选定产物
-    donor_reaction: str         # 提供模板的库内已知反应 A>>B
-    donor_substrate_similarity: float
-    enzyme_uniprot: str         # 背书催化酶
-    ec: str
-    score: float                # DRFP-酶集可信度 ∈ [0,1]
-    best_match_reaction: str    # 酶反应族中与该候选最像的已知反应（可解释先例）
-    llm_rationale: str          # LLM 选择该参照/该产物的理由
+class Evidence:
+    transformation_hypothesis: str      # LLM 归纳的转化族 T
+    site: str                           # X 上反应位点 S（原子/键描述）
+    edit: str                           # 局部图编辑 Δ 描述
+    support_reactions: List[str]        # 多条支持 donor（非单条）
+    support_consensus: int              # 支持同一编辑的独立 donor/尺度数
+    enzymes: List[Tuple[str, str]]      # [(uniprot, ec), ...] 多条
+    drfp_family_score: float            # top-m 聚合的酶反应族相似度
+    applicability: str                  # "in" | "borderline" | "out"
+    counter_evidence: str               # 主要反证
+    confidence: float                   # 校准后置信度
+    llm_rationale: str
+
+@dataclass
+class Step:
+    substrate: str
+    product: str
+    evidence: Evidence
     low_confidence: bool = False
 
 @dataclass
 class PathwayState:
-    query: str                  # 初始污染物 X
-    steps: List[StepEvidence]   # 有序路径链
-    status: str                 # "completed_terminal" | "max_depth" | "dead_end" | "low_confidence_stop"
+    query: str
+    steps: List[Step]
+    status: str   # "completed_terminal"|"max_depth"|"dead_end"|"low_confidence_stop"|"abstained"
+    funnel: dict  # 每步在漏斗各阶段的通过情况（便于诊断）
     note: str = ""
 ```
-
-**"有依据"保证**：产物只由 RDKit 确定性生成（价键守恒、不臆造）；LLM 只做选择/编排/写理由。每一步都可追溯到 donor 反应 + 酶 UniProt/EC + DRFP 可信度 + best_match 先例 + LLM 理由。
+**"有依据"= 完整可审计推理链**：转化族 + 位点 + 编辑 + 多 support donor + 多酶/EC + 适用域 + 反证 + 校准置信度 + LLM 理由；产物只由 RDKit 生成。
 
 ---
 
 ## 6. 目录结构（`CC/branch/ReactionAgent/`）
-
 ```
 ReactionAgent/
-├── agent.py            # LangGraph 单 agent 定义 + 推理循环 + 停止条件
-├── tools.py            # 4 个工具的 LangChain @tool 封装（调 core/）
-├── prompts.py          # 系统提示：策略 + "有依据"底线 + 选参照/择产物指引
-├── state.py            # PathwayState / StepEvidence dataclass
-├── run.py              # CLI 入口: python run.py 'SMILES'
-├── sync_assets.sh      # 从晨羽 HPC 同步 data/ 资产
-├── core/               # 移植自 extract_rea_trans_fea（确定性化学，不含 agent）
-│   ├── chenyu_features.py
-│   ├── pipeline.py
-│   ├── reaction_scorer.py
+├── benchmark/                 # P0 先行
+│   ├── honest_eval.py         # 端到端诚实评估 + 漏斗 + 拆分
+│   ├── canonical_identity.py  # canonical 反应去重/分组
+│   └── splits.py              # scaffold / reaction-family split
+├── agent.py                   # LangGraph 单 agent + 循环 + 停止/拒答
+├── tools.py                   # 5 个工具的 @tool 封装
+├── prompts.py                 # 系统提示：潜变量骨架 + 归纳/择优/拒答指引
+├── state.py                   # PathwayState / Step / Evidence
+├── run.py                     # CLI 入口
+├── sync_assets.sh             # 从晨羽 HPC 同步 data/
+├── core/                      # 移植 + 增强 extract_rea_trans_fea
+│   ├── chenyu_features.py     # + 多视角/局部 motif 检索、MMR
+│   ├── pipeline.py            # + 多尺度模板 radius 0/1/2
+│   ├── reaction_scorer.py     # + top-m 聚合、多 donor 共识
 │   └── enzyme_lookup.py
-├── data/               # 本地资产（sync_assets.sh 拉取，gitignore）
-│   ├── rxn2fp.pkl
-│   ├── reacting_center.pkl
-│   └── rxn2enzymes / formal_filtered_train.csv
+├── data/                      # 本地资产（gitignore）
 └── README.md
 ```
-
-**依赖**：`langchain`/`langgraph`、`rdkit`（2026.3.x）、`drfp` 0.3.7、LLM 网关（`LLM_API_BASE_URL` / `LLM_API_KEY`）。
-**本地资产改路径**：`core/chenyu_features.py` 的 `ENZYMECAGE_DATA_ROOT` 指向本地 `data/`。
+**桶3 插槽**（本期空实现/接口）：`tools.py` 预留 `site_model_score` / `learned_ranker_score` / `enzyme3d_compat` / `transformer_generate` 的工具位；`Evidence` 字段已能容纳其输出。
 
 ---
 
@@ -145,26 +170,29 @@ ReactionAgent/
 | 参数 | 默认 | 说明 |
 |---|---|---|
 | `max_depth` | 5 | 路径最大跳数 |
-| `top_k` | 5 | 每跳检索候选参照反应数 / 供 LLM 挑选的候选产物数 |
-| `confidence_threshold` | 0.3 | 低于此值停止继续展开该链 |
-| `branch_factor` | 1 | v1 固定 1（线性）；>1 即展开为分支树（v2） |
-
-**v2 预留**：把每跳"取 top-1"放宽为"保留 top-b 个候选并各自继续展开"，PathwayState 由链变为树/DAG，加剪枝（可信度阈值 + 深度）即得分支降解网络。
+| `support_k` | 6 | support 证据集大小（MMR：全局2+局部2+远程类比1+反例1）|
+| `template_radii` | [0,1,2] | 多尺度模板半径 |
+| `topm_family` | 5 | 酶反应族相似度 top-m 聚合数（非单 max）|
+| `confidence_threshold` | 0.3 | 低于此拒答/停止展开 |
+| `branch_factor` | 1 | v1 线性；>1 长成分支树 |
 
 ---
 
 ## 8. 验证计划
 
-- **工具层单测**：4 个工具各自对已知案例复现 `extract_rea_trans_fea` 的确定性输出（零偏差回归）。
-- **端到端 smoke**：辛醇 `CCCCCCCCO` 应复现"借丁醇→丁醛模板 → 辛醛"这一已知正确单跳，并能继续展开（辛醛→辛酸等）成多步路径。
-- **路径合理性抽查**：挑几个真实关注污染物，人工审阅路径链的化学合理性与证据完整性。
-- **判别力不回退**：单跳排序结果应与现有引擎一致（agent 的编排不改变确定性工具的打分）。
+- **P0 自身**：在明确的拆分上产出端到端 top-1/3、逐阶段 recall、confidence–coverage 曲线；给出"覆盖 vs 排序"瓶颈结论。
+- **工具层单测**：多尺度模板对已知案例复现并扩大点火率；多视角检索/证据聚合对比旧单 donor/单 max 的变化。
+- **端到端 smoke**：辛醇 `CCCCCCCCO` 复现"借醇脱氢族 → 辛醛"，并能多步展开（辛醛→辛酸…）；构造一个库内无相近转化的 X 验证 agent 正确**拒答**。
+- **诚实回归**：agent 端到端指标必须用 P0 的诚实协议报告（不得回到 oracle donor / 偷共反应物）。
+- **消融**：单 donor vs 多 support；固定 radius=1 vs 多尺度；单 max vs top-m 聚合；无拒答 vs 有拒答。
 
 ---
 
 ## 9. 假设与风险
 
-- **假设**：`rxn2fp.pkl` / `reacting_center.pkl` / 反应→酶映射可从晨羽 HPC 拷贝到本地（体积中小、无许可限制）。若不可拷贝，退回数据访问方案 C（HPC FastAPI 服务）。
-- **风险**：LLM 自由推理可能调用工具次数过多/发散 → 由 `max_depth` + 系统提示中的流程指引 + 单跳工具幂等性约束收敛。
-- **风险**：`drfp` 现算较慢 → 复用现有 `lru_cache`；每跳候选数受 `top_k` 限制。
-- **既有坑规避**：模板显式 H 伪影导致不点火问题已在 `pipeline._atom_query_smarts`（放宽 SMARTS）修复，移植时保持不变。
+- **假设**：`rxn2fp.pkl` / `reacting_center.pkl` / 反应→酶映射可拷贝到本地（中小、无许可限制）；否则退回 HPC FastAPI 服务方案。
+- **风险·覆盖**：多尺度模板若仍不足以覆盖，P0 会暴露"覆盖为主瓶颈"→ 触发桶3 中的 template-free 生成器（另立 plan）。
+- **风险·LLM 发散/成本**：自由推理可能多调工具 → 由 `max_depth` + 系统提示流程指引 + 工具幂等 + 每跳候选上限收敛。
+- **风险·置信校准**：本期无训练，`confidence` 先用规则/证据加权近似；真正校准（temperature/isotonic/conformal）属桶3。
+- **既有坑规避**：模板显式 H 伪影不点火问题已在 `pipeline._atom_query_smarts`（放宽 SMARTS）修复，移植/扩多尺度时保持。
+- **诚实纪律**：任何对外汇报的判别力数字必须来自 P0 诚实协议，并标注 novelty 分桶。
