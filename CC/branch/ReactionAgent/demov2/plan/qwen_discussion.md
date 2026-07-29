@@ -1,3 +1,7 @@
+> **HISTORICAL / NON-AUTHORITATIVE**
+> This document is retained for decision history only.
+> Current implementation authority: `plan/final_design.md`, `plan/final_plan.md`, `plan/final_discussion.md`.
+
 # Qwen 讨论报告 — 三份 demov2 设计的交叉审阅与综合建议
 
 > 日期：2026-07-29

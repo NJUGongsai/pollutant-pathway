@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "reaction-analogy-agent"
+version = "0.1.0"
+description = "Evidence-grounded reaction analogy MCP agent — P0 contract freeze"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.8,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-json-report>=1.5",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = [
+    "contract: contract tests for P0 schemas and ADRs",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["reaction_agent"]

@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "description": "Production lane: LLM selects within evidence-derived space.\n\nAll IDs must reference kernel-generated entities in the registry.\nNO relaxation fields allowed on production selection.",
+  "properties": {
+    "hypothesis_id": {
+      "minLength": 1,
+      "title": "Hypothesis Id",
+      "type": "string"
+    },
+    "hypothesis_origin": {
+      "const": "agent_selected_from_evidence_space",
+      "default": "agent_selected_from_evidence_space",
+      "title": "Hypothesis Origin",
+      "type": "string"
+    },
+    "support_reaction_ids": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Support Reaction Ids",
+      "type": "array"
+    },
+    "support_lineage_ids": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Support Lineage Ids",
+      "type": "array"
+    },
+    "transformation_id": {
+      "minLength": 1,
+      "title": "Transformation Id",
+      "type": "string"
+    },
+    "site_id": {
+      "minLength": 1,
+      "title": "Site Id",
+      "type": "string"
+    },
+    "rationale_summary": {
+      "default": "none",
+      "minLength": 1,
+      "title": "Rationale Summary",
+      "type": "string"
+    },
+    "policy_version": {
+      "default": "0.0.0",
+      "minLength": 1,
+      "title": "Policy Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "hypothesis_id",
+    "transformation_id",
+    "site_id"
+  ],
+  "title": "ProductionSelectionHypothesis",
+  "type": "object"
+}

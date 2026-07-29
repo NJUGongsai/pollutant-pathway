@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "LineageHypothesis": {
+      "additionalProperties": false,
+      "description": "A single resolved transformed lineage hypothesis.\n\nUses LineageResolutionQuality enum, NOT free-text confidence.",
+      "properties": {
+        "lineage_id": {
+          "minLength": 1,
+          "title": "Lineage Id",
+          "type": "string"
+        },
+        "substrate_participant_id": {
+          "minLength": 1,
+          "title": "Substrate Participant Id",
+          "type": "string"
+        },
+        "product_participant_id": {
+          "minLength": 1,
+          "title": "Product Participant Id",
+          "type": "string"
+        },
+        "edge_ids": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Edge Ids",
+          "type": "array"
+        },
+        "transformed_atom_maps": {
+          "default": [],
+          "items": {
+            "type": "integer"
+          },
+          "title": "Transformed Atom Maps",
+          "type": "array"
+        },
+        "resolution_quality": {
+          "$ref": "#/$defs/LineageResolutionQuality",
+          "default": "unresolved"
+        },
+        "is_primary": {
+          "default": false,
+          "title": "Is Primary",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "lineage_id",
+        "substrate_participant_id",
+        "product_participant_id"
+      ],
+      "title": "LineageHypothesis",
+      "type": "object"
+    },
+    "LineageResolutionQuality": {
+      "description": "Controlled quality label for lineage resolution (replaces free-text confidence).",
+      "enum": [
+        "resolved",
+        "partially_resolved",
+        "unresolved",
+        "failed"
+      ],
+      "title": "LineageResolutionQuality",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Output of fragment-lineage graph resolution (final_design §9.2).\n\nRules:\n- No independent side picking\n- No tuple max() silent tie-breaking\n- Multiple resolved lineages may coexist\n- Critical ambiguity → quarantine or non-strict",
+  "properties": {
+    "resolution_id": {
+      "minLength": 1,
+      "title": "Resolution Id",
+      "type": "string"
+    },
+    "reaction_evidence_id": {
+      "minLength": 1,
+      "title": "Reaction Evidence Id",
+      "type": "string"
+    },
+    "graph": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "title": "Graph",
+      "type": "object"
+    },
+    "resolved_transformed_lineages": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/LineageHypothesis"
+      },
+      "title": "Resolved Transformed Lineages",
+      "type": "array"
+    },
+    "split_hypotheses": {
+      "default": [],
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "title": "Split Hypotheses",
+      "type": "array"
+    },
+    "merge_hypotheses": {
+      "default": [],
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "title": "Merge Hypotheses",
+      "type": "array"
+    },
+    "atom_transfer_edges": {
+      "default": [],
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "title": "Atom Transfer Edges",
+      "type": "array"
+    },
+    "ambiguity_sets": {
+      "default": [],
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "title": "Ambiguity Sets",
+      "type": "array"
+    },
+    "quality": {
+      "$ref": "#/$defs/LineageResolutionQuality",
+      "default": "unresolved"
+    },
+    "failure_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Reason"
+    }
+  },
+  "required": [
+    "resolution_id",
+    "reaction_evidence_id"
+  ],
+  "title": "LineageResolution",
+  "type": "object"
+}

@@ -1,0 +1,87 @@
+{
+  "additionalProperties": false,
+  "description": "Transformation-conditioned site hypothesis.",
+  "properties": {
+    "site_id": {
+      "minLength": 1,
+      "title": "Site Id",
+      "type": "string"
+    },
+    "query_atom_ids": {
+      "default": [],
+      "items": {
+        "type": "integer"
+      },
+      "title": "Query Atom Ids",
+      "type": "array"
+    },
+    "query_bond_ids": {
+      "default": [],
+      "items": {
+        "type": "integer"
+      },
+      "title": "Query Bond Ids",
+      "type": "array"
+    },
+    "transformation_id": {
+      "minLength": 1,
+      "title": "Transformation Id",
+      "type": "string"
+    },
+    "matched_preconditions": {
+      "default": [],
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "title": "Matched Preconditions",
+      "type": "array"
+    },
+    "failed_preconditions": {
+      "default": [],
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "title": "Failed Preconditions",
+      "type": "array"
+    },
+    "local_environment_similarity": {
+      "default": 0.0,
+      "title": "Local Environment Similarity",
+      "type": "number"
+    },
+    "symmetry_class": {
+      "default": 0,
+      "title": "Symmetry Class",
+      "type": "integer"
+    },
+    "ambiguity_group": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ambiguity Group"
+    },
+    "eligibility": {
+      "default": false,
+      "title": "Eligibility",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "site_id",
+    "transformation_id"
+  ],
+  "title": "SiteHypothesis",
+  "type": "object"
+}

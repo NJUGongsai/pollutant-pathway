@@ -1,0 +1,325 @@
+{
+  "$defs": {
+    "AdaptationVerificationStatus": {
+      "description": "Controlled verification status for candidate adaptation (Section 9).\n\nReplaces free-text confidence_note. Does NOT imply enzyme activity\nprobability or experimental success probability.",
+      "enum": [
+        "unverified_analogy",
+        "formally_mapped",
+        "evidence_supported"
+      ],
+      "title": "AdaptationVerificationStatus",
+      "type": "string"
+    },
+    "ElementBalance": {
+      "additionalProperties": false,
+      "description": "Element balance for the reaction.",
+      "properties": {
+        "element": {
+          "minLength": 1,
+          "title": "Element",
+          "type": "string"
+        },
+        "reactant_count": {
+          "default": 0,
+          "title": "Reactant Count",
+          "type": "integer"
+        },
+        "product_count": {
+          "default": 0,
+          "title": "Product Count",
+          "type": "integer"
+        },
+        "delta": {
+          "default": 0,
+          "title": "Delta",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "element"
+      ],
+      "title": "ElementBalance",
+      "type": "object"
+    },
+    "FormalAtomTransferAssignment": {
+      "additionalProperties": false,
+      "description": "Formal atom transfer between participants.",
+      "properties": {
+        "source_participant_id": {
+          "minLength": 1,
+          "title": "Source Participant Id",
+          "type": "string"
+        },
+        "target_participant_id": {
+          "minLength": 1,
+          "title": "Target Participant Id",
+          "type": "string"
+        },
+        "transferred_atom_map_numbers": {
+          "default": [],
+          "items": {
+            "type": "integer"
+          },
+          "title": "Transferred Atom Map Numbers",
+          "type": "array"
+        },
+        "assignment_method": {
+          "default": "formal",
+          "minLength": 1,
+          "title": "Assignment Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_participant_id",
+        "target_participant_id"
+      ],
+      "title": "FormalAtomTransferAssignment",
+      "type": "object"
+    },
+    "FormalBalanceUnderAssumptions": {
+      "additionalProperties": false,
+      "description": "Balance computed under donor-derived assumptions.",
+      "properties": {
+        "element_balances": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ElementBalance"
+          },
+          "title": "Element Balances",
+          "type": "array"
+        },
+        "charge_delta": {
+          "default": 0,
+          "title": "Charge Delta",
+          "type": "integer"
+        },
+        "assumption_notes": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Assumption Notes",
+          "type": "array"
+        }
+      },
+      "title": "FormalBalanceUnderAssumptions",
+      "type": "object"
+    },
+    "InheritedDonorContext": {
+      "additionalProperties": false,
+      "description": "Donor context inherited by candidate (assumption, not fact).\n\nis_assumption is locked to True (Section 8): donor-derived context can\nnever be marked as a proven X->Y fact.",
+      "properties": {
+        "donor_reaction_id": {
+          "minLength": 1,
+          "title": "Donor Reaction Id",
+          "type": "string"
+        },
+        "donor_participant_id": {
+          "minLength": 1,
+          "title": "Donor Participant Id",
+          "type": "string"
+        },
+        "inherited_role": {
+          "$ref": "#/$defs/ParticipantRole",
+          "default": "unknown"
+        },
+        "is_assumption": {
+          "const": true,
+          "default": true,
+          "title": "Is Assumption",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "donor_reaction_id",
+        "donor_participant_id"
+      ],
+      "title": "InheritedDonorContext",
+      "type": "object"
+    },
+    "LedgerBalanceStatus": {
+      "description": "Source reaction ledger balance status (final_design §10.3).",
+      "enum": [
+        "fully_balanced_explicit_reaction",
+        "heavy_atom_balanced_with_implicit_h_e_policy",
+        "partial_or_unbalanced_source"
+      ],
+      "title": "LedgerBalanceStatus",
+      "type": "string"
+    },
+    "ParticipantRole": {
+      "description": "Reaction participant role hypotheses (final_design §7.3).",
+      "enum": [
+        "transformed_substrate",
+        "transformed_product",
+        "co_substrate",
+        "cofactor",
+        "carrier",
+        "coproduct",
+        "spectator",
+        "catalytic_species",
+        "unknown"
+      ],
+      "title": "ParticipantRole",
+      "type": "string"
+    },
+    "QueryCandidateAdaptation": {
+      "additionalProperties": false,
+      "description": "How donor context was adapted to query X.\n\nUses a controlled adaptation_verification_status enum (Section 9), NOT\nfree-text confidence. Does not imply enzyme activity probability.",
+      "properties": {
+        "donor_participant_id": {
+          "minLength": 1,
+          "title": "Donor Participant Id",
+          "type": "string"
+        },
+        "query_atom_ids": {
+          "default": [],
+          "items": {
+            "type": "integer"
+          },
+          "title": "Query Atom Ids",
+          "type": "array"
+        },
+        "adaptation_method": {
+          "default": "formal_mapping",
+          "minLength": 1,
+          "title": "Adaptation Method",
+          "type": "string"
+        },
+        "adaptation_verification_status": {
+          "$ref": "#/$defs/AdaptationVerificationStatus",
+          "default": "unverified_analogy"
+        }
+      },
+      "required": [
+        "donor_participant_id"
+      ],
+      "title": "QueryCandidateAdaptation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Records analogy assumptions when transferring donor context to X→Y.\n\nDonor uses NAD(P), O2 etc. does NOT mean X→Y uses same cofactors.\nThese are inherited assumptions, explicitly labeled as such.",
+  "properties": {
+    "ledger_id": {
+      "minLength": 1,
+      "title": "Ledger Id",
+      "type": "string"
+    },
+    "source_ledger_id": {
+      "minLength": 1,
+      "title": "Source Ledger Id",
+      "type": "string"
+    },
+    "candidate_id": {
+      "minLength": 1,
+      "title": "Candidate Id",
+      "type": "string"
+    },
+    "query_candidate_adaptation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/QueryCandidateAdaptation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "inherited_donor_context": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/InheritedDonorContext"
+      },
+      "title": "Inherited Donor Context",
+      "type": "array"
+    },
+    "inherited_assumptions": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Inherited Assumptions",
+      "type": "array"
+    },
+    "formal_atom_transfer_assignments": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/FormalAtomTransferAssignment"
+      },
+      "title": "Formal Atom Transfer Assignments",
+      "type": "array"
+    },
+    "formal_balance_under_assumptions": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FormalBalanceUnderAssumptions"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "unknown_actual_co_substrates": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Unknown Actual Co Substrates",
+      "type": "array"
+    },
+    "unknown_actual_cofactors": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Unknown Actual Cofactors",
+      "type": "array"
+    },
+    "unknown_actual_stoichiometry": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Unknown Actual Stoichiometry",
+      "type": "array"
+    },
+    "candidate_balance_status": {
+      "$ref": "#/$defs/LedgerBalanceStatus",
+      "default": "partial_or_unbalanced_source"
+    },
+    "unknowns": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Unknowns",
+      "type": "array"
+    },
+    "evidence_ids": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "ledger_id",
+    "source_ledger_id",
+    "candidate_id"
+  ],
+  "title": "CandidateAnalogyLedger",
+  "type": "object"
+}

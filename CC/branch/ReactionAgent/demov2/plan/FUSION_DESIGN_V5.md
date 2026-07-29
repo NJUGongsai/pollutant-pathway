@@ -1,3 +1,11 @@
+> **HISTORICAL / NON-AUTHORITATIVE**
+> This document is retained for decision history only.
+> Current implementation authority:
+> - plan/final_design.md
+> - plan/final_plan.md
+> - plan/final_discussion.md
+
+
 # demov2 终审融合方案 — 三份 Discussion 的统一决议
 
 > 日期：2026-07-29

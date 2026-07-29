@@ -1,3 +1,7 @@
+> **HISTORICAL / NON-AUTHORITATIVE**
+> This document is retained for decision history only.
+> Current implementation authority: `plan/final_design.md`, `plan/final_plan.md`, `plan/final_discussion.md`.
+
 # ReactionAgent v4 实现计划 · LLM-native 化学推理
 
 > 参照设计文档：`demov2/plan/qwen_design.md`
