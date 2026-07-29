@@ -1,0 +1,61 @@
+{
+  "blockers": [
+    "rdkit_absent",
+    "real_reaction_source_not_confirmed",
+    "required_case_missing"
+  ],
+  "case": {
+    "proline_2og": {
+      "expected_lineages": [
+        "proline -> hydroxyproline",
+        "2-oxoglutarate -> succinate"
+      ],
+      "forbidden_lineage": "2-oxoglutarate -> hydroxyproline",
+      "reaction": "2-oxoglutarate + proline + O2 -> succinate + hydroxyproline + CO2",
+      "source_record_found": null
+    }
+  },
+  "legacy": {
+    "legacy_sources": [
+      {
+        "absolute_path": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/benchmark/canonical_identity.py",
+        "exists": true,
+        "relative_path": "../benchmark/canonical_identity.py",
+        "sha256": "6003f4bc4ffc5ca3304dc1d2282a467f4f773e149ea9cf2a132ca0e4079eb2d0",
+        "size": 8986
+      },
+      {
+        "absolute_path": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/benchmark",
+        "exists": true,
+        "relative_path": "../benchmark",
+        "sha256": null,
+        "size": 416
+      },
+      {
+        "absolute_path": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/core",
+        "exists": true,
+        "relative_path": "../core",
+        "sha256": null,
+        "size": 256
+      }
+    ]
+  },
+  "real_source": {
+    "candidate_env_keys_present": [],
+    "data_root_scan_allowed": false,
+    "real_reaction_source_found": null
+  },
+  "runtime": {
+    "mapper_backend": null,
+    "networkx": null,
+    "numpy": null,
+    "platform": "macOS-26.5.1-arm64-arm-64bit",
+    "pydantic_version": "2.13.4",
+    "pytest_version": "9.1.1",
+    "python_version": "3.11.15",
+    "rdkit": null,
+    "scipy": null,
+    "working_directory": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2"
+  },
+  "status": "BLOCKED"
+}
