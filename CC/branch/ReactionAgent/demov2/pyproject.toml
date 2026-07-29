@@ -4,11 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "reaction-analogy-agent"
-version = "0.1.0"
-description = "Evidence-grounded reaction analogy MCP agent — P0 contract freeze"
+version = "0.2.0"
+description = "Evidence-grounded reaction analogy MCP agent — P1 package bootstrap"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.8,<3",
+    # P1: 按需添加，与 Python 3.11 兼容。未确认可装前不加。
+    # Preflight (2026-07-29) 判 BLOCKED: rdkit/numpy/networkx/scipy 全 absent。
+    # 见 reports/p1/P1_PREFLIGHT.json + requirements.lock.txt。
 ]
 
 [project.optional-dependencies]
