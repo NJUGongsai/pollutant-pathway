@@ -462,3 +462,61 @@
 - next task authorization: T5 UNIT_CONTRACT_COMPLETE. T6 (lineage resolver)
   remains blocked (needs rdkit). T7/T8 (ledger skeletons) may proceed on
   scaffolding per the same PARTIAL discipline.
+
+---
+
+## T6 (Task 6) — Bipartite fragment-lineage graph
+- timestamp: 2026-07-30T04:30Z (UTC)
+- task: P1-T6 Bipartite fragment-lineage graph (final_design §9 = brief §12)
+- preflight: BLOCKED (rdkit_absent + required_case_missing — does not block
+  T6 unit contract; resolver operates on formal atom mapping only)
+- files created:
+  - `reaction_agent/lineage/__init__.py` (package exports)
+  - `reaction_agent/lineage/resolver.py` (`build_lineage_graph` +
+    `resolve_lineages` + `_build_edges`, RESOLVER_VERSION=`p1-t6-1`)
+  - `tests/p1/test_lineage_graph.py` (41 contract tests)
+  - `reports/p1/lineage_regression_cases.json` (14 regression cases)
+  - `reports/p1/P1_T6_LINEAGE_GRAPH.md` (checkpoint)
+- TDD:
+  - RED: 39 failed, 2 passed (ModuleNotFoundError)
+  - GREEN: 41 passed in 0.14s
+  - full suite: 512 passed (471 baseline + 41 T6), 0 fail/error/skip/xfail/xpass
+  - P0 Gate: 10/10 passed, no regression
+- §9.2 three prohibitions (verified):
+  1. NO independent side picking — edges from formal mapping, not "best
+     molecule" picks. Weak spurious cross edges (overlapping + unequal
+     strength) removed from lineages.
+  2. NO tuple max() silent tie — equal-strength overlap → ambiguity_set,
+     both lineages critical, NOT a single silently-picked winner.
+  3. NO forced primary — `is_primary=False` for all hypotheses; multiple
+     lineages coexist.
+- §9.3 proline/2OG hard Gate:
+  - Case A (curated): proline→hydroxyproline + 2OG→succinate + O transfer ✓
+  - Case B (quarantine): unmapped → 0 strict, quality=unresolved ✓
+  - Forbidden 2OG→hydroxyproline: NOT in strict index ✓
+  - Real source: required_case_missing (not fabricated)
+- §12.4 stable lineage ID: reaction identity + participant identity + sorted
+  atom correspondence + resolver version. Order-invariant (sorting).
+- 14 regression cases: all covered (proline/2OG, redox NAD, O2 incorporation,
+  hydrolysis, transferase, decarboxylation, cleavage, condensation, split,
+  merge, equal-score tie, partial mapping, MCS fallback, atom-order permutation)
+- deviations:
+  - rdkit absent: scaffold_continuity = retention_fraction proxy;
+    changed_mapped_atoms uses changed_atom_fraction > 0 proxy
+  - atom transfer detection: mapped_fraction==0.0 AND shared<=2 AND scaffold
+    source exists for same product (conservative; when in doubt, edge remains
+    a transformed lineage)
+  - weak cross edge (overlapping + unequal strength): weaker edge removed from
+    lineages, recorded in atom_transfer_edges as type=weak_cross_edge
+  - resolve_lineages returns ALL lineages (including critical); caller filters
+    critical out of strict index
+- concerns:
+  - real proline/2OG source required for integration verification (curated
+    fixture covers unit logic; real-data verification blocked)
+  - atom transfer heuristic may need refinement for edge cases (small mapped
+    substrate vs. inorganic donor); conservative design errs toward keeping
+    edges as transformed lineages
+- verdict: UNIT_CONTRACT_COMPLETE (resolver operates on formal atom mapping;
+  no chemistry fabricated; rdkit absence does not block the unit contract)
+- next task authorization: T6 UNIT_CONTRACT_COMPLETE. T7/T8 (ledger skeletons)
+  may proceed. Real-data lineage verification blocked until rdkit + source.

@@ -1,0 +1,802 @@
+{
+  "task": "P1-T6 Lineage graph",
+  "resolver_version": "p1-t6-1",
+  "regression_cases": [
+    {
+      "case": "01_proline_hydroxylation_2og_o2",
+      "fixture_type": "curated",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1",
+          "r2",
+          "r3"
+        ],
+        "products": [
+          "p1",
+          "p2",
+          "p3"
+        ]
+      },
+      "edges": [
+        {
+          "edge_4b8f02eadf4c": "r1->p1",
+          "edge_1870aa805359": "r2->p2",
+          "edge_3f64c9b22271": "r3->p1"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_be9a97d7bffa",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_f14a4a095fed",
+          "reactant": "r2",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [
+        {
+          "from": "r3",
+          "to": "p1",
+          "atoms": "0",
+          "type": "atom_transfer",
+          "shared_atoms": "1",
+          "method": "formal_mapped",
+          "ambiguity": "formal_assignment_no_mechanistic_evidence"
+        }
+      ],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r2",
+          "p2"
+        ]
+      ]
+    },
+    {
+      "case": "02_redox_nad",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1",
+          "r2"
+        ],
+        "products": [
+          "p1",
+          "p2"
+        ]
+      },
+      "edges": [
+        {
+          "edge_73c18e630725": "r1->p1",
+          "edge_0042a62d5a23": "r2->p2"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_8a151a95c028",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_edd328709245",
+          "reactant": "r2",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r2",
+          "p2"
+        ]
+      ]
+    },
+    {
+      "case": "03_oxygen_incorporation",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1",
+          "r2"
+        ],
+        "products": [
+          "p1"
+        ]
+      },
+      "edges": [
+        {
+          "edge_9800c3100d3a": "r1->p1",
+          "edge_3827f52a8bce": "r2->p1"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_d384805d4c1e",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [
+        {
+          "from": "r2",
+          "to": "p1",
+          "atoms": "0",
+          "type": "atom_transfer",
+          "shared_atoms": "1",
+          "method": "formal_mapped",
+          "ambiguity": "formal_assignment_no_mechanistic_evidence"
+        }
+      ],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 1,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ]
+      ]
+    },
+    {
+      "case": "04_hydrolysis",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1",
+          "r2"
+        ],
+        "products": [
+          "p1",
+          "p2"
+        ]
+      },
+      "edges": [
+        {
+          "edge_f3db88c07839": "r1->p1",
+          "edge_a9524abfc589": "r1->p2",
+          "edge_fc2a5eb5ec91": "r2->p2"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_cb9ab7d1c56e",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_b0d0b8008305",
+          "reactant": "r1",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [
+        {
+          "reactant": "r1",
+          "products": "p1,p2",
+          "type": "split",
+          "shared_atoms_per_fragment": "3,3"
+        }
+      ],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [
+        {
+          "from": "r2",
+          "to": "p2",
+          "atoms": "0",
+          "type": "atom_transfer",
+          "shared_atoms": "1",
+          "method": "formal_mapped",
+          "ambiguity": "formal_assignment_no_mechanistic_evidence"
+        }
+      ],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r1",
+          "p2"
+        ]
+      ]
+    },
+    {
+      "case": "05_transferase",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1",
+          "r2"
+        ],
+        "products": [
+          "p1",
+          "p2"
+        ]
+      },
+      "edges": [
+        {
+          "edge_11c0d875b265": "r1->p1",
+          "edge_c9a694ed8eca": "r2->p2",
+          "edge_f08cc9657c8d": "r1->p2"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_6739fbc063ce",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_eff39796dc3c",
+          "reactant": "r2",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_1fdec95d7d49",
+          "reactant": "r1",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [
+        {
+          "reactant": "r1",
+          "products": "p1,p2",
+          "type": "split",
+          "shared_atoms_per_fragment": "3,1"
+        }
+      ],
+      "merge_hypotheses": [
+        {
+          "product": "p2",
+          "reactants": "r1,r2",
+          "type": "merge"
+        }
+      ],
+      "atom_transfer_edges": [],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 3,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r2",
+          "p2"
+        ],
+        [
+          "r1",
+          "p2"
+        ]
+      ]
+    },
+    {
+      "case": "06_decarboxylation",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1"
+        ],
+        "products": [
+          "p1",
+          "p2"
+        ]
+      },
+      "edges": [
+        {
+          "edge_c5191c0299e8": "r1->p1",
+          "edge_1ee5cd3a997a": "r1->p2"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_f9a381bf92c2",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_ecd9cdeff078",
+          "reactant": "r1",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [
+        {
+          "reactant": "r1",
+          "products": "p1,p2",
+          "type": "split",
+          "shared_atoms_per_fragment": "3,1"
+        }
+      ],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r1",
+          "p2"
+        ]
+      ]
+    },
+    {
+      "case": "07_cleavage",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1"
+        ],
+        "products": [
+          "p1",
+          "p2"
+        ]
+      },
+      "edges": [
+        {
+          "edge_24a1a9b20ded": "r1->p1",
+          "edge_b1334375b2e5": "r1->p2"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_dcf266e1a2ee",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_0ac43e133f28",
+          "reactant": "r1",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [
+        {
+          "reactant": "r1",
+          "products": "p1,p2",
+          "type": "split",
+          "shared_atoms_per_fragment": "3,3"
+        }
+      ],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r1",
+          "p2"
+        ]
+      ]
+    },
+    {
+      "case": "08_condensation",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1",
+          "r2"
+        ],
+        "products": [
+          "p1"
+        ]
+      },
+      "edges": [
+        {
+          "edge_f2f0785d087f": "r1->p1",
+          "edge_fb11abbf71c7": "r2->p1"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_6dec2fac7cde",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_0b9830503984",
+          "reactant": "r2",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [
+        {
+          "product": "p1",
+          "reactants": "r1,r2",
+          "type": "merge"
+        }
+      ],
+      "atom_transfer_edges": [],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r2",
+          "p1"
+        ]
+      ]
+    },
+    {
+      "case": "09_split",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1"
+        ],
+        "products": [
+          "p1",
+          "p2"
+        ]
+      },
+      "edges": [
+        {
+          "edge_60787710b1fa": "r1->p1",
+          "edge_69c61bfb67b0": "r1->p2"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_8633f2859450",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_891246c20318",
+          "reactant": "r1",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [
+        {
+          "reactant": "r1",
+          "products": "p1,p2",
+          "type": "split",
+          "shared_atoms_per_fragment": "4,4"
+        }
+      ],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r1",
+          "p2"
+        ]
+      ]
+    },
+    {
+      "case": "10_merge",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1",
+          "r2"
+        ],
+        "products": [
+          "p1"
+        ]
+      },
+      "edges": [
+        {
+          "edge_ef31bfe576da": "r1->p1",
+          "edge_91cd1ce9b168": "r2->p1"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_a607e416fa7c",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_213ace6c280d",
+          "reactant": "r2",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [
+        {
+          "product": "p1",
+          "reactants": "r1,r2",
+          "type": "merge"
+        }
+      ],
+      "atom_transfer_edges": [],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r2",
+          "p1"
+        ]
+      ]
+    },
+    {
+      "case": "11_equal_score_tie",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1"
+        ],
+        "products": [
+          "p1",
+          "p2"
+        ]
+      },
+      "edges": [
+        {
+          "edge_d80d08ad327a": "r1->p1",
+          "edge_67a18f66482d": "r1->p2"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_62dcc04487b4",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "critical",
+          "quality": "unresolved"
+        },
+        {
+          "lineage_id": "lin_4519408be1c7",
+          "reactant": "r1",
+          "product": "p2",
+          "ambiguity": "critical",
+          "quality": "unresolved"
+        }
+      ],
+      "ambiguity_sets": [
+        {
+          "reactant": "r1",
+          "products": "p1,p2",
+          "reason": "equal_score_tie_overlapping_atoms",
+          "shared_atoms": "4",
+          "resolution": "ambiguity_set_no_silent_pick"
+        }
+      ],
+      "split_hypotheses": [],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [],
+      "quality": "unresolved",
+      "failure_reason": "critical_ambiguity_tie (1 tie(s)); quarantined_per_\u00a79.2",
+      "strict_eligible_count": 0,
+      "strict_eligible_pairs": []
+    },
+    {
+      "case": "12_partial_mapping",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1"
+        ],
+        "products": [
+          "p1"
+        ]
+      },
+      "edges": [
+        {
+          "edge_2ee50f1ceb25": "r1->p1"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_1a9444fa740d",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "partial",
+          "quality": "partially_resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [],
+      "quality": "partially_resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 1,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ]
+      ]
+    },
+    {
+      "case": "13_mcs_fallback",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1"
+        ],
+        "products": [
+          "p1"
+        ]
+      },
+      "edges": [
+        {
+          "edge_27fba0e1212f": "r1->p1"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_83c36f9421f9",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "partial",
+          "quality": "partially_resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [],
+      "quality": "partially_resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 1,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ]
+      ]
+    },
+    {
+      "case": "14_atom_order_permutation",
+      "fixture_type": "synthetic",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1"
+        ],
+        "products": [
+          "p1"
+        ]
+      },
+      "edges": [
+        {
+          "edge_8c0383909c0f": "r1->p1"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_be9144b6ea80",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 1,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ]
+      ]
+    }
+  ],
+  "proline_2og_hard_gate": "Case A (curated fixture: proline->hydroxyproline + 2OG->succinate + O transfer). Real source: required_case_missing.",
+  "forbidden_lineage_check": "2OG->hydroxyproline NOT in strict_eligible_pairs for case 01"
+}
