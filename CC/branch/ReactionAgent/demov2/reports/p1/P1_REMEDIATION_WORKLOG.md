@@ -82,3 +82,64 @@
   per user instruction. Blocks T4 (atom mapper) and T6+ (graph/lineage). T2 may proceed.
 - next task authorization: T2 authorized (T1 exit criteria met: dependency lock +
   no-legacy-write guard in place)
+
+## Task 2 (P1-T2: Strict domain schemas)
+- timestamp: 2026-07-30
+- assumptions:
+  - P0 frozen schemas (`evidence.py`/`mapping.py`/`lineage.py`/`ledger.py`/`common.py`)
+    already implement `final_design` §7/§8/§9/§10 completely — confirmed during
+    Step 1 gap inventory; NOT modified (T2 is extend-not-recreate)
+  - `SourceRecordProvenance` (T1, `provenance.py`) is reused, not recreated
+  - brief "§8.2 22 objects" is the gap-inventory reference list, not a literal
+    section with 22 items; actual coverage = 11 P0 frozen + 3 T1 + 8 T2 new = 22
+  - brief Step 1 open questions resolved:
+    - `FragmentLineageGraph` = NOT a class (dict field on ReactionEvidence/LineageResolution)
+    - `ParticipantRoleHypothesis` = P0 `RoleHypothesis` (confirmed identical, not recreated)
+- files:
+  - created: `reaction_agent/schemas/p1_entities.py` (8 new entities)
+  - modified: `reaction_agent/schemas/__init__.py` (export 8 new entities + `__all__`)
+  - created: `tests/p1/test_domain_schemas.py` (27 contract tests)
+  - created: `reports/p1/P1_T2_DOMAIN_SCHEMAS.md`
+  - NOT modified: P0 schema files, `scripts/export_json_schemas.py`
+- RED:
+  - `tests/p1/test_domain_schemas.py` → 1 collection error
+    (ModuleNotFoundError: reaction_agent.schemas.p1_entities)
+- impl:
+  - 8 entities in `p1_entities.py`, all inherit `StrictModel`:
+    `NormalizedReactionRecord`/`DonorEligibilityAssessment`/`ResolvedTransformedLineage`/
+    `EligibilityDecision`/`QuarantineRecord`/`SnapshotManifest`/`SnapshotRecord`/
+    `ManualAuditRecord`
+  - `DonorEligibilityAssessment.eligibility` = `Literal["eligible",
+    "conditionally_eligible","not_eligible","unknown"]` (§11.4, distinct from P0 enum)
+  - `EligibilityDecision.eligibility` = P0 `EligibilityStatus` enum (§10.4)
+  - `QuarantineRecord.reason` = `NonEmptyStr` required (fail-closed)
+  - `SnapshotManifest` = counts/hash/build_status (§16.3)
+  - `ManualAuditRecord` = agreement + catastrophic_error_count + 4 rubric scores
+    (no confidence field)
+- GREEN:
+  - `tests/p1/test_domain_schemas.py` → 27 passed (5 brief strictness + 2 hashing
+    + 20 additional contract tests)
+- JSON schema export:
+  - `scripts/export_json_schemas.py` NOT modified (frozen-only constraint)
+  - 12 P0 frozen objects re-exported, freshness test 48 passed
+- regression:
+  - `tests` → 371 passed (P0 290 + P1 81), 0 fail/error/skip/xfail/xpass
+  - P0 Gate → 10/10 passed (READY_FOR_CHATGPT_AUDIT), no regression
+- deviations:
+  - execution model Qwen → Claude Code subagent (user decision, inherited)
+  - brief Step 9 "确认含 P1 新对象" overridden by Interfaces "仅冻结对象" +
+    closing "不得把仍在探索的内部对象全部导出" — P1 entities NOT exported to
+    `schemas/json/`; `export_json_schemas.py` unchanged
+  - `NormalizedReactionRecord.provenance` typed `object | None` (not
+    `SourceRecordProvenance | None`) to avoid import cycle; runtime accepts
+    real `SourceRecordProvenance` instance
+  - removed self-added test `test_eligibility_decision_string_value_accepted`
+    (strict mode rejects bare str for str-Enum field; replaced with
+    `test_eligibility_decision_quarantine_value` using enum member)
+- concerns:
+  - `provenance: object | None` loose typing on NormalizedReactionRecord —
+    acceptable for P1 (T3/T4 consume basic fields); revisit if type safety needed
+  - `EligibilityDecision` / `SnapshotRecord` / `SnapshotManifest` defined but
+    not yet consumed by implementation (T9/T10 will use them)
+- next task authorization: T3 authorized (T2 exit criteria met: P1 object set
+  complete, P0 unchanged, JSON schema fresh, zero fail/error/skip)

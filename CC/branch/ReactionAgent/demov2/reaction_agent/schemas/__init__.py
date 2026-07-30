@@ -93,6 +93,16 @@ from reaction_agent.schemas.errors import (
     InvariantViolationError,
     UnknownReferenceError,
 )
+from reaction_agent.schemas.p1_entities import (
+    NormalizedReactionRecord,
+    DonorEligibilityAssessment,
+    ResolvedTransformedLineage,
+    EligibilityDecision,
+    QuarantineRecord,
+    SnapshotManifest,
+    SnapshotRecord,
+    ManualAuditRecord,
+)
 
 __all__ = [
     # common
@@ -132,4 +142,9 @@ __all__ = [
     # errors
     "ContractViolation", "LaneMixingError", "InvariantViolationError",
     "UnknownReferenceError",
+    # p1 entities (P1-T2)
+    "NormalizedReactionRecord", "DonorEligibilityAssessment",
+    "ResolvedTransformedLineage", "EligibilityDecision",
+    "QuarantineRecord", "SnapshotManifest", "SnapshotRecord",
+    "ManualAuditRecord",
 ]
