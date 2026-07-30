@@ -504,6 +504,11 @@ def build_snapshot(
 
     Immutability: inputs (config, evidence items) are NOT mutated.
 
+    Concurrency: single-process batch assumed. Concurrent builds targeting the
+    same snapshot_id may race on rmtree/rename (§16.4 does not require
+    concurrent safety; the rmtree on a stale incomplete final dir and the
+    rename of temp → final are not guarded against a concurrent writer).
+
     Args:
         config: BuildConfig with output_snapshot_root and version strings.
         evidence_iter: Iterable of SnapshotEvidenceItem (pre-computed T4-T8

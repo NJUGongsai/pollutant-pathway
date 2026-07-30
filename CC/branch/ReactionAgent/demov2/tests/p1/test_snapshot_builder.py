@@ -825,3 +825,112 @@ def test_loader_rejects_temp_dir(tmp_path):
         load_snapshot(tmp_dir)
     with pytest.raises(SnapshotNotFoundError):
         load_snapshot(".tmp_snap_fake_0001", root=snap_root)
+
+
+# =====================================================================
+# Fix Round 1 — I1: COMPLETE marker content cross-verification
+# =====================================================================
+
+def test_complete_marker_hash_mismatch_rejected(tmp_path):
+    """I1 fix: COMPLETE marker content must cross-verify manifest snapshot_hash.
+
+    The builder writes ``snapshot_hash`` into the COMPLETE marker file
+    (builder.py). The loader must read the marker content and compare it
+    against ``manifest["snapshot_hash"]``. A mismatch means either the marker
+    or the manifest was tampered — reject with SnapshotHashMismatchError.
+
+    This closes the M2 trust-root weakness: an attacker who tampers both
+    ``manifest["snapshot_hash"]`` and the trust-root fields
+    (schema_version / build_config_hash / versions / policy_version) cannot
+    forge the COMPLETE marker without knowing the correct snapshot_hash at
+    marker-write time. The marker is an independent second source of truth.
+    """
+    items = _full_fixture_items()
+    config = _config(tmp_path)
+    manifest = build_snapshot(config, iter(items))
+
+    snap_dir = os.path.join(config.output_snapshot_root, manifest.snapshot_id)
+
+    # Sanity: marker exists and currently matches manifest (normal case).
+    marker_path = os.path.join(snap_dir, "COMPLETE")
+    assert os.path.exists(marker_path)
+    with open(marker_path) as f:
+        assert f.read() == manifest.snapshot_hash
+
+    # Tamper: overwrite marker content with a different hash. The manifest
+    # snapshot_hash is unchanged, so the marker now disagrees with the
+    # manifest. The loader must detect this and reject.
+    with open(marker_path, "w") as f:
+        f.write("deadbeef" * 8)  # 64-hex fake hash, != manifest snapshot_hash
+
+    with pytest.raises(SnapshotHashMismatchError):
+        load_snapshot(manifest.snapshot_id, root=config.output_snapshot_root)
+
+
+def test_complete_marker_matches_manifest_loads_ok(tmp_path):
+    """I1 fix: normal case — marker content == manifest snapshot_hash → loads.
+
+    Confirms the new marker cross-verification does not break the happy path:
+    a snapshot whose COMPLETE marker content equals manifest["snapshot_hash"]
+    loads successfully (marker is an independent second source that agrees).
+    """
+    items = _full_fixture_items()
+    config = _config(tmp_path)
+    manifest = build_snapshot(config, iter(items))
+
+    snap_dir = os.path.join(config.output_snapshot_root, manifest.snapshot_id)
+    marker_path = os.path.join(snap_dir, "COMPLETE")
+    # Marker content is exactly manifest snapshot_hash (written by builder).
+    with open(marker_path) as f:
+        assert f.read() == manifest.snapshot_hash
+
+    # Load succeeds — marker cross-verification passes.
+    record = load_snapshot(manifest.snapshot_id, root=config.output_snapshot_root)
+    assert record.snapshot_id == manifest.snapshot_id
+    assert record.freeze_status == "frozen"
+
+
+# =====================================================================
+# Fix Round 1 — I2: interrupt window after rename, before complete
+# =====================================================================
+
+def test_interrupted_after_rename_rejected(tmp_path):
+    """I2: interrupt window after rename, before build_status=complete + marker.
+
+    Simulates the state where ``os.rename(temp, final)`` succeeded but the
+    builder was interrupted before (a) rewriting the manifest with
+    ``build_status="complete"`` and (b) writing the COMPLETE marker. The final
+    directory exists (it is NOT a ``.tmp_`` dir) and contains a manifest with
+    ``build_status="building"`` and no COMPLETE marker. The loader must reject
+    this as incomplete (SnapshotIncompleteError).
+
+    This complements test_interrupted_build_not_complete (Test 7), which only
+    covers the pre-rename interruption (iterator raises mid-iteration, temp
+    dir cleaned up, no final dir created). Here the final dir exists with a
+    stale "building" manifest — the post-rename, pre-complete window.
+    """
+    items = _full_fixture_items()
+    config = _config(tmp_path)
+    manifest = build_snapshot(config, iter(items))
+
+    snap_dir = os.path.join(config.output_snapshot_root, manifest.snapshot_id)
+    manifest_path = os.path.join(snap_dir, "manifest.json")
+
+    # Rewind to the post-rename, pre-complete interruption state:
+    # the manifest still says "building" (as written to the temp dir before
+    # rename) and the COMPLETE marker has not been written yet.
+    with open(manifest_path) as f:
+        disk = json.load(f)
+    disk["build_status"] = "building"
+    with open(manifest_path, "w") as f:
+        json.dump(disk, f, sort_keys=True)
+        f.write("\n")
+    os.remove(os.path.join(snap_dir, "COMPLETE"))
+
+    # The final dir exists and is not a temp dir, but it is incomplete.
+    assert os.path.isdir(snap_dir)
+    assert not os.path.basename(snap_dir).startswith(".tmp_")
+    assert not os.path.exists(os.path.join(snap_dir, "COMPLETE"))
+
+    with pytest.raises(SnapshotIncompleteError):
+        load_snapshot(manifest.snapshot_id, root=config.output_snapshot_root)

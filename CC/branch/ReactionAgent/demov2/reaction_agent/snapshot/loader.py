@@ -269,16 +269,37 @@ def load_snapshot(
             f"(build_status={build_status!r}). Loader rejects incomplete snapshots."
         )
 
-    # §16.5: verify COMPLETE marker exists
+    stored_hash = manifest.get("snapshot_hash", "")
+
+    # §16.5: verify COMPLETE marker exists AND its content cross-verifies the
+    # manifest snapshot_hash (I1 fix — closes the M2 trust-root weakness).
+    # The builder writes snapshot_hash into the COMPLETE marker file
+    # independently of the manifest. An attacker who tampers both
+    # manifest["snapshot_hash"] and the trust-root fields (schema_version /
+    # build_config_hash / versions / policy_version) cannot forge the marker
+    # without knowing the correct snapshot_hash at marker-write time. The
+    # marker is an independent second source of truth.
     marker_path = os.path.join(snap_dir, _COMPLETE_MARKER)
     if not os.path.exists(marker_path):
         raise SnapshotIncompleteError(
             f"COMPLETE marker missing in {snap_dir}. Snapshot may be partially "
             f"written."
         )
+    with open(marker_path, encoding="utf-8") as f:
+        marker_hash = f.read().strip()
+    if not marker_hash:
+        raise SnapshotIncompleteError(
+            f"COMPLETE marker empty in {snap_dir}. Snapshot may be partially "
+            f"written."
+        )
+    if marker_hash != stored_hash:
+        raise SnapshotHashMismatchError(
+            f"COMPLETE marker hash mismatch for "
+            f"{manifest.get('snapshot_id', '?')}: marker={marker_hash} "
+            f"manifest={stored_hash}. Snapshot may have been tampered."
+        )
 
     # §16.5: verify snapshot_hash against recomputed content hash
-    stored_hash = manifest["snapshot_hash"]
     try:
         recomputed_hash = _recompute_snapshot_hash(manifest, snap_dir)
     except (KeyError, json.JSONDecodeError, OSError) as e:
