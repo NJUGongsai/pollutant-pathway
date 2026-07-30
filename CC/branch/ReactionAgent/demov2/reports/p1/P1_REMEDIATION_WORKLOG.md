@@ -520,3 +520,81 @@
   no chemistry fabricated; rdkit absence does not block the unit contract)
 - next task authorization: T6 UNIT_CONTRACT_COMPLETE. T7/T8 (ledger skeletons)
   may proceed. Real-data lineage verification blocked until rdkit + source.
+
+---
+
+## Task 7 (P1-T7: SourceReactionLedger builder)
+
+- scope: implement `build_source_ledger(reaction_evidence, lineages)` filling
+  all §10.1 fields; no-fabrication discipline (§13.4); 13 §13.5 tests.
+- files created:
+  - `reaction_agent/ledgers/__init__.py` (package init)
+  - `reaction_agent/ledgers/source_builder.py` (builder, BUILDER_VERSION=p1-t7-1)
+  - `tests/p1/test_source_ledger.py` (23 tests: 13 §13.5 + skeleton + edge)
+  - `reports/p1/source_ledger_samples.json` (8 samples + no-fabrication evidence)
+  - `reports/p1/P1_T7_SOURCE_LEDGER.md` (checkpoint report)
+- TDD:
+  - RED: ModuleNotFoundError (module did not exist) — 1 collection error
+  - GREEN: 23 passed in 0.19s
+- regression:
+  - full suite: 535 passed (baseline 512 + 23 new; zero skip/xfail)
+  - P0 Gate: 10/10 passed (no regression)
+- §10.1 fields filled:
+  - reactant_entries / product_entries / stoichiometry (from participants, split by side)
+  - role_assignments (highest-scored hypothesis per participant; unknown if none)
+  - formal_atom_transfer_assignments (from mapping formal pairs; method="formal")
+  - mechanistic_origin_evidence (ONLY from mapping.mechanistic_atom_origin; empty if None)
+  - added_atom_sources (from lineages; formal_assignment=True if traced, else unknown_source)
+  - removed_atom_sinks (from lineages; formal_assignment=True if traced, else unknown_sink)
+  - element_balance (rdkit absent → empty + rdkit_absent_proxy unknowns; NOT fabricated)
+  - charge_balance (computed from formal_charge; no rdkit needed)
+  - hydrogen/proton/electron policies (never "balanced"; "unknown" or implicit-policy label)
+  - cofactor_changes (carrier/cofactor role participants; direction="unknown")
+  - source_completeness / mapping_completeness
+  - balance_status (§10.3 vocabulary)
+  - unknowns / evidence_ids
+- no-fabrication evidence:
+  - missing stoichiometry: detected via `model_fields_set` (pydantic default 1
+    NOT asserted as fact; unknowns entry "stoichiometry_unverified:<pid>")
+  - missing H+/e−: policies never "balanced"; explicit "unknown" or
+    "implicit_heavy_atom_balanced_h_policy" / "cofactor_redox_implicit_e_policy"
+  - formal ≠ mechanistic: formal_atom_transfer_assignments use method="formal";
+    mechanistic_origin_evidence empty when no independent evidence (ADR-0003)
+  - unknown atom source: explicit "unknown_source" with formal_assignment=False;
+    blocks strict eligibility → partial_or_unbalanced_source
+  - element balance: rdkit absent → NOT fabricated; empty list + unknowns entry
+- balance status distribution (8 samples):
+  - heavy_atom_balanced_with_implicit_h_e_policy: 4
+  - partial_or_unbalanced_source: 4
+  - fully_balanced_explicit_reaction: 0 (requires rdkit; not asserted without it)
+- 13 §13.5 tests covered:
+  1. redox (cofactor change + electron policy)
+  2. O2 incorporation (formal source, O2 preserved)
+  3. hydrolysis (H2O preserved + sourced)
+  4. decarboxylation (CO2 coproduct + removed sinks)
+  5. transfer (formal atom transfer assignments)
+  6. charge mismatch (partial_or_unbalanced_source)
+  7. missing stoichiometry (unknown, not default 1)
+  8. incomplete source (source_completeness != "complete")
+  9. ambiguous formal assignment (not fully_balanced)
+  10. unknown atom source (unknown_source, not strict)
+  11. mechanistic evidence absent (formal only)
+  12. unbound mechanistic evidence reject (schema enforces ADR-0003 §12)
+  13. complete participant preservation (all pids in ledger)
+- deviations:
+  - rdkit absent: element_balance NOT computed (empty + rdkit_absent_proxy);
+    fully_balanced_explicit_reaction never asserted (honest downgrade to
+    heavy_atom_balanced_with_implicit_h_e_policy)
+  - cofactor direction="unknown" (structure comparison needed; not fabricated)
+  - stoichiometry detection via model_fields_set (cleanest signal available;
+    no separate stoichiometry_source field in P0 schema)
+- concerns:
+  - element balance requires rdkit for real formula comparison; current
+    implementation is honest but incomplete (cannot assert fully_balanced)
+  - cofactor change matching is role-based (not structure-based); direction
+    defaults to "unknown" — refine when rdkit available
+- verdict: UNIT_CONTRACT_COMPLETE (all §10.1 fields filled; no-fabrication
+  enforced; participant preservation verified; rdkit absence does not block
+  the unit contract)
+- next task authorization: T7 UNIT_CONTRACT_COMPLETE. T8 (CandidateAnalogyLedger)
+  may proceed.
