@@ -1,0 +1,127 @@
+{
+  "audit_version": "p1-1",
+  "audit_timestamp": "2026-07-30T02:13:25.744960+00:00",
+  "audit_scope": "legacy_logic_static_audit_only \u2014 real reaction source not confirmed, rdkit absent; transformed_pair not executed on real rows",
+  "verdict": "PARTIAL",
+  "verdict_reasons": [
+    "real_reaction_source_not_confirmed",
+    "rdkit_absent_runtime_unable_to_execute_legacy_transformed_pair",
+    "required_case_missing_proline_2og_source_record"
+  ],
+  "legacy_module": {
+    "path": "ReactionAgent/benchmark/canonical_identity.py",
+    "absolute_path": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/benchmark/canonical_identity.py",
+    "sha256": "6003f4bc4ffc5ca3304dc1d2282a467f4f773e149ea9cf2a132ca0e4079eb2d0",
+    "sha_matches_preflight": true,
+    "size": 8986,
+    "read_only": true,
+    "modified_by_audit": false,
+    "symbols_present": {
+      "canon_smiles": true,
+      "pick_main": true,
+      "COFACTORS": true,
+      "_pick_transformed": true,
+      "transformed_pair": true,
+      "group_key": true,
+      "main_substrate": true,
+      "main_product": true,
+      "canon_frags": true,
+      "canonical_reaction": true
+    },
+    "chenuyu_dependency_path": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/core/chenyu_features.py",
+    "chenuyu_sha256": "031320eeb3774da082e4e25c485ebb237e6c83f0db4451b2411df130d6b52150"
+  },
+  "counts": {
+    "total_reactions": 0,
+    "audited_reactions": 0,
+    "cross_lineage_pair": 0,
+    "cofactor_selected_as_main": 0,
+    "mapping_missing": 0,
+    "legacy_pair_supported": 0,
+    "insufficient_evidence": 0
+  },
+  "categories": {
+    "cross_lineage_pair": "Legacy transformed_pair picked a (X, Y) pair that crosses independent lineages \u2014 e.g. pairing 2-oxoglutarate -> hydroxyproline instead of proline -> hydroxyproline. This is the \u00a79.3 forbidden-lineage failure mode: legacy single-pair selection cannot represent two parallel transformed lineages in one reaction.",
+    "cofactor_selected_as_main": "Legacy pick_main (or _pick_transformed with an empty reaction-center fallback) selected a conserved cofactor (NADH/CoA/ATP/FAD/...) as the main substrate or product, mislabeling a spectator as the transformed core. COFACTORS stripping mitigates this only when the cofactor SMILES exactly matches the frozenset entry.",
+    "mapping_missing": "No verifiable atom mapping exists for the reaction \u2014 either rdkit cannot parse it, chenyu_features.reaction_center_from_chenyu returned None, or the mapper backend is absent. Without a map there is no formal atom-transfer evidence, so the legacy pair is unsupported.",
+    "legacy_pair_supported": "The legacy transformed_pair (X, Y) IS supported by the available mapping/lineage evidence \u2014 X and Y are the true transformed core and the pair does not cross lineages. This is the agreement category.",
+    "insufficient_evidence": "Evidence is too thin to classify the legacy pair as either supported or a mismatch \u2014 e.g. ambiguous reaction center, partial mapping, or missing source stoichiometry. The record is retained (not deleted) and flagged for downstream quarantine/diagnostic review."
+  },
+  "examples": [],
+  "source_ids": [],
+  "real_source_status": {
+    "rdkit_available": false,
+    "rdkit_info": "ModuleNotFoundError: No module named 'rdkit'",
+    "numpy_available": false,
+    "numpy_info": "ModuleNotFoundError: No module named 'numpy'",
+    "env_keys_present": {},
+    "candidate_files": {
+      "rxn2enzyme_positives": {
+        "path": "/Volumes/CC/Enzyme_Agent/depending/data/rxn2enzyme_positives.pkl",
+        "exists": true,
+        "size": 3133338
+      },
+      "reacting_center": {
+        "path": "/Volumes/CC/Enzyme_Agent/depending/data/feature/reaction/reacting_center/reacting_center.pkl",
+        "exists": true,
+        "size": 4494676
+      }
+    },
+    "candidate_rxn_count": 3601,
+    "candidate_proline_keyword_hits": 0,
+    "source_confirmed_by_env": false,
+    "real_reaction_source_found": false,
+    "usable_for_legacy_audit": false
+  },
+  "legacy_logic_risks": [
+    {
+      "function": "pick_main",
+      "lines": "60-77",
+      "risk": "Selects a single 'largest fragment' by (heavy_atoms, carbon, canonical SMILES lex). For multi-substrate reactions (97% of the corpus) this can pick a conserved cofactor as 'main' when no reaction-center signal is available \u2014 NADH/CoA are heavy and win the size contest. No cofactor stripping is applied at this layer."
+    },
+    {
+      "function": "COFACTORS",
+      "lines": "96-128",
+      "risk": "Cofactor stripping is exact-SMILES-match only. Canonical tautomers, protonation states, or salt forms that differ from the frozenset entry bypass the filter. Deliberately excludes ambiguous co-substrates (2-oxoglutarate/glutamate/pyruvate/acetyl-CoA) which are sometimes the true substrate \u2014 correct, but it means _pick_transformed must disambiguate them via reaction center alone."
+    },
+    {
+      "function": "_pick_transformed",
+      "lines": "131-157",
+      "risk": "When per_frag_center is None (chenyu_features unavailable or returns None), it silently degrades to 'largest non-cofactor fragment' \u2014 the same size-contest failure mode as pick_main, just with cofactors excluded. The fallback is not flagged in the return value, so callers cannot distinguish a center-anchored pick from a size-based guess."
+    },
+    {
+      "function": "transformed_pair",
+      "lines": "161-185",
+      "risk": "Returns a SINGLE (X, Y) pair per reaction. The \u00a79.3 canonical case has TWO parallel transformed lineages (proline->hydroxyproline AND 2-oxoglutarate->succinate); legacy can only represent one, forcing a cross-lineage pairing for the other. Also depends on chenyu_features.reaction_center_from_chenyu (imported inside a try/except) \u2014 if that import fails, the pair is computed without any reaction-center signal, silently degrading quality."
+    },
+    {
+      "function": "group_key / main_substrate / main_product",
+      "lines": "188-202",
+      "risk": "All three delegate to transformed_pair, so they inherit its single-pair limitation. group_key = (X, Y) means two reactions with the same true transformation but different legacy pairings (due to cofactor/tie ambiguity) land in different groups \u2014 splitting a chemical family and inflating apparent diversity."
+    },
+    {
+      "function": "canon_smiles / canon_frags",
+      "lines": "23-48",
+      "risk": "canon_frags returns a frozenset, discarding stoichiometry and duplicate fragments. This is fine for set-level comparison but means 'spectator' detection (canon_frags(r) & canon_frags(p)) cannot distinguish a truly conserved species from one that appears on both sides with different stoichiometry."
+    }
+  ],
+  "proline_2og_case": {
+    "reaction": "2-oxoglutarate + proline + O2 -> succinate + hydroxyproline + CO2",
+    "expected_lineages": [
+      "proline -> hydroxyproline",
+      "2-oxoglutarate -> succinate"
+    ],
+    "forbidden_lineage": "2-oxoglutarate -> hydroxyproline",
+    "source_record_found": false,
+    "status": "required_case_missing",
+    "candidate_keyword_hits": 0,
+    "note": "The canonical case definition is encoded (final_design \u00a79.3) but no source record (e.g. RHEA:10280) has been provided to bind it to real data. A keyword scan of the candidate pkl found 0 proline-string hits (SMILES, not names \u2014 these are not confirmed complete records and rdkit is absent so they cannot be audited)."
+  },
+  "discipline_notes": {
+    "legacy_read_only": true,
+    "no_failed_records_deleted": true,
+    "no_success_only_sampling": true,
+    "no_fixture_reported_as_real": true,
+    "section_9_8_compliant": true
+  }
+}

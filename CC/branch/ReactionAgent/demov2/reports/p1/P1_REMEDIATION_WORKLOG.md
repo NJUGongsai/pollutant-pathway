@@ -143,3 +143,69 @@
     not yet consumed by implementation (T9/T10 will use them)
 - next task authorization: T3 authorized (T2 exit criteria met: P1 object set
   complete, P0 unchanged, JSON schema fresh, zero fail/error/skip)
+
+## Task 3 (P1-T3: Legacy lineage audit — L2 independent, read-only)
+- timestamp: 2026-07-30
+- assumptions:
+  - Preflight BLOCKED: real_reaction_source_not_confirmed + rdkit_absent +
+    required_case_missing (proline/2OG source record) — all three inherited
+  - rdkit absent from `.venv` (verified: `ModuleNotFoundError: No module named 'rdkit'`)
+  - legacy `../benchmark/canonical_identity.py` is read-only reference (sha256
+    `6003f4bc…eb2d0`, matches Preflight §2 frozen reference)
+  - T2 schemas (`NormalizedReactionRecord`/`ResolvedTransformedLineage`) are
+    available but NOT consumed at runtime — no real rows to instantiate them
+  - §9.8 forbids fixture-as-real-audit; verdict must be PARTIAL when source missing
+- files:
+  - created: `scripts/legacy_lineage_audit.py` (read-only static audit, no rdkit)
+  - created: `reports/data_audit/legacy_lineage_audit.json` (machine-readable)
+  - created: `reports/data_audit/legacy_lineage_audit.md` (human-readable)
+  - created: `tests/p1/test_legacy_audit_contract.py` (10 contract tests)
+  - created: `reports/p1/P1_T3_LEGACY_AUDIT.md` (this checkpoint)
+  - NOT modified: `../benchmark/canonical_identity.py`, `../core/chenyu_features.py`
+- audit scope:
+  - legacy_logic_static_audit_only (transformed_pair NOT executed on real rows)
+  - legacy module fingerprint (sha256 verified pre+post run, read_only=True)
+  - 5 §9.4 mismatch categories with definitions
+  - 6 logic-level risks per audited function
+  - real-source probe: rdkit/numpy import + env-var scan + candidate pkl inventory
+  - proline/2OG case recorded as required_case_missing
+- RED:
+  - `tests/p1/test_legacy_audit_contract.py` → 10 failed (audit JSON not generated)
+- impl:
+  - `scripts/legacy_lineage_audit.py`: assembles verdict+counts+categories+
+    examples+source_ids+legacy_module+real_source_status+legacy_logic_risks+
+    proline_2og_case+discipline_notes; writes JSON+MD; re-verifies legacy sha
+    at exit (read-only guard, exit code 2 on any mutation)
+  - verdict = PARTIAL; reasons = [real_reaction_source_not_confirmed,
+    rdkit_absent_runtime_unable_to_execute_legacy_transformed_pair,
+    required_case_missing_proline_2og_source_record]
+  - counts: all 0 (total_reactions=0 denominator — honest, not missing)
+  - examples: [] / source_ids: [] (§9.8: no fabrication when PARTIAL)
+- GREEN:
+  - `tests/p1/test_legacy_audit_contract.py` → 10 passed
+  - contract tests adjusted per brief Step 6: `test_proline_2og_case_handled_honestly`
+    replaces brief's `test_proline_2og_included` (context-aware: requires real
+    example when PASS, requires `required_case_missing` marker when PARTIAL);
+    adds `test_no_fabricated_examples_when_partial` (§9.8 anti-fabrication guard)
+- candidate data finding:
+  - `rxn2enzyme_positives.pkl` exists at `/Volumes/CC/Enzyme_Agent/depending/data/`
+    with 3601 reaction SMILES; probed (pickle-only, no rdkit); 0 proline hits
+  - NOT treated as confirmed source: maps SMILES→enzyme lists, not complete
+    RHEA/BRENDA records; rdkit absent so cannot run transformed_pair; user has
+    not confirmed it as T3 source
+- regression:
+  - `tests` → 390 passed (290 P0 + 100 P1), 0 fail/error/skip/xfail/xpass
+  - P0 Gate → 10/10 passed (READY_FOR_CHATGPT_AUDIT), no regression
+  - `../benchmark/` + `../core/`: git status `??` (untracked, untouched)
+- deviations:
+  - execution model Qwen → Claude Code subagent (inherited)
+  - contract test adjusted for PARTIAL per brief Step 6 (honest, not weakened)
+  - audit scope = static logic audit only (no real rows — rdkit absent + source
+    unconfirmed; §9.8 forbids fixture-as-real-audit)
+- verdict: PARTIAL (P1 Gate = BLOCKED)
+- to unblock: (1) real reaction source confirmed, (2) rdkit installed in .venv,
+  (3) proline/2OG source record (e.g. RHEA ID)
+- next task authorization: T3 PARTIAL — real-data audit blocked. Downstream
+  T4/T6 (which need rdkit + real source) remain blocked. T5 (participant roles)
+  and T7/T8 (ledger skeletons) may proceed on read-only/fixture scaffolding
+  per the same PARTIAL discipline.
