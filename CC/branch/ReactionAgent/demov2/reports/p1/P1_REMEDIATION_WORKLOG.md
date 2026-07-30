@@ -209,3 +209,97 @@
   T4/T6 (which need rdkit + real source) remain blocked. T5 (participant roles)
   and T7/T8 (ledger skeletons) may proceed on read-only/fixture scaffolding
   per the same PARTIAL discipline.
+
+## Task 4 (P1-T4: Atom-mapping adapter)
+- timestamp: 2026-07-30T02:36Z (UTC)
+- assumptions:
+  - Preflight BLOCKED: rdkit/numpy/networkx/scipy all absent in `.venv`
+    (verified: `import rdkit` → ModuleNotFoundError; Preflight json
+    `runtime.mapper_backend=null`)
+  - P0 `MappingReport` schema (§8/§10/§11/§12) is frozen — NOT modified
+  - P0 `MappingStatus` enum (§10.2 vocabulary) reused as-is
+  - T2 `NormalizedReactionRecord` is the input type (consumed by Protocol)
+  - T1 `canonical_hash` accepts only basic types (no datetime/Path) —
+    input_hash hashes only {reaction_id, normalized_reaction, source_record_id}
+  - §10.4 formal ≠ mechanistic: FakeAtomMapper NEVER sets
+    `mechanistic_atom_origin`; only `formal_mapped_source_assignment`
+  - §10.5 MCS/center-pair fallback downgrades status (never fully_mapped)
+  - §10.7: real mapper unavailable → UNIT_CONTRACT_COMPLETE / INTEGRATION_BLOCKED
+    (not PASS)
+- files:
+  - created: `reaction_agent/mapping/__init__.py` (package exports)
+  - created: `reaction_agent/mapping/base.py` (`AtomMapper` Protocol, §10.1)
+  - created: `reaction_agent/mapping/adapter.py` (`FakeAtomMapper` +
+    `compute_quality_flags` + `RealMapperAdapter` skeleton)
+  - created: `tests/p1/test_mapping_adapter.py` (30 contract tests)
+  - created: `reports/p1/mapping_integration_sample.json` (INTEGRATION_BLOCKED)
+  - created: `reports/p1/P1_T4_MAPPING_ADAPTER.md` (this checkpoint)
+  - NOT modified: P0 schemas, `reports/p0/`, `../benchmark/`, `../core/`
+- Step 1 (READ — mapper backend probe):
+  - rdkit: unavailable (ModuleNotFoundError)
+  - rxnmapper: unavailable (ModuleNotFoundError)
+  - rxn4chemistry: unavailable (ModuleNotFoundError)
+  - numpy/networkx/scipy: unavailable (Preflight json confirms all null)
+  - conclusion: real mapper integration BLOCKED → UNIT_CONTRACT_COMPLETE only
+- RED:
+  - `tests/p1/test_mapping_adapter.py` → 30 failed
+    (ModuleNotFoundError: No module named 'reaction_agent.mapping')
+- impl:
+  - `base.py`: `AtomMapper` Protocol with `map_reaction(record) ->
+    MappingReport`; `@runtime_checkable` for structural typing
+  - `adapter.py`:
+    - `FakeAtomMapper`: deterministic, formal-only; params: status/fallback/
+      timeout/duplicate_map_ids/symmetry_ambiguity/resonance_tautomer_ambiguity;
+      §10.5 fallback downgrades fully_mapped→partially_mapped; generates typed
+      FormalMappedAtomPair objects (§11); mechanistic_atom_origin=None always
+    - `compute_quality_flags`: §10.3 8 dimensions as `name=value` strings
+    - `RealMapperAdapter`: SUPPORTED_BACKENDS=("rdkit","rxnmapper",
+      "rxn4chemistry"); `is_available()` probes importability; `map_reaction()`
+      raises NotImplementedError with INTEGRATION_BLOCKED marker when blocked
+  - `input_hash`: `canonical_hash({reaction_id, normalized_reaction,
+    source_record_id})` — basic types only (T1 fix respected)
+  - `output_hash`: `canonical_hash({input_hash, mapper_name, mapper_version,
+    mapping_status, fallback_method, assignment_method})` — deterministic
+  - `mapper_parameters`: captures timeout + runtime_ms + status + fallback
+    (all string values, per `dict[str, str]` schema)
+- GREEN:
+  - initial: 1 failed (`test_duplicate_map_ids_flagged` — duplicate_map_ids
+    flag not wired to map_number_uniqueness)
+  - fix: override `map_uniqueness=False` when `self._duplicate_map_ids` is set
+  - final: `tests/p1/test_mapping_adapter.py` → 30 passed in 0.19s
+- integration test (Step 6/7):
+  - brief Step 6 uses `@pytest.mark.skipif` — replaced per user instruction
+    (zero-skip discipline). `test_real_mapper_integration_handles_unavailable_backend`
+    verifies adapter raises NotImplementedError("...INTEGRATION_BLOCKED...")
+    when backend unavailable; runs real integration when available. No skip.
+  - all 3 backends probed: unavailable → INTEGRATION_BLOCKED
+  - `mapping_integration_sample.json`: documents blocked state + unit contract
+    sample (fake mapper formal-only output with 8 quality flags)
+- regression:
+  - `tests` → 420 passed (290 P0 + 130 P1), 0 fail/error/skip/xfail/xpass
+  - P0 Gate → 10/10 passed (READY_FOR_CHATGPT_AUDIT), no regression
+- deviations:
+  - execution model Qwen → Claude Code subagent (inherited)
+  - integration test: skipif → non-skip INTEGRATION_BLOCKED assertion
+    (per user instruction: zero-skip discipline)
+  - runtime/timeout capture: §10.1 lists `runtime` but P0 MappingReport has
+    no runtime field (frozen). Captured in `mapper_parameters` as
+    `runtime_ms`/`timeout` strings (non-breaking, auditable)
+  - brief `AtomMapper` Protocol signature uses bare `reaction` param;
+    annotated as `NormalizedReactionRecord` per §10.1 spec text
+- concerns:
+  - INTEGRATION_BLOCKED: real mapper cannot run (rdkit absent). T4 is
+    UNIT_CONTRACT_COMPLETE but NOT PASS. P1 Gate G04 will not pass until
+    rdkit/numpy/networkx/scipy installed
+  - RealMapperAdapter._do_map is a skeleton — wiring real backend is a
+    follow-up once installed
+  - FakeAtomMapper atom pairs are syntactic (not chemically correct) —
+    sufficient for contract testing, not real chemistry validation
+- verdict: UNIT_CONTRACT_COMPLETE / INTEGRATION_BLOCKED (not PASS)
+- to unblock: (1) install rdkit/numpy/networkx/scipy in .venv,
+  (2) set P1_REAL_MAPPER_AVAILABLE env, (3) implement RealMapperAdapter._do_map,
+  (4) re-run integration test, (5) update verdict to PASS
+- next task authorization: T4 UNIT_CONTRACT_COMPLETE — Protocol + fake mapper
+  unit contract done. Real mapper integration blocked. Downstream T6 (lineage
+  resolver) remains blocked (needs rdkit). T5/T7/T8 may proceed on
+  scaffolding per the same PARTIAL discipline.
