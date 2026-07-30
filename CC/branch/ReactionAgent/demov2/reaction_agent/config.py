@@ -1,5 +1,6 @@
 """P1 build config + build info (chatgpt_p1_train.md §7.3)."""
 from __future__ import annotations
+import importlib.metadata
 import json, sys
 from reaction_agent.schemas.common import StrictModel, NonEmptyStr
 
@@ -29,9 +30,20 @@ class BuildInfo(StrictModel):
     policy_version: NonEmptyStr
     python_version: NonEmptyStr
 
+def _package_version() -> str:
+    """单源化 package_version 取自 importlib.metadata (MINOR-2)。
+
+    pyproject.toml 是唯一版本源；metadata 缺失（未 ``pip install``）时
+    fallback "0.0.0"，避免硬编码与 pyproject 漂移。
+    """
+    try:
+        return importlib.metadata.version("reaction-analogy-agent")
+    except importlib.metadata.PackageNotFoundError:
+        return "0.0.0"
+
 def get_build_info() -> BuildInfo:
     return BuildInfo(
-        package_version="0.2.0",
+        package_version=_package_version(),
         schema_version="p1-1",
         mapper_resolver_version="p1-1",
         ledger_version="p1-1",

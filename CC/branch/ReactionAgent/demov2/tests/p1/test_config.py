@@ -1,5 +1,12 @@
+import os
+import importlib.metadata
 import pytest
 from reaction_agent.config import BuildConfig, get_build_info
+from reaction_agent.provenance import (
+    assert_no_legacy_write,
+    SourceRecordProvenance,
+    _PROJECT_ROOT,
+)
 
 def test_explicit_snapshot_path_required():
     with pytest.raises(Exception):
@@ -85,4 +92,46 @@ def test_legacy_write_substring_false_positive_allowed():
 def test_legacy_write_demov2_reports_p1_allowed():
     # demov2 内的 reports/p1 路径合法 (不是 ../reports/p0)
     assert_no_legacy_write("reports/p1/P1_T1_PACKAGE_BOOTSTRAP.md")  # 不 raise
+
+# -- Fix Round 1: IMPORTANT-1 guard 返回解析后绝对路径契约 --
+
+def test_legacy_write_returns_resolved_absolute_path():
+    # 合法路径：guard 必须返回解析后的绝对路径供调用方实际写入 (IMPORTANT-1)。
+    # 调用方必须用该返回值写入——这样 guard 的路径解释与实际写入路径一致。
+    resolved = assert_no_legacy_write("reports/p1/x.json")  # 不 raise
+    assert os.path.isabs(resolved)
+    expected = os.path.realpath(os.path.join(_PROJECT_ROOT, "reports", "p1", "x.json"))
+    assert resolved == expected
+
+def test_legacy_write_cwd_relative_returns_resolved_path():
+    # `benchmark/x` (无 `../`，纯 CWD 相对) 是 IMPORTANT-1 的核心绕过向量：
+    # 若调用方 CWD 在 parent，open("benchmark/x") 会写入 legacy ../benchmark/x。
+    # Guard 闭合方式：将相对路径基于项目根 demov2/ 解析，返回解析后的绝对路径；
+    # 调用方必须用返回值写入。此处验证 guard 的契约边界——
+    #   (1) 不 raise（demov2/benchmark/x 不是 legacy）
+    #   (2) 返回的是项目根下的绝对路径，而非 CWD 相对路径
+    resolved = assert_no_legacy_write("benchmark/x")  # 不 raise
+    assert os.path.isabs(resolved)
+    # 解析到项目根下 (demov2/benchmark/x)，而非 legacy (../benchmark/x = parent/benchmark/x)
+    expected = os.path.realpath(os.path.join(_PROJECT_ROOT, "benchmark", "x"))
+    assert resolved == expected
+    # 双重确认：返回路径不在 legacy 目录下（parent 的 benchmark）
+    legacy_parent_benchmark = os.path.realpath(
+        os.path.join(_PROJECT_ROOT, "..", "benchmark")
+    )
+    assert not (resolved == legacy_parent_benchmark
+                or resolved.startswith(legacy_parent_benchmark + os.sep))
+
+# -- Fix Round 1: MINOR-2 package_version 单源化 --
+
+def test_package_version_sourced_from_metadata():
+    # package_version 必须单源化自 importlib.metadata (MINOR-2)，不得硬编码。
+    # metadata 缺失时 fallback "0.0.0"。
+    info = get_build_info()
+    try:
+        expected = importlib.metadata.version("reaction-analogy-agent")
+    except importlib.metadata.PackageNotFoundError:
+        expected = "0.0.0"
+    assert info.package_version == expected
+
 
