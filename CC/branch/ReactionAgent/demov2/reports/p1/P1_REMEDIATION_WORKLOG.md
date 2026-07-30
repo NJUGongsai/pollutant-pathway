@@ -757,3 +757,65 @@
   production index boundary enforced; policy authority reused; P0 baseline +
   Gate preserved)
 - next task authorization: T9 UNIT_CONTRACT_COMPLETE.
+
+## Task 10 (P1-T10: Immutable snapshot builder)
+
+- scope: implement `build_snapshot(config, evidence_iter) -> SnapshotManifest`
+  (atomic finalize, §16.4) + `load_snapshot(snapshot_id_or_path, root=None) ->
+  SnapshotRecord` (read-only, verify hash, §16.5). Deterministic rebuild (§16.6).
+  13 §16.7 tests + 9 contract/security tests.
+- files created:
+  - `reaction_agent/snapshot/__init__.py` (package init, re-exports API)
+  - `reaction_agent/snapshot/builder.py` (builder, BUILDER_VERSION=p1-t10-1)
+  - `reaction_agent/snapshot/loader.py` (read-only loader)
+  - `tests/p1/test_snapshot_builder.py` (22 tests: 13 §16.7 + 9 contract/security)
+  - `reports/p1/snapshot_build_sample.json` (fixture + real-source-separated sample)
+  - `reports/p1/P1_T10_SNAPSHOT.md` (checkpoint report)
+- TDD:
+  - RED: ModuleNotFoundError (module did not exist) — 1 collection error
+  - GREEN: 22 passed in 0.17s
+- regression:
+  - full suite: 589 passed (baseline 567 + 22 new T10; zero skip/xfail)
+  - P0 contracts: 290 passed (baseline preserved)
+  - P1: 299 passed (277 baseline + 22 new T10)
+  - P0 Gate: 10/10 passed (no regression)
+- §16.1 pipeline: builder accepts pre-computed T4-T8 artifacts
+  (SnapshotEvidenceItem = ReactionEvidence + SourceReactionLedger +
+  ResolvedTransformedLineage), runs T9 decide_eligibility to classify into
+  strict/conditional/diagnostic/quarantine lanes, builds production/diagnostic/
+  quarantine indices, computes canonical hash, atomic finalize.
+- §16.4 atomicity: temp dir → verify → os.rename (fails if target exists) →
+  complete=true LAST. Manifest written with build_status="building" to temp;
+  complete=true + COMPLETE marker written AFTER rename in final dir.
+  Interrupted build → no complete snapshot; loader rejects. Existing complete
+  snapshot NEVER overwritten (SnapshotExistsError).
+- §16.5 loader: explicit ID/path required (no auto-latest); read-only (all
+  open() calls mode "r"); verifies manifest hash against recomputed content
+  hash; rejects incomplete (build_status != complete); rejects hash mismatch;
+  rejects .tmp_* temp dirs.
+- §16.6 determinism: same source + same versions + same config → identical
+  snapshot hash. 3-way match proven (build_a == build_b == hash_only).
+  Canonical content hash EXCLUDES timestamp, run ID, temp path, unordered
+  iteration. Record hashes sorted before hashing. BuildConfig hash excludes
+  output_snapshot_root and timeout (path/runtime fields).
+- L2 security-reviewer audit (Step 5): 0 CRITICAL, 3 HIGH fixed:
+  - H1: build_status="complete" written to temp BEFORE os.rename → fixed:
+    complete=true written AFTER rename in final dir
+  - H2: loader trusted stored record_content_hash → fixed: loader recomputes
+    per-record hash from fields and compares (detects content tamper)
+  - H3: TOCTOU between check and os.replace → fixed: os.rename (fails if
+    target exists) instead of os.replace
+  - M1 fixed: loader rejects .tmp_* directories
+  - M4 fixed: removed unused import from loader
+- real vs fixture separation: fixture snapshots use source_name=fixture_source_*;
+  real source snapshots BLOCKED (rdkit absent for T4/T6/T7). Builder API ready;
+  no real data fabricated. Clearly separated in snapshot_build_sample.json.
+- concerns:
+  - M2 (acknowledged): manifest is trust root for schema_version/build_config_hash/
+    versions/policy_version (cannot be recomputed from artifacts). COMPLETE marker
+    provides independent hash cross-verification.
+  - L3 (performance): _source_content_hash calls decide_eligibility twice per
+    item. Not a correctness issue (decisions deterministic); can cache in refactor.
+- verdict: UNIT_CONTRACT_COMPLETE (determinism 3-way proven; atomicity enforced;
+  loader read-only; L2 audit 0 CRITICAL/3 HIGH fixed; P0 baseline + Gate preserved)
+- next task authorization: T10 UNIT_CONTRACT_COMPLETE.
