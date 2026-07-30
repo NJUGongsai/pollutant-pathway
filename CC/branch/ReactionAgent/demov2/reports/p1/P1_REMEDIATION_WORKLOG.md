@@ -343,3 +343,117 @@
 - files modified: `reaction_agent/mapping/adapter.py`, `tests/p1/test_mapping_adapter.py`
 - NOT modified: P0 schemas, `reports/p0/`, `../benchmark/`, `../core/`
 - verdict (unchanged): UNIT_CONTRACT_COMPLETE / INTEGRATION_BLOCKED
+
+## Task 5 (P1-T5: Participant roles & donor eligibility)
+- timestamp: 2026-07-30T03:20Z (UTC)
+- assumptions:
+  - Preflight BLOCKED (rdkit absent) — does NOT block T5; roles are
+    hypotheses + evidence, not chemical computation
+  - P0 `RoleHypothesis` (schemas/evidence.py: role/score/evidence_codes) is
+    frozen — NOT redefined (brief discipline: "RoleHypothesis 在 P0 已有，
+    不要重定义")
+  - P0 `ReactionParticipant` (schemas/evidence.py) frozen — NOT modified
+  - T2 `DonorEligibilityAssessment` (schemas/p1_entities.py) reused as-is
+  - legacy `../benchmark/canonical_identity.py` imports rdkit at module top;
+    rdkit absent → direct import fails. AST extraction used instead (read-only,
+    no execution, no side effects)
+  - §11.3: COFACTORS ONLY as participant_role_prior / donor_eligibility_prior /
+    retrieval_downweighting_prior — never destructive
+  - §11.4: donor eligibility ≠ role; 10 dimensions evaluated
+  - §11.5: input participant multiset == persisted participant multiset
+- files:
+  - created: `reaction_agent/roles/__init__.py` (package exports)
+  - created: `reaction_agent/roles/cofactors.py` (`load_cofactors` — AST extract + source hash)
+  - created: `reaction_agent/roles/resolver.py` (`resolve_roles` + `assess_donor_eligibility`)
+  - created: `tests/p1/test_participant_roles.py` (45 contract tests)
+  - created: `reports/p1/participant_role_sample.json` (evidence sample)
+  - created: `reports/p1/P1_T5_PARTICIPANT_ROLES.md` (checkpoint)
+  - NOT modified: P0 schemas, `reports/p0/`, `../benchmark/`, `../core/`
+- RED:
+  - `tests/p1/test_participant_roles.py` → 45 failed
+    (ModuleNotFoundError: No module named 'reaction_agent.roles')
+- impl:
+  - `cofactors.py`: AST-parse `COFACTORS = frozenset({...})` literal from
+    legacy source (no rdkit execution); 24 string SMILES entries, sorted +
+    de-duplicated; source SHA-256 = `6003f4bc…eb2d0` (matches Preflight);
+    module-level cache (idempotent); `LEGACY_PATH` resolved via 4 `.parent`
+    calls from `cofactors.py` → `ReactionAgent/benchmark/canonical_identity.py`
+  - `resolver.py`:
+    - `resolve_roles`: attaches `RoleHypothesis` to each participant via
+      `model_copy(update={"role_hypotheses": ...})` (immutability — input NOT
+      mutated); NEVER deletes a participant; 4 hypothesis layers:
+      (1) `unknown` baseline (always present — no forced ground truth),
+      (2) side-based weak prior (co_substrate/coproduct),
+      (3) COFACTORS prior (cofactor/carrier) if member,
+      (4) mapping-derived (transformed_substrate/product) if mapping evidence;
+      layers 3+4 coexist → ambiguity preserved (§11.3)
+    - `assess_donor_eligibility`: 10 dimensions (5 core mapping-derived +
+      5 context priors); core drives verdict, context only downgrades
+      eligible→conditional (COFACTORS prior, §11.3); without mapping →
+      `unknown` (never fabricated); small molecules NOT auto-disqualified
+    - `policy_version=p1-t5-1` encoded as evidence code (P0 RoleHypothesis
+      has no policy_version field)
+    - `ambiguity` encoded as multiple competing hypotheses (§11.2)
+    - heuristic score in [0,1] = ordering hint, NOT probability
+- GREEN:
+  - initial: 1 failed (`test_donor_eligibility_unknown_without_mapping`
+    returned `conditionally_eligible` instead of `unknown`)
+  - fix: split dimensions into core (mapping-derived) + context (priors);
+    core drives verdict, context never upgrades unknown→conditional
+  - final: `tests/p1/test_participant_roles.py` → 45 passed in 0.18s
+- §11.3 special tests (all pass):
+  - O2 formal atom source: retained ✅
+  - H2O hydrolysis participant: retained ✅
+  - CO2 coproduct: retained ✅
+  - NAD(P) evidence retained verbatim: ✅
+  - small molecule transformed substrate: retained ✅
+  - 2-oxoglutarate not deleted (not in COFACTORS by design): ✅
+  - COFACTORS prior vs mapping conflict → both hypotheses retained: ✅
+  - full proline/2OG/O2 reaction (6 participants): multiset preserved ✅
+- §11.5 multiset invariant (verified):
+  - input_count == output_count (8 == 8 in sample)
+  - input_ids_sorted == output_ids_sorted: True
+  - duplicates preserved (no set collapse)
+  - input not mutated (model_copy returns new objects)
+  - non-role fields preserved verbatim (smiles/side/stoichiometry/maps)
+- COFACTORS not-destructive evidence:
+  - legacy file SHA-256 pre == post == `6003f4bc…eb2d0`
+  - git status: `../benchmark/` untracked (pre-existing), NOT modified
+  - COFACTORS membership only adds a prior hypothesis; never deletes;
+    never forces ground-truth role; `unknown` always retained
+- regression:
+  - `tests` → 470 passed (290 P0 + 180 P1), 0 fail/error/skip/xfail/xpass
+  - P0 Gate → 10/10 passed (READY_FOR_CHATGPT_AUDIT), no regression
+  - P1 breakdown: 26 (preflight) + 21 (T1) + 27 (T2) + 16 (T2 extra) +
+    10 (T3) + 35 (T4) + 45 (T5) = 180
+- deviations:
+  - execution model Qwen → Claude Code subagent (inherited)
+  - COFACTORS extraction via AST (legacy imports rdkit at top; rdkit absent;
+    direct import impossible). Read-only, no execution, no side effects
+  - canonicalization deferred: legacy values already canonical (produced by
+    Chem.MolToSmiles); re-canonicalization requires rdkit (absent). Values
+    returned as-is — correct per §11.3 "读取并 canonicalize" (legacy already
+    canonicalized)
+  - `policy_version` / `ambiguity` encoded in evidence_codes / hypothesis
+    multiplicity (P0 RoleHypothesis schema frozen, no new fields)
+  - donor eligibility aggregation: brief §11.4 lists dimensions but no
+    aggregation function; split into core+context (core drives, context
+    downgrades only) — ensures "without mapping → unknown"
+  - `mapping_report` typed `object | None` (T5 checks presence only, not
+    MappingReport fields; tighten to `MappingReport | None` when T6/T9 wire
+    real reports)
+- concerns:
+  - rdkit absent: `size_complexity` uses SMILES-length proxy (≤5 chars →
+    small); never disqualifies, only adds reason code. Replace with
+    heavy-atom count when rdkit available
+  - `reaction_direction` uses `side` as weak proxy (direction is on
+    ReactionEvidence, not ReactionParticipant); consume `evidence.direction`
+    when T6/T9 wire ReactionEvidence
+  - `transferred_atoms` / `lineage_ambiguity` always `unknown` in T5
+    (require mechanistic evidence / resolved lineage, T6+); honest, no
+    fabrication
+- verdict: UNIT_CONTRACT_COMPLETE (roles are hypotheses + evidence, not
+  chemical computation; rdkit absence does not block the unit contract)
+- next task authorization: T5 UNIT_CONTRACT_COMPLETE. T6 (lineage resolver)
+  remains blocked (needs rdkit). T7/T8 (ledger skeletons) may proceed on
+  scaffolding per the same PARTIAL discipline.

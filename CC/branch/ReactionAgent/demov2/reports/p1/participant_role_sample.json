@@ -1,0 +1,253 @@
+{
+  "task": "P1-T5 Participant roles & donor eligibility",
+  "policy_version": "p1-t5-1",
+  "cofactors_source": {
+    "legacy_path": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/benchmark/canonical_identity.py",
+    "source_sha256": "6003f4bc4ffc5ca3304dc1d2282a467f4f773e149ea9cf2a132ca0e4079eb2d0",
+    "cofactors_count": 24,
+    "read_only": true,
+    "extraction_method": "AST parse (no rdkit execution; rdkit absent)"
+  },
+  "multiset_invariant": {
+    "input_count": 8,
+    "output_count": 8,
+    "input_ids_sorted": [
+      "p1",
+      "p2",
+      "p3",
+      "p4",
+      "p5",
+      "p6",
+      "p7",
+      "p8"
+    ],
+    "output_ids_sorted": [
+      "p1",
+      "p2",
+      "p3",
+      "p4",
+      "p5",
+      "p6",
+      "p7",
+      "p8"
+    ],
+    "invariant_holds": true,
+    "note": "§11.5: input participant multiset == persisted participant multiset"
+  },
+  "cofactors_not_destructive": {
+    "§11.3_rule": "COFACTORS is ONLY participant_role_prior / donor_eligibility_prior / retrieval_downweighting_prior",
+    "special_molecule_retention": {
+      "O2_formal_atom_source": {
+        "participant_id": "p3",
+        "canonical_smiles": "O=O",
+        "in_cofactors_prior": true,
+        "retained": true,
+        "role_hypotheses_count": 4,
+        "roles": [
+          "unknown",
+          "co_substrate",
+          "cofactor",
+          "transformed_substrate"
+        ]
+      },
+      "H2O_hydrolysis_participant": {
+        "participant_id": "p5",
+        "canonical_smiles": "O",
+        "in_cofactors_prior": true,
+        "retained": true,
+        "role_hypotheses_count": 3,
+        "roles": [
+          "unknown",
+          "co_substrate",
+          "cofactor"
+        ]
+      },
+      "CO2_coproduct": {
+        "participant_id": "p8",
+        "canonical_smiles": "O=C=O",
+        "in_cofactors_prior": true,
+        "retained": true,
+        "role_hypotheses_count": 3,
+        "roles": [
+          "unknown",
+          "coproduct",
+          "cofactor"
+        ]
+      },
+      "NAD_evidence_retained": {
+        "participant_id": "p4",
+        "canonical_smiles": "NC(=O)c1ccc[n+]([C@@H]2O[C@H](COP(=O)(O)OP(=O)(O)OC[C@H]3O[C@@H](n4cnc5c(N)ncnc54)[C@H](O)[C@@H]3O)[C@@H](O)[C@H]2O)c1",
+        "in_cofactors_prior": true,
+        "retained": true,
+        "role_hypotheses_count": 3,
+        "roles": [
+          "unknown",
+          "co_substrate",
+          "carrier"
+        ]
+      },
+      "2_oxoglutarate_not_deleted": {
+        "participant_id": "p2",
+        "canonical_smiles": "OC(=O)C(=O)CCC(=O)O",
+        "in_cofactors_prior": false,
+        "retained": true,
+        "role_hypotheses_count": 3,
+        "roles": [
+          "unknown",
+          "co_substrate",
+          "transformed_substrate"
+        ]
+      }
+    }
+  },
+  "ambiguity_preservation": {
+    "participant_id": "p3",
+    "molecule": "O2",
+    "in_cofactors_prior": true,
+    "has_mapping_evidence": true,
+    "hypotheses_retained": [
+      {
+        "role": "unknown",
+        "score": 0.2,
+        "evidence_codes": [
+          "policy_version=p1-t5-1",
+          "default_unknown_no_evidence"
+        ]
+      },
+      {
+        "role": "co_substrate",
+        "score": 0.25,
+        "evidence_codes": [
+          "policy_version=p1-t5-1",
+          "side_prior_reactant"
+        ]
+      },
+      {
+        "role": "cofactor",
+        "score": 0.4,
+        "evidence_codes": [
+          "policy_version=p1-t5-1",
+          "cofactors_prior",
+          "cofactors_source_hash=6003f4bc4ffc"
+        ]
+      },
+      {
+        "role": "transformed_substrate",
+        "score": 0.5,
+        "evidence_codes": [
+          "policy_version=p1-t5-1",
+          "mapping_derived_evidence",
+          "mapped_fraction=1.00",
+          "changed_atom_fraction=0.50"
+        ]
+      }
+    ],
+    "ambiguity_preserved": true
+  },
+  "donor_eligibility_examples_no_mapping": {
+    "p1": {
+      "molecule_id": "proline",
+      "eligibility": "eligible",
+      "reason_codes": [
+        "eligible_mapped_retention_fraction=0.90",
+        "eligible_changed_atoms_fraction=0.30",
+        "unknown_no_mechanistic_evidence",
+        "unknown_mapping_report_absent",
+        "unknown_lineage_not_resolved",
+        "not_applicable_size_nontrivial",
+        "not_applicable_stoichiometry=1",
+        "not_applicable_no_provenance",
+        "not_applicable_not_a_cofactor",
+        "not_applicable_side=reactant"
+      ]
+    },
+    "p2": {
+      "molecule_id": "2OG",
+      "eligibility": "eligible",
+      "reason_codes": [
+        "eligible_mapped_retention_fraction=0.85",
+        "eligible_changed_atoms_fraction=0.40",
+        "unknown_no_mechanistic_evidence",
+        "unknown_mapping_report_absent",
+        "unknown_lineage_not_resolved",
+        "not_applicable_size_nontrivial",
+        "not_applicable_stoichiometry=1",
+        "not_applicable_no_provenance",
+        "not_applicable_not_a_cofactor",
+        "not_applicable_side=reactant"
+      ]
+    },
+    "p3": {
+      "molecule_id": "O2",
+      "eligibility": "conditionally_eligible",
+      "reason_codes": [
+        "eligible_mapped_retention_fraction=1.00",
+        "eligible_changed_atoms_fraction=0.50",
+        "unknown_no_mechanistic_evidence",
+        "unknown_mapping_report_absent",
+        "unknown_lineage_not_resolved",
+        "conditional_small_molecule_size_prior",
+        "not_applicable_stoichiometry=1",
+        "not_applicable_no_provenance",
+        "conditional_cofactors_prior_downweight",
+        "not_applicable_side=reactant"
+      ]
+    },
+    "p4": {
+      "molecule_id": "NAD",
+      "eligibility": "unknown",
+      "reason_codes": [
+        "unknown_mapping_unavailable",
+        "unknown_changed_atoms_no_mapping",
+        "unknown_no_mechanistic_evidence",
+        "unknown_mapping_report_absent",
+        "unknown_lineage_not_resolved",
+        "not_applicable_size_nontrivial",
+        "not_applicable_stoichiometry=1",
+        "not_applicable_no_provenance",
+        "conditional_cofactors_prior_downweight",
+        "not_applicable_side=reactant"
+      ]
+    },
+    "p8": {
+      "molecule_id": "CO2",
+      "eligibility": "unknown",
+      "reason_codes": [
+        "unknown_mapping_unavailable",
+        "unknown_changed_atoms_no_mapping",
+        "unknown_no_mechanistic_evidence",
+        "unknown_mapping_report_absent",
+        "unknown_lineage_not_resolved",
+        "conditional_small_molecule_size_prior",
+        "not_applicable_stoichiometry=1",
+        "not_applicable_no_provenance",
+        "conditional_cofactors_prior_downweight",
+        "not_applicable_side=product"
+      ]
+    }
+  },
+  "donor_eligibility_with_mapping": {
+    "participant_id": "p1",
+    "eligibility": "eligible",
+    "reason_codes": [
+      "eligible_mapped_retention_fraction=0.90",
+      "eligible_changed_atoms_fraction=0.30",
+      "unknown_no_mechanistic_evidence",
+      "conditional_mapping_report_present",
+      "unknown_lineage_not_resolved",
+      "not_applicable_size_nontrivial",
+      "not_applicable_stoichiometry=1",
+      "not_applicable_no_provenance",
+      "not_applicable_not_a_cofactor",
+      "not_applicable_side=reactant"
+    ]
+  },
+  "verdict": "UNIT_CONTRACT_COMPLETE",
+  "notes": [
+    "roles are hypotheses with evidence codes, NOT ground-truth assignments",
+    "heuristic score in [0,1] is an ordering hint, NOT a probability",
+    "donor eligibility is distinct from role (§11.4)",
+    "COFACTORS prior never deletes a participant, never forces ground-truth role",
+    "rdkit absent — chemistry dimensions simulated via structured inputs, never fabricated"
+  ]
+}
