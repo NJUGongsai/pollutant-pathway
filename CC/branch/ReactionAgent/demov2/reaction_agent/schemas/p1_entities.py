@@ -17,7 +17,7 @@ Field sources:
 """
 from __future__ import annotations
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import field_validator
 
@@ -29,6 +29,13 @@ from reaction_agent.schemas.common import (
     QuarantineBehavior,
     LineageResolutionQuality,
 )
+
+if TYPE_CHECKING:
+    # Static-only import: type checkers see SourceRecordProvenance for the
+    # ``provenance`` annotation. Runtime resolution is deferred to the bottom
+    # of this module (after the class is defined) + the field_validator below,
+    # so no import cycle is triggered during class construction.
+    from reaction_agent.provenance import SourceRecordProvenance
 
 
 # -- Normalized reaction record (final_design §7.1: raw + normalized kept) --
@@ -49,7 +56,31 @@ class NormalizedReactionRecord(StrictModel):
     direction: str = "unknown"
     record_hash: str = ""
     normalization_version: str = "p1-1"
-    provenance: object | None = None  # SourceRecordProvenance (T1), typed as object to avoid import cycle
+    # Typed as SourceRecordProvenance | None for static analysis (TYPE_CHECKING
+    # import above). At runtime, the field_validator enforces isinstance, so a
+    # bare dict like {'bogus':'dict'} is rejected instead of being silently
+    # accepted as it was under the old ``object | None`` annotation.
+    provenance: "SourceRecordProvenance | None" = None
+
+    @field_validator("provenance", mode="before")
+    @classmethod
+    def _validate_provenance(cls, v):
+        """Reject any value that is not a SourceRecordProvenance instance.
+
+        Lazy import inside the validator avoids any import cycle
+        (provenance.py imports only from schemas.common, never from this
+        module, so the cycle is impossible — but the lazy import keeps the
+        dependency direction explicit and defensive).
+        """
+        if v is None:
+            return v
+        from reaction_agent.provenance import SourceRecordProvenance
+        if not isinstance(v, SourceRecordProvenance):
+            raise ValueError(
+                f"provenance must be a SourceRecordProvenance instance, "
+                f"got {type(v).__name__}"
+            )
+        return v
 
 
 # -- Donor eligibility (chatgpt v2 §8.2: donor molecule eligibility criteria) --
@@ -89,7 +120,7 @@ class ResolvedTransformedLineage(StrictModel):
     reactant_participant_id: NonEmptyStr
     product_participant_id: NonEmptyStr
     evidence_ids: list[NonEmptyStr] = []
-    ambiguity: str = "none"  # none | partial | critical
+    ambiguity: Literal["none", "partial", "critical"] = "none"
     transformed_atom_maps: list[int] = []
     resolution_quality: LineageResolutionQuality = LineageResolutionQuality.unresolved
 
@@ -147,7 +178,7 @@ class SnapshotManifest(StrictModel):
     conditional_count: int
     diagnostic_count: int
     quarantine_count: int
-    build_status: NonEmptyStr  # complete | partial | failed
+    build_status: Literal["complete", "partial", "failed"]
     snapshot_hash: NonEmptyStr
     build_id: str = ""
     source_counts: dict[str, int] = {}
@@ -176,7 +207,7 @@ class SnapshotRecord(StrictModel):
     manifest: SnapshotManifest | None = None
     reaction_evidence_ids: list[NonEmptyStr] = []
     build_config_hash: str = ""
-    freeze_status: str = "pending"  # pending | frozen
+    freeze_status: Literal["pending", "frozen"] = "pending"
     resources: dict[str, str] = {}
 
 
@@ -223,3 +254,21 @@ class ManualAuditRecord(StrictModel):
         if v < 0:
             raise ValueError(f"must be non-negative, got {v}")
         return v
+
+
+# -- Forward-reference resolution for NormalizedReactionRecord.provenance --
+#
+# The ``provenance`` field is annotated as ``"SourceRecordProvenance | None"``
+# (string forward ref) so that static type checkers resolve it via the
+# TYPE_CHECKING import at the top of this module. Pydantic also needs to
+# resolve the name at runtime to build the field schema. This import is
+# deferred to the END of the module (after all classes are defined) so it
+# cannot trigger an import cycle during class construction.
+#
+# Cycle safety proof: ``reaction_agent.provenance`` imports ONLY from
+# ``reaction_agent.schemas.common`` (StrictModel, NonEmptyStr) — it does NOT
+# import from ``reaction_agent.schemas.p1_entities`` or any other P1 module.
+# Therefore importing it here is acyclic regardless of import order.
+from reaction_agent.provenance import SourceRecordProvenance  # noqa: E402
+
+NormalizedReactionRecord.model_rebuild()
