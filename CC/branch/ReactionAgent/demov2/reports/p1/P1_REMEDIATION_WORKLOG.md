@@ -683,3 +683,77 @@
 - verdict: UNIT_CONTRACT_COMPLETE (all 5 §14 invariants enforced; no
   Y/ranking/rationale; P0 baseline + Gate preserved)
 - next task authorization: T8 UNIT_CONTRACT_COMPLETE.
+
+## Task 9 (P1-T9: Eligibility / quarantine engine)
+
+- scope: implement `decide_eligibility(reaction_evidence, ledger, lineages)
+  -> EligibilityDecision` reusing `policies.partial_eligibility.get_row(state)`
+  (single policy authority, §15.1); fail-closed (§15.4); production index
+  boundary (§15.5); 8-row ADR-0004 matrix execution.
+- files created:
+  - `reaction_agent/eligibility/__init__.py` (package init, re-exports API)
+  - `reaction_agent/eligibility/engine.py` (engine, ENGINE_VERSION=p1-t9-1)
+  - `tests/p1/test_eligibility_engine.py` (22 tests: 8 matrix rows + fail-closed
+    + 4 boundary + reuse + priority + immutability + stable ID)
+  - `reports/p1/eligibility_matrix_execution.json` (8-row execution evidence)
+  - `reports/p1/P1_T9_ELIGIBILITY.md` (checkpoint report)
+- TDD:
+  - RED: ModuleNotFoundError (module did not exist) — 1 collection error
+  - GREEN: 22 passed in 0.23s
+- regression:
+  - full suite: 567 passed (baseline 545 + 22 new T9; zero skip/xfail)
+  - P0 contracts: 290 passed (baseline preserved)
+  - P0 Gate: 10/10 passed (no regression)
+- §15.1 policy reuse: engine calls `get_row(state)` and maps row fields to
+  EligibilityDecision. Engine source contains only state-name strings (8
+  canonical names for row lookup) + reason strings (human-readable). Zero
+  eligibility/bucket/quarantine value strings duplicated from the matrix —
+  those come exclusively from `get_row(state)`. Verified by
+  `test_engine_reuses_policy_authority` (asserts `decision.eligibility is
+  row.strict_eligibility` — same enum member, not a copy).
+- §15.3 8-row matrix execution: all 8 states reachable via crafted fixtures.
+  Each positive example's eligibility/bucket/quarantine matches its matrix
+  row authority (verified in eligibility_matrix_execution.json).
+- §15.4 fail-closed: 4 missing-field paths tested:
+  1. ledger=None → quarantine (critical_element_charge_contradiction)
+  2. lineages=[] → strict_prohibited (lineage_ambiguity_affecting_identity)
+  3. direction="unknown" → strict_prohibited (reaction_direction_unknown)
+  4. direction="unknown" + "perfect" ledger → still strict_prohibited
+  Plus defensive default: partial_or_unbalanced with no specific severe match
+  → unknown_changed_heavy_atom_source (not strict eligible).
+- §15.5 production index boundary: 4 boundary tests:
+  1. quarantine → evaluation_bucket=excluded (never production)
+  2. strict_prohibited → evaluation_bucket=diagnostic (never strict index)
+  3. conditional_eligible → required_warnings non-empty (always carries warning)
+  4. diagnostic bucket → research_or_diagnostic_eligibility=eligible (auditable)
+- classification priority (most severe wins, fail-closed):
+  1. critical_element_charge_contradiction (quarantine) — ledger None or charge!=0
+  2. lineage_ambiguity_affecting_identity (strict_prohibited) — empty or critical
+  3. reaction_direction_unknown (strict_prohibited) — direction unknown/empty
+  4. unknown_changed_heavy_atom_source (strict_prohibited) — unknown_source present
+  5. role_ambiguity_not_affecting_lineage (conditional) — role=unknown, lineage ok
+  6. missing_noncritical_cofactor_stoich (conditional) — cofactor direction unknown
+  7. heavy_atom_balanced_implicit_he (conditional) — heavy_atom_balanced status
+  8. fully_balanced_reliable_mapping (strict_eligible) — fully_balanced status
+  Two priority tests verify ordering (charge>unknown_source, lineage>role).
+- helper: `build_quarantine_record(decision, reaction_evidence) ->
+  QuarantineRecord | None` — produces QuarantineRecord for quarantine decisions
+  (reason always non-empty, never silent), None for non-quarantine.
+- participant_id field: set to reaction_evidence.reaction_id (reaction-scoped
+  decision per §10.4 matrix). Documented in engine docstring + report.
+- preflight BLOCKED (rdkit absent) does NOT affect T9: engine reads ledger's
+  already-computed fields; no new chemical computation. Zero-skip.
+- concerns:
+  - EligibilityDecision.participant_id is reaction-scoped (set to reaction_id).
+    The schema field name suggests per-participant granularity, but the §10.4
+    matrix is a reaction-level decision (can this record enter production?).
+    If future per-participant eligibility is needed, the engine can be
+    extended to loop over participants; the current scope matches the brief.
+  - The engine classifies based on the ledger's balance_status field for rows
+    1/2/8. When rdkit becomes available, `fully_balanced_explicit_reaction`
+    (row 1) will become reachable via `build_source_ledger`; currently it is
+    only reachable via direct ledger construction (tested in unit tests).
+- verdict: UNIT_CONTRACT_COMPLETE (8-row matrix executed; fail-closed enforced;
+  production index boundary enforced; policy authority reused; P0 baseline +
+  Gate preserved)
+- next task authorization: T9 UNIT_CONTRACT_COMPLETE.
