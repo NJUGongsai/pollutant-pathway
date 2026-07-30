@@ -1,0 +1,78 @@
+{
+  "mutations": [
+    {
+      "mutation": "delete participant preservation (invariant_holds=False)",
+      "expected": "G05 FAIL",
+      "actual_passed": false,
+      "actual_blocked": false,
+      "evidence": "multiset invariant does not hold; input/output count mismatch",
+      "caught": true,
+      "mutation_id": "M1"
+    },
+    {
+      "mutation": "critical tie takes max (silent pick)",
+      "expected": "G06 FAIL",
+      "actual_passed": false,
+      "actual_blocked": false,
+      "evidence": "equal-score tie case does not demonstrate no-silent-pick",
+      "caught": true,
+      "mutation_id": "M2"
+    },
+    {
+      "mutation": "MCS marked as full mapping (assignment_method=mcs_full_mapping)",
+      "expected": "G04 FAIL",
+      "actual_passed": false,
+      "actual_blocked": false,
+      "evidence": "assignment_method is not formal_mapped: mcs_full_mapping",
+      "caught": true,
+      "mutation_id": "M3"
+    },
+    {
+      "mutation": "mapper fills mechanism (formal_only_verified=False)",
+      "expected": "G04 FAIL",
+      "actual_passed": false,
+      "actual_blocked": false,
+      "evidence": "formal_only_verified is not True",
+      "caught": true,
+      "mutation_id": "M4"
+    },
+    {
+      "mutation": "quarantine record into production index",
+      "expected": "G08 FAIL",
+      "actual_passed": false,
+      "actual_blocked": false,
+      "evidence": "quarantined row not excluded: critical_element_charge_contradiction; prohibited/quarantine row in production: critical_element_charge_contradiction",
+      "caught": true,
+      "mutation_id": "M5"
+    },
+    {
+      "mutation": "snapshot hash non-deterministic (same_hash_3way=False)",
+      "expected": "G09 FAIL",
+      "actual_passed": false,
+      "actual_blocked": false,
+      "evidence": "deterministic rebuild failed: same_hash_3way != True; build_a/build_b hashes differ",
+      "caught": true,
+      "mutation_id": "M6"
+    },
+    {
+      "mutation": "delete proline/2OG required case",
+      "expected": "G06 FAIL",
+      "actual_passed": false,
+      "actual_blocked": false,
+      "evidence": "case count < 14: 13",
+      "caught": true,
+      "mutation_id": "M7"
+    },
+    {
+      "mutation": "add skipped/xfailed test",
+      "expected": "G10 zero-skip FAIL",
+      "actual_passed": false,
+      "actual_blocked": false,
+      "evidence": "mutation stats: skip=1, xfail=1",
+      "caught": true,
+      "mutation_id": "M8"
+    }
+  ],
+  "caught": 8,
+  "total": 8
+}

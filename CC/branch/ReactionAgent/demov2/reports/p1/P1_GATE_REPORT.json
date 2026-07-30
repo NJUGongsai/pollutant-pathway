@@ -1,0 +1,516 @@
+{
+  "timestamp": "2026-07-30T08:56:32.529456+00:00",
+  "gate_version": "p1-gate-1",
+  "python_version": "3.11.15",
+  "working_directory": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2",
+  "status": "BLOCKED",
+  "pass_count": 7,
+  "block_count": 3,
+  "fail_count": 0,
+  "total_checks": 10,
+  "all_passed": false,
+  "checks": [
+    {
+      "gate_id": "P1-G01",
+      "name": "package/runtime/lock + config & snapshot + no legacy write",
+      "passed": true,
+      "blocked": false,
+      "evidence": "package import + python + lock + config/snapshot + no-legacy-write guard verified",
+      "details": {
+        "build_info": {
+          "package_version": "0.0.0",
+          "schema_version": "p1-1",
+          "mapper_resolver_version": "p1-1",
+          "ledger_version": "p1-1",
+          "policy_version": "p1-1",
+          "python_version": "3.11.15"
+        },
+        "build_config_fields": [
+          "input_source",
+          "output_snapshot_root",
+          "mapper_backend",
+          "mapper_version",
+          "mapper_parameters",
+          "normalization_version",
+          "role_policy_version",
+          "lineage_resolver_version",
+          "ledger_version",
+          "eligibility_policy_version",
+          "random_seed",
+          "timeout",
+          "strict_mode"
+        ],
+        "python": {
+          "actual": "3.11.15",
+          "spec": ">=3.11",
+          "satisfied": true
+        },
+        "lock_pinned_count": 12,
+        "snapshot_api": {
+          "build_snapshot": true,
+          "compute_snapshot_hash": true,
+          "load_snapshot": true,
+          "builder_version": "p1-t10-1"
+        },
+        "legacy_write_guard": "verified (3 negatives blocked)"
+      },
+      "evidence_paths": {
+        "config": "reaction_agent/config.py",
+        "provenance": "reaction_agent/provenance.py",
+        "snapshot": "reaction_agent/snapshot/",
+        "lock": "requirements.lock.txt"
+      }
+    },
+    {
+      "gate_id": "P1-G02",
+      "name": "strict schemas/IDs/provenance + P0 contract green",
+      "passed": true,
+      "blocked": false,
+      "evidence": "strict schemas + deterministic IDs/hashes + provenance + P0 gate 10/10 green",
+      "details": {
+        "strict_schema_count": 10,
+        "hash_deterministic": true,
+        "stable_id_sample": "lin_613fe5aa6534",
+        "provenance_schema": "SourceRecordProvenance",
+        "p0_gate_exit": 0,
+        "p0_gate": "10/10"
+      },
+      "evidence_paths": {
+        "schemas": "reaction_agent/schemas/",
+        "hashing": "reaction_agent/hashing.py",
+        "p0_gate": "scripts/run_p0_gate.py",
+        "tests": "tests/contracts/"
+      }
+    },
+    {
+      "gate_id": "P1-G03",
+      "name": "legacy lineage audit complete",
+      "passed": false,
+      "blocked": true,
+      "evidence": "BLOCKED: verdict=PARTIAL: ['real_reaction_source_not_confirmed', 'rdkit_absent_runtime_unable_to_execute_legacy_transformed_pair', 'required_case_missing_proline_2og_source_record']; real_reaction_source_not_confirmed; required_case_missing_proline_2og",
+      "details": {
+        "verdict": "PARTIAL",
+        "verdict_reasons": [
+          "real_reaction_source_not_confirmed",
+          "rdkit_absent_runtime_unable_to_execute_legacy_transformed_pair",
+          "required_case_missing_proline_2og_source_record"
+        ],
+        "counts": {
+          "total_reactions": 0,
+          "audited_reactions": 0,
+          "cross_lineage_pair": 0,
+          "cofactor_selected_as_main": 0,
+          "mapping_missing": 0,
+          "legacy_pair_supported": 0,
+          "insufficient_evidence": 0
+        },
+        "category_count": 5,
+        "source_ids_count": 0,
+        "examples_count": 0,
+        "real_source_found": false,
+        "source_confirmed": false,
+        "proline_2og_source_record_found": false,
+        "proline_2og_status": "required_case_missing",
+        "legacy_read_only": true,
+        "legacy_modified": false,
+        "legacy_sha256": "6003f4bc4ffc5ca3304dc1d2282a467f4f773e149ea9cf2a132ca0e4079eb2d0",
+        "discipline_notes": {
+          "legacy_read_only": true,
+          "no_failed_records_deleted": true,
+          "no_success_only_sampling": true,
+          "no_fixture_reported_as_real": true,
+          "section_9_8_compliant": true
+        }
+      },
+      "evidence_paths": {
+        "evidence": "reports/data_audit/legacy_lineage_audit.json",
+        "legacy_source": "../benchmark/canonical_identity.py (read-only)"
+      }
+    },
+    {
+      "gate_id": "P1-G04",
+      "name": "mapping adapter integration",
+      "passed": false,
+      "blocked": true,
+      "evidence": "BLOCKED: integration_status=INTEGRATION_BLOCKED: rdkit/numpy/networkx/scipy all absent in .venv (Preflight BLOCKED)",
+      "details": {
+        "integration_status": "INTEGRATION_BLOCKED",
+        "all_backends_unavailable": true,
+        "backends_probed": {
+          "rdkit": false,
+          "rxnmapper": false,
+          "rxn4chemistry": false
+        },
+        "unit_contract_status": "UNIT_CONTRACT_COMPLETE",
+        "quality_dimensions_count": 8,
+        "quality_flags_count": 8,
+        "mapper_params_status": "fully_mapped",
+        "fallback_method": null,
+        "has_timeout_config": true,
+        "assignment_method": "formal_mapped",
+        "assignment_quality": "high_quality",
+        "mechanistic_origin": null,
+        "mechanistic_evidence_ids": [],
+        "formal_only_verified": true
+      },
+      "evidence_paths": {
+        "evidence": "reports/p1/mapping_integration_sample.json",
+        "adapter": "reaction_agent/mapping/adapter.py",
+        "tests": "tests/p1/test_mapping_adapter.py"
+      }
+    },
+    {
+      "gate_id": "P1-G05",
+      "name": "participant preservation/roles",
+      "passed": true,
+      "blocked": false,
+      "evidence": "participant multiset preserved, COFACTORS non-destructive, small molecules retained, ambiguity preserved",
+      "details": {
+        "input_count": 8,
+        "output_count": 8,
+        "invariant_holds": true,
+        "special_molecules_count": 5,
+        "ambiguity_preserved": true,
+        "ambiguity_hypotheses_count": 4,
+        "donor_eligibility_examples": 5,
+        "cofactors_read_only": true,
+        "cofactors_count": 24,
+        "cofactors_source_hash": "6003f4bc4ffc5ca3304dc1d2282a467f4f773e149ea9cf2a132ca0e4079eb2d0",
+        "verdict": "UNIT_CONTRACT_COMPLETE"
+      },
+      "evidence_paths": {
+        "evidence": "reports/p1/participant_role_sample.json",
+        "roles": "reaction_agent/roles/",
+        "tests": "tests/p1/test_participant_roles.py"
+      }
+    },
+    {
+      "gate_id": "P1-G06",
+      "name": "lineage graph bipartite/split-merge-transfer/no-silent-tie",
+      "passed": true,
+      "blocked": false,
+      "evidence": "14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct",
+      "details": {
+        "case_count": 14,
+        "bipartite_verified": true,
+        "has_split": true,
+        "has_merge": true,
+        "has_atom_transfer": true,
+        "no_silent_tie_verified": true,
+        "stable_ids_verified": true,
+        "proline_case_found": true,
+        "proline_strict_pairs": [
+          [
+            "r1",
+            "p1"
+          ],
+          [
+            "r2",
+            "p2"
+          ]
+        ],
+        "forbidden_lineage_check": "2OG->hydroxyproline NOT in strict_eligible_pairs for case 01; NAD->NADH NOT in strict_eligible_pairs for case 02 (carrier, not transformed).",
+        "proline_2og_hard_gate": "Case A (curated fixture: proline->hydroxyproline + 2OG->succinate + O transfer). Real source: required_case_missing."
+      },
+      "evidence_paths": {
+        "evidence": "reports/p1/lineage_regression_cases.json",
+        "lineage": "reaction_agent/lineage/resolver.py",
+        "tests": "tests/p1/test_lineage_graph.py"
+      }
+    },
+    {
+      "gate_id": "P1-G07",
+      "name": "dual ledgers valid",
+      "passed": true,
+      "blocked": false,
+      "evidence": "SourceReactionLedger + CandidateAnalogyLedger valid, unknowns preserved, formal≠mechanism, source linkage valid",
+      "details": {
+        "source_sample_count": 8,
+        "source_ledger_id_sample": "srl_1747726ba379",
+        "formal_not_promoted": true,
+        "missing_stoichiometry_unknowns": 2,
+        "unknown_atom_sources_count": 3,
+        "candidate_sample_count": 2,
+        "candidate_ledger_id_sample": "cal_e7c03d5c3304",
+        "source_ledger_link": true,
+        "candidate_id_echoed": true,
+        "no_proven_cofactor_field": true,
+        "candidate_balance_not_observed": true,
+        "inherited_assumptions_sample": 3,
+        "unknowns_count": 5
+      },
+      "evidence_paths": {
+        "evidence_src": "reports/p1/source_ledger_samples.json",
+        "evidence_cand": "reports/p1/candidate_ledger_samples.json",
+        "tests": "tests/p1/test_source_ledger.py, tests/p1/test_candidate_ledger_skeleton.py"
+      }
+    },
+    {
+      "gate_id": "P1-G08",
+      "name": "eligibility/quarantine policy",
+      "passed": true,
+      "blocked": false,
+      "evidence": "8 policy rows + warnings + quarantine behavior + production excludes prohibited/quarantine + reasons typed",
+      "details": {
+        "matrix_row_count": 8,
+        "manifest_count": 8,
+        "rows_count": 8,
+        "quarantined_rows": 1,
+        "production_rows": 4,
+        "excluded_rows": 4,
+        "policy_authority": "reaction_agent.policies.partial_eligibility",
+        "engine_version": "p1-t9-1"
+      },
+      "evidence_paths": {
+        "evidence": "reports/p1/eligibility_matrix_execution.json",
+        "policy": "reaction_agent/policies/partial_eligibility.py",
+        "engine": "reaction_agent/eligibility/engine.py",
+        "tests": "tests/p1/test_eligibility_engine.py"
+      }
+    },
+    {
+      "gate_id": "P1-G09",
+      "name": "snapshot reproducibility",
+      "passed": true,
+      "blocked": false,
+      "evidence": "deterministic rebuild (3-way same hash) + content hash + manifest complete + filters counted + frozen + read-only loader",
+      "details": {
+        "same_hash_3way": true,
+        "same_snapshot_id": true,
+        "hash_value": "21172a43f2d95019...",
+        "build_a_hash": "21172a43f2d95019...",
+        "build_b_hash": "21172a43f2d95019...",
+        "snapshot_hash": "21172a43f2d95019...",
+        "snapshot_id": "snap_21172a43f2d9",
+        "resources": [
+          "manifest",
+          "production_index",
+          "diagnostic_index",
+          "quarantine_index",
+          "records"
+        ],
+        "counts": {
+          "conditional": 1,
+          "diagnostic": 1,
+          "quarantine": 1,
+          "strict": 1
+        },
+        "freeze_status": "frozen",
+        "build_status": "complete",
+        "evidence_ids_count": 4,
+        "hash_only_no_write": "21172a43f2d95019...",
+        "real_snapshot_status": "BLOCKED",
+        "real_snapshot_reason": "Preflight BLOCKED (rdkit absent). Real source snapshot requires rdkit for T4 map",
+        "failure_reasons_count": 2,
+        "record_content_hashes_count": 4
+      },
+      "evidence_paths": {
+        "evidence": "reports/p1/snapshot_build_sample.json",
+        "builder": "reaction_agent/snapshot/builder.py",
+        "loader": "reaction_agent/snapshot/loader.py",
+        "tests": "tests/p1/test_snapshot_builder.py"
+      }
+    },
+    {
+      "gate_id": "P1-G10",
+      "name": "manual audit + full tests",
+      "passed": false,
+      "blocked": true,
+      "evidence": "BLOCKED: annotator_a=NOT_PRODUCED; annotator_b=NOT_PRODUCED; adjudication=NOT_PRODUCED; catastrophic_error_count is null (cannot determine without double annotation)",
+      "details": {
+        "audit_status": "BLOCKED_MANUAL_AUDIT_INCOMPLETE",
+        "annotator_a_status": "NOT_PRODUCED",
+        "annotator_b_status": "NOT_PRODUCED",
+        "adjudication_status": "NOT_PRODUCED",
+        "protocol_frozen_before_results": true,
+        "hard_conditions_frozen": [
+          "H1",
+          "H2",
+          "H3",
+          "H4",
+          "H5",
+          "H6",
+          "H7",
+          "note"
+        ],
+        "catastrophic_error_count": null,
+        "pass_status": false,
+        "block_reason": "No independent second annotator available in current LLM session. A single LLM e",
+        "pytest_exit": 0,
+        "pytest_stats": {
+          "collected": 619,
+          "passed": 619,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      },
+      "evidence_paths": {
+        "evidence": "reports/p1/manual_audit_report.json",
+        "protocol": "docs/manual_audit_protocol.md",
+        "tests": "tests/p1/test_manual_audit_contract.py"
+      }
+    }
+  ],
+  "changed_files": [
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p0/P0_GATE_REPORT.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p0/P0_GATE_REPORT.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/.pytest_gate_contract_report.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/.pytest_gate_p1_report.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_GATE_REPORT.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_GATE_REPORT.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/mutation_results.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_gate.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_mutations.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_p1_gate_contract.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/chatgpt_parallel_p2_p5_fresh_window_prompt.md"
+    }
+  ],
+  "p0_baseline": {
+    "contract_tests": 290,
+    "gate": "10/10",
+    "status": "READY_FOR_CHATGPT_AUDIT"
+  },
+  "preflight_context": {
+    "status": "BLOCKED",
+    "blockers": [
+      "rdkit_absent",
+      "real_reaction_source_not_confirmed",
+      "required_case_missing"
+    ],
+    "impact": "G03 (real source), G04 (rdkit mapping), G10 (proline-2OG in audit) blocked by preflight"
+  },
+  "deviations": [
+    "Execution model: ChatGPT-designed P1 tasks executed by Claude Code subagent (documented in SUBMISSION §15)",
+    "rdkit absent: T4 mapping integration, T6 lineage on real data, T7 source ledger balance blocked — unit contracts complete via FakeAtomMapper + structured fixtures",
+    "Manual audit BLOCKED: no independent second annotator available in single LLM session (§17.1/§17.7)"
+  ],
+  "assumptions": [
+    "Gate reads machine-readable evidence (JSON fields, schema imports, subprocess results), never just os.path.exists (§18.2)",
+    "BLOCKED is an honest outcome: §23 states BLOCKED is correct, fake PASS is not",
+    "P0 baseline 290 + Gate 10/10 preserved (G02 re-runs P0 gate to verify no regression)"
+  ],
+  "known_risks": [
+    "G03/G04/G10 BLOCKED by preflight (rdkit/real-source/annotator) — cannot be resolved without external dependencies",
+    "Fixture snapshot (4 synthetic records) is not real production data — audit validates pipeline contract, not real chemistry",
+    "Proline-2OG case (H2) absent from fixture snapshot — cannot be evaluated until real data available"
+  ],
+  "user_files_protection": "No user files deleted, moved, or overwritten. Gate is read-only: it reads evidence JSON, imports schemas, and runs pytest/P0-gate as subprocesses. No writes to ../benchmark, ../core, or reports/p0. No git add/commit/push/reset/clean.",
+  "p2_status": "BLOCKED pending ChatGPT P1 read-only audit",
+  "mutation_results": {
+    "mutations": [
+      {
+        "mutation": "delete participant preservation (invariant_holds=False)",
+        "expected": "G05 FAIL",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "multiset invariant does not hold; input/output count mismatch",
+        "caught": true,
+        "mutation_id": "M1"
+      },
+      {
+        "mutation": "critical tie takes max (silent pick)",
+        "expected": "G06 FAIL",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "equal-score tie case does not demonstrate no-silent-pick",
+        "caught": true,
+        "mutation_id": "M2"
+      },
+      {
+        "mutation": "MCS marked as full mapping (assignment_method=mcs_full_mapping)",
+        "expected": "G04 FAIL",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "assignment_method is not formal_mapped: mcs_full_mapping",
+        "caught": true,
+        "mutation_id": "M3"
+      },
+      {
+        "mutation": "mapper fills mechanism (formal_only_verified=False)",
+        "expected": "G04 FAIL",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "formal_only_verified is not True",
+        "caught": true,
+        "mutation_id": "M4"
+      },
+      {
+        "mutation": "quarantine record into production index",
+        "expected": "G08 FAIL",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "quarantined row not excluded: critical_element_charge_contradiction; prohibited/quarantine row in production: critical_element_charge_contradiction",
+        "caught": true,
+        "mutation_id": "M5"
+      },
+      {
+        "mutation": "snapshot hash non-deterministic (same_hash_3way=False)",
+        "expected": "G09 FAIL",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "deterministic rebuild failed: same_hash_3way != True; build_a/build_b hashes differ",
+        "caught": true,
+        "mutation_id": "M6"
+      },
+      {
+        "mutation": "delete proline/2OG required case",
+        "expected": "G06 FAIL",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "case count < 14: 13",
+        "caught": true,
+        "mutation_id": "M7"
+      },
+      {
+        "mutation": "add skipped/xfailed test",
+        "expected": "G10 zero-skip FAIL",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "mutation stats: skip=1, xfail=1",
+        "caught": true,
+        "mutation_id": "M8"
+      }
+    ],
+    "caught": 8,
+    "total": 8
+  }
+}
