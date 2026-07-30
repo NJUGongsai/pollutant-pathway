@@ -82,7 +82,7 @@ Each `LineageEdge` carries all 9 §9.1 features:
 | `bond_edit_participation` | bool: changed_atom_fraction > 0 on either side |
 | `transferred_atom_sets` | from mechanistic evidence (empty if formal only — §10.4) |
 | `scaffold_continuity` | = reactant_retention_fraction (proxy; rdkit absent) |
-| `role_compatibility` | transformed_substrate ↔ transformed_product (True if no roles) |
+| `role_compatibility` | either side has transformed_substrate/product → True; both sides only carrier/cofactor/catalytic_species → False; else optimistic True |
 | `mapping_quality` | 1.0 (fully_mapped) / 0.6 (partial) / 0.4 (ambiguous) / 0.0 (unmapped); -0.2 for MCS/center_pair fallback |
 
 ## 5. §9.2 Three core prohibitions (verified)
@@ -155,7 +155,7 @@ Each `LineageEdge` carries all 9 §9.1 features:
 | # | case | fixture | resolution | strict eligible | notes |
 |---|------|---------|------------|-----------------|-------|
 | 1 | proline hydroxylation 2OG/O2 | curated | r1→p1 + r2→p2 + O transfer | 2 | §9.3 canonical; forbidden 2OG→hydroxyproline NOT in strict |
-| 2 | redox with NAD(P) | synthetic | r1→p1 (substrate→product) | 1 | NAD↔NADH weak edge (carrier, not transformed) |
+| 2 | redox with NAD(P) | synthetic | r1→p1 (substrate→product) | 1 | NAD carrier, not transformed; NAD→NADH recorded as role_incompatible_carrier diagnostic |
 | 3 | oxygen incorporation | synthetic | r1→p1 + O transfer | 1 | O2→product recorded as atom_transfer_edge |
 | 4 | hydrolysis | synthetic | r1→p1 + r1→p2 (split) + H2O transfer | 2 | substrate splits, H2O contributes O |
 | 5 | transferase | synthetic | r1→p1 + r2→p2 + CH3 transfer | 2 | group transfer (CH3 from donor to acceptor) |
@@ -204,3 +204,11 @@ Each `LineageEdge` carries all 9 §9.1 features:
   can inspect them. Critical-ambiguity lineages have `ambiguity="critical"` and
   must be filtered out of the strict production index by the caller. The
   `ambiguity_sets` in the graph provides the tie grouping for traceability.
+- **role_incompatible edges**: when T5 attaches role_hypotheses and both sides
+  of an edge are explicitly carrier/cofactor/catalytic_species (no transformed
+  hypothesis on either side), `role_compatibility=False`. The edge is NOT a
+  strict transformed lineage — it is recorded in `atom_transfer_edges` as
+  `type="role_incompatible_carrier"` (diagnostic, not silently deleted).
+  Example: NAD→NADH (both carriers) in case 02. If either side has a
+  transformed_substrate/transformed_product hypothesis, the edge remains
+  compatible (optimistic — roles are hypotheses, not facts).

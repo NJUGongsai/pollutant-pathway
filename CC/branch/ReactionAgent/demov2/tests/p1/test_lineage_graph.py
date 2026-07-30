@@ -39,12 +39,13 @@ from __future__ import annotations
 
 import pytest
 
-from reaction_agent.schemas.evidence import ReactionParticipant
+from reaction_agent.schemas.evidence import ReactionParticipant, RoleHypothesis
 from reaction_agent.schemas.common import (
     MappingStatus,
     MappingQualityClass,
     SourceAssignmentMethod,
     LineageResolutionQuality,
+    ParticipantRole,
 )
 from reaction_agent.schemas.mapping import (
     MappingReport,
@@ -63,6 +64,11 @@ from reaction_agent.schemas.lineage import (
 # Fixture helpers (all synthetic / curated — no real data fabricated)
 # =====================================================================
 
+def _role(role: str, score: float = 0.8) -> RoleHypothesis:
+    """Build a RoleHypothesis for test fixtures."""
+    return RoleHypothesis(role=ParticipantRole(role), score=score)
+
+
 def _participant(
     participant_id: str,
     side: str,
@@ -71,6 +77,7 @@ def _participant(
     mapped_fraction: float = 0.0,
     changed_atom_fraction: float = 0.0,
     atom_map_numbers: list[int] | None = None,
+    role_hypotheses: list[RoleHypothesis] | None = None,
 ) -> ReactionParticipant:
     """Deterministic ReactionParticipant for unit tests."""
     return ReactionParticipant(
@@ -81,6 +88,7 @@ def _participant(
         mapped_fraction=mapped_fraction,
         changed_atom_fraction=changed_atom_fraction,
         atom_map_numbers=atom_map_numbers or [],
+        role_hypotheses=role_hypotheses or [],
     )
 
 
@@ -480,7 +488,10 @@ def test_lineage_id_contains_resolver_version():
     # metadata (failure_reason or graph keys carry version provenance).
     assert isinstance(RESOLVER_VERSION, str) and RESOLVER_VERSION
     # resolution_id embeds version for traceability
-    assert RESOLVER_VERSION in graph.resolution_id or True  # resolution_id is stable
+    assert RESOLVER_VERSION in graph.resolution_id, (
+        f"resolution_id {graph.resolution_id!r} must embed RESOLVER_VERSION "
+        f"{RESOLVER_VERSION!r} for traceability"
+    )
 
 
 # =====================================================================
@@ -501,17 +512,23 @@ def _proline_2og_curated_fixture():
     """
     participants = [
         _participant("r1", "reactant", "OC(=O)[C@@H]1CCCN1",
-                     mapped_fraction=1.0, changed_atom_fraction=0.15),
+                     mapped_fraction=1.0, changed_atom_fraction=0.15,
+                     role_hypotheses=[_role("transformed_substrate")]),
         _participant("r2", "reactant", "OC(=O)C(=O)CCC(=O)O",
-                     mapped_fraction=1.0, changed_atom_fraction=0.2),
+                     mapped_fraction=1.0, changed_atom_fraction=0.2,
+                     role_hypotheses=[_role("transformed_substrate")]),
         _participant("r3", "reactant", "O=O",
-                     mapped_fraction=0.0, changed_atom_fraction=1.0),
+                     mapped_fraction=0.0, changed_atom_fraction=1.0,
+                     role_hypotheses=[_role("carrier")]),
         _participant("p1", "product", "OC(=O)[C@@H]1CC[C@H](O)N1",
-                     mapped_fraction=1.0, changed_atom_fraction=0.15),
+                     mapped_fraction=1.0, changed_atom_fraction=0.15,
+                     role_hypotheses=[_role("transformed_product")]),
         _participant("p2", "product", "OC(=O)CCC(=O)O",
-                     mapped_fraction=1.0, changed_atom_fraction=0.2),
+                     mapped_fraction=1.0, changed_atom_fraction=0.2,
+                     role_hypotheses=[_role("transformed_product")]),
         _participant("p3", "product", "O=C=O",
-                     mapped_fraction=0.0, changed_atom_fraction=1.0),
+                     mapped_fraction=0.0, changed_atom_fraction=1.0,
+                     role_hypotheses=[_role("coproduct")]),
     ]
     # proline↔hydroxyproline: 7 scaffold atoms shared
     proline_pairs = [_atom_pair("r1", i, "p1", i) for i in range(7)]
@@ -636,12 +653,48 @@ def test_proline_2og_required_case_missing_not_fabricated():
     fixture is available, the hard Gate is verified on the curated fixture
     (test_proline_2og_correct_resolution_curated). Real-data verification is
     blocked until the user supplies a RHEA/BRENDA source record.
+
+    This test verifies the claim by inspecting the produced artifacts:
+    - lineage_regression_cases.json: case 01 fixture_type == "curated"
+      (NOT "real"), and proline_2og_hard_gate mentions required_case_missing.
+    - P1_PREFLIGHT.json: source_record_found == null and
+      "required_case_missing" in blockers.
+    No real-data examples are fabricated.
     """
-    # This test documents the Preflight BLOCKED status. No fabrication.
-    # The curated fixture test (above) covers Case A logic.
-    # The quarantine test (above) covers Case B logic.
-    # Real source record is required_case_missing per Preflight.
-    assert True  # documentation test — no fabrication, no skip
+    import json
+    from pathlib import Path
+
+    reports_dir = Path(__file__).resolve().parents[2] / "reports" / "p1"
+
+    # -- lineage_regression_cases.json --
+    cases_path = reports_dir / "lineage_regression_cases.json"
+    assert cases_path.exists(), "lineage_regression_cases.json must exist"
+    cases_data = json.loads(cases_path.read_text())
+
+    case_01 = cases_data["regression_cases"][0]
+    assert case_01["case"].startswith("01_proline"), "case 01 is proline/2OG"
+    assert case_01["fixture_type"] == "curated", (
+        "proline/2OG case must be 'curated' (synthetic), NOT 'real' — "
+        "real source is required_case_missing"
+    )
+    gate_msg = cases_data.get("proline_2og_hard_gate", "")
+    assert "required_case_missing" in gate_msg, (
+        "proline_2og_hard_gate must mention required_case_missing — "
+        "no real source record fabricated"
+    )
+
+    # -- P1_PREFLIGHT.json --
+    preflight_path = reports_dir / "P1_PREFLIGHT.json"
+    assert preflight_path.exists(), "P1_PREFLIGHT.json must exist"
+    preflight = json.loads(preflight_path.read_text())
+
+    assert "required_case_missing" in preflight["blockers"], (
+        "Preflight blockers must include required_case_missing"
+    )
+    proline_case = preflight["case"]["proline_2og"]
+    assert proline_case["source_record_found"] is None, (
+        "source_record_found must be null — no real source record fabricated"
+    )
 
 
 # =====================================================================
@@ -850,17 +903,23 @@ def test_regression_02_redox_with_nad():
 
     substrate→product is the transformed lineage. NAD→NADH is NOT a
     transformed lineage (NAD is a carrier/cofactor, not a substrate whose
-    carbon scaffold is transferred).
+    carbon scaffold is transferred). The NAD→NADH edge must NOT appear in
+    the strict (ambiguity=none/partial) index — it is recorded as a
+    role-incompatible diagnostic (both sides carrier/cofactor).
     """
     from reaction_agent.lineage.resolver import build_lineage_graph, resolve_lineages
 
     participants = [
         _participant("r1", "reactant", "OC(=O)CCO", mapped_fraction=1.0,
-                     changed_atom_fraction=0.2),
-        _participant("r2", "reactant", "NC(=O)c1ccc[n+]1", mapped_fraction=0.1),
+                     changed_atom_fraction=0.2,
+                     role_hypotheses=[_role("transformed_substrate")]),
+        _participant("r2", "reactant", "NC(=O)c1ccc[n+]1", mapped_fraction=0.1,
+                     role_hypotheses=[_role("carrier")]),
         _participant("p1", "product", "OC(=O)CC=O", mapped_fraction=1.0,
-                     changed_atom_fraction=0.2),
-        _participant("p2", "product", "NC(=O)c1ccc[nH]1", mapped_fraction=0.1),
+                     changed_atom_fraction=0.2,
+                     role_hypotheses=[_role("transformed_product")]),
+        _participant("p2", "product", "NC(=O)c1ccc[nH]1", mapped_fraction=0.1,
+                     role_hypotheses=[_role("carrier")]),
     ]
     # substrate↔product: 5 scaffold atoms. NAD↔NADH: 1 atom (electron transfer,
     # NOT scaffold transfer).
@@ -878,6 +937,27 @@ def test_regression_02_redox_with_nad():
         for l in lineages
     }
     assert ("r1", "p1") in resolved  # substrate→product resolved
+
+    # NAD→NADH must NOT be a strict (ambiguity=none/partial) lineage.
+    # Both sides are carrier/cofactor → role_compatibility=False → not a
+    # transformed lineage (recorded as diagnostic, per docstring).
+    strict_pairs = {
+        (l.reactant_participant_id, l.product_participant_id)
+        for l in lineages if l.ambiguity in ("none", "partial")
+    }
+    assert ("r2", "p2") not in strict_pairs, (
+        "NAD→NADH must NOT enter the strict index — "
+        "NAD is a carrier/cofactor, not a transformed substrate"
+    )
+    # The NAD→NADH edge must be retained as diagnostic (not silently deleted)
+    nad_diagnostic = [
+        e for e in graph.atom_transfer_edges
+        if e.get("from") == "r2" and e.get("to") == "p2"
+    ]
+    assert len(nad_diagnostic) > 0, (
+        "NAD→NADH edge must be recorded as diagnostic (role-incompatible carrier), "
+        "not silently deleted from the graph"
+    )
 
 
 def test_regression_03_oxygen_incorporation():
@@ -1150,7 +1230,9 @@ def test_regression_13_mcs_fallback():
     lineages = resolve_lineages(graph)
 
     # MCS fallback must not pretend full resolution
-    assert graph.quality != LineageResolutionQuality.resolved or True  # may be partial
+    assert graph.quality != LineageResolutionQuality.resolved, (
+        "MCS fallback must downgrade quality — must NOT be fully resolved"
+    )
     # The lineage must carry partial ambiguity or partially_resolved quality
     l = lineages[0] if lineages else None
     if l:

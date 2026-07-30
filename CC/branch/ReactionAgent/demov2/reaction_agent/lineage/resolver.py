@@ -156,26 +156,48 @@ def _role_compatible(
     reactant: ReactionParticipant,
     product: ReactionParticipant,
 ) -> bool:
-    """Check whether the reactant/product roles are compatible.
+    """Check whether the reactant/product roles are compatible for a transformed lineage.
 
-    A transformed_substrate ↔ transformed_product pair is fully compatible.
-    If role hypotheses are absent (empty), default to True (optimistic — the
-    resolver does not force roles; T5 attaches them separately).
+    A transformed lineage connects a transformed_substrate to a
+    transformed_product. Role hypotheses are attached by T5 (possibly multiple
+    per participant — they are hypotheses, not facts).
+
+    Compatibility rules (optimistic — ambiguity preserved, never silently
+    deletes an edge):
+    - If EITHER side has a ``transformed_substrate`` or ``transformed_product``
+      hypothesis, the edge is compatible (may be a real transformed lineage).
+    - If NEITHER side has a transformed hypothesis AND BOTH sides are
+      explicitly only ``carrier``/``cofactor``/``catalytic_species`` (non-
+      transformed roles), the edge is INCOMPATIBLE — not a strict transformed
+      lineage (e.g. NAD→NADH where both are carriers).
+    - If roles are absent (empty) or include ``unknown``/``co_substrate``/
+      ``coproduct``/``spectator``, default to True (optimistic — the resolver
+      does not force roles; T5 attaches them separately).
     """
     if not reactant.role_hypotheses or not product.role_hypotheses:
-        return True
+        return True  # optimistic — no role hypotheses attached
+
     r_roles = {h.role.value for h in reactant.role_hypotheses}
     p_roles = {h.role.value for h in product.role_hypotheses}
-    # transformed_substrate ↔ transformed_product is the ideal pair
-    if "transformed_substrate" in r_roles and "transformed_product" in p_roles:
+
+    transformed = {"transformed_substrate", "transformed_product"}
+
+    # If either side has a transformed hypothesis, compatible
+    if (r_roles & transformed) or (p_roles & transformed):
         return True
-    # co_substrate → coproduct is also compatible
-    if "co_substrate" in r_roles and "coproduct" in p_roles:
-        return True
-    # If both have "unknown", no conflict
-    if "unknown" in r_roles and "unknown" in p_roles:
-        return True
-    # Any non-empty role set without a direct conflict
+
+    # Neither side has a transformed hypothesis.
+    # If both sides are explicitly only non-transformed roles
+    # (carrier/cofactor/catalytic_species), this is NOT a transformed lineage
+    # (e.g. NAD→NADH carrier pair).
+    non_transformed = {"carrier", "cofactor", "catalytic_species"}
+    r_only_non_transformed = bool(r_roles) and r_roles.issubset(non_transformed)
+    p_only_non_transformed = bool(p_roles) and p_roles.issubset(non_transformed)
+
+    if r_only_non_transformed and p_only_non_transformed:
+        return False  # both sides explicitly carrier/cofactor — not transformed
+
+    # Ambiguity (co_substrate, coproduct, spectator, unknown) — optimistic
     return True
 
 
@@ -425,6 +447,31 @@ def _analyze_graph(
             "shared_atoms": str(ed.edge.shared_mapped_heavy_atoms),
             "method": "formal_mapped",
             "ambiguity": "formal_assignment_no_mechanistic_evidence",
+        })
+
+    # -- Separate role-incompatible edges from transformed lineages --
+    # An edge with role_compatibility=False is NOT a strict transformed
+    # lineage (e.g. NAD→NADH where both sides are carrier/cofactor). The
+    # edge is retained as diagnostic (not silently deleted) — recorded in
+    # atom_transfer_edges with type="role_incompatible_carrier".
+    role_incompatible_edges: list[_EdgeData] = []
+    for ed in transformed_edges:
+        if not ed.edge.role_compatibility:
+            role_incompatible_edges.append(ed)
+    transformed_edges = [
+        ed for ed in transformed_edges if ed.edge.role_compatibility
+    ]
+
+    for ed in role_incompatible_edges:
+        atoms_str = ",".join(str(a) for a in sorted(ed.reactant_atoms))
+        analysis.atom_transfer_edges.append({
+            "from": ed.reactant_pid,
+            "to": ed.product_pid,
+            "atoms": atoms_str,
+            "type": "role_incompatible_carrier",
+            "shared_atoms": str(ed.edge.shared_mapped_heavy_atoms),
+            "method": "formal_mapped",
+            "ambiguity": "both_sides_carrier_cofactor_not_transformed",
         })
 
     # -- Group transformed edges by reactant --

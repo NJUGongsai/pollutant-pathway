@@ -20,8 +20,12 @@
       },
       "edges": [
         {
-          "edge_4b8f02eadf4c": "r1->p1",
-          "edge_1870aa805359": "r2->p2",
+          "edge_4b8f02eadf4c": "r1->p1"
+        },
+        {
+          "edge_1870aa805359": "r2->p2"
+        },
+        {
           "edge_3f64c9b22271": "r3->p1"
         }
       ],
@@ -85,7 +89,9 @@
       },
       "edges": [
         {
-          "edge_73c18e630725": "r1->p1",
+          "edge_73c18e630725": "r1->p1"
+        },
+        {
           "edge_0042a62d5a23": "r2->p2"
         }
       ],
@@ -96,30 +102,29 @@
           "product": "p1",
           "ambiguity": "none",
           "quality": "resolved"
-        },
-        {
-          "lineage_id": "lin_edd328709245",
-          "reactant": "r2",
-          "product": "p2",
-          "ambiguity": "none",
-          "quality": "resolved"
         }
       ],
       "ambiguity_sets": [],
       "split_hypotheses": [],
       "merge_hypotheses": [],
-      "atom_transfer_edges": [],
+      "atom_transfer_edges": [
+        {
+          "from": "r2",
+          "to": "p2",
+          "atoms": "0",
+          "type": "role_incompatible_carrier",
+          "shared_atoms": "1",
+          "method": "formal_mapped",
+          "ambiguity": "both_sides_carrier_cofactor_not_transformed"
+        }
+      ],
       "quality": "resolved",
       "failure_reason": null,
-      "strict_eligible_count": 2,
+      "strict_eligible_count": 1,
       "strict_eligible_pairs": [
         [
           "r1",
           "p1"
-        ],
-        [
-          "r2",
-          "p2"
         ]
       ]
     },
@@ -138,7 +143,9 @@
       },
       "edges": [
         {
-          "edge_9800c3100d3a": "r1->p1",
+          "edge_9800c3100d3a": "r1->p1"
+        },
+        {
           "edge_3827f52a8bce": "r2->p1"
         }
       ],
@@ -191,8 +198,12 @@
       },
       "edges": [
         {
-          "edge_f3db88c07839": "r1->p1",
-          "edge_a9524abfc589": "r1->p2",
+          "edge_f3db88c07839": "r1->p1"
+        },
+        {
+          "edge_a9524abfc589": "r1->p2"
+        },
+        {
           "edge_fc2a5eb5ec91": "r2->p2"
         }
       ],
@@ -263,8 +274,12 @@
       },
       "edges": [
         {
-          "edge_11c0d875b265": "r1->p1",
-          "edge_c9a694ed8eca": "r2->p2",
+          "edge_11c0d875b265": "r1->p1"
+        },
+        {
+          "edge_c9a694ed8eca": "r2->p2"
+        },
+        {
           "edge_f08cc9657c8d": "r1->p2"
         }
       ],
@@ -341,7 +356,9 @@
       },
       "edges": [
         {
-          "edge_c5191c0299e8": "r1->p1",
+          "edge_c5191c0299e8": "r1->p1"
+        },
+        {
           "edge_1ee5cd3a997a": "r1->p2"
         }
       ],
@@ -401,7 +418,9 @@
       },
       "edges": [
         {
-          "edge_24a1a9b20ded": "r1->p1",
+          "edge_24a1a9b20ded": "r1->p1"
+        },
+        {
           "edge_b1334375b2e5": "r1->p2"
         }
       ],
@@ -461,7 +480,9 @@
       },
       "edges": [
         {
-          "edge_f2f0785d087f": "r1->p1",
+          "edge_f2f0785d087f": "r1->p1"
+        },
+        {
           "edge_fb11abbf71c7": "r2->p1"
         }
       ],
@@ -520,7 +541,9 @@
       },
       "edges": [
         {
-          "edge_60787710b1fa": "r1->p1",
+          "edge_60787710b1fa": "r1->p1"
+        },
+        {
           "edge_69c61bfb67b0": "r1->p2"
         }
       ],
@@ -580,7 +603,9 @@
       },
       "edges": [
         {
-          "edge_ef31bfe576da": "r1->p1",
+          "edge_ef31bfe576da": "r1->p1"
+        },
+        {
           "edge_91cd1ce9b168": "r2->p1"
         }
       ],
@@ -639,7 +664,9 @@
       },
       "edges": [
         {
-          "edge_d80d08ad327a": "r1->p1",
+          "edge_d80d08ad327a": "r1->p1"
+        },
+        {
           "edge_67a18f66482d": "r1->p2"
         }
       ],
@@ -672,7 +699,7 @@
       "merge_hypotheses": [],
       "atom_transfer_edges": [],
       "quality": "unresolved",
-      "failure_reason": "critical_ambiguity_tie (1 tie(s)); quarantined_per_\u00a79.2",
+      "failure_reason": "critical_ambiguity_tie (1 tie(s)); quarantined_per_§9.2",
       "strict_eligible_count": 0,
       "strict_eligible_pairs": []
     },
@@ -798,5 +825,5 @@
     }
   ],
   "proline_2og_hard_gate": "Case A (curated fixture: proline->hydroxyproline + 2OG->succinate + O transfer). Real source: required_case_missing.",
-  "forbidden_lineage_check": "2OG->hydroxyproline NOT in strict_eligible_pairs for case 01"
+  "forbidden_lineage_check": "2OG->hydroxyproline NOT in strict_eligible_pairs for case 01; NAD->NADH NOT in strict_eligible_pairs for case 02 (carrier, not transformed)."
 }
