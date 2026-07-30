@@ -313,6 +313,8 @@ def decide_eligibility(
         quarantine_behavior=row.quarantine_behavior,
         reason=reason,
         evidence_ids=evidence_ids,
+        required_warnings=list(row.required_warnings),
+        research_diagnostic_eligibility=row.research_or_diagnostic_eligibility,
         policy_version=POLICY_VERSION,
     )
 

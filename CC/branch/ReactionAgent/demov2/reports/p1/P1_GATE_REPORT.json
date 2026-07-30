@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-30T11:03:33.598567+00:00",
+  "timestamp": "2026-07-30T11:19:35.247495+00:00",
   "gate_version": "p1-gate-1",
   "python_version": "3.11.15",
   "working_directory": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2",
@@ -370,8 +370,8 @@
         "block_reason": "No independent second annotator available in current LLM session. A single LLM e",
         "pytest_exit": 0,
         "pytest_stats": {
-          "collected": 619,
-          "passed": 619,
+          "collected": 621,
+          "passed": 621,
           "failed": 0,
           "errors": 0,
           "skipped": 0,
@@ -389,7 +389,11 @@
   "changed_files": [
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/.gitignore"
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/eligibility/engine.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/schemas/p1_entities.py"
     },
     {
       "status": "M",
@@ -409,19 +413,7 @@
     },
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/mutation_results.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_gate.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_mutations.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_p1_gate_contract.py"
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_engine.py"
     },
     {
       "status": "??",

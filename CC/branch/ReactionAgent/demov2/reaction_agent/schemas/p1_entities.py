@@ -27,6 +27,7 @@ from reaction_agent.schemas.common import (
     EligibilityStatus,
     EvaluationBucket,
     QuarantineBehavior,
+    ResearchDiagnosticEligibility,
     LineageResolutionQuality,
 )
 
@@ -134,6 +135,13 @@ class EligibilityDecision(StrictModel):
     Uses the P0 ``EligibilityStatus`` enum (strict_eligible /
     conditional_eligible / strict_prohibited / quarantine) — this is the
     authoritative production decision, NOT the donor-side assessment.
+
+    §15.2: the decision carries ``required_warnings`` and
+    ``research_diagnostic_eligibility`` from the policy authority
+    (``EligibilityMatrixRow``) so that §15.5 'conditional records carry
+    required warnings' holds at the per-record level, not only via the row
+    lookup. The engine populates these from ``get_row(state)``; they are NOT
+    a second copied judgment set.
     """
 
     decision_id: NonEmptyStr
@@ -143,6 +151,8 @@ class EligibilityDecision(StrictModel):
     quarantine_behavior: QuarantineBehavior = QuarantineBehavior.not_quarantined
     reason: NonEmptyStr
     evidence_ids: list[NonEmptyStr] = []
+    required_warnings: list[NonEmptyStr] = []
+    research_diagnostic_eligibility: ResearchDiagnosticEligibility = ResearchDiagnosticEligibility.eligible
     policy_version: str = "p1-1"
 
 

@@ -877,3 +877,72 @@ def test_priority_lineage_ambiguity_overrides_role_ambiguity():
     lineages = [_lineage("p1", "p2", [1, 2], ambiguity="critical")]
     decision = decide_eligibility(ev, ledger, lineages)
     assert decision.eligibility == EligibilityStatus.strict_prohibited  # not conditional
+
+
+# =====================================================================
+# §15.2 Per-record required_warnings + research_diagnostic_eligibility
+# =====================================================================
+
+def test_decision_carries_required_warnings_conditional():
+    """§15.2: a conditional_eligible decision carries required_warnings.
+
+    The per-record decision must carry the matrix row's required_warnings
+    (populated from ``row.required_warnings``, not a second copied list) so
+    that §15.5 'conditional records carry required warnings' holds at the
+    per-record level — not only via the row lookup.
+    """
+    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+                      atom_map_numbers=[1, 2])
+    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+                      atom_map_numbers=[1, 2])
+    ev = _reaction_evidence([r1, p1], direction="forward")
+    ledger = _ledger(
+        balance_status=LedgerBalanceStatus.heavy_atom_balanced_with_implicit_h_e_policy,
+        hydrogen_policy="implicit_heavy_atom_balanced_h_policy",
+        role_assignments=[_role_assignment("p1"), _role_assignment("p2", "transformed_product")],
+    )
+    decision = decide_eligibility(ev, ledger, [_lineage("p1", "p2", [1, 2])])
+    assert decision.eligibility == EligibilityStatus.conditional_eligible
+    # §15.2: per-record required_warnings — non-empty and matches the row
+    row = get_row("heavy_atom_balanced_implicit_he")
+    assert len(decision.required_warnings) > 0
+    assert list(decision.required_warnings) == list(row.required_warnings)
+    assert "implicit_h_e_policy" in decision.required_warnings
+
+
+def test_decision_carries_research_diagnostic_eligibility():
+    """§15.2: decision carries research_diagnostic_eligibility from the row.
+
+    - strict_eligible / conditional / strict_prohibited → eligible (auditable)
+    - quarantine → not_eligible (excluded from research/diagnostic too)
+    """
+    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+                      atom_map_numbers=[1, 2])
+    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+                      atom_map_numbers=[1, 2])
+    good_roles = [_role_assignment("p1"), _role_assignment("p2", "transformed_product")]
+
+    # 1. strict_eligible → eligible
+    ev = _reaction_evidence([r1, p1], direction="forward")
+    ledger = _ledger(
+        balance_status=LedgerBalanceStatus.fully_balanced_explicit_reaction,
+        role_assignments=good_roles,
+    )
+    decision = decide_eligibility(ev, ledger, [_lineage("p1", "p2", [1, 2])])
+    assert decision.eligibility == EligibilityStatus.strict_eligible
+    assert decision.research_diagnostic_eligibility == ResearchDiagnosticEligibility.eligible
+    # strict_eligible row has empty required_warnings
+    assert list(decision.required_warnings) == []
+
+    # 2. quarantine → not_eligible
+    qr1 = _participant("p1", "reactant", "C", formal_charge=1, provenance=["src"])
+    qp1 = _participant("p2", "product", "C", formal_charge=0, provenance=["src"])
+    qev = _reaction_evidence([qr1, qp1], direction="forward")
+    qledger = _ledger(
+        balance_status=LedgerBalanceStatus.partial_or_unbalanced_source,
+        charge_balance=1,  # charge mismatch → quarantine
+    )
+    qdecision = decide_eligibility(qev, qledger, [_lineage("p1", "p2", [1])])
+    assert qdecision.eligibility == EligibilityStatus.quarantine
+    assert qdecision.research_diagnostic_eligibility == ResearchDiagnosticEligibility.not_eligible
+    assert "critical_contradiction" in qdecision.required_warnings
