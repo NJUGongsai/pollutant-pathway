@@ -214,28 +214,38 @@ def test_no_fake_adjudication_when_blocked():
 
 
 def test_no_llm_self_confidence_as_audit():
-    """§17.5: Report must not contain 'llm_confidence' as a field or value.
+    """§17.5: Report must not contain any forbidden confidence vocabulary.
 
-    LLM self-assessment confidence is forbidden as audit evidence. Audit
-    quality is expressed only via agreement + catastrophic_error_count.
+    The audit report JSON string is scanned for the full forbidden-word list
+    ["llm_confidence", "self_confidence", "confidence"]. LLM self-assessment
+    confidence is forbidden as audit evidence. Audit quality is expressed only
+    via agreement + catastrophic_error_count.
+
+    A full-string scan (not just a field-name check) catches disguised
+    variants like `llm_self_confidence_present` that the narrower
+    `llm_confidence` substring check would miss (the `self_` infix breaks
+    the match).
     """
     rep_str = REPORT_JSON_PATH.read_text().lower()
-    assert "llm_confidence" not in rep_str, (
-        "Report contains 'llm_confidence' — forbidden by §17.5 "
-        "(LLM self-confidence is not audit evidence)"
-    )
+    forbidden = ["llm_confidence", "self_confidence", "confidence"]
+    for word in forbidden:
+        assert word not in rep_str, (
+            f"Report contains '{word}' — forbidden by §17.5 "
+            f"(LLM self-confidence is not audit evidence; "
+            f"audit quality is via agreement + catastrophic_error_count only)"
+        )
 
 
 def test_report_no_confidence_field_in_schema():
-    """§17.5: ManualAuditRecord schema must not have a 'confidence' field."""
+    """§17.5: ManualAuditRecord schema must not have a confidence-typed field."""
     schema = _load_json(SCHEMA_PATH)
     props = schema.get("properties", {})
-    assert "confidence" not in props, (
-        "ManualAuditRecord schema has a 'confidence' field — forbidden by §17.5"
-    )
-    assert "llm_confidence" not in props, (
-        "ManualAuditRecord schema has 'llm_confidence' — forbidden by §17.5"
-    )
+    forbidden_props = ["confidence", "llm_confidence", "self_confidence"]
+    for word in forbidden_props:
+        assert word not in props, (
+            f"ManualAuditRecord schema has a '{word}' field — "
+            f"forbidden by §17.5"
+        )
 
 
 # -- Catastrophic error reporting ------------------------------------------

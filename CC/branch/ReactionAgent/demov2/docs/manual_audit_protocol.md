@@ -147,9 +147,13 @@ disagreement by reviewing the evidence and selecting A or B (or a third
 option). The adjudication outcome is recorded per disagreement.
 
 **Forbidden — LLM self-confidence (§17.5):**
-- The audit report MUST NOT contain any field named `llm_confidence`,
-  `confidence`, `self_confidence`, or any equivalent self-assessment score
-  produced by the LLM annotator.
+- The audit report JSON MUST NOT contain any of the forbidden substrings
+  `llm_confidence`, `self_confidence`, or `confidence` anywhere in its text
+  — not just as field names. The contract test
+  `test_no_llm_self_confidence_as_audit` performs a full-string scan of the
+  report JSON for all three substrings. This catches disguised variants like
+  `llm_self_confidence_present` (where the `self_` infix breaks the narrower
+  `llm_confidence` substring match) that a field-name-only check would miss.
 - Audit confidence is expressed **only** via `agreement` (inter-annotator
   agreement) and `catastrophic_error_count`. These are objective, observable
   metrics — not the annotator's opinion of its own correctness.

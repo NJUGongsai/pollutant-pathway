@@ -40,8 +40,6 @@
   "pass_status_reason": "BLOCKED audit cannot pass. Pass requires double annotation + adjudication + all H1-H7 hard conditions met.",
   "hard_conditions_evaluated": false,
   "hard_conditions_reason": "Cannot evaluate H1-H7 without double annotation results. Conditions remain frozen and pending.",
-  "llm_self_confidence_present": false,
-  "llm_self_confidence_note": "No LLM self-assessment confidence is used as audit confidence (§17.5). Audit quality is expressed only via agreement and catastrophic_error_count, both of which are null in BLOCKED state.",
   "fixture_disclaimer": "The audited sample is a T10 FIXTURE snapshot (synthetic data, source_name=fixture_source_a). It is not real production data. When rdkit becomes available and the real-source snapshot is built, the manifest should be regenerated from real data.",
   "preflight_context": {
     "status": "BLOCKED",

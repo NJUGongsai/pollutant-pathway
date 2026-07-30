@@ -24,6 +24,7 @@ from reaction_agent.schemas import (
     AgentProposedHypothesis,
     Candidate,
     PredictionResult,
+    ManualAuditRecord,
 )
 
 SCHEMAS = [
@@ -39,6 +40,7 @@ SCHEMAS = [
     AgentProposedHypothesis,
     Candidate,
     PredictionResult,
+    ManualAuditRecord,
 ]
 
 OUTPUT_DIR = os.path.join(
