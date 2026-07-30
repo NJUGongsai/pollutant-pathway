@@ -1,0 +1,82 @@
+{
+  "additionalProperties": false,
+  "description": "A manual audit record following the §4.12 rubric.\n\nStratified sample with double annotation. Quality is expressed via\n``agreement`` (inter-annotator agreement in [0, 1]) and\n``catastrophic_error_count``; the four domain rubrics\n(mapping / role / lineage / ledger) each carry a score in [0, 1].\nNo field uses the forbidden bias vocabulary.",
+  "properties": {
+    "record_id": {
+      "minLength": 1,
+      "title": "Record Id",
+      "type": "string"
+    },
+    "stratum": {
+      "minLength": 1,
+      "title": "Stratum",
+      "type": "string"
+    },
+    "sample_size": {
+      "title": "Sample Size",
+      "type": "integer"
+    },
+    "annotator_count": {
+      "default": 2,
+      "title": "Annotator Count",
+      "type": "integer"
+    },
+    "agreement": {
+      "title": "Agreement",
+      "type": "number"
+    },
+    "disagreement_count": {
+      "default": 0,
+      "title": "Disagreement Count",
+      "type": "integer"
+    },
+    "catastrophic_error_count": {
+      "default": 0,
+      "title": "Catastrophic Error Count",
+      "type": "integer"
+    },
+    "mapping_rubric_score": {
+      "default": 0.0,
+      "title": "Mapping Rubric Score",
+      "type": "number"
+    },
+    "role_rubric_score": {
+      "default": 0.0,
+      "title": "Role Rubric Score",
+      "type": "number"
+    },
+    "lineage_rubric_score": {
+      "default": 0.0,
+      "title": "Lineage Rubric Score",
+      "type": "number"
+    },
+    "ledger_rubric_score": {
+      "default": 0.0,
+      "title": "Ledger Rubric Score",
+      "type": "number"
+    },
+    "pass_threshold": {
+      "default": 0.0,
+      "title": "Pass Threshold",
+      "type": "number"
+    },
+    "pass_status": {
+      "default": false,
+      "title": "Pass Status",
+      "type": "boolean"
+    },
+    "notes": {
+      "default": "",
+      "title": "Notes",
+      "type": "string"
+    }
+  },
+  "required": [
+    "record_id",
+    "stratum",
+    "sample_size",
+    "agreement"
+  ],
+  "title": "ManualAuditRecord",
+  "type": "object"
+}

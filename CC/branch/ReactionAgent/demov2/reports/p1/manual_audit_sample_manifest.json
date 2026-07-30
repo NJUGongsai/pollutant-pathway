@@ -1,0 +1,117 @@
+{
+  "manifest_version": "p1-t11-1",
+  "sample_source": "fixture_snapshot_t10",
+  "snapshot_id": "snap_21172a43f2d9",
+  "snapshot_hash": "21172a43f2d9501902e5d7883cf90fba78ed1b08a9ab3817751092973703edcf",
+  "sample_strategy": "census",
+  "random_seed": null,
+  "sample_size_justification": "T10 fixture snapshot contains 4 records (strict=1, conditional=1, diagnostic=1, quarantine=1). Per §17.2, datasets with ≤ 50 records are audited in full census — no sampling, no random seed required.",
+  "total_records_in_snapshot": 4,
+  "sample_size": 4,
+  "fixture_label": "FIXTURE — synthetic ReactionEvidence + SourceReactionLedger + ResolvedTransformedLineage. No real data fabricated. Not representative of production chemistry.",
+  "strata": {
+    "by_mapping_quality": {
+      "strict": 1,
+      "conditional": 1,
+      "diagnostic": 1,
+      "quarantine": 1
+    },
+    "by_source": {
+      "fixture_source_a": 4
+    },
+    "by_reaction_class": {
+      "hydroxylation": 1,
+      "transfer": 1,
+      "cleavage": 1,
+      "unknown_quarantine": 1
+    },
+    "by_participant_count": {
+      "multi_reactant": 4
+    },
+    "by_cofactor_pattern": {
+      "with_cofactor": 2,
+      "no_cofactor": 2
+    },
+    "by_ledger_status": {
+      "balanced": 2,
+      "unbalanced_unknown": 2
+    },
+    "by_quarantine_reason": {
+      "none": 3,
+      "critical_element_charge_contradiction": 1
+    }
+  },
+  "items": [
+    {
+      "sample_id": "audit_001",
+      "reaction_id": "rxn_strict_001",
+      "source_name": "fixture_source_a",
+      "lane_expected": "strict",
+      "stratum_labels": {
+        "mapping_quality": "strict",
+        "source": "fixture_source_a",
+        "reaction_class": "hydroxylation",
+        "participant_count": "multi_reactant",
+        "cofactor_pattern": "with_cofactor",
+        "ledger_status": "balanced",
+        "quarantine_reason": "none"
+      },
+      "rubric_items_applicable": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11"]
+    },
+    {
+      "sample_id": "audit_002",
+      "reaction_id": "rxn_cond_001",
+      "source_name": "fixture_source_a",
+      "lane_expected": "conditional",
+      "stratum_labels": {
+        "mapping_quality": "conditional",
+        "source": "fixture_source_a",
+        "reaction_class": "transfer",
+        "participant_count": "multi_reactant",
+        "cofactor_pattern": "with_cofactor",
+        "ledger_status": "balanced",
+        "quarantine_reason": "none"
+      },
+      "rubric_items_applicable": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11"]
+    },
+    {
+      "sample_id": "audit_003",
+      "reaction_id": "rxn_diag_001",
+      "source_name": "fixture_source_a",
+      "lane_expected": "diagnostic",
+      "stratum_labels": {
+        "mapping_quality": "diagnostic",
+        "source": "fixture_source_a",
+        "reaction_class": "cleavage",
+        "participant_count": "multi_reactant",
+        "cofactor_pattern": "no_cofactor",
+        "ledger_status": "unbalanced_unknown",
+        "quarantine_reason": "none"
+      },
+      "rubric_items_applicable": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11"]
+    },
+    {
+      "sample_id": "audit_004",
+      "reaction_id": "rxn_quar_001",
+      "source_name": "fixture_source_a",
+      "lane_expected": "quarantine",
+      "stratum_labels": {
+        "mapping_quality": "quarantine",
+        "source": "fixture_source_a",
+        "reaction_class": "unknown_quarantine",
+        "participant_count": "multi_reactant",
+        "cofactor_pattern": "no_cofactor",
+        "ledger_status": "unbalanced_unknown",
+        "quarantine_reason": "critical_element_charge_contradiction"
+      },
+      "rubric_items_applicable": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11"]
+    }
+  ],
+  "annotator_requirements": {
+    "annotator_count": 2,
+    "independence": "Annotator A and Annotator B must be independent instances/sessions with distinct IDs. Neither can read the other's output before submitting. A single LLM process duplicating its answers is forbidden (§17.1).",
+    "adjudicator": "A third independent instance reviews A+B disagreements."
+  },
+  "current_status": "BLOCKED_MANUAL_AUDIT_INCOMPLETE",
+  "block_reason": "No independent second annotator available in current LLM session. Single LLM execution cannot impersonate double annotation (§17.1). No fabricated annotations generated (§17.7)."
+}

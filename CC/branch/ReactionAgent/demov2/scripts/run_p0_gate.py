@@ -87,13 +87,13 @@ def _load_exported_schemas():
         MappingReport, ReactionParticipant, ReactionEvidence, LineageResolution,
         SourceReactionLedger, CandidateAnalogyLedger, TransformationHypothesis,
         SiteHypothesis, ProductionSelectionHypothesis, AgentProposedHypothesis,
-        Candidate, PredictionResult,
+        Candidate, PredictionResult, ManualAuditRecord,
     )
     return [
         MappingReport, ReactionParticipant, ReactionEvidence, LineageResolution,
         SourceReactionLedger, CandidateAnalogyLedger, TransformationHypothesis,
         SiteHypothesis, ProductionSelectionHypothesis, AgentProposedHypothesis,
-        Candidate, PredictionResult,
+        Candidate, PredictionResult, ManualAuditRecord,
     ]
 
 

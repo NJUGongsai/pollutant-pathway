@@ -819,3 +819,75 @@
 - verdict: UNIT_CONTRACT_COMPLETE (determinism 3-way proven; atomicity enforced;
   loader read-only; L2 audit 0 CRITICAL/3 HIGH fixed; P0 baseline + Gate preserved)
 - next task authorization: T10 UNIT_CONTRACT_COMPLETE.
+
+## Task 11 (P1-T11: Manual audit protocol)
+
+- status: BLOCKED_MANUAL_AUDIT_INCOMPLETE
+- protocol: docs/manual_audit_protocol.md produced (§17.1-§17.10)
+  - §17.1 double-blind independence: two distinct annotators required; single
+    process duplicating answers forbidden (命根子)
+  - §17.2 stratification: 7 dimensions (reaction class / participant count /
+    mapping quality / cofactor pattern / source / ledger status / quarantine
+    reason); small dataset (≤50) → full census, no random seed
+  - §17.3 rubric: 11 items R1-R11 across mapping/role/lineage/ledger domains
+  - §17.4 catastrophic errors: 9 items C1-C9
+  - §17.5 agreement metrics: raw + per-field; LLM self-confidence forbidden
+    as audit confidence (no `llm_confidence` / `confidence` field)
+  - §17.6 pass threshold FROZEN before results: 7 hard conditions H1-H7
+    (catastrophic errors in production index=0 / proline-2OG correct or
+    quarantined / critical tie silently selected=0 / quarantine leakage=0 /
+    participant destructive loss=0 / formal→mechanistic false upgrade=0 /
+    snapshot replay/hash failure=0)
+  - §17.7 no fabricated annotations when blocked
+- sample manifest: reports/p1/manual_audit_sample_manifest.json produced
+  - sample_source: fixture_snapshot_t10 (snap_21172a43f2d9)
+  - sample_strategy: census (4 records ≤ 50 → full audit)
+  - random_seed: null (no sampling)
+  - strata: 4 lanes (strict/conditional/diagnostic/quarantine), 1 source
+    (fixture_source_a), 4 reaction classes, 2 cofactor patterns, 2 ledger
+    statuses, 1 quarantine reason
+- schema export: schemas/json/ManualAuditRecord.json produced (T2 pydantic
+  model_json_schema export); added ManualAuditRecord to P0 Gate G10 freshness
+  list (scripts/run_p0_gate.py _load_exported_schemas) — 12→13 schema files
+- double annotation: NOT PERFORMED — BLOCKED
+  - reason: no independent second annotator available in current LLM session
+  - §17.1 iron rule: single LLM execution cannot duplicate answers as double
+    annotation
+  - §17.7: no fabricated annotations generated
+  - annotations_a.json / annotations_b.json / adjudication.json: NOT PRODUCED
+    (would be fabricated content if produced by single session)
+- adjudication: NOT PERFORMED — no A/B pair to adjudicate
+- agreement metrics: all null (cannot be computed without double annotation)
+- catastrophic_error_count: null (cannot be determined without double
+  annotation; inter-annotator cross-check required)
+- pass_status: false (BLOCKED ≠ passed)
+- contract tests: tests/p1/test_manual_audit_contract.py — 27 tests
+  - protocol exists + threshold frozen (string match + mtime ordering)
+  - sample manifest structure + fixture label + census strategy
+  - report status BLOCKED + catastrophic_error_count=null + pass_status=false
+  - no fake annotations when blocked (§17.7)
+  - no LLM self-confidence (§17.5) — string scan for 'llm_confidence'
+  - ManualAuditRecord schema valid + no 'confidence' field
+  - conditional tests for COMPLETE state (annotator ID distinct, adjudication
+    fields) — early-return in BLOCKED state, zero skip
+- threshold frozen evidence: protocol mtime ≤ report mtime (verified by
+  test_protocol_mtime_precedes_report_mtime); threshold string written before
+  any annotation results observed
+- P0/P1 regression: 619 passed (592 baseline + 27 T11), 0 skip, 0 fail
+- P0 Gate: 10/10 passed (READY_FOR_CHATGPT_AUDIT)
+- concerns:
+  - BLOCKED audit → P1 Gate G10 cannot pass (expected, honest outcome)
+  - fixture snapshot is synthetic, not real chemistry; even if double
+    annotation were performed, audit validates fixture pipeline only
+  - proline-2OG case absent from fixture snapshot → H2 cannot be evaluated
+    until real data available
+  - rdkit absent + real source not confirmed → T10 real snapshot BLOCKED
+- unblock requirement: second independent annotator (human or separate LLM
+  session with distinct agent ID, no shared context) + independent adjudicator;
+  ideally rdkit + real source for real snapshot containing proline-2OG case
+- verdict: BLOCKED_MANUAL_AUDIT_INCOMPLETE (protocol + manifest + schema +
+  contract tests produced; double annotation BLOCKED; no fabricated annotations;
+  thresholds frozen; P0 baseline + Gate preserved)
+- next task authorization: T11 BLOCKED_MANUAL_AUDIT_INCOMPLETE — P1 Gate G10
+  will be BLOCKED; T12 (P1 Gate) should record this as an honest blockage,
+  not a silent failure.
