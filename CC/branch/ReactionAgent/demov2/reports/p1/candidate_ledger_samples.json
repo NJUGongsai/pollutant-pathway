@@ -1,0 +1,131 @@
+{
+  "builder_version": "p1-t8-1",
+  "samples": [
+    {
+      "name": "redox_donor_nad_inherited_as_assumption",
+      "source_ledger_id": "srl_sample_redox",
+      "candidate_id": "cand_redox_001",
+      "candidate_ledger": {
+        "ledger_id": "cal_e7c03d5c3304",
+        "source_ledger_id": "srl_sample_redox",
+        "candidate_id": "cand_redox_001",
+        "query_candidate_adaptation": {
+          "donor_participant_id": "p2",
+          "query_atom_ids": [
+            1,
+            2,
+            3
+          ],
+          "adaptation_method": "formal_mapping",
+          "adaptation_verification_status": "unverified_analogy"
+        },
+        "inherited_donor_context": [
+          {
+            "donor_reaction_id": "rxn_redox_001",
+            "donor_participant_id": "p2",
+            "inherited_role": "carrier",
+            "is_assumption": true
+          }
+        ],
+        "inherited_assumptions": [
+          "donor_context_is_assumption:not_proven_for_xy",
+          "donor_cofactor_inherited_as_assumption:not_proven_xy_cofactor",
+          "donor_stoichiometry_inherited_as_assumption:not_proven_xy_stoichiometry"
+        ],
+        "formal_atom_transfer_assignments": [],
+        "formal_balance_under_assumptions": {
+          "element_balances": [],
+          "charge_delta": 0,
+          "assumption_notes": [
+            "formal_balance_under_donor_assumptions:not_observed_for_xy"
+          ]
+        },
+        "unknown_actual_co_substrates": [],
+        "unknown_actual_cofactors": [
+          "p2"
+        ],
+        "unknown_actual_stoichiometry": [
+          "p1"
+        ],
+        "candidate_balance_status": "partial_or_unbalanced_source",
+        "unknowns": [
+          "donor_context_is_assumption:not_proven_for_xy",
+          "donor_cofactor_inherited_as_assumption:not_proven_xy_cofactor",
+          "donor_stoichiometry_inherited_as_assumption:not_proven_xy_stoichiometry",
+          "donor_source_unknown:element_balance_rdkit_absent_proxy",
+          "candidate_balance_status_default:assumption_based_not_observed"
+        ],
+        "evidence_ids": [
+          "ev_redox_001"
+        ]
+      }
+    },
+    {
+      "name": "hydrolysis_donor_co_substrate_inherited_as_assumption",
+      "source_ledger_id": "srl_sample_hydrolysis",
+      "candidate_id": "cand_hyd_002",
+      "candidate_ledger": {
+        "ledger_id": "cal_b0429d1144c3",
+        "source_ledger_id": "srl_sample_hydrolysis",
+        "candidate_id": "cand_hyd_002",
+        "query_candidate_adaptation": {
+          "donor_participant_id": "p1",
+          "query_atom_ids": [],
+          "adaptation_method": "formal_mapping",
+          "adaptation_verification_status": "unverified_analogy"
+        },
+        "inherited_donor_context": [
+          {
+            "donor_reaction_id": "rxn_hyd_002",
+            "donor_participant_id": "p1",
+            "inherited_role": "unknown",
+            "is_assumption": true
+          }
+        ],
+        "inherited_assumptions": [
+          "donor_context_is_assumption:not_proven_for_xy",
+          "donor_stoichiometry_inherited_as_assumption:not_proven_xy_stoichiometry",
+          "donor_co_substrate_inherited_as_assumption:not_proven_xy_co_substrate"
+        ],
+        "formal_atom_transfer_assignments": [],
+        "formal_balance_under_assumptions": {
+          "element_balances": [],
+          "charge_delta": 0,
+          "assumption_notes": [
+            "formal_balance_under_donor_assumptions:not_observed_for_xy"
+          ]
+        },
+        "unknown_actual_co_substrates": [
+          "p2"
+        ],
+        "unknown_actual_cofactors": [],
+        "unknown_actual_stoichiometry": [
+          "p1"
+        ],
+        "candidate_balance_status": "partial_or_unbalanced_source",
+        "unknowns": [
+          "donor_context_is_assumption:not_proven_for_xy",
+          "donor_stoichiometry_inherited_as_assumption:not_proven_xy_stoichiometry",
+          "donor_co_substrate_inherited_as_assumption:not_proven_xy_co_substrate",
+          "candidate_balance_status_default:assumption_based_not_observed"
+        ],
+        "evidence_ids": []
+      }
+    }
+  ],
+  "invariant_evidence": {
+    "donor_context_is_assumption": [
+      true
+    ],
+    "source_ledger_link": true,
+    "candidate_id_echoed": true,
+    "donor_cofactor_to_unknown": [
+      "p2"
+    ],
+    "no_proven_cofactor_field": true,
+    "formal_balance_assumption_notes": [
+      "formal_balance_under_donor_assumptions:not_observed_for_xy"
+    ],
+    "candidate_balance_not_observed": true
+  }
+}

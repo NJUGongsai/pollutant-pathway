@@ -8,5 +8,6 @@ NOT become proven facts about X→Y.
 """
 
 from reaction_agent.ledgers.source_builder import build_source_ledger
+from reaction_agent.ledgers.candidate_builder import build_candidate_skeleton
 
-__all__ = ["build_source_ledger"]
+__all__ = ["build_source_ledger", "build_candidate_skeleton"]

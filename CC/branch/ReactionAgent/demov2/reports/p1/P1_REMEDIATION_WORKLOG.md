@@ -626,3 +626,60 @@
 - Regression: 536 passed (535 baseline + 1 new; 0 skip), P0 Gate 10/10
 - Samples JSON regenerated: decarboxylation downgraded, distribution 3/5/0
 - Verdict: UNIT_CONTRACT_COMPLETE (fix round 1 applied, 0 open)
+
+## Task 8 (P1-T8: CandidateAnalogyLedger skeleton)
+
+- scope: implement `build_candidate_skeleton(source_ledger, adaptation, *,
+  candidate_id)` filling the §14 CandidateAnalogyLedger skeleton; 5 key
+  invariants; no Y/ranking/LLM rationale generation (skeleton + fixtures only).
+- files created:
+  - `reaction_agent/ledgers/candidate_builder.py` (builder, BUILDER_VERSION=p1-t8-1)
+  - `tests/p1/test_candidate_ledger_skeleton.py` (9 tests: 5 invariants + no-Y + 3 edge)
+  - `reports/p1/candidate_ledger_samples.json` (2 samples + invariant evidence)
+  - `reports/p1/P1_T8_CANDIDATE_LEDGER_SKELETON.md` (checkpoint report)
+- files modified:
+  - `reaction_agent/ledgers/__init__.py` (export `build_candidate_skeleton`)
+- TDD:
+  - RED: ModuleNotFoundError (module did not exist) — 1 collection error
+  - GREEN: 9 passed in 0.20s
+- regression:
+  - full suite: 545 passed (baseline 536 + 9 new; zero skip/xfail)
+  - P0 contracts: 290 passed (baseline preserved)
+  - P0 Gate: 10/10 passed (no regression)
+- §14 invariants enforced:
+  1. donor_context_is_assumption=True (InheritedDonorContext.is_assumption
+     Literal[True]; builder populates from source role_assignments)
+  2. source_ledger_link exists (source_ledger_id = source_ledger.ledger_id)
+  3. candidate_id belongs current context (caller-provided keyword-only;
+     builder does NOT generate candidate_id; empty rejected by NonEmptyStr)
+  4. donor cofactor != proven X→Y cofactor (cofactor_changes →
+     unknown_actual_cofactors; no proven_cofactors/xy_cofactors field exists)
+  5. formal_balance_under_assumptions != observed balance (separate
+     FormalBalanceUnderAssumptions object; assumption_notes label it;
+     candidate_balance_status defaults partial_or_unbalanced_source)
+- no-Y discipline:
+  - no canonical_product / generated_product_smiles / predicted_product field
+  - no ranking_score / rank field
+  - no llm_rationale / rationale / explanation field
+  - no Candidate object embedded (candidate_id is a context handle)
+  - FORBIDDEN_FIELD_NAMES scan: NONE hit on ledger fields or builder source
+- signature deviation: brief lists `build_candidate_skeleton(source_ledger,
+  adaptation)`; implemented `build_candidate_skeleton(source_ledger,
+  adaptation, *, candidate_id)`. candidate_id is a mandatory NonEmptyStr in
+  the P0 schema; the builder must NOT generate it (generating one would be
+  generating a candidate, forbidden by §14). Added as keyword-only arg;
+  first two positional args match brief. Documented in report + docstring.
+- preflight BLOCKED (rdkit absent) does NOT affect T8: skeleton inherits
+  donor context as assumptions; no new chemical computation (element balance
+  is the source ledger's job in T7). Zero-skip.
+- concerns:
+  - skeleton does not validate candidate_id against a LedgerReferenceRegistry
+    (P0 has validate_candidate_ledger_references but T8 brief asks only for
+    skeleton + fixtures; registry validation deferred to the X→Y generator
+    task which owns the full candidate context)
+  - formal_balance_under_assumptions copies source element_balance structure
+    (honest inheritance); when rdkit becomes available, the X→Y generator
+    should compute a real X→Y-specific balance rather than inheriting
+- verdict: UNIT_CONTRACT_COMPLETE (all 5 §14 invariants enforced; no
+  Y/ranking/rationale; P0 baseline + Gate preserved)
+- next task authorization: T8 UNIT_CONTRACT_COMPLETE.
