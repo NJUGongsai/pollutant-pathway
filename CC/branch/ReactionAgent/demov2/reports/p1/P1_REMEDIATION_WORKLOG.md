@@ -452,6 +452,11 @@
   - `transferred_atoms` / `lineage_ambiguity` always `unknown` in T5
     (require mechanistic evidence / resolved lineage, T6+); honest, no
     fabrication
+  - `not_eligible` unreachable in T5: all core dimensions produce
+    `unknown_*`/`eligible_*`/`conditional_*` without mechanistic evidence
+    (T6+); the `not_eligible` aggregation branch is reserved for T6+
+    mechanistic analysis (atom-balance exclusion, direction mismatch).
+    Absence of `not_eligible` outputs in T5 samples is expected, not a bug.
 - verdict: UNIT_CONTRACT_COMPLETE (roles are hypotheses + evidence, not
   chemical computation; rdkit absence does not block the unit contract)
 - next task authorization: T5 UNIT_CONTRACT_COMPLETE. T6 (lineage resolver)

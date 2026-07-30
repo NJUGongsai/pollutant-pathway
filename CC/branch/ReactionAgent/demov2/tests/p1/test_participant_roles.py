@@ -498,6 +498,37 @@ def test_donor_eligibility_cofactors_prior_downweights():
         assert d.eligibility in ("conditionally_eligible", "unknown")
 
 
+def test_donor_eligibility_cofactors_downweight_with_mapping_evidence():
+    """§11.3/§11.4: COFACTORS member WITH mapping evidence → eligible is
+    downweighted to conditionally_eligible (the eligible→conditional path).
+
+    This covers the downweight path that
+    ``test_donor_eligibility_cofactors_prior_downweights`` does NOT reach:
+    that test uses O2 without mapping evidence (mapped_fraction=0.0,
+    mapping_report=None), so the core dimensions all produce ``unknown_*``
+    and the verdict is ``unknown`` — the COFACTORS downweight branch is never
+    exercised.
+
+    Here, O2 carries mapping evidence (mapped_fraction=1.0,
+    changed_atom_fraction=0.5, mapping_report="present"), so the core
+    dimensions produce ``eligible_*`` verdicts. The COFACTORS prior then
+    downgrades eligible → conditionally_eligible (§11.3).
+    """
+    from reaction_agent.roles.resolver import assess_donor_eligibility
+    o2 = _participant(
+        "p2", "O2", "O=O", "reactant",
+        mapped_fraction=1.0, changed_atom_fraction=0.5,
+    )
+    d = assess_donor_eligibility(o2, mapping_report="present")
+    # COFACTORS prior downweights eligible → conditionally_eligible
+    assert d.eligibility == "conditionally_eligible"
+    # COFACTORS prior downweight reason is present
+    assert any("cofactor" in r and "downweight" in r for r in d.reason_codes)
+    # Mapping-derived eligible evidence is also present (the base that got
+    # downweighted — confirms the eligible→conditional path, not unknown).
+    assert any("eligible" in r for r in d.reason_codes)
+
+
 def test_donor_eligibility_distinct_from_role_hypothesis():
     """§11.4: donor eligibility is computed independently of role.
 
@@ -554,13 +585,14 @@ def test_donor_eligibility_with_mapping_evidence():
         mapped_fraction=0.9, changed_atom_fraction=0.4,
     )
     d = assess_donor_eligibility(p, mapping_report="present")
-    # With mapping evidence present, should not be pure 'unknown'
-    assert d.eligibility in (
-        "eligible", "conditionally_eligible", "unknown",
-    )
-    # Mapping-derived reason present
+    # CCO is NOT a COFACTORS member, so with mapping evidence present the
+    # verdict is exactly "eligible" (no downweight applies). Accepting
+    # "unknown" here would make the test hollow — the whole point is that
+    # mapping-derived eligible evidence drives a concrete eligible verdict.
+    assert d.eligibility == "eligible"
+    # Mapping-derived reason present (retention/mapped evidence in reason codes)
     assert any("mapping" in r or "retention" in r or "mapped" in r
-               for r in d.reason_codes) or d.eligibility == "unknown"
+               for r in d.reason_codes)
 
 
 def test_donor_eligibility_small_molecule_not_auto_disqualified():

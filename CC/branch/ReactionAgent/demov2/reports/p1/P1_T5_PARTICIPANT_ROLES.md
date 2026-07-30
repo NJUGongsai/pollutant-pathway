@@ -234,6 +234,17 @@ Legacy file integrity:
 - **`transferred_atoms` / `lineage_ambiguity`**: always `unknown` in T5
   (require mechanistic evidence / resolved lineage, not available until T6+).
   This is honest — no fabrication. Downstream tasks will populate these.
+- **`not_eligible` unreachable in T5**: the `not_eligible` aggregation branch
+  (`core not_` excl. `not_applicable_` + no core `eligible_`) is NEVER
+  reached in T5. Every core dimension in T5 produces `unknown_*`
+  (mapping/lineage/transferred atoms unavailable), `eligible_*` (when
+  mapping evidence is present), or `conditional_*` — never a disqualifying
+  `not_*` verdict, because T5 has no mechanistic evidence (T6+). The
+  `not_eligible` branch is reserved for T6+ mechanistic analysis (e.g.
+  atom-balance exclusion, proven direction mismatch). This is documented
+  here so downstream tasks do not mistake the absence of `not_eligible`
+  outputs in T5 samples for a bug — it is the expected state given the
+  current evidence surface.
 - **`mapping_report` parameter**: typed `object | None` (not `MappingReport |
   None`) because T5 only checks presence (`None` vs non-`None`), not
   MappingReport fields. When T6/T9 wire real mapping reports, this should
