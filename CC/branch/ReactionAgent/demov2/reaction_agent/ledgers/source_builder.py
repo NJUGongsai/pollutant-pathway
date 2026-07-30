@@ -242,10 +242,18 @@ def _build_atom_sources_and_sinks(
       formal mapping pair traces it to another product; else
       sink_participant_id="unknown_sink".
 
+    §10.4 gap (unlineaged products): products NOT appearing in any lineage
+    (e.g. decarboxylation CO2 coproduct) must still have their atoms checked.
+    Each atom without a formal mapping source gets an explicit
+    ``unknown_source`` entry + unknowns record. Without this check, such
+    products would be silently skipped and the record incorrectly marked
+    strict-eligible (heavy_atom_balanced) — §10.4 gap fix.
+
     §10.4: each new changed heavy atom must have a formal source OR explicit
     unknown_source. Unknown sources → not strict-eligible.
     """
     pidx = _participant_index(participants)
+    _, products = _split_by_side(participants)
 
     # Build reverse lookup: product_atom → source_reactant_pid (from mapping)
     product_atom_to_source: dict[tuple[str, int], str] = {}
@@ -271,6 +279,11 @@ def _build_atom_sources_and_sinks(
     removed_sinks: list[RemovedAtomSink] = []
     seen_added: set[tuple[str, int]] = set()  # (product_pid, atom) dedup
     seen_removed: set[tuple[str, int]] = set()  # (reactant_pid, atom) dedup
+
+    # Track which products are covered by a lineage.
+    lineage_product_pids: set[str] = {
+        lin.product_participant_id for lin in lineages
+    }
 
     for lin in lineages:
         reactant = pidx.get(lin.reactant_participant_id)
@@ -329,6 +342,37 @@ def _build_atom_sources_and_sinks(
                 ))
                 unknowns.append(
                     f"unknown_atom_sink:{lin.reactant_participant_id}:atom_{atom}"
+                )
+
+    # §10.4 gap fix: check products NOT in any lineage.
+    # Their atoms are "new" to that product (no lineage traces them). If no
+    # formal mapping pair traces them to a reactant, record unknown_source.
+    # Without this, unlineaged products (e.g. decarboxylation CO2 coproduct)
+    # are silently skipped → record incorrectly marked strict-eligible.
+    for product in products:
+        if product.participant_id in lineage_product_pids:
+            continue  # already handled by the lineage loop above
+        for atom in sorted(set(product.atom_map_numbers)):
+            key = (product.participant_id, atom)
+            if key in seen_added:
+                continue  # dedup (defensive — shouldn't happen for unlineaged)
+            seen_added.add(key)
+            source_pid = product_atom_to_source.get(key)
+            if source_pid is not None:
+                added_sources.append(AddedAtomSource(
+                    atom_map_number=atom,
+                    source_participant_id=source_pid,
+                    formal_assignment=True,
+                ))
+            else:
+                # No formal source → explicit unknown_source (§10.4)
+                added_sources.append(AddedAtomSource(
+                    atom_map_number=atom,
+                    source_participant_id="unknown_source",
+                    formal_assignment=False,
+                ))
+                unknowns.append(
+                    f"unknown_atom_source:{product.participant_id}:atom_{atom}"
                 )
 
     return added_sources, removed_sinks

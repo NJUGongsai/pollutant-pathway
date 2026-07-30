@@ -598,3 +598,31 @@
   the unit contract)
 - next task authorization: T7 UNIT_CONTRACT_COMPLETE. T8 (CandidateAnalogyLedger)
   may proceed.
+
+### Task 7 fix round 1 (2 Important, 0 open)
+
+- **IMPORTANT-1** (§10.4 gap — unlineaged product atoms): `_build_atom_sources_and_sinks`
+  only traversed lineages to compute new_atoms. Products NOT in any lineage (e.g.
+  decarboxylation CO2 coproduct) had their atoms completely unchecked → silently
+  skipped → record incorrectly marked strict-eligible (`heavy_atom_balanced`).
+  Fix: added post-lineage-loop block that iterates over products not in
+  `lineage_product_pids`, checks each atom against `product_atom_to_source` reverse
+  lookup. Atoms without a formal source get explicit `unknown_source` entries +
+  `unknown_atom_source:<pid>:atom_<n>` unknowns records. `_determine_balance_status`
+  then naturally downgrades (already checks for `unknown_source` in `added_sources`).
+  - TDD: RED (1 failed — `assert 3 in set()`) → GREEN (24 passed)
+  - Decarboxylation sample balance_status: `heavy_atom_balanced_with_implicit_h_e_policy`
+    → `partial_or_unbalanced_source` (correct downgrade)
+  - Decarboxylation test (Test 4) updated: CO2 now carries `atom_map_numbers=[1, 2]`
+    (carboxyl atoms that left the substrate — chemically realistic); added
+    balance_status assertion
+  - Other 12 §13.5 tests unaffected (products in lineages or without atoms unchanged)
+- **IMPORTANT-2** (Test 9 tautological assertions): `has_ambiguity` second branch
+  always True (any formal assignment → True); `!= fully_balanced` always True
+  (rdkit absent → never fully_balanced). Fix: replaced with precise assertions —
+  `assert "formal_assignment_ambiguous" in " ".join(ledger.unknowns)` and
+  `assert ledger.balance_status == LedgerBalanceStatus.partial_or_unbalanced_source`.
+- New test: `test_unlineaged_product_atoms_get_unknown_source` (§10.4 gap coverage)
+- Regression: 536 passed (535 baseline + 1 new; 0 skip), P0 Gate 10/10
+- Samples JSON regenerated: decarboxylation downgraded, distribution 3/5/0
+- Verdict: UNIT_CONTRACT_COMPLETE (fix round 1 applied, 0 open)

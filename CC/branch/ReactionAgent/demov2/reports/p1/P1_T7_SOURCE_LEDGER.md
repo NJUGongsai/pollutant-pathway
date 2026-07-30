@@ -31,7 +31,7 @@ filling all §10.1 fields.
 |------|--------|---------|
 | `reaction_agent/ledgers/__init__.py` | Create | Package init, exports `build_source_ledger` |
 | `reaction_agent/ledgers/source_builder.py` | Create | Builder implementation (§10.1 all fields) |
-| `tests/p1/test_source_ledger.py` | Create | 23 contract tests (13 §13.5 + skeleton + edge) |
+| `tests/p1/test_source_ledger.py` | Create | 24 contract tests (13 §13.5 + skeleton + edge + I1 gap) |
 | `reports/p1/source_ledger_samples.json` | Create | 8 representative samples + no-fabrication evidence |
 | `reports/p1/P1_T7_SOURCE_LEDGER.md` | Create | This report |
 
@@ -42,14 +42,14 @@ filling all §10.1 fields.
 ```
 RED:  ModuleNotFoundError: No module named 'reaction_agent.ledgers'
       (1 collection error — module did not exist)
-GREEN: 23 passed in 0.19s
+GREEN: 24 passed in 0.16s
 ```
 
 ### 3.2 Full regression
 
 ```
 .venv/bin/python -m pytest tests -q -p no:cacheprovider -ra
-535 passed in 0.50s   (baseline 512 + 23 new T7 tests; zero skip/xfail)
+536 passed in 0.45s   (baseline 535 + 1 new I1 gap test; zero skip/xfail)
 ```
 
 ### 3.3 P0 Gate
@@ -68,9 +68,15 @@ From the 8 representative samples in `source_ledger_samples.json`:
 
 | Status | Count | Samples |
 |--------|-------|---------|
-| `heavy_atom_balanced_with_implicit_h_e_policy` | 4 | o2_incorporation, complete_balanced, mechanistic_evidence_present, decarboxylation |
-| `partial_or_unbalanced_source` | 4 | charge_mismatch, missing_stoichiometry, unknown_atom_source, empty |
+| `heavy_atom_balanced_with_implicit_h_e_policy` | 3 | o2_incorporation, complete_balanced, mechanistic_evidence_present |
+| `partial_or_unbalanced_source` | 5 | charge_mismatch, missing_stoichiometry, unknown_atom_source, decarboxylation, empty |
 | `fully_balanced_explicit_reaction` | 0 | (requires rdkit-computed element balance — not asserted without rdkit) |
+
+**Note (fix round 1):** decarboxylation was downgraded from
+`heavy_atom_balanced_with_implicit_h_e_policy` to
+`partial_or_unbalanced_source` after the §10.4 gap fix. CO2 (unlineaged
+coproduct with atoms [1, 2] but no formal mapping source) now correctly
+gets `unknown_source` entries → not strict-eligible.
 
 **Why no `fully_balanced_explicit_reaction`:** rdkit is absent (Preflight
 BLOCKED). Real element balance requires molecular formula comparison (rdkit).
@@ -178,11 +184,12 @@ Evidence from `o2_incorporation` sample (3 participants → 3 entries):
 | 12 | `test_unbound_mechanistic_evidence_rejected` | Unbound evidence | MappingReport schema rejects (ADR-0003 §12) |
 | 13 | `test_complete_participant_preservation` | 6 participants | ledger_pids == input_pids |
 
-Plus 10 additional contract tests (balance typed, H+ policy, formal≠mechanism,
+Plus 11 additional contract tests (balance typed, H+ policy, formal≠mechanism,
 immutability, empty input, return type, ID stability, fully-balanced positive
-case, mechanistic-present positive case, no-unknowns-when-complete).
+case, mechanistic-present positive case, no-unknowns-when-complete, unlineaged
+product atoms §10.4 gap).
 
-**Total: 23 tests, all passing.**
+**Total: 24 tests, all passing.**
 
 ## 8. Deviations / concerns
 
@@ -205,14 +212,21 @@ case, mechanistic-present positive case, no-unknowns-when-complete).
   lineage's transformed set are treated as new/removed. This is conservative
   — when mapping is partial, unmapped atoms are correctly flagged as
   `unknown_source` (not fabricated).
+- **§10.4 gap (fix round 1)**: products NOT in any lineage now have their atoms
+  checked too. Previously, unlineaged products (e.g. decarboxylation CO2
+  coproduct) were silently skipped → record incorrectly marked strict-eligible.
+  Now their atoms get `unknown_source` entries when no formal mapping source
+  traces them, and `balance_status` downgrades to `partial_or_unbalanced_source`.
 
 ## 9. Verdict
 
-UNIT_CONTRACT_COMPLETE. The builder fills all §10.1 fields, enforces the
-no-fabrication discipline (§13.4), and preserves all participants (§11.1).
+UNIT_CONTRACT_COMPLETE (fix round 1 applied). The builder fills all §10.1 fields,
+enforces the no-fabrication discipline (§13.4), and preserves all participants
+(§11.1). The §10.4 gap (unlineaged product atoms) is closed — all products now
+have their atoms checked for formal mapping source, whether in a lineage or not.
 rdkit absence does not block the unit contract — element balance is honestly
-marked absent, and charge balance (computable without rdkit) is always
-computed. P0 baseline (512 → 535) and Gate 10/10 preserved.
+marked absent, and charge balance (computable without rdkit) is always computed.
+P0 baseline (512 → 535 → 536) and Gate 10/10 preserved.
 
 Next task authorization: T7 UNIT_CONTRACT_COMPLETE. T8 (CandidateAnalogyLedger)
 may proceed.

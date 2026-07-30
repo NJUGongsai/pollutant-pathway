@@ -332,7 +332,10 @@ def test_decarboxylation_co2_coproduct_and_sink():
     """Decarboxylation: CO2 is a coproduct; removed carboxyl atoms are sinked.
 
     The ledger must preserve CO2 as a product entry and record removed atom
-    sinks for atoms that left the main substrate.
+    sinks for atoms that left the main substrate. CO2 has NO lineage (the
+    mapper did not trace p1→p3), so its atoms must get explicit
+    ``unknown_source`` entries (§10.4 gap fix) and balance_status must
+    downgrade to ``partial_or_unbalanced_source`` (not strict-eligible).
     """
     substrate = _participant("p1", "reactant", "OC(=O)CCCO", stoichiometry=1,
                              mapped_fraction=0.9, atom_map_numbers=[1, 2, 3, 4],
@@ -340,8 +343,10 @@ def test_decarboxylation_co2_coproduct_and_sink():
     product = _participant("p2", "product", "CCCO", stoichiometry=1,
                            mapped_fraction=0.9, atom_map_numbers=[3, 4],
                            provenance=["src"])
+    # CO2 carries the carboxyl atoms [1, 2] that left the substrate. It has NO
+    # lineage (mapper only traced p1→p2), so its atoms are unlineaged.
     co2 = _participant("p3", "product", "O=C=O", stoichiometry=1,
-                       provenance=["src"])
+                       provenance=["src"], atom_map_numbers=[1, 2])
     mr = _mapping_report([
         _atom_pair("p1", 3, "p2", 3),
         _atom_pair("p1", 4, "p2", 4),
@@ -354,6 +359,17 @@ def test_decarboxylation_co2_coproduct_and_sink():
     # Removed atoms (1, 2 — carboxyl) recorded in removed_atom_sinks
     sink_atoms = {s.atom_map_number for s in ledger.removed_atom_sinks}
     assert 1 in sink_atoms or 2 in sink_atoms
+    # CO2's unlineaged atoms get unknown_source (§10.4 gap fix)
+    co2_unknown_sources = [
+        s for s in ledger.added_atom_sources
+        if s.source_participant_id == "unknown_source"
+    ]
+    co2_unknown_atoms = {s.atom_map_number for s in co2_unknown_sources}
+    assert 1 in co2_unknown_atoms
+    assert 2 in co2_unknown_atoms
+    # Balance status downgraded — CO2 atoms untraceable → not strict-eligible
+    assert ledger.balance_status == \
+        LedgerBalanceStatus.partial_or_unbalanced_source
 
 
 # =====================================================================
@@ -466,8 +482,9 @@ def test_ambiguous_formal_assignment_flagged():
     """Ambiguous formal assignment: assignment_ambiguity is recorded.
 
     When the mapping report flags assignment_ambiguity=True, the ledger must
-    record this in formal_atom_transfer_assignments and unknowns. The balance
-    status must NOT be fully_balanced (ambiguity prevents full balance).
+    record ``formal_assignment_ambiguous`` in unknowns and downgrade
+    balance_status to ``partial_or_unbalanced_source`` (ambiguity prevents
+    strict eligibility — §10.3/§10.4).
     """
     r1 = _participant("p1", "reactant", "CCO", stoichiometry=1,
                       provenance=["src"], atom_map_numbers=[1, 2])
@@ -479,19 +496,11 @@ def test_ambiguous_formal_assignment_flagged():
     )
     ev = _reaction_evidence([r1, p1], mr)
     ledger = build_source_ledger(ev, [_lineage("p1", "p2", [1, 2])])
-    # Ambiguity recorded in unknowns or formal assignments
-    unknowns_str = " ".join(ledger.unknowns).lower()
-    has_ambiguity = (
-        "ambig" in unknowns_str
-        or any(
-            getattr(f, "assignment_method", "") == "formal"
-            for f in ledger.formal_atom_transfer_assignments
-        )
-    )
-    assert has_ambiguity
-    # Ambiguity prevents fully_balanced status
-    assert ledger.balance_status != \
-        LedgerBalanceStatus.fully_balanced_explicit_reaction
+    # Ambiguity recorded precisely in unknowns
+    assert "formal_assignment_ambiguous" in " ".join(ledger.unknowns)
+    # Ambiguity downgrades balance_status to partial (not strict-eligible)
+    assert ledger.balance_status == \
+        LedgerBalanceStatus.partial_or_unbalanced_source
 
 
 # =====================================================================
@@ -525,6 +534,58 @@ def test_unknown_atom_source_not_strict():
     assert len(unknown_sources) >= 1
     assert all(not s.formal_assignment for s in unknown_sources)
     # Balance status is NOT fully_balanced (unknown source blocks strict)
+    assert ledger.balance_status == \
+        LedgerBalanceStatus.partial_or_unbalanced_source
+
+
+# =====================================================================
+# §10.4 gap: unlineaged product atoms — unknown_source (I1 fix)
+# =====================================================================
+
+def test_unlineaged_product_atoms_get_unknown_source():
+    """Unlineaged product atoms: a product NOT in any lineage must still have
+    its atoms checked for formal mapping source.
+
+    §10.4 gap (I1): previously, only products appearing in a lineage had their
+    atoms checked. A product with NO lineage (e.g. decarboxylation CO2
+    coproduct) was silently skipped — its atoms were never checked for a
+    formal source, so the record was incorrectly marked strict-eligible
+    (heavy_atom_balanced) even though those atoms have no traceable source.
+
+    Fix: atoms of unlineaged products without a formal mapping pair get
+    explicit ``unknown_source`` entries + unknowns record, and
+    ``_determine_balance_status`` downgrades accordingly (not strict).
+    """
+    # Reactant p1 with atoms [1, 2]; product p2 (in lineage) with atoms [1, 2].
+    r1 = _participant("p1", "reactant", "CCO", stoichiometry=1,
+                      provenance=["src"], atom_map_numbers=[1, 2])
+    p2 = _participant("p2", "product", "CCO", stoichiometry=1,
+                      provenance=["src"], atom_map_numbers=[1, 2])
+    # Coproduct p3 (NO lineage) with atoms [3, 4] — no formal mapping source.
+    p3 = _participant("p3", "product", "O=C=O", stoichiometry=1,
+                      provenance=["src"], atom_map_numbers=[3, 4])
+    # Mapping only traces p1 → p2; p3's atoms are unmapped.
+    mr = _mapping_report([
+        _atom_pair("p1", 1, "p2", 1),
+        _atom_pair("p1", 2, "p2", 2),
+    ])
+    ev = _reaction_evidence([r1, p2, p3], mr)
+    # Only lineage is p1 → p2; p3 is NOT in any lineage.
+    ledger = build_source_ledger(ev, [_lineage("p1", "p2", [1, 2])])
+    # p3's atoms (3, 4) must get explicit unknown_source entries
+    unknown_sources = [
+        s for s in ledger.added_atom_sources
+        if s.source_participant_id == "unknown_source"
+    ]
+    unknown_atoms = {s.atom_map_number for s in unknown_sources}
+    assert 3 in unknown_atoms
+    assert 4 in unknown_atoms
+    assert all(not s.formal_assignment for s in unknown_sources)
+    # Unknowns list records the gap
+    unknowns_str = " ".join(ledger.unknowns)
+    assert "unknown_atom_source:p3:atom_3" in unknowns_str
+    assert "unknown_atom_source:p3:atom_4" in unknowns_str
+    # Balance status downgraded (not strict-eligible)
     assert ledger.balance_status == \
         LedgerBalanceStatus.partial_or_unbalanced_source
 
