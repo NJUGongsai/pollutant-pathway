@@ -303,3 +303,43 @@
   unit contract done. Real mapper integration blocked. Downstream T6 (lineage
   resolver) remains blocked (needs rdkit). T5/T7/T8 may proceed on
   scaffolding per the same PARTIAL discipline.
+
+### Fix Round 1 (reviewer findings: 3 Important + 2 Minor)
+- timestamp: 2026-07-30T03:05Z (UTC)
+- [IMPORTANT-1] available-branch latent failure:
+  - `test_real_mapper_integration_handles_unavailable_backend` if-branch
+    called `a.map_reaction()` directly → would ERROR when rdkit installed
+    but `_do_map` not wired (skeleton raises NotImplementedError)
+  - fix: available-branch wrapped in `pytest.raises(NotImplementedError,
+    match="skeleton")`; added `test_real_mapper_available_branch_raises_skeleton`
+    (monkeypatches `_available=True` to force the branch regardless of rdkit)
+- [IMPORTANT-2] `_probe_rdkit` probe scope:
+  - only probed rdkit+numpy but deps declare rdkit/numpy/networkx/scipy →
+    partial install would report is_available()=True then crash `_do_map`
+  - fix: `_probe_rdkit` now probes all 4 (rdkit, numpy, networkx, scipy)
+  - test: `test_probe_rdkit_requires_all_four_declared_deps` (sys.modules
+    simulation of partial installs)
+- [IMPORTANT-3] §10.6 coverage gap (5 missing cases):
+  - timeout: added `timed_out` param to FakeAtomMapper (forces
+    mapping_failed, records timed_out=true); test:
+    `test_timeout_behavior_mapping_failed`
+  - missing maps: test `test_missing_maps_flagged_in_quality` (partial
+    coverage → unmapped_changed_atoms=present, fraction<1.0)
+  - blocked by real mapper integration (require chemical perception, not
+    syntactic fake pairs): mapped-reactants-unmapped-products, atom-order
+    permutation, multi-fragment — explicitly marked BLOCKED in report +
+    worklog §10.6 coverage matrix
+- [MINOR-1] Protocol check: `test_atom_mapper_protocol_satisfied` now uses
+  `assert isinstance(m, AtomMapper)` (runtime_checkable) instead of
+  hasattr+callable
+- [MINOR-2] `reactant_product_map_consistency`: extracted `_map_consistency`
+  helper — fully_mapped→pass, partially_mapped/mapping_ambiguous→partial,
+  unmapped/mapping_failed→fail (was "partial" for failed, semantically wrong)
+- RED: 3 failed, 32 passed (3 impl-dependent: probe, consistency, timeout)
+- GREEN: 35 passed (30 original + 5 new)
+- regression: 425 passed (290 P0 + 135 P1), 0 fail/error/skip/xfail/xpass
+- P0 Gate: 10/10 passed (READY_FOR_CHATGPT_AUDIT), no regression
+- §10.6 coverage: 13/16 cases covered; 3 blocked (real mapper integration)
+- files modified: `reaction_agent/mapping/adapter.py`, `tests/p1/test_mapping_adapter.py`
+- NOT modified: P0 schemas, `reports/p0/`, `../benchmark/`, `../core/`
+- verdict (unchanged): UNIT_CONTRACT_COMPLETE / INTEGRATION_BLOCKED

@@ -58,7 +58,11 @@ def compute_quality_flags(report: MappingReport) -> list[str]:
     1. map_number_uniqueness — pass/fail (from report.map_number_uniqueness)
     2. mapped_heavy_atom_fraction — float in [0, 1]
     3. changed_atom_coverage — float in [0, 1]
-    4. reactant_product_map_consistency — pass/partial (derived from status)
+    4. reactant_product_map_consistency — pass/partial/fail (derived from
+       status: fully_mapped→pass, partially_mapped/mapping_ambiguous→partial,
+       unmapped/mapping_failed→fail). A failed/unmapped mapping has no valid
+       reactant-product correspondence, so 'partial' would be semantically
+       wrong.
     5. duplicate_map_ids — none/detected (inverse of map_number_uniqueness)
     6. unmapped_changed_atoms — none/present (derived from changed_atom_coverage)
     7. symmetry_ambiguity — none/detected (from report.symmetry_ambiguity)
@@ -74,13 +78,28 @@ def compute_quality_flags(report: MappingReport) -> list[str]:
         f"map_number_uniqueness={'pass' if report.map_number_uniqueness else 'fail'}",
         f"mapped_heavy_atom_fraction={report.mapped_heavy_atom_fraction:.4f}",
         f"changed_atom_coverage={report.changed_atom_coverage:.4f}",
-        f"reactant_product_map_consistency={'pass' if report.mapping_status == MappingStatus.fully_mapped else 'partial'}",
+        f"reactant_product_map_consistency={_map_consistency(report.mapping_status)}",
         f"duplicate_map_ids={'detected' if not report.map_number_uniqueness else 'none'}",
         f"unmapped_changed_atoms={'present' if report.changed_atom_coverage < 1.0 else 'none'}",
         f"symmetry_ambiguity={'detected' if report.symmetry_ambiguity else 'none'}",
         f"resonance_tautomer_ambiguity={'detected' if report.resonance_tautomer_ambiguity else 'none'}",
     ]
     return flags
+
+
+def _map_consistency(status: MappingStatus) -> str:
+    """§10.3 reactant_product_map_consistency derived from mapping_status.
+
+    - fully_mapped → pass (full reactant-product correspondence)
+    - partially_mapped / mapping_ambiguous → partial (incomplete correspondence)
+    - unmapped / mapping_failed → fail (no valid correspondence; 'partial'
+      would be semantically wrong for a failed mapping)
+    """
+    if status == MappingStatus.fully_mapped:
+        return "pass"
+    if status in (MappingStatus.partially_mapped, MappingStatus.mapping_ambiguous):
+        return "partial"
+    return "fail"
 
 
 # =====================================================================
@@ -109,6 +128,10 @@ class FakeAtomMapper:
         symmetry_ambiguity: If True, symmetry_ambiguity=True on the report.
         resonance_tautomer_ambiguity: If True, resonance_tautomer_ambiguity
             on the report.
+        timed_out: If True, simulates a mapper that exceeded its timeout
+            (§10.6 timeout test case). Forces mapping_status=mapping_failed
+            regardless of requested status, and records timed_out=true in
+            mapper_parameters. Bypasses fallback (timeout = failure).
     """
 
     MAPPER_NAME = "fake"
@@ -122,6 +145,7 @@ class FakeAtomMapper:
         duplicate_map_ids: bool = False,
         symmetry_ambiguity: bool = False,
         resonance_tautomer_ambiguity: bool = False,
+        timed_out: bool = False,
     ) -> None:
         if status not in MappingStatus.__members__:
             raise ValueError(
@@ -137,6 +161,7 @@ class FakeAtomMapper:
         self._duplicate_map_ids = duplicate_map_ids
         self._symmetry_ambiguity = symmetry_ambiguity
         self._resonance_tautomer_ambiguity = resonance_tautomer_ambiguity
+        self._timed_out = timed_out
 
     # -- Public properties (§10.1 capture list) --
 
@@ -167,7 +192,11 @@ class FakeAtomMapper:
         fallback_method: str | None = None
         assignment_method = SourceAssignmentMethod.formal_mapped
 
-        if self._fallback == "mcs":
+        # §10.6 timeout: a timed-out mapping forces mapping_failed (no fallback).
+        # Timeout = failure regardless of requested status; bypasses fallback.
+        if self._timed_out:
+            status = MappingStatus.mapping_failed
+        elif self._fallback == "mcs":
             fallback_method = "mcs"
             assignment_method = SourceAssignmentMethod.formal_mcs
             # §10.5: MCS must not pretend full mapping
@@ -216,6 +245,8 @@ class FakeAtomMapper:
         }
         if fallback_method is not None:
             mapper_parameters["fallback"] = fallback_method
+        if self._timed_out:
+            mapper_parameters["timed_out"] = "true"
 
         # -- Output hash (content-addressed, deterministic) --
         output_payload = {
@@ -396,10 +427,20 @@ class RealMapperAdapter:
 
     @staticmethod
     def _probe_rdkit() -> bool:
-        """Probe for rdkit + numpy (minimum for atom mapping)."""
+        """Probe for rdkit + numpy + networkx + scipy (all 4 declared deps).
+
+        The adapter's INTEGRATION_BLOCKED message and checkpoint report
+        declare rdkit/numpy/networkx/scipy as dependencies. _probe_rdkit must
+        probe all 4 so that a partial install (e.g. rdkit+numpy present but
+        networkx/scipy absent) does NOT report is_available()=True — _do_map
+        would crash on the missing dep later. Keeps the probe aligned with
+        the declared dependencies.
+        """
         try:
             import rdkit  # noqa: F401
             import numpy  # noqa: F401
+            import networkx  # noqa: F401
+            import scipy  # noqa: F401
             return True
         except ImportError:
             return False

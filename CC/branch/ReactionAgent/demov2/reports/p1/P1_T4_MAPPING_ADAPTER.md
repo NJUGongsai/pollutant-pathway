@@ -172,6 +172,33 @@ Wait — actual P1 count: 420 - 290 = 130 P1 tests.
   (typed structure, determinism, formal/mechanistic separation) but do not
   validate real chemistry. This is intentional (fake mapper for unit tests).
 
+## 10.1 §10.6 coverage matrix (Fix Round 1)
+
+| §10.6 case | status | test |
+|------------|--------|------|
+| fully mapped | covered | test_fully_mapped_status |
+| partially mapped | covered | test_mcs_fallback_downgrades_full_to_partial |
+| unmapped | covered | test_unmapped_status |
+| mapper failure | covered | test_mapping_failed_not_full |
+| timeout | covered (Fix R1) | test_timeout_behavior_mapping_failed |
+| duplicate map IDs | covered | test_duplicate_map_ids_flagged |
+| missing maps | covered (Fix R1) | test_missing_maps_flagged_in_quality |
+| mapped reactants/unmapped products | **BLOCKED** (real mapper) | — |
+| atom-order permutation | **BLOCKED** (real mapper) | — |
+| multi-fragment | **BLOCKED** (real mapper) | — |
+| symmetric atoms | covered | test_symmetry_ambiguity_flagged |
+| resonance/tautomer ambiguity | covered | test_resonance_tautomer_ambiguity_flagged |
+| MCS-only not strict | covered | test_mcs_fallback_not_strict |
+| center pairs not full mapping | covered | test_center_pair_fallback_not_strict |
+| mapper does not create mechanism evidence | covered | test_mapper_does_not_create_mechanism |
+| typed/flat mapping consistency | covered | test_typed_flat_consistency_formal |
+
+13/16 §10.6 cases covered. 3 BLOCKED (mapped-reactants/unmapped-products,
+atom-order permutation, multi-fragment) — these require real chemical
+perception (the fake mapper produces syntactic deterministic pairs, not
+chemistry). They will be covered when a real mapper backend is installed
+and `RealMapperAdapter._do_map` is wired.
+
 ## 11. To unblock T4 PASS
 
 1. Install real mapper backend: `uv pip install rdkit numpy networkx scipy`
