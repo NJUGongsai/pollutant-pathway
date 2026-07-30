@@ -50,7 +50,7 @@
       "expected": "G09 FAIL",
       "actual_passed": false,
       "actual_blocked": false,
-      "evidence": "deterministic rebuild failed: same_hash_3way != True; build_a/build_b hashes differ",
+      "evidence": "auxiliary JSON: same_hash_3way != True; auxiliary JSON: build_a/build_b hashes differ",
       "caught": true,
       "mutation_id": "M6"
     },
@@ -68,7 +68,7 @@
       "expected": "G10 zero-skip FAIL",
       "actual_passed": false,
       "actual_blocked": false,
-      "evidence": "mutation stats: skip=1, xfail=1",
+      "evidence": "G10 check called directly; pytest_stats={'collected': 2, 'passed': 0, 'failed': 0, 'errors': 0, 'skipped': 1, 'xfailed': 1, 'xpassed': 0}; passed=False, blocked=False",
       "caught": true,
       "mutation_id": "M8"
     }

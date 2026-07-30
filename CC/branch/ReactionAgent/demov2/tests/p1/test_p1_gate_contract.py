@@ -367,3 +367,74 @@ def test_gate_report_changed_files_present():
     assert "changed_files" in report, "report missing changed_files"
     assert isinstance(report["changed_files"], list), \
         "changed_files is not a list"
+
+
+# ============================================================
+# Fix Round 1 — §18.2: G09 must independently rebuild snapshot hash
+# ============================================================
+
+def test_g09_independently_rebuilds_snapshot_hash():
+    """§18.2: G09 must independently rebuild the snapshot hash, not trust the
+    precomputed ``same_hash_3way`` boolean in ``snapshot_build_sample.json``.
+
+    If the snapshot builder itself were tampered into non-determinism, reading
+    a precomputed boolean would not catch it. G09 must call
+    ``compute_snapshot_hash(config, items)`` at least twice on the T10 fixture
+    source and independently compare the hashes.
+
+    RED phase: mock a non-deterministic builder (2nd call returns a different
+    hash). G09 should FAIL — but the pre-fix G09 only reads JSON, so it PASSES
+    (RED). After the fix, G09 calls compute_snapshot_hash twice, detects the
+    mismatch, and FAILS (GREEN).
+    """
+    import scripts.run_p1_gate as gate_mod
+    from unittest.mock import patch
+
+    call_count = {"n": 0}
+
+    def fake_compute(config, items):
+        call_count["n"] += 1
+        return f"nondeterministic_hash_{call_count['n']}"
+
+    with patch.object(gate_mod, "compute_snapshot_hash", fake_compute,
+                      create=True):
+        result = gate_mod.check_g09_snapshot_reproducibility()
+
+    assert call_count["n"] >= 2, (
+        "G09 must independently call compute_snapshot_hash >= 2 times (§18.2), "
+        f"but called it {call_count['n']} time(s)"
+    )
+    assert not result["passed"], (
+        "G09 must catch a non-deterministic builder (different hashes on two "
+        "independent rebuilds), not trust a precomputed boolean"
+    )
+
+
+def test_g09_cross_verifies_against_stored_hash():
+    """§18.2: G09 independent rebuild hash must equal the JSON-stored hash.
+
+    Guards against a builder that is deterministic-but-wrong: two rebuilds
+    agree with each other but disagree with the hash recorded in the evidence
+    JSON. The independent rebuild must cross-verify the stored value.
+    """
+    import scripts.run_p1_gate as gate_mod
+
+    result = gate_mod.check_g09_snapshot_reproducibility()
+    details = result.get("details", {})
+    # independent_rebuild_hash is populated by the fix; presence alone proves
+    # G09 performed an independent rebuild (not just read the JSON boolean).
+    assert "independent_rebuild_hash" in details, (
+        "G09 details must include independent_rebuild_hash (proof of "
+        "independent rebuild, §18.2)"
+    )
+    assert "independent_rebuild_match" in details, (
+        "G09 details must include independent_rebuild_match (two rebuilds "
+        "compared, §18.2)"
+    )
+    assert details["independent_rebuild_match"] is True, (
+        "two independent rebuilds must agree on a deterministic builder")
+    # cross-verify against stored JSON hash
+    assert details.get("cross_verify_stored") is True, (
+        "independent rebuild hash must equal the JSON-stored snapshot_hash "
+        "(cross-verification, §18.2)"
+    )

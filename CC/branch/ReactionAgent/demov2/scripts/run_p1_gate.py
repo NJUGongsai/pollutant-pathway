@@ -42,10 +42,14 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 DEMOV2_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Ensure reaction_agent is importable for module-level imports (G09 fixture
+# rebuild). Function-level sys.path inserts in G01/G02 remain as no-ops.
+sys.path.insert(0, DEMOV2_ROOT)
 REPORT_DIR = os.path.join(DEMOV2_ROOT, "reports", "p1")
 DATA_AUDIT_DIR = os.path.join(DEMOV2_ROOT, "reports", "data_audit")
 PYPROJECT_PATH = os.path.join(DEMOV2_ROOT, "pyproject.toml")
@@ -93,6 +97,48 @@ def _result(passed: bool, evidence: str, details: dict,
         "passed": passed, "blocked": blocked,
         "evidence": evidence, "details": details,
     }
+
+
+def _run_targeted_tests(test_files: list[str], gate_id: str) -> tuple[list[str], dict]:
+    """Run pytest on specific test files (§18.2 — gate runs tests, not just reads JSON).
+
+    Returns (issues, stats). Enforces zero skip/xfail/xpass (§17). Uses a temp
+    json-report file so it never collides with the gate's own report artifacts.
+    """
+    issues: list[str] = []
+    stats: dict = {}
+    report_file = os.path.join(
+        tempfile.gettempdir(), f".pytest_gate_{gate_id.lower()}_report.json")
+    try:
+        proc = _run_subprocess(
+            [sys.executable, "-m", "pytest", *test_files, "-q",
+             "--json-report", f"--json-report-file={report_file}",
+             "-p", "no:cacheprovider"],
+            timeout=600,
+        )
+        stats_raw = {}
+        if os.path.isfile(report_file):
+            stats_raw = _read_json(report_file)
+            stats = _parse_pytest_stats(stats_raw)
+        if proc.returncode != 0:
+            issues.append(
+                f"{gate_id} targeted tests exit={proc.returncode}: "
+                f"{', '.join(test_files)}")
+        if stats.get("failed", 0) != 0 or stats.get("errors", 0) != 0:
+            issues.append(f"{gate_id} targeted tests have failures/errors: {stats}")
+        if stats.get("skipped", 0) != 0:
+            issues.append(f"{gate_id} targeted tests have {stats.get('skipped')} skipped (§17)")
+        if stats.get("xfailed", 0) != 0:
+            issues.append(f"{gate_id} targeted tests have {stats.get('xfailed')} xfailed (§17)")
+        if stats.get("xpassed", 0) != 0:
+            issues.append(f"{gate_id} targeted tests have {stats.get('xpassed')} xpassed (§17)")
+        if stats.get("collected", 0) == 0:
+            issues.append(f"{gate_id} targeted tests collected 0: {test_files}")
+    except subprocess.TimeoutExpired:
+        issues.append(f"{gate_id} targeted tests timed out (600s): {test_files}")
+    except Exception as e:  # noqa: BLE001
+        issues.append(f"{gate_id} targeted tests error: {e}")
+    return issues, stats
 
 
 # ============================================================
@@ -505,9 +551,16 @@ def check_g05_participant_roles() -> dict:
         issues.append("cofactors source not read-only")
 
     details["verdict"] = sample.get("verdict")
+
+    # PRIMARY (§18.2): run T5 tests — participant preservation/roles contract
+    t5_issues, t5_stats = _run_targeted_tests(
+        ["tests/p1/test_participant_roles.py"], "P1-G05")
+    issues.extend(t5_issues)
+    details["t5_pytest_stats"] = t5_stats
+
     passed = len(issues) == 0
     return _result(passed, "; ".join(issues) if issues else
-                   "participant multiset preserved, COFACTORS non-destructive, small molecules retained, ambiguity preserved",
+                   "participant multiset preserved, COFACTORS non-destructive, small molecules retained, ambiguity preserved + T5 tests pass zero-skip",
                    details)
 
 
@@ -611,9 +664,15 @@ def check_g06_lineage_graph() -> dict:
 
     details["proline_2og_hard_gate"] = data.get("proline_2og_hard_gate")
 
+    # PRIMARY (§18.2): run T6 tests — lineage graph contract
+    t6_issues, t6_stats = _run_targeted_tests(
+        ["tests/p1/test_lineage_graph.py"], "P1-G06")
+    issues.extend(t6_issues)
+    details["t6_pytest_stats"] = t6_stats
+
     passed = len(issues) == 0
     return _result(passed, "; ".join(issues) if issues else
-                   "14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct",
+                   "14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct + T6 tests pass zero-skip",
                    details)
 
 
@@ -693,9 +752,16 @@ def check_g07_dual_ledgers() -> dict:
     if not ie.get("candidate_id_echoed"):
         issues.append("candidate_id not echoed")
 
+    # PRIMARY (§18.2): run T7/T8 tests — source ledger + candidate ledger skeleton
+    t7t8_issues, t7t8_stats = _run_targeted_tests(
+        ["tests/p1/test_source_ledger.py",
+         "tests/p1/test_candidate_ledger_skeleton.py"], "P1-G07")
+    issues.extend(t7t8_issues)
+    details["t7t8_pytest_stats"] = t7t8_stats
+
     passed = len(issues) == 0
     return _result(passed, "; ".join(issues) if issues else
-                   "SourceReactionLedger + CandidateAnalogyLedger valid, unknowns preserved, formal≠mechanism, source linkage valid",
+                   "SourceReactionLedger + CandidateAnalogyLedger valid, unknowns preserved, formal≠mechanism, source linkage valid + T7/T8 tests pass zero-skip",
                    details)
 
 
@@ -786,6 +852,147 @@ def check_g08_eligibility_quarantine() -> dict:
 # G09: snapshot reproducibility
 # ============================================================
 
+# --- T10 fixture source (synthetic, labeled fixture) for independent rebuild ---
+# Mirrors tests/p1/test_snapshot_builder.py::_full_fixture_items() exactly so
+# the independent rebuild cross-verifies the hash stored in
+# snapshot_build_sample.json. NO real data fabricated (§16.7 preflight note).
+from reaction_agent.config import BuildConfig as _G09_BuildConfig
+from reaction_agent.schemas.common import (  # noqa: E402
+    LedgerBalanceStatus as _G09_LedgerBalanceStatus,
+    ParticipantRole as _G09_ParticipantRole,
+)
+from reaction_agent.schemas.evidence import (  # noqa: E402
+    ReactionEvidence as _G09_ReactionEvidence,
+    ReactionParticipant as _G09_ReactionParticipant,
+)
+from reaction_agent.schemas.ledger import (  # noqa: E402
+    AddedAtomSource as _G09_AddedAtomSource,
+    RoleAssignment as _G09_RoleAssignment,
+    SourceReactionLedger as _G09_SourceReactionLedger,
+)
+from reaction_agent.schemas.p1_entities import (  # noqa: E402
+    ResolvedTransformedLineage as _G09_ResolvedTransformedLineage,
+)
+from reaction_agent.snapshot.builder import (  # noqa: E402
+    SnapshotEvidenceItem as _G09_SnapshotEvidenceItem,
+    compute_snapshot_hash,
+)
+
+
+def _g09_participant(pid, side, smiles="C", charge=0, stoich=1, amn=None,
+                     mf=1.0, caf=0.0, roles=None):
+    kw = dict(
+        participant_id=pid, molecule_id=f"mol_{pid}", canonical_smiles=smiles,
+        side=side, formal_charge=charge, stoichiometry=stoich,
+        mapped_fraction=mf, changed_atom_fraction=caf,
+        atom_map_numbers=amn or [], role_hypotheses=roles or [],
+    )
+    return _G09_ReactionParticipant(**kw)
+
+
+def _g09_ev(parts, *, rid, sn="fixture_source_a", sv="v1",
+            raw="A>>B", norm="A>>B"):
+    return _G09_ReactionEvidence(
+        reaction_id=rid, source_record_id=f"src_{rid}", source_name=sn,
+        source_version=sv, raw_reaction=raw, normalized_reaction=norm,
+        direction="forward", participants=parts,
+    )
+
+
+def _g09_lin(rp, pp, am=None, amb="none"):
+    return _G09_ResolvedTransformedLineage(
+        lineage_id=f"lin_{rp}_{pp}", reactant_participant_id=rp,
+        product_participant_id=pp, ambiguity=amb, transformed_atom_maps=am or [],
+    )
+
+
+def _g09_ledger(rid, bs=_G09_LedgerBalanceStatus.fully_balanced_explicit_reaction,
+                cb=0, aas=None, ra=None, hp="unknown"):
+    return _G09_SourceReactionLedger(
+        ledger_id=f"srl_{rid}", reaction_evidence_id=rid, balance_status=bs,
+        charge_balance=cb, added_atom_sources=aas or [], cofactor_changes=[],
+        role_assignments=ra or [], unknowns=[], hydrogen_policy=hp,
+        proton_policy="unknown", electron_policy="unknown",
+        source_completeness="complete", mapping_completeness="complete",
+    )
+
+
+def _g09_role(pid, role="transformed_substrate"):
+    return _G09_RoleAssignment(
+        participant_id=pid, role=_G09_ParticipantRole(role), score=0.9)
+
+
+def _g09_item_strict(rid="rxn_strict_001", sn="fixture_source_a"):
+    r1 = _g09_participant("r1", "reactant", "CCO", amn=[1, 2])
+    p1 = _g09_participant("p1", "product", "CC(=O)O", amn=[1, 2])
+    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CCO>>CC(=O)O", norm="CCO>>CC(=O)O")
+    ld = _g09_ledger(rid, ra=[_g09_role("r1"), _g09_role("p1", "transformed_product")])
+    return _G09_SnapshotEvidenceItem(ev, ld, [_g09_lin("r1", "p1", [1, 2])])
+
+
+def _g09_item_conditional(rid="rxn_cond_001", sn="fixture_source_a"):
+    r1 = _g09_participant("r1", "reactant", "CCO", amn=[1, 2])
+    p1 = _g09_participant("p1", "product", "CC(=O)O", amn=[1, 2])
+    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CCO>>CC(=O)O", norm="CCO>>CC(=O)O")
+    ld = _g09_ledger(
+        rid, bs=_G09_LedgerBalanceStatus.heavy_atom_balanced_with_implicit_h_e_policy,
+        hp="implicit_heavy_atom_balanced_h_policy",
+        ra=[_g09_role("r1"), _g09_role("p1", "transformed_product")])
+    return _G09_SnapshotEvidenceItem(ev, ld, [_g09_lin("r1", "p1", [1, 2])])
+
+
+def _g09_item_diagnostic(rid="rxn_diag_001", sn="fixture_source_a"):
+    r1 = _g09_participant("r1", "reactant", "CCO", amn=[1, 2], mf=0.5)
+    p1 = _g09_participant("p1", "product", "CC(=O)O", amn=[1, 2, 3], caf=0.3)
+    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CCO>>CC(=O)O", norm="CCO>>CC(=O)O")
+    ld = _g09_ledger(
+        rid, bs=_G09_LedgerBalanceStatus.partial_or_unbalanced_source,
+        aas=[_G09_AddedAtomSource(atom_map_number=3, source_participant_id="unknown_source")],
+        ra=[_g09_role("r1"), _g09_role("p1", "transformed_product")])
+    return _G09_SnapshotEvidenceItem(ev, ld, [_g09_lin("r1", "p1", [1, 2])])
+
+
+def _g09_item_quarantine(rid="rxn_quar_001", sn="fixture_source_a"):
+    r1 = _g09_participant("r1", "reactant", "CCO", amn=[1, 2])
+    p1 = _g09_participant("p1", "product", "CC(=O)O", amn=[1, 2])
+    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CCO>>CC(=O)O", norm="CCO>>CC(=O)O")
+    ld = _g09_ledger(
+        rid, bs=_G09_LedgerBalanceStatus.partial_or_unbalanced_source, cb=1,
+        ra=[_g09_role("r1"), _g09_role("p1", "transformed_product")])
+    return _G09_SnapshotEvidenceItem(ev, ld, [_g09_lin("r1", "p1", [1, 2])])
+
+
+def _g09_t10_fixture_items():
+    """T10 fixture source: 1 strict + 1 conditional + 1 diagnostic + 1 quarantine.
+
+    Synthetic, explicitly labeled fixture (no real data). Mirrors
+    tests/p1/test_snapshot_builder.py::_full_fixture_items() so the independent
+    rebuild cross-verifies the hash recorded in snapshot_build_sample.json.
+    """
+    return [
+        _g09_item_strict(),
+        _g09_item_conditional(),
+        _g09_item_diagnostic(),
+        _g09_item_quarantine(),
+    ]
+
+
+def _g09_t10_fixture_config(output_root: str) -> _G09_BuildConfig:
+    return _G09_BuildConfig(
+        input_source="fixture_source_a",
+        output_snapshot_root=output_root,
+        mapper_backend="fake",
+        mapper_version="p1-1",
+        mapper_parameters={},
+        normalization_version="p1-1",
+        role_policy_version="p1-1",
+        lineage_resolver_version="p1-1",
+        ledger_version="p1-1",
+        eligibility_policy_version="p1-1",
+        random_seed=42,
+    )
+
+
 def check_g09_snapshot_reproducibility() -> dict:
     issues: list[str] = []
     details: dict = {}
@@ -798,22 +1005,64 @@ def check_g09_snapshot_reproducibility() -> dict:
 
     fs = data.get("fixture_snapshot", {})
 
-    # 1. deterministic rebuild (same hash twice)
+    # === PRIMARY: independent rebuild (§18.2 — do NOT trust precomputed boolean) ===
+    # Call compute_snapshot_hash twice on the T10 fixture source and compare.
+    # This catches a tampered/non-deterministic builder that a precomputed
+    # ``same_hash_3way`` boolean would hide.
+    rebuild_hash_1: str | None = None
+    rebuild_hash_2: str | None = None
+    independent_match: bool | None = None
+    cross_verify_stored: bool | None = None
+    try:
+        items = _g09_t10_fixture_items()
+        with tempfile.TemporaryDirectory(prefix="g09_rebuild_") as tmpdir:
+            config = _g09_t10_fixture_config(os.path.join(tmpdir, "snapshots"))
+            rebuild_hash_1 = compute_snapshot_hash(config, items)
+            # second independent rebuild — reversed input order proves canonical
+            # sorting (input order must not affect hash, §16.6)
+            rebuild_hash_2 = compute_snapshot_hash(config, list(reversed(items)))
+        independent_match = (rebuild_hash_1 == rebuild_hash_2)
+        details["independent_rebuild_hash"] = rebuild_hash_1[:16] + "..."
+        details["independent_rebuild_hash_full"] = rebuild_hash_1
+        details["independent_rebuild_match"] = independent_match
+        if not independent_match:
+            issues.append(
+                f"INDEPENDENT REBUILD MISMATCH: build1={rebuild_hash_1[:16]}... "
+                f"!= build2={rebuild_hash_2[:16]}... (builder non-deterministic)")
+        # cross-verify against the hash stored in the evidence JSON
+        stored_hash = fs.get("determinism_evidence", {}).get("hash_value", "")
+        if stored_hash:
+            cross_verify_stored = (rebuild_hash_1 == stored_hash)
+            details["cross_verify_stored"] = cross_verify_stored
+            details["stored_hash_prefix"] = stored_hash[:16] + "..."
+            if not cross_verify_stored:
+                issues.append(
+                    f"CROSS-VERIFY FAILED: independent rebuild {rebuild_hash_1[:16]}... "
+                    f"!= JSON stored {stored_hash[:16]}... (deterministic-but-wrong)")
+        else:
+            details["cross_verify_stored"] = None
+            issues.append("no stored hash_value to cross-verify against")
+    except Exception as e:  # noqa: BLE001
+        issues.append(f"independent rebuild error: {e}")
+        details["independent_rebuild_match"] = False
+        details["cross_verify_stored"] = False
+
+    # === AUXILIARY: precomputed JSON evidence (kept as secondary signal) ===
     de = fs.get("determinism_evidence", {})
     details["same_hash_3way"] = de.get("same_hash_3way")
     details["same_snapshot_id"] = de.get("same_snapshot_id")
     details["hash_value"] = de.get("hash_value", "")[:16] + "..."
     if not de.get("same_hash_3way"):
-        issues.append("deterministic rebuild failed: same_hash_3way != True")
+        issues.append("auxiliary JSON: same_hash_3way != True")
     if not de.get("same_snapshot_id"):
-        issues.append("snapshot_id not deterministic")
+        issues.append("auxiliary JSON: snapshot_id not deterministic")
 
     build_a = fs.get("build_a", {})
     build_b = fs.get("build_b", {})
     details["build_a_hash"] = build_a.get("snapshot_hash", "")[:16] + "..."
     details["build_b_hash"] = build_b.get("snapshot_hash", "")[:16] + "..."
     if build_a.get("snapshot_hash") != build_b.get("snapshot_hash"):
-        issues.append("build_a/build_b hashes differ")
+        issues.append("auxiliary JSON: build_a/build_b hashes differ")
 
     # 2. content hash present
     on_disk = fs.get("on_disk_manifest", {})
@@ -876,7 +1125,9 @@ def check_g09_snapshot_reproducibility() -> dict:
 
     passed = len(issues) == 0
     return _result(passed, "; ".join(issues) if issues else
-                   "deterministic rebuild (3-way same hash) + content hash + manifest complete + filters counted + frozen + read-only loader",
+                   "INDEPENDENT rebuild (2x same hash) + cross-verify stored hash + "
+                   "deterministic 3-way + content hash + manifest complete + "
+                   "filters counted + frozen + read-only loader",
                    details)
 
 

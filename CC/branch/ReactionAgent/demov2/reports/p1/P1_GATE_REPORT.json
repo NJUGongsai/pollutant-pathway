@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-30T08:56:32.529456+00:00",
+  "timestamp": "2026-07-30T11:03:33.598567+00:00",
   "gate_version": "p1-gate-1",
   "python_version": "3.11.15",
   "working_directory": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2",
@@ -164,7 +164,7 @@
       "name": "participant preservation/roles",
       "passed": true,
       "blocked": false,
-      "evidence": "participant multiset preserved, COFACTORS non-destructive, small molecules retained, ambiguity preserved",
+      "evidence": "participant multiset preserved, COFACTORS non-destructive, small molecules retained, ambiguity preserved + T5 tests pass zero-skip",
       "details": {
         "input_count": 8,
         "output_count": 8,
@@ -176,7 +176,16 @@
         "cofactors_read_only": true,
         "cofactors_count": 24,
         "cofactors_source_hash": "6003f4bc4ffc5ca3304dc1d2282a467f4f773e149ea9cf2a132ca0e4079eb2d0",
-        "verdict": "UNIT_CONTRACT_COMPLETE"
+        "verdict": "UNIT_CONTRACT_COMPLETE",
+        "t5_pytest_stats": {
+          "collected": 46,
+          "passed": 46,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
       },
       "evidence_paths": {
         "evidence": "reports/p1/participant_role_sample.json",
@@ -189,7 +198,7 @@
       "name": "lineage graph bipartite/split-merge-transfer/no-silent-tie",
       "passed": true,
       "blocked": false,
-      "evidence": "14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct",
+      "evidence": "14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct + T6 tests pass zero-skip",
       "details": {
         "case_count": 14,
         "bipartite_verified": true,
@@ -210,7 +219,16 @@
           ]
         ],
         "forbidden_lineage_check": "2OG->hydroxyproline NOT in strict_eligible_pairs for case 01; NAD->NADH NOT in strict_eligible_pairs for case 02 (carrier, not transformed).",
-        "proline_2og_hard_gate": "Case A (curated fixture: proline->hydroxyproline + 2OG->succinate + O transfer). Real source: required_case_missing."
+        "proline_2og_hard_gate": "Case A (curated fixture: proline->hydroxyproline + 2OG->succinate + O transfer). Real source: required_case_missing.",
+        "t6_pytest_stats": {
+          "collected": 41,
+          "passed": 41,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
       },
       "evidence_paths": {
         "evidence": "reports/p1/lineage_regression_cases.json",
@@ -223,7 +241,7 @@
       "name": "dual ledgers valid",
       "passed": true,
       "blocked": false,
-      "evidence": "SourceReactionLedger + CandidateAnalogyLedger valid, unknowns preserved, formal≠mechanism, source linkage valid",
+      "evidence": "SourceReactionLedger + CandidateAnalogyLedger valid, unknowns preserved, formal≠mechanism, source linkage valid + T7/T8 tests pass zero-skip",
       "details": {
         "source_sample_count": 8,
         "source_ledger_id_sample": "srl_1747726ba379",
@@ -237,7 +255,16 @@
         "no_proven_cofactor_field": true,
         "candidate_balance_not_observed": true,
         "inherited_assumptions_sample": 3,
-        "unknowns_count": 5
+        "unknowns_count": 5,
+        "t7t8_pytest_stats": {
+          "collected": 33,
+          "passed": 33,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
       },
       "evidence_paths": {
         "evidence_src": "reports/p1/source_ledger_samples.json",
@@ -273,8 +300,13 @@
       "name": "snapshot reproducibility",
       "passed": true,
       "blocked": false,
-      "evidence": "deterministic rebuild (3-way same hash) + content hash + manifest complete + filters counted + frozen + read-only loader",
+      "evidence": "INDEPENDENT rebuild (2x same hash) + cross-verify stored hash + deterministic 3-way + content hash + manifest complete + filters counted + frozen + read-only loader",
       "details": {
+        "independent_rebuild_hash": "21172a43f2d95019...",
+        "independent_rebuild_hash_full": "21172a43f2d9501902e5d7883cf90fba78ed1b08a9ab3817751092973703edcf",
+        "independent_rebuild_match": true,
+        "cross_verify_stored": true,
+        "stored_hash_prefix": "21172a43f2d95019...",
         "same_hash_3way": true,
         "same_snapshot_id": true,
         "hash_value": "21172a43f2d95019...",
@@ -357,6 +389,10 @@
   "changed_files": [
     {
       "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/.gitignore"
+    },
+    {
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/reports/p0/P0_GATE_REPORT.json"
     },
     {
@@ -364,39 +400,27 @@
       "path": "CC/branch/ReactionAgent/demov2/reports/p0/P0_GATE_REPORT.md"
     },
     {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/.pytest_gate_contract_report.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/.pytest_gate_p1_report.json"
-    },
-    {
-      "status": "??",
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_GATE_REPORT.json"
     },
     {
-      "status": "??",
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_GATE_REPORT.md"
     },
     {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1.md"
-    },
-    {
-      "status": "??",
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/reports/p1/mutation_results.json"
     },
     {
-      "status": "??",
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_gate.py"
     },
     {
-      "status": "??",
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_mutations.py"
     },
     {
-      "status": "??",
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_p1_gate_contract.py"
     },
     {
@@ -487,7 +511,7 @@
         "expected": "G09 FAIL",
         "actual_passed": false,
         "actual_blocked": false,
-        "evidence": "deterministic rebuild failed: same_hash_3way != True; build_a/build_b hashes differ",
+        "evidence": "auxiliary JSON: same_hash_3way != True; auxiliary JSON: build_a/build_b hashes differ",
         "caught": true,
         "mutation_id": "M6"
       },
@@ -505,7 +529,7 @@
         "expected": "G10 zero-skip FAIL",
         "actual_passed": false,
         "actual_blocked": false,
-        "evidence": "mutation stats: skip=1, xfail=1",
+        "evidence": "G10 check called directly; pytest_stats={'collected': 2, 'passed': 0, 'failed': 0, 'errors': 0, 'skipped': 1, 'xfailed': 1, 'xpassed': 0}; passed=False, blocked=False",
         "caught": true,
         "mutation_id": "M8"
       }

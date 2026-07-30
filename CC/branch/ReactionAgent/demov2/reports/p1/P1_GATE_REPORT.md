@@ -1,6 +1,6 @@
 # P1 Gate Report
 
-**Timestamp (UTC):** 2026-07-30T08:56:32.529456+00:00
+**Timestamp (UTC):** 2026-07-30T11:03:33.598567+00:00
 **Gate version:** p1-gate-1
 **Working directory:** /Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2
 **Python:** 3.11.15
@@ -50,21 +50,21 @@
 
 ### P1-G05: participant preservation/roles
 **Status:** PASS
-**Evidence:** participant multiset preserved, COFACTORS non-destructive, small molecules retained, ambiguity preserved
+**Evidence:** participant multiset preserved, COFACTORS non-destructive, small molecules retained, ambiguity preserved + T5 tests pass zero-skip
 - evidence: reports/p1/participant_role_sample.json
 - roles: reaction_agent/roles/
 - tests: tests/p1/test_participant_roles.py
 
 ### P1-G06: lineage graph bipartite/split-merge-transfer/no-silent-tie
 **Status:** PASS
-**Evidence:** 14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct
+**Evidence:** 14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct + T6 tests pass zero-skip
 - evidence: reports/p1/lineage_regression_cases.json
 - lineage: reaction_agent/lineage/resolver.py
 - tests: tests/p1/test_lineage_graph.py
 
 ### P1-G07: dual ledgers valid
 **Status:** PASS
-**Evidence:** SourceReactionLedger + CandidateAnalogyLedger valid, unknowns preserved, formal≠mechanism, source linkage valid
+**Evidence:** SourceReactionLedger + CandidateAnalogyLedger valid, unknowns preserved, formal≠mechanism, source linkage valid + T7/T8 tests pass zero-skip
 - evidence_src: reports/p1/source_ledger_samples.json
 - evidence_cand: reports/p1/candidate_ledger_samples.json
 - tests: tests/p1/test_source_ledger.py, tests/p1/test_candidate_ledger_skeleton.py
@@ -79,7 +79,7 @@
 
 ### P1-G09: snapshot reproducibility
 **Status:** PASS
-**Evidence:** deterministic rebuild (3-way same hash) + content hash + manifest complete + filters counted + frozen + read-only loader
+**Evidence:** INDEPENDENT rebuild (2x same hash) + cross-verify stored hash + deterministic 3-way + content hash + manifest complete + filters counted + frozen + read-only loader
 - evidence: reports/p1/snapshot_build_sample.json
 - builder: reaction_agent/snapshot/builder.py
 - loader: reaction_agent/snapshot/loader.py

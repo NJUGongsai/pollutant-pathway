@@ -28,6 +28,7 @@ from scripts.run_p1_gate import (  # noqa: E402
     check_g06_lineage_graph,
     check_g08_eligibility_quarantine,
     check_g09_snapshot_reproducibility,
+    check_g10_manual_audit_tests,
     REPORT_DIR, DATA_AUDIT_DIR,
 )
 import scripts.run_p1_gate as gate_mod  # noqa: E402
@@ -231,50 +232,105 @@ def mutation_7_delete_proline_2og_case() -> dict:
 def mutation_8_add_skipped_test() -> dict:
     """Mutation 8: add a skipped/xfailed test to the suite.
 
-    Expected: G10 FAIL (pytest has skipped tests).
-    Since G10 is already BLOCKED (annotator not produced), we verify the
-    zero-skip check specifically by examining the gate's pytest stats logic.
-    We simulate this by checking that the gate's G10 check would flag
-    skipped tests if they existed.
-    """
-    # Create a temp test file with a skipped test
-    with tempfile.TemporaryDirectory(prefix="p1_mutation_8_") as tmpdir:
-        # Copy the tests directory structure minimally
-        test_dir = os.path.join(tmpdir, "tests", "mutation")
-        os.makedirs(test_dir, exist_ok=True)
-        with open(os.path.join(test_dir, "__init__.py"), "w") as f:
-            f.write("")
-        with open(os.path.join(test_dir, "test_mutation_skip.py"), "w") as f:
-            f.write("""import pytest
-@pytest.mark.skip(reason="mutation test")
-def test_mutation_skipped():
-    assert True
+    Expected: G10 FAIL (pytest has skipped tests, §17 zero-skip violated).
 
-@pytest.mark.xfail
-def test_mutation_xfailed():
-    assert False
-""")
-        # Run pytest on the temp test file and check stats
-        import subprocess
-        report_file = os.path.join(tmpdir, "mutation_report.json")
-        proc = subprocess.run(
-            [sys.executable, "-m", "pytest", test_dir,
-             "--json-report", f"--json-report-file={report_file}",
-             "-q", "-p", "no:cacheprovider"],
-            capture_output=True, text=True, timeout=60,
-        )
-        stats = {}
-        if os.path.isfile(report_file):
-            r = _read_json(report_file)
-            stats = r.get("summary", {})
-        # The gate's G10 check would flag skipped > 0 as a failure
-        has_skip = stats.get("skipped", 0) > 0 or stats.get("xfailed", 0) > 0
-        return {"mutation": "add skipped/xfailed test",
-                "expected": "G10 zero-skip FAIL",
-                "actual_passed": not has_skip,
-                "actual_blocked": False,
-                "evidence": f"mutation stats: skip={stats.get('skipped',0)}, xfail={stats.get('xfailed',0)}",
-                "caught": has_skip}
+    This mutation calls the actual ``check_g10_manual_audit_tests`` function
+    (not just a standalone pytest run) so its verification strength matches
+    M1-M7. G10's pytest subprocess is monkeypatched to run on a temp dir
+    containing a skip + xfail test, and G10's audit report is faked to COMPLETE
+    so the skip detection is the sole reason for FAIL (not a pre-existing
+    BLOCKED on annotator status).
+    """
+    import subprocess
+    from unittest.mock import patch
+
+    with tempfile.TemporaryDirectory(prefix="p1_mutation_8_") as tmpdir:
+        # 1. Fake a COMPLETE manual audit report so G10 is NOT blocked on
+        #    annotator/adjudication status — the skip detection must be the
+        #    sole reason for FAIL.
+        fake_audit = {
+            "status": "COMPLETE",
+            "annotator_a_status": "COMPLETE",
+            "annotator_b_status": "COMPLETE",
+            "adjudication_status": "COMPLETE",
+            "protocol_frozen_before_results": True,
+            "pass_threshold_frozen": {f"H{i}": "frozen" for i in range(1, 8)},
+            "catastrophic_error_count": 0,
+            "pass_status": "PASS",
+            "annotator_a_file": None,
+            "annotator_b_file": None,
+        }
+        _write_json(os.path.join(tmpdir, "manual_audit_report.json"), fake_audit)
+
+        # 2. Temp test dir with a skip + xfail test (§17 zero-skip violation)
+        skip_test_dir = os.path.join(tmpdir, "skip_tests")
+        os.makedirs(skip_test_dir, exist_ok=True)
+        with open(os.path.join(skip_test_dir, "__init__.py"), "w") as f:
+            f.write("")
+        with open(os.path.join(skip_test_dir, "test_mutation_skip.py"), "w") as f:
+            f.write(
+                "import pytest\n"
+                "@pytest.mark.skip(reason='mutation test')\n"
+                "def test_mutation_skipped():\n"
+                "    assert True\n"
+                "\n"
+                "@pytest.mark.xfail\n"
+                "def test_mutation_xfailed():\n"
+                "    assert False\n"
+            )
+
+        # 3. Monkeypatch G10: redirect its pytest subprocess to the skip test
+        #    dir, and point REPORT_DIR at the temp dir (fake complete audit).
+        #    Save/restore .pytest_gate_p1_report.json so the mutation does not
+        #    pollute DEMOV2_ROOT for subsequent test runs (§18.3 temp-copy only).
+        original_run_subprocess = gate_mod._run_subprocess
+        gate_report = os.path.join(gate_mod.DEMOV2_ROOT, ".pytest_gate_p1_report.json")
+        saved_report = None
+        if os.path.isfile(gate_report):
+            with open(gate_report) as f:
+                saved_report = f.read()
+
+        def patched_run_subprocess(cmd, timeout=300):
+            # Intercept the G10 pytest call and redirect tests/ → skip_test_dir
+            if "pytest" in cmd and "tests/" in cmd:
+                new_cmd = []
+                for arg in cmd:
+                    if arg == "tests/":
+                        new_cmd.append(skip_test_dir)
+                    elif arg.startswith("--ignore="):
+                        # drop the contract-test ignore (not in temp dir)
+                        continue
+                    else:
+                        new_cmd.append(arg)
+                return subprocess.run(
+                    new_cmd, cwd=gate_mod.DEMOV2_ROOT,
+                    capture_output=True, text=True, timeout=timeout,
+                )
+            return original_run_subprocess(cmd, timeout)
+
+        try:
+            with patch.object(gate_mod, "REPORT_DIR", tmpdir), \
+                 patch.object(gate_mod, "_run_subprocess", patched_run_subprocess):
+                result = check_g10_manual_audit_tests()
+        finally:
+            # Restore the gate report file so the mutation leaves no trace
+            if saved_report is not None:
+                with open(gate_report, "w") as f:
+                    f.write(saved_report)
+            elif os.path.isfile(gate_report):
+                os.remove(gate_report)
+
+        stats = result.get("details", {}).get("pytest_stats", {})
+        return {
+            "mutation": "add skipped/xfailed test",
+            "expected": "G10 zero-skip FAIL",
+            "actual_passed": result["passed"],
+            "actual_blocked": result.get("blocked", False),
+            "evidence": (
+                f"G10 check called directly; pytest_stats={stats}; "
+                f"passed={result['passed']}, blocked={result.get('blocked', False)}"),
+            "caught": (not result["passed"] and not result.get("blocked", False)),
+        }
 
 
 def run_all_mutations() -> list[dict]:
