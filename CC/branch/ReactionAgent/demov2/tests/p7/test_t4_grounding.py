@@ -56,8 +56,12 @@ class TestGroundedRunIDs:
         from reaction_agent.agent.grounding import build_grounded_run
 
         g = build_grounded_run(baseline_result)
+        # Direct assignment on a frozen dataclass raises FrozenInstanceError
+        # (do NOT use object.__setattr__, which bypasses the frozen guard).
         with pytest.raises(Exception):
-            object.__setattr__(g, "run_id", "tampered")  # type: ignore[misc]
+            g.run_id = "tampered"  # type: ignore[misc]
+        with pytest.raises(Exception):
+            g.candidate_ids = frozenset({"x"})  # type: ignore[misc]
 
 
 class TestIDBelongsToRun:

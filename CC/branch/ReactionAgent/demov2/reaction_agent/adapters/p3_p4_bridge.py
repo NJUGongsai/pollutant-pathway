@@ -340,10 +340,6 @@ def _back_source_evidence(
     return records
 
 
-def _evidence_id_of(rec: ReactionEvidence) -> str:
-    return rec.reaction_id
-
-
 def _convert_candidate(p3_cand: StrictCandidate) -> Candidate:
     """Map a P3 ``StrictCandidate`` to a P4 ``Candidate`` (field-for-field)."""
     return Candidate(
