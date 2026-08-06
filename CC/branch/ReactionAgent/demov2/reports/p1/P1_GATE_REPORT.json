@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-06T09:12:06.855866+00:00",
+  "timestamp": "2026-08-06T10:43:52.588472+00:00",
   "gate_version": "p1-gate-1",
   "python_version": "3.11.15",
   "working_directory": "/Volumes/CC/Enzyme_Agent/depending/.claude/worktrees/p6-mcp-kernel/CC/branch/ReactionAgent/demov2",
@@ -609,7 +609,7 @@
       "name": "manual audit + full tests",
       "passed": false,
       "blocked": false,
-      "evidence": "pytest has failures/errors: {'collected': 975, 'passed': 950, 'failed': 3, 'errors': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}",
+      "evidence": "pytest has 25 skipped",
       "details": {
         "audit_status": "COMPLETE",
         "annotator_a_status": "COMPLETE",
@@ -635,19 +635,19 @@
         "catastrophic_error_count": 0,
         "pass_status": true,
         "block_reason": null,
-        "pytest_exit": 1,
+        "pytest_exit": 0,
         "pytest_stats": {
-          "collected": 975,
-          "passed": 950,
-          "failed": 3,
+          "collected": 1103,
+          "passed": 1078,
+          "failed": 0,
           "errors": 0,
-          "skipped": 0,
+          "skipped": 25,
           "xfailed": 0,
           "xpassed": 0
         }
       },
       "implementation_failures": [
-        "pytest has failures/errors: {'collected': 975, 'passed': 950, 'failed': 3, 'errors': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}"
+        "pytest has 25 skipped"
       ],
       "external_blockers": [],
       "evidence_paths": {
@@ -660,35 +660,23 @@
   "changed_files": [
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/docs/manual_audit_protocol.md"
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/mcp/idempotency.py"
     },
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/eligibility/engine.py"
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/mcp/resources.py"
     },
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/lineage/__init__.py"
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/mcp/runs.py"
     },
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/mapping/adapter.py"
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/mcp/secured.py"
     },
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/snapshot/builder.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/snapshot/loader.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/data_audit/legacy_lineage_audit.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/data_audit/legacy_lineage_audit.md"
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/mcp/tools.py"
     },
     {
       "status": "M",
@@ -708,499 +696,7 @@
     },
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_PREFLIGHT.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_PREFLIGHT.md"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_REMEDIATION_WORKLOG.md"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/lineage_regression_cases.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_report.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_report.md"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_sample_manifest.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/mapping_integration_sample.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/mutation_results.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/snapshot_build_sample.json"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/requirements.lock.txt"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/legacy_lineage_audit.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/p1_preflight.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_gate.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_mutations.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_engine.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_legacy_audit_contract.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_lineage_graph.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_manual_audit_contract.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_mapping_adapter.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_p1_preflight.py"
-    },
-    {
-      "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_snapshot_builder.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/docs/orchestra/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/plan/P6_ISSUE_TEMPLATE.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/plan/chatgpt-user-collaboration-style.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/lineage/required_case.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/p5/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_2.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_3.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_4_FOR_CLAUDE.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_5.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_6.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_7.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_8.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_9.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_ROUND_10_TASK_A_MANIFEST_CORE.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_ROUND_10_TASK_B_GATE_MUTATIONS.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_ROUND_10_TASK_C_INTEGRATION_AUDIT.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_10_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_2_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_3_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_4_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_5_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_6_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_7_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_8_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_9_AUDIT_EVIDENCE.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/ROUND_10_INTEGRATION_RESULTS.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/ROUND_10_TASK_A_HANDOFF.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/ROUND_10_TASK_B_HANDOFF.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_FINAL_PASS.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_10.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_2.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_3.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_4.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_5.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_6.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_7.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_8.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_9.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_cross_invariant_results.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_fail_closed_results.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_reference_integrity_results_round_5.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_reference_integrity_results_round_6.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_reference_integrity_results_round_7.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_semantic_invariant_results_round_4.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_semantic_invariant_results_round_5.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_semantic_invariant_results_round_6.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_semantic_invariant_results_round_7.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/g10_round_1/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/g10_round_2/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/g10_round_3/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_10.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_3.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_4.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_5.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_6.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_7.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_8.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_9.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/index_partition_integrity_results_round_8.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manifest_authority_integrity_results_round_9.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manifest_type_authority_results_round_10.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_adjudication.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_annotations_a.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_annotations_b.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_evidence_packet.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/required_case_quarantine_evidence.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/snapshot_complete_evidence_mutation_results.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p1/snapshot_nested_mutation_results.json"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p3/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p4/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/reports/p5/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/finalize_manual_audit.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/generate_manual_audit_manifest.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/generate_manual_audit_packet.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/generate_required_case_quarantine_evidence.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/generate_round3_evidence.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/regenerate_snapshot_sample.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_kimi_audit.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_kimi_remediate.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p5_audit_evidence.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p5_gate.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p5_packet_selfcheck.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/scripts/validate_manual_annotations.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_cross_invariants.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_fail_closed.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_reference_integrity.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_manifest_authority_type_integrity.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_required_case_quarantine.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_snapshot_complete_evidence.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_snapshot_nested_evidence.py"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/tests/p5/"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P2_IMPLEMENTATION_PROMPT_2026-08-02.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P3_IMPLEMENTATION_PROMPT_2026-08-03.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P3_REMEDIATION_PROMPT_ROUND_2_2026-08-03.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P4_IMPLEMENTATION_PROMPT_2026-08-03.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P5_IMPLEMENTATION_PROMPT_2026-08-03.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/COPY_PROMPT_P3_REMEDIATION_ROUND_2_TO_AI.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/COPY_PROMPT_P3_TO_AI.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/COPY_PROMPT_P4_TO_AI.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/COPY_PROMPT_P5_TO_AI.md"
-    },
-    {
-      "status": "??",
-      "path": "CC/branch/ReactionAgent/demov2/training/chatgpt_parallel_p2_p5_fresh_window_prompt.md"
+      "path": "CC/branch/ReactionAgent/demov2/tests/p6/test_server_stdio.py"
     }
   ],
   "p0_baseline": {

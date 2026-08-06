@@ -1,6 +1,6 @@
 # P1 Gate Report
 
-**Timestamp (UTC):** 2026-08-06T09:12:06.855866+00:00
+**Timestamp (UTC):** 2026-08-06T10:43:52.588472+00:00
 **Gate version:** p1-gate-1
 **Working directory:** /Volumes/CC/Enzyme_Agent/depending/.claude/worktrees/p6-mcp-kernel/CC/branch/ReactionAgent/demov2
 **Python:** 3.11.15
@@ -87,7 +87,7 @@
 
 ### P1-G10: manual audit + full tests
 **Status:** FAIL
-**Evidence:** pytest has failures/errors: {'collected': 975, 'passed': 950, 'failed': 3, 'errors': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}
+**Evidence:** pytest has 25 skipped
 - evidence: reports/p1/manual_audit_report.json
 - protocol: docs/manual_audit_protocol.md
 - tests: tests/p1/test_manual_audit_contract.py
@@ -230,4 +230,4 @@ BLOCKED pending ChatGPT P1 read-only audit
 ### Blocking items:
 
 - P1-G02 [FAIL]: P0 gate exit=1 (regression!)
-- P1-G10 [FAIL]: pytest has failures/errors: {'collected': 975, 'passed': 950, 'failed': 3, 'errors': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}
+- P1-G10 [FAIL]: pytest has 25 skipped
