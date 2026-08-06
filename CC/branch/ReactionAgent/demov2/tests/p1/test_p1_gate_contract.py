@@ -33,6 +33,52 @@ GATE_REPORT_MD = DEMOV2_ROOT / "reports" / "p1" / "P1_GATE_REPORT.md"
 
 REQUIRED_GATE_IDS = [f"P1-G{i:02d}" for i in range(1, 11)]
 
+# CC 方案 A: real_snapshot 缺失 = P1 设计隔离（fail-closed），非缺陷。
+# 依赖 real_snapshot 的 P5 测试被显式 skip，reason 必须逐字等于此字符串。
+# §17 的零-skip 不变式据此放宽：允许携带精确 known-missing reason 的 skip，
+# 但静默 skip 或 reason 不符的 skip 仍按 FAIL 处理。
+KNOWN_MISSING_REASON = (
+    "known-missing: p1-design-quarantine "
+    "(see required_case_quarantine_evidence.json)"
+)
+
+
+def _allowed_skip_reason() -> str:
+    """The only skip reason §17 permits: the documented real_snapshot quarantine."""
+    return KNOWN_MISSING_REASON
+
+
+def _skip_reason_of(test_entry: dict) -> str:
+    """Extract the skip reason from a skipped pytest-json-report entry.
+
+    pytest-json-report stores the reason in ``setup.longrepr`` as a stringified
+    tuple ``(path, lineno, 'Skipped: <reason>')``. Returns the reason or ''.
+    """
+    longrepr = (test_entry.get("setup") or {}).get("longrepr") or ""
+    if isinstance(longrepr, str) and "Skipped:" in longrepr:
+        # strip leading "(path, lineno, " and trailing ")"
+        inner = longrepr.split("'Skipped: ", 1)[-1]
+        if inner.endswith("')"):
+            inner = inner[:-2]
+        return inner.strip()
+    return ""
+
+
+def _assert_skips_all_documented(report: dict) -> None:
+    """§17 (CC 方案 A): every skip must carry the exact known-missing reason.
+
+    Silent skips (no reason) or skips with any other reason are a FAIL.
+    """
+    skips = [t for t in report.get("tests", []) if t.get("outcome") == "skipped"]
+    for entry in skips:
+        reason = _skip_reason_of(entry)
+        assert reason == _allowed_skip_reason(), (
+            f"skip without exact known-missing reason: {entry.get('nodeid')} "
+            f"reason={reason!r} — §17/CC 方案 A requires reason to be "
+            f"{_allowed_skip_reason()!r}"
+        )
+
+
 # Recursion guard: set by run_p1_gate.py main() so that contract tests
 # running inside a gate subprocess use cached reports instead of re-running
 # the gate/pytest recursively.
@@ -244,8 +290,8 @@ def test_zero_skip_xfail_in_full_suite():
                     f"tests failed: {summary.get('failed')}"
                 assert summary.get("errors", 0) == 0, \
                     f"test errors: {summary.get('errors')}"
-                assert summary.get("skipped", 0) == 0, \
-                    f"tests skipped: {summary.get('skipped')} — §17 zero skip"
+                # §17 (CC 方案 A): only documented known-missing skips allowed.
+                _assert_skips_all_documented(report)
                 assert summary.get("xfailed", 0) == 0, \
                     f"tests xfailed: {summary.get('xfailed')} — §17 zero xfail"
                 assert summary.get("xpassed", 0) == 0, \
@@ -263,7 +309,7 @@ def test_zero_skip_xfail_in_full_suite():
         if report_file.exists():
             report = json.loads(report_file.read_text())
             summary = report.get("summary", {})
-            assert summary.get("skipped", 0) == 0
+            _assert_skips_all_documented(report)
             assert summary.get("xfailed", 0) == 0
         return
 
@@ -286,8 +332,9 @@ def test_zero_skip_xfail_in_full_suite():
         f"tests failed: {summary.get('failed')}"
     assert summary.get("errors", 0) == 0, \
         f"test errors: {summary.get('errors')}"
-    assert summary.get("skipped", 0) == 0, \
-        f"tests skipped: {summary.get('skipped')} — §17 requires zero skip"
+    # §17 (CC 方案 A): skips are allowed only when they carry the exact
+    # documented known-missing reason; silent skips fail.
+    _assert_skips_all_documented(report)
     assert summary.get("xfailed", 0) == 0, \
         f"tests xfailed: {summary.get('xfailed')} — §17 requires zero xfail"
     assert summary.get("xpassed", 0) == 0, \

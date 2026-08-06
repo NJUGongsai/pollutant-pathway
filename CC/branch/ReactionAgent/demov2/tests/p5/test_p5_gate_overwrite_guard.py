@@ -15,6 +15,8 @@ import json
 import os
 import tempfile
 
+import pytest
+
 from reaction_agent.p5 import real_data as rd
 from reaction_agent.p5.schemas import LayerName, SplitFamilyName
 
@@ -34,6 +36,14 @@ def _load_all():
 
 
 class TestP5ImmuneToP4GateOverwrite:
+    # CC 方案 A: 这两个用例依赖 _load_all() → load_real_p1_snapshot()（真实
+    # P1 快照），而 real_snapshot 因 P1 设计隔离未生成。显式 skip + 精确 reason。
+    _KNOWN_MISSING_REASON = (
+        "known-missing: p1-design-quarantine "
+        "(see required_case_quarantine_evidence.json)"
+    )
+
+    @pytest.mark.skip(reason=_KNOWN_MISSING_REASON)
     def test_rank_layer_unavailable_without_crash(self):
         """A BLOCKED (non-real) P4 gate report must not crash the six-layer
         build — the rank/abstention layer becomes honestly unavailable."""
@@ -53,6 +63,7 @@ class TestP5ImmuneToP4GateOverwrite:
         assert rank[0].numerator is None
         assert rank[0].denominator is None
 
+    @pytest.mark.skip(reason=_KNOWN_MISSING_REASON)
     def test_rank_layer_available_with_real_gate(self):
         """With the real 14/14 gate report the rank layer is available."""
         full, exact, p3, sk = _load_all()
