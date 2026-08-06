@@ -108,7 +108,7 @@ class IdempotencyStore:
                 request_hash=data["request_hash"],
                 run_id=data["run_id"],
             )
-        except (json.JSONDecodeError, OSError, KeyError) as exc:
+        except (json.JSONDecodeError, OSError, KeyError, TypeError) as exc:
             raise StorageError(f"idempotency record '{key}' unreadable: {exc}")
 
     def _write(self, record: IdempotencyRecord) -> None:
