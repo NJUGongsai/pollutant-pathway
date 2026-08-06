@@ -247,6 +247,7 @@ class TestThreeWayAndMetrics:
     def test_report_written_and_traceable(self, gate, baseline_ids, tmp_path):
         from reaction_agent.agent.evaluation import (
             ScriptedProvider,
+            compute_metrics,
             run_three_way,
             write_report,
         )

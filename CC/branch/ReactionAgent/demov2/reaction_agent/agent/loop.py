@@ -17,12 +17,23 @@ closes two P2 findings:
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Any, Optional
+
 from reaction_agent.agent.baseline import BaselineGate, BaselineViolationError
+from reaction_agent.agent.grounding import (
+    GroundingError,
+    assert_id_belongs_to_run,
+    build_grounded_run,
+)
 from reaction_agent.agent.provider import (
     Provider,
+    ProviderRequest,
     ProviderSpec,
     FakeProvider,
 )
+from reaction_agent.policies.p4_decision_policy import P4_POLICY_VERSION
+from reaction_agent.schemas.result import PredictionResult
 
 
 # -- agent tool surface (P7-T2-02) --
@@ -164,10 +175,139 @@ class AgentLoop:
             )
         return self._baseline_gate.obtain_baseline()
 
+    # -- real agent run (T7) -------------------------------------------
+
+    def run(
+        self,
+        substrate: str,
+        *,
+        max_steps: int = 100,
+        counters: Any = None,
+    ) -> "AgentRunResult":
+        """Run the bounded agent loop over a mandatory baseline.
+
+        Consumes the injected provider's action stream (one action per
+        ``provider.call``) to drive the agent tool surface
+        (expand/compare/choose/prioritize/stop). The mandatory baseline is
+        obtained FIRST (via ``obtain_baseline``); every agent-claimed ID is
+        grounded against the typed result (``build_grounded_run`` /
+        ``assert_id_belongs_to_run``) — invented candidate/evidence IDs are
+        rejected (recorded, run continues). Unauthorized tools are rejected
+        by the allowlist. A defense-in-depth final pass calls
+        ``counters.escape(...)`` if any invented ID nonetheless appears in
+        the final selection (should never happen if grounding is intact).
+
+        ``counters`` (optional ``HardGateCounters``): per-gate escape counters;
+        stays all-zero when the defense rejects every invention.
+        """
+        baseline = self.obtain_baseline()
+        grounded = build_grounded_run(baseline)
+        actions: list[dict] = []
+        selected: list[str] = []
+        rejections: list[dict] = []
+        grounded_evidence: set[str] = set()
+        step = 0
+        for step in range(max_steps):
+            request = ProviderRequest(
+                messages=[{"role": "user", "content": substrate}],
+                tools=[{"name": t} for t in sorted(ALLOWED_TOOLS)],
+            )
+            response = self.provider.call(request)
+            action = dict(response.content or {})
+            tool = action.get("tool")
+            if tool is None or tool == "stop":
+                break
+            # P7-T2-02: allowlist rejects unauthorized tools (no structure
+            # generator / test-label path on the surface).
+            if tool not in ALLOWED_TOOLS:
+                rejections.append({
+                    "tool": tool, "reason": "allowlist_violation", "action": action,
+                })
+                continue
+            # Grounding: every agent-claimed ID must belong to the run.
+            try:
+                self._validate_action_ids(grounded, action)
+            except GroundingError as exc:
+                rejections.append({
+                    "tool": tool, "reason": "grounding",
+                    "detail": str(exc), "action": action,
+                })
+                continue
+            # Valid action -> execute + record.
+            actions.append(action)
+            if tool == "choose_t_s":
+                cid = action.get("candidate_id")
+                if cid:
+                    selected.append(cid)
+            elif tool == "expand_evidence":
+                eid = action.get("evidence_id")
+                if eid:
+                    grounded_evidence.add(eid)
+            # compare_ids / prioritize: recorded as actions, no state change.
+        abstained = len(selected) == 0
+        result = AgentRunResult(
+            baseline=baseline,
+            selected_candidate_ids=tuple(selected),
+            actions=tuple(actions),
+            tool_calls=len(actions),
+            steps=step + 1,
+            abstained=abstained,
+            grounded_evidence_ids=tuple(sorted(grounded_evidence)),
+            rejections=tuple(rejections),
+        )
+        # Defense-in-depth: if grounding missed an invention, the final result
+        # would carry an unknown ID -> count the escape (gate stays 0 when the
+        # defense is intact). Non-vacuous: this WOULD catch a pass-through.
+        if counters is not None:
+            for cid in result.selected_candidate_ids:
+                if cid not in grounded.candidate_ids:
+                    counters.escape("invented_candidate_id")
+            for eid in result.grounded_evidence_ids:
+                if eid not in grounded.evidence_ids:
+                    counters.escape("invented_evidence_id")
+        return result
+
+    @staticmethod
+    def _validate_action_ids(grounded: Any, action: dict) -> None:
+        """Ground every ID the action references against the typed run.
+
+        Raises ``GroundingError`` if any candidate/evidence id is unknown.
+        """
+        for key, kind in (
+            ("candidate_id", "candidate"),
+            ("candidate_id_a", "candidate"),
+            ("candidate_id_b", "candidate"),
+            ("evidence_id", "evidence"),
+        ):
+            value = action.get(key)
+            if value is not None:
+                assert_id_belongs_to_run(grounded, kind=kind, id_=value)
+
+
+@dataclass(frozen=True)
+class AgentRunResult:
+    """Immutable result of one agent loop run.
+
+    ``baseline`` is the typed ``PredictionResult`` obtained first (mandatory).
+    ``selected_candidate_ids`` / ``grounded_evidence_ids`` are grounded (every
+    ID belongs to the run — no inventions). ``rejections`` records inventions
+    the defense rejected (allowlist / grounding) so the run continued.
+    """
+
+    baseline: PredictionResult
+    selected_candidate_ids: tuple[str, ...]
+    actions: tuple[dict, ...]
+    tool_calls: int
+    steps: int
+    abstained: bool
+    grounded_evidence_ids: tuple[str, ...]
+    rejections: tuple[dict, ...]
+
 
 __all__ = [
     "ALLOWED_TOOLS",
     "FORBIDDEN_TOOLS",
     "AgentToolViolationError",
     "AgentLoop",
+    "AgentRunResult",
 ]
