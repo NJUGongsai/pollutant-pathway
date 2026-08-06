@@ -116,16 +116,36 @@ class ReactionMCPKernel:
             raise UnauthorizedError("secured mode requires an access context")
 
     def _authorize_tenant(self, run: RunRecord, ctx: Any) -> None:
-        """Deny cross-tenant reads/expansions (fail-closed)."""
+        """Deny cross-tenant reads/expansions + unbound runs (fail-closed).
+
+        GATE-P6-01: in secured mode an unbound (tenant_id=None) run is a
+        legacy/mixed-in record and is denied to EVERY ctx — a missing tenant
+        binding fails closed, not open.
+        """
         if not self._secured() or ctx is None:
             return
-        if run.tenant_id is not None and run.tenant_id != ctx.tenant_id:
+        if run.tenant_id is None:
+            raise ForbiddenError(
+                f"run '{run.run_id}' is unbound; denied in secured mode"
+            )
+        if run.tenant_id != ctx.tenant_id:
             raise ForbiddenError(
                 f"run '{run.run_id}' not accessible from tenant '{ctx.tenant_id}'"
             )
 
     def _tenant_of(self, ctx: Any) -> Optional[str]:
         return ctx.tenant_id if ctx is not None else None
+
+    def _effective_key(self, key: str, ctx: Any) -> str:
+        """Tenant-namespaced idem key in secured mode (GATE-P6-02).
+
+        ``tenant:key`` so two tenants issuing the same idempotency_key get
+        independent runs instead of silently sharing / conflicting. Unsecured
+        mode uses the bare key (Phase-A behavior unchanged).
+        """
+        if self._secured() and ctx is not None:
+            return f"{ctx.tenant_id}:{key}"
+        return key
 
     def _expiry_now(self) -> Optional[float]:
         return self._policy.expiry_now() if self._secured() else None
@@ -158,12 +178,13 @@ class ReactionMCPKernel:
         self._require_idempotency(payload)
         self._require_snapshot(payload["snapshot_id"])
         self._require_ctx(ctx)
+        tenant = self._tenant_of(ctx)
         req_hash = make_request_hash(
             tool="predict", payload=payload.get("payload", payload),
-            snapshot_id=payload["snapshot_id"],
+            snapshot_id=payload["snapshot_id"], tenant=tenant,
         )
         key = payload["idempotency_key"]
-        tenant = self._tenant_of(ctx)
+        effective_key = self._effective_key(key, ctx)
         expiry = self._expiry_now()
         budget = self._budget
         requested = self._budget_requested(payload)
@@ -186,7 +207,7 @@ class ReactionMCPKernel:
             )
 
         rec = self.idem.record_if_absent(
-            key=key,
+            key=effective_key,
             request_hash=req_hash,
             create_run=_create,
         )
@@ -195,7 +216,7 @@ class ReactionMCPKernel:
             "run_id": run.run_id,
             "manifest_uri": f"reactionagent://runs/{run.run_id}/manifest",
             "status": run.freeze_state,
-            "reused": rec.run_id is not None,
+            "reused": rec.reused,
         }
 
     def handle_get_run(self, payload: dict, ctx: Any = None) -> dict:
@@ -234,12 +255,13 @@ class ReactionMCPKernel:
         self._require_ctx(ctx)
         parent = self.runs.get_run(payload["run_id"])  # parent must exist
         self._authorize_tenant(parent, ctx)  # cross-tenant expand denied
+        tenant = self._tenant_of(ctx)
         req_hash = make_request_hash(
             tool="expand_evidence_local", payload=payload,
-            snapshot_id=payload["snapshot_id"],
+            snapshot_id=payload["snapshot_id"], tenant=tenant,
         )
         key = payload["idempotency_key"]
-        tenant = self._tenant_of(ctx)
+        effective_key = self._effective_key(key, ctx)
         expiry = self._expiry_now()
 
         def _create(rid: str) -> RunRecord:
@@ -255,7 +277,7 @@ class ReactionMCPKernel:
             )
 
         rec = self.idem.record_if_absent(
-            key=key,
+            key=effective_key,
             request_hash=req_hash,
             create_run=_create,
         )

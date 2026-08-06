@@ -145,6 +145,10 @@ class RunStore:
     def list_runs(self) -> list[str]:
         return sorted(p.stem for p in self.root.glob("*.json"))
 
+    def run_exists(self, run_id: str) -> bool:
+        """True iff a run file is present on disk (retention sweep helper)."""
+        return self._run_path(run_id).exists()
+
     def delete_run(self, run_id: str) -> None:
         """Remove a run file (retention sweep). No-op if absent."""
         path = self._run_path(run_id)

@@ -45,6 +45,17 @@ class TestStdioServer:
 
     def test_predict_and_idempotent_repeat_over_transport(self):
         import asyncio
+        import shutil
+        import tempfile
+
+        # The stdio server (server.py main()) persists runs/idem under
+        # /tmp/reaction_agent_mcp across sessions. Clear it so the FIRST call
+        # is a genuine create (reused=False), not a hit on stale state —
+        # otherwise the G3 reused flag is non-deterministic over transport.
+        shutil.rmtree(
+            os.path.join(tempfile.gettempdir(), "reaction_agent_mcp"),
+            ignore_errors=True,
+        )
 
         async def run():
             async with stdio_client(_params()) as (read, write):
@@ -60,7 +71,10 @@ class TestStdioServer:
                     return a.content[0].text, b.content[0].text
 
         a, b = asyncio.run(run())
-        assert a == b  # idempotent reuse over transport
+        import ast
+        da, db = ast.literal_eval(a), ast.literal_eval(b)
+        assert da["run_id"] == db["run_id"]  # idempotent reuse → same run
+        assert da["reused"] is False and db["reused"] is True  # G3: reused flag
 
     def test_typed_error_no_uncaught_leak(self):
         import asyncio

@@ -48,7 +48,7 @@ class SecuredKernel:
             protocol_version=protocol_version,
             budget_guard=budget_guard,
         )
-        self._resources = ResourceManager(run_store, policy)
+        self._resources = ResourceManager(run_store, policy, idem_store=idem_store)
 
     # -- dispatch (delegates to the kernel; preserves F3 side effects) --
 

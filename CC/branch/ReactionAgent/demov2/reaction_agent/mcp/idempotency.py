@@ -41,20 +41,42 @@ def canonical_request_hash(obj: Any) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-def make_request_hash(tool: str, payload: dict, snapshot_id: str) -> str:
-    """Canonical request hash = sha256(tool + payload + snapshot_id)."""
-    return canonical_request_hash({"tool": tool, "payload": payload, "snapshot_id": snapshot_id})
+def make_request_hash(
+    tool: str,
+    payload: dict,
+    snapshot_id: str,
+    tenant: Optional[str] = None,
+) -> str:
+    """Canonical request hash = sha256(tool + payload + snapshot_id [+ tenant]).
+
+    ``tenant`` is mixed into the hash in secured mode so that two tenants
+    issuing the same payload produce different hashes (and thus different
+    content-addressed run ids) — GATE-P6-02 tenant isolation. Unsecured
+    callers omit ``tenant`` and get byte-identical hashes to Phase A.
+    """
+    obj: dict = {"tool": tool, "payload": payload, "snapshot_id": snapshot_id}
+    if tenant is not None:
+        obj["tenant"] = tenant
+    return canonical_request_hash(obj)
 
 
 class IdempotencyRecord:
-    """A persisted idempotency mapping key → {request_hash, run_id}."""
+    """A persisted idempotency mapping key → {request_hash, run_id}.
 
-    __slots__ = ("key", "request_hash", "run_id")
+    ``reused`` is a *call-time* flag (not persisted): True when the
+    ``record_if_absent`` call hit an existing record (idempotent reuse),
+    False when it created a new run. Persisted records always load with
+    ``reused=False``; callers that round-trip through disk and need the
+    flag should use ``record_if_absent`` (which sets it correctly).
+    """
 
-    def __init__(self, key: str, request_hash: str, run_id: str):
+    __slots__ = ("key", "request_hash", "run_id", "reused")
+
+    def __init__(self, key: str, request_hash: str, run_id: str, reused: bool = False):
         self.key = key
         self.request_hash = request_hash
         self.run_id = run_id
+        self.reused = reused
 
 
 class IdempotencyStore:
@@ -148,7 +170,7 @@ class IdempotencyStore:
                 raise IdempotencyConflictError(
                     f"idempotency key '{key}' already used with a different request"
                 )
-            return rec
+            return IdempotencyRecord(rec.key, rec.request_hash, rec.run_id, reused=True)
 
         with _thread_lock:
             # Re-check under lock (another thread may have recorded meanwhile).
@@ -158,12 +180,30 @@ class IdempotencyStore:
                     raise IdempotencyConflictError(
                         f"idempotency key '{key}' already used with a different request"
                     )
-                return rec
+                return IdempotencyRecord(rec.key, rec.request_hash, rec.run_id, reused=True)
             # Content-addressed run id: deterministic from the request hash so
             # concurrent identical requests converge on the same run_id.
             run_id = f"run-{request_hash[:16]}"
             created = create_run(run_id)
             run_id = getattr(created, "run_id", None) or run_id
-            rec = IdempotencyRecord(key=key, request_hash=request_hash, run_id=run_id)
+            rec = IdempotencyRecord(
+                key=key, request_hash=request_hash, run_id=run_id, reused=False
+            )
             self._write(rec)
             return rec
+
+    # -- retention sweep support (GATE-P6-04) --
+
+    def list_keys(self) -> list[str]:
+        """All recorded idempotency keys (for zombie cleanup)."""
+        return sorted(p.stem for p in self.root.glob("*.json"))
+
+    def delete(self, key: str) -> None:
+        """Remove an idempotency record (zombie cleanup). No-op if absent."""
+        path = self._path(key)
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            raise StorageError(f"failed to delete idempotency key '{key}': {exc}")

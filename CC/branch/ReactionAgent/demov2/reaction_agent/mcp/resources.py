@@ -20,7 +20,7 @@ Every failure is a typed ``P6Error`` subclass — never a raw exception.
 from __future__ import annotations
 
 import time
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from reaction_agent.mcp.errors import (
     ForbiddenError,
@@ -61,6 +61,8 @@ class ResourceURI:
     ):
         if kind not in (_KIND_MANIFEST, _KIND_EVIDENCE):
             raise ProtocolError(f"unknown resource kind '{kind}'")
+        if kind == _KIND_MANIFEST and evidence_id is not None:
+            raise ProtocolError("manifest resource takes no evidence id")
         if kind == _KIND_EVIDENCE and not evidence_id:
             raise ProtocolError("evidence resource requires evidence_id")
         self.run_id = run_id
@@ -172,9 +174,13 @@ class ResourceManager:
         self,
         run_store: RunStore,
         policy: Optional[RetentionPolicy] = None,
+        idem_store: Any = None,
     ):
         self._runs = run_store
         self._policy = policy
+        # Optional idem-store handle so sweep() can purge zombie idem records
+        # whose run was swept (GATE-P6-04 transparent-rebuild semantics).
+        self._idem = idem_store
 
     # -- minting (server side) --
 
@@ -206,10 +212,17 @@ class ResourceManager:
     # -- internal checks --
 
     def _authorize(self, run: RunRecord, ctx: AccessContext) -> None:
-        # Unbound runs (legacy/Phase-A) are readable by anyone in unsecured
-        # mode; but in secured mode (policy set) a bound run requires an
-        # exact tenant match — fail-closed on mismatch.
-        if run.tenant_id is not None and run.tenant_id != ctx.tenant_id:
+        # Unsecured mode: open (legacy Phase-A behavior).
+        if self._policy is None:
+            return
+        # Secured mode: an unbound (tenant_id=None) run is a legacy/mixed-in
+        # record — deny to EVERY ctx (GATE-P6-01). Possession of a URI is not
+        # a capability; a missing tenant binding fails closed, not open.
+        if run.tenant_id is None:
+            raise ForbiddenError(
+                f"run '{run.run_id}' is unbound; denied in secured mode"
+            )
+        if run.tenant_id != ctx.tenant_id:
             raise ForbiddenError(
                 f"run '{run.run_id}' not accessible from tenant '{ctx.tenant_id}'"
             )
@@ -253,4 +266,16 @@ class ResourceManager:
             for rid, _ in survivors[: max(0, excess)]:
                 self._runs.delete_run(rid)
                 removed += 1
+        # 3. GATE-P6-04: clean idem records whose run was swept (or otherwise
+        #    gone) so a replay transparently rebuilds instead of raising
+        #    RunNotFoundError on a stale idem hit.
+        if self._idem is not None:
+            for key in self._idem.list_keys():
+                try:
+                    rec = self._idem._read(key)
+                except P6Error:
+                    self._idem.delete(key)
+                    continue
+                if rec is not None and not self._runs.run_exists(rec.run_id):
+                    self._idem.delete(key)
         return removed
