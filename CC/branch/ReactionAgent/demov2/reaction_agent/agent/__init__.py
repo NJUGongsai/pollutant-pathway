@@ -21,7 +21,12 @@ from reaction_agent.agent.policy import (
     PolicyDecision,
 )
 from reaction_agent.agent.baseline import BaselineGate
-from reaction_agent.agent.loop import AgentLoop
+from reaction_agent.agent.loop import (
+    AgentLoop,
+    ALLOWED_TOOLS,
+    FORBIDDEN_TOOLS,
+    AgentToolViolationError,
+)
 
 __all__ = [
     "Provider",
@@ -34,4 +39,7 @@ __all__ = [
     "PolicyDecision",
     "BaselineGate",
     "AgentLoop",
+    "ALLOWED_TOOLS",
+    "FORBIDDEN_TOOLS",
+    "AgentToolViolationError",
 ]
