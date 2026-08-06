@@ -1,6 +1,6 @@
 # P0 Gate Report v3
 
-**Timestamp (UTC):** 2026-08-06T10:43:46.071690+00:00
+**Timestamp (UTC):** 2026-08-06T11:07:22.578002+00:00
 **Working directory:** /Volumes/CC/Enzyme_Agent/depending/.claude/worktrees/p6-mcp-kernel/CC/branch/ReactionAgent/demov2
 **Python:** 3.11.15 (required >=3.11, satisfied=True)
 **Pydantic:** 2.13.4 (required >=2.8,<3, satisfied=True)
@@ -60,7 +60,7 @@
 
 ### P0-G10: Contract tests + JSON freshness + env
 **Status:** ❌ FAIL
-**Evidence:** stats fail: {'collected': 1120, 'passed': 1094, 'failed': 1, 'errors': 0, 'skipped': 25, 'xfailed': 0, 'xpassed': 0} (exit=1)
+**Evidence:** stats fail: {'collected': 1138, 'passed': 1112, 'failed': 1, 'errors': 0, 'skipped': 25, 'xfailed': 0, 'xpassed': 0} (exit=1)
 **ADR:** ADR-0001..ADR-0006 | **Schema:** schemas/json/*.json | **Policy:** - | **Tests:** all tests/contracts/*.py
 
 ## Authority Files
@@ -80,16 +80,10 @@
 
 ## Changed Files (git status, demov2)
 
-- `M` CC/branch/ReactionAgent/demov2/reaction_agent/mcp/idempotency.py
-- `M` CC/branch/ReactionAgent/demov2/reaction_agent/mcp/resources.py
-- `M` CC/branch/ReactionAgent/demov2/reaction_agent/mcp/runs.py
-- `M` CC/branch/ReactionAgent/demov2/reaction_agent/mcp/secured.py
-- `M` CC/branch/ReactionAgent/demov2/reaction_agent/mcp/tools.py
 - `M` CC/branch/ReactionAgent/demov2/reports/p0/P0_GATE_REPORT.json
 - `M` CC/branch/ReactionAgent/demov2/reports/p0/P0_GATE_REPORT.md
 - `M` CC/branch/ReactionAgent/demov2/reports/p1/P1_GATE_REPORT.json
 - `M` CC/branch/ReactionAgent/demov2/reports/p1/P1_GATE_REPORT.md
-- `M` CC/branch/ReactionAgent/demov2/tests/p6/test_server_stdio.py
 
 ## Deviations / Assumptions / Risks
 
@@ -114,4 +108,4 @@ BLOCKED — P0 only, awaiting ChatGPT round-4 read-only audit
 
 ### Blocking items:
 
-- P0-G10: stats fail: {'collected': 1120, 'passed': 1094, 'failed': 1, 'errors': 0, 'skipped': 25, 'xfailed': 0, 'xpassed': 0} (exit=1)
+- P0-G10: stats fail: {'collected': 1138, 'passed': 1112, 'failed': 1, 'errors': 0, 'skipped': 25, 'xfailed': 0, 'xpassed': 0} (exit=1)
