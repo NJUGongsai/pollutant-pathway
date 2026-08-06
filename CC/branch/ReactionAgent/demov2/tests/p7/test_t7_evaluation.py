@@ -202,7 +202,6 @@ class TestThreeWayAndMetrics:
         ]
         three = run_three_way(
             SUBSTRATE,
-            agent_actions,
             baseline_gate=gate,
             agent_provider=ScriptedProvider(spec, agent_actions),
             runs=3,
@@ -222,12 +221,14 @@ class TestThreeWayAndMetrics:
         from reaction_agent.agent.provider import ProviderSpec
 
         spec = ProviderSpec(provider="fake", model="m", max_calls=20)
+        ev0 = _baseline_evidence_ids(gate)[0]
         agent_actions = [
+            {"tool": "expand_evidence", "evidence_id": ev0},
             {"tool": "choose_t_s", "candidate_id": baseline_ids[0]},
             {"tool": "stop"},
         ]
         three = run_three_way(
-            SUBSTRATE, agent_actions, baseline_gate=gate,
+            SUBSTRATE, baseline_gate=gate,
             agent_provider=ScriptedProvider(spec, agent_actions),
             runs=3,
         )
@@ -238,11 +239,14 @@ class TestThreeWayAndMetrics:
             "tool_calls", "latency_token_cost", "repeated_run_agreement",
         ):
             assert hasattr(m, name), f"metric {name!r} missing"
-        # agent selected the baseline's first candidate -> recall >= 1/N
-        assert m.candidate_recall > 0.0
-        assert m.tool_calls >= 1
-        # determinism: repeated runs identical
-        assert m.repeated_run_agreement is True
+        # P7-T7-02: value assertions for all 7 (not just hasattr).
+        assert m.candidate_recall > 0.0                      # agent selected a baseline candidate
+        assert m.abstention == 0                              # agent selected -> not abstained
+        assert m.evidence_quality == 1                        # one expand_evidence with a valid evidence id
+        assert m.tool_calls == 2                             # expand + choose (stop not counted as a tool call)
+        assert m.latency_token_cost == 3                     # 3 provider calls: expand + choose + stop
+        assert m.repeated_run_agreement is True               # 3 runs identical selection
+        assert 0.0 <= m.ranking_risk <= 1.0                   # top-K overlap is a ratio in [0, 1]
 
     def test_report_written_and_traceable(self, gate, baseline_ids, tmp_path):
         from reaction_agent.agent.evaluation import (
@@ -259,7 +263,7 @@ class TestThreeWayAndMetrics:
             {"tool": "stop"},
         ]
         three = run_three_way(
-            SUBSTRATE, agent_actions, baseline_gate=gate,
+            SUBSTRATE, baseline_gate=gate,
             agent_provider=ScriptedProvider(spec, agent_actions),
             runs=2,
         )
@@ -267,7 +271,59 @@ class TestThreeWayAndMetrics:
         write_report(three, compute_metrics(three), out)
         assert out.exists()
         data = json.loads(out.read_text())
-        # data traceable to typed result (baseline run_id carried into report)
+        # data traceable to typed result (baseline run id carried into report)
         assert data["baseline"]["run_id"] == three.baseline.run_id
         assert "metrics" in data
         assert "agent" in data and "fixed" in data
+
+
+class TestCommittedReport:
+    """P7-T7-01: the evaluation report is committed to the repo (not just a
+    tmp_path test artifact), carries all 7 metric fields, and its
+    baseline.run_id matches a fresh idempotent obtain_baseline() (report is
+    regenerable + traceable to the typed result)."""
+
+    REPORT_PATH = "reports/p7/t7_evaluation.json"
+
+    def test_report_committed_in_git(self):
+        import subprocess
+        from pathlib import Path
+
+        repo_root = Path(__file__).resolve().parents[2]
+        tracked = subprocess.run(
+            ["git", "-C", str(repo_root), "ls-files", "--", self.REPORT_PATH],
+            capture_output=True, text=True,
+        )
+        assert tracked.stdout.strip() == self.REPORT_PATH, (
+            f"{self.REPORT_PATH} must be committed to the repo"
+        )
+
+    def test_report_has_seven_metric_fields(self):
+        from pathlib import Path
+        repo_root = Path(__file__).resolve().parents[2]
+        report = repo_root / self.REPORT_PATH
+        assert report.exists(), f"{self.REPORT_PATH} missing on disk"
+        data = json.loads(report.read_text())
+        assert "metrics" in data
+        for f in (
+            "candidate_recall", "ranking_risk", "abstention", "evidence_quality",
+            "tool_calls", "latency_token_cost", "repeated_run_agreement",
+        ):
+            assert f in data["metrics"], f"metric {f!r} missing from committed report"
+        # baseline + agent + fixed sections present
+        assert "baseline" in data and "run_id" in data["baseline"]
+        assert "agent" in data and "fixed" in data
+
+    def test_report_run_id_matches_fresh_idempotent_baseline(self, gate):
+        """The committed report's baseline.run_id must equal a fresh
+        obtain_baseline() (same payload -> idempotent -> same run_id),
+        proving the report is regenerable + traceable to the typed result."""
+        from pathlib import Path
+        repo_root = Path(__file__).resolve().parents[2]
+        report = repo_root / self.REPORT_PATH
+        data = json.loads(report.read_text())
+        fresh = gate.obtain_baseline()
+        assert data["baseline"]["run_id"] == fresh.run_id, (
+            f"committed run_id {data['baseline']['run_id']!r} != "
+            f"fresh idempotent {fresh.run_id!r} (report not regenerable)"
+        )

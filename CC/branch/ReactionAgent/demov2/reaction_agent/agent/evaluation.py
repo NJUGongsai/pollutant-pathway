@@ -15,7 +15,6 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from typing import Optional
 
 from reaction_agent.agent.loop import AgentLoop, AgentRunResult
 from reaction_agent.agent.provider import ProviderResponse, ProviderSpec
@@ -105,7 +104,6 @@ def _fixed_non_agent_expansion(baseline: PredictionResult) -> AgentRunResult:
 
 def run_three_way(
     substrate: str,
-    agent_actions: Optional[list[dict]] = None,  # noqa: ARG002 (documentation; provider is source of truth)
     *,
     baseline_gate,
     agent_provider: ScriptedProvider,
@@ -115,7 +113,8 @@ def run_three_way(
 
     The agent loop runs ``runs`` times (same scripted provider, reset each
     run) for the repeated-run agreement metric. The baseline is obtained via
-    the gate (idempotent — same run_id across calls).
+    the gate (idempotent — same run_id across calls). The provider is the
+    single source of truth for the agent's scripted action stream.
     """
     baseline = baseline_gate.obtain_baseline()
     agent_runs: list[AgentRunResult] = []
