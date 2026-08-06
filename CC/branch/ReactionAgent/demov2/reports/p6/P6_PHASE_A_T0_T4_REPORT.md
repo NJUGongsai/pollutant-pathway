@@ -12,27 +12,67 @@ Phase A（T0 基线固化 → T4 幂等层 + side effects）全部完成，未�
 既有一千余测试无回归。MCP SDK 走 `pip install mcp` 路径成功（F2 以官方 SDK 解决，
 非 stdlib 兜底）。
 
-## 0.1 T0 CC 决策（方案 A）落实 — 26 个已知失败 + §17 放宽
+## 0.1 T0 CC 决策（方案 A）落实 — 26 个已知失败逐条归因
 
-CC 决策（issue 内 `b510742b`）与 kimi 验收追加（`7fadc47f`）已并入 T0，三项全部落实：
+CC 决策（issue 内 `b510742b`）与 kimi 验收追加（`7fadc47f`）已并入 T0。
+本节为 **T0 Round 1 整改后**状态（对齐 kimi 审核 `P6_T0_ROUND_1_REMEDIATION_REQUIRED`）。
 
-### T0-① 基线固化：26 个已知失败如实记录并归因
+### T0-① 基线固化：26 个已知失败逐条归因（R2 整改）
 
 worktree baseline 的 `pytest` 结果为 **26 个已知失败（4 failed + 22 errors）**，
 全部归因 **`real_snapshot 缺失（P1 设计隔离）`**，性质为**知悉项（baseline
-acknowledged item）**，非 P6 Gate 缺陷：
+acknowledged item）**，非 P6 Gate 缺陷。逐条清单：
 
-| 类别 | 数量 | 归因/证据 |
-|------|------|-----------|
-| 22 errors | 22 | `tests/p5/test_p5_real_data.py` 模块级 `p1_data` fixture 依赖 `reports/p1/real_snapshot/`，该目录因 P1 对 3 条 proline/2OG 案例 atom-mapping 质量不达标（`mapped_heavy_atom_fraction=0.4`）全部 quarantine、从未生成。证据：`reports/p1/required_case_quarantine_evidence.json`（status=`REQUIRED_CASES_EXPLICITLY_QUARANTINED`） |
-| 4 failed | 4 | ① `test_zero_skip_xfail_in_full_suite`（§17 门，因套件存在失败而红，非 real_snapshot 直接依赖）；②③ `test_p5_gate_overwrite_guard.py` 两个用例（`_load_all()`→`load_real_p1_snapshot()`，实时依赖 real_snapshot）；④ `test_real_chain_ready`（P2/P3/P4 上游缺失，是 real_snapshot 隔离的下游后果） |
+**A. `tests/p5/test_p5_real_data.py` — 22 errors + 1 failed = 23 个 nodeid**
+（模块级 `p1_data`/`full`/`cases`/`splits`/`p3_artifact`/`p4_gate` fixture 依赖
+`reports/p1/real_snapshot/`，目录因 P1 对 3 条 proline/2OG 案例 mapping 质量不达标
+全部 quarantine 从未生成 → 已整模块 skip）：
+
+| # | nodeid | 根因 | 归因 |
+|---|--------|------|------|
+| 1 | `TestRealSnapshot::test_snapshot_id_and_count` | fixture FileNotFoundError | p1-design-quarantine |
+| 2 | `TestRealSnapshot::test_full_manifest_partition` | 同上 | p1-design-quarantine |
+| 3 | `TestRealSnapshot::test_filter_accounting_no_silent_drop` | 同上 | p1-design-quarantine |
+| 4 | `TestRealCases::test_50_real_cases` | 同上 | p1-design-quarantine |
+| 5 | `TestRealCases::test_query_smiles_valid` | 同上 | p1-design-quarantine |
+| 6 | `TestRealCases::test_multi_answer_preserved` | 同上 | p1-design-quarantine |
+| 7 | `TestRealCases::test_snapshot_binding` | 同上 | p1-design-quarantine |
+| 8 | `TestRealCases::test_incomplete_truth_retained_with_reason` | 同上 | p1-design-quarantine |
+| 9 | `TestRealSplits::test_exact_x_uses_p2_split` | 同上 | p1-design-quarantine |
+| 10 | `TestRealSplits::test_scaffold_disjoint` | 同上 | p1-design-quarantine |
+| 11 | `TestRealSplits::test_source_time_unavailable` | 同上 | p1-design-quarantine |
+| 12 | `TestRealSplits::test_transformation_family_honest_unavailable` | 同上 | p1-design-quarantine |
+| 13 | `TestRealBaselines::test_fair_same_registry` | 同上 | p1-design-quarantine |
+| 14 | `TestRealBaselines::test_strict_kernel_from_p3` | 同上 | p1-design-quarantine |
+| 15 | `TestRealBaselines::test_oracle_diagnostic_only` | 同上 | p1-design-quarantine |
+| 16 | `TestRealSixLayer::test_metrics_have_n_or_unavailable` | 同上 | p1-design-quarantine |
+| 17 | `TestRealSixLayer::test_data_layer_real_counts` | 同上 | p1-design-quarantine |
+| 18 | `TestRealSixLayer::test_cost_runtime_not_fabricated` | 同上 | p1-design-quarantine |
+| 19 | `TestRealKpiGoNoGo::test_kpi_registered_with_real_data` | 同上 | p1-design-quarantine |
+| 20 | `TestRealKpiGoNoGo::test_kpi_not_registered_without_p3` | 同上 | p1-design-quarantine |
+| 21 | `TestRealKpiGoNoGo::test_go_no_go_traceable` | 同上 | p1-design-quarantine |
+| 22 | `TestRealKpiGoNoGo::test_go_no_go_blocked_without_upstream` | 同上 | p1-design-quarantine |
+| 23 | `TestUpstreamStatus::test_real_chain_ready` | P2/P3/P4 上游缺失（real_snapshot 隔离下游后果） | p1-design-quarantine |
+
+**B. `tests/p5/test_p5_gate_overwrite_guard.py` — 2 个 nodeid（实时依赖 real_snapshot）**
+
+| # | nodeid | 根因 | 归因 |
+|---|--------|------|------|
+| 24 | `TestP5ImmuneToP4GateOverwrite::test_rank_layer_unavailable_without_crash` | `_load_all()`→`load_real_p1_snapshot()` FileNotFoundError | p1-design-quarantine |
+| 25 | `TestP5ImmuneToP4GateOverwrite::test_rank_layer_available_with_real_gate` | 同上 | p1-design-quarantine |
+
+**C. §17 门禁级联 — 1 个 nodeid（特殊说明）**
+
+| # | nodeid | 根因 | 归因 |
+|---|--------|------|------|
+| 26 | `tests/p1/test_p1_gate_contract.py::test_zero_skip_xfail_in_full_suite` | **§17 门禁级联**：断言全套件 `skipped==0`，因 25 个 P5 测试被标记 skip 而红。**非 real_snapshot 直接依赖**，属门禁级联；real_snapshot 补齐前不可能 PASS | 级联门禁（baseline 知悉项） |
 
 > 证据链核实（CC 实地核查）：真实数据源 `data/rxn2enzyme_positives.pkl`（3601 条）
 > + `reacting_center.pkl`（4541 条）存在且有效；P1 G03 定位 3 条真实 proline/2OG 反应，
 > 但 atom-mapping 质量不达标，按 P1 "The builder does not fabricate real data"
 > (fail-closed) 全部 quarantine，real_snapshot 从未生成。
 
-### T0-② P5 测试标记：已知缺失 → 显式 skip + 精确 reason
+### T0-② P5 测试标记：已知缺失 → 显式 skip + 精确 reason（R1 整改）
 
 依赖 real_snapshot 的 P5 测试全部标记 `skip`，reason **逐字等于**
 `known-missing: p1-design-quarantine (see required_case_quarantine_evidence.json)`：
@@ -42,7 +82,8 @@ acknowledged item）**，非 P6 Gate 缺陷：
 | `tests/p5/test_p5_real_data.py` | 模块级 `pytestmark = pytest.mark.skip(reason=KNOWN_MISSING_REASON)`（23 用例） |
 | `tests/p5/test_p5_gate_overwrite_guard.py` | `test_rank_layer_unavailable_without_crash`、`test_rank_layer_available_with_real_gate` 两个方法级 skip（`test_real_gate_report_is_14_14` 不依赖 real_snapshot，保持运行） |
 
-无静默跳过：每个 skip 都带精确 reason；reason 字符串经运行期断言逐字核对通过。
+无静默跳过：每个 skip 都带精确 reason；reason 字符串经运行期断言逐字核对通过
+（`grep known-missing: p1-design-quarantine tests/` ≥ 25 命中）。
 
 ### T0-③ 51 vs 26 差异排查：已修复（sibling benchmark/core 拷贝）
 
@@ -52,22 +93,25 @@ T0 基线固化时，除 demov2 磁盘现状外，把未跟踪兄弟目录 `benc
 兄弟目录）。修复后 worktree 失败数由 51 降至与源工作区一致（26），仅有的差异已归因
 （sibling benchmark 是真实拷贝问题，与 real_snapshot 无关）。
 
-### §17 不变式放宽（与 CC 决策对齐）
+### §17 门禁：保持 FAILED（级联，未放宽）
 
-`test_p1_gate_contract.py::test_zero_skip_xfail_in_full_suite` 由"零 skip 硬断言"
-改为"**允许携带精确 known-missing reason 的 skip，拒绝静默 skip / 其他 reason**"
-（新增 `_assert_skips_all_documented` 帮助函数）。这既保留 §17 反伪造意图
-（静默跳过/伪造 PASS 仍 FAIL），又对齐 CC 决策允许的 documented quarantine skip。
+按 kimi 审核 `P6-T0-AUD-01` 补充事实与 CC 决策字面范围（仅 P5 测试），
+`test_zero_skip_xfail_in_full_suite` **不做标记、不放宽**——它断言全套件零 skip，
+标记 P5 后从 `failed>0` 失败变为 `skipped>0` 失败，**仍 FAILED 属预期**，
+记入 baseline 知悉清单（根因：级联门禁，real_snapshot 补齐前不可能 PASS）。
 
-### T0 落实后的套件状态
+### T0 落实后的套件状态（T0 范围，不含 Phase B 在途 RED 文件）
 
 ```
-1020 passed, 25 skipped, 0 failed, 0 errors
+1020 passed, 25 skipped, 1 failed (§17 门禁级联), 0 errors
 ```
-- 26 个已知失败中：22 errors + 2 real_snapshot failures → 25 documented skips；
-  `test_zero_skip_xfail_in_full_suite` 经 §17 放宽后通过；`test_real_gate_report_is_14_14`
+- 26 个已知失败：22 errors + 2 real_snapshot failures → 25 documented skips；
+  `test_zero_skip_xfail_in_full_suite` 保持 FAILED（级联门禁，预期）；`test_real_gate_report_is_14_14`
   不依赖 real_snapshot 保持通过。
 - **main 零改动**（HEAD 仍 `4eb4633`）；源工作区未动（仍为原始 26 失败状态）。
+- ⚠️ 注：Phase B（glm）在途 `tests/p6/test_t5_resources.py` / `test_t6_chaos.py`
+  为 RED 未实现，会临时打断全量 collection；本报告套件状态为排除这两文件的 T0 范围。
+  该两文件归 Phase B，与本 T0 整改零重叠。
 
 ## 1. 关键勘察发现应对（对应 kimi 的 F1/F2/F3）
 
