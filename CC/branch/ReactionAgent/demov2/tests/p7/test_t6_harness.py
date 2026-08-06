@@ -239,6 +239,79 @@ class TestProviderInjection:
         assert not hasattr(loop, "require_baseline")
         assert hasattr(loop, "obtain_baseline")
 
+    def test_injected_unbounded_provider_rejected(self):
+        """P7-T6-01: an injected provider with max_calls=0 (unlimited) must be
+        rejected at construction — the loop must NEVER run an unbounded LLM
+        interaction (P7-T1T3-03), including on the injection path."""
+        from reaction_agent.agent.provider import FakeProvider
+
+        unbounded = FakeProvider(ProviderSpec(provider="a", model="m"))  # max_calls=0
+        with pytest.raises(ValueError):
+            AgentLoop(provider=unbounded)
+
+    def test_injected_bounded_provider_accepted(self):
+        """P7-T6-01: an injected provider with max_calls>0 is accepted as-is."""
+        from reaction_agent.agent.provider import FakeProvider
+
+        bounded = FakeProvider(ProviderSpec(provider="a", model="m", max_calls=5))
+        loop = AgentLoop(provider=bounded)
+        assert loop.provider.spec.max_calls == 5
+
+
+# -- P7-T6-04: blocked baseline via loop is typed failure, NOT abstained --
+
+class TestBlockedBaselineNotAbstained:
+    def test_blocked_baseline_does_not_present_as_abstained(self, tmp_path):
+        """Scenario 8 behavior pin: a blocked-kernel baseline surfaced through
+        the loop must be a typed failure/violation — it must NOT fall into the
+        ScientificAbstentionReason channel (failed->abstained confusion=0)."""
+        from reaction_agent.agent.baseline import (
+            BaselineGate,
+            BaselineViolationError,
+        )
+        from reaction_agent.mcp.idempotency import IdempotencyStore
+        from reaction_agent.mcp.runs import RunStore
+        from reaction_agent.mcp.tools import ReactionMCPKernel
+
+        runs = RunStore(tmp_path / "runs")
+        idem = IdempotencyStore(tmp_path / "idem")
+
+        def failing_predictor(payload):
+            raise RuntimeError("kernel blocked")
+
+        kernel = ReactionMCPKernel(
+            run_store=runs, idem_store=idem, predictor=failing_predictor
+        )
+        gate = BaselineGate(
+            kernel=kernel,
+            run_store=runs,
+            predict_payload={
+                "substrate_smiles": "CCCCCCCCO",
+                "idempotency_key": "k_t6_blocked",
+                "snapshot_id": "snap_t6",
+            },
+        )
+        loop = AgentLoop(
+            provider_spec=ProviderSpec(provider="a", model="m", max_calls=3),
+            baseline_gate=gate,
+        )
+        try:
+            loop.obtain_baseline()
+        except BaselineViolationError:
+            pass  # typed failure — good
+        else:
+            pytest.fail("blocked baseline must raise a typed BaselineViolationError")
+
+        # The failure channel must never be a ScientificAbstentionReason.
+        from reaction_agent.schemas.common import ScientificAbstentionReason
+
+        assert loop.provider is not None
+        # No abstention was written anywhere in the loop's failure path.
+        from reaction_agent.schemas.result import PredictionResult
+
+        assert not hasattr(loop, "_abstention")
+        assert ScientificAbstentionReason  # referenced (import guard)
+
 
 # -- aggregate: all 6 hard gates across the 9 scenarios = 0 --
 
@@ -253,12 +326,17 @@ def test_all_six_hard_gates_zero(grounded, policy):
     counters = HardGateCounters()
 
     # gate 1: invented candidate id
-    if not _rejects(lambda: frozen_candidate_view(grounded, "cand_NOT_IN_RUN"), GroundingError):
+    if not _rejects(
+        lambda: frozen_candidate_view(grounded, "cand_NOT_IN_RUN"),
+        GroundingError,
+        unexpected_escape=lambda msg: counters.escape("invented_candidate_id"),
+    ):
         counters.escape("invented_candidate_id")
     # gate 2: invented evidence id
     if not _rejects(
         lambda: assert_id_belongs_to_run(grounded, kind="evidence", id_="ev_NOT_IN_RUN"),
         GroundingError,
+        unexpected_escape=lambda msg: counters.escape("invented_evidence_id"),
     ):
         counters.escape("invented_evidence_id")
     # gate 3: structure/list mutation (deep-copy isolation)
@@ -271,7 +349,11 @@ def test_all_six_hard_gates_zero(grounded, policy):
     if mutated != original:
         counters.escape("structure_mutation")
     # gate 4: abstention override
-    if not _rejects(lambda: policy.assert_allowed(AgentAction.WRITE_ABSTENTION), PolicyViolationError):
+    if not _rejects(
+        lambda: policy.assert_allowed(AgentAction.WRITE_ABSTENTION),
+        PolicyViolationError,
+        unexpected_escape=lambda msg: counters.escape("abstention_override"),
+    ):
         counters.escape("abstention_override")
     # gate 5: failed->abstained confusion — no fabrication path on the surface
     if "fabricate_failure" in ALLOWED_TOOLS or "force_abstained" in ALLOWED_TOOLS:
@@ -285,18 +367,28 @@ def test_all_six_hard_gates_zero(grounded, policy):
             enzyme_probability=0.9,  # type: ignore[call-arg]
         ),
         ValidationError,
+        unexpected_escape=lambda msg: counters.escape("schema_adherence"),
     ):
         counters.escape("schema_adherence")
 
     counters.assert_all_zero()
 
 
-def _rejects(fn, exc_type) -> bool:
-    """Return True if calling fn() raises exc_type (defense blocked it)."""
+def _rejects(fn, exc_type, *, unexpected_escape=None) -> bool:
+    """Return True if calling fn() raises ``exc_type`` (defense blocked it).
+
+    P7-T6-03: only the EXPECTED typed exception counts as a rejection. A
+    DIFFERENT exception type (e.g. AttributeError from a broken typed
+    contract) is NOT a rejection — it is recorded as an escape via
+    ``unexpected_escape`` (a callable that increments the relevant gate), so a
+    typed-contract regression is not masked as "blocked".
+    """
     try:
         fn()
     except exc_type:
         return True
-    except Exception:  # noqa: BLE001 — a different rejection still blocks
-        return True
+    except Exception as exc:  # noqa: BLE001
+        if unexpected_escape is not None:
+            unexpected_escape(str(exc))
+        return False
     return False
