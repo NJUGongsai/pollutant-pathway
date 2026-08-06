@@ -103,8 +103,9 @@ T0 基线固化时，除 demov2 磁盘现状外，把未跟踪兄弟目录 `benc
 ### T0 落实后的套件状态（T0 范围，不含 Phase B 在途 RED 文件）
 
 ```
-1020 passed, 25 skipped, 1 failed (§17 门禁级联), 0 errors
+1019 passed, 25 skipped, 1 failed (§17 门禁级联), 0 errors
 ```
+（receipt：`reports/p6/P6_T0_ROUND1_PYTEST_RECEIPT.json`，exitcode 1，与终态逐字一致）
 - 26 个已知失败：22 errors + 2 real_snapshot failures → 25 documented skips；
   `test_zero_skip_xfail_in_full_suite` 保持 FAILED（级联门禁，预期）；`test_real_gate_report_is_14_14`
   不依赖 real_snapshot 保持通过。
