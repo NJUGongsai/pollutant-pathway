@@ -21,6 +21,42 @@ from typing import Any, Optional
 from reaction_agent.mcp.errors import RunNotFoundError, StorageError
 
 
+def _validate_record_types(data: dict) -> None:
+    """GATE-P6-09: load-boundary type validation for persisted run records.
+
+    Disk data may bit-rot or drift across versions. Fields that flow into
+    arithmetic/sort (only ``expires_at`` does — is_expired + sweep sort)
+    must be typed so a mistyped value cannot raise a bare TypeError out of
+    a comparison. Other fields are typed too for defense in depth; shape
+    errors (missing keys) still raise KeyError as before.
+
+    Type errors raise ``TypeError``, which ``RunStore.get_run`` catches and
+    converts to a typed ``StorageError`` (G7/G8 family closure).
+    """
+
+    def _is_number(v: Any) -> bool:
+        return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+    if not isinstance(data, dict):
+        raise TypeError(
+            f"run record must be a JSON object, got {type(data).__name__}"
+        )
+    for f in ("run_id", "tool", "request_hash", "snapshot_id"):
+        v = data.get(f)
+        if v is not None and not isinstance(v, str):
+            raise TypeError(f"field '{f}' must be str, got {type(v).__name__}")
+    tenant = data.get("tenant_id")
+    if tenant is not None and not isinstance(tenant, str):
+        raise TypeError(
+            f"field 'tenant_id' must be None|str, got {type(tenant).__name__}"
+        )
+    expires = data.get("expires_at")
+    if expires is not None and not _is_number(expires):
+        raise TypeError(
+            f"field 'expires_at' must be None|number, got {type(expires).__name__}"
+        )
+
+
 class RunRecord:
     """Immutable run record (frozen after creation)."""
 
@@ -72,6 +108,7 @@ class RunRecord:
 
     @classmethod
     def from_dict(cls, data: dict) -> "RunRecord":
+        _validate_record_types(data)  # GATE-P6-09: load-boundary type check
         return cls(
             run_id=data["run_id"],
             tool=data["tool"],
