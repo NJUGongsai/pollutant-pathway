@@ -165,6 +165,13 @@ class RetryPolicy(StrictModel):
 
     max_attempts: int = 1
 
+    @field_validator("max_attempts")
+    @classmethod
+    def _max_attempts_positive(cls, v: int) -> int:
+        if v < 1:
+            raise ValueError(f"max_attempts must be >= 1, got {v}")
+        return v
+
 
 def retry_call(
     provider: Provider,
@@ -184,8 +191,8 @@ def retry_call(
             # transient: retry until attempts exhausted
     if last_error is not None:
         raise last_error
-    # max_attempts < 1 guard (should not happen given validation default)
-    raise ProviderInfrastructureError("no attempts permitted by RetryPolicy")
+    # max_attempts >= 1 is enforced by RetryPolicy, so unreachable for valid specs.
+    raise RuntimeError("retry_call reached unreachable state")
 
 
 __all__ = [

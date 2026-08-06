@@ -182,6 +182,12 @@ class TestRetries:
             retry_call(BadRequest(), policy, ProviderRequest(messages=[]))
         assert calls["n"] == 1  # not retried
 
+    def test_max_attempts_must_be_positive(self):
+        # config error must be rejected at the schema layer, not disguised
+        # as a transient ProviderInfrastructureError at runtime.
+        with pytest.raises(ValidationError):
+            RetryPolicy(max_attempts=0)
+
 
 # -- typed provider failure / injection --
 
