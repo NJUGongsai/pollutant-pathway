@@ -22,6 +22,11 @@ from reaction_agent.mcp.errors import (
     IntegrityViolationError,
     SnapshotUnavailableError,
     BudgetExceededError,
+    UnauthorizedError,
+    ForbiddenError,
+    ResourceExpiredError,
+    PayloadTooLargeError,
+    ProtocolVersionMismatchError,
 )
 from reaction_agent.mcp.schemas import (
     GOLDEN_SCHEMAS,
@@ -36,6 +41,14 @@ from reaction_agent.mcp.idempotency import (
     canonical_request_hash,
     make_request_hash,
 )
+from reaction_agent.mcp.resources import (
+    AccessContext,
+    ResourceManager,
+    ResourceURI,
+    RetentionPolicy,
+)
+from reaction_agent.mcp.guards import BudgetGuard
+from reaction_agent.mcp.secured import SecuredKernel
 
 __all__ = [
     "P6Error",
@@ -47,6 +60,11 @@ __all__ = [
     "IntegrityViolationError",
     "SnapshotUnavailableError",
     "BudgetExceededError",
+    "UnauthorizedError",
+    "ForbiddenError",
+    "ResourceExpiredError",
+    "PayloadTooLargeError",
+    "ProtocolVersionMismatchError",
     "GOLDEN_SCHEMAS",
     "MCP_TOOL_SCHEMAS",
     "P6_SCHEMA_VERSION",
@@ -57,4 +75,10 @@ __all__ = [
     "IdempotencyRecord",
     "canonical_request_hash",
     "make_request_hash",
+    "AccessContext",
+    "ResourceManager",
+    "ResourceURI",
+    "RetentionPolicy",
+    "BudgetGuard",
+    "SecuredKernel",
 ]

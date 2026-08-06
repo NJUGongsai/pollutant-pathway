@@ -233,7 +233,11 @@ def validate_input(tool_name: str, payload: dict) -> dict:
 
     schema = MCP_TOOL_SCHEMAS[tool_name]
     errors = _check_object(payload, schema, "")
-    errors.extend(_cross_field_violations(tool_name, payload))
+    # Cross-field invariants only apply to dict payloads — a non-dict
+    # already produced a typed type-violation above and must not crash the
+    # validator with an AttributeError (T6: no uncaught exception leak).
+    if isinstance(payload, dict):
+        errors.extend(_cross_field_violations(tool_name, payload))
     if errors:
         raise SchemaError("; ".join(errors))
     return payload

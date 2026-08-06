@@ -90,3 +90,46 @@ class BudgetExceededError(P6Error):
 
     code = "BUDGET_EXCEEDED"
     httpish_status = 400
+
+
+# -- T5/T6 (Phase B) additions — access control, retention, chaos hardening --
+
+
+class UnauthorizedError(P6Error):
+    """No access context supplied to a secured resource (fail-closed).
+
+    Raised when a tool/resource is invoked in secured mode (a RetentionPolicy
+    is configured) without an ``AccessContext``. Possession of a resource URI
+    is never a capability — resolution always requires an authorized context.
+    """
+
+    code = "UNAUTHORIZED"
+    httpish_status = 401
+
+
+class ForbiddenError(P6Error):
+    """Cross-tenant or insufficient-role access (fail-closed)."""
+
+    code = "FORBIDDEN"
+    httpish_status = 403
+
+
+class ResourceExpiredError(P6Error):
+    """Resource passed its retention TTL (``expires_at``)."""
+
+    code = "RESOURCE_EXPIRED"
+    httpish_status = 410
+
+
+class PayloadTooLargeError(P6Error):
+    """Serialized payload exceeds the configured byte cap."""
+
+    code = "PAYLOAD_TOO_LARGE"
+    httpish_status = 413
+
+
+class ProtocolVersionMismatchError(P6Error):
+    """Client protocolVersion does not match the server-pinned version."""
+
+    code = "PROTOCOL_VERSION_MISMATCH"
+    httpish_status = 400

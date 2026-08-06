@@ -27,6 +27,9 @@ class RunRecord:
     __slots__ = (
         "run_id", "tool", "request_hash", "snapshot_id", "payload",
         "parent_run_id", "freeze_state", "created_at",
+        # Phase B (T5): tenant binding + retention expiry. Optional so that
+        # legacy runs / Phase-A callers (no policy configured) keep working.
+        "tenant_id", "expires_at",
     )
 
     def __init__(
@@ -39,6 +42,8 @@ class RunRecord:
         parent_run_id: Optional[str] = None,
         freeze_state: str = "frozen",
         created_at: Optional[str] = None,
+        tenant_id: Optional[str] = None,
+        expires_at: Optional[float] = None,
     ):
         self.run_id = run_id
         self.tool = tool
@@ -48,6 +53,8 @@ class RunRecord:
         self.parent_run_id = parent_run_id
         self.freeze_state = freeze_state
         self.created_at = created_at or "1970-01-01T00:00:00Z"
+        self.tenant_id = tenant_id
+        self.expires_at = expires_at
 
     def to_dict(self) -> dict:
         return {
@@ -59,6 +66,8 @@ class RunRecord:
             "parent_run_id": self.parent_run_id,
             "freeze_state": self.freeze_state,
             "created_at": self.created_at,
+            "tenant_id": self.tenant_id,
+            "expires_at": self.expires_at,
         }
 
     @classmethod
@@ -72,6 +81,8 @@ class RunRecord:
             parent_run_id=data.get("parent_run_id"),
             freeze_state=data.get("freeze_state", "frozen"),
             created_at=data.get("created_at"),
+            tenant_id=data.get("tenant_id"),
+            expires_at=data.get("expires_at"),
         )
 
 
@@ -93,6 +104,8 @@ class RunStore:
         payload: dict,
         parent_run_id: Optional[str] = None,
         run_id: Optional[str] = None,
+        tenant_id: Optional[str] = None,
+        expires_at: Optional[float] = None,
     ) -> RunRecord:
         """Atomically create and persist a frozen run.
 
@@ -113,6 +126,8 @@ class RunStore:
             payload=payload,
             parent_run_id=parent_run_id,
             freeze_state="frozen",
+            tenant_id=tenant_id,
+            expires_at=expires_at,
         )
         self._atomic_write(existing_path, record.to_dict())
         return record
@@ -129,6 +144,16 @@ class RunStore:
 
     def list_runs(self) -> list[str]:
         return sorted(p.stem for p in self.root.glob("*.json"))
+
+    def delete_run(self, run_id: str) -> None:
+        """Remove a run file (retention sweep). No-op if absent."""
+        path = self._run_path(run_id)
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            raise StorageError(f"failed to delete run '{run_id}': {exc}")
 
     def _next_index(self) -> int:
         return len(self.list_runs())
