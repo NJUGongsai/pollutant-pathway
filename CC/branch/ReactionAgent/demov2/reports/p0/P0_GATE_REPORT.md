@@ -1,6 +1,6 @@
 # P0 Gate Report v3
 
-**Timestamp (UTC):** 2026-08-06T11:21:54.918723+00:00
+**Timestamp (UTC):** 2026-08-06T11:36:10.375592+00:00
 **Working directory:** /Volumes/CC/Enzyme_Agent/depending/.claude/worktrees/p6-mcp-kernel/CC/branch/ReactionAgent/demov2
 **Python:** 3.11.15 (required >=3.11, satisfied=True)
 **Pydantic:** 2.13.4 (required >=2.8,<3, satisfied=True)
@@ -60,7 +60,7 @@
 
 ### P0-G10: Contract tests + JSON freshness + env
 **Status:** ❌ FAIL
-**Evidence:** stats fail: {'collected': 1142, 'passed': 1116, 'failed': 1, 'errors': 0, 'skipped': 25, 'xfailed': 0, 'xpassed': 0} (exit=1)
+**Evidence:** stats fail: {'collected': 1149, 'passed': 1123, 'failed': 1, 'errors': 0, 'skipped': 25, 'xfailed': 0, 'xpassed': 0} (exit=1)
 **ADR:** ADR-0001..ADR-0006 | **Schema:** schemas/json/*.json | **Policy:** - | **Tests:** all tests/contracts/*.py
 
 ## Authority Files
@@ -108,4 +108,4 @@ BLOCKED — P0 only, awaiting ChatGPT round-4 read-only audit
 
 ### Blocking items:
 
-- P0-G10: stats fail: {'collected': 1142, 'passed': 1116, 'failed': 1, 'errors': 0, 'skipped': 25, 'xfailed': 0, 'xpassed': 0} (exit=1)
+- P0-G10: stats fail: {'collected': 1149, 'passed': 1123, 'failed': 1, 'errors': 0, 'skipped': 25, 'xfailed': 0, 'xpassed': 0} (exit=1)
