@@ -1,0 +1,39 @@
+{
+  "baseline": {
+    "run_id": "run_aa0b94a98b59",
+    "status": "completed",
+    "n_candidates": 2,
+    "normalized_query": "CCCCCCCCO"
+  },
+  "agent": {
+    "selected_candidate_ids": [
+      "cand_c4be6a63addd"
+    ],
+    "grounded_evidence_ids": [
+      "fx_oct"
+    ],
+    "tool_calls": 2,
+    "steps": 3,
+    "abstained": false,
+    "rejections": 0
+  },
+  "fixed": {
+    "selected_candidate_ids": [
+      "cand_c4be6a63addd",
+      "cand_d84db54df32b"
+    ],
+    "grounded_evidence_ids": [
+      "fx_oct",
+      "fx_oct_dehyd"
+    ]
+  },
+  "metrics": {
+    "candidate_recall": 0.5,
+    "ranking_risk": 0.5,
+    "abstention": 0,
+    "evidence_quality": 1,
+    "tool_calls": 2,
+    "latency_token_cost": 3,
+    "repeated_run_agreement": true
+  }
+}
