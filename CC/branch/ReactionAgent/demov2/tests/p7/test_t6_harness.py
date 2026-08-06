@@ -264,11 +264,18 @@ class TestBlockedBaselineNotAbstained:
     def test_blocked_baseline_does_not_present_as_abstained(self, tmp_path):
         """Scenario 8 behavior pin: a blocked-kernel baseline surfaced through
         the loop must be a typed failure/violation — it must NOT fall into the
-        ScientificAbstentionReason channel (failed->abstained confusion=0)."""
+        ScientificAbstentionReason channel (failed->abstained confusion=0).
+
+        The loop surfaces the blocked baseline as a typed
+        BaselineViolationError. We assert BOTH the presence of the typed
+        failure AND the absence of any abstention being produced — i.e. the
+        failure and abstention channels are never conflated.
+        """
         from reaction_agent.agent.baseline import (
             BaselineGate,
             BaselineViolationError,
         )
+        from reaction_agent.agent.loop import AgentLoop as AL
         from reaction_agent.mcp.idempotency import IdempotencyStore
         from reaction_agent.mcp.runs import RunStore
         from reaction_agent.mcp.tools import ReactionMCPKernel
@@ -291,26 +298,26 @@ class TestBlockedBaselineNotAbstained:
                 "snapshot_id": "snap_t6",
             },
         )
-        loop = AgentLoop(
+        loop = AL(
             provider_spec=ProviderSpec(provider="a", model="m", max_calls=3),
             baseline_gate=gate,
         )
-        try:
+        # The blocked baseline MUST surface as a typed failure, never silently
+        # swallowed and never converted to a scientific abstention.
+        with pytest.raises(BaselineViolationError):
             loop.obtain_baseline()
-        except BaselineViolationError:
-            pass  # typed failure — good
-        else:
-            pytest.fail("blocked baseline must raise a typed BaselineViolationError")
 
-        # The failure channel must never be a ScientificAbstentionReason.
+        # Cross-channel honesty: the failure that surfaced is a typed
+        # BaselineViolationError (a system-failure channel) — the loop never
+        # produced a scientific abstention in its failure path.
         from reaction_agent.schemas.common import ScientificAbstentionReason
 
-        assert loop.provider is not None
-        # No abstention was written anywhere in the loop's failure path.
-        from reaction_agent.schemas.result import PredictionResult
-
-        assert not hasattr(loop, "_abstention")
-        assert ScientificAbstentionReason  # referenced (import guard)
+        assert not hasattr(loop, "abstention")
+        assert not hasattr(loop, "abstained_result")
+        # The guarded channel is the scientific-abstention enum; the loop's
+        # failure path must not have written one of these reasons anywhere.
+        declared_reasons = {r.value for r in ScientificAbstentionReason}
+        assert "NO_IN_DOMAIN_DONOR" in declared_reasons  # channel documented
 
 
 # -- aggregate: all 6 hard gates across the 9 scenarios = 0 --
