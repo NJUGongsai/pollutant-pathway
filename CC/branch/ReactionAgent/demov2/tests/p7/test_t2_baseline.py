@@ -137,38 +137,48 @@ class TestBlockedKernelTyped:
             )
 
     def test_resolution_failure_is_typed(self, tmp_path):
-        """A run whose resolution fails (missing run_id / malformed stored
-        result) must also be a typed BaselineViolationError, never a bare
-        KeyError / RunNotFoundError / ValidationError."""
+        """A run whose resolution fails (missing in the gate's store) must be
+        a typed BaselineViolationError, never a bare RunNotFoundError.
 
-        # predictor returns a completed result, but we sabotage resolution by
-        # pointing the gate at an EMPTY run store so get_run raises.
+        Real sabotage: the kernel writes the run into ``kernel_runs``, but the
+        gate resolves against a SEPARATE empty store ``gate_runs`` — so
+        ``resolve_prediction_result`` genuinely raises RunNotFoundError, which
+        the widened envelope folds into a typed BaselineViolationError.
+        """
         from reaction_agent.agent.baseline import BaselineGate as G
+        from reaction_agent.mcp.errors import RunNotFoundError
         from reaction_agent.mcp.idempotency import IdempotencyStore as IS
         from reaction_agent.mcp.runs import RunStore as RS
         from reaction_agent.mcp.tools import ReactionMCPKernel as K
 
-        runs = RS(tmp_path / "runs_empty")
-        idem = IS(tmp_path / "idem_empty")
-        kernel = K(run_store=runs, idem_store=idem, predictor=lambda p: _completed_result())
+        payload = {
+            "substrate_smiles": "CCCCCCCCO",
+            "idempotency_key": "k_t2_res_missing",
+            "snapshot_id": "snap_baseline",
+        }
+        kernel_runs = RS(tmp_path / "runs_kernel")
+        gate_runs = RS(tmp_path / "runs_gate")  # separate, EMPTY
+        idem = IS(tmp_path / "idem_kernel")
+        kernel = K(
+            run_store=kernel_runs,
+            idem_store=idem,
+            predictor=lambda p: _completed_result(),
+        )
         gate = G(
             kernel=kernel,
-            run_store=runs,
-            predict_payload={
-                "substrate_smiles": "CCCCCCCCO",
-                "idempotency_key": "k_t2_res_missing",
-                "snapshot_id": "snap_baseline",
-            },
+            run_store=gate_runs,
+            predict_payload=payload,
         )
-        try:
+
+        # Precondition: the kernel writes the run into kernel_runs, but the
+        # gate's store is empty -> resolve_prediction_result must raise.
+        out = kernel.handle(TOOL_PREDICT, payload)
+        run_id = out["run_id"]
+        with pytest.raises(RunNotFoundError):
+            gate_runs.get_run(run_id)
+
+        with pytest.raises(BaselineViolationError):
             gate.obtain_baseline()
-        except BaselineViolationError:
-            pass  # expected typed
-        except Exception as exc:  # noqa: BLE001
-            pytest.fail(
-                f"resolution failure leaked bare {type(exc).__name__}: "
-                f"{exc} (must be typed BaselineViolationError)"
-            )
 
     def test_require_baseline_returns_deep_copy(self, tmp_path):
         """require_baseline returns a deep copy so callers cannot mutate the
