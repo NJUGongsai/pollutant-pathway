@@ -41,10 +41,12 @@ def test_p3_run_kernel_fixture_returns_typed_result():
     from reaction_agent.p3.kernel import run_kernel
     from reaction_agent.p3.schemas import KernelResult, KernelStatus
 
+    # Fixture fold is frozen as fold_fx_p3 (P3 synthetic donor train view);
+    # the query mirrors tests/p3/test_lifecycle (octanol oxidation fixture).
     result = run_kernel(
-        input_smiles="CCO",
+        input_smiles="CCCCCCCCO",
         case_id="c_pin",
-        fold_id="f_pin",
+        fold_id="fold_fx_p3",
         mode="fixture",
         seed=0,
     )
