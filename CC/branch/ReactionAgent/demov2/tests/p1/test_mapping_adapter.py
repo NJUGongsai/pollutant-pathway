@@ -1,7 +1,7 @@
 """P1-T4 Atom-mapping adapter — contract tests.
 
 Tests define the contract for the AtomMapper Protocol + FakeAtomMapper +
-compute_quality_flags + RealMapperAdapter skeleton.
+compute_quality_flags + RealMapperAdapter integration.
 
 Design references (training/chatgpt_p1_train.md):
 - §10.1: Adapter protocol — must capture mapper_name/version/parameters/
@@ -18,9 +18,9 @@ Design references (training/chatgpt_p1_train.md):
   INTEGRATION_BLOCKED (not PASS).
 
 Integration test discipline (per user instruction): no skipif. When the real
-mapper is unavailable (Preflight BLOCKED: rdkit/numpy/networkx/scipy absent),
-the integration test verifies the adapter correctly reports INTEGRATION_BLOCKED
-— it does NOT skip.
+mapper is unavailable the integration test verifies an explicit
+INTEGRATION_BLOCKED result; when RDKit is available it requires a typed live
+report and verifies that MCS evidence remains non-strict.
 """
 import os
 import time
@@ -329,17 +329,11 @@ def test_atom_mapper_protocol_satisfied():
 # =====================================================================
 
 def test_real_mapper_integration_handles_unavailable_backend():
-    """§10.7: When real mapper is unavailable, adapter must report INTEGRATION_BLOCKED.
+    """§10.7: unavailable backends report an explicit integration blocker.
 
-    This test does NOT use skipif — it always runs. Two branches:
-    - Backend unavailable: adapter raises NotImplementedError("...INTEGRATION_BLOCKED...").
-    - Backend available but _do_map not wired (skeleton): adapter raises
-      NotImplementedError("...skeleton..."). This covers the
-      "available-but-not-wired" intermediate state (e.g. rdkit installed
-      but RealMapperAdapter._do_map not yet implemented).
-
-    Per user instruction: skipif would produce a skip (violating 'zero skip'
-    discipline). Instead, both states are passing assertions.
+    When RDKit is available, the integration must return a real report rather
+    than accepting the old skeleton exception as success.  An unmapped input
+    is necessarily an MCS diagnostic fallback and may never become strict.
     """
     from reaction_agent.mapping.adapter import RealMapperAdapter
 
@@ -347,10 +341,12 @@ def test_real_mapper_integration_handles_unavailable_backend():
     a = RealMapperAdapter(backend=backend)
 
     if a.is_available():
-        # Backend importable but _do_map is a skeleton — verify it raises
-        # NotImplementedError with the "skeleton" marker (available-but-not-wired).
-        with pytest.raises(NotImplementedError, match="skeleton"):
-            a.map_reaction(_record())
+        rep = a.map_reaction(_record())
+        assert isinstance(rep, MappingReport)
+        assert rep.mapping_status != MappingStatus.fully_mapped
+        assert rep.fallback_method == "mcs"
+        assert rep.source_assignment_method == SourceAssignmentMethod.formal_mcs
+        assert rep.mechanistic_atom_origin is None
     else:
         # Mapper unavailable — adapter must report INTEGRATION_BLOCKED.
         # This is NOT a skip: the adapter explicitly raises so the gate
@@ -361,21 +357,61 @@ def test_real_mapper_integration_handles_unavailable_backend():
         assert a.is_available() is False
 
 
-def test_real_mapper_available_branch_raises_skeleton(monkeypatch):
-    """§10.7: available-but-not-wired state raises skeleton NotImplementedError.
-
-    Forces is_available()=True via probe mock to guarantee coverage of the
-    available branch even when rdkit is not installed in .venv. The adapter
-    must raise NotImplementedError("...skeleton...") because _do_map is not
-    wired. This prevents the latent failure where the available-branch calls
-    map_reaction() without expecting the skeleton raise.
-    """
+def test_real_mapper_explicit_maps_are_validated_as_formal_mapping():
+    """A complete unique atom-map is preserved as formal, never mechanistic."""
     from reaction_agent.mapping.adapter import RealMapperAdapter
     a = RealMapperAdapter(backend="rdkit")
-    monkeypatch.setattr(a, "_available", True)
-    assert a.is_available() is True
-    with pytest.raises(NotImplementedError, match="skeleton"):
-        a.map_reaction(_record())
+    if not a.is_available():
+        with pytest.raises(NotImplementedError, match="INTEGRATION_BLOCKED"):
+            a.map_reaction(_record())
+        return
+
+    rep = a.map_reaction(_record(
+        normalized_reaction=(
+            "[CH3:1][CH2:2][OH:3]>>[CH3:1][CH:2]=[O:3]"
+        )
+    ))
+    assert rep.mapping_status == MappingStatus.fully_mapped
+    assert rep.fallback_method is None
+    assert rep.source_assignment_method == SourceAssignmentMethod.formal_mapped
+    assert rep.map_number_uniqueness is True
+    pairs = rep.formal_mapped_source_assignment.mapped_atom_pairs
+    assert [(p.reactant_atom_map, p.product_atom_map) for p in pairs] == [
+        (1, 1), (2, 2), (3, 3),
+    ]
+    assert rep.mechanistic_atom_origin is None
+
+
+def test_real_mapper_duplicate_explicit_maps_are_ambiguous():
+    """Duplicate explicit atom-map IDs are detected and cannot enter strict."""
+    from reaction_agent.mapping.adapter import RealMapperAdapter
+    a = RealMapperAdapter(backend="rdkit")
+    if not a.is_available():
+        with pytest.raises(NotImplementedError, match="INTEGRATION_BLOCKED"):
+            a.map_reaction(_record())
+        return
+
+    rep = a.map_reaction(_record(
+        normalized_reaction="[CH3:1][CH3:1]>>[CH3:1][CH3:2]"
+    ))
+    assert rep.mapping_status == MappingStatus.mapping_ambiguous
+    assert rep.map_number_uniqueness is False
+    assert rep.mapping_status != MappingStatus.fully_mapped
+
+
+def test_real_mapper_invalid_reaction_returns_failed_report():
+    """Malformed chemistry is represented as mapping_failed, not an exception."""
+    from reaction_agent.mapping.adapter import RealMapperAdapter
+    a = RealMapperAdapter(backend="rdkit")
+    if not a.is_available():
+        with pytest.raises(NotImplementedError, match="INTEGRATION_BLOCKED"):
+            a.map_reaction(_record())
+        return
+
+    rep = a.map_reaction(_record(normalized_reaction="not a reaction"))
+    assert rep.mapping_status == MappingStatus.mapping_failed
+    assert rep.formal_mapped_source_assignment.mapped_atom_pairs == []
+    assert rep.mechanistic_atom_origin is None
 
 
 def test_real_mapper_adapter_supported_backends():

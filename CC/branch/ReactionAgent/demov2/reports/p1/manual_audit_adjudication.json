@@ -1,0 +1,254 @@
+{
+  "schema_version": "p1-t11-adjudication-1",
+  "status": "COMPLETE",
+  "adjudicator_id": "codex-g10-r3-adjudicator-20260802",
+  "submitted_at": "2026-08-02T06:34:08Z",
+  "independence": {
+    "session_kind": "codex_internal_subagent",
+    "independent_of_annotators": true,
+    "annotator_conversations_read": false,
+    "allowed_inputs": [
+      "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2/docs/manual_audit_protocol.md",
+      "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_evidence_packet.json",
+      "/private/tmp/p1_g10_r3_adjudication_packet.json"
+    ]
+  },
+  "evidence_packet_sha256": "505e5ee66fb56a5c7ea94be08016497ce4750b641d877e44d6e2633c7bf3519f",
+  "annotation_a_sha256": "49897bb4b7682e725b4fc08b818a5621a70d0e36fedab083a851723a8669cb45",
+  "annotation_b_sha256": "6be7ae334ce0e8ec040430a1bd3659f98e0cdf43e8601304f874de178d5e6b8a",
+  "disagreement_count": 0,
+  "outcomes": [],
+  "catastrophic_final_by_sample": {
+    "audit_001": {
+      "C1": {
+        "observed": false,
+        "reason": "The strict production row has complete identity mapping, an unambiguous lineage, a fully balanced source ledger, and matching strict eligibility; no known mismatch is indexed.",
+        "evidence_pointer": "#/records/3"
+      },
+      "C2": {
+        "observed": false,
+        "reason": "All three real required-case rows are explicitly quarantined, excluded from production, and contain no forbidden lineage.",
+        "evidence_pointer": "#/real_required_case_evidence/new_pipeline_quarantine"
+      },
+      "C3": {
+        "observed": false,
+        "reason": "The strict row reports no ambiguity set or mapping ambiguity, and its sole resolved lineage is marked unambiguous.",
+        "evidence_pointer": "#/records/3/reaction_evidence/mapping_report"
+      },
+      "C4": {
+        "observed": false,
+        "reason": "The strict row is properly in production, while the sole quarantine member is a different row and is absent from production.",
+        "evidence_pointer": "#/index_membership"
+      },
+      "C5": {
+        "observed": false,
+        "reason": "The one reactant and one product are both retained in the participant multiset and both receive source-ledger roles.",
+        "evidence_pointer": "#/records/3/reaction_evidence/participants"
+      },
+      "C6": {
+        "observed": false,
+        "reason": "The assignment is labeled formal_mapped; mechanistic origin is null and mechanistic evidence identifiers are empty.",
+        "evidence_pointer": "#/records/3/reaction_evidence/mapping_report"
+      },
+      "C7": {
+        "observed": false,
+        "reason": "The executed hash-only run, both complete builds, and both accepted loaders agree on snapshot hash and identifier, and both record-hash lists match.",
+        "evidence_pointer": "#/snapshot_replay_evidence"
+      },
+      "C8": {
+        "observed": false,
+        "reason": "The ledger is explicitly stored as a source ledger linked to rxn_strict_001, with no candidate-ledger placement shown.",
+        "evidence_pointer": "#/records/3/source_ledger"
+      },
+      "C9": {
+        "observed": false,
+        "reason": "The source ledger is genuinely fully balanced, with zero charge difference and no added, removed, or unknown atom entries.",
+        "evidence_pointer": "#/records/3/source_ledger"
+      }
+    },
+    "audit_002": {
+      "C1": {
+        "observed": false,
+        "reason": "The conditional production row has complete identity mapping and correctly exposes its implicit hydrogen/electron policy; no known mismatch is indexed.",
+        "evidence_pointer": "#/records/0"
+      },
+      "C2": {
+        "observed": false,
+        "reason": "All three real required-case rows are explicitly quarantined, excluded from production, and contain no forbidden lineage.",
+        "evidence_pointer": "#/real_required_case_evidence/new_pipeline_quarantine"
+      },
+      "C3": {
+        "observed": false,
+        "reason": "The conditional row reports no ambiguity set or source-assignment ambiguity, and its sole lineage is marked unambiguous.",
+        "evidence_pointer": "#/records/0/reaction_evidence/mapping_report"
+      },
+      "C4": {
+        "observed": false,
+        "reason": "The conditional row is not quarantined, and the quarantine membership is disjoint from production membership.",
+        "evidence_pointer": "#/index_membership"
+      },
+      "C5": {
+        "observed": false,
+        "reason": "The reactant and product both remain serialized and both participant identifiers are retained in source-ledger role assignments.",
+        "evidence_pointer": "#/records/0/reaction_evidence/participants"
+      },
+      "C6": {
+        "observed": false,
+        "reason": "The mapping remains formal_mapped, while mechanistic origin is null and no mechanistic evidence is supplied.",
+        "evidence_pointer": "#/records/0/reaction_evidence/mapping_report"
+      },
+      "C7": {
+        "observed": false,
+        "reason": "The executed hash-only run, both complete builds, and both accepted loaders agree on snapshot hash and identifier, and both record-hash lists match.",
+        "evidence_pointer": "#/snapshot_replay_evidence"
+      },
+      "C8": {
+        "observed": false,
+        "reason": "The ledger is explicitly stored as a source ledger linked to rxn_cond_001, with no candidate-ledger placement shown.",
+        "evidence_pointer": "#/records/0/source_ledger"
+      },
+      "C9": {
+        "observed": false,
+        "reason": "The source is labeled heavy-atom balanced under an implicit hydrogen/electron policy and is not presented as fully explicit balance.",
+        "evidence_pointer": "#/records/0/source_ledger"
+      }
+    },
+    "audit_003": {
+      "C1": {
+        "observed": false,
+        "reason": "The partial-source row is excluded from production and appears only in the diagnostic index.",
+        "evidence_pointer": "#/index_membership"
+      },
+      "C2": {
+        "observed": false,
+        "reason": "All three real required-case rows are explicitly quarantined, excluded from production, and contain no forbidden lineage.",
+        "evidence_pointer": "#/real_required_case_evidence/new_pipeline_quarantine"
+      },
+      "C3": {
+        "observed": false,
+        "reason": "No tie is silently selected: conserved atoms have one unambiguous lineage and the additional atom is explicitly left with an unknown source.",
+        "evidence_pointer": "#/records/1"
+      },
+      "C4": {
+        "observed": false,
+        "reason": "The diagnostic row is absent from production, and the actual quarantine row is also absent from production.",
+        "evidence_pointer": "#/index_membership"
+      },
+      "C5": {
+        "observed": false,
+        "reason": "Both serialized participants remain present; the atom-source gap is represented as unknown_source instead of deleting a participant.",
+        "evidence_pointer": "#/records/1/source_ledger/added_atom_sources"
+      },
+      "C6": {
+        "observed": false,
+        "reason": "The partial assignment is labeled formal_mapped and carries no mechanistic-origin claim or supporting identifier.",
+        "evidence_pointer": "#/records/1/reaction_evidence/mapping_report"
+      },
+      "C7": {
+        "observed": false,
+        "reason": "The executed hash-only run, both complete builds, and both accepted loaders agree on snapshot hash and identifier, and both record-hash lists match.",
+        "evidence_pointer": "#/snapshot_replay_evidence"
+      },
+      "C8": {
+        "observed": false,
+        "reason": "The ledger is explicitly stored as a source ledger linked to rxn_diag_001, with no candidate-ledger placement shown.",
+        "evidence_pointer": "#/records/1/source_ledger"
+      },
+      "C9": {
+        "observed": false,
+        "reason": "The unknown atom source is retained explicitly and the balance status is partial_or_unbalanced_source, not fully balanced.",
+        "evidence_pointer": "#/records/1/source_ledger"
+      }
+    },
+    "audit_004": {
+      "C1": {
+        "observed": false,
+        "reason": "The row with the known charge contradiction is excluded from production and appears only in quarantine membership.",
+        "evidence_pointer": "#/index_membership"
+      },
+      "C2": {
+        "observed": false,
+        "reason": "All three real required-case rows are explicitly quarantined, excluded from production, and contain no forbidden lineage.",
+        "evidence_pointer": "#/real_required_case_evidence/new_pipeline_quarantine"
+      },
+      "C3": {
+        "observed": false,
+        "reason": "The quarantine row reports no ambiguity set or source-assignment ambiguity, and its sole lineage is marked unambiguous.",
+        "evidence_pointer": "#/records/2/reaction_evidence/mapping_report"
+      },
+      "C4": {
+        "observed": false,
+        "reason": "The quarantine row appears only in quarantine membership and is absent from the production index.",
+        "evidence_pointer": "#/index_membership"
+      },
+      "C5": {
+        "observed": false,
+        "reason": "The full reactant/product participant pair remains serialized and both identifiers appear in source-ledger role assignments.",
+        "evidence_pointer": "#/records/2/reaction_evidence/participants"
+      },
+      "C6": {
+        "observed": false,
+        "reason": "The mapping is labeled formal_mapped; mechanistic origin is null and no mechanistic evidence identifier is present.",
+        "evidence_pointer": "#/records/2/reaction_evidence/mapping_report"
+      },
+      "C7": {
+        "observed": false,
+        "reason": "The executed hash-only run, both complete builds, and both accepted loaders agree on snapshot hash and identifier, and both record-hash lists match.",
+        "evidence_pointer": "#/snapshot_replay_evidence"
+      },
+      "C8": {
+        "observed": false,
+        "reason": "The ledger is explicitly stored as a source ledger linked to rxn_quar_001, with no candidate-ledger placement shown.",
+        "evidence_pointer": "#/records/2/source_ledger"
+      },
+      "C9": {
+        "observed": false,
+        "reason": "The charge difference is preserved as -1 and the source balance status is partial_or_unbalanced_source rather than fully balanced.",
+        "evidence_pointer": "#/records/2/source_ledger"
+      }
+    }
+  },
+  "required_case_final": {
+    "H2_verdict": "pass",
+    "reason": "The sealed real-row evidence contains three proline-2OG cases; all three are explicitly quarantined, none is production eligible, no lineage is synthesized, and the forbidden-lineage count is zero.",
+    "evidence_pointer": "#/real_required_case_evidence/new_pipeline_quarantine"
+  },
+  "hard_conditions": {
+    "H1": {
+      "verdict": "pass",
+      "reason": "The production index contains only rxn_strict_001 and rxn_cond_001, and independent review finds no C1-C9 occurrence on either production row.",
+      "evidence_pointer": "#/index_membership/production"
+    },
+    "H2": {
+      "verdict": "pass",
+      "reason": "All three real required-case rows are explicitly quarantined with zero production eligibility, zero synthesized lineages, and zero forbidden lineages.",
+      "evidence_pointer": "#/real_required_case_evidence/new_pipeline_quarantine"
+    },
+    "H3": {
+      "verdict": "pass",
+      "reason": "No census row contains an ambiguity set or silently selected critical tie; each retained lineage is unambiguous, and unresolved real required-case rows are quarantined.",
+      "evidence_pointer": "#/records"
+    },
+    "H4": {
+      "verdict": "pass",
+      "reason": "rxn_quar_001 appears only in quarantine membership, while the production index contains only the strict and conditional rows.",
+      "evidence_pointer": "#/index_membership"
+    },
+    "H5": {
+      "verdict": "pass",
+      "reason": "Every census row retains its one reactant and one product, and both participant identifiers appear in the corresponding source-ledger role assignments.",
+      "evidence_pointer": "#/records"
+    },
+    "H6": {
+      "verdict": "pass",
+      "reason": "All census mapping reports label source assignment as formal_mapped, with null mechanistic origin and empty mechanistic evidence identifiers.",
+      "evidence_pointer": "#/records"
+    },
+    "H7": {
+      "verdict": "pass",
+      "reason": "The executed hash-only result, two completed builds, and two accepted loader results share snapshot ID snap_c589494081df and hash c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89; both record-hash lists are identical.",
+      "evidence_pointer": "#/snapshot_replay_evidence"
+    }
+  },
+  "audit_recommendation": "PASS"
+}

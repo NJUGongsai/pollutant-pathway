@@ -1,0 +1,126 @@
+{
+  "description": "Round 6 gate-wiring false-positive mutation (M56/M56a/M56b/M56c/M56d): shadowing a mandatory G08/G09 test node — including a SINGLE Round-6 node removal — must FAIL the gate.",
+  "mutations": [
+    {
+      "mutation_id": "M56",
+      "mutation": "remove/shadow G08/G09 mandatory test node -> corresponding Gate FAIL",
+      "expected": "G08 and G09 FAIL when their mandatory test node is missing (incl. Round-5 reference-integrity + single Round-6 node + single Round-7 node + Round-8 production-partition + Round-8 diagnostic-integrity + Round-9 manifest-required-field + Round-9 snapshot-identity node + Round-10 record_count-bool + Round-10 build_status + Round-10 reconstructed-return node)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M56a=True M56b=True M56c=True M56d=True M56e=True M56f=True M56g=True M56h=True M56i=True M56j=True M56k=True M56l=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M56a",
+          "mutation": "P1-G08 mandatory test file shadowed (tests/p1/test_eligibility_cross_invariants.py)",
+          "expected": "P1-G08 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G08 passed=False mandatory_node_missing_hits=20: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_eligibility_cross_invariants.py::test_valid_strict_baseline_is_strict; P1-G08 MANDATORY test node not collected/e",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56b",
+          "mutation": "P1-G09 mandatory test file shadowed (tests/p1/test_snapshot_complete_evidence.py)",
+          "expected": "P1-G09 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G09 passed=False mandatory_node_missing_hits=11: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_complete_evidence.py::test_snapshot_hash_changes_when_reaction_provenance_changes; P1-G09 MANDATORY test",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56c",
+          "mutation": "P1-G08 mandatory test file shadowed (tests/p1/test_eligibility_reference_integrity.py)",
+          "expected": "P1-G08 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G08 passed=False mandatory_node_missing_hits=92: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_eligibility_reference_integrity.py::test_reference_integrity_valid_strict_baseline_is_strict; P1-G08 MANDATORY te",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56d",
+          "mutation": "P1-G08 single node removed (test_uncontrolled_cofactor_direction_never_strict)",
+          "expected": "P1-G08 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G08 passed=False mandatory_node_missing_hits=1: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_eligibility_reference_integrity.py::test_uncontrolled_cofactor_direction_never_strict",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56e",
+          "mutation": "P1-G08 single node removed (test_heavy_atom_map_count_underflow_never_strict)",
+          "expected": "P1-G08 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G08 passed=False mandatory_node_missing_hits=1: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_eligibility_reference_integrity.py::test_heavy_atom_map_count_underflow_never_strict",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56f",
+          "mutation": "P1-G08 single node removed (test_loader_rejects_hash_coherent_diagnostic_in_production)",
+          "expected": "P1-G08 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G08 passed=False mandatory_node_missing_hits=1: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_hash_coherent_diagnostic_in_production",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56g",
+          "mutation": "P1-G09 single node removed (test_snapshot_manifest_persists_diagnostic_index_hash)",
+          "expected": "P1-G09 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_nested_evidence.py::test_snapshot_manifest_persists_diagnostic_index_hash",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56h",
+          "mutation": "P1-G09 single node removed (test_loader_rejects_missing_manifest_diagnostic_index_hash)",
+          "expected": "P1-G09 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_missing_manifest_diagnostic_index_hash",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56i",
+          "mutation": "P1-G09 single node removed (test_loader_rejects_snapshot_identity_mismatch)",
+          "expected": "P1-G09 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_snapshot_identity_mismatch",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56j",
+          "mutation": "P1-G09 single node removed (test_loader_rejects_manifest_record_count_bool)",
+          "expected": "P1-G09 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_record_count_bool",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56k",
+          "mutation": "P1-G09 single node removed (test_loader_rejects_missing_manifest_build_status)",
+          "expected": "P1-G09 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_manifest_build_status",
+          "caught": true
+        },
+        {
+          "mutation_id": "M56l",
+          "mutation": "P1-G09 single node removed (test_loader_returns_recomputed_manifest_counts)",
+          "expected": "P1-G09 FAIL (mandatory node not collected)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_manifest_authority_type_integrity.py::test_loader_returns_recomputed_manifest_counts",
+          "caught": true
+        }
+      ]
+    }
+  ],
+  "caught": 1,
+  "total": 1
+}

@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-08-06T08:02:10.770784+00:00",
+  "gate_version": "p5-gate-1",
+  "schema_version": "p5-1",
+  "run_id": "p5_run_20260806_080210",
+  "status": "PASS",
+  "pass_count": 8,
+  "block_count": 0,
+  "fail_count": 0,
+  "total_checks": 8,
+  "all_passed": true,
+  "checks": [
+    {
+      "gate_id": "P5-G01",
+      "name": "leakage_zero_and_domains_audited",
+      "passed": true,
+      "blocked": false,
+      "evidence": "leakage_zero=True, all_audited=True, source_unavailable=True, time_unavailable=True"
+    },
+    {
+      "gate_id": "P5-G02",
+      "name": "all_filters_and_denominators_complete",
+      "passed": true,
+      "blocked": false,
+      "evidence": "filters=4, no_silent_drop=True, partition_matches=True (partition_sum=50, pre_norm=50)"
+    },
+    {
+      "gate_id": "P5-G03",
+      "name": "multi_answer_active_and_policy_bound",
+      "passed": true,
+      "blocked": false,
+      "evidence": "multi_answer_active=True, incomplete_retained=True, cases=50"
+    },
+    {
+      "gate_id": "P5-G04",
+      "name": "strict_metrics_complete_or_unavailable_blocker",
+      "passed": true,
+      "blocked": false,
+      "evidence": "metrics_have_n_or_unavailable=True, blocked_by_p3_missing=False, blocked_by_p4_missing=False"
+    },
+    {
+      "gate_id": "P5-G05",
+      "name": "baselines_fair_and_oracle_separated",
+      "passed": true,
+      "blocked": false,
+      "evidence": "baselines_fair=True, oracle_separated=True, baseline_count=7"
+    },
+    {
+      "gate_id": "P5-G06",
+      "name": "formal_kpi_registry_only_when_data_allows",
+      "passed": true,
+      "blocked": false,
+      "evidence": "kpi_correct=True, registered=True, blocked_by_upstream=False"
+    },
+    {
+      "gate_id": "P5-G07",
+      "name": "go_no_go_traceable",
+      "passed": true,
+      "blocked": false,
+      "evidence": "go_no_go_traceable=True, decision=go"
+    },
+    {
+      "gate_id": "P5-G08",
+      "name": "invariant_tests_pass",
+      "passed": true,
+      "blocked": false,
+      "evidence": "tests_passed=86, tests_failed=0, tests_errors=0, exit_code=0"
+    }
+  ],
+  "upstream_status": {
+    "p1": "PASS",
+    "p2": "READY",
+    "p3": "READY",
+    "p4": "READY"
+  },
+  "mutation_summary": {
+    "total": 14,
+    "caught": 14,
+    "escaped": 0,
+    "errors": 0
+  },
+  "p1_snapshot": {
+    "snapshot_id": "snap_19caddc6b312",
+    "snapshot_hash": "19caddc6b312f476d93db8744c79a7851d5cf8393ab12644cb7d3a8fae770b59",
+    "artifact_classification": "real"
+  }
+}

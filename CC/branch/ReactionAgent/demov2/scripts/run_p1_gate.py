@@ -91,24 +91,53 @@ def _parse_pytest_stats(report_json: dict) -> dict:
     }
 
 
-def _result(passed: bool, evidence: str, details: dict,
-            blocked: bool = False) -> dict:
+def _result(passed: bool = True, evidence: str = "", details: dict | None = None,
+            blocked: bool = False,
+            implementation_failures: list[str] | None = None,
+            external_blockers: list[str] | None = None) -> dict:
+    """Build a gate result dict.
+
+    §5.1 status model: when ``implementation_failures`` / ``external_blockers``
+    are given, ``passed`` / ``blocked`` are DERIVED so BLOCKED never covers an
+    implementation FAIL:
+      - implementation_failures non-empty → FAIL (passed=False, blocked=False)
+      - implementation_failures empty + external_blockers non-empty → BLOCKED
+      - both empty → PASS
+    Legacy callers passing only ``passed``/``blocked`` keep working (their
+    impl/blocker lists default to empty).
+    """
+    impl = list(implementation_failures or [])
+    blockers = list(external_blockers or [])
+    if implementation_failures is not None or external_blockers is not None:
+        passed = not impl and not blockers
+        blocked = bool(blockers) and not impl
     return {
         "passed": passed, "blocked": blocked,
-        "evidence": evidence, "details": details,
+        "evidence": evidence, "details": details or {},
+        "implementation_failures": impl,
+        "external_blockers": blockers,
     }
 
 
-def _run_targeted_tests(test_files: list[str], gate_id: str) -> tuple[list[str], dict]:
+def _run_targeted_tests(test_files: list[str], gate_id: str,
+                        required_nodes: list[str] | None = None) -> tuple[list[str], dict]:
     """Run pytest on specific test files (§18.2 — gate runs tests, not just reads JSON).
 
     Returns (issues, stats). Enforces zero skip/xfail/xpass (§17). Uses a temp
     json-report file so it never collides with the gate's own report artifacts.
+
+    Round 4 (§10/§11): ``required_nodes`` is a MANDATORY test-node manifest.
+    Each node id MUST be collected AND pass; a missing test file or a missing/
+    non-passing mandatory node is an implementation failure (the gate FAILs,
+    never a silent PASS on a shrunken collection count). ``stats`` records the
+    actually-run files, collected/passed counts, and the per-node result so the
+    gate report can list them (§11 req 5).
     """
     issues: list[str] = []
     stats: dict = {}
     report_file = os.path.join(
         tempfile.gettempdir(), f".pytest_gate_{gate_id.lower()}_report.json")
+    stats["test_files"] = list(test_files)
     try:
         proc = _run_subprocess(
             [sys.executable, "-m", "pytest", *test_files, "-q",
@@ -117,9 +146,14 @@ def _run_targeted_tests(test_files: list[str], gate_id: str) -> tuple[list[str],
             timeout=600,
         )
         stats_raw = {}
+        node_outcomes: dict[str, str] = {}
         if os.path.isfile(report_file):
             stats_raw = _read_json(report_file)
-            stats = _parse_pytest_stats(stats_raw)
+            stats = {**stats, **_parse_pytest_stats(stats_raw)}
+            node_outcomes = {
+                t.get("nodeid", ""): t.get("outcome", "")
+                for t in stats_raw.get("tests", [])
+            }
         if proc.returncode != 0:
             issues.append(
                 f"{gate_id} targeted tests exit={proc.returncode}: "
@@ -134,6 +168,27 @@ def _run_targeted_tests(test_files: list[str], gate_id: str) -> tuple[list[str],
             issues.append(f"{gate_id} targeted tests have {stats.get('xpassed')} xpassed (§17)")
         if stats.get("collected", 0) == 0:
             issues.append(f"{gate_id} targeted tests collected 0: {test_files}")
+        # -- Round 4 mandatory-node enforcement (§10.3/§11.2) --
+        if required_nodes:
+            node_results: dict[str, str] = {}
+            for node in required_nodes:
+                outcome = node_outcomes.get(node)
+                if outcome is None:
+                    node_results[node] = "MISSING"
+                    issues.append(
+                        f"{gate_id} MANDATORY test node not collected/executed "
+                        f"(deleted or renamed?): {node}")
+                elif outcome != "passed":
+                    node_results[node] = outcome
+                    issues.append(
+                        f"{gate_id} MANDATORY test node did not pass "
+                        f"(outcome={outcome}): {node}")
+                else:
+                    node_results[node] = "passed"
+            stats["mandatory_nodes"] = node_results
+            stats["mandatory_nodes_total"] = len(required_nodes)
+            stats["mandatory_nodes_passed"] = sum(
+                1 for v in node_results.values() if v == "passed")
     except subprocess.TimeoutExpired:
         issues.append(f"{gate_id} targeted tests timed out (600s): {test_files}")
     except Exception as e:  # noqa: BLE001
@@ -335,17 +390,20 @@ def check_g03_legacy_lineage_audit() -> dict:
     try:
         audit = _read_json(audit_path)
     except Exception as e:  # noqa: BLE001
-        return _result(False, f"cannot read legacy_lineage_audit.json: {e}",
-                       {}, blocked=True)
+        return _result(evidence=f"cannot read legacy_lineage_audit.json: {e}",
+                       details={}, external_blockers=["audit unreadable"])
 
-    # 1. verdict — PARTIAL means real source not confirmed
+    # 1. verdict — PARTIAL/INCOMPLETE means real source not confirmed (blocker).
+    #    But a COMPLETE verdict with zero records is an implementation FAILURE
+    #    (M9), not a blocker — verified below regardless of verdict.
     verdict = audit.get("verdict", "")
     details["verdict"] = verdict
     details["verdict_reasons"] = audit.get("verdict_reasons", [])
     if verdict != "COMPLETE":
         blocked_reasons.append(f"verdict={verdict}: {audit.get('verdict_reasons', [])}")
 
-    # 2. counts & denominators present
+    # 2. counts & denominators — structural integrity (runs regardless of
+    #    blocker status so M9/M10 mutations on a faked COMPLETE are caught).
     counts = audit.get("counts", {})
     details["counts"] = counts
     required_count_keys = [
@@ -356,6 +414,20 @@ def check_g03_legacy_lineage_audit() -> dict:
     missing_keys = [k for k in required_count_keys if k not in counts]
     if missing_keys:
         issues.append(f"counts missing keys: {missing_keys}")
+
+    total = counts.get("total_reactions", 0)
+    audited = counts.get("audited_reactions", 0)
+    details["total_reactions"] = total
+    details["audited_reactions"] = audited
+    # §5.2: if verdict is COMPLETE, total/audited must be > 0 (M9 catches a
+    # faked COMPLETE with zero records). audited must never exceed total.
+    if audited > total:
+        issues.append(f"audited_reactions ({audited}) > total_reactions ({total})")
+    if verdict == "COMPLETE":
+        if total <= 0:
+            issues.append(f"verdict=COMPLETE but total_reactions={total} (M9: fake complete)")
+        if audited <= 0:
+            issues.append(f"verdict=COMPLETE but audited_reactions={audited} (M9)")
 
     # 3. mismatch categories present (5 categories)
     categories = audit.get("categories", {})
@@ -368,44 +440,74 @@ def check_g03_legacy_lineage_audit() -> dict:
     if missing_cats:
         issues.append(f"categories missing: {missing_cats}")
 
-    # 4. source IDs & examples
+    # 4. source IDs & examples — §5.2: source_ids non-empty + examples from
+    #    real source IDs. M10 catches a faked COMPLETE with empty source_ids.
     source_ids = audit.get("source_ids", [])
     examples = audit.get("examples", [])
     details["source_ids_count"] = len(source_ids)
     details["examples_count"] = len(examples)
+    if verdict == "COMPLETE":
+        if not source_ids:
+            issues.append("verdict=COMPLETE but source_ids empty (M10)")
+        if not examples:
+            issues.append("verdict=COMPLETE but examples empty")
+        # examples must reference real source IDs
+        sid_set = set(str(s) for s in source_ids)
+        for ex in examples:
+            ex_sid = str(ex.get("source_id", ex.get("reaction_id", ""))) if isinstance(ex, dict) else str(ex)
+            if ex_sid and sid_set and ex_sid not in sid_set:
+                issues.append(f"example references unknown source_id: {ex_sid}")
+                break
 
-    # 5. real source status
+    # 5. real source status — live re-probe rdkit (audit JSON may be stale).
     rss = audit.get("real_source_status", {})
     details["real_source_found"] = rss.get("real_reaction_source_found")
     details["source_confirmed"] = rss.get("source_confirmed_by_env")
     if not rss.get("real_reaction_source_found"):
         blocked_reasons.append("real_reaction_source_not_confirmed")
+    # §5.2: legacy source hash must match the actual file recompute (M11).
+    lm = audit.get("legacy_module", {})
+    details["legacy_read_only"] = lm.get("read_only")
+    details["legacy_modified"] = lm.get("modified_by_audit")
+    stored_sha = lm.get("sha256", "")
+    details["legacy_sha256_stored"] = stored_sha[:16] + "..." if stored_sha else None
+    legacy_file = os.path.join(DEMOV2_ROOT, "..", "benchmark", "canonical_identity.py")
+    legacy_file = os.path.normpath(legacy_file)
+    if os.path.isfile(legacy_file):
+        import hashlib
+        with open(legacy_file, "rb") as f:
+            actual_sha = hashlib.sha256(f.read()).hexdigest()
+        details["legacy_sha256_actual"] = actual_sha[:16] + "..."
+        if stored_sha and actual_sha != stored_sha:
+            issues.append(
+                f"legacy module hash mismatch (M11): stored={stored_sha[:16]}... "
+                f"!= actual={actual_sha[:16]}...")
+    else:
+        issues.append(f"legacy module file not found: {legacy_file}")
 
-    # 6. proline-2OG case included
+    # 6. proline-2OG case — real record locatable OR explicitly BLOCKED.
     p2og = audit.get("proline_2og_case", {})
     details["proline_2og_source_record_found"] = p2og.get("source_record_found")
     details["proline_2og_status"] = p2og.get("status")
     if not p2og.get("source_record_found"):
-        blocked_reasons.append("required_case_missing_proline_2og")
-
-    # 7. legacy module read-only + discipline
-    lm = audit.get("legacy_module", {})
-    details["legacy_read_only"] = lm.get("read_only")
-    details["legacy_modified"] = lm.get("modified_by_audit")
-    details["legacy_sha256"] = lm.get("sha256")
+        # Not found is an external blocker (real source unconfirmed), NOT a
+        # fake PASS — unless verdict is faked COMPLETE.
+        if verdict == "COMPLETE":
+            issues.append("verdict=COMPLETE but proline/2OG source_record_found=False")
+        else:
+            blocked_reasons.append("required_case_missing_proline_2og")
 
     dn = audit.get("discipline_notes", {})
     details["discipline_notes"] = dn
 
-    blocked = len(blocked_reasons) > 0
-    if blocked:
-        return _result(False,
-                       f"BLOCKED: {'; '.join(blocked_reasons)}",
-                       details, blocked=True)
-    passed = len(issues) == 0
-    return _result(passed, "; ".join(issues) if issues else
-                   "legacy audit COMPLETE: real source confirmed, counts/categories/examples populated, proline-2OG found",
-                   details)
+    evidence = ("; ".join(issues) if issues else
+                "legacy full-corpus audit verified (counts/categories/source_ids/"
+                "examples/hash + project-declared source + proline/2OG structure case)")
+    if blocked_reasons:
+        evidence = f"BLOCKED: {'; '.join(blocked_reasons)}; {evidence}"
+    return _result(evidence=evidence, details=details,
+                   implementation_failures=issues,
+                   external_blockers=blocked_reasons)
 
 
 # ============================================================
@@ -421,65 +523,157 @@ def check_g04_mapping_adapter() -> dict:
     try:
         sample = _read_json(sample_path)
     except Exception as e:  # noqa: BLE001
-        return _result(False, f"cannot read mapping_integration_sample.json: {e}",
-                       {}, blocked=True)
+        return _result(evidence=f"cannot read mapping_integration_sample.json: {e}",
+                       details={}, external_blockers=["sample unreadable"])
 
-    # 1. real mapper integration status
-    rmi = sample.get("real_mapper_integration", {})
-    integ_status = rmi.get("status", "")
-    details["integration_status"] = integ_status
-    details["all_backends_unavailable"] = rmi.get("all_backends_unavailable")
-    details["backends_probed"] = rmi.get("backends_probed")
-    if integ_status != "INTEGRATION_COMPLETE":
-        blocked_reasons.append(
-            f"integration_status={integ_status}: {rmi.get('reason', '')}")
+    # === PRIMARY (§5.3): LIVE probe the real adapter — do NOT trust the
+    # JSON status string. Instantiate RealMapperAdapter, call is_available(),
+    # and attempt map_reaction(). This defeats the M12/M13 mutations where
+    # the JSON status is flipped to COMPLETE while the adapter is a skeleton. ===
+    try:
+        from reaction_agent.mapping.adapter import RealMapperAdapter
+        adapter = RealMapperAdapter(backend="rdkit", timeout=300)
+        live_available = adapter.is_available()
+        details["live_rdkit_available"] = live_available
+        details["live_backend"] = adapter.backend
+        if not live_available:
+            blocked_reasons.append(
+                "RealMapperAdapter(rdkit).is_available()=False live "
+                "(rdkit/numpy/networkx/scipy not importable in .venv)")
+        else:
+            # Backend importable — attempt a real map_reaction() call. The
+            # adapter is still a skeleton, so this raises NotImplementedError
+            # → honest BLOCKED (real mapping not wired), NOT a fake PASS.
+            from reaction_agent.schemas.p1_entities import NormalizedReactionRecord
+            probe = NormalizedReactionRecord(
+                reaction_id="rxn_g04_probe",
+                source_record_id="src_g04_probe",
+                normalized_reaction="CCO>>CC(=O)O",
+                raw_reaction="CCO>>CC(=O)O",
+                direction="forward",
+            )
+            map_called = False
+            map_raised: str | None = None
+            try:
+                adapter.map_reaction(probe)
+                map_called = True
+            except NotImplementedError as e:
+                map_raised = str(e)
+            except Exception as e:  # noqa: BLE001
+                map_raised = f"{type(e).__name__}: {e}"
+            details["live_map_reaction_called"] = map_called
+            details["live_map_reaction_error"] = map_raised
+            if not map_called:
+                blocked_reasons.append(
+                    f"RealMapperAdapter.map_reaction() not implemented (skeleton): "
+                    f"{map_raised}")
+    except Exception as e:  # noqa: BLE001
+        blocked_reasons.append(f"cannot instantiate RealMapperAdapter: {e}")
+        details["live_rdkit_available"] = False
 
-    # 2. unit contract — quality metrics (8 dimensions)
+    # === report/live coherence — the stored integration artifact is evidence,
+    # not authority, but it must not contradict the live probe.  This catches
+    # stale or status-only promotion without weakening the live check. ===
+    integration = sample.get("real_mapper_integration", {})
+    integration_status = integration.get("status")
+    all_unavailable = integration.get("all_backends_unavailable")
+    reported_backends = integration.get("backends_probed", {})
+    reported_live = integration.get("live_probe", {})
+    details["reported_integration_status"] = integration_status
+    details["reported_all_backends_unavailable"] = all_unavailable
+
+    if not isinstance(reported_backends, dict):
+        issues.append("real_mapper_integration.backends_probed must be an object")
+        reported_backends = {}
+    details["reported_rdkit_available"] = reported_backends.get("rdkit")
+    probed_values = list(reported_backends.values())
+    if not probed_values or not all(isinstance(value, bool) for value in probed_values):
+        issues.append("real_mapper_integration.backends_probed must contain boolean probes")
+    expected_all_unavailable = not any(probed_values) if probed_values else None
+    if not isinstance(all_unavailable, bool):
+        issues.append("real_mapper_integration.all_backends_unavailable must be boolean")
+    elif expected_all_unavailable is not None and all_unavailable != expected_all_unavailable:
+        issues.append(
+            "real_mapper_integration contradiction: all_backends_unavailable "
+            f"is {all_unavailable} but backends_probed={reported_backends}"
+        )
+    if reported_backends.get("rdkit") != details.get("live_rdkit_available"):
+        issues.append(
+            "real_mapper_integration stale: reported rdkit availability differs "
+            "from live probe"
+        )
+    if integration_status == "INTEGRATION_COMPLETE" and all_unavailable is True:
+        issues.append(
+            "real_mapper_integration contradiction: status=INTEGRATION_COMPLETE "
+            "while all_backends_unavailable=true"
+        )
+    if details.get("live_map_reaction_called") is True:
+        if integration_status != "INTEGRATION_COMPLETE":
+            issues.append(
+                "live mapper succeeded but stored integration status is not "
+                "INTEGRATION_COMPLETE"
+            )
+        # Bind the stored summary to a second observed result. The report is
+        # never allowed to promote a stale or hand-edited live-probe claim.
+        try:
+            observed = adapter.map_reaction(probe)
+            expected_live_fields = {
+                "mapper_name": observed.mapper_name,
+                "mapping_status": observed.mapping_status.value,
+                "assignment_method": observed.source_assignment_method.value,
+                "fallback_method": observed.fallback_method,
+                "mechanistic_atom_origin": None,
+            }
+            for field, expected in expected_live_fields.items():
+                if reported_live.get(field) != expected:
+                    issues.append(
+                        f"stored live_probe.{field}={reported_live.get(field)!r} "
+                        f"differs from live result {expected!r}"
+                    )
+        except Exception as e:  # noqa: BLE001
+            issues.append(f"second live mapper coherence probe failed: {e}")
+
+    # === unit contract — FakeAtomMapper quality (implementation verification) ===
     uc = sample.get("unit_contract", {})
     details["unit_contract_status"] = uc.get("status")
     details["quality_dimensions_count"] = uc.get("quality_dimensions_count")
     if uc.get("quality_dimensions_count", 0) < 8:
         issues.append(f"quality dimensions < 8: {uc.get('quality_dimensions_count')}")
 
-    # quality flags present
     fake = uc.get("fake_mapper_sample", {})
     qflags = fake.get("quality_flags", [])
     details["quality_flags_count"] = len(qflags)
     if len(qflags) < 6:
         issues.append(f"quality flags < 6: {len(qflags)}")
 
-    # 3. failure states documented
-    mapper_params = fake.get("mapper_parameters", {})
-    details["mapper_params_status"] = mapper_params.get("status")
-    details["fallback_method"] = fake.get("fallback_method")
-    # failure states: timeout / partial / unmapped atoms
-    has_timeout = "timeout" in mapper_params
-    details["has_timeout_config"] = has_timeout
-
-    # 4. MCS not strict (fallback is not strict MCS)
-    # formal_mapped source assignment method, not MCS-based
     fsa = fake.get("formal_mapped_source_assignment", {})
     details["assignment_method"] = fsa.get("assignment_method")
-    details["assignment_quality"] = fsa.get("assignment_quality")
+    details["fallback_method"] = fake.get("fallback_method")
     if fsa.get("assignment_method") != "formal_mapped":
         issues.append(f"assignment_method is not formal_mapped: {fsa.get('assignment_method')}")
 
-    # 5. formal not mechanism
     details["mechanistic_origin"] = fake.get("mechanistic_atom_origin")
-    details["mechanistic_evidence_ids"] = fake.get("mechanistic_origin_evidence_ids")
     details["formal_only_verified"] = uc.get("formal_only_verified")
     if not uc.get("formal_only_verified"):
         issues.append("formal_only_verified is not True")
 
-    blocked = len(blocked_reasons) > 0
-    if blocked:
-        return _result(False,
-                       f"BLOCKED: {'; '.join(blocked_reasons)}",
-                       details, blocked=True)
-    passed = len(issues) == 0
-    return _result(passed, "; ".join(issues) if issues else
-                   "mapping adapter INTEGRATION_COMPLETE: 8 quality dims, formal_mapped, formal≠mechanism",
-                   details)
+    # PRIMARY (§5.3): run the mapping adapter unit tests — verifies MCS/center
+    # fallback not strict, formal≠mechanism, failure/timeout states, multi-
+    # fragment. This is implementation verification, not a status string.
+    t4_issues, t4_stats = _run_targeted_tests(
+        ["tests/p1/test_mapping_adapter.py"], "P1-G04")
+    issues.extend(t4_issues)
+    details["t4_pytest_stats"] = t4_stats
+
+    evidence = ("; ".join(issues) if issues else
+                "mapping adapter: live probe + FakeAtomMapper unit contract "
+                "(8 dims, formal_mapped, formal≠mechanism, MCS/center not strict) "
+                "+ T4 tests pass")
+    if blocked_reasons:
+        evidence = f"BLOCKED: {'; '.join(blocked_reasons)}; {evidence}"
+    return _result(evidence=evidence, details=details,
+                   implementation_failures=issues,
+                   external_blockers=blocked_reasons)
 
 
 # ============================================================
@@ -642,26 +836,50 @@ def check_g06_lineage_graph() -> dict:
             break
     details["stable_ids_verified"] = stable_ids_ok
 
-    # 6. proline-2OG case (case 01) — correct or quarantined
+    # 6. proline-2OG case — must exist AND have correct lineages (§5.4).
+    # Not just a status string: directly verify strict_eligible_pairs.
     proline_case = None
     for c in cases:
         if "proline" in c.get("case", "").lower():
             proline_case = c
             break
     details["proline_case_found"] = proline_case is not None
-    if proline_case:
-        # forbidden lineage 2OG->hydroxyproline must NOT be in strict_eligible_pairs
+    if proline_case is None:
+        issues.append("proline/2OG required case missing from regression cases")
+    else:
         strict_pairs = proline_case.get("strict_eligible_pairs", [])
         details["proline_strict_pairs"] = strict_pairs
-        # expected: r1->p1 (proline->hydroxyproline), r2->p2 (2OG->succinate)
-        # forbidden: r2->p1 (2OG->hydroxyproline)
-        forbidden_pair = None
-        # check forbidden_lineage_check string in data
-        flc = data.get("forbidden_lineage_check", "")
-        details["forbidden_lineage_check"] = flc
-        if "NOT in strict_eligible_pairs" not in flc:
-            issues.append("forbidden lineage check not documented")
-
+        # §5.4: a product must NOT come from two different reactants in
+        # strict_eligible_pairs (the 2OG→hydroxyproline error) unless an
+        # explicit merge_hypothesis documents it. Identity-based check —
+        # does NOT depend on r1/r2/p1/p2 ordering.
+        merge_hyps = proline_case.get("merge_hypotheses", [])
+        merge_doc = json.dumps(merge_hyps)
+        product_reactants: dict[str, list[str]] = {}
+        for pair in strict_pairs:
+            if isinstance(pair, (list, tuple)) and len(pair) >= 2:
+                product_reactants.setdefault(str(pair[1]), []).append(str(pair[0]))
+        for prod, reacts in product_reactants.items():
+            if len(set(reacts)) > 1 and prod not in merge_doc:
+                issues.append(
+                    f"forbidden cross-lineage pairing: product {prod!r} from "
+                    f"multiple reactants {reacts} without merge hypothesis "
+                    f"(2OG→hydroxyproline class of error)"
+                )
+        # proline→hydroxyproline + 2OG→succinate must be present (>= 2 pairs)
+        if len(strict_pairs) < 2:
+            issues.append(
+                f"proline case has {len(strict_pairs)} strict pairs, expected "
+                f">= 2 (proline→hydroxyproline + 2OG→succinate)"
+            )
+        # critical ambiguity must not enter strict
+        for lin in proline_case.get("resolved_lineages", []):
+            if lin.get("ambiguity") == "critical":
+                issues.append(
+                    f"critical-ambiguity lineage in proline case strict: "
+                    f"{lin.get('lineage_id')}"
+                )
+    details["forbidden_lineage_check"] = data.get("forbidden_lineage_check", "")
     details["proline_2og_hard_gate"] = data.get("proline_2og_hard_gate")
 
     # PRIMARY (§18.2): run T6 tests — lineage graph contract
@@ -670,10 +888,12 @@ def check_g06_lineage_graph() -> dict:
     issues.extend(t6_issues)
     details["t6_pytest_stats"] = t6_stats
 
-    passed = len(issues) == 0
-    return _result(passed, "; ".join(issues) if issues else
-                   "14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct + T6 tests pass zero-skip",
-                   details)
+    evidence = ("; ".join(issues) if issues else
+                "14 cases: bipartite + split/merge/transfer + no-silent-tie + "
+                "stable IDs + proline-2OG correct (identity-based) + T6 tests "
+                "pass zero-skip")
+    return _result(evidence=evidence, details=details,
+                   implementation_failures=issues)
 
 
 # ============================================================
@@ -769,6 +989,145 @@ def check_g07_dual_ledgers() -> dict:
 # G08: eligibility/quarantine policy
 # ============================================================
 
+# Round 4 (§10) + Round 5 (§13) mandatory G08 test-node manifest: the strict
+# semantic fail-closed tests (§8) that MUST be collected and pass. Explicit
+# node IDs (not a directory count) so deleting/renaming any one FAILs G08.
+# Round 4 adds 20 nodes; Round 5 adds the complete ledger/map/element/lineage
+# RED tests (37 nodes) so the manifest covers the full Round-5 task
+# requirements — not just a count (§13: "列表覆盖完整任务要求").
+_G08_CROSS_INVARIANT_FILE = "tests/p1/test_eligibility_cross_invariants.py"
+_G08_REFERENCE_INTEGRITY_FILE = "tests/p1/test_eligibility_reference_integrity.py"
+# Round 8: index-partition authority lives in test_snapshot_nested_evidence.py
+_G08_INDEX_PARTITION_FILE = "tests/p1/test_snapshot_nested_evidence.py"
+_G08_REQUIRED_NODES = [
+    f"{_G08_CROSS_INVARIANT_FILE}::test_valid_strict_baseline_is_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_participant_low_mapped_fraction_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_self_reported_full_mapping_with_incomplete_actual_pair_coverage_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_reverse_collision_many_to_one_mapping_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_nonzero_element_balance_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_element_delta_inconsistent_with_counts_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_duplicate_element_balance_entry_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_added_atom_source_ghost_reference_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_role_assignment_ghost_participant_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_stoichiometry_ghost_participant_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_formal_atom_transfer_ghost_participant_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_generic_unknowns_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_duplicate_lineage_id_or_content_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_explicit_reaction_evidence_quarantine_routes_to_quarantine",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_identity_ambiguity_set_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_embedded_external_lineage_mismatch_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_uncontrolled_direction_value_never_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_public_snapshot_api_cannot_promote_element_imbalance_to_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_public_snapshot_api_cannot_promote_explicit_quarantine_to_strict",
+    f"{_G08_CROSS_INVARIANT_FILE}::test_public_snapshot_api_cannot_promote_mapping_reverse_collision_to_strict",
+    # -- Round 5 ledger/map/element/lineage reference-integrity RED tests --
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_reference_integrity_valid_strict_baseline_is_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_reactant_product_matching_map_number_remains_valid",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_added_atom_source_existing_participant_unknown_map_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_added_atom_mechanistic_evidence_id_must_resolve",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_reactant_entry_ghost_participant_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_product_entry_ghost_participant_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_reactant_entry_wrong_side_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_product_entry_wrong_side_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_stoichiometry_existing_participant_wrong_side_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_negative_stoichiometric_coefficient_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_formal_transfer_existing_participants_wrong_sides_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_formal_transfer_unknown_map_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_formal_transfer_conflicts_with_formal_pairs_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_removed_atom_sink_ghost_participant_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_removed_atom_sink_unknown_map_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_cofactor_change_ghost_participant_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_mechanistic_evidence_ghost_participant_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_mechanistic_evidence_unknown_target_map_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_contradictory_role_assignments_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_negative_element_reactant_count_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_negative_element_product_count_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_element_delta_must_equal_product_minus_reactant",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_fully_balanced_nonzero_delta_routes_to_quarantine",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_partial_consistent_nonzero_delta_not_mislabeled_quarantine",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_partial_consistent_nonzero_delta_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_participant_id_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_uncontrolled_participant_side_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_atom_map_within_participant_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_same_side_cross_participant_atom_map_collision_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_embedded_lineage_ids_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_lineage_content_with_reordered_maps_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_transformed_maps_within_lineage_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_added_atom_unknown_map",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_ledger_ghost_entry",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_formal_transfer_map_conflict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_duplicate_participant_map",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_embedded_duplicate_lineage",
+    # -- Round 6 (§6–§11) confirmed fail-open RED tests --
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_uncontrolled_cofactor_direction_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_unknown_cofactor_direction_remains_conditional",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_uncontrolled_cofactor_direction",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_reactant_entry_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_conflicting_reactant_entry_coefficients_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_product_entry_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_conflicting_product_entry_coefficients_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_stoichiometry_entry_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_conflicting_stoichiometry_coefficients_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_conflicting_reactant_entries",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_conflicting_stoichiometry",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_mechanistic_target_map_must_exist_on_product_side",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_mechanistic_target_product_map_remains_valid",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_reactant_only_mechanistic_target_map",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_empty_formal_transfer_maps_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_formal_transfer_maps_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_valid_nonempty_formal_transfer_remains_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_empty_formal_transfer",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_heavy_atom_participant_with_empty_maps_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_mapped_fraction_one_cannot_override_empty_heavy_atom_maps",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_valid_fully_mapped_heavy_atom_participant_remains_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_zero_heavy_atom_policy_does_not_get_accidentally_broken",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_unmapped_heavy_atom_participant",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_nonformal_added_atom_source_without_mechanism_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_empty_mechanistic_target_maps_never_strict",
+    # -- Round 7 (§5–§10) heavy-atom map count / positive map IDs / collection
+    #    duplicate & conflict / unbacked sink / index-aware public boundary --
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_genuinely_fully_mapped_heavy_atom_participant_remains_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_zero_heavy_atom_proton_policy_remains_valid",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_heavy_atom_map_count_underflow_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_heavy_atom_map_count_overflow_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_mapped_fraction_one_cannot_override_map_count_underflow",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_global_mapped_fraction_one_cannot_override_participant_count_mismatch",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_heavy_map_count_underflow",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_heavy_map_count_overflow",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_positive_atom_map_identifiers_remain_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_zero_atom_map_identifier_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_negative_atom_map_identifier_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_nonpositive_formal_pair_map_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_nonpositive_lineage_map_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_nonpositive_atom_maps",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_distinct_valid_ledger_evidence_remains_valid",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_added_atom_source_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_conflicting_added_atom_sources_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_removed_atom_sink_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_conflicting_removed_atom_sinks_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_formal_transfer_assignment_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_conflicting_formal_transfer_assignments_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_duplicate_mechanistic_target_maps_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_duplicate_added_atom_source",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_duplicate_removed_atom_sink",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_duplicate_formal_transfer_assignment",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_duplicate_mechanistic_targets",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_formally_backed_removed_atom_sink_remains_valid",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_nonformal_removed_atom_sink_without_authority_never_strict",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_cannot_promote_unbacked_removed_atom_sink",
+    f"{_G08_REFERENCE_INTEGRITY_FILE}::test_public_snapshot_strict_positive_is_in_production_index",
+    # -- Round 8 (§R8-11) index-partition mandatory nodes: the loader rejects
+    #    hash-coherent wrong-partition leaks, and the exact-complete partition
+    #    positive protection is preserved (production exclusion is REAL public
+    #    authority, not a mutation-runner self-assert).
+    f"{_G08_INDEX_PARTITION_FILE}::test_loader_rejects_hash_coherent_diagnostic_in_production",
+    f"{_G08_INDEX_PARTITION_FILE}::test_loader_rejects_hash_coherent_quarantine_in_production",
+    f"{_G08_INDEX_PARTITION_FILE}::test_loader_rejects_cross_index_membership",
+    f"{_G08_INDEX_PARTITION_FILE}::test_loader_accepts_exact_complete_index_partition",
+    f"{_G08_INDEX_PARTITION_FILE}::test_conditional_record_is_only_in_production_index",
+]
+
+
 def check_g08_eligibility_quarantine() -> dict:
     issues: list[str] = []
     details: dict = {}
@@ -842,10 +1201,32 @@ def check_g08_eligibility_quarantine() -> dict:
 
     details["policy_authority"] = data.get("policy_authority")
     details["engine_version"] = data.get("engine_version")
-    passed = len(issues) == 0
-    return _result(passed, "; ".join(issues) if issues else
-                   "8 policy rows + warnings + quarantine behavior + production excludes prohibited/quarantine + reasons typed",
-                   details)
+
+    # PRIMARY (§5.5): actually RUN fail-closed tests — do NOT just read the
+    # precomputed eligibility_matrix_execution.json. Proves that incomplete
+    # source, failed/partial/unmapped mapping, MCS/center-pair fallback,
+    # unknown lineage participant, and contradictory ledger state NEVER enter
+    # strict production (the Critical-2 invariants).
+    #
+    # Round 4 (§10): explicitly execute test_eligibility_cross_invariants.py and
+    # enforce the mandatory strict-semantic node manifest — deleting/renaming
+    # any required node FAILs G08 (no silent PASS on a shrunken collection).
+    fc_issues, fc_stats = _run_targeted_tests(
+        ["tests/p1/test_eligibility_fail_closed.py",
+         "tests/p1/test_eligibility_engine.py",
+         _G08_CROSS_INVARIANT_FILE,
+         _G08_REFERENCE_INTEGRITY_FILE,
+         _G08_INDEX_PARTITION_FILE], "P1-G08",
+        required_nodes=_G08_REQUIRED_NODES)
+    issues.extend(fc_issues)
+    details["fail_closed_pytest_stats"] = fc_stats
+
+    evidence = ("; ".join(issues) if issues else
+                "8 policy rows + warnings + quarantine behavior + production "
+                "excludes prohibited/quarantine + reasons typed + fail-closed "
+                "tests pass (incomplete/failed/MCS/unknown never strict)")
+    return _result(evidence=evidence, details=details,
+                   implementation_failures=issues)
 
 
 # ============================================================
@@ -859,11 +1240,20 @@ def check_g08_eligibility_quarantine() -> dict:
 from reaction_agent.config import BuildConfig as _G09_BuildConfig
 from reaction_agent.schemas.common import (  # noqa: E402
     LedgerBalanceStatus as _G09_LedgerBalanceStatus,
+    LineageResolutionQuality as _G09_LineageResolutionQuality,
+    MappingQualityClass as _G09_MappingQualityClass,
+    MappingStatus as _G09_MappingStatus,
     ParticipantRole as _G09_ParticipantRole,
+    SourceAssignmentMethod as _G09_SourceAssignmentMethod,
 )
 from reaction_agent.schemas.evidence import (  # noqa: E402
     ReactionEvidence as _G09_ReactionEvidence,
     ReactionParticipant as _G09_ReactionParticipant,
+)
+from reaction_agent.schemas.mapping import (  # noqa: E402
+    FormalMappedAtomPair as _G09_FormalMappedAtomPair,
+    FormalSourceAssignment as _G09_FormalSourceAssignment,
+    MappingReport as _G09_MappingReport,
 )
 from reaction_agent.schemas.ledger import (  # noqa: E402
     AddedAtomSource as _G09_AddedAtomSource,
@@ -890,19 +1280,95 @@ def _g09_participant(pid, side, smiles="C", charge=0, stoich=1, amn=None,
     return _G09_ReactionParticipant(**kw)
 
 
-def _g09_ev(parts, *, rid, sn="fixture_source_a", sv="v1",
-            raw="A>>B", norm="A>>B"):
-    return _G09_ReactionEvidence(
-        reaction_id=rid, source_record_id=f"src_{rid}", source_name=sn,
-        source_version=sv, raw_reaction=raw, normalized_reaction=norm,
-        direction="forward", participants=parts,
+def _g09_compliant_mapping_report():
+    """MappingReport satisfying ALL strict preconditions (§4.2):
+    fully_mapped, formal_mapped, no fallback, unique maps, full coverage."""
+    return _G09_MappingReport(
+        mapper_name="fake_mapper",
+        mapper_version="v1",
+        mapper_parameters={"timeout": "30"},
+        input_hash="inp_abc",
+        output_hash="out_def",
+        mapping_status=_G09_MappingStatus.fully_mapped,
+        mapped_heavy_atom_fraction=1.0,
+        map_number_uniqueness=True,
+        changed_atom_coverage=1.0,
+        formal_mapped_source_assignment=_G09_FormalSourceAssignment(
+            mapper_name="fake_mapper",
+            mapper_version="v1",
+            mapped_atom_pairs=[
+                _G09_FormalMappedAtomPair(
+                    reactant_participant_id="r1", reactant_atom_map=1,
+                    product_participant_id="p1", product_atom_map=1,
+                ),
+                _G09_FormalMappedAtomPair(
+                    reactant_participant_id="r1", reactant_atom_map=2,
+                    product_participant_id="p1", product_atom_map=2,
+                ),
+            ],
+            assignment_method=_G09_SourceAssignmentMethod.formal_mapped,
+            assignment_quality=_G09_MappingQualityClass.high_quality,
+            assignment_ambiguity=False,
+        ),
+        fallback_method=None,
     )
 
 
-def _g09_lin(rp, pp, am=None, amb="none"):
+def _g09_partial_mapping_report():
+    """Internally consistent partial mapping for the diagnostic fixture.
+
+    Atom 3 on the product has no identified source, so the report must not
+    claim fully_mapped or full changed-atom coverage.  This contradiction was
+    detected by the independent P1-G10 Round-1 audit.
+    """
+    return _G09_MappingReport(
+        mapper_name="fixture_partial_mapper",
+        mapper_version="v1",
+        mapper_parameters={"mode": "curated_partial_fixture"},
+        input_hash="inp_partial_abc",
+        output_hash="out_partial_def",
+        mapping_status=_G09_MappingStatus.partially_mapped,
+        mapped_heavy_atom_fraction=2.0 / 3.0,
+        map_number_uniqueness=True,
+        changed_atom_coverage=0.0,
+        formal_mapped_source_assignment=_G09_FormalSourceAssignment(
+            mapper_name="fixture_partial_mapper",
+            mapper_version="v1",
+            mapped_atom_pairs=[
+                _G09_FormalMappedAtomPair(
+                    reactant_participant_id="r1", reactant_atom_map=1,
+                    product_participant_id="p1", product_atom_map=1,
+                ),
+                _G09_FormalMappedAtomPair(
+                    reactant_participant_id="r1", reactant_atom_map=2,
+                    product_participant_id="p1", product_atom_map=2,
+                ),
+            ],
+            assignment_method=_G09_SourceAssignmentMethod.formal_mapped,
+            assignment_quality=_G09_MappingQualityClass.acceptable,
+            assignment_ambiguity=False,
+        ),
+        fallback_method=None,
+    )
+
+
+def _g09_ev(parts, *, rid, sn="fixture_source_a", sv="v1",
+            raw="A>>B", norm="A>>B", mapping_report=None):
+    if mapping_report is None:
+        mapping_report = _g09_compliant_mapping_report()
+    return _G09_ReactionEvidence(
+        reaction_id=rid, source_record_id=f"src_{rid}", source_name=sn,
+        source_version=sv, raw_reaction=raw, normalized_reaction=norm,
+        direction="forward", participants=parts, mapping_report=mapping_report,
+    )
+
+
+def _g09_lin(rp, pp, am=None, amb="none",
+             rq=_G09_LineageResolutionQuality.resolved):
     return _G09_ResolvedTransformedLineage(
         lineage_id=f"lin_{rp}_{pp}", reactant_participant_id=rp,
         product_participant_id=pp, ambiguity=amb, transformed_atom_maps=am or [],
+        resolution_quality=rq,
     )
 
 
@@ -923,17 +1389,18 @@ def _g09_role(pid, role="transformed_substrate"):
 
 
 def _g09_item_strict(rid="rxn_strict_001", sn="fixture_source_a"):
-    r1 = _g09_participant("r1", "reactant", "CCO", amn=[1, 2])
-    p1 = _g09_participant("p1", "product", "CC(=O)O", amn=[1, 2])
-    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CCO>>CC(=O)O", norm="CCO>>CC(=O)O")
+    # R7-01B: genuine fully-mapped baseline — CC (2 heavy atoms) with 2 maps.
+    r1 = _g09_participant("r1", "reactant", "CC", amn=[1, 2])
+    p1 = _g09_participant("p1", "product", "CC", amn=[1, 2])
+    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CC>>CC", norm="CC>>CC")
     ld = _g09_ledger(rid, ra=[_g09_role("r1"), _g09_role("p1", "transformed_product")])
     return _G09_SnapshotEvidenceItem(ev, ld, [_g09_lin("r1", "p1", [1, 2])])
 
 
 def _g09_item_conditional(rid="rxn_cond_001", sn="fixture_source_a"):
-    r1 = _g09_participant("r1", "reactant", "CCO", amn=[1, 2])
-    p1 = _g09_participant("p1", "product", "CC(=O)O", amn=[1, 2])
-    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CCO>>CC(=O)O", norm="CCO>>CC(=O)O")
+    r1 = _g09_participant("r1", "reactant", "CC", amn=[1, 2])
+    p1 = _g09_participant("p1", "product", "CC", amn=[1, 2])
+    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CC>>CC", norm="CC>>CC")
     ld = _g09_ledger(
         rid, bs=_G09_LedgerBalanceStatus.heavy_atom_balanced_with_implicit_h_e_policy,
         hp="implicit_heavy_atom_balanced_h_policy",
@@ -942,9 +1409,12 @@ def _g09_item_conditional(rid="rxn_cond_001", sn="fixture_source_a"):
 
 
 def _g09_item_diagnostic(rid="rxn_diag_001", sn="fixture_source_a"):
-    r1 = _g09_participant("r1", "reactant", "CCO", amn=[1, 2], mf=0.5)
-    p1 = _g09_participant("p1", "product", "CC(=O)O", amn=[1, 2, 3], caf=0.3)
-    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CCO>>CC(=O)O", norm="CCO>>CC(=O)O")
+    r1 = _g09_participant("r1", "reactant", "CC", amn=[1, 2], mf=0.5)
+    p1 = _g09_participant("p1", "product", "CCC", amn=[1, 2, 3], caf=0.3)
+    ev = _g09_ev(
+        [r1, p1], rid=rid, sn=sn, raw="CC>>CCC", norm="CC>>CCC",
+        mapping_report=_g09_partial_mapping_report(),
+    )
     ld = _g09_ledger(
         rid, bs=_G09_LedgerBalanceStatus.partial_or_unbalanced_source,
         aas=[_G09_AddedAtomSource(atom_map_number=3, source_participant_id="unknown_source")],
@@ -953,11 +1423,17 @@ def _g09_item_diagnostic(rid="rxn_diag_001", sn="fixture_source_a"):
 
 
 def _g09_item_quarantine(rid="rxn_quar_001", sn="fixture_source_a"):
-    r1 = _g09_participant("r1", "reactant", "CCO", amn=[1, 2])
-    p1 = _g09_participant("p1", "product", "CC(=O)O", amn=[1, 2])
-    ev = _g09_ev([r1, p1], rid=rid, sn=sn, raw="CCO>>CC(=O)O", norm="CCO>>CC(=O)O")
+    # A genuine charge-imbalanced record: +1 reactant -> neutral product.
+    # The ledger records product_charge - reactant_charge = -1.
+    r1 = _g09_participant("r1", "reactant", "C[CH2+]", charge=1, amn=[1, 2])
+    p1 = _g09_participant("p1", "product", "CC", amn=[1, 2])
+    ev = _g09_ev(
+        [r1, p1], rid=rid, sn=sn,
+        raw="[CH3:1][CH2+:2]>>[CH3:1][CH3:2]",
+        norm="[CH3:1][CH2+:2]>>[CH3:1][CH3:2]",
+    )
     ld = _g09_ledger(
-        rid, bs=_G09_LedgerBalanceStatus.partial_or_unbalanced_source, cb=1,
+        rid, bs=_G09_LedgerBalanceStatus.partial_or_unbalanced_source, cb=-1,
         ra=[_g09_role("r1"), _g09_role("p1", "transformed_product")])
     return _G09_SnapshotEvidenceItem(ev, ld, [_g09_lin("r1", "p1", [1, 2])])
 
@@ -991,6 +1467,108 @@ def _g09_t10_fixture_config(output_root: str) -> _G09_BuildConfig:
         eligibility_policy_version="p1-1",
         random_seed=42,
     )
+
+
+# Round 4 (§11) mandatory G09 test-node manifest: the complete-evidence hash
+# and tamper-rejection tests that MUST be collected and pass. Explicit node IDs
+# so deleting/renaming the complete-evidence file (or any required node) FAILs
+# G09 instead of silently passing on a shrunken collection count.
+_G09_COMPLETE_EVIDENCE_FILE = "tests/p1/test_snapshot_complete_evidence.py"
+# Round 8: diagnostic-integrity / index-partition authority (same file as G08)
+_G09_INDEX_PARTITION_FILE = "tests/p1/test_snapshot_nested_evidence.py"
+# Round 10 (Task A): manifest type-authority — record-count / lane-count /
+# source-count / failure-count boolean+float rejection, missing/wrong-type
+# build_status, top-level non-object rejection, nested versions/source_files/
+# record-hash type rejection, recomputed returned counts / source_counts, the
+# all-four-lanes positive protection, and all required-field deletion coverage.
+_G09_MANIFEST_AUTHORITY_FILE = "tests/p1/test_manifest_authority_type_integrity.py"
+_G09_REQUIRED_NODES = [
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_snapshot_hash_changes_when_reaction_provenance_changes",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_snapshot_hash_changes_when_reaction_ambiguity_sets_change",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_snapshot_hash_changes_when_reaction_quarantine_changes",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_snapshot_persists_complete_reaction_evidence_model",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_snapshot_persists_complete_eligibility_decision",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_snapshot_persists_complete_quarantine_record",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_loader_rejects_tampered_reaction_level_provenance",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_loader_rejects_tampered_decision_warning_or_evidence_ids",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_loader_rejects_tampered_quarantine_record",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_embedded_and_external_ledgers_cannot_disagree",
+    f"{_G09_COMPLETE_EVIDENCE_FILE}::test_snapshot_id_or_runtime_exclusion_policy_is_explicit",
+    # -- Round 8 (§R8-12) diagnostic-integrity mandatory nodes: the loader does
+    #    NOT trust index self-reported hashes, the diagnostic index is bound
+    #    into immutable snapshot integrity, the indexes are an exact complete
+    #    partition, and index content tampering / missing members are rejected.
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_missing_diagnostic_member_without_metadata_change",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_missing_production_member",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_missing_quarantine_member",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_duplicate_records_reaction_id",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_duplicate_index_reaction_id",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_mutated_nested_production_index_payload",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_mutated_nested_diagnostic_index_payload",
+    f"{_G09_INDEX_PARTITION_FILE}::test_diagnostic_index_content_changes_snapshot_hash",
+    f"{_G09_INDEX_PARTITION_FILE}::test_snapshot_manifest_persists_diagnostic_index_hash",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_accepts_exact_complete_index_partition",
+    # -- Round 9 (§R9-9) manifest-authority mandatory nodes: the loader
+    #    validates the on-disk manifest envelope (required fields, counts,
+    #    record hash list, three index hashes, source summaries, failure
+    #    summaries, snapshot identity) against verified artifacts and fails
+    #    closed with manifest-specific tokens.
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_missing_manifest_diagnostic_index_hash",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_count_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_record_count_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_record_hashes_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_production_index_hash_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_diagnostic_index_hash_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_quarantine_index_hash_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_source_counts_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_source_hash_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_manifest_failure_counts_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_rejects_snapshot_identity_mismatch",
+    f"{_G09_INDEX_PARTITION_FILE}::test_loader_accepts_verified_manifest_authority",
+    # -- Round 10 (Task A) manifest type-authority mandatory nodes (38). The
+    #    full node IDs come from the ACTUAL pytest collection of
+    #    test_manifest_authority_type_integrity.py (Task A §12 handoff). Deleting
+    #    or renaming any one of them FAILs G09 — never a silent PASS on a
+    #    shrunken collection.
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_record_count_bool",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_included_strict_count_bool",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_conditional_count_bool",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_diagnostic_count_bool",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_quarantine_count_bool",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_source_count_bool",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_source_count_float",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_failure_count_bool",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_failure_count_float",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_manifest_build_status",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_build_status_wrong_type",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_non_object_manifest",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_versions_nested_wrong_type",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_source_files_nested_wrong_type",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_manifest_record_hash_list_nested_wrong_type",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_returns_recomputed_manifest_counts",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_returns_recomputed_source_counts",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_accepts_round10_verified_manifest_all_four_lanes",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[snapshot_id]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[schema_version]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[included_strict_count]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[conditional_count]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[diagnostic_count]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[quarantine_count]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[build_status]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[snapshot_hash]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[build_id]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[source_counts]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[policy_version]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[record_count]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[versions]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[source_files]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[failure_counts_by_reason]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[record_content_hashes]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[production_index_hash]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[diagnostic_index_hash]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[quarantine_index_hash]",
+    f"{_G09_MANIFEST_AUTHORITY_FILE}::test_loader_rejects_missing_required_manifest_field[build_config_hash]",
+]
 
 
 def check_g09_snapshot_reproducibility() -> dict:
@@ -1123,12 +1701,30 @@ def check_g09_snapshot_reproducibility() -> dict:
     rch = on_disk.get("record_content_hashes", [])
     details["record_content_hashes_count"] = len(rch)
 
-    passed = len(issues) == 0
-    return _result(passed, "; ".join(issues) if issues else
-                   "INDEPENDENT rebuild (2x same hash) + cross-verify stored hash + "
-                   "deterministic 3-way + content hash + manifest complete + "
-                   "filters counted + frozen + read-only loader",
-                   details)
+    # PRIMARY (§5.6): actually RUN nested-evidence mutation tests — proves
+    # that mutating participant / mapping_report / source_ledger / lineage
+    # changes the snapshot hash AND that the loader rejects the tampered
+    # records (Critical-1). Beyond the determinism rebuild above.
+    #
+    # Round 4 (§11): explicitly execute test_snapshot_complete_evidence.py and
+    # enforce the mandatory complete-evidence / tamper node manifest — deleting
+    # or renaming any required node FAILs G09 (no silent PASS).
+    nest_issues, nest_stats = _run_targeted_tests(
+        ["tests/p1/test_snapshot_nested_evidence.py",
+         "tests/p1/test_snapshot_builder.py",
+         _G09_COMPLETE_EVIDENCE_FILE,
+         _G09_MANIFEST_AUTHORITY_FILE], "P1-G09",
+        required_nodes=_G09_REQUIRED_NODES)
+    issues.extend(nest_issues)
+    details["nested_mutation_pytest_stats"] = nest_stats
+
+    evidence = ("; ".join(issues) if issues else
+                "INDEPENDENT rebuild (2x same hash) + cross-verify stored hash + "
+                "deterministic 3-way + content hash + manifest complete + "
+                "filters counted + frozen + read-only loader + nested-evidence "
+                "mutation/tamper tests pass")
+    return _result(evidence=evidence, details=details,
+                   implementation_failures=issues)
 
 
 # ============================================================
@@ -1153,12 +1749,61 @@ def check_g10_manual_audit_tests() -> dict:
     details["annotator_b_status"] = audit.get("annotator_b_status")
     details["adjudication_status"] = audit.get("adjudication_status")
 
-    if audit.get("annotator_a_status") != "COMPLETE":
-        blocked_reasons.append(f"annotator_a={audit.get('annotator_a_status')}")
-    if audit.get("annotator_b_status") != "COMPLETE":
-        blocked_reasons.append(f"annotator_b={audit.get('annotator_b_status')}")
-    if audit.get("adjudication_status") != "COMPLETE":
-        blocked_reasons.append(f"adjudication={audit.get('adjudication_status')}")
+    # 1. double annotation status — external blocker if not produced
+    for role in ("annotator_a_status", "annotator_b_status", "adjudication_status"):
+        if audit.get(role) != "COMPLETE":
+            blocked_reasons.append(f"{role}={audit.get(role)}")
+
+    # §5.7: status=COMPLETE but annotation file null/missing → implementation
+    # FAILURE (fake complete), NOT a blocker. Catches the M22 mutation where
+    # statuses are COMPLETE but annotator_a_file/annotator_b_file are null.
+    for role, file_key, id_key in (
+        ("annotator_a_status", "annotator_a_file", "annotator_a_id"),
+        ("annotator_b_status", "annotator_b_file", "annotator_b_id"),
+    ):
+        if audit.get(role) == "COMPLETE":
+            f = audit.get(file_key)
+            if not f:
+                issues.append(f"{role}=COMPLETE but {file_key} is null/missing (fake complete, §5.7)")
+            else:
+                fpath = f if os.path.isabs(f) else os.path.join(DEMOV2_ROOT, f)
+                if not os.path.isfile(fpath):
+                    issues.append(f"{file_key}={f!r} does not exist (claimed COMPLETE)")
+                else:
+                    try:
+                        _read_json(fpath)
+                    except Exception as e:  # noqa: BLE001
+                        issues.append(f"{file_key}={f!r} not parseable: {e}")
+            if not audit.get(id_key):
+                issues.append(f"{id_key} empty while {role}=COMPLETE")
+
+    # adjudication file must exist when adjudication COMPLETE
+    if audit.get("adjudication_status") == "COMPLETE":
+        af = audit.get("adjudication_file")
+        if not af:
+            issues.append("adjudication_status=COMPLETE but adjudication_file is null/missing (§5.7)")
+
+    # §5.7: adjudication must cover ALL disagreements. If disagreement_count > 0
+    # but adjudication is not complete/missing → implementation FAILURE (M24).
+    disc = audit.get("disagreement_count")
+    details["disagreement_count"] = disc
+    if disc is not None and disc > 0:
+        if audit.get("adjudication_status") != "COMPLETE":
+            issues.append(
+                f"disagreement_count={disc} but adjudication_status="
+                f"{audit.get('adjudication_status')!r} (M24: adjudication must "
+                f"cover all disagreements)")
+        elif not audit.get("adjudication_file"):
+            issues.append(
+                f"disagreement_count={disc} but adjudication_file missing (M24)")
+
+    # §5.7: annotator A ID != B ID (independent annotators)
+    aid = audit.get("annotator_a_id")
+    bid = audit.get("annotator_b_id")
+    details["annotator_a_id"] = aid
+    details["annotator_b_id"] = bid
+    if aid and bid and aid == bid:
+        issues.append(f"annotator_a_id == annotator_b_id ({aid}) — not independent (§5.7)")
 
     # 2. threshold frozen before results
     details["protocol_frozen_before_results"] = audit.get("protocol_frozen_before_results")
@@ -1185,13 +1830,10 @@ def check_g10_manual_audit_tests() -> dict:
         if forbidden_key in audit:
             issues.append(f"forbidden §17.5 field present: {forbidden_key}")
 
-    # 5. no fabricated annotations (§17.7)
+    # 5. fabricated annotations (§17.7) — NOT_PRODUCED but file present
     ann_a = audit.get("annotator_a_file")
-    ann_b = audit.get("annotator_b_file")
-    if ann_a is not None or ann_b is not None:
-        # if status is NOT_PRODUCED but file is not null → fabricated
-        if audit.get("annotator_a_status") == "NOT_PRODUCED" and ann_a is not None:
-            issues.append("fabricated annotator_a file (§17.7 violation)")
+    if audit.get("annotator_a_status") == "NOT_PRODUCED" and ann_a is not None:
+        issues.append("fabricated annotator_a file (§17.7 violation)")
 
     details["pass_status"] = audit.get("pass_status")
     details["block_reason"] = audit.get("block_reason", "")[:80] if audit.get("block_reason") else None
@@ -1219,9 +1861,9 @@ def check_g10_manual_audit_tests() -> dict:
             details["pytest_stats"] = stats
         issues.append(
             f"pytest timed out after 1200s (stats so far: {stats})")
-        passed = len(issues) == 0
-        return _result(passed, "; ".join(issues) if issues else
-                       "pytest timed out", details)
+        return _result(evidence="; ".join(issues), details=details,
+                       implementation_failures=issues,
+                       external_blockers=blocked_reasons)
     stats = {}
     if os.path.isfile(report_file):
         stats = _parse_pytest_stats(_read_json(report_file))
@@ -1237,15 +1879,21 @@ def check_g10_manual_audit_tests() -> dict:
     else:
         issues.append("no pytest-json-report output")
 
-    blocked = len(blocked_reasons) > 0
-    if blocked:
-        return _result(False,
-                       f"BLOCKED: {'; '.join(blocked_reasons)}",
-                       details, blocked=True)
-    passed = len(issues) == 0
-    return _result(passed, "; ".join(issues) if issues else
-                   f"double annotation complete + adjudication complete + thresholds frozen + catastrophic=0 + tests {stats.get('passed')}/{stats.get('collected')} zero-skip",
-                   details)
+    # §5.1: do NOT early-return BLOCKED — implementation issues (fake complete,
+    # missing files, forbidden fields, test failures) are reported alongside
+    # external blockers. BLOCKED only when no impl failures.
+    if blocked_reasons:
+        evidence = f"BLOCKED: {'; '.join(blocked_reasons)}"
+        if issues:
+            evidence += f"; IMPLEMENTATION ISSUES: {'; '.join(issues)}"
+    else:
+        evidence = "; ".join(issues) if issues else (
+            f"double annotation complete + adjudication complete + thresholds "
+            f"frozen + catastrophic=0 + tests {stats.get('passed')}/{stats.get('collected')} zero-skip"
+        )
+    return _result(evidence=evidence, details=details,
+                   implementation_failures=issues,
+                   external_blockers=blocked_reasons)
 
 
 # ============================================================
@@ -1335,19 +1983,67 @@ def run_all() -> tuple[list[dict], dict]:
     return checks, env
 
 
-def generate_report(checks: list[dict], env: dict):
-    os.makedirs(REPORT_DIR, exist_ok=True)
-    pass_count = sum(1 for c in checks if c["passed"])
-    block_count = sum(1 for c in checks if c.get("blocked"))
-    fail_count = sum(1 for c in checks if not c["passed"] and not c.get("blocked"))
-    all_passed = pass_count == len(checks)
+def aggregate_gate_status(checks: list[dict]) -> dict:
+    """§5.1 aggregation authority — the SINGLE source of truth.
 
+    Categorizes each gate into implementation-FAIL vs external-BLOCKED, computes
+    counts, and derives the overall status. BLOCKED never masks an
+    implementation FAIL: a gate carrying BOTH an impl failure and an external
+    blocker is counted as FAIL. Legacy gates (no explicit impl/blocker lists)
+    fall back to passed/blocked.
+
+    Both ``generate_report`` and the M25 mutation call this function so the
+    mutation verifies the REAL aggregation, not a copied replica (§8.2).
+    """
+    impl_fail_gates: list[str] = []
+    blocked_gates: list[str] = []
+    for c in checks:
+        has_impl = bool(c.get("implementation_failures"))
+        has_blocker = bool(c.get("external_blockers"))
+        if has_impl:
+            impl_fail_gates.append(c["gate_id"])
+        elif has_blocker:
+            blocked_gates.append(c["gate_id"])
+        elif not c["passed"] and c.get("blocked"):
+            blocked_gates.append(c["gate_id"])  # legacy blocked
+        elif not c["passed"] and not c.get("blocked"):
+            impl_fail_gates.append(c["gate_id"])  # legacy FAIL
+    pass_count = sum(1 for c in checks if c["passed"])
+    fail_count = len(impl_fail_gates)
+    block_count = len(blocked_gates)
+    all_passed = pass_count == len(checks)
     if all_passed:
         status = "READY_FOR_CHATGPT_P1_AUDIT"
-    elif block_count > 0 and fail_count == 0:
+    elif fail_count > 0:
+        # Implementation FAIL present — never masked by BLOCKED (§5.1).
+        status = "NOT_READY_FOR_CHATGPT_AUDIT"
+    elif block_count > 0:
         status = "BLOCKED"
     else:
         status = "NOT_READY_FOR_CHATGPT_AUDIT"
+    return {
+        "impl_fail_gates": impl_fail_gates,
+        "blocked_gates": blocked_gates,
+        "pass_count": pass_count,
+        "fail_count": fail_count,
+        "block_count": block_count,
+        "all_passed": all_passed,
+        "status": status,
+    }
+
+
+def generate_report(checks: list[dict], env: dict):
+    os.makedirs(REPORT_DIR, exist_ok=True)
+    # §5.1 status model (single authority): impl failures and external blockers
+    # are tracked separately; BLOCKED never covers an implementation FAIL.
+    agg = aggregate_gate_status(checks)
+    impl_fail_gates = agg["impl_fail_gates"]
+    blocked_gates = agg["blocked_gates"]
+    pass_count = agg["pass_count"]
+    fail_count = agg["fail_count"]
+    block_count = agg["block_count"]
+    all_passed = agg["all_passed"]
+    status = agg["status"]
 
     # attach evidence paths
     for c in checks:
@@ -1375,13 +2071,13 @@ def generate_report(checks: list[dict], env: dict):
         },
         "preflight_context": {
             "status": "BLOCKED",
-            "blockers": ["rdkit_absent", "real_reaction_source_not_confirmed",
+            "blockers": ["real_reaction_source_not_confirmed",
                          "required_case_missing"],
-            "impact": "G03 (real source), G04 (rdkit mapping), G10 (proline-2OG in audit) blocked by preflight",
+            "impact": "G03 (real source not confirmed), G04 (RealMapperAdapter skeleton not implemented), G10 (independent annotator/adjudicator not produced) blocked by external inputs; rdkit is available at runtime (no longer a blocker)",
         },
         "deviations": [
             "Execution model: ChatGPT-designed P1 tasks executed by Claude Code subagent (documented in SUBMISSION §15)",
-            "rdkit absent: T4 mapping integration, T6 lineage on real data, T7 source ledger balance blocked — unit contracts complete via FakeAtomMapper + structured fixtures",
+            "rdkit available at runtime: G03 no longer reports rdkit_absent; remaining G03 blocker is real reaction source not confirmed; G04 blocker is RealMapperAdapter.map_reaction() skeleton (a scoped follow-up), not rdkit",
             "Manual audit BLOCKED: no independent second annotator available in single LLM session (§17.1/§17.7)",
         ],
         "assumptions": [
@@ -1390,7 +2086,7 @@ def generate_report(checks: list[dict], env: dict):
             "P0 baseline 290 + Gate 10/10 preserved (G02 re-runs P0 gate to verify no regression)",
         ],
         "known_risks": [
-            "G03/G04/G10 BLOCKED by preflight (rdkit/real-source/annotator) — cannot be resolved without external dependencies",
+            "G03/G04/G10 BLOCKED by external inputs (real-source / skeleton mapper / independent annotator) — cannot be resolved without external dependencies; rdkit is available and is no longer a blocker",
             "Fixture snapshot (4 synthetic records) is not real production data — audit validates pipeline contract, not real chemistry",
             "Proline-2OG case (H2) absent from fixture snapshot — cannot be evaluated until real data available",
         ],

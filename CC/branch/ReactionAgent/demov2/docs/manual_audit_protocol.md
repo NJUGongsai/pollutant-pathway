@@ -1,10 +1,26 @@
 # Manual Audit Protocol (§17)
 
 **Task:** P1-T11 — Manual audit protocol (L2 double-blind annotation + adjudication)
-**Status:** FROZEN — thresholds frozen BEFORE any results (§17.6)
-**Frozen at:** 2026-07-30T00:00:00+00:00 (protocol mtime precedes any audit report)
-**Protocol version:** `p1-t11-1`
+**Status:** FROZEN FOR ROUND 3 — thresholds unchanged and frozen before Round 3 results (§17.6)
+**Original threshold freeze:** 2026-07-30T00:00:00+00:00
+**Protocol version:** `p1-t11-3`
 **Authority:** `final_plan.md` §4.12 + `docs/superpowers/plans/2026-07-29-p1-data-foundation.md` Task 11
+
+> **Round-2 factual-label addendum:** Round 1 found that the original fixture
+> manifest described chemistry and participant/cofactor strata that were not
+> present in the serialized records. Version 2 corrects those factual labels,
+> adds replay evidence and real required-case quarantine evidence, and is
+> frozen before any Round-2 annotations. **H1-H7 and Q1-Q4 are unchanged.**
+> Round-1 judgments remain archived under `reports/p1/g10_round_1/`.
+
+> **Round-3 applicability addendum:** Round 2 passed H1-H7 and all four
+> domain scores, but failed frozen Q1 because Annotator A used
+> `not_applicable` for R7/R9/R11 on some fixture rows while Annotator B scored
+> the same snapshot-level conditions as `pass`. The independent adjudicator
+> resolved all ten such disagreements as `pass`. Version 3 freezes the exact
+> per-record interpretation below before Round-3 annotations. It changes no
+> evidence, result, hard condition, quality threshold, or score formula.
+> Round 2 remains archived as FAIL under `reports/p1/g10_round_2/`.
 
 > **§17.1 Iron rule (命根子):** The audit must use **two independent annotators**
 > (distinct agent IDs / distinct human reviewers), each blind to the other's
@@ -46,10 +62,10 @@ dimensions required by `final_plan.md` §4.12 ("覆盖"):
 
 | # | Stratum dimension | Values sampled |
 |---|-------------------|----------------|
-| 1 | Reaction class | oxidation / reduction / hydroxylation / hydrolysis / transfer / cleavage |
-| 2 | Participant count | single-reactant / multi-reactant / single-product / multi-product |
-| 3 | Mapping quality | strict / conditional / diagnostic / quarantine |
-| 4 | Cofactor pattern | with-cofactor / no-cofactor |
+| 1 | Reaction class | observed transformation class derived from the serialized fixture reaction |
+| 2 | Participant count | exact reactant/product participant count in the serialized record |
+| 3 | Mapping quality | exact `MappingReport.mapping_status`; eligibility lane is reported separately |
+| 4 | Cofactor pattern | derived from retained participant/role evidence; never inferred from an intended reaction |
 | 5 | Source | per `source_name` in snapshot |
 | 6 | Ledger status | balanced / unbalanced / unknown |
 | 7 | Quarantine reason | per `failure_counts_by_reason` key |
@@ -65,6 +81,13 @@ dimensions required by `final_plan.md` §4.12 ("覆盖"):
 conditional=1, diagnostic=1, quarantine=1). This is a small dataset → **full
 census** (all 4 records audited). The manifest records `sample_strategy:
 "census"` and `random_seed: null` (no sampling performed).
+
+The fixture census covers all strata that actually occur in this four-record
+contract fixture. It does **not** establish chemical-diversity or production
+performance coverage: the records contain one reactant and one product each,
+and no retained participant is assigned the cofactor role. Those absent strata
+are disclosed rather than invented. Real-data chemical coverage belongs to the
+later benchmark/evaluation snapshot.
 
 > **Fixture labeling:** The T10 snapshot is a **fixture** snapshot
 > (`source_name = "fixture_source_a"`), not real data. The manifest and report
@@ -92,6 +115,26 @@ within that domain.
 | R9 | Production index exclusion | ledger | Quarantine records do NOT appear in the production index; production excludes quarantine |
 | R10 | Snapshot determinism | ledger | Same source + same config + same versions → identical snapshot hash (replayable) |
 | R11 | Proline-2OG specific case | lineage | Proline→hydroxyproline AND 2-oxoglutarate→succinate lineages are correct OR the case is quarantined; forbidden lineage 2-OG→hydroxyproline does NOT appear |
+
+### §17.3.1 Current-census applicability (FROZEN for Round 3)
+
+The current manifest explicitly lists R1-R11 as applicable for every one of
+the four census rows. Therefore every current-cell verdict is `pass` or
+`fail`; `not_applicable` is not valid for this manifest. A future manifest may
+use `not_applicable` only by omitting or explicitly marking the rubric for that
+sample before annotation.
+
+The three previously ambiguous rubrics are evaluated as follows:
+
+| Rubric | Quarantine/required-case row | Other current census rows |
+|---|---|---|
+| R7 | Pass when the quarantine record and typed reason correctly explain the exclusion; fail otherwise. | Pass when no quarantine record/reason is spuriously attached and the record's actual non-quarantine lane is preserved; fail otherwise. |
+| R9 | Pass only when the quarantine row is absent from production and present only in its authorized index. | Pass when the row's index membership matches its eligibility lane and it does not create quarantine-to-production leakage; fail otherwise. |
+| R11 | Evaluate the real required-case evidence globally: correct resolution or explicit quarantine, and no forbidden production lineage. | Repeat the same global packet judgment for denominator consistency; this does not claim the fixture row itself is proline/2OG. |
+
+R10 is likewise a global snapshot replay condition repeated for each census
+row. This fixed interpretation preserves the protocol's frozen denominator of
+`11 × sample_size` and prevents post-hoc annotator choice of the denominator.
 
 **Per-domain score aggregation:**
 - `mapping_rubric_score` = mean(R1, R5)  — 2 items
@@ -249,7 +292,7 @@ Step 9: Checkpoint report + worklog
 
 | File | Status (current cycle) |
 |------|----------------------|
-| `docs/manual_audit_protocol.md` | PRODUCED (this file, frozen) |
+| `docs/manual_audit_protocol.md` | PRODUCED (this file, Round-2 revision frozen before Round-2 results) |
 | `schemas/json/ManualAuditRecord.json` | PRODUCED (T2 schema export) |
 | `reports/p1/manual_audit_sample_manifest.json` | PRODUCED (census of T10 fixture) |
 | `reports/p1/manual_audit_annotations_a.json` | NOT PRODUCED (BLOCKED — no second annotator) |

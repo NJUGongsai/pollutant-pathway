@@ -1,0 +1,315 @@
+{
+  "schema_version": "p1-t11-adjudication-1",
+  "status": "COMPLETE",
+  "adjudicator_id": "codex-g10-r2-adjudicator-20260802",
+  "submitted_at": "2026-08-02T06:20:09Z",
+  "independence": {
+    "session_kind": "codex_internal_subagent",
+    "independent_of_annotators": true,
+    "annotator_conversations_read": false,
+    "allowed_inputs": [
+      "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2/docs/manual_audit_protocol.md",
+      "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_evidence_packet.json",
+      "/private/tmp/p1_g10_r2_adjudication_packet.json"
+    ]
+  },
+  "evidence_packet_sha256": "297100e84e2f93847a6b4fe1a04074f1f18d3a3b7f568d5fd0eb94ca8cf622e1",
+  "annotation_a_sha256": "ff5219b928631dfef9d81e930bbd2e19fca24ac9932f8df2a6a4b33673b6f167",
+  "annotation_b_sha256": "f0295b397c30aec4ea0639434a172bc9302059b9c75a3c5a1b570134df37a9fa",
+  "disagreement_count": 10,
+  "outcomes": [
+    {
+      "disagreement_id": "audit_001:R11",
+      "final_value": "pass",
+      "reason": "R11 is listed as applicable to every census item, and the separate real required-case evidence satisfies its quarantine branch: all three rows are quarantined, production-ineligible, and free of the prohibited lineage.",
+      "evidence_pointer": "$.sample_manifest.items[0].rubric_items_applicable; $.real_required_case_evidence.new_pipeline_quarantine"
+    },
+    {
+      "disagreement_id": "audit_001:R7",
+      "final_value": "pass",
+      "reason": "R7 is listed as applicable, and this strict record is correctly represented as not quarantined, with a null quarantine record and a census quarantine label of none.",
+      "evidence_pointer": "$.sample_manifest.items[0]; $.records[3].quarantine_record; $.records[3].eligibility_decision.quarantine_behavior"
+    },
+    {
+      "disagreement_id": "audit_001:R9",
+      "final_value": "pass",
+      "reason": "The index membership proves the production-exclusion invariant: the only quarantine member is rxn_quar_001 and it is absent from production; the strict record's production membership is consistent with its lane.",
+      "evidence_pointer": "$.index_membership; $.records[3].lane"
+    },
+    {
+      "disagreement_id": "audit_002:R11",
+      "final_value": "pass",
+      "reason": "R11 is listed as applicable to every census item, and the real required-case rows satisfy the permitted quarantine outcome with no production eligibility, resolved lineage, or prohibited lineage.",
+      "evidence_pointer": "$.sample_manifest.items[1].rubric_items_applicable; $.real_required_case_evidence.new_pipeline_quarantine"
+    },
+    {
+      "disagreement_id": "audit_002:R7",
+      "final_value": "pass",
+      "reason": "R7 is listed as applicable, and the conditional record is consistently represented as not quarantined, with a null quarantine record and a census quarantine label of none.",
+      "evidence_pointer": "$.sample_manifest.items[1]; $.records[0].quarantine_record; $.records[0].eligibility_decision.quarantine_behavior"
+    },
+    {
+      "disagreement_id": "audit_002:R9",
+      "final_value": "pass",
+      "reason": "The conditional record is validly in production, while the only quarantine member is disjoint from production, so the production-exclusion requirement is met.",
+      "evidence_pointer": "$.index_membership; $.records[0].lane"
+    },
+    {
+      "disagreement_id": "audit_003:R11",
+      "final_value": "pass",
+      "reason": "R11 is listed as applicable to every census item, and all three real required-case rows are explicitly quarantined with zero production-eligible rows and zero prohibited lineage outputs.",
+      "evidence_pointer": "$.sample_manifest.items[2].rubric_items_applicable; $.real_required_case_evidence.new_pipeline_quarantine"
+    },
+    {
+      "disagreement_id": "audit_003:R7",
+      "final_value": "pass",
+      "reason": "R7 is listed as applicable, and the diagnostic record is consistently represented as not quarantined, with no quarantine record and a census quarantine label of none.",
+      "evidence_pointer": "$.sample_manifest.items[2]; $.records[1].quarantine_record; $.records[1].eligibility_decision.quarantine_behavior"
+    },
+    {
+      "disagreement_id": "audit_003:R9",
+      "final_value": "pass",
+      "reason": "The diagnostic record is absent from production and listed only in the diagnostic index, while the quarantine member is also absent from production, satisfying the exclusion invariant.",
+      "evidence_pointer": "$.index_membership; $.records[1].lane"
+    },
+    {
+      "disagreement_id": "audit_004:R11",
+      "final_value": "pass",
+      "reason": "R11 is listed as applicable to every census item, and the real required-case evidence shows all three rows explicitly quarantined, excluded from production, and carrying no prohibited lineage.",
+      "evidence_pointer": "$.sample_manifest.items[3].rubric_items_applicable; $.real_required_case_evidence.new_pipeline_quarantine"
+    }
+  ],
+  "catastrophic_final_by_sample": {
+    "audit_001": {
+      "C1": {
+        "observed": false,
+        "reason": "The strict production member is an internally consistent CC identity fixture and has no known-correct mismatch classification.",
+        "evidence_pointer": "$.records[3]; $.index_membership.production"
+      },
+      "C2": {
+        "observed": false,
+        "reason": "The real required-case rows are all explicitly quarantined, production-ineligible, and contain no prohibited lineage.",
+        "evidence_pointer": "$.real_required_case_evidence.new_pipeline_quarantine"
+      },
+      "C3": {
+        "observed": false,
+        "reason": "The record has no ambiguity sets or assignment ambiguity, and its sole lineage is marked with no ambiguity.",
+        "evidence_pointer": "$.records[3].reaction_evidence.ambiguity_sets; $.records[3].reaction_evidence.mapping_report.source_assignment_ambiguity; $.records[3].resolved_lineages[0].ambiguity"
+      },
+      "C4": {
+        "observed": false,
+        "reason": "The quarantine member is rxn_quar_001 only and is absent from production.",
+        "evidence_pointer": "$.index_membership"
+      },
+      "C5": {
+        "observed": false,
+        "reason": "Both serialized participants are retained and both have ledger role assignments.",
+        "evidence_pointer": "$.records[3].reaction_evidence.participants; $.records[3].source_ledger.role_assignments"
+      },
+      "C6": {
+        "observed": false,
+        "reason": "The source assignment is explicitly formal and no mechanistic origin is asserted.",
+        "evidence_pointer": "$.records[3].reaction_evidence.mapping_report"
+      },
+      "C7": {
+        "observed": false,
+        "reason": "Both executed builds, the no-write hash operation, and both accepted loader replays preserve the same snapshot hash, identifier, and record hashes.",
+        "evidence_pointer": "$.snapshot_replay_evidence"
+      },
+      "C8": {
+        "observed": false,
+        "reason": "The record carries a source ledger tied to rxn_strict_001 and no candidate-ledger crossover is represented.",
+        "evidence_pointer": "$.records[3].source_ledger"
+      },
+      "C9": {
+        "observed": false,
+        "reason": "The identity fixture has zero charge imbalance and no added unknown atom source, consistent with its fully balanced label.",
+        "evidence_pointer": "$.records[3].source_ledger"
+      }
+    },
+    "audit_002": {
+      "C1": {
+        "observed": false,
+        "reason": "The conditional production member is a consistent CC identity fixture whose implicit hydrogen and electron policy is explicitly disclosed, with no known mismatch classification.",
+        "evidence_pointer": "$.records[0]; $.index_membership.production"
+      },
+      "C2": {
+        "observed": false,
+        "reason": "All real required-case rows are quarantined, production-ineligible, and have no prohibited lineage.",
+        "evidence_pointer": "$.real_required_case_evidence.new_pipeline_quarantine"
+      },
+      "C3": {
+        "observed": false,
+        "reason": "No ambiguity set or source-assignment ambiguity is present, and the one lineage reports no ambiguity.",
+        "evidence_pointer": "$.records[0].reaction_evidence.ambiguity_sets; $.records[0].reaction_evidence.mapping_report.source_assignment_ambiguity; $.records[0].resolved_lineages[0].ambiguity"
+      },
+      "C4": {
+        "observed": false,
+        "reason": "The quarantine member is absent from production, and this conditional record is not quarantined.",
+        "evidence_pointer": "$.index_membership; $.records[0].eligibility_decision.quarantine_behavior"
+      },
+      "C5": {
+        "observed": false,
+        "reason": "Both r1 and p1 remain in the participant list and ledger role assignments.",
+        "evidence_pointer": "$.records[0].reaction_evidence.participants; $.records[0].source_ledger.role_assignments"
+      },
+      "C6": {
+        "observed": false,
+        "reason": "The assignment remains explicitly formal and the mechanistic-origin fields are empty.",
+        "evidence_pointer": "$.records[0].reaction_evidence.mapping_report"
+      },
+      "C7": {
+        "observed": false,
+        "reason": "The executed builds, no-write hash operation, and loader replays all preserve identical snapshot identity and record hashes.",
+        "evidence_pointer": "$.snapshot_replay_evidence"
+      },
+      "C8": {
+        "observed": false,
+        "reason": "The srl_rxn_cond_001 object is presented as the source ledger and no candidate-ledger crossover appears.",
+        "evidence_pointer": "$.records[0].source_ledger"
+      },
+      "C9": {
+        "observed": false,
+        "reason": "The record is labeled heavy-atom balanced with an implicit hydrogen and electron policy, not fully balanced, so its boundary remains explicit.",
+        "evidence_pointer": "$.records[0].source_ledger.balance_status; $.records[0].eligibility_decision.required_warnings"
+      }
+    },
+    "audit_003": {
+      "C1": {
+        "observed": false,
+        "reason": "The unsupported atom-source case is confined to diagnostic membership and is absent from production.",
+        "evidence_pointer": "$.records[1].eligibility_decision; $.index_membership"
+      },
+      "C2": {
+        "observed": false,
+        "reason": "Every real required-case row is quarantined and has no production eligibility or prohibited lineage.",
+        "evidence_pointer": "$.real_required_case_evidence.new_pipeline_quarantine"
+      },
+      "C3": {
+        "observed": false,
+        "reason": "No ambiguity set or assignment ambiguity is reported, and the supported lineage is marked with no ambiguity.",
+        "evidence_pointer": "$.records[1].reaction_evidence.ambiguity_sets; $.records[1].reaction_evidence.mapping_report.source_assignment_ambiguity; $.records[1].resolved_lineages[0].ambiguity"
+      },
+      "C4": {
+        "observed": false,
+        "reason": "The quarantine member is listed only in quarantine and is absent from production.",
+        "evidence_pointer": "$.index_membership"
+      },
+      "C5": {
+        "observed": false,
+        "reason": "Both input participants remain serialized and assigned roles despite the unresolved added atom source.",
+        "evidence_pointer": "$.records[1].reaction_evidence.participants; $.records[1].source_ledger.role_assignments"
+      },
+      "C6": {
+        "observed": false,
+        "reason": "The partial mapping is explicitly formal and no mechanistic origin is asserted.",
+        "evidence_pointer": "$.records[1].reaction_evidence.mapping_report"
+      },
+      "C7": {
+        "observed": false,
+        "reason": "Both builds completed and loaded successfully with the same snapshot hash, identifier, and record-hash list; the no-write hash matches as well.",
+        "evidence_pointer": "$.snapshot_replay_evidence"
+      },
+      "C8": {
+        "observed": false,
+        "reason": "The srl_rxn_diag_001 object remains a source ledger and no candidate-ledger crossover is shown.",
+        "evidence_pointer": "$.records[1].source_ledger"
+      },
+      "C9": {
+        "observed": false,
+        "reason": "Product atom map 3 is explicitly assigned an unknown source and the balance status is partial or unbalanced, not fully balanced.",
+        "evidence_pointer": "$.records[1].source_ledger.added_atom_sources[0]; $.records[1].source_ledger.balance_status"
+      }
+    },
+    "audit_004": {
+      "C1": {
+        "observed": false,
+        "reason": "The critical charge-contradiction record is excluded and does not appear in production.",
+        "evidence_pointer": "$.records[2].eligibility_decision; $.index_membership"
+      },
+      "C2": {
+        "observed": false,
+        "reason": "The real required-case rows are all quarantined with no production eligibility or prohibited lineage.",
+        "evidence_pointer": "$.real_required_case_evidence.new_pipeline_quarantine"
+      },
+      "C3": {
+        "observed": false,
+        "reason": "The record has no ambiguity sets or source-assignment ambiguity, and its only lineage is marked with no ambiguity.",
+        "evidence_pointer": "$.records[2].reaction_evidence.ambiguity_sets; $.records[2].reaction_evidence.mapping_report.source_assignment_ambiguity; $.records[2].resolved_lineages[0].ambiguity"
+      },
+      "C4": {
+        "observed": false,
+        "reason": "rxn_quar_001 appears only in quarantine membership and is absent from production.",
+        "evidence_pointer": "$.index_membership"
+      },
+      "C5": {
+        "observed": false,
+        "reason": "The charged reactant and neutral product both remain serialized and both retain role assignments.",
+        "evidence_pointer": "$.records[2].reaction_evidence.participants; $.records[2].source_ledger.role_assignments"
+      },
+      "C6": {
+        "observed": false,
+        "reason": "The mapping remains explicitly formal and no mechanistic atom origin is present.",
+        "evidence_pointer": "$.records[2].reaction_evidence.mapping_report"
+      },
+      "C7": {
+        "observed": false,
+        "reason": "Both executed builds and loader replays share the same snapshot identity and record hashes, and the no-write hash matches them.",
+        "evidence_pointer": "$.snapshot_replay_evidence"
+      },
+      "C8": {
+        "observed": false,
+        "reason": "The srl_rxn_quar_001 object is presented as a source ledger and no candidate-ledger crossover is represented.",
+        "evidence_pointer": "$.records[2].source_ledger"
+      },
+      "C9": {
+        "observed": false,
+        "reason": "The charge mismatch is explicit as -1 and the ledger is labeled partial or unbalanced rather than fully balanced.",
+        "evidence_pointer": "$.records[2].source_ledger.charge_balance; $.records[2].source_ledger.balance_status"
+      }
+    }
+  },
+  "required_case_final": {
+    "H2_verdict": "pass",
+    "reason": "Three real proline and 2-oxoglutarate rows were found by structure, and the new pipeline explicitly quarantines all three, marks each production-ineligible, synthesizes no lineage, and reports no prohibited lineage.",
+    "evidence_pointer": "$.real_required_case_evidence.legacy_case_summary; $.real_required_case_evidence.new_pipeline_quarantine"
+  },
+  "hard_conditions": {
+    "H1": {
+      "verdict": "pass",
+      "reason": "The production index contains only the strict and conditional identity fixtures; independent review of C1-C9 finds no severe defect in either production member.",
+      "evidence_pointer": "$.index_membership.production; $.records[0]; $.records[3]"
+    },
+    "H2": {
+      "verdict": "pass",
+      "reason": "All three real required-case rows are explicitly quarantined by the new pipeline, excluded from production, and carry neither a synthesized lineage nor the prohibited lineage.",
+      "evidence_pointer": "$.real_required_case_evidence.new_pipeline_quarantine"
+    },
+    "H3": {
+      "verdict": "pass",
+      "reason": "Across all four samples, ambiguity sets are empty, source-assignment ambiguity is false, and each recorded lineage is marked with no ambiguity; no silent critical-tie choice is evidenced.",
+      "evidence_pointer": "$.records[*].reaction_evidence.ambiguity_sets; $.records[*].reaction_evidence.mapping_report.source_assignment_ambiguity; $.records[*].resolved_lineages[*].ambiguity"
+    },
+    "H4": {
+      "verdict": "pass",
+      "reason": "The sole quarantine member rxn_quar_001 is absent from the production index.",
+      "evidence_pointer": "$.index_membership"
+    },
+    "H5": {
+      "verdict": "pass",
+      "reason": "Each sample retains its full reactant and product participant pair, and every retained participant has a ledger role assignment.",
+      "evidence_pointer": "$.records[*].reaction_evidence.participants; $.records[*].source_ledger.role_assignments"
+    },
+    "H6": {
+      "verdict": "pass",
+      "reason": "Every sample labels source assignment as formal, while mechanistic origin fields are null and mechanistic evidence lists are empty.",
+      "evidence_pointer": "$.records[*].reaction_evidence.mapping_report"
+    },
+    "H7": {
+      "verdict": "pass",
+      "reason": "Forward-order build A and reverse-order build B completed, both loader replays were accepted, the no-write hash matches both builds, snapshot hash and identifier remain identical across build and load, and both record-content-hash lists match.",
+      "evidence_pointer": "$.snapshot_replay_evidence"
+    }
+  },
+  "audit_recommendation": "FAIL"
+}

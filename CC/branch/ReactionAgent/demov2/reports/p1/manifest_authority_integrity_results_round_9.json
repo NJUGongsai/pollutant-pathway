@@ -1,0 +1,72 @@
+{
+  "description": "Round 9 manifest authority integrity mutations (M86–M88): the real public load_snapshot must fail closed on a deleted required manifest field, tampered summary fields (counts / source summary / index hash), and a forged snapshot_id — with stable manifest_* / snapshot_identity_mismatch tokens.",
+  "mutations": [
+    {
+      "mutation_id": "M86",
+      "mutation": "delete required manifest diagnostic_index_hash field",
+      "expected": "real load_snapshot FAIL (manifest_required_field_missing)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "real loader FAILED on delete required manifest diagnostic_index_hash field: manifest_required_field_missing: diagnostic_index_hash",
+      "caught": true
+    },
+    {
+      "mutation_id": "M87",
+      "mutation": "tamper manifest summary fields (counts / source summary / index hash)",
+      "expected": "real load_snapshot FAIL (manifest-specific token per tamper)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M87a=True M87b=True M87c=True M87d=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M87a",
+          "mutation": "tamper manifest diagnostic_count=999",
+          "expected": "real load_snapshot FAIL (manifest_count_mismatch)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "real loader FAILED on tamper manifest diagnostic_count=999: manifest_count_mismatch: diagnostic_count manifest=999 verified=1",
+          "caught": true
+        },
+        {
+          "mutation_id": "M87b",
+          "mutation": "tamper manifest record_count=999",
+          "expected": "real load_snapshot FAIL (manifest_count_mismatch)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "real loader FAILED on tamper manifest record_count=999: manifest_count_mismatch: record_count manifest=999 verified=1",
+          "caught": true
+        },
+        {
+          "mutation_id": "M87c",
+          "mutation": "tamper manifest source_counts (forged mapping)",
+          "expected": "real load_snapshot FAIL (manifest_source_counts_mismatch)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "real loader FAILED on tamper manifest source_counts (forged mapping): manifest_source_counts_mismatch: manifest={'forged_source': 999} verified={'fixture_source_a': 1}",
+          "caught": true
+        },
+        {
+          "mutation_id": "M87d",
+          "mutation": "tamper manifest production_index_hash (forged)",
+          "expected": "real load_snapshot FAIL (manifest_index_hash_mismatch)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "real loader FAILED on tamper manifest production_index_hash (forged): manifest_index_hash_mismatch: production_index_hash manifest=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff verified=8911cd98d73afa37f62a3e72bf75f4493f5",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M88",
+      "mutation": "forge manifest snapshot_id",
+      "expected": "real load_snapshot FAIL (snapshot_identity_mismatch)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "real loader FAILED on forge manifest snapshot_id: snapshot_identity_mismatch: manifest snapshot_id=snap_forged000000 expected=snap_967cf8c71cb9 (derived from snapshot_hash)",
+      "caught": true
+    }
+  ],
+  "caught": 3,
+  "total": 3
+}

@@ -1,22 +1,28 @@
 {
   "task": "P1-T4",
   "generated_at": "2026-07-30T02:36:06.360968+00:00",
-  "preflight_status": "BLOCKED",
-  "preflight_blockers": [
-    "rdkit_absent",
-    "real_reaction_source_not_confirmed",
-    "required_case_missing"
-  ],
+  "preflight_status": "GO",
+  "preflight_blockers": [],
   "real_mapper_integration": {
-    "status": "INTEGRATION_BLOCKED",
-    "reason": "rdkit/numpy/networkx/scipy all absent in .venv (Preflight BLOCKED)",
+    "status": "INTEGRATION_COMPLETE",
+    "reason": "RDKit live adapter returns a typed MappingReport; explicit atom maps are validated and unmapped inputs use non-strict MCS fallback",
     "backends_probed": {
-      "rdkit": false,
+      "rdkit": true,
       "rxnmapper": false,
       "rxn4chemistry": false
     },
-    "all_backends_unavailable": true,
-    "gate_impact": "P1 Gate G04 (mapper integration) cannot pass until real backend installed"
+    "all_backends_unavailable": false,
+    "gate_impact": "P1 Gate G04 live integration PASS; MCS fallback is explicitly excluded from fully_mapped/strict evidence",
+    "live_probe": {
+      "normalized_reaction": "CCO>>CC(=O)O",
+      "mapper_name": "rdkit",
+      "mapper_version": "2026.03.4",
+      "mapping_status": "partially_mapped",
+      "assignment_method": "formal_mcs",
+      "fallback_method": "mcs",
+      "changed_atom_coverage": 0.0,
+      "mechanistic_atom_origin": null
+    }
   },
   "unit_contract": {
     "status": "UNIT_CONTRACT_COMPLETE",
@@ -79,6 +85,6 @@
     },
     "quality_dimensions_count": 8,
     "formal_only_verified": true,
-    "t4_verdict": "UNIT_CONTRACT_COMPLETE / INTEGRATION_BLOCKED"
+    "t4_verdict": "UNIT_CONTRACT_COMPLETE / INTEGRATION_COMPLETE"
   }
 }

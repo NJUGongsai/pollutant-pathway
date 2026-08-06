@@ -45,12 +45,21 @@ from reaction_agent.schemas.common import (
     EvaluationBucket,
     QuarantineBehavior,
     LedgerBalanceStatus,
+    LineageResolutionQuality,
+    MappingStatus,
+    MappingQualityClass,
     ParticipantRole,
+    SourceAssignmentMethod,
 )
 from reaction_agent.schemas.evidence import (
     ReactionEvidence,
     ReactionParticipant,
     RoleHypothesis,
+)
+from reaction_agent.schemas.mapping import (
+    MappingReport,
+    FormalSourceAssignment,
+    FormalMappedAtomPair,
 )
 from reaction_agent.schemas.ledger import (
     SourceReactionLedger,
@@ -114,6 +123,45 @@ def _participant(
     return ReactionParticipant(**kwargs)
 
 
+# Sentinel: when mapping_report is not explicitly passed, attach a compliant
+# mapping_report so fully_balanced strict records satisfy §4.2 preconditions.
+_USE_DEFAULT_MR = object()
+
+
+def _compliant_mapping_report() -> MappingReport:
+    """A MappingReport satisfying ALL strict preconditions (§4.2):
+    fully_mapped, formal_mapped, no fallback, unique maps, full coverage."""
+    return MappingReport(
+        mapper_name="fake_mapper",
+        mapper_version="v1",
+        mapper_parameters={"timeout": "30"},
+        input_hash="inp_abc",
+        output_hash="out_def",
+        mapping_status=MappingStatus.fully_mapped,
+        mapped_heavy_atom_fraction=1.0,
+        map_number_uniqueness=True,
+        changed_atom_coverage=1.0,
+        formal_mapped_source_assignment=FormalSourceAssignment(
+            mapper_name="fake_mapper",
+            mapper_version="v1",
+            mapped_atom_pairs=[
+                FormalMappedAtomPair(
+                    reactant_participant_id="r1", reactant_atom_map=1,
+                    product_participant_id="p1", product_atom_map=1,
+                ),
+                FormalMappedAtomPair(
+                    reactant_participant_id="r1", reactant_atom_map=2,
+                    product_participant_id="p1", product_atom_map=2,
+                ),
+            ],
+            assignment_method=SourceAssignmentMethod.formal_mapped,
+            assignment_quality=MappingQualityClass.high_quality,
+            assignment_ambiguity=False,
+        ),
+        fallback_method=None,
+    )
+
+
 def _reaction_evidence(
     participants: list[ReactionParticipant],
     *,
@@ -124,8 +172,16 @@ def _reaction_evidence(
     raw_reaction: str = "A>>B",
     normalized_reaction: str = "A>>B",
     provenance: list[str] | None = None,
+    mapping_report: object = _USE_DEFAULT_MR,
 ) -> ReactionEvidence:
-    """Build a ReactionEvidence with participants."""
+    """Build a ReactionEvidence with participants.
+
+    By default attaches a compliant mapping_report (§4.2 preconditions) so
+    fully_balanced records classify as strict_eligible. Pass
+    ``mapping_report=None`` for an evidence with no mapping_report.
+    """
+    if mapping_report is _USE_DEFAULT_MR:
+        mapping_report = _compliant_mapping_report()
     kwargs: dict = {
         "reaction_id": reaction_id,
         "source_record_id": f"src_{reaction_id}",
@@ -135,6 +191,7 @@ def _reaction_evidence(
         "normalized_reaction": normalized_reaction,
         "direction": direction,
         "participants": participants,
+        "mapping_report": mapping_report,
     }
     if provenance is not None:
         kwargs["provenance"] = provenance
@@ -148,6 +205,7 @@ def _lineage(
     *,
     ambiguity: str = "none",
     lineage_id: str | None = None,
+    resolution_quality: LineageResolutionQuality = LineageResolutionQuality.resolved,
 ) -> ResolvedTransformedLineage:
     return ResolvedTransformedLineage(
         lineage_id=lineage_id or f"lin_{reactant_pid}_{product_pid}",
@@ -155,6 +213,7 @@ def _lineage(
         product_participant_id=product_pid,
         ambiguity=ambiguity,
         transformed_atom_maps=atom_maps or [],
+        resolution_quality=resolution_quality,
     )
 
 
@@ -194,12 +253,14 @@ def _item_strict(
     reaction_id: str = "rxn_strict_001",
     source_name: str = "fixture_source_a",
 ) -> SnapshotEvidenceItem:
-    """strict_eligible item: fully balanced + reliable mapping → production (strict)."""
-    r1 = _participant("r1", "reactant", "CCO", atom_map_numbers=[1, 2])
-    p1 = _participant("p1", "product", "CC(=O)O", atom_map_numbers=[1, 2])
+    """strict_eligible item: fully balanced + reliable mapping → production (strict).
+    R7-01B: participants are CC (2 heavy atoms) with exactly 2 maps — a genuine
+    fully-mapped strict baseline."""
+    r1 = _participant("r1", "reactant", "CC", atom_map_numbers=[1, 2])
+    p1 = _participant("p1", "product", "CC", atom_map_numbers=[1, 2])
     ev = _reaction_evidence(
         [r1, p1], reaction_id=reaction_id, source_name=source_name,
-        raw_reaction="CCO>>CC(=O)O", normalized_reaction="CCO>>CC(=O)O",
+        raw_reaction="CC>>CC", normalized_reaction="CC>>CC",
     )
     ledger = _ledger(
         balance_status=LedgerBalanceStatus.fully_balanced_explicit_reaction,
@@ -216,11 +277,11 @@ def _item_conditional(
     source_name: str = "fixture_source_a",
 ) -> SnapshotEvidenceItem:
     """conditional_eligible item: heavy atom balanced + implicit H/e → production (conditional)."""
-    r1 = _participant("r1", "reactant", "CCO", atom_map_numbers=[1, 2])
-    p1 = _participant("p1", "product", "CC(=O)O", atom_map_numbers=[1, 2])
+    r1 = _participant("r1", "reactant", "CC", atom_map_numbers=[1, 2])
+    p1 = _participant("p1", "product", "CC", atom_map_numbers=[1, 2])
     ev = _reaction_evidence(
         [r1, p1], reaction_id=reaction_id, source_name=source_name,
-        raw_reaction="CCO>>CC(=O)O", normalized_reaction="CCO>>CC(=O)O",
+        raw_reaction="CC>>CC", normalized_reaction="CC>>CC",
     )
     ledger = _ledger(
         balance_status=LedgerBalanceStatus.heavy_atom_balanced_with_implicit_h_e_policy,
@@ -238,13 +299,13 @@ def _item_diagnostic(
     source_name: str = "fixture_source_a",
 ) -> SnapshotEvidenceItem:
     """strict_prohibited item: unknown changed heavy atom source → diagnostic."""
-    r1 = _participant("r1", "reactant", "CCO", atom_map_numbers=[1, 2],
+    r1 = _participant("r1", "reactant", "CC", atom_map_numbers=[1, 2],
                       mapped_fraction=0.5)
-    p1 = _participant("p1", "product", "CC(=O)O", atom_map_numbers=[1, 2, 3],
+    p1 = _participant("p1", "product", "CCC", atom_map_numbers=[1, 2, 3],
                       changed_atom_fraction=0.3)
     ev = _reaction_evidence(
         [r1, p1], reaction_id=reaction_id, source_name=source_name,
-        raw_reaction="CCO>>CC(=O)O", normalized_reaction="CCO>>CC(=O)O",
+        raw_reaction="CC>>CCC", normalized_reaction="CC>>CCC",
     )
     ledger = _ledger(
         balance_status=LedgerBalanceStatus.partial_or_unbalanced_source,
@@ -264,11 +325,11 @@ def _item_quarantine(
     source_name: str = "fixture_source_a",
 ) -> SnapshotEvidenceItem:
     """quarantine item: critical element charge contradiction → excluded."""
-    r1 = _participant("r1", "reactant", "CCO", atom_map_numbers=[1, 2])
-    p1 = _participant("p1", "product", "CC(=O)O", atom_map_numbers=[1, 2])
+    r1 = _participant("r1", "reactant", "CC", atom_map_numbers=[1, 2])
+    p1 = _participant("p1", "product", "CC", atom_map_numbers=[1, 2])
     ev = _reaction_evidence(
         [r1, p1], reaction_id=reaction_id, source_name=source_name,
-        raw_reaction="CCO>>CC(=O)O", normalized_reaction="CCO>>CC(=O)O",
+        raw_reaction="CC>>CC", normalized_reaction="CC>>CC",
     )
     # charge_balance != 0 → critical_element_charge_contradiction → quarantine
     ledger = _ledger(
@@ -397,7 +458,7 @@ def test_quarantine_in_manifest(tmp_path):
         lines = f.readlines()
     assert len(lines) == 1
     record = json.loads(lines[0])
-    assert record["eligibility"] == "quarantine"
+    assert record["eligibility_decision"]["eligibility"] == "quarantine"
 
 
 # =====================================================================
@@ -418,10 +479,13 @@ def test_production_excludes_quarantine(tmp_path):
     # Production = strict + conditional = 2 records
     assert len(prod_records) == 2
     for rec in prod_records:
-        assert rec["eligibility"] in ("strict_eligible", "conditional_eligible")
-        assert rec["evaluation_bucket"] == "production"
+        decision = rec["eligibility_decision"]
+        assert decision["eligibility"] in ("strict_eligible", "conditional_eligible")
+        assert decision["evaluation_bucket"] == "production"
     # No quarantine in production
-    assert all(r["eligibility"] != "quarantine" for r in prod_records)
+    assert all(
+        r["eligibility_decision"]["eligibility"] != "quarantine" for r in prod_records
+    )
 
 
 # =====================================================================
@@ -706,7 +770,8 @@ def test_on_disk_manifest_has_full_16_3_fields(tmp_path):
         "diagnostic_count", "quarantine_count",
         "source_files", "versions", "failure_counts_by_reason",
         "record_content_hashes", "production_index_hash",
-        "quarantine_index_hash", "build_config_hash", "policy_version",
+        "diagnostic_index_hash", "quarantine_index_hash",
+        "build_config_hash", "policy_version",
     ]
     for key in required:
         assert key in disk, f"manifest.json missing §16.3 field: {key}"

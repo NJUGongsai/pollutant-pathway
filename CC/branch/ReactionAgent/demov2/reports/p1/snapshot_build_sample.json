@@ -4,26 +4,32 @@
     "build_a": {
       "build_status": "complete",
       "counts": {
+        "strict": 1,
         "conditional": 1,
         "diagnostic": 1,
-        "quarantine": 1,
-        "strict": 1
+        "quarantine": 1
       },
-      "snapshot_hash": "21172a43f2d9501902e5d7883cf90fba78ed1b08a9ab3817751092973703edcf",
-      "snapshot_id": "snap_21172a43f2d9"
+      "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+      "snapshot_id": "snap_c589494081df"
     },
     "build_b": {
       "build_status": "complete",
-      "snapshot_hash": "21172a43f2d9501902e5d7883cf90fba78ed1b08a9ab3817751092973703edcf",
-      "snapshot_id": "snap_21172a43f2d9"
+      "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+      "snapshot_id": "snap_c589494081df",
+      "counts": {
+        "strict": 1,
+        "conditional": 1,
+        "diagnostic": 1,
+        "quarantine": 1
+      }
     },
     "description": "FIXTURE snapshot - synthetic ReactionEvidence + SourceReactionLedger + ResolvedTransformedLineage. No real data fabricated. Used for determinism/atomicity/loader contract tests.",
     "determinism_evidence": {
-      "hash_value": "21172a43f2d9501902e5d7883cf90fba78ed1b08a9ab3817751092973703edcf",
+      "hash_value": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
       "same_hash_3way": true,
       "same_snapshot_id": true
     },
-    "hash_only_no_write": "21172a43f2d9501902e5d7883cf90fba78ed1b08a9ab3817751092973703edcf",
+    "hash_only_no_write": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
     "items": [
       {
         "lane_expected": "strict",
@@ -50,46 +56,48 @@
       "evidence_ids_count": 4,
       "freeze_status": "frozen",
       "resources": [
+        "diagnostic_index",
         "manifest",
         "production_index",
-        "diagnostic_index",
         "quarantine_index",
         "records"
       ],
-      "snapshot_id": "snap_21172a43f2d9"
+      "snapshot_id": "snap_c589494081df",
+      "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89"
     },
     "on_disk_manifest": {
       "build_config_hash": "bd234f390bead8bbf2db82d251d2abef02e265027e4f58c5cc5ee46c2459796c",
       "build_id": "build_ff0b5cf09ae6",
       "build_status": "complete",
       "builder_version": "p1-t10-1",
-      "completed_at": "2026-07-30T05:26:00.656676+00:00",
+      "completed_at": "2026-08-02T05:54:57.024405+00:00",
       "conditional_count": 1,
       "diagnostic_count": 1,
+      "diagnostic_index_hash": "021769ef77c58b38d492a3318bd9d39162979e50847892651689726a812804ef",
       "failure_counts_by_reason": {
-        "critical_element_charge_contradiction: charge_balance=1 (rea": 1,
+        "critical_element_charge_contradiction: charge_balance=-1 (re": 1,
         "unknown_changed_heavy_atom_source: changed heavy atoms [3] h": 1
       },
       "included_strict_count": 1,
       "policy_version": "p1-1",
-      "production_index_hash": "67f787c8e97b7e934932b1a2a62ab58b746e00d39c2a31a79b869b00fbbe1219",
+      "production_index_hash": "52e8200df31ec4fef5cc6b65bdc4158b65ec1f8b2d4205dbba1b0870bb9061c6",
       "quarantine_count": 1,
-      "quarantine_index_hash": "751d3142d7d21f6898360a06398699d03146aac640752b5e4c60c45bd38b7fc0",
+      "quarantine_index_hash": "8cdde2866a4a0cd9945dcc90ebb075b589f489d1ed15d8cbfcff51f2d2b5749c",
       "record_content_hashes": [
-        "1f3a1a1a699a02b1b2398529d18f219c3383a75925a903a78e3f80f10a678566",
-        "45e46821f58849f78d207d5e275af62bf33c0cb402acb60efec347a3f4a6189f",
-        "6dff4378471edba3dc67e464b8aa6293c20b76eca9e46e0893b5e0b8ff7593f4",
-        "a85569f2b2babfd0e9c487a6e62a12b085eca7d08a9449272988e09a8b996d96"
+        "05a31929cb071ed2e21e7683bb4d4f74ff3970eb29302d18922f5a80a0f2be99",
+        "6da210e7d34312e2fa30a85d8b1aed7d9ecbb6c8eee522e7f38742d156a5ec75",
+        "795797cd10e5494337f69eedaf3a97bb5bcf51dda679175a55e27cde77ebae7e",
+        "c7128084c8a54405d5d86067edb31564224855c2b974d8c61b3ab38e8f17c26c"
       ],
       "record_count": 4,
       "schema_version": "p1-1",
-      "snapshot_hash": "21172a43f2d9501902e5d7883cf90fba78ed1b08a9ab3817751092973703edcf",
-      "snapshot_id": "snap_21172a43f2d9",
+      "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+      "snapshot_id": "snap_c589494081df",
       "source_counts": {
         "fixture_source_a": 4
       },
       "source_files": {
-        "fixture_source_a": "b5bb9ef583a4fe46577b4d3e26593561ebb9e7ca19da35c39552b82ef18a167f"
+        "fixture_source_a": "1876e1289fd0bb5b3f16ec618817c203a0819e1f457cafe160d69396956ad652"
       },
       "versions": {
         "builder_version": "p1-t10-1",
@@ -102,17 +110,28 @@
         "package_version": "0.0.0",
         "role_policy_version": "p1-1"
       }
+    },
+    "replay_verification": {
+      "build_a_input_order": "forward",
+      "build_b_input_order": "reverse",
+      "build_a_loader_accepted": true,
+      "build_b_loader_accepted": true,
+      "same_hash_across_hash_build_load": true,
+      "same_snapshot_id": true
     }
   },
   "real_source_snapshot": {
     "builder_api_ready": true,
     "clear_separation": "Fixture snapshots use source_name=fixture_source_*. Real snapshots will use source_name=<real_db_name>. The builder does not fabricate real data.",
+    "runtime_probe": {
+      "rdkit_available": true,
+      "rdkit_version": "2026.03.4"
+    },
     "pipeline_blocked_at": [
-      "T4 mapping (rdkit)",
-      "T6 lineage (rdkit)",
-      "T7 source ledger balance (rdkit)"
+      "validated complete atom mapping and independently audited lineage resolution are required before any future production promotion"
     ],
-    "reason": "Preflight BLOCKED (rdkit absent). Real source snapshot requires rdkit for T4 mapping, T6 lineage, T7 source ledger balance. Builder API is ready; accepts pre-computed T4-T8 artifacts. No real data fabricated.",
-    "status": "BLOCKED"
+    "reason": "Three real proline/2OG rows were located by G03 and processed by the new required-case safety path. The available RDKit MCS result is diagnostic only, so all three are explicitly quarantined; none enters production and no lineage is synthesized.",
+    "required_case_evidence": "reports/p1/required_case_quarantine_evidence.json",
+    "status": "REQUIRED_CASES_EXPLICITLY_QUARANTINED"
   }
 }

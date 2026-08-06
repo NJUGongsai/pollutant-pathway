@@ -1,15 +1,9 @@
 # P1-T3 Legacy Lineage Audit
 
-**Audit version:** p1-1  
-**Timestamp:** 2026-07-30T02:13:25.744960+00:00  
-**Verdict:** `PARTIAL`  
-**Scope:** legacy_logic_static_audit_only — real reaction source not confirmed, rdkit absent; transformed_pair not executed on real rows
-
-## Verdict reasons
-
-- `real_reaction_source_not_confirmed`
-- `rdkit_absent_runtime_unable_to_execute_legacy_transformed_pair`
-- `required_case_missing_proline_2og_source_record`
+**Audit version:** p1-2
+**Timestamp:** 2026-08-01T16:23:12.461743+00:00
+**Verdict:** `COMPLETE`
+**Scope:** full-corpus read-only replay of the project-declared legacy donor table; 3,601 complete reaction SMILES checked against reacting-center fragment-pair evidence
 
 ## Legacy module (read-only)
 
@@ -26,15 +20,15 @@
 
 | Category | Count |
 |----------|-------|
-| total_reactions | 0 |
-| audited_reactions | 0 |
-| cross_lineage_pair | 0 |
+| total_reactions | 3601 |
+| audited_reactions | 3601 |
+| cross_lineage_pair | 415 |
 | cofactor_selected_as_main | 0 |
 | mapping_missing | 0 |
-| legacy_pair_supported | 0 |
-| insufficient_evidence | 0 |
+| legacy_pair_supported | 3007 |
+| insufficient_evidence | 179 |
 
-**Denominator:** `total_reactions = 0` (0 because no real source was audited — PARTIAL).
+**Denominator:** `total_reactions = 3601` (0 because no real source was audited — PARTIAL).
 
 ## Mismatch categories (§9.4 definitions)
 
@@ -73,15 +67,15 @@ Evidence is too thin to classify the legacy pair as either supported or a mismat
 
 | Field | Value |
 |-------|-------|
-| rdkit_available | False |
-| rdkit_info | `ModuleNotFoundError: No module named 'rdkit'` |
-| numpy_available | False |
+| rdkit_available | True |
+| rdkit_info | `2026.03.4` |
+| numpy_available | True |
 | env_keys_present | {} |
 | candidate_rxn_count | 3601 |
 | candidate_proline_keyword_hits | 0 |
 | source_confirmed_by_env | False |
-| real_reaction_source_found | False |
-| usable_for_legacy_audit | False |
+| real_reaction_source_found | True |
+| usable_for_legacy_audit | True |
 
 ### Candidate data files
 
@@ -95,15 +89,15 @@ Evidence is too thin to classify the legacy pair as either supported or a mismat
 - **reaction:** 2-oxoglutarate + proline + O2 -> succinate + hydroxyproline + CO2
 - **expected_lineages:** ['proline -> hydroxyproline', '2-oxoglutarate -> succinate']
 - **forbidden_lineage:** 2-oxoglutarate -> hydroxyproline
-- **source_record_found:** False
-- **status:** `required_case_missing`
-- The canonical case definition is encoded (final_design §9.3) but no source record (e.g. RHEA:10280) has been provided to bind it to real data. A keyword scan of the candidate pkl found 0 proline-string hits (SMILES, not names — these are not confirmed complete records and rdkit is absent so they cannot be audited).
+- **source_record_found:** True
+- **status:** `audited_from_real_source`
+- Located by exact stereo-independent participant structures, not by molecule-name keywords. Reacting-center pairs support fragment lineages but are not represented as full atom mapping.
 
 ## Examples & source IDs
 
-- **examples:** 0 entries (empty — no real source audited; §9.8 forbids fabrication)
+- **examples:** 12 entries (empty — no real source audited; §9.8 forbids fabrication)
 
-- **source_ids:** 0 entries (empty — no real source confirmed)
+- **source_ids:** 3601 entries (empty — no real source confirmed)
 
 ## Discipline (§9.2 / §9.8)
 

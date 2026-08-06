@@ -121,6 +121,10 @@ class _ClassifiedRecord:
     quarantine_record: QuarantineRecord | None
     record_content_hash: str
     lane: str  # "strict" | "conditional" | "diagnostic" | "quarantine"
+    # Source ledger + lineages retained so _record_to_jsonl can persist the
+    # complete nested evidence (Critical-1) without re-deriving it.
+    source_ledger: SourceReactionLedger | None = None
+    lineages: list[ResolvedTransformedLineage] = field(default_factory=list)
 
 
 def _classify_lane(decision: EligibilityDecision) -> str:
@@ -144,61 +148,158 @@ def _classify_lane(decision: EligibilityDecision) -> str:
     return "quarantine"
 
 
+# Runtime/circular exclusion policy (§5.3 item 4). ``snapshot_id`` is the
+# ONLY field excluded from the frozen ReactionEvidence content hash: it is a
+# back-reference to the very snapshot being built, so including it would be a
+# circular dependency (the hash would depend on itself). Every other
+# scientific/audit field of ReactionEvidence is frozen and hashed. This
+# exclusion is centralized here, documented, and frozen by
+# ``test_snapshot_id_or_runtime_exclusion_policy_is_explicit``.
+EVIDENCE_HASH_EXCLUDED_FIELDS = frozenset({"snapshot_id"})
+
+# Fields stored alongside the canonical payload in records.jsonl but NOT part
+# of the content hash (metadata only). The loader recomputes the record hash
+# by stripping exactly these fields from each stored record, so builder and
+# loader hash the same payload (§3.2 — one canonical object, not three).
+#
+# Critical-1 (§5.3): ``lane`` is now part of the hashed canonical payload (it
+# is bound to the decision), and the complete ``quarantine_record`` object is
+# persisted, so the old ``lane`` / ``quarantine_reason`` meta fields are gone.
+# Only the self-referential ``record_content_hash`` remains a meta field.
+_RECORD_META_FIELDS = ("record_content_hash",)
+
+
+def _canonical_record_payload(
+    evidence: ReactionEvidence,
+    decision: EligibilityDecision,
+    quarantine_record: QuarantineRecord | None,
+    ledger: SourceReactionLedger | None,
+    lineages: list[ResolvedTransformedLineage],
+    lane: str,
+) -> dict:
+    """Build the single canonical content object for a record (§5.3).
+
+    The SAME object is used for: (1) record content hash, (2) records.jsonl
+    persistence, (3) loader tamper verification. Builder hashes, writer
+    persists, and loader verifies ONE object — never three different ones.
+
+    Critical-1 fix: instead of a hand-picked whitelist, the payload freezes the
+    COMPLETE typed objects via ``model_dump(mode="json")``:
+
+    - ``reaction_evidence``: the entire ``ReactionEvidence`` model minus the
+      centralized circular exclusion(s) (``EVIDENCE_HASH_EXCLUDED_FIELDS`` —
+      only ``snapshot_id``). This covers provenance / source_uri_or_citation /
+      fragment_lineage_graph / ambiguity_sets / transformation_hypotheses /
+      quality_report / quarantine / participants / mapping_report /
+      embedded source_reaction_ledger — every scientific/audit field.
+    - ``source_ledger``: the complete external ``SourceReactionLedger`` (the
+      eligibility authority; see ``_resolve_ledger_authority`` §5.4), or None.
+    - ``resolved_lineages``: the complete resolved lineages.
+    - ``eligibility_decision``: the COMPLETE ``EligibilityDecision`` (including
+      required_warnings / evidence_ids / research_diagnostic_eligibility /
+      policy_version).
+    - ``quarantine_record``: the COMPLETE ``QuarantineRecord`` or None.
+    - ``lane``: bound into the hash (and independently re-derived + verified by
+      the loader from ``eligibility_decision.eligibility``).
+
+    EXCLUDES timestamp, temp path, run ID (§16.6). Any nested mutation of any
+    hashed field changes the hash.
+    """
+    return {
+        "reaction_evidence": evidence.model_dump(
+            mode="json", exclude=set(EVIDENCE_HASH_EXCLUDED_FIELDS),
+        ),
+        "source_ledger": (
+            ledger.model_dump(mode="json") if ledger is not None else None
+        ),
+        "resolved_lineages": [lin.model_dump(mode="json") for lin in lineages],
+        "eligibility_decision": decision.model_dump(mode="json"),
+        "quarantine_record": (
+            quarantine_record.model_dump(mode="json")
+            if quarantine_record is not None
+            else None
+        ),
+        "lane": lane,
+    }
+
+
 def _record_content_hash(
     evidence: ReactionEvidence,
     decision: EligibilityDecision,
     quarantine_record: QuarantineRecord | None,
+    ledger: SourceReactionLedger | None,
+    lineages: list[ResolvedTransformedLineage],
+    lane: str,
 ) -> str:
     """Compute the content hash for a single record (deterministic).
 
-    The hash covers the evidence + decision + quarantine record. It does NOT
-    include timestamp, run ID, or temp path.
+    Hashes the COMPLETE canonical payload (§5.3) — the entire ReactionEvidence
+    model, external ledger, resolved lineages, complete decision, complete
+    quarantine record, and lane. Any nested mutation changes the hash. Excludes
+    timestamp / run ID / temp path (§16.6) and the circular snapshot_id.
     """
-    payload = {
-        "reaction_id": evidence.reaction_id,
-        "source_record_id": evidence.source_record_id,
-        "source_name": evidence.source_name,
-        "source_version": evidence.source_version,
-        "normalized_reaction": evidence.normalized_reaction,
-        "raw_reaction": evidence.raw_reaction,
-        "direction": evidence.direction,
-        "decision_id": decision.decision_id,
-        "eligibility": decision.eligibility.value,
-        "evaluation_bucket": decision.evaluation_bucket.value,
-        "quarantine_behavior": decision.quarantine_behavior.value,
-        "reason": decision.reason,
-        "quarantine_record_id": (
-            quarantine_record.record_id if quarantine_record else None
-        ),
-    }
+    payload = _canonical_record_payload(
+        evidence, decision, quarantine_record, ledger, lineages, lane,
+    )
     return canonical_hash(payload)
 
 
-def _source_content_hash(items: list[SnapshotEvidenceItem]) -> dict[str, str]:
-    """Compute a per-source content hash from the records (deterministic).
+def _resolve_ledger_authority(
+    reaction_id: str,
+    embedded: SourceReactionLedger | None,
+    external: SourceReactionLedger | None,
+) -> SourceReactionLedger | None:
+    """Resolve the single authoritative source ledger (§5.4 — Method B).
+
+    Two representations of the source ledger may exist:
+    - ``ReactionEvidence.source_reaction_ledger`` (embedded), and
+    - ``SnapshotEvidenceItem.source_ledger`` (external — the eligibility input).
+
+    Method B (dual representation, strong consistency):
+    - both present and canonically EQUAL → use the external one (authority);
+    - both present and DIFFERENT → fail closed (never build an inconsistent
+      snapshot, never silently ignore one);
+    - only external present → use it (normalized);
+    - only embedded present → fail closed: eligibility runs on the external
+      ledger, so an embedded-only ledger would be silently ignored — the
+      caller must normalize it into ``SnapshotEvidenceItem.source_ledger``
+      before ingestion;
+    - neither present → None (eligibility fail-closes to quarantine).
+    """
+    if embedded is not None and external is not None:
+        if embedded.model_dump(mode="json") != external.model_dump(mode="json"):
+            raise SnapshotBuildError(
+                f"dual ledger disagreement for reaction {reaction_id!r}: "
+                f"ReactionEvidence.source_reaction_ledger (embedded) and "
+                f"SnapshotEvidenceItem.source_ledger (external) are both "
+                f"present but not canonically equal. Fail-closed (§5.4): a "
+                f"snapshot must not be built from inconsistent ledgers."
+            )
+        return external
+    if embedded is not None and external is None:
+        raise SnapshotBuildError(
+            f"dual ledger authority for reaction {reaction_id!r}: an embedded "
+            f"ReactionEvidence.source_reaction_ledger is present but the "
+            f"external SnapshotEvidenceItem.source_ledger is None. Eligibility "
+            f"runs on the external ledger, so the embedded ledger would be "
+            f"silently ignored. Normalize the ledger into "
+            f"SnapshotEvidenceItem.source_ledger before ingestion (§5.4)."
+        )
+    return external
+
+
+def _source_content_hash(classified: list[_ClassifiedRecord]) -> dict[str, str]:
+    """Compute a per-source content hash from classified records (deterministic).
 
     For each source_name, hash the sorted list of record content hashes from
     that source. This is the ``source_files`` field in the on-disk manifest.
+    Uses the already-classified record hashes — no redundant re-decision of
+    eligibility (the classification is computed once in ``_classify_all``).
     """
     by_source: dict[str, list[str]] = {}
-    for item in items:
-        src = item.reaction_evidence.source_name
-        by_source.setdefault(src, []).append(
-            _record_content_hash(
-                item.reaction_evidence,
-                decide_eligibility(
-                    item.reaction_evidence, item.source_ledger, item.lineages,
-                ),
-                build_quarantine_record(
-                    decide_eligibility(
-                        item.reaction_evidence,
-                        item.source_ledger,
-                        item.lineages,
-                    ),
-                    item.reaction_evidence,
-                ),
-            )
-        )
+    for r in classified:
+        src = r.reaction_evidence.source_name
+        by_source.setdefault(src, []).append(r.record_content_hash)
     return {
         src: canonical_hash(sorted(hashes)) for src, hashes in by_source.items()
     }
@@ -240,10 +341,17 @@ def _compute_canonical_snapshot_content(
     production_hashes = sorted(
         r.record_content_hash for r in strict_records + conditional_records
     )
+    diagnostic_hashes = sorted(
+        r.record_content_hash for r in diagnostic_records
+    )
     quarantine_hashes = sorted(
         r.record_content_hash for r in quarantine_records
     )
     production_index_hash = canonical_hash(production_hashes)
+    # Round 8: the diagnostic index is bound into the immutable snapshot
+    # integrity — a diagnostic member can no longer be silently deleted without
+    # changing the snapshot hash (R8-02 closed).
+    diagnostic_index_hash = canonical_hash(diagnostic_hashes)
     quarantine_index_hash = canonical_hash(quarantine_hashes)
 
     # failure_counts_by_reason: count quarantine + diagnostic by reason
@@ -280,6 +388,7 @@ def _compute_canonical_snapshot_content(
         },
         "record_content_hashes": all_record_hashes,
         "production_index_hash": production_index_hash,
+        "diagnostic_index_hash": diagnostic_index_hash,
         "quarantine_index_hash": quarantine_index_hash,
         "policy_version": build_info.policy_version,
     }
@@ -301,7 +410,7 @@ def compute_snapshot_hash(
     """
     build_info = get_build_info()
     classified = _classify_all(items)
-    source_hashes = _source_content_hash(items)
+    source_hashes = _source_content_hash(classified)
     canonical = _compute_canonical_snapshot_content(
         config, build_info, classified, source_hashes,
     )
@@ -316,13 +425,19 @@ def _classify_all(items: list[SnapshotEvidenceItem]) -> list[_ClassifiedRecord]:
     classified: list[_ClassifiedRecord] = []
     for item in items:
         evidence = item.reaction_evidence
-        ledger = item.source_ledger
+        # §5.4: resolve the single authoritative ledger from the embedded
+        # (ReactionEvidence.source_reaction_ledger) and external
+        # (SnapshotEvidenceItem.source_ledger) representations. Disagreement or
+        # an ignored embedded-only ledger fails closed.
+        ledger = _resolve_ledger_authority(
+            evidence.reaction_id, evidence.source_reaction_ledger, item.source_ledger,
+        )
         lineages = list(item.lineages)  # shallow copy — no mutation
         decision = decide_eligibility(evidence, ledger, lineages)
         quarantine_record = build_quarantine_record(decision, evidence)
         lane = _classify_lane(decision)
         record_hash = _record_content_hash(
-            evidence, decision, quarantine_record,
+            evidence, decision, quarantine_record, ledger, lineages, lane,
         )
         classified.append(_ClassifiedRecord(
             reaction_evidence=evidence,
@@ -330,6 +445,8 @@ def _classify_all(items: list[SnapshotEvidenceItem]) -> list[_ClassifiedRecord]:
             quarantine_record=quarantine_record,
             record_content_hash=record_hash,
             lane=lane,
+            source_ledger=ledger,
+            lineages=lineages,
         ))
     return classified
 
@@ -388,6 +505,7 @@ def _build_on_disk_manifest(
         "failure_counts_by_reason": dict(sorted(failure_counts.items())),
         "record_content_hashes": canonical_content["record_content_hashes"],
         "production_index_hash": canonical_content["production_index_hash"],
+        "diagnostic_index_hash": canonical_content["diagnostic_index_hash"],
         "quarantine_index_hash": canonical_content["quarantine_index_hash"],
         "build_config_hash": canonical_content["build_config_hash"],
         # Traceability (NOT in canonical content hash)
@@ -397,27 +515,26 @@ def _build_on_disk_manifest(
 
 
 def _record_to_jsonl(record: _ClassifiedRecord) -> dict:
-    """Serialize a classified record to a JSONL line dict."""
-    evidence = record.reaction_evidence
-    decision = record.decision
-    qr = record.quarantine_record
+    """Serialize a classified record to a JSONL line dict.
+
+    Writes the COMPLETE canonical payload (Critical-1 §5.3 — the entire
+    ReactionEvidence model, external ledger, resolved lineages, complete
+    decision, complete quarantine record, and lane) plus the single meta field
+    ``record_content_hash``. The loader strips the meta field
+    (``_RECORD_META_FIELDS``) to recompute the hash, so the on-disk record and
+    the hashed payload are the same object (§3.2).
+    """
+    payload = _canonical_record_payload(
+        record.reaction_evidence,
+        record.decision,
+        record.quarantine_record,
+        record.source_ledger,
+        record.lineages,
+        record.lane,
+    )
     return {
-        "reaction_id": evidence.reaction_id,
-        "source_record_id": evidence.source_record_id,
-        "source_name": evidence.source_name,
-        "source_version": evidence.source_version,
-        "normalized_reaction": evidence.normalized_reaction,
-        "raw_reaction": evidence.raw_reaction,
-        "direction": evidence.direction,
-        "decision_id": decision.decision_id,
-        "eligibility": decision.eligibility.value,
-        "evaluation_bucket": decision.evaluation_bucket.value,
-        "quarantine_behavior": decision.quarantine_behavior.value,
-        "reason": decision.reason,
-        "lane": record.lane,
+        **payload,
         "record_content_hash": record.record_content_hash,
-        "quarantine_record_id": qr.record_id if qr else None,
-        "quarantine_reason": qr.reason if qr else None,
     }
 
 
@@ -541,7 +658,7 @@ def build_snapshot(
     classified = _classify_all(items)
 
     # Step 3: compute source hashes + canonical content + snapshot hash
-    source_hashes = _source_content_hash(items)
+    source_hashes = _source_content_hash(classified)
     canonical_content = _compute_canonical_snapshot_content(
         config, build_info, classified, source_hashes,
     )

@@ -1,0 +1,330 @@
+{
+  "evidence_version": "p1-g10-h2-1",
+  "source": "reports/data_audit/legacy_lineage_audit.json",
+  "source_sha256": "fba9e194026634c024e6424b9b8d61edb6620ca014968088e9540adf6dd9f2f1",
+  "policy_version": "p1-required-case-quarantine-1",
+  "scientific_boundary": "The real rows are present, but the available RDKit MCS output is formal diagnostic overlap rather than a complete atom map or a validated multi-lineage resolution. The new pipeline therefore quarantines all three rows and synthesizes no lineage.",
+  "case_count": 3,
+  "quarantined_count": 3,
+  "production_eligible_count": 0,
+  "forbidden_lineage_present_count": 0,
+  "resolved_lineage_count": 0,
+  "cases": [
+    {
+      "source_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+      "reaction_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+      "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@@H]1C[C@@H](O)CN1.O=C=O",
+      "legacy_finding": {
+        "category": "cross_lineage_pair",
+        "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+        "legacy_pair": [
+          "O=C(O)CCC(=O)C(=O)O",
+          "O=C(O)[C@@H]1C[C@@H](O)CN1"
+        ],
+        "center_evidence_semantics": "changed-atom transfer support, not full atom mapping"
+      },
+      "formal_mapping_summary": {
+        "mapper_name": "rdkit",
+        "mapper_version": "2026.03.4",
+        "mapping_status": "partially_mapped",
+        "mapped_heavy_atom_fraction": 0.4,
+        "changed_atom_coverage": 0.0,
+        "fallback_method": "mcs",
+        "source_assignment_method": "formal_mcs",
+        "mechanistic_atom_origin": null,
+        "output_hash": "c4e9f89167de81cab6e229fc8e05e8d6cc71574ef5f82edbf190919c3177392b",
+        "mapped_atom_pairs": [
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+            "reactant_atom_map": 0,
+            "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+            "product_atom_map": 0
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+            "reactant_atom_map": 1,
+            "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+            "product_atom_map": 1
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+            "reactant_atom_map": 2,
+            "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+            "product_atom_map": 2
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+            "reactant_atom_map": 3,
+            "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+            "product_atom_map": 3
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+            "reactant_atom_map": 4,
+            "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+            "product_atom_map": 4
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+            "reactant_atom_map": 5,
+            "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+            "product_atom_map": 5
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+            "reactant_atom_map": 6,
+            "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+            "product_atom_map": 7
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+            "reactant_atom_map": 7,
+            "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+            "product_atom_map": 8
+          }
+        ]
+      },
+      "new_pipeline_disposition": {
+        "disposition_id": "rcd_cbb9410539ed",
+        "source_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+        "reaction_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+        "required_case": "proline_2og",
+        "legacy_category": "cross_lineage_pair",
+        "mapping_status": "partially_mapped",
+        "fallback_method": "mcs",
+        "disposition": "quarantined",
+        "production_eligible": false,
+        "resolved_lineages": [],
+        "forbidden_lineage_present": false,
+        "quarantine_record": {
+          "record_id": "qr_b55a13bd56d4",
+          "reason": "known_legacy_cross_lineage_pair_has_no_independently_validated_multi_lineage_resolution",
+          "category": "required_case_lineage_unresolved",
+          "evidence_ids": [
+            "ev_g03_required_case_6cebd5e7ce92",
+            "ev_formal_mapping_e65df2be23bc"
+          ],
+          "source_record_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+          "quarantine_behavior": "quarantined",
+          "notes": "Fail-closed P1 required-case policy. Formal mapping status=partially_mapped; fallback=mcs. No lineage was synthesized and this row is excluded from production."
+        },
+        "evidence_ids": [
+          "ev_g03_required_case_6cebd5e7ce92",
+          "ev_formal_mapping_e65df2be23bc"
+        ],
+        "policy_version": "p1-required-case-quarantine-1"
+      }
+    },
+    {
+      "source_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+      "reaction_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+      "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@H]1C[C@@H](O)CN1.O=C=O",
+      "legacy_finding": {
+        "category": "cross_lineage_pair",
+        "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+        "legacy_pair": [
+          "O=C(O)CCC(=O)C(=O)O",
+          "O=C(O)[C@H]1C[C@@H](O)CN1"
+        ],
+        "center_evidence_semantics": "changed-atom transfer support, not full atom mapping"
+      },
+      "formal_mapping_summary": {
+        "mapper_name": "rdkit",
+        "mapper_version": "2026.03.4",
+        "mapping_status": "partially_mapped",
+        "mapped_heavy_atom_fraction": 0.4,
+        "changed_atom_coverage": 0.0,
+        "fallback_method": "mcs",
+        "source_assignment_method": "formal_mcs",
+        "mechanistic_atom_origin": null,
+        "output_hash": "c464c8e340bdfa5c0a9b63b0f83ce12face74005dd599844b9005a2e09d6fc11",
+        "mapped_atom_pairs": [
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+            "reactant_atom_map": 0,
+            "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+            "product_atom_map": 0
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+            "reactant_atom_map": 1,
+            "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+            "product_atom_map": 1
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+            "reactant_atom_map": 2,
+            "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+            "product_atom_map": 2
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+            "reactant_atom_map": 3,
+            "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+            "product_atom_map": 3
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+            "reactant_atom_map": 4,
+            "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+            "product_atom_map": 4
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+            "reactant_atom_map": 5,
+            "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+            "product_atom_map": 5
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+            "reactant_atom_map": 6,
+            "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+            "product_atom_map": 7
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+            "reactant_atom_map": 7,
+            "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+            "product_atom_map": 8
+          }
+        ]
+      },
+      "new_pipeline_disposition": {
+        "disposition_id": "rcd_9b3e0c5dee7b",
+        "source_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+        "reaction_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+        "required_case": "proline_2og",
+        "legacy_category": "cross_lineage_pair",
+        "mapping_status": "partially_mapped",
+        "fallback_method": "mcs",
+        "disposition": "quarantined",
+        "production_eligible": false,
+        "resolved_lineages": [],
+        "forbidden_lineage_present": false,
+        "quarantine_record": {
+          "record_id": "qr_f1ce8a7d87f3",
+          "reason": "known_legacy_cross_lineage_pair_has_no_independently_validated_multi_lineage_resolution",
+          "category": "required_case_lineage_unresolved",
+          "evidence_ids": [
+            "ev_g03_required_case_a9cf286cb6a5",
+            "ev_formal_mapping_faa52dbbe4e7"
+          ],
+          "source_record_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+          "quarantine_behavior": "quarantined",
+          "notes": "Fail-closed P1 required-case policy. Formal mapping status=partially_mapped; fallback=mcs. No lineage was synthesized and this row is excluded from production."
+        },
+        "evidence_ids": [
+          "ev_g03_required_case_a9cf286cb6a5",
+          "ev_formal_mapping_faa52dbbe4e7"
+        ],
+        "policy_version": "p1-required-case-quarantine-1"
+      }
+    },
+    {
+      "source_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+      "reaction_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+      "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@@H]1C[C@H](O)CN1.O=C=O",
+      "legacy_finding": {
+        "category": "cross_lineage_pair",
+        "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+        "legacy_pair": [
+          "O=C(O)CCC(=O)C(=O)O",
+          "O=C(O)[C@@H]1C[C@H](O)CN1"
+        ],
+        "center_evidence_semantics": "changed-atom transfer support, not full atom mapping"
+      },
+      "formal_mapping_summary": {
+        "mapper_name": "rdkit",
+        "mapper_version": "2026.03.4",
+        "mapping_status": "partially_mapped",
+        "mapped_heavy_atom_fraction": 0.4,
+        "changed_atom_coverage": 0.0,
+        "fallback_method": "mcs",
+        "source_assignment_method": "formal_mcs",
+        "mechanistic_atom_origin": null,
+        "output_hash": "730d6454b461586412e5d390c58780dec18e0848fe6d9ebcabc8c6fc87d63d25",
+        "mapped_atom_pairs": [
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+            "reactant_atom_map": 0,
+            "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+            "product_atom_map": 0
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+            "reactant_atom_map": 1,
+            "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+            "product_atom_map": 1
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+            "reactant_atom_map": 2,
+            "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+            "product_atom_map": 2
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+            "reactant_atom_map": 3,
+            "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+            "product_atom_map": 3
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+            "reactant_atom_map": 4,
+            "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+            "product_atom_map": 4
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+            "reactant_atom_map": 5,
+            "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+            "product_atom_map": 5
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+            "reactant_atom_map": 6,
+            "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+            "product_atom_map": 7
+          },
+          {
+            "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+            "reactant_atom_map": 7,
+            "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+            "product_atom_map": 8
+          }
+        ]
+      },
+      "new_pipeline_disposition": {
+        "disposition_id": "rcd_7d4f1e9cbefe",
+        "source_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+        "reaction_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+        "required_case": "proline_2og",
+        "legacy_category": "cross_lineage_pair",
+        "mapping_status": "partially_mapped",
+        "fallback_method": "mcs",
+        "disposition": "quarantined",
+        "production_eligible": false,
+        "resolved_lineages": [],
+        "forbidden_lineage_present": false,
+        "quarantine_record": {
+          "record_id": "qr_6a5364434efd",
+          "reason": "known_legacy_cross_lineage_pair_has_no_independently_validated_multi_lineage_resolution",
+          "category": "required_case_lineage_unresolved",
+          "evidence_ids": [
+            "ev_g03_required_case_deb7700033b4",
+            "ev_formal_mapping_312c3fb4ba60"
+          ],
+          "source_record_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+          "quarantine_behavior": "quarantined",
+          "notes": "Fail-closed P1 required-case policy. Formal mapping status=partially_mapped; fallback=mcs. No lineage was synthesized and this row is excluded from production."
+        },
+        "evidence_ids": [
+          "ev_g03_required_case_deb7700033b4",
+          "ev_formal_mapping_312c3fb4ba60"
+        ],
+        "policy_version": "p1-required-case-quarantine-1"
+      }
+    }
+  ],
+  "evidence_content_hash": "3bf163872d126094a336061430270deba102347351f9ae36fe700db7870e7111"
+}

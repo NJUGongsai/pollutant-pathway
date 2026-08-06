@@ -1,0 +1,150 @@
+{
+  "description": "Round 6 cofactor-direction / stoich-authority / mechanistic-product-registry / empty-FAT / heavy-atom mutations (M73–M77): each starts strict and one violating change must exit strict via the target invariant.",
+  "mutations": [
+    {
+      "mutation_id": "M73",
+      "mutation": "existing cofactor participant + uncontrolled direction enters strict",
+      "expected": "never strict (direct) AND public records lane != strict",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M73a=True M73b=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M73a",
+          "mutation": "existing cofactor participant + uncontrolled direction enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: cofactor_change_direction — participant 'r1' direction='sideways' not in controlled vocabulary ['unknown']",
+          "caught": true
+        },
+        {
+          "mutation_id": "M73b",
+          "mutation": "existing cofactor participant + uncontrolled direction via public API",
+          "expected": "decide_eligibility non-strict AND public records lane non-strict",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: cofactor_change_direction — participant 'r1' direction='sideways' not in controlled vocabula",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M74",
+      "mutation": "same participant/side duplicate/conflicting coefficients enter strict",
+      "expected": "never strict (all three collections)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M74a=True M74b=True M74c=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M74a",
+          "mutation": "conflicting reactant entry coefficients enter strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: reactant_entry_conflict — conflicting coefficients 1 and 2 for participant 'r1'",
+          "caught": true
+        },
+        {
+          "mutation_id": "M74b",
+          "mutation": "conflicting product entry coefficients enter strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: product_entry_conflict — conflicting coefficients 1 and 2 for participant 'p1'",
+          "caught": true
+        },
+        {
+          "mutation_id": "M74c",
+          "mutation": "conflicting stoichiometry coefficients enter strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: stoichiometry_conflict — conflicting coefficients 1 and 2 for 'r1'/'reactant'",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M75",
+      "mutation": "mechanistic reactant-only target map enters strict",
+      "expected": "never strict via product-side map registry",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited reason=strict_precondition_failed: mechanistic_evidence_map_product_side — target_atom_map_number 3 not in product-side map reg",
+      "caught": true
+    },
+    {
+      "mutation_id": "M76",
+      "mutation": "empty/duplicate formal transfer assignment enters strict",
+      "expected": "never strict (direct) AND public records lane != strict",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M76a=True M76b=True M76c=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M76a",
+          "mutation": "empty formal transfer maps enter strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_empty — assignment 'r1'→'p1' transfers no atoms",
+          "caught": true
+        },
+        {
+          "mutation_id": "M76b",
+          "mutation": "duplicate formal transfer maps enter strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_duplicate_map — assignment 'r1'→'p1' transfers duplicate maps [1, 1]",
+          "caught": true
+        },
+        {
+          "mutation_id": "M76c",
+          "mutation": "empty formal transfer via public API",
+          "expected": "decide_eligibility non-strict AND public records lane non-strict",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: formal_atom_transfer_empty — assignment 'r1'→'p1' transfers no atoms",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M77",
+      "mutation": "heavy-atom participant with empty maps + mapped_fraction=1.0 enters strict",
+      "expected": "never strict (direct) AND public records lane != strict",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M77a=True M77b=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M77a",
+          "mutation": "heavy-atom participant empty maps + mf=1.0 enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_evidence — participant 'x1' has 2 heavy atoms but no atom_map_numbers (mapped_fractio",
+          "caught": true
+        },
+        {
+          "mutation_id": "M77b",
+          "mutation": "heavy-atom participant empty maps via public API",
+          "expected": "decide_eligibility non-strict AND public records lane non-strict",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: participant_heavy_atom_map_evidence — participant 'x1' has 2 heavy atoms but no atom_map_num",
+          "caught": true
+        }
+      ]
+    }
+  ],
+  "caught": 5,
+  "total": 5
+}

@@ -1,0 +1,156 @@
+{
+  "total": 25,
+  "caught": 25,
+  "mutations": [
+    {
+      "id": "M1",
+      "mutation": "delete participant preservation (invariant_holds=False)",
+      "caught": true,
+      "expected": "G05 FAIL"
+    },
+    {
+      "id": "M2",
+      "mutation": "critical tie takes max (silent pick)",
+      "caught": true,
+      "expected": "G06 FAIL"
+    },
+    {
+      "id": "M3",
+      "mutation": "MCS marked as full mapping (assignment_method=mcs_full_mapping)",
+      "caught": true,
+      "expected": "G04 FAIL"
+    },
+    {
+      "id": "M4",
+      "mutation": "mapper fills mechanism (formal_only_verified=False)",
+      "caught": true,
+      "expected": "G04 FAIL"
+    },
+    {
+      "id": "M5",
+      "mutation": "quarantine record into production index",
+      "caught": true,
+      "expected": "G08 FAIL"
+    },
+    {
+      "id": "M6",
+      "mutation": "snapshot hash non-deterministic (same_hash_3way=False)",
+      "caught": true,
+      "expected": "G09 FAIL"
+    },
+    {
+      "id": "M7",
+      "mutation": "delete proline/2OG required case",
+      "caught": true,
+      "expected": "G06 FAIL"
+    },
+    {
+      "id": "M8",
+      "mutation": "add skipped/xfailed test",
+      "caught": true,
+      "expected": "G10 zero-skip FAIL"
+    },
+    {
+      "id": "M9",
+      "mutation": "G03 verdict COMPLETE but zero audited records",
+      "caught": true,
+      "expected": "G03 implementation FAIL (zero records)"
+    },
+    {
+      "id": "M10",
+      "mutation": "G03 verdict COMPLETE but source_ids/examples empty",
+      "caught": true,
+      "expected": "G03 implementation FAIL (empty source_ids)"
+    },
+    {
+      "id": "M11",
+      "mutation": "G03 legacy source file hash mismatch",
+      "caught": true,
+      "expected": "G03 implementation FAIL (hash mismatch)"
+    },
+    {
+      "id": "M12",
+      "mutation": "G04 status-only promotion while real adapter skeleton",
+      "caught": true,
+      "expected": "G04 BLOCKED via live probe (no fake PASS)"
+    },
+    {
+      "id": "M13",
+      "mutation": "G04 all_backends_unavailable=true but status COMPLETE",
+      "caught": true,
+      "expected": "G04 not PASS (contradictory JSON rejected)"
+    },
+    {
+      "id": "M14",
+      "mutation": "G06 remove proline case while keeping >=14 cases",
+      "caught": true,
+      "expected": "G06 implementation FAIL (proline missing)"
+    },
+    {
+      "id": "M15",
+      "mutation": "G06 inject forbidden 2OG->hydroxyproline strict pair",
+      "caught": true,
+      "expected": "G06 implementation FAIL (forbidden pairing)"
+    },
+    {
+      "id": "M16",
+      "mutation": "G08 mapping_completeness=failed enters strict production",
+      "caught": true,
+      "expected": "decide_eligibility non-strict (fail-closed)"
+    },
+    {
+      "id": "M17",
+      "mutation": "G08 source_completeness=incomplete enters strict production",
+      "caught": true,
+      "expected": "decide_eligibility non-strict (fail-closed)"
+    },
+    {
+      "id": "M18",
+      "mutation": "G09 mutate participant provenance without hash change",
+      "caught": true,
+      "expected": "snapshot hash changes (tampering detected)"
+    },
+    {
+      "id": "M19",
+      "mutation": "G09 mutate mapping pair without hash change",
+      "caught": true,
+      "expected": "snapshot hash changes (tampering detected)"
+    },
+    {
+      "id": "M20",
+      "mutation": "G09 mutate source ledger without hash change",
+      "caught": true,
+      "expected": "snapshot hash changes (tampering detected)"
+    },
+    {
+      "id": "M21",
+      "mutation": "G09 mutate transformed lineage without hash change",
+      "caught": true,
+      "expected": "snapshot hash changes (tampering detected)"
+    },
+    {
+      "id": "M22",
+      "mutation": "G10 COMPLETE statuses with null annotation files",
+      "caught": true,
+      "expected": "G10 implementation FAIL (null annotation files)"
+    },
+    {
+      "id": "M23",
+      "mutation": "G10 same annotator ID for A and B",
+      "caught": true,
+      "expected": "G10 implementation FAIL (non-independent annotators)"
+    },
+    {
+      "id": "M24",
+      "mutation": "G10 missing adjudication for disagreement",
+      "caught": true,
+      "expected": "G10 implementation FAIL (adjudication missing)"
+    },
+    {
+      "id": "M25",
+      "mutation": "blocked Gate also contains implementation failure",
+      "caught": true,
+      "expected": "Gate reported as FAIL (impl not masked by BLOCKED)"
+    }
+  ]
+}

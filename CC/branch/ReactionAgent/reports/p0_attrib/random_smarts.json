@@ -1,0 +1,77 @@
+{
+  "n_test": 692,
+  "outcomes": {
+    "no_candidate": 53,
+    "not_generated": 500,
+    "hit": 136,
+    "generated_but_ranked_low": 3
+  },
+  "funnel": {
+    "parsable": 692,
+    "has_donor": 692,
+    "has_candidate": 639,
+    "generated_true": 139
+  },
+  "topk": {
+    "top1": 81,
+    "top5": 130,
+    "top10": 136
+  },
+  "attribution": {
+    "not_generated": 500,
+    "unextractable": 2,
+    "selection_failure": 359,
+    "application_failure": 139
+  },
+  "retrieval": {
+    "req_edit_ok": 688,
+    "edit_retrieved": 287,
+    "scope": 692
+  },
+  "novelty_bins": {
+    "==1.0": {
+      "n": 354,
+      "top1": 31,
+      "top5": 58,
+      "top10": 64
+    },
+    "[0.0,0.4)": {
+      "n": 41,
+      "top1": 3,
+      "top5": 4,
+      "top10": 4
+    },
+    "[0.4,0.6)": {
+      "n": 119,
+      "top1": 13,
+      "top5": 14,
+      "top10": 14
+    },
+    "[0.6,0.8)": {
+      "n": 118,
+      "top1": 21,
+      "top5": 33,
+      "top10": 33
+    },
+    "[0.8,1.0)": {
+      "n": 60,
+      "top1": 13,
+      "top5": 21,
+      "top10": 21
+    }
+  },
+  "strategy": "random",
+  "config": {
+    "generator": "smarts",
+    "top_donors": 5,
+    "template_radius": 1,
+    "center_source": "mcs@transformed_pair",
+    "scorer_cap": 40,
+    "family_cap": 60,
+    "hit_topk": [
+      1,
+      5,
+      10
+    ]
+  }
+}

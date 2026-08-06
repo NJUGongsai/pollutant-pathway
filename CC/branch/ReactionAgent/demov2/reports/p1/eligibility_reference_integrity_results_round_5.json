@@ -1,0 +1,309 @@
+{
+  "description": "Round 5 ledger participant/map reference integrity + element/partial + lineage canonical duplicate + public boundary mutations (M57–M72): each starts strict and one violating change must exit strict / avoid mislabeling.",
+  "mutations": [
+    {
+      "mutation_id": "M57",
+      "mutation": "AddedAtomSource participant exists but atom map missing enters strict",
+      "expected": "never strict (direct) AND public records lane != strict",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M57a caught=True; M57b caught=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M57a",
+          "mutation": "AddedAtomSource existing participant + unknown map enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_map — atom_map_number 999 not in source participant 'r1' atom_map_numbers",
+          "caught": true
+        },
+        {
+          "mutation_id": "M57b",
+          "mutation": "AddedAtomSource existing participant + unknown map via public API",
+          "expected": "decide_eligibility non-strict AND public records lane non-strict",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: added_atom_source_map — atom_map_number 999 not in source participant 'r1' atom_map_numbers",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M58",
+      "mutation": "reactant_entries ghost participant enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: reactant_entry_ghost — participant_id 'ghost_r' not in participants",
+      "caught": true
+    },
+    {
+      "mutation_id": "M59",
+      "mutation": "product_entries ghost participant enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: product_entry_ghost — participant_id 'ghost_p' not in participants",
+      "caught": true
+    },
+    {
+      "mutation_id": "M60",
+      "mutation": "stoichiometry wrong-side / coefficient<=0 / contradictory role assignment enters strict",
+      "expected": "never strict (all three)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M60a=True M60b=True M60c=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M60a",
+          "mutation": "stoichiometry wrong-side enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: stoichiometry_side — entry.side='product' disagrees with participant 'r1' side='reactant'",
+          "caught": true
+        },
+        {
+          "mutation_id": "M60b",
+          "mutation": "stoichiometry coefficient<=0 enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: stoichiometry_coefficient — participant 'r1' coefficient=-2 (must be > 0)",
+          "caught": true
+        },
+        {
+          "mutation_id": "M60c",
+          "mutation": "contradictory role assignment enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: role_assignment_conflict — participant 'r1' carries contradictory roles ['transformed_substrate'] and 'cofactor'",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M61",
+      "mutation": "FormalAtomTransfer endpoints exist but sides reversed enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_side — source 'p1' has side='product' (expected 'reactant')",
+      "caught": true
+    },
+    {
+      "mutation_id": "M62",
+      "mutation": "FormalAtomTransfer unknown/conflicting map enters strict",
+      "expected": "never strict (both)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M62a=True M62b=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M62a",
+          "mutation": "FormalAtomTransfer unknown transferred map enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_map — transferred map 999 not in source participant 'r1' atom_map_numbers",
+          "caught": true
+        },
+        {
+          "mutation_id": "M62b",
+          "mutation": "FormalAtomTransfer conflicts with formal pairs enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r2' has heavy_atom_count=2 but unique_map_count=1 (mapped_fracti",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M63",
+      "mutation": "RemovedAtomSink ghost participant/map enters strict",
+      "expected": "never strict (both)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M63a=True M63b=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M63a",
+          "mutation": "RemovedAtomSink ghost participant enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_ghost — sink_participant_id 'ghost_sink' not in participants",
+          "caught": true
+        },
+        {
+          "mutation_id": "M63b",
+          "mutation": "RemovedAtomSink unknown map enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_map — atom_map_number 999 not in sink participant 'p1' atom_map_numbers",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M64",
+      "mutation": "CofactorChange ghost participant enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: cofactor_change_ghost — participant_id 'ghost_cof' not in participants",
+      "caught": true
+    },
+    {
+      "mutation_id": "M65",
+      "mutation": "MechanisticOriginEvidence ghost/map/dangling-linkage enters strict",
+      "expected": "never strict (all three)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M65a=True M65b=True M65c=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M65a",
+          "mutation": "MechanisticOriginEvidence ghost participant enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mechanistic_evidence_ghost — source_participant_id 'ghost_mech' not in participants",
+          "caught": true
+        },
+        {
+          "mutation_id": "M65b",
+          "mutation": "MechanisticOriginEvidence unknown target map enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mechanistic_evidence_map_product_side — target_atom_map_number 999 not in product-side map registry",
+          "caught": true
+        },
+        {
+          "mutation_id": "M65c",
+          "mutation": "AddedAtomSource dangling mechanistic evidence linkage enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_evidence — mechanistic_evidence_id 'mech_nonexistent' does not resolve to an existing Mechanis",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M66",
+      "mutation": "negative element counts enter strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=quarantine, reason=element_balance_contradiction: element 'C' has negative reactant_count=-1",
+      "caught": true
+    },
+    {
+      "mutation_id": "M67",
+      "mutation": "partial ledger consistent non-zero delta mislabeled as fully-balanced contradiction",
+      "expected": "non-strict AND non-quarantine AND reason not claiming fully-balanced",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited reason=partial_or_unbalanced_source: ledger balance_status=partial_or_unbalanced_source — partial/unbalanced source cannot verify full balance (fai",
+      "caught": true
+    },
+    {
+      "mutation_id": "M68",
+      "mutation": "within-participant duplicate atom map enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_map_duplicate — participant 'r1' declares duplicate atom map numbers [1, 1, 2]",
+      "caught": true
+    },
+    {
+      "mutation_id": "M69",
+      "mutation": "same-side cross-participant atom map collision enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_map_collision — reactant atom map 1 declared by both 'r1' and 'r2'",
+      "caught": true
+    },
+    {
+      "mutation_id": "M70",
+      "mutation": "duplicate participant ID / uncontrolled participant side enters strict",
+      "expected": "never strict (both)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M70a=True M70b=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M70a",
+          "mutation": "duplicate participant ID enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_duplicate_id — participant_id 'r1' appears more than once",
+          "caught": true
+        },
+        {
+          "mutation_id": "M70b",
+          "mutation": "uncontrolled participant side enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_side — participant 'm1' has uncontrolled side='middle' (must be 'reactant' or 'product')",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M71",
+      "mutation": "duplicate embedded lineage IDs enter strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: embedded_lineage_duplicate — embedded resolved_transformed_lineages contain duplicate IDs ['lin_r1_p1', 'lin_r1_",
+      "caught": true
+    },
+    {
+      "mutation_id": "M72",
+      "mutation": "reordered-map semantic duplicate lineage enters strict (direct + public)",
+      "expected": "never strict (direct) AND public records lane != strict",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M72a caught=True; M72b caught=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M72a",
+          "mutation": "reordered-map semantic duplicate lineage enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: duplicate_lineage — semantic-duplicate lineage content ('r1', 'p1', (1, 2)) (reordered or repeated edge/maps)",
+          "caught": true
+        },
+        {
+          "mutation_id": "M72b",
+          "mutation": "reordered-map semantic duplicate lineage via public API",
+          "expected": "decide_eligibility non-strict AND public records lane non-strict",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: duplicate_lineage — semantic-duplicate lineage content ('r1', 'p1', (1, 2)) (reordered or re",
+          "caught": true
+        }
+      ]
+    }
+  ],
+  "caught": 16,
+  "total": 16
+}

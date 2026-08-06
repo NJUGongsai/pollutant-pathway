@@ -1,0 +1,63 @@
+{
+  "schema_version": "p5-1",
+  "summary": {
+    "total_artifacts": 10,
+    "real": 6,
+    "synthetic_fixture": 0,
+    "derived_diagnostic": 1,
+    "protocol_only": 3,
+    "blocked": 0
+  },
+  "artifacts": [
+    {
+      "name": "full_snapshot_manifest",
+      "classification": "real",
+      "reason": "Real P1 snapshot snap_19caddc6b312 (50 audited Rhea cases)"
+    },
+    {
+      "name": "production_index_manifest",
+      "classification": "real",
+      "reason": "Derived from real snapshot records (7 production + 43 diagnostic)"
+    },
+    {
+      "name": "rebuilt_case_manifest",
+      "classification": "real",
+      "reason": "50 cases from real records + P2 audited truth (allowed_product_set)"
+    },
+    {
+      "name": "split_family_manifest",
+      "classification": "mixed",
+      "reason": "exact_x/scaffold/ood are real (P2 split + RDKit Murcko); transformation_family/source/time are protocol_only (honest unavailable)"
+    },
+    {
+      "name": "baseline_run_manifest",
+      "classification": "mixed",
+      "reason": "strict_kernel real (P3 artifact); other baselines protocol_only (defined, not run)"
+    },
+    {
+      "name": "six_layer_report",
+      "classification": "real",
+      "reason": "Real metrics from P3 kernel + P4 verified bundle; cost/runtime unavailable"
+    },
+    {
+      "name": "formal_kpi_registry",
+      "classification": "real",
+      "reason": "Registered when P3+P4 real data available"
+    },
+    {
+      "name": "go_no_go_decision",
+      "classification": "real",
+      "reason": "Go decision on real data integrity + retrieval availability"
+    },
+    {
+      "name": "p5_p6_interface_manifest",
+      "classification": "protocol_only",
+      "reason": "Interface contract only"
+    },
+    {
+      "name": "oracle_upper_bound",
+      "classification": "derived_diagnostic",
+      "reason": "Oracle baseline (diagnostic only), unavailable"
+    }
+  ]
+}

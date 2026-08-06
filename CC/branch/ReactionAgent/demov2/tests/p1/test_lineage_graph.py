@@ -646,8 +646,8 @@ def test_proline_2og_quarantine_when_mapping_insufficient():
     ), "unmapped reaction must be unresolved or failed, not resolved"
 
 
-def test_proline_2og_required_case_missing_not_fabricated():
-    """§12.6: real proline/2OG source is required_case_missing — not fabricated.
+def test_proline_2og_real_source_is_bound_without_upgrading_center_pairs():
+    """§12.6: real proline/2OG rows are bound while curated maps stay labeled.
 
     The resolver never fabricates real-data results. When only a synthetic
     fixture is available, the hard Gate is verified on the curated fixture
@@ -655,11 +655,9 @@ def test_proline_2og_required_case_missing_not_fabricated():
     blocked until the user supplies a RHEA/BRENDA source record.
 
     This test verifies the claim by inspecting the produced artifacts:
-    - lineage_regression_cases.json: case 01 fixture_type == "curated"
-      (NOT "real"), and proline_2og_hard_gate mentions required_case_missing.
-    - P1_PREFLIGHT.json: source_record_found == null and
-      "required_case_missing" in blockers.
-    No real-data examples are fabricated.
+    The curated formal-map fixture remains curated.  Separately, G03 binds the
+    real legacy donor rows by participant structure and does not upgrade
+    reacting-center pairs into full atom mapping.
     """
     import json
     from pathlib import Path
@@ -673,28 +671,24 @@ def test_proline_2og_required_case_missing_not_fabricated():
 
     case_01 = cases_data["regression_cases"][0]
     assert case_01["case"].startswith("01_proline"), "case 01 is proline/2OG"
-    assert case_01["fixture_type"] == "curated", (
-        "proline/2OG case must be 'curated' (synthetic), NOT 'real' — "
-        "real source is required_case_missing"
-    )
+    assert case_01["fixture_type"] == "curated"
     gate_msg = cases_data.get("proline_2og_hard_gate", "")
-    assert "required_case_missing" in gate_msg, (
-        "proline_2og_hard_gate must mention required_case_missing — "
-        "no real source record fabricated"
-    )
+    assert "G03" in gate_msg and "real" in gate_msg.lower()
+    real_case = cases_data["real_source_case_audit"]
+    assert real_case["status"] == "COMPLETE"
+    assert real_case["structure_match_count"] > 0
+    assert real_case["strict_resolution_claimed"] is False
+    assert "not full atom mapping" in real_case["source_semantics"]
 
     # -- P1_PREFLIGHT.json --
     preflight_path = reports_dir / "P1_PREFLIGHT.json"
     assert preflight_path.exists(), "P1_PREFLIGHT.json must exist"
     preflight = json.loads(preflight_path.read_text())
 
-    assert "required_case_missing" in preflight["blockers"], (
-        "Preflight blockers must include required_case_missing"
-    )
+    assert "required_case_missing" not in preflight["blockers"]
     proline_case = preflight["case"]["proline_2og"]
-    assert proline_case["source_record_found"] is None, (
-        "source_record_found must be null — no real source record fabricated"
-    )
+    assert proline_case["source_record_found"] is True
+    assert proline_case["source_ids"]
 
 
 # =====================================================================

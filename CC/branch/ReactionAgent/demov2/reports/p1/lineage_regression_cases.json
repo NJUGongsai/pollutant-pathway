@@ -824,6 +824,14 @@
       ]
     }
   ],
-  "proline_2og_hard_gate": "Case A (curated fixture: proline->hydroxyproline + 2OG->succinate + O transfer). Real source: required_case_missing.",
+  "proline_2og_hard_gate": "Case A keeps its curated formal-map regression. G03 independently located 3 real proline/2OG source rows by participant structure; all 3 expose the legacy forbidden cross-lineage pair and are retained as real audit evidence.",
+  "real_source_case_audit": {
+    "status": "COMPLETE",
+    "evidence": "reports/data_audit/legacy_lineage_audit.json",
+    "structure_match_count": 3,
+    "legacy_cross_lineage_count": 3,
+    "source_semantics": "real legacy donor-corpus rows; reacting centers are transfer evidence, not full atom mapping",
+    "strict_resolution_claimed": false
+  },
   "forbidden_lineage_check": "2OG->hydroxyproline NOT in strict_eligible_pairs for case 01; NAD->NADH NOT in strict_eligible_pairs for case 02 (carrier, not transformed)."
 }

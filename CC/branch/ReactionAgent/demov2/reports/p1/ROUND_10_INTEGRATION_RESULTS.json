@@ -1,0 +1,309 @@
+{
+  "round": 10,
+  "task_a_ready": true,
+  "task_b_ready": true,
+  "independent_probes": [
+    {
+      "probe_id": "IC-01",
+      "label": "record_count=true",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.record_count=true",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: record_count expected int got bool"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-02",
+      "label": "failure_counts_by_reason count=true",
+      "fixture_reaction_ids": [
+        "rxn_diag_001"
+      ],
+      "field_value_mutated": "manifest.failure_counts_by_reason[existing_key]=true",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_b45e68c89c89"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: failure_counts_by_reason['unknown_changed_heavy_atom_source: changed heavy atoms [3] h'] expected exact int got bool"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-03",
+      "label": "failure_counts_by_reason count=1.0",
+      "fixture_reaction_ids": [
+        "rxn_diag_001"
+      ],
+      "field_value_mutated": "manifest.failure_counts_by_reason[existing_key]=1.0",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_b45e68c89c89"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: failure_counts_by_reason['unknown_changed_heavy_atom_source: changed heavy atoms [3] h'] expected exact int got float"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-04",
+      "label": "missing build_status",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.build_status (deleted)",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_required_field_missing: build_status"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-05",
+      "label": "build_status=true",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.build_status=true",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: build_status expected str got bool"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-06",
+      "label": "build_status='partial'",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.build_status='partial'",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotIncompleteError",
+        "token": "snapshot snap_fd8a0f86cebd is not complete (build_status='partial'). Loader rejects incomplete snapshots."
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-07",
+      "label": "included_strict_count=true",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.included_strict_count=true",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: included_strict_count expected int got bool"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-08",
+      "label": "legal all-four-lanes snapshot loads",
+      "fixture_reaction_ids": [
+        "rxn_cond_001",
+        "rxn_diag_001",
+        "rxn_quar_001",
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": null,
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_38d129b95ac1"
+      },
+      "post_mutation_load_result": {
+        "accepted": true,
+        "exception_type": null,
+        "token": null
+      },
+      "accepted": true,
+      "rebuild_equality": {
+        "build_status_ok": true,
+        "strict_ok": true,
+        "conditional_ok": true,
+        "diagnostic_ok": true,
+        "quarantine_ok": true,
+        "source_counts_ok": true,
+        "source_sum_matches_record_count": true
+      },
+      "all_rebuilt_values_equal": true
+    }
+  ],
+  "test_counts": {
+    "manifest_authority_type_integrity": {
+      "passed": 38,
+      "failed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "nested_builder_complete": {
+      "passed": 89,
+      "failed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "contracts": {
+      "passed": 290,
+      "failed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "p1": {
+      "passed": 594,
+      "failed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "full": {
+      "passed": 884,
+      "failed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    }
+  },
+  "p0_gate": {
+    "passed": 10,
+    "total": 10,
+    "status": "PASS",
+    "verdict": "READY_FOR_CHATGPT_AUDIT"
+  },
+  "p1_gate": {
+    "passed": 7,
+    "failed": 0,
+    "blocked": 3,
+    "total": 10,
+    "status": "BLOCKED",
+    "exit_code": 1,
+    "matrix": {
+      "P1-G01": "PASS",
+      "P1-G02": "PASS",
+      "P1-G03": "BLOCKED",
+      "P1-G04": "BLOCKED",
+      "P1-G05": "PASS",
+      "P1-G06": "PASS",
+      "P1-G07": "PASS",
+      "P1-G08": "PASS",
+      "P1-G09": "PASS",
+      "P1-G10": "BLOCKED"
+    }
+  },
+  "g08": {
+    "mandatory_total": 117,
+    "mandatory_passed": 117,
+    "collected": 216,
+    "passed": 216
+  },
+  "g09": {
+    "previous_mandatory_total": 33,
+    "mandatory_total": 71,
+    "mandatory_passed": 71,
+    "collected": 127,
+    "passed": 127
+  },
+  "mutations": {
+    "total": 91,
+    "caught": 91,
+    "not_caught": []
+  },
+  "implementation_failures": [],
+  "external_blockers": {
+    "P1-G03": "real_reaction_source_not_confirmed; required_case_missing_proline_2og_source_record",
+    "P1-G04": "RealMapperAdapter.map_reaction() still a skeleton (T4 follow-up)",
+    "P1-G10": "annotator_a/b + adjudication NOT_PRODUCED (no independent second annotator)"
+  },
+  "ready_for_chatgpt_audit": true,
+  "p2_status": "BLOCKED"
+}

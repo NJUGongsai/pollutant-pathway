@@ -26,9 +26,17 @@ from reaction_agent.lineage.resolver import (
     build_lineage_graph,
     resolve_lineages,
 )
+from reaction_agent.lineage.required_case import (
+    REQUIRED_CASE_POLICY_VERSION,
+    RequiredCaseDisposition,
+    quarantine_unresolved_required_case,
+)
 
 __all__ = [
     "RESOLVER_VERSION",
     "build_lineage_graph",
     "resolve_lineages",
+    "REQUIRED_CASE_POLICY_VERSION",
+    "RequiredCaseDisposition",
+    "quarantine_unresolved_required_case",
 ]

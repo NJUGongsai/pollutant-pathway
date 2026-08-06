@@ -1,0 +1,427 @@
+{
+  "round": 10,
+  "branch": "main",
+  "head": "4eb463368e38f2faa3d3656a05974c4b1c1211a6",
+  "working_tree": "dirty (Round 7/8/9/10 uncommitted changes; user pre-existing changes preserved)",
+  "python": "3.11.15",
+  "task_a_handoff": "reports/p1/ROUND_10_TASK_A_HANDOFF.md (status READY: TASK_A_MANIFEST_CORE_READY_FOR_TASK_B)",
+  "task_b_handoff": "reports/p1/ROUND_10_TASK_B_HANDOFF.md (status READY: TASK_B_GATE_MUTATIONS_READY_FOR_TASK_C)",
+  "task_a_manifest_core": "reports/p1/CHATGPT_P1_ROUND_10_TASK_A_MANIFEST_CORE.md",
+  "task_b_gate_mutations": "reports/p1/CHATGPT_P1_ROUND_10_TASK_B_GATE_MUTATIONS.md",
+  "changed_files": [
+    "reaction_agent/snapshot/loader.py (Round 10 manifest type-authority block)",
+    "tests/p1/test_manifest_authority_type_integrity.py (new, 623 lines, 38 tests)",
+    "scripts/run_p1_gate.py (G09 mandatory wiring + _G09_MANIFEST_AUTHORITY_FILE)",
+    "scripts/run_p1_mutations.py (M56j/M56k/M56l + M89/M90/M91)",
+    "reports/p1/manifest_type_authority_results_round_10.json (new)",
+    "reports/p1/gate_false_positive_mutation_results_round_10.json (new)",
+    "reports/p1/ROUND_10_TASK_A_HANDOFF.md (new)",
+    "reports/p1/ROUND_10_TASK_B_HANDOFF.md (new)",
+    "reports/p1/ROUND_10_INTEGRATION_RESULTS.json (new)",
+    "reports/p1/P1_ROUND_10_AUDIT_EVIDENCE.json (new)",
+    "reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_10.md (new)",
+    "reports/p1/P1_REMEDIATION_WORKLOG.md (Round 10 appended)",
+    "reports/p1/P1_GATE_REPORT.md/.json (refreshed by gate run)",
+    "reports/p1/mutation_results.json (refreshed by mutation runner run)"
+  ],
+  "unchanged_frozen_files": [
+    "plan/final_design.md",
+    "plan/final_plan.md",
+    "reaction_agent/eligibility/engine.py (mtime 07-31 16:38, pre-Round-10)",
+    "reaction_agent/snapshot/builder.py (mtime 07-31 17:19, pre-Round-10)",
+    "reaction_agent/schemas/*",
+    "reaction_agent/policies/*",
+    "P0 ADRs / P0 frozen contracts",
+    "../benchmark",
+    "../core"
+  ],
+  "round9_baseline_counts": {
+    "contracts": 290,
+    "p1": 556,
+    "full": 846,
+    "p0_gate": "10/10 PASS",
+    "p1_gate": "7 PASS / 0 FAIL / 3 BLOCKED",
+    "g08_mandatory": "117/117",
+    "g09_mandatory": "33/33",
+    "mutations": "88/88 caught"
+  },
+  "round10_final_counts": {
+    "contracts": 290,
+    "p1": 594,
+    "full": 884,
+    "p0_gate": "10/10 PASS",
+    "p1_gate": "7 PASS / 0 FAIL / 3 BLOCKED",
+    "g08_mandatory": "117/117",
+    "g09_mandatory": "71/71",
+    "mutations": "91/91 caught"
+  },
+  "required_fields_and_exact_types": {
+    "top_level_object": "type(manifest) is dict; non-object -> manifest_field_type_invalid",
+    "integer_authority_fields": "type(value) is int (NOT isinstance; isinstance(True,int) is True)",
+    "string_fields": "type(value) is str",
+    "build_status": "missing -> manifest_required_field_missing; non-str -> manifest_field_type_invalid; != complete -> SnapshotIncompleteError",
+    "required_fields": [
+      "snapshot_id",
+      "schema_version",
+      "included_strict_count",
+      "conditional_count",
+      "diagnostic_count",
+      "quarantine_count",
+      "build_status",
+      "snapshot_hash",
+      "build_id",
+      "source_counts",
+      "policy_version",
+      "record_count",
+      "versions",
+      "source_files",
+      "failure_counts_by_reason",
+      "record_content_hashes",
+      "production_index_hash",
+      "diagnostic_index_hash",
+      "quarantine_index_hash",
+      "build_config_hash"
+    ]
+  },
+  "nested_shape_contract": {
+    "source_counts": "dict[str, exact int >= 0]",
+    "failure_counts_by_reason": "dict[str, exact int >= 0]",
+    "source_files": "dict[str, non-empty str]",
+    "versions": "dict[str, non-empty str]",
+    "record_content_hashes": "list[non-empty str]",
+    "bool_float_rule": "true/false/1.0 never accepted as int counts"
+  },
+  "build_status_order": [
+    "parse JSON",
+    "confirm top-level object",
+    "build_status presence (missing -> manifest_required_field_missing)",
+    "build_status exact str (non-str -> manifest_field_type_invalid)",
+    "interpret build_status (!= complete -> SnapshotIncompleteError)",
+    "full required presence + exact top-level types (20 fields)",
+    "nested shape/type checks",
+    "COMPLETE marker",
+    "index partition",
+    "canonical hash",
+    "manifest authority comparisons",
+    "construct returned record"
+  ],
+  "build_status_order_deviation": "build_status presence/exact-str is checked before the full required-field scan (to preserve §16.5 test_load_snapshot_rejects_incomplete contract where build_status='partial' + missing fields must yield SnapshotIncompleteError, not manifest_required_field_missing). Documented in Task A §7 and R10-5.",
+  "verified_return_sources": {
+    "snapshot_id": "expected_snapshot_id (snap_ + snapshot_hash[:12])",
+    "snapshot_hash": "recomputed_snapshot_hash",
+    "included_strict_count": "rebuilt lane_counts['strict']",
+    "conditional_count": "rebuilt lane_counts['conditional']",
+    "diagnostic_count": "rebuilt lane_counts['diagnostic']",
+    "quarantine_count": "rebuilt lane_counts['quarantine']",
+    "build_status": "verified literal 'complete'",
+    "source_counts": "dict(sorted(rebuilt src_counts.items()))",
+    "trust_root_fields": "schema_version/build_id/policy_version/build_config_hash returned from manifest after strict type + hash verification (protected by canonical snapshot hash)",
+    "no_raw_manifest_echo": "SnapshotManifest/SnapshotRecord built ONLY from verified dict; no SnapshotManifest(**raw_manifest_values_without_cross_verify)"
+  },
+  "IC-01..IC-08": [
+    {
+      "probe_id": "IC-01",
+      "label": "record_count=true",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.record_count=true",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: record_count expected int got bool"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-02",
+      "label": "failure_counts_by_reason count=true",
+      "fixture_reaction_ids": [
+        "rxn_diag_001"
+      ],
+      "field_value_mutated": "manifest.failure_counts_by_reason[existing_key]=true",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_b45e68c89c89"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: failure_counts_by_reason['unknown_changed_heavy_atom_source: changed heavy atoms [3] h'] expected exact int got bool"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-03",
+      "label": "failure_counts_by_reason count=1.0",
+      "fixture_reaction_ids": [
+        "rxn_diag_001"
+      ],
+      "field_value_mutated": "manifest.failure_counts_by_reason[existing_key]=1.0",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_b45e68c89c89"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: failure_counts_by_reason['unknown_changed_heavy_atom_source: changed heavy atoms [3] h'] expected exact int got float"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-04",
+      "label": "missing build_status",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.build_status (deleted)",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_required_field_missing: build_status"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-05",
+      "label": "build_status=true",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.build_status=true",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: build_status expected str got bool"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-06",
+      "label": "build_status='partial'",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.build_status='partial'",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotIncompleteError",
+        "token": "snapshot snap_fd8a0f86cebd is not complete (build_status='partial'). Loader rejects incomplete snapshots."
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-07",
+      "label": "included_strict_count=true",
+      "fixture_reaction_ids": [
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": "manifest.included_strict_count=true",
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_fd8a0f86cebd"
+      },
+      "post_mutation_load_result": {
+        "accepted": false,
+        "exception_type": "SnapshotHashMismatchError",
+        "token": "manifest_field_type_invalid: included_strict_count expected int got bool"
+      },
+      "accepted": false,
+      "artifacts_changed": {
+        "records.jsonl": false,
+        "production_index.jsonl": false,
+        "diagnostic_index.jsonl": false,
+        "quarantine_index.jsonl": false,
+        "COMPLETE": false,
+        "manifest_snapshot_hash_value": false
+      }
+    },
+    {
+      "probe_id": "IC-08",
+      "label": "legal all-four-lanes snapshot loads",
+      "fixture_reaction_ids": [
+        "rxn_cond_001",
+        "rxn_diag_001",
+        "rxn_quar_001",
+        "rxn_strict_001"
+      ],
+      "field_value_mutated": null,
+      "pre_mutation_load_result": {
+        "accepted": true,
+        "snapshot_id": "snap_38d129b95ac1"
+      },
+      "post_mutation_load_result": {
+        "accepted": true,
+        "exception_type": null,
+        "token": null
+      },
+      "accepted": true,
+      "rebuild_equality": {
+        "build_status_ok": true,
+        "strict_ok": true,
+        "conditional_ok": true,
+        "diagnostic_ok": true,
+        "quarantine_ok": true,
+        "source_counts_ok": true,
+        "source_sum_matches_record_count": true
+      },
+      "all_rebuilt_values_equal": true
+    }
+  ],
+  "g08_previous_mandatory_total": 117,
+  "g08_final_mandatory_total": 117,
+  "g08_final_mandatory_passed": 117,
+  "g09_previous_mandatory_total": 33,
+  "g09_final_mandatory_total": 71,
+  "g09_final_mandatory_passed": 71,
+  "M56j": {
+    "target": "test_loader_rejects_manifest_record_count_bool",
+    "gate_result": "G09 FAIL",
+    "caught": true,
+    "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1"
+  },
+  "M56k": {
+    "target": "test_loader_rejects_missing_manifest_build_status",
+    "gate_result": "G09 FAIL",
+    "caught": true,
+    "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1"
+  },
+  "M56l": {
+    "target": "test_loader_returns_recomputed_manifest_counts",
+    "gate_result": "G09 FAIL",
+    "caught": true,
+    "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1"
+  },
+  "M1-M88_preserved": true,
+  "M89": {
+    "mutation": "record_count=true",
+    "caught": true,
+    "token": "manifest_field_type_invalid"
+  },
+  "M90": {
+    "mutation": "failure_counts_by_reason true/1.0",
+    "caught": true,
+    "sub_results": {
+      "M90a": true,
+      "M90b": true
+    }
+  },
+  "M91": {
+    "mutation": "build_status delete/true/partial",
+    "caught": true,
+    "sub_results": {
+      "M91a": "manifest_required_field_missing",
+      "M91b": "manifest_field_type_invalid",
+      "M91c": "SnapshotIncompleteError"
+    }
+  },
+  "mutations_total": 91,
+  "mutations_caught": 91,
+  "p0_gate": {
+    "passed": 10,
+    "total": 10,
+    "status": "PASS",
+    "verdict": "READY_FOR_CHATGPT_AUDIT"
+  },
+  "p1_gate": {
+    "passed": 7,
+    "failed": 0,
+    "blocked": 3,
+    "status": "BLOCKED",
+    "exit_code": 1,
+    "matrix": {
+      "P1-G01": "PASS",
+      "P1-G02": "PASS",
+      "P1-G03": "BLOCKED",
+      "P1-G04": "BLOCKED",
+      "P1-G05": "PASS",
+      "P1-G06": "PASS",
+      "P1-G07": "PASS",
+      "P1-G08": "PASS",
+      "P1-G09": "PASS",
+      "P1-G10": "BLOCKED"
+    }
+  },
+  "zero_skip_xfail_xpass": true,
+  "git_diff_check": {
+    "round10_owned_files_clean": true,
+    "exit_code": 2,
+    "flags": [
+      "reports/p1/P1_PREFLIGHT.md:75 new blank line at EOF (pre-existing at HEAD; whitespace-only; not a Round 10 file; derived-report regeneration from earlier round)"
+    ]
+  },
+  "external_blockers": {
+    "P1-G03": "real_reaction_source_not_confirmed; required_case_missing_proline_2og_source_record",
+    "P1-G04": "RealMapperAdapter.map_reaction() still a skeleton (T4 follow-up)",
+    "P1-G10": "annotator_a/b + adjudication NOT_PRODUCED (no independent second annotator in single LLM session)"
+  },
+  "dependency_or_network_actions": [],
+  "synthetic_fixture_usage": "yes — synthetic labeled fixtures only (source_name=fixture_source_a/b); never impersonate real reaction evidence",
+  "p2_status": "BLOCKED",
+  "ready_for_chatgpt_audit": true
+}

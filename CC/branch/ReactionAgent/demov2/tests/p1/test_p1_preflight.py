@@ -59,10 +59,13 @@ class TestRuntimeInventory:
         assert rt["pytest_version"] is not None
         assert isinstance(rt["pytest_version"], str)
 
-    def test_mapper_backend_defaults_none(self, pf):
+    def test_mapper_backend_matches_live_rdkit_state(self, pf):
         rt = pf.runtime_inventory()
-        # T1 decision pending; must be None at preflight time
-        assert rt["mapper_backend"] is None
+        if rt["rdkit"] is None:
+            assert rt["mapper_backend"] is None
+        else:
+            assert "rdkit" in rt["mapper_backend"]
+            assert "mcs" in rt["mapper_backend"]
 
     def test_working_directory_is_demov2(self, pf):
         rt = pf.runtime_inventory()
@@ -128,10 +131,11 @@ class TestRealSourceInventory:
         for k in ("candidate_env_keys_present", "real_reaction_source_found", "data_root_scan_allowed"):
             assert k in src, f"missing {k}"
 
-    def test_real_reaction_source_found_is_none_at_preflight(self, pf):
+    def test_real_reaction_source_found_matches_declared_assets(self, pf):
         src = pf.real_source_inventory()
-        # None = not yet confirmed; confirmed by T3/T6, not preflight
-        assert src["real_reaction_source_found"] is None
+        assert src["real_reaction_source_found"] is True
+        assert src["reaction_count"] == 3601
+        assert src["reaction_center_overlap_count"] == src["reaction_count"]
 
     def test_data_root_scan_not_allowed(self, pf):
         src = pf.real_source_inventory()
@@ -178,10 +182,11 @@ class TestCaseInventory:
         case = pf.case_inventory()
         assert case["proline_2og"]["forbidden_lineage"] == EXPECTED_FORBIDDEN_LINEAGE
 
-    def test_source_record_found_is_none_at_preflight(self, pf):
+    def test_source_record_found_comes_from_structure_audit(self, pf):
         case = pf.case_inventory()
-        # None = required_case_missing at preflight
-        assert case["proline_2og"]["source_record_found"] is None
+        assert case["proline_2og"]["source_record_found"] is True
+        assert case["proline_2og"]["structure_match_count"] > 0
+        assert case["proline_2og"]["source_ids"]
 
 
 # ============================================================

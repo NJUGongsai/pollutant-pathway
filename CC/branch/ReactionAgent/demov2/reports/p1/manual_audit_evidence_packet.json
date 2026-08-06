@@ -1,0 +1,1619 @@
+{
+  "packet_version": "p1-t11-evidence-4",
+  "fixture_disclosure": "The four T10 records are synthetic contract fixtures, not real production chemistry. They audit pipeline semantics only.",
+  "frozen_protocol": {
+    "path": "docs/manual_audit_protocol.md",
+    "sha256": "11d9f198b0c976010d998af711fc9d15a9a3ce251d7daf9878893ab5b11a9f65"
+  },
+  "sample_manifest": {
+    "manifest_version": "p1-t11-3",
+    "protocol_sha256": "11d9f198b0c976010d998af711fc9d15a9a3ce251d7daf9878893ab5b11a9f65",
+    "sample_source": "fixture_snapshot_t10",
+    "snapshot_id": "snap_c589494081df",
+    "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+    "sample_strategy": "census",
+    "random_seed": null,
+    "sample_size_justification": "T10 fixture snapshot contains 4 records (strict=1, conditional=1, diagnostic=1, quarantine=1). Per §17.2, datasets with ≤ 50 records are audited in full census. Only observed fixture strata are listed.",
+    "coverage_boundary": "Contract-fixture lane/semantics census only. It does not claim real chemical-diversity or performance coverage; absent multi-reactant and explicit-cofactor strata are disclosed, not fabricated.",
+    "total_records_in_snapshot": 4,
+    "sample_size": 4,
+    "fixture_label": "FIXTURE — synthetic ReactionEvidence + SourceReactionLedger + ResolvedTransformedLineage. No real data fabricated and no production-performance claim.",
+    "strata": {
+      "by_mapping_quality": {
+        "fully_mapped": 3,
+        "partially_mapped": 1
+      },
+      "by_eligibility_lane": {
+        "conditional": 1,
+        "diagnostic": 1,
+        "quarantine": 1,
+        "strict": 1
+      },
+      "by_source": {
+        "fixture_source_a": 4
+      },
+      "by_reaction_class": {
+        "carbon_chain_extension_unknown_atom_source": 1,
+        "charge_neutralization_unbalanced": 1,
+        "identity_no_heavy_atom_change": 2
+      },
+      "by_participant_count": {
+        "reactants_1_products_1": 4
+      },
+      "by_cofactor_pattern": {
+        "no_explicit_cofactor_role": 4
+      },
+      "by_ledger_status": {
+        "fully_balanced_explicit_reaction": 1,
+        "heavy_atom_balanced_with_implicit_h_e_policy": 1,
+        "partial_or_unbalanced_source": 2
+      },
+      "by_quarantine_reason": {
+        "critical_contradiction": 1,
+        "none": 3
+      }
+    },
+    "items": [
+      {
+        "sample_id": "audit_001",
+        "reaction_id": "rxn_strict_001",
+        "source_name": "fixture_source_a",
+        "lane_expected": "strict",
+        "stratum_labels": {
+          "mapping_quality": "fully_mapped",
+          "eligibility_lane": "strict",
+          "source": "fixture_source_a",
+          "reaction_class": "identity_no_heavy_atom_change",
+          "participant_count": "reactants_1_products_1",
+          "cofactor_pattern": "no_explicit_cofactor_role",
+          "ledger_status": "fully_balanced_explicit_reaction",
+          "quarantine_reason": "none"
+        },
+        "rubric_items_applicable": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10",
+          "R11"
+        ]
+      },
+      {
+        "sample_id": "audit_002",
+        "reaction_id": "rxn_cond_001",
+        "source_name": "fixture_source_a",
+        "lane_expected": "conditional",
+        "stratum_labels": {
+          "mapping_quality": "fully_mapped",
+          "eligibility_lane": "conditional",
+          "source": "fixture_source_a",
+          "reaction_class": "identity_no_heavy_atom_change",
+          "participant_count": "reactants_1_products_1",
+          "cofactor_pattern": "no_explicit_cofactor_role",
+          "ledger_status": "heavy_atom_balanced_with_implicit_h_e_policy",
+          "quarantine_reason": "none"
+        },
+        "rubric_items_applicable": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10",
+          "R11"
+        ]
+      },
+      {
+        "sample_id": "audit_003",
+        "reaction_id": "rxn_diag_001",
+        "source_name": "fixture_source_a",
+        "lane_expected": "diagnostic",
+        "stratum_labels": {
+          "mapping_quality": "partially_mapped",
+          "eligibility_lane": "diagnostic",
+          "source": "fixture_source_a",
+          "reaction_class": "carbon_chain_extension_unknown_atom_source",
+          "participant_count": "reactants_1_products_1",
+          "cofactor_pattern": "no_explicit_cofactor_role",
+          "ledger_status": "partial_or_unbalanced_source",
+          "quarantine_reason": "none"
+        },
+        "rubric_items_applicable": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10",
+          "R11"
+        ]
+      },
+      {
+        "sample_id": "audit_004",
+        "reaction_id": "rxn_quar_001",
+        "source_name": "fixture_source_a",
+        "lane_expected": "quarantine",
+        "stratum_labels": {
+          "mapping_quality": "fully_mapped",
+          "eligibility_lane": "quarantine",
+          "source": "fixture_source_a",
+          "reaction_class": "charge_neutralization_unbalanced",
+          "participant_count": "reactants_1_products_1",
+          "cofactor_pattern": "no_explicit_cofactor_role",
+          "ledger_status": "partial_or_unbalanced_source",
+          "quarantine_reason": "critical_contradiction"
+        },
+        "rubric_items_applicable": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10",
+          "R11"
+        ]
+      }
+    ],
+    "annotator_requirements": {
+      "annotator_count": 2,
+      "independence": "Annotator A and B must be distinct no-shared-context instances; neither may read the peer output before submission.",
+      "adjudicator": "A third no-shared-context instance reviews A+B only after both outputs are complete."
+    },
+    "current_status": "READY_FOR_INDEPENDENT_ROUND_3_AUDIT",
+    "current_census_verdict_rule": "Every listed R1-R11 cell is applicable and must be pass or fail; the frozen §17.3.1 rules define R7/R9/R11 per-row interpretation.",
+    "prior_rounds": [
+      {
+        "round": 1,
+        "status": "FAIL",
+        "archive": "reports/p1/g10_round_1/",
+        "preserved": true
+      },
+      {
+        "round": 2,
+        "status": "FAIL",
+        "archive": "reports/p1/g10_round_2/",
+        "preserved": true
+      }
+    ]
+  },
+  "snapshot_manifest": {
+    "build_config_hash": "bd234f390bead8bbf2db82d251d2abef02e265027e4f58c5cc5ee46c2459796c",
+    "build_id": "build_ff0b5cf09ae6",
+    "build_status": "complete",
+    "builder_version": "p1-t10-1",
+    "completed_at": "2026-08-02T06:24:22.485116+00:00",
+    "conditional_count": 1,
+    "diagnostic_count": 1,
+    "diagnostic_index_hash": "021769ef77c58b38d492a3318bd9d39162979e50847892651689726a812804ef",
+    "failure_counts_by_reason": {
+      "critical_element_charge_contradiction: charge_balance=-1 (re": 1,
+      "unknown_changed_heavy_atom_source: changed heavy atoms [3] h": 1
+    },
+    "included_strict_count": 1,
+    "policy_version": "p1-1",
+    "production_index_hash": "52e8200df31ec4fef5cc6b65bdc4158b65ec1f8b2d4205dbba1b0870bb9061c6",
+    "quarantine_count": 1,
+    "quarantine_index_hash": "8cdde2866a4a0cd9945dcc90ebb075b589f489d1ed15d8cbfcff51f2d2b5749c",
+    "record_content_hashes": [
+      "05a31929cb071ed2e21e7683bb4d4f74ff3970eb29302d18922f5a80a0f2be99",
+      "6da210e7d34312e2fa30a85d8b1aed7d9ecbb6c8eee522e7f38742d156a5ec75",
+      "795797cd10e5494337f69eedaf3a97bb5bcf51dda679175a55e27cde77ebae7e",
+      "c7128084c8a54405d5d86067edb31564224855c2b974d8c61b3ab38e8f17c26c"
+    ],
+    "record_count": 4,
+    "schema_version": "p1-1",
+    "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+    "snapshot_id": "snap_c589494081df",
+    "source_counts": {
+      "fixture_source_a": 4
+    },
+    "source_files": {
+      "fixture_source_a": "1876e1289fd0bb5b3f16ec618817c203a0819e1f457cafe160d69396956ad652"
+    },
+    "versions": {
+      "builder_version": "p1-t10-1",
+      "eligibility_engine_version": "p1-t9-1",
+      "eligibility_policy_version": "p1-1",
+      "ledger_version": "p1-1",
+      "lineage_resolver_version": "p1-1",
+      "mapper_version": "p1-1",
+      "normalization_version": "p1-1",
+      "package_version": "0.0.0",
+      "role_policy_version": "p1-1"
+    }
+  },
+  "snapshot_replay_evidence": {
+    "input_a_order": "forward",
+    "input_b_order": "reverse",
+    "hash_only_no_write": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+    "build_a": {
+      "snapshot_id": "snap_c589494081df",
+      "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+      "build_status": "complete",
+      "loader_accepted": true,
+      "loaded_snapshot_id": "snap_c589494081df",
+      "loaded_snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89"
+    },
+    "build_b": {
+      "snapshot_id": "snap_c589494081df",
+      "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+      "build_status": "complete",
+      "loader_accepted": true,
+      "loaded_snapshot_id": "snap_c589494081df",
+      "loaded_snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89"
+    },
+    "same_hash_across_hash_build_load": true,
+    "same_snapshot_id_across_build_load": true,
+    "manifest_a_record_content_hashes": [
+      "05a31929cb071ed2e21e7683bb4d4f74ff3970eb29302d18922f5a80a0f2be99",
+      "6da210e7d34312e2fa30a85d8b1aed7d9ecbb6c8eee522e7f38742d156a5ec75",
+      "795797cd10e5494337f69eedaf3a97bb5bcf51dda679175a55e27cde77ebae7e",
+      "c7128084c8a54405d5d86067edb31564224855c2b974d8c61b3ab38e8f17c26c"
+    ],
+    "manifest_b_record_content_hashes": [
+      "05a31929cb071ed2e21e7683bb4d4f74ff3970eb29302d18922f5a80a0f2be99",
+      "6da210e7d34312e2fa30a85d8b1aed7d9ecbb6c8eee522e7f38742d156a5ec75",
+      "795797cd10e5494337f69eedaf3a97bb5bcf51dda679175a55e27cde77ebae7e",
+      "c7128084c8a54405d5d86067edb31564224855c2b974d8c61b3ab38e8f17c26c"
+    ],
+    "record_content_hashes_equal": true
+  },
+  "records": [
+    {
+      "eligibility_decision": {
+        "decision_id": "ed_2e2ff8b7864a",
+        "eligibility": "conditional_eligible",
+        "evaluation_bucket": "production",
+        "evidence_ids": [],
+        "participant_id": "rxn_cond_001",
+        "policy_version": "p1-1",
+        "quarantine_behavior": "not_quarantined",
+        "reason": "heavy_atom_balanced_implicit_he: heavy atoms balanced, H/e policy implicit (balance_status=heavy_atom_balanced_with_implicit_h_e_policy)",
+        "required_warnings": [
+          "implicit_h_e_policy"
+        ],
+        "research_diagnostic_eligibility": "eligible"
+      },
+      "lane": "conditional",
+      "quarantine_record": null,
+      "reaction_evidence": {
+        "ambiguity_sets": [],
+        "direction": "forward",
+        "fragment_lineage_graph": {},
+        "mapping_report": {
+          "changed_atom_coverage": 1.0,
+          "fallback_method": null,
+          "formal_mapped_source_assignment": {
+            "assignment_ambiguity": false,
+            "assignment_method": "formal_mapped",
+            "assignment_quality": "high_quality",
+            "mapped_atom_pairs": [
+              {
+                "product_atom_map": 1,
+                "product_participant_id": "p1",
+                "reactant_atom_map": 1,
+                "reactant_participant_id": "r1"
+              },
+              {
+                "product_atom_map": 2,
+                "product_participant_id": "p1",
+                "reactant_atom_map": 2,
+                "reactant_participant_id": "r1"
+              }
+            ],
+            "mapper_name": "fake_mapper",
+            "mapper_version": "v1"
+          },
+          "input_hash": "inp_abc",
+          "map_number_uniqueness": true,
+          "mapped_heavy_atom_fraction": 1.0,
+          "mapper_name": "fake_mapper",
+          "mapper_parameters": {
+            "timeout": "30"
+          },
+          "mapper_version": "v1",
+          "mapping_status": "fully_mapped",
+          "mechanistic_atom_origin": null,
+          "mechanistic_origin_evidence_ids": [],
+          "output_hash": "out_def",
+          "quality_flags": [],
+          "resonance_tautomer_ambiguity": false,
+          "source_assignment_ambiguity": false,
+          "source_assignment_method": "formal_mapped",
+          "source_assignment_quality": "high_quality",
+          "symmetry_ambiguity": false
+        },
+        "normalized_reaction": "CC>>CC",
+        "participants": [
+          {
+            "atom_map_numbers": [
+              1,
+              2
+            ],
+            "canonical_smiles": "CC",
+            "changed_atom_fraction": 0.0,
+            "donor_eligibility": false,
+            "formal_charge": 0,
+            "mapped_fraction": 1.0,
+            "molecule_id": "mol_r1",
+            "participant_id": "r1",
+            "provenance": [],
+            "role_hypotheses": [],
+            "side": "reactant",
+            "stoichiometry": 1
+          },
+          {
+            "atom_map_numbers": [
+              1,
+              2
+            ],
+            "canonical_smiles": "CC",
+            "changed_atom_fraction": 0.0,
+            "donor_eligibility": false,
+            "formal_charge": 0,
+            "mapped_fraction": 1.0,
+            "molecule_id": "mol_p1",
+            "participant_id": "p1",
+            "provenance": [],
+            "role_hypotheses": [],
+            "side": "product",
+            "stoichiometry": 1
+          }
+        ],
+        "provenance": [],
+        "quality_report": {},
+        "quarantine": null,
+        "raw_reaction": "CC>>CC",
+        "reaction_id": "rxn_cond_001",
+        "resolved_transformed_lineages": [],
+        "source_name": "fixture_source_a",
+        "source_reaction_ledger": null,
+        "source_record_id": "src_rxn_cond_001",
+        "source_uri_or_citation": "",
+        "source_version": "v1",
+        "transformation_hypotheses": []
+      },
+      "record_content_hash": "6da210e7d34312e2fa30a85d8b1aed7d9ecbb6c8eee522e7f38742d156a5ec75",
+      "resolved_lineages": [
+        {
+          "ambiguity": "none",
+          "evidence_ids": [],
+          "lineage_id": "lin_r1_p1",
+          "product_participant_id": "p1",
+          "reactant_participant_id": "r1",
+          "resolution_quality": "resolved",
+          "transformed_atom_maps": [
+            1,
+            2
+          ]
+        }
+      ],
+      "source_ledger": {
+        "added_atom_sources": [],
+        "balance_status": "heavy_atom_balanced_with_implicit_h_e_policy",
+        "charge_balance": 0,
+        "cofactor_changes": [],
+        "electron_policy": "unknown",
+        "element_balance": [],
+        "evidence_ids": [],
+        "formal_atom_transfer_assignments": [],
+        "hydrogen_policy": "implicit_heavy_atom_balanced_h_policy",
+        "ledger_id": "srl_rxn_cond_001",
+        "mapping_completeness": "complete",
+        "mechanistic_origin_evidence": [],
+        "product_entries": [],
+        "proton_policy": "unknown",
+        "reactant_entries": [],
+        "reaction_evidence_id": "rxn_cond_001",
+        "removed_atom_sinks": [],
+        "role_assignments": [
+          {
+            "evidence_codes": [],
+            "participant_id": "r1",
+            "role": "transformed_substrate",
+            "score": 0.9
+          },
+          {
+            "evidence_codes": [],
+            "participant_id": "p1",
+            "role": "transformed_product",
+            "score": 0.9
+          }
+        ],
+        "source_completeness": "complete",
+        "stoichiometry": [],
+        "unknowns": []
+      }
+    },
+    {
+      "eligibility_decision": {
+        "decision_id": "ed_a01a4c1305cf",
+        "eligibility": "strict_prohibited",
+        "evaluation_bucket": "diagnostic",
+        "evidence_ids": [],
+        "participant_id": "rxn_diag_001",
+        "policy_version": "p1-1",
+        "quarantine_behavior": "not_quarantined",
+        "reason": "unknown_changed_heavy_atom_source: changed heavy atoms [3] have no formal source",
+        "required_warnings": [
+          "missing_atom_source"
+        ],
+        "research_diagnostic_eligibility": "eligible"
+      },
+      "lane": "diagnostic",
+      "quarantine_record": null,
+      "reaction_evidence": {
+        "ambiguity_sets": [],
+        "direction": "forward",
+        "fragment_lineage_graph": {},
+        "mapping_report": {
+          "changed_atom_coverage": 0.0,
+          "fallback_method": null,
+          "formal_mapped_source_assignment": {
+            "assignment_ambiguity": false,
+            "assignment_method": "formal_mapped",
+            "assignment_quality": "acceptable",
+            "mapped_atom_pairs": [
+              {
+                "product_atom_map": 1,
+                "product_participant_id": "p1",
+                "reactant_atom_map": 1,
+                "reactant_participant_id": "r1"
+              },
+              {
+                "product_atom_map": 2,
+                "product_participant_id": "p1",
+                "reactant_atom_map": 2,
+                "reactant_participant_id": "r1"
+              }
+            ],
+            "mapper_name": "fixture_partial_mapper",
+            "mapper_version": "v1"
+          },
+          "input_hash": "inp_partial_abc",
+          "map_number_uniqueness": true,
+          "mapped_heavy_atom_fraction": 0.6666666666666666,
+          "mapper_name": "fixture_partial_mapper",
+          "mapper_parameters": {
+            "mode": "curated_partial_fixture"
+          },
+          "mapper_version": "v1",
+          "mapping_status": "partially_mapped",
+          "mechanistic_atom_origin": null,
+          "mechanistic_origin_evidence_ids": [],
+          "output_hash": "out_partial_def",
+          "quality_flags": [],
+          "resonance_tautomer_ambiguity": false,
+          "source_assignment_ambiguity": false,
+          "source_assignment_method": "formal_mapped",
+          "source_assignment_quality": "acceptable",
+          "symmetry_ambiguity": false
+        },
+        "normalized_reaction": "CC>>CCC",
+        "participants": [
+          {
+            "atom_map_numbers": [
+              1,
+              2
+            ],
+            "canonical_smiles": "CC",
+            "changed_atom_fraction": 0.0,
+            "donor_eligibility": false,
+            "formal_charge": 0,
+            "mapped_fraction": 0.5,
+            "molecule_id": "mol_r1",
+            "participant_id": "r1",
+            "provenance": [],
+            "role_hypotheses": [],
+            "side": "reactant",
+            "stoichiometry": 1
+          },
+          {
+            "atom_map_numbers": [
+              1,
+              2,
+              3
+            ],
+            "canonical_smiles": "CCC",
+            "changed_atom_fraction": 0.3,
+            "donor_eligibility": false,
+            "formal_charge": 0,
+            "mapped_fraction": 1.0,
+            "molecule_id": "mol_p1",
+            "participant_id": "p1",
+            "provenance": [],
+            "role_hypotheses": [],
+            "side": "product",
+            "stoichiometry": 1
+          }
+        ],
+        "provenance": [],
+        "quality_report": {},
+        "quarantine": null,
+        "raw_reaction": "CC>>CCC",
+        "reaction_id": "rxn_diag_001",
+        "resolved_transformed_lineages": [],
+        "source_name": "fixture_source_a",
+        "source_reaction_ledger": null,
+        "source_record_id": "src_rxn_diag_001",
+        "source_uri_or_citation": "",
+        "source_version": "v1",
+        "transformation_hypotheses": []
+      },
+      "record_content_hash": "795797cd10e5494337f69eedaf3a97bb5bcf51dda679175a55e27cde77ebae7e",
+      "resolved_lineages": [
+        {
+          "ambiguity": "none",
+          "evidence_ids": [],
+          "lineage_id": "lin_r1_p1",
+          "product_participant_id": "p1",
+          "reactant_participant_id": "r1",
+          "resolution_quality": "resolved",
+          "transformed_atom_maps": [
+            1,
+            2
+          ]
+        }
+      ],
+      "source_ledger": {
+        "added_atom_sources": [
+          {
+            "atom_map_number": 3,
+            "formal_assignment": true,
+            "mechanistic_evidence_id": null,
+            "source_participant_id": "unknown_source"
+          }
+        ],
+        "balance_status": "partial_or_unbalanced_source",
+        "charge_balance": 0,
+        "cofactor_changes": [],
+        "electron_policy": "unknown",
+        "element_balance": [],
+        "evidence_ids": [],
+        "formal_atom_transfer_assignments": [],
+        "hydrogen_policy": "unknown",
+        "ledger_id": "srl_rxn_diag_001",
+        "mapping_completeness": "complete",
+        "mechanistic_origin_evidence": [],
+        "product_entries": [],
+        "proton_policy": "unknown",
+        "reactant_entries": [],
+        "reaction_evidence_id": "rxn_diag_001",
+        "removed_atom_sinks": [],
+        "role_assignments": [
+          {
+            "evidence_codes": [],
+            "participant_id": "r1",
+            "role": "transformed_substrate",
+            "score": 0.9
+          },
+          {
+            "evidence_codes": [],
+            "participant_id": "p1",
+            "role": "transformed_product",
+            "score": 0.9
+          }
+        ],
+        "source_completeness": "complete",
+        "stoichiometry": [],
+        "unknowns": []
+      }
+    },
+    {
+      "eligibility_decision": {
+        "decision_id": "ed_2b096f3bc888",
+        "eligibility": "quarantine",
+        "evaluation_bucket": "excluded",
+        "evidence_ids": [],
+        "participant_id": "rxn_quar_001",
+        "policy_version": "p1-1",
+        "quarantine_behavior": "quarantined",
+        "reason": "critical_element_charge_contradiction: charge_balance=-1 (reactant/product charges mismatch)",
+        "required_warnings": [
+          "critical_contradiction"
+        ],
+        "research_diagnostic_eligibility": "not_eligible"
+      },
+      "lane": "quarantine",
+      "quarantine_record": {
+        "category": "critical_contradiction",
+        "evidence_ids": [],
+        "notes": "auto-quarantined by eligibility engine (p1-t9-1); state=critical_element_charge_contradiction",
+        "quarantine_behavior": "quarantined",
+        "reason": "critical_element_charge_contradiction: charge_balance=-1 (reactant/product charges mismatch)",
+        "record_id": "qr_089e1dcd78f4",
+        "source_record_id": "src_rxn_quar_001"
+      },
+      "reaction_evidence": {
+        "ambiguity_sets": [],
+        "direction": "forward",
+        "fragment_lineage_graph": {},
+        "mapping_report": {
+          "changed_atom_coverage": 1.0,
+          "fallback_method": null,
+          "formal_mapped_source_assignment": {
+            "assignment_ambiguity": false,
+            "assignment_method": "formal_mapped",
+            "assignment_quality": "high_quality",
+            "mapped_atom_pairs": [
+              {
+                "product_atom_map": 1,
+                "product_participant_id": "p1",
+                "reactant_atom_map": 1,
+                "reactant_participant_id": "r1"
+              },
+              {
+                "product_atom_map": 2,
+                "product_participant_id": "p1",
+                "reactant_atom_map": 2,
+                "reactant_participant_id": "r1"
+              }
+            ],
+            "mapper_name": "fake_mapper",
+            "mapper_version": "v1"
+          },
+          "input_hash": "inp_abc",
+          "map_number_uniqueness": true,
+          "mapped_heavy_atom_fraction": 1.0,
+          "mapper_name": "fake_mapper",
+          "mapper_parameters": {
+            "timeout": "30"
+          },
+          "mapper_version": "v1",
+          "mapping_status": "fully_mapped",
+          "mechanistic_atom_origin": null,
+          "mechanistic_origin_evidence_ids": [],
+          "output_hash": "out_def",
+          "quality_flags": [],
+          "resonance_tautomer_ambiguity": false,
+          "source_assignment_ambiguity": false,
+          "source_assignment_method": "formal_mapped",
+          "source_assignment_quality": "high_quality",
+          "symmetry_ambiguity": false
+        },
+        "normalized_reaction": "[CH3:1][CH2+:2]>>[CH3:1][CH3:2]",
+        "participants": [
+          {
+            "atom_map_numbers": [
+              1,
+              2
+            ],
+            "canonical_smiles": "C[CH2+]",
+            "changed_atom_fraction": 0.0,
+            "donor_eligibility": false,
+            "formal_charge": 1,
+            "mapped_fraction": 1.0,
+            "molecule_id": "mol_r1",
+            "participant_id": "r1",
+            "provenance": [],
+            "role_hypotheses": [],
+            "side": "reactant",
+            "stoichiometry": 1
+          },
+          {
+            "atom_map_numbers": [
+              1,
+              2
+            ],
+            "canonical_smiles": "CC",
+            "changed_atom_fraction": 0.0,
+            "donor_eligibility": false,
+            "formal_charge": 0,
+            "mapped_fraction": 1.0,
+            "molecule_id": "mol_p1",
+            "participant_id": "p1",
+            "provenance": [],
+            "role_hypotheses": [],
+            "side": "product",
+            "stoichiometry": 1
+          }
+        ],
+        "provenance": [],
+        "quality_report": {},
+        "quarantine": null,
+        "raw_reaction": "[CH3:1][CH2+:2]>>[CH3:1][CH3:2]",
+        "reaction_id": "rxn_quar_001",
+        "resolved_transformed_lineages": [],
+        "source_name": "fixture_source_a",
+        "source_reaction_ledger": null,
+        "source_record_id": "src_rxn_quar_001",
+        "source_uri_or_citation": "",
+        "source_version": "v1",
+        "transformation_hypotheses": []
+      },
+      "record_content_hash": "c7128084c8a54405d5d86067edb31564224855c2b974d8c61b3ab38e8f17c26c",
+      "resolved_lineages": [
+        {
+          "ambiguity": "none",
+          "evidence_ids": [],
+          "lineage_id": "lin_r1_p1",
+          "product_participant_id": "p1",
+          "reactant_participant_id": "r1",
+          "resolution_quality": "resolved",
+          "transformed_atom_maps": [
+            1,
+            2
+          ]
+        }
+      ],
+      "source_ledger": {
+        "added_atom_sources": [],
+        "balance_status": "partial_or_unbalanced_source",
+        "charge_balance": -1,
+        "cofactor_changes": [],
+        "electron_policy": "unknown",
+        "element_balance": [],
+        "evidence_ids": [],
+        "formal_atom_transfer_assignments": [],
+        "hydrogen_policy": "unknown",
+        "ledger_id": "srl_rxn_quar_001",
+        "mapping_completeness": "complete",
+        "mechanistic_origin_evidence": [],
+        "product_entries": [],
+        "proton_policy": "unknown",
+        "reactant_entries": [],
+        "reaction_evidence_id": "rxn_quar_001",
+        "removed_atom_sinks": [],
+        "role_assignments": [
+          {
+            "evidence_codes": [],
+            "participant_id": "r1",
+            "role": "transformed_substrate",
+            "score": 0.9
+          },
+          {
+            "evidence_codes": [],
+            "participant_id": "p1",
+            "role": "transformed_product",
+            "score": 0.9
+          }
+        ],
+        "source_completeness": "complete",
+        "stoichiometry": [],
+        "unknowns": []
+      }
+    },
+    {
+      "eligibility_decision": {
+        "decision_id": "ed_fd42010ac957",
+        "eligibility": "strict_eligible",
+        "evaluation_bucket": "production",
+        "evidence_ids": [],
+        "participant_id": "rxn_strict_001",
+        "policy_version": "p1-1",
+        "quarantine_behavior": "not_quarantined",
+        "reason": "fully_balanced_reliable_mapping: fully balanced explicit reaction, all atoms sourced, direction known",
+        "required_warnings": [],
+        "research_diagnostic_eligibility": "eligible"
+      },
+      "lane": "strict",
+      "quarantine_record": null,
+      "reaction_evidence": {
+        "ambiguity_sets": [],
+        "direction": "forward",
+        "fragment_lineage_graph": {},
+        "mapping_report": {
+          "changed_atom_coverage": 1.0,
+          "fallback_method": null,
+          "formal_mapped_source_assignment": {
+            "assignment_ambiguity": false,
+            "assignment_method": "formal_mapped",
+            "assignment_quality": "high_quality",
+            "mapped_atom_pairs": [
+              {
+                "product_atom_map": 1,
+                "product_participant_id": "p1",
+                "reactant_atom_map": 1,
+                "reactant_participant_id": "r1"
+              },
+              {
+                "product_atom_map": 2,
+                "product_participant_id": "p1",
+                "reactant_atom_map": 2,
+                "reactant_participant_id": "r1"
+              }
+            ],
+            "mapper_name": "fake_mapper",
+            "mapper_version": "v1"
+          },
+          "input_hash": "inp_abc",
+          "map_number_uniqueness": true,
+          "mapped_heavy_atom_fraction": 1.0,
+          "mapper_name": "fake_mapper",
+          "mapper_parameters": {
+            "timeout": "30"
+          },
+          "mapper_version": "v1",
+          "mapping_status": "fully_mapped",
+          "mechanistic_atom_origin": null,
+          "mechanistic_origin_evidence_ids": [],
+          "output_hash": "out_def",
+          "quality_flags": [],
+          "resonance_tautomer_ambiguity": false,
+          "source_assignment_ambiguity": false,
+          "source_assignment_method": "formal_mapped",
+          "source_assignment_quality": "high_quality",
+          "symmetry_ambiguity": false
+        },
+        "normalized_reaction": "CC>>CC",
+        "participants": [
+          {
+            "atom_map_numbers": [
+              1,
+              2
+            ],
+            "canonical_smiles": "CC",
+            "changed_atom_fraction": 0.0,
+            "donor_eligibility": false,
+            "formal_charge": 0,
+            "mapped_fraction": 1.0,
+            "molecule_id": "mol_r1",
+            "participant_id": "r1",
+            "provenance": [],
+            "role_hypotheses": [],
+            "side": "reactant",
+            "stoichiometry": 1
+          },
+          {
+            "atom_map_numbers": [
+              1,
+              2
+            ],
+            "canonical_smiles": "CC",
+            "changed_atom_fraction": 0.0,
+            "donor_eligibility": false,
+            "formal_charge": 0,
+            "mapped_fraction": 1.0,
+            "molecule_id": "mol_p1",
+            "participant_id": "p1",
+            "provenance": [],
+            "role_hypotheses": [],
+            "side": "product",
+            "stoichiometry": 1
+          }
+        ],
+        "provenance": [],
+        "quality_report": {},
+        "quarantine": null,
+        "raw_reaction": "CC>>CC",
+        "reaction_id": "rxn_strict_001",
+        "resolved_transformed_lineages": [],
+        "source_name": "fixture_source_a",
+        "source_reaction_ledger": null,
+        "source_record_id": "src_rxn_strict_001",
+        "source_uri_or_citation": "",
+        "source_version": "v1",
+        "transformation_hypotheses": []
+      },
+      "record_content_hash": "05a31929cb071ed2e21e7683bb4d4f74ff3970eb29302d18922f5a80a0f2be99",
+      "resolved_lineages": [
+        {
+          "ambiguity": "none",
+          "evidence_ids": [],
+          "lineage_id": "lin_r1_p1",
+          "product_participant_id": "p1",
+          "reactant_participant_id": "r1",
+          "resolution_quality": "resolved",
+          "transformed_atom_maps": [
+            1,
+            2
+          ]
+        }
+      ],
+      "source_ledger": {
+        "added_atom_sources": [],
+        "balance_status": "fully_balanced_explicit_reaction",
+        "charge_balance": 0,
+        "cofactor_changes": [],
+        "electron_policy": "unknown",
+        "element_balance": [],
+        "evidence_ids": [],
+        "formal_atom_transfer_assignments": [],
+        "hydrogen_policy": "unknown",
+        "ledger_id": "srl_rxn_strict_001",
+        "mapping_completeness": "complete",
+        "mechanistic_origin_evidence": [],
+        "product_entries": [],
+        "proton_policy": "unknown",
+        "reactant_entries": [],
+        "reaction_evidence_id": "rxn_strict_001",
+        "removed_atom_sinks": [],
+        "role_assignments": [
+          {
+            "evidence_codes": [],
+            "participant_id": "r1",
+            "role": "transformed_substrate",
+            "score": 0.9
+          },
+          {
+            "evidence_codes": [],
+            "participant_id": "p1",
+            "role": "transformed_product",
+            "score": 0.9
+          }
+        ],
+        "source_completeness": "complete",
+        "stoichiometry": [],
+        "unknowns": []
+      }
+    }
+  ],
+  "index_membership": {
+    "production": [
+      "rxn_cond_001",
+      "rxn_strict_001"
+    ],
+    "diagnostic": [
+      "rxn_diag_001"
+    ],
+    "quarantine": [
+      "rxn_quar_001"
+    ]
+  },
+  "real_required_case_evidence": {
+    "legacy_source": "reports/data_audit/legacy_lineage_audit.json",
+    "legacy_source_sha256": "fba9e194026634c024e6424b9b8d61edb6620ca014968088e9540adf6dd9f2f1",
+    "legacy_case_summary": {
+      "reaction": "2-oxoglutarate + proline + O2 -> succinate + hydroxyproline + CO2",
+      "expected_lineages": [
+        "proline -> hydroxyproline",
+        "2-oxoglutarate -> succinate"
+      ],
+      "forbidden_lineage": "2-oxoglutarate -> hydroxyproline",
+      "source_record_found": true,
+      "status": "audited_from_real_source",
+      "structure_match_count": 3,
+      "source_ids": [
+        "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+        "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+        "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562"
+      ],
+      "legacy_cross_lineage_count": 3,
+      "note": "Located by exact stereo-independent participant structures, not by molecule-name keywords. Reacting-center pairs support fragment lineages but are not represented as full atom mapping."
+    },
+    "legacy_rows": [
+      {
+        "source_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+        "reaction_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+        "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@@H]1C[C@@H](O)CN1.O=C=O",
+        "enzyme_records": [
+          [
+            "A0A166YZY4",
+            "1.14.11.57"
+          ],
+          [
+            "A0A455ZMR3",
+            "1.14.11.57"
+          ],
+          [
+            "R9UTQ8",
+            "1.14.11.57"
+          ]
+        ],
+        "category": "cross_lineage_pair",
+        "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+        "legacy_pair": [
+          "O=C(O)CCC(=O)C(=O)O",
+          "O=C(O)[C@@H]1C[C@@H](O)CN1"
+        ],
+        "reacting_center_fragment_edges": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "center_evidence_semantics": "changed-atom transfer support, not full atom mapping",
+        "lineage_continuity_evidence": {
+          "selected_continuity": 0.315789,
+          "selected_mcs_heavy_atoms": 3,
+          "best_product_positions_for_selected_reactant": [
+            0
+          ],
+          "best_reactant_positions_for_selected_product": [
+            1
+          ],
+          "mutual_unique_best": false,
+          "tie": false,
+          "semantics": "MCS scaffold continuity for lineage audit; not atom mapping"
+        },
+        "required_case": "proline_2og"
+      },
+      {
+        "source_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+        "reaction_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+        "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@@H]1C[C@H](O)CN1.O=C=O",
+        "enzyme_records": [
+          [
+            "Q92LF6",
+            "1.14.11.56"
+          ],
+          [
+            "Q989T9",
+            "1.14.11.56"
+          ]
+        ],
+        "category": "cross_lineage_pair",
+        "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+        "legacy_pair": [
+          "O=C(O)CCC(=O)C(=O)O",
+          "O=C(O)[C@@H]1C[C@H](O)CN1"
+        ],
+        "reacting_center_fragment_edges": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "center_evidence_semantics": "changed-atom transfer support, not full atom mapping",
+        "lineage_continuity_evidence": {
+          "selected_continuity": 0.315789,
+          "selected_mcs_heavy_atoms": 3,
+          "best_product_positions_for_selected_reactant": [
+            0
+          ],
+          "best_reactant_positions_for_selected_product": [
+            1
+          ],
+          "mutual_unique_best": false,
+          "tie": false,
+          "semantics": "MCS scaffold continuity for lineage audit; not atom mapping"
+        },
+        "required_case": "proline_2og"
+      },
+      {
+        "source_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+        "reaction_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+        "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@H]1C[C@@H](O)CN1.O=C=O",
+        "enzyme_records": [
+          [
+            "A0A166YZY4",
+            ""
+          ],
+          [
+            "A0A455ZMR3",
+            ""
+          ]
+        ],
+        "category": "cross_lineage_pair",
+        "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+        "legacy_pair": [
+          "O=C(O)CCC(=O)C(=O)O",
+          "O=C(O)[C@H]1C[C@@H](O)CN1"
+        ],
+        "reacting_center_fragment_edges": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "center_evidence_semantics": "changed-atom transfer support, not full atom mapping",
+        "lineage_continuity_evidence": {
+          "selected_continuity": 0.315789,
+          "selected_mcs_heavy_atoms": 3,
+          "best_product_positions_for_selected_reactant": [
+            0
+          ],
+          "best_reactant_positions_for_selected_product": [
+            1
+          ],
+          "mutual_unique_best": false,
+          "tie": false,
+          "semantics": "MCS scaffold continuity for lineage audit; not atom mapping"
+        },
+        "required_case": "proline_2og"
+      }
+    ],
+    "new_pipeline_quarantine_source": "reports/p1/required_case_quarantine_evidence.json",
+    "new_pipeline_quarantine_sha256": "008fd2280dffe837ce556e19991fe730c075b34c2b2ff504503e7bd0a53eabbe",
+    "new_pipeline_quarantine": {
+      "evidence_version": "p1-g10-h2-1",
+      "source": "reports/data_audit/legacy_lineage_audit.json",
+      "source_sha256": "fba9e194026634c024e6424b9b8d61edb6620ca014968088e9540adf6dd9f2f1",
+      "policy_version": "p1-required-case-quarantine-1",
+      "scientific_boundary": "The real rows are present, but the available RDKit MCS output is formal diagnostic overlap rather than a complete atom map or a validated multi-lineage resolution. The new pipeline therefore quarantines all three rows and synthesizes no lineage.",
+      "case_count": 3,
+      "quarantined_count": 3,
+      "production_eligible_count": 0,
+      "forbidden_lineage_present_count": 0,
+      "resolved_lineage_count": 0,
+      "cases": [
+        {
+          "source_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+          "reaction_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+          "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@@H]1C[C@@H](O)CN1.O=C=O",
+          "legacy_finding": {
+            "category": "cross_lineage_pair",
+            "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+            "legacy_pair": [
+              "O=C(O)CCC(=O)C(=O)O",
+              "O=C(O)[C@@H]1C[C@@H](O)CN1"
+            ],
+            "center_evidence_semantics": "changed-atom transfer support, not full atom mapping"
+          },
+          "formal_mapping_summary": {
+            "mapper_name": "rdkit",
+            "mapper_version": "2026.03.4",
+            "mapping_status": "partially_mapped",
+            "mapped_heavy_atom_fraction": 0.4,
+            "changed_atom_coverage": 0.0,
+            "fallback_method": "mcs",
+            "source_assignment_method": "formal_mcs",
+            "mechanistic_atom_origin": null,
+            "output_hash": "c4e9f89167de81cab6e229fc8e05e8d6cc71574ef5f82edbf190919c3177392b",
+            "mapped_atom_pairs": [
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+                "reactant_atom_map": 0,
+                "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+                "product_atom_map": 0
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+                "reactant_atom_map": 1,
+                "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+                "product_atom_map": 1
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+                "reactant_atom_map": 2,
+                "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+                "product_atom_map": 2
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+                "reactant_atom_map": 3,
+                "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+                "product_atom_map": 3
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+                "reactant_atom_map": 4,
+                "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+                "product_atom_map": 4
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+                "reactant_atom_map": 5,
+                "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+                "product_atom_map": 5
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+                "reactant_atom_map": 6,
+                "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+                "product_atom_map": 7
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_reactant_1",
+                "reactant_atom_map": 7,
+                "product_participant_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06_product_1",
+                "product_atom_map": 8
+              }
+            ]
+          },
+          "new_pipeline_disposition": {
+            "disposition_id": "rcd_cbb9410539ed",
+            "source_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+            "reaction_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+            "required_case": "proline_2og",
+            "legacy_category": "cross_lineage_pair",
+            "mapping_status": "partially_mapped",
+            "fallback_method": "mcs",
+            "disposition": "quarantined",
+            "production_eligible": false,
+            "resolved_lineages": [],
+            "forbidden_lineage_present": false,
+            "quarantine_record": {
+              "record_id": "qr_b55a13bd56d4",
+              "reason": "known_legacy_cross_lineage_pair_has_no_independently_validated_multi_lineage_resolution",
+              "category": "required_case_lineage_unresolved",
+              "evidence_ids": [
+                "ev_g03_required_case_6cebd5e7ce92",
+                "ev_formal_mapping_e65df2be23bc"
+              ],
+              "source_record_id": "chenyu-positive-rxn:2c61e4a8d7973dab2ea9c23719f23cf867016e1bd588e0fd46eb4bf2e0424f06",
+              "quarantine_behavior": "quarantined",
+              "notes": "Fail-closed P1 required-case policy. Formal mapping status=partially_mapped; fallback=mcs. No lineage was synthesized and this row is excluded from production."
+            },
+            "evidence_ids": [
+              "ev_g03_required_case_6cebd5e7ce92",
+              "ev_formal_mapping_e65df2be23bc"
+            ],
+            "policy_version": "p1-required-case-quarantine-1"
+          }
+        },
+        {
+          "source_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+          "reaction_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+          "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@H]1C[C@@H](O)CN1.O=C=O",
+          "legacy_finding": {
+            "category": "cross_lineage_pair",
+            "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+            "legacy_pair": [
+              "O=C(O)CCC(=O)C(=O)O",
+              "O=C(O)[C@H]1C[C@@H](O)CN1"
+            ],
+            "center_evidence_semantics": "changed-atom transfer support, not full atom mapping"
+          },
+          "formal_mapping_summary": {
+            "mapper_name": "rdkit",
+            "mapper_version": "2026.03.4",
+            "mapping_status": "partially_mapped",
+            "mapped_heavy_atom_fraction": 0.4,
+            "changed_atom_coverage": 0.0,
+            "fallback_method": "mcs",
+            "source_assignment_method": "formal_mcs",
+            "mechanistic_atom_origin": null,
+            "output_hash": "c464c8e340bdfa5c0a9b63b0f83ce12face74005dd599844b9005a2e09d6fc11",
+            "mapped_atom_pairs": [
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+                "reactant_atom_map": 0,
+                "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+                "product_atom_map": 0
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+                "reactant_atom_map": 1,
+                "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+                "product_atom_map": 1
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+                "reactant_atom_map": 2,
+                "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+                "product_atom_map": 2
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+                "reactant_atom_map": 3,
+                "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+                "product_atom_map": 3
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+                "reactant_atom_map": 4,
+                "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+                "product_atom_map": 4
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+                "reactant_atom_map": 5,
+                "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+                "product_atom_map": 5
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+                "reactant_atom_map": 6,
+                "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+                "product_atom_map": 7
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_reactant_1",
+                "reactant_atom_map": 7,
+                "product_participant_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562_product_1",
+                "product_atom_map": 8
+              }
+            ]
+          },
+          "new_pipeline_disposition": {
+            "disposition_id": "rcd_9b3e0c5dee7b",
+            "source_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+            "reaction_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+            "required_case": "proline_2og",
+            "legacy_category": "cross_lineage_pair",
+            "mapping_status": "partially_mapped",
+            "fallback_method": "mcs",
+            "disposition": "quarantined",
+            "production_eligible": false,
+            "resolved_lineages": [],
+            "forbidden_lineage_present": false,
+            "quarantine_record": {
+              "record_id": "qr_f1ce8a7d87f3",
+              "reason": "known_legacy_cross_lineage_pair_has_no_independently_validated_multi_lineage_resolution",
+              "category": "required_case_lineage_unresolved",
+              "evidence_ids": [
+                "ev_g03_required_case_a9cf286cb6a5",
+                "ev_formal_mapping_faa52dbbe4e7"
+              ],
+              "source_record_id": "chenyu-positive-rxn:7890bf2b99de856f7eb09b13f6ddb8d522795564d649fa765a6a88fe77218562",
+              "quarantine_behavior": "quarantined",
+              "notes": "Fail-closed P1 required-case policy. Formal mapping status=partially_mapped; fallback=mcs. No lineage was synthesized and this row is excluded from production."
+            },
+            "evidence_ids": [
+              "ev_g03_required_case_a9cf286cb6a5",
+              "ev_formal_mapping_faa52dbbe4e7"
+            ],
+            "policy_version": "p1-required-case-quarantine-1"
+          }
+        },
+        {
+          "source_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+          "reaction_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+          "reaction_smiles": "O=C(O)CCC(=O)C(=O)O.O=C(O)[C@@H]1CCCN1.O=O>>O=C(O)CCC(=O)O.O=C(O)[C@@H]1C[C@H](O)CN1.O=C=O",
+          "legacy_finding": {
+            "category": "cross_lineage_pair",
+            "reason": "selected_fragments_belong_to_different_dominant_scaffold_lineages",
+            "legacy_pair": [
+              "O=C(O)CCC(=O)C(=O)O",
+              "O=C(O)[C@@H]1C[C@H](O)CN1"
+            ],
+            "center_evidence_semantics": "changed-atom transfer support, not full atom mapping"
+          },
+          "formal_mapping_summary": {
+            "mapper_name": "rdkit",
+            "mapper_version": "2026.03.4",
+            "mapping_status": "partially_mapped",
+            "mapped_heavy_atom_fraction": 0.4,
+            "changed_atom_coverage": 0.0,
+            "fallback_method": "mcs",
+            "source_assignment_method": "formal_mcs",
+            "mechanistic_atom_origin": null,
+            "output_hash": "730d6454b461586412e5d390c58780dec18e0848fe6d9ebcabc8c6fc87d63d25",
+            "mapped_atom_pairs": [
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+                "reactant_atom_map": 0,
+                "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+                "product_atom_map": 0
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+                "reactant_atom_map": 1,
+                "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+                "product_atom_map": 1
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+                "reactant_atom_map": 2,
+                "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+                "product_atom_map": 2
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+                "reactant_atom_map": 3,
+                "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+                "product_atom_map": 3
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+                "reactant_atom_map": 4,
+                "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+                "product_atom_map": 4
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+                "reactant_atom_map": 5,
+                "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+                "product_atom_map": 5
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+                "reactant_atom_map": 6,
+                "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+                "product_atom_map": 7
+              },
+              {
+                "reactant_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_reactant_1",
+                "reactant_atom_map": 7,
+                "product_participant_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e_product_1",
+                "product_atom_map": 8
+              }
+            ]
+          },
+          "new_pipeline_disposition": {
+            "disposition_id": "rcd_7d4f1e9cbefe",
+            "source_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+            "reaction_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+            "required_case": "proline_2og",
+            "legacy_category": "cross_lineage_pair",
+            "mapping_status": "partially_mapped",
+            "fallback_method": "mcs",
+            "disposition": "quarantined",
+            "production_eligible": false,
+            "resolved_lineages": [],
+            "forbidden_lineage_present": false,
+            "quarantine_record": {
+              "record_id": "qr_6a5364434efd",
+              "reason": "known_legacy_cross_lineage_pair_has_no_independently_validated_multi_lineage_resolution",
+              "category": "required_case_lineage_unresolved",
+              "evidence_ids": [
+                "ev_g03_required_case_deb7700033b4",
+                "ev_formal_mapping_312c3fb4ba60"
+              ],
+              "source_record_id": "chenyu-positive-rxn:961d55957338a97ce379e10f2ecaf831ed47f4f2abac4310d72dd209bd22149e",
+              "quarantine_behavior": "quarantined",
+              "notes": "Fail-closed P1 required-case policy. Formal mapping status=partially_mapped; fallback=mcs. No lineage was synthesized and this row is excluded from production."
+            },
+            "evidence_ids": [
+              "ev_g03_required_case_deb7700033b4",
+              "ev_formal_mapping_312c3fb4ba60"
+            ],
+            "policy_version": "p1-required-case-quarantine-1"
+          }
+        }
+      ],
+      "evidence_content_hash": "3bf163872d126094a336061430270deba102347351f9ae36fe700db7870e7111"
+    },
+    "interpretation_boundary": "The legacy rows establish real source presence and the old cross-lineage failure. The new pipeline runs the available formal diagnostic mapper and explicitly quarantines every row. No reacting-center edge is represented as a full atom map and no expected lineage is synthesized."
+  },
+  "curated_lineage_regression": {
+    "source": "reports/p1/lineage_regression_cases.json",
+    "source_sha256": "b2e7f35cc82d2575ebaf352776c5d3dba25b0950115e77ee08ebd07d4950f948",
+    "proline_case": {
+      "case": "01_proline_hydroxylation_2og_o2",
+      "fixture_type": "curated",
+      "resolver_version": "p1-t6-1",
+      "nodes": {
+        "reactants": [
+          "r1",
+          "r2",
+          "r3"
+        ],
+        "products": [
+          "p1",
+          "p2",
+          "p3"
+        ]
+      },
+      "edges": [
+        {
+          "edge_4b8f02eadf4c": "r1->p1"
+        },
+        {
+          "edge_1870aa805359": "r2->p2"
+        },
+        {
+          "edge_3f64c9b22271": "r3->p1"
+        }
+      ],
+      "resolved_lineages": [
+        {
+          "lineage_id": "lin_be9a97d7bffa",
+          "reactant": "r1",
+          "product": "p1",
+          "ambiguity": "none",
+          "quality": "resolved"
+        },
+        {
+          "lineage_id": "lin_f14a4a095fed",
+          "reactant": "r2",
+          "product": "p2",
+          "ambiguity": "none",
+          "quality": "resolved"
+        }
+      ],
+      "ambiguity_sets": [],
+      "split_hypotheses": [],
+      "merge_hypotheses": [],
+      "atom_transfer_edges": [
+        {
+          "from": "r3",
+          "to": "p1",
+          "atoms": "0",
+          "type": "atom_transfer",
+          "shared_atoms": "1",
+          "method": "formal_mapped",
+          "ambiguity": "formal_assignment_no_mechanistic_evidence"
+        }
+      ],
+      "quality": "resolved",
+      "failure_reason": null,
+      "strict_eligible_count": 2,
+      "strict_eligible_pairs": [
+        [
+          "r1",
+          "p1"
+        ],
+        [
+          "r2",
+          "p2"
+        ]
+      ]
+    },
+    "real_source_case_audit": {
+      "status": "COMPLETE",
+      "evidence": "reports/data_audit/legacy_lineage_audit.json",
+      "structure_match_count": 3,
+      "legacy_cross_lineage_count": 3,
+      "source_semantics": "real legacy donor-corpus rows; reacting centers are transfer evidence, not full atom mapping",
+      "strict_resolution_claimed": false
+    }
+  },
+  "annotation_contract": {
+    "sample_ids": [
+      "audit_001",
+      "audit_002",
+      "audit_003",
+      "audit_004"
+    ],
+    "rubric_ids": [
+      "R1",
+      "R2",
+      "R3",
+      "R4",
+      "R5",
+      "R6",
+      "R7",
+      "R8",
+      "R9",
+      "R10",
+      "R11"
+    ],
+    "catastrophic_error_ids": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9"
+    ],
+    "required_per_rubric_fields": [
+      "verdict",
+      "reason",
+      "evidence_pointer"
+    ],
+    "verdict_vocabulary": [
+      "pass",
+      "fail",
+      "not_applicable"
+    ],
+    "current_census_rule": "Every R1-R11 item is explicitly applicable for all four samples; current verdicts must be pass or fail. Section 17.3.1 freezes R7/R9/R11 interpretation."
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "incomplete_source": {
+    "eligibility": "strict_prohibited",
+    "is_strict": false,
+    "reason": "strict_precondition_failed: source_completeness='incomplete' (must be 'complete' for strict)"
+  },
+  "failed_mapping": {
+    "eligibility": "strict_prohibited",
+    "is_strict": false,
+    "reason": "strict_precondition_failed: mapping_completeness='failed' (must be 'complete' for strict)"
+  },
+  "partial_mapping": {
+    "eligibility": "strict_prohibited",
+    "is_strict": false,
+    "reason": "strict_precondition_failed: mapping_status='partially_mapped' (must be fully_mapped for strict)"
+  },
+  "unmapped": {
+    "eligibility": "strict_prohibited",
+    "is_strict": false,
+    "reason": "strict_precondition_failed: mapping_status='unmapped' (must be fully_mapped for strict)"
+  },
+  "mcs_fallback": {
+    "eligibility": "strict_prohibited",
+    "is_strict": false,
+    "reason": "strict_precondition_failed: assignment_method='formal_mcs' (must be formal_mapped; mcs/center_pair/unknown not strict)"
+  },
+  "center_pair_fallback": {
+    "eligibility": "strict_prohibited",
+    "is_strict": false,
+    "reason": "strict_precondition_failed: fallback_method='center_pair' (must be None for strict; MCS/center-pair not strict)"
+  },
+  "missing_mapping_report": {
+    "eligibility": "strict_prohibited",
+    "is_strict": false,
+    "reason": "strict_precondition_failed: mapping_report is None"
+  },
+  "legal_strict": {
+    "eligibility": "strict_eligible",
+    "is_strict": true,
+    "reason": "fully_balanced_reliable_mapping: fully balanced explicit reaction, all atoms sourced, direction known"
+  },
+  "summary": {
+    "legal_strict_is_strict": true,
+    "all_bad_inputs_non_strict": true
+  }
+}

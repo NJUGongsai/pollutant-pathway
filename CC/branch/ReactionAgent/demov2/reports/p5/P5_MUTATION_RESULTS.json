@@ -1,0 +1,65 @@
+{
+  "total": 14,
+  "caught": 14,
+  "escaped": 0,
+  "errors": 0,
+  "mutations": [
+    {
+      "mutation": "test_mutation_drop_filtered_rows",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_relabel_quarantine_production",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_change_snapshot_hash",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_leak_test_ids",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_fabricate_source_time",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_drop_incomplete_truth",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_collapse_multi_answer",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_oracle_into_primary",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_different_baseline_splits",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_omit_n_ci",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_fake_unavailable_as_zero",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_kpi_registered_without_data",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_go_no_go_pass_with_blockers",
+      "status": "caught"
+    },
+    {
+      "mutation": "test_mutation_stale_run_id",
+      "status": "caught"
+    }
+  ],
+  "pytest_exit_code": 0
+}

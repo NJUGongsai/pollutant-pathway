@@ -1,0 +1,455 @@
+{
+  "schema_version": "p1-t11-annotation-1",
+  "status": "COMPLETE",
+  "annotator_id": "codex-g10-r2-annotator-b-20260802",
+  "submitted_at": "2026-08-02T06:13:55Z",
+  "evidence_packet_sha256": "297100e84e2f93847a6b4fe1a04074f1f18d3a3b7f568d5fd0eb94ca8cf622e1",
+  "independence": {
+    "session_kind": "codex_internal_subagent",
+    "blinded_to_peer": true,
+    "peer_output_read": false,
+    "allowed_inputs": [
+      "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2/docs/manual_audit_protocol.md",
+      "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_evidence_packet.json"
+    ]
+  },
+  "annotations": [
+    {
+      "sample_id": "audit_001",
+      "reaction_id": "rxn_strict_001",
+      "rubrics": {
+        "R1": {
+          "verdict": "pass",
+          "reason": "The identity reaction maps both carbon atoms uniquely from r1 to p1 with full heavy-atom coverage and no mapping ambiguity.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].reaction_evidence.mapping_report"
+        },
+        "R2": {
+          "verdict": "pass",
+          "reason": "The sole reactant is assigned transformed_substrate and the sole product transformed_product, matching their sides and the identity transformation.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].source_ledger.role_assignments"
+        },
+        "R3": {
+          "verdict": "pass",
+          "reason": "The resolved lineage is the unique r1-to-p1 continuation and carries atom maps 1 and 2 without competing selection.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].resolved_lineages[0]"
+        },
+        "R4": {
+          "verdict": "pass",
+          "reason": "The ledger reports a fully balanced explicit reaction, zero charge balance, no added sources, and no removed sinks for CC to CC.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].source_ledger"
+        },
+        "R5": {
+          "verdict": "pass",
+          "reason": "The assignment is explicitly formal_mapped while mechanistic atom origin and mechanistic evidence remain unset.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].reaction_evidence.mapping_report"
+        },
+        "R6": {
+          "verdict": "pass",
+          "reason": "Both serialized participants remain present and both receive ledger roles; no participant is removed by role handling.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].reaction_evidence.participants; records[reaction_evidence.reaction_id=rxn_strict_001].source_ledger.role_assignments"
+        },
+        "R7": {
+          "verdict": "pass",
+          "reason": "This record is not quarantined, has no quarantine record, and the census label correctly records no quarantine reason.",
+          "evidence_pointer": "sample_manifest.items[sample_id=audit_001].stratum_labels.quarantine_reason; records[reaction_evidence.reaction_id=rxn_strict_001].quarantine_record"
+        },
+        "R8": {
+          "verdict": "pass",
+          "reason": "Fully mapped, fully balanced, explicitly sourced evidence is classified strict_eligible in the production bucket and emitted in the strict lane.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].eligibility_decision; records[reaction_evidence.reaction_id=rxn_strict_001].lane"
+        },
+        "R9": {
+          "verdict": "pass",
+          "reason": "The record is not quarantined and its production membership is consistent with the strict lane; the separate quarantine index contains only rxn_quar_001.",
+          "evidence_pointer": "index_membership"
+        },
+        "R10": {
+          "verdict": "pass",
+          "reason": "Forward and reverse executed builds, the no-write hash path, and both loader results all retain the same snapshot hash and identifier, with equal record hashes.",
+          "evidence_pointer": "snapshot_replay_evidence"
+        },
+        "R11": {
+          "verdict": "pass",
+          "reason": "The required real rows are all explicitly quarantined, excluded from production, contain no resolved lineage, and record zero prohibited 2-oxoglutarate-to-hydroxyproline lineage output.",
+          "evidence_pointer": "real_required_case_evidence.new_pipeline_quarantine"
+        }
+      },
+      "catastrophic_errors": {
+        "C1": {
+          "observed": false,
+          "reason": "This production member is an internally consistent identity record; no known mismatch classification is shown for it.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001]; index_membership.production"
+        },
+        "C2": {
+          "observed": false,
+          "reason": "All three real required-case rows are quarantined with no resolved or prohibited lineage and no production eligibility.",
+          "evidence_pointer": "real_required_case_evidence.new_pipeline_quarantine"
+        },
+        "C3": {
+          "observed": false,
+          "reason": "The record has no ambiguity sets, reports no source-assignment ambiguity, and its single resolved lineage has ambiguity none.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].reaction_evidence.ambiguity_sets; records[reaction_evidence.reaction_id=rxn_strict_001].reaction_evidence.mapping_report.source_assignment_ambiguity; records[reaction_evidence.reaction_id=rxn_strict_001].resolved_lineages[0].ambiguity"
+        },
+        "C4": {
+          "observed": false,
+          "reason": "The strict record is in production and the only quarantine-lane record appears solely in the quarantine membership list.",
+          "evidence_pointer": "index_membership"
+        },
+        "C5": {
+          "observed": false,
+          "reason": "The participant list and role assignments both preserve r1 and p1.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].reaction_evidence.participants; records[reaction_evidence.reaction_id=rxn_strict_001].source_ledger.role_assignments"
+        },
+        "C6": {
+          "observed": false,
+          "reason": "Formal mapping is labeled formal_mapped and no mechanistic origin or mechanistic evidence is asserted.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].reaction_evidence.mapping_report"
+        },
+        "C7": {
+          "observed": false,
+          "reason": "Both builds completed, both loaders accepted them, and hash, identifier, and record-hash comparisons are equal.",
+          "evidence_pointer": "snapshot_replay_evidence"
+        },
+        "C8": {
+          "observed": false,
+          "reason": "The srl_rxn_strict_001 record is presented in the source_ledger field and is not presented as a candidate ledger.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].source_ledger"
+        },
+        "C9": {
+          "observed": false,
+          "reason": "The fully balanced label accompanies a complete two-carbon identity mapping, zero charge balance, and no unknown atom source.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_strict_001].source_ledger; records[reaction_evidence.reaction_id=rxn_strict_001].reaction_evidence.mapping_report"
+        }
+      }
+    },
+    {
+      "sample_id": "audit_002",
+      "reaction_id": "rxn_cond_001",
+      "rubrics": {
+        "R1": {
+          "verdict": "pass",
+          "reason": "The identity reaction uniquely maps both heavy atoms from r1 to p1 with full mapped fraction and full changed-atom coverage.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].reaction_evidence.mapping_report"
+        },
+        "R2": {
+          "verdict": "pass",
+          "reason": "The reactant and product receive transformed_substrate and transformed_product roles respectively, with no unsupported cofactor assignment.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].source_ledger.role_assignments"
+        },
+        "R3": {
+          "verdict": "pass",
+          "reason": "The unique resolved lineage continues r1 to p1 through atom maps 1 and 2 with ambiguity none.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].resolved_lineages[0]"
+        },
+        "R4": {
+          "verdict": "pass",
+          "reason": "The ledger correctly distinguishes heavy-atom balance under an implicit hydrogen/electron policy from a fully explicit balance and reports zero charge balance.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].source_ledger"
+        },
+        "R5": {
+          "verdict": "pass",
+          "reason": "The source assignment is formal_mapped and no mechanistic atom origin or mechanistic evidence is claimed.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].reaction_evidence.mapping_report"
+        },
+        "R6": {
+          "verdict": "pass",
+          "reason": "The one reactant and one product are retained in the participant multiset and represented in role assignments.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].reaction_evidence.participants; records[reaction_evidence.reaction_id=rxn_cond_001].source_ledger.role_assignments"
+        },
+        "R7": {
+          "verdict": "pass",
+          "reason": "The record is not quarantined, carries no quarantine record, and its census stratum correctly lists no quarantine reason.",
+          "evidence_pointer": "sample_manifest.items[sample_id=audit_002].stratum_labels.quarantine_reason; records[reaction_evidence.reaction_id=rxn_cond_001].quarantine_record"
+        },
+        "R8": {
+          "verdict": "pass",
+          "reason": "Heavy-atom balance with an implicit hydrogen/electron policy yields conditional_eligible, a required implicit-policy warning, and the conditional lane.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].eligibility_decision; records[reaction_evidence.reaction_id=rxn_cond_001].lane"
+        },
+        "R9": {
+          "verdict": "pass",
+          "reason": "This non-quarantined conditional record appears in production, while the quarantine membership is disjoint and contains rxn_quar_001 only.",
+          "evidence_pointer": "index_membership"
+        },
+        "R10": {
+          "verdict": "pass",
+          "reason": "Both executed build orders, the no-write hash path, and both successful load results agree on the snapshot hash and identifier; record hashes also agree.",
+          "evidence_pointer": "snapshot_replay_evidence"
+        },
+        "R11": {
+          "verdict": "pass",
+          "reason": "Every real required-case row is explicitly quarantined and excluded from production, with no resolved lineage and no prohibited cross-lineage output.",
+          "evidence_pointer": "real_required_case_evidence.new_pipeline_quarantine"
+        }
+      },
+      "catastrophic_errors": {
+        "C1": {
+          "observed": false,
+          "reason": "This production member is a fully mapped identity record with its implicit-policy limitation exposed; no known mismatch classification is shown.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001]; index_membership.production"
+        },
+        "C2": {
+          "observed": false,
+          "reason": "The three real required-case rows are quarantined, production-ineligible, and contain neither resolved lineages nor the prohibited lineage.",
+          "evidence_pointer": "real_required_case_evidence.new_pipeline_quarantine"
+        },
+        "C3": {
+          "observed": false,
+          "reason": "No ambiguity set or source-assignment ambiguity exists, and the sole resolved lineage reports ambiguity none.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].reaction_evidence.ambiguity_sets; records[reaction_evidence.reaction_id=rxn_cond_001].reaction_evidence.mapping_report.source_assignment_ambiguity; records[reaction_evidence.reaction_id=rxn_cond_001].resolved_lineages[0].ambiguity"
+        },
+        "C4": {
+          "observed": false,
+          "reason": "The conditional record is not quarantined, and the quarantine member is absent from production.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].eligibility_decision.quarantine_behavior; index_membership"
+        },
+        "C5": {
+          "observed": false,
+          "reason": "Both r1 and p1 remain serialized and are represented in ledger role assignments.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].reaction_evidence.participants; records[reaction_evidence.reaction_id=rxn_cond_001].source_ledger.role_assignments"
+        },
+        "C6": {
+          "observed": false,
+          "reason": "The mapping is explicitly formal and the mechanistic-origin fields are empty.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].reaction_evidence.mapping_report"
+        },
+        "C7": {
+          "observed": false,
+          "reason": "Both builds completed and loaded successfully with identical snapshot and record-hash evidence.",
+          "evidence_pointer": "snapshot_replay_evidence"
+        },
+        "C8": {
+          "observed": false,
+          "reason": "The srl_rxn_cond_001 record remains in the source_ledger field and is not presented as a candidate ledger.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].source_ledger"
+        },
+        "C9": {
+          "observed": false,
+          "reason": "The record is labeled heavy-atom balanced with an implicit hydrogen/electron policy, not fully balanced, so its policy boundary is not hidden.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_cond_001].source_ledger.balance_status; records[reaction_evidence.reaction_id=rxn_cond_001].eligibility_decision.required_warnings"
+        }
+      }
+    },
+    {
+      "sample_id": "audit_003",
+      "reaction_id": "rxn_diag_001",
+      "rubrics": {
+        "R1": {
+          "verdict": "pass",
+          "reason": "The mapper preserves the two supported carbon correspondences, reports only two-thirds heavy-atom coverage, and does not assign the new product atom to an unsupported reactant source.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].reaction_evidence.mapping_report"
+        },
+        "R2": {
+          "verdict": "pass",
+          "reason": "The retained reactant and product are assigned transformed_substrate and transformed_product, and no unsupported cofactor role is introduced.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger.role_assignments"
+        },
+        "R3": {
+          "verdict": "pass",
+          "reason": "The supported r1-to-p1 lineage is recorded for maps 1 and 2, while product map 3 is separately identified as having an unknown source rather than independently picked.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].resolved_lineages[0]; records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger.added_atom_sources[0]"
+        },
+        "R4": {
+          "verdict": "pass",
+          "reason": "The ledger marks the source partial or unbalanced and records product atom map 3 as an unknown source instead of presenting the extension as balanced.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger"
+        },
+        "R5": {
+          "verdict": "pass",
+          "reason": "The partial assignment is explicitly formal_mapped; mechanistic atom origin and mechanistic evidence are absent.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].reaction_evidence.mapping_report"
+        },
+        "R6": {
+          "verdict": "pass",
+          "reason": "Both input participants are preserved and assigned roles; the unknown source for atom 3 is represented without deleting either participant.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].reaction_evidence.participants; records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger.role_assignments; records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger.added_atom_sources"
+        },
+        "R7": {
+          "verdict": "pass",
+          "reason": "The record is diagnostic rather than quarantined, has no quarantine record, and the census label correctly lists no quarantine reason.",
+          "evidence_pointer": "sample_manifest.items[sample_id=audit_003].stratum_labels.quarantine_reason; records[reaction_evidence.reaction_id=rxn_diag_001].quarantine_record"
+        },
+        "R8": {
+          "verdict": "pass",
+          "reason": "The unknown source for changed heavy atom 3 makes strict use prohibited, retains research diagnostic eligibility, and places the record in the diagnostic bucket and lane.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].eligibility_decision; records[reaction_evidence.reaction_id=rxn_diag_001].lane"
+        },
+        "R9": {
+          "verdict": "pass",
+          "reason": "The diagnostic record is absent from production and appears only in diagnostic membership; the separate quarantine record is also absent from production.",
+          "evidence_pointer": "index_membership"
+        },
+        "R10": {
+          "verdict": "pass",
+          "reason": "The two executed builds, the no-write path, and both accepted load results share one snapshot hash and identifier, with equal record hash lists.",
+          "evidence_pointer": "snapshot_replay_evidence"
+        },
+        "R11": {
+          "verdict": "pass",
+          "reason": "The three real proline/2-oxoglutarate rows are explicitly quarantined with no synthesized lineage, no production eligibility, and zero prohibited lineage outputs.",
+          "evidence_pointer": "real_required_case_evidence.new_pipeline_quarantine"
+        }
+      },
+      "catastrophic_errors": {
+        "C1": {
+          "observed": false,
+          "reason": "The unsupported atom-source case is excluded from production and confined to diagnostic membership.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].eligibility_decision; index_membership"
+        },
+        "C2": {
+          "observed": false,
+          "reason": "All real required-case rows are quarantined and have no resolved or prohibited lineage and no production eligibility.",
+          "evidence_pointer": "real_required_case_evidence.new_pipeline_quarantine"
+        },
+        "C3": {
+          "observed": false,
+          "reason": "No ambiguity set or assignment ambiguity is reported, and the supported r1-to-p1 lineage records ambiguity none.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].reaction_evidence.ambiguity_sets; records[reaction_evidence.reaction_id=rxn_diag_001].reaction_evidence.mapping_report.source_assignment_ambiguity; records[reaction_evidence.reaction_id=rxn_diag_001].resolved_lineages[0].ambiguity"
+        },
+        "C4": {
+          "observed": false,
+          "reason": "The quarantine membership contains rxn_quar_001 only, and that identifier is absent from production.",
+          "evidence_pointer": "index_membership"
+        },
+        "C5": {
+          "observed": false,
+          "reason": "Both r1 and p1 are retained in the participant list and role assignments despite the unresolved added atom source.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].reaction_evidence.participants; records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger.role_assignments"
+        },
+        "C6": {
+          "observed": false,
+          "reason": "The partial mapping remains labeled formal_mapped, and no mechanistic origin is asserted.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].reaction_evidence.mapping_report"
+        },
+        "C7": {
+          "observed": false,
+          "reason": "Replay builds and loader checks agree exactly on snapshot identity and content hashes.",
+          "evidence_pointer": "snapshot_replay_evidence"
+        },
+        "C8": {
+          "observed": false,
+          "reason": "The srl_rxn_diag_001 record is presented in source_ledger and not as a candidate ledger.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger"
+        },
+        "C9": {
+          "observed": false,
+          "reason": "The unknown source for atom map 3 is explicit and the balance status is partial_or_unbalanced_source, not fully balanced.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger.added_atom_sources[0]; records[reaction_evidence.reaction_id=rxn_diag_001].source_ledger.balance_status"
+        }
+      }
+    },
+    {
+      "sample_id": "audit_004",
+      "reaction_id": "rxn_quar_001",
+      "rubrics": {
+        "R1": {
+          "verdict": "pass",
+          "reason": "Both carbon atoms are uniquely and fully mapped between the charged reactant and neutral product; the separate charge defect is not hidden by the mapping.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].reaction_evidence.mapping_report; records[reaction_evidence.reaction_id=rxn_quar_001].reaction_evidence.participants"
+        },
+        "R2": {
+          "verdict": "pass",
+          "reason": "The reactant is assigned transformed_substrate and the product transformed_product, with neither participant miscast as a cofactor.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].source_ledger.role_assignments"
+        },
+        "R3": {
+          "verdict": "pass",
+          "reason": "The unique lineage links r1 to p1 on maps 1 and 2 and reports ambiguity none; the charge contradiction is handled in the ledger and lane decision.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].resolved_lineages[0]; records[reaction_evidence.reaction_id=rxn_quar_001].source_ledger"
+        },
+        "R4": {
+          "verdict": "pass",
+          "reason": "The ledger records charge_balance -1 and partial_or_unbalanced_source, correctly exposing the charged-to-neutral mismatch.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].source_ledger"
+        },
+        "R5": {
+          "verdict": "pass",
+          "reason": "The mapping is explicitly formal_mapped and no mechanistic atom origin or mechanistic evidence is asserted.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].reaction_evidence.mapping_report"
+        },
+        "R6": {
+          "verdict": "pass",
+          "reason": "The charged reactant and neutral product both remain in the serialized participant multiset and both retain role assignments.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].reaction_evidence.participants; records[reaction_evidence.reaction_id=rxn_quar_001].source_ledger.role_assignments"
+        },
+        "R7": {
+          "verdict": "pass",
+          "reason": "The quarantine reason exactly states the critical charge contradiction, its category is critical_contradiction, and the same full reason is represented in failure_counts_by_reason.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].quarantine_record; snapshot_manifest.failure_counts_by_reason"
+        },
+        "R8": {
+          "verdict": "pass",
+          "reason": "The critical charge contradiction produces eligibility quarantine, excluded evaluation, quarantined behavior, and the quarantine lane.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].eligibility_decision; records[reaction_evidence.reaction_id=rxn_quar_001].lane"
+        },
+        "R9": {
+          "verdict": "pass",
+          "reason": "rxn_quar_001 appears in quarantine membership and is absent from production and diagnostic membership.",
+          "evidence_pointer": "index_membership"
+        },
+        "R10": {
+          "verdict": "pass",
+          "reason": "Forward and reverse executed builds, the no-write hash path, both accepted loads, snapshot identity, and record hashes all agree.",
+          "evidence_pointer": "snapshot_replay_evidence"
+        },
+        "R11": {
+          "verdict": "pass",
+          "reason": "All three real required-case rows are explicitly quarantined and production-ineligible, with empty resolved lineages and no prohibited cross-lineage output.",
+          "evidence_pointer": "real_required_case_evidence.new_pipeline_quarantine"
+        }
+      },
+      "catastrophic_errors": {
+        "C1": {
+          "observed": false,
+          "reason": "The critical contradiction record is excluded and does not appear in the production index.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].eligibility_decision; index_membership"
+        },
+        "C2": {
+          "observed": false,
+          "reason": "Every real required-case row is explicitly quarantined with no resolved lineage, no prohibited lineage, and no production eligibility.",
+          "evidence_pointer": "real_required_case_evidence.new_pipeline_quarantine"
+        },
+        "C3": {
+          "observed": false,
+          "reason": "The record has no ambiguity sets or assignment ambiguity, and its only resolved lineage reports ambiguity none.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].reaction_evidence.ambiguity_sets; records[reaction_evidence.reaction_id=rxn_quar_001].reaction_evidence.mapping_report.source_assignment_ambiguity; records[reaction_evidence.reaction_id=rxn_quar_001].resolved_lineages[0].ambiguity"
+        },
+        "C4": {
+          "observed": false,
+          "reason": "The quarantine-lane record is listed only under quarantine and is absent from production.",
+          "evidence_pointer": "index_membership"
+        },
+        "C5": {
+          "observed": false,
+          "reason": "The participant list and role assignments preserve both r1 and p1.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].reaction_evidence.participants; records[reaction_evidence.reaction_id=rxn_quar_001].source_ledger.role_assignments"
+        },
+        "C6": {
+          "observed": false,
+          "reason": "Formal mapping remains labeled formal_mapped and the mechanistic-origin fields are empty.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].reaction_evidence.mapping_report"
+        },
+        "C7": {
+          "observed": false,
+          "reason": "Both builds completed and were accepted by the loader with one consistent snapshot hash, identifier, and record-hash list.",
+          "evidence_pointer": "snapshot_replay_evidence"
+        },
+        "C8": {
+          "observed": false,
+          "reason": "The srl_rxn_quar_001 record is presented in source_ledger and not as a candidate ledger.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].source_ledger"
+        },
+        "C9": {
+          "observed": false,
+          "reason": "The charge mismatch is explicit as charge_balance -1 and the record is labeled partial_or_unbalanced_source rather than fully balanced.",
+          "evidence_pointer": "records[reaction_evidence.reaction_id=rxn_quar_001].source_ledger.charge_balance; records[reaction_evidence.reaction_id=rxn_quar_001].source_ledger.balance_status"
+        }
+      }
+    }
+  ],
+  "required_case_assessment": {
+    "H2_verdict": "pass",
+    "reason": "Three real proline/2-oxoglutarate rows are present and each is explicitly quarantined under the new pipeline, excluded from production, and left with no resolved lineage; the aggregate and per-case evidence record no prohibited 2-oxoglutarate-to-hydroxyproline lineage.",
+    "evidence_pointer": "real_required_case_evidence.legacy_case_summary; real_required_case_evidence.new_pipeline_quarantine"
+  }
+}

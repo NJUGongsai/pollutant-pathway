@@ -1,0 +1,77 @@
+{
+  "n_test": 742,
+  "outcomes": {
+    "not_generated": 604,
+    "no_candidate": 71,
+    "hit": 66,
+    "generated_but_ranked_low": 1
+  },
+  "funnel": {
+    "parsable": 742,
+    "has_donor": 742,
+    "has_candidate": 671,
+    "generated_true": 67
+  },
+  "topk": {
+    "top1": 31,
+    "top5": 63,
+    "top10": 66
+  },
+  "attribution": {
+    "not_generated": 604,
+    "unextractable": 2,
+    "selection_failure": 522,
+    "application_failure": 80
+  },
+  "retrieval": {
+    "req_edit_ok": 735,
+    "edit_retrieved": 144,
+    "scope": 742
+  },
+  "novelty_bins": {
+    "==1.0": {
+      "n": 345,
+      "top1": 7,
+      "top5": 33,
+      "top10": 34
+    },
+    "[0.0,0.4)": {
+      "n": 88,
+      "top1": 5,
+      "top5": 5,
+      "top10": 6
+    },
+    "[0.4,0.6)": {
+      "n": 138,
+      "top1": 2,
+      "top5": 2,
+      "top10": 3
+    },
+    "[0.6,0.8)": {
+      "n": 128,
+      "top1": 12,
+      "top5": 17,
+      "top10": 17
+    },
+    "[0.8,1.0)": {
+      "n": 43,
+      "top1": 5,
+      "top5": 6,
+      "top10": 6
+    }
+  },
+  "strategy": "reaction_family",
+  "config": {
+    "generator": "union",
+    "top_donors": 5,
+    "template_radius": 1,
+    "center_source": "mcs@transformed_pair",
+    "scorer_cap": 40,
+    "family_cap": 60,
+    "hit_topk": [
+      1,
+      5,
+      10
+    ]
+  }
+}

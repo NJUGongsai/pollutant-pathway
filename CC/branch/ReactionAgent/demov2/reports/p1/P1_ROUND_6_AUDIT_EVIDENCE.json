@@ -1,0 +1,323 @@
+{
+  "round": 6,
+  "branch": "main",
+  "head": "4eb463368e38f2faa3d3656a05974c4b1c1211a6",
+  "working_tree": "dirty (pre-existing workspace modifications preserved; no git reset/checkout/clean performed)",
+  "python": "3.11.15",
+  "rdkit": "2026.03.4",
+  "changed_files": [
+    "reaction_agent/eligibility/engine.py",
+    "scripts/run_p1_gate.py",
+    "scripts/run_p1_mutations.py",
+    "tests/p1/test_eligibility_reference_integrity.py",
+    "reports/p1/P1_GATE_REPORT.{json,md}",
+    "reports/p0/P0_GATE_REPORT.{json,md}",
+    "reports/p1/mutation_results.json",
+    "reports/p1/eligibility_reference_integrity_results_round_6.json",
+    "reports/p1/eligibility_semantic_invariant_results_round_6.json",
+    "reports/p1/gate_false_positive_mutation_results_round_6.json",
+    "reports/p1/P1_ROUND_6_AUDIT_EVIDENCE.json",
+    "reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_6.md",
+    "reports/p1/P1_REMEDIATION_WORKLOG.md"
+  ],
+  "unchanged_frozen_files": [
+    "plan/final_design.md",
+    "plan/final_plan.md",
+    "P0 ADRs/contracts",
+    "legacy source"
+  ],
+  "test_counts": {
+    "contracts": {
+      "collected": 290,
+      "passed": 290
+    },
+    "p1": {
+      "collected": 496,
+      "passed": 496
+    },
+    "full": {
+      "collected": 786,
+      "passed": 786
+    }
+  },
+  "zero_skip_xfail_xpass": true,
+  "p0_gate": {
+    "passed": 10,
+    "total": 10,
+    "status": "READY_FOR_CHATGPT_AUDIT"
+  },
+  "p1_gate": {
+    "passed": 7,
+    "blocked": 3,
+    "failed": 0,
+    "total": 10,
+    "overall_status": "BLOCKED",
+    "per_gate": {
+      "P1-G01": "PASS",
+      "P1-G02": "PASS",
+      "P1-G03": "BLOCKED",
+      "P1-G04": "BLOCKED",
+      "P1-G05": "PASS",
+      "P1-G06": "PASS",
+      "P1-G07": "PASS",
+      "P1-G08": "PASS",
+      "P1-G09": "PASS",
+      "P1-G10": "BLOCKED"
+    }
+  },
+  "g08_mandatory_total": 82,
+  "g08_mandatory_collected": 138,
+  "g08_mandatory_passed": 82,
+  "g08_round6_required_nodes": [
+    "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_product_entry_coefficients_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_reactant_entry_coefficients_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_stoichiometry_coefficients_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_formal_transfer_maps_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_product_entry_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_reactant_entry_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_stoichiometry_entry_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_empty_formal_transfer_maps_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_empty_mechanistic_target_maps_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_heavy_atom_participant_with_empty_maps_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_mapped_fraction_one_cannot_override_empty_heavy_atom_maps",
+    "tests/p1/test_eligibility_reference_integrity.py::test_mechanistic_target_map_must_exist_on_product_side",
+    "tests/p1/test_eligibility_reference_integrity.py::test_mechanistic_target_product_map_remains_valid",
+    "tests/p1/test_eligibility_reference_integrity.py::test_nonformal_added_atom_source_without_mechanism_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_conflicting_reactant_entries",
+    "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_conflicting_stoichiometry",
+    "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_empty_formal_transfer",
+    "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_reactant_only_mechanistic_target_map",
+    "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_uncontrolled_cofactor_direction",
+    "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_unmapped_heavy_atom_participant",
+    "tests/p1/test_eligibility_reference_integrity.py::test_uncontrolled_cofactor_direction_never_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_unknown_cofactor_direction_remains_conditional",
+    "tests/p1/test_eligibility_reference_integrity.py::test_valid_fully_mapped_heavy_atom_participant_remains_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_valid_nonempty_formal_transfer_remains_strict",
+    "tests/p1/test_eligibility_reference_integrity.py::test_zero_heavy_atom_policy_does_not_get_accidentally_broken"
+  ],
+  "g08_round6_nodes_passed": true,
+  "g09_mandatory_total": 11,
+  "g09_independent_rebuild_match": true,
+  "g09_cross_verify_stored": true,
+  "mutations_total": 77,
+  "mutations_caught": 77,
+  "M1-M72_preserved": true,
+  "M73-M77_subresults": {
+    "M73": [
+      {
+        "mutation_id": "M73a",
+        "mutation": "existing cofactor participant + uncontrolled direction enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: cofactor_change_direction — participant 'r1' direction='sideways' not in controlled vocabulary ['unknown']",
+        "caught": true
+      },
+      {
+        "mutation_id": "M73b",
+        "mutation": "existing cofactor participant + uncontrolled direction via public API",
+        "expected": "decide_eligibility non-strict AND public records lane non-strict",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: cofactor_change_direction — participant 'r1' direction='sideways' not in controlled vocabula",
+        "caught": true
+      }
+    ],
+    "M74": [
+      {
+        "mutation_id": "M74a",
+        "mutation": "conflicting reactant entry coefficients enter strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: reactant_entry_conflict — conflicting coefficients 1 and 2 for participant 'r1'",
+        "caught": true
+      },
+      {
+        "mutation_id": "M74b",
+        "mutation": "conflicting product entry coefficients enter strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: product_entry_conflict — conflicting coefficients 1 and 2 for participant 'p1'",
+        "caught": true
+      },
+      {
+        "mutation_id": "M74c",
+        "mutation": "conflicting stoichiometry coefficients enter strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: stoichiometry_conflict — conflicting coefficients 1 and 2 for 'r1'/'reactant'",
+        "caught": true
+      }
+    ],
+    "M75": [],
+    "M76": [
+      {
+        "mutation_id": "M76a",
+        "mutation": "empty formal transfer maps enter strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_empty — assignment 'r1'→'p1' transfers no atoms",
+        "caught": true
+      },
+      {
+        "mutation_id": "M76b",
+        "mutation": "duplicate formal transfer maps enter strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_duplicate_map — assignment 'r1'→'p1' transfers duplicate maps [1, 1]",
+        "caught": true
+      },
+      {
+        "mutation_id": "M76c",
+        "mutation": "empty formal transfer via public API",
+        "expected": "decide_eligibility non-strict AND public records lane non-strict",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: formal_atom_transfer_empty — assignment 'r1'→'p1' transfers no atoms",
+        "caught": true
+      }
+    ],
+    "M77": [
+      {
+        "mutation_id": "M77a",
+        "mutation": "heavy-atom participant empty maps + mf=1.0 enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_evidence — participant 'x1' has 3 heavy atoms but no atom_map_numbers (mapped_fractio",
+        "caught": true
+      },
+      {
+        "mutation_id": "M77b",
+        "mutation": "heavy-atom participant empty maps via public API",
+        "expected": "decide_eligibility non-strict AND public records lane non-strict",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: participant_heavy_atom_map_evidence — participant 'x1' has 3 heavy atoms but no atom_map_num",
+        "caught": true
+      }
+    ]
+  },
+  "R6_evidence": {
+    "R6-01": {
+      "case": "R6-01",
+      "description": "existing cofactor participant + direction=sideways",
+      "schema_valid": true,
+      "expected": "conditional or fail-closed, never strict",
+      "actual_eligibility": "strict_prohibited",
+      "actual_lane": "diagnostic",
+      "reason": "strict_precondition_failed: cofactor_change_direction — participant 'r1' direction='sideways' not in controlled vocabulary ['unknown']",
+      "fixed": true
+    },
+    "R6-02": {
+      "case": "R6-02",
+      "description": "same reactant entry participant coefficients 1 and 2",
+      "schema_valid": true,
+      "expected": "conflict, never strict",
+      "actual_eligibility": "strict_prohibited",
+      "actual_lane": "diagnostic",
+      "reason": "strict_precondition_failed: reactant_entry_conflict — conflicting coefficients 1 and 2 for participant 'r1'",
+      "fixed": true
+    },
+    "R6-03": {
+      "case": "R6-03",
+      "description": "mechanistic target map 3 only on reactant side",
+      "schema_valid": true,
+      "expected": "resolve via product registry, never strict",
+      "actual_eligibility": "strict_prohibited",
+      "actual_lane": "diagnostic",
+      "reason": "strict_precondition_failed: mechanistic_evidence_map_product_side — target_atom_map_number 3 not in product-side map registry",
+      "fixed": true
+    },
+    "R6-04": {
+      "case": "R6-04",
+      "description": "FormalAtomTransferAssignment empty transferred maps",
+      "schema_valid": true,
+      "expected": "shell assignment, never strict",
+      "actual_eligibility": "strict_prohibited",
+      "actual_lane": "diagnostic",
+      "reason": "strict_precondition_failed: formal_atom_transfer_empty — assignment 'r1'→'p1' transfers no atoms",
+      "fixed": true
+    },
+    "R6-05": {
+      "case": "R6-05",
+      "description": "extra heavy-atom participant CCO empty maps + mapped_fraction=1.0",
+      "schema_valid": true,
+      "expected": "self-report cannot override missing map evidence, never strict",
+      "actual_eligibility": "strict_prohibited",
+      "actual_lane": "diagnostic",
+      "reason": "strict_precondition_failed: participant_heavy_atom_map_evidence — participant 'x1' has 3 heavy atoms but no atom_map_numbers (mapped_fraction=1.0 cannot self-report full mapping)",
+      "fixed": true
+    },
+    "R6-11a": {
+      "case": "R6-11a",
+      "description": "AddedAtomSource formal_assignment=False + no mechanism",
+      "schema_valid": true,
+      "expected": "unproven shell atom source, never strict",
+      "actual_eligibility": "strict_prohibited",
+      "actual_lane": "diagnostic",
+      "reason": "strict_precondition_failed: added_atom_source_unbacked — atom_map_number 1 source 'r1' is not formally assigned and has no mechanistic evidence",
+      "fixed": true
+    },
+    "R6-11b": {
+      "case": "R6-11b",
+      "description": "MechanisticOriginEvidence empty target maps",
+      "schema_valid": true,
+      "expected": "cannot be strict mechanism authority by vacuous truth, never strict",
+      "actual_eligibility": "strict_prohibited",
+      "actual_lane": "diagnostic",
+      "reason": "strict_precondition_failed: mechanistic_evidence_empty_target — evidence_id 'me1' targets no product atom",
+      "fixed": true
+    }
+  },
+  "public_snapshot_lanes": {
+    "R6-01_cofactor_sideways": "diagnostic",
+    "R6-02_conflicting_reactant_entries": "diagnostic",
+    "R6-03_reactant_only_mechanistic_target": "diagnostic",
+    "R6-04_empty_formal_transfer": "diagnostic",
+    "R6-05_empty_heavy_atom_maps": "diagnostic",
+    "cannot_promote_to_strict": true,
+    "public_boundary_tests": [
+      "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_uncontrolled_cofactor_direction",
+      "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_conflicting_reactant_entries",
+      "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_conflicting_stoichiometry",
+      "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_reactant_only_mechanistic_target_map",
+      "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_empty_formal_transfer",
+      "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_unmapped_heavy_atom_participant"
+    ]
+  },
+  "snapshot_hash": "a54fc0a46b3055e560ac2127f8e6464e6a5ab51675879f97cfe21d811e5bc103",
+  "external_blockers": [
+    {
+      "gate": "P1-G03",
+      "status": "BLOCKED",
+      "blocker": "real_reaction_source_not_confirmed; required real proline/2OG source record not located",
+      "not_blocker": "rdkit_absent"
+    },
+    {
+      "gate": "P1-G04",
+      "status": "BLOCKED",
+      "blocker": "RealMapperAdapter.map_reaction() is a skeleton (backend available, not rdkit_absent)"
+    },
+    {
+      "gate": "P1-G10",
+      "status": "BLOCKED",
+      "blocker": "annotator_a/b + adjudication NOT_PRODUCED; no fabricated inter-annotator agreement"
+    }
+  ],
+  "dependency_or_network_actions": [],
+  "synthetic_fixture_usage": {
+    "used": true,
+    "labeled": true,
+    "note": "FakeAtomMapper / strict baselines / reference-integrity fixtures are synthetic and labeled; never presented as real reaction evidence or real mapper integration."
+  },
+  "stale_rdkit_evidence": {
+    "stale_rdkit_absent_in_current_authoritative_evidence": 0
+  },
+  "p2_status": "BLOCKED"
+}

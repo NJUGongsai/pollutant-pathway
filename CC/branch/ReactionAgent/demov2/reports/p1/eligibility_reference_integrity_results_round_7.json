@@ -1,0 +1,215 @@
+{
+  "description": "Round 7 heavy-atom map count / positive map IDs / atom source-sink duplicates / FAT-mechanistic duplicates / unbacked sink / index-only leakage mutations (M78–M83): each starts strict and one violating change must exit strict via the target invariant, or the index-aware public boundary must FAIL on an index-only leak.",
+  "mutations": [
+    {
+      "mutation_id": "M78",
+      "mutation": "heavy-atom map count underflow/overflow enters strict (direct + public)",
+      "expected": "never strict (direct) AND public lane != strict AND non-production",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M78a=True M78b=True M78c=True M78d=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M78a",
+          "mutation": "heavy-atom map-count underflow enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r1' has heavy_atom_count=2 but unique_map_count=1 (mapped_fracti",
+          "caught": true
+        },
+        {
+          "mutation_id": "M78b",
+          "mutation": "heavy-atom map-count overflow enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r1' has heavy_atom_count=1 but unique_map_count=2 (mapped_fracti",
+          "caught": true
+        },
+        {
+          "mutation_id": "M78c",
+          "mutation": "heavy-atom map-count underflow via public API",
+          "expected": "non-strict direct AND non-strict public lane AND non-production",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' in_production=False reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r1' has heavy_atom_count=2 but unique_map_co",
+          "caught": true
+        },
+        {
+          "mutation_id": "M78d",
+          "mutation": "heavy-atom map-count overflow via public API",
+          "expected": "non-strict direct AND non-strict public lane AND non-production",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' in_production=False reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r1' has heavy_atom_count=1 but unique_map_co",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M79",
+      "mutation": "atom map IDs containing 0/negative enter strict (direct + public)",
+      "expected": "never strict (direct) AND public lane != strict AND non-production",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M79a=True M79b=True M79c=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M79a",
+          "mutation": "zero atom map identifier enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_map_identifier — participant 'r1' declares non-positive atom map identifier 0 (must be a positive in",
+          "caught": true
+        },
+        {
+          "mutation_id": "M79b",
+          "mutation": "negative atom map identifier enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_map_identifier — participant 'r1' declares non-positive atom map identifier -1 (must be a positive i",
+          "caught": true
+        },
+        {
+          "mutation_id": "M79c",
+          "mutation": "nonpositive atom maps via public API",
+          "expected": "non-strict direct AND non-strict public lane AND non-production",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' in_production=False reason=strict_precondition_failed: participant_map_identifier — participant 'r1' declares non-positive atom map identifier 0 (m",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M80",
+      "mutation": "duplicate/conflicting AddedAtomSource/RemovedAtomSink enter strict",
+      "expected": "never strict (all four)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M80a=True M80b=True M80c=True M80d=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M80a",
+          "mutation": "duplicate AddedAtomSource enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_duplicate — duplicate AddedAtomSource for atom_map_number 1 source 'r1'",
+          "caught": true
+        },
+        {
+          "mutation_id": "M80b",
+          "mutation": "conflicting AddedAtomSource enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_conflict — atom_map_number 1 claimed by both ('r1', None) and ('p1', None) (no typed ambiguity",
+          "caught": true
+        },
+        {
+          "mutation_id": "M80c",
+          "mutation": "duplicate RemovedAtomSink enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_duplicate — duplicate RemovedAtomSink for atom_map_number 1 sink 'r1'",
+          "caught": true
+        },
+        {
+          "mutation_id": "M80d",
+          "mutation": "conflicting RemovedAtomSink enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_conflict — atom_map_number 1 claimed by both 'r1' and 'p1' (no typed ambiguity authority)",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M81",
+      "mutation": "duplicate FAT / conflicting FAT / duplicate mechanistic target maps enter strict",
+      "expected": "never strict (all three)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M81a=True M81b=True M81c=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M81a",
+          "mutation": "duplicate FAT assignment enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_duplicate_assignment — duplicate FormalAtomTransferAssignment 'r1'→'p1' transfers [1]",
+          "caught": true
+        },
+        {
+          "mutation_id": "M81b",
+          "mutation": "conflicting FAT assignments enter strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_assignment_conflict — source atom map 1 of 'r1' claimed by target edges 'p1' and 'p2' (no t",
+          "caught": true
+        },
+        {
+          "mutation_id": "M81c",
+          "mutation": "duplicate mechanistic target maps enter strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mechanistic_evidence_duplicate_target_map — evidence_id 'me_dup' targets duplicate product atom maps [1, 1]",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M82",
+      "mutation": "RemovedAtomSink formal_assignment=False without authority enters strict",
+      "expected": "never strict (direct) AND public lane != strict AND non-production",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "M82a=True M82b=True",
+      "caught": true,
+      "sub_results": [
+        {
+          "mutation_id": "M82a",
+          "mutation": "unbacked non-formal RemovedAtomSink enters strict",
+          "expected": "decide_eligibility non-strict (fail-closed)",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_unbacked — atom_map_number 1 sink 'r1' is not formally assigned and has no other typed sink au",
+          "caught": true
+        },
+        {
+          "mutation_id": "M82b",
+          "mutation": "unbacked non-formal RemovedAtomSink via public API",
+          "expected": "non-strict direct AND non-strict public lane AND non-production",
+          "actual_passed": true,
+          "actual_blocked": false,
+          "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' in_production=False reason=strict_precondition_failed: removed_atom_sink_unbacked — atom_map_number 1 sink 'r1' is not formally assigned and has no",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "mutation_id": "M83",
+      "mutation": "records diagnostic but wrongly injected into production index (index-only leakage)",
+      "expected": "real public load_snapshot / G08-G09 authority FAIL (index_partition_wrong_lane)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "real loader FAILED on index-only leak: index_partition_wrong_lane: production_index.jsonl entry 'rxn_m83diag' lane='diagnostic' not allowed in production_index.jsonl (allowed=['conditional', 'strict' (records_lane='diagnostic' prod_before=[] prod_after=['rxn_m83diag'])",
+      "caught": true
+    }
+  ],
+  "caught": 6,
+  "total": 6
+}

@@ -1,0 +1,180 @@
+{
+  "report_version": "p1-t11-3",
+  "task": "P1-T11",
+  "audit_round": 3,
+  "status": "COMPLETE",
+  "protocol_document": "docs/manual_audit_protocol.md",
+  "protocol_sha256": "11d9f198b0c976010d998af711fc9d15a9a3ce251d7daf9878893ab5b11a9f65",
+  "protocol_frozen_before_results": true,
+  "evidence_packet": "reports/p1/manual_audit_evidence_packet.json",
+  "evidence_packet_sha256": "505e5ee66fb56a5c7ea94be08016497ce4750b641d877e44d6e2633c7bf3519f",
+  "sample_manifest": "reports/p1/manual_audit_sample_manifest.json",
+  "sample_source": "fixture_snapshot_t10",
+  "sample_size": 4,
+  "sample_strategy": "census",
+  "snapshot_id": "snap_c589494081df",
+  "snapshot_hash": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
+  "annotator_a_file": "reports/p1/manual_audit_annotations_a.json",
+  "annotator_b_file": "reports/p1/manual_audit_annotations_b.json",
+  "adjudication_file": "reports/p1/manual_audit_adjudication.json",
+  "annotator_a_status": "COMPLETE",
+  "annotator_b_status": "COMPLETE",
+  "adjudication_status": "COMPLETE",
+  "annotator_a_id": "codex-g10-r3-annotator-a-20260802",
+  "annotator_b_id": "codex-g10-r3-annotator-b-20260802",
+  "adjudicator_id": "codex-g10-r3-adjudicator-20260802",
+  "agreement": 1.0,
+  "per_rubric_agreement": {
+    "R1": 1.0,
+    "R10": 1.0,
+    "R11": 1.0,
+    "R2": 1.0,
+    "R3": 1.0,
+    "R4": 1.0,
+    "R5": 1.0,
+    "R6": 1.0,
+    "R7": 1.0,
+    "R8": 1.0,
+    "R9": 1.0
+  },
+  "disagreement_count": 0,
+  "all_disagreements_resolved": true,
+  "catastrophic_error_count": 0,
+  "observed_catastrophic_error_types": [],
+  "mapping_rubric_score": 1.0,
+  "role_rubric_score": 1.0,
+  "lineage_rubric_score": 1.0,
+  "ledger_rubric_score": 1.0,
+  "domain_scores": {
+    "mapping_rubric_score": 1.0,
+    "role_rubric_score": 1.0,
+    "lineage_rubric_score": 1.0,
+    "ledger_rubric_score": 1.0
+  },
+  "final_rubric_values": {
+    "audit_001": {
+      "R1": "pass",
+      "R10": "pass",
+      "R11": "pass",
+      "R2": "pass",
+      "R3": "pass",
+      "R4": "pass",
+      "R5": "pass",
+      "R6": "pass",
+      "R7": "pass",
+      "R8": "pass",
+      "R9": "pass"
+    },
+    "audit_002": {
+      "R1": "pass",
+      "R10": "pass",
+      "R11": "pass",
+      "R2": "pass",
+      "R3": "pass",
+      "R4": "pass",
+      "R5": "pass",
+      "R6": "pass",
+      "R7": "pass",
+      "R8": "pass",
+      "R9": "pass"
+    },
+    "audit_003": {
+      "R1": "pass",
+      "R10": "pass",
+      "R11": "pass",
+      "R2": "pass",
+      "R3": "pass",
+      "R4": "pass",
+      "R5": "pass",
+      "R6": "pass",
+      "R7": "pass",
+      "R8": "pass",
+      "R9": "pass"
+    },
+    "audit_004": {
+      "R1": "pass",
+      "R10": "pass",
+      "R11": "pass",
+      "R2": "pass",
+      "R3": "pass",
+      "R4": "pass",
+      "R5": "pass",
+      "R6": "pass",
+      "R7": "pass",
+      "R8": "pass",
+      "R9": "pass"
+    }
+  },
+  "pass_threshold_frozen": {
+    "H1": "catastrophic errors in production index = 0",
+    "H2": "proline-2OG correct or quarantined",
+    "H3": "critical tie silently selected = 0",
+    "H4": "quarantine leakage = 0",
+    "H5": "participant destructive loss = 0",
+    "H6": "formal->mechanistic false upgrade = 0",
+    "H7": "snapshot replay / hash failure = 0",
+    "Q1": "raw agreement >= 0.90",
+    "Q2": "catastrophic error count = 0",
+    "Q3": "all domain rubric scores >= 0.80",
+    "Q4": "all disagreements resolved"
+  },
+  "hard_condition_results": {
+    "H1": {
+      "verdict": "pass",
+      "reason": "The production index contains only rxn_strict_001 and rxn_cond_001, and independent review finds no C1-C9 occurrence on either production row.",
+      "evidence_pointer": "#/index_membership/production"
+    },
+    "H2": {
+      "verdict": "pass",
+      "reason": "All three real required-case rows are explicitly quarantined with zero production eligibility, zero synthesized lineages, and zero forbidden lineages.",
+      "evidence_pointer": "#/real_required_case_evidence/new_pipeline_quarantine"
+    },
+    "H3": {
+      "verdict": "pass",
+      "reason": "No census row contains an ambiguity set or silently selected critical tie; each retained lineage is unambiguous, and unresolved real required-case rows are quarantined.",
+      "evidence_pointer": "#/records"
+    },
+    "H4": {
+      "verdict": "pass",
+      "reason": "rxn_quar_001 appears only in quarantine membership, while the production index contains only the strict and conditional rows.",
+      "evidence_pointer": "#/index_membership"
+    },
+    "H5": {
+      "verdict": "pass",
+      "reason": "Every census row retains its one reactant and one product, and both participant identifiers appear in the corresponding source-ledger role assignments.",
+      "evidence_pointer": "#/records"
+    },
+    "H6": {
+      "verdict": "pass",
+      "reason": "All census mapping reports label source assignment as formal_mapped, with null mechanistic origin and empty mechanistic evidence identifiers.",
+      "evidence_pointer": "#/records"
+    },
+    "H7": {
+      "verdict": "pass",
+      "reason": "The executed hash-only result, two completed builds, and two accepted loader results share snapshot ID snap_c589494081df and hash c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89; both record-hash lists are identical.",
+      "evidence_pointer": "#/snapshot_replay_evidence"
+    }
+  },
+  "quality_gate_results": {
+    "Q1_raw_agreement_ge_0_90": true,
+    "Q2_catastrophic_error_count_zero": true,
+    "Q3_all_domain_scores_ge_0_80": true,
+    "Q4_all_disagreements_resolved": true
+  },
+  "hard_conditions_evaluated": true,
+  "pass_status": true,
+  "pass_status_reason": "All frozen H1-H7 and Q1-Q4 conditions passed.",
+  "fixture_disclaimer": "The four-record T10 census is synthetic contract evidence, not production-performance evidence. H2 uses three real source rows that are explicitly quarantined without a claimed resolution.",
+  "prior_rounds": [
+    {
+      "round": 1,
+      "status": "FAIL",
+      "archive": "reports/p1/g10_round_1/"
+    },
+    {
+      "round": 2,
+      "status": "FAIL",
+      "archive": "reports/p1/g10_round_2/"
+    }
+  ]
+}

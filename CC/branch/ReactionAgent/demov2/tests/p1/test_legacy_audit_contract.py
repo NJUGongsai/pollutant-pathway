@@ -64,29 +64,24 @@ def test_mismatch_categories_complete():
     )
 
 
-def test_verdict_is_partial_when_source_missing():
-    """When the real source is unavailable, verdict must be PARTIAL (not PASS).
-
-    This is the §9.8 honest-reporting contract: the audit must not claim
-    completeness when the real reaction source is blocked. The verdict must
-    carry explicit reasons so the gate can act on them.
-    """
+def test_verdict_matches_live_source_availability():
+    """COMPLETE requires a live source and a non-empty full-corpus audit."""
     data = _load_audit()
     verdict = data.get("verdict", "")
-    # Preflight confirmed BLOCKED: real source not confirmed + rdkit absent.
-    # Therefore the only honest verdict is PARTIAL (or BLOCKED).
-    assert verdict in ("PARTIAL", "BLOCKED"), (
-        f"verdict={verdict!r} but preflight is BLOCKED — must be PARTIAL/BLOCKED"
+    source_found = data.get("real_source_status", {}).get(
+        "real_reaction_source_found", False
     )
-    reasons = data.get("verdict_reasons", [])
-    assert isinstance(reasons, list) and len(reasons) > 0, (
-        "PARTIAL/BLOCKED verdict must carry at least one reason"
-    )
-    # At least one reason must reference the missing real source.
-    reason_blob = " ".join(reasons).lower()
-    assert "source" in reason_blob or "rdkit" in reason_blob or "blocked" in reason_blob, (
-        f"verdict_reasons must reference source/rdkit/blocked: {reasons!r}"
-    )
+    counts = data.get("counts", {})
+    if source_found:
+        assert verdict == "COMPLETE"
+        assert counts.get("total_reactions", 0) > 0
+        assert counts.get("audited_reactions") == counts.get("total_reactions")
+        assert data.get("source_ids")
+        assert data.get("examples")
+    else:
+        assert verdict in ("PARTIAL", "BLOCKED")
+        reasons = data.get("verdict_reasons", [])
+        assert isinstance(reasons, list) and reasons
 
 
 def test_no_fabricated_examples_when_partial():

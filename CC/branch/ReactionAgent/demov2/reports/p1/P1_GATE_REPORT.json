@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-07-30T11:19:35.247495+00:00",
+  "timestamp": "2026-08-06T09:12:06.855866+00:00",
   "gate_version": "p1-gate-1",
   "python_version": "3.11.15",
-  "working_directory": "/Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2",
-  "status": "BLOCKED",
-  "pass_count": 7,
-  "block_count": 3,
-  "fail_count": 0,
+  "working_directory": "/Volumes/CC/Enzyme_Agent/depending/.claude/worktrees/p6-mcp-kernel/CC/branch/ReactionAgent/demov2",
+  "status": "NOT_READY_FOR_CHATGPT_AUDIT",
+  "pass_count": 8,
+  "block_count": 0,
+  "fail_count": 2,
   "total_checks": 10,
   "all_passed": false,
   "checks": [
@@ -45,7 +45,7 @@
           "spec": ">=3.11",
           "satisfied": true
         },
-        "lock_pinned_count": 12,
+        "lock_pinned_count": 17,
         "snapshot_api": {
           "build_snapshot": true,
           "compute_snapshot_hash": true,
@@ -54,6 +54,8 @@
         },
         "legacy_write_guard": "verified (3 negatives blocked)"
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "config": "reaction_agent/config.py",
         "provenance": "reaction_agent/provenance.py",
@@ -64,17 +66,18 @@
     {
       "gate_id": "P1-G02",
       "name": "strict schemas/IDs/provenance + P0 contract green",
-      "passed": true,
+      "passed": false,
       "blocked": false,
-      "evidence": "strict schemas + deterministic IDs/hashes + provenance + P0 gate 10/10 green",
+      "evidence": "P0 gate exit=1 (regression!)",
       "details": {
         "strict_schema_count": 10,
         "hash_deterministic": true,
         "stable_id_sample": "lin_613fe5aa6534",
         "provenance_schema": "SourceRecordProvenance",
-        "p0_gate_exit": 0,
-        "p0_gate": "10/10"
+        "p0_gate_exit": 1
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "schemas": "reaction_agent/schemas/",
         "hashing": "reaction_agent/hashing.py",
@@ -85,35 +88,34 @@
     {
       "gate_id": "P1-G03",
       "name": "legacy lineage audit complete",
-      "passed": false,
-      "blocked": true,
-      "evidence": "BLOCKED: verdict=PARTIAL: ['real_reaction_source_not_confirmed', 'rdkit_absent_runtime_unable_to_execute_legacy_transformed_pair', 'required_case_missing_proline_2og_source_record']; real_reaction_source_not_confirmed; required_case_missing_proline_2og",
+      "passed": true,
+      "blocked": false,
+      "evidence": "legacy full-corpus audit verified (counts/categories/source_ids/examples/hash + project-declared source + proline/2OG structure case)",
       "details": {
-        "verdict": "PARTIAL",
-        "verdict_reasons": [
-          "real_reaction_source_not_confirmed",
-          "rdkit_absent_runtime_unable_to_execute_legacy_transformed_pair",
-          "required_case_missing_proline_2og_source_record"
-        ],
+        "verdict": "COMPLETE",
+        "verdict_reasons": [],
         "counts": {
-          "total_reactions": 0,
-          "audited_reactions": 0,
-          "cross_lineage_pair": 0,
+          "total_reactions": 3601,
+          "audited_reactions": 3601,
+          "cross_lineage_pair": 415,
           "cofactor_selected_as_main": 0,
           "mapping_missing": 0,
-          "legacy_pair_supported": 0,
-          "insufficient_evidence": 0
+          "legacy_pair_supported": 3007,
+          "insufficient_evidence": 179
         },
+        "total_reactions": 3601,
+        "audited_reactions": 3601,
         "category_count": 5,
-        "source_ids_count": 0,
-        "examples_count": 0,
-        "real_source_found": false,
+        "source_ids_count": 3601,
+        "examples_count": 12,
+        "real_source_found": true,
         "source_confirmed": false,
-        "proline_2og_source_record_found": false,
-        "proline_2og_status": "required_case_missing",
         "legacy_read_only": true,
         "legacy_modified": false,
-        "legacy_sha256": "6003f4bc4ffc5ca3304dc1d2282a467f4f773e149ea9cf2a132ca0e4079eb2d0",
+        "legacy_sha256_stored": "6003f4bc4ffc5ca3...",
+        "legacy_sha256_actual": "6003f4bc4ffc5ca3...",
+        "proline_2og_source_record_found": true,
+        "proline_2og_status": "audited_from_real_source",
         "discipline_notes": {
           "legacy_read_only": true,
           "no_failed_records_deleted": true,
@@ -122,6 +124,8 @@
           "section_9_8_compliant": true
         }
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "evidence": "reports/data_audit/legacy_lineage_audit.json",
         "legacy_source": "../benchmark/canonical_identity.py (read-only)"
@@ -130,29 +134,39 @@
     {
       "gate_id": "P1-G04",
       "name": "mapping adapter integration",
-      "passed": false,
-      "blocked": true,
-      "evidence": "BLOCKED: integration_status=INTEGRATION_BLOCKED: rdkit/numpy/networkx/scipy all absent in .venv (Preflight BLOCKED)",
+      "passed": true,
+      "blocked": false,
+      "evidence": "mapping adapter: live probe + FakeAtomMapper unit contract (8 dims, formal_mapped, formal≠mechanism, MCS/center not strict) + T4 tests pass",
       "details": {
-        "integration_status": "INTEGRATION_BLOCKED",
-        "all_backends_unavailable": true,
-        "backends_probed": {
-          "rdkit": false,
-          "rxnmapper": false,
-          "rxn4chemistry": false
-        },
+        "live_rdkit_available": true,
+        "live_backend": "rdkit",
+        "live_map_reaction_called": true,
+        "live_map_reaction_error": null,
+        "reported_integration_status": "INTEGRATION_COMPLETE",
+        "reported_all_backends_unavailable": false,
+        "reported_rdkit_available": true,
         "unit_contract_status": "UNIT_CONTRACT_COMPLETE",
         "quality_dimensions_count": 8,
         "quality_flags_count": 8,
-        "mapper_params_status": "fully_mapped",
-        "fallback_method": null,
-        "has_timeout_config": true,
         "assignment_method": "formal_mapped",
-        "assignment_quality": "high_quality",
+        "fallback_method": null,
         "mechanistic_origin": null,
-        "mechanistic_evidence_ids": [],
-        "formal_only_verified": true
+        "formal_only_verified": true,
+        "t4_pytest_stats": {
+          "test_files": [
+            "tests/p1/test_mapping_adapter.py"
+          ],
+          "collected": 37,
+          "passed": 37,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "evidence": "reports/p1/mapping_integration_sample.json",
         "adapter": "reaction_agent/mapping/adapter.py",
@@ -178,6 +192,9 @@
         "cofactors_source_hash": "6003f4bc4ffc5ca3304dc1d2282a467f4f773e149ea9cf2a132ca0e4079eb2d0",
         "verdict": "UNIT_CONTRACT_COMPLETE",
         "t5_pytest_stats": {
+          "test_files": [
+            "tests/p1/test_participant_roles.py"
+          ],
           "collected": 46,
           "passed": 46,
           "failed": 0,
@@ -187,6 +204,8 @@
           "xpassed": 0
         }
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "evidence": "reports/p1/participant_role_sample.json",
         "roles": "reaction_agent/roles/",
@@ -198,7 +217,7 @@
       "name": "lineage graph bipartite/split-merge-transfer/no-silent-tie",
       "passed": true,
       "blocked": false,
-      "evidence": "14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct + T6 tests pass zero-skip",
+      "evidence": "14 cases: bipartite + split/merge/transfer + no-silent-tie + stable IDs + proline-2OG correct (identity-based) + T6 tests pass zero-skip",
       "details": {
         "case_count": 14,
         "bipartite_verified": true,
@@ -219,8 +238,11 @@
           ]
         ],
         "forbidden_lineage_check": "2OG->hydroxyproline NOT in strict_eligible_pairs for case 01; NAD->NADH NOT in strict_eligible_pairs for case 02 (carrier, not transformed).",
-        "proline_2og_hard_gate": "Case A (curated fixture: proline->hydroxyproline + 2OG->succinate + O transfer). Real source: required_case_missing.",
+        "proline_2og_hard_gate": "Case A keeps its curated formal-map regression. G03 independently located 3 real proline/2OG source rows by participant structure; all 3 expose the legacy forbidden cross-lineage pair and are retained as real audit evidence.",
         "t6_pytest_stats": {
+          "test_files": [
+            "tests/p1/test_lineage_graph.py"
+          ],
           "collected": 41,
           "passed": 41,
           "failed": 0,
@@ -230,6 +252,8 @@
           "xpassed": 0
         }
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "evidence": "reports/p1/lineage_regression_cases.json",
         "lineage": "reaction_agent/lineage/resolver.py",
@@ -257,6 +281,10 @@
         "inherited_assumptions_sample": 3,
         "unknowns_count": 5,
         "t7t8_pytest_stats": {
+          "test_files": [
+            "tests/p1/test_source_ledger.py",
+            "tests/p1/test_candidate_ledger_skeleton.py"
+          ],
           "collected": 33,
           "passed": 33,
           "failed": 0,
@@ -266,6 +294,8 @@
           "xpassed": 0
         }
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "evidence_src": "reports/p1/source_ledger_samples.json",
         "evidence_cand": "reports/p1/candidate_ledger_samples.json",
@@ -277,7 +307,7 @@
       "name": "eligibility/quarantine policy",
       "passed": true,
       "blocked": false,
-      "evidence": "8 policy rows + warnings + quarantine behavior + production excludes prohibited/quarantine + reasons typed",
+      "evidence": "8 policy rows + warnings + quarantine behavior + production excludes prohibited/quarantine + reasons typed + fail-closed tests pass (incomplete/failed/MCS/unknown never strict)",
       "details": {
         "matrix_row_count": 8,
         "manifest_count": 8,
@@ -286,8 +316,147 @@
         "production_rows": 4,
         "excluded_rows": 4,
         "policy_authority": "reaction_agent.policies.partial_eligibility",
-        "engine_version": "p1-t9-1"
+        "engine_version": "p1-t9-1",
+        "fail_closed_pytest_stats": {
+          "test_files": [
+            "tests/p1/test_eligibility_fail_closed.py",
+            "tests/p1/test_eligibility_engine.py",
+            "tests/p1/test_eligibility_cross_invariants.py",
+            "tests/p1/test_eligibility_reference_integrity.py",
+            "tests/p1/test_snapshot_nested_evidence.py"
+          ],
+          "collected": 216,
+          "passed": 216,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0,
+          "mandatory_nodes": {
+            "tests/p1/test_eligibility_cross_invariants.py::test_valid_strict_baseline_is_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_participant_low_mapped_fraction_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_self_reported_full_mapping_with_incomplete_actual_pair_coverage_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_reverse_collision_many_to_one_mapping_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_nonzero_element_balance_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_element_delta_inconsistent_with_counts_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_duplicate_element_balance_entry_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_added_atom_source_ghost_reference_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_role_assignment_ghost_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_stoichiometry_ghost_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_formal_atom_transfer_ghost_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_generic_unknowns_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_duplicate_lineage_id_or_content_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_explicit_reaction_evidence_quarantine_routes_to_quarantine": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_identity_ambiguity_set_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_embedded_external_lineage_mismatch_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_uncontrolled_direction_value_never_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_public_snapshot_api_cannot_promote_element_imbalance_to_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_public_snapshot_api_cannot_promote_explicit_quarantine_to_strict": "passed",
+            "tests/p1/test_eligibility_cross_invariants.py::test_public_snapshot_api_cannot_promote_mapping_reverse_collision_to_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_reference_integrity_valid_strict_baseline_is_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_reactant_product_matching_map_number_remains_valid": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_added_atom_source_existing_participant_unknown_map_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_added_atom_mechanistic_evidence_id_must_resolve": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_reactant_entry_ghost_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_product_entry_ghost_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_reactant_entry_wrong_side_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_product_entry_wrong_side_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_stoichiometry_existing_participant_wrong_side_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_negative_stoichiometric_coefficient_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_formal_transfer_existing_participants_wrong_sides_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_formal_transfer_unknown_map_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_formal_transfer_conflicts_with_formal_pairs_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_removed_atom_sink_ghost_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_removed_atom_sink_unknown_map_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_cofactor_change_ghost_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_mechanistic_evidence_ghost_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_mechanistic_evidence_unknown_target_map_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_contradictory_role_assignments_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_negative_element_reactant_count_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_negative_element_product_count_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_element_delta_must_equal_product_minus_reactant": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_fully_balanced_nonzero_delta_routes_to_quarantine": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_partial_consistent_nonzero_delta_not_mislabeled_quarantine": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_partial_consistent_nonzero_delta_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_participant_id_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_uncontrolled_participant_side_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_atom_map_within_participant_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_same_side_cross_participant_atom_map_collision_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_embedded_lineage_ids_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_lineage_content_with_reordered_maps_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_transformed_maps_within_lineage_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_added_atom_unknown_map": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_ledger_ghost_entry": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_formal_transfer_map_conflict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_duplicate_participant_map": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_embedded_duplicate_lineage": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_uncontrolled_cofactor_direction_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_unknown_cofactor_direction_remains_conditional": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_uncontrolled_cofactor_direction": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_reactant_entry_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_reactant_entry_coefficients_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_product_entry_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_product_entry_coefficients_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_stoichiometry_entry_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_stoichiometry_coefficients_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_conflicting_reactant_entries": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_conflicting_stoichiometry": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_mechanistic_target_map_must_exist_on_product_side": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_mechanistic_target_product_map_remains_valid": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_reactant_only_mechanistic_target_map": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_empty_formal_transfer_maps_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_formal_transfer_maps_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_valid_nonempty_formal_transfer_remains_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_empty_formal_transfer": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_heavy_atom_participant_with_empty_maps_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_mapped_fraction_one_cannot_override_empty_heavy_atom_maps": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_valid_fully_mapped_heavy_atom_participant_remains_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_zero_heavy_atom_policy_does_not_get_accidentally_broken": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_unmapped_heavy_atom_participant": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_nonformal_added_atom_source_without_mechanism_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_empty_mechanistic_target_maps_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_genuinely_fully_mapped_heavy_atom_participant_remains_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_zero_heavy_atom_proton_policy_remains_valid": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_heavy_atom_map_count_underflow_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_heavy_atom_map_count_overflow_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_mapped_fraction_one_cannot_override_map_count_underflow": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_global_mapped_fraction_one_cannot_override_participant_count_mismatch": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_heavy_map_count_underflow": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_heavy_map_count_overflow": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_positive_atom_map_identifiers_remain_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_zero_atom_map_identifier_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_negative_atom_map_identifier_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_nonpositive_formal_pair_map_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_nonpositive_lineage_map_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_nonpositive_atom_maps": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_distinct_valid_ledger_evidence_remains_valid": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_added_atom_source_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_added_atom_sources_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_removed_atom_sink_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_removed_atom_sinks_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_formal_transfer_assignment_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_conflicting_formal_transfer_assignments_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_duplicate_mechanistic_target_maps_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_duplicate_added_atom_source": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_duplicate_removed_atom_sink": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_duplicate_formal_transfer_assignment": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_duplicate_mechanistic_targets": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_formally_backed_removed_atom_sink_remains_valid": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_nonformal_removed_atom_sink_without_authority_never_strict": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_cannot_promote_unbacked_removed_atom_sink": "passed",
+            "tests/p1/test_eligibility_reference_integrity.py::test_public_snapshot_strict_positive_is_in_production_index": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_hash_coherent_diagnostic_in_production": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_hash_coherent_quarantine_in_production": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_cross_index_membership": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_accepts_exact_complete_index_partition": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_conditional_record_is_only_in_production_index": "passed"
+          },
+          "mandatory_nodes_total": 117,
+          "mandatory_nodes_passed": 117
+        }
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "evidence": "reports/p1/eligibility_matrix_execution.json",
         "policy": "reaction_agent/policies/partial_eligibility.py",
@@ -300,42 +469,134 @@
       "name": "snapshot reproducibility",
       "passed": true,
       "blocked": false,
-      "evidence": "INDEPENDENT rebuild (2x same hash) + cross-verify stored hash + deterministic 3-way + content hash + manifest complete + filters counted + frozen + read-only loader",
+      "evidence": "INDEPENDENT rebuild (2x same hash) + cross-verify stored hash + deterministic 3-way + content hash + manifest complete + filters counted + frozen + read-only loader + nested-evidence mutation/tamper tests pass",
       "details": {
-        "independent_rebuild_hash": "21172a43f2d95019...",
-        "independent_rebuild_hash_full": "21172a43f2d9501902e5d7883cf90fba78ed1b08a9ab3817751092973703edcf",
+        "independent_rebuild_hash": "c589494081dfeb19...",
+        "independent_rebuild_hash_full": "c589494081dfeb19d178fb6e057bfe41a9b402827054ae4bc5b28d48eb077d89",
         "independent_rebuild_match": true,
         "cross_verify_stored": true,
-        "stored_hash_prefix": "21172a43f2d95019...",
+        "stored_hash_prefix": "c589494081dfeb19...",
         "same_hash_3way": true,
         "same_snapshot_id": true,
-        "hash_value": "21172a43f2d95019...",
-        "build_a_hash": "21172a43f2d95019...",
-        "build_b_hash": "21172a43f2d95019...",
-        "snapshot_hash": "21172a43f2d95019...",
-        "snapshot_id": "snap_21172a43f2d9",
+        "hash_value": "c589494081dfeb19...",
+        "build_a_hash": "c589494081dfeb19...",
+        "build_b_hash": "c589494081dfeb19...",
+        "snapshot_hash": "c589494081dfeb19...",
+        "snapshot_id": "snap_c589494081df",
         "resources": [
+          "diagnostic_index",
           "manifest",
           "production_index",
-          "diagnostic_index",
           "quarantine_index",
           "records"
         ],
         "counts": {
+          "strict": 1,
           "conditional": 1,
           "diagnostic": 1,
-          "quarantine": 1,
-          "strict": 1
+          "quarantine": 1
         },
         "freeze_status": "frozen",
         "build_status": "complete",
         "evidence_ids_count": 4,
-        "hash_only_no_write": "21172a43f2d95019...",
-        "real_snapshot_status": "BLOCKED",
-        "real_snapshot_reason": "Preflight BLOCKED (rdkit absent). Real source snapshot requires rdkit for T4 map",
+        "hash_only_no_write": "c589494081dfeb19...",
+        "real_snapshot_status": "REQUIRED_CASES_EXPLICITLY_QUARANTINED",
+        "real_snapshot_reason": "Three real proline/2OG rows were located by G03 and processed by the new require",
         "failure_reasons_count": 2,
-        "record_content_hashes_count": 4
+        "record_content_hashes_count": 4,
+        "nested_mutation_pytest_stats": {
+          "test_files": [
+            "tests/p1/test_snapshot_nested_evidence.py",
+            "tests/p1/test_snapshot_builder.py",
+            "tests/p1/test_snapshot_complete_evidence.py",
+            "tests/p1/test_manifest_authority_type_integrity.py"
+          ],
+          "collected": 127,
+          "passed": 127,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0,
+          "mandatory_nodes": {
+            "tests/p1/test_snapshot_complete_evidence.py::test_snapshot_hash_changes_when_reaction_provenance_changes": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_snapshot_hash_changes_when_reaction_ambiguity_sets_change": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_snapshot_hash_changes_when_reaction_quarantine_changes": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_snapshot_persists_complete_reaction_evidence_model": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_snapshot_persists_complete_eligibility_decision": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_snapshot_persists_complete_quarantine_record": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_loader_rejects_tampered_reaction_level_provenance": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_loader_rejects_tampered_decision_warning_or_evidence_ids": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_loader_rejects_tampered_quarantine_record": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_embedded_and_external_ledgers_cannot_disagree": "passed",
+            "tests/p1/test_snapshot_complete_evidence.py::test_snapshot_id_or_runtime_exclusion_policy_is_explicit": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_missing_diagnostic_member_without_metadata_change": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_missing_production_member": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_missing_quarantine_member": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_duplicate_records_reaction_id": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_duplicate_index_reaction_id": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_mutated_nested_production_index_payload": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_mutated_nested_diagnostic_index_payload": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_diagnostic_index_content_changes_snapshot_hash": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_snapshot_manifest_persists_diagnostic_index_hash": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_accepts_exact_complete_index_partition": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_missing_manifest_diagnostic_index_hash": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_count_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_record_count_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_record_hashes_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_production_index_hash_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_diagnostic_index_hash_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_quarantine_index_hash_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_source_counts_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_source_hash_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_manifest_failure_counts_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_snapshot_identity_mismatch": "passed",
+            "tests/p1/test_snapshot_nested_evidence.py::test_loader_accepts_verified_manifest_authority": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_record_count_bool": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_included_strict_count_bool": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_conditional_count_bool": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_diagnostic_count_bool": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_quarantine_count_bool": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_source_count_bool": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_source_count_float": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_failure_count_bool": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_failure_count_float": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_manifest_build_status": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_build_status_wrong_type": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_non_object_manifest": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_versions_nested_wrong_type": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_source_files_nested_wrong_type": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_record_hash_list_nested_wrong_type": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_returns_recomputed_manifest_counts": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_returns_recomputed_source_counts": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_accepts_round10_verified_manifest_all_four_lanes": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[snapshot_id]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[schema_version]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[included_strict_count]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[conditional_count]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[diagnostic_count]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[quarantine_count]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[build_status]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[snapshot_hash]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[build_id]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[source_counts]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[policy_version]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[record_count]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[versions]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[source_files]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[failure_counts_by_reason]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[record_content_hashes]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[production_index_hash]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[diagnostic_index_hash]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[quarantine_index_hash]": "passed",
+            "tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_required_manifest_field[build_config_hash]": "passed"
+          },
+          "mandatory_nodes_total": 71,
+          "mandatory_nodes_passed": 71
+        }
       },
+      "implementation_failures": [],
+      "external_blockers": [],
       "evidence_paths": {
         "evidence": "reports/p1/snapshot_build_sample.json",
         "builder": "reaction_agent/snapshot/builder.py",
@@ -347,13 +608,16 @@
       "gate_id": "P1-G10",
       "name": "manual audit + full tests",
       "passed": false,
-      "blocked": true,
-      "evidence": "BLOCKED: annotator_a=NOT_PRODUCED; annotator_b=NOT_PRODUCED; adjudication=NOT_PRODUCED; catastrophic_error_count is null (cannot determine without double annotation)",
+      "blocked": false,
+      "evidence": "pytest has failures/errors: {'collected': 975, 'passed': 950, 'failed': 3, 'errors': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}",
       "details": {
-        "audit_status": "BLOCKED_MANUAL_AUDIT_INCOMPLETE",
-        "annotator_a_status": "NOT_PRODUCED",
-        "annotator_b_status": "NOT_PRODUCED",
-        "adjudication_status": "NOT_PRODUCED",
+        "audit_status": "COMPLETE",
+        "annotator_a_status": "COMPLETE",
+        "annotator_b_status": "COMPLETE",
+        "adjudication_status": "COMPLETE",
+        "disagreement_count": 0,
+        "annotator_a_id": "codex-g10-r3-annotator-a-20260802",
+        "annotator_b_id": "codex-g10-r3-annotator-b-20260802",
         "protocol_frozen_before_results": true,
         "hard_conditions_frozen": [
           "H1",
@@ -363,22 +627,29 @@
           "H5",
           "H6",
           "H7",
-          "note"
+          "Q1",
+          "Q2",
+          "Q3",
+          "Q4"
         ],
-        "catastrophic_error_count": null,
-        "pass_status": false,
-        "block_reason": "No independent second annotator available in current LLM session. A single LLM e",
-        "pytest_exit": 0,
+        "catastrophic_error_count": 0,
+        "pass_status": true,
+        "block_reason": null,
+        "pytest_exit": 1,
         "pytest_stats": {
-          "collected": 621,
-          "passed": 621,
-          "failed": 0,
+          "collected": 975,
+          "passed": 950,
+          "failed": 3,
           "errors": 0,
           "skipped": 0,
           "xfailed": 0,
           "xpassed": 0
         }
       },
+      "implementation_failures": [
+        "pytest has failures/errors: {'collected': 975, 'passed': 950, 'failed': 3, 'errors': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}"
+      ],
+      "external_blockers": [],
       "evidence_paths": {
         "evidence": "reports/p1/manual_audit_report.json",
         "protocol": "docs/manual_audit_protocol.md",
@@ -389,11 +660,35 @@
   "changed_files": [
     {
       "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/docs/manual_audit_protocol.md"
+    },
+    {
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/reaction_agent/eligibility/engine.py"
     },
     {
       "status": "M",
-      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/schemas/p1_entities.py"
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/lineage/__init__.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/mapping/adapter.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/snapshot/builder.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/snapshot/loader.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/data_audit/legacy_lineage_audit.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/data_audit/legacy_lineage_audit.md"
     },
     {
       "status": "M",
@@ -413,7 +708,495 @@
     },
     {
       "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_PREFLIGHT.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_PREFLIGHT.md"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_REMEDIATION_WORKLOG.md"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/lineage_regression_cases.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_report.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_report.md"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_sample_manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/mapping_integration_sample.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/mutation_results.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/snapshot_build_sample.json"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/requirements.lock.txt"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/legacy_lineage_audit.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/p1_preflight.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_gate.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p1_mutations.py"
+    },
+    {
+      "status": "M",
       "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_engine.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_legacy_audit_contract.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_lineage_graph.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_manual_audit_contract.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_mapping_adapter.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_p1_preflight.py"
+    },
+    {
+      "status": "M",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_snapshot_builder.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/docs/orchestra/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/plan/P6_ISSUE_TEMPLATE.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/plan/chatgpt-user-collaboration-style.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/lineage/required_case.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reaction_agent/p5/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_2.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_3.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_4_FOR_CLAUDE.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_5.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_6.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_7.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_8.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_REMEDIATION_PROMPT_ROUND_9.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_ROUND_10_TASK_A_MANIFEST_CORE.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_ROUND_10_TASK_B_GATE_MUTATIONS.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/CHATGPT_P1_ROUND_10_TASK_C_INTEGRATION_AUDIT.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_10_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_2_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_3_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_4_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_5_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_6_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_7_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_8_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/P1_ROUND_9_AUDIT_EVIDENCE.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/ROUND_10_INTEGRATION_RESULTS.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/ROUND_10_TASK_A_HANDOFF.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/ROUND_10_TASK_B_HANDOFF.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_FINAL_PASS.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_10.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_2.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_3.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_4.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_5.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_6.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_7.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_8.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_9.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_cross_invariant_results.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_fail_closed_results.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_reference_integrity_results_round_5.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_reference_integrity_results_round_6.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_reference_integrity_results_round_7.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_semantic_invariant_results_round_4.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_semantic_invariant_results_round_5.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_semantic_invariant_results_round_6.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/eligibility_semantic_invariant_results_round_7.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/g10_round_1/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/g10_round_2/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/g10_round_3/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_10.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_3.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_4.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_5.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_6.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_7.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_8.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/gate_false_positive_mutation_results_round_9.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/index_partition_integrity_results_round_8.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manifest_authority_integrity_results_round_9.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manifest_type_authority_results_round_10.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_adjudication.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_annotations_a.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_annotations_b.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/manual_audit_evidence_packet.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/required_case_quarantine_evidence.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/snapshot_complete_evidence_mutation_results.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p1/snapshot_nested_mutation_results.json"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p3/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p4/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/reports/p5/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/finalize_manual_audit.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/generate_manual_audit_manifest.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/generate_manual_audit_packet.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/generate_required_case_quarantine_evidence.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/generate_round3_evidence.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/regenerate_snapshot_sample.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_kimi_audit.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_kimi_remediate.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p5_audit_evidence.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p5_gate.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/run_p5_packet_selfcheck.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/scripts/validate_manual_annotations.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_cross_invariants.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_fail_closed.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_eligibility_reference_integrity.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_manifest_authority_type_integrity.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_required_case_quarantine.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_snapshot_complete_evidence.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p1/test_snapshot_nested_evidence.py"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/tests/p5/"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P2_IMPLEMENTATION_PROMPT_2026-08-02.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P3_IMPLEMENTATION_PROMPT_2026-08-03.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P3_REMEDIATION_PROMPT_ROUND_2_2026-08-03.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P4_IMPLEMENTATION_PROMPT_2026-08-03.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/CHATGPT_P5_IMPLEMENTATION_PROMPT_2026-08-03.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/COPY_PROMPT_P3_REMEDIATION_ROUND_2_TO_AI.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/COPY_PROMPT_P3_TO_AI.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/COPY_PROMPT_P4_TO_AI.md"
+    },
+    {
+      "status": "??",
+      "path": "CC/branch/ReactionAgent/demov2/training/COPY_PROMPT_P5_TO_AI.md"
     },
     {
       "status": "??",
@@ -428,15 +1211,14 @@
   "preflight_context": {
     "status": "BLOCKED",
     "blockers": [
-      "rdkit_absent",
       "real_reaction_source_not_confirmed",
       "required_case_missing"
     ],
-    "impact": "G03 (real source), G04 (rdkit mapping), G10 (proline-2OG in audit) blocked by preflight"
+    "impact": "G03 (real source not confirmed), G04 (RealMapperAdapter skeleton not implemented), G10 (independent annotator/adjudicator not produced) blocked by external inputs; rdkit is available at runtime (no longer a blocker)"
   },
   "deviations": [
     "Execution model: ChatGPT-designed P1 tasks executed by Claude Code subagent (documented in SUBMISSION §15)",
-    "rdkit absent: T4 mapping integration, T6 lineage on real data, T7 source ledger balance blocked — unit contracts complete via FakeAtomMapper + structured fixtures",
+    "rdkit available at runtime: G03 no longer reports rdkit_absent; remaining G03 blocker is real reaction source not confirmed; G04 blocker is RealMapperAdapter.map_reaction() skeleton (a scoped follow-up), not rdkit",
     "Manual audit BLOCKED: no independent second annotator available in single LLM session (§17.1/§17.7)"
   ],
   "assumptions": [
@@ -445,7 +1227,7 @@
     "P0 baseline 290 + Gate 10/10 preserved (G02 re-runs P0 gate to verify no regression)"
   ],
   "known_risks": [
-    "G03/G04/G10 BLOCKED by preflight (rdkit/real-source/annotator) — cannot be resolved without external dependencies",
+    "G03/G04/G10 BLOCKED by external inputs (real-source / skeleton mapper / independent annotator) — cannot be resolved without external dependencies; rdkit is available and is no longer a blocker",
     "Fixture snapshot (4 synthetic records) is not real production data — audit validates pipeline contract, not real chemistry",
     "Proline-2OG case (H2) absent from fixture snapshot — cannot be evaluated until real data available"
   ],
@@ -512,7 +1294,7 @@
         "expected": "G06 FAIL",
         "actual_passed": false,
         "actual_blocked": false,
-        "evidence": "case count < 14: 13",
+        "evidence": "case count < 14: 13; proline/2OG required case missing from regression cases",
         "caught": true,
         "mutation_id": "M7"
       },
@@ -524,9 +1306,1363 @@
         "evidence": "G10 check called directly; pytest_stats={'collected': 2, 'passed': 0, 'failed': 0, 'errors': 0, 'skipped': 1, 'xfailed': 1, 'xpassed': 0}; passed=False, blocked=False",
         "caught": true,
         "mutation_id": "M8"
+      },
+      {
+        "mutation_id": "M9",
+        "mutation": "G03 verdict COMPLETE but zero audited records",
+        "expected": "G03 implementation FAIL (zero records)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "verdict=COMPLETE but total_reactions=0 (M9: fake complete); verdict=COMPLETE but audited_reactions=0 (M9)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M10",
+        "mutation": "G03 verdict COMPLETE but source_ids/examples empty",
+        "expected": "G03 implementation FAIL (empty source_ids)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "verdict=COMPLETE but source_ids empty (M10); verdict=COMPLETE but examples empty",
+        "caught": true
+      },
+      {
+        "mutation_id": "M11",
+        "mutation": "G03 legacy source file hash mismatch",
+        "expected": "G03 implementation FAIL (hash mismatch)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "legacy module hash mismatch (M11): stored=deadbeefdeadbeef... != actual=6003f4bc4ffc5ca3...",
+        "caught": true
+      },
+      {
+        "mutation_id": "M12",
+        "mutation": "G04 status-only promotion against injected live skeleton",
+        "expected": "G04 BLOCKED via live probe (no fake PASS)",
+        "actual_passed": false,
+        "actual_blocked": true,
+        "evidence": "BLOCKED: RealMapperAdapter.map_reaction() not implemented (skeleton): INTEGRATION_BLOCKED injected skeleton; mapping adapter: live probe + FakeAtomMapper unit contract (8 dims, formal_mapped, formal≠mechanism, MCS/center not strict) + T4 tests pass",
+        "caught": true
+      },
+      {
+        "mutation_id": "M13",
+        "mutation": "G04 all_backends_unavailable=true but status COMPLETE",
+        "expected": "G04 not PASS (contradictory JSON rejected)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "real_mapper_integration contradiction: all_backends_unavailable is True but backends_probed={'rdkit': True, 'rxnmapper': False, 'rxn4chemistry': False}; real_mapper_integration contradiction: status=INTEGRATION_COMPLETE while all_backends_unavailable=true",
+        "caught": true
+      },
+      {
+        "mutation_id": "M14",
+        "mutation": "G06 remove proline case while keeping >=14 cases",
+        "expected": "G06 implementation FAIL (proline missing)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "proline/2OG required case missing from regression cases",
+        "caught": true
+      },
+      {
+        "mutation_id": "M15",
+        "mutation": "G06 inject forbidden 2OG->hydroxyproline strict pair",
+        "expected": "G06 implementation FAIL (forbidden pairing)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "forbidden cross-lineage pairing: product 'p1' from multiple reactants ['r1', 'r2'] without merge hypothesis (2OG→hydroxyproline class of error)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M16",
+        "mutation": "G08 mapping_completeness=failed enters strict production",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapping_completeness='failed' (must be 'complete' for strict)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M17",
+        "mutation": "G08 source_completeness=incomplete enters strict production",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: source_completeness='incomplete' (must be 'complete' for strict)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M18",
+        "mutation": "G09 mutate participant provenance without hash change",
+        "expected": "snapshot hash changes (tampering detected)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=eebac2a7b0429132... after=08190ef730de5188... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M19",
+        "mutation": "G09 mutate mapping pair without hash change",
+        "expected": "snapshot hash changes (tampering detected)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=eebac2a7b0429132... after=3aa228af0a73c2b6... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M20",
+        "mutation": "G09 mutate source ledger without hash change",
+        "expected": "snapshot hash changes (tampering detected)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=eebac2a7b0429132... after=51cb8b8ccc9be4f6... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M21",
+        "mutation": "G09 mutate transformed lineage without hash change",
+        "expected": "snapshot hash changes (tampering detected)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=eebac2a7b0429132... after=6c37d6eb26c4dcf9... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M22",
+        "mutation": "G10 COMPLETE statuses with null annotation files",
+        "expected": "G10 implementation FAIL (null annotation files)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "annotator_a_status=COMPLETE but annotator_a_file is null/missing (fake complete, §5.7); annotator_b_status=COMPLETE but annotator_b_file is null/missing (fake complete, §5.7)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M23",
+        "mutation": "G10 same annotator ID for A and B",
+        "expected": "G10 implementation FAIL (non-independent annotators)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "annotator_a_id == annotator_b_id (annotator_A) — not independent (§5.7)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M24",
+        "mutation": "G10 missing adjudication for disagreement",
+        "expected": "G10 implementation FAIL (adjudication missing)",
+        "actual_passed": false,
+        "actual_blocked": false,
+        "evidence": "disagreement_count=2 but adjudication_status='NOT_PRODUCED' (M24: adjudication must cover all disagreements)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M25",
+        "mutation": "blocked Gate also contains implementation failure",
+        "expected": "Gate reported as FAIL (impl not masked by BLOCKED)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "impl_fail_gates=['P1-GXX'], blocked_gates=[], status=NOT_READY_FOR_CHATGPT_AUDIT (via real aggregate_gate_status authority)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M26",
+        "mutation": "reaction-level provenance changes but hash unchanged",
+        "expected": "snapshot hash changes (tampering detected)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=eebac2a7b0429132... after=c53ecd2a4f597dab... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M27",
+        "mutation": "source citation changes but hash unchanged",
+        "expected": "snapshot hash changes (tampering detected)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=eebac2a7b0429132... after=77011fa708f62aae... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M28",
+        "mutation": "fragment-lineage/ambiguity evidence changes but hash unchanged",
+        "expected": "snapshot hash changes (tampering detected)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=eebac2a7b0429132... after=ee095ce29bc6a9cb... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M29",
+        "mutation": "quality/quarantine evidence changes but hash unchanged",
+        "expected": "snapshot hash changes (tampering detected)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=eebac2a7b0429132... after=82216c8c8edf1ab3... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M30",
+        "mutation": "EligibilityDecision warning/evidence changes but hash unchanged",
+        "expected": "record content hash changes (complete decision hashed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=bcc3ea6cd3bec6aa... after=ab5806d4932ac02b... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M31",
+        "mutation": "QuarantineRecord changes but hash unchanged",
+        "expected": "record content hash changes (complete quarantine record hashed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "before=c7128084c8a54405... after=784f47c576d2754c... changed=True",
+        "caught": true
+      },
+      {
+        "mutation_id": "M32",
+        "mutation": "mapped_heavy_atom_fraction < strict threshold enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapped_heavy_atom_fraction=0.8 < 1.0 (strict requires full heavy-atom mapping)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M33",
+        "mutation": "formal assignment ambiguity enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal assignment_ambiguity is True (ambiguous formal assignment not strict)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M34",
+        "mutation": "formal pair unknown participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapped pair reactant_participant_id='ghost_reactant' not in participants",
+        "caught": true
+      },
+      {
+        "mutation_id": "M35",
+        "mutation": "formal pair unknown atom map enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapped pair reactant_atom_map=99 not in participant 'r1' atom_map_numbers",
+        "caught": true
+      },
+      {
+        "mutation_id": "M36",
+        "mutation": "formal pair wrong-side participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapped pair reactant participant 'p1' has side='product' (expected 'reactant')",
+        "caught": true
+      },
+      {
+        "mutation_id": "M37",
+        "mutation": "unresolved/failed lineage enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: lineage lin_r1_p1 resolution_quality='unresolved' (must be 'resolved' for strict)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M38",
+        "mutation": "partial identity ambiguity enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: lineage lin_r1_p1 ambiguity='partial' (must be 'none' for strict)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M39",
+        "mutation": "lineage unsupported by formal mapping enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: lineage lin_r1_p1 transformed_atom_maps [77] not supported by mapped atoms",
+        "caught": true
+      },
+      {
+        "mutation_id": "M40",
+        "mutation": "two reactants claim one transformed product and enter strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: forbidden pairing — transformed product 'p1' claimed by multiple transformed reactants ['r1', 'r2'] (no typed me",
+        "caught": true
+      },
+      {
+        "mutation_id": "M41",
+        "mutation": "embedded/external source ledgers disagree but snapshot builds strict",
+        "expected": "builder fails closed (SnapshotBuildError), no strict snapshot",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "fail-closed SnapshotBuildError: dual ledger disagreement for reaction 'rxn_strict_001': ReactionEvidence.source_reaction_ledger (embedded) and SnapshotEvidenceItem.source_ledger (external) are",
+        "caught": true
+      },
+      {
+        "mutation_id": "M42",
+        "mutation": "non-zero element delta on a balanced ledger enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=quarantine, reason=element_balance_contradiction: element 'C' delta=1 inconsistent with product_count-reactant_count=0",
+        "caught": true
+      },
+      {
+        "mutation_id": "M43",
+        "mutation": "explicit ReactionEvidence.quarantine enters production strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=quarantine, reason=explicit_evidence_quarantine: curator_flagged_identity_uncertain",
+        "caught": true
+      },
+      {
+        "mutation_id": "M44",
+        "mutation": "identity ambiguity set enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: ambiguity_sets present (1) — no typed authority to prove identity-irrelevance",
+        "caught": true
+      },
+      {
+        "mutation_id": "M45",
+        "mutation": "embedded lineage id conflicts with external lineage enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: embedded_external_lineage mismatch — embedded ['lin_conflicting'] != external ['lin_r1_p1']",
+        "caught": true
+      },
+      {
+        "mutation_id": "M46",
+        "mutation": "uncontrolled direction value 'sideways' enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: direction='sideways' not in controlled strict vocabulary ['forward', 'reverse']",
+        "caught": true
+      },
+      {
+        "mutation_id": "M47",
+        "mutation": "participant mapped_fraction 0.25 enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_mapped_fraction 'r1'=0.25 < 1.0 (strict requires full per-participant mapping)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M48",
+        "mutation": "dropped formal pair (uncovered declared atom map) enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_atom_map_uncovered — participant 'r1' declared atom maps [2] not covered by any formal mapped pair",
+        "caught": true
+      },
+      {
+        "mutation_id": "M49",
+        "mutation": "two reactant atoms target one product atom (reverse collision) enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: product_atom_target_collision — product atom ('p1', 1) claimed by both ('r1', 1) and ('r1', 2)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M50",
+        "mutation": "AddedAtomSource ghost participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_ghost — source_participant_id 'ghost_src' not in participants",
+        "caught": true
+      },
+      {
+        "mutation_id": "M51",
+        "mutation": "RoleAssignment ghost participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: role_assignment_ghost — participant_id 'ghost_role' not in participants",
+        "caught": true
+      },
+      {
+        "mutation_id": "M52",
+        "mutation": "StoichiometricEntry ghost participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: stoichiometry_ghost — participant_id 'ghost_stoich' not in participants",
+        "caught": true
+      },
+      {
+        "mutation_id": "M53",
+        "mutation": "FormalAtomTransferAssignment ghost participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_ghost — source_participant_id 'ghost_fat' not in participants",
+        "caught": true
+      },
+      {
+        "mutation_id": "M54",
+        "mutation": "generic ledger unknown enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: ledger_unknowns present (['identity_source_unknown']) — cannot prove harmless",
+        "caught": true
+      },
+      {
+        "mutation_id": "M55",
+        "mutation": "duplicate lineage id/content enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: duplicate_lineage — lineage_id 'lin_r1_p1' appears more than once",
+        "caught": true
+      },
+      {
+        "mutation_id": "M56",
+        "mutation": "remove/shadow G08/G09 mandatory test node -> corresponding Gate FAIL",
+        "expected": "G08 and G09 FAIL when their mandatory test node is missing (incl. Round-5 reference-integrity + single Round-6 node + single Round-7 node + Round-8 production-partition + Round-8 diagnostic-integrity + Round-9 manifest-required-field + Round-9 snapshot-identity node + Round-10 record_count-bool + Round-10 build_status + Round-10 reconstructed-return node)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M56a=True M56b=True M56c=True M56d=True M56e=True M56f=True M56g=True M56h=True M56i=True M56j=True M56k=True M56l=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M56a",
+            "mutation": "P1-G08 mandatory test file shadowed (tests/p1/test_eligibility_cross_invariants.py)",
+            "expected": "P1-G08 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G08 passed=False mandatory_node_missing_hits=20: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_eligibility_cross_invariants.py::test_valid_strict_baseline_is_strict; P1-G08 MANDATORY test node not collected/e",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56b",
+            "mutation": "P1-G09 mandatory test file shadowed (tests/p1/test_snapshot_complete_evidence.py)",
+            "expected": "P1-G09 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G09 passed=False mandatory_node_missing_hits=11: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_complete_evidence.py::test_snapshot_hash_changes_when_reaction_provenance_changes; P1-G09 MANDATORY test",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56c",
+            "mutation": "P1-G08 mandatory test file shadowed (tests/p1/test_eligibility_reference_integrity.py)",
+            "expected": "P1-G08 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G08 passed=False mandatory_node_missing_hits=92: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_eligibility_reference_integrity.py::test_reference_integrity_valid_strict_baseline_is_strict; P1-G08 MANDATORY te",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56d",
+            "mutation": "P1-G08 single node removed (test_uncontrolled_cofactor_direction_never_strict)",
+            "expected": "P1-G08 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G08 passed=False mandatory_node_missing_hits=1: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_eligibility_reference_integrity.py::test_uncontrolled_cofactor_direction_never_strict",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56e",
+            "mutation": "P1-G08 single node removed (test_heavy_atom_map_count_underflow_never_strict)",
+            "expected": "P1-G08 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G08 passed=False mandatory_node_missing_hits=1: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_eligibility_reference_integrity.py::test_heavy_atom_map_count_underflow_never_strict",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56f",
+            "mutation": "P1-G08 single node removed (test_loader_rejects_hash_coherent_diagnostic_in_production)",
+            "expected": "P1-G08 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G08 passed=False mandatory_node_missing_hits=1: P1-G08 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_hash_coherent_diagnostic_in_production",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56g",
+            "mutation": "P1-G09 single node removed (test_snapshot_manifest_persists_diagnostic_index_hash)",
+            "expected": "P1-G09 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_nested_evidence.py::test_snapshot_manifest_persists_diagnostic_index_hash",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56h",
+            "mutation": "P1-G09 single node removed (test_loader_rejects_missing_manifest_diagnostic_index_hash)",
+            "expected": "P1-G09 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_missing_manifest_diagnostic_index_hash",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56i",
+            "mutation": "P1-G09 single node removed (test_loader_rejects_snapshot_identity_mismatch)",
+            "expected": "P1-G09 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_snapshot_nested_evidence.py::test_loader_rejects_snapshot_identity_mismatch",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56j",
+            "mutation": "P1-G09 single node removed (test_loader_rejects_manifest_record_count_bool)",
+            "expected": "P1-G09 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_manifest_record_count_bool",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56k",
+            "mutation": "P1-G09 single node removed (test_loader_rejects_missing_manifest_build_status)",
+            "expected": "P1-G09 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_manifest_authority_type_integrity.py::test_loader_rejects_missing_manifest_build_status",
+            "caught": true
+          },
+          {
+            "mutation_id": "M56l",
+            "mutation": "P1-G09 single node removed (test_loader_returns_recomputed_manifest_counts)",
+            "expected": "P1-G09 FAIL (mandatory node not collected)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "P1-G09 passed=False mandatory_node_missing_hits=1: P1-G09 MANDATORY test node not collected/executed (deleted or renamed?): tests/p1/test_manifest_authority_type_integrity.py::test_loader_returns_recomputed_manifest_counts",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M57",
+        "mutation": "AddedAtomSource participant exists but atom map missing enters strict",
+        "expected": "never strict (direct) AND public records lane != strict",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M57a caught=True; M57b caught=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M57a",
+            "mutation": "AddedAtomSource existing participant + unknown map enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_map — atom_map_number 999 not in source participant 'r1' atom_map_numbers",
+            "caught": true
+          },
+          {
+            "mutation_id": "M57b",
+            "mutation": "AddedAtomSource existing participant + unknown map via public API",
+            "expected": "decide_eligibility non-strict AND public records lane non-strict",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: added_atom_source_map — atom_map_number 999 not in source participant 'r1' atom_map_numbers",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M58",
+        "mutation": "reactant_entries ghost participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: reactant_entry_ghost — participant_id 'ghost_r' not in participants",
+        "caught": true
+      },
+      {
+        "mutation_id": "M59",
+        "mutation": "product_entries ghost participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: product_entry_ghost — participant_id 'ghost_p' not in participants",
+        "caught": true
+      },
+      {
+        "mutation_id": "M60",
+        "mutation": "stoichiometry wrong-side / coefficient<=0 / contradictory role assignment enters strict",
+        "expected": "never strict (all three)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M60a=True M60b=True M60c=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M60a",
+            "mutation": "stoichiometry wrong-side enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: stoichiometry_side — entry.side='product' disagrees with participant 'r1' side='reactant'",
+            "caught": true
+          },
+          {
+            "mutation_id": "M60b",
+            "mutation": "stoichiometry coefficient<=0 enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: stoichiometry_coefficient — participant 'r1' coefficient=-2 (must be > 0)",
+            "caught": true
+          },
+          {
+            "mutation_id": "M60c",
+            "mutation": "contradictory role assignment enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: role_assignment_conflict — participant 'r1' carries contradictory roles ['transformed_substrate'] and 'cofactor'",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M61",
+        "mutation": "FormalAtomTransfer endpoints exist but sides reversed enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_side — source 'p1' has side='product' (expected 'reactant')",
+        "caught": true
+      },
+      {
+        "mutation_id": "M62",
+        "mutation": "FormalAtomTransfer unknown/conflicting map enters strict",
+        "expected": "never strict (both)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M62a=True M62b=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M62a",
+            "mutation": "FormalAtomTransfer unknown transferred map enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_map — transferred map 999 not in source participant 'r1' atom_map_numbers",
+            "caught": true
+          },
+          {
+            "mutation_id": "M62b",
+            "mutation": "FormalAtomTransfer conflicts with formal pairs enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r2' has heavy_atom_count=2 but unique_map_count=1 (mapped_fracti",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M63",
+        "mutation": "RemovedAtomSink ghost participant/map enters strict",
+        "expected": "never strict (both)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M63a=True M63b=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M63a",
+            "mutation": "RemovedAtomSink ghost participant enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_ghost — sink_participant_id 'ghost_sink' not in participants",
+            "caught": true
+          },
+          {
+            "mutation_id": "M63b",
+            "mutation": "RemovedAtomSink unknown map enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_map — atom_map_number 999 not in sink participant 'p1' atom_map_numbers",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M64",
+        "mutation": "CofactorChange ghost participant enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: cofactor_change_ghost — participant_id 'ghost_cof' not in participants",
+        "caught": true
+      },
+      {
+        "mutation_id": "M65",
+        "mutation": "MechanisticOriginEvidence ghost/map/dangling-linkage enters strict",
+        "expected": "never strict (all three)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M65a=True M65b=True M65c=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M65a",
+            "mutation": "MechanisticOriginEvidence ghost participant enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mechanistic_evidence_ghost — source_participant_id 'ghost_mech' not in participants",
+            "caught": true
+          },
+          {
+            "mutation_id": "M65b",
+            "mutation": "MechanisticOriginEvidence unknown target map enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mechanistic_evidence_map_product_side — target_atom_map_number 999 not in product-side map registry",
+            "caught": true
+          },
+          {
+            "mutation_id": "M65c",
+            "mutation": "AddedAtomSource dangling mechanistic evidence linkage enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_evidence — mechanistic_evidence_id 'mech_nonexistent' does not resolve to an existing Mechanis",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M66",
+        "mutation": "negative element counts enter strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=quarantine, reason=element_balance_contradiction: element 'C' has negative reactant_count=-1",
+        "caught": true
+      },
+      {
+        "mutation_id": "M67",
+        "mutation": "partial ledger consistent non-zero delta mislabeled as fully-balanced contradiction",
+        "expected": "non-strict AND non-quarantine AND reason not claiming fully-balanced",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited reason=partial_or_unbalanced_source: ledger balance_status=partial_or_unbalanced_source — partial/unbalanced source cannot verify full balance (fai",
+        "caught": true
+      },
+      {
+        "mutation_id": "M68",
+        "mutation": "within-participant duplicate atom map enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_map_duplicate — participant 'r1' declares duplicate atom map numbers [1, 1, 2]",
+        "caught": true
+      },
+      {
+        "mutation_id": "M69",
+        "mutation": "same-side cross-participant atom map collision enters strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_map_collision — reactant atom map 1 declared by both 'r1' and 'r2'",
+        "caught": true
+      },
+      {
+        "mutation_id": "M70",
+        "mutation": "duplicate participant ID / uncontrolled participant side enters strict",
+        "expected": "never strict (both)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M70a=True M70b=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M70a",
+            "mutation": "duplicate participant ID enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_duplicate_id — participant_id 'r1' appears more than once",
+            "caught": true
+          },
+          {
+            "mutation_id": "M70b",
+            "mutation": "uncontrolled participant side enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_side — participant 'm1' has uncontrolled side='middle' (must be 'reactant' or 'product')",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M71",
+        "mutation": "duplicate embedded lineage IDs enter strict",
+        "expected": "decide_eligibility non-strict (fail-closed)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: embedded_lineage_duplicate — embedded resolved_transformed_lineages contain duplicate IDs ['lin_r1_p1', 'lin_r1_",
+        "caught": true
+      },
+      {
+        "mutation_id": "M72",
+        "mutation": "reordered-map semantic duplicate lineage enters strict (direct + public)",
+        "expected": "never strict (direct) AND public records lane != strict",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M72a caught=True; M72b caught=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M72a",
+            "mutation": "reordered-map semantic duplicate lineage enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: duplicate_lineage — semantic-duplicate lineage content ('r1', 'p1', (1, 2)) (reordered or repeated edge/maps)",
+            "caught": true
+          },
+          {
+            "mutation_id": "M72b",
+            "mutation": "reordered-map semantic duplicate lineage via public API",
+            "expected": "decide_eligibility non-strict AND public records lane non-strict",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: duplicate_lineage — semantic-duplicate lineage content ('r1', 'p1', (1, 2)) (reordered or re",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M73",
+        "mutation": "existing cofactor participant + uncontrolled direction enters strict",
+        "expected": "never strict (direct) AND public records lane != strict",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M73a=True M73b=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M73a",
+            "mutation": "existing cofactor participant + uncontrolled direction enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: cofactor_change_direction — participant 'r1' direction='sideways' not in controlled vocabulary ['unknown']",
+            "caught": true
+          },
+          {
+            "mutation_id": "M73b",
+            "mutation": "existing cofactor participant + uncontrolled direction via public API",
+            "expected": "decide_eligibility non-strict AND public records lane non-strict",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: cofactor_change_direction — participant 'r1' direction='sideways' not in controlled vocabula",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M74",
+        "mutation": "same participant/side duplicate/conflicting coefficients enter strict",
+        "expected": "never strict (all three collections)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M74a=True M74b=True M74c=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M74a",
+            "mutation": "conflicting reactant entry coefficients enter strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: reactant_entry_conflict — conflicting coefficients 1 and 2 for participant 'r1'",
+            "caught": true
+          },
+          {
+            "mutation_id": "M74b",
+            "mutation": "conflicting product entry coefficients enter strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: product_entry_conflict — conflicting coefficients 1 and 2 for participant 'p1'",
+            "caught": true
+          },
+          {
+            "mutation_id": "M74c",
+            "mutation": "conflicting stoichiometry coefficients enter strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: stoichiometry_conflict — conflicting coefficients 1 and 2 for 'r1'/'reactant'",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M75",
+        "mutation": "mechanistic reactant-only target map enters strict",
+        "expected": "never strict via product-side map registry",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "eligibility=strict_prohibited reason=strict_precondition_failed: mechanistic_evidence_map_product_side — target_atom_map_number 3 not in product-side map reg",
+        "caught": true
+      },
+      {
+        "mutation_id": "M76",
+        "mutation": "empty/duplicate formal transfer assignment enters strict",
+        "expected": "never strict (direct) AND public records lane != strict",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M76a=True M76b=True M76c=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M76a",
+            "mutation": "empty formal transfer maps enter strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_empty — assignment 'r1'→'p1' transfers no atoms",
+            "caught": true
+          },
+          {
+            "mutation_id": "M76b",
+            "mutation": "duplicate formal transfer maps enter strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_duplicate_map — assignment 'r1'→'p1' transfers duplicate maps [1, 1]",
+            "caught": true
+          },
+          {
+            "mutation_id": "M76c",
+            "mutation": "empty formal transfer via public API",
+            "expected": "decide_eligibility non-strict AND public records lane non-strict",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: formal_atom_transfer_empty — assignment 'r1'→'p1' transfers no atoms",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M77",
+        "mutation": "heavy-atom participant with empty maps + mapped_fraction=1.0 enters strict",
+        "expected": "never strict (direct) AND public records lane != strict",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M77a=True M77b=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M77a",
+            "mutation": "heavy-atom participant empty maps + mf=1.0 enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_evidence — participant 'x1' has 2 heavy atoms but no atom_map_numbers (mapped_fractio",
+            "caught": true
+          },
+          {
+            "mutation_id": "M77b",
+            "mutation": "heavy-atom participant empty maps via public API",
+            "expected": "decide_eligibility non-strict AND public records lane non-strict",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' reason=strict_precondition_failed: participant_heavy_atom_map_evidence — participant 'x1' has 2 heavy atoms but no atom_map_num",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M78",
+        "mutation": "heavy-atom map count underflow/overflow enters strict (direct + public)",
+        "expected": "never strict (direct) AND public lane != strict AND non-production",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M78a=True M78b=True M78c=True M78d=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M78a",
+            "mutation": "heavy-atom map-count underflow enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r1' has heavy_atom_count=2 but unique_map_count=1 (mapped_fracti",
+            "caught": true
+          },
+          {
+            "mutation_id": "M78b",
+            "mutation": "heavy-atom map-count overflow enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r1' has heavy_atom_count=1 but unique_map_count=2 (mapped_fracti",
+            "caught": true
+          },
+          {
+            "mutation_id": "M78c",
+            "mutation": "heavy-atom map-count underflow via public API",
+            "expected": "non-strict direct AND non-strict public lane AND non-production",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' in_production=False reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r1' has heavy_atom_count=2 but unique_map_co",
+            "caught": true
+          },
+          {
+            "mutation_id": "M78d",
+            "mutation": "heavy-atom map-count overflow via public API",
+            "expected": "non-strict direct AND non-strict public lane AND non-production",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' in_production=False reason=strict_precondition_failed: participant_heavy_atom_map_count — participant 'r1' has heavy_atom_count=1 but unique_map_co",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M79",
+        "mutation": "atom map IDs containing 0/negative enter strict (direct + public)",
+        "expected": "never strict (direct) AND public lane != strict AND non-production",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M79a=True M79b=True M79c=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M79a",
+            "mutation": "zero atom map identifier enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_map_identifier — participant 'r1' declares non-positive atom map identifier 0 (must be a positive in",
+            "caught": true
+          },
+          {
+            "mutation_id": "M79b",
+            "mutation": "negative atom map identifier enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: participant_map_identifier — participant 'r1' declares non-positive atom map identifier -1 (must be a positive i",
+            "caught": true
+          },
+          {
+            "mutation_id": "M79c",
+            "mutation": "nonpositive atom maps via public API",
+            "expected": "non-strict direct AND non-strict public lane AND non-production",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' in_production=False reason=strict_precondition_failed: participant_map_identifier — participant 'r1' declares non-positive atom map identifier 0 (m",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M80",
+        "mutation": "duplicate/conflicting AddedAtomSource/RemovedAtomSink enter strict",
+        "expected": "never strict (all four)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M80a=True M80b=True M80c=True M80d=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M80a",
+            "mutation": "duplicate AddedAtomSource enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_duplicate — duplicate AddedAtomSource for atom_map_number 1 source 'r1'",
+            "caught": true
+          },
+          {
+            "mutation_id": "M80b",
+            "mutation": "conflicting AddedAtomSource enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: added_atom_source_conflict — atom_map_number 1 claimed by both ('r1', None) and ('p1', None) (no typed ambiguity",
+            "caught": true
+          },
+          {
+            "mutation_id": "M80c",
+            "mutation": "duplicate RemovedAtomSink enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_duplicate — duplicate RemovedAtomSink for atom_map_number 1 sink 'r1'",
+            "caught": true
+          },
+          {
+            "mutation_id": "M80d",
+            "mutation": "conflicting RemovedAtomSink enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_conflict — atom_map_number 1 claimed by both 'r1' and 'p1' (no typed ambiguity authority)",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M81",
+        "mutation": "duplicate FAT / conflicting FAT / duplicate mechanistic target maps enter strict",
+        "expected": "never strict (all three)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M81a=True M81b=True M81c=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M81a",
+            "mutation": "duplicate FAT assignment enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_duplicate_assignment — duplicate FormalAtomTransferAssignment 'r1'→'p1' transfers [1]",
+            "caught": true
+          },
+          {
+            "mutation_id": "M81b",
+            "mutation": "conflicting FAT assignments enter strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal_atom_transfer_assignment_conflict — source atom map 1 of 'r1' claimed by target edges 'p1' and 'p2' (no t",
+            "caught": true
+          },
+          {
+            "mutation_id": "M81c",
+            "mutation": "duplicate mechanistic target maps enter strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mechanistic_evidence_duplicate_target_map — evidence_id 'me_dup' targets duplicate product atom maps [1, 1]",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M82",
+        "mutation": "RemovedAtomSink formal_assignment=False without authority enters strict",
+        "expected": "never strict (direct) AND public lane != strict AND non-production",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M82a=True M82b=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M82a",
+            "mutation": "unbacked non-formal RemovedAtomSink enters strict",
+            "expected": "decide_eligibility non-strict (fail-closed)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: removed_atom_sink_unbacked — atom_map_number 1 sink 'r1' is not formally assigned and has no other typed sink au",
+            "caught": true
+          },
+          {
+            "mutation_id": "M82b",
+            "mutation": "unbacked non-formal RemovedAtomSink via public API",
+            "expected": "non-strict direct AND non-strict public lane AND non-production",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "direct_eligibility=strict_prohibited public_lane='diagnostic' in_production=False reason=strict_precondition_failed: removed_atom_sink_unbacked — atom_map_number 1 sink 'r1' is not formally assigned and has no",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M83",
+        "mutation": "records diagnostic but wrongly injected into production index (index-only leakage)",
+        "expected": "real public load_snapshot / G08-G09 authority FAIL (index_partition_wrong_lane)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "real loader FAILED on index-only leak: index_partition_wrong_lane: production_index.jsonl entry 'rxn_m83diag' lane='diagnostic' not allowed in production_index.jsonl (allowed=['conditional', 'strict' (records_lane='diagnostic' prod_before=[] prod_after=['rxn_m83diag'])",
+        "caught": true
+      },
+      {
+        "mutation_id": "M84",
+        "mutation": "delete expected diagnostic_index member (metadata untouched)",
+        "expected": "real load_snapshot FAIL (index_partition_missing or diagnostic_index_hash_mismatch)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "real loader FAILED on diagnostic member deletion: index_partition_missing: diagnostic_index.jsonl missing expected member(s): ['rxn_m84diag'] (diag_before=1 diag_after=0)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M85",
+        "mutation": "mutate production_index entry nested payload (hash kept)",
+        "expected": "real load_snapshot FAIL (index_entry_content_mismatch or index_entry_hash_mismatch)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "real loader FAILED on nested index payload mutation: index_entry_content_mismatch: production_index.jsonl entry 'rxn_m85strict' payload rehash 73ea839e40c858a234704cf97ac493debcaf12b53ed49b3321c078d10a22acaa != st (entry hash kept=50e87045fd08...)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M86",
+        "mutation": "delete required manifest diagnostic_index_hash field",
+        "expected": "real load_snapshot FAIL (manifest_required_field_missing)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "real loader FAILED on delete required manifest diagnostic_index_hash field: manifest_required_field_missing: diagnostic_index_hash",
+        "caught": true
+      },
+      {
+        "mutation_id": "M87",
+        "mutation": "tamper manifest summary fields (counts / source summary / index hash)",
+        "expected": "real load_snapshot FAIL (manifest-specific token per tamper)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M87a=True M87b=True M87c=True M87d=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M87a",
+            "mutation": "tamper manifest diagnostic_count=999",
+            "expected": "real load_snapshot FAIL (manifest_count_mismatch)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on tamper manifest diagnostic_count=999: manifest_count_mismatch: diagnostic_count manifest=999 verified=1",
+            "caught": true
+          },
+          {
+            "mutation_id": "M87b",
+            "mutation": "tamper manifest record_count=999",
+            "expected": "real load_snapshot FAIL (manifest_count_mismatch)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on tamper manifest record_count=999: manifest_count_mismatch: record_count manifest=999 verified=1",
+            "caught": true
+          },
+          {
+            "mutation_id": "M87c",
+            "mutation": "tamper manifest source_counts (forged mapping)",
+            "expected": "real load_snapshot FAIL (manifest_source_counts_mismatch)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on tamper manifest source_counts (forged mapping): manifest_source_counts_mismatch: manifest={'forged_source': 999} verified={'fixture_source_a': 1}",
+            "caught": true
+          },
+          {
+            "mutation_id": "M87d",
+            "mutation": "tamper manifest production_index_hash (forged)",
+            "expected": "real load_snapshot FAIL (manifest_index_hash_mismatch)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on tamper manifest production_index_hash (forged): manifest_index_hash_mismatch: production_index_hash manifest=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff verified=8911cd98d73afa37f62a3e72bf75f4493f5",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M88",
+        "mutation": "forge manifest snapshot_id",
+        "expected": "real load_snapshot FAIL (snapshot_identity_mismatch)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "real loader FAILED on forge manifest snapshot_id: snapshot_identity_mismatch: manifest snapshot_id=snap_forged000000 expected=snap_967cf8c71cb9 (derived from snapshot_hash)",
+        "caught": true
+      },
+      {
+        "mutation_id": "M89",
+        "mutation": "set manifest.record_count=true (boolean in exact-int field)",
+        "expected": "real load_snapshot FAIL (manifest_field_type_invalid)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "real loader FAILED on set manifest.record_count=true (boolean in exact-int field): manifest_field_type_invalid: record_count expected int got bool",
+        "caught": true
+      },
+      {
+        "mutation_id": "M90",
+        "mutation": "nested failure_counts_by_reason count typed true/1.0",
+        "expected": "real load_snapshot FAIL (manifest_field_type_invalid, both)",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M90a=True M90b=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M90a",
+            "mutation": "set failure_counts_by_reason count=true",
+            "expected": "real load_snapshot FAIL (manifest_field_type_invalid)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on set failure_counts_by_reason count=true: manifest_field_type_invalid: failure_counts_by_reason['unknown_changed_heavy_atom_source: changed heavy atoms [3] h'] expected exact int got bool",
+            "caught": true
+          },
+          {
+            "mutation_id": "M90b",
+            "mutation": "set failure_counts_by_reason count=1.0",
+            "expected": "real load_snapshot FAIL (manifest_field_type_invalid)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on set failure_counts_by_reason count=1.0: manifest_field_type_invalid: failure_counts_by_reason['unknown_changed_heavy_atom_source: changed heavy atoms [3] h'] expected exact int got float",
+            "caught": true
+          }
+        ]
+      },
+      {
+        "mutation_id": "M91",
+        "mutation": "build_status authority order (delete / boolean / partial)",
+        "expected": "missing->manifest_required_field_missing, true->manifest_field_type_invalid, partial->SnapshotIncompleteError",
+        "actual_passed": true,
+        "actual_blocked": false,
+        "evidence": "M91a=True M91b=True M91c=True",
+        "caught": true,
+        "sub_results": [
+          {
+            "mutation_id": "M91a",
+            "mutation": "delete build_status",
+            "expected": "real load_snapshot FAIL (manifest_required_field_missing)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on delete build_status: manifest_required_field_missing: build_status",
+            "caught": true
+          },
+          {
+            "mutation_id": "M91b",
+            "mutation": "set build_status=true",
+            "expected": "real load_snapshot FAIL (manifest_field_type_invalid)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on set build_status=true: manifest_field_type_invalid: build_status expected str got bool",
+            "caught": true
+          },
+          {
+            "mutation_id": "M91c",
+            "mutation": "set build_status='partial' (legitimate type, incomplete semantic)",
+            "expected": "real load_snapshot FAIL (SnapshotIncompleteError)",
+            "actual_passed": true,
+            "actual_blocked": false,
+            "evidence": "real loader FAILED on set build_status='partial' (legitimate type, incomplete semantic): snapshot snap_627b6a3019dd is not complete (build_status='partial'). Loader rejects incomplete snapshots.",
+            "caught": true
+          }
+        ]
       }
     ],
-    "caught": 8,
-    "total": 8
+    "caught": 91,
+    "total": 91
   }
 }

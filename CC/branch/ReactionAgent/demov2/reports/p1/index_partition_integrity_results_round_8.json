@@ -1,0 +1,34 @@
+{
+  "description": "Round 8 index partition integrity mutations (M83–M85): the real public load_snapshot must fail closed on a hash-coherent wrong-partition leak, a deleted diagnostic member, and a mutated nested index entry payload — with stable index_partition_* / index_entry_* reason tokens.",
+  "mutations": [
+    {
+      "mutation_id": "M83",
+      "mutation": "records diagnostic but wrongly injected into production index (index-only leakage)",
+      "expected": "real public load_snapshot / G08-G09 authority FAIL (index_partition_wrong_lane)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "real loader FAILED on index-only leak: index_partition_wrong_lane: production_index.jsonl entry 'rxn_m83diag' lane='diagnostic' not allowed in production_index.jsonl (allowed=['conditional', 'strict' (records_lane='diagnostic' prod_before=[] prod_after=['rxn_m83diag'])",
+      "caught": true
+    },
+    {
+      "mutation_id": "M84",
+      "mutation": "delete expected diagnostic_index member (metadata untouched)",
+      "expected": "real load_snapshot FAIL (index_partition_missing or diagnostic_index_hash_mismatch)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "real loader FAILED on diagnostic member deletion: index_partition_missing: diagnostic_index.jsonl missing expected member(s): ['rxn_m84diag'] (diag_before=1 diag_after=0)",
+      "caught": true
+    },
+    {
+      "mutation_id": "M85",
+      "mutation": "mutate production_index entry nested payload (hash kept)",
+      "expected": "real load_snapshot FAIL (index_entry_content_mismatch or index_entry_hash_mismatch)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "real loader FAILED on nested index payload mutation: index_entry_content_mismatch: production_index.jsonl entry 'rxn_m85strict' payload rehash 73ea839e40c858a234704cf97ac493debcaf12b53ed49b3321c078d10a22acaa != st (entry hash kept=50e87045fd08...)",
+      "caught": true
+    }
+  ],
+  "caught": 3,
+  "total": 3
+}

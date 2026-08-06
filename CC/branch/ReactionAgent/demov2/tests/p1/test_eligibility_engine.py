@@ -37,9 +37,18 @@ from reaction_agent.schemas.common import (
     QuarantineBehavior,
     ResearchDiagnosticEligibility,
     LedgerBalanceStatus,
+    LineageResolutionQuality,
+    MappingStatus,
+    MappingQualityClass,
     ParticipantRole,
+    SourceAssignmentMethod,
 )
 from reaction_agent.schemas.evidence import ReactionEvidence, ReactionParticipant
+from reaction_agent.schemas.mapping import (
+    MappingReport,
+    FormalSourceAssignment,
+    FormalMappedAtomPair,
+)
 from reaction_agent.schemas.ledger import (
     SourceReactionLedger,
     StoichiometricEntry,
@@ -99,6 +108,65 @@ def _participant(
     return ReactionParticipant(**kwargs)
 
 
+# Sentinel: when mapping_report is not explicitly passed, attach a compliant
+# mapping_report so fully_balanced records satisfy the strict preconditions
+# (§4.2). Tests that need NO mapping_report pass mapping_report=None explicitly.
+_USE_DEFAULT_MR = object()
+
+
+def _compliant_mapping_report(
+    participants: list[ReactionParticipant] | None = None,
+) -> MappingReport:
+    """A MappingReport that satisfies ALL strict preconditions (§4.2/§6.4):
+    fully_mapped, formal_mapped, no fallback, unique maps, full coverage,
+    no symmetry/resonance ambiguity, high-quality unambiguous assignment.
+
+    Critical-2 (§6.7): the formal mapped pairs are derived from the actual
+    reactant-/product-side participants and their shared atom maps, so the
+    mapping genuinely supports the reaction (no dangling participant/atom-map
+    references). Fixtures with no reactant/product participant or no shared
+    atom map yield an empty pair list — such records simply do not qualify for
+    strict, which is correct.
+    """
+    pairs: list[FormalMappedAtomPair] = []
+    if participants:
+        reactants = [p for p in participants if p.side == "reactant"]
+        products = [p for p in participants if p.side == "product"]
+        if reactants and products:
+            r = reactants[0]
+            p = products[0]
+            shared = sorted(set(r.atom_map_numbers) & set(p.atom_map_numbers))
+            pairs = [
+                FormalMappedAtomPair(
+                    reactant_participant_id=r.participant_id,
+                    reactant_atom_map=m,
+                    product_participant_id=p.participant_id,
+                    product_atom_map=m,
+                )
+                for m in shared
+            ]
+    return MappingReport(
+        mapper_name="fake_mapper",
+        mapper_version="v1",
+        mapper_parameters={"timeout": "30"},
+        input_hash="inp_abc",
+        output_hash="out_def",
+        mapping_status=MappingStatus.fully_mapped,
+        mapped_heavy_atom_fraction=1.0,
+        map_number_uniqueness=True,
+        changed_atom_coverage=1.0,
+        formal_mapped_source_assignment=FormalSourceAssignment(
+            mapper_name="fake_mapper",
+            mapper_version="v1",
+            mapped_atom_pairs=pairs,
+            assignment_method=SourceAssignmentMethod.formal_mapped,
+            assignment_quality=MappingQualityClass.high_quality,
+            assignment_ambiguity=False,
+        ),
+        fallback_method=None,
+    )
+
+
 def _reaction_evidence(
     participants: list[ReactionParticipant],
     *,
@@ -106,8 +174,16 @@ def _reaction_evidence(
     direction: str = "forward",
     source_name: str = "test_source",
     provenance: list[str] | None = None,
+    mapping_report: object = _USE_DEFAULT_MR,
 ) -> ReactionEvidence:
-    """Build a ReactionEvidence with participants."""
+    """Build a ReactionEvidence with participants.
+
+    By default attaches a compliant mapping_report so fully_balanced records
+    satisfy the strict preconditions (§4.2). Pass ``mapping_report=None`` to
+    build an evidence with no mapping_report (used by fail-closed tests).
+    """
+    if mapping_report is _USE_DEFAULT_MR:
+        mapping_report = _compliant_mapping_report(participants)
     kwargs: dict = {
         "reaction_id": reaction_id,
         "source_record_id": f"src_{reaction_id}",
@@ -116,6 +192,7 @@ def _reaction_evidence(
         "normalized_reaction": "A>>B",
         "direction": direction,
         "participants": participants,
+        "mapping_report": mapping_report,
     }
     if provenance is not None:
         kwargs["provenance"] = provenance
@@ -129,14 +206,21 @@ def _lineage(
     *,
     ambiguity: str = "none",
     lineage_id: str | None = None,
+    resolution_quality: LineageResolutionQuality = LineageResolutionQuality.resolved,
 ) -> ResolvedTransformedLineage:
-    """Build a resolved transformed lineage for fixture."""
+    """Build a resolved transformed lineage for fixture.
+
+    Critical-2 (§6.7): defaults to ``resolution_quality=resolved`` and
+    ``ambiguity=none`` so a legal strict fixture is genuinely strict-valid.
+    Negative tests set these explicitly to assert non-strict.
+    """
     return ResolvedTransformedLineage(
         lineage_id=lineage_id or f"lin_{reactant_pid}_{product_pid}",
         reactant_participant_id=reactant_pid,
         product_participant_id=product_pid,
         ambiguity=ambiguity,
         transformed_atom_maps=atom_maps or [],
+        resolution_quality=resolution_quality,
     )
 
 
@@ -194,9 +278,9 @@ def test_matrix_row_1_fully_balanced_strict():
     balanced, no unknown atom sources, direction known, lineages resolved
     (ambiguity=none), no role ambiguity, no cofactor stoich gaps.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -224,9 +308,9 @@ def test_matrix_row_2_heavy_atom_implicit_he_conditional():
     charge balanced, no unknown sources, direction known, lineages resolved.
     The required warning is ``implicit_h_e_policy``.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -255,10 +339,10 @@ def test_matrix_row_3_missing_noncritical_cofactor_conditional():
     cofactor direction is unknown (stoichiometry gap). Heavy atoms are balanced.
     The required warning is ``partial_cofactor_stoichiometry``.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     nad = _participant("p2", "reactant", "NC(=O)c1ccc[n+]1", provenance=["src"])
-    p1 = _participant("p3", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p3", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     nadh = _participant("p4", "product", "NC(=O)c1ccc[nH]1", provenance=["src"])
     ev = _reaction_evidence([r1, nad, p1, nadh], direction="forward")
@@ -294,9 +378,9 @@ def test_matrix_row_4_unknown_changed_heavy_atom_prohibited():
     assignment (added_atom_sources contains ``unknown_source``). The record
     is NOT strict-eligible; it goes to the diagnostic bucket.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2], mapped_fraction=0.5)
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CCC", provenance=["src"],
                       atom_map_numbers=[1, 2, 3], mapped_fraction=0.5,
                       changed_atom_fraction=0.3)
     ev = _reaction_evidence([r1, p1], direction="forward")
@@ -364,9 +448,9 @@ def test_matrix_row_6_role_ambiguity_lineage_local():
     but the transformed lineage is resolved (ambiguity=none). The ambiguity
     is local to role assignment, not lineage identity.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -397,9 +481,9 @@ def test_matrix_row_7_lineage_ambiguity_prohibited():
     (identity of the transformed lineage is uncertain). This blocks strict
     eligibility; the record goes to the diagnostic bucket.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -426,9 +510,9 @@ def test_matrix_row_8_direction_unknown_prohibited():
     Preconditions: reaction_evidence.direction == "unknown". Cannot determine
     forward/backward → strict_prohibited, diagnostic bucket.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="unknown")
     ledger = _ledger(
@@ -457,8 +541,8 @@ def test_fail_closed_not_default_eligible():
     - direction empty/missing → strict_prohibited (direction unknown)
     None of these default to eligible.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"])
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"])
+    p1 = _participant("p2", "product", "CC", provenance=["src"])
 
     # 1. ledger=None → quarantine (can't verify, fail-closed)
     ev = _reaction_evidence([r1, p1], direction="forward")
@@ -536,8 +620,8 @@ def test_strict_prohibited_never_in_strict_index():
         if row.strict_eligibility == EligibilityStatus.strict_prohibited:
             assert row.evaluation_bucket == EvaluationBucket.diagnostic
     # Engine-level: unknown direction → strict_prohibited → diagnostic
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"])
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"])
+    p1 = _participant("p2", "product", "CC", provenance=["src"])
     ev = _reaction_evidence([r1, p1], direction="unknown")
     ledger = _ledger(
         balance_status=LedgerBalanceStatus.heavy_atom_balanced_with_implicit_h_e_policy,
@@ -562,9 +646,9 @@ def test_conditional_carries_required_warnings():
                 f"{row.state}: conditional but no required warnings"
             )
     # Engine-level: heavy_atom_balanced → conditional → warnings from matrix
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -592,9 +676,9 @@ def test_diagnostic_remains_auditable():
         if row.evaluation_bucket == EvaluationBucket.diagnostic:
             assert row.research_or_diagnostic_eligibility == ResearchDiagnosticEligibility.eligible
     # Engine-level: unknown atom source → strict_prohibited → diagnostic → auditable
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2], mapped_fraction=0.5)
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CCC", provenance=["src"],
                       atom_map_numbers=[1, 2, 3], mapped_fraction=0.5)
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -622,9 +706,9 @@ def test_engine_classifies_all_eight_states():
     This verifies the engine's state coverage matches the 8-row matrix exactly.
     Each state is reachable via a crafted fixture.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     base_ev = _reaction_evidence([r1, p1], direction="forward")
     base_lin = [_lineage("p1", "p2", [1, 2], ambiguity="none")]
@@ -712,14 +796,16 @@ def test_engine_reuses_policy_authority():
     always match ``get_row(state)`` for the classified state. The engine does
     NOT contain its own eligibility strings; it delegates to the matrix.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"])
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
+                      atom_map_numbers=[1, 2])
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
+                      atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
         balance_status=LedgerBalanceStatus.fully_balanced_explicit_reaction,
         role_assignments=[_role_assignment("p1"), _role_assignment("p2", "transformed_product")],
     )
-    decision = decide_eligibility(ev, ledger, [_lineage("p1", "p2", [1])])
+    decision = decide_eligibility(ev, ledger, [_lineage("p1", "p2", [1, 2])])
     # The decision matches the matrix row for the classified state
     row = get_row("fully_balanced_reliable_mapping")
     assert decision.eligibility is row.strict_eligibility
@@ -752,14 +838,16 @@ def test_build_quarantine_record_for_quarantine_decision():
 
 def test_build_quarantine_record_returns_none_for_non_quarantine():
     """build_quarantine_record returns None for non-quarantine decisions."""
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"])
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
+                      atom_map_numbers=[1, 2])
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
+                      atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
         balance_status=LedgerBalanceStatus.fully_balanced_explicit_reaction,
         role_assignments=[_role_assignment("p1"), _role_assignment("p2", "transformed_product")],
     )
-    decision = decide_eligibility(ev, ledger, [_lineage("p1", "p2", [1])])
+    decision = decide_eligibility(ev, ledger, [_lineage("p1", "p2", [1, 2])])
     assert decision.eligibility == EligibilityStatus.strict_eligible
     qr = build_quarantine_record(decision, ev)
     assert qr is None
@@ -771,9 +859,9 @@ def test_build_quarantine_record_returns_none_for_non_quarantine():
 
 def test_decide_eligibility_does_not_mutate_inputs():
     """Immutability: decide_eligibility must not mutate any input."""
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -792,9 +880,9 @@ def test_decide_eligibility_does_not_mutate_inputs():
 
 def test_decision_id_stable_and_content_addressed():
     """decision_id is stable (deterministic) and prefixed."""
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward", reaction_id="rxn_stable_001")
     ledger = _ledger(
@@ -812,9 +900,9 @@ def test_decision_id_stable_and_content_addressed():
 
 def test_decision_carries_evidence_ids_and_policy_version():
     """The decision carries evidence_ids from the ledger and policy_version."""
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward", provenance=["ev_001", "ev_002"])
     ledger = _ledger(
@@ -862,9 +950,9 @@ def test_priority_lineage_ambiguity_overrides_role_ambiguity():
     more severe condition (lineage ambiguity affecting identity → strict_prohibited)
     wins over role ambiguity (conditional).
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -891,9 +979,9 @@ def test_decision_carries_required_warnings_conditional():
     that §15.5 'conditional records carry required warnings' holds at the
     per-record level — not only via the row lookup.
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     ev = _reaction_evidence([r1, p1], direction="forward")
     ledger = _ledger(
@@ -916,9 +1004,9 @@ def test_decision_carries_research_diagnostic_eligibility():
     - strict_eligible / conditional / strict_prohibited → eligible (auditable)
     - quarantine → not_eligible (excluded from research/diagnostic too)
     """
-    r1 = _participant("p1", "reactant", "CCO", provenance=["src"],
+    r1 = _participant("p1", "reactant", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
-    p1 = _participant("p2", "product", "CC(=O)O", provenance=["src"],
+    p1 = _participant("p2", "product", "CC", provenance=["src"],
                       atom_map_numbers=[1, 2])
     good_roles = [_role_assignment("p1"), _role_assignment("p2", "transformed_product")]
 

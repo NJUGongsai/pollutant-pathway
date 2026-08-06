@@ -1,0 +1,248 @@
+{
+  "round": 8,
+  "branch": "main",
+  "head": "4eb463368e38f2faa3d3656a05974c4b1c1211a6",
+  "working_tree": "dirty (Round 7 + Round 8 uncommitted changes)",
+  "python": "3.11.15",
+  "rdkit": "2026.03.4",
+  "changed_files": [
+    "reaction_agent/snapshot/builder.py",
+    "reaction_agent/snapshot/loader.py",
+    "tests/p1/test_snapshot_nested_evidence.py",
+    "tests/p1/test_snapshot_builder.py",
+    "scripts/run_p1_gate.py",
+    "scripts/run_p1_mutations.py",
+    "reports/p1/snapshot_build_sample.json",
+    "reports/p1/P1_GATE_REPORT.md",
+    "reports/p1/P1_GATE_REPORT.json",
+    "reports/p0/P0_GATE_REPORT.md",
+    "reports/p0/P0_GATE_REPORT.json",
+    "reports/p1/mutation_results.json",
+    "reports/p1/index_partition_integrity_results_round_8.json (new)",
+    "reports/p1/gate_false_positive_mutation_results_round_8.json (new)",
+    "reports/p1/P1_ROUND_8_AUDIT_EVIDENCE.json (new)",
+    "reports/p1/SUBMISSION_TO_CHATGPT_P1_ROUND_8.md (new)",
+    "reports/p1/P1_REMEDIATION_WORKLOG.md"
+  ],
+  "unchanged_frozen_files": [
+    "plan/final_design.md",
+    "plan/final_plan.md",
+    "reaction_agent/eligibility/engine.py",
+    "reaction_agent/schemas/evidence.py",
+    "reaction_agent/schemas/mapping.py",
+    "reaction_agent/schemas/ledger.py",
+    "reaction_agent/schemas/lineage.py",
+    "reaction_agent/schemas/p1_entities.py",
+    "reaction_agent/policies/*",
+    "P0 ADRs / P0 frozen contracts",
+    "../benchmark",
+    "../core"
+  ],
+  "round7_baseline_counts": {
+    "contracts": 290,
+    "p1": 526,
+    "full": 816,
+    "p0_gate": "10/10 PASS",
+    "p1_gate": "7 PASS / 0 FAIL / 3 BLOCKED",
+    "g08_mandatory": "112/112",
+    "g09_mandatory": "11/11",
+    "mutations": "83/83 caught"
+  },
+  "round8_final_counts": {
+    "contracts": 290,
+    "p1": 541,
+    "full": 831,
+    "p0_gate": "10/10 PASS",
+    "p1_gate": "7 PASS / 0 FAIL / 3 BLOCKED",
+    "g08_mandatory": "117/117",
+    "g09_mandatory": "21/21",
+    "mutations": "85/85 caught"
+  },
+  "zero_skip_xfail_xpass": true,
+  "p0_gate": {
+    "passed": 10,
+    "total": 10,
+    "status": "PASS",
+    "verdict": "READY_FOR_CHATGPT_AUDIT"
+  },
+  "p1_gate": {
+    "passed": 7,
+    "failed": 0,
+    "blocked": 3,
+    "status": "BLOCKED",
+    "matrix": {
+      "P1-G01": "PASS",
+      "P1-G02": "PASS",
+      "P1-G03": "BLOCKED",
+      "P1-G04": "BLOCKED",
+      "P1-G05": "PASS",
+      "P1-G06": "PASS",
+      "P1-G07": "PASS",
+      "P1-G08": "PASS",
+      "P1-G09": "PASS",
+      "P1-G10": "BLOCKED"
+    }
+  },
+  "g08_previous_mandatory_total": 112,
+  "g08_final_mandatory_total": 117,
+  "g08_final_mandatory_passed": 117,
+  "g08_round8_required_nodes": [
+    "test_loader_rejects_hash_coherent_diagnostic_in_production",
+    "test_loader_rejects_hash_coherent_quarantine_in_production",
+    "test_loader_rejects_cross_index_membership",
+    "test_loader_accepts_exact_complete_index_partition",
+    "test_conditional_record_is_only_in_production_index"
+  ],
+  "g09_previous_mandatory_total": 11,
+  "g09_final_mandatory_total": 21,
+  "g09_final_mandatory_passed": 21,
+  "g09_round8_required_nodes": [
+    "test_loader_rejects_missing_diagnostic_member_without_metadata_change",
+    "test_loader_rejects_missing_production_member",
+    "test_loader_rejects_missing_quarantine_member",
+    "test_loader_rejects_duplicate_records_reaction_id",
+    "test_loader_rejects_duplicate_index_reaction_id",
+    "test_loader_rejects_mutated_nested_production_index_payload",
+    "test_loader_rejects_mutated_nested_diagnostic_index_payload",
+    "test_diagnostic_index_content_changes_snapshot_hash",
+    "test_snapshot_manifest_persists_diagnostic_index_hash",
+    "test_loader_accepts_exact_complete_index_partition"
+  ],
+  "snapshot_id": "snap_0672a2d6ff95",
+  "snapshot_hash": "0672a2d6ff95c9d0bff3f72011c196c6fd01ab1b5108145ccb1d9bcc849a4a5b",
+  "diagnostic_index_hash": "f8d8ef5eb3a7649c7a9cc98f0b72e73fd655acd4f78863479465686d3db362cc",
+  "snapshot_hash_change_reason": "Round 8 bound the diagnostic index into the immutable snapshot integrity: canonical content now includes diagnostic_index_hash, so the synthetic fixture snapshot hash changed from 5acdcbe5ee61f86e89ee5fab8e21d1aec21c7d79d569c551a84baa68df5cf8c4 (Round 7) to 0672a2d6ff95c9d0bff3f72011c196c6fd01ab1b5108145ccb1d9bcc849a4a5b (Round 8). Fixture is synthetic (source_name=fixture_source_*), not real data.",
+  "M1-M82_preserved": true,
+  "M83_corrected": true,
+  "M84_result": {
+    "caught": true,
+    "reason": "real loader FAILED on diagnostic member deletion: index_partition_missing: diagnostic_index.jsonl missing expected member(s): ['rxn_m84diag'] (diag_before=1 diag_after=0)"
+  },
+  "M85_result": {
+    "caught": true,
+    "reason": "real loader FAILED on nested index payload mutation: index_entry_content_mismatch: production_index.jsonl entry 'rxn_m85strict' payload rehash 73ea839e40c858a234704cf97ac493debcaf12b53ed49b3321c078d10"
+  },
+  "mutations_total": 85,
+  "mutations_caught": 85,
+  "R8-01_before": {
+    "fixture_reaction_id": "rxn_r801_diag",
+    "records_lane": "diagnostic",
+    "actual_index_memberships": "diagnostic_index (legal); injected into production_index",
+    "mutation": "inject diagnostic record into production_index.jsonl; recompute snapshot hash + sync manifest/COMPLETE (hash-coherent)",
+    "pre_fix_loader_result": "accepted=True (snapshot_id=snap_68aa87a6e7eb)",
+    "post_fix_loader_result": "accepted=False (SnapshotHashMismatchError)",
+    "exception_type": "SnapshotHashMismatchError",
+    "reason_token": "index_partition_wrong_lane",
+    "manifest_hash_complete_changed": "true (hash-coherent sync)",
+    "failure_was_generic_hash_mismatch": false
+  },
+  "R8-01_after": {
+    "fixture_reaction_id": "rxn_r801_diag",
+    "records_lane": "diagnostic",
+    "actual_index_memberships": "diagnostic_index (legal); injected into production_index",
+    "mutation": "inject diagnostic record into production_index.jsonl; recompute snapshot hash + sync manifest/COMPLETE (hash-coherent)",
+    "pre_fix_loader_result": "accepted=True (snapshot_id=snap_68aa87a6e7eb)",
+    "post_fix_loader_result": "accepted=False (SnapshotHashMismatchError)",
+    "exception_type": "SnapshotHashMismatchError",
+    "reason_token": "index_partition_wrong_lane",
+    "manifest_hash_complete_changed": "true (hash-coherent sync)",
+    "failure_was_generic_hash_mismatch": false
+  },
+  "R8-02_before": {
+    "fixture_reaction_id": "rxn_r802_diag",
+    "records_lane": "diagnostic",
+    "actual_index_memberships": "diagnostic_index non-empty (1 member) before; emptied after",
+    "mutation": "empty diagnostic_index.jsonl (no manifest/hash/COMPLETE change)",
+    "pre_fix_loader_result": "accepted=True (snapshot_id=snap_174fa15f0160)",
+    "post_fix_loader_result": "accepted=False (SnapshotHashMismatchError)",
+    "exception_type": "SnapshotHashMismatchError",
+    "reason_token": "index_partition_missing",
+    "manifest_hash_complete_changed": "false",
+    "failure_was_generic_hash_mismatch": false
+  },
+  "R8-02_after": {
+    "fixture_reaction_id": "rxn_r802_diag",
+    "records_lane": "diagnostic",
+    "actual_index_memberships": "diagnostic_index non-empty (1 member) before; emptied after",
+    "mutation": "empty diagnostic_index.jsonl (no manifest/hash/COMPLETE change)",
+    "pre_fix_loader_result": "accepted=True (snapshot_id=snap_174fa15f0160)",
+    "post_fix_loader_result": "accepted=False (SnapshotHashMismatchError)",
+    "exception_type": "SnapshotHashMismatchError",
+    "reason_token": "index_partition_missing",
+    "manifest_hash_complete_changed": "false",
+    "failure_was_generic_hash_mismatch": false
+  },
+  "R8-03_before": {
+    "fixture_reaction_id": "rxn_r803_strict",
+    "records_lane": "strict",
+    "actual_index_memberships": "production_index (legal); nested payload mutated",
+    "mutation": "mutate production_index entry reaction_evidence.participants[0].canonical_smiles; keep entry self-reported record_content_hash",
+    "pre_fix_loader_result": "accepted=True (snapshot_id=snap_76da8b41c375)",
+    "post_fix_loader_result": "accepted=False (SnapshotHashMismatchError)",
+    "exception_type": "SnapshotHashMismatchError",
+    "reason_token": "index_entry_content_mismatch",
+    "manifest_hash_complete_changed": "false",
+    "failure_was_generic_hash_mismatch": false
+  },
+  "R8-03_after": {
+    "fixture_reaction_id": "rxn_r803_strict",
+    "records_lane": "strict",
+    "actual_index_memberships": "production_index (legal); nested payload mutated",
+    "mutation": "mutate production_index entry reaction_evidence.participants[0].canonical_smiles; keep entry self-reported record_content_hash",
+    "pre_fix_loader_result": "accepted=True (snapshot_id=snap_76da8b41c375)",
+    "post_fix_loader_result": "accepted=False (SnapshotHashMismatchError)",
+    "exception_type": "SnapshotHashMismatchError",
+    "reason_token": "index_entry_content_mismatch",
+    "manifest_hash_complete_changed": "false",
+    "failure_was_generic_hash_mismatch": false
+  },
+  "index_partition_contract": {
+    "records_authority": "records.jsonl is the complete record authority",
+    "production_allowed_lanes": [
+      "strict",
+      "conditional"
+    ],
+    "diagnostic_allowed_lanes": [
+      "diagnostic"
+    ],
+    "quarantine_allowed_lanes": [
+      "quarantine"
+    ],
+    "completeness": "production_ids ∪ diagnostic_ids ∪ quarantine_ids == record_ids",
+    "disjointness": "pairwise disjoint (production ∩ diagnostic = production ∩ quarantine = diagnostic ∩ quarantine = ∅)",
+    "uniqueness": "records unique; per-index unique; no cross-index membership",
+    "payload_equality": "index entry rehashed + equals full record payload (never trusts self-reported hash)"
+  },
+  "records_unique": true,
+  "indexes_unique": true,
+  "indexes_disjoint": true,
+  "index_union_equals_records": true,
+  "index_entries_rehashed": true,
+  "index_entries_equal_full_records": true,
+  "diagnostic_hash_bound": true,
+  "external_blockers": {
+    "P1-G03": "real_reaction_source_not_confirmed; required proline/2OG source record not located",
+    "P1-G04": "RealMapperAdapter.map_reaction() still a skeleton",
+    "P1-G10": "annotator_a/b + adjudication NOT_PRODUCED"
+  },
+  "dependency_or_network_actions": [],
+  "synthetic_fixture_usage": "yes — synthetic labeled fixtures only (source_name=fixture_source_*); never impersonate real reaction evidence",
+  "deferred_semantic_decisions": [
+    {
+      "case": "same AddedAtomSource formal_assignment=True/False with same source+map+mechanistic evidence -> currently strict_eligible",
+      "status": "not modified in Round 8 without authority",
+      "note": "must be frozen before P4 evidence aggregation/ranking"
+    },
+    {
+      "case": "two MechanisticOriginEvidence identical except evidence_id -> currently strict_eligible",
+      "status": "not modified in Round 8 without authority",
+      "note": "must be frozen before P4 evidence aggregation/ranking"
+    },
+    {
+      "case": "same FAT edge with [1] vs [1,2] map overlap -> currently strict_eligible",
+      "status": "not modified in Round 8 without authority",
+      "note": "must be frozen before P4 evidence aggregation/ranking"
+    }
+  ],
+  "p2_status": "BLOCKED"
+}

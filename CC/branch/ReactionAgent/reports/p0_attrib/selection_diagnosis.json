@@ -1,0 +1,38 @@
+[
+  {
+    "strategy": "random",
+    "counts": {
+      "retrieved": 287,
+      "A1_in_library_ranked_out": 263,
+      "A2_absent_truly_novel": 138,
+      "unextractable": 4
+    },
+    "selection_failure_like": 401,
+    "A1_ratio_within_selection": 0.6559,
+    "A2_ratio_within_selection": 0.3441
+  },
+  {
+    "strategy": "scaffold",
+    "counts": {
+      "A2_absent_truly_novel": 154,
+      "A1_in_library_ranked_out": 276,
+      "retrieved": 264,
+      "unextractable": 8
+    },
+    "selection_failure_like": 430,
+    "A1_ratio_within_selection": 0.6419,
+    "A2_ratio_within_selection": 0.3581
+  },
+  {
+    "strategy": "reaction_family",
+    "counts": {
+      "A2_absent_truly_novel": 266,
+      "A1_in_library_ranked_out": 325,
+      "retrieved": 144,
+      "unextractable": 7
+    },
+    "selection_failure_like": 591,
+    "A1_ratio_within_selection": 0.5499,
+    "A2_ratio_within_selection": 0.4501
+  }
+]

@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-07-31T03:17:36.782274+00:00",
+  "description": "Critical-2 strict cross-invariants. Each mutation applies one bad field to an otherwise genuinely-strict record; caught=True means the engine did NOT return strict_eligible (fail-closed), or the builder failed closed (M41 dual-ledger disagreement).",
+  "mutation_ids": [
+    "M32",
+    "M33",
+    "M34",
+    "M35",
+    "M36",
+    "M37",
+    "M38",
+    "M39",
+    "M40",
+    "M41"
+  ],
+  "total": 10,
+  "caught": 10,
+  "mutations": [
+    {
+      "mutation_id": "M32",
+      "mutation": "mapped_heavy_atom_fraction < strict threshold enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapped_heavy_atom_fraction=0.8 < 1.0 (strict requires full heavy-atom mapping)",
+      "caught": true
+    },
+    {
+      "mutation_id": "M33",
+      "mutation": "formal assignment ambiguity enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: formal assignment_ambiguity is True (ambiguous formal assignment not strict)",
+      "caught": true
+    },
+    {
+      "mutation_id": "M34",
+      "mutation": "formal pair unknown participant enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapped pair reactant_participant_id='ghost_reactant' not in participants",
+      "caught": true
+    },
+    {
+      "mutation_id": "M35",
+      "mutation": "formal pair unknown atom map enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapped pair reactant_atom_map=99 not in participant 'r1' atom_map_numbers",
+      "caught": true
+    },
+    {
+      "mutation_id": "M36",
+      "mutation": "formal pair wrong-side participant enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: mapped pair reactant participant 'p1' has side='product' (expected 'reactant')",
+      "caught": true
+    },
+    {
+      "mutation_id": "M37",
+      "mutation": "unresolved/failed lineage enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: lineage lin_r1_p1 resolution_quality='unresolved' (must be 'resolved' for strict)",
+      "caught": true
+    },
+    {
+      "mutation_id": "M38",
+      "mutation": "partial identity ambiguity enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: lineage lin_r1_p1 ambiguity='partial' (must be 'none' for strict)",
+      "caught": true
+    },
+    {
+      "mutation_id": "M39",
+      "mutation": "lineage unsupported by formal mapping enters strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: lineage lin_r1_p1 transformed_atom_maps [77] not supported by mapped atoms",
+      "caught": true
+    },
+    {
+      "mutation_id": "M40",
+      "mutation": "two reactants claim one transformed product and enter strict",
+      "expected": "decide_eligibility non-strict (fail-closed)",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "eligibility=strict_prohibited, reason=strict_precondition_failed: forbidden pairing — transformed product 'p1' claimed by multiple transformed reactants ['r1', 'r2'] (no typed me",
+      "caught": true
+    },
+    {
+      "mutation_id": "M41",
+      "mutation": "embedded/external source ledgers disagree but snapshot builds strict",
+      "expected": "builder fails closed (SnapshotBuildError), no strict snapshot",
+      "actual_passed": true,
+      "actual_blocked": false,
+      "evidence": "fail-closed SnapshotBuildError: dual ledger disagreement for reaction 'rxn_strict_001': ReactionEvidence.source_reaction_ledger (embedded) and SnapshotEvidenceItem.source_ledger (external) are",
+      "caught": true
+    }
+  ]
+}

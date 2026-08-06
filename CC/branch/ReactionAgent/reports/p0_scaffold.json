@@ -1,0 +1,66 @@
+{
+  "n_test": 702,
+  "outcomes": {
+    "not_generated": 490,
+    "no_candidate": 80,
+    "generated_but_ranked_low": 2,
+    "hit": 130
+  },
+  "funnel": {
+    "parsable": 702,
+    "has_donor": 702,
+    "has_candidate": 622,
+    "generated_true": 132
+  },
+  "topk": {
+    "top1": 84,
+    "top5": 126,
+    "top10": 130
+  },
+  "novelty_bins": {
+    "==1.0": {
+      "n": 62,
+      "top1": 9,
+      "top5": 14,
+      "top10": 15
+    },
+    "[0.0,0.4)": {
+      "n": 172,
+      "top1": 24,
+      "top5": 31,
+      "top10": 33
+    },
+    "[0.4,0.6)": {
+      "n": 276,
+      "top1": 37,
+      "top5": 53,
+      "top10": 54
+    },
+    "[0.6,0.8)": {
+      "n": 147,
+      "top1": 8,
+      "top5": 16,
+      "top10": 16
+    },
+    "[0.8,1.0)": {
+      "n": 45,
+      "top1": 6,
+      "top5": 12,
+      "top10": 12
+    }
+  },
+  "strategy": "scaffold",
+  "config": {
+    "top_donors": 5,
+    "template_radius": 1,
+    "center_source": "mcs@transformed_pair",
+    "scorer_cap": 40,
+    "family_cap": 60,
+    "hit_topk": [
+      1,
+      5,
+      10
+    ]
+  },
+  "elapsed_sec": 220.5
+}
