@@ -1,7 +1,7 @@
 # P0 Gate Report v3
 
-**Timestamp (UTC):** 2026-08-06T11:36:10.375592+00:00
-**Working directory:** /Volumes/CC/Enzyme_Agent/depending/.claude/worktrees/p6-mcp-kernel/CC/branch/ReactionAgent/demov2
+**Timestamp (UTC):** 2026-08-06T11:59:44.223670+00:00
+**Working directory:** /Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2
 **Python:** 3.11.15 (required >=3.11, satisfied=True)
 **Pydantic:** 2.13.4 (required >=2.8,<3, satisfied=True)
 **pytest:** 9.1.1 (required >=8.0, satisfied=True)
@@ -84,6 +84,8 @@
 - `M` CC/branch/ReactionAgent/demov2/reports/p0/P0_GATE_REPORT.md
 - `M` CC/branch/ReactionAgent/demov2/reports/p1/P1_GATE_REPORT.json
 - `M` CC/branch/ReactionAgent/demov2/reports/p1/P1_GATE_REPORT.md
+- `M` CC/branch/ReactionAgent/demov2/reports/p1/P1_PREFLIGHT.json
+- `M` CC/branch/ReactionAgent/demov2/reports/p1/P1_PREFLIGHT.md
 
 ## Deviations / Assumptions / Risks
 

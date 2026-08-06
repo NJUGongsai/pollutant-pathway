@@ -11,6 +11,13 @@ PROJECT_ROOT = Path(__file__).parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+# 自动加载 .env（本地开发友好；python-dotenv 未安装时静默跳过）
+try:
+    from dotenv import load_dotenv
+    load_dotenv(PROJECT_ROOT / ".env", override=False)
+except ImportError:
+    pass
+
 from src.graph import compile_graph
 from src.state import EnzymeCrewState
 

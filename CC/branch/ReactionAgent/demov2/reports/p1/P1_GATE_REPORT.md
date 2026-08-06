@@ -1,8 +1,8 @@
 # P1 Gate Report
 
-**Timestamp (UTC):** 2026-08-06T11:36:18.207807+00:00
+**Timestamp (UTC):** 2026-08-06T11:59:51.944426+00:00
 **Gate version:** p1-gate-1
-**Working directory:** /Volumes/CC/Enzyme_Agent/depending/.claude/worktrees/p6-mcp-kernel/CC/branch/ReactionAgent/demov2
+**Working directory:** /Volumes/CC/Enzyme_Agent/depending/CC/branch/ReactionAgent/demov2
 **Python:** 3.11.15
 
 ## Result: NOT_READY_FOR_CHATGPT_AUDIT
