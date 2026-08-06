@@ -222,3 +222,63 @@ class TestImmutability:
             assert not hasattr(grounding_mod, forbidden), (
                 f"grounding must not expose mutation API {forbidden!r}"
             )
+
+
+class TestImmutabilityAttackChain:
+    """P7-T4-01: deep-copy isolation of the typed PredictionResult from the
+    grounding view. An agent must not be able to mutate the typed result (or
+    the grounded run) via list fields on a view; re-grounding after a pollution
+    attempt must still reject invented IDs.
+
+    RED on the shallow-copy HEAD (``model_copy()`` default ``deep=False``
+    shares list references); GREEN after ``model_copy(deep=True)`` at both
+    ``build_grounded_run`` and ``frozen_candidate_view``.
+    """
+
+    def test_view_list_append_does_not_leak_into_typed_result(self, baseline_result):
+        from reaction_agent.agent.grounding import (
+            build_grounded_run,
+            frozen_candidate_view,
+        )
+
+        g = build_grounded_run(baseline_result)
+        typed_cand = baseline_result.candidates[0]
+        typed_before = list(typed_cand.transformation_ids)
+        view = frozen_candidate_view(g, typed_cand.candidate_id)
+        view.transformation_ids.append("t_INVENTED_by_agent")
+        # typed result must be unchanged (zero drift) — deep-copy isolation.
+        assert typed_cand.transformation_ids == typed_before, (
+            "LEAK: view list append mutated the typed PredictionResult"
+        )
+        # grounded run's own candidate also unchanged.
+        assert "t_INVENTED_by_agent" not in g.candidates[0].transformation_ids, (
+            "LEAK: view list append mutated the grounded run's candidate"
+        )
+
+    def test_attack_chain_re_ground_still_rejects_invented_id(self, baseline_result):
+        """Full attack chain: pollute the view -> re-ground from the SAME
+        typed result -> validate_hypothesis with the invented id must STILL
+        raise GroundingError (no bypass)."""
+        from reaction_agent.agent.grounding import (
+            GroundingError,
+            build_grounded_run,
+            frozen_candidate_view,
+            validate_hypothesis,
+        )
+
+        g = build_grounded_run(baseline_result)
+        typed_cand = baseline_result.candidates[0]
+        view = frozen_candidate_view(g, typed_cand.candidate_id)
+        invented = "t_INVENTED_by_agent"
+        view.transformation_ids.append(invented)
+
+        # re-ground from the SAME typed result (deep-copy isolation must keep
+        # it unpolluted by the view's append).
+        g2 = build_grounded_run(baseline_result)
+        hyp = ProductionSelectionHypothesis(
+            hypothesis_id="h_attack",
+            transformation_id=invented,
+            site_id=baseline_result.candidates[0].site_ids[0],
+        )
+        with pytest.raises(GroundingError):
+            validate_hypothesis(g2, hyp)
