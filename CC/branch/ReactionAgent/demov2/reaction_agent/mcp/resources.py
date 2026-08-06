@@ -19,6 +19,7 @@ Every failure is a typed ``P6Error`` subclass — never a raw exception.
 """
 from __future__ import annotations
 
+import re
 import time
 from typing import Any, Callable, Optional
 
@@ -32,6 +33,10 @@ from reaction_agent.mcp.errors import (
     UnauthorizedError,
 )
 from reaction_agent.mcp.runs import RunRecord, RunStore
+
+# Identifier pattern shared with schemas.py (GATE-P6-07): tenant_id enters
+# effective_key → file name, so it must be path-safe.
+_IDENT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
 # Resource URI grammar:
 #   reactionagent://runs/{run_id}/manifest
@@ -120,6 +125,13 @@ class AccessContext:
     ):
         if not principal or not tenant_id:
             raise UnauthorizedError("access context requires principal and tenant_id")
+        # GATE-P6-07: tenant_id enters effective_key → file name; principal is
+        # client-reported too. Both must be path-safe (reject '/', '\\',
+        # leading '.', whitespace) before they reach the filesystem.
+        if not _IDENT_RE.fullmatch(principal):
+            raise UnauthorizedError(f"invalid principal '{principal}'")
+        if not _IDENT_RE.fullmatch(tenant_id):
+            raise UnauthorizedError(f"invalid tenant_id '{tenant_id}'")
         self.principal = principal
         self.tenant_id = tenant_id
         self.roles = set(roles) if roles else set()

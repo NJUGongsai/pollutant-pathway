@@ -92,9 +92,18 @@ class RunStore:
     def __init__(self, root: os.PathLike | str):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
+        # resolved once; containment checks compare against this (GATE-P6-07)
+        self._root_resolved = self.root.resolve()
 
     def _run_path(self, run_id: str) -> Path:
-        return self.root / f"{run_id}.json"
+        # GATE-P6-07: defense-in-depth containment. Even if a caller bypasses
+        # the schema pattern, a run_id with '/' or '..' cannot escape the root.
+        path = (self.root / f"{run_id}.json").resolve()
+        try:
+            path.relative_to(self._root_resolved)
+        except ValueError:
+            raise StorageError(f"run id '{run_id}' escapes store root")
+        return path
 
     def create_run(
         self,
@@ -140,7 +149,13 @@ class RunStore:
             data = json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError, ValueError) as exc:
             raise StorageError(f"run '{run_id}' is corrupt or unreadable: {exc}")
-        return RunRecord.from_dict(data)
+        try:
+            # GATE-P6-07: a shape-mismatched JSON (missing/extra fields, wrong
+            # types) must surface as a typed StorageError, not a bare
+            # KeyError/TypeError leaking out of handle().
+            return RunRecord.from_dict(data)
+        except (KeyError, TypeError) as exc:
+            raise StorageError(f"run '{run_id}' is malformed: {exc}")
 
     def list_runs(self) -> list[str]:
         return sorted(p.stem for p in self.root.glob("*.json"))

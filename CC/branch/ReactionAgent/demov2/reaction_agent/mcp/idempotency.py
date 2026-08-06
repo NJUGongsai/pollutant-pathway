@@ -85,9 +85,17 @@ class IdempotencyStore:
     def __init__(self, root: os.PathLike | str):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
+        self._root_resolved = self.root.resolve()  # GATE-P6-07 containment
 
     def _path(self, key: str) -> Path:
-        return self.root / f"{key}.json"
+        # GATE-P6-07: defense-in-depth containment. A key with '/' or '..'
+        # cannot escape the root even if a caller bypasses the schema pattern.
+        path = (self.root / f"{key}.json").resolve()
+        try:
+            path.relative_to(self._root_resolved)
+        except ValueError:
+            raise StorageError(f"idempotency key '{key}' escapes store root")
+        return path
 
     def _read(self, key: str) -> Optional[IdempotencyRecord]:
         path = self._path(key)

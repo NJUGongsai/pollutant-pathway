@@ -136,12 +136,10 @@ class TestShapeMismatch:
 
     def test_get_run_wrong_type_field_typed(self, tmp_path):
         runs = RunStore(tmp_path / "runs")
-        (runs.root / "bad.json").write_text(
-            '{"run_id": 123, "tool": "predict", "request_hash": "h", '
-            '"snapshot_id": "s", "payload": {}}',
-            encoding="utf-8",
-        )  # run_id is int, not str → from_dict TypeError on attr? no, but downstream
-        with pytest.raises(P6Error):
+        # JSON is a valid array, not an object → from_dict's data["run_id"]
+        # raises TypeError → must surface as typed StorageError, not bare.
+        (runs.root / "bad.json").write_text("[1, 2, 3]", encoding="utf-8")
+        with pytest.raises(StorageError):
             runs.get_run("bad")
 
 

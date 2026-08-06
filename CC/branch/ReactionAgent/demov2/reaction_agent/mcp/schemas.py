@@ -22,11 +22,19 @@ Side-effect contract (F3 matrix / ADR-0006), one line each:
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from reaction_agent.mcp.errors import SchemaError
 
 P6_SCHEMA_VERSION = "p6-1"
+
+# Identifier pattern (GATE-P6-07): client-controlled identifiers reach the
+# filesystem (run_id / idempotency_key / evidence_id / snapshot_id /
+# client_request_id / tenant_id all become file names or path components),
+# so they must be path-safe — reject '/', '\\', leading '.', whitespace, and
+# any char that could traverse or escape the store root. Anchored full-match.
+IDENT_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
 
 # -- shared budget sub-schema (additionalProperties:false, limits) --
 
@@ -40,9 +48,15 @@ _BUDGET_SCHEMA: dict[str, Any] = {
 }
 
 _IDEM_FIELDS: dict[str, Any] = {
-    "client_request_id": {"type": "string", "minLength": 1, "maxLength": 128},
-    "idempotency_key": {"type": "string", "minLength": 1, "maxLength": 128},
-    "snapshot_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "client_request_id": {
+        "type": "string", "minLength": 1, "maxLength": 128, "pattern": IDENT_PATTERN,
+    },
+    "idempotency_key": {
+        "type": "string", "minLength": 1, "maxLength": 128, "pattern": IDENT_PATTERN,
+    },
+    "snapshot_id": {
+        "type": "string", "minLength": 1, "maxLength": 128, "pattern": IDENT_PATTERN,
+    },
 }
 
 # =====================================================================
@@ -67,7 +81,7 @@ MCP_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
         "additionalProperties": False,
         "required": ["run_id"],
         "properties": {
-            "run_id": {"type": "string", "minLength": 1, "maxLength": 128},
+            "run_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": IDENT_PATTERN},
         },
     },
     "reaction.get_candidate_evidence_v1": {
@@ -76,8 +90,8 @@ MCP_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
         "additionalProperties": False,
         "required": ["run_id", "evidence_id"],
         "properties": {
-            "run_id": {"type": "string", "minLength": 1, "maxLength": 128},
-            "evidence_id": {"type": "string", "minLength": 1, "maxLength": 128},
+            "run_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": IDENT_PATTERN},
+            "evidence_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": IDENT_PATTERN},
         },
     },
     "reaction.expand_evidence_v1": {
@@ -86,8 +100,8 @@ MCP_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
         "additionalProperties": False,
         "required": ["run_id", "evidence_id", "idempotency_key", "snapshot_id"],
         "properties": {
-            "run_id": {"type": "string", "minLength": 1, "maxLength": 128},
-            "evidence_id": {"type": "string", "minLength": 1, "maxLength": 128},
+            "run_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": IDENT_PATTERN},
+            "evidence_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": IDENT_PATTERN},
             **_IDEM_FIELDS,
             "budgets": {
                 "type": "object",
@@ -185,6 +199,8 @@ def _check_object(value: Any, schema: dict, path: str) -> list[str]:
                 errors.append(f"field '{sub}' too short (min {spec['minLength']})")
             if "maxLength" in spec and len(val) > spec["maxLength"]:
                 errors.append(f"field '{sub}' too long (max {spec['maxLength']})")
+            if "pattern" in spec and not re.fullmatch(spec["pattern"], val):
+                errors.append(f"field '{sub}': invalid format (pattern mismatch)")
             if "enum" in spec and val not in spec["enum"]:
                 errors.append(f"field '{sub}': invalid enum value '{val}'")
         elif etype == "integer":
