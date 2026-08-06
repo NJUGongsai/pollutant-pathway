@@ -9,7 +9,7 @@ the T1 provider adapter.
 
 from __future__ import annotations
 
-from reaction_agent.agent.baseline import BaselineGate
+from reaction_agent.agent.baseline import BaselineGate, BaselineViolationError
 from reaction_agent.agent.provider import (
     Provider,
     ProviderSpec,
@@ -43,8 +43,9 @@ class AgentLoop:
     def require_baseline(self):
         """Route the mandatory baseline acquisition through the gate."""
         if self._baseline_gate is None:
-            raise RuntimeError(
-                "AgentLoop requires a BaselineGate to obtain the mandatory baseline"
+            raise BaselineViolationError(
+                "AgentLoop must be wired with a BaselineGate to obtain the "
+                "mandatory baseline"
             )
         return self._baseline_gate.obtain_baseline()
 

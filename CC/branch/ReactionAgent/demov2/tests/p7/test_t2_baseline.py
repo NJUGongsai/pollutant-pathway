@@ -20,7 +20,7 @@ from reaction_agent.agent.baseline import (
     BaselineViolationError,
     SkipBaselineError,
     DirectStructureGeneratorError,
-    TestLabelAccessError,
+    LabelAccessViolationError,
 )
 from reaction_agent.mcp.idempotency import IdempotencyStore
 from reaction_agent.mcp.runs import RunStore
@@ -101,11 +101,11 @@ class TestBypassPins:
 
     def test_test_label_access_rejected(self, tmp_path):
         gate = _make_gate(tmp_path, lambda payload: _completed_result())
-        with pytest.raises(TestLabelAccessError):
+        with pytest.raises(LabelAccessViolationError):
             gate.reject_test_label_access()
 
     def test_test_label_access_typed(self):
-        assert issubclass(TestLabelAccessError, BaselineViolationError)
+        assert issubclass(LabelAccessViolationError, BaselineViolationError)
 
 
 # -- P7-T0②-02: blocked-kernel baseline failure is TYPED, not bare exception --
@@ -135,3 +135,48 @@ class TestBlockedKernelTyped:
                 f"blocked kernel leaked bare {type(exc).__name__}: "
                 f"{exc} (must be typed BaselineViolationError)"
             )
+
+    def test_resolution_failure_is_typed(self, tmp_path):
+        """A run whose resolution fails (missing run_id / malformed stored
+        result) must also be a typed BaselineViolationError, never a bare
+        KeyError / RunNotFoundError / ValidationError."""
+
+        # predictor returns a completed result, but we sabotage resolution by
+        # pointing the gate at an EMPTY run store so get_run raises.
+        from reaction_agent.agent.baseline import BaselineGate as G
+        from reaction_agent.mcp.idempotency import IdempotencyStore as IS
+        from reaction_agent.mcp.runs import RunStore as RS
+        from reaction_agent.mcp.tools import ReactionMCPKernel as K
+
+        runs = RS(tmp_path / "runs_empty")
+        idem = IS(tmp_path / "idem_empty")
+        kernel = K(run_store=runs, idem_store=idem, predictor=lambda p: _completed_result())
+        gate = G(
+            kernel=kernel,
+            run_store=runs,
+            predict_payload={
+                "substrate_smiles": "CCCCCCCCO",
+                "idempotency_key": "k_t2_res_missing",
+                "snapshot_id": "snap_baseline",
+            },
+        )
+        try:
+            gate.obtain_baseline()
+        except BaselineViolationError:
+            pass  # expected typed
+        except Exception as exc:  # noqa: BLE001
+            pytest.fail(
+                f"resolution failure leaked bare {type(exc).__name__}: "
+                f"{exc} (must be typed BaselineViolationError)"
+            )
+
+    def test_require_baseline_returns_deep_copy(self, tmp_path):
+        """require_baseline returns a deep copy so callers cannot mutate the
+        cached baseline (immutability contract)."""
+        gate = _make_gate(tmp_path, lambda payload: _completed_result())
+        gate.obtain_baseline()
+        b1 = gate.require_baseline()
+        b2 = gate.require_baseline()
+        assert b1 is not b2  # distinct objects
+        b1.normalized_query = "MUTATED"
+        assert gate.require_baseline().normalized_query == "CCCCCCCCO"

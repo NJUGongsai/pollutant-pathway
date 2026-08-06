@@ -50,7 +50,7 @@ class DirectStructureGeneratorError(BaselineViolationError):
     code = "DIRECT_STRUCTURE_GENERATOR"
 
 
-class TestLabelAccessError(BaselineViolationError):
+class LabelAccessViolationError(BaselineViolationError):
     """Agent attempted to access test labels."""
 
     code = "TEST_LABEL_ACCESS"
@@ -81,17 +81,20 @@ class BaselineGate:
     def obtain_baseline(self) -> PredictionResult:
         """Run the deterministic baseline via MCP predict and freeze it.
 
-        A blocked kernel (predictor raises) is wrapped into a typed
+        A blocked kernel or any resolution failure (missing run_id, missing
+        run, malformed stored result) is wrapped into a typed
         ``BaselineViolationError`` — never leaked as a bare exception.
         """
         try:
             out = self._kernel.handle(TOOL_PREDICT, self._predict_payload)
+            result = resolve_prediction_result(self._run_store, out["run_id"])
+        except BaselineViolationError:
+            raise
         except Exception as exc:  # noqa: BLE001 — typed fail-closed
             raise BaselineViolationError(
-                f"baseline predict failed (blocked kernel): "
+                f"baseline predict/resolve failed (blocked kernel): "
                 f"{type(exc).__name__}: {exc}"
             ) from exc
-        result = resolve_prediction_result(self._run_store, out["run_id"])
         if result is None:
             raise BaselineViolationError(
                 "baseline predict produced no typed PredictionResult"
@@ -100,13 +103,17 @@ class BaselineGate:
         return result
 
     def require_baseline(self) -> PredictionResult:
-        """Return the frozen baseline, or raise SkipBaselineError if none yet."""
+        """Return the frozen baseline, or raise SkipBaselineError if none yet.
+
+        Returns a deep copy so callers cannot mutate the cached baseline
+        (immutability contract).
+        """
         if self._baseline is None:
             raise SkipBaselineError(
                 "skip baseline: agent step attempted before the mandatory "
                 "baseline run was obtained"
             )
-        return self._baseline
+        return self._baseline.model_copy(deep=True)
 
     def reject_direct_structure_generator(self) -> None:
         """Typed rejection of the low-level structure generator bypass."""
@@ -117,7 +124,7 @@ class BaselineGate:
 
     def reject_test_label_access(self) -> None:
         """Typed rejection of the test-label access bypass."""
-        raise TestLabelAccessError(
+        raise LabelAccessViolationError(
             "access to test labels is forbidden; baseline uses train evidence only"
         )
 
@@ -126,6 +133,6 @@ __all__ = [
     "BaselineViolationError",
     "SkipBaselineError",
     "DirectStructureGeneratorError",
-    "TestLabelAccessError",
+    "LabelAccessViolationError",
     "BaselineGate",
 ]
