@@ -74,12 +74,30 @@ class AgentLoop:
         baseline_gate: BaselineGate | None = None,
     ):
         if provider is not None:
-            self.provider: Provider = provider
+            self.provider: Provider = self._require_bounded(provider)
         elif provider_spec is not None:
             self.provider: Provider = FakeProvider(self._with_budget(provider_spec))
         else:
             raise ValueError("AgentLoop requires provider_spec or provider")
         self._baseline_gate = baseline_gate
+
+    @staticmethod
+    def _require_bounded(provider: Provider) -> Provider:
+        """Validate an INJECTED provider has a positive call budget (P7-T6-01).
+
+        The injected-provider path must NOT silently accept an unbounded
+        (``max_calls=0``) provider — the loop must never run an unbounded LLM
+        interaction (P7-T1T3-03), on the spec path OR the injection path.
+        """
+        spec = getattr(provider, "spec", None)
+        max_calls = getattr(spec, "max_calls", 0)
+        if max_calls <= 0:
+            raise ValueError(
+                "AgentLoop injected provider must have max_calls > 0 (bounded); "
+                f"got max_calls={max_calls!r} — a loop must never run an "
+                "unbounded LLM interaction"
+            )
+        return provider
 
     @staticmethod
     def _with_budget(spec: ProviderSpec) -> ProviderSpec:
