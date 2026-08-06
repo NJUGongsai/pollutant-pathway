@@ -71,11 +71,16 @@ FORBIDDEN_ACTIONS = frozenset({
 
 
 class PolicyViolationError(Exception):
-    """Raised when the agent attempts a forbidden action."""
+    """Raised when the agent attempts a forbidden action.
 
-    def __init__(self, action: AgentAction):
+    Accepts an ``AgentAction`` OR a raw string / None (defensive: the loop may
+    pass untyped input). The offending value is preserved on ``action``.
+    """
+
+    def __init__(self, action):
         self.action = action
-        super().__init__(f"forbidden production action: {action.value}")
+        label = action.value if isinstance(action, AgentAction) else str(action)
+        super().__init__(f"forbidden production action: {label}")
 
 
 # -- policy decision --
@@ -107,11 +112,22 @@ class ProductionPolicy:
             raise ValueError("policy_version must be non-empty")
         self.policy_version = policy_version
 
-    def assert_allowed(self, action: AgentAction) -> None:
+    def assert_allowed(self, action) -> None:
         """Raise PolicyViolationError if the action is forbidden.
 
-        Allowed actions (expand/compare/choose/prioritize/stop) pass silently.
+        Accepts an ``AgentAction`` or a raw string / None (defensive, P2
+        closure P7-T1T3-01). Raw strings are normalized to ``AgentAction`` so
+        allowed actions pass; None / unknown / forbidden values raise a typed
+        ``PolicyViolationError`` (never AttributeError).
         """
+        if action is None:
+            raise PolicyViolationError(action)
+        if not isinstance(action, AgentAction):
+            try:
+                action = AgentAction(action)
+            except ValueError:
+                # unknown raw string -> typed violation, not a bare ValueError
+                raise PolicyViolationError(action) from None
         if action not in ALLOWED_ACTIONS:
             raise PolicyViolationError(action)
 
@@ -125,12 +141,20 @@ class ProductionPolicy:
 
         Raises UnknownReferenceError (via the shared validator) when any
         hypothesis cites unknown IDs / missing relations — fail-closed.
+
+        Duplicate ``hypothesis_id`` values are deduped preserving first-seen
+        order (P2 closure P7-T1T3-02) — never double-listed.
         """
+        seen: set[str] = set()
+        ordered: list[ProductionSelectionHypothesis] = []
         for h in hypotheses:
             validate_hypothesis_against_context(h, context)
+            if h.hypothesis_id not in seen:
+                seen.add(h.hypothesis_id)
+                ordered.append(h)
         return PolicyDecision(
             policy_version=self.policy_version,
-            priority=[h.hypothesis_id for h in hypotheses],
+            priority=[h.hypothesis_id for h in ordered],
         )
 
 

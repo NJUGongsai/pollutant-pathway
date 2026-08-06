@@ -1,7 +1,8 @@
-"""P7 agent layer — provider adapter + production policy.
+"""P7 agent layer — provider adapter, production policy, baseline gate, loop.
 
-Contains the LLM-facing adapter (provider.py) and the production
-ProductionSelectionHypothesis policy (policy.py). The kernel stays
+Contains the LLM-facing adapter (provider.py), the production
+ProductionSelectionHypothesis policy (policy.py), the mandatory baseline gate
+(baseline.py), and the bounded agent loop (loop.py). The kernel stays
 provider-agnostic: the agent loop consumes a Provider via the adapter.
 """
 
@@ -19,6 +20,8 @@ from reaction_agent.agent.policy import (
     ProductionPolicy,
     PolicyDecision,
 )
+from reaction_agent.agent.baseline import BaselineGate
+from reaction_agent.agent.loop import AgentLoop
 
 __all__ = [
     "Provider",
@@ -29,4 +32,6 @@ __all__ = [
     "AgentAction",
     "ProductionPolicy",
     "PolicyDecision",
+    "BaselineGate",
+    "AgentLoop",
 ]
