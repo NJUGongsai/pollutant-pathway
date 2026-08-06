@@ -73,6 +73,7 @@ class ReactionMCPKernel:
         payload_max_bytes: Optional[int] = None,
         protocol_version: Optional[str] = None,
         budget_guard: Any | None = None,
+        predictor: Any | None = None,
     ):
         self.runs = run_store
         self.idem = idem_store
@@ -83,6 +84,10 @@ class ReactionMCPKernel:
         self._payload_max = payload_max_bytes
         self._protocol_version = protocol_version
         self._budget = budget_guard
+        # T0②: optional deterministic predictor (payload -> PredictionResult).
+        # When None, handle_predict keeps the P6 run-lifecycle behavior (no
+        # PredictionResult stamped) — additive, no regression to P6.
+        self._predictor = predictor
 
     # -- Phase B: security / hardening helpers -------------------------
 
@@ -196,11 +201,26 @@ class ReactionMCPKernel:
             # BEFORE the run / idem record is written (no orphan).
             if budget is not None:
                 budget.check_and_commit(tenant, requested)
+            # T0②: run the deterministic predictor (if wired) and stamp the
+            # typed PredictionResult into the run payload. The run record is
+            # immutable after creation, so the result is computed BEFORE the
+            # run is frozen. On idempotent REUSE the lambda is not re-invoked,
+            # so the result is stamped exactly once (deterministic + replayable).
+            stored_payload = dict(payload)
+            if self._predictor is not None:
+                prediction_result = self._predictor(payload)
+                if prediction_result is not None:
+                    stored_payload["prediction_result"] = (
+                        prediction_result.model_dump(mode="json")
+                    )
+                    stored_payload["prediction_status"] = (
+                        prediction_result.status.value
+                    )
             return runs.create_run(
                 tool="predict",
                 request_hash=req_hash,
                 snapshot_id=payload["snapshot_id"],
-                payload=payload,
+                payload=stored_payload,
                 run_id=rid,
                 tenant_id=tenant,
                 expires_at=expiry,
@@ -310,3 +330,27 @@ class ReactionMCPKernel:
         if tool_name == TOOL_EXPAND:
             return self.handle_expand(payload, ctx=ctx)
         raise ProtocolError(f"unknown tool '{tool_name}'")
+
+
+def resolve_prediction_result(run_store: RunStore, run_id: str) -> Any:
+    """Read + deserialize the typed ``PredictionResult`` stamped on a run.
+
+    Returns the typed ``PredictionResult`` when ``handle_predict`` was wired
+    with a predictor (T0②); returns ``None`` when the run was created without
+    a predictor (P6 run-lifecycle behavior) or the run payload carries no
+    ``prediction_result``. The run manifest is resolvable via the run store,
+    so the result is recoverable from ``run_id`` alone (replayable).
+
+    Deserialization uses ``model_validate_json`` because the run record is JSON
+    on disk: the strict ``is_instance_of`` enum validators on
+    ``PredictionResult`` reject plain-string dicts via ``model_validate``,
+    but the JSON parser coerces the string enum values back to their typed
+    instances.
+    """
+    from reaction_agent.schemas.result import PredictionResult
+
+    run = run_store.get_run(run_id)
+    pr = run.payload.get("prediction_result") if isinstance(run.payload, dict) else None
+    if not pr:
+        return None
+    return PredictionResult.model_validate_json(json.dumps(pr))

@@ -12,13 +12,16 @@ from __future__ import annotations
 
 from reaction_agent.mcp.idempotency import IdempotencyStore
 from reaction_agent.mcp.runs import RunStore
-from reaction_agent.mcp.tools import TOOL_PREDICT, ReactionMCPKernel
+from reaction_agent.mcp.tools import (
+    TOOL_PREDICT,
+    ReactionMCPKernel,
+    resolve_prediction_result,
+)
 from reaction_agent.schemas.result import PredictionResult
 
 
 def test_handle_predict_produces_typed_prediction_result(tmp_path):
     from reaction_agent.adapters.p3_p4_bridge import run_deterministic_predict
-    from reaction_agent.mcp.tools import resolve_prediction_result
 
     runs = RunStore(tmp_path / "runs")
     idem = IdempotencyStore(tmp_path / "idem")
