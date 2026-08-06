@@ -82,8 +82,16 @@ def _collect_evidence_ids(result: PredictionResult) -> frozenset[str]:
 
 
 def build_grounded_run(result: PredictionResult) -> GroundedRun:
-    """Construct the frozen grounding view from a typed ``PredictionResult``."""
-    cands = tuple(result.candidates)
+    """Construct the frozen grounding view from a typed ``PredictionResult``.
+
+    Candidates are DEEP-copied (``model_copy(deep=True)``) so the grounded run
+    does NOT share list-field references with the typed result — an agent
+    holding ``g.candidates[i]`` cannot mutate the typed ``PredictionResult``
+    by appending to its ``support_lineage_ids`` / ``transformation_ids`` /
+    ``site_ids`` / ``source_ledger_ids`` (P7-T4-01: no-invention bypass via
+    shared list references).
+    """
+    cands = tuple(c.model_copy(deep=True) for c in result.candidates)
     return GroundedRun(
         run_id=result.run_id,
         candidate_ids=frozenset(c.candidate_id for c in cands),
@@ -171,14 +179,17 @@ def frozen_candidate_view(grounded: GroundedRun, cand_id: str) -> Candidate:
     """Return a read-only view of a typed candidate; raises ``GroundingError``
     if the candidate id is unknown.
 
-    The returned ``Candidate`` is a defensive ``model_copy()`` so an agent
-    cannot mutate the typed result through the view. The rank / lane / support
-    tier / applicability / ledger id are the typed values — agents read,
-    never write. There is no setter.
+    The returned ``Candidate`` is a defensive ``model_copy(deep=True)`` so an
+    agent cannot mutate the typed result NOR the grounded run through the
+    view's list fields (P7-T4-01: deep-copy isolation —
+    ``support_lineage_ids`` / ``transformation_ids`` / ``site_ids`` /
+    ``source_ledger_ids`` are independent copies, not shared references).
+    The rank / lane / support tier / applicability / ledger id are the typed
+    values — agents read, never write. There is no setter.
     """
     for c in grounded.candidates:
         if c.candidate_id == cand_id:
-            return c.model_copy()
+            return c.model_copy(deep=True)
     raise GroundingError(
         f"candidate {cand_id!r} not in run {grounded.run_id!r}"
     )

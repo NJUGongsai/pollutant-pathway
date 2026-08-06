@@ -21,6 +21,8 @@ RED until ``grounding.py`` is implemented (ImportError); GREEN after.
 """
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from reaction_agent.adapters.p3_p4_bridge import run_deterministic_predict
@@ -57,10 +59,12 @@ class TestGroundedRunIDs:
 
         g = build_grounded_run(baseline_result)
         # Direct assignment on a frozen dataclass raises FrozenInstanceError
-        # (do NOT use object.__setattr__, which bypasses the frozen guard).
-        with pytest.raises(Exception):
+        # specifically (P7-T4-03: pin the exact exception, not a broad
+        # Exception). Do NOT use object.__setattr__, which bypasses the
+        # frozen guard.
+        with pytest.raises(FrozenInstanceError):
             g.run_id = "tampered"  # type: ignore[misc]
-        with pytest.raises(Exception):
+        with pytest.raises(FrozenInstanceError):
             g.candidate_ids = frozenset({"x"})  # type: ignore[misc]
 
 
@@ -86,6 +90,22 @@ class TestIDBelongsToRun:
         g = build_grounded_run(baseline_result)
         assert_id_belongs_to_run(g, kind="candidate", id_=next(iter(g.candidate_ids)))
         assert_id_belongs_to_run(g, kind="transformation", id_=next(iter(g.transformation_ids)))
+
+    def test_evidence_fail_closed_without_stage_summary(self, baseline_result):
+        """P7-T4-02: with no stage_summary, evidence_ids is empty -> any
+        agent-claimed evidence id -> GroundingError (fail-closed, never a
+        silent pass)."""
+        from reaction_agent.agent.grounding import (
+            GroundingError,
+            assert_id_belongs_to_run,
+            build_grounded_run,
+        )
+
+        result_no_summary = baseline_result.model_copy(update={"stage_summary": None})
+        g = build_grounded_run(result_no_summary)
+        assert not g.evidence_ids  # empty without stage_summary
+        with pytest.raises(GroundingError):
+            assert_id_belongs_to_run(g, kind="evidence", id_="ev_anything_at_all")
 
 
 class TestStructureFromResult:
@@ -151,34 +171,46 @@ class TestValidateHypothesis:
         with pytest.raises(GroundingError):
             validate_hypothesis(g, hyp)
 
-    def test_unsupported_claim_raises(self, baseline_result):
-        """transform + site both valid (in run) but never co-occurring in one
-        typed candidate -> unsupported claim -> GroundingError."""
+    def test_unsupported_claim_raises(self):
+        """P7-T4-04: transform+site both valid (in run) but never co-occurring
+        in one typed candidate -> unsupported claim -> GroundingError.
+
+        Uses a DETERMINISTIC 2-candidate fixture with disjoint transform+site
+        pairs (cand A: t_a/s_a; cand B: t_b/s_b) so the cross pair t_a+s_b
+        is guaranteed non-co-occurring — no conditional skip on fixture
+        luck.
+        """
         from reaction_agent.agent.grounding import (
             GroundingError,
             build_grounded_run,
             validate_hypothesis,
         )
+        from reaction_agent.schemas.candidate import Candidate
+        from reaction_agent.schemas.common import DecisionKind, Lane, ResultStatus
+        from reaction_agent.schemas.result import PredictionResult
 
-        if len(baseline_result.candidates) < 2:
-            pytest.skip("need >=2 candidates for cross co-occurrence test")
-        c0 = baseline_result.candidates[0]
-        c1 = baseline_result.candidates[1]
-        # cross: c0's transform + c1's site (presumably non-co-occurring)
-        hyp = self._hyp(
-            baseline_result,
-            transformation_id=c0.transformation_ids[0],
-            site_id=c1.site_ids[0],
+        cand_a = Candidate(
+            candidate_id="c_a", canonical_product="CCO", lane=Lane.strict,
+            origin="deterministic_kernel",
+            transformation_ids=["t_a"], site_ids=["s_a"],
+            support_lineage_ids=["lin_a"],
         )
-        g = build_grounded_run(baseline_result)
-        # Only raise if they truly don't co-occur; otherwise skip (honest).
-        co_occur = any(
-            c0.transformation_ids[0] in c.transformation_ids
-            and c1.site_ids[0] in c.site_ids
-            for c in baseline_result.candidates
+        cand_b = Candidate(
+            candidate_id="c_b", canonical_product="CCC", lane=Lane.strict,
+            origin="deterministic_kernel",
+            transformation_ids=["t_b"], site_ids=["s_b"],
+            support_lineage_ids=["lin_b"],
         )
-        if co_occur:
-            pytest.skip("fixture candidates share transform+site; cannot form unsupported claim")
+        result = PredictionResult(
+            run_id="r_disjoint", status=ResultStatus.completed,
+            decision=DecisionKind.predicted, normalized_query="CCO",
+            snapshot_id="snap_disjoint", candidates=[cand_a, cand_b],
+        )
+        g = build_grounded_run(result)
+        # cross pair: t_a (cand A) + s_b (cand B) — both valid, never co-occur.
+        hyp = ProductionSelectionHypothesis(
+            hypothesis_id="h_unsup", transformation_id="t_a", site_id="s_b",
+        )
         with pytest.raises(GroundingError):
             validate_hypothesis(g, hyp)
 
