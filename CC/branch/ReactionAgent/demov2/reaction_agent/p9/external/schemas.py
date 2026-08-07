@@ -17,6 +17,7 @@ store. It reuses ``schemas.common.StrictModel`` for strict typing.
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from typing import Literal
 
 from pydantic import Field, field_validator
@@ -88,6 +89,13 @@ class EvidenceProvenance(StrictModel):
         if not _ISO_DATE_RE.match(v):
             raise ValueError(
                 f"retrieval_date must be ISO-8601 (YYYY-MM-DD), got {v!r}"
+            )
+        # Semantic validation: reject impossible dates (e.g., 2026-13-45, 2026-02-30)
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(
+                f"retrieval_date is not a valid calendar date: {v!r}"
             )
         return v
 

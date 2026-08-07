@@ -54,12 +54,11 @@ CONTROL_DIRECTIVES: tuple[str, ...] = (
 
 # Schema field names that would appear in a smuggling payload.  These are
 # checked with word-boundary matching to avoid false positives on common
-# chemical terms.  Words like "role", "ranking", and "decision" are excluded
-# because they appear frequently in benign chemical evidence text.
+# chemical terms.  Words like "role", "ranking", "decision", "tools",
+# "authorized", and "permissions" are excluded because they appear frequently
+# in benign chemical evidence text.  Access changes are caught by the compound
+# CONTROL_DIRECTIVES ("grant all permissions", "enable all tools").
 SCHEMA_FIELD_NAMES: tuple[str, ...] = (
-    "permissions",
-    "tools",
-    "authorized",
     "result_hash",
 )
 

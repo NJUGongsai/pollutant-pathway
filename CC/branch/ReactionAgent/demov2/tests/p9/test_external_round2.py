@@ -298,7 +298,9 @@ def test_intake_benign_record_passes() -> None:
     assert cached.evidence_id == "ext-1"
 
 
-def test_intake_docstring_hygiene() -> None:
-    """test_external_record_cache.py:126 dead parameter removal."""
-    # The test file previously had strict_forbid=True dead param — now gone
-    pass
+def test_retrieval_date_rejects_impossible_date() -> None:
+    """Impossible dates (e.g., 2026-13-45, 2026-02-30) should be rejected."""
+    with pytest.raises(ValidationError):
+        make_provenance(retrieval_date="2026-13-45")
+    with pytest.raises(ValidationError):
+        make_provenance(retrieval_date="2026-02-30")

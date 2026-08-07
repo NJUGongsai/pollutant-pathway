@@ -41,10 +41,11 @@ class IngestResult:
 
     ``resolution`` is one of:
     - ``"accepted"``: record passed all checks and was cached.
-    - ``"suppressed"``: record was suppressed due to snapshot conflict
-      (snapshot_wins). The record is NOT cached.
-    - ``"rejected"``: record was rejected (unregistered source, injection,
-      license mismatch). Not cached.
+    - ``"snapshot_wins"``: record was suppressed due to snapshot conflict.
+      The record is NOT cached.
+    - ``"rejected"``: record was rejected (unregistered source, injection
+      payload, license mismatch). Not cached. (Raised as ``IngestRejectionError``
+      or ``UnregisteredSourceError`` — ``rejected`` is reserved for future use.)
 
     ``cache`` is the EvidenceCache instance for records that were accepted.
     ``suppressed`` is a convenience boolean.

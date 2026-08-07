@@ -31,9 +31,10 @@ from reaction_agent.p9.multistep.schemas import (
 from reaction_agent.p9.multistep.graph import MultiStepGraph
 from reaction_agent.p9.multistep.search import (
     MultiStepSearch,
-    EdgeValidator,
-    MockEdgeValidator,
+)
+from reaction_agent.p9.multistep.validator import (
     EdgeValidationResult,
+    MockEdgeValidator,
 )
 from reaction_agent.p9.multistep.path import (
     PathDedup,
@@ -271,11 +272,13 @@ def test_path_uncertainty() -> None:
     p1 = MultiStepPath(nodes=[MOL_A, MOL_B], edge_ids=["e1"], total_cost=1.0, total_risk=0.0)
     p2 = MultiStepPath(nodes=[MOL_A, MOL_C, MOL_B], edge_ids=["e2", "e3"], total_cost=2.0, total_risk=0.0)
     # Both paths end at MOL_B, so uncertainty for MOL_B = 2
+    # MOL_C is an intermediate node, not a target — it shouldn't be counted
     dedup = PathDedup()
     dedup.add(p1)
     dedup.add(p2)
     assert dedup.alternative_paths(MOL_B) == 2
-    assert dedup.alternative_paths(MOL_C) == 1
+    # MOL_C is an intermediate, not a target
+    assert dedup.alternative_paths(MOL_C) == 0
 
 
 def test_stop_rule_max_paths() -> None:
