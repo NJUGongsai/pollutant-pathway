@@ -176,3 +176,38 @@ class TestArtifactIO:
         path.write_text(json.dumps(data), encoding="utf-8")
         with pytest.raises(ValidationError):
             load_policy(path)
+
+
+class TestRuleIdUniqueness:
+    """R1-03: rule_id must be unique within a policy (no silent collapse)."""
+
+    def test_duplicate_rule_id_rejected(self):
+        rules = make_rules() + [
+            RelaxationRule(
+                rule_id="relax_donor_site_precision",  # duplicate
+                description="duplicate donor-site relaxation",
+                applies_to=[StrictCondition.donor_site_definite],
+                distance_weight=0.4,
+            )
+        ]
+        with pytest.raises(ValidationError):
+            RelaxationPolicy.create(
+                policy_id="p8-generalized-relaxation",
+                version="1.0.0",
+                description="x",
+                allowed_relaxations=rules,
+                ood=OODPolicy(declaration="z"),
+            )
+
+
+class TestDistanceWeight:
+    """R1-06: distance_weight must be strictly positive (distance buckets)."""
+
+    def test_zero_distance_weight_rejected(self):
+        with pytest.raises(ValidationError):
+            RelaxationRule(
+                rule_id="zero_weight",
+                description="zero weight",
+                applies_to=[StrictCondition.donor_site_definite],
+                distance_weight=0.0,
+            )

@@ -1,14 +1,12 @@
 """T2 RED tests — Generalized hypothesis (final_plan §11.3, final_design §12.3).
 
-Must FAIL (RED) until ``reaction_agent/p8/schemas.py`` exists.
-
-Six recorded fields:
-  relaxation_policy_id / allowed_relaxation_ids[] / failed_strict_conditions[] /
-  generalization_distance / source_transforms[] / validation
-
-Anti-masquerade (leader D5): failed_strict_conditions must be non-empty and
-must not reference a forbidden hard constraint; lane must be Lane.generalized
-and no output may fall into a strict structure.
+Round 2 covers audit findings R1-01..R1-06:
+- R1-01: policy_version pin field (semver) + version mismatch rejection
+- R1-02: lane/status Literal-typed (no bare str)
+- R1-04: validation record carries policy content_hash + checks; builder writes
+  checks after the chain passes
+- R1-05: error type split — GeneralizedValidationError (validation) vs
+  UnknownReferenceError (reference)
 """
 from __future__ import annotations
 
@@ -26,6 +24,7 @@ from reaction_agent.p8.schemas import (
     GeneralizedHypothesis,
     GeneralizedValidation,
     GeneralizedPolicyContext,
+    GeneralizedValidationError,
     SourceTransformRef,
     build_generalized_hypothesis,
     validate_generalized_hypothesis,
@@ -56,10 +55,10 @@ def make_rules() -> list[RelaxationRule]:
     ]
 
 
-def make_policy() -> RelaxationPolicy:
+def make_policy(version: str = "1.0.0") -> RelaxationPolicy:
     return RelaxationPolicy.create(
         policy_id="p8-generalized-relaxation",
-        version="1.0.0",
+        version=version,
         description="P8 generalized lane relaxation policy",
         allowed_relaxations=make_rules(),
         ood=OODPolicy(
@@ -71,9 +70,9 @@ def make_policy() -> RelaxationPolicy:
     )
 
 
-def make_context() -> GeneralizedPolicyContext:
+def make_context(policy: RelaxationPolicy | None = None) -> GeneralizedPolicyContext:
     return GeneralizedPolicyContext(
-        policies={"p8-generalized-relaxation": make_policy()},
+        policies={"p8-generalized-relaxation": policy or make_policy()},
         transform_lineage={
             "transform-a": ["lin1", "lin2"],
             "transform-b": ["lin3"],
@@ -82,17 +81,23 @@ def make_context() -> GeneralizedPolicyContext:
 
 
 def make_hypothesis(**overrides) -> GeneralizedHypothesis:
+    policy = make_policy()
     kwargs = dict(
         hypothesis_id="g1",
         lane="generalized",
         relaxation_policy_id="p8-generalized-relaxation",
+        policy_version="1.0.0",
         allowed_relaxation_ids=["relax_donor_site_precision"],
         failed_strict_conditions=[StrictCondition.donor_site_definite],
         generalization_distance=0.3,
         source_transforms=[
             SourceTransformRef(transform_id="transform-a", source_lineage_ids=["lin1"])
         ],
-        validation=GeneralizedValidation(lane="generalized", status="validated"),
+        validation=GeneralizedValidation(
+            lane="generalized",
+            status="validated",
+            policy_content_hash=policy.content_hash,
+        ),
     )
     kwargs.update(overrides)
     return GeneralizedHypothesis(**kwargs)
@@ -102,6 +107,7 @@ class TestSixFieldsAndLane:
     def test_six_fields_present(self):
         h = make_hypothesis()
         assert h.relaxation_policy_id == "p8-generalized-relaxation"
+        assert h.policy_version == "1.0.0"
         assert h.allowed_relaxation_ids == ["relax_donor_site_precision"]
         assert h.failed_strict_conditions == [StrictCondition.donor_site_definite]
         assert h.generalization_distance == 0.3
@@ -118,7 +124,57 @@ class TestSixFieldsAndLane:
 
     def test_validation_lane_is_generalized(self):
         with pytest.raises(ValidationError):
-            make_hypothesis(validation=GeneralizedValidation(lane="strict", status="validated"))
+            make_hypothesis(
+                validation=GeneralizedValidation(
+                    lane="strict", status="validated", policy_content_hash="x"
+                )
+            )
+
+
+class TestPolicyVersionPin:
+    """R1-01: hypothesis must pin policy_version (semver) and match the policy."""
+
+    def test_policy_version_field_present(self):
+        h = make_hypothesis()
+        assert h.policy_version == "1.0.0"
+
+    def test_policy_version_must_be_semver(self):
+        with pytest.raises(ValidationError):
+            make_hypothesis(policy_version="1.0")  # not X.Y.Z
+
+    def test_version_mismatch_rejected(self):
+        # context registers policy v2.0.0; hypothesis pins v1.0.0 -> reject
+        ctx = make_context(policy=make_policy(version="2.0.0"))
+        h = make_hypothesis(
+            policy_version="1.0.0",
+            validation=GeneralizedValidation(
+                lane="generalized",
+                status="validated",
+                policy_content_hash=make_policy(version="2.0.0").content_hash,
+            ),
+        )
+        with pytest.raises(GeneralizedValidationError):
+            validate_generalized_hypothesis(h, ctx)
+
+
+class TestTypedLaneStatus:
+    """R1-02: lane/status are Literal-typed, not bare str."""
+
+    def test_status_is_literal_validated(self):
+        h = make_hypothesis()
+        assert h.validation.status == "validated"
+
+    def test_arbitrary_status_rejected(self):
+        with pytest.raises(ValidationError):
+            make_hypothesis(
+                validation=GeneralizedValidation(
+                    lane="generalized", status="made_up", policy_content_hash="x"
+                )
+            )
+
+    def test_arbitrary_lane_rejected(self):
+        with pytest.raises(ValidationError):
+            make_hypothesis(lane="agent_proposed")
 
 
 class TestAntiMasquerade:
@@ -136,12 +192,33 @@ class TestAntiMasquerade:
             )
 
 
+class TestValidationTracing:
+    """R1-04: validation record carries the policy content_hash it was done against."""
+
+    def test_validation_carries_policy_content_hash(self):
+        policy = make_policy()
+        h = make_hypothesis()
+        assert h.validation.policy_content_hash == policy.content_hash
+
+    def test_validation_content_hash_mismatch_rejected(self):
+        # record claims a content_hash that is not the registered policy's
+        h = make_hypothesis(
+            validation=GeneralizedValidation(
+                lane="generalized",
+                status="validated",
+                policy_content_hash="deadbeef",
+            )
+        )
+        with pytest.raises(GeneralizedValidationError):
+            validate_generalized_hypothesis(h, make_context())
+
+
 class TestValidationChain:
     def test_valid_hypothesis_passes(self):
         validate_generalized_hypothesis(make_hypothesis(), make_context())
 
     def test_relaxation_not_in_policy_registry_rejected(self):
-        # D6: relaxation must come from the registered vocabulary
+        # D6: relaxation must come from the registered vocabulary (reference)
         h = make_hypothesis(
             allowed_relaxation_ids=["free_text_relaxation"],
             failed_strict_conditions=[StrictCondition.donor_site_definite],
@@ -155,20 +232,20 @@ class TestValidationChain:
         with pytest.raises(UnknownReferenceError):
             validate_generalized_hypothesis(h, make_context())
 
-    def test_coverage_mismatch_rejected(self):
-        # applied relaxation must cover exactly the failed conditions
+    def test_coverage_mismatch_raises_validation_error(self):
+        # R1-05: coverage mismatch is a validation error, not a reference error
         h = make_hypothesis(
             allowed_relaxation_ids=["relax_ambiguity_margin"],
             failed_strict_conditions=[StrictCondition.donor_site_definite],
             generalization_distance=0.2,
         )
-        with pytest.raises(UnknownReferenceError):
+        with pytest.raises(GeneralizedValidationError):
             validate_generalized_hypothesis(h, make_context())
 
-    def test_distance_mismatch_rejected(self):
-        # distance must be recomputed per policy and match
+    def test_distance_mismatch_raises_validation_error(self):
+        # R1-05: distance mismatch is a validation error, not a reference error
         h = make_hypothesis(generalization_distance=0.99)
-        with pytest.raises(UnknownReferenceError):
+        with pytest.raises(GeneralizedValidationError):
             validate_generalized_hypothesis(h, make_context())
 
     def test_source_transform_unknown_rejected(self):
@@ -201,5 +278,20 @@ class TestBuilder:
             context=ctx,
         )
         assert h.lane == Lane.generalized
+        assert h.policy_version == "1.0.0"
         assert h.validation.status == "validated"
+        assert h.validation.policy_content_hash == make_policy().content_hash
+        # R1-04: builder writes the post-chain checks into the record
+        assert sorted(h.validation.checks) == sorted(
+            [
+                "registered_vocabulary",
+                "anti_masquerade",
+                "coverage_consistency",
+                "distance_consistent",
+                "ood_boundary",
+                "source_lineage_traceable",
+                "policy_version_pin",
+                "validation_content_hash",
+            ]
+        )
         assert abs(h.generalization_distance - 0.8) < 1e-9
