@@ -485,6 +485,7 @@ def test_report_six_metric_groups_complete():
         rejected=[],
         production_valid_count=2,
         ground_truth_smiles={"h_ap_1": cand.edited_product_smiles},  # correct
+        ground_truth_total=3,  # 2 production + 1 new (truth-set denominator)
         cost=AgentProposedCostReport(llm_calls=1, tool_calls=0, latency_ms=120),
         reproducibility=AgentProposedReproducibility(
             repeated_run_agreement=1.0, seed=42, chain_policy_version="1.0.0"
@@ -498,7 +499,8 @@ def test_report_six_metric_groups_complete():
     assert report.new_correct == 1
     assert report.new_incorrect == 0
     assert isinstance(report.reject_reasons, dict)
-    assert report.incremental_recall >= 0.0
+    # incremental recall = (production_valid + new_correct) / ground_truth_total
+    assert report.incremental_recall == pytest.approx(1.0)
     assert report.risk >= 0.0
     assert report.cost.llm_calls == 1
     assert report.reproducibility.repeated_run_agreement == 1.0
@@ -514,28 +516,37 @@ def test_report_reject_reasons_tallied_by_code():
             ("h_bad_3", AgentProposedRejectReasonCode.grounding_failed),
         ],
         production_valid_count=0,
+        reproducibility=AgentProposedReproducibility(
+            repeated_run_agreement=0.9, seed=7, chain_policy_version="1.0.0"
+        ),
     )
     assert report.reject_reasons["molecule_validation_failed"] == 2
     assert report.reject_reasons["grounding_failed"] == 1
+    # no ground_truth_total supplied -> incremental recall unmeasured (R1-04)
+    assert report.incremental_recall is None
 
 
 def test_report_incremental_recall_and_risk_computed():
-    # 2 production-only valid; +2 agent-proposed valid (1 correct, 1 incorrect)
+    # 2 production-only valid; +2 agent-proposed valid (both incorrect vs GT)
     cand = build_agent_proposed_candidate(_valid_hypothesis(), _valid_context())
     report = build_agent_proposed_report(
         candidates=[cand, cand],
         rejected=[],
         production_valid_count=2,
         ground_truth_smiles={"h_ap_1": "WRONG"},  # both marked incorrect
+        ground_truth_total=4,  # truth-set denominator (2 production + 2 new)
+        reproducibility=AgentProposedReproducibility(
+            repeated_run_agreement=0.8, seed=3, chain_policy_version="1.0.0"
+        ),
     )
-    # incremental recall = (production + new_correct) / total_relevant
-    # new_valid=2, new_correct=0, new_incorrect=2
+    # new_valid=2, new_correct=0, new_incorrect=2 (both have GT and mismatch)
     assert report.new_valid == 2
     assert report.new_correct == 0
     assert report.new_incorrect == 2
     # risk = new_incorrect / (new_correct + new_incorrect) at fixed coverage
     assert report.risk == pytest.approx(1.0)
-    assert report.incremental_recall >= 0.0
+    # incremental recall = (production_valid + new_correct) / ground_truth_total
+    assert report.incremental_recall == pytest.approx(0.5)
 
 
 # ---------------------------------------------------------------------------
@@ -551,3 +562,156 @@ def test_reproducibility_same_input_same_compile_hash_and_smiles():
     assert c1.compiled_graph_edit.compile_hash == c2.compiled_graph_edit.compile_hash
     assert c1.edited_product_smiles == c2.edited_product_smiles
     assert c1.validation.chain_policy_content_hash == c2.validation.chain_policy_content_hash
+
+
+# ===========================================================================
+# Round 2 remediation (kimi Round-1 audit findings P9B-R1-01..05)
+# ===========================================================================
+
+
+# ---------------------------------------------------------------------------
+# R1-01 (P0): step 7 dual-ledger validation is MANDATORY — no silent skip,
+# no false attestation. The chain synthesizes an agent-lane ledger from a cited
+# support reaction when none is supplied, and fails closed if it cannot.
+# ---------------------------------------------------------------------------
+
+
+def test_step7_chain_synthesizes_ledger_when_none_supplied_and_runs_validate():
+    # agent_candidate_ledgers={} (default) but cited support reaction rxn_a has
+    # a registered source ledger -> step 7 MUST synthesize + validate (not skip)
+    h = _valid_hypothesis()  # cites rxn_a, src_ledger_a is in context.source_ledgers
+    ctx = _valid_context()  # agent_candidate_ledgers == {}
+    # the chain must still pass (synthesis path) AND the candidate's validation
+    # record attests dual_ledger_validation only because step 7 actually ran
+    cand = build_agent_proposed_candidate(h, ctx)
+    assert "dual_ledger_validation" in cand.validation.checks
+
+
+def test_step7_chain_fails_when_cited_reaction_has_no_source_ledger():
+    # hypothesis cites rxn_b, whose source ledger is NOT in context.source_ledgers
+    # -> step 7 cannot synthesize a ledger -> chain MUST fail closed
+    h = _valid_hypothesis().model_copy(update={"support_reaction_ids": ["rxn_b"]})
+    ctx = _valid_context()  # family_grounding has fam_cc_bond -> rxn_a only
+    # rxn_b does not ground fam_cc_bond, but step 8 would also fail; force the
+    # grounding to pass so we isolate the step-7 failure:
+    ctx = ctx.model_copy(
+        update={"family_grounding": {"fam_cc_bond": ["rxn_b"], "fam_oh_to_c": ["rxn_b"]}}
+    )
+    with pytest.raises((AgentProposedValidationError, UnknownReferenceError)):
+        validate_agent_proposed_hypothesis(h, ctx)
+
+
+def test_step7_chain_propagates_contamination_failure():
+    # a scoped ledger whose candidate_id is a strict candidate -> step 7 raises
+    # inside the FULL CHAIN (not just a direct validate_dual_ledger call)
+    h = _valid_hypothesis()
+    ctx = _valid_context().model_copy(
+        update={
+            "agent_candidate_ledgers": {
+                h.hypothesis_id: _scoped_ledger(candidate_id="strict_cand_1"),
+            }
+        }
+    )
+    with pytest.raises(AgentProposedValidationError):
+        build_agent_proposed_candidate(h, ctx)
+
+
+def test_step7_no_false_attestation_when_skipped_is_impossible():
+    # there is NO path that emits a validated candidate without step 7 running:
+    # even with an empty agent_candidate_ledgers, the chain synthesizes a ledger
+    # and runs validate_dual_ledger. A candidate whose embedded checks claim
+    # dual_ledger_validation but whose cited reaction lacks a source ledger
+    # cannot be built.
+    h = _valid_hypothesis().model_copy(update={"support_reaction_ids": ["rxn_b"]})
+    ctx = _valid_context().model_copy(
+        update={"family_grounding": {"fam_cc_bond": ["rxn_b"], "fam_oh_to_c": ["rxn_b"]}}
+    )
+    with pytest.raises((AgentProposedValidationError, UnknownReferenceError)):
+        build_agent_proposed_candidate(h, ctx)
+
+
+# ---------------------------------------------------------------------------
+# R1-02 (P1): new_incorrect excludes candidates without ground truth
+# ---------------------------------------------------------------------------
+
+
+def test_new_incorrect_excludes_candidates_without_ground_truth():
+    # 1 candidate, NO ground truth -> neither correct nor incorrect
+    cand = build_agent_proposed_candidate(_valid_hypothesis(), _valid_context())
+    report = build_agent_proposed_report(
+        candidates=[cand],
+        rejected=[],
+        production_valid_count=0,
+        ground_truth_smiles=None,  # no ground truth at all
+        reproducibility=AgentProposedReproducibility(
+            repeated_run_agreement=0.5, seed=1, chain_policy_version="1.0.0"
+        ),
+    )
+    assert report.new_valid == 1
+    assert report.new_correct == 0
+    assert report.new_incorrect == 0  # no GT -> not incorrect (R1-02)
+    assert report.risk == 0.0  # no GT candidates -> risk denominator 0 -> 0.0
+
+
+# ---------------------------------------------------------------------------
+# R1-03 (P1): atom-target-only hypothesis must NOT emit an identity edit as
+# new_valid. Either produce a non-identity edit or reject (controlled reason).
+# ---------------------------------------------------------------------------
+
+
+def test_atom_target_only_hypothesis_rejected_at_graph_edit():
+    # only an AtomTarget on atom 3 (in query) -> apply_graph_edit must refuse to
+    # produce an identity edit (atom attribute-change vocabulary not implemented)
+    h = _valid_hypothesis().model_copy(
+        update={"typed_target_atom_or_bond_set": [AtomTarget(atom_id=3)]}
+    )
+    with pytest.raises(AgentProposedValidationError):
+        validate_agent_proposed_hypothesis(h, _valid_context())
+
+
+def test_identity_edit_not_emitted_as_new_valid():
+    # an atom-target-only hypothesis must not yield a candidate whose
+    # edited_product_smiles == the query molecule (identity masquerade)
+    h = _valid_hypothesis().model_copy(
+        update={"typed_target_atom_or_bond_set": [AtomTarget(atom_id=3)]}
+    )
+    with pytest.raises((AgentProposedValidationError, ValidationError)):
+        build_agent_proposed_candidate(h, _valid_context())
+
+
+# ---------------------------------------------------------------------------
+# R1-04 (P2): incremental_recall uses the truth-set denominator; unmeasured
+# (no ground_truth_total) -> None, never a fabricated number.
+# ---------------------------------------------------------------------------
+
+
+def test_incremental_recall_none_when_ground_truth_total_not_provided():
+    cand = build_agent_proposed_candidate(_valid_hypothesis(), _valid_context())
+    report = build_agent_proposed_report(
+        candidates=[cand],
+        rejected=[],
+        production_valid_count=2,
+        ground_truth_smiles={"h_ap_1": cand.edited_product_smiles},
+        # ground_truth_total deliberately omitted
+        reproducibility=AgentProposedReproducibility(
+            repeated_run_agreement=1.0, seed=42, chain_policy_version="1.0.0"
+        ),
+    )
+    assert report.incremental_recall is None  # unmeasured, not fabricated
+
+
+# ---------------------------------------------------------------------------
+# R1-05 (P2): reproducibility is a REQUIRED measurement input — no default
+# 1.0 / seed=0 fabrication.
+# ---------------------------------------------------------------------------
+
+
+def test_reproducibility_required_no_default_fabrication():
+    cand = build_agent_proposed_candidate(_valid_hypothesis(), _valid_context())
+    # omitting reproducibility must raise (required arg), not silently emit 1.0
+    with pytest.raises(TypeError):
+        build_agent_proposed_report(
+            candidates=[cand],
+            rejected=[],
+            production_valid_count=0,
+        )
