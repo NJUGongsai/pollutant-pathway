@@ -8,8 +8,6 @@ Phase A criteria 7-8:
 """
 from __future__ import annotations
 
-import pytest
-
 from reaction_agent.p9.external.benchmark import (
     BenchmarkConfig,
     is_external_in_benchmark,

@@ -38,7 +38,6 @@ from reaction_agent.schemas.hypothesis import (
 from reaction_agent.schemas.ledger import (
     CandidateAnalogyLedger,
     LedgerBalanceStatus,
-    LedgerReferenceRegistry,
     SourceReactionLedger,
 )
 
@@ -52,9 +51,7 @@ from reaction_agent.p9.agent_proposed import (
     AgentProposedReport,
     AgentProposedRejectReasonCode,
     AgentProposedValidationError,
-    AgentProposedValidation,
     AgentProposedValidationContext,
-    CompiledGraphEdit,
     EditedMolecule,
     LaneScopedCandidateLedger,
     QueryMoleculeContext,

@@ -367,3 +367,23 @@ def test_add_edge_without_validator_rejected() -> None:
     )
     with pytest.raises(TypeError, match="validator"):
         g.add_edge(forged)  # no validator argument
+
+
+def test_add_edge_explicit_none_validator_rejected() -> None:
+    """add_edge(edge, validator=None) must raise TypeError and not add edge."""
+    g = MultiStepGraph()
+    g.add_node(MOL_A)
+    g.add_node(MOL_B)
+    forged = MultiStepEdge(
+        edge_id="forged-none",
+        from_node=MOL_A,
+        to_node=MOL_B,
+        lane="strict",
+        evidence_ids=["ev-1"],
+        ledger_ids=["ledger-1"],
+        one_step_contract_hash="hacked",
+    )
+    with pytest.raises(TypeError, match="validator is required"):
+        g.add_edge(forged, validator=None)
+    # Edge must not be in the graph
+    assert g.get_edge("forged-none") is None

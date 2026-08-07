@@ -11,15 +11,12 @@ frozen evidence. The conflict resolution is deterministic and typed.
 """
 from __future__ import annotations
 
-import pytest
-
 from reaction_agent.p9.external.schemas import ExternalEvidenceRecord, EvidenceProvenance
 from reaction_agent.p9.external.conflict import (
     ConflictResolution,
     ConflictPolicy,
     resolve_record_conflict,
 )
-from reaction_agent.p9.external.cache import CacheKey
 
 
 def make_record(content_hash: str = "abc123", evidence_id: str = "ext-1") -> ExternalEvidenceRecord:

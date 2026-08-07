@@ -22,8 +22,6 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from reaction_agent.schemas.common import Lane
-from reaction_agent.schemas.errors import ContractViolation
 from reaction_agent.p9.graduation import (
     ADRRecord,
     BlockerReasonCode,

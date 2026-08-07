@@ -21,11 +21,9 @@ from reaction_agent.p9.external.schemas import (
     EvidenceProvenance,
 )
 from reaction_agent.p9.external.injection import (
-    InjectionScanResult,
-    assert_content_inert,
     scan_content,
+    assert_content_inert,
 )
-from reaction_agent.schemas.common import StrictModel
 
 
 def make_record(content: str = "reaction A -> B proceeds") -> ExternalEvidenceRecord:
