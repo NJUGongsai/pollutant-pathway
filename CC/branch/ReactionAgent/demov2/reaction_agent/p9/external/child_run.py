@@ -2,9 +2,14 @@
 
 External evidence augmentation REQUIRES a child run: the child manifests
 preserve the parent identity (parent_run_id) and carry the external
-evidence_ids appended to the parent's evidence set. A FRoZEN parent is never
+evidence_ids appended to the parent's evidence set. A frozen parent is never
 augmented — augmentation is refused fail-closed (``FrozenParentError``). The
 parent's own evidence list is never mutated (immutability).
+
+Child_run_id is content-addressed: it is derived from the parent_run_id + a
+hash of the evidence IDs. This ensures:
+- same parent + same evidence set → same child_run_id (idempotent)
+- same parent + different evidence set → different child_run_id (no collision)
 
 This module models the separation contract. It does NOT modify the P4 run
 store (strict-untouched) — it only defines the augmentation semantics on top
@@ -12,8 +17,7 @@ of it.
 """
 from __future__ import annotations
 
-from pydantic import Field
-
+from reaction_agent.hashing import canonical_hash
 from reaction_agent.schemas.common import StrictModel, NonEmptyStr
 from reaction_agent.p9.external.schemas import ExternalEvidenceRecord
 
@@ -29,6 +33,16 @@ class ChildAugmentation(StrictModel):
     parent_run_id: NonEmptyStr
     evidence_ids: list[NonEmptyStr]
     augmentation_note: NonEmptyStr
+
+
+def _compute_child_run_id(parent_run_id: str, evidence_ids: list[str]) -> str:
+    """Content-addressed child_run_id from parent + evidence set hash.
+
+    Same parent + same evidence set → same id (idempotent).
+    Different evidence set → different id (no collision).
+    """
+    evidence_hash = canonical_hash(sorted(evidence_ids))[:12]
+    return f"{parent_run_id}-ext-{evidence_hash}"
 
 
 class ExternalEvidenceAugmenter:
@@ -52,10 +66,11 @@ class ExternalEvidenceAugmenter:
             )
         parent_evidence = list(parent_evidence_ids or [])
         external_ids = [r.evidence_id for r in records]
-        child_run_id = f"{parent_run_id}-ext"
+        combined = parent_evidence + external_ids
+        child_run_id = _compute_child_run_id(parent_run_id, combined)
         return ChildAugmentation(
             child_run_id=child_run_id,
             parent_run_id=parent_run_id,
-            evidence_ids=parent_evidence + external_ids,
+            evidence_ids=combined,
             augmentation_note="external evidence augmentation",
         )

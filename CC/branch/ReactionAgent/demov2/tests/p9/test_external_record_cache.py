@@ -123,7 +123,7 @@ def test_cache_key_is_hashable() -> None:
     assert d[k] == 1
 
 
-def test_unknown_fields_rejected(strict_forbid=True) -> None:
+def test_unknown_fields_rejected() -> None:
     """StrictModel: extra='forbid' — an injected field is rejected (injection guard)."""
     with pytest.raises(Exception):
         make_record(injected_field="nope")

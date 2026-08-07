@@ -16,11 +16,15 @@ store. It reuses ``schemas.common.StrictModel`` for strict typing.
 """
 from __future__ import annotations
 
+import re
 from typing import Literal
 
 from pydantic import Field, field_validator
 
 from reaction_agent.schemas.common import StrictModel, NonEmptyStr
+
+# ISO-8601 date pattern: YYYY-MM-DD
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 class ExternalEvidenceSource(StrictModel):
@@ -81,6 +85,10 @@ class EvidenceProvenance(StrictModel):
         v = v.strip()
         if not v:
             raise ValueError("retrieval_date must not be empty")
+        if not _ISO_DATE_RE.match(v):
+            raise ValueError(
+                f"retrieval_date must be ISO-8601 (YYYY-MM-DD), got {v!r}"
+            )
         return v
 
 
