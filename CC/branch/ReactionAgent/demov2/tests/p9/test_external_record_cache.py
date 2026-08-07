@@ -48,6 +48,10 @@ def make_record(**over) -> ExternalEvidenceRecord:
         provenance=make_provenance(),
         content="reaction A -> B proceeds with 90% yield",
     )
+    # route content_hash into provenance (it is a provenance field)
+    if "content_hash" in over:
+        ch = over.pop("content_hash")
+        base["provenance"] = make_provenance(content_hash=ch)
     base.update(over)
     return ExternalEvidenceRecord(**base)
 
