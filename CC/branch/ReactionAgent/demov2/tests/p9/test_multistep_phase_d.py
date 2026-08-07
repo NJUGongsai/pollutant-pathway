@@ -73,6 +73,29 @@ def make_edge(
     )
 
 
+def make_validated_edge(
+    g: MultiStepGraph,
+    from_smiles: str = MOL_A,
+    to_smiles: str = MOL_B,
+    edge_id: str = "edge-1",
+    lane: str = "strict",
+) -> MultiStepEdge:
+    """Create a validator-issued edge and add it to the graph. Returns the edge."""
+    validator = MockEdgeValidator(valid_edges=[(from_smiles, to_smiles)], lane=lane)
+    result = validator.validate(from_smiles)[0]
+    edge = MultiStepEdge(
+        edge_id=edge_id,
+        from_node=from_smiles,
+        to_node=to_smiles,
+        lane=result.lane,
+        evidence_ids=result.evidence_ids,
+        ledger_ids=result.ledger_ids,
+        one_step_contract_hash=result.one_step_contract_hash,
+    )
+    g.add_edge(edge, validator=validator)
+    return edge
+
+
 # ===========================================================================
 # 1. Canonical molecule nodes + validated reaction edges
 # ===========================================================================
@@ -102,7 +125,7 @@ def test_graph_add_edge() -> None:
     g = MultiStepGraph()
     g.add_node(MOL_A)
     g.add_node(MOL_B)
-    e = g.add_edge(make_edge())
+    e = make_validated_edge(g)
     assert e.to_node == MOL_B
 
 
@@ -111,12 +134,6 @@ def test_same_canonical_smiles_same_node() -> None:
     n1 = g.add_node(MOL_A)
     n2 = g.add_node(MOL_A)
     assert n1.node_id == n2.node_id
-
-
-def test_edge_validation_contract() -> None:
-    """Each edge must satisfy the one-step contract via validator."""
-    edge = make_edge()
-    assert edge.one_step_contract_hash != ""
 
 
 # ===========================================================================
@@ -144,10 +161,8 @@ def test_edge_lane_isolated() -> None:
     g = MultiStepGraph()
     g.add_node(MOL_A)
     g.add_node(MOL_B)
-    strict_edge = make_edge(edge_id="e1", lane="strict")
-    gen_edge = make_edge(edge_id="e2", lane="generalized", evidence_id="ev-2")
-    g.add_edge(strict_edge)
-    g.add_edge(gen_edge)
+    make_validated_edge(g, edge_id="e1", lane="strict")
+    make_validated_edge(g, edge_id="e2", lane="generalized")
     assert len(g.edges) == 2
 
 
@@ -161,7 +176,7 @@ def test_cycle_detection() -> None:
     g = MultiStepGraph()
     g.add_node(MOL_A)
     g.add_node(MOL_B)
-    g.add_edge(make_edge(edge_id="e1", from_smiles=MOL_A, to_smiles=MOL_B))
+    make_validated_edge(g, edge_id="e1", from_smiles=MOL_A, to_smiles=MOL_B)
     assert g.has_cycle([MOL_A, MOL_B, MOL_A]) is True
 
 
@@ -178,7 +193,7 @@ def test_beam_search_basic() -> None:
     g = MultiStepGraph()
     g.add_node(MOL_A)
     g.add_node(MOL_B)
-    g.add_edge(make_edge())
+    make_validated_edge(g)
     validator = MockEdgeValidator(valid_edges=[(MOL_A, MOL_B)])
     search = MultiStepSearch(graph=g, validator=validator)
     paths = search.search(start=MOL_A, config=SearchConfig(max_depth=2))
@@ -192,9 +207,9 @@ def test_beam_search_depth_limit() -> None:
     g = MultiStepGraph()
     for smi in [MOL_A, MOL_B, MOL_C, MOL_D]:
         g.add_node(smi)
-    g.add_edge(make_edge(edge_id="e1", from_smiles=MOL_A, to_smiles=MOL_B))
-    g.add_edge(make_edge(edge_id="e2", from_smiles=MOL_B, to_smiles=MOL_C, evidence_id="ev-2"))
-    g.add_edge(make_edge(edge_id="e3", from_smiles=MOL_C, to_smiles=MOL_D, evidence_id="ev-3"))
+    make_validated_edge(g, edge_id="e1", from_smiles=MOL_A, to_smiles=MOL_B)
+    make_validated_edge(g, edge_id="e2", from_smiles=MOL_B, to_smiles=MOL_C)
+    make_validated_edge(g, edge_id="e3", from_smiles=MOL_C, to_smiles=MOL_D)
     validator = MockEdgeTransformer(g)
     search = MultiStepSearch(graph=g, validator=validator)
     paths = search.search(start=MOL_A, config=SearchConfig(max_depth=2))
@@ -207,8 +222,8 @@ def test_beam_search_budget_respected() -> None:
     g = MultiStepGraph()
     for smi in [MOL_A, MOL_B, MOL_C]:
         g.add_node(smi)
-    g.add_edge(make_edge(edge_id="e1", from_smiles=MOL_A, to_smiles=MOL_B))
-    g.add_edge(make_edge(edge_id="e2", from_smiles=MOL_B, to_smiles=MOL_C, evidence_id="ev-2"))
+    make_validated_edge(g, edge_id="e1", from_smiles=MOL_A, to_smiles=MOL_B)
+    make_validated_edge(g, edge_id="e2", from_smiles=MOL_B, to_smiles=MOL_C)
     validator = MockEdgeTransformer(g)
     search = MultiStepSearch(graph=g, validator=validator)
     paths = search.search(
@@ -283,9 +298,9 @@ def test_stop_rule_max_paths() -> None:
     g = MultiStepGraph()
     for smi in [MOL_A, MOL_B, MOL_C, MOL_D]:
         g.add_node(smi)
-    g.add_edge(make_edge(edge_id="e1", from_smiles=MOL_A, to_smiles=MOL_B))
-    g.add_edge(make_edge(edge_id="e2", from_smiles=MOL_A, to_smiles=MOL_C, evidence_id="ev-2"))
-    g.add_edge(make_edge(edge_id="e3", from_smiles=MOL_A, to_smiles=MOL_D, evidence_id="ev-3"))
+    make_validated_edge(g, edge_id="e1", from_smiles=MOL_A, to_smiles=MOL_B)
+    make_validated_edge(g, edge_id="e2", from_smiles=MOL_A, to_smiles=MOL_C)
+    make_validated_edge(g, edge_id="e3", from_smiles=MOL_A, to_smiles=MOL_D)
     validator = MockEdgeTransformer(g)
     search = MultiStepSearch(graph=g, validator=validator)
     paths = search.search(
@@ -356,6 +371,7 @@ class MockEdgeTransformer:
                     lane=edge.lane,
                     evidence_ids=edge.evidence_ids,
                     ledger_ids=edge.ledger_ids,
+                    one_step_contract_hash=edge.one_step_contract_hash,
                     cost=1.0,
                     risk=0.0,
                 ))

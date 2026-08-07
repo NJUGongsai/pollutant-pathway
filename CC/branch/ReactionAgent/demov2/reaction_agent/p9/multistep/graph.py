@@ -70,35 +70,34 @@ class MultiStepGraph:
             )
         return self._nodes[canonical]
 
-    def add_edge(self, edge: MultiStepEdge, validator: EdgeValidator | None = None) -> MultiStepEdge:
+    def add_edge(self, edge: MultiStepEdge, validator: EdgeValidator) -> MultiStepEdge:
         """Add a validated reaction edge. Nodes must already exist.
 
-        If a validator is provided, the edge's ``one_step_contract_hash`` is
-        checked against the validator's output for the same endpoints. A forged
-        or non-validator-issued hash is rejected (fail-closed, P9D-R1-02).
+        The edge's ``one_step_contract_hash`` is verified against the
+        validator's output for the same endpoints. A forged or
+        non-validator-issued hash is rejected (fail-closed, P9D-R1-02).
         """
         if edge.from_node not in self._nodes:
             raise ValueError(f"from_node {edge.from_node} not in graph")
         if edge.to_node not in self._nodes:
             raise ValueError(f"to_node {edge.to_node} not in graph")
 
-        if validator is not None:
-            # Verify the contract hash against the validator's output
-            results = validator.validate(edge.from_node)
-            for result in results:
-                if result.to_node == edge.to_node:
-                    if result.one_step_contract_hash != edge.one_step_contract_hash:
-                        raise ValueError(
-                            f"contract hash mismatch for edge {edge.edge_id}: "
-                            f"validator emits {result.one_step_contract_hash[:12]}..., "
-                            f"edge has {edge.one_step_contract_hash[:12]}..."
-                        )
-                    break
-            else:
-                raise ValueError(
-                    f"no validator result for edge {edge.edge_id}: "
-                    f"{edge.from_node} -> {edge.to_node}"
-                )
+        # Verify the contract hash against the validator's output
+        results = validator.validate(edge.from_node)
+        for result in results:
+            if result.to_node == edge.to_node:
+                if result.one_step_contract_hash != edge.one_step_contract_hash:
+                    raise ValueError(
+                        f"contract hash mismatch for edge {edge.edge_id}: "
+                        f"validator emits {result.one_step_contract_hash[:12]}..., "
+                        f"edge has {edge.one_step_contract_hash[:12]}..."
+                    )
+                break
+        else:
+            raise ValueError(
+                f"no validator result for edge {edge.edge_id}: "
+                f"{edge.from_node} -> {edge.to_node}"
+            )
 
         self._edges.append(edge)
         self._outgoing[edge.from_node].append(edge)

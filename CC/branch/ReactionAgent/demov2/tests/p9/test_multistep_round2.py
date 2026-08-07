@@ -52,6 +52,29 @@ def make_edge(**over) -> MultiStepEdge:
     return MultiStepEdge(**base)
 
 
+def make_validated_edge(
+    g: MultiStepGraph,
+    from_smiles: str = MOL_A,
+    to_smiles: str = MOL_B,
+    edge_id: str = "edge-1",
+    lane: str = "strict",
+) -> MultiStepEdge:
+    """Create a validator-issued edge and add it to the graph. Returns the edge."""
+    validator = MockEdgeValidator(valid_edges=[(from_smiles, to_smiles)], lane=lane)
+    result = validator.validate(from_smiles)[0]
+    edge = MultiStepEdge(
+        edge_id=edge_id,
+        from_node=from_smiles,
+        to_node=to_smiles,
+        lane=result.lane,
+        evidence_ids=result.evidence_ids,
+        ledger_ids=result.ledger_ids,
+        one_step_contract_hash=result.one_step_contract_hash,
+    )
+    g.add_edge(edge, validator=validator)
+    return edge
+
+
 # ===========================================================================
 # P9D-R1-01: External evidence intake placebo (P1)
 # ===========================================================================
@@ -62,7 +85,7 @@ def test_uningested_evidence_id_rejected_by_search() -> None:
     g = MultiStepGraph()
     g.add_node(MOL_A)
     g.add_node(MOL_B)
-    g.add_edge(make_edge())
+    make_validated_edge(g)
     validator = MockEdgeValidator(valid_edges=[(MOL_A, MOL_B)])
     cache = EvidenceCache()  # empty cache — nothing ingested
     search = MultiStepSearch(graph=g, validator=validator)
@@ -80,7 +103,7 @@ def test_ingested_evidence_id_accepted_by_search() -> None:
     g = MultiStepGraph()
     g.add_node(MOL_A)
     g.add_node(MOL_B)
-    g.add_edge(make_edge())
+    make_validated_edge(g)
     validator = MockEdgeValidator(valid_edges=[(MOL_A, MOL_B)])
     cache = EvidenceCache()
     # Pretend this evidence was ingested through IngestPipeline
