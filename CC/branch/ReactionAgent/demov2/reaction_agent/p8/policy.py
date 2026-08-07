@@ -82,7 +82,7 @@ class RelaxationRule(StrictModel):
     rule_id: NonEmptyStr
     description: NonEmptyStr
     applies_to: list[StrictCondition]
-    distance_weight: float = Field(ge=0.0)
+    distance_weight: float = Field(gt=0.0)
 
     @field_validator("applies_to", mode="before")
     @classmethod
@@ -179,6 +179,15 @@ class RelaxationPolicy(StrictModel):
             raise ValueError(
                 f"content_hash mismatch: expected {recomputed}, got {self.content_hash}"
             )
+        return self
+
+    @model_validator(mode="after")
+    def _unique_rule_ids(self) -> "RelaxationPolicy":
+        """rule_id must be unique within a policy (R1-03) — no silent collapse."""
+        ids = [r.rule_id for r in self.allowed_relaxations]
+        dupes = sorted({i for i in ids if ids.count(i) > 1})
+        if dupes:
+            raise ValueError(f"duplicate relaxation rule_id(s): {dupes}")
         return self
 
     # -- construction helper (computes the content hash) --

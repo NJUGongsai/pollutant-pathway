@@ -28,6 +28,7 @@ from reaction_agent.p8.schemas import (
     GeneralizedHypothesis,
     GeneralizedPolicyContext,
     GeneralizedValidation,
+    GeneralizedValidationError,
     SourceTransformRef,
     build_generalized_hypothesis,
     validate_generalized_hypothesis,
@@ -48,6 +49,7 @@ __all__ = [
     # schemas (T2)
     "SourceTransformRef",
     "GeneralizedValidation",
+    "GeneralizedValidationError",
     "GeneralizedHypothesis",
     "GeneralizedPolicyContext",
     "validate_generalized_hypothesis",
