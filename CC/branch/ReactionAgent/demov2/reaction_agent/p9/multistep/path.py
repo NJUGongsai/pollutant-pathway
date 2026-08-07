@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 from reaction_agent.hashing import canonical_hash
-from reaction_agent.p9.multistep.schemas import MultiStepPath
+from reaction_agent.p9.multistep.schemas import MultiStepPath, PathUncertainty
 
 
 def canonical_path_signature(path: MultiStepPath) -> str:
@@ -34,6 +34,7 @@ class PathDedup:
         dedup.add(path1)
         dedup.add(path2)
         count = dedup.alternative_paths(target_mol)  # number of distinct paths
+        uncertainty = dedup.uncertainty(target_mol)  # PathUncertainty object
     """
 
     def __init__(self) -> None:
@@ -55,6 +56,13 @@ class PathDedup:
     def alternative_paths(self, target_molecule: str) -> int:
         """Number of distinct paths reaching the target molecule."""
         return self._target_counts.get(target_molecule, 0)
+
+    def uncertainty(self, target_molecule: str) -> PathUncertainty:
+        """Get a PathUncertainty object for a target molecule."""
+        return PathUncertainty(
+            target_molecule=target_molecule,
+            alternative_paths=self.alternative_paths(target_molecule),
+        )
 
     def __contains__(self, path: MultiStepPath) -> bool:
         sig = canonical_path_signature(path)

@@ -9,8 +9,6 @@ Phase D checklist:
 """
 from __future__ import annotations
 
-import pytest
-
 from reaction_agent.p9.external.schemas import (
     ExternalEvidenceRecord,
     EvidenceProvenance,
@@ -25,7 +23,6 @@ from reaction_agent.p9.multistep.schemas import (
     MultiStepPath,
     SearchConfig,
     Budget,
-    PathUncertainty,
     StopRule,
 )
 from reaction_agent.p9.multistep.graph import MultiStepGraph
@@ -47,10 +44,10 @@ from reaction_agent.p9.multistep.path import (
 
 MOL_A = "CCO"        # ethanol
 MOL_B = "CC(=O)O"    # acetic acid
-MOL_C = "CC(=O)OC"   # methyl acetate
-MOL_D = "CC(=O)OCC"  # ethyl acetate
-MOL_E = "CCOC(=O)C"  # ethyl acetate (same as D — alternate canonicalization)
-MOL_F = "CC(=O)OCCC" # propyl acetate
+MOL_C = "COC(C)=O"   # methyl acetate (RDKit canonical)
+MOL_D = "CCOC(C)=O"  # ethyl acetate (RDKit canonical)
+MOL_E = "CCOC(C)=O"  # ethyl acetate (same as D — RDKit canonicalized)
+MOL_F = "CCCOC(C)=O" # propyl acetate (RDKit canonical)
 
 
 def make_node(canonical_smiles: str) -> MultiStepNode:

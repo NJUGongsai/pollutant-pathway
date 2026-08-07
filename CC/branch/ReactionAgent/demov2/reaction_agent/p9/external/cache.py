@@ -6,7 +6,7 @@ hash is a distinct entry — never a silent overwrite. Unknown keys return None.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass
 
 from reaction_agent.p9.external.schemas import ExternalEvidenceRecord
 
@@ -52,6 +52,10 @@ class EvidenceCache:
 
     def get(self, key: CacheKey) -> ExternalEvidenceRecord | None:
         return self._entries.get(key)
+
+    def has_evidence_id(self, evidence_id: str) -> bool:
+        """Check if an evidence_id exists in the cache (P9D-R1-01)."""
+        return any(r.evidence_id == evidence_id for r in self._entries.values())
 
     def __len__(self) -> int:
         return len(self._entries)

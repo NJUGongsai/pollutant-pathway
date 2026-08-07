@@ -13,13 +13,10 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from reaction_agent.hashing import canonical_hash
 from reaction_agent.p9.multistep.schemas import (
-    MultiStepNode,
     MultiStepEdge,
     MultiStepPath,
     SearchConfig,
-    Budget,
     StopRule,
     Step,
 )
@@ -30,15 +27,15 @@ from reaction_agent.p9.multistep.validator import (
 )
 from reaction_agent.p9.multistep.search import MultiStepSearch
 from reaction_agent.p9.multistep.path import PathDedup
-from reaction_agent.p9.external.cache import EvidenceCache, CacheKey
+from reaction_agent.p9.external.cache import EvidenceCache
 from reaction_agent.p9.external.schemas import ExternalEvidenceRecord, EvidenceProvenance
 
 # Fixtures
 MOL_A = "CCO"        # ethanol
 MOL_B = "CC(=O)O"    # acetic acid
-MOL_C = "CC(=O)OC"   # methyl acetate
-MOL_D = "CC(=O)OCC"  # ethyl acetate
-MOL_E = "CCOC(=O)C"  # ethyl acetate (same molecule as D, different SMILES)
+MOL_C = "COC(C)=O"   # methyl acetate (RDKit canonical)
+MOL_D = "CCOC(C)=O"  # ethyl acetate (RDKit canonical)
+MOL_E = "CCOC(C)=O"  # ethyl acetate (same molecule as D, RDKit canonicalized)
 
 
 def make_edge(**over) -> MultiStepEdge:
@@ -69,7 +66,7 @@ def test_uningested_evidence_id_rejected_by_search() -> None:
     validator = MockEdgeValidator(valid_edges=[(MOL_A, MOL_B)])
     cache = EvidenceCache()  # empty cache — nothing ingested
     search = MultiStepSearch(graph=g, validator=validator)
-    with pytest.raises(ValueError, match="not ingested"):
+    with pytest.raises(ValueError, match="has not been ingested"):
         search.search(
             start=MOL_A,
             config=SearchConfig(max_depth=1),

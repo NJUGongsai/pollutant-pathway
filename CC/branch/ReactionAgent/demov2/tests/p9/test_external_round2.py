@@ -12,7 +12,6 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from reaction_agent.hashing import canonical_hash
 from reaction_agent.p9.external.schemas import (
     ExternalEvidenceSource,
     ExternalEvidenceRecord,
@@ -24,14 +23,10 @@ from reaction_agent.p9.external.allowlist import (
 )
 from reaction_agent.p9.external.cache import CacheKey, EvidenceCache
 from reaction_agent.p9.external.injection import (
-    InjectionScanResult,
     scan_content,
-    assert_content_inert,
 )
 from reaction_agent.p9.external.child_run import (
-    ChildAugmentation,
     ExternalEvidenceAugmenter,
-    FrozenParentError,
 )
 from reaction_agent.p9.external.ingest import (
     IngestPipeline,
@@ -103,7 +98,7 @@ def test_cache_put_if_absent_preserves_original() -> None:
             content_hash="abc123",
         ),
     )
-    result = cache.put(refreshed)
+    cache.put(refreshed)
 
     # Should return the existing record, not overwrite
     got = cache.get(CacheKey(source_id="chemrxiv-2024", content_hash="abc123"))
@@ -116,7 +111,7 @@ def test_cache_put_if_absent_new_key_accepts() -> None:
     """Put-if-absent: a brand-new key is accepted."""
     cache = EvidenceCache()
     rec = make_record()
-    result = cache.put(rec)
+    cache.put(rec)
     got = cache.get(CacheKey(source_id="chemrxiv-2024", content_hash="abc123"))
     assert got is not None
     assert got.evidence_id == "ext-1"

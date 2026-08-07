@@ -1,9 +1,10 @@
 """P9-T4: Multi-step candidate graph schemas (final_plan §12.4).
 
 Data model for the multi-step candidate graph:
-- MultiStepNode: a canonical molecule node (SMILES identity)
+- MultiStepNode: a canonical molecule node (SMILES identity, RDKit-normalized)
 - MultiStepEdge: a validated one-step reaction edge (from → to, with evidence/lane/ledger)
-- MultiStepPath: a path through the graph (sequence of nodes + edges)
+- Step: per-edge lineage in a path (edge_id + lane + evidence/ledger + contract hash)
+- MultiStepPath: a path through the graph (sequence of nodes + steps)
 - SearchConfig, Budget, StopRule: search configuration
 - PathUncertainty: uncertainty tracking per target molecule
 
@@ -15,7 +16,7 @@ from typing import Literal
 
 from pydantic import Field, field_validator, model_validator
 
-from reaction_agent.hashing import canonical_hash, stable_id
+from reaction_agent.hashing import stable_id
 from reaction_agent.schemas.common import StrictModel, NonEmptyStr
 
 
@@ -23,8 +24,8 @@ class MultiStepNode(StrictModel):
     """A canonical molecule node in the multi-step graph.
 
     ``node_id`` is content-addressed from the canonical SMILES, so the same
-    molecule always maps to the same node (canonical identity). If not
-    provided explicitly, it is computed from ``canonical_smiles``.
+    molecule always maps to the same node. If not provided explicitly, it is
+    computed from ``canonical_smiles``.
     """
 
     node_id: NonEmptyStr = ""
@@ -47,6 +48,22 @@ class MultiStepNode(StrictModel):
         if not v:
             raise ValueError("node_id must not be empty")
         return v
+
+
+class Step(StrictModel):
+    """Per-edge lineage in a multi-step path.
+
+    Carries the full evidence, lane, dual-ledger, and contract provenance
+    for a single edge traversal, enabling auditability of each step.
+    """
+
+    edge_id: NonEmptyStr
+    from_node: NonEmptyStr
+    to_node: NonEmptyStr
+    lane: NonEmptyStr
+    evidence_ids: list[NonEmptyStr]
+    ledger_ids: list[NonEmptyStr]
+    one_step_contract_hash: NonEmptyStr
 
 
 class MultiStepEdge(StrictModel):
@@ -74,11 +91,13 @@ class MultiStepPath(StrictModel):
 
     ``nodes`` is the ordered sequence of canonical SMILES visited.
     ``edge_ids`` is the ordered sequence of edges traversed (same length - 1).
+    ``steps`` is the per-edge lineage (Step objects with full evidence/lane/ledger).
     ``total_cost`` and ``total_risk`` are accumulated along the path.
     """
 
     nodes: list[NonEmptyStr]
     edge_ids: list[NonEmptyStr]
+    steps: list[Step] = []
     total_cost: float = Field(ge=0.0)
     total_risk: float = Field(ge=0.0, le=1.0)
 
@@ -107,9 +126,13 @@ class Budget(StrictModel):
 
 
 class StopRule(StrictModel):
-    """A single stop rule: type + value."""
+    """A single stop rule: type + value.
 
-    type: NonEmptyStr
+    ``type`` is a controlled vocabulary: only "max_paths" is supported.
+    Unknown types are rejected at construction (fail-closed, P9D-R1-05).
+    """
+
+    type: Literal["max_paths"]
     value: float = 0.0
 
 

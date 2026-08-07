@@ -5,10 +5,10 @@ Beam search with cycle detection, budgets, and stop rules.
 Path dedup and uncertainty tracking.
 
 Public API:
-- schemas:   MultiStepNode, MultiStepEdge, MultiStepPath, SearchConfig,
+- schemas:   MultiStepNode, MultiStepEdge, Step, MultiStepPath, SearchConfig,
              Budget, StopRule, PathUncertainty
 - graph:     MultiStepGraph
-- validator: EdgeValidationResult, MockEdgeValidator
+- validator: EdgeValidator, EdgeValidationResult, MockEdgeValidator
 - search:    MultiStepSearch
 - path:      PathDedup, canonical_path_signature
 """
@@ -17,6 +17,7 @@ from __future__ import annotations
 from reaction_agent.p9.multistep.schemas import (
     MultiStepNode,
     MultiStepEdge,
+    Step,
     MultiStepPath,
     SearchConfig,
     Budget,
@@ -25,6 +26,7 @@ from reaction_agent.p9.multistep.schemas import (
 )
 from reaction_agent.p9.multistep.graph import MultiStepGraph
 from reaction_agent.p9.multistep.validator import (
+    EdgeValidator,
     EdgeValidationResult,
     MockEdgeValidator,
 )
@@ -37,12 +39,14 @@ from reaction_agent.p9.multistep.path import (
 __all__ = [
     "MultiStepNode",
     "MultiStepEdge",
+    "Step",
     "MultiStepPath",
     "SearchConfig",
     "Budget",
     "StopRule",
     "PathUncertainty",
     "MultiStepGraph",
+    "EdgeValidator",
     "EdgeValidationResult",
     "MockEdgeValidator",
     "MultiStepSearch",

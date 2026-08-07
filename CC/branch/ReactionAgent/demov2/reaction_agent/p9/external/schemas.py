@@ -20,7 +20,7 @@ import re
 from datetime import datetime
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import field_validator
 
 from reaction_agent.schemas.common import StrictModel, NonEmptyStr
 

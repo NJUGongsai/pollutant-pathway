@@ -15,11 +15,11 @@ without passing all applicable checks. Pipeline consumers receive a typed
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass
 
 from reaction_agent.p9.external.schemas import ExternalEvidenceRecord
 from reaction_agent.p9.external.allowlist import SourceAllowlist
-from reaction_agent.p9.external.cache import EvidenceCache, CacheKey
+from reaction_agent.p9.external.cache import EvidenceCache
 from reaction_agent.p9.external.conflict import (
     ConflictResolution,
     resolve_record_conflict,
