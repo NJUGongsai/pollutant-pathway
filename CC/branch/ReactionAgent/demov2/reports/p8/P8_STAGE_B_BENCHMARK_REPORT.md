@@ -4,7 +4,7 @@
 
 - Lane: `generalized`
 - Output semantics: `exploratory_non_production`
-- Policy: `p8-generalized-relaxation` v`1.0.0` (content_hash `a375708f28a1…`)
+- Policy: `p8-generalized-relaxation` v`1.0.0` (content_hash `540b875f8508…`)
 
 ## Population
 

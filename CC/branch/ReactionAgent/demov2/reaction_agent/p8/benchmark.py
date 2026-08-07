@@ -32,8 +32,13 @@ from typing import Literal
 from pydantic import Field, model_validator
 
 from reaction_agent.schemas.common import NonEmptyStr, StrictModel
-from reaction_agent.p8.policy import RelaxationPolicy
-from reaction_agent.p8.schemas import GeneralizedHypothesis
+from reaction_agent.p8.policy import RelaxationPolicy, StrictCondition, load_policy
+from reaction_agent.p8.schemas import (
+    GeneralizedHypothesis,
+    GeneralizedPolicyContext,
+    SourceTransformRef,
+    build_generalized_hypothesis,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -420,6 +425,88 @@ def write_benchmark_report(
     md_path.write_text("\n".join(lines), encoding="utf-8")
 
 
+# ---------------------------------------------------------------------------
+# Committed generation entry — deterministic, loads the FROZEN artifact (SB-R1-02)
+# ---------------------------------------------------------------------------
+
+
+def generate_stage_b_demo_report(
+    md_path: Path | str,
+    json_path: Path | str,
+    *,
+    policy_path: Path | str,
+) -> None:
+    """Deterministically regenerate the Stage B demo benchmark report.
+
+    Loads the FROZEN relaxation policy artifact via ``load_policy`` — NOT an
+    in-memory ``RelaxationPolicy.create()`` twin — so the report's
+    ``policy.content_hash`` pins the frozen artifact (SB-R1-01). The frozen
+    artifact is the single source of truth; two different policy bodies must
+    never share ``policy_id@version``.
+
+    The demo population is a fixed, documented synthetic generalized-lane run:
+    truth={cand-A,B,C,D}; strict baseline={cand-A} (missed B,C,D); five
+    generalized hypotheses (ranked order) — g1/g2/g4 recover B/C/D, g3 is a
+    false addition, g5 is an OOD hypothesis (cites a free-text relaxation the
+    lane generated but the T3 consumption gate would reject). The benchmark
+    measures generation output pre-gate, so OOD hypotheses are counted by the
+    OOD ratio even though T3 re-runs the chain and rejects them at consumption.
+
+    Regeneration (run from the demov2 workdir)::
+
+        python -c "from reaction_agent.p8.benchmark import generate_stage_b_demo_report as g; g('reports/p8/P8_STAGE_B_BENCHMARK_REPORT.md', 'reports/p8/p8_stage_b_benchmark.json', policy_path='reports/p8/relaxation_policy_p8-generalized-relaxation_v1.0.0.json')"
+    """
+    policy = load_policy(policy_path)  # frozen artifact — no in-memory twin
+    context = GeneralizedPolicyContext(
+        policies={policy.policy_id: policy},
+        transform_lineage={
+            "transform-a": ["lin1", "lin2"],
+            "transform-b": ["lin3"],
+            "transform-c": ["lin4", "lin5"],
+        },
+    )
+
+    def _build(hid: str, rule: str, failed: StrictCondition, tform: str, lin: str) -> GeneralizedHypothesis:
+        return build_generalized_hypothesis(
+            hypothesis_id=hid,
+            policy=policy,
+            allowed_relaxation_ids=[rule],
+            failed_strict_conditions=[failed],
+            source_transforms=[
+                SourceTransformRef(transform_id=tform, source_lineage_ids=[lin])
+            ],
+            context=context,
+        )
+
+    # ranked generalized-lane generation output (ranked order):
+    g1 = _build("g1", "relax_ambiguity_margin", StrictCondition.no_critical_ambiguity, "transform-a", "lin1")  # d=0.2 -> cand-B (recovered)
+    g2 = _build("g2", "relax_donor_site_precision", StrictCondition.donor_site_definite, "transform-b", "lin3")  # d=0.3 -> cand-C (recovered)
+    g3 = _build("g3", "relax_precondition_completeness", StrictCondition.preconditions_complete, "transform-c", "lin4")  # d=0.5 -> cand-X (false addition)
+    g4 = _build("g4", "relax_donor_site_precision", StrictCondition.donor_site_definite, "transform-b", "lin3")  # d=0.3 -> cand-D (recovered)
+    # g5: OOD hypothesis the lane generated (free-text relaxation) — T3 would
+    # reject it at the consumption gate; the benchmark counts it as OOD.
+    g5 = _build(
+        "g5", "relax_ambiguity_margin", StrictCondition.no_critical_ambiguity, "transform-a", "lin1"
+    ).model_copy(update={"allowed_relaxation_ids": ["free_text_relaxation"]})  # d=0.2 -> cand-Y (false addition, OOD)
+
+    inp = GeneralizedBenchmarkInput(
+        truth_ids=frozenset({"cand-A", "cand-B", "cand-C", "cand-D"}),
+        strict_baseline_ids=frozenset({"cand-A"}),
+        hypotheses=[g1, g2, g3, g4, g5],
+        predicted_id_by_hypothesis={
+            "g1": "cand-B",
+            "g2": "cand-C",
+            "g3": "cand-X",
+            "g4": "cand-D",
+            "g5": "cand-Y",
+        },
+        policy=policy,
+        cost=CostReport(provider_calls=24, token_count=8200, wall_clock_seconds=52.3),
+    )
+    metrics = compute_benchmark(inp)
+    write_benchmark_report(metrics, inp, md_path, json_path)
+
+
 __all__ = [
     "DISTANCE_BUCKET_EDGES",
     "CostReport",
@@ -430,4 +517,5 @@ __all__ = [
     "GeneralizedBenchmarkMetrics",
     "compute_benchmark",
     "write_benchmark_report",
+    "generate_stage_b_demo_report",
 ]

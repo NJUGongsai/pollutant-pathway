@@ -212,8 +212,9 @@ class TestOutputIdentityNoStrictMasquerade:
         )
         assert a.lane == "generalized"
         assert not isinstance(a, StrictAbstention)
-        # strict Abstention uses reason_code: ScientificAbstentionReason (different vocab)
-        assert "stage" not in set(GeneralizedRankAbstention.model_fields) or True
+        # strict Abstention carries a `stage` field; the generalized abstention does not
+        assert "stage" not in set(GeneralizedRankAbstention.model_fields)
+        assert "lane" in set(GeneralizedRankAbstention.model_fields)
 
     def test_abstention_reason_code_is_controlled_vocab(self):
         # arbitrary string is rejected — user semantics clear
