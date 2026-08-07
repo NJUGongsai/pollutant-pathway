@@ -159,7 +159,7 @@ class TestOOD:
 
 
 class TestArtifactIO:
-    def test_save_load_roundtrip(tmp_path: Path):
+    def test_save_load_roundtrip(self, tmp_path: Path):
         p = make_policy()
         path = tmp_path / "policy.json"
         save_policy(p, path)
@@ -167,7 +167,7 @@ class TestArtifactIO:
         assert loaded == p
         assert loaded.content_hash == p.content_hash
 
-    def test_load_detects_tamper(tmp_path: Path):
+    def test_load_detects_tamper(self, tmp_path: Path):
         p = make_policy()
         path = tmp_path / "policy.json"
         save_policy(p, path)

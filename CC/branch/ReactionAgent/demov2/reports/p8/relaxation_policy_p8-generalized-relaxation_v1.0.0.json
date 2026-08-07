@@ -1,0 +1,42 @@
+{
+  "policy_id": "p8-generalized-relaxation",
+  "version": "1.0.0",
+  "description": "P8 generalized lane relaxation policy: frozen registered vocabulary for relaxing non-critical strict conditions in exploratory candidates.",
+  "allowed_relaxations": [
+    {
+      "rule_id": "relax_donor_site_precision",
+      "description": "allow reduced donor-site precision",
+      "applies_to": [
+        "donor_site_definite"
+      ],
+      "distance_weight": 0.3
+    },
+    {
+      "rule_id": "relax_precondition_completeness",
+      "description": "allow relaxed precondition completeness",
+      "applies_to": [
+        "preconditions_complete"
+      ],
+      "distance_weight": 0.5
+    },
+    {
+      "rule_id": "relax_ambiguity_margin",
+      "description": "allow a wider ambiguity margin",
+      "applies_to": [
+        "no_critical_ambiguity"
+      ],
+      "distance_weight": 0.2
+    }
+  ],
+  "forbidden_hard_constraints": [
+    "changed_heavy_atom_conservation",
+    "graph_edit_replayable",
+    "trusted_mapped_lineage"
+  ],
+  "ood": {
+    "declaration": "A generalized hypothesis is out-of-distribution when it cites a relaxation outside this policy's registered vocabulary; such a hypothesis is rejected (fail-closed).",
+    "boundary": "outside_registered_vocabulary",
+    "behavior": "reject"
+  },
+  "content_hash": "540b875f8508d3578319199fcd2ef63a9d92260651329cbed7cc0888b865e7b3"
+}
