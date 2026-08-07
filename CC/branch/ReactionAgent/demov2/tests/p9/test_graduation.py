@@ -27,7 +27,9 @@ from reaction_agent.schemas.errors import ContractViolation
 from reaction_agent.p9.graduation import (
     ADRRecord,
     BlockerReasonCode,
+    CoveragePoint,
     CostRecord,
+    DEFAULT_APPROVER_REGISTRY,
     DEFAULT_GRADUATION_THRESHOLDS,
     GraduationBlockedError,
     GraduationOutcome,
@@ -47,6 +49,9 @@ from reaction_agent.p9.graduation import (
     build_demo_graduation_package,
     build_valid_graduation_package,
     evaluate_graduation,
+    package_evidence_hash,
+    rebuild_graduation_package,
+    verify_production_admission,
 )
 
 # ---------------------------------------------------------------------------
@@ -457,6 +462,14 @@ def test_admit_to_production_ranking_accepts_graduated_outcome():
     assert admission.graduated_package_hash == pkg.content_hash
     assert admission.human_approval_id
     assert admission.adr_id
+    assert admission.admission_attestation  # R1-01: recomputable gate attestation
+
+
+def test_verify_production_admission_accepts_honest_admission():
+    pkg = build_valid_graduation_package()
+    outcome = evaluate_graduation(pkg)
+    admission = admit_to_production_ranking(outcome, pkg)
+    verify_production_admission(admission, pkg)  # no raise — honest attestation
 
 
 def test_production_ranking_admission_structurally_distinct_from_strict_candidate():
@@ -519,3 +532,291 @@ def test_gate_respects_custom_thresholds():
     outcome = evaluate_graduation(pkg, thresholds=strict)
     assert outcome.status is GraduationStatus.blocked
     assert BlockerReasonCode.repeated_run_agreement_below_threshold in outcome.blockers
+
+
+# ===========================================================================
+# Round 2 remediation (kimi Phase-C Round-1 findings P9C-R1-01..07)
+#
+# Sole-arbiter self-consistency: the gate re-derives status from evidence at
+# EVERY consumption point (evaluate, admit, verify) — it never trusts an
+# embedded hash, a passed outcome, a self-declared approval token, or an
+# allowlist id match. Production admission is gated by a recomputable
+# attestation that a directly-constructed admission cannot forge.
+# ===========================================================================
+
+
+# ---------------------------------------------------------------------------
+# R1-01 (P0): admit reruns the gate; admission carries a recomputable
+# attestation; verify rejects directly-constructed / forged admissions.
+# ---------------------------------------------------------------------------
+
+
+def test_admit_reruns_gate_rejects_forged_graduated_outcome():
+    # forge an outcome that claims "graduated" for a BLOCKED (demo) package
+    pkg = build_demo_graduation_package()  # human_approval=None -> blocked
+    forged = GraduationOutcome(
+        status=GraduationStatus.graduated,  # LIE
+        blockers=[],
+        package_content_hash=pkg.content_hash,
+    )
+    # admit must re-run evaluate_graduation and refuse the forged outcome
+    with pytest.raises(GraduationBlockedError):
+        admit_to_production_ranking(forged, pkg)
+
+
+def test_admit_reruns_gate_rejects_outcome_hash_mismatch():
+    # an honest graduated outcome but bound to a DIFFERENT package hash
+    valid = build_valid_graduation_package()
+    honest = evaluate_graduation(valid)
+    other = build_demo_graduation_package()
+    with pytest.raises(GraduationBlockedError):
+        admit_to_production_ranking(honest, other)  # outcome != package
+
+
+def test_verify_rejects_directly_constructed_admission():
+    # a ProductionRankingAdmission constructed by hand (not via admit) cannot
+    # forge a valid attestation -> verify re-derives and refuses
+    pkg = build_valid_graduation_package()
+    forged_admission = ProductionRankingAdmission(
+        lane="agent_proposed",
+        admitted=True,
+        graduated_package_hash=pkg.content_hash,
+        human_approval_id="human_cc",
+        adr_id=pkg.adr.adr_id,
+        admission_attestation="i-am-not-an-attestation",
+    )
+    with pytest.raises(GraduationBlockedError):
+        verify_production_admission(forged_admission, pkg)
+
+
+def test_verify_rejects_admission_pointing_at_blocked_package():
+    pkg = build_demo_graduation_package()  # blocked
+    # even with a "correct-looking" attestation, verify re-runs the gate and
+    # finds the package blocked -> refuse
+    admission = ProductionRankingAdmission(
+        lane="agent_proposed",
+        admitted=True,
+        graduated_package_hash=pkg.content_hash,
+        human_approval_id="nobody",
+        adr_id=pkg.adr.adr_id,
+        admission_attestation=package_evidence_hash(pkg),  # wrong attestation
+    )
+    with pytest.raises(GraduationBlockedError):
+        verify_production_admission(admission, pkg)
+
+
+def test_admission_attestation_is_deterministic_and_recomputable():
+    pkg = build_valid_graduation_package()
+    outcome = evaluate_graduation(pkg)
+    a1 = admit_to_production_ranking(outcome, pkg)
+    # re-running the whole flow yields the same attestation
+    outcome2 = evaluate_graduation(pkg)
+    a2 = admit_to_production_ranking(outcome2, pkg)
+    assert a1.admission_attestation == a2.admission_attestation
+
+
+# ---------------------------------------------------------------------------
+# R1-02 (P1): human approval — approver registry + package binding
+# (demo scope: presence + binding; no cryptographic signature — documented)
+# ---------------------------------------------------------------------------
+
+
+def test_gate_blocks_forged_approver_not_in_registry():
+    pkg = build_valid_graduation_package()
+    ev_hash = package_evidence_hash(pkg)
+    mallory = HumanApproval(
+        approver_id="mallory",  # not in DEFAULT_APPROVER_REGISTRY
+        approved_at="2026-08-07T00:00:00Z",
+        approval_token="i-am-not-a-signature",
+        package_content_hash=ev_hash,  # correctly bound (isolates the approver check)
+        notes="forged",
+    )
+    pkg_mallory = rebuild_graduation_package(pkg, human_approval=mallory)
+    outcome = evaluate_graduation(pkg_mallory)
+    assert outcome.status is GraduationStatus.blocked
+    assert BlockerReasonCode.approver_not_registered in outcome.blockers
+
+
+def test_gate_blocks_approval_bound_to_wrong_package():
+    pkg = build_valid_graduation_package()
+    wrong = HumanApproval(
+        approver_id="human_cc",  # in registry
+        approved_at="2026-08-07T00:00:00Z",
+        approval_token="signed_token_xyz",
+        package_content_hash="wrong_package_hash",  # mis-bound
+        notes="",
+    )
+    pkg_wrong = rebuild_graduation_package(pkg, human_approval=wrong)
+    outcome = evaluate_graduation(pkg_wrong)
+    assert outcome.status is GraduationStatus.blocked
+    assert BlockerReasonCode.approval_package_binding_mismatch in outcome.blockers
+
+
+def test_default_approver_registry_contains_demo_approver():
+    assert "human_cc" in DEFAULT_APPROVER_REGISTRY
+
+
+# ---------------------------------------------------------------------------
+# R1-03 (P1): gate recomputes content hashes (package / allowlist / ADR) —
+# model_copy desync is rejected, never trusted as a declaration.
+# ---------------------------------------------------------------------------
+
+
+def test_gate_recomputes_package_hash_desync_blocked():
+    pkg = build_valid_graduation_package()
+    # model_copy bypasses the content_hash validator -> stale hash
+    desynced = pkg.model_copy(update={"content_hash": "stale_tampered_hash"})
+    outcome = evaluate_graduation(desynced)
+    assert outcome.status is GraduationStatus.blocked
+    assert BlockerReasonCode.content_hash_mismatch in outcome.blockers
+    # outcome binds to the RECOMPUTED hash, not the stale embedded one
+    assert outcome.package_content_hash != "stale_tampered_hash"
+
+
+def test_gate_recomputes_allowlist_hash_desync_blocked():
+    pkg = build_valid_graduation_package()
+    tampered_al = pkg.allowlist.model_copy(update={"content_hash": "al_tampered"})
+    desynced = pkg.model_copy(update={"allowlist": tampered_al})
+    outcome = evaluate_graduation(desynced)
+    assert outcome.status is GraduationStatus.blocked
+    assert BlockerReasonCode.allowlist_content_hash_mismatch in outcome.blockers
+
+
+def test_gate_recomputes_adr_hash_desync_blocked():
+    pkg = build_valid_graduation_package()
+    tampered_adr = pkg.adr.model_copy(update={"content_hash": "adr_tampered"})
+    desynced = pkg.model_copy(update={"adr": tampered_adr})
+    outcome = evaluate_graduation(desynced)
+    assert outcome.status is GraduationStatus.blocked
+    assert BlockerReasonCode.adr_content_hash_mismatch in outcome.blockers
+
+
+# ---------------------------------------------------------------------------
+# R1-04 (P1): dual-copy evidence consistency — package validator (construct)
+# + gate worst-case (consume, defends model_copy desync).
+# ---------------------------------------------------------------------------
+
+
+def test_package_validator_rejects_inconsistent_shift():
+    # held_out.shift must equal shift_results (component 3 vs 4)
+    pkg = build_valid_graduation_package()
+    inconsistent_shift = pkg.shift_results.model_copy(update={"max_recall_drop": 0.99})
+    # rebuild with held_out.shift (0.05) != shift_results (0.99) -> validator fires
+    with pytest.raises(ValidationError):
+        rebuild_graduation_package(pkg, shift_results=inconsistent_shift)
+
+
+def test_package_validator_rejects_inconsistent_cost():
+    pkg = build_valid_graduation_package()
+    inconsistent_cost = pkg.cost.model_copy(update={"llm_calls": 999})
+    with pytest.raises(ValidationError):
+        rebuild_graduation_package(pkg, cost=inconsistent_cost)
+
+
+def test_gate_blocks_shift_inconsistency_worst_case():
+    # model_copy bypasses the package validator; gate takes the WORST-CASE
+    # value across the two shift copies -> blocked
+    pkg = build_valid_graduation_package()
+    evil_shift = pkg.shift_results.model_copy(update={"max_recall_drop": 0.99})
+    desynced = pkg.model_copy(update={"shift_results": evil_shift})
+    outcome = evaluate_graduation(desynced)
+    assert outcome.status is GraduationStatus.blocked
+    assert BlockerReasonCode.excessive_family_scaffold_shift in outcome.blockers
+
+
+# ---------------------------------------------------------------------------
+# R1-05 (P1): allowlist content match — same class_id but different
+# registered content (families / chain_policy_version) is rejected.
+# ---------------------------------------------------------------------------
+
+
+def test_gate_blocks_class_content_drift():
+    pkg = build_valid_graduation_package()
+    # same class_id "hc_oh_to_c" but different families + policy version
+    drifted = HypothesisClass(
+        class_id="hc_oh_to_c",
+        description="hydroxyl-to-carbonyl agent-proposed class",
+        transformation_family_ids=["fam_evil_unvetted"],  # different
+        chain_policy_version="9.9.9",  # different
+    )
+    pkg_drifted = rebuild_graduation_package(pkg, hypothesis_class=drifted)
+    outcome = evaluate_graduation(pkg_drifted)
+    assert outcome.status is GraduationStatus.blocked
+    assert BlockerReasonCode.class_content_drift in outcome.blockers
+
+
+# ---------------------------------------------------------------------------
+# R1-06 (P2): added_incorrect is required (no default 0 masquerading as
+# a measured zero).
+# ---------------------------------------------------------------------------
+
+
+def test_added_incorrect_required_no_default():
+    # omitting added_incorrect must raise (no silent 0)
+    with pytest.raises(ValidationError):
+        HeldOutResults(
+            # added_incorrect deliberately omitted
+            incremental_recall=0.5,
+            risk_at_fixed_coverage=0.1,
+            abstention_impact=0.1,
+            repeated_run_agreement=0.95,
+            grounding_score=0.9,
+            invented_id_or_structure_mutations=0,
+            cost=CostRecord(llm_calls=0, tool_calls=2, latency_ms=80),
+            shift=_shift(),
+        )
+
+
+# ---------------------------------------------------------------------------
+# R1-07 (P2): hygiene — blockers deduplicated; coverage_curve typed;
+# ShiftResult.risk bounded.
+# ---------------------------------------------------------------------------
+
+
+def test_blockers_deduplicated():
+    # both shift + risk copies exceed thresholds -> each reason appears ONCE
+    pkg = build_valid_graduation_package()
+    evil_held_out = pkg.held_out_results.model_copy(
+        update={"risk_at_fixed_coverage": 0.9}
+    )
+    evil_risk_cov = pkg.risk_coverage.model_copy(update={"risk_at_fixed_coverage": 0.9})
+    desynced = pkg.model_copy(
+        update={"held_out_results": evil_held_out, "risk_coverage": evil_risk_cov}
+    )
+    outcome = evaluate_graduation(desynced)
+    assert outcome.blockers.count(BlockerReasonCode.risk_exceeds_threshold) == 1
+
+
+def test_coverage_curve_typed_model():
+    pt = CoveragePoint(coverage=0.95, risk=0.1)
+    assert pt.coverage == 0.95
+    # a typed point rejects unknown fields / bad types
+    with pytest.raises(ValidationError):
+        CoveragePoint(coverage="high", risk=0.1)  # type: ignore[arg-type]
+    # RiskCoverage.coverage_curve accepts CoveragePoint, rejects raw bad dict
+    rc = RiskCoverage(
+        risk_at_fixed_coverage=0.1, fixed_coverage=0.95, coverage_curve=[pt]
+    )
+    assert rc.coverage_curve[0].risk == 0.1
+
+
+def test_shift_result_risk_upper_bound():
+    # risk is a rate in [0.0, 1.0]
+    with pytest.raises(ValidationError):
+        ShiftResult(family_id="f", scaffold="s", recall=0.5, risk=1.5, n_held_out=10)
+
+
+def test_dead_blocker_codes_not_emitted():
+    # the previously-dead "missing X" codes are removed from the enum
+    dead = {
+        "missing_hypothesis_class",
+        "incomplete_held_out_evaluation",
+        "missing_shift_results",
+        "missing_risk_coverage",
+        "missing_grounding",
+        "missing_cost",
+        "missing_adr",
+        "missing_version_pin",
+    }
+    emitted = {b.value for b in BlockerReasonCode}
+    assert dead.isdisjoint(emitted)
