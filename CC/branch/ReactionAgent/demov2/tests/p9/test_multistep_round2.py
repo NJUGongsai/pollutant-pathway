@@ -338,3 +338,32 @@ def test_path_uncertainty_wired_through_dedup() -> None:
     dedup.add(p2)
     # uncertainty should be accessible
     assert dedup.alternative_paths(MOL_B) == 2
+
+
+# ===========================================================================
+# P9D-R3-01: Sentinel — add_edge without validator rejected
+# ===========================================================================
+
+
+def test_add_edge_without_validator_rejected() -> None:
+    """add_edge must raise TypeError when validator is not passed.
+
+    This sentinel test prevents the validator from being silently reverted
+    to optional (P9D-R2-02 regression guard). On the old signature where
+    validator was optional (None default), calling add_edge(edge) would
+    NOT raise TypeError — this test would fail, proving the structural RED.
+    """
+    g = MultiStepGraph()
+    g.add_node(MOL_A)
+    g.add_node(MOL_B)
+    forged = MultiStepEdge(
+        edge_id="forged",
+        from_node=MOL_A,
+        to_node=MOL_B,
+        lane="strict",
+        evidence_ids=["ev-1"],
+        ledger_ids=["ledger-1"],
+        one_step_contract_hash="hacked",
+    )
+    with pytest.raises(TypeError, match="validator"):
+        g.add_edge(forged)  # no validator argument

@@ -76,7 +76,14 @@ class MultiStepGraph:
         The edge's ``one_step_contract_hash`` is verified against the
         validator's output for the same endpoints. A forged or
         non-validator-issued hash is rejected (fail-closed, P9D-R1-02).
+
+        Raises:
+            TypeError: if validator is None (required).
+            ValueError: if from_node/to_node not in graph, contract hash
+                mismatch, or no validator result for the endpoints.
         """
+        if validator is None:
+            raise TypeError("validator is required for add_edge (P9D-R2-02)")
         if edge.from_node not in self._nodes:
             raise ValueError(f"from_node {edge.from_node} not in graph")
         if edge.to_node not in self._nodes:
