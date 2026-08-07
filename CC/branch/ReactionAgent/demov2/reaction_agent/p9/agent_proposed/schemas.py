@@ -32,7 +32,7 @@ from typing import Literal
 from pydantic import Field
 
 from reaction_agent.hashing import canonical_hash
-from reaction_agent.schemas.common import NonEmptyStr, StrictModel
+from reaction_agent.schemas.common import LedgerBalanceStatus, NonEmptyStr, StrictModel
 from reaction_agent.schemas.errors import ContractViolation, UnknownReferenceError
 from reaction_agent.schemas.hypothesis import (
     AgentProposedHypothesis,
@@ -45,7 +45,6 @@ from reaction_agent.schemas.ledger import CandidateAnalogyLedger, SourceReaction
 
 from reaction_agent.p9.agent_proposed.policy import (
     CHAIN_CHECK_NAMES,
-    CHAIN_STEPS,
     AgentProposedChainPolicy,
     DEFAULT_AGENT_PROPOSED_CHAIN_POLICY,
 )
@@ -331,9 +330,23 @@ def apply_graph_edit(
     is removed). Atom targets -> attribute-change sites (recorded, no structural
     removal — agent-proposed edits never add/remove heavy atoms).
 
-    Raises ``AgentProposedValidationError`` if the query SMILES is invalid or a
-    cited bond does not exist.
+    Raises ``AgentProposedValidationError`` if the query SMILES is invalid, a
+    cited bond does not exist, OR the edit would be an identity edit (an
+    atom-target-only hypothesis whose attribute-change vocabulary is not yet
+    implemented — rejected to prevent the query molecule from masquerading as a
+    new_valid candidate, R1-03).
     """
+    # R1-03: an atom-target-only hypothesis would produce an identity edit (the
+    # query molecule unchanged) because atom attribute-change edits are not yet
+    # implemented. Reject it under a controlled reason rather than emit the query
+    # as a new_valid candidate. A mixed hypothesis (atom + bond targets) is fine:
+    # the bond deletion already makes the edit non-identity.
+    if compiled.atom_target_ids and not compiled.bond_target_pairs:
+        raise AgentProposedValidationError(
+            "atom-target-only hypotheses require a registered attribute-change "
+            "vocabulary (not yet implemented); rejected to prevent an identity edit "
+            "masquerading as new_valid"
+        )
     mol = Chem.MolFromSmiles(query.smiles)
     if mol is None:
         raise AgentProposedValidationError(f"invalid query SMILES: {query.smiles}")
@@ -395,6 +408,59 @@ def validate_molecule(edited: EditedMolecule) -> None:
 # ---------------------------------------------------------------------------
 # Step 7: dual-ledger validation (lane non-contamination + existence)
 # ---------------------------------------------------------------------------
+
+
+def _synthesize_agent_lane_ledger(
+    hypothesis: AgentProposedHypothesis,
+    context: "AgentProposedValidationContext",
+) -> LaneScopedCandidateLedger:
+    """Synthesize an agent-lane candidate ledger from a cited support reaction.
+
+    R1-01: step 7 is MANDATORY — there is no path that emits a validated
+    candidate without running ``validate_dual_ledger``. When the context does
+    not supply a scoped ledger for this hypothesis (the normal builder path,
+    where a new candidate's ledger cannot be pre-registered), the chain
+    synthesizes one from a cited support reaction's source ledger. This closes
+    the chicken-and-egg gap and makes the ``dual_ledger_validation`` check a
+    true attestation rather than a false claim.
+
+    Fail-closed: if NO cited support reaction has a registered source ledger in
+    the context, step 7 cannot run and the chain rejects the hypothesis.
+    """
+    # reverse-lookup: reaction_id -> source_ledger_id(s) that ground it
+    rid_to_source_ledgers: dict[str, list[str]] = {}
+    for sl_id, rid in context.registry.source_ledger_to_reaction_id.items():
+        rid_to_source_ledgers.setdefault(rid, []).append(sl_id)
+
+    found_source_ledger_id: str | None = None
+    for rid in hypothesis.support_reaction_ids:
+        for sl_id in rid_to_source_ledgers.get(rid, []):
+            if sl_id in context.source_ledgers:
+                found_source_ledger_id = sl_id
+                break
+        if found_source_ledger_id is not None:
+            break
+
+    if found_source_ledger_id is None:
+        raise AgentProposedValidationError(
+            "step 7 cannot synthesize an agent-lane ledger: none of the cited "
+            f"support reactions {list(hypothesis.support_reaction_ids)} has a "
+            "registered source ledger in the context (dual-ledger validation is "
+            "mandatory — no false attestation)"
+        )
+
+    # fresh agent-lane candidate id (NOT in strict_candidate_ids by namespace)
+    agent_candidate_id = f"agent_cand_{hypothesis.hypothesis_id}"
+    agent_ledger_id = f"agent_ledger_{hypothesis.hypothesis_id}"
+    return LaneScopedCandidateLedger(
+        lane="agent_proposed",
+        underlying=CandidateAnalogyLedger(
+            ledger_id=agent_ledger_id,
+            source_ledger_id=found_source_ledger_id,
+            candidate_id=agent_candidate_id,
+            candidate_balance_status=LedgerBalanceStatus.partial_or_unbalanced_source,
+        ),
+    )
 
 
 def validate_dual_ledger(
@@ -496,10 +562,17 @@ def validate_agent_proposed_hypothesis(
     # Step 6: molecule validation
     validate_molecule(edited)
 
-    # Step 7: dual-ledger validation (only if a scoped ledger was supplied)
+    # Step 7: dual-ledger validation — MANDATORY (R1-01: no silent skip, no
+    # false attestation). Use the scoped ledger supplied in the context if one
+    # exists; otherwise synthesize an agent-lane ledger from a cited support
+    # reaction's source ledger (the normal builder path, where a new
+    # candidate's ledger cannot be pre-registered). ``validate_dual_ledger``
+    # ALWAYS runs — the ``dual_ledger_validation`` check burned into the record
+    # is therefore a true attestation.
     scoped = context.agent_candidate_ledgers.get(hypothesis.hypothesis_id)
-    if scoped is not None:
-        validate_dual_ledger(hypothesis.hypothesis_id, scoped, context)
+    if scoped is None:
+        scoped = _synthesize_agent_lane_ledger(hypothesis, context)
+    validate_dual_ledger(hypothesis.hypothesis_id, scoped, context)
 
     # Step 8: grounding validation
     validate_grounding(hypothesis, context)

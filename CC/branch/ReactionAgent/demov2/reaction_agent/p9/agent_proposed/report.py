@@ -21,7 +21,6 @@ from pydantic import Field
 
 from reaction_agent.schemas.common import NonEmptyStr, StrictModel
 
-from reaction_agent.p9.agent_proposed.policy import DEFAULT_AGENT_PROPOSED_CHAIN_POLICY
 from reaction_agent.p9.agent_proposed.schemas import (
     AgentProposedCandidate,
     AgentProposedRejectReasonCode,
@@ -75,8 +74,10 @@ class AgentProposedReport(StrictModel):
     # metric group 2: reject reasons (controlled-vocabulary tally, no free text)
     reject_reasons: dict[str, int] = {}
 
-    # metric group 3: incremental recall over production-only
-    incremental_recall: float = 0.0
+    # metric group 3: incremental recall over production-only (truth-set
+    # denominator). None when ground_truth_total is not supplied (unmeasured —
+    # never a fabricated number, R1-04).
+    incremental_recall: float | None = None
 
     # metric group 4: risk at fixed coverage
     risk: float = 0.0
@@ -84,7 +85,8 @@ class AgentProposedReport(StrictModel):
     # metric group 5: cost
     cost: AgentProposedCostReport
 
-    # metric group 6: reproducibility
+    # metric group 6: reproducibility (REQUIRED measurement input — no default,
+    # R1-05: a repeated-run agreement must be measured, never fabricated)
     reproducibility: AgentProposedReproducibility
 
 
@@ -99,54 +101,61 @@ def build_agent_proposed_report(
     *,
     production_valid_count: int = 0,
     ground_truth_smiles: dict[str, str] | None = None,
+    ground_truth_total: int | None = None,
     cost: AgentProposedCostReport | None = None,
-    reproducibility: AgentProposedReproducibility | None = None,
+    reproducibility: AgentProposedReproducibility,
 ) -> AgentProposedReport:
     """Build the independent six-metric report.
 
     - ``new_valid``: count of candidates that passed the full chain.
     - ``new_correct`` / ``new_incorrect``: vs. ``ground_truth_smiles`` keyed by
-      hypothesis_id. A candidate with no ground truth is neither correct nor
-      incorrect (it is still counted as new_valid).
+      hypothesis_id. A candidate with NO ground truth is NEITHER correct NOR
+      incorrect (R1-02): ``new_incorrect`` counts only candidates that HAVE a
+      ground-truth label and mismatch it. The candidate is still counted as
+      ``new_valid``.
     - ``reject_reasons``: tally of the controlled-vocabulary reject codes.
-    - ``incremental_recall``: (production_valid + new_correct) /
-      (production_valid + new_valid) — the recall uplift from admitting the
-      agent-proposed lane.
-    - ``risk``: new_incorrect / (new_correct + new_incorrect) at fixed coverage
-      — the risk of letting agent-proposed candidates in. Zero when no
-      candidate was admitted (no division by zero).
+    - ``incremental_recall``: ``(production_valid + new_correct) /
+      ground_truth_total`` — the recall uplift from admitting the agent-proposed
+      lane, measured against the truth set. ``None`` when ``ground_truth_total``
+      is not supplied (unmeasured, not fabricated — R1-04).
+    - ``risk``: ``new_incorrect / (new_correct + new_incorrect)`` at fixed
+      coverage — the risk of letting agent-proposed candidates in. Zero when no
+      candidate has a ground-truth label (no division by zero).
     """
     new_valid = len(candidates)
     gt = ground_truth_smiles or {}
+    # R1-02: only candidates that HAVE a ground-truth label are scored.
+    # No-GT candidates are neither correct nor incorrect (still counted as new_valid).
     new_correct = sum(
         1
         for c in candidates
-        if gt.get(c.hypothesis_id) is not None
-        and gt[c.hypothesis_id] == c.edited_product_smiles
+        if c.hypothesis_id in gt and gt[c.hypothesis_id] == c.edited_product_smiles
     )
-    new_incorrect = new_valid - new_correct
+    new_incorrect = sum(
+        1
+        for c in candidates
+        if c.hypothesis_id in gt and gt[c.hypothesis_id] != c.edited_product_smiles
+    )
 
     reject_reasons: dict[str, int] = {}
     for _hid, code in rejected:
         key = code.value if isinstance(code, AgentProposedRejectReasonCode) else str(code)
         reject_reasons[key] = reject_reasons.get(key, 0) + 1
 
-    denom_recall = production_valid_count + new_valid
-    incremental_recall = (
-        (production_valid_count + new_correct) / denom_recall
-        if denom_recall > 0
-        else 0.0
-    )
+    # R1-04: incremental recall uses the TRUTH-SET denominator. Unmeasured
+    # (no ground_truth_total) -> None, never a fabricated number.
+    if ground_truth_total is not None and ground_truth_total > 0:
+        incremental_recall: float | None = (
+            (production_valid_count + new_correct) / ground_truth_total
+        )
+    else:
+        incremental_recall = None
 
     coverage = new_correct + new_incorrect
     risk = (new_incorrect / coverage) if coverage > 0 else 0.0
 
     cost_report = cost or AgentProposedCostReport()
-    repro = reproducibility or AgentProposedReproducibility(
-        repeated_run_agreement=1.0,
-        seed=0,
-        chain_policy_version=DEFAULT_AGENT_PROPOSED_CHAIN_POLICY.version,
-    )
+    # R1-05: reproducibility is a REQUIRED measured input — no default 1.0.
 
     return AgentProposedReport(
         new_valid=new_valid,
@@ -156,7 +165,7 @@ def build_agent_proposed_report(
         incremental_recall=incremental_recall,
         risk=risk,
         cost=cost_report,
-        reproducibility=repro,
+        reproducibility=reproducibility,
     )
 
 

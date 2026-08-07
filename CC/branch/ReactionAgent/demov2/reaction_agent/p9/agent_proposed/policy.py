@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 
-from pydantic import ConfigDict, Field, field_validator, model_validator
+from pydantic import ConfigDict, field_validator, model_validator
 
 from reaction_agent.hashing import canonical_hash
 from reaction_agent.schemas.common import NonEmptyStr, StrictModel
