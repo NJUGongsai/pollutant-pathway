@@ -47,6 +47,9 @@ class MultiStepGraph:
 
         The SMILES is RDKit-canonicalized for identity. Invalid SMILES or
         RDKit-parse failures raise ValueError (fail-closed, P9D-R1-04).
+
+        If RDKit is unavailable, the caller's SMILES is trusted as-is (degraded
+        mode: no canonicalization, no invalid-SMILES rejection).
         """
         raw = canonical_smiles.strip()
         if not raw:

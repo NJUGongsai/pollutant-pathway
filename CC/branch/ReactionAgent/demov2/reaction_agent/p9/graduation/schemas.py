@@ -511,10 +511,10 @@ class ProductionRankingAdmission(StrictModel):
     non-graduated class is structurally barred from production ranking
     (§12.2 "未毕业不进入 production ranking").
 
-    R1-01: ``admission_attestation`` is a recomputable gate attestation over the
-    RECOMPUTED package hash + approval + ADR + outcome digest. A directly-
-    constructed admission cannot forge a valid attestation —
-    ``verify_production_admission`` re-derives it and refuses a mismatch.
+    R1-01: ``admission_attestation`` binds the admission to the recomputed
+    package/approval/ADR/outcome digest. Anyone can recompute it (consistency
+    proof, not a MAC); authorization comes from ``verify_production_admission``
+    re-running the gate, not from attestation secrecy.
     """
 
     lane: Literal["agent_proposed"] = "agent_proposed"
