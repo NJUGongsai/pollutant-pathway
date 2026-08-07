@@ -231,8 +231,7 @@ def test_held_out_results_has_no_probability_calibration_fields():
     h = _held_out()
     # the probability-free lane pins this off
     assert h.probability_introduced is False
-    with pytest.raises(ValidationError):
-        h.model_copy(update={"brier": 0.1})  # type: ignore[arg-type]
+    # a Brier field is rejected by extra="forbid" at construction
     with pytest.raises(ValidationError):
         HeldOutResults(
             incremental_recall=0.5,
@@ -244,7 +243,20 @@ def test_held_out_results_has_no_probability_calibration_fields():
             invented_id_or_structure_mutations=0,
             cost=CostRecord(llm_calls=0, tool_calls=2, latency_ms=80),
             shift=_shift(),
-            probability_introduced=True,  # claims probability but no calibration
+            brier=0.1,  # type: ignore[call-arg]  # extra field -> forbidden
+        )
+    with pytest.raises(ValidationError):
+        HeldOutResults(
+            incremental_recall=0.5,
+            added_incorrect=1,
+            risk_at_fixed_coverage=0.1,
+            abstention_impact=0.1,
+            repeated_run_agreement=0.95,
+            grounding_score=0.9,
+            invented_id_or_structure_mutations=0,
+            cost=CostRecord(llm_calls=0, tool_calls=2, latency_ms=80),
+            shift=_shift(),
+            probability_introduced=True,  # Literal[False] rejects True
         )
 
 
@@ -274,9 +286,12 @@ def test_graduation_package_content_hash_tamper_detection():
     # reconstruct with identical fields -> same hash
     rebuilt = build_valid_graduation_package()
     assert rebuilt.content_hash == pkg.content_hash
-    # tampered content_hash must raise
+    # tampered content_hash must raise at construction (model_validator verifies)
     with pytest.raises(ValidationError):
-        pkg.model_copy(update={"content_hash": "tampered"})
+        GraduationPackage(
+            **pkg.model_dump(exclude={"content_hash"}),
+            content_hash="tampered",
+        )
 
 
 def test_graduation_package_has_no_self_declared_status_field():
