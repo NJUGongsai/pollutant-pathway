@@ -137,7 +137,7 @@ def _valid_context(
             "src_ledger_a": SourceReactionLedger(
                 ledger_id="src_ledger_a",
                 reaction_evidence_id="rxn_a",
-                balance_status=LedgerBalanceStatus.balanced,
+                balance_status=LedgerBalanceStatus.fully_balanced_explicit_reaction,
             )
         },
         agent_candidate_ledgers={},
