@@ -24,6 +24,7 @@ from reaction_agent.p9.graduation.schemas import (
     ADRStatus,
     BlockerReasonCode,
     CostRecord,
+    CoveragePoint,
     DEFAULT_GRADUATION_THRESHOLDS,
     GraduationBlockedError,
     GraduationOutcome,
@@ -42,10 +43,14 @@ from reaction_agent.p9.graduation.schemas import (
     VersionPin,
 )
 from reaction_agent.p9.graduation.gate import (
+    DEFAULT_APPROVER_REGISTRY,
     admit_to_production_ranking,
     build_demo_graduation_package,
     build_valid_graduation_package,
     evaluate_graduation,
+    package_evidence_hash,
+    rebuild_graduation_package,
+    verify_production_admission,
 )
 
 __all__ = [
@@ -56,6 +61,7 @@ __all__ = [
     "HypothesisClassAllowlist",
     "ShiftResult",
     "ShiftResults",
+    "CoveragePoint",
     "RiskCoverage",
     "GroundingRecord",
     "CostRecord",
@@ -71,8 +77,12 @@ __all__ = [
     "GraduationThresholds",
     "DEFAULT_GRADUATION_THRESHOLDS",
     # gate
+    "DEFAULT_APPROVER_REGISTRY",
+    "package_evidence_hash",
+    "rebuild_graduation_package",
     "evaluate_graduation",
     "admit_to_production_ranking",
+    "verify_production_admission",
     "build_valid_graduation_package",
     "build_demo_graduation_package",
 ]

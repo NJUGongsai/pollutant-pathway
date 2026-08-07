@@ -65,26 +65,32 @@ class GraduationStatus(str, Enum):
 
 
 class BlockerReasonCode(str, Enum):
-    """Why a graduation package was blocked (controlled vocabulary, no free text)."""
+    """Why a graduation package was blocked (controlled vocabulary, no free text).
 
-    missing_hypothesis_class = "missing_hypothesis_class"
+    Dead "missing X" codes are removed: every package component is a required
+    field, so a missing component fails at construction (never reaches the gate).
+    Only the blockers the gate can actually emit are enumerated.
+    """
+
     class_not_in_allowlist = "class_not_in_allowlist"
-    incomplete_held_out_evaluation = "incomplete_held_out_evaluation"
+    class_content_drift = "class_content_drift"  # same id, different registered content
     incremental_recall_unmeasured = "incremental_recall_unmeasured"
     incremental_recall_insufficient = "incremental_recall_insufficient"
-    missing_shift_results = "missing_shift_results"
     excessive_family_scaffold_shift = "excessive_family_scaffold_shift"
-    missing_risk_coverage = "missing_risk_coverage"
     risk_exceeds_threshold = "risk_exceeds_threshold"
-    missing_grounding = "missing_grounding"
     grounding_insufficient = "grounding_insufficient"
-    missing_cost = "missing_cost"
-    missing_adr = "missing_adr"
     adr_not_accepted = "adr_not_accepted"
     missing_human_approval = "missing_human_approval"
     invented_id_or_structure_mutation_nonzero = "invented_id_or_structure_mutation_nonzero"
     repeated_run_agreement_below_threshold = "repeated_run_agreement_below_threshold"
-    missing_version_pin = "missing_version_pin"
+    # sole-arbiter self-consistency (R1-03): the gate recomputes hashes and
+    # refuses to trust an embedded content_hash declaration.
+    content_hash_mismatch = "content_hash_mismatch"
+    allowlist_content_hash_mismatch = "allowlist_content_hash_mismatch"
+    adr_content_hash_mismatch = "adr_content_hash_mismatch"
+    # human approval (R1-02): presence + binding + registry (demo scope)
+    approver_not_registered = "approver_not_registered"
+    approval_package_binding_mismatch = "approval_package_binding_mismatch"
 
 
 # ---------------------------------------------------------------------------
@@ -171,7 +177,7 @@ class ShiftResult(StrictModel):
     family_id: NonEmptyStr
     scaffold: NonEmptyStr
     recall: float | None = None
-    risk: float = Field(ge=0.0)
+    risk: float = Field(ge=0.0, le=1.0)  # a rate, bounded in [0, 1]
     n_held_out: int = Field(ge=0)
 
 
@@ -187,12 +193,19 @@ class ShiftResults(StrictModel):
 # ---------------------------------------------------------------------------
 
 
+class CoveragePoint(StrictModel):
+    """A single point on the risk/coverage curve (typed, not free-form dict)."""
+
+    coverage: float = Field(ge=0.0, le=1.0)
+    risk: float = Field(ge=0.0, le=1.0)
+
+
 class RiskCoverage(StrictModel):
     """Risk at fixed coverage + coverage curve (component 5)."""
 
     risk_at_fixed_coverage: float = Field(ge=0.0)
     fixed_coverage: float = Field(ge=0.0, le=1.0)
-    coverage_curve: list[dict] = []
+    coverage_curve: list[CoveragePoint] = []
 
 
 # ---------------------------------------------------------------------------
@@ -238,7 +251,7 @@ class HeldOutResults(StrictModel):
 
     # §19.3 nine metrics
     incremental_recall: float | None = None  # truth-set denominator (Phase B口径)
-    added_incorrect: int = 0
+    added_incorrect: int = Field(ge=0)  # R1-06: required (no default-0 masquerade)
     risk_at_fixed_coverage: float = Field(ge=0.0)
     abstention_impact: float = Field(ge=0.0)
     repeated_run_agreement: float = Field(ge=0.0, le=1.0)
@@ -316,14 +329,19 @@ class ADRRecord(StrictModel):
 class HumanApproval(StrictModel):
     """Human approval (component 9). The demo blocker — ``None`` when not approved.
 
-    A real approval requires a signed ``approval_token``; the demo has no real
-    approver, so the package is built with ``human_approval=None`` and the gate
-    returns BLOCKED (expected terminal state, never a faked PASS).
+    Demo scope (R1-02): presence + binding only. ``package_content_hash`` binds
+    the approval to a specific package's evidence (so a stolen approval cannot
+    be replayed onto a different package); the gate cross-checks this binding.
+    ``approver_id`` is checked against a runtime approver registry. There is no
+    cryptographic signature in the demo — that is a documented follow-up
+    (approver registry + token derivation). The gate never trusts a self-declared
+    "signed" token; it verifies the binding + registry membership.
     """
 
     approver_id: NonEmptyStr
     approved_at: NonEmptyStr  # RFC3339 timestamp
     approval_token: NonEmptyStr
+    package_content_hash: NonEmptyStr  # R1-02: binding to the package evidence
     notes: str = ""
 
 
@@ -380,6 +398,37 @@ class GraduationPackage(StrictModel):
         if self.content_hash != recomputed:
             raise ValueError(
                 f"content_hash mismatch: expected {recomputed}, got {self.content_hash}"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _verify_evidence_consistency(self) -> "GraduationPackage":
+        """R1-04: dual-copy evidence must be self-consistent.
+
+        The package carries two copies of several evidence fields (the held-out
+        aggregate + the dedicated component). They must agree; an author cannot
+        hide an over-limit shift in the unconsumed copy. The gate additionally
+        takes the worst-case across copies at consumption time to defend against
+        ``model_copy`` desync (which bypasses this construction-time validator).
+        """
+        h = self.held_out_results
+        if h.shift.model_dump() != self.shift_results.model_dump():
+            raise ValueError(
+                "evidence inconsistency: held_out_results.shift != shift_results"
+            )
+        if h.cost.model_dump() != self.cost.model_dump():
+            raise ValueError(
+                "evidence inconsistency: held_out_results.cost != cost"
+            )
+        if h.risk_at_fixed_coverage != self.risk_coverage.risk_at_fixed_coverage:
+            raise ValueError(
+                "evidence inconsistency: held_out_results.risk_at_fixed_coverage "
+                "!= risk_coverage.risk_at_fixed_coverage"
+            )
+        if h.grounding_score != self.grounding.grounding_score:
+            raise ValueError(
+                "evidence inconsistency: held_out_results.grounding_score "
+                "!= grounding.grounding_score"
             )
         return self
 
@@ -461,6 +510,11 @@ class ProductionRankingAdmission(StrictModel):
     outcome — a ``blocked`` outcome raises ``GraduationBlockedError``, so a
     non-graduated class is structurally barred from production ranking
     (§12.2 "未毕业不进入 production ranking").
+
+    R1-01: ``admission_attestation`` is a recomputable gate attestation over the
+    RECOMPUTED package hash + approval + ADR + outcome digest. A directly-
+    constructed admission cannot forge a valid attestation —
+    ``verify_production_admission`` re-derives it and refuses a mismatch.
     """
 
     lane: Literal["agent_proposed"] = "agent_proposed"
@@ -468,6 +522,7 @@ class ProductionRankingAdmission(StrictModel):
     graduated_package_hash: NonEmptyStr
     human_approval_id: NonEmptyStr
     adr_id: NonEmptyStr
+    admission_attestation: NonEmptyStr
 
 
 # ---------------------------------------------------------------------------
@@ -499,6 +554,7 @@ __all__ = [
     "HypothesisClassAllowlist",
     "ShiftResult",
     "ShiftResults",
+    "CoveragePoint",
     "RiskCoverage",
     "GroundingRecord",
     "CostRecord",
