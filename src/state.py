@@ -12,6 +12,8 @@ from src.schemas.evidence import (
     # M5 扩展
     RerankedEnzyme,
     MicrobeCandidate,
+    OrganismCandidate,
+    OrganismRecommendation,
     TraitRecord,
     PredictedReaction,
     IntentClassification,
@@ -54,6 +56,13 @@ class EnzymeCrewState(BaseModel):
 
     # ====== M5: MicrobeSelectionNode 输出 ======
     microbe_candidates: Optional[List[MicrobeCandidate]] = None
+    # OrganismAggregator 聚合输出（菌→支持酶集合，按 MT-D3：supporting-enzyme count 降序+ncbi_taxon_id 升序）
+    organism_candidates: Optional[List[OrganismCandidate]] = None
+
+    # ====== M5: OrganismSelectionNode 输出（选菌层 D6 有界理由）======
+    # 授权内最小形态：LLM 硬依赖，仅在 MT-D3 确定性顺序上生成有界理由，不覆盖排序/成员。
+    # 完整决策层（trait_score 融合）属 M4b/M4c，NOT AUTHORIZED。
+    organism_recommendations: Optional[List[OrganismRecommendation]] = None
 
     # ====== M5: TraitFilterNode 输出 ======
     trait_records: Optional[List[TraitRecord]] = None

@@ -42,6 +42,13 @@ nodes:
     max_tokens: 4000
     timeout: 120
 
+  organism_selection_node:        # 选菌层：D6 有界理由，LLM 硬依赖不可降级
+    provider: openai_compat
+    model: kimi/kimi-k3            # 多因素有界推荐理由，需要强推理
+    temperature: 0.2
+    max_tokens: 4000
+    timeout: 120
+
   reaction_prediction_node:
     provider: openai_compat
     model: kimi/kimi-k3            # 反应预测需要化学知识

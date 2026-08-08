@@ -7,7 +7,8 @@ from datetime import datetime, timezone
 
 from src.state import EnzymeCrewState
 from src.schemas.evidence import EvidenceRecord
-from src.tools.microbe_recommender import recommend_microbes
+from src.tools.microbe_recommender import map_enzyme_hosts, microbe_candidates_from_provenance
+from src.utils.organism_aggregator import aggregate_organisms
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,13 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
 
     logger.info(f"[MicrobeSelectionNode] Mapping {len(top_uids)} enzymes to organisms...")
 
-    candidates = recommend_microbes(top_uids, environment="wastewater", top_k=len(top_uids))
+    # 单次网络查询：酶 UID → reviewed UniProt 宿主 + KEGG multiplicity（原始证据维度透传，MT-D1/D2）
+    provenance_map = map_enzyme_hosts(top_uids)
+    candidates = microbe_candidates_from_provenance(provenance_map, top_uids, environment="wastewater")
+
+    # OrganismAggregator（框架 §3.3）：按 reviewed 宿主的 NCBI taxon 聚合酶排序。
+    # 组内 (rank, uid) 排序键与支持酶 score/rank/CI 取自 ranked_enzymes（模型真实排序，同源）。
+    organism_candidates = aggregate_organisms(state.ranked_enzymes or [], provenance_map)
 
     uncertainty_flags = list(state.uncertainty_flags)
     if not candidates:
@@ -50,6 +57,7 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
         status = "empty_no_mapping"
     else:
         status = "uniprot_organism_mapping"
+        # MT-D2/D3（2026-07-18 裁定）已实装：排序=支持酶数降序+taxid 升序，不产 confidence float。
 
     evidence = EvidenceRecord(
         stage="microbe",
@@ -61,12 +69,42 @@ def microbe_selection_node(state: EnzymeCrewState) -> dict:
             "source_db": "UniProt",
             "status": status,
             "sample_organisms": [c.organism_name for c in candidates[:3]],
+            # 聚合层三层证据可见（原始数据优先原则）
+            "aggregated_organisms": len(organism_candidates),
+            "top_organisms": [
+                {
+                    "organism": o.organism_name,
+                    "ncbi_taxon_id": o.ncbi_taxon_id,
+                    "default_order_rank": o.default_order_rank,
+                    "supporting_enzyme_count": o.supporting_enzyme_count,
+                    "supporting_enzymes": [se.uid for se in o.supporting_enzymes],
+                    "per_enzyme_source_provenance": [
+                        {
+                            "enzyme_uid": p.enzyme_uid,
+                            "reviewed_taxon": (
+                                p.uniprot_reviewed.ncbi_taxon_id if p.uniprot_reviewed else None
+                            ),
+                            "annotation_score": (
+                                p.uniprot_reviewed.annotation_score if p.uniprot_reviewed else None
+                            ),
+                            "protein_existence": (
+                                p.uniprot_reviewed.protein_existence if p.uniprot_reviewed else None
+                            ),
+                            "kegg_multiplicity": (p.kegg.multiplicity if p.kegg else None),
+                            "kegg_state": (p.kegg.state if p.kegg else None),
+                        }
+                        for p in o.per_enzyme_source_provenance
+                    ],
+                }
+                for o in organism_candidates[:3]
+            ],
         },
         timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
     return {
         "microbe_candidates": candidates,
+        "organism_candidates": organism_candidates,
         "uncertainty_flags": uncertainty_flags,
         "evidence_chain": state.evidence_chain + [evidence],
     }
