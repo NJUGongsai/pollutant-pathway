@@ -1,1 +1,0 @@
-"""P6 MCP Service tests."""
