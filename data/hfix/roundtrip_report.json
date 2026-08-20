@@ -1,0 +1,5280 @@
+{
+ "fidelity_rate_checked": 0.8466,
+ "known_limitations": [
+  "orig_no_match: original rule cannot match even the explicitly-hydrogenated donor (pre-existing aromatic/kekule, charge, or chain-length impedance; unaffected by re-encoding).",
+  "residual_H_query: reactant still holds a [#1,...] list element or a recursive $(...[H]) query that the H-node strip does not remove; these cannot match implicit H (separate latent issue, out of scope for the H-node re-encoding).",
+  "reencode_gen_failure: minority of rules lose a product or fail product generation (RDKit RunReactants implicit-H/chiral-stereo interaction at the reaction center, and mapped-H hydrogen-transfer semantics needing explicit Hn-equivalence). Failed products are dropped (fail-closed), never emitted with wrong valence."
+ ],
+ "method": "reference = original SMIRKS applied to AddHs(donor) then RemoveHs+canonical; candidate = re-encoded SMIRKS applied to implicit donor; fidelity = reference products are a subset of candidate products (no loss).",
+ "pair_counts": {
+  "ok": 435,
+  "ok_extra": 12,
+  "orig_no_match": 67,
+  "reencode_gen_failure": 33,
+  "residual_H_query": 48
+ },
+ "pairs_checked": 528,
+ "per_pair": [
+  {
+   "changed": true,
+   "donor": "C(CO)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCCO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCC(=O)[O-])CCO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=C(C=C1)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC(=C1)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=CC=C1)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)S(=O)(=O)[O-])CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C(C=C1)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=CC(=C1)CO)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCCCCCCO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(CO)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC1=CC(=CC=C1O)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1(C)C2CC=C(CO)C1C2",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C=C(C)C1CC=C(CC1)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C=C(C=C2)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C(=CC=C2)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=CCCC(C)CCO)C",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(CC(C)(C)C)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C)C(=O)CCO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=COC(=C1)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C(=C(C=N1)CO)CO)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C(=C(C=N1)CO)C(=O)[O-])O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C(=C(C=N1)CO)CO)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)OC2=CC(=CC=C2)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCN(CC)C(=O)C1=CC(=CC=C1)CO",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0001-3568",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CC(O)OC1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCC(CC1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C[C@H](C1=CC=CC=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C(C3=C2C=CC=C3)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1(C)C2CC(=O)C1(C)C[C@@H]2O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C=C(C)C1CC=C(C)C(C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C=C1C2CC(CC1O)C2(C)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C=C(C)C1CCC(=CC1O)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C[C@H](CSCCS(=O)(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C[C@@H](CSCCS(=O)(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)[C@@H](C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)[C@@H](CCC2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)C(C2=CC=C(C=C2)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C1=CC=CC(=C1)C(C(=O)[O-])O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CC(=O)CC(CC1=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC=C3C(=O)C2O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC=C3C(C2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0002-3673",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C=O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCO)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCC=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)CC=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC1=CC(=CC=C1O)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCC(=O)[O-])CC=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=C(C=C1)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC(=C1)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=CC=C1)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)S(=O)(=O)[O-])C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)O)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CC(=O)[O-])C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C(C=C1)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=CC(=C1)C=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)Cl)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C(=C(C=C2)C=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)C(=O)[O-])C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCCCCCC=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1(C)C2CC=C(C=O)C1C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C=C(C)C1CC=C(CC1)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)C=O)O)CO",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C=C(C=C2)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C(=C1)C=O)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC(=C1O)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C(=CC=C2)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C=O)C(=C1)O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=CCCC(C)CC=O)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(CC(C)(C)C)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C)C(=O)CC=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=COC(=C1)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCCCCCCCCCC=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C(=C(C=N1)CO)C=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C(=C(C=N1)C=O)C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(COCC=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(CC=O)C=C(C(=C1)O)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)OC2=CC(=CC=C2)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCN(CC)C(=O)C1=CC(=CC=C1)C=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0003-1196",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0005-3776",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)Cl)C(=C(Cl)Cl)C2=CC=C(C=C2)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0005-4282",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C)C=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0005-4282",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C)C=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0005-4282",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)CC(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0011-4163",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0011-4163",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0011-4163.2",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0012-4164",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CN=C1)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0012-4164",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(N=C1)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0012-4164",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0012-4164.2",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0013-4165",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0013-4165",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0013-4165.2",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC2=C(C=CC(=C2)O)NC1=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=CC(=C1)C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=CC=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC(=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)O)Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)CC(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1O)SC(=N2)S",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1O)SC(=N2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CN=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)C2=C(C=CC=C2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C(=CC=C2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)S(=O)(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C(C=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0014-4215",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C#C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0020-1610",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C/C=C/CC(=O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0021-3858",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(=C\\Cl)/CC(=O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0021-3858",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(=C/Cl)/C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0021-3859",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(=C\\Cl)/C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0021-3859",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCl)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0022-2833",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(=O)[O-])Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0022-2833",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(=O)[O-])(Cl)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0022-2833",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)Cl)C(CCl)C2=CC=C(C=C2)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0022-2833",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(CBr)Br)Br",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0022-2833",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(=O)[O-])F",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0022-2833",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CCC1=CC=CC(=C1N(COC)C(=O)CCl)CC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0022-2833",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0023-3819",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "COC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC1=CC(=CC=C1O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC1=CC=C(C=C1)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)OCC(=O)[O-])Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)OCC(=O)[O-])Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C(=CC(=C1Cl)Cl)OCC(=O)[O-])Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC1=CC(=CC=C1O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C)OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(=O)[O-])OCC(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC1=CC(=CC(=C1O)OC)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC1=C(C(=CC(=C1)C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0023-3854",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CC(=O)OC1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCC(=O)OCC1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)C",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)OC(=O)CC2",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)OC(=O)/C=C\\C=C(/C(=O)[O-])\\O)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)OC1=CC=C(C=C1)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C)OC=O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)C(=O)OC2=CC=C(C=C2)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC(=O)C1=CC=CC(=C1)C(=O)OC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC(=O)C1=CC(=CC=C1)C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C2=C(C=N1)COC2=O)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C2=C(C=N1)C(=O)OC2)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1COC(=O)CO1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)OC1=CC=C(C=C1)S(=O)(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)CC(C(=O)OCC)SP(=S)(OC)OC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)C(CC(=O)[O-])SP(=S)(OC)OC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)OC(=O)C1=C(C=CC=C1)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)CCC(=O)OCC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)CCC(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CN1[C@H]2CC[C@@H]1CC(C2)OC(=O)C(CO)C3=CC=CC=C3",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1(C)C(C=C(Cl)Cl)C1C(=O)OCC2=CC=CC(=C2)OC3=CC=CC=C3",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1(C)C(C=C(Cl)Cl)C1C(=O)OC(C#N)C2=CC=CC(=C2)OC3=CC=CC=C3",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CN1[C@@H]2C[C@H]1C([C@@H]([C@@H](C2)O)C(=O)OC)OC(=O)C3=CC=CC=C3",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CN1[C@@H]2C[C@H]1C([C@@H]([C@@H](C2)O)C(=O)OC)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0024-2218",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0026-4218",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C=CC(=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC=C(C=C1)C(=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C(=C(C=C1C(=O)N)Br)O)Br",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC=C(C=C1)CC(=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=CN=C1)C(=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=C(C(=C1)Cl)C(=O)N)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=C(C=C1)Cl)C(=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)NCC(COC1=CC=C(C=C1)CC(=O)N)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0027-3456",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(#N)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0028-3647",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC=C(C=C1)C#N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0030-4292",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C(=C(C=C1C#N)Br)O)Br",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0030-4292",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C=CC#N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0030-4292",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC=C(C=C1)CC#N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0030-4292",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0031-1217",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1N(CN(CN1[N+](=O)[O-])[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0033-1219",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1N(CN(CN1[N+](=O)[O-])[N+](=O)[O-])N=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0033-1219",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1N(CN(CN1N=O)[N+](=O)[O-])N=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0033-1219",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0034-2448",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC=C(C=C1)N=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0034-4082",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1NO)NO)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0035-1206",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1NO)[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0035-1206",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1[N+](=O)[O-])NO)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0035-1206",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1N)N)NO",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0035-1206",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)NO)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0035-1206",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0036-3571",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=CC(=C1)NO)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0037-3717",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)NO",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0037-3718",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)NO)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0037-3718",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=CC(=C1)NO)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0037-3718",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0042-4168",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0044-3232",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C=CC1=CC=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0049-3745",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C=C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0049-3745",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C1CO1)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0050-2173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C1CO1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0050-2173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C([C@@H]1CO1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0050-2173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CO1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0050-2173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C1CO1)Br",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0050-2173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0051-3093",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C(=C(C=C1C(=O)[O-])O)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=CC(=C1)C(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C(=C(C=C1C(=O)[O-])Br)O)Br",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=C(C(=C1)C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=C(C(=C1)C(=O)[O-])O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CNC(=C1)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(N=C(C(=C1C(=O)[O-])O)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=C(C(=C(C=N1)C(=O)[O-])C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=C(C(=C1)O)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3151",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)(C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0051-3501",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C=O)C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0051-3573",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=CC(=C1)Cl)C(C2=CC=C(C=C2)Cl)C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0051-3573",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C(=O)[O-])(C(=O)[O-])O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0051-3573",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)(C(=O)[O-])C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0051-3573",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C(=O)C(C)(C)C)C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0051-3573",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)(C)C(=O)CC(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0051-3573",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0055-3469.1",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0055-3469.2",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0055-3469.3",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0055-3469.4",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0055-4169",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@@]([C@H](C=C1C(=O)[O-])O)(C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C[C@@H]([C@](C=C1)(C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=C[C@@]([C@H]1O)(C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=C[C@@H]([C@]1(C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@@H]([C@](C=C1)(C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=C2)C=C[C@@H]([C@]3(C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@@]([C@H](C=C1F)O)(C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@@]([C@H](C(=C1)F)O)(C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@@H]([C@](C=C1F)(C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0056-2685",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO[N+](=O)[O-])(CO[N+](=O)[O-])CO[N+](=O)[O-])O[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO[N+](=O)[O-])(CO[N+](=O)[O-])CO[N+](=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO[N+](=O)[O-])O[N+](=O)[O-])O[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO[N+](=O)[O-])O[N+](=O)[O-])O[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO[N+](=O)[O-])O)O[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO)O[N+](=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO[N+](=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO[N+](=O)[O-])O[N+](=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(CO[N+](=O)[O-])O[N+](=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0058-2811",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0060-4170",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C(=C(C=C2)C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0060-4170",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)N)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0060-4170",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)C(=O)[O-])O)CO",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0060-4170",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=C(C(=C1)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0060-4170",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC(=C1O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0060-4170",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C=C(C(=C2)C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0060-4170",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCNC1=NC(=NC(=N1)NC(C)C)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0061-2451",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)NC1=NC(=NC(=N1)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0061-2451",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCNC1=NC(=NC(=N1)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0061-2451",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CC1NC2=NC(=NC(=N2)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0061-2451",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)CC=NO",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0062-925",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCCCCCCCCCC[N+](C)(C)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0063-2552",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(=O)[O-])NCP(=O)([O-])[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)C[C@@H](C(=O)[O-])N",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCC(=O)[O-])CCN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CN1CCC[C@H]1C2=CC=C(N=C2)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CN1CCC[C@@H]1C2=CC=C(N=C2)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(=O)[O-])N(CC(=O)[O-])CC(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(=O)[O-])NCC(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCC(CC1)N",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)NC(=O)N2",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)NC(=O)N2C",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CN(C)C",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CNC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C(=C(C=N1)CO)CN)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1COCCN1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CNCCS(=O)(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CN1CCOCC1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(CCN)C=C(C(=C1)O)[N+](=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CCNCC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CCN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(CC(C(=O)[O-])N)C=C(C(=C1)O)[N+](=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CCC1=CC=CC(=C1NCOC)CC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CN1[C@H]2CC[C@@H]1CC(C2)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CNCCCC(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0063-3938",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC(=CC(=C1)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0064-3707",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=CC(=C1)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0064-3707",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)O)CC(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0064-3707",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C(=C1)Cl)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0064-3707",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=CC(=C1)C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0064-3707",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C(=C1)Br)O)Br",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0064-3707",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0064-3707",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)S(=O)(=O)[O-])N",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)N)C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)N)C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)S(=O)(=O)[O-])N",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)NC1=CC=CC=C1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)NC1=CC=CC=C1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)N(C1=CC=CC=C1)C(=O)CCl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)N)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)N",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0065-4171",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(CO)Br)Br",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0066-3856",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(CCl)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0066-3867",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(CO)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0066-3867",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(CO)O)Br",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0066-3867",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCC(=O)NCC1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCC(CC1)NC=O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCC(=O)NCCCCCC(=O)NCCCCCC(=O)NCCCCCC(=O)NCCCCCC(=O)NCCCCCC(=O)[O-])CCN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCC(=O)NCCCCCC(=O)NCCCCCC(=O)NCCCCCC(=O)NCCCCCC(=O)[O-])CCN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCC(=O)NCCCCCC(=O)NCCCCCC(=O)NCCCCCC(=O)[O-])CCN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCC(=O)NCCCCCC(=O)NCCCCCC(=O)[O-])CCN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CCC(=O)NCCCCCC(=O)[O-])CCN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCC(=O)NCCCCCC(=O)NCC1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CN=C1)C(=O)NN",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=NC(=C(CNC=O)C=N1)N",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)NC1=C(C=CC=C1)C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)NC1=CC=C(C=C1)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCC1=CC=CC(=C1NC(=O)CO)CC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCC1=CC=CC(=C1NC(=O)CCl)CC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0067-4013",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)NC(=O)N1CC(=O)N(C2=CC(=CC(=C2)Cl)Cl)C1=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0068-3564",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=C(C=C1Cl)NC(=O)NCC(=O)[O-])Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0068-3564",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)(C1=CC=C(C=C1)NC(=O)N)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0068-3564",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)C1=CC=C(C=C1)NC(=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0068-3564",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCCCNC(=O)N1C2=C(C=CC=C2)N=C1NC(=O)OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0068-3564",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C#C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0070-3850",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1CCC(=O)CC1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0071-4150",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC2=C(C=C1)C(=O)CC2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0071-4150",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC2=C(C=C1)CC(=O)C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0071-4150",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1C2CC3CC1CC(C2)C3=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0071-4150",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1C2CC3CC(C2)(CC1C3=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0071-4150",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=C(C=C1)Cl)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0072-4172",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCOC1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0073-3591",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCCOO",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0077-441",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1[N+](=O)[O-])N)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0078-232",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1[N+](=O)[O-])[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0078-232",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1[N+](=O)[O-])NO)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0078-232",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1[N+](=O)[O-])[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0078-232",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1N)N)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0078-232",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)[N+](=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0078-232",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=CC(=C1)[N+](=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0078-232",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C(C=C1NO)N)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0079-1087",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)(OCC)OC1=CC=C(C=C1)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=C(C=C(C=C1[N+](=O)[O-])[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=C(C=C(C=C1[N+](=O)[O-])N)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=C(C=C(C=C1N)[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=C(C=C(C=C1N)[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=C(C=C(C=C1[N+](=O)[O-])[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=C(C=C(C=C1N)N)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=CC=C(C=C1[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=CC=C(C=C1[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=CC=C(C=C1N)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=CC=C(C=C1[N+](=O)[O-])N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=C(C(=C1)OC2=CC=C(C=C2)[N+](=O)[O-])Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0080-4217",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=CC(=C1)O)CC(=O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0082-2982",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=C(C(=C1)O)[N+](=O)[O-])CC(=O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0082-2982",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0086-4152",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0086-4153",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)(OCC)OC1=CC=C(C=C1)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0102-4062",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)(OCC)OC1=CC=C(C=C1)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0102-4062",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)OC(=O)C1=C(C=CC=C1)OP(=S)(N)OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0102-4062",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)(OCC)OC1=NN(C=N1)C2=CC=CC=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0102-4062",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)([O-])OCC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0103-3648",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)(OCC)OC1=CC=C(C=C1)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0103-3648",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0103-3648",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "[O-]P(=S)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0103-3648",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "COP(=S)([O-])OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0103-3648",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOC(=O)CC(C(=O)OCC)SP(=S)(OC)OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0103-3648",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0103-3816",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0104-2853",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=O)(OCC)OC1=CC=C(C=C1)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0104-2854",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=O)C=CC1=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0107-3557",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=O)C(=CC1=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0107-3557",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1=CC(=O)C(=CC1=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0107-3557",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0108-470",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0110-3663",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0124-3980",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)S(=O)(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0128-4173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=C(C=C1)S(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0128-4173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C=C(C=C2)S(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0128-4173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C(=CC=C2)S(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0128-4173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C2C=C(C=CC2=CC(=C1)S(=O)(=O)[O-])S(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0128-4173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=CC(=CC=C2C(=C1)S(=O)(=O)[O-])S(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0128-4173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C2C=C(C=CC2=CC(=C1)N)S(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0128-4173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)S(=O)(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0128-4173",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCCCCCCOS(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0143-3211",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1CCC(CC1)NS(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0144-4271",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=CC(=C1)S(=O)(=O)N)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0144-4271",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)N=NC2=CC=C(C=C2)S(=O)(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0146-3853",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C2C=C(C=CC2=CC(=C1)N=NC3=CC=C(C(=C3)C(=O)[O-])O)S(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0146-3853",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(C(=O)[O-])NCP(=O)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0147-3336",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C(N)P(=O)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0147-3336",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CP(=O)(C)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0147-3336",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CP(=O)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0147-3336",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0153-3077",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CNCCCC(=O)C1=CC=C(N=C1O)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0153-3078",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0154-1367",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0156-3659",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0156-3660",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0156-3760",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0158-3361",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "CC1(C)CC2=CC=CC(=C2O1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0158-3397",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1(C)CC2=CC=CC(=C2O1)OC(=O)NC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0158-3397",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC2=C(C=C1)SC3=C2C=CC=C3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0162-4180",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC=C(C=C1)CSCC2=CC=CC=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0162-4180",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CSC1=NC2=C(C=CC=C2)S1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0162-4180",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC2=C(C=C1)SC=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0162-4180",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)(OCC)SCSCC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0162-4180",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC2=C(C=CC=C2)N=C1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0166-3560",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0166-3562",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C/C(=C\\C1=CC=C(C=C1)O)/C2=CC=C(C=C2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0173-1376",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1CC(=O)C(CC1[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0177-3159",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0180-2844",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0181-1278",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0184-3607",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0184-4187",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CNC(=C1)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0188-1382",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C(=O)[O-])NC(=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0189-1410",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C=C1O)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0190-1386",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0192-3861",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC2=C(C=C1)S(=O)C3=C2C=CC=C3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0193-4263",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC=C(C=C1)CS(=O)CC2=CC=CC=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0193-4263",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1C2C(COS(=O)O1)C3(C(=C(C2(C3(Cl)Cl)Cl)Cl)Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0193-4263",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCOP(=S)(OCC)SCS(=O)CC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0193-4263",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)CSCCS(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0198-546",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0199-3639",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)C1=CC=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0202-3925",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0208-3256",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0209-3257",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0212-3523",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0213-3524",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C(C=C(C1O)Cl)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0214-1877",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCC1=CC=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0216-3640",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)C2CO2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0217-3026",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0218-3579",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0219-4295",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0225-3862",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0226-141",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0227-1872",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0230-3525",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0231-1871.1",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0231-1871.2",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0231-1871.3",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0231-1871.4",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0234-3381",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0237-2957",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1C2CC3CC1CC(C2)C3=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0241-3580",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1C2CC3CC1CC(C2)OC3=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0241-3580",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C(C=C1)NC(=O)NC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0241-3580",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C(C=C1)NC(=O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0241-3580",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C(C=C1)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0241-3580",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCCCC1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0242-3803",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC=C3C(C2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0242-3804",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC=C3C(=O)C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0242-3804",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=CC=C3)C2",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0242-3805",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)CC2=CC=C(C=C2)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0242-3805",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC=C3CC2",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0242-3805",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C(C=C1)NC(=O)N(C)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C1=CC=C(C=C1)NC(=O)NC)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C(C=C1)NC(=O)NC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)N(C(=O)C)C1=CC=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)NC(=O)N2C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)N(C)C(=O)N2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C2=C(C(=O)N(C)C1=O)NC=N2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C2=C(C(=O)NC1=O)NC=N2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CCC1=CC=CC(=C1N(COC)C(=O)CCl)CC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCC1=CC=CC(=C1N(COC)C(=O)CO)CC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C2=C(C=C(C=C2)Cl)C(=NCC1=O)C3=CC=CC=C3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCN(CC)C(=O)C1=CC(=CC=C1)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0243-4301",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0254-4224.1",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=CC=C3C=CC=C4C3=C2C(=C1)C(=C4O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0254-4224.2",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C4C(=C2)C(=C(C5=C4C(=CC=C5)C=C3)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0254-4224.2",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0255-2690.1",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0255-2690.2",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0255-2690.3",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC2=C(C=C[C@@H]([C@@H]2O)O)NC1=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@@H]([C@@H](C=C1)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@H]([C@H](C(=C1)Cl)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@@H]([C@@H](C(=C1)C2=CC=C(C=C2)Cl)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C(=C[C@H]([C@H]1O)O)C(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)SC3=C2[C@H]([C@H](C=C3)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=C[C@H]([C@H]1O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C=CC1=CC=C[C@H]([C@H]1O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CCC1=CC=C[C@H]([C@H]1O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)[C@H]([C@H](C=C2)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)C2=CC=C[C@@H]([C@@H]2O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)C1=CC=C([C@H]([C@H]1O)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@H]([C@H](C(=C1)CCC(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)Cl)C(C2=CC=C([C@H]([C@H]2O)O)Cl)C(Cl)(Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=C2)C=C[C@@H]([C@@H]3O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C([C@H]([C@H](C(=C1Cl)Cl)O)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=C2)[C@@H]([C@H](C=C3)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)[C@H]([C@@H](C3=C2C=CC=C3)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C([C@@H]([C@@H](C(=C1)Cl)O)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1CO)[C@H]([C@H](C=C2)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C(=C1)C(=O)[O-])[C@H]([C@H](C=C2)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC2=C1[C@H]([C@H](C=C2)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1(=C([C@@H]([C@@H](C(=C1Cl)Cl)O)O)Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC4=CC=CC(=C43)[C@H]([C@H]2O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=C(C=C([C@@H]([C@@H]1O)O)Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=C[C@@H]([C@@H]3O)O)C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=CC3=C(C=C2C=C1)[C@H]([C@H](C=C3)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C4C(=C2)C=CC5=CC=CC(=C54)[C@@H]([C@H]3O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C4C(=C2)C=CC5=CC=CC(=C54)[C@H]([C@H]3O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C4C(=C2)[C@@H]([C@@H](C5=C4C(=CC=C5)C=C3)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC4=CC5=C(C(=C43)C=C2)[C@H]([C@H](C=C5)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1CCC2=C(C1)C=C[C@@H]([C@@H]2O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C[C@@H]([C@@H](C2=C1N=C(S)S2)O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(C(C(=C1C(=O)[O-])C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0255-2690.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0255-3670",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0257-3855.1",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0257-3855.2",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0257-3855.3",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=C2)C4C(C=C3)O4",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3C(C4=C2C=CC=C4)O3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=C2)C4C(C=C3)O4",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC4=C3C(=CC5C4O5)C=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C2C=CC(=C3C=CC4=CC5C(C(=C1)C4=C23)O5)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=CC3C(C4=CC=C5C(=CC=C1C5=C24)O)O3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC1=C2C=CC3=CC4C(C5=CC=C(C=C1)C2=C35)O4",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=C2)C=CC4C3O4",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)C3=C(C=C2)C=CC4C3O4",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0257-3855.4",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CSC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0259-3814",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CS",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0259-3814",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)CSCC2=CC=CC=C2",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0259-3814",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COP(=S)(OC)SC(CC(=O)[O-])C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0259-3814",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)CSSCC2=CC=CC=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0260-2032",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CSSCCC(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0260-2032",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0268-3530",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C(=C\\C(=O)[O-])/C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0269-3646",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0269-3646",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0270-3919",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0270-3920",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0270-3921",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C(=C\\C(=O)[O-])/C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0270-3922",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC=CC=C1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0270-3922",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C(=C\\C(=O)[O-])/C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0270-3922",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC2=C(C=CC=C2)C=C1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0270-3922",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)Cl)C(C2=CC=C(C=C2)Cl)C(Cl)(Cl)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0275-899",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)Cl)C(C2=CC=C(C=C2)Cl)C(Cl)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0275-899",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)Cl)C(CCl)C2=CC=C(C=C2)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0275-899",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0280-2426",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0281-676",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC(=C(/C=C/C(=O)C(=O)[O-])NC1=O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0282-3656",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)S(=O)(=O)C3=C2C=CC=C3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0284-3687",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CS(=O)(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0286-846",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0288-2641",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=CC(=C1)Cl)C(=CCl)C2=CC=C(C=C2)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0291-1129",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C=C(C)C1CC=C(C)C(=O)C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0291-1129",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C=C(C)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0291-1129",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C(=O)/C=C\\C(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0291-1129",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C=C(C)C1=CC=C(C=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0291-1129",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0295-3520",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C#[N+]C1CCCCC1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0298-3335",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0306-3442",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0312-3818",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0313-1587",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)N(C)C(=O)N2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0316-4136",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CN1C=NC2=C1C(=O)NC(=O)N2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0316-4136",
+   "verdict": "reencode_gen_failure"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCNC(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0318-3664",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0318-4289",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COC(=O)NC1=NC2=C(C=CC=C2)N1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0318-4289",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0320-3863",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0322-3393",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0323-3394",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0324-3864",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0325-3638",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0327-3585",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CCNC1=NC(=NC(=N1)O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0330-3929",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "C1(=NC(=NC(=N1)N)N)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0330-3929",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CC1NC2=NC(=NC(=N2)N)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0330-3929",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "C1CC1NC2=NC(=NC(=N2)O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0330-3929",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "C1(=NC(=NC(=N1)O)O)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0330-3929",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCNC1=NC(=NC(=N1)NC(C)C)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0330-3930",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCNC1=NC(=NC(=N1)Cl)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0330-3930",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1(=NC(=NC(=N1)N)O)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0330-3930",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0330-3931",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)C1=CC=CC=C1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0332-3924",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0332-3924",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0332-3924",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CCC2CC1C2(C)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0332-3924",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "C=C(C)C1CC=C(C)CC1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0332-3924",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C1=CC=C(C=C1)O)C2=CC=C(C=C2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0332-3924",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(Cl)(Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0332-3924",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)CC(C)(C)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0333-3583",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "CCCCCCCC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0334-3582",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "donor": "CCC(=O)C(C)(C)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0334-3582",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)O)CCC(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0337-3542",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)CCC(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0337-3542",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0337-3543",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0337-3544",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0337-3545",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0337-3901",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0337-4117",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CCNC1=NC(=NC(=N1)NC(C)C)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0339-3800",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCNC1=NC(=NC(=N1)NC(C)C)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0339-3800",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)NC1=NC(=NC(=N1)Cl)N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0339-3800",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0340-4250",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0342-4298.1",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0342-4298.2",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)N)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0343-2675",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0343-2675",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=C(C=C1)C(=O)[O-])/C=C/C(=O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0345-2623",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0346-2639",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0348-3840",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0348-4119",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0348-4120",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0348-4121",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0348-4122",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=C2C(=C1)C=CC3=CC=CC(=C32)C(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0349-2798",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC2=C(C=C1)C3=C(C(=C2)C(=O)[O-])C4=C(C=CC=C4C=C3)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0349-2798",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC2=C(C=C1)C3=C(C(=C2)C(=O)[O-])C4=C(C=CC=C4C=C3)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0349-2798",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C(=CC(=C1C(=O)[O-])C(=O)[O-])O)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0349-3022",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)C(=O)[O-])C(=O)[O-])O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0349-3022",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C(=C(C(=C1)O)O)C(=O)[O-])C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0349-3022",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C(=C(C(=C1)O)O)C(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0349-3023",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC(=C2C(=C1)C=CC=C2C(=O)[O-])C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0349-4276",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0350-3318",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0350-3319",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0351-2780",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0351-3138",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0351-3769",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0351-3908",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0351-3944",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0351-4118",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0352-2744",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0352-2745",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0352-2746",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0352-2748",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0352-4297.1",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "CC(=O)CC(=O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0352-4297.2",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)OC2=CC=CC=C2",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0353-4167",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C1=CC=CC(=C1)C(C2=CC=CC=C2)O)C(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0353-4167",
+   "verdict": "ok_extra"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0353-4312",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0357-2817",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0358-3553",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1(=C(C(=C(C(=C1Cl)Cl)O)Cl)Cl)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0359-3668",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C(=C(C=C1Cl)Cl)O)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0359-3668",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C(=CC(=C1Cl)Cl)O)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0359-3668",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CCOP(=O)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOP(=S)([O-])OCC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COP(=S)([O-])OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COP(=S)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)CC(C(=O)OCC)SP(=S)(OC)OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COP(=O)([O-])OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COP(=O)([O-])SC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COP(=O)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)CC(C(=O)OCC)SP(=O)(OC)OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)CC(C(=O)OCC)SP(=O)([O-])OC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0361-4141",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0362-2882",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0362-3079",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0362-3080",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0363-4185",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0364-2870",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)Cl)CC(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0366-2884",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0366-2930",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C(C1C(CO)C2(C(=C(C1(C2(Cl)Cl)Cl)Cl)Cl)Cl)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0370-2992",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0372-3657",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1CC(=O)CC(=O)CC1=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0373-3577",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(=O)CC(=O)CCC(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0373-3577",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0374-3801",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)OC3=C2C=CC=C3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0374-4081",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)NC3=C2C=CC=C3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0374-4081",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)OC3=C(C=CC=C3)O2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0374-4081",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)OC2=CC=CC=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0374-4081",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)NC1=CC=C(C=C1)OC2=CC=C(C=C2Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0374-4081",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)OC2=CC=C(C=C2)[N+](=O)[O-])Cl)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0374-4081",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)OC2=CC(=CC=C2)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0374-4081",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0374-4148",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0375-3152",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0376-4266",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0377-4300",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0378-3188",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0379-3190",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC(=C(C=C1)O)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0383-3210",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)O)[N+](=O)[O-])CC(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0383-3210",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0384-4048",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0385-3220",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0386-3347",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=CC(=C1)S(=O)(=O)[O-])N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0387-3298",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0388-3311",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0388-3799",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)O)N)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0388-4159",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)O)O)N",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0388-4159",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "C1=C(C=C(C(=C1)N)C(=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0388-4159",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CNC(=O)OC1=CC=CC2=C1C=CC=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0389-3302",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC1(C)CC2=CC=CC(=C2O1)OC(=O)NC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0389-3302",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0390-3346",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1=CC=C(C=C1)C2=NCC(=O)NC3=C2C=C(C=C3)Cl",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0391-4285",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CN1C2=C(C=C(C=C2)Cl)C(=NCC1=O)C3=CC=CC=C3",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0391-4285",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C=O)C(=O)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0392-3341",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C/C(=[S+]/[O-])/N",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0393-3367",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1N(CN(CN1[N+](=O)[O-])[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0397-3474",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=NCN(CN1[N+](=O)[O-])[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0397-3475",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=NCN(C=N1)[N+](=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0398-3470",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CCC2CC1C2(C)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0399-3488",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC1=CC(=O)C2=C(C=CC=C2)N1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0401-3575",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0402-3576",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0403-3595",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0404-3928",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "CC(=O)N/N=C(/C1=CC=CC=C1)\\C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0405-3633",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(CS)C(=O)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0407-3651",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "C[N+]1(CCOCC1)[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0408-3666",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0416-4253",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C3C(=C1)C=CC=C3C=C2",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0416-4269",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0417-3777",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0418-3806",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0418-3842",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0420-3811",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0421-3907",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)C1=CC=C(C=C1)O",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0423-3824",
+   "verdict": "residual_H_query"
+  },
+  {
+   "changed": true,
+   "donor": "CC(=O)C1=CC=C(C=C1)S(=O)(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0423-3824",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCC(=O)C",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0423-3876",
+   "verdict": "orig_no_match"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC2=C(C=C1)S(=O)(=O)NC2=O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0425-3892",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0427-3943",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0428-3946",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "template_id": "envipath:bt0429-4043",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": false,
+   "donor": "C1=C(C=C(C=C1Cl)N2C(=O)CNC2=O)Cl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0430-4011",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CC(C)N(C(=O)C)C1=CC=CC=C1",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0430-4011",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCCCCCCC/C=C/CCCCCCCC(=O)N(C)CCS(=O)(=O)[O-]",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0430-4011",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCN(CC)C(=O)C1=CC(=CC=C1)C",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0430-4011",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCC1=CC=CC2=C1N(CC2)C(=O)CCl",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0430-4011",
+   "verdict": "ok"
+  },
+  {
+   "changed": false,
+   "donor": "CCC1=CC=CC(=C1N(COC)C(=O)CCl)CC",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0430-4011",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0431-4039",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "CSP(=O)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0432-4254",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "COP(=O)([O-])SC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0432-4254",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)CC(C(=O)OCC)SP(=O)([O-])[O-]",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0432-4254",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1CC(O)OC1",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0434-4149",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(COC(C(=O)[O-])O)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0434-4149",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C(C(O)OCC(=O)[O-])O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0434-4149",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCOC(=O)CC(C(=O)OCC)S",
+   "residual_h_query": true,
+   "template_id": "envipath:bt0435-4212",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CCC(C)(CCC(C)C)C1=CC=C(C=C1)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0436-4247",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "CC(C)(C1=CC=C(C=C1)O)C2=CC=C(C=C2)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0436-4247",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0438-4230",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0439-4270",
+   "verdict": "no_donor"
+  },
+  {
+   "changed": true,
+   "donor": "COP(=O)(N)SC",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0440-4255",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "donor": "C1=CC=C(C=C1)OC2=CC(=CC=C2)C(C#N)O",
+   "residual_h_query": false,
+   "template_id": "envipath:bt0443-4291",
+   "verdict": "ok"
+  },
+  {
+   "changed": true,
+   "template_id": "envipath:bt0444-4310",
+   "verdict": "no_donor"
+  }
+ ],
+ "rules_with_issues": {
+  "envipath:bt0001-3568": {
+   "donors": [
+    "CO"
+   ],
+   "lhs_mapped_h": 1,
+   "pairs": 1,
+   "rhs_mapped_h": 1
+  },
+  "envipath:bt0002-3673": {
+   "donors": [
+    "C[C@H](C1=CC=CC=C1)O",
+    "CC1(C)C2CC(=O)C1(C)C[C@@H]2O",
+    "C[C@H](CSCCS(=O)(=O)[O-])O",
+    "C[C@@H](CSCCS(=O)(=O)[O-])O",
+    "C1=CC=C(C=C1)[C@@H](C(=O)[O-])O",
+    "C1=CC2=C(C=C1)[C@@H](CCC2)O"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 6,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0005-4282": {
+   "donors": [
+    "C1=C(C=CC(=C1)Cl)C(=C(Cl)Cl)C2=CC=C(C=C2)Cl",
+    "CC1=C(C)C=CC=C1",
+    "CC1=C(C)C=CC=C1"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 3,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0012-4164": {
+   "donors": [
+    "C1=C(C=CN=C1)C(=O)[O-]",
+    "C1=C(C=C(N=C1)O)C(=O)[O-]"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 2,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0014-4215": {
+   "donors": [
+    "CC1=CC2=C(C=CC(=C2)O)NC1=O",
+    "C1=C(C=CC(=C1)O)C(=O)[O-]",
+    "C1=CC(=CC(=C1)C(=O)[O-])O",
+    "C1=C(C=CC(=C1)O)[N+](=O)[O-]",
+    "CC1=C(C=CC=C1)O",
+    "CC1=CC=CC(=C1)O",
+    "C1=C(C=C(C(=C1)O)Cl)Cl",
+    "C1=C(C=CC(=C1)O)Cl",
+    "C1=C(C=CC(=C1)O)CC(=O)[O-]",
+    "C1=CC=C(C=C1)O",
+    "C1=C(C=CC(=C1)O)O",
+    "C1=CC2=C(C=C1O)SC(=N2)S",
+    "C1=CC2=C(C=C1O)SC(=N2)O",
+    "C1=C(C=CN=C1)O",
+    "C1=CC=C(C=C1)C2=C(C=CC=C2)O",
+    "C1=CC2=C(C=C1)C(=CC=C2)O",
+    "C1=CC(=C(C=C1)O)Cl",
+    "C1=C(C=CC(=C1)S(=O)(=O)[O-])O",
+    "CC(C)C1=CC=C(C=C1)O"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 19,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0022-2833": {
+   "donors": [
+    "C(CCl)Cl",
+    "C(C(=O)[O-])Cl",
+    "C1=C(C=CC(=C1)Cl)C(CCl)C2=CC=C(C=C2)Cl",
+    "C(C(CBr)Br)Br",
+    "C(C(=O)[O-])F",
+    "CCC1=CC=CC(=C1N(COC)C(=O)CCl)CC"
+   ],
+   "lhs_mapped_h": 1,
+   "pairs": 6,
+   "rhs_mapped_h": 1
+  },
+  "envipath:bt0024-2218": {
+   "donors": [
+    "CC(C)(C)OC=O"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0051-3573": {
+   "donors": [
+    "C1=C(C=CC(=C1)Cl)C(C2=CC=C(C=C2)Cl)C(=O)[O-]"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0056-2685": {
+   "donors": [
+    "C1=C[C@@]([C@H](C=C1C(=O)[O-])O)(C(=O)[O-])O",
+    "CC1=C[C@@H]([C@](C=C1)(C(=O)[O-])O)O",
+    "CC1=CC=C[C@@]([C@H]1O)(C(=O)[O-])O",
+    "CC1=CC=C[C@@H]([C@]1(C(=O)[O-])O)O",
+    "C1=C[C@@H]([C@](C=C1)(C(=O)[O-])O)O",
+    "C1=CC2=C(C=C1)C3=C(C=C2)C=C[C@@H]([C@]3(C(=O)[O-])O)O",
+    "C1=C[C@@]([C@H](C=C1F)O)(C(=O)[O-])O",
+    "C1=C[C@@]([C@H](C(=C1)F)O)(C(=O)[O-])O",
+    "C1=C[C@@H]([C@](C=C1F)(C(=O)[O-])O)O"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 9,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0063-3938": {
+   "donors": [
+    "C(C(=O)[O-])NCP(=O)([O-])[O-]",
+    "CN",
+    "C1=C(C=CC(=C1)O)C[C@@H](C(=O)[O-])N",
+    "C(CCC(=O)[O-])CCN",
+    "CN1CCC[C@H]1C2=CC=C(N=C2)O",
+    "CN1CCC[C@@H]1C2=CC=C(N=C2)O",
+    "C(C(=O)[O-])NCC(=O)[O-]",
+    "C1CCC(CC1)N",
+    "CNC",
+    "CC1=C(C(=C(C=N1)CO)CN)O",
+    "C1COCCN1",
+    "CNCCS(=O)(=O)[O-]",
+    "C1=C(CCN)C=C(C(=C1)O)[N+](=O)[O-]",
+    "CCNCC",
+    "CCN",
+    "C1=C(CC(C(=O)[O-])N)C=C(C(=C1)O)[N+](=O)[O-]",
+    "CCC1=CC=CC(=C1NCOC)CC",
+    "CN1[C@H]2CC[C@@H]1CC(C2)O",
+    "CNCCCC(=O)[O-]"
+   ],
+   "lhs_mapped_h": 1,
+   "pairs": 19,
+   "rhs_mapped_h": 1
+  },
+  "envipath:bt0065-4171": {
+   "donors": [
+    "C1=CC(=C(C=C1)S(=O)(=O)[O-])N",
+    "C1=C(C=CC(=C1)N)C(=O)[O-]",
+    "C1=CC(=C(C=C1)N)C(=O)[O-]",
+    "C1=C(C=CC(=C1)S(=O)(=O)[O-])N",
+    "CC(C)NC1=CC=CC=C1",
+    "CC(=O)NC1=CC=CC=C1",
+    "C1=C(C=CC(=C1)N)Cl",
+    "C1=CC=C(C=C1)N"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 8,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0067-4013": {
+   "donors": [
+    "C1CCC(CC1)NC=O",
+    "CC1=NC(=C(CNC=O)C=N1)N"
+   ],
+   "lhs_mapped_h": 1,
+   "pairs": 2,
+   "rhs_mapped_h": 1
+  },
+  "envipath:bt0166-3560": {
+   "donors": [
+    "CC1=CC2=C(C=CC=C2)N=C1"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0242-3804": {
+   "donors": [
+    "C1=CC2=C3C(=C1)C=CC=C3C(C2)O",
+    "C1=CC2=C3C(=C1)C=CC=C3C(=O)C2"
+   ],
+   "lhs_mapped_h": 1,
+   "pairs": 2,
+   "rhs_mapped_h": 1
+  },
+  "envipath:bt0243-4301": {
+   "donors": [
+    "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+    "CN1C=NC2=C1C(=O)NC(=O)N2C",
+    "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+    "CN1C=NC2=C1C(=O)N(C)C(=O)N2",
+    "CN1C2=C(C(=O)N(C)C1=O)NC=N2",
+    "CN1C2=C(C(=O)NC1=O)NC=N2"
+   ],
+   "lhs_mapped_h": 1,
+   "pairs": 6,
+   "rhs_mapped_h": 1
+  },
+  "envipath:bt0255-2690.4": {
+   "donors": [
+    "CC1=CC2=C(C=C[C@@H]([C@@H]2O)O)NC1=O",
+    "C1=C[C@@H]([C@@H](C=C1)O)O",
+    "C1=C[C@H]([C@H](C(=C1)Cl)O)O",
+    "C1=C[C@@H]([C@@H](C(=C1)C2=CC=C(C=C2)Cl)O)O",
+    "C1=C(C(=C[C@H]([C@H]1O)O)C(=O)[O-])C(=O)[O-]",
+    "C1=CC2=C(C=C1)SC3=C2[C@H]([C@H](C=C3)O)O",
+    "CC1=CC=C[C@H]([C@H]1O)O",
+    "C=CC1=CC=C[C@H]([C@H]1O)O",
+    "CCC1=CC=C[C@H]([C@H]1O)O",
+    "C1=CC2=C(C=C1)[C@H]([C@H](C=C2)O)O",
+    "C1=CC=C(C=C1)C2=CC=C[C@@H]([C@@H]2O)O",
+    "CC(C)C1=CC=C([C@H]([C@H]1O)O)C(=O)[O-]",
+    "C1=C[C@H]([C@H](C(=C1)CCC(=O)[O-])O)O",
+    "C1=C(C=CC(=C1)Cl)C(C2=CC=C([C@H]([C@H]2O)O)Cl)C(Cl)(Cl)Cl",
+    "C1=CC2=C(C=C1)C3=C(C=C2)C=C[C@@H]([C@@H]3O)O",
+    "C1=C([C@H]([C@H](C(=C1Cl)Cl)O)O)Cl",
+    "C1=CC2=C(C=C1)C3=C(C=C2)[C@@H]([C@H](C=C3)O)O",
+    "C1=CC2=C(C=C1)[C@H]([C@@H](C3=C2C=CC=C3)O)O",
+    "C1=C([C@@H]([C@@H](C(=C1)Cl)O)O)Cl",
+    "C1=CC2=C(C=C1CO)[C@H]([C@H](C=C2)O)O",
+    "C1=CC2=C(C(=C1)C(=O)[O-])[C@H]([C@H](C=C2)O)O",
+    "CC1=CC=CC2=C1[C@H]([C@H](C=C2)O)O",
+    "C1(=C([C@@H]([C@@H](C(=C1Cl)Cl)O)O)Cl)Cl",
+    "C1=CC2=C3C(=C1)C=CC4=CC=CC(=C43)[C@H]([C@H]2O)O",
+    "CC1=C(C=C([C@@H]([C@@H]1O)O)Cl)Cl",
+    "C1=CC2=C(C=C1)C3=C(C=C[C@@H]([C@@H]3O)O)C2",
+    "C1=CC2=CC3=C(C=C2C=C1)[C@H]([C@H](C=C3)O)O",
+    "C1=CC2=C(C=C1)C3=C4C(=C2)C=CC5=CC=CC(=C54)[C@@H]([C@H]3O)O",
+    "C1=CC2=C(C=C1)C3=C4C(=C2)C=CC5=CC=CC(=C54)[C@H]([C@H]3O)O",
+    "C1=CC2=C(C=C1)C3=C4C(=C2)[C@@H]([C@@H](C5=C4C(=CC=C5)C=C3)O)O",
+    "C1=CC2=C3C(=C1)C=CC4=CC5=C(C(=C43)C=C2)[C@H]([C@H](C=C5)O)O",
+    "C1CCC2=C(C1)C=C[C@@H]([C@@H]2O)O",
+    "C1=C[C@@H]([C@@H](C2=C1N=C(S)S2)O)O",
+    "C1=CC(C(C(=C1C(=O)[O-])C(=O)[O-])O)O"
+   ],
+   "lhs_mapped_h": 2,
+   "pairs": 34,
+   "rhs_mapped_h": 2
+  },
+  "envipath:bt0257-3855.4": {
+   "donors": [
+    "C1=CC2=C(C=C1)C3C(C4=C2C=CC=C4)O3"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0259-3814": {
+   "donors": [
+    "CSC",
+    "CS"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 2,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0269-3646": {
+   "donors": [
+    "C(=C\\C(=O)[O-])/C(=O)[O-]"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0270-3922": {
+   "donors": [
+    "C(=C\\C(=O)[O-])/C(=O)[O-]",
+    "CC1=CC=CC=C1",
+    "C(=C\\C(=O)[O-])/C(=O)[O-]"
+   ],
+   "lhs_mapped_h": 2,
+   "pairs": 3,
+   "rhs_mapped_h": 2
+  },
+  "envipath:bt0275-899": {
+   "donors": [
+    "C1=C(C=CC(=C1)Cl)C(C2=CC=C(C=C2)Cl)C(Cl)Cl",
+    "C1=C(C=CC(=C1)Cl)C(CCl)C2=CC=C(C=C2)Cl"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 2,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0282-3656": {
+   "donors": [
+    "CC1=CC(=C(/C=C/C(=O)C(=O)[O-])NC1=O)O"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0286-846": {
+   "donors": [
+    "CS(=O)(=O)[O-]"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0316-4136": {
+   "donors": [
+    "CN1C=NC2=C1C(=O)N(C)C(=O)N2",
+    "CN1C=NC2=C1C(=O)NC(=O)N2"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 2,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0332-3924": {
+   "donors": [
+    "CC(=O)C1=CC=CC=C1"
+   ],
+   "lhs_mapped_h": 2,
+   "pairs": 1,
+   "rhs_mapped_h": 2
+  },
+  "envipath:bt0337-3542": {
+   "donors": [
+    "C1=CC(=C(C=C1)O)CCC(=O)[O-]",
+    "C1=C(C=CC(=C1)O)CCC(=O)[O-]"
+   ],
+   "lhs_mapped_h": 1,
+   "pairs": 2,
+   "rhs_mapped_h": 1
+  },
+  "envipath:bt0343-2675": {
+   "donors": [
+    "C1=C(C=CC(=C1)N)C(=O)[O-]",
+    "C1=C(C=CC(=C1)O)C(=O)[O-]"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 2,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0349-3022": {
+   "donors": [
+    "C1=C(C=C(C(=C1)C(=O)[O-])C(=O)[O-])O",
+    "C1=C(C(=C(C(=C1)O)O)C(=O)[O-])C(=O)[O-]"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 2,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0353-4167": {
+   "donors": [
+    "C1=CC=C(C=C1)OC2=CC=CC=C2"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0359-3668": {
+   "donors": [
+    "C1(=C(C(=C(C(=C1Cl)Cl)O)Cl)Cl)Cl",
+    "C1=C(C(=C(C=C1Cl)Cl)O)Cl",
+    "C1=C(C(=CC(=C1Cl)Cl)O)Cl"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 3,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0388-4159": {
+   "donors": [
+    "C1=C(C=C(C(=C1)O)N)O",
+    "C1=C(C=C(C(=C1)O)O)N"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 2,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0423-3824": {
+   "donors": [
+    "CC(=O)C1=CC=C(C=C1)O"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  },
+  "envipath:bt0423-3876": {
+   "donors": [
+    "CCC(=O)C"
+   ],
+   "lhs_mapped_h": 0,
+   "pairs": 1,
+   "rhs_mapped_h": 0
+  }
+ }
+}
