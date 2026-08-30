@@ -136,3 +136,165 @@ def candidate_features(cand: dict, parent_smiles: str) -> list[float] | None:
         pprops["n_atoms"] - sps["n_atoms"],
         pprops["n_rings"] - sps["n_rings"],
     ]
+
+
+# --------------------------------------------------------------------------- #
+# v3.1 features — per-source ranker + selector (new, does not modify v3)
+# --------------------------------------------------------------------------- #
+# Per-source ranker candidate-level: 27 dims (22 v3 + 5 new)
+#   source_freq_rank      percentile of template_freq within case×source
+#   source_evidence_rank  percentile of n_evidence*max_tanimoto within case×source
+#   prob_gap_to_best      v3_proba - max(v3_proba in same case×source)
+#   n_sources             1/2/3
+#   is_multi_source       0/1
+#
+# Selector group-level: 17 dims (substrate props + per-source counts +
+#   v3_proba stats + chemistry flags)
+
+FEATURE_NAMES_V31 = FEATURE_NAMES + [
+    "source_freq_rank", "source_evidence_rank", "prob_gap_to_best",
+    "n_sources", "is_multi_source",
+]
+N_FEATURES_V31 = len(FEATURE_NAMES_V31)  # 27
+
+SELECTOR_FEATURE_NAMES = [
+    # substrate (4)
+    "substrate_mw", "substrate_n_atoms", "substrate_aromatic_ratio",
+    "substrate_has_charge",
+    # per-source counts (3)
+    "n_cands_uspto", "n_cands_envipath", "n_cands_retrieval",
+    # v3 proba per-source stats (6)
+    "v3_proba_max_uspto", "v3_proba_max_envipath", "v3_proba_max_retrieval",
+    "v3_proba_top3mean_uspto", "v3_proba_top3mean_envipath",
+    "v3_proba_top3mean_retrieval",
+    # chemistry flags (4)
+    "substrate_has_halogen", "substrate_has_sulfur",
+    "substrate_has_phosphorus", "substrate_has_nitro",
+]
+N_SELECTOR_FEATURES = len(SELECTOR_FEATURE_NAMES)  # 17
+
+
+def _percentile_rank(values: list[float], idx: int) -> float:
+    """Percentile rank of values[idx] within values (0-1)."""
+    if len(values) <= 1:
+        return 0.5
+    v = values[idx]
+    n_below = sum(1 for x in values if x < v)
+    return n_below / (len(values) - 1)
+
+
+def _substrate_chem_flags(smi: str) -> dict:
+    """One-hot chemistry flags: halogen, sulfur, phosphorus, nitro."""
+    m = Chem.MolFromSmiles(smi)
+    if m is None:
+        return {"has_halogen": 0, "has_sulfur": 0, "has_phosphorus": 0,
+                "has_nitro": 0}
+    syms = {a.GetSymbol() for a in m.GetAtoms()}
+    has_nitro = 0
+    try:
+        has_nitro = 1 if m.HasSubstructMatch(
+            Chem.MolFromSmarts("[N+](=O)[O-]")) else 0
+    except Exception:
+        pass
+    return {
+        "has_halogen": int(bool(syms & {"F", "Cl", "Br", "I"})),
+        "has_sulfur": int("S" in syms),
+        "has_phosphorus": int("P" in syms),
+        "has_nitro": has_nitro,
+    }
+
+
+def compute_v31_case_features(candidates: list[dict], parent_smiles: str):
+    """Compute v3.1 features for all candidates in a case.
+
+    Adds to each candidate dict (in-place):
+      - ``_v31_features``: dict {source_key: [27 floats]} for each source
+        the candidate belongs to (shadow mechanism).
+      - ``_v31_selector_features``: [17 floats] (same for all candidates in
+        the case — stored on the first candidate).
+
+    *candidates* must have: source, template_freq, reactions_count,
+    pattern_atom_count, n_evidence, max_tanimoto, mean_tanimoto,
+    donor_exact_match, product_smiles, and optionally ranker_proba (v3 proba).
+    """
+    # ---- group candidates by source ----
+    source_groups: dict[str, list[int]] = {"uspto": [], "envipath": [], "retrieval": []}
+    for i, c in enumerate(candidates):
+        src = c.get("source", "")
+        for sk in source_groups:
+            if sk in src or (sk == "uspto" and src == "both") or \
+               (sk == "envipath" and src == "both"):
+                source_groups[sk].append(i)
+
+    # ---- compute source-internal rankings ----
+    for sk, indices in source_groups.items():
+        if not indices:
+            continue
+        freqs = [candidates[i].get("template_freq", 0) for i in indices]
+        evids = [candidates[i].get("n_evidence", 0) * candidates[i].get("max_tanimoto", 0.0)
+                 for i in indices]
+        probas = [candidates[i].get("ranker_proba", 0.0) for i in indices]
+        max_proba = max(probas) if probas else 0.0
+        for j, i in enumerate(indices):
+            c = candidates[i]
+            freq_rank = _percentile_rank(freqs, j)
+            evid_rank = _percentile_rank(evids, j)
+            prob_gap = c.get("ranker_proba", 0.0) - max_proba
+            c.setdefault("_source_ranks", {})[sk] = {
+                "freq_rank": freq_rank,
+                "evid_rank": evid_rank,
+                "prob_gap": prob_gap,
+            }
+
+    # ---- compute per-(candidate, source) features ----
+    for c in candidates:
+        src = c.get("source", "")
+        n_sources = sum(1 for sk in ("uspto", "envipath", "retrieval")
+                        if sk in src or (sk in ("uspto", "envipath") and src == "both"))
+        is_multi = 1.0 if n_sources > 1 else 0.0
+
+        base = candidate_features(c, parent_smiles)
+        if base is None:
+            c["_v31_features"] = {}
+            continue
+
+        c["_v31_features"] = {}
+        for sk in ("uspto", "envipath", "retrieval"):
+            belongs = sk in src or (sk in ("uspto", "envipath") and src == "both")
+            if not belongs:
+                continue
+            ranks = c.get("_source_ranks", {}).get(sk, {})
+            c["_v31_features"][sk] = base + [
+                ranks.get("freq_rank", 0.5),
+                ranks.get("evid_rank", 0.5),
+                ranks.get("prob_gap", 0.0),
+                float(n_sources),
+                is_multi,
+            ]
+
+    # ---- compute selector features ----
+    sps = _mol_props(parent_smiles)
+    chem = _substrate_chem_flags(parent_smiles)
+    src_counts = {}
+    src_proba_max = {}
+    src_proba_top3 = {}
+    for sk in ("uspto", "envipath", "retrieval"):
+        idxs = source_groups[sk]
+        src_counts[sk] = len(idxs)
+        probas = sorted([candidates[i].get("ranker_proba", 0.0)
+                         for i in idxs], reverse=True)
+        src_proba_max[sk] = probas[0] if probas else 0.0
+        src_proba_top3[sk] = (sum(probas[:3]) / 3) if probas else 0.0
+
+    sel_feats = [
+        sps["mw"], sps["n_atoms"], sps["aromatic_ratio"], sps["has_charge"],
+        src_counts["uspto"], src_counts["envipath"], src_counts["retrieval"],
+        src_proba_max["uspto"], src_proba_max["envipath"],
+        src_proba_max["retrieval"],
+        src_proba_top3["uspto"], src_proba_top3["envipath"],
+        src_proba_top3["retrieval"],
+        chem["has_halogen"], chem["has_sulfur"],
+        chem["has_phosphorus"], chem["has_nitro"],
+    ]
+    for c in candidates:
+        c["_v31_selector_features"] = sel_feats
