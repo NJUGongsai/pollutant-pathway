@@ -100,6 +100,12 @@ def _belongs(src: str, sk: str) -> bool:
     return sk in src or (sk in ("uspto", "envipath") and src == "both")
 
 
+def _is_wildcard(smi: str) -> bool:
+    """product 含原子序数 0（通配符 '*'）→ True."""
+    m = Chem.MolFromSmiles(smi)
+    return m is not None and any(a.GetAtomicNum() == 0 for a in m.GetAtoms())
+
+
 # --------------------------------------------------------------------------- #
 # Engine A + B + C candidate generation for a single substrate (depth ≥ 2)
 # --------------------------------------------------------------------------- #
@@ -278,12 +284,13 @@ def _score_and_sort(candidates: list[dict], substrate_smi: str) -> list[dict]:
         c["ns_score"] = best_p / 3.0
         c["ns_best_source"] = best_source
         c["ion_filtered"] = IF.is_ion_fragment(c["product_smiles"])
+        c["wildcard_filtered"] = _is_wildcard(c["product_smiles"])
         # ensure all p fields exist
         for sk in SOURCES:
             c.setdefault(f"p_{sk}", 0.0)
 
-    candidates.sort(key=lambda c: (c["ion_filtered"], -c["ns_score"],
-                                    c["product_smiles"]))
+    candidates.sort(key=lambda c: (c["wildcard_filtered"], c["ion_filtered"],
+                                    -c["ns_score"], c["product_smiles"]))
     return candidates
 
 
@@ -321,8 +328,9 @@ def _process_frontier_node(node: dict) -> dict:
     for rank, c in enumerate(cands):
         prod_canon = _stereo_blind(c["product_smiles"])
         is_cycle = prod_canon in node["ancestor_canons"] if prod_canon else False
-        in_frontier = (not c["ion_filtered"] and not is_cycle
-                       and rank < K2)  # top-K2 non-ion non-cycle
+        in_frontier = (not c["wildcard_filtered"] and not c["ion_filtered"]
+                       and not is_cycle
+                       and rank < K2)  # top-K2 non-wildcard non-ion non-cycle
         edges.append({
             "product_smiles": c["product_smiles"],
             "product_canonical": prod_canon or "",
@@ -333,6 +341,7 @@ def _process_frontier_node(node: dict) -> dict:
             "p_envipath": round(c.get("p_envipath", 0.0), 6),
             "p_retrieval": round(c.get("p_retrieval", 0.0), 6),
             "ion_filtered": c["ion_filtered"],
+            "wildcard_filtered": c["wildcard_filtered"],
             "cycle": is_cycle,
             "product_in_frontier": in_frontier,
             "n_candidates_at_source": len(cands),
@@ -440,7 +449,8 @@ def main() -> int:
         for rank, c in enumerate(cands):
             prod_canon = _stereo_blind(c["product_smiles"]) or ""
             is_cycle = prod_canon == parent_canon  # parent-copy is a "cycle"
-            in_frontier = (not c.get("ion_filtered", False)
+            wc = _is_wildcard(c["product_smiles"])
+            in_frontier = (not c.get("ion_filtered", False) and not wc
                            and not is_cycle and rank < K1)
             edge = {
                 "source_smiles": smi,
@@ -455,6 +465,7 @@ def main() -> int:
                 "cycle": is_cycle,
                 "product_in_frontier": in_frontier,
                 "product_ion_filtered": c.get("ion_filtered", False),
+                "product_wildcard_filtered": wc,
                 "source": c.get("source", ""),
                 "p_uspto": c.get("p_uspto", 0.0),
                 "p_envipath": c.get("p_envipath", 0.0),
@@ -485,6 +496,7 @@ def main() -> int:
         "budget_cuts": 0,
         "pool_capped": 0,
         "cycle_edges": 0,
+        "wildcard_filtered_edges": 0,
     }
 
     for depth in range(2, MAX_DEPTH + 1):
@@ -565,6 +577,7 @@ def main() -> int:
                     "cycle": is_cycle,
                     "product_in_frontier": edge_data["product_in_frontier"],
                     "product_ion_filtered": edge_data["ion_filtered"],
+                    "product_wildcard_filtered": edge_data["wildcard_filtered"],
                     "source": edge_data["source"],
                     "p_uspto": edge_data["p_uspto"],
                     "p_envipath": edge_data["p_envipath"],
@@ -630,6 +643,8 @@ def main() -> int:
     # Run report
     stats["total_nodes"] = len(all_nodes)
     stats["total_edges"] = len(all_edges)
+    stats["wildcard_filtered_edges"] = sum(
+        1 for e in all_edges if e.get("product_wildcard_filtered"))
     stats["total_time_s"] = round(time.time() - t_start, 2)
     stats["params"] = {"K1": K1, "K2": K2, "MAX_DEPTH": MAX_DEPTH,
                         "RXN_BUDGET_D2": RXN_BUDGET_D2,

@@ -1,28 +1,29 @@
 {
   "generation_1": {
     "Hit@1": "33.7% (29/86)",
-    "Hit@10": "68.6% (59/86)",
-    "Hit@20": "75.6% (65/86)",
     "Hit@3": "54.7% (47/86)",
     "Hit@5": "66.3% (57/86)",
+    "Hit@10": "68.6% (59/86)",
+    "Hit@20": "75.6% (65/86)",
     "MRR@10": "0.4642"
   },
-  "note": "Generation-1 metrics match v3.2 exactly (sanity passed). Structure stats from score_bbd_routes.py structure mode.",
+  "note": "P4.1 wildcard fix. Generation-1 metrics match v3.2 exactly (sanity passed). Wildcard atoms (atomic num 0) sunk to bottom, excluded from frontier. 0 unmarked wildcard edges, 0 wildcard in frontier.",
   "structure": {
-    "cycle_edges": 2263,
+    "cycle_edges": 2222,
     "depth_0_nodes": 93,
     "depth_1_edges": 15222,
-    "depth_1_frontier": 465,
-    "depth_1_nodes": 465,
-    "depth_2_edges": 96179,
-    "depth_2_frontier": 2174,
-    "depth_2_nodes": 2174,
-    "depth_3_edges": 499268,
+    "depth_1_frontier": 458,
+    "depth_1_nodes": 458,
+    "depth_2_edges": 93632,
+    "depth_2_frontier": 2137,
+    "depth_2_nodes": 2137,
+    "depth_3_edges": 486412,
     "depth_3_frontier": 0,
-    "depth_3_nodes": 9969,
-    "ion_filtered_edges": 9807,
+    "depth_3_nodes": 9757,
+    "ion_filtered_edges": 9906,
+    "wildcard_filtered_edges": 17288,
     "parent_copy_edges": 0,
-    "total_edges": 610669,
-    "total_nodes": 12701
+    "total_edges": 595266,
+    "total_nodes": 12445
   }
 }
