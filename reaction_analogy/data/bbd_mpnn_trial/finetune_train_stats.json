@@ -1,0 +1,73 @@
+{
+  "n_total": 500,
+  "n_ok_roundtrip": 479,
+  "n_parse_fail": 0,
+  "n_no_reacted": 110,
+  "n_multi_fragment": 0,
+  "n_leak": 2,
+  "n_kept": 367,
+  "reacted_count_distribution": {
+    "3": 184,
+    "4": 76,
+    "5": 17,
+    "6": 29,
+    "7": 18,
+    "8": 7,
+    "9": 6,
+    "10": 5,
+    "11": 9,
+    "12": 4,
+    "13": 3,
+    "14": 1,
+    "15": 1,
+    "16": 1,
+    "17": 1,
+    "19": 1,
+    "20": 1,
+    "23": 1,
+    "29": 1,
+    "30": 1
+  },
+  "leak_assertion_passed": true,
+  "leak_intersect_count": 0,
+  "spot_checks": [
+    {
+      "record_id": "rhea:10005",
+      "derived_n_reacted": 4,
+      "derived_reacted_idx": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "aam_changed_reactant": 4,
+      "mapped_reaction_smiles": "[N:1](=[C:2]=[S:3])[CH2:4][c:5]1[cH:6][cH:7][cH:8][cH:9][cH:10]1>>[N:1]#[C:2][S:3][CH2:4][c:5]1[cH:6][cH:7][cH:8][cH:9][cH:10]1",
+      "match": true
+    },
+    {
+      "record_id": "rhea:10006",
+      "derived_n_reacted": 4,
+      "derived_reacted_idx": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "aam_changed_reactant": 4,
+      "mapped_reaction_smiles": "[S:1]([C:2]#[N:3])[CH2:4][c:5]1[cH:6][cH:7][cH:8][cH:9][cH:10]1>>[S:1]=[C:2]=[N:3][CH2:4][c:5]1[cH:6][cH:7][cH:8][cH:9][cH:10]1",
+      "match": true
+    },
+    {
+      "record_id": "rhea:10057",
+      "derived_n_reacted": 3,
+      "derived_reacted_idx": [
+        1,
+        2,
+        53
+      ],
+      "aam_changed_reactant": 10,
+      "mapped_reaction_smiles": "[CH3:1][C@@H:2]([CH2:3][C:4](=[O:5])[S:6][CH2:7][CH2:8][NH:9][C:10](=[O:11])[CH2:12][CH2:13][NH:14][C:15](=[O:16])[C@H:17]([OH:18])[C:19]([CH3:20])([CH3:21])[CH2:22][O:23][P:24](=[O:25])([O-:26])[O:27][P:28](=[O:29])([O-:30])[O:31][CH2:32][C@H:33]1[O:34][C@@H:35]([n:36]2[cH:37][n:38][c:39]3[c:40]([NH2:41])[n:42][cH:43][n:44][c:45]23)[C@H:46]([OH:47])[C@@H:48]1[O:49][P:50](=[O:51])([O-:52])[O-:53])[NH3+:54]>>[CH3:1]/[CH:2]=[CH:3]/[C:4](=[O:5])[S:6][CH2:7][CH2:8][NH:9][C:10](=[O:11])[CH2:12][CH2:13][NH:14][C:15](=[O:16])[C@H:17]([OH:18])[C:19]([CH3:20])([CH3:21])[CH2:22][O:23][P:24](=[O:25])([O-:26])[O:27][P:28](=[O:29])([O-:30])[O:31][CH2:32][C@H:33]1[O:34][C@@H:35]([n:36]2[cH:37][n:38][c:39]3[c:40]([NH2:41])[n:42][cH:43][n:44][c:45]23)[C@H:46]([OH:47])[C@@H:48]1[O:49][P:50](=[O:51])([O-:52])[O-:53].[NH4+:54]",
+      "match": false
+    }
+  ]
+}
