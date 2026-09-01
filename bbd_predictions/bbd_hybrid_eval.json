@@ -1,0 +1,51 @@
+{
+  "hybrid": {
+    "hit_at_1": 78,
+    "hit_at_3": 83,
+    "hit_at_5": 83,
+    "hit_at_10": 83,
+    "hit_at_20": 83,
+    "n": 86,
+    "mrr": 0.9341
+  },
+  "prediction": {
+    "hit_at_1": 33,
+    "hit_at_3": 50,
+    "hit_at_5": 57,
+    "hit_at_10": 59,
+    "hit_at_20": 65,
+    "n": 86,
+    "mrr": 0.4987,
+    "no_donor_parent": {
+      "hit_at_1": 20,
+      "hit_at_3": 31,
+      "hit_at_5": 37,
+      "hit_at_10": 42,
+      "hit_at_20": 46
+    },
+    "n_exact": 40,
+    "attribution": {
+      "prediction": 65
+    }
+  },
+  "lookup_only": {
+    "hit_at_1": 77,
+    "hit_at_3": 81,
+    "hit_at_5": 81,
+    "hit_at_10": 81,
+    "hit_at_20": 81,
+    "n": 86,
+    "mrr": 0.9167,
+    "no_donor_parent": {
+      "hit_at_1": 0,
+      "hit_at_3": 0,
+      "hit_at_5": 0,
+      "hit_at_10": 0,
+      "hit_at_20": 0
+    },
+    "n_exact": 82,
+    "attribution": {
+      "lookup": 81
+    }
+  }
+}
