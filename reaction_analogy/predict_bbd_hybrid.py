@@ -71,6 +71,14 @@ def _belongs(src: str, sk: str) -> bool:
     return sk in src or (sk in ("uspto", "envipath") and src == "both")
 
 
+def _is_wildcard(smi: str) -> bool:
+    """P5.1 (port of expand_bbd_routes._is_wildcard): product contains an
+    atomic-number-0 atom ('*') -> True.  Such candidates are SUNK to the very
+    bottom of the sort (below ion/cofactor), flagged, not deleted."""
+    m = Chem.MolFromSmiles(smi)
+    return m is not None and any(a.GetAtomicNum() == 0 for a in m.GetAtoms())
+
+
 def ns_score_full(c: dict) -> float:
     """Full-precision no-selector shadow score: max over belonging sources of
     (p_source / 3), computed from the pool's three per-source probabilities
@@ -137,6 +145,7 @@ def _predict_serialize(c: dict) -> dict:
         "ion_filtered": c["ion_filtered"],
         "cofactor_filtered": c["cofactor_filtered"],
         "filtered": c["filtered"],
+        "wildcard_filtered": c["wildcard_filtered"],
     }
     # v5 fields (present only in v5 mode — keeps P4.2 output byte-identical)
     if c.get("_v5"):
@@ -175,6 +184,7 @@ def _lookup_serialize(c: dict) -> dict:
         "ion_filtered": c["ion_filtered"],
         "cofactor_filtered": c["cofactor_filtered"],
         "filtered": c["filtered"],
+        "wildcard_filtered": c["wildcard_filtered"],
     }
     if c.get("_v5"):
         out["p_uspto_v5"] = 0.0
@@ -301,6 +311,7 @@ def main() -> int:
     pred_pool_results = []  # undeduped v5 prediction pool (v5 only)
     n_lookup_hit = 0
     n_ion = n_cof = 0
+    n_wc = 0
     n_eawag_rule_cands = 0
 
     for r in pool_cases:
@@ -331,46 +342,55 @@ def main() -> int:
                 can = _sb(prod) or prod
                 ion = IF.is_ion_fragment(prod)
                 cof = CF.is_cofactor_conjugate(prod)
+                wc = _is_wildcard(prod)
                 d = dict(c)
                 d["_canon"] = can
                 d["_ns_score_v5"] = ns_score_v5(d)
                 d["_ns_score_full"] = ns_score_full(d)
                 d["ion_filtered"] = ion
                 d["cofactor_filtered"] = cof
+                d["wildcard_filtered"] = wc
                 d["filtered"] = bool(ion or cof)
                 d["tiebreak_key"] = tiebreak_key(prod, pmw, pna)
                 pred.append(d)
             if tiebreak:
-                pred.sort(key=lambda c: (c["filtered"],
+                pred.sort(key=lambda c: (c["wildcard_filtered"],
+                                         c["filtered"],
                                          -round(c["_ns_score_v5"], 9),
                                          c["tiebreak_key"],
                                          c.get("product_smiles", "")))
             else:
-                pred.sort(key=lambda c: (c["filtered"], -c["_ns_score_v5"],
+                pred.sort(key=lambda c: (c["wildcard_filtered"], c["filtered"],
+                                         -c["_ns_score_v5"],
                                          c.get("product_smiles", "")))
         else:
-            # P4.2 path (byte-identical to delivered predictor)
+            # P4.2 path (P5.1: wildcard filter added; wildcards now sink —
+            # see report §10; pre-P5.1 output had wildcards inside top-20)
             pred = []
             for c in v32_cands:
                 prod = c.get("product_smiles", "")
                 can = _sb(prod) or prod
                 ion = IF.is_ion_fragment(prod)
                 cof = CF.is_cofactor_conjugate(prod)
+                wc = _is_wildcard(prod)
                 nsf = ns_score_full(c)
                 d = dict(c)
                 d["_canon"] = can
                 d["_ns_score_full"] = nsf
                 d["ion_filtered"] = ion
                 d["cofactor_filtered"] = cof
+                d["wildcard_filtered"] = wc
                 d["filtered"] = bool(ion or cof)
                 pred.append(d)
-            pred.sort(key=lambda c: (c["filtered"], -c["_ns_score_full"],
+            pred.sort(key=lambda c: (c["wildcard_filtered"], c["filtered"],
+                                     -c["_ns_score_full"],
                                      c.get("product_smiles", "")))
 
         # --- Layer 1: lookup candidates (already (filtered, -tanimoto, sb)) ---
         look = EGD.lookup(index, smi)
         for c in look:
             c["_canon"] = c["product_smiles"]
+            c["wildcard_filtered"] = False  # P5.1: lookup products never '*'
             if v5:
                 pprops = F._mol_props(smi)
                 pmw = pprops["mw"] if pprops else 0.0
@@ -390,6 +410,7 @@ def main() -> int:
 
         n_ion += sum(1 for c in merged if c.get("ion_filtered"))
         n_cof += sum(1 for c in merged if c.get("cofactor_filtered"))
+        n_wc += sum(1 for c in merged if c.get("wildcard_filtered"))
 
         # --- serialize ---
         def _ser(c: dict) -> dict:
@@ -453,6 +474,7 @@ def main() -> int:
         "n_lookup_miss_cases": len(results) - n_lookup_hit,
         "total_ion_filtered": n_ion,
         "total_cofactor_filtered": n_cof,
+        "total_wildcard_filtered": n_wc,
         "n_eawag_rule_candidates": n_eawag_rule_cands,
         "mean_cands_per_case": round(
             sum(r["n_cand_union"] for r in results) / max(len(results), 1), 1),
@@ -461,7 +483,7 @@ def main() -> int:
     }
     IOR.robust_json_dump(args.out_report, report)
     print(f"DONE: {len(results)} cases, {n_lookup_hit} lookup-hit, "
-          f"{n_ion} ions + {n_cof} cofactors sunk, "
+          f"{n_ion} ions + {n_cof} cofactors + {n_wc} wildcards sunk, "
           f"{n_eawag_rule_cands} eawag_rule cands, {time.time()-t0:.1f}s",
           flush=True)
     return 0

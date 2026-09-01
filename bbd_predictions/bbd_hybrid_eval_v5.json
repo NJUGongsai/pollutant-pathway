@@ -29,13 +29,13 @@
     }
   },
   "prediction_full_v5": {
-    "hit_at_1": 32,
+    "hit_at_1": 33,
     "hit_at_3": 50,
     "hit_at_5": 55,
     "hit_at_10": 66,
     "hit_at_20": 69,
     "n": 86,
-    "mrr": 0.5036
+    "mrr": 0.5116
   },
   "ablations": {
     "a_old_ranker_v3": {
@@ -45,52 +45,52 @@
       "hit_at_10": 59,
       "hit_at_20": 65,
       "n": 86,
-      "mrr": 0.4987
+      "mrr": 0.5006
     },
     "a_new_ranker_v5": {
-      "hit_at_1": 31,
+      "hit_at_1": 32,
       "hit_at_3": 50,
       "hit_at_5": 54,
       "hit_at_10": 64,
       "hit_at_20": 66,
       "n": 86,
-      "mrr": 0.4928
+      "mrr": 0.5007
     },
     "b_rules_off": {
-      "hit_at_1": 31,
+      "hit_at_1": 32,
       "hit_at_3": 50,
       "hit_at_5": 54,
       "hit_at_10": 64,
       "hit_at_20": 66,
       "n": 86,
-      "mrr": 0.4928
+      "mrr": 0.5007
     },
     "b_rules_on": {
-      "hit_at_1": 32,
+      "hit_at_1": 33,
       "hit_at_3": 50,
       "hit_at_5": 55,
       "hit_at_10": 66,
       "hit_at_20": 69,
       "n": 86,
-      "mrr": 0.5015
+      "mrr": 0.5095
     },
     "c_tiebreak_off": {
-      "hit_at_1": 32,
+      "hit_at_1": 33,
       "hit_at_3": 50,
       "hit_at_5": 55,
       "hit_at_10": 66,
       "hit_at_20": 69,
       "n": 86,
-      "mrr": 0.5015
+      "mrr": 0.5095
     },
     "c_tiebreak_on": {
-      "hit_at_1": 32,
+      "hit_at_1": 33,
       "hit_at_3": 50,
       "hit_at_5": 55,
       "hit_at_10": 66,
       "hit_at_20": 69,
       "n": 86,
-      "mrr": 0.5036
+      "mrr": 0.5116
     }
   }
 }

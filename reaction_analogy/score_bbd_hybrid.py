@@ -117,20 +117,29 @@ def load_preds(path, stereo_blind=True):
     return out
 
 
+def _is_wildcard(smi):
+    """P5.1 (port of expand_bbd_routes._is_wildcard): atomic-number-0 atom."""
+    m = Chem.MolFromSmiles(smi)
+    return m is not None and any(a.GetAtomicNum() == 0 for a in m.GetAtoms())
+
+
 def _rank_prediction(cands):
-    """P4.2 re-rank: (filtered, -ns_score_full, smiles)."""
+    """P4.2 re-rank: (wildcard, filtered, -ns_score_full, smiles).
+    P5.1: wildcard candidates sink below ion/cofactor."""
     scored = []
     for c in cands:
         prod = c.get("product_smiles", "")
         ion = IF.is_ion_fragment(prod)
         cof = CF.is_cofactor_conjugate(prod)
-        scored.append((bool(ion or cof), ns_score_full(c), c["_canon"], c))
-    scored.sort(key=lambda x: (x[0], -x[1], x[2]))
-    return [s[3] for s in scored]
+        wc = _is_wildcard(prod)
+        scored.append((wc, bool(ion or cof), ns_score_full(c), c["_canon"], c))
+    scored.sort(key=lambda x: (x[0], x[1], -x[2], x[3]))
+    return [s[4] for s in scored]
 
 
 def _rank_prediction_v5(cands, version, tiebreak, rules):
-    """v5 re-rank with version/tiebreak/rules switches (ablation source)."""
+    """v5 re-rank with version/tiebreak/rules switches (ablation source).
+    P5.1: wildcard candidates sink below ion/cofactor."""
     scored = []
     for c in cands:
         if rules == "off" and c.get("rule_family") == "eawag_rule":
@@ -138,14 +147,15 @@ def _rank_prediction_v5(cands, version, tiebreak, rules):
         prod = c.get("product_smiles", "")
         ion = IF.is_ion_fragment(prod)
         cof = CF.is_cofactor_conjugate(prod)
+        wc = _is_wildcard(prod)
         nsf = _ns_score(c, version)
         tb = c.get("tiebreak_key", 0.0)
-        scored.append((bool(ion or cof), nsf, tb, c["_canon"], c))
+        scored.append((wc, bool(ion or cof), nsf, tb, c["_canon"], c))
     if tiebreak == "on":
-        scored.sort(key=lambda x: (x[0], -round(x[1], 9), x[2], x[3]))
+        scored.sort(key=lambda x: (x[0], x[1], -round(x[2], 9), x[3], x[4]))
     else:
-        scored.sort(key=lambda x: (x[0], -x[1], x[3]))
-    return [s[4] for s in scored]
+        scored.sort(key=lambda x: (x[0], x[1], -x[2], x[4]))
+    return [s[5] for s in scored]
 
 
 def _eval(prods, truth, ks=KS):

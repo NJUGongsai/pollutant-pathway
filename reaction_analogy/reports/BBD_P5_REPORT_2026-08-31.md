@@ -400,3 +400,143 @@ python3 reaction_analogy/score_bbd_hybrid.py calibers_v5 \
 
 Expected: prediction Hit@1 32/86 = 37.2%, Hit@10 66/86 = 76.7%, hybrid
 Hit@1 77/86 = 89.5%.
+
+---
+
+## 10. P5.1 wildcard fix (2026-09-01, GLM-5.3 audit follow-up)
+
+### 10.1 Motivation (audit finding — confirmed)
+
+GLM-5.3's audit found that `predict_bbd_hybrid.py` (P4.2-introduced, P5
+inherited) lacked the wildcard filter: P4.1's `_is_wildcard` fix was applied
+only to `expand_bbd_routes.py` (multi-step pipeline); the hybrid predictor
+consumes the v3.2 pool and missed the defense. **Verified on the pre-fix v5
+pool:** 1,158 candidates containing atomic-number-0 atoms (`'*'`,
+`'[H]*[H]'`, `'[1*]'`, …), **all** `source="retrieval"` (donor-record
+products inherited via the v3.2 pool), across 75 of 93 cases. Three cases
+had a wildcard at prediction top-1:
+
+| case | pre-fix prediction top-1 | rank-2 | effect of fix |
+|------|--------------------------|--------|---------------|
+| c0116 | `[H]*[H]` | true product `C[C@H](O)c1ccccc1` | **Hit@1 recovered (+1)** |
+| c0153 | `[H]*[H]` | true product not in pool | cleanliness only |
+| c0939 | `*C=O` | true product not in pool (rank ~403) | cleanliness only |
+
+The audit's *expected* hybrid 77→78 via c0116 is **incorrect** — c0116 is a
+lookup-hit case (lookup block pinned on top, already Hit@1); the wildcard sat
+at prediction rank-1 only. Hybrid 89.5% is unchanged by the fix (§10.4).
+
+### 10.2 Diff (minimal)
+
+`reaction_analogy/predict_bbd_hybrid.py` (+~15 lines):
+
+- ported `_is_wildcard(smi)` verbatim from `expand_bbd_routes.py`
+  (any atom with `GetAtomicNum() == 0`);
+- **v5 path**: sort key `(filtered, …)` → `(wildcard_filtered, filtered, …)`
+  in both tiebreak-on and tiebreak-off branches — wildcard sinks *below*
+  ion/cofactor, exactly the directive's ordering;
+- **P4.2 path**: same change — the directive explicitly requires the shared
+  defect fixed for both paths ("修一次两边都好");
+- `wildcard_filtered` flag emitted on every candidate (both serializers +
+  lookup candidates pinned `False` — the EAWAG lookup source is
+  wildcard-free: 0/1066 donor products contain `*`);
+- run report gains `total_wildcard_filtered` (v5: 1158; P4.2: 1158).
+
+`reaction_analogy/score_bbd_hybrid.py` (+~10 lines): `_rank_prediction` and
+`_rank_prediction_v5` gained the same leading `wildcard` sort key. **This was
+necessary, not gold-plating**: the scorer re-ranks the pool itself (it does
+not trust stored candidate order) and recomputes the ion/cofactor filters
+from SMILES — without the mirror change the prediction caliber (32→33) and
+the four ablations could not materialize the fix. No scorer reading of
+stored `wildcard_filtered` was added (keeps the scorer self-contained).
+
+No parameters, no thresholds, nothing tunable: atomic-number-0 sink is
+total. Red-lines: answer-key isolation unchanged (only the scorer reads the
+key); ONE evaluation run of `calibers_v5` post-fix (§10.4); no other
+delivered-file behavior changed (§10.5 documents the one intended exception).
+
+### 10.3 Before / after (83-case stereo-blind, n = 86 scored)
+
+| Caliber | metric | pre-fix (P5) | post-fix (P5.1) | Δ |
+|---------|--------|--------------|-----------------|---|
+| prediction (full v5) | Hit@1 | 32/86 = 37.2% | **33/86 = 38.4%** | **+1 (c0116)** |
+| prediction (full v5) | Hit@10 | 66/86 = 76.7% | 66/86 = 76.7% | 0 |
+| prediction (full v5) | MRR@10 | 0.5036 | **0.5116** | +0.0080 |
+| hybrid (v5) | Hit@1 | 77/86 = 89.5% | 77/86 = 89.5% | 0 |
+| hybrid (v5) | Hit@10 | 82/86 = 95.3% | 82/86 = 95.3% | 0 |
+| lookup-only (v5) | Hit@1 | 77/86 = 89.5% | 77/86 = 89.5% | 0 (structurally pinned) |
+
+Ablations (prediction caliber, post-fix): a_old (v3) 33/59 MRR 0.5006 — the
+v3-ranker ablation now equals the P4.2 baseline numbers (38.4/68.6) with the
+wildcard defect removed; a_new (v5) 32/64 MRR 0.5007; b_rules_on 33/66 MRR
+0.5095; c_tiebreak on=off 33/66. Note the ablation deltas are shifted by the
+fix (pre-fix a_old was 33 with a wildcard-assisted hit; the fix also recovers
+one case under the v5 ranker), so the §2/§3.1 component-attribution story is
+unchanged in substance: A still trades −1~−2 Hit@1 for +5 Hit@10, B still +1,
+C still 0.
+
+**Expectation check (directive §3):** predicted pure Hit@1 32→33 **met**
+(c0116 top-1 = `C[C@H](O)c1ccccc1`, the true product). Predicted hybrid
+77→78 **not met — and the expectation itself was erroneous**: c0116's
+wildcard occupied *prediction* rank-1, but c0116 is a lookup-hit case whose
+hybrid top-1 was already the true product at P5 time (verified: pre-fix
+hybrid top-1 for c0116 = `CC(O)c1ccccc1` = truth). The hybrid gate
+(≥90.7%) remains **FAILED at 89.5%**; the underlying hybrid regression case
+is unchanged (§10.6).
+
+Gate recap post-fix: prediction Hit@1 38.4% (gate 45%) FAIL; Hit@10 76.7%
+(gate 70%) PASS; hybrid Hit@1 89.5% (gate 90.7%) FAIL. One case short on
+both failing gates; the fix closed the pure-prediction gap to the P4.2
+baseline (38.4% = 38.4%) but cannot close hybrid.
+
+### 10.4 Determinism / one-eval discipline
+
+- Pre-fix reproducibility was verified BEFORE editing: both the v5 pipeline
+  (3 outputs) and the P4.2 mode (2 outputs) re-ran **byte-identical** to the
+  committed P5 artifacts (only wall-clock `total_time_s` differs in the run
+  report).
+- Post-fix v5 predict was double-run: **byte-identical** across both runs.
+- Exactly ONE post-fix `calibers_v5` evaluation was executed (numbers in
+  §10.3); no intermediate/extra scoring runs against the answer key.
+
+### 10.5 P4.2-mode byte-identity check (directive item 2) — NOT identical
+
+The directive's expectation ("P4.2 delivered top-20 had no wildcard
+occupancy") is **factually incorrect**: the delivered P4.2
+`bbd_hybrid_predictions.jsonl` contains **58 wildcard candidates inside
+top-20 blocks across 26 cases** (e.g. c0121 top-20 held a bare `*`;
+c0116/c0153 held `[H]*[H]`). Consequently the post-fix P4.2-mode rerun
+**differs** from the delivered files:
+
+- 26/93 cases have changed top-20 blocks (58 wildcards left; real molecules
+  entered);
+- 0 unmarked wildcards remain; every candidate now carries
+  `wildcard_filtered` (new field — itself a byte-diff);
+- candidate *sets* per case are unchanged (pure re-rank, nothing added or
+  removed).
+
+Per the directive's fallback rule the NEW behavior stands, the delivered
+P4.2 files were **not** modified (verified clean in git), and this deviation
+is reported here. The P4.2 caliber's published numbers are not re-evaluated
+(one-eval rule); the change is expected to only *clean* P4.2's top-20s.
+
+### 10.6 eawag_rules_engine self-check (directive item 4)
+
+The rule source is clean: `eawag_rules_engine.py` product cleaning already
+rejects wildcard atoms (v2 engine-B cleaning, line ~144:
+`if any(a.GetAtomicNum() == 0 for a in p2.GetAtoms()): continue`).
+Re-verified live: over all 90 blind parents the 49 rules emit **747
+candidates, 0 with wildcard atoms**; the c0946 self-test passes. The rule
+source has no such problem — the defect was purely pool inheritance from
+the retrieval source in the v3.2 pool.
+
+### 10.7 Remaining hybrid gap (unchanged by this fix)
+
+Post-fix, the hybrid-miss cases are all lookup-miss: c0236 (truth at
+prediction rank 5), c0432 (truth absent from pool), c0939 (truth at
+prediction rank ~403 pre-fix; its P4.2-era top-1 was an ion/cofactor-sink
+cofactor conjugate now demoted; truth still absent from top-20), c1412
+(truth at rank 13). The 78th hybrid hit (90.7% gate) is not recoverable by
+wildcard sinking — it would require ranker or pool changes outside this
+micro-task's scope.
+
