@@ -18,6 +18,7 @@ from src.schemas.evidence import (
     PredictedReaction,
     IntentClassification,
 )
+from src.schemas.bridge import MultistepRouteInput, MultistepBridgeResult
 
 
 class EnzymeCrewState(BaseModel):
@@ -74,6 +75,16 @@ class EnzymeCrewState(BaseModel):
     # 证据链与不确定性
     evidence_chain: List[EvidenceRecord] = Field(default_factory=list)
     uncertainty_flags: List[str] = Field(default_factory=list)
+
+    # ====== 防串线锚定字段（09-02 裁定 8：三个真缺口补齐）======
+    # 多步桥接下，单步任务与证据必须可锚定到具体 reaction_task_id，防跨步/跨会话串线。
+    reaction_task_id: Optional[str] = None   # 当前单步反应任务唯一锚定 id（裁定 5/6 主键）
+    source_signature: Optional[str] = None   # 上游数据源签名（工具+版本/SHA），防证据串线
+    evidence_hash: Optional[str] = None      # 证据链内容哈希，防篡改/串线
+
+    # ====== M5: 多步—单步桥接智能体（09-02 裁定 5/6）======
+    multistep_route: Optional[MultistepRouteInput] = None   # 多步路径输入（非空则先走桥接）
+    bridge_result: Optional[MultistepBridgeResult] = None   # 桥接拆步结果（steps + 覆盖统计）
 
     # 错误处理
     error: Optional[str] = None

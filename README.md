@@ -37,7 +37,7 @@
 | `orchestrator` | 入口编排、模式路由 |
 | `substrate` | 底物解析（名称/SMILES → 结构） |
 | `reaction` | 基于底物相似性检索候选反应（route_b/route_c） |
-| `reaction_prediction` | 相似性失败时的独立反应预测（fallback，占位待实装） |
+| `reaction_prediction` | 相似性失败时的独立反应预测（fallback；引擎选型中：BioTransformer ENVMICRO 机制已验证——EAWAG 规则系统，SMARTS 命中 + SMIRKS 变换，非数据库查询；其 `Enzyme(s)` 字段不可作为候选酶 UID） |
 | `enzyme_pool` | 候选反应合并 + 酶池构造（含 route 决策 provenance） |
 | `enzymecage` | 调用冻结 EnzymeCAGE v1 wrapper 排序 |
 | `llm_reranking` | LLM 重排（不可用时诚实 passthrough 降级） |
@@ -114,7 +114,7 @@ enzymecage_crew/
 
 ## 七、状态
 
-当前进度：图结构骨架 10/10 节点已装配；酶推荐主干（底物→反应→酶池→EnzymeCAGE→重排）已实装并通过晨羽真跑验证；微生物支线完成事实映射；性状层（M4b）按契约锁定，尚未启动运行时；反应预测器 fallback 为占位待实装。详见 `docs/` 下框架与评审文档。
+当前进度：图结构骨架 10/10 节点已装配；酶推荐主干（底物→反应→酶池→EnzymeCAGE→重排）已实装并通过晨羽真跑验证；微生物支线完成事实映射；性状层（M4b）按契约锁定，尚未启动运行时；反应预测器 fallback 引擎选型中（BioTransformer ENVMICRO 内部机制已由学生侧源码核查确认，等待弓师兄模型返回后三工具横向比较闭环）；D4 按需补资产（AlphaFill/P2Rank 口袋）已完成 100 UID 困难样本小试，作为 M4 立项前置摸底归档。详见 `docs/` 下框架与评审文档。
 
 ## 八、License
 

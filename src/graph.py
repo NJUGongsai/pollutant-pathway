@@ -12,6 +12,7 @@ import logging
 from typing import Literal
 
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.memory import MemorySaver
 
 from src.state import EnzymeCrewState
 from src.nodes.orchestrator_node import orchestrator_node
@@ -26,6 +27,7 @@ from src.nodes.microbe_selection_node import microbe_selection_node
 from src.nodes.organism_selection_node import organism_selection_node
 from src.nodes.trait_filter_node import trait_filter_node
 from src.nodes.evidence_synthesis_node import evidence_synthesis_node
+from src.nodes.multi_step_bridge_node import multi_step_bridge_node
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +103,26 @@ def route_after_trait(state: EnzymeCrewState) -> str:
     return "synthesis"
 
 
+def route_after_orchestrator(state: EnzymeCrewState) -> str:
+    """orchestrator 后路由（09-02 裁定 5 桥接扩展）。
+
+    - 多步路径（multistep_route 非空）→ 先走桥接拆步。
+    - 单步查询 → 直接进 substrate，行为与改造前一致。
+    """
+    if state.fail_closed or state.error:
+        return "end"
+    if state.multistep_route is not None:
+        return "bridge"
+    return "substrate"
+
+
+def route_after_bridge(state: EnzymeCrewState) -> str:
+    """多步桥接后路由：拆步后首步进入单步链路（多步循环由上层 checkpointer 驱动）。"""
+    if state.fail_closed or state.error:
+        return "end"
+    return "substrate"
+
+
 # ─── 图构建 ─────────────────────────────────────────────────────────
 
 def build_graph() -> StateGraph:
@@ -125,16 +147,24 @@ def build_graph() -> StateGraph:
     workflow.add_node("organism_selection", organism_selection_node)    # M5 选菌层（LLM 硬依赖）
     workflow.add_node("trait", trait_filter_node)                       # M5
     workflow.add_node("synthesis", evidence_synthesis_node)             # M5
+    workflow.add_node("bridge", multi_step_bridge_node)                 # M5 多步桥接（裁定 5）
 
     # ── 入口 ──
     workflow.set_entry_point("orchestrator")
 
     # ── 边 ──
-    # orchestrator → substrate
+    # orchestrator → bridge（多步）/ substrate（单步）
     workflow.add_conditional_edges(
         "orchestrator",
-        should_continue,
-        {"continue": "substrate", "end": END},
+        route_after_orchestrator,
+        {"bridge": "bridge", "substrate": "substrate", "end": END},
+    )
+
+    # bridge → substrate（拆步后首步进入单步链路）
+    workflow.add_conditional_edges(
+        "bridge",
+        route_after_bridge,
+        {"substrate": "substrate", "end": END},
     )
 
     # substrate → reaction
@@ -206,7 +236,11 @@ def build_graph() -> StateGraph:
     return workflow
 
 
-def compile_graph():
-    """编译并返回可执行图"""
+def compile_graph(checkpointer=None):
+    """编译并返回可执行图。
+
+    checkpointer: 可注入外部持久化 checkpointer；默认用内存 MemorySaver，
+    支持多步桥接循环 / 断点续跑 / 状态回溯（09-02 补齐状态持久化真缺口）。
+    """
     workflow = build_graph()
-    return workflow.compile()
+    return workflow.compile(checkpointer=checkpointer or MemorySaver())

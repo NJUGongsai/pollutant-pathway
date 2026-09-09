@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 
 from src.state import EnzymeCrewState
 from src.schemas.evidence import EvidenceRecord, PredictedReaction
+from src.tools.reaction_predictor import predict_reactions
 
 logger = logging.getLogger(__name__)
 
@@ -18,10 +19,13 @@ def reaction_prediction_node(state: EnzymeCrewState) -> dict:
     触发条件: ReactionNode 返回空或相似度过低
     输出: state.predicted_reactions + reaction_source 更新
     
-    实现路线 (TODO M5):
-    - 方案 A: 调用逆合成工具 (如 AiZynthFinder 接口)
-    - 方案 B: LLM 生成候选反应 SMILES + 验证
-    - 方案 C: 规则库匹配 (已知降解路径模板)
+    实现路线 (2026-08-05 实装):
+    - biotransformer_envmicro: BioTransformer 3.0 ENVMICRO 规则引擎（EAWAG-BBD/PPS，
+      SMARTS 命中 + SMIRKS 变换），jar 路径由 BIOTRANSFORMER_JAR 环境变量提供
+    - template_matching / llm_generation: 占位，待引擎选型裁定后实装
+    
+    fail-closed 语义：jar 未配置或调用失败时 predict_reactions 返回空，
+    本节点维持原有 fail_closed 行为（不伪造候选）。
     """
     logger.info("[ReactionPredictionNode] M5 fallback: predicting reactions...")
 
@@ -34,14 +38,10 @@ def reaction_prediction_node(state: EnzymeCrewState) -> dict:
             "fail_closed": True,
         }
 
-    # ─── TODO M5: 实际实现 ───────────────────────────────
-    # 当前占位：返回空并标记
-    # 正式版本应调用:
-    #   from src.tools.reaction_predictor import predict_reactions
-    #   predicted = predict_reactions(substrate_smiles)
-    # ────────────────────────────────────────────────────────
-
-    predicted: list[PredictedReaction] = []
+    # ─── M5 实装：BioTransformer ENVMICRO fallback ─────────
+    # 产物经 adapter 后处理（RDKit 规范化/去重/Top-K），映射为 parent>>product 半反应；
+    # 规则引擎无概率，confidence=0.0，语义在 provenance 中标注。
+    predicted: list[PredictedReaction] = predict_reactions(substrate_smiles)
 
     if not predicted and not state.candidate_reactions:
         return {
