@@ -49,22 +49,26 @@ def validate_smiles(smiles: str) -> Optional[str]:
     return Chem.MolToSmiles(mol)
 
 
-def detect_smiles_in_query(query: str) -> Optional[str]:
-    """尝试从查询中直接检测 SMILES 字符串。
+def detect_smiles_in_query(query: str) -> tuple[Optional[str], Optional[str]]:
+    """尝试从查询中直接检测 SMILES 字符串，返回 (canonical_smiles, raw_token)。
 
     候选 token 若原样 rdkit 无法解析，会尝试逐层剥去尾部标点
     （右括号 / 逗号 / 句号 / 分号）再验，以容忍 '降解己烷(CCCCCC)的酶'
     这种中文括号包裹场景。
+
+    T6-R3 裁定 6：首字符放宽为大小写，接受 canonical lowercase aromatic
+    SMILES（如 c1ccccc1，芳香碳小写开头）；RDKit parse 作为硬门拒绝误匹配。
     """
-    # 匹配常见 SMILES 模式：包含 C/N/O/S/P 和连接符
-    smiles_pattern = r'[A-Z][a-zA-Z0-9@+\-\[\]()=#/\\.]{4,}'
+    # 匹配 SMILES token：首字符允许大小写（芳香碳 c/n/o/s/p 小写），
+    # 后续为原子/键/括号/数字等；RDKit parse 硬门负责拒绝普通英文单词/标点。
+    smiles_pattern = r'[a-zA-Z][a-zA-Z0-9@+\-\[\]()=#/\\.]{4,}'
     trailing_strip = ")],;.:），。；："
     candidates = re.findall(smiles_pattern, query)
     for cand in candidates:
         # 直接尝试
         validated = validate_smiles(cand)
         if validated:
-            return validated
+            return validated, cand
         # 剥尾标点重试（最多剥 4 层）
         trimmed = cand
         for _ in range(4):
@@ -72,10 +76,10 @@ def detect_smiles_in_query(query: str) -> Optional[str]:
                 trimmed = trimmed[:-1]
                 validated = validate_smiles(trimmed)
                 if validated:
-                    return validated
+                    return validated, trimmed
             else:
                 break
-    return None
+    return None, None
 
 
 def detect_inchi_in_query(query: str) -> Optional[str]:
@@ -99,14 +103,15 @@ def parse_substrate(user_query: str) -> SubstrateInfo:
     3. 调用 LLM 解析自然语言
     """
     # Step 1: 尝试直接检测 SMILES
-    direct_smiles = detect_smiles_in_query(user_query)
+    direct_smiles, raw_smiles = detect_smiles_in_query(user_query)
     if direct_smiles:
-        logger.info(f"Direct SMILES detected: {direct_smiles}")
+        logger.info(f"Direct SMILES detected: {direct_smiles} (raw={raw_smiles})")
         return SubstrateInfo(
             substrate_smiles=direct_smiles,
             substrate_name=None,
             source="user_smiles",
-            provenance=f"regex_extracted_from_query"
+            raw_substrate_smiles=raw_smiles,
+            provenance=f"regex_extracted_from_query(raw={raw_smiles})",
         )
 
     # Step 2: 尝试检测 InChI

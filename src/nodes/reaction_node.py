@@ -3,6 +3,7 @@
 
 import logging
 from datetime import datetime, timezone
+import hashlib
 
 from src.state import EnzymeCrewState
 from src.schemas.evidence import EvidenceRecord
@@ -58,10 +59,17 @@ def reaction_node(state: EnzymeCrewState) -> dict:
         }
 
     # 追加证据链
+    # 单步场景统一公共 ID 合同（T6-R3 裁定 4）：reaction_task_id = RT-{16hex}。
+    # 多步桥接已写入 state.reaction_task_id 时保留；单步则按底物确定性生成，
+    # 作为 T5 消费与跨组件 crosswalk 的唯一锚定键（不再用 NONE_SINGLE_STEP_M5）。
+    reaction_task_id = state.reaction_task_id or (
+        f"RT-{hashlib.md5(substrate_smiles.encode('utf-8')).hexdigest()[:16]}"
+    )
     evidence = EvidenceRecord(
         stage="reaction",
         action="retrieved_similar_reactions",
         data={
+            "reaction_task_id": reaction_task_id,
             "substrate_smiles": substrate_smiles,
             "num_candidates": len(candidates),
             "top_score": candidates[0].similarity_score,
@@ -72,5 +80,6 @@ def reaction_node(state: EnzymeCrewState) -> dict:
 
     return {
         "candidate_reactions": candidates,
+        "reaction_task_id": reaction_task_id,
         "evidence_chain": state.evidence_chain + [evidence],
     }

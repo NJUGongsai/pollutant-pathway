@@ -24,7 +24,7 @@ class MultistepRouteInput(BaseModel):
 
     route_id: str
     reactant_smiles: List[str] = Field(min_length=2)  # 需 ≥2 个节点才能构成至少一条边
-    source_tool: str = "enviPath"     # 整条路径默认来源工具（每步可引用）
+    source_tool: str                  # 整条路径来源工具（必填）：enviPath / BioTransformer / ECLIPSE；未知需显式写 unknown
     reaction_source: Literal["retrieved", "predicted", "merged"] = "retrieved"
     branch_id: Optional[str] = None   # 线性路径为 None
 

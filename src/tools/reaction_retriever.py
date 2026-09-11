@@ -300,6 +300,8 @@ def _mock_retrieve_dryrun(substrate_smiles: str, topk: int) -> List[CandidateRea
             reaction_smiles=f"{substrate_smiles}.O=O>>{substrate_smiles}O_mock{i}",
             similarity_score=round(0.9 - i * 0.1, 4),
             source="retrieved",
+            source_tag="mock_dry_run",
+            source_tool="reaction_retriever",
             rhea_id=f"MOCK:{10000 + i}",
             ec_numbers=[fake_ecs[i % len(fake_ecs)]],
         ))
@@ -349,6 +351,8 @@ def retrieve_similar_reactions(
             reaction_smiles=rxn_smi,
             similarity_score=round(score, 4),
             source="retrieved",
+            source_tag="similarity_retrieval_route_c",
+            source_tool="reaction_retriever",
             rhea_id=db._rxn_rhea_map.get(rxn_smi),
             ec_numbers=db._rxn_ec_map.get(rxn_smi),
         ))

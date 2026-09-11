@@ -12,6 +12,9 @@ from pydantic import BaseModel, Field
 class SubstrateInfo(BaseModel):
     """底物解析结果"""
     substrate_smiles: str
+    # 原输入 SMILES token（规范化前）——T6-R3 裁定 6：保留原文便于来源可追踪，
+    # canonical lowercase aromatic 直接接受时不丢失原始表示。
+    raw_substrate_smiles: Optional[str] = None
     substrate_name: Optional[str] = None
     # 取值：
     #   user_smiles     — 用户直接供 SMILES
@@ -23,10 +26,16 @@ class SubstrateInfo(BaseModel):
 
 
 class CandidateReaction(BaseModel):
-    """候选反应"""
+    """候选反应
+
+    source_tag/source_tool 强制非空（T6-R3 裁定 3）：任何构造点必须显式标注来源，
+    未知来源显式写 unknown/unavailable，禁止缺省或默认 enviPath（避免零调用时来源误归因）。
+    """
     reaction_smiles: str
     similarity_score: float
     source: Literal["retrieved", "predicted"] = "retrieved"
+    source_tag: str        # 来源细粒度标签：similarity_retrieval_route_c / biotransformer_envmicro / depending_v32 / mock_dry_run / unknown
+    source_tool: str       # 来源工具名：reaction_retriever / reaction_predictor / unknown
     rhea_id: Optional[str] = None
     ec_numbers: Optional[List[str]] = None
 

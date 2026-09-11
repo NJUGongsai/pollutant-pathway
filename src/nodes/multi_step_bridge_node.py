@@ -14,6 +14,7 @@
 import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
+import hashlib
 
 from src.state import EnzymeCrewState
 from src.schemas.bridge import (
@@ -28,9 +29,14 @@ logger = logging.getLogger(__name__)
 
 
 def _make_reaction_task_id(route_id: str, depth: int, branch_id: Optional[str]) -> str:
-    """生成单步 reaction_task_id：route_id + depth [+ branch]，路由内唯一锚定。"""
+    """生成单步 reaction_task_id：统一公共 ID 合同 RT-{16hex}（T6-R3 裁定 4）。
+
+    T5 只接受 RT-{16hex}；graph-native / bridge 统一生成 RT-*，不再使用 R-*。
+    16hex = md5(路由种子)[:16]，确定性可复现，作为跨组件 crosswalk 锚定键。
+    """
     branch = f".{branch_id}" if branch_id else ""
-    return f"{route_id}:step{depth}{branch}"
+    seed = f"{route_id}:step{depth}{branch}"
+    return f"RT-{hashlib.md5(seed.encode('utf-8')).hexdigest()[:16]}"
 
 
 def split_multistep_route(route: MultistepRouteInput) -> List[MultistepStep]:
