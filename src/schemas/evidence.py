@@ -2,7 +2,7 @@
 # 证据链与子模型（M3 + M5 全量）
 
 from typing import List, Optional, Literal, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -38,6 +38,14 @@ class CandidateReaction(BaseModel):
     source_tool: str       # 来源工具名：reaction_retriever / reaction_predictor / unknown
     rhea_id: Optional[str] = None
     ec_numbers: Optional[List[str]] = None
+
+    @field_validator("source_tag", "source_tool")
+    @classmethod
+    def _reject_blank_source(cls, v: str) -> str:
+        # T6-R3 裁定 3：强制非空 + 拒绝空串/纯空白（"" / "   "）
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("source_tag/source_tool 必须为非空字符串（禁止空串或纯空白）")
+        return v
 
 
 class RankedEnzyme(BaseModel):

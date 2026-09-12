@@ -45,14 +45,12 @@ def should_continue(state: EnzymeCrewState) -> str:
 def route_after_reaction(state: EnzymeCrewState) -> str:
     """
     ReactionNode 后路由:
-    - fail_closed → end
-    - M3: 直接到 enzyme_pool
-    - M5: 检查候选反应是否足够，不足则走 prediction fallback
+    - 真失败（上游故障/检索工具异常，fail_closed 或 error）→ end
+    - M5: 检索 MISS（无候选反应，非失败）→ prediction fallback
+      （BioTransformer ENVMICRO，T6-R3 裁定 2）
+    - 其余 → enzyme_pool
     """
     if state.fail_closed or state.error:
-        # M5 模式下 reaction 失败不直接 fail，走 prediction
-        if state.pipeline_mode == "m5" and not state.fail_closed:
-            return "predict"
         return "end"
     if state.pipeline_mode == "m5" and not state.candidate_reactions:
         return "predict"

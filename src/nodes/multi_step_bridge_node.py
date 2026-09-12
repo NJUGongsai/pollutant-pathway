@@ -81,7 +81,9 @@ def apply_step_enzyme_matches(
       严禁从其他步骤借酶填充。
     """
     for step in bridge_result.steps:
-        uids = step_enzymes.get(step.reaction_task_id, [])
+        raw_uids = step_enzymes.get(step.reaction_task_id, [])
+        # 过滤空串/纯空白 UID，防脏数据把步骤误标 MATCHED（T6-R3 缺口③）
+        uids = [u.strip() for u in raw_uids if isinstance(u, str) and u.strip()]
         step.enzyme_match_status = "MATCHED" if uids else "UNMATCHED_ENZYME"
         step.matched_enzyme_uids = uids
     return bridge_result
