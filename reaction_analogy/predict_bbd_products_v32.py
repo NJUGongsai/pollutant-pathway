@@ -6,6 +6,12 @@ Pure inference — reuses the 4 existing v3.1 LightGBM models (no retraining).
 Scoring (no-selector, shadow mechanism):
     ns_score(c) = max over c's sources of (p_source(c) / 3)
 
+v3.3 fusion (default, --scoring v33; DBP post-freeze fix 2026-09-14):
+    candidates differing only by protonation state are merged into one
+    identity (charge normalization); ns33 = (max p_source/3)
+    * (1 + AGREE_BONUS*(n_sources-1)) * SKELETON_KEEP_FACTOR^flag, capped 1/3.
+    See bbd_v33_fusion.py.  --scoring v32 keeps the raw v3.2 behavior.
+
 Ion filter:
     is_ion_fragment(c) → sink to bottom (not deleted); ``ion_filtered`` flag set.
 
@@ -34,6 +40,7 @@ RDLogger.DisableLog("rdApp.*")
 import bbd_v3_features as F  # noqa: E402
 import bbd_v31_ranker as R31  # noqa: E402
 import bbd_v32_ion_filter as IF  # noqa: E402
+import bbd_v33_fusion as V33  # noqa: E402
 
 ROOT = "/Volumes/CC/Enzyme_Agent/depending"
 V3_POOL = os.path.join(ROOT, "bbd_predictions/bbd_product_pool_v3.jsonl")
@@ -62,6 +69,9 @@ def main() -> int:
     ap.add_argument("--out-preds", required=True)
     ap.add_argument("--out-pool", required=True)
     ap.add_argument("--out-report", required=True)
+    ap.add_argument("--scoring", default="v33", choices=["v33", "v32"],
+                    help="v33 = charge-normalized fusion (default); "
+                         "v32 = raw max(p)/3 shadow scoring")
     args = ap.parse_args()
 
     t_start = time.time()
@@ -143,14 +153,19 @@ def main() -> int:
             if c["ion_filtered"]:
                 ion_filtered_total += 1
 
-        # sort: (ion_filtered, -ns_score, product_smiles)
-        cands.sort(key=lambda c: (c["ion_filtered"], -c["ns_score"],
-                                  c["product_smiles"]))
+        # ---- ranking ----
+        if args.scoring == "v33":
+            # charge-normalized identity merge + agreement + skeleton check
+            ranked = V33.score_candidates_v33(cands, smi)
+        else:
+            ranked = cands
+            ranked.sort(key=lambda c: (c["ion_filtered"], -c["ns_score"],
+                                       c["product_smiles"]))
 
         n_atoms = Chem.MolFromSmiles(smi).GetNumAtoms() if Chem.MolFromSmiles(smi) else 0
 
         def _serialize(c: dict) -> dict:
-            return {
+            out = {
                 "product_smiles": c["product_smiles"],
                 "product_smiles_full": c.get("product_smiles_full", c["product_smiles"]),
                 "source": c.get("source", ""),
@@ -168,11 +183,22 @@ def main() -> int:
                 "ns_score": c.get("ns_score", 0.0),
                 "ns_best_source": c.get("ns_best_source", ""),
                 "ion_filtered": c.get("ion_filtered", False),
+                "wildcard_filtered": c.get("wildcard_filtered", False),
+                "charge_variants": [v.get("product_smiles")
+                                    for v in c.get("charge_variants", [])
+                                    ] or [c["product_smiles"]],
             }
+            if "ns_semantics" in c:  # v3.3 audit fields
+                out["ns_semantics"] = c["ns_semantics"]
+                out["n_independent_sources"] = c.get("n_independent_sources", 1)
+                out["skeleton_unexplained"] = c.get("skeleton_unexplained", False)
+                out["skeleton_reason"] = c.get("skeleton_reason", "")
+            return out
 
-        top = [_serialize(c) for c in cands[:TOP_K]]
-        pool = [_serialize(c) for c in cands[:POOL_CAP]]
-        pool_truncated = len(cands) > POOL_CAP
+        top = [_serialize(c) for c in ranked[:TOP_K]]
+        pool = [_serialize(c) for c in ranked[:POOL_CAP]]
+        pool_truncated = len(ranked) > POOL_CAP
+        cands = ranked
 
         results.append({
             "case_id": cid, "smiles": smi, "n_atoms": n_atoms,
@@ -197,6 +223,7 @@ def main() -> int:
 
     report = {
         "n_cases": len(results),
+        "scoring": args.scoring,
         "total_time_s": round(time.time() - t_start, 2),
         "total_ion_filtered": ion_filtered_total,
         "mean_cands_per_case": round(sum(r["n_cand_union"] for r in results) / max(len(results), 1), 1),

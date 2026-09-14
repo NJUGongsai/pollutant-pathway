@@ -36,6 +36,7 @@ RDLogger.DisableLog("rdApp.*")
 import gnn_phase6_apply as A  # noqa: E402
 import bbd_v3_features as F  # noqa: E402
 import bbd_v32_ion_filter as IF  # noqa: E402
+import bbd_v33_fusion as V33  # noqa: E402
 import predict_bbd_products_v2 as P2  # noqa: E402
 import lightgbm as lgb
 from ra import corpus, retrieval  # noqa: E402
@@ -63,6 +64,9 @@ GLOBAL_TIME_LIMIT_S = 7200  # 2 hours
 
 SOURCES = ("uspto", "envipath", "retrieval")
 
+# v3.3 scoring (charge-normalized fusion); set to "v32" for legacy behavior
+_G_SCORING = "v33"
+
 # Globals for fork workers
 _G_TPL_A: list | None = None
 _G_RULES_B: list | None = None
@@ -84,6 +88,18 @@ def _canon_iso(smi: str) -> str | None:
         return canonical_smiles(smi)
     except Exception:
         return None
+
+
+def _identity(smi: str) -> str | None:
+    """Charge/protonation-blind product identity (v3.3).
+
+    MBP and its carboxylate map to one identity — used for node IDs, dedup
+    and cycle detection so route expansion treats them as the same node.
+    """
+    norm = V33.normalize_charge_smiles(smi)
+    if norm is None:
+        return _stereo_blind(smi)
+    return V33.stereo_blind(norm)
 
 
 def _node_id(case_id: str, depth: int, canonical_smi: str) -> str:
@@ -289,6 +305,10 @@ def _score_and_sort(candidates: list[dict], substrate_smi: str) -> list[dict]:
         for sk in SOURCES:
             c.setdefault(f"p_{sk}", 0.0)
 
+    if _G_SCORING == "v33":
+        # charge-normalized identity merge + source agreement + skeleton check
+        return V33.score_candidates_v33(candidates, substrate_smi)
+
     candidates.sort(key=lambda c: (c["wildcard_filtered"], c["ion_filtered"],
                                     -c["ns_score"], c["product_smiles"]))
     return candidates
@@ -326,7 +346,7 @@ def _process_frontier_node(node: dict) -> dict:
     # build edge data
     edges = []
     for rank, c in enumerate(cands):
-        prod_canon = _stereo_blind(c["product_smiles"])
+        prod_canon = _identity(c["product_smiles"])
         is_cycle = prod_canon in node["ancestor_canons"] if prod_canon else False
         in_frontier = (not c["wildcard_filtered"] and not c["ion_filtered"]
                        and not is_cycle
@@ -345,6 +365,12 @@ def _process_frontier_node(node: dict) -> dict:
             "cycle": is_cycle,
             "product_in_frontier": in_frontier,
             "n_candidates_at_source": len(cands),
+            "n_independent_sources": c.get("n_independent_sources", 1),
+            "skeleton_unexplained": c.get("skeleton_unexplained", False),
+            "skeleton_reason": c.get("skeleton_reason", ""),
+            "charge_variants": [v.get("product_smiles")
+                                for v in c.get("charge_variants", [])
+                                ] or [c["product_smiles"]],
         })
 
     return {
@@ -376,7 +402,12 @@ def main() -> int:
     ap.add_argument("--out-report", required=True)
     ap.add_argument("--procs", type=int, default=min(8, os.cpu_count() or 4))
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--scoring", default="v33", choices=["v33", "v32"],
+                    help="v33 = charge-normalized fusion (default)")
     args = ap.parse_args()
+
+    global _G_SCORING
+    _G_SCORING = args.scoring
 
     t_start = time.time()
     os.makedirs(os.path.dirname(args.out_edges), exist_ok=True)
@@ -435,7 +466,7 @@ def main() -> int:
     for r in pool_cases:
         cid = r["case_id"]
         smi = r["smiles"]
-        parent_canon = _stereo_blind(smi) or smi
+        parent_canon = _identity(smi) or smi
         root_node_id = _node_id(cid, 0, parent_canon)
         root_node = {
             "node_id": root_node_id, "case_id": cid, "depth": 0,
@@ -445,9 +476,12 @@ def main() -> int:
         all_nodes.append(root_node)
 
         cands = r.get("all_candidates", [])
-        # v3.2 pool is already sorted by (ion_filtered, -ns_score, product_smiles)
+        if _G_SCORING == "v33" and cands:
+            # stored p_* are reused; apply charge-normalized fusion + flags
+            cands = V33.score_candidates_v33(cands, smi)
+        # pool is already sorted by (ion_filtered, -ns_score, product_smiles)
         for rank, c in enumerate(cands):
-            prod_canon = _stereo_blind(c["product_smiles"]) or ""
+            prod_canon = _identity(c["product_smiles"]) or ""
             is_cycle = prod_canon == parent_canon  # parent-copy is a "cycle"
             wc = _is_wildcard(c["product_smiles"])
             in_frontier = (not c.get("ion_filtered", False) and not wc
@@ -498,6 +532,8 @@ def main() -> int:
         "cycle_edges": 0,
         "wildcard_filtered_edges": 0,
     }
+    # fresh engine invocations per depth (depth 1 reuses the v3.2 pool → 0)
+    engine_invocations: dict[str, int] = {"1": 0}
 
     for depth in range(2, MAX_DEPTH + 1):
         if not frontier:
@@ -538,6 +574,7 @@ def main() -> int:
 
         # Process frontier in parallel
         ctx = mp.get_context("fork")
+        engine_invocations[str(depth)] = len(frontier)
         with ctx.Pool(args.procs, initializer=_init_worker,
                       initargs=(args.model_dir,)) as pool:
             results = pool.map(_process_frontier_node, frontier, chunksize=10)
@@ -550,7 +587,7 @@ def main() -> int:
             src_depth = result["source_depth"]
             src_smi = result["source_smiles"]
             ancestor_canons = result["ancestor_canons"]
-            src_canon = _stereo_blind(src_smi) or src_smi
+            src_canon = _identity(src_smi) or src_smi
 
             if result["budget_cut"]:
                 stats["budget_cuts"] += 1
@@ -583,6 +620,9 @@ def main() -> int:
                     "p_envipath": edge_data["p_envipath"],
                     "p_retrieval": edge_data["p_retrieval"],
                     "n_candidates_at_source": edge_data["n_candidates_at_source"],
+                    "n_independent_sources": edge_data.get("n_independent_sources", 1),
+                    "skeleton_unexplained": edge_data.get("skeleton_unexplained", False),
+                    "skeleton_reason": edge_data.get("skeleton_reason", ""),
                 }
                 all_edges.append(edge)
 
@@ -646,9 +686,11 @@ def main() -> int:
     stats["wildcard_filtered_edges"] = sum(
         1 for e in all_edges if e.get("product_wildcard_filtered"))
     stats["total_time_s"] = round(time.time() - t_start, 2)
+    stats["depth_engine_invocations"] = engine_invocations
     stats["params"] = {"K1": K1, "K2": K2, "MAX_DEPTH": MAX_DEPTH,
                         "RXN_BUDGET_D2": RXN_BUDGET_D2,
-                        "POOL_CAP_D2": POOL_CAP_D2}
+                        "POOL_CAP_D2": POOL_CAP_D2,
+                        "scoring": _G_SCORING}
     with open(args.out_report, "w") as f:
         json.dump(stats, f, indent=2, sort_keys=True)
 
