@@ -12,7 +12,7 @@
 #     严格禁止拿其他步骤的酶替代（防跨步串线）。
 
 from typing import List, Optional, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class MultistepRouteInput(BaseModel):
@@ -27,6 +27,15 @@ class MultistepRouteInput(BaseModel):
     source_tool: str                  # 整条路径来源工具（必填）：enviPath / BioTransformer / ECLIPSE；未知需显式写 unknown
     reaction_source: Literal["retrieved", "predicted", "merged"] = "retrieved"
     branch_id: Optional[str] = None   # 线性路径为 None
+
+    @field_validator("source_tool")
+    @classmethod
+    def _reject_blank_source_tool(cls, v: str) -> str:
+        # T6-R3 裁定 3 扩展：source_tool 强制非空（拒绝空串/纯空白），与
+        # CandidateReaction.source_tool 同一合同，禁止只「必填」而放行空来源。
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("source_tool 必须为非空字符串（禁止空串或纯空白）")
+        return v
 
 
 class MultistepStep(BaseModel):
@@ -49,6 +58,14 @@ class MultistepStep(BaseModel):
 
     # —— 实现扩展（非冻结契约字段）：该步酶匹配结果承载 ——
     matched_enzyme_uids: List[str] = Field(default_factory=list)  # UNMATCHED_ENZYME 时必须为空
+
+    @field_validator("source_tool")
+    @classmethod
+    def _reject_blank_source_tool(cls, v: str) -> str:
+        # T6-R3 裁定 3 扩展：source_tool 强制非空（拒绝空串/纯空白）。
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("source_tool 必须为非空字符串（禁止空串或纯空白）")
+        return v
 
 
 class OrganismStepCoverage(BaseModel):

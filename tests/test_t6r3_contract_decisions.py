@@ -27,7 +27,7 @@ from src.schemas.evidence import (
     PredictedReaction,
     SubstrateInfo,
 )
-from src.schemas.bridge import MultistepBridgeResult, MultistepStep
+from src.schemas.bridge import MultistepBridgeResult, MultistepRouteInput, MultistepStep
 from src.tools.substrate_parser import (
     detect_smiles_in_query,
     parse_substrate,
@@ -351,7 +351,7 @@ class TestGap2MissDoesNotFailClosed:
 
 # ═══════════════════ 缺口③：空/空白酶 UID 不得误标 MATCHED ═══════════════════
 
-def _make_step(task_id: str) -> MultistepStep:
+def _make_step(task_id: str, source_tool: str = "unknown") -> MultistepStep:
     return MultistepStep(
         route_id="r1",
         reaction_task_id=task_id,
@@ -362,7 +362,7 @@ def _make_step(task_id: str) -> MultistepStep:
         product_smiles="B",
         reaction_smiles="A>>B",
         reaction_source="retrieved",
-        source_tool="unknown",
+        source_tool=source_tool,
     )
 
 
@@ -380,3 +380,35 @@ class TestGap3BlankUidNotMatched:
         step = br.steps[0]
         assert step.enzyme_match_status == "MATCHED"
         assert step.matched_enzyme_uids == ["uid-1"]
+
+
+# ═══════════════════ 缺口④：bridge source_tool 也必须非空（拒绝空串/纯空白） ═══════════════════
+
+def _route_input(source_tool: str) -> MultistepRouteInput:
+    return MultistepRouteInput(
+        route_id="r1",
+        reactant_smiles=["A", "B"],
+        source_tool=source_tool,
+    )
+
+
+class TestGap4BridgeSourceToolNonBlank:
+    def test_route_input_source_tool_rejects_empty(self):
+        with pytest.raises(ValidationError):
+            _route_input("")
+
+    def test_route_input_source_tool_rejects_whitespace(self):
+        with pytest.raises(ValidationError):
+            _route_input("   ")
+
+    def test_route_input_source_tool_accepts_unknown(self):
+        # 合法取值：未知来源显式写 unknown，仍接受
+        assert _route_input("unknown").source_tool == "unknown"
+
+    def test_step_source_tool_rejects_empty(self):
+        with pytest.raises(ValidationError):
+            _make_step("RT-1", source_tool="")
+
+    def test_step_source_tool_rejects_whitespace(self):
+        with pytest.raises(ValidationError):
+            _make_step("RT-1", source_tool="\t \n")
