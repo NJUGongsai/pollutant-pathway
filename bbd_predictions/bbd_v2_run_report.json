@@ -1,0 +1,37 @@
+{
+  "run_params": {
+    "blind_csv": "bbd_known_pathway_full_route_v0_3_candidate_v3_1_strict_blind_fix_20260821/blind/BBD_KNOWN_PATHWAY_FULL_ROUTE_V0_3_V3_1_BLIND_PARENT_INPUTS_FOR_PREDICTION_STRICT.csv",
+    "mpnn_preds": "bbd_predictions/bbd_predictions.jsonl",
+    "templates": "reaction_analogy/templates.json",
+    "envipath_rules": "data/hfix/templates_implicitH.jsonl",
+    "envipath_tsv": "reaction_v3/data/lib_envipath/templates.tsv.gz",
+    "limit": 0,
+    "procs": 8,
+    "rxn_budget": 60.0,
+    "pool_cap": 2000,
+    "top_k": 20
+  },
+  "n_cases": 93,
+  "total_time_s": 52.11,
+  "n_templates_uspto": 188725,
+  "n_rules_envipath": 286,
+  "skip_multi_fragment_global": 0,
+  "candidate_counts": {
+    "total_uspto": 5231,
+    "total_envipath": 672,
+    "total_union": 5844,
+    "total_parent_filtered": 901,
+    "mean_uspto": 56.2,
+    "mean_envipath": 7.2,
+    "mean_union": 62.8
+  },
+  "skip_counters": {
+    "budget_cut_a": 0,
+    "parent_filtered_a": 901,
+    "skip_unsanitizable": 1333
+  },
+  "cases_with_zero_candidates": [
+    "FR-BBD3-PARENT-c0939"
+  ],
+  "pool_truncated_cases": []
+}

@@ -28,6 +28,8 @@
 
 **核心原则 — 模型/智能体职责分离**：EnzymeCAGE v1 是**唯一冻结的排序底座**（给定 enzyme_pool 输入 → 输出排序分数），不引入第二个并行打分器；所有 pool 构造、结果解释、后处理、交互编排均由智能体层完成，不修改冻结模型。
 
+> **BBD 降解产物预测最终成绩**：以 `bbd_predictions/bbd_hybrid_eval_v5.json` 为准（混合口径 Hit@1 89.5% / Hit@10 95.3%，P5.1 版本，commit 链见 `feat/bbd-uspto-integrated` 分支的 merge 记录）。`reaction_analogy/` 下各历史版本产物仅作审计证据链保留，对外引用一律以该文件为准。
+
 ## 二、系统架构（LangGraph StateGraph）
 
 10 个节点，双运行模式，路由函数按 `pipeline_mode` 分叉：

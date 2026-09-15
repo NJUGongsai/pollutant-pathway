@@ -1,0 +1,20 @@
+=== 1. A/B byte-diff (determinism) ===
+train: 1598 shards A/B byte-diff mismatch=0 []
+test: 640 shards A/B byte-diff mismatch=0 []
+=== 2. v3 vs v1 mpnn spot-check (5 shards, distribution shift) ===
+TRAIN shard_0.json:
+  v1: n=50212 mpnn>0=0.667 mean=0.4729 med=0.5103 posmean=0.9059 pos>=0.9=0.792
+  v3: n=50212 mpnn>0=0.667 mean=0.4463 med=0.2566 posmean=0.9149 pos>=0.9=0.800
+TRAIN shard_1.json:
+  v1: n=49171 mpnn>0=0.673 mean=0.4794 med=0.5103 posmean=0.9279 pos>=0.9=0.822
+  v3: n=49171 mpnn>0=0.673 mean=0.4562 med=0.2566 posmean=0.9381 pos>=0.9=0.830
+TRAIN shard_500.json:
+  v1: n=49889 mpnn>0=0.683 mean=0.4921 med=0.5989 posmean=0.9078 pos>=0.9=0.793
+  v3: n=49889 mpnn>0=0.683 mean=0.4632 med=0.2858 posmean=0.9144 pos>=0.9=0.793
+TEST shard_0.json:
+  v1: n=3360 mpnn>0=0.805 mean=0.6031 med=0.8274 posmean=0.9197 pos>=0.9=0.571
+  v3: n=3360 mpnn>0=0.805 mean=0.5852 med=0.8682 posmean=0.9258 pos>=0.9=0.571
+TEST shard_100.json:
+  v1: n=6161 mpnn>0=0.715 mean=0.5049 med=0.6140 posmean=0.9484 pos>=0.9=0.875
+  v3: n=6161 mpnn>0=0.715 mean=0.4809 med=0.4880 posmean=0.9444 pos>=0.9=0.750
+=== VERIFY DONE ===
