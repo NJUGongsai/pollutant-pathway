@@ -57,23 +57,25 @@
 
 ## 系统架构（LangGraph StateGraph）
 
-10 个节点，双运行模式，路由函数按 `pipeline_mode` 分叉：
+12 个节点，双运行模式，路由函数按 `pipeline_mode` 分叉（节点名为 graph key）：
 
 | 节点 | 职责 |
 |------|------|
-| `orchestrator` | 入口编排、模式路由 |
+| `orchestrator` | 入口编排、模式路由 + 多步桥接分流 |
 | `substrate` | 底物解析（名称/SMILES → 结构） |
 | `reaction` | 基于底物相似性检索候选反应（route_b/route_c） |
-| `reaction_prediction` | 相似性失败时的独立反应预测（fallback；引擎选型见上） |
+| `reaction_prediction` | 相似性失败时的独立反应预测（fallback；BioTransformer ENVMICRO 默认） |
 | `enzyme_pool` | 候选反应合并 + 酶池构造（含 route 决策 provenance） |
 | `enzymecage` | 调用冻结 EnzymeCAGE v1 wrapper 排序 |
-| `llm_reranking` | LLM 重排（不可用时诚实 passthrough 降级） |
-| `microbe_selection` | 酶 → 宿主微生物映射 + LLM 选菌 |
-| `trait_filter` | 污水性状过滤（**M4b 契约锁定**，当前为诚实 soft-passthrough） |
-| `evidence_synthesis` | 全链路证据合成与报告生成 |
+| `reranking` | LLM 重排（不可用时诚实 passthrough 降级） |
+| `microbe` | 酶 → 宿主微生物映射 + 聚合 |
+| `organism_selection` | LLM 选菌（硬依赖，无 LLM 则 fail-closed） |
+| `trait` | 污水性状过滤（**M4b 契约锁定**，当前为诚实 soft-passthrough） |
+| `synthesis` | 全链路证据合成与报告生成 |
+| `bridge` | 多步桥接拆步（裁定 5，orchestrator 后分流） |
 
 - **M3 线性流**：底物 → 反应 → 酶池 → EnzymeCAGE 排序
-- **M5 全量流**：追加 reaction_prediction fallback、reranking、microbe、trait、synthesis
+- **M5 全量流**：追加 reaction_prediction fallback、reranking、microbe → organism_selection、trait、synthesis；多步查询先走 bridge 拆步
 
 ---
 
