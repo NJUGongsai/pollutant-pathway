@@ -43,8 +43,9 @@ import bbd_v32_ion_filter as IF  # noqa: E402
 import bbd_v33_fusion as V33  # noqa: E402
 
 ROOT = "/Volumes/CC/Enzyme_Agent/depending"
-V3_POOL = os.path.join(ROOT, "bbd_predictions/bbd_product_pool_v3.jsonl")
-MODEL_DIR = os.path.join(ROOT, "data/bbd_v31")
+import bbd_data_root as D  # noqa: E402 — BBD_DATA_ROOT resolver (HF-migrated assets)
+V3_POOL = D.resolve("bbd_predictions/bbd_product_pool_v3.jsonl")
+MODEL_DIR = D.resolve("data/bbd_v31")
 TOP_K = 20
 POOL_CAP = 2000
 

@@ -42,13 +42,14 @@ import bbd_v5_features as F5  # noqa: E402 — 28-dim feature wrapper
 import bbd_v3_features as F  # noqa: E402 — SELECTOR_FEATURE_NAMES
 import train_bbd_v3_ranker as T3  # noqa: E402 — load_blind_parents, _stereo_blind
 import io_retry as IOR  # noqa: E402 — robust I/O for flaky external drive
+import bbd_data_root as D  # noqa: E402 — BBD_DATA_ROOT resolver (HF-migrated assets)
 
 import lightgbm as lgb
 
 ROOT = "/Volumes/CC/Enzyme_Agent/depending"
 OUT_DIR = os.path.join(ROOT, "data/bbd_v5")
-RHEA_CACHE = os.path.join(ROOT, "data/bbd_v31/train_candidates.jsonl")
-EAWAG_CACHE = os.path.join(ROOT, "data/bbd_v5/eawag_candidates.jsonl")
+RHEA_CACHE = D.resolve("data/bbd_v31/train_candidates.jsonl")
+EAWAG_CACHE = D.resolve("data/bbd_v5/eawag_candidates.jsonl")
 BLIND_CSV = os.path.join(ROOT,
     "bbd_known_pathway_full_route_v0_3_candidate_v3_1_strict_blind_fix_20260821/blind/"
     "BBD_KNOWN_PATHWAY_FULL_ROUTE_V0_3_V3_1_BLIND_PARENT_INPUTS_FOR_PREDICTION_STRICT.csv")

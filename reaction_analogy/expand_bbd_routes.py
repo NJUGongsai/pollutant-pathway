@@ -43,12 +43,13 @@ from ra import corpus, retrieval  # noqa: E402
 from ra.chem import canonical_smiles  # noqa: E402
 
 ROOT = "/Volumes/CC/Enzyme_Agent/depending"
-V3_POOL = os.path.join(ROOT, "bbd_predictions/bbd_product_pool_v32.jsonl")
+import bbd_data_root as D  # noqa: E402 — BBD_DATA_ROOT resolver (HF-migrated assets)
+V3_POOL = D.resolve("bbd_predictions/bbd_product_pool_v32.jsonl")
 TEMPLATES = os.path.join(_HERE, "templates.json")
 ENVIPATH_RULES = os.path.join(ROOT, "data/hfix/templates_implicitH.jsonl")
 ENVIPATH_TSV = os.path.join(ROOT, "reaction_v3/data/lib_envipath/templates.tsv.gz")
-CORPUS_DIR = os.path.join(_HERE, "data/corpus_v1")
-MODEL_DIR = os.path.join(ROOT, "data/bbd_v31")
+CORPUS_DIR = D.resolve("reaction_analogy/data/corpus_v1")
+MODEL_DIR = D.resolve("data/bbd_v31")
 BLIND_CSV = os.path.join(
     ROOT,
     "bbd_known_pathway_full_route_v0_3_candidate_v3_1_strict_blind_fix_20260821"

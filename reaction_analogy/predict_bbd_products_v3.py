@@ -30,10 +30,11 @@ RDLogger.DisableLog("rdApp.*")
 import bbd_v3_features as F  # noqa: E402
 
 ROOT = "/Volumes/CC/Enzyme_Agent/depending"
-V2_POOL = os.path.join(ROOT, "bbd_predictions/bbd_product_pool_v2.jsonl")
+import bbd_data_root as D  # noqa: E402 — BBD_DATA_ROOT resolver (HF-migrated assets)
+V2_POOL = D.resolve("bbd_predictions/bbd_product_pool_v2.jsonl")
 V3_CANDS = os.path.join(_HERE, "data/retrieval_v3/candidates.jsonl")
 V3_QUERIES = os.path.join(_HERE, "data/retrieval_v3/queries.jsonl")
-RANKER_MODEL = os.path.join(ROOT, "data/bbd_v3/ranker_model.txt")
+RANKER_MODEL = D.resolve("data/bbd_v3/ranker_model.txt")
 TOP_K = 20
 POOL_CAP = 2000
 
