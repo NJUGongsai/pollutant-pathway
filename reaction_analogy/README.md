@@ -38,6 +38,20 @@
 >（`bbd_predictions/bbd_hybrid_eval_v5.json`）。hybrid 的高分主要来自 lookup 层（87/93 库内命中），
 > 库外新污染物会退化到预测线水平（DBP 案例：首步 MBP rank-1 由 v3.3 融合层修复达成）。
 
+**为何对外口径用 v5（89.5%）而不用更高的 P4.2（90.7%）**：两者评测集、stereo 匹配口径、
+lookup 库内命中范围（87/93）完全相同，差异**只**来自 Layer 2 的 ranker 换代（v3.1 → v5 ranker，
+重训含 RHEA+EAWAG 混合集与 28 维 `is_eawag_domain` 特征）。v5 ranker 的重训是一次显式权衡：
+**用 top-1 精度换 top-10 召回**（prediction 口径 H@1 −1 case，H@10 +7 case，见 P5 报告 §3.1——
+5 个正确产物进入 top-10，2 个原 rank-1 产物移至 rank 2–5）。hybrid 口径的净效果是 78→77
+（−1），具名案例 c0236（DMSO → 甲基硫醚）：P4.2 rank-1，v5 里 truth 掉到 rank-5，被一条
+结构荒谬的长链检索假阳性顶掉。**定 v5 为权威的原因**：(a) v5 是后续发展线（v5 ranker +
+EAWAG 规则引擎 + tiebreak 是 T6-2 裁定时要拿出去与 BioTransformer 对比的形态，P4.2 的
+v3.1 ranker 已不是演进方向）；(b) 闭卷 prediction 口径 v5 大幅更好（H@10 68.6%→76.7%），
+库外场景（lookup miss 时）鲁棒性显著更强——hybrid 的 −1 case 是 lookup-miss 案例暴露在
+Layer 2 差异下的结果，这恰是 hybrid 指标无法反映的分层信息；(c) 89.5% 与 90.7% 的差
+（1 个 case）在 n=86 下不构成统计显著。若老师侧裁定需要"最高分版本"，P4.2 全套产物
+（`bbd_hybrid_eval.json`）保留在库可随时切换口径。
+
 ## 3. 成绩口径（对外一律以此为准）
 
 **`bbd_predictions/bbd_hybrid_eval_v5.json` — Hit@1 89.5% (77/86) / Hit@10 95.3% (82/86) / MRR@10 0.919。**

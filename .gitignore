@@ -52,3 +52,14 @@ Thumbs.db
 
 # demov3 部署 clone（depending 工作树内，git clone 方案，不入库）
 demov3/
+
+# BBD 本地大文件运行副本（评测/路线展开的未跟踪产物，防 git add -A 误带；
+# git 跟踪的小体积权威结果 bbd_hybrid_eval_v5.json 等不受影响）
+bbd_predictions/bbd_route_edges.jsonl
+bbd_predictions/bbd_route_nodes.jsonl
+bbd_predictions/bbd_route_local_eval*.json
+bbd_predictions/bbd_route_run_report*.json
+bbd_predictions/bbd_route_submission/
+bbd_predictions/bbd_predictions.jsonl
+bbd_predictions/bbd_product_predictions.jsonl
+bbd_predictions/bbd_route_local_eval.json
