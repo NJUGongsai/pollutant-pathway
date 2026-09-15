@@ -18,6 +18,10 @@ D4_WRAPPER_ROOT = os.getenv("D4_WRAPPER_ROOT", "")
 ENZYMECAGE_CODE_ROOT = os.getenv("ENZYMECAGE_CODE_ROOT", "")
 ENZYMECAGE_V1_PACKAGE_ROOT = os.getenv("ENZYMECAGE_V1_PACKAGE_ROOT", "")
 
+# 冻结底座权重单一事实源（Hugging Face）；未配 ENZYMECAGE_V1_PACKAGE_ROOT 时，
+# enzymecage_client 会回退到 HF snapshot_download（首次下载，之后本地缓存复用）
+ENZYMECAGE_HF_REPO = os.getenv("ENZYMECAGE_HF_REPO", "WQRCE/EnzymeCAGE-v1")
+
 # 冻结模型版本（不改动）
 ENZYMECAGE_MODEL_VERSION = "v1_20260714"
 

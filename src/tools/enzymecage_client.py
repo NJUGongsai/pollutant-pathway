@@ -36,6 +36,7 @@ from config.settings import (
     D4_WRAPPER_ROOT,
     ENZYMECAGE_CODE_ROOT,
     ENZYMECAGE_V1_PACKAGE_ROOT,
+    ENZYMECAGE_HF_REPO,
     ENZYMECAGE_MODEL_VERSION,
     ENZYMECAGE_TOP_K,
     ENZYMECAGE_RETURN_CI,
@@ -51,9 +52,31 @@ _predict_fn = None
 _request_cls = None
 
 
+def _resolve_v1_package_root() -> str:
+    """
+    解析 EnzymeCAGE v1 权重 package root。
+
+    优先 ENZYMECAGE_V1_PACKAGE_ROOT（晨羽本地绝对路径）；未配置时回退到
+    Hugging Face snapshot_download（单一事实源 + 本地缓存：首次下载，之后复用，
+    不重复下载，除非 revision 变化）。
+    """
+    if ENZYMECAGE_V1_PACKAGE_ROOT:
+        return ENZYMECAGE_V1_PACKAGE_ROOT
+    if ENZYMECAGE_HF_REPO:
+        from huggingface_hub import snapshot_download
+
+        root = snapshot_download(repo_id=ENZYMECAGE_HF_REPO)
+        logger.info("EnzymeCAGE v1 权重已缓存于 HF hub：%s", root)
+        return root
+    raise RuntimeError(
+        "EnzymeCAGE v1 权重 root 未配置：请设置 ENZYMECAGE_V1_PACKAGE_ROOT，\n"
+        f"或 ENZYMECAGE_HF_REPO（默认 {ENZYMECAGE_HF_REPO or 'WQRCE/EnzymeCAGE-v1'}）。"
+    )
+
+
 def _load_wrapper():
     """
-    首次调用时按学生 #6 §三 的环境变量把三个 package root 加到 sys.path，
+    首次调用时把 wrapper / 模型代码 / 权重 package root 加到 sys.path，
     再 import enzymecage_wrapper 冻结符号。
     仅在生产（晨羽同环境）路径执行。
     """
@@ -61,16 +84,20 @@ def _load_wrapper():
     if _predict_fn is not None:
         return
 
-    if not D4_WRAPPER_ROOT or not ENZYMECAGE_V1_PACKAGE_ROOT:
+    if not D4_WRAPPER_ROOT or not ENZYMECAGE_CODE_ROOT:
         raise RuntimeError(
-            "EnzymeCAGE wrapper 加载失败：D4_WRAPPER_ROOT 或 ENZYMECAGE_V1_PACKAGE_ROOT 未设置。\n"
+            "EnzymeCAGE wrapper 加载失败：D4_WRAPPER_ROOT 或 ENZYMECAGE_CODE_ROOT 未设置。\n"
             "请在晨羽同环境部署时通过环境变量或 .env 提供三个稳定绝对路径：\n"
             "  D4_WRAPPER_ROOT / ENZYMECAGE_CODE_ROOT / ENZYMECAGE_V1_PACKAGE_ROOT\n"
             "本地开发可设置 ENZYMECAGE_DRY_RUN=1 走 mock。"
         )
 
-    # 按学生 #6 §三 顺序：wrapper → code → v1 package，全部前置到 sys.path
-    for root in (D4_WRAPPER_ROOT, ENZYMECAGE_CODE_ROOT, ENZYMECAGE_V1_PACKAGE_ROOT):
+    package_root = _resolve_v1_package_root()
+    # 写回环境变量，供 enzymecage_wrapper.initialize_runtime 读取
+    os.environ["ENZYMECAGE_V1_PACKAGE_ROOT"] = package_root
+
+    # 顺序：wrapper → code → v1 package，全部前置到 sys.path
+    for root in (D4_WRAPPER_ROOT, ENZYMECAGE_CODE_ROOT, package_root):
         if root and root not in sys.path:
             sys.path.insert(0, root)
 

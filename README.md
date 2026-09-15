@@ -1,5 +1,9 @@
 # EnzymeCrew（仓库：`depending`）
 
+[![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C)](https://github.com/langchain-ai/langgraph)
+[![LangChain](https://img.shields.io/badge/LangChain-1C3C3C)](https://github.com/langchain-ai/langchain)
+[![Python](https://img.shields.io/badge/Python-3.10+-green)](https://python.org)
+
 **基于 LangGraph 的多智能体编排系统，用于「底物 → 反应 → 酶 → 菌」的酶-微生物推荐。**
 
 面向水质风险控制中的污染物生物降解场景：给定一个底物（污染物）分子，系统检索/预测其可能的生化反应，用冻结的 EnzymeCAGE v1 模型对候选酶打分排序，再映射到宿主微生物并（在性状层就绪后）做污水适配筛选，最终产出带完整证据链的推荐报告。
@@ -156,6 +160,20 @@ depending/                       # 仓库根（项目名 EnzymeCrew）
 - 反应预测候选（`reaction_analogy/`）依赖师兄的 BBD/USPTO 工具链与 enviPath 数据（`reaction_v3/data/lib_envipath/`，见其 `PROVENANCE.txt`）。
 
 ---
+
+## Citation
+
+本项目的冻结排序底座基于 **EnzymeCAGE**，引用时请署名原论文：
+
+```bibtex
+@article{liu2026geometric,
+  title   = {A geometric foundation model for enzyme retrieval with evolutionary insights},
+  author  = {Liu, Yong and Hua, Chenqing and Xu, Menglong and Zeng, Tao and Rao, Jiahua and Zhang, Zhongyue and Wu, Ruibo and Weng, Jing-Ke and Coley, Connor W. and Zheng, Shuangjia},
+  journal = {Nature Catalysis},
+  year    = {2026},
+  url     = {https://www.nature.com/articles/s41929-026-01478-y}
+}
+```
 
 ## License
 
