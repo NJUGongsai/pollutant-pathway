@@ -1,0 +1,27 @@
+{
+ "case_id": "SPD-BBD-bpa",
+ "input_smiles": "CC(C)(c1ccc(O)cc1)c1ccc(O)cc1",
+ "input_canonical": "CC(C)(c1ccc(O)cc1)c1ccc(O)cc1",
+ "input_formula": "C15H16O2",
+ "libraries": {
+  "n_templates": 188725,
+  "n_envipath_rules": 286,
+  "n_corpus_records": 37680,
+  "n_donors": 14334,
+  "n_rankers": 3,
+  "load_time_s": 23.7
+ },
+ "params": {
+  "top_k": 50,
+  "max_depth": 1,
+  "K1": 5,
+  "K2": 5,
+  "scoring": "v32"
+ },
+ "score_semantics": "ns_score_max_per_source_probability_over_3",
+ "is_calibrated_probability": false,
+ "depth_engine_invocations": {
+  "1": 1
+ },
+ "total_time_s": 28.3
+}

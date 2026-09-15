@@ -132,12 +132,15 @@ def normalize(parents):
                         if not smi:
                             continue
                         mol = Chem.MolFromSmiles(smi)
-                        if mol is None:
-                            canon, ik, status = "", "", "invalid_smiles"
-                        else:
-                            canon = Chem.MolToSmiles(mol, canonical=True)
-                            ik = Chem.MolToInchiKey(mol)
-                            status = "ok"
+                        # 与包内 scorer 同判据：canonical 或 InChIKey 拿不到
+                        # （模板伪影 ~/*/[H]*[H] 等可被 MolFromSmiles 解析但
+                        # 无法生成有效 InChI）→ invalid_smiles，不得计为 hit
+                        canon = Chem.MolToSmiles(mol, canonical=True) if mol else ""
+                        try:
+                            ik = Chem.MolToInchiKey(mol) if mol else ""
+                        except Exception:
+                            ik = ""
+                        status = "ok" if (canon and ik) else "invalid_smiles"
                         eawag = (row.get("eawag_reactions") or "").strip()
                         prov = f"layer={row.get('layer', '')};source={row.get('source', '')}"
                         if eawag and eawag != "[]":

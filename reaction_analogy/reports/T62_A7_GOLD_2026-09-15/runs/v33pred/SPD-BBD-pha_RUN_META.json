@@ -1,0 +1,27 @@
+{
+ "case_id": "SPD-BBD-pha",
+ "input_smiles": "c1ccc2c(c1)ccc1ccccc12",
+ "input_canonical": "c1ccc2c(c1)ccc1ccccc12",
+ "input_formula": "C14H10",
+ "libraries": {
+  "n_templates": 188725,
+  "n_envipath_rules": 286,
+  "n_corpus_records": 37680,
+  "n_donors": 14334,
+  "n_rankers": 3,
+  "load_time_s": 23.5
+ },
+ "params": {
+  "top_k": 50,
+  "max_depth": 1,
+  "K1": 5,
+  "K2": 5,
+  "scoring": "v33"
+ },
+ "score_semantics": "ns33_max_source_x_agreement_x_skeleton_over_3",
+ "is_calibrated_probability": false,
+ "depth_engine_invocations": {
+  "1": 1
+ },
+ "total_time_s": 26.5
+}
