@@ -39,7 +39,14 @@ def run(query: str, mode: str = "m3") -> dict:
     graph = compile_graph()
 
     initial_state = EnzymeCrewState(user_query=query, pipeline_mode=mode)
-    final_state = graph.invoke(initial_state.model_dump())
+    # checkpointer（MemorySaver）要求 invoke 传入 configurable.thread_id，
+    # 否则抛 "Checkpointer requires ... thread_id"。单次 run 内 bridge 多步
+    # 循环共享同一 thread_id 即可；每次 compile_graph() 新建内存 checkpointer，
+    # 跨 run 无需持久化。
+    final_state = graph.invoke(
+        initial_state.model_dump(),
+        config={"configurable": {"thread_id": f"enzymecrew_{mode}"}},
+    )
 
     # 输出结果
     if final_state.get("fail_closed") or final_state.get("error"):
