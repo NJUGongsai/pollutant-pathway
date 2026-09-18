@@ -1,0 +1,56 @@
+{
+  "label": "C_bbd83",
+  "n_cases": 86,
+  "n_lookup_visible": 82,
+  "n_lookup_excluded": 4,
+  "hits_hybrid_pct": {
+    "hit@1": 0.8953,
+    "hit@3": 0.9651,
+    "hit@5": 0.9651,
+    "hit@10": 0.9651,
+    "hit@50": 0.9767
+  },
+  "hits_prediction_only_pct": {
+    "hit@1": 0.3721,
+    "hit@3": 0.6163,
+    "hit@5": 0.686,
+    "hit@10": 0.7093,
+    "hit@50": 0.8372
+  },
+  "hits_prediction_lookup_excluded_pct": {
+    "hit@1": 0.0,
+    "hit@3": 0.5,
+    "hit@5": 0.5,
+    "hit@10": 0.5,
+    "hit@50": 0.5
+  },
+  "mrr10_hybrid": 0.9283,
+  "rank1_rows_by_family": {
+    "eawag_lookup": 82,
+    "envipath+retrieval": 1,
+    "uspto": 1,
+    "retrieval": 1,
+    "envipath+uspto": 1
+  },
+  "rank1_hits_by_family": {
+    "eawag_lookup": 77
+  },
+  "top10_rows_by_family": {
+    "eawag_lookup": 131,
+    "retrieval": 277,
+    "uspto": 280,
+    "envipath": 125,
+    "envipath+uspto": 25,
+    "envipath+retrieval": 10,
+    "retrieval+uspto": 10,
+    "envipath+retrieval+uspto": 2
+  },
+  "oracle_pred_cn": 74,
+  "parent_copy_top10_rows": 0,
+  "invalid_top10_rows": 0,
+  "diversity": {
+    "mean_rank1_scaffold_share": 0.549,
+    "n_multiproduct": 34,
+    "multiproduct_mean_true_in_top10": 2.412
+  }
+}

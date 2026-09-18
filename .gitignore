@@ -63,3 +63,11 @@ bbd_predictions/bbd_route_submission/
 bbd_predictions/bbd_predictions.jsonl
 bbd_predictions/bbd_product_predictions.jsonl
 bbd_predictions/bbd_route_local_eval.json
+
+# BBD v3.5 环境资产本地运行产物（可由 env_expand_crawl.py + env_library_build.py
+# 再生成；溯源由 data/env_expand/manifest.json 的 sha256 保证；corpus_v1 本身
+# 是 HF 迁移运行时资产，见 bbd_data_root.py）
+reaction_analogy/data/env_expand/raw/
+reaction_analogy/data/corpus_env/
+reaction_analogy/data/corpus_env_eval/
+reaction_analogy/data/corpus_calib2/

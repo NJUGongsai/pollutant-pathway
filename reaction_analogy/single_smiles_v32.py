@@ -148,6 +148,26 @@ def _prod_scores(path: list[dict]) -> float:
     return s
 
 
+def setup_v34(no_policy: bool = False) -> None:
+    """v3.4 mode: fold the 49 EAWAG rules into engine B (v5 training
+    convention: source="envipath", rule_family="eawag_rule"), load the
+    per-source calibrator and set the Top-K display policy.
+
+    Call AFTER load_engines() (needs X._G_RULES_B populated).
+    """
+    import eawag_rules_engine as ERE
+    import bbd_v34_fusion as V34
+    eawag_rules = ERE.load_eawag_rules(
+        os.path.join(_HERE, "data/bbd_expand/rules_new_clean.jsonl"))
+    X._G_RULES_B = list(X._G_RULES_B) + eawag_rules
+    X._load_v34_calibrator()
+    X._G_V34_POLICY = None if no_policy else (
+        V34.DEFAULT_TOPK, V34.DEFAULT_MAX_SAME_SCAFFOLD,
+        V34.DEFAULT_MIN_ENV)
+    print(f"v34: +{len(eawag_rules)} EAWAG rules folded into engine B "
+          f"(policy={X._G_V34_POLICY})", flush=True)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--smiles", required=True, help="pollutant substrate SMILES")
@@ -155,7 +175,13 @@ def main() -> int:
     ap.add_argument("--max-depth", type=int, default=3)
     ap.add_argument("--k1", type=int, default=X.K1, help="depth-1 frontier size")
     ap.add_argument("--k2", type=int, default=X.K2, help="depth>=2 frontier size")
-    ap.add_argument("--scoring", default="v33", choices=["v33", "v32"])
+    ap.add_argument("--scoring", default="v33",
+                    choices=["v33", "v34", "v32"],
+                    help="v33 = charge-normalized fusion (default); v34 = "
+                         "per-source calibrated fusion (soil/sludge repair "
+                         "2026-09-18, folds the 49 EAWAG rules into engine B)")
+    ap.add_argument("--v34-no-policy", action="store_true",
+                    help="v34: disable the Top-K display policy")
     ap.add_argument("--case-id", default=None)
     ap.add_argument("--out-prefix", default=None,
                     help="output file prefix (default: ./single_<canon8>)")
@@ -173,6 +199,8 @@ def main() -> int:
     t_start = time.time()
     libs = load_engines()
     print(f"engines loaded: {libs}", flush=True)
+    if args.scoring == "v34":
+        setup_v34(no_policy=args.v34_no_policy)
 
     root_identity = X._identity(smi) or smi
     root_node_id = X._node_id(cid, 0, root_identity)
@@ -287,6 +315,8 @@ def main() -> int:
     prefix = args.out_prefix or f"single_{hashlib.sha1(smi.encode()).hexdigest()[:8]}"
     os.makedirs(os.path.dirname(os.path.abspath(prefix)), exist_ok=True)
     sem = ("ns33_max_source_x_agreement_x_skeleton_over_3" if args.scoring == "v33"
+           else "ns34_calibrated_max_source_x_agreement_x_skeleton"
+           if args.scoring == "v34"
            else "ns_score_max_per_source_probability_over_3")
 
     top_rows = []

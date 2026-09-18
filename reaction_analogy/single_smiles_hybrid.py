@@ -45,6 +45,8 @@ import single_smiles_v32 as S  # noqa: E402 — 复用引擎加载/展开/装配
 import eawag_lookup as EGD  # noqa: E402
 
 DONOR_PRODUCT = os.path.join(_HERE, "data", "bbd_expand", "donor_product.jsonl")
+ENV_LIBRARY = os.path.join(_HERE, "data", "env_expand", "library_full.jsonl")
+ENV_CORPUS = os.path.join(_HERE, "data", "corpus_env")
 
 
 def main() -> int:
@@ -54,10 +56,36 @@ def main() -> int:
     ap.add_argument("--max-depth", type=int, default=3)
     ap.add_argument("--k1", type=int, default=S.X.K1)
     ap.add_argument("--k2", type=int, default=S.X.K2)
-    ap.add_argument("--scoring", default="v33", choices=["v33", "v32"])
+    ap.add_argument("--scoring", default="v33",
+                    choices=["v33", "v34", "v32"],
+                    help="v33 = charge-normalized fusion (default); v34 = "
+                         "per-source calibrated fusion (soil/sludge repair)")
+    ap.add_argument("--v34-no-policy", action="store_true",
+                    help="v34: disable the Top-K display policy")
+    ap.add_argument("--library", default=None,
+                    help="EAWAG lookup library jsonl (donor_product schema); "
+                         "with --env-asset the default is the expanded "
+                         "environmental library (EAWAG-BBD + SOIL/SLUDGE/"
+                         "SEDIMENT packages)")
+    ap.add_argument("--corpus-dir", default=None,
+                    help="retrieval corpus dir (corpus_v1.jsonl + "
+                         "donor_index.jsonl); with --env-asset the default "
+                         "is the environmental corpus")
+    ap.add_argument("--env-asset", action="store_true",
+                    help="v3.5: use the expanded environmental assets "
+                         "(library_full + corpus_env) with v34 scoring")
     ap.add_argument("--case-id", default=None)
     ap.add_argument("--out-prefix", default=None)
     args = ap.parse_args()
+
+    if args.env_asset:
+        args.library = args.library or ENV_LIBRARY
+        args.corpus_dir = args.corpus_dir or ENV_CORPUS
+        if args.scoring == "v33":
+            args.scoring = "v34"
+    library_path = args.library or DONOR_PRODUCT
+    if args.corpus_dir:
+        X.CORPUS_DIR = args.corpus_dir
 
     smi = args.smiles.strip()
     mol = Chem.MolFromSmiles(smi)
@@ -69,7 +97,9 @@ def main() -> int:
     case_id = args.case_id or "SINGLE-HYBRID"
     t_start = time.time()
     S.load_engines()
-    lookup_index = EGD.build_index(DONOR_PRODUCT)
+    if args.scoring == "v34":
+        S.setup_v34(no_policy=args.v34_no_policy)
+    lookup_index = EGD.build_index(library_path)
     print(f"engines + lookup index loaded "
           f"({len([k for k in lookup_index if k != '__parse_fail__'])} donors)",
           flush=True)
@@ -257,10 +287,13 @@ def main() -> int:
         return {
             "rank": e["rank"], "layer": e.get("layer", "prediction"),
             "product_smiles": e["product_smiles"],
-            "product_identity": X._identity(e["product_smiles"]),
+            "product_identity": e.get("product_identity")
+            or X._identity(e["product_smiles"]),
             "source": e["source"], "score": e["edge_score"],
-            "score_semantics": e.get("score_semantics",
-                                     "ns33_max_source_x_agreement_x_skeleton_over_3"),
+            "score_semantics": e.get(
+                "score_semantics",
+                "ns33_max_source_x_agreement_x_skeleton_over_3"),
+            "v34_regime": e.get("v34_regime", ""),
             "eawag_reactions": e.get("eawag_reactions", []),
             "tanimoto": e.get("tanimoto", ""),
             "p_uspto": e.get("p_uspto", 0.0),
@@ -273,7 +306,8 @@ def main() -> int:
                                         or [e["product_smiles"]]),
             "ion_filtered": e.get("ion_filtered", False),
             "wildcard_filtered": e.get("wildcard_filtered", False),
-            "is_calibrated_probability": False,
+            "is_calibrated_probability": e.get(
+                "is_calibrated_probability", False),
             "depth": e["depth"],
         }
 

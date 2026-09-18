@@ -65,8 +65,41 @@ GLOBAL_TIME_LIMIT_S = 7200  # 2 hours
 
 SOURCES = ("uspto", "envipath", "retrieval")
 
-# v3.3 scoring (charge-normalized fusion); set to "v32" for legacy behavior
+# v3.3 scoring (charge-normalized fusion); set to "v32" for legacy behavior,
+# or "v34" for the per-source calibrated fusion (soil/sludge repair 2026-09-18)
 _G_SCORING = "v33"
+
+# v3.4 (loaded lazily once): per-source isotonic calibrator + Top-K policy.
+# Fitted ONLY on the EAWAG donor cache calib split (environmental domain,
+# unseen by the v3.1 rankers) — never on soil/sludge gold.  See
+# fit_v34_calibration.py + bbd_v34_fusion.py.
+_G_V34_CALIB = None
+_G_V34_POLICY = None  # (k, max_same_scaffold, min_env) or None = raw fusion
+V34_CALIBRATOR_PATH = os.path.join(
+    _HERE, "..", "data", "bbd_v34", "calibrator_v34.json")
+# v3.5: prefer the transfer-calibrated calibrator when present (superset of
+# v34; adds the donor-Tanimoto -> P(correct) isotonic fitted on the calib2
+# split — see fit_v35_transfer_calib.py)
+V35_CALIBRATOR_PATH = os.path.join(
+    _HERE, "..", "data", "bbd_v34", "calibrator_v35.json")
+
+
+def _load_v34_calibrator():
+    """Lazy-load the v3.4/v3.5 calibrator (idempotent; fail-closed to None)."""
+    global _G_V34_CALIB
+    if _G_V34_CALIB is not None:
+        return _G_V34_CALIB
+    import bbd_v34_fusion as V34
+    path = (V35_CALIBRATOR_PATH if os.path.exists(V35_CALIBRATOR_PATH)
+            else V34_CALIBRATOR_PATH)
+    if os.path.exists(path):
+        _G_V34_CALIB = V34.SourceCalibrator.load(path)
+    else:  # fail-closed: no calibrator -> identity calibration is WRONG,
+        # so fall back to v3.3 semantics with a loud warning
+        print(f"WARNING: v3.4 calibrator missing ({V34_CALIBRATOR_PATH}); "
+              f"scoring falls back to v3.3 fusion", file=sys.stderr)
+        _G_V34_CALIB = False
+    return _G_V34_CALIB
 
 # Globals for fork workers
 _G_TPL_A: list | None = None
@@ -310,6 +343,22 @@ def _score_and_sort(candidates: list[dict], substrate_smi: str) -> list[dict]:
         # charge-normalized identity merge + source agreement + skeleton check
         return V33.score_candidates_v33(candidates, substrate_smi)
 
+    if _G_SCORING == "v34":
+        # per-source calibrated fusion (soil/sludge repair 2026-09-18):
+        # same identity merge/skeleton/agreement semantics, calibrated base
+        # + dual-form emission.  Calibrator is fork-inherited via COW in
+        # workers (plain data), so lazy load here is worker-safe.
+        import bbd_v34_fusion as V34
+        calib = _load_v34_calibrator()
+        if not calib:
+            return V33.score_candidates_v33(candidates, substrate_smi)
+        ranked = V34.score_candidates_v34(candidates, substrate_smi, calib)
+        if _G_V34_POLICY:
+            k, ms, me = _G_V34_POLICY
+            ranked = V34.apply_topk_policy(ranked, k=k, max_same_scaffold=ms,
+                                           min_env=me)
+        return ranked
+
     candidates.sort(key=lambda c: (c["wildcard_filtered"], c["ion_filtered"],
                                     -c["ns_score"], c["product_smiles"]))
     return candidates
@@ -354,8 +403,13 @@ def _process_frontier_node(node: dict) -> dict:
                        and rank < K2)  # top-K2 non-wildcard non-ion non-cycle
         edges.append({
             "product_smiles": c["product_smiles"],
+            "product_identity": c.get("product_identity", c["product_smiles"]),
             "product_canonical": prod_canon or "",
             "edge_score": round(c["ns_score"], 6),
+            "score_semantics": c.get("ns_semantics", ""),
+            "v34_regime": c.get("v34_regime", ""),
+            "is_calibrated_probability": c.get("is_calibrated_probability",
+                                               False),
             "rank": rank + 1,
             "source": c["source"],
             "p_uspto": round(c.get("p_uspto", 0.0), 6),
@@ -403,8 +457,11 @@ def main() -> int:
     ap.add_argument("--out-report", required=True)
     ap.add_argument("--procs", type=int, default=min(8, os.cpu_count() or 4))
     ap.add_argument("--limit", type=int, default=0)
-    ap.add_argument("--scoring", default="v33", choices=["v33", "v32"],
-                    help="v33 = charge-normalized fusion (default)")
+    ap.add_argument("--scoring", default="v33",
+                    choices=["v33", "v34", "v32"],
+                    help="v33 = charge-normalized fusion (default); "
+                         "v34 = per-source calibrated fusion "
+                         "(soil/sludge repair); v32 = legacy")
     args = ap.parse_args()
 
     global _G_SCORING
@@ -480,6 +537,19 @@ def main() -> int:
         if _G_SCORING == "v33" and cands:
             # stored p_* are reused; apply charge-normalized fusion + flags
             cands = V33.score_candidates_v33(cands, smi)
+        elif _G_SCORING == "v34" and cands:
+            # stored p_* are reused; calibrated fusion + dual-form emission
+            import bbd_v34_fusion as V34
+            calib = _load_v34_calibrator()
+            if calib:
+                cands = V34.score_candidates_v34(cands, smi, calib)
+                if _G_V34_POLICY:
+                    k, ms, me = _G_V34_POLICY
+                    cands = V34.apply_topk_policy(cands, k=k,
+                                                  max_same_scaffold=ms,
+                                                  min_env=me)
+            else:
+                cands = V33.score_candidates_v33(cands, smi)
         # pool is already sorted by (ion_filtered, -ns_score, product_smiles)
         for rank, c in enumerate(cands):
             prod_canon = _identity(c["product_smiles"]) or ""

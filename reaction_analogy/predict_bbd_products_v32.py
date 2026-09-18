@@ -70,9 +70,10 @@ def main() -> int:
     ap.add_argument("--out-preds", required=True)
     ap.add_argument("--out-pool", required=True)
     ap.add_argument("--out-report", required=True)
-    ap.add_argument("--scoring", default="v33", choices=["v33", "v32"],
+    ap.add_argument("--scoring", default="v33", choices=["v34", "v33", "v32"],
                     help="v33 = charge-normalized fusion (default); "
-                         "v32 = raw max(p)/3 shadow scoring")
+                         "v34 = per-source calibrated fusion "
+                         "(soil/sludge repair); v32 = raw max(p)/3 shadow")
     args = ap.parse_args()
 
     t_start = time.time()
@@ -155,7 +156,23 @@ def main() -> int:
                 ion_filtered_total += 1
 
         # ---- ranking ----
-        if args.scoring == "v33":
+        if args.scoring == "v34":
+            # per-source calibrated fusion (soil/sludge repair 2026-09-18)
+            import bbd_v34_fusion as V34
+            import expand_bbd_routes as XR
+            calib = XR._load_v34_calibrator()
+            if not calib:
+                ranked = V33.score_candidates_v33(cands, smi)
+            else:
+                ranked = V34.score_candidates_v34(
+                    cands, smi, calib,
+                    combiner=V34.DEFAULT_COMBINER)
+                if XR._G_V34_POLICY:
+                    k, ms, me = XR._G_V34_POLICY
+                    ranked = V34.apply_topk_policy(ranked, k=k,
+                                                   max_same_scaffold=ms,
+                                                   min_env=me)
+        elif args.scoring == "v33":
             # charge-normalized identity merge + agreement + skeleton check
             ranked = V33.score_candidates_v33(cands, smi)
         else:
@@ -168,6 +185,8 @@ def main() -> int:
         def _serialize(c: dict) -> dict:
             out = {
                 "product_smiles": c["product_smiles"],
+                "product_identity": c.get("product_identity",
+                                           c["product_smiles"]),
                 "product_smiles_full": c.get("product_smiles_full", c["product_smiles"]),
                 "source": c.get("source", ""),
                 "template_freq": c.get("template_freq", 0),

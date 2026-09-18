@@ -1,0 +1,193 @@
+{
+  "label": "B_rhea_val",
+  "n_educts": 1234,
+  "n_truth": 1234,
+  "gen_rows_by_family": {
+    "envipath+uspto": 2641,
+    "uspto": 8511,
+    "retrieval+uspto": 485,
+    "envipath": 14422,
+    "retrieval": 182201,
+    "envipath+retrieval": 170
+  },
+  "gen_pos_by_family": {
+    "retrieval+uspto": 173,
+    "envipath": 290,
+    "retrieval": 13239,
+    "uspto": 224,
+    "envipath+uspto": 204,
+    "envipath+retrieval": 125
+  },
+  "family_precision_at_generation": {
+    "envipath+uspto": 0.07724,
+    "uspto": 0.02632,
+    "retrieval+uspto": 0.3567,
+    "envipath": 0.02011,
+    "retrieval": 0.07266,
+    "envipath+retrieval": 0.73529
+  },
+  "educts_covered_by_family": {
+    "retrieval+uspto": 167,
+    "envipath": 246,
+    "retrieval": 1227,
+    "uspto": 200,
+    "envipath+uspto": 182,
+    "envipath+retrieval": 116
+  },
+  "oracle_educts_cn": 1228,
+  "oracle_educts_strict": 1228,
+  "educts_covered_by_source": {
+    "uspto": 444,
+    "envipath": 453,
+    "retrieval": 1228
+  },
+  "hits_strict": {
+    "hit@1": 1172,
+    "hit@3": 1202,
+    "hit@5": 1206,
+    "hit@10": 1207,
+    "hit@50": 1209
+  },
+  "hits_strict_pct": {
+    "hit@1": 0.9498,
+    "hit@3": 0.9741,
+    "hit@5": 0.9773,
+    "hit@10": 0.9781,
+    "hit@50": 0.9797
+  },
+  "mrr10_strict": 0.9616,
+  "hits_cn": {
+    "hit@1": 1173,
+    "hit@3": 1202,
+    "hit@5": 1206,
+    "hit@10": 1207,
+    "hit@50": 1209
+  },
+  "hits_cn_pct": {
+    "hit@1": 0.9506,
+    "hit@3": 0.9741,
+    "hit@5": 0.9773,
+    "hit@10": 0.9781,
+    "hit@50": 0.9797
+  },
+  "mrr10_cn": 0.9621,
+  "no_uspto_only_cf_pct": {
+    "hit@1": 0.9506,
+    "hit@3": 0.9741,
+    "hit@5": 0.9773,
+    "hit@10": 0.9781,
+    "hit@50": 0.9806
+  },
+  "top10_rows_by_family": {
+    "envipath+retrieval": 172,
+    "retrieval": 6439,
+    "retrieval+uspto": 214,
+    "uspto": 1644,
+    "envipath+uspto": 1535,
+    "envipath": 2290,
+    "envipath+retrieval+uspto": 46
+  },
+  "top50_rows_by_family": {
+    "envipath+retrieval": 188,
+    "retrieval": 45040,
+    "retrieval+uspto": 397,
+    "uspto": 4335,
+    "envipath+uspto": 2539,
+    "envipath": 8143,
+    "envipath+retrieval+uspto": 73
+  },
+  "rank1_rows_by_family": {
+    "envipath+retrieval": 95,
+    "retrieval": 996,
+    "retrieval+uspto": 68,
+    "envipath+uspto": 54,
+    "envipath": 15,
+    "envipath+retrieval+uspto": 6
+  },
+  "rank1_hits_by_family": {
+    "envipath+retrieval": 94,
+    "retrieval": 991,
+    "retrieval+uspto": 68,
+    "envipath+retrieval+uspto": 6,
+    "envipath+uspto": 14
+  },
+  "miss": {
+    "generation_gap_educts": 6,
+    "ranking_miss_educts": 21,
+    "best_true_rank0_median": 98,
+    "n_uspto_only_above_median": 6,
+    "best_true_family_dist": {
+      "retrieval": 21
+    }
+  },
+  "calibration": {
+    "uspto": {
+      "pos_scores": {
+        "n": 538,
+        "mean": 0.6304,
+        "p10": 0.0428,
+        "p50": 0.7847,
+        "p90": 0.9996,
+        "p99": 0.9997
+      },
+      "neg_scores": {
+        "n": 11019,
+        "mean": 0.137,
+        "p10": 0.0025,
+        "p50": 0.0364,
+        "p90": 0.437,
+        "p99": 0.858
+      },
+      "auc_within_source": 0.8666
+    },
+    "envipath": {
+      "pos_scores": {
+        "n": 619,
+        "mean": 0.6286,
+        "p10": 0.0672,
+        "p50": 0.8213,
+        "p90": 0.993,
+        "p99": 0.9943
+      },
+      "neg_scores": {
+        "n": 16565,
+        "mean": 0.1192,
+        "p10": 0.0015,
+        "p50": 0.0325,
+        "p90": 0.3675,
+        "p99": 0.8964
+      },
+      "auc_within_source": 0.887
+    },
+    "retrieval": {
+      "pos_scores": {
+        "n": 13542,
+        "mean": 0.9526,
+        "p10": 0.993,
+        "p50": 0.9931,
+        "p90": 0.9931,
+        "p99": 0.9931
+      },
+      "neg_scores": {
+        "n": 169314,
+        "mean": 0.0185,
+        "p10": 0.0057,
+        "p50": 0.0131,
+        "p90": 0.0333,
+        "p99": 0.1111
+      },
+      "auc_within_source": 0.9956
+    }
+  },
+  "diversity": {
+    "mean_rank1_scaffold_share": 0.353,
+    "mean_max_family_share": 0.605,
+    "n_multiproduct_educts": 1192,
+    "multiproduct_mean_true_in_top10": 4.514
+  },
+  "anomalies": {
+    "gen_parent_copy_rows": 0,
+    "gen_invalid_rows": 49,
+    "gen_ion_rows": 5211
+  }
+}
