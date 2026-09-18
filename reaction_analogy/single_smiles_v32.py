@@ -149,9 +149,10 @@ def _prod_scores(path: list[dict]) -> float:
 
 
 def setup_v34(no_policy: bool = False) -> None:
-    """v3.4 mode: fold the 49 EAWAG rules into engine B (v5 training
+    """v3.4/v3.5 mode: fold the 49 EAWAG rules into engine B (v5 training
     convention: source="envipath", rule_family="eawag_rule"), load the
-    per-source calibrator and set the Top-K display policy.
+    EXPLICIT-version calibrator (pinned by the caller via
+    X.set_calibrator_path / X._G_SCORING) and set the Top-K display policy.
 
     Call AFTER load_engines() (needs X._G_RULES_B populated).
     """
@@ -160,12 +161,14 @@ def setup_v34(no_policy: bool = False) -> None:
     eawag_rules = ERE.load_eawag_rules(
         os.path.join(_HERE, "data/bbd_expand/rules_new_clean.jsonl"))
     X._G_RULES_B = list(X._G_RULES_B) + eawag_rules
-    X._load_v34_calibrator()
+    version = X._G_SCORING if X._G_SCORING in ("v34", "v35") else "v34"
+    X._load_v34_calibrator(version=version)
     X._G_V34_POLICY = None if no_policy else (
         V34.DEFAULT_TOPK, V34.DEFAULT_MAX_SAME_SCAFFOLD,
         V34.DEFAULT_MIN_ENV)
-    print(f"v34: +{len(eawag_rules)} EAWAG rules folded into engine B "
-          f"(policy={X._G_V34_POLICY})", flush=True)
+    print(f"{version}: +{len(eawag_rules)} EAWAG rules folded into engine B "
+          f"(calibrator={X._G_V34_VERSION}@{X._G_V34_CALIB_PATH}, "
+          f"policy={X._G_V34_POLICY})", flush=True)
 
 
 def main() -> int:
@@ -176,12 +179,13 @@ def main() -> int:
     ap.add_argument("--k1", type=int, default=X.K1, help="depth-1 frontier size")
     ap.add_argument("--k2", type=int, default=X.K2, help="depth>=2 frontier size")
     ap.add_argument("--scoring", default="v33",
-                    choices=["v33", "v34", "v32"],
-                    help="v33 = charge-normalized fusion (default); v34 = "
-                         "per-source calibrated fusion (soil/sludge repair "
-                         "2026-09-18, folds the 49 EAWAG rules into engine B)")
+                    choices=["v33", "v34", "v35", "v32"],
+                    help="v33 = charge-normalized fusion (default); "
+                         "v34/v35 = per-source calibrated fusion — the mode "
+                         "IS the calibrator version (P0-2: explicit); both "
+                         "fold the 49 EAWAG rules into engine B")
     ap.add_argument("--v34-no-policy", action="store_true",
-                    help="v34: disable the Top-K display policy")
+                    help="v34/v35: disable the Top-K display policy")
     ap.add_argument("--case-id", default=None)
     ap.add_argument("--out-prefix", default=None,
                     help="output file prefix (default: ./single_<canon8>)")
@@ -193,13 +197,17 @@ def main() -> int:
         print(f"FATAL: unparseable SMILES: {smi!r}", file=sys.stderr)
         return 2
     X._G_SCORING = args.scoring
+    if args.scoring in ("v34", "v35"):
+        # P0-2: pin the EXPLICIT calibrator version before scoring
+        X.set_calibrator_path(X.calibrator_repo_path(args.scoring),
+                              args.scoring)
 
     case_id = args.case_id or "SINGLE"
     cid = case_id
     t_start = time.time()
     libs = load_engines()
     print(f"engines loaded: {libs}", flush=True)
-    if args.scoring == "v34":
+    if args.scoring in ("v34", "v35"):
         setup_v34(no_policy=args.v34_no_policy)
 
     root_identity = X._identity(smi) or smi
@@ -315,8 +323,8 @@ def main() -> int:
     prefix = args.out_prefix or f"single_{hashlib.sha1(smi.encode()).hexdigest()[:8]}"
     os.makedirs(os.path.dirname(os.path.abspath(prefix)), exist_ok=True)
     sem = ("ns33_max_source_x_agreement_x_skeleton_over_3" if args.scoring == "v33"
-           else "ns34_calibrated_max_source_x_agreement_x_skeleton"
-           if args.scoring == "v34"
+           else f"ns34_calibrated_{args.scoring}_max_source_x_agreement_x_skeleton"
+           if args.scoring in ("v34", "v35")
            else "ns_score_max_per_source_probability_over_3")
 
     top_rows = []

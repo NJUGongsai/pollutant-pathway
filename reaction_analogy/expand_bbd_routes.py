@@ -66,39 +66,69 @@ GLOBAL_TIME_LIMIT_S = 7200  # 2 hours
 SOURCES = ("uspto", "envipath", "retrieval")
 
 # v3.3 scoring (charge-normalized fusion); set to "v32" for legacy behavior,
-# or "v34" for the per-source calibrated fusion (soil/sludge repair 2026-09-18)
+# "v34" for the per-source calibrated fusion (soil/sludge repair round 1) or
+# "v35" for the same fusion with the transfer-calibrated calibrator (round 2).
+# P0-2 fix (2026-09-18, colleague review): the calibrator version is
+# EXPLICIT — the scoring mode IS the version.  "--scoring v34" loads
+# calibrator_v34.json, "--scoring v35" loads calibrator_v35.json.  No
+# directory scanning, no auto-upgrade: a historical v34 run must stay v34
+# even when a v35 file exists next to it.
 _G_SCORING = "v33"
 
-# v3.4 (loaded lazily once): per-source isotonic calibrator + Top-K policy.
-# Fitted ONLY on the EAWAG donor cache calib split (environmental domain,
-# unseen by the v3.1 rankers) — never on soil/sludge gold.  See
-# fit_v34_calibration.py + bbd_v34_fusion.py.
+# v3.4/v3.5 (loaded lazily once): per-source isotonic calibrator + Top-K
+# policy.  Fitted ONLY on the EAWAG calib / calib2 splits (environmental
+# domain, unseen by the v3.1 rankers) — never on soil/sludge gold.  See
+# fit_v34_calibration.py / fit_v35_transfer_calib.py + bbd_v34_fusion.py.
 _G_V34_CALIB = None
+_G_V34_VERSION: str | None = None      # "v34" | "v35" (explicit)
+_G_V34_CALIB_PATH: str | None = None   # set by entries that resolved an
+                                       # environmental asset root
 _G_V34_POLICY = None  # (k, max_same_scaffold, min_env) or None = raw fusion
-V34_CALIBRATOR_PATH = os.path.join(
-    _HERE, "..", "data", "bbd_v34", "calibrator_v34.json")
-# v3.5: prefer the transfer-calibrated calibrator when present (superset of
-# v34; adds the donor-Tanimoto -> P(correct) isotonic fitted on the calib2
-# split — see fit_v35_transfer_calib.py)
-V35_CALIBRATOR_PATH = os.path.join(
-    _HERE, "..", "data", "bbd_v34", "calibrator_v35.json")
 
 
-def _load_v34_calibrator():
-    """Lazy-load the v3.4/v3.5 calibrator (idempotent; fail-closed to None)."""
-    global _G_V34_CALIB
-    if _G_V34_CALIB is not None:
+def calibrator_repo_path(version: str) -> str:
+    """Repo-relative path for an EXPLICIT calibrator version."""
+    return os.path.join(_HERE, "..", "data", "bbd_v34",
+                        f"calibrator_{version}.json")
+
+
+def set_calibrator_path(path: str, version: str) -> None:
+    """Entries call this after env_asset_root resolution: pin the calibrator
+    file AND its version (no auto-discovery afterwards)."""
+    global _G_V34_CALIB_PATH, _G_V34_CALIB, _G_V34_VERSION
+    _G_V34_CALIB_PATH = path
+    _G_V34_CALIB = None
+    _G_V34_VERSION = version
+
+
+def _load_v34_calibrator(version: str | None = None):
+    """Load the calibrator for an EXPLICIT version ("v34" | "v35").
+
+    P0-2 contract: version defaults to the current _G_SCORING mode; the
+    calibrator file is calibrator_<version>.json (repo path, or the path
+    pinned by set_calibrator_path when an environmental asset root was
+    resolved).  Missing file -> loud warning + v3.3 fallback (historical
+    fail-open, unchanged); WRONG version -> never happens by construction
+    (no auto-upgrade path exists anymore).
+    """
+    global _G_V34_CALIB, _G_V34_VERSION, _G_V34_CALIB_PATH
+    if version is None:
+        version = _G_SCORING if _G_SCORING in ("v34", "v35") else "v34"
+    if _G_V34_CALIB is not None and _G_V34_VERSION == version:
         return _G_V34_CALIB
     import bbd_v34_fusion as V34
-    path = (V35_CALIBRATOR_PATH if os.path.exists(V35_CALIBRATOR_PATH)
-            else V34_CALIBRATOR_PATH)
+    path = _G_V34_CALIB_PATH if (_G_V34_CALIB_PATH and _G_V34_VERSION == version) \
+        else calibrator_repo_path(version)
     if os.path.exists(path):
         _G_V34_CALIB = V34.SourceCalibrator.load(path)
+        _G_V34_VERSION = version
+        _G_V34_CALIB_PATH = path
     else:  # fail-closed: no calibrator -> identity calibration is WRONG,
         # so fall back to v3.3 semantics with a loud warning
-        print(f"WARNING: v3.4 calibrator missing ({V34_CALIBRATOR_PATH}); "
+        print(f"WARNING: calibrator_{version} missing ({path}); "
               f"scoring falls back to v3.3 fusion", file=sys.stderr)
         _G_V34_CALIB = False
+        _G_V34_VERSION = version
     return _G_V34_CALIB
 
 # Globals for fork workers
@@ -343,13 +373,15 @@ def _score_and_sort(candidates: list[dict], substrate_smi: str) -> list[dict]:
         # charge-normalized identity merge + source agreement + skeleton check
         return V33.score_candidates_v33(candidates, substrate_smi)
 
-    if _G_SCORING == "v34":
+    if _G_SCORING in ("v34", "v35"):
         # per-source calibrated fusion (soil/sludge repair 2026-09-18):
         # same identity merge/skeleton/agreement semantics, calibrated base
-        # + dual-form emission.  Calibrator is fork-inherited via COW in
-        # workers (plain data), so lazy load here is worker-safe.
+        # + dual-form emission.  v34/v35 differ ONLY by the calibrator file
+        # (P0-2: explicit version — the scoring mode is the version).
+        # Calibrator is fork-inherited via COW in workers (plain data), so
+        # lazy load here is worker-safe.
         import bbd_v34_fusion as V34
-        calib = _load_v34_calibrator()
+        calib = _load_v34_calibrator(version=_G_SCORING)
         if not calib:
             return V33.score_candidates_v33(candidates, substrate_smi)
         ranked = V34.score_candidates_v34(candidates, substrate_smi, calib)
@@ -458,10 +490,11 @@ def main() -> int:
     ap.add_argument("--procs", type=int, default=min(8, os.cpu_count() or 4))
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--scoring", default="v33",
-                    choices=["v33", "v34", "v32"],
+                    choices=["v33", "v34", "v35", "v32"],
                     help="v33 = charge-normalized fusion (default); "
-                         "v34 = per-source calibrated fusion "
-                         "(soil/sludge repair); v32 = legacy")
+                         "v34/v35 = per-source calibrated fusion — the mode "
+                         "IS the calibrator version (P0-2: explicit, no "
+                         "auto-upgrade); v32 = legacy")
     args = ap.parse_args()
 
     global _G_SCORING
@@ -537,10 +570,11 @@ def main() -> int:
         if _G_SCORING == "v33" and cands:
             # stored p_* are reused; apply charge-normalized fusion + flags
             cands = V33.score_candidates_v33(cands, smi)
-        elif _G_SCORING == "v34" and cands:
+        elif _G_SCORING in ("v34", "v35") and cands:
             # stored p_* are reused; calibrated fusion + dual-form emission
+            # (P0-2: explicit calibrator version = the scoring mode)
             import bbd_v34_fusion as V34
-            calib = _load_v34_calibrator()
+            calib = _load_v34_calibrator(version=_G_SCORING)
             if calib:
                 cands = V34.score_candidates_v34(cands, smi, calib)
                 if _G_V34_POLICY:

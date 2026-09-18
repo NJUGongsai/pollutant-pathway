@@ -47,6 +47,9 @@ import eawag_lookup as EGD  # noqa: E402
 DONOR_PRODUCT = os.path.join(_HERE, "data", "bbd_expand", "donor_product.jsonl")
 ENV_LIBRARY = os.path.join(_HERE, "data", "env_expand", "library_full.jsonl")
 ENV_CORPUS = os.path.join(_HERE, "data", "corpus_env")
+# NOTE: with --env-asset the library/corpus/calibrator paths are resolved
+# from the verified environmental asset root (env_asset_root.py) — the two
+# constants above remain only as repo-relative dev defaults.
 
 
 def main() -> int:
@@ -57,11 +60,13 @@ def main() -> int:
     ap.add_argument("--k1", type=int, default=S.X.K1)
     ap.add_argument("--k2", type=int, default=S.X.K2)
     ap.add_argument("--scoring", default="v33",
-                    choices=["v33", "v34", "v32"],
-                    help="v33 = charge-normalized fusion (default); v34 = "
-                         "per-source calibrated fusion (soil/sludge repair)")
+                    choices=["v33", "v34", "v35", "v32"],
+                    help="v33 = charge-normalized fusion (default); "
+                         "v34/v35 = per-source calibrated fusion — the mode "
+                         "IS the calibrator version (P0-2: explicit, no "
+                         "auto-upgrade)")
     ap.add_argument("--v34-no-policy", action="store_true",
-                    help="v34: disable the Top-K display policy")
+                    help="v34/v35: disable the Top-K display policy")
     ap.add_argument("--library", default=None,
                     help="EAWAG lookup library jsonl (donor_product schema); "
                          "with --env-asset the default is the expanded "
@@ -73,16 +78,49 @@ def main() -> int:
                          "is the environmental corpus")
     ap.add_argument("--env-asset", action="store_true",
                     help="v3.5: use the expanded environmental assets "
-                         "(library_full + corpus_env) with v34 scoring")
+                         "(library_full + corpus_env, fail-closed SHA "
+                         "verification) with v35 scoring by default")
+    ap.add_argument("--env-data-root", default=None,
+                    help="environmental runtime-asset root (the unpacked "
+                         "depending_v35_environment_runtime_assets package "
+                         "or a repo checkout with corpus_env staged); "
+                         "overrides $DEPENDING_V35_DATA_ROOT")
     ap.add_argument("--case-id", default=None)
     ap.add_argument("--out-prefix", default=None)
     args = ap.parse_args()
 
+    env_identity = None
     if args.env_asset:
-        args.library = args.library or ENV_LIBRARY
-        args.corpus_dir = args.corpus_dir or ENV_CORPUS
+        # P0-1 fix: resolve + verify the environmental assets EXPLICITLY and
+        # fail closed (never silently fall back to the legacy corpus).
+        import env_asset_root as EAR
+        try:
+            env_identity = EAR.resolve_and_verify(args.env_data_root)
+        except EAR.EnvAssetError as e:
+            print(f"FATAL (env assets, fail-closed): {e}", file=sys.stderr)
+            return 2
         if args.scoring == "v33":
-            args.scoring = "v34"
+            args.scoring = "v35"  # env assets default to the explicit v3.5
+        if args.scoring not in ("v34", "v35"):
+            print("FATAL: --env-asset requires --scoring v34 or v35",
+                  file=sys.stderr)
+            return 2
+        if not args.corpus_dir:
+            args.corpus_dir = os.path.dirname(env_identity["corpus_v1_path"])
+        if not args.library:
+            args.library = env_identity["library_path"]
+        # rankers from the SAME verified root
+        X.MODEL_DIR = os.path.dirname(env_identity["ranker_uspto_path"])
+    # P0-2 fix: pin the calibrator file+version BEFORE any scoring happens
+    if args.scoring in ("v34", "v35"):
+        if env_identity is not None:
+            import env_asset_root as EAR
+            X.set_calibrator_path(
+                EAR.calibrator_path(env_identity, args.scoring),
+                args.scoring)
+        else:
+            X.set_calibrator_path(X.calibrator_repo_path(args.scoring),
+                                  args.scoring)
     library_path = args.library or DONOR_PRODUCT
     if args.corpus_dir:
         X.CORPUS_DIR = args.corpus_dir
@@ -97,7 +135,7 @@ def main() -> int:
     case_id = args.case_id or "SINGLE-HYBRID"
     t_start = time.time()
     S.load_engines()
-    if args.scoring == "v34":
+    if args.scoring in ("v34", "v35"):
         S.setup_v34(no_policy=args.v34_no_policy)
     lookup_index = EGD.build_index(library_path)
     print(f"engines + lookup index loaded "
@@ -312,12 +350,44 @@ def main() -> int:
         }
 
     top_rows = [_row(e) for e in depth1_ranked[:args.top_k]]
+    calib_version = args.scoring if args.scoring in ("v34", "v35") else ""
+    asset_identity = {
+        "scoring_mode": args.scoring,
+        "calibrator_version": calib_version,
+        "calibrator_path": X._G_V34_CALIB_PATH or "",
+        "calibrator_sha256": "", "calibrator_bytes": 0,
+        "environment_library_sha256": "", "corpus_v1_sha256": "",
+        "donor_index_sha256": "", "git_commit": "",
+    }
+    if env_identity is not None:
+        asset_identity.update({
+            "asset_mode": env_identity.get("asset_mode"),
+            "asset_root": env_identity.get("asset_root"),
+            "environment_library_sha256":
+                env_identity.get("library_sha256", ""),
+            "corpus_v1_sha256": env_identity.get("corpus_v1_sha256", ""),
+            "donor_index_sha256": env_identity.get("donor_index_sha256", ""),
+        })
+        key = f"calibrator_{calib_version}" if calib_version else ""
+        if key:
+            asset_identity.update({
+                "calibrator_path": env_identity.get(f"{key}_path", ""),
+                "calibrator_sha256": env_identity.get(f"{key}_sha256", ""),
+                "calibrator_bytes": env_identity.get(f"{key}_bytes", 0),
+            })
+    elif X._G_V34_CALIB_PATH and os.path.exists(X._G_V34_CALIB_PATH):
+        import hashlib as _hl
+        asset_identity["calibrator_sha256"] = _hl.sha256(
+            open(X._G_V34_CALIB_PATH, "rb").read()).hexdigest()
+        asset_identity["calibrator_bytes"] = os.path.getsize(
+            X._G_V34_CALIB_PATH)
     raw = {
         "case_id": case_id, "input_smiles": smi,
         "input_identity": root_identity,
-        "caliber": "hybrid (EAWAG lookup tier + v3.3 prediction fallback)",
+        "caliber": "hybrid (EAWAG lookup tier + prediction fallback)",
         "params": {"top_k": args.top_k, "max_depth": args.max_depth,
                    "K1": args.k1, "K2": args.k2, "scoring": args.scoring},
+        "asset_identity": asset_identity,
         "lookup_tier": {"depth1_hit": bool(depth1_lookup_hit),
                         "n_lookup_products": len(depth1_lookup_hit)},
         "depth_engine_invocations": engine_invocations,

@@ -85,17 +85,47 @@ def main() -> int:
     ap.add_argument("--parents-csv", required=True)
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--top-k", type=int, default=10)
-    ap.add_argument("--scoring", default="v34", choices=["v34", "v33"])
+    ap.add_argument("--scoring", default="v35", choices=["v34", "v35"],
+                    help="P0-2: the scoring mode IS the calibrator version "
+                         "(v34 -> calibrator_v34.json, v35 -> "
+                         "calibrator_v35.json; explicit, no auto-upgrade)")
+    ap.add_argument("--env-data-root", default=None,
+                    help="environmental runtime-asset root (unpacked "
+                         "depending_v35_environment_runtime_assets package "
+                         "or a checkout with corpus_env staged); overrides "
+                         "$DEPENDING_V35_DATA_ROOT.  P0-1: resolution is "
+                         "FAIL-CLOSED (missing file / SHA mismatch -> "
+                         "non-zero exit, never a silent legacy fallback)")
     ap.add_argument("--legacy-assets", action="store_true",
                     help="use the v3.3 assets (EAWAG-BBD library only, "
-                         "corpus_v1) instead of the expanded environmental "
-                         "assets — for A/B comparison")
+                         "corpus_v1) with v33 scoring — for A/B comparison "
+                         "(ignores env asset resolution)")
     ap.add_argument("--v34-no-policy", action="store_true")
     ap.add_argument("--limit", type=int, default=0)
     args = ap.parse_args()
 
-    library = BBD_LIBRARY if args.legacy_assets else ENV_LIBRARY
-    corpus_dir = BBD_CORPUS if args.legacy_assets else ENV_CORPUS
+    # ---- P0-1: explicit, verified asset resolution (fail-closed) ----
+    env_identity = None
+    if args.legacy_assets:
+        library = BBD_LIBRARY
+        corpus_dir = BBD_CORPUS
+        scoring_mode = "v33"
+    else:
+        import env_asset_root as EAR
+        try:
+            env_identity = EAR.resolve_and_verify(args.env_data_root)
+        except EAR.EnvAssetError as e:
+            print(f"FATAL (env assets, fail-closed): {e}", file=sys.stderr)
+            return 2
+        corpus_dir = os.path.dirname(env_identity["corpus_v1_path"])
+        library = env_identity["library_path"]
+        # rankers from the SAME verified root (fresh clones need the
+        # package's rankers/, dev checkouts use data/bbd_v31/)
+        X.MODEL_DIR = os.path.dirname(env_identity["ranker_uspto_path"])
+        scoring_mode = args.scoring
+        # P0-2: pin the EXPLICIT calibrator file + version
+        X.set_calibrator_path(
+            EAR.calibrator_path(env_identity, args.scoring), args.scoring)
 
     os.makedirs(args.out_dir, exist_ok=True)
     t0 = time.time()
@@ -104,16 +134,55 @@ def main() -> int:
     X.CORPUS_DIR = corpus_dir
     print(f"loading engines (corpus={corpus_dir})...", flush=True)
     S.load_engines()
-    X._G_SCORING = args.scoring
-    if args.scoring == "v34":
+    X._G_SCORING = scoring_mode
+    if scoring_mode in ("v34", "v35"):
         S.setup_v34(no_policy=args.v34_no_policy)
     lookup_index = EGD.build_index(library)
     lookup_index.pop("__parse_fail__", None)
-    lib_fingerprint = hashlib.sha256(
-        open(library, "rb").read()).hexdigest()
+    lib_fingerprint = hashlib.sha256(open(library, "rb").read()).hexdigest()
     print(f"engines + library loaded: {len(lookup_index)} donors, "
           f"{len(X._G_RECORDS)} corpus records "
           f"({time.time()-t0:.0f}s)", flush=True)
+
+    # ---- identity block for run_report (P0-2 requirements) ----
+    identity = {
+        "scoring_mode": scoring_mode,
+        "calibrator_version": scoring_mode if scoring_mode in ("v34", "v35")
+        else "",
+        "calibrator_path": X._G_V34_CALIB_PATH or "",
+        "calibrator_bytes": 0,
+        "calibrator_sha256": "",
+        "environment_library_path": library,
+        "environment_library_sha256": lib_fingerprint,
+        "environment_library_bytes": os.path.getsize(library),
+        "corpus_v1_sha256": "",
+        "corpus_v1_bytes": 0,
+        "donor_index_sha256": "",
+        "donor_index_bytes": 0,
+        "asset_mode": "legacy" if args.legacy_assets else None,
+        "asset_root": None,
+        "git_commit": os.popen(
+            "git -C " + os.path.join(_HERE, "..") +
+            " rev-parse HEAD").read().strip(),
+    }
+    if env_identity is not None:
+        key = f"calibrator_{scoring_mode}"
+        identity.update({
+            "calibrator_path": env_identity.get(f"{key}_path", ""),
+            "calibrator_bytes": env_identity.get(f"{key}_bytes", 0),
+            "calibrator_sha256": env_identity.get(f"{key}_sha256", ""),
+            "corpus_v1_sha256": env_identity.get("corpus_v1_sha256", ""),
+            "corpus_v1_bytes": env_identity.get("corpus_v1_bytes", 0),
+            "donor_index_sha256": env_identity.get("donor_index_sha256", ""),
+            "donor_index_bytes": env_identity.get("donor_index_bytes", 0),
+            "ranker_dir": os.path.dirname(
+                env_identity.get("ranker_uspto_path", "")),
+            "rankers_sha256": {
+                sk: env_identity.get(f"ranker_{sk}_sha256", "")
+                for sk in ("uspto", "envipath", "retrieval")},
+            "asset_mode": env_identity.get("asset_mode"),
+            "asset_root": env_identity.get("asset_root"),
+        })
 
     # ---- parents ----
     with open(args.parents_csv, encoding="utf-8") as f:
@@ -185,18 +254,14 @@ def main() -> int:
 
     report = {
         "mode": "v35-batch" if not args.legacy_assets else "v33-legacy-batch",
-        "scoring": args.scoring,
         "n_cases": len(cases),
         "n_lookup_hit": n_lookup_hit,
-        "library": library,
-        "library_sha256": lib_fingerprint,
         "corpus_dir": corpus_dir,
         "corpus_records": len(X._G_RECORDS),
         "top_k": args.top_k,
         "total_time_s": round(time.time() - t0, 1),
-        "git_commit": os.popen(
-            "git -C " + os.path.join(_HERE, "..") +
-            " rev-parse HEAD").read().strip(),
+        # P0-2 identity block: every run records WHAT it actually ran
+        "identity": identity,
     }
     with open(os.path.join(args.out_dir, "run_report.json"), "w") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
