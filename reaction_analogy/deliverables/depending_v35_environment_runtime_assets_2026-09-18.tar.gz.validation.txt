@@ -1,0 +1,100 @@
+depending_v35_environment_runtime_assets_2026-09-18.tar.gz — validation record
+================================================================================
+
+git_commit (fix):      db78d247a8635ae5351b5e087487185c1237211a (v3.5.1 P0 fixes)
+parent commit:         3de20baf85b39de3bb1b60ea641e47332edc0b38 (v3.5)
+tar_sha256:            192d1434788e4047ccfe46f5e1617a3191a48ecb72890d2117ce2ba658867646
+tar_bytes:             10,878,589
+validation ran at:     2026-09-18 (local fresh-clone protocol below)
+
+P0-1 — asset resolution (fail-closed)
+--------------------------------------------------------------------------------
+[V1] bare fresh clone (git clone of db78d24; no corpus_env by policy):
+     predict_env_batch_v35.py --parents-csv /dev/null --out-dir <tmp>
+     -> FATAL (env assets, fail-closed): "...NO silent fallback to the legacy
+        corpus."  exit=2.                                             PASS
+[V2] unpack the clone's own committed package:
+     tar xzf reaction_analogy/deliverables/depending_v35_environment_runtime_
+     assets_2026-09-18.tar.gz -C <staged>
+     env_asset_root.py --env-data-root <staged>/depending_v35_environment_
+     runtime_assets_2026-09-18  ->  ASSETS OK (mode=cli)              PASS
+[V3] corrupted asset (one appended byte to corpus_env/corpus_v1.jsonl):
+     -> EnvAssetError "SHA mismatch ... aborting (fail-closed)"       PASS
+     (automated: tests/test_v35_p0_fixes.py::T5)
+
+P0-2 — explicit calibrator versioning
+--------------------------------------------------------------------------------
+[V4] fresh-clone smoke, --scoring v35, 3 non-gold parents (parents.csv):
+     3/3 cases, 3/3 lookup-hit, 40s.
+     run_report.identity: scoring_mode=v35, calibrator_version=v35,
+     calibrator_sha256=5947d0176f64a011d193025ced1f4a3bb203f55b108ce54bf
+     2904369b66f6f9d (= calibrators/calibrator_v35.json)              PASS
+[V5] fresh-clone smoke, --scoring v34, same parents:
+     3/3 cases, 3/3 lookup-hit, 39s.
+     calibrator_sha256=fa6e2ad4957da980c0e1e1d2bc191e3f74513f2bf647f24
+     a8ffd507d6c3eed5 (= calibrators/calibrator_v34.json)             PASS
+     (v34 and v35 runs share the SAME corpus/library/ranker SHAs; ONLY the
+      calibrator differs — exactly the P0-2 requirement)
+[V6] shared identity fields in both run_reports:
+     scoring_mode, calibrator_path/version/bytes/sha256,
+     environment_library_sha256, corpus_v1_sha256, donor_index_sha256,
+     rankers_sha256, asset_mode/root, git_commit — all present and
+     non-empty.                                                        PASS
+
+Smoke outputs (raw, verbatim from the fresh clone runs):
+  fresh_clone_smoke_2026-09-18/v35/{predictions.jsonl, run_report.json,
+                                    MANIFEST.sha256}
+  fresh_clone_smoke_2026-09-18/v34/{...}
+  fresh_clone_smoke_2026-09-18/parents.csv  (3 NON-GOLD public compounds)
+
+Automated test suite: tests/test_v35_p0_fixes.py
+--------------------------------------------------------------------------------
+  T1  v34 explicitly loads calibrator_v34.json (no transfer iso)     PASS
+  T2  v35 explicitly loads calibrator_v35.json (transfer iso)        PASS
+  T3  run_report identity fields complete + version-correct (v34+v35) PASS
+  T4  corpus_env missing -> EnvAssetError (fail-closed)              PASS
+  T5  corpus_env bytes altered -> SHA mismatch abort                 PASS
+  T6  tar-staged assets run 2 non-gold parents; missing root -> 2    PASS
+  T7  lookup rows precede prediction rows; provenance + audit fields PASS
+  T8  no v3.5 source references soil/sludge restricted answers       PASS
+  8 passed, 0 failed
+
+Mutation checks: run_p0_mutation_checks.py
+--------------------------------------------------------------------------------
+  M1 calibrator_repo_path ignores version (P0-2 regression):
+     T1/T2 CAUGHT the mutation (exit=1)                               PASS
+  M2 env_asset_root.verify skips SHA comparison (P0-1 regression):
+     T5 CAUGHT the mutation (exit=1)                                  PASS
+  post-restore sanity: fast suite green (exit=0)                     PASS
+
+Asset identity table
+--------------------------------------------------------------------------------
+  asset                          sha256 (first 16)      bytes
+  corpus_env/corpus_v1.jsonl     186a1dad17e9c92a       50,929,958
+  corpus_env/donor_index.jsonl   e2287aa251cd644f       14,945,416
+  library/library_full.jsonl     042e9e2c2afccdd8        1,445,988
+  calibrators/calibrator_v34.json fa6e2ad4957da980          5,091
+  calibrators/calibrator_v35.json 5947d0176f64a011          6,849
+  rankers/uspto_ranker.txt       (see MANIFEST.sha256)  1,263,228
+  rankers/envipath_ranker.txt                            645,960
+  rankers/retrieval_ranker.txt                           659,831
+  + corpus_env_eval/{corpus_v1,donor_index}.jsonl (local-eval copies)
+  Full per-file SHAs: MANIFEST.sha256 inside the package;
+  package identity: .tar.gz.identity.txt
+
+Fresh-clone install commands (for the re-run)
+--------------------------------------------------------------------------------
+  git clone https://github.com/Water-Quality-Risk-Control-Engineering/depending.git
+  cd depending
+  tar xzf reaction_analogy/deliverables/depending_v35_environment_runtime_assets_2026-09-18.tar.gz -C /tmp
+  export DEPENDING_V35_DATA_ROOT=/tmp/depending_v35_environment_runtime_assets_2026-09-18
+  # (or pass --env-data-root <dir> explicitly)
+  python reaction_analogy/predict_env_batch_v35.py \
+      --parents-csv <soil_sludge_1788_parents.csv> \
+      --out-dir <out> --top-k 10 --scoring v35
+  # v34 historical reproduction:
+  ... --scoring v34   (loads calibrator_v34.json — never auto-upgraded)
+
+Note: the bare-clone fail-closed message, the resolver SHAs, and the
+run_report identity fields are the gates the reviewer requested; all are
+machine-checked by the test suite above.
