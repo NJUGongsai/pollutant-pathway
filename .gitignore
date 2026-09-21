@@ -74,3 +74,19 @@ reaction_analogy/data/corpus_calib2/
 
 # v3.5 资产包解包staging目录（tar.gz 本体入库作为分发单元；解包副本不入库）
 reaction_analogy/deliverables/depending_v35_environment_runtime_assets_2026-09-18/
+
+# ── 数据 / 权重 / 跑批产物：一律不进版本库（清单 assets_manifest.json，说明 ARTIFACTS.md）──
+bbd_predictions/
+data/
+reports/
+reaction_analogy/data/
+reaction_analogy/deliverables/
+reaction_analogy/templates.json
+reaction_analogy/reports/**
+!reaction_analogy/reports/*.md
+reaction_v3/data/
+**/templates.tsv.gz
+# 机器相关配置与密钥
+config/paths.yaml
+config/paths.local.yaml
+.env

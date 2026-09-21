@@ -18,12 +18,28 @@
 
 | 板块 | 目录 | 职责 | 维护者 |
 |---|---|---|---|
-| **① 编排核心** | `src/` · `main.py` · `config/` · `configs/` | 底物→反应→酶→菌 的 LangGraph 编排、节点/工具/契约 | 老师侧（主线） |
+| **① 编排核心** | `src/` · `main.py` · `config/` | 底物→反应→酶→菌 的 LangGraph 编排、节点/工具/契约 | 老师侧（主线） |
 | **② 冻结排序底座** | `assets/enzyme_cage_v1/` | EnzymeCAGE v1 **模型定义代码**（GVP+SchNet+attention）；**权重不在仓库**，托管在 Hugging Face `WQRCE/EnzymeCAGE-v1`（私有） | 学生侧，冻结 |
 | **③ 反应预测引擎候选** | `reaction_analogy/` · `reaction_v3/` · `data/bbd_*` · `bbd_predictions/` | 师兄的 BBD/USPTO 降解产物预测 + ranker（v2→v33），**evaluation candidate，非默认引擎** | 师兄（`feat/bbd-uspto-integrated`） |
 | **④ 交付/文档** | `docs/` · `reports/` · `cases/` · `scripts/` · `tests/` | 师生评审、真跑证据、测试案例、晨羽脚本、单测 | 学生侧 |
 
 关键原则：**板块②是唯一冻结排序底座，板块③是「候选待裁定」的预测引擎，二者都不并入板块①的主编排默认路径**，除非对应裁定（T6-2）落地。
+
+---
+
+## 仓内只放代码与文档（2026-09-21 起）
+
+`main` 曾把 92.9 MB 中的约 **80 MB 数据/产物**提交进 git（两个 12 MB pool jsonl、
+10.7 MB `templates.json`、10.4 MB tar.gz、多份 ranker 权重、60 个跑批快照）。
+现已分离：**代码与文档在仓内，数据/权重/产物托管在陈宇 HPC 服务器 + Hugging Face**，
+仓内只保留 `assets_manifest.json`（路径 + 字节数 + sha256）与取回脚本：
+
+```bash
+bash scripts/assets/fetch_assets.sh      # 先设 ENZYMECAGE_ASSET_REMOTE 或 ENZYMECAGE_ASSET_HF_REPO
+python3 scripts/assets/verify_assets.py  # 只校验本地文件是否与清单一致
+```
+
+详见 [`ARTIFACTS.md`](ARTIFACTS.md)；跑批快照（`reports/**`）不再入库，见 [`reports/README.md`](reports/README.md)。
 
 ---
 
@@ -99,7 +115,7 @@ ENZYMECAGE_DRY_RUN=1 python3 main.py '帮我找能降解己烷(CCCCCC)的酶' --
 
 ### 生产运行（晨羽 HPC）
 
-生产环境部署在晨羽 HPC 同一 Python 3.12.3 环境，直接 `import` 冻结的 EnzymeCAGE wrapper。运行时路径见 [`configs/chenyu_paths.yaml`](configs/chenyu_paths.yaml)，同步脚本见 [`scripts/sync_to_chenyu.sh`](scripts/sync_to_chenyu.sh)。将 `.env` 中 `ENZYMECAGE_DRY_RUN` 改为 `0`。
+生产环境部署在晨羽 HPC 同一 Python 3.12.3 环境，直接 `import` 冻结的 EnzymeCAGE wrapper。运行时路径见 [`config/paths.example.yaml`](config/paths.example.yaml)，同步脚本见 [`scripts/sync/sync_to_chenyu.sh`](scripts/sync/sync_to_chenyu.sh)。将 `.env` 中 `ENZYMECAGE_DRY_RUN` 改为 `0`。
 
 **冻结底座权重**托管在 Hugging Face `WQRCE/EnzymeCAGE-v1`（私有 model repo）：
 - 业务主线 = `3b_ensemble`（seeds 40–44 五种子均值概率集成，MRR@10 0.5043 / Hit@1 0.4089）
@@ -110,32 +126,38 @@ ENZYMECAGE_DRY_RUN=1 python3 main.py '帮我找能降解己烷(CCCCCC)的酶' --
 ## 目录结构
 
 ```
-depending/                       # 仓库根（项目名 EnzymeCrew）
-├── main.py                      # 入口
-├── pyproject.toml               # 依赖与打包
-├── src/                         # ① 编排核心
-│   ├── graph.py                 #   LangGraph StateGraph 装配与路由
-│   ├── state.py                 #   全局 State 定义
-│   ├── nodes/                   #   10 个流程节点
-│   ├── tools/                   #   底层工具（substrate_parser / reaction_retriever
-│   │                            #     / enzyme_pool_builder / enzymecage_client
-│   │                            #     / microbe_recommender / trait_query 等）
-│   ├── schemas/                 #   证据 / 数据契约模型
-│   └── utils/                   #   LLM 客户端等
-├── assets/enzyme_cage_v1/       # ② 冻结排序底座（模型定义代码，权重在 HF）
-│   ├── model.py / schnet.py / gvp/ / interaction.py / attention.py / ...
-│   └── LICENSE                  #   CC-BY-NC 4.0（原 EnzymeCAGE）
-├── reaction_analogy/            # ③ 反应预测引擎候选（师兄 BBD/USPTO ranker v2→v33）
-├── reaction_v3/                 #    enviPath 反应模板（lib_envipath）
-├── data/bbd_*                   #    BBD ranker 训练数据（v3/v31/v32/v5/hfix）
-├── bbd_predictions/             #    BBD 各版本评测输出（结果数据，非代码）
-├── config/                      # settings 与配置加载
-├── configs/                     # 运行时路径契约（chenyu_paths.yaml）
-├── cases/                       # 测试案例（case_1~3）
-├── scripts/                     # 晨羽探测 / 真跑 / 同步脚本
-├── reports/                     # 真跑与 dry-run 证据归档
-├── docs/                        # 框架文档 / 师生评审 / 可视化
-└── tests/                       # 单元测试
+depending/
+├── README.md                      # 本文件：项目说明 + 目录结构 + 配置
+├── ARTIFACTS.md                   # 数据/权重/产物在哪、怎么取（92.9MB → 仓内 ~1MB 的原因）
+├── assets_manifest.json           # 出库资产清单（路径 + 字节数 + sha256）
+├── .env.example                   # 环境变量样例（真实 .env 不进库）
+├── pyproject.toml / main.py       # 依赖打包 / 入口
+├── src/                           # ① 编排核心（LangGraph）
+│   ├── graph.py / state.py        #   StateGraph 装配与路由 / 全局 State
+│   ├── nodes/                     #   13 个流程节点
+│   ├── tools/                     #   9 个底层工具（substrate_parser / reaction_retriever
+│   │                              #     / enzyme_pool_builder / enzymecage_client /
+│   │                              #       microbe_recommender / trait_query …）
+│   ├── schemas/                   #   证据 / 数据契约模型
+│   └── utils/                     #   LLM 客户端等
+├── assets/enzyme_cage_v1/         # ② 冻结排序底座：模型定义代码 + LICENSE（权重在 HF，不在仓内）
+├── reaction_analogy/              # ③ 反应预测引擎（师兄 BBD/USPTO ranker v2→v33）
+│   └── reports/*.md               #   方法论/评测报告（文档，保留在仓内）
+├── reaction_v3/                   #    enviPath 模板库（PROVENANCE.txt；模板数据在仓外）
+├── config/                        # settings.py + llm_config.yaml + paths.example.yaml
+├── cases/                         # 测试案例（case_1 ~ case_3）
+├── scripts/                       # 按用途分层
+│   ├── run/                       #   跑 case（case1_realrun.sh / run_case_dryrun.py）
+│   ├── probe/                     #   环境探针与 wrapper 烟测
+│   ├── sync/                      #   与晨羽 HPC 同步
+│   ├── assets/                    #   fetch_assets.sh / verify_assets.py
+│   └── archive/                   #   历史调试脚本
+├── tests/                         # 单元测试
+└── docs/                          # 框架文档 / 契约 / 可视化
+
+# 以下目录已 gitignore，只在本机或服务器存在（不进版本库）：
+#   data/  bbd_predictions/  reaction_analogy/data/  reaction_analogy/deliverables/
+#   reaction_analogy/templates.json  reports/  reaction_v3/data/*.gz
 ```
 
 ---
