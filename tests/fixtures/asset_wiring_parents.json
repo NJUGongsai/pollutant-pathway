@@ -1,0 +1,74 @@
+{
+  "description": "v4/v4.3 引擎资产对拍输入夹具。全部为固定、非 eval 输入;预期类别来自 2026-09-24 在 depending43 环境(python 3.11.16 / rdkit 2026.03.6 / lightgbm 4.7.0)对 v3.5 冻结引擎的实际探查,并经两臂对拍复核。",
+  "scoring": "v35",
+  "note_on_empty": "未找到『有效但零候选』的分子:检索引擎 C 对任意可解析输入都可能给出 Tanimoto>0 的 donor(H2、NH3 亦然),故不含该类夹具。",
+  "fixtures": [
+    {
+      "name": "benzenediol",
+      "smiles": "Oc1ccccc1O",
+      "expect": {
+        "parseable": true,
+        "lookup_hit": true,
+        "min_candidates": 10,
+        "categories": ["eawag_lookup", "retrieval", "envipath", "uspto", "merged_multi_source"]
+      }
+    },
+    {
+      "name": "phthalate_anion",
+      "smiles": "O=C([O-])c1ccccc1C(=O)[O-]",
+      "expect": {
+        "parseable": true,
+        "lookup_hit": true,
+        "min_candidates": 10,
+        "categories": ["eawag_lookup", "retrieval", "envipath", "uspto", "merged_multi_source"]
+      }
+    },
+    {
+      "name": "toluene",
+      "smiles": "Cc1ccccc1",
+      "expect": {
+        "parseable": true,
+        "lookup_hit": true,
+        "min_candidates": 10,
+        "categories": ["eawag_lookup", "retrieval", "envipath", "uspto", "merged_multi_source"]
+      }
+    },
+    {
+      "name": "hexane",
+      "smiles": "CCCCCC",
+      "expect": {
+        "parseable": true,
+        "lookup_hit": false,
+        "min_candidates": 10,
+        "categories": ["retrieval", "envipath", "uspto", "merged_multi_source"]
+      }
+    },
+    {
+      "name": "dbp_ester",
+      "smiles": "CCCCOC(=O)c1ccccc1C(=O)OCCCC",
+      "expect": {
+        "parseable": true,
+        "lookup_hit": false,
+        "min_candidates": 50,
+        "categories": ["retrieval", "envipath", "uspto", "merged_multi_source"]
+      }
+    },
+    {
+      "name": "ammonia",
+      "smiles": "N",
+      "expect": {
+        "parseable": true,
+        "lookup_hit": false,
+        "min_candidates": 1,
+        "categories": ["retrieval"]
+      }
+    },
+    {
+      "name": "unparseable",
+      "smiles": "not_a_smiles",
+      "expect": {
+        "parseable": false
+      }
+    }
+  ]
+}

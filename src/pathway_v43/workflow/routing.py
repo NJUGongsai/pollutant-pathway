@@ -1,0 +1,45 @@
+"""条件路由 — classify 三分支 + 预测分支 + 主循环的继续/导出。"""
+
+from __future__ import annotations
+
+from .state import WorkflowState
+
+
+def route_after_classify(state: WorkflowState) -> str:
+    """commit_recorded → 确定性校验;有预测模式 → 预测分支;否则原语义。"""
+    if state.get("last_outcome", "dead_end") == "commit_recorded":
+        return "validate_products"
+    if state.get("prediction_mode"):
+        return "prepare_prediction"
+    if state.get("last_outcome") == "awaiting_prediction":
+        return "mark_awaiting_prediction"
+    return "mark_dead_end"
+
+
+def route_after_call_model(state: WorkflowState) -> str:
+    """预测结果可入校验流(选中/提案)→ apply;显式停留 → 主循环。"""
+    if state.get("phase") == "apply_prediction":
+        return "apply_prediction"
+    return "select_frontier"
+
+
+def route_after_apply(state: WorkflowState) -> str:
+    """选中既有卡 / 提案卡 → validate_products;否则主循环。"""
+    if state.get("last_outcome") == "commit_recorded":
+        return "validate_products"
+    return "select_frontier"
+
+
+def route_after_validate(state: WorkflowState) -> str:
+    return "commit_pathway" if state.get("last_outcome") == "commit_recorded" \
+        else "mark_dead_end"
+
+
+def route_after_select(state: WorkflowState) -> str:
+    return "retrieve_reactions" if state.get("phase") == "explore" \
+        else "export_results"
+
+
+def route_after_normalize(state: WorkflowState) -> str:
+    return "export_results" if state.get("phase") == "failed" \
+        else "select_frontier"

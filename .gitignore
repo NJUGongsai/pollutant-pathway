@@ -1,92 +1,9 @@
-# Python
+.DS_Store
 __pycache__/
 *.py[cod]
-*$py.class
-*.egg-info/
-dist/
-build/
-.eggs/
-
-# 虚拟环境
-.venv/
-venv/
-env/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# 测试
 .pytest_cache/
-.coverage
-htmlcov/
-
-# 环境变量
+.venv/
 .env
-.env.local
-
-# 数据（学生提供，不入库）
-data/rhea/*.tsv
-data/reference_fingerprints/*.pkl
-data/reference_fingerprints/*.npy
-data/d4_assets/*.json
-data/d4_assets/*.csv
-
-# 模型 checkpoint（不入库）
-*.pt
-*.pth
-*.ckpt
-*.bin
-
-# 第三方参考代码（EnzymeCAGE 官方仓库克隆，不重分发，见 README 获取方式）
-EnzymeCAGE_ref/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Claude Code local settings (contains API tokens)
-.claude/
-
-# demov3 部署 clone（depending 工作树内，git clone 方案，不入库）
-demov3/
-
-# BBD 本地大文件运行副本（评测/路线展开的未跟踪产物，防 git add -A 误带；
-# git 跟踪的小体积权威结果 bbd_hybrid_eval_v5.json 等不受影响）
-bbd_predictions/bbd_route_edges.jsonl
-bbd_predictions/bbd_route_nodes.jsonl
-bbd_predictions/bbd_route_local_eval*.json
-bbd_predictions/bbd_route_run_report*.json
-bbd_predictions/bbd_route_submission/
-bbd_predictions/bbd_predictions.jsonl
-bbd_predictions/bbd_product_predictions.jsonl
-bbd_predictions/bbd_route_local_eval.json
-
-# BBD v3.5 环境资产本地运行产物（可由 env_expand_crawl.py + env_library_build.py
-# 再生成；溯源由 data/env_expand/manifest.json 的 sha256 保证；corpus_v1 本身
-# 是 HF 迁移运行时资产，见 bbd_data_root.py）
-reaction_analogy/data/env_expand/raw/
-reaction_analogy/data/corpus_env/
-reaction_analogy/data/corpus_env_eval/
-reaction_analogy/data/corpus_calib2/
-
-# v3.5 资产包解包staging目录（tar.gz 本体入库作为分发单元；解包副本不入库）
-reaction_analogy/deliverables/depending_v35_environment_runtime_assets_2026-09-18/
-
-# ── 数据 / 权重 / 跑批产物：一律不进版本库（清单 assets_manifest.json，说明 ARTIFACTS.md）──
-bbd_predictions/
-data/
-reports/
-reaction_analogy/data/
-reaction_analogy/deliverables/
-reaction_analogy/templates.json
-reaction_analogy/reports/**
-!reaction_analogy/reports/*.md
-reaction_v3/data/
-**/templates.tsv.gz
-# 机器相关配置与密钥
-config/paths.yaml
-config/paths.local.yaml
-.env
+.env.*
+runs/
+docs/kimi_k3_review_request.md

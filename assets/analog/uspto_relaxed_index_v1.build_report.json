@@ -1,0 +1,249 @@
+{
+ "accounting": {
+  "dropped": 0,
+  "dropped_by_reason": {},
+  "g2_closed": true,
+  "indexed": 188725,
+  "n_input_templates": 188725,
+  "n_total": 188725
+ },
+ "center_extraction": {
+  "centers_not_in_rhs_total": 225659,
+  "implementation": "build_corpus_mapping.extract_centers \u8bed\u4e49\u9010\u884c\u62f7\u8d1d(\u8bed\u6599/USPTO \u540c\u6784)",
+  "parse_path_counts": {
+   "parse_lhs_nosan": 61093,
+   "parse_lhs_san": 127632,
+   "parse_rhs_nosan": 58998,
+   "parse_rhs_san": 129727
+  },
+  "r1_mismatch_examples": [
+   "*[C:8](=*)[Br:9].*[SiH:23](*)[N:24]([CH3:26])[Si:27](*)(*)*>>*[C:8](=*)[NH2:24]",
+   "*[c:10](*)[NH2:9].[ClH:34]>>*[c:10](*)[Cl:34]",
+   "*[c:23](*)[NH2:24].[ClH:45]>>*[c:23](*)[Cl:45]",
+   "*[c:3](*)[Br:2].[MgH2:1]>>*[c:3](*)[Mg+:1].[Br-:2]",
+   "*[CH3:2].[BrH:12]>>*[CH2:2][Br:12]"
+  ],
+  "r1_tokenizer_mismatch": 1324,
+  "r1_tokenizer_mismatch_note": "\u4e0e relax_smarts \u51fd\u6570\u8f93\u51fa\u7684\u9010\u4e32\u5206\u6b67\u6761\u6570(\u5143\u7d20\u524d\u7f00\u622a\u65ad\u602a\u7656 ClH/BrH/SiH/SnH\u2026,\u89c1 bracket_anum \u6ce8\u8bb0;\u672c\u7d22\u5f15\u6309\u6b63\u786e\u5143\u7d20 primitive \u53e3\u5f84\u4ea7\u51fa)",
+  "rhs_only_centers_total": 0
+ },
+ "center_sizes": {
+  "hist": {
+   "[1,3)": 11333,
+   "[3,5)": 151083,
+   "[5,9)": 26309
+  },
+  "percentiles": {
+   "P25": 3,
+   "P5": 2,
+   "P50": 3,
+   "P75": 4,
+   "P90": 5,
+   "P95": 5,
+   "P99": 6,
+   "max": 7,
+   "n": 188725
+  }
+ },
+ "chunk_size": 2000,
+ "created_utc": "2026-09-22T15:09:43Z",
+ "env_shell_sizes": {
+  "hist": {
+   "[0,1)": 188725
+  },
+  "percentiles": {
+   "P25": 0,
+   "P5": 0,
+   "P50": 0,
+   "P75": 0,
+   "P90": 0,
+   "P95": 0,
+   "P99": 0,
+   "max": 0,
+   "n": 188725
+  }
+ },
+ "freq_stats": {
+  "freq_eq_1": 140478,
+  "freq_ge_2": 48247,
+  "max": 2019,
+  "percentiles": {
+   "P25": 1,
+   "P5": 1,
+   "P50": 1,
+   "P75": 2,
+   "P90": 3,
+   "P95": 5,
+   "P99": 16,
+   "max": 2019,
+   "n": 188725
+  },
+  "sum": 409006
+ },
+ "hits_original_lhs": {
+  "note": "widening \u81ea\u68c0:\u5404\u7ea7\u67e5\u8be2\u5f62\u5bf9\u539f\u59cb LHS \u5206\u5b50\u7684\u5b50\u7ed3\u6784\u547d\u4e2d(\u76ee\u6807=parse_mol_side \u540c\u6b3e mol)",
+  "r1_hit": 188725,
+  "r1_hit_unavailable": 0,
+  "r2_hit": 188725,
+  "r2_hit_unavailable": 0,
+  "r3_hit": 188725,
+  "r3_hit_unavailable": 0
+ },
+ "inputs": {
+  "uspto_templates_json": {
+   "freq_sum": 409006,
+   "frozen_unchanged": true,
+   "n_templates": 188725,
+   "n_train_field": 409035,
+   "path": "/Users/amant/Desktop/Enzyme_Agent/dependingv3/assets/templates/uspto_templates.json",
+   "sha256_post": "65a5ad25cbd0cb49eb860205456544f0da8579da13a18278f992e4118d1ce5b8",
+   "sha256_pre": "65a5ad25cbd0cb49eb860205456544f0da8579da13a18278f992e4118d1ce5b8"
+  }
+ },
+ "label": "uspto_relaxed_index_v1",
+ "level_equality": {
+  "note": "R2\u2260R1 = \u82b3\u9999\u9000\u5316\u7684\u5b9e\u9645\u89e6\u8fbe(\u663e\u5f0f =/- \u952e\u6a21\u677f);R3=R2 = \u73af\u5883\u9aa8\u67b6\u964d\u7ea7\u5728\u672c\u6570\u636e\u65e0\u5bf9\u8c61(USPTO \u6cdb\u5316\u6a21\u677f\u7684\u975e\u4e2d\u5fc3\u4e0a\u4e0b\u6587\u5df2\u662f wildcard,\u65e0 1-hop \u5916 mapped \u539f\u5b50\u53ef\u964d\u7ea7)\u2014\u2014\u5982\u5b9e\u5448\u73b0,\u89c1\u73af\u5883\u58f3\u5c3a\u5bf8\u5206\u5e03",
+  "r2_equals_r1": 83244,
+  "r3_equals_r2": 188725
+ },
+ "levels_validity": {
+  "r1": {
+   "frac": 1.0,
+   "valid": 188725
+  },
+  "r2": {
+   "frac": 1.0,
+   "valid": 188725
+  },
+  "r3": {
+   "frac": 1.0,
+   "valid": 188725
+  }
+ },
+ "lhs_components": {
+  "1": 15202,
+  "2": 162985,
+  "3": 10273,
+  "4": 260,
+  "5": 5
+ },
+ "machine": "chenjunjindeMacBook-Air.local",
+ "n_chunks": 95,
+ "output": {
+  "bytes": 51069875,
+  "drops_lines": 0,
+  "drops_path": "/Users/amant/Desktop/Enzyme_Agent/dependingv4/derived/analog/logs/uspto_relaxed_index_drops.jsonl",
+  "lines": 188725,
+  "path": "/Users/amant/Desktop/Enzyme_Agent/dependingv4/derived/analog/uspto_relaxed_index_v1.jsonl",
+  "sha256": "28fdf6bfde881f8563032fc7f36d561728967cc1b8fd785dd87e5ebc80c2c4ab"
+ },
+ "python": "3.11.16",
+ "rdkit_version": "2026.03.6",
+ "relaxer_version": "uspto_relaxed_index_v1: rules.relax_smarts@v4(R1) + aromatic_bond_degradation(R2) + env_skeleton_wildcard(R3)",
+ "signature_stats": {
+  "distinct": 1441,
+  "size_hist": {
+   "[1,3)": 11333,
+   "[3,5)": 151083,
+   "[5,9)": 26309
+  },
+  "size_percentiles": {
+   "P25": 3,
+   "P5": 2,
+   "P50": 3,
+   "P75": 4,
+   "P90": 5,
+   "P95": 5,
+   "P99": 6,
+   "max": 7,
+   "n": 188725
+  },
+  "top10": [
+   {
+    "count": 22565,
+    "signature": [
+     "C",
+     "N",
+     "O"
+    ]
+   },
+   {
+    "count": 14795,
+    "signature": [
+     "C",
+     "Cl",
+     "N"
+    ]
+   },
+   {
+    "count": 7510,
+    "signature": [
+     "Br",
+     "C",
+     "N"
+    ]
+   },
+   {
+    "count": 7261,
+    "signature": [
+     "C",
+     "C",
+     "O"
+    ]
+   },
+   {
+    "count": 5834,
+    "signature": [
+     "C",
+     "N",
+     "O",
+     "O"
+    ]
+   },
+   {
+    "count": 5821,
+    "signature": [
+     "C",
+     "O",
+     "O"
+    ]
+   },
+   {
+    "count": 5088,
+    "signature": [
+     "C",
+     "Cl",
+     "O"
+    ]
+   },
+   {
+    "count": 3692,
+    "signature": [
+     "C",
+     "N",
+     "N"
+    ]
+   },
+   {
+    "count": 3656,
+    "signature": [
+     "C",
+     "C",
+     "N",
+     "O",
+     "O"
+    ]
+   },
+   {
+    "count": 3544,
+    "signature": [
+     "C",
+     "I",
+     "N"
+    ]
+   }
+  ]
+ },
+ "wall_seconds": 152.8,
+ "workers": 8
+}
