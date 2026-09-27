@@ -86,6 +86,42 @@ def test_verify_fails_when_input_unprotected(tmp_path):
                                      asset)
 
 
+def test_verify_score_v2_against_tsvs(tmp_path):
+    """正式评分与含 rank TSV 的自动对账:一致通过,篡改任一格即失败。"""
+    from pathway_v43.exam_v2 import write_tsv
+
+    scores = [{"qid": "Q1", "agent_rank": 1, "engine_rank": None},
+              {"qid": "Q2", "agent_rank": None, "engine_rank": 3}]
+    by = {q["qid"]: q for q in scores}
+    layout = {
+        "score_v1_v2_diff.tsv": ["qid", "agent_rank_v2", "engine_rank_v2"],
+        "multicomponent_sensitivity.tsv": ["qid", "agent_rank_main",
+                                           "engine_rank_main"],
+        "agent_hits_by_engine_tier.tsv": ["qid", "agent_rank", "engine_rank"],
+        "decision_path_contribution_detail.tsv": ["qid", "agent_rank",
+                                                  "engine_rank"],
+        "hit5_paired_attribution.tsv": ["qid", "agent_rank", "engine_rank"],
+        "v41_baseline_diff.tsv": ["qid", "engine_rank_v2"],
+    }
+    for name, columns in layout.items():
+        rows = []
+        for q in scores:
+            row = {"qid": q["qid"]}
+            for col in columns[1:]:
+                row[col] = q["agent_rank" if col.startswith("agent")
+                             else "engine_rank"]
+            rows.append(row)
+        write_tsv(tmp_path / name, columns, rows)
+    script.verify_score_v2_against_tsvs(tmp_path, by)
+
+    rows = [{"qid": "Q1", "engine_rank_v2": None},
+            {"qid": "Q2", "engine_rank_v2": 9}]
+    write_tsv(tmp_path / "v41_baseline_diff.tsv",
+              ["qid", "engine_rank_v2"], rows)
+    with pytest.raises(ScorerV2Error):
+        script.verify_score_v2_against_tsvs(tmp_path, by)
+
+
 def test_init_refuses_to_overwrite_manifest(tmp_path):
     run_dir, gold, asset = _make_tree(tmp_path)
     out_dir = tmp_path / "out"

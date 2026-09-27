@@ -92,7 +92,51 @@ ANCHORS = {
     "width_3": 1, "width_4": 5, "width_5": 43,
     "a6_total_issued": 191, "a6_total_provider_ok": 186,
     "a6_total_failed": 5, "a6_total_orphans": 0,
+    "a6_total_attempt_mismatches": 0,
 }
+
+# score_v2.json ↔ TSV 自动对账:文件 → 该文件中须与正式评分一致的 rank 列
+TSV_RANK_CHECKS = {
+    "score_v1_v2_diff.tsv": ("agent_rank_v2", "engine_rank_v2"),
+    "multicomponent_sensitivity.tsv": ("agent_rank_main", "engine_rank_main"),
+    "agent_hits_by_engine_tier.tsv": ("agent_rank", "engine_rank"),
+    "decision_path_contribution_detail.tsv": ("agent_rank", "engine_rank"),
+    "hit5_paired_attribution.tsv": ("agent_rank", "engine_rank"),
+    "v41_baseline_diff.tsv": ("engine_rank_v2",),
+}
+
+
+def verify_score_v2_against_tsvs(out_dir: Path, score_by_qid: dict) -> None:
+    """回读全部含 rank 的 TSV,与正式评分逐题对账;缺失/行数/取值不符即失败。"""
+    import csv
+
+    for name, columns in TSV_RANK_CHECKS.items():
+        path = out_dir / name
+        if not path.is_file():
+            raise ScorerV2Error("TSV 缺失,无法与 score_v2.json 对账",
+                                {"file": name})
+        with path.open(encoding="utf-8", newline="") as f:
+            rows = list(csv.DictReader(f, delimiter="\t"))
+        if len(rows) != len(score_by_qid):
+            raise ScorerV2Error(
+                "TSV 行数与正式评分不一致",
+                {"file": name, "n_tsv": len(rows),
+                 "n_score": len(score_by_qid)})
+        for row in rows:
+            qid = row.get("qid")
+            expected = score_by_qid.get(qid)
+            if expected is None:
+                raise ScorerV2Error("TSV qid 不在正式评分中",
+                                    {"file": name, "qid": qid})
+            for col in columns:
+                arm = "agent_rank" if col.startswith("agent") else "engine_rank"
+                raw = row.get(col, "")
+                got = None if raw == "" else int(raw)
+                if got != expected[arm]:
+                    raise ScorerV2Error(
+                        "TSV rank 与 score_v2.json 逐题不一致",
+                        {"file": name, "qid": qid, "column": col,
+                         "tsv": got, "score_v2": expected[arm]})
 
 
 def _sha256(path: Path) -> str:
@@ -480,9 +524,15 @@ def main(argv: list[str] | None = None) -> int:
                         ("a6_total_provider_ok",
                          a6_summary["total_provider_ok"]),
                         ("a6_total_failed", a6_summary["total_failed"]),
-                        ("a6_total_orphans", a6_summary["total_orphans"])]:
+                        ("a6_total_orphans", a6_summary["total_orphans"]),
+                        ("a6_total_attempt_mismatches",
+                         a6_summary["total_attempt_mismatches"])]:
         recon["anchors"][key] = {"expected": ANCHORS[key], "actual": actual,
                                  "ok": actual == ANCHORS[key]}
+
+    # ---- score_v2.json ↔ 全部含 rank TSV 自动对账(门禁,非人工复核)
+    verify_score_v2_against_tsvs(
+        out_dir, {q["qid"]: q for q in scores["per_question"]})
 
     # ---- 收尾:锚点对账 + 输出清单
     recon["ok"] = all(a["ok"] for a in recon["anchors"].values())

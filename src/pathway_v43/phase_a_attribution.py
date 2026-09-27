@@ -373,32 +373,61 @@ A2_COLUMNS = [
     "prediction_artifact_ref", "decision_ref",
     "atomtool_target_molecode_ok", "atomtool_edit_references_ok",
     "fail_or_abstain_reason", "submitted", "validation_state",
-    "v2_agent_rank", "orphan_count", "run_id",
+    "v2_agent_rank", "orphan_count", "attempt_mismatch_count", "run_id",
 ]
 
 ORPHAN_AUDIT_NOTE = (
-    "孤儿=同一 results/<task>/ 目录、同一 attempt 序号下 "
-    "prediction_call.aN.json 无对应 prediction_response.aN.json(或反向);"
-    "配对键=完整相对 task 目录 + payload/文件名 attempt,不按文件名全局抵消")
+    "孤儿=同一 results/<task>/ 目录、同一 attempt 下 prediction_call.aN.json "
+    "无对应 prediction_response.aN.json(或反向);attempt 以 payload.attempt "
+    "为准并逐条与文件名 aN 交叉核对,不一致计入 attempt_mismatch_count 且"
+    "按 payload attempt 配对(错配对不抵消);不按文件名全局配对")
+
+
+def _ledger_attempt(rel_path: str, payload: dict) -> tuple[int, bool]:
+    """(生效 attempt, 文件名与 payload.attempt 是否一致)。
+
+    payload.attempt 缺失时回退文件名 aN;两者同时存在且不等即为错配。
+    """
+    p = Path(rel_path)
+    suffix = p.stem.split(".", 1)[-1]
+    fn_attempt = int(suffix[1:]) if suffix[:1] == "a" and suffix[1:].isdigit() \
+        else -1
+    raw = (payload or {}).get("attempt")
+    try:
+        pa = int(raw) if raw is not None else None
+    except (TypeError, ValueError):
+        pa = None
+    consistent = pa is None or pa == fn_attempt
+    return (pa if pa is not None else fn_attempt), consistent
 
 
 def _call_response_ledger(art: RunArtifacts) -> dict:
     calls = sorted(art.calls, key=lambda c: c["file"])
     responses = sorted(art.responses, key=lambda c: c["file"])
 
-    def key_of(rel: str, kind: str) -> tuple[str, str]:
-        p = Path(rel)
-        # 同一 task 目录 + 同一 attempt 才配对;跨 task 的同名 attempt 不抵消
-        return (str(p.parent), f"{kind}:{p.stem.split('.', 1)[-1]}")
+    def key_of(rel: str, kind: str, payload: dict) -> tuple[str, str, int]:
+        attempt, _ = _ledger_attempt(rel, payload)
+        # 同一 task 目录 + 同一经核对的 attempt 才配对;
+        # 跨 task 的同名 attempt 不抵消,payload 错配对不抵消
+        return (str(Path(rel).parent), kind, attempt)
 
-    call_keys = {key_of(c["file"], "call") for c in calls}
-    resp_keys = {key_of(r["file"], "response") for r in responses}
+    call_keys: set[tuple[str, str, int]] = set()
+    resp_keys: set[tuple[str, str, int]] = set()
+    mismatches = 0
+    for c in calls:
+        if not _ledger_attempt(c["file"], c["payload"])[1]:
+            mismatches += 1
+        call_keys.add(key_of(c["file"], "call", c["payload"]))
+    for r in responses:
+        if not _ledger_attempt(r["file"], r["payload"])[1]:
+            mismatches += 1
+        resp_keys.add(key_of(r["file"], "response", r["payload"]))
     orphans = 0
     for c in calls:
-        if key_of(c["file"], "response") not in resp_keys:
+        if key_of(c["file"], "response", c["payload"]) not in resp_keys:
             orphans += 1
     for r in responses:
-        if key_of(r["file"], "call") not in call_keys:
+        if key_of(r["file"], "call", r["payload"]) not in call_keys:
             orphans += 1
     ok = failed = 0
     request_ids = []
@@ -413,7 +442,8 @@ def _call_response_ledger(art: RunArtifacts) -> dict:
     return {"n_issued": len(calls), "n_provider_ok": ok, "n_failed": failed,
             "response_files": ";".join(Path(r["file"]).name
                                        for r in responses),
-            "request_ids": ";".join(request_ids), "orphan_count": orphans}
+            "request_ids": ";".join(request_ids), "orphan_count": orphans,
+            "attempt_mismatch_count": mismatches}
 
 
 def _truncate(text: str, limit: int = 500) -> str:
@@ -458,6 +488,7 @@ def build_awaiting_prediction_fates(view: SealedRunView, scores_v2: dict
             f"{len(art.validations)}_validation_files",
             "v2_agent_rank": sc["agent_rank"],
             "orphan_count": led["orphan_count"],
+            "attempt_mismatch_count": led["attempt_mismatch_count"],
             "run_id": art.run_id,
         }
 
@@ -480,6 +511,8 @@ def build_awaiting_prediction_fates(view: SealedRunView, scores_v2: dict
         "total_provider_ok": sum(r["n_provider_ok"] for r in rows + extra),
         "total_failed": sum(r["n_failed"] for r in rows + extra),
         "total_orphans": sum(r["orphan_count"] for r in rows + extra),
+        "total_attempt_mismatches": sum(r["attempt_mismatch_count"]
+                                        for r in rows + extra),
         "orphan_audit": ORPHAN_AUDIT_NOTE,
         "note": "空答不反推'未调用模型';弃答/拒绝以持久 prediction/decision "
                 "产物核验;atomtool 检查项来自 prediction payload,"
@@ -865,7 +898,8 @@ def build_v41_baseline_diff(scores_v2: dict, v41_path: str | Path
 
 A6_COLUMNS = [
     "qid", "input_index", "n_issued", "n_provider_ok", "n_failed",
-    "response_files", "request_ids", "orphan_count", "llm_remaining",
+    "response_files", "request_ids", "orphan_count",
+    "attempt_mismatch_count", "llm_remaining",
     "stop_reason", "run_id",
 ]
 
@@ -886,7 +920,7 @@ def build_llm_call_distribution(view: SealedRunView) -> tuple[list[dict],
             "qid": qid, "input_index": q["input_index"],
             **{k: led[k] for k in ("n_issued", "n_provider_ok", "n_failed",
                                    "response_files", "request_ids",
-                                   "orphan_count")},
+                                   "orphan_count", "attempt_mismatch_count")},
             "llm_remaining": budget,
             "stop_reason": view.worker_status[qid].get("stop_reason", ""),
             "run_id": art.run_id,
@@ -898,11 +932,14 @@ def build_llm_call_distribution(view: SealedRunView) -> tuple[list[dict],
         "total_provider_ok": sum(r["n_provider_ok"] for r in rows),
         "total_failed": sum(r["n_failed"] for r in rows),
         "total_orphans": sum(r["orphan_count"] for r in rows),
+        "total_attempt_mismatches": sum(r["attempt_mismatch_count"]
+                                        for r in rows),
         "touch_cap_qids": touch_cap,
         "touch_cap_note": "触顶=issued 达单任务尝试上限 3"
                           "(封存 task budget.llm_remaining 初始为 3;"
                           "无 llm_remaining 归零的题;budget_exhausted 唯一"
                           "一题耗尽的是 worker 预算,3 次调用均有响应)",
+        "orphan_note": ORPHAN_AUDIT_NOTE,
         "caliber_note": "issued=prediction_call.*.json(status=issued);"
                         "提供方口径=对应 prediction_response 的 transport "
                         "(ok=200 计成功,其余计失败);本次两口径总数一致;"

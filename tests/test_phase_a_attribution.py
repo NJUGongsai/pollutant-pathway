@@ -194,6 +194,22 @@ def _gold_fn(view):
     return lambda qid: gold[qid]["gold_ids"]
 
 
+def test_ledger_detects_payload_attempt_mismatch():
+    """同目录 call.a1/response.a1 的 payload.attempt 错配:不抵消、计入错配。"""
+    art = RunArtifacts(qid="Q", run_id="R", run_dir_rel="agent_runs/R")
+    art.calls.append({"file": "agent_runs/R/results/T_1/"
+                              "prediction_call.a1.json",
+                      "payload": {"attempt": 2, "status": "issued"}})
+    art.responses.append({
+        "file": "agent_runs/R/results/T_1/prediction_response.a1.json",
+        "payload": {"attempt": 1,
+                    "transport": {"ok": True, "status": 200,
+                                  "request_id": "x"}}})
+    led = _call_response_ledger(art)
+    assert led["attempt_mismatch_count"] == 1  # 仅 call 的 payload(2)与 a1 错配
+    assert led["orphan_count"] == 2  # 按 payload attempt 配对,错配对不抵消
+
+
 def test_ledger_pairs_by_task_dir_and_attempt():
     """同名 a1 分属两个 task 目录时不得互相抵消(孤儿=2 而非 0)。"""
     art = RunArtifacts(qid="Q", run_id="R", run_dir_rel="agent_runs/R")

@@ -139,9 +139,24 @@ def first_hit_rank(candidates: list[str], gold_ids: set[str],
 
 
 def _engine_rows(engine_results_path: str | Path | None) -> dict[str, dict]:
-    if not engine_results_path or not Path(engine_results_path).is_file():
+    """显式传入引擎文件即严格要求:存在、非空、qid 唯一;None 才是无引擎臂。"""
+    if not engine_results_path:
         return {}
-    return {r["qid"]: r for r in _iter_jsonl(engine_results_path)}
+    p = Path(engine_results_path)
+    if not p.is_file():
+        raise ScorerV2Error("显式传入的引擎结果文件不存在(fail-closed)",
+                            {"path": str(p)})
+    rows: dict[str, dict] = {}
+    for r in _iter_jsonl(p):
+        qid = r.get("qid")
+        if not qid:
+            raise ScorerV2Error("引擎结果行缺 qid", {"path": str(p)})
+        if qid in rows:
+            raise ScorerV2Error("引擎结果 qid 重复(fail-closed)", {"qid": qid})
+        rows[qid] = r
+    if not rows:
+        raise ScorerV2Error("引擎结果文件为空(fail-closed)", {"path": str(p)})
+    return rows
 
 
 def engine_first_hit(eng: dict | None, gold_ids: set[str]) -> dict:
@@ -182,17 +197,29 @@ def score_exam_v2(*, agent_predictions_path: str | Path,
     (角色 → SHA256)非空时随结果封存,供正式 ``score_v2.json`` 审计。
     """
     gold = load_gold(gold_questions_path)
-    engine_rows = []
-    if engine_results_path and Path(engine_results_path).is_file():
-        engine_rows = list(_iter_jsonl(engine_results_path))
     engine: dict[str, dict] = {}
-    for r in engine_rows:
-        qid = r.get("qid")
-        if not qid:
-            raise ScorerV2Error("引擎结果行缺 qid", {"path": str(engine_results_path)})
-        if qid in engine:
-            raise ScorerV2Error("引擎结果 qid 重复(fail-closed)", {"qid": qid})
-        engine[qid] = r
+    if engine_results_path is not None:
+        # 显式传入引擎文件即要求引擎臂参与判分:文件必须存在、非空,
+        # qid 集合(含空文件情形)必须与金标完全一致;传 None 才是无引擎臂。
+        eng_path = Path(engine_results_path)
+        if not eng_path.is_file():
+            raise ScorerV2Error("显式传入的引擎结果文件不存在(fail-closed)",
+                                {"path": str(eng_path)})
+        for r in _iter_jsonl(eng_path):
+            qid = r.get("qid")
+            if not qid:
+                raise ScorerV2Error("引擎结果行缺 qid",
+                                    {"path": str(eng_path)})
+            if qid in engine:
+                raise ScorerV2Error("引擎结果 qid 重复(fail-closed)",
+                                    {"qid": qid})
+            engine[qid] = r
+        if set(engine) != set(gold):
+            raise ScorerV2Error(
+                "引擎结果 qid 集合与金标不一致(空文件亦不例外;fail-closed)",
+                {"path": str(eng_path),
+                 "missing": sorted(set(gold) - set(engine))[:5],
+                 "extra": sorted(set(engine) - set(gold))[:5]})
     seen_agent: set[str] = set()
     per_question = []
     for row in _iter_jsonl(agent_predictions_path):
@@ -221,11 +248,6 @@ def score_exam_v2(*, agent_predictions_path: str | Path,
         raise ScorerV2Error(
             "答卷题数与金标不一致(fail-closed)",
             {"n_predictions": total, "n_gold": len(gold)})
-    if engine and set(engine) != set(gold):
-        raise ScorerV2Error(
-            "引擎结果 qid 集合与金标不一致(fail-closed)",
-            {"missing": sorted(set(gold) - set(engine))[:5],
-             "extra": sorted(set(engine) - set(gold))[:5]})
 
     def hits(k: int, key: str) -> int:
         return sum(1 for q in per_question

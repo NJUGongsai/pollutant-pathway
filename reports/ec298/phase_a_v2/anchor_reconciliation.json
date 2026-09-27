@@ -70,6 +70,11 @@
       "expected": 82,
       "ok": true
     },
+    "a6_total_attempt_mismatches": {
+      "actual": 0,
+      "expected": 0,
+      "ok": true
+    },
     "a6_total_failed": {
       "actual": 5,
       "expected": 5,
@@ -228,11 +233,12 @@
     "n_budget_exhausted_rows": 1,
     "n_empty_answers_v2": 51,
     "note": "空答不反推'未调用模型';弃答/拒绝以持久 prediction/decision 产物核验;atomtool 检查项来自 prediction payload,51 题无 validation.json 属预期(未产生可验证产物)",
-    "orphan_audit": "孤儿=同一 results/<task>/ 目录、同一 attempt 序号下 prediction_call.aN.json 无对应 prediction_response.aN.json(或反向);配对键=完整相对 task 目录 + payload/文件名 attempt,不按文件名全局抵消",
+    "orphan_audit": "孤儿=同一 results/<task>/ 目录、同一 attempt 下 prediction_call.aN.json 无对应 prediction_response.aN.json(或反向);attempt 以 payload.attempt 为准并逐条与文件名 aN 交叉核对,不一致计入 attempt_mismatch_count 且按 payload attempt 配对(错配对不抵消);不按文件名全局配对",
     "outcomes": {
       "abstained": 28,
       "rejected": 23
     },
+    "total_attempt_mismatches": 0,
     "total_failed": 4,
     "total_issued": 55,
     "total_orphans": 0,
@@ -288,6 +294,8 @@
       "2": 3,
       "3": 1
     },
+    "orphan_note": "孤儿=同一 results/<task>/ 目录、同一 attempt 下 prediction_call.aN.json 无对应 prediction_response.aN.json(或反向);attempt 以 payload.attempt 为准并逐条与文件名 aN 交叉核对,不一致计入 attempt_mismatch_count 且按 payload attempt 配对(错配对不抵消);不按文件名全局配对",
+    "total_attempt_mismatches": 0,
     "total_failed": 5,
     "total_issued": 191,
     "total_orphans": 0,

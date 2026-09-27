@@ -2,7 +2,7 @@
 
 > 任务书:[`TASK_V43_EC298_PHASE_A.md`](TASK_V43_EC298_PHASE_A.md);主报告(修正口径):[`EC298_REPORT.md`](EC298_REPORT.md);独立复核依据:[`EC298_REVIEW_R2.md`](EC298_REVIEW_R2.md)、实施首轮 review:[`EC298_PHASE_A_REVIEW.md`](EC298_PHASE_A_REVIEW.md)(R1,三处 P1 已在本版修复)。
 > 本报告与 `reports/ec298/phase_a_v2/` 全部产物仅由封存首跑数据离线计算:零 API、零 298 引擎/agent 重跑、零预测代码修改;金标只在离线评分/归因进程打开。
-> 实施日期:2026-09-27(R1 修复同日)。生成脚本:`scripts/ec298_phase_a.py`(42 项锚点自动对账;输入清单双向校验,初始化与复算分离)。R1 review 前的 17 个产物文件及其哈希保留在 `phase_a_v2/r1_snapshot/`。
+> 实施日期:2026-09-27(R1 修复同日,R2 两处 P2 防护补齐)。生成脚本:`scripts/ec298_phase_a.py`(43 项锚点自动对账;输入清单双向校验,初始化与复算分离;score_v2.json 与含 rank TSV 自动对账)。R1 review 前的 17 个产物文件及其哈希保留在 `phase_a_v2/r1_snapshot/`。
 
 ## 0. 摘要
 
@@ -39,7 +39,7 @@
 | hit@5 | 130 (43.6%) | 193 (64.8%) | **−63** |
 | hit@10 | 130(宽度上限) | 209 (70.1%) | −79* |
 
-逐题配对 @5:both 111、agent-only 19、engine-only 82、neither 86(111+19+82+86=298)。**正式逐题评分文件 `score_v2.json` 已交付**:scorer 版本 + 三输入 SHA256 + 298 行逐题 agent/engine rank + 汇总与配对四分;脚本回读该文件与各 TSV 逐题对账(298/298 一致)。
+逐题配对 @5:both 111、agent-only 19、engine-only 82、neither 86(111+19+82+86=298)。**正式逐题评分文件 `score_v2.json` 已交付**:scorer 版本 + 三输入 SHA256 + 298 行逐题 agent/engine rank + 汇总与配对四分;脚本写盘后回读该文件与内存结果对账,并**自动回读全部含 rank 的 TSV 逐题对账**(六类文件、缺失/行数/任一取值不符即失败,见 `scripts/ec298_phase_a.py::verify_score_v2_against_tsvs`);引擎结果文件显式传入时严格要求存在、非空且 qid 集合与金标完全一致(空文件亦失败)。
 
 v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命中/12 移位/0 丢失),每处差异可回到触发候选的原始 SMILES、缓存身份与重算身份;agent 0 变化。Top-10 两档:**209 + 89 = 298**。
 
@@ -63,7 +63,7 @@ v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命�
 - 行数:**50 行 awaiting_prediction + 汇总单列 1 行 budget_exhausted = 51 条空答闭环**;每题 v2 命中均为空(与答卷一致)。
 - 结局核验(持久 prediction/decision 产物,非空答反推):**28 条模型显式弃答(abstained)+ 23 条编辑拒绝(rejected)**。51 题均无 `validation.json`(未产生可验证产物,属预期);拒绝题的 AtomTool 检查项(target_molecode / edit_references)与拒因逐题列自 prediction payload。
 - 调用账(按题):awaiting 50 题 issued 52(48 题 1 次 + 2 题 2 次),成功 50 / 失败 2;budget_exhausted 题 issued 3、成功 1、失败 2(耗尽的是 worker 预算,3 次调用均有账目)。空答合计 issued 55 / 成功 51 / 失败 4。
-- **孤儿审计 = 0**:逐题核对 `prediction_call.aN.json ↔ prediction_response.aN.json`(键:文件名 attempt 序号与 payload.attempt),无调用缺响应、无响应缺调用。
+- **孤儿审计 = 0**:逐题核对 `prediction_call.aN.json ↔ prediction_response.aN.json`,配对键为完整 task 目录 + attempt,**attempt 以 `payload.attempt` 为准并逐条与文件名 aN 交叉核对**(错配计入 `attempt_mismatch_count` 且错配对不抵消);无调用缺响应、无响应缺调用、**payload/文件名错配 0**。
 - 含 `bond_already_present` 的拒绝不等同"本可命中";目标是否匹配金标仅作离线诊断,见 A4 与 R2 §4。
 
 ## 6. A3:决策路径贡献(`decision_path_contribution.tsv` + `_detail.tsv`)
@@ -110,7 +110,7 @@ v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命�
 
 ## 9. A6:模型调用分布(`llm_call_distribution.tsv`)
 
-- 逐题 issued/成功/失败/响应文件/request_id/孤儿;**总 issued=191,提供方正常响应 186,失败 5,孤儿 0**——与封存调用账对平。
+- 逐题 issued/成功/失败/响应文件/request_id/孤儿/attempt 错配;**总 issued=191,提供方正常响应 186,失败 5,孤儿 0,payload.attempt 与文件名错配 0**——与封存调用账对平。
 - 两套口径:issued=持久 `prediction_call.*.json`(status=issued);提供方口径=对应 `prediction_response` 的 transport(ok=200 计成功,其余计失败)。本卷两口径总数一致(191=186+5),无差值需解释。
 - issued 分布(按题):**0 次 112 题、1 次 182 题、2 次 3 题、3 次 1 题**;触顶(达单任务尝试上限 3)1 题,即 budget_exhausted 题(3 次调用均有响应,耗尽的是 worker 预算)。调用分布按 qid 统计,不以 191/298 平均替代。
 - 5 次失败全部为 timeout/传输类(0 次 429);33/40 在途峰值属原运行验收事实,本阶段只引用。
@@ -121,12 +121,12 @@ v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命�
 
 | 文件 | 行 | 关键列 |
 |---|---|---|
-| `score_v2.json` | 298 | scorer 版本、口径说明、三输入 SHA256、逐题 agent/engine rank、n_predicted、tier_v2、汇总 @1/@3/@5/@10 与配对四分;与各 TSV 回读对账 |
+| `score_v2.json` | 298 | scorer 版本、口径说明、三输入 SHA256、逐题 agent/engine rank、n_predicted、tier_v2、汇总 @1/@3/@5/@10 与配对四分;脚本自动回读并与六类含 rank 的 TSV 逐题对账 |
 | `score_v1_v2_diff.tsv` | 298 | agent/engine rank v1→v2、变化布尔、触发候选原始 SMILES、缓存身份、重算身份、触发位置、note |
 | `multicomponent_sensitivity.tsv` | 298 | 两臂 main/sensitivity rank、changed;汇总在 §3(探索性) |
 | `agent_hits_by_engine_tier.tsv` | 298 | tier_v2、两臂 rank、命中布尔、命中原始 SMILES、来源(evidence_id/report_rank/kind/ref/ref_ok)、decision 模式/结局/path_id、run_id、novel_evidence_state、gold_in_retrieval_any_card |
 | `agent_hits_by_engine_tier_summary.tsv` | 2 | 档位 × agent @1/@3/@5 |
-| `awaiting_prediction_fates.tsv` | 50 | stop_reason、mode/outcome、issued/ok/failed、响应文件、request_ids、parsed_present、产物/决策引用、atomtool 两项检查、拒因(≤500 字,全文见引用文件)、submitted、validation_state、v2 rank、orphan_count |
+| `awaiting_prediction_fates.tsv` | 50 | stop_reason、mode/outcome、issued/ok/failed、响应文件、request_ids、parsed_present、产物/决策引用、atomtool 两项检查、拒因(≤500 字,全文见引用文件)、submitted、validation_state、v2 rank、orphan_count、attempt_mismatch_count |
 | `awaiting_prediction_fates_summary.tsv` | 1 | budget_exhausted 行,同列 |
 | `decision_path_contribution.tsv` | 6 | 组×子组、题数、两臂 @1/@3/@5、@1/@5 配对四分 |
 | `decision_path_contribution_detail.tsv` | 298 | 逐题组、两处模式来源、一致性、rank、决策/预测引用 |
@@ -134,9 +134,9 @@ v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命�
 | `hit5_engine_only.tsv` / `hit5_agent_only.tsv` | 82 / 19 | 同上筛选视图 |
 | `v41_baseline_diff.tsv` | 298 | v2 rank、v41 baseline_rank、changed |
 | `asset_exam_overlap.tsv` | 298 | 底物身份、库内底物布尔、记录数、金标对布尔、记录引用(≤5) |
-| `llm_call_distribution.tsv` | 298 | issued/ok/failed、响应文件、request_ids、孤儿(按 task 目录+attempt 配对)、llm_remaining、stop_reason |
+| `llm_call_distribution.tsv` | 298 | issued/ok/failed、响应文件、request_ids、孤儿(按 task 目录+经核对的 attempt 配对)、attempt_mismatch_count、llm_remaining、stop_reason |
 | `input_manifest.json` | 4,664 条角色条目 | run_dir(4,660 文件完整集合)/gold/v1_scoring/v41_baseline/asset_library 各角色 relpath+sha256;不同物理文件 4,663 个(v1 评分与 run 目录内同一文件重复计入角色一次) |
-| `anchor_reconciliation.json` | 42 项锚点 | expected/actual/ok + 各审计块(含 A4 标签分布与证据层说明) |
+| `anchor_reconciliation.json` | 43 项锚点 | expected/actual/ok + 各审计块(含 A4 标签分布与证据层说明) |
 | `output_manifest.sha256` | 全部输出 | sha256sum 格式(含 `r1_snapshot/` 内文件,按相对路径) |
 | `ec298_report_v1_snapshot.md` | — | v1 报告快照,SHA256 `ca17f674…764d` |
 | `r1_snapshot/` | 18 文件 | R1 review 前的 17 个产物 + 当时输出哈希清单,原样保留供审计 |
@@ -144,8 +144,8 @@ v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命�
 ## 11. 限定与验收状态
 
 1. **封存性**:执行前后本地镜像与远端封存目录逐文件 SHA256 一致;全程零 API、零 298 重跑、零预测代码修改;`exam.py`(scorer-1)未改动。输入清单初始化与复算分离:清单不可覆盖、不可重建,完整文件集合双向校验,"改一个字节/加一个文件/换资产库"均有失败测试钉住(`tests/test_ec298_phase_a_script.py`)。
-2. **评分性**:两臂同函数同规则,298/298 对账;qid 重复、引擎 qid 集合不一致均 fail-closed;v2 汇总与任务书锚点一致;68 处引擎 rank 变化逐题可回查;agent rank 298/298 不变;正式逐题评分 `score_v2.json` 与各 TSV 回读一致。
-3. **归因性**:A1 档位 209+89、A2 50+1、A3 112/70/28/23/15/50 与 @1/@5 分解、A4 82/19、A6 191/186/5(孤儿按完整 task 路径+attempt 配对,0)全部对账通过(42 项锚点自动核对);A4 标签全部有资格证据支撑,五层证据列逐题可回查,不得从原始检索层推出可报告断言。
+2. **评分性**:两臂同函数同规则,298/298 对账;qid 重复、引擎 qid 集合不一致(含显式空文件/路径不存在)均 fail-closed;v2 汇总与任务书锚点一致;68 处引擎 rank 变化逐题可回查;agent rank 298/298 不变;正式逐题评分 `score_v2.json` 由脚本自动与六类含 rank 的 TSV 逐题对账(门禁,非人工复核)。
+3. **归因性**:A1 档位 209+89、A2 50+1、A3 112/70/28/23/15/50 与 @1/@5 分解、A4 82/19、A6 191/186/5(孤儿按完整 task 目录 + 经 payload.attempt 交叉核对的 attempt 配对 = 0,错配 = 0)全部对账通过(43 项锚点自动核对);A4 标签全部有资格证据支撑,五层证据列逐题可回查,不得从原始检索层推出可报告断言。
 4. **报告性**:89 题仅称"已导出 Top-10 未命中";82/82 只表述为原始检索产物重叠;资产重叠与模型模式相关性均为描述统计;含 `.` 口径敏感性与主分数分离;全文无未限定的"模型选错""候选未检出"或 @10 优势声明。
 5. R1 review 三处 P1(score_v2.json 缺失、标签证据越层、清单可被重建绕过)与四条 P2(孤儿配对键、scorer fail-closed、报告文案、清单计数)均已修复;复核对照 R1 快照 `r1_snapshot/`。
 6. 本阶段为测量与归因,修复优先级(候选裁决架构、类比供体门槛、AtomTool 键级编辑)见 R2 §6 阶段 B/C,不在本任务范围。

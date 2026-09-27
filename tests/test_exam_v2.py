@@ -212,6 +212,32 @@ def test_engine_qid_set_mismatch_fails_closed(case):
                       gold_questions_path=c["gold"])
 
 
+def test_empty_engine_file_fails_closed(case):
+    """显式传入存在但零行的引擎文件必须失败,不得静默记为全臂未命中。"""
+    c = case(gold=[_gold_row("Q1", ["CCO"])],
+             agent=[_agent_row("Q1", ["CCO"])],
+             engine=[_engine_row("Q1", ["CCO"])])
+    c["engine"].write_text("", encoding="utf-8")
+    with pytest.raises(ScorerV2Error):
+        score_exam_v2(agent_predictions_path=c["agent"],
+                      engine_results_path=c["engine"],
+                      gold_questions_path=c["gold"])
+    with pytest.raises(ScorerV2Error):
+        multicomponent_sensitivity(agent_predictions_path=c["agent"],
+                                   engine_results_path=c["engine"],
+                                   gold_questions_path=c["gold"])
+
+
+def test_missing_engine_path_fails_closed(case):
+    c = case(gold=[_gold_row("Q1", ["CCO"])],
+             agent=[_agent_row("Q1", ["CCO"])],
+             engine=[_engine_row("Q1", ["CCO"])])
+    with pytest.raises(ScorerV2Error):
+        score_exam_v2(agent_predictions_path=c["agent"],
+                      engine_results_path=c["engine"].with_suffix(".missing"),
+                      gold_questions_path=c["gold"])
+
+
 def test_score_v2_output_seals_inputs_sha(case, tmp_path):
     c = case(gold=[_gold_row("Q1", ["CCO"])],
              agent=[_agent_row("Q1", ["CCO"])],
