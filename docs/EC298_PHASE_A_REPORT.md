@@ -1,15 +1,15 @@
 # EC298 Phase A 报告:同口径重评分与离线归因(v43-ec298-scorer-2)
 
-> 任务书:[`TASK_V43_EC298_PHASE_A.md`](TASK_V43_EC298_PHASE_A.md);主报告(修正口径):[`EC298_REPORT.md`](EC298_REPORT.md);独立复核依据:[`EC298_REVIEW_R2.md`](EC298_REVIEW_R2.md)。
+> 任务书:[`TASK_V43_EC298_PHASE_A.md`](TASK_V43_EC298_PHASE_A.md);主报告(修正口径):[`EC298_REPORT.md`](EC298_REPORT.md);独立复核依据:[`EC298_REVIEW_R2.md`](EC298_REVIEW_R2.md)、实施首轮 review:[`EC298_PHASE_A_REVIEW.md`](EC298_PHASE_A_REVIEW.md)(R1,三处 P1 已在本版修复)。
 > 本报告与 `reports/ec298/phase_a_v2/` 全部产物仅由封存首跑数据离线计算:零 API、零 298 引擎/agent 重跑、零预测代码修改;金标只在离线评分/归因进程打开。
-> 实施日期:2026-09-27。生成脚本:`scripts/ec298_phase_a.py`(42 项锚点自动对账,输入 SHA256 逐文件校验)。
+> 实施日期:2026-09-27(R1 修复同日)。生成脚本:`scripts/ec298_phase_a.py`(42 项锚点自动对账;输入清单双向校验,初始化与复算分离)。R1 review 前的 17 个产物文件及其哈希保留在 `phase_a_v2/r1_snapshot/`。
 
 ## 0. 摘要
 
 1. **测量修正先行**:v1(scorer-1)引擎臂直接使用缓存的 `product_identity` 对金标,agent 臂却从原始 SMILES 现算 `cn_identity`,两臂不同口径。v2(scorer-2)两臂统一从原始候选 SMILES 现算身份后:agent **116/128/130**,引擎 Top-10 **118/174/193/209**,同 K 净差 **−2/−46/−63**。逐题对账:引擎首命中 rank 变化 **68**(56 新命中 + 12 移位 + 0 丢失),agent rank **298/298 不变**。
 2. **"完整候选池"三档撤回**:`pool_identities` 仅由 `top_k=10` 返回值填充;v2 只称"已导出 Top-10 内(209)/外(89)",89 题不是"完整池真空"。
-3. **@5 差距 63 题的构成**(全部基于持久产物可回查):engine-only 82 题的原始检索视图**全部**含金标(82/82),说明损失不在检索覆盖率;主因是"候选检出但未报告"(57)、"类比弃答"(14)、"编辑拒绝"(6)、"模型选错"(5)。agent-only 19 题全部来自 `novel_proposal`。
-4. **调用账**:191 次 issued 与请求账对平(186 成功 / 5 失败 / 0 孤儿);51 条空答(50 awaiting_prediction + 1 budget_exhausted)全部闭环核验为 28 弃答 + 23 编辑拒绝。
+3. **@5 差距 63 题的构成**(证据五层分层后;原始检索含金标≠可用候选):engine-only 82 题的**原始检索产物** 82/82 含金标——这只是原始检索重叠,**不证明**该卡能过结构门禁、进入任务或可报告;其中 22 题的模型选择集(任务候选)存在含金标 recorded 卡未选,标"模型选错"(有资格证据);其余 60 题中 40 题证据不足(35 条仅原始检索含金标、5 条候选集无正确选项),如实标"证据不足以判断";空答 20 条为类比弃答 14 / 编辑拒绝 6。agent-only 19 题全部来自 `novel_proposal`,标签限定为"候选未检出(引擎已导出 Top-10)",其中 14 题原始检索卡含金标(未证实可用,只进事实列)。
+4. **调用账**:191 次 issued 与请求账对平(186 成功 / 5 失败 / 0 孤儿,按完整 task 路径+attempt 配对);51 条空答(50 awaiting_prediction + 1 budget_exhausted)全部闭环核验为 28 弃答 + 23 编辑拒绝。
 
 ## 1. 口径异议说明(向老师提出的修正)
 
@@ -26,9 +26,9 @@
 ## 2. 输入、封存性与复现
 
 - 唯一预测输入:封存 `runs/ec298_v43r1/`(agent 答卷 `merged/predictions.jsonl`、引擎 `engine_arm/engine_results.jsonl`、逐题 run/decision/validation/model-call 产物、`exam_inputs.jsonl` 白名单);金标只读 `ec298_gold_readonly/questions.jsonl`;v1 评分 `scoring/per_question_scoring.json` 仅作对账。
-- **逐文件 SHA256 清单**:`phase_a_v2/input_manifest.json`(4,662 个文件:封存 run 目录 4,660 + 金标 + v4.1 判分件),生成于远端、拉取后逐文件比对一致;每次运行 `scripts/ec298_phase_a.py` 都会重新校验,缺失或不符立即失败。执行结束后对本地镜像与远端再做一次全量核对(见 §11)。
+- **逐文件 SHA256 清单**:`phase_a_v2/input_manifest.json`(**4,664 条角色条目 / 4,663 个不同物理文件**:run 目录 4,660 项 + 金标 + v4.1 判分件 + 资产库各 1 项;v1 评分文件既在 run 目录内又单列一次,故两种计数相差 1),生成于远端、拉取后逐文件比对一致;`scripts/ec298_phase_a.py` 的**初始化与复算分离**:清单只能用 `--init-input-manifest` 在核验过的封存副本上一次性建立,已存在时严禁覆盖;正常复算缺清单即失败,且校验是**双向的**——磁盘文件集合与清单一一对应,少文件、多文件(包括新增会被扫描的结果文件)、改任一字节或换资产库都立即失败,不存在"重建清单接受变化"的路径。资产库 `library_full.jsonl` 已列为受保护角色 `asset_library`。
 - 衍生输出只写 `phase_a_v2/`;封存目录零写入。脚本不包含任何主机地址、凭证或私密路径;输入路径全部命令行显式传入。
-- 零网络复算命令见主报告 §6;`python -m pathway_v43.exam_v2 …` 与 `python scripts/ec298_phase_a.py …` 均可从相同输入字节复现相同输出字节。
+- 零网络复算命令见主报告 §6;`python -m pathway_v43.exam_v2 …` 与 `python scripts/ec298_phase_a.py …` 均可从相同输入字节复现相同输出字节(正式逐题评分 `score_v2.json` 内封存三输入的 SHA256,并与各 TSV 逐题回读对账)。
 
 ## 3. A0:同口径重评分(scorer-2)
 
@@ -39,7 +39,7 @@
 | hit@5 | 130 (43.6%) | 193 (64.8%) | **−63** |
 | hit@10 | 130(宽度上限) | 209 (70.1%) | −79* |
 
-逐题配对 @5:both 111、agent-only 19、engine-only 82、neither 86(111+19+82+86=298)。
+逐题配对 @5:both 111、agent-only 19、engine-only 82、neither 86(111+19+82+86=298)。**正式逐题评分文件 `score_v2.json` 已交付**:scorer 版本 + 三输入 SHA256 + 298 行逐题 agent/engine rank + 汇总与配对四分;脚本回读该文件与各 TSV 逐题对账(298/298 一致)。
 
 v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命中/12 移位/0 丢失),每处差异可回到触发候选的原始 SMILES、缓存身份与重算身份;agent 0 变化。Top-10 两档:**209 + 89 = 298**。
 
@@ -86,17 +86,18 @@ v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命�
 
 - 298 题一题一行;discordant:**engine-only 82、agent-only 19,净差 −63**(不是"找 5 道丢失题";rank 9–10 本就不计入引擎 @5,不能把 @5 差距解释为五位被十位挤出)。
 - 宽度分布:0 个 51 题、1 个 197 题、2 个 1 题、3 个 1 题、4 个 5 题、5 个 43 题——197 题只报一个产物,"有效宽度不足"如实披露。
-- **82 题 engine-only 的关键事实**:原始检索视图全部含金标(82/82,离线核实),即损失不在检索覆盖;其中 22 题存在含金标的**未选中 recorded 卡**。
-- 主因标签(一题一个主因,规则确定、事实列可回查、不确定保留):
+- **证据五层**(逐题列布尔与引用,下层成立不推出上层):`raw_retrieval_gold`(原始检索卡含金标,未经任何门禁)→ `task_candidate_gold`(预测任务候选=模型选择集的 recorded 卡含金标)→ `selected_gold`(被选中证据产物含金标)→ `validated_reportable_gold`(validation 判 accepted 的产物含金标)→ `reported_gold`(最终裁决账本可报告产物含金标)。
+- engine-only 82 题:原始检索层 82/82 含金标——**这只是原始检索产物重叠,不能表述为"损失不在检索覆盖率"或"可用候选覆盖"**;其中仅 22 题上升到任务候选层(模型选择集里存在含金标 recorded 卡未选),其余 60 题缺可用性证据。
+- 主因标签(一题一个主因;规则只允许有资格证据的标签;事实列保留完整层次,不确定保留):
 
-| 主因标签 | 题数 | 说明 |
+| 主因标签 | 题数 | 资格证据 |
 |---|---:|---|
-| 候选检出但未报告 | 57 | 金标在检索/任务候选或已选事件产物中,未进入最终报告(含 22 题未选中含金标 recorded 卡) |
+| 证据不足以判断 | 40 | 35 条仅原始检索层含金标(未证明过门禁/进任务/可报告)+ 5 条任务候选层无正确选项;不外推任何"可报告"断言 |
+| 模型选错 | 22 | 任务候选层(模型选择集)存在含金标 recorded 卡,模型未选;`task_candidate_gold_refs` 可回查 |
 | 类比弃答 | 14 | 空答 + outcome=abstained,引擎 @5 有命中 |
 | 编辑拒绝 | 6 | 空答 + outcome=rejected,引擎 @5 有命中 |
-| 模型选错 | 5 | rank_candidates 模式选中无金标卡且候选中无未选中含金标 recorded 卡 |
-| 候选未检出 | 19 | 全部为 agent_only(引擎 Top-10 无金标);引擎 Top-10 外未知 |
-| 候选虽报告但身份不匹配 / 证据不足以判断 | 0 | 本卷未触发;词表保留 |
+| 候选未检出(引擎已导出 Top-10) | 19 | 全部 agent_only;标签写全限定对象——仅指已导出 Top-10,外池未知;其中 14 题 agent 原始检索卡含金标(未证实可用,只进事实列) |
+| 候选检出但未报告 / 候选虽报告但身份不匹配 | 0 | 本卷未触发;词表保留(需已验证/可报告层证据才可使用) |
 
 ## 8. A5:基线差异与资产重叠(`v41_baseline_diff.tsv`、`asset_exam_overlap.tsv`)
 
@@ -120,6 +121,7 @@ v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命�
 
 | 文件 | 行 | 关键列 |
 |---|---|---|
+| `score_v2.json` | 298 | scorer 版本、口径说明、三输入 SHA256、逐题 agent/engine rank、n_predicted、tier_v2、汇总 @1/@3/@5/@10 与配对四分;与各 TSV 回读对账 |
 | `score_v1_v2_diff.tsv` | 298 | agent/engine rank v1→v2、变化布尔、触发候选原始 SMILES、缓存身份、重算身份、触发位置、note |
 | `multicomponent_sensitivity.tsv` | 298 | 两臂 main/sensitivity rank、changed;汇总在 §3(探索性) |
 | `agent_hits_by_engine_tier.tsv` | 298 | tier_v2、两臂 rank、命中布尔、命中原始 SMILES、来源(evidence_id/report_rank/kind/ref/ref_ok)、decision 模式/结局/path_id、run_id、novel_evidence_state、gold_in_retrieval_any_card |
@@ -128,20 +130,22 @@ v1↔v2 差异(`score_v1_v2_diff.tsv`,298 行):引擎 rank 变化 68(56 新命�
 | `awaiting_prediction_fates_summary.tsv` | 1 | budget_exhausted 行,同列 |
 | `decision_path_contribution.tsv` | 6 | 组×子组、题数、两臂 @1/@3/@5、@1/@5 配对四分 |
 | `decision_path_contribution_detail.tsv` | 298 | 逐题组、两处模式来源、一致性、rank、决策/预测引用 |
-| `hit5_paired_attribution.tsv` | 298 | paired_hit5、方向、引擎金标 rank、已报来源、selected_evidence、order、检索金标(全卡/前五卡)、未选中含金标 recorded 卡、验证拒因、主因标签、事实列、不确定列 |
+| `hit5_paired_attribution.tsv` | 298 | paired_hit5、方向、引擎金标 rank、已报来源、selected_evidence、order、**证据五层**(raw_retrieval_gold(+refs)/task_candidate_gold(+refs)/selected_gold/validated_reportable_gold/reported_gold)、未选中含金标 recorded 卡、验证拒因、主因标签、事实列、不确定列 |
 | `hit5_engine_only.tsv` / `hit5_agent_only.tsv` | 82 / 19 | 同上筛选视图 |
 | `v41_baseline_diff.tsv` | 298 | v2 rank、v41 baseline_rank、changed |
 | `asset_exam_overlap.tsv` | 298 | 底物身份、库内底物布尔、记录数、金标对布尔、记录引用(≤5) |
-| `llm_call_distribution.tsv` | 298 | issued/ok/failed、响应文件、request_ids、孤儿、llm_remaining、stop_reason |
-| `input_manifest.json` | 4,662 项 | role/relpath/sha256(run_dir/gold/v1_scoring/v41_baseline) |
-| `anchor_reconciliation.json` | 42 项锚点 | expected/actual/ok + 各审计块 |
-| `output_manifest.sha256` | 全部输出 | sha256sum 格式 |
+| `llm_call_distribution.tsv` | 298 | issued/ok/failed、响应文件、request_ids、孤儿(按 task 目录+attempt 配对)、llm_remaining、stop_reason |
+| `input_manifest.json` | 4,664 条角色条目 | run_dir(4,660 文件完整集合)/gold/v1_scoring/v41_baseline/asset_library 各角色 relpath+sha256;不同物理文件 4,663 个(v1 评分与 run 目录内同一文件重复计入角色一次) |
+| `anchor_reconciliation.json` | 42 项锚点 | expected/actual/ok + 各审计块(含 A4 标签分布与证据层说明) |
+| `output_manifest.sha256` | 全部输出 | sha256sum 格式(含 `r1_snapshot/` 内文件,按相对路径) |
 | `ec298_report_v1_snapshot.md` | — | v1 报告快照,SHA256 `ca17f674…764d` |
+| `r1_snapshot/` | 18 文件 | R1 review 前的 17 个产物 + 当时输出哈希清单,原样保留供审计 |
 
 ## 11. 限定与验收状态
 
-1. **封存性**:执行前后本地镜像与远端封存目录逐文件 SHA256 一致(§2 与末次核对);全程零 API、零 298 重跑、零预测代码修改;`exam.py`(scorer-1)未改动。
-2. **评分性**:两臂同函数同规则,298/298 对账;v2 汇总与任务书锚点一致;68 处引擎 rank 变化逐题可回查;agent rank 298/298 不变。
-3. **归因性**:A1 档位 209+89、A2 50+1、A3 112/70/28/23/15/50 与 @1/@5 分解、A4 82/19、A6 191/186/5 全部对账通过(42 项锚点自动核对,`anchor_reconciliation.json`)。
-4. **报告性**:89 题仅称"已导出 Top-10 未命中";资产重叠与模型模式相关性均为描述统计,不写成因果证明;含 `.` 口径敏感性与主分数分离。
-5. 本阶段为测量与归因,修复优先级(候选裁决架构、类比供体门槛、AtomTool 键级编辑)见 R2 §6 阶段 B/C,不在本任务范围。
+1. **封存性**:执行前后本地镜像与远端封存目录逐文件 SHA256 一致;全程零 API、零 298 重跑、零预测代码修改;`exam.py`(scorer-1)未改动。输入清单初始化与复算分离:清单不可覆盖、不可重建,完整文件集合双向校验,"改一个字节/加一个文件/换资产库"均有失败测试钉住(`tests/test_ec298_phase_a_script.py`)。
+2. **评分性**:两臂同函数同规则,298/298 对账;qid 重复、引擎 qid 集合不一致均 fail-closed;v2 汇总与任务书锚点一致;68 处引擎 rank 变化逐题可回查;agent rank 298/298 不变;正式逐题评分 `score_v2.json` 与各 TSV 回读一致。
+3. **归因性**:A1 档位 209+89、A2 50+1、A3 112/70/28/23/15/50 与 @1/@5 分解、A4 82/19、A6 191/186/5(孤儿按完整 task 路径+attempt 配对,0)全部对账通过(42 项锚点自动核对);A4 标签全部有资格证据支撑,五层证据列逐题可回查,不得从原始检索层推出可报告断言。
+4. **报告性**:89 题仅称"已导出 Top-10 未命中";82/82 只表述为原始检索产物重叠;资产重叠与模型模式相关性均为描述统计;含 `.` 口径敏感性与主分数分离;全文无未限定的"模型选错""候选未检出"或 @10 优势声明。
+5. R1 review 三处 P1(score_v2.json 缺失、标签证据越层、清单可被重建绕过)与四条 P2(孤儿配对键、scorer fail-closed、报告文案、清单计数)均已修复;复核对照 R1 快照 `r1_snapshot/`。
+6. 本阶段为测量与归因,修复优先级(候选裁决架构、类比供体门槛、AtomTool 键级编辑)见 R2 §6 阶段 B/C,不在本任务范围。

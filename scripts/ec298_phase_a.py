@@ -6,20 +6,28 @@
 
 用法(本地镜像或 Chenyu 封存根均可,相对布局一致)::
 
-    python scripts/ec298_phase_a.py \
-        --run-dir  <sealed>/dependingv43_dev/runs/ec298_v43r1 \
-        --gold     <sealed>/ec298_gold_readonly/questions.jsonl \
-        --v1-scoring <sealed>/dependingv43_dev/runs/ec298_v43r1/scoring/per_question_scoring.json \
-        --v41-baseline <sealed>/dependingv4_v41/runs/exam298_agent/per_question_scoring.jsonl \
+    # 一次性初始化(仅在核验过的封存副本上;已存在时严禁覆盖)
+    python scripts/ec298_phase_a.py --run-dir <sealed>/.../ec298_v43r1 \
+        --gold <sealed>/ec298_gold_readonly/questions.jsonl \
+        --v1-scoring <sealed>/.../scoring/per_question_scoring.json \
+        --v41-baseline <sealed>/.../per_question_scoring.jsonl \
         --asset-library assets/v3_reactions/library/library_full.jsonl \
-        --out-dir reports/ec298/phase_a_v2 \
-        --write-input-manifest   # 首次生成 input_manifest.json,其后每次运行校验
+        --out-dir reports/ec298/phase_a_v2 --init-input-manifest
+
+    # 正常复算(不带初始化标志;清单缺失、文件集合变化或任一字节变化即失败)
+    python scripts/ec298_phase_a.py --run-dir <sealed>/.../ec298_v43r1 \
+        --gold <sealed>/ec298_gold_readonly/questions.jsonl \
+        --v1-scoring <sealed>/.../scoring/per_question_scoring.json \
+        --v41-baseline <sealed>/.../per_question_scoring.jsonl \
+        --asset-library assets/v3_reactions/library/library_full.jsonl \
+        --out-dir reports/ec298/phase_a_v2
 
 行为:
-- --input-manifest(默认取 out-dir/input_manifest.json)存在时逐文件校验
-  SHA256,缺失或不符立即失败;
-- 生成 score_v2 / v1↔v2 diff / 多组分敏感性 / A1–A6 TSV / 锚点对账 /
-  output_manifest.sha256;
+- 输入清单(input_manifest.json,含 run_dir 完整文件集合与 gold/v1_scoring/
+  v41_baseline/asset_library 各角色)是复算前提:缺失即失败;已有清单时
+  严禁覆盖;校验为双向——磁盘文件集合与清单不一致(缺/增/改)立即失败;
+- 生成 score_v2.json(正式逐题评分,含输入 SHA)/ v1↔v2 diff / 多组分
+  敏感性 / A1–A6 TSV / 锚点对账 / output_manifest.sha256;
 - 锚点(任务书 §0/§2/§3 验收值)不一致时逐项写入 anchor_reconciliation.json
   并以退出码 1 结束。
 """
@@ -97,10 +105,16 @@ def _sha256(path: Path) -> str:
 
 # ---------------------------------------------------------------- 输入清单
 
+MANIFEST_ROLES = ("run_dir", "gold", "v1_scoring", "v41_baseline",
+                  "asset_library")
+
 
 def build_input_manifest(run_dir: Path, gold: Path, v1_scoring: Path | None,
-                         v41: Path | None) -> dict:
-    """逐文件 SHA256 清单(路径按角色内相对路径,跨机器可核)。"""
+                         v41: Path | None, asset_library: Path | None) -> dict:
+    """逐文件 SHA256 清单(路径按角色内相对路径,跨机器可核)。
+
+    仅在 ``--init-input-manifest`` 的显式初始化时调用一次;此后严禁覆盖。
+    """
     groups = []
     files = sorted(p for p in run_dir.rglob("*") if p.is_file())
     groups.append({"role": "run_dir", "root": str(run_dir),
@@ -108,7 +122,7 @@ def build_input_manifest(run_dir: Path, gold: Path, v1_scoring: Path | None,
                    "entries": [{"relpath": str(p.relative_to(run_dir)),
                                 "sha256": _sha256(p)} for p in files]})
     for role, path in (("gold", gold), ("v1_scoring", v1_scoring),
-                       ("v41_baseline", v41)):
+                       ("v41_baseline", v41), ("asset_library", asset_library)):
         if path is None:
             continue
         groups.append({"role": role, "root": str(path), "n_files": 1,
@@ -118,27 +132,62 @@ def build_input_manifest(run_dir: Path, gold: Path, v1_scoring: Path | None,
 
 
 def verify_input_manifest(manifest: dict, run_dir: Path, gold: Path,
-                          v1_scoring: Path | None, v41: Path | None) -> None:
-    roots = {"run_dir": run_dir, "gold": gold,
-             "v1_scoring": v1_scoring, "v41_baseline": v41}
-    for group in manifest["groups"]:
-        role = group["role"]
+                          v1_scoring: Path | None, v41: Path | None,
+                          asset_library: Path | None) -> None:
+    """封存校验(复算必经):完整文件集合 + 逐文件 SHA,双向 fail-closed。
+
+    - run_dir:磁盘文件集合必须与清单一一对应——少了、多了(包括新增的
+      会被扫描的结果文件)、任一字节变化都立即失败;
+    - 其余角色:清单里有角色则输入必须提供且 SHA 一致;输入提供了而清单
+      没有对应角色,同样失败(不受保护=拒绝运行)。
+    """
+    roots = {"run_dir": run_dir, "gold": gold, "v1_scoring": v1_scoring,
+             "v41_baseline": v41, "asset_library": asset_library}
+    by_role = {g["role"]: g for g in manifest["groups"]}
+    unknown = sorted(set(by_role) - set(MANIFEST_ROLES))
+    if unknown:
+        raise ScorerV2Error("清单含未知角色", {"roles": unknown})
+    # 输入已提供而清单缺角色 → 拒绝(不受保护的输入)
+    for role, path in roots.items():
+        if path is not None and role not in by_role:
+            raise ScorerV2Error("输入未受清单保护(清单缺角色),拒绝运行",
+                                {"role": role, "path": str(path)})
+    for role, group in by_role.items():
         root = roots.get(role)
         if root is None:
             raise ScorerV2Error("清单角色未提供对应输入", {"role": role})
         if len(group["entries"]) != group["n_files"]:
             raise ScorerV2Error("清单 n_files 与条目数不符", {"role": role})
-        for entry in group["entries"]:
-            p = root / entry["relpath"] if role == "run_dir" else root
+        if role == "run_dir":
+            disk = {str(p.relative_to(root)): p
+                    for p in root.rglob("*") if p.is_file()}
+            listed = {e["relpath"] for e in group["entries"]}
+            missing = sorted(listed - set(disk))
+            extra = sorted(set(disk) - listed)
+            if missing or extra:
+                raise ScorerV2Error(
+                    "封存 run 目录文件集合与清单不一致(改动或新增文件)",
+                    {"n_missing": len(missing), "missing": missing[:5],
+                     "n_extra": len(extra), "extra": extra[:5]})
+            for entry in group["entries"]:
+                actual = _sha256(disk[entry["relpath"]])
+                if actual != entry["sha256"]:
+                    raise ScorerV2Error(
+                        "输入 SHA256 不符(封存性被破坏或版本不一致)",
+                        {"role": role, "path": entry["relpath"],
+                         "expected": entry["sha256"], "actual": actual})
+        else:
+            p = root
             if not p.is_file():
-                raise ScorerV2Error("清单文件缺失", {"role": role,
-                                                     "path": str(p)})
+                raise ScorerV2Error("清单文件缺失",
+                                    {"role": role, "path": str(p)})
             actual = _sha256(p)
-            if actual != entry["sha256"]:
+            if actual != group["entries"][0]["sha256"]:
                 raise ScorerV2Error(
                     "输入 SHA256 不符(封存性被破坏或版本不一致)",
                     {"role": role, "path": str(p),
-                     "expected": entry["sha256"], "actual": actual})
+                     "expected": group["entries"][0]["sha256"],
+                     "actual": actual})
 
 
 # ---------------------------------------------------------------- A5 资产重叠
@@ -221,9 +270,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--asset-library", default=None)
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--input-manifest", default=None,
-                    help="默认 <out-dir>/input_manifest.json")
-    ap.add_argument("--write-input-manifest", action="store_true",
-                    help="首次运行生成清单;其后每次运行强制校验")
+                    help="默认 <out-dir>/input_manifest.json;复算必经,缺失即失败")
+    ap.add_argument("--init-input-manifest", action="store_true",
+                    help="一次性初始化清单(仅在核验过的封存副本上使用);"
+                         "已存在时严禁覆盖,正常复算不得携带本标志")
     ap.add_argument("--no-anchor-gate", action="store_true",
                     help="锚点不一致仍写全部产物(仅诊断用),退出码仍为 1")
     args = ap.parse_args(argv)
@@ -238,13 +288,23 @@ def main(argv: list[str] | None = None) -> int:
     manifest_path = Path(args.input_manifest) if args.input_manifest \
         else out_dir / "input_manifest.json"
 
-    if args.write_input_manifest or not manifest_path.is_file():
+    if args.init_input_manifest:
+        if manifest_path.is_file():
+            raise ScorerV2Error(
+                "输入清单已存在,严禁覆盖(初始化只能进行一次;若封存输入"
+                "确已变更,应另立目录并重新走初始化+核验流程)",
+                {"path": str(manifest_path)})
         manifest_path.write_text(
-            json.dumps(build_input_manifest(run_dir, gold, v1, v41),
+            json.dumps(build_input_manifest(run_dir, gold, v1, v41, assets),
                        ensure_ascii=False, indent=2, sort_keys=True) + "\n",
             encoding="utf-8")
+    if not manifest_path.is_file():
+        raise ScorerV2Error(
+            "输入清单缺失,拒绝复算(应先在核验过的封存副本上用 "
+            "--init-input-manifest 一次性初始化;复算命令不得重建清单)",
+            {"path": str(manifest_path)})
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    verify_input_manifest(manifest, run_dir, gold, v1, v41)
+    verify_input_manifest(manifest, run_dir, gold, v1, v41, assets)
 
     recon: dict = {"anchors": {}, "ok": True}
     recon["inputs"] = {
@@ -256,12 +316,32 @@ def main(argv: list[str] | None = None) -> int:
         "n_manifest_files": sum(g["n_files"] for g in manifest["groups"]),
     }
 
-    # ---- A0:同口径重评分 v2
-    scores = score_exam_v2(agent_predictions_path=run_dir / "agent_batch"
-                           / "merged" / "predictions.jsonl",
-                           engine_results_path=run_dir / "engine_arm"
-                           / "engine_results.jsonl",
-                           gold_questions_path=gold)
+    # ---- A0:同口径重评分 v2(正式逐题评分文件,含输入 SHA)
+    agent_pred_path = run_dir / "agent_batch" / "merged" / "predictions.jsonl"
+    engine_res_path = run_dir / "engine_arm" / "engine_results.jsonl"
+    scores = score_exam_v2(
+        agent_predictions_path=agent_pred_path,
+        engine_results_path=engine_res_path,
+        gold_questions_path=gold,
+        out_path=out_dir / "score_v2.json",
+        inputs_sha={
+            "agent_predictions": _sha256(agent_pred_path),
+            "engine_results": _sha256(engine_res_path),
+            "gold_questions": _sha256(gold),
+        })
+    # 回读对账:正式评分文件必须与后续各 TSV 同源同值
+    sealed_scores = json.loads(
+        (out_dir / "score_v2.json").read_text(encoding="utf-8"))
+    _check = {(q["qid"]): (q["agent_rank"], q["engine_rank"])
+              for q in sealed_scores["per_question"]}
+    if len(_check) != len(sealed_scores["per_question"]) \
+            or len(_check) != sealed_scores["summary"]["n_questions"]:
+        raise ScorerV2Error("score_v2.json qid 缺失或重复", {})
+    if sealed_scores["summary"].get("scorer_version") != "v43-ec298-scorer-2":
+        raise ScorerV2Error("score_v2.json 版本不符", {})
+    if {q["qid"]: (q["agent_rank"], q["engine_rank"])
+            for q in scores["per_question"]} != _check:
+        raise ScorerV2Error("score_v2.json 与内存评分逐题不一致(回读失败)", {})
     s = scores["summary"]
     diff = diff_v1_v2(v1_scoring_path=v1, v2_result=scores,
                       engine_results_path=run_dir / "engine_arm"
@@ -410,10 +490,10 @@ def main(argv: list[str] | None = None) -> int:
     recon_path.write_text(
         json.dumps(recon, ensure_ascii=False, indent=2, sort_keys=True)
         + "\n", encoding="utf-8")
-    outputs = sorted(p for p in out_dir.iterdir()
+    outputs = sorted(p for p in out_dir.rglob("*")
                      if p.is_file() and p.name != "output_manifest.sha256")
     (out_dir / "output_manifest.sha256").write_text(
-        "".join(f"{_sha256(p)}  {p.name}\n" for p in outputs),
+        "".join(f"{_sha256(p)}  {p.relative_to(out_dir)}\n" for p in outputs),
         encoding="utf-8")
 
     failed = [k for k, a in recon["anchors"].items() if not a["ok"]]

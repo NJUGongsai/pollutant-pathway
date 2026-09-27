@@ -29,14 +29,22 @@ from .exam_v2 import TIER_NOT_IN_TOP10, TIER_TOP10_HIT, ScorerV2Error
 PHASE_A_VERSION = "v43-ec298-phase-a-1"
 
 ATtributionLabels = (
-    "候选未检出",          # 引擎 Top-10 / agent 离线可核视图内无金标候选
-    "候选检出但未报告",     # 金标在可选证据/已选事件产物内,未进入最终报告
-    "模型选错",            # 模型排序选中无金标的卡,而候选中存在含金标卡
-    "类比弃答",            # analogy_edit + abstained
-    "编辑拒绝",            # analogy_edit + rejected
-    "候选虽报告但身份不匹配",  # 已选证据产物含金标,报告产物身份均不匹配
-    "证据不足以判断",       # 事实不足以支持上述任一标签
+    "候选未检出(引擎已导出 Top-10)",  # 仅指已导出 Top-10;外池未知
+    "候选检出但未报告",          # 金标在已验证/可报告层,未进入最终报告
+    "模型选错",                # 任务候选(模型选择集)存在正确可选卡,模型未选
+    "类比弃答",                # analogy_edit + abstained
+    "编辑拒绝",                # analogy_edit + rejected
+    "候选虽报告但身份不匹配",     # 已选证据产物含金标,报告产物身份均不匹配
+    "证据不足以判断",           # 事实不足以支持上述任一标签(含仅原始检索含金标)
 )
+
+EVIDENCE_LAYER_NOTE = (
+    "证据五层(逐层给来源与引用,不得从下层直接推出上层):"
+    "raw_retrieval_gold=原始检索卡含金标(未经任何门禁);"
+    "task_candidate_gold=预测任务候选(recorded 卡,模型选择集)含金标;"
+    "selected_gold=被选中证据的产物含金标;"
+    "validated_reportable_gold=validation 判 accepted 的产物含金标;"
+    "reported_gold=最终裁决账本可报告产物含金标")
 
 
 # ---------------------------------------------------------------- 封存产物视图
@@ -369,24 +377,28 @@ A2_COLUMNS = [
 ]
 
 ORPHAN_AUDIT_NOTE = (
-    "孤儿=同一 results/<task>/ 目录下 prediction_call.aN.json 无对应 "
-    "prediction_response.aN.json(或反向);核查键:文件名 attempt 序号 aN 与 "
-    "payload.attempt")
+    "孤儿=同一 results/<task>/ 目录、同一 attempt 序号下 "
+    "prediction_call.aN.json 无对应 prediction_response.aN.json(或反向);"
+    "配对键=完整相对 task 目录 + payload/文件名 attempt,不按文件名全局抵消")
 
 
 def _call_response_ledger(art: RunArtifacts) -> dict:
     calls = sorted(art.calls, key=lambda c: c["file"])
     responses = sorted(art.responses, key=lambda c: c["file"])
-    call_keys = [Path(c["file"]).name for c in calls]
-    resp_keys = [Path(c["file"]).name for c in responses]
+
+    def key_of(rel: str, kind: str) -> tuple[str, str]:
+        p = Path(rel)
+        # 同一 task 目录 + 同一 attempt 才配对;跨 task 的同名 attempt 不抵消
+        return (str(p.parent), f"{kind}:{p.stem.split('.', 1)[-1]}")
+
+    call_keys = {key_of(c["file"], "call") for c in calls}
+    resp_keys = {key_of(r["file"], "response") for r in responses}
     orphans = 0
     for c in calls:
-        rn = Path(c["file"]).name.replace("prediction_call.", "prediction_response.")
-        if rn not in resp_keys:
+        if key_of(c["file"], "response") not in resp_keys:
             orphans += 1
     for r in responses:
-        cn_ = Path(r["file"]).name.replace("prediction_response.", "prediction_call.")
-        if cn_ not in call_keys:
+        if key_of(r["file"], "call") not in call_keys:
             orphans += 1
     ok = failed = 0
     request_ids = []
@@ -582,8 +594,10 @@ A4_COLUMNS = [
     "n_predicted", "direction",
     "engine_gold_rank", "agent_reported_sources",
     "agent_selected_evidence_id", "model_order_provided",
-    "model_order_len", "retrieval_gold_any_card",
-    "retrieval_gold_top5_cards", "unselected_recorded_with_gold",
+    "model_order_len", "unselected_recorded_with_gold",
+    "raw_retrieval_gold", "raw_retrieval_gold_refs",
+    "task_candidate_gold", "task_candidate_gold_refs",
+    "selected_gold", "validated_reportable_gold", "reported_gold",
     "validation_reject_reasons", "decision_mode", "outcome",
     "attribution_primary", "attribution_facts", "attribution_uncertainty",
 ]
@@ -614,6 +628,56 @@ def _unselected_recorded_with_gold(art: RunArtifacts,
     return ";".join(ids)
 
 
+def _evidence_layers(art: RunArtifacts, gold_ids: set[str]) -> dict:
+    """证据五层:原始检索 → 任务候选 → 选中 → 验证可报告 → 最终报告。
+
+    每层独立取证,下层成立不推出上层;引用最多列 5 个 id,可回查封存件。
+    """
+    from .domain.identity import cn_identity
+
+    ret_refs = []
+    for ev in (art.retrieval or {}).get("evidences", []):
+        prods = [p.get("product_smiles", "") for p in ev.get("products", [])]
+        if any(cn_identity(p) in gold_ids for p in prods):
+            ret_refs.append(ev.get("evidence_id", "?"))
+    task = art.prediction_task or {}
+    cand_refs = []
+    for c in task.get("candidates", []):
+        if c.get("kind") != "recorded_reaction":
+            continue
+        prods = [p.get("product_smiles", "") for p in c.get("products", [])]
+        if any(cn_identity(p) in gold_ids for p in prods):
+            cand_refs.append(c.get("evidence_id", "?"))
+    selected = ((art.prediction or {}).get("parsed") or {}) \
+        .get("selected_evidence_id") or \
+        (art.decision or {}).get("accepted_evidence_id") or ""
+    byid = {c.get("evidence_id"): c for c in task.get("candidates", [])}
+    selected_gold = any(
+        cn_identity(p.get("product_smiles", "")) in gold_ids
+        for p in (byid.get(selected, {}).get("products", [])
+                  if selected else []))
+    if not selected_gold and selected:
+        selected_gold = any(
+            cn_identity(e.get("product_smiles", "")) in gold_ids
+            for a in art.adjudications if a.get("evidence_id") == selected
+            for e in a.get("entries", []))
+    val_gold = any(
+        v.get("accepted") and v.get("product_identity") in gold_ids
+        for v0 in art.validations for v in v0.get("verdicts", []))
+    reported_gold = any(
+        cn_identity(e.get("product_smiles", "")) in gold_ids
+        for a in art.adjudications for e in a.get("entries", []))
+    return {
+        "raw_retrieval_gold": bool(ret_refs),
+        "raw_retrieval_gold_refs": ";".join(ret_refs[:5]),
+        "task_candidate_gold": bool(cand_refs),
+        "task_candidate_gold_refs": ";".join(cand_refs[:5]),
+        "selected_gold": bool(selected_gold),
+        "validated_reportable_gold": bool(val_gold),
+        "reported_gold": bool(reported_gold),
+    }
+
+
 def _validation_reject_reasons(art: RunArtifacts) -> str:
     reasons = []
     for v in art.validations:
@@ -633,9 +697,12 @@ def _validation_reject_reasons(art: RunArtifacts) -> str:
 
 def attribute_discordant(view: SealedRunView, qid: str, direction: str,
                          gold_ids: set[str]) -> dict:
-    """谨慎归因:确定性规则 + 事实列 + 不确定列;一题一个主因。"""
-    from .domain.identity import cn_identity
+    """谨慎归因:证据五层 + 确定性规则 + 事实列 + 不确定列;一题一个主因。
 
+    - "模型选错"仅当模型选择集(任务候选)中存在正确且可选卡、模型却未选;
+    - 仅原始检索含金标不构成任何"可报告"断言 → "证据不足以判断";
+    - "候选未检出"必须写全限定对象(引擎已导出 Top-10)。
+    """
     art = view.runs[qid]
     outcome = art.prediction_outcome or \
         (art.decision or {}).get("outcome", "")
@@ -644,13 +711,8 @@ def attribute_discordant(view: SealedRunView, qid: str, direction: str,
     facts: list[str] = []
     unc = ""
     mode, _ = _mode_group(art)
-    ret_gold = _any_gold(_retrieval_products(art), gold_ids)
-    ret_gold5 = _any_gold(_retrieval_top5_products(art), gold_ids)
+    layers = _evidence_layers(art, gold_ids)
     unselected = _unselected_recorded_with_gold(art, gold_ids)
-    task = art.prediction_task or {}
-    candidates = task.get("candidates", [])
-    parsed = (art.prediction or {}).get("parsed") or {}
-    selected = parsed.get("selected_evidence_id") or ""
 
     if direction == "engine_only":
         if n_predicted == 0:
@@ -658,45 +720,39 @@ def attribute_discordant(view: SealedRunView, qid: str, direction: str,
                 "编辑拒绝" if outcome == "rejected" else "证据不足以判断"
             facts.append(f"empty_answer outcome={outcome} stop="
                          f"{view.worker_status[qid].get('stop_reason', '')}")
+        elif layers["selected_gold"]:
+            label = "候选虽报告但身份不匹配"
+            facts.append("selected_evidence 产物含金标身份但报告候选无一匹配")
+        elif layers["task_candidate_gold"]:
+            label = "模型选错"
+            facts.append(f"任务候选(模型选择集)存在含金标 recorded 卡未选:"
+                         f"{unselected}")
         else:
-            byid = {c.get("evidence_id"): c for c in candidates}
-            sel_gold = any(
-                cn_identity(p.get("product_smiles", "")) in gold_ids
-                for p in (byid.get(selected, {}).get("products", [])
-                          if selected else []))
-            if unselected:
-                label = "候选检出但未报告"
-                facts.append(f"unselected_recorded_with_gold={unselected}")
-            elif selected and sel_gold:
-                label = "候选虽报告但身份不匹配"
-                facts.append(f"selected_evidence={selected} "
-                             f"产物含金标身份但报告候选无一匹配")
-            elif candidates and selected:
-                label = "模型选错"
-                facts.append(f"selected={selected} n_candidates="
-                             f"{len(candidates)} 候选中无未选含金标 recorded 卡")
-            elif ret_gold:
-                label = "候选检出但未报告"
-                facts.append("gold_in_retrieval_any_card=true 未进任务候选"
-                             "或未报告")
+            label = "证据不足以判断"
+            if layers["raw_retrieval_gold"]:
+                facts.append("原始检索含金标,是否可用未证实(未证明过结构"
+                             "门禁/条件/进入任务/可报告)")
             else:
-                label = "证据不足以判断"
                 facts.append("agent 离线可核视图(检索/任务候选)未见金标;"
                              "引擎 Top-10 含金标候选与 agent 视图的对应未核实")
-            facts.append(f"retrieval_gold_any_card={ret_gold} "
-                         f"top5={ret_gold5}")
-            if mode == "recorded_direct":
-                unc = "唯一 recorded 直通:其它引擎候选未进入 agent 任务,对应关系未核实"
-    else:  # agent_only:引擎 Top-10 未含金标
-        label = "候选未检出"
-        facts.append("engine_top10_no_gold")
+        facts.append(f"layers: raw_retrieval={layers['raw_retrieval_gold']} "
+                     f"task_candidate={layers['task_candidate_gold']} "
+                     f"selected={layers['selected_gold']} "
+                     f"validated={layers['validated_reportable_gold']} "
+                     f"reported={layers['reported_gold']}")
+        if mode == "recorded_direct":
+            unc = "唯一 recorded 直通:其它引擎候选未进入 agent 任务,对应关系未核实"
+    else:  # agent_only:引擎已导出 Top-10 未含金标
+        label = "候选未检出(引擎已导出 Top-10)"
+        facts.append("engine_exported_top10_no_gold")
         facts.append(f"agent_source={_agent_reported_sources(art) or 'unknown'}")
-        facts.append(f"retrieval_gold_any_card={ret_gold}")
-        unc = "引擎 Top-10 外是否存在金标候选未知(封存件无真实全池)"
+        if layers["raw_retrieval_gold"]:
+            facts.append("agent 原始检索卡含金标,是否可用未证实;最终报告"
+                         "产物来自模型生成而非该卡")
+        unc = "引擎已导出 Top-10 外是否存在金标候选未知(封存件无真实全池)"
     return {
-        "retrieval_gold_any_card": ret_gold,
-        "retrieval_gold_top5_cards": ret_gold5,
         "unselected_recorded_with_gold": unselected,
+        **layers,
         "attribution_primary": label,
         "attribution_facts": _truncate(";".join(facts), 500),
         "attribution_uncertainty": _truncate(unc, 300),
@@ -727,9 +783,11 @@ def build_hit5_paired_attribution(view: SealedRunView, scores_v2: dict,
             "agent_selected_evidence_id": parsed.get("selected_evidence_id", ""),
             "model_order_provided": bool(parsed.get("order")),
             "model_order_len": len(parsed.get("order") or []),
-            "retrieval_gold_any_card": "",
-            "retrieval_gold_top5_cards": "",
             "unselected_recorded_with_gold": "",
+            "raw_retrieval_gold": "", "raw_retrieval_gold_refs": "",
+            "task_candidate_gold": "", "task_candidate_gold_refs": "",
+            "selected_gold": "", "validated_reportable_gold": "",
+            "reported_gold": "",
             "validation_reject_reasons": "",
             "decision_mode": _mode_group(art)[0],
             "outcome": art.prediction_outcome
@@ -744,12 +802,17 @@ def build_hit5_paired_attribution(view: SealedRunView, scores_v2: dict,
             row["validation_reject_reasons"] = _validation_reject_reasons(art)
             row.update(attribute_discordant(view, qid, cls, gold_ids_fn(qid)))
         rows.append(row)
+    label_counts = Counter(r["attribution_primary"] for r in rows
+                           if r["attribution_primary"])
     audits = {
         "paired_hit5_counts": dict(counts),
         "expected_engine_only": 82, "expected_agent_only": 19,
+        "label_counts": dict(label_counts),
         "label_vocabulary": list(ATtributionLabels),
-        "note": "主因一题一个,规则确定性且事实列可回查;不确定时用"
-                "'证据不足以判断'并保留 uncertainty",
+        "evidence_layers": EVIDENCE_LAYER_NOTE,
+        "note": "主因一题一个,规则确定性且五层证据列可回查;仅原始检索"
+                "含金标不推出可报告;不确定时用'证据不足以判断'并保留 "
+                "uncertainty",
     }
     return rows, audits
 

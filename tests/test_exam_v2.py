@@ -192,6 +192,42 @@ def test_unknown_qid_fails_closed(case):
                       gold_questions_path=c["gold"])
 
 
+def test_duplicate_agent_qid_fails_closed(case):
+    c = case(gold=[_gold_row("Q1", ["CCO"])],
+             agent=[_agent_row("Q1", ["CCO"]), _agent_row("Q1", ["CCC"])],
+             engine=[_engine_row("Q1", [])])
+    with pytest.raises(ScorerV2Error):
+        score_exam_v2(agent_predictions_path=c["agent"],
+                      engine_results_path=c["engine"],
+                      gold_questions_path=c["gold"])
+
+
+def test_engine_qid_set_mismatch_fails_closed(case):
+    c = case(gold=[_gold_row("Q1", ["CCO"]), _gold_row("Q2", ["CCO"])],
+             agent=[_agent_row("Q1", ["CCO"]), _agent_row("Q2", ["CCO"])],
+             engine=[_engine_row("Q1", ["CCO"])])  # 缺 Q2
+    with pytest.raises(ScorerV2Error):
+        score_exam_v2(agent_predictions_path=c["agent"],
+                      engine_results_path=c["engine"],
+                      gold_questions_path=c["gold"])
+
+
+def test_score_v2_output_seals_inputs_sha(case, tmp_path):
+    c = case(gold=[_gold_row("Q1", ["CCO"])],
+             agent=[_agent_row("Q1", ["CCO"])],
+             engine=[_engine_row("Q1", ["CCO"])])
+    out = tmp_path / "score_v2.json"
+    score_exam_v2(agent_predictions_path=c["agent"],
+                  engine_results_path=c["engine"],
+                  gold_questions_path=c["gold"],
+                  out_path=out,
+                  inputs_sha={"gold_questions": "abc123"})
+    saved = json.loads(out.read_text(encoding="utf-8"))
+    assert saved["summary"]["scorer_version"] == "v43-ec298-scorer-2"
+    assert saved["inputs_sha256"] == {"gold_questions": "abc123"}
+    assert len(saved["per_question"]) == 1
+
+
 def test_diff_v1_v2_counts_and_trigger_fields(case, tmp_path):
     """v1↔v2 diff:v1 缓存口径漏检的题记 rank 变化,触发候选可回查。"""
     c = case(gold=[_gold_row("Q1", ["CN"]), _gold_row("Q2", ["CCO"])],

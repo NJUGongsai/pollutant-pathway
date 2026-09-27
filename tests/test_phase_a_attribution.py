@@ -13,6 +13,8 @@ import pytest
 
 from pathway_v43.exam_v2 import ScorerV2Error
 from pathway_v43.phase_a_attribution import (
+    RunArtifacts,
+    _call_response_ledger,
     build_agent_hits_by_engine_tier,
     build_awaiting_prediction_fates,
     build_decision_path_contribution,
@@ -87,16 +89,19 @@ def view(tmp_path):
     (root / "exam_inputs.jsonl").write_text(
         "".join(json.dumps(q) + "\n" for q in questions), encoding="utf-8")
 
-    # Q1 bypass:agent_only(引擎 Top-10 无金标),命中来源=裁决 E_A
-    _make_run(root, "RXNG_0000", stop="completed", merged_products=["CCO"],
+    # Q1 bypass:engine_only、agent 报告产物不含金标、金标仅在原始检索卡
+    # (未证明可用)→ 证据不足以判断
+    _make_run(root, "RXNG_0000", stop="completed", merged_products=["CCC"],
               decision={"prediction_mode": "", "outcome": "commit_recorded",
                         "accepted_evidence_id": "E_A"},
               adjudications=[{"evidence_kind": "recorded_reaction",
+                              "evidence_id": "E_A",
                               "entries": [{"evidence_id": "E_A",
-                                           "product_smiles": "CCO",
+                                           "product_smiles": "CCC",
                                            "report_rank": 1}]}],
               retrieval={"evidences": [
-                  {"products": [{"product_smiles": "CCC"}]}]})
+                  {"evidence_id": "E_R1",
+                   "products": [{"product_smiles": "CCO"}]}]})
     # Q2 rank_candidates:engine_only,未选中 recorded 卡含金标 E_B
     _make_run(root, "RXNG_0001", stop="completed", merged_products=["CCC"],
               decision={"prediction_mode": "rank_candidates",
@@ -111,8 +116,10 @@ def view(tmp_path):
                   {"evidence_id": "E_B", "kind": "recorded_reaction",
                    "products": [{"product_smiles": "CCO"}]}]},
               retrieval={"evidences": [
-                  {"products": [{"product_smiles": "CCC"}]},
-                  {"products": [{"product_smiles": "CCO"}]}]},
+                  {"evidence_id": "E_R1",
+                   "products": [{"product_smiles": "CCC"}]},
+                  {"evidence_id": "E_R2",
+                   "products": [{"product_smiles": "CCO"}]}]},
               adjudications=[{"evidence_kind": "recorded_reaction",
                               "entries": [{"evidence_id": "E_A",
                                            "product_smiles": "CCC",
@@ -126,7 +133,7 @@ def view(tmp_path):
                           "parsed": {"decision": "abstain", "reason": "骨架不匹配",
                                      "products": []}},
               calls=1, responses=1)
-    # Q4 novel_proposal:agent_only,命中,检索有产物
+    # Q4 novel_proposal:agent_only,命中,检索有产物且含金标(未证实可用)
     _make_run(root, "RXNG_0003", stop="completed", merged_products=["CCO"],
               decision={"prediction_mode": "novel_proposal",
                         "outcome": "awaiting_prediction"},
@@ -135,7 +142,10 @@ def view(tmp_path):
                                      "selected_evidence_id": None}},
               task={"mode": "novel_proposal", "candidates": []},
               retrieval={"evidences": [
-                  {"products": [{"product_smiles": "CCC"}]}]},
+                  {"evidence_id": "E_R1",
+                   "products": [{"product_smiles": "CCC"}]},
+                  {"evidence_id": "E_R2",
+                   "products": [{"product_smiles": "CCO"}]}]},
               adjudications=[{"evidence_kind": "novel_proposal",
                               "entries": [{"evidence_id": "E_N",
                                            "product_smiles": "CCO",
@@ -163,8 +173,8 @@ def view(tmp_path):
         "substrate_smiles": "CCO", "products_smiles": ["CCO"]}) + "\n"
         for i in range(5)), encoding="utf-8")
     scores = {"per_question": [
-        {"qid": "RXNG_0000", "agent_rank": 1, "engine_rank": None,
-         "n_predicted": 1, "tier_v2": "not_in_exported_top10"},
+        {"qid": "RXNG_0000", "agent_rank": None, "engine_rank": 1,
+         "n_predicted": 1, "tier_v2": "engine_top10_hit"},
         {"qid": "RXNG_0001", "agent_rank": None, "engine_rank": 1,
          "n_predicted": 1, "tier_v2": "engine_top10_hit"},
         {"qid": "RXNG_0002", "agent_rank": None, "engine_rank": 2,
@@ -182,6 +192,20 @@ def _gold_fn(view):
 
     gold = load_gold(view["gold"])
     return lambda qid: gold[qid]["gold_ids"]
+
+
+def test_ledger_pairs_by_task_dir_and_attempt():
+    """同名 a1 分属两个 task 目录时不得互相抵消(孤儿=2 而非 0)。"""
+    art = RunArtifacts(qid="Q", run_id="R", run_dir_rel="agent_runs/R")
+    art.calls.append({"file": "agent_runs/R/results/T_1/"
+                              "prediction_call.a1.json", "payload": {}})
+    art.responses.append({
+        "file": "agent_runs/R/results/T_2/prediction_response.a1.json",
+        "payload": {"transport": {"ok": True, "status": 200,
+                                  "request_id": "x"}}})
+    led = _call_response_ledger(art)
+    assert led["n_issued"] == 1 and led["n_provider_ok"] == 1
+    assert led["orphan_count"] == 2
 
 
 def test_loader_maps_runs_and_fails_closed(view, tmp_path):
@@ -204,15 +228,16 @@ def test_a1_tier_and_hit_source(view):
         v, view["scores"], _gold_fn(view))
     assert len(rows) == 5
     by = {r["qid"]: r for r in rows}
-    assert by["RXNG_0000"]["tier_v2"] == "not_in_exported_top10"
-    assert by["RXNG_0000"]["agent_hit_evidence_id"] == "E_A"
-    assert by["RXNG_0000"]["agent_hit_ref_ok"] is True
+    assert by["RXNG_0000"]["tier_v2"] == "engine_top10_hit"
+    assert by["RXNG_0000"]["agent_hit_ref_ok"] is False  # 无命中即无来源
+    assert by["RXNG_0003"]["agent_hit_evidence_id"] == "E_N"
+    assert by["RXNG_0003"]["agent_hit_ref_ok"] is True
     assert by["RXNG_0000"]["decision_mode"] == "recorded_direct"
     assert by["RXNG_0003"]["novel_evidence_state"] == \
         "retrieval_products_present"
     assert by["RXNG_0001"]["gold_in_retrieval_any_card"] is True
     tiers = {s["tier_v2"]: s["n_questions"] for s in summary}
-    assert tiers == {"engine_top10_hit": 3, "not_in_exported_top10": 2}
+    assert tiers == {"engine_top10_hit": 4, "not_in_exported_top10": 1}
 
 
 def test_a2_fates_ledger_and_orphans(view):
@@ -255,16 +280,29 @@ def test_a4_discordant_labels(view):
                                                  _gold_fn(view))
     assert len(rows) == 5
     by = {r["qid"]: r for r in rows}
+    # 任务候选(模型选择集)存在含金标 recorded 卡未选 → 模型选错
     assert by["RXNG_0001"]["direction"] == "engine_only"
-    assert by["RXNG_0001"]["attribution_primary"] == "候选检出但未报告"
-    assert "E_B" in by["RXNG_0001"]["unselected_recorded_with_gold"]
+    assert by["RXNG_0001"]["attribution_primary"] == "模型选错"
+    assert by["RXNG_0001"]["task_candidate_gold"] is True
+    assert "E_B" in by["RXNG_0001"]["task_candidate_gold_refs"]
+    assert by["RXNG_0001"]["selected_gold"] is False
+    assert by["RXNG_0001"]["reported_gold"] is False
+    # 金标仅在未验证的原始检索卡 → 证据不足以判断,不得称"候选检出但未报告"
+    assert by["RXNG_0000"]["attribution_primary"] == "证据不足以判断"
+    assert by["RXNG_0000"]["raw_retrieval_gold"] is True
+    assert by["RXNG_0000"]["task_candidate_gold"] is False
+    assert "未证实" in by["RXNG_0000"]["attribution_facts"]
     assert by["RXNG_0002"]["attribution_primary"] == "类比弃答"
     assert by["RXNG_0004"]["attribution_primary"] == "编辑拒绝"
-    assert by["RXNG_0000"]["direction"] == "agent_only"
-    assert by["RXNG_0000"]["attribution_primary"] == "候选未检出"
-    assert "未知" in by["RXNG_0000"]["attribution_uncertainty"]
-    assert audits["paired_hit5_counts"]["engine_only"] == 3
-    assert audits["paired_hit5_counts"]["agent_only"] == 2
+    # agent_only:限定对象为引擎已导出 Top-10;检索含金标只入事实列
+    assert by["RXNG_0003"]["direction"] == "agent_only"
+    assert by["RXNG_0003"]["attribution_primary"] == \
+        "候选未检出(引擎已导出 Top-10)"
+    assert by["RXNG_0003"]["raw_retrieval_gold"] is True
+    assert by["RXNG_0003"]["reported_gold"] is True
+    assert "未知" in by["RXNG_0003"]["attribution_uncertainty"]
+    assert audits["paired_hit5_counts"]["engine_only"] == 4
+    assert audits["paired_hit5_counts"]["agent_only"] == 1
 
 
 def test_a5_baseline_diff(view, tmp_path):
@@ -275,8 +313,8 @@ def test_a5_baseline_diff(view, tmp_path):
     rows, summary = build_v41_baseline_diff(view["scores"], v41)
     assert len(rows) == 5
     assert summary["v41_engine_hit@1/3/5/10"] == [4, 4, 4, 4]
-    assert summary["n_rank_changed"] == 5  # 五题 v41 全为 rank1(除 Q1),v2 各异
-    assert summary["v2_engine_hit@1/3/5/10"][0] == 1
+    assert summary["n_rank_changed"] == 4  # Q1 None↔1、Q2 1↔2、Q3 1↔None、Q4 1↔3
+    assert summary["v2_engine_hit@1/3/5/10"][0] == 2
 
 
 def test_a6_call_distribution(view):

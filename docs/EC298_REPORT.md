@@ -8,7 +8,7 @@
 
 ## 0. 结论(修正口径)
 
-**在同一份 298 题、同一底物提取、两臂同函数 `cn` 身份判分下,v4.3 agent 相对新引擎基线在全部主对照 K 上净落后:hit@1 −2、hit@3 −46、hit@5 −63 题。** agent 的相对优势只出现在输出宽度的下游(@10 列为宽度上限,不构成性能声明)。
+**在同一份 298 题、同一底物提取、两臂同函数 `cn` 身份判分下,v4.3 agent 相对新引擎基线在全部主对照 K 上净落后:hit@1 −2、hit@3 −46、hit@5 −63 题。** 两臂在同一 K 上不存在 agent 领先的档位(@10 亦为 130 对 209);@10 列受输出宽度上限影响,不构成性能声明。
 
 | 指标(分母恒 298) | v4.3 agent | 引擎基线(Top-10) | 净差(agent − engine) |
 |---|---|---|---|
@@ -79,7 +79,7 @@ dev 配置选择依据:复核轮 r2(300s)→r3(900s)证实 300s 超时造成成�
 
 ## 5. 披露与限定(必随数字外传)
 
-1. 题卷 RHEA/BRENDA/EnzymeMap 来源与 v4.3 检索语料的潜在重叠**未经单独审计**;本外考不排除检索资产与题目事实同源带来的有利偏差。
+1. 题卷 RHEA/BRENDA/EnzymeMap 来源与检索语料的潜在重叠:**Phase A 已完成本卷资产库 `library_full` 的部分 membership 扫描**(182/298 底物身份重叠、113/298 底物-金标产物对重叠,描述性统计,见 `phase_a_v2/asset_exam_overlap.tsv`);其它检索资产(uspto/envipath 规则、类比索引)、历史 v4.1 语料的 membership 与真实泄漏风险**未完整审计**(旧库状态 `not_assessed`)。
 2. 本卷是**单步**酶促污染物转化外考,不能证明多步环境 pathway 的整体准确率;v3 dev 多步指标(hit@1 0.2512 等,见 `EXPORT_DEV_REPORT_ADDENDUM.md`)另行呈现,**未与本卷 hit@K 合并**。
 3. hit@10 的 agent 值是输出宽度上限,不是排名性能;两臂 @5 名义上限相同,故 **−63 的 @5 净差不能解释为"五位 vs 十位"的宽度不对称**(rank 9–10 本就不计入引擎 @5);agent 实际只报 1 个候选的题有 197 题,"有效宽度不足"才是宽度侧事实。K=10 列才有五位与十位的不对称。
 4. 首跑答卷未因分数做任何修改;score=0 的 51 题空答全部保留在分母与逐题表中(命运闭环见 `phase_a_v2/awaiting_prediction_fates.tsv`)。
@@ -89,6 +89,8 @@ dev 配置选择依据:复核轮 r2(300s)→r3(900s)证实 300s 超时造成成�
 ## 6. 产物索引
 
 - 本仓(首跑 v1 判分,仅对账用):`reports/ec298/{per_question_scoring,exam_identity,agent_batch_identity,agent_merge_metadata,engine_arm_metadata,agent_run_summary}.json`
-- 本仓(Phase A v2,正式口径):`reports/ec298/phase_a_v2/`(score_v1_v2_diff、multicomponent_sensitivity、agent_hits_by_engine_tier、awaiting_prediction_fates、decision_path_contribution、hit5_paired_attribution、llm_call_distribution、v41_baseline_diff、asset_exam_overlap、input_manifest、anchor_reconciliation、输出 SHA 清单、v1 报告快照;数据字典见 [`EC298_PHASE_A_REPORT.md`](EC298_PHASE_A_REPORT.md))
+- 本仓(Phase A v2,正式口径):`reports/ec298/phase_a_v2/`(正式逐题评分 `score_v2.json`、score_v1_v2_diff、multicomponent_sensitivity、agent_hits_by_engine_tier、awaiting_prediction_fates、decision_path_contribution、hit5_paired_attribution、llm_call_distribution、v41_baseline_diff、asset_exam_overlap、input_manifest、anchor_reconciliation、输出 SHA 清单、v1 报告快照、R1 review 前产物快照 `r1_snapshot/`;数据字典见 [`EC298_PHASE_A_REPORT.md`](EC298_PHASE_A_REPORT.md))
 - 远端(原始):`runs/ec298_v43r1/{exam_inputs.jsonl,exam_identity.json,engine_arm/,agent_batch/,agent_runs/,scoring/}`;dev 两轮在 `runs/devbatch_v43r2|r3/`;金标只读 `ec298_gold_readonly/`
-- 零网络复算(路径显式传入,无凭证入仓):`PYTHONPATH=src python -m pathway_v43.exam_v2 --agent-predictions <封存>/agent_batch/merged/predictions.jsonl --engine-results <封存>/engine_arm/engine_results.jsonl --gold <金标>/questions.jsonl --v1-scoring <封存>/scoring/per_question_scoring.json --out-dir <输出目录>`;或一键 `python scripts/ec298_phase_a.py --run-dir <封存 run 目录> --gold <金标> --v1-scoring <v1 评分> --out-dir <输出目录> --write-input-manifest`(逐文件 SHA256 校验,输入缺失或不符即失败)
+- 零网络复算分两步(路径显式传入,无凭证入仓;**输入清单绝不重建**,封存输入变化会使复算失败而非被接受):
+  1. 一次性初始化(仅在核验过的封存副本上,清单已存在时拒绝):`python scripts/ec298_phase_a.py --run-dir <封存 run 目录> --gold <金标> --v1-scoring <v1 评分> --v41-baseline <v4.1 判分件> --asset-library assets/v3_reactions/library/library_full.jsonl --out-dir <输出目录> --init-input-manifest`
+  2. 正常复算(同上去掉 `--init-input-manifest`):逐文件校验完整文件集合与 SHA——少文件、多文件、改任一字节或换资产库都立即失败;亦可单用 `PYTHONPATH=src python -m pathway_v43.exam_v2 --agent-predictions <封存>/agent_batch/merged/predictions.jsonl --engine-results <封存>/engine_arm/engine_results.jsonl --gold <金标>/questions.jsonl --out-dir <输出目录>`(其 score_v2.json 记录三输入 SHA)

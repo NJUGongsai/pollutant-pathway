@@ -174,15 +174,34 @@ def engine_first_hit(eng: dict | None, gold_ids: set[str]) -> dict:
 def score_exam_v2(*, agent_predictions_path: str | Path,
                   engine_results_path: str | Path | None,
                   gold_questions_path: str | Path,
-                  out_path: str | Path | None = None) -> dict:
-    """v2 冻结判分(零 LLM;分母恒为全部题目,空/部分/失败行计入)。"""
+                  out_path: str | Path | None = None,
+                  inputs_sha: dict[str, str] | None = None) -> dict:
+    """v2 冻结判分(零 LLM;分母恒为全部题目,空/部分/失败行计入)。
+
+    fail-closed:答卷/金标/引擎臂 qid 必须一一对应且无重复;``inputs_sha``
+    (角色 → SHA256)非空时随结果封存,供正式 ``score_v2.json`` 审计。
+    """
     gold = load_gold(gold_questions_path)
-    engine = _engine_rows(engine_results_path)
+    engine_rows = []
+    if engine_results_path and Path(engine_results_path).is_file():
+        engine_rows = list(_iter_jsonl(engine_results_path))
+    engine: dict[str, dict] = {}
+    for r in engine_rows:
+        qid = r.get("qid")
+        if not qid:
+            raise ScorerV2Error("引擎结果行缺 qid", {"path": str(engine_results_path)})
+        if qid in engine:
+            raise ScorerV2Error("引擎结果 qid 重复(fail-closed)", {"qid": qid})
+        engine[qid] = r
+    seen_agent: set[str] = set()
     per_question = []
     for row in _iter_jsonl(agent_predictions_path):
         qid = row.get("route_id")
         if qid not in gold:
             raise ScorerV2Error("答卷 qid 不在金标(判分失败)", {"qid": qid})
+        if qid in seen_agent:
+            raise ScorerV2Error("答卷 qid 重复(fail-closed)", {"qid": qid})
+        seen_agent.add(qid)
         g = gold[qid]
         products = agent_candidates(row)
         agent_rank = first_hit_rank(products, g["gold_ids"])
@@ -202,6 +221,11 @@ def score_exam_v2(*, agent_predictions_path: str | Path,
         raise ScorerV2Error(
             "答卷题数与金标不一致(fail-closed)",
             {"n_predictions": total, "n_gold": len(gold)})
+    if engine and set(engine) != set(gold):
+        raise ScorerV2Error(
+            "引擎结果 qid 集合与金标不一致(fail-closed)",
+            {"missing": sorted(set(gold) - set(engine))[:5],
+             "extra": sorted(set(engine) - set(gold))[:5]})
 
     def hits(k: int, key: str) -> int:
         return sum(1 for q in per_question
@@ -249,6 +273,8 @@ def score_exam_v2(*, agent_predictions_path: str | Path,
                              "engine_rank 比较)与 paired_hit5",
     }
     result = {"summary": summary, "per_question": per_question}
+    if inputs_sha:
+        result["inputs_sha256"] = dict(inputs_sha)
     if out_path is not None:
         _write_json(Path(out_path), result)
     return result
@@ -459,12 +485,18 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    inputs_sha = {
+        "agent_predictions": _sha256_file(Path(args.agent_predictions)),
+        "engine_results": _sha256_file(Path(args.engine_results)),
+        "gold_questions": _sha256_file(Path(args.gold)),
+    }
 
     v2 = score_exam_v2(
         agent_predictions_path=args.agent_predictions,
         engine_results_path=args.engine_results,
         gold_questions_path=args.gold,
-        out_path=out_dir / "score_v2.json")
+        out_path=out_dir / "score_v2.json",
+        inputs_sha=inputs_sha)
     s = v2["summary"]
     print(json.dumps({
         "scorer_version": s["scorer_version"],

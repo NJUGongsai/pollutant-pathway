@@ -228,7 +228,7 @@
     "n_budget_exhausted_rows": 1,
     "n_empty_answers_v2": 51,
     "note": "空答不反推'未调用模型';弃答/拒绝以持久 prediction/decision 产物核验;atomtool 检查项来自 prediction payload,51 题无 validation.json 属预期(未产生可验证产物)",
-    "orphan_audit": "孤儿=同一 results/<task>/ 目录下 prediction_call.aN.json 无对应 prediction_response.aN.json(或反向);核查键:文件名 attempt 序号 aN 与 payload.attempt",
+    "orphan_audit": "孤儿=同一 results/<task>/ 目录、同一 attempt 序号下 prediction_call.aN.json 无对应 prediction_response.aN.json(或反向);配对键=完整相对 task 目录 + payload/文件名 attempt,不按文件名全局抵消",
     "outcomes": {
       "abstained": 28,
       "rejected": 23
@@ -244,10 +244,18 @@
     "note": "分组按持久 decision_log(prediction_mode)+ prediction payload 交叉核对;不以预测 SMILES 倒推模式"
   },
   "hit5_audit": {
+    "evidence_layers": "证据五层(逐层给来源与引用,不得从下层直接推出上层):raw_retrieval_gold=原始检索卡含金标(未经任何门禁);task_candidate_gold=预测任务候选(recorded 卡,模型选择集)含金标;selected_gold=被选中证据的产物含金标;validated_reportable_gold=validation 判 accepted 的产物含金标;reported_gold=最终裁决账本可报告产物含金标",
     "expected_agent_only": 19,
     "expected_engine_only": 82,
+    "label_counts": {
+      "候选未检出(引擎已导出 Top-10)": 19,
+      "模型选错": 22,
+      "类比弃答": 14,
+      "编辑拒绝": 6,
+      "证据不足以判断": 40
+    },
     "label_vocabulary": [
-      "候选未检出",
+      "候选未检出(引擎已导出 Top-10)",
       "候选检出但未报告",
       "模型选错",
       "类比弃答",
@@ -255,7 +263,7 @@
       "候选虽报告但身份不匹配",
       "证据不足以判断"
     ],
-    "note": "主因一题一个,规则确定性且事实列可回查;不确定时用'证据不足以判断'并保留 uncertainty",
+    "note": "主因一题一个,规则确定性且五层证据列可回查;仅原始检索含金标不推出可报告;不确定时用'证据不足以判断'并保留 uncertainty",
     "paired_hit5_counts": {
       "agent_only": 19,
       "both": 111,
@@ -267,7 +275,7 @@
     "asset_library": "assets/v3_reactions/library/library_full.jsonl",
     "gold": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/ec298_gold_readonly/questions.jsonl",
     "input_manifest": "reports/ec298/phase_a_v2/input_manifest.json",
-    "n_manifest_files": 4663,
+    "n_manifest_files": 4664,
     "run_dir": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/dependingv43_dev/runs/ec298_v43r1",
     "v1_scoring": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/dependingv43_dev/runs/ec298_v43r1/scoring/per_question_scoring.json",
     "v41_baseline": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/dependingv4_v41/runs/exam298_agent/per_question_scoring.jsonl"

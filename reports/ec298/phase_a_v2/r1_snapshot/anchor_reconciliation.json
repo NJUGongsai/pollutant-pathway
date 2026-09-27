@@ -1,0 +1,310 @@
+{
+  "anchors": {
+    "a2_awaiting_rows": {
+      "actual": 50,
+      "expected": 50,
+      "ok": true
+    },
+    "a2_budget_rows": {
+      "actual": 1,
+      "expected": 1,
+      "ok": true
+    },
+    "a2_outcome_abstained": {
+      "actual": 28,
+      "expected": 28,
+      "ok": true
+    },
+    "a2_outcome_rejected": {
+      "actual": 23,
+      "expected": 23,
+      "ok": true
+    },
+    "a3_agent@1_sum": {
+      "actual": 116,
+      "expected": 116,
+      "ok": true
+    },
+    "a3_agent@5_sum": {
+      "actual": 130,
+      "expected": 130,
+      "ok": true
+    },
+    "a3_analogy_abstained": {
+      "actual": 28,
+      "expected": 28,
+      "ok": true
+    },
+    "a3_analogy_proposed": {
+      "actual": 15,
+      "expected": 15,
+      "ok": true
+    },
+    "a3_analogy_rejected": {
+      "actual": 23,
+      "expected": 23,
+      "ok": true
+    },
+    "a3_novel_proposal": {
+      "actual": 50,
+      "expected": 50,
+      "ok": true
+    },
+    "a3_rank_candidates": {
+      "actual": 70,
+      "expected": 70,
+      "ok": true
+    },
+    "a3_recorded_direct": {
+      "actual": 112,
+      "expected": 112,
+      "ok": true
+    },
+    "a4_agent_only": {
+      "actual": 19,
+      "expected": 19,
+      "ok": true
+    },
+    "a4_engine_only": {
+      "actual": 82,
+      "expected": 82,
+      "ok": true
+    },
+    "a6_total_failed": {
+      "actual": 5,
+      "expected": 5,
+      "ok": true
+    },
+    "a6_total_issued": {
+      "actual": 191,
+      "expected": 191,
+      "ok": true
+    },
+    "a6_total_orphans": {
+      "actual": 0,
+      "expected": 0,
+      "ok": true
+    },
+    "a6_total_provider_ok": {
+      "actual": 186,
+      "expected": 186,
+      "ok": true
+    },
+    "agent_hit@1": {
+      "actual": 116,
+      "expected": 116,
+      "ok": true
+    },
+    "agent_hit@3": {
+      "actual": 128,
+      "expected": 128,
+      "ok": true
+    },
+    "agent_hit@5": {
+      "actual": 130,
+      "expected": 130,
+      "ok": true
+    },
+    "engine_hit@1": {
+      "actual": 118,
+      "expected": 118,
+      "ok": true
+    },
+    "engine_hit@10": {
+      "actual": 209,
+      "expected": 209,
+      "ok": true
+    },
+    "engine_hit@3": {
+      "actual": 174,
+      "expected": 174,
+      "ok": true
+    },
+    "engine_hit@5": {
+      "actual": 193,
+      "expected": 193,
+      "ok": true
+    },
+    "mc_agent_hit@1": {
+      "actual": 129,
+      "expected": 129,
+      "ok": true
+    },
+    "mc_agent_hit@3": {
+      "actual": 141,
+      "expected": 141,
+      "ok": true
+    },
+    "mc_agent_hit@5": {
+      "actual": 143,
+      "expected": 143,
+      "ok": true
+    },
+    "mc_engine_hit@1": {
+      "actual": 132,
+      "expected": 132,
+      "ok": true
+    },
+    "mc_engine_hit@3": {
+      "actual": 184,
+      "expected": 184,
+      "ok": true
+    },
+    "mc_engine_hit@5": {
+      "actual": 199,
+      "expected": 199,
+      "ok": true
+    },
+    "n_questions": {
+      "actual": 298,
+      "expected": 298,
+      "ok": true
+    },
+    "tier_engine_top10_hit": {
+      "actual": 209,
+      "expected": 209,
+      "ok": true
+    },
+    "tier_not_in_exported_top10": {
+      "actual": 89,
+      "expected": 89,
+      "ok": true
+    },
+    "v1v2_agent_rank_changed": {
+      "actual": 0,
+      "expected": 0,
+      "ok": true
+    },
+    "v1v2_engine_rank_changed": {
+      "actual": 68,
+      "expected": 68,
+      "ok": true
+    },
+    "width_0": {
+      "actual": 51,
+      "expected": 51,
+      "ok": true
+    },
+    "width_1": {
+      "actual": 197,
+      "expected": 197,
+      "ok": true
+    },
+    "width_2": {
+      "actual": 1,
+      "expected": 1,
+      "ok": true
+    },
+    "width_3": {
+      "actual": 1,
+      "expected": 1,
+      "ok": true
+    },
+    "width_4": {
+      "actual": 5,
+      "expected": 5,
+      "ok": true
+    },
+    "width_5": {
+      "actual": 43,
+      "expected": 43,
+      "ok": true
+    }
+  },
+  "asset_overlap": {
+    "definition": "底物身份重叠=exam 底物 cn 身份出现在 library_full donor_smiles cn 身份;底物-产物对重叠=同一 cn 底物下任一记录产物 cn 身份等于该题金标产物 cn 身份",
+    "library_path": "assets/v3_reactions/library/library_full.jsonl",
+    "library_sha256": "042e9e2c2afccdd83088eb0b50d75619261fb096728a17ab108da06cb54667f3",
+    "n_library_records": 4454,
+    "n_library_unparseable_substrate": 0,
+    "n_questions_gold_pair_overlap": 113,
+    "n_questions_substrate_overlap": 182,
+    "note": "重叠率是描述统计,不能单凭它证明性能差异的因果来源;检索/引擎对 library 的实际使用方式未在此核实",
+    "rule_coverage": "not_assessed(规则资产匹配语义未在本阶段核实)"
+  },
+  "awaiting_prediction_audit": {
+    "closed_loop_ok": true,
+    "n_awaiting_prediction_rows": 50,
+    "n_budget_exhausted_rows": 1,
+    "n_empty_answers_v2": 51,
+    "note": "空答不反推'未调用模型';弃答/拒绝以持久 prediction/decision 产物核验;atomtool 检查项来自 prediction payload,51 题无 validation.json 属预期(未产生可验证产物)",
+    "orphan_audit": "孤儿=同一 results/<task>/ 目录下 prediction_call.aN.json 无对应 prediction_response.aN.json(或反向);核查键:文件名 attempt 序号 aN 与 payload.attempt",
+    "outcomes": {
+      "abstained": 28,
+      "rejected": 23
+    },
+    "total_failed": 4,
+    "total_issued": 55,
+    "total_orphans": 0,
+    "total_provider_ok": 51
+  },
+  "decision_path_audit": {
+    "disagreement_qids": [],
+    "n_mode_source_disagreements": 0,
+    "note": "分组按持久 decision_log(prediction_mode)+ prediction payload 交叉核对;不以预测 SMILES 倒推模式"
+  },
+  "hit5_audit": {
+    "expected_agent_only": 19,
+    "expected_engine_only": 82,
+    "label_vocabulary": [
+      "候选未检出",
+      "候选检出但未报告",
+      "模型选错",
+      "类比弃答",
+      "编辑拒绝",
+      "候选虽报告但身份不匹配",
+      "证据不足以判断"
+    ],
+    "note": "主因一题一个,规则确定性且事实列可回查;不确定时用'证据不足以判断'并保留 uncertainty",
+    "paired_hit5_counts": {
+      "agent_only": 19,
+      "both": 111,
+      "engine_only": 82,
+      "neither": 86
+    }
+  },
+  "inputs": {
+    "asset_library": "assets/v3_reactions/library/library_full.jsonl",
+    "gold": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/ec298_gold_readonly/questions.jsonl",
+    "input_manifest": "reports/ec298/phase_a_v2/input_manifest.json",
+    "n_manifest_files": 4663,
+    "run_dir": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/dependingv43_dev/runs/ec298_v43r1",
+    "v1_scoring": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/dependingv43_dev/runs/ec298_v43r1/scoring/per_question_scoring.json",
+    "v41_baseline": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/dependingv4_v41/runs/exam298_agent/per_question_scoring.jsonl"
+  },
+  "llm_call_audit": {
+    "caliber_note": "issued=prediction_call.*.json(status=issued);提供方口径=对应 prediction_response 的 transport (ok=200 计成功,其余计失败);本次两口径总数一致;调用分布按 qid 统计,不以 191/298 平均替代",
+    "issued_histogram": {
+      "0": 112,
+      "1": 182,
+      "2": 3,
+      "3": 1
+    },
+    "total_failed": 5,
+    "total_issued": 191,
+    "total_orphans": 0,
+    "total_provider_ok": 186,
+    "touch_cap_note": "触顶=issued 达单任务尝试上限 3(封存 task budget.llm_remaining 初始为 3;无 llm_remaining 归零的题;budget_exhausted 唯一一题耗尽的是 worker 预算,3 次调用均有响应)",
+    "touch_cap_qids": [
+      "RXNG_eef21424b5618ccc4baa3abeb2758eb22cee36c04a8d4d9faee303885d60c9f9"
+    ]
+  },
+  "ok": true,
+  "v41_baseline": {
+    "n_questions": 298,
+    "n_rank_changed": 24,
+    "note": "v41 为历史引擎逐题 baseline_rank,封存判分文件仅记录 ≤5 的首命中(@1/@3/@5 由该文件核验;@10=208 引用历史 v4.1 报告/R2,封存件无法离线复算 6–10 位);差异计数按 R2 同法:v2 首命中 rank(1–10)对 v41 baseline_rank(≤5);两引擎汇总接近不宣称等价;v41 agent_rank 列不与本表比较",
+    "v2_engine_hit@1/3/5/10": [
+      118,
+      174,
+      193,
+      209
+    ],
+    "v41_engine_hit@1/3/5/10": [
+      118,
+      172,
+      190,
+      190
+    ]
+  }
+}
