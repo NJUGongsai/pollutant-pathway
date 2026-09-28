@@ -33,7 +33,7 @@ from rdkit import Chem, RDLogger
 
 RDLogger.DisableLog("rdApp.*")
 
-APPLICABILITY_VERSION = "v43-applicability-2"
+APPLICABILITY_VERSION = "v43-applicability-3"
 # v2(Phase D D1):reactant_similar 检索通道进入评估序(resolved 卡 →
 # 相似通道 → 其余卡);未评估供体标 budget_not_assessed;新增相似通道
 # 参数与 displaced 留痕。变更拒绝旧 run resume。
@@ -555,6 +555,12 @@ def assess_donor(donor_ref: dict, substrate_smiles: str) -> dict:
         "asset_sha256": donor_ref.get("asset_sha256", ""),
         "line_no": donor_ref.get("line_no"),
         "mapping_quality": donor_ref.get("mapping_quality", ""),
+        # R1 修复(v43-applicability-3):供体映射模板随评估结果透传 ——
+        # 相似通道等资格块自有供体不在检索产物 evidences 中,prediction
+        # 任务组装需要从 selected 直接取到完整 donor 引用(pb_0117 事故:
+        # selected 缺映射 → 任务组装失败)
+        "mapped_lhs": donor_ref.get("mapped_lhs", ""),
+        "mapped_rhs": donor_ref.get("mapped_rhs", ""),
         # Phase D D1:找回通道与相似度留痕沿评估结果透传(审计链:
         # 答卷 → 资格块 → 供体 ref → 通道/分数/版本)
         "find_channels": list(donor_ref.get("find_channels") or []),
@@ -774,6 +780,23 @@ def evaluate_card(card: dict, substrate_smiles: str,
             "alignment": chosen["selected_result"],
             "transform": chosen["transform"],
             "n_supporting_donors": len(applicable),
+            # R1 修复:所选供体的完整引用(映射模板随行)。相似通道的
+            # 载体卡 evidence_id 不在检索 evidences 中,prediction 任务
+            # 组装据此在任务内合成载体,不再依赖检索产物携带该卡
+            "donor_ref": {
+                "record_id": chosen["record_id"],
+                "donor_index": chosen["donor_index"],
+                "asset_file": chosen["asset_file"],
+                "asset_sha256": chosen["asset_sha256"],
+                "line_no": chosen["line_no"],
+                "mapping_quality": chosen["mapping_quality"],
+                "mapped_lhs": chosen.get("mapped_lhs", ""),
+                "mapped_rhs": chosen.get("mapped_rhs", ""),
+                "find_channels": list(chosen.get("find_channels") or []),
+                "similarity": chosen.get("similarity"),
+                "similarity_version": chosen.get("similarity_version", ""),
+                "similarity_rank": chosen.get("similarity_rank"),
+            },
         }
         return entry
     if ambiguous:

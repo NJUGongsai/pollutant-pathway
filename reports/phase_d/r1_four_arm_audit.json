@@ -1,0 +1,1008 @@
+{
+  "phase_d_C0": {
+    "batch_status": "completed",
+    "n_routes": 20,
+    "usage": {
+      "n_calls_issued": 28,
+      "n_responses": 28,
+      "n_usage_records": 21,
+      "n_usage_missing": 7,
+      "n_orphaned": 0,
+      "n_transport_failed": 7
+    },
+    "cost_fields": {
+      "cost_basis": "known-usage portion priced at help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu @ 2026-09-25; 7 attempt(s) without usage (timeout/transport/orphan) remain unknown",
+      "cost_estimate_cny": "unknown",
+      "cost_estimate_known_usage_cny": 0.5211
+    },
+    "n_failed_routes": 11,
+    "n_export_not_ok": 0,
+    "answer_kind_counts": {
+      "empty": 8,
+      "full": 6,
+      "partial": 6
+    },
+    "stop_reason_counts": {
+      "FAILED:ArtifactIntegrityError:产物完整性校验失败:/usrdat": 11,
+      "completed": 6,
+      "awaiting_prediction": 3
+    },
+    "rows": [
+      {
+        "route_id": "pb_0002",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0002/results/T_91a947b553461b494420/decision.json 的 payload 与记录哈希不符(stored=37ed8c50df37, actual=b044f401bb90);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0002/results/T_91a947b553461b494420/decision.json 的 payload 与记录哈希不符(stored=37ed8c50df37, actual=b044f401bb90);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3a1584491fb21d30c05c1eca0a501f4dfcb9d42a77fcd5af380619431c59dba9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0065",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "4d8bdcea9f9e2f4eded5f7108e772f4e61aea9cfd43acea49f9e6d2712864edd",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0074",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "70902f1ec062d69756559e13e645da5d4749238dbeabbc76a2984e49178ffa73",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0117",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "8ff3438ad91e1abafbe1dd4c594138b435f5225075da8e9d36e9bef9e4c7602a",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0130",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0130/results/T_12968f1e44623455720d/decision.json 的 payload 与记录哈希不符(stored=39056a3baef2, actual=708039c7bd32);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0130/results/T_12968f1e44623455720d/decision.json 的 payload 与记录哈希不符(stored=39056a3baef2, actual=708039c7bd32);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "1b06890156ed902a04b20574131e87a1252ca901a5ebde76bb41e8f038b00839",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0201",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "a530f20d8139c3b300cddb9f140b8b91f7927301e891bcadee699bba53deec8b",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0221",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0221/results/T_cff40d4413d9e8a937bb/decision.json 的 payload 与记录哈希不符(stored=973b7940926f, actual=a03f4a69044b);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0221/results/T_cff40d4413d9e8a937bb/decision.json 的 payload 与记录哈希不符(stored=973b7940926f, actual=a03f4a69044b);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "605fbd01330924816b0bde9472a083f4a96b23c58ad7dee70f1f67faa387a331",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0241",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0241/results/T_7a5277407195ea71158c/decision.json 的 payload 与记录哈希不符(stored=61aebe703e97, actual=4b99ef2ce6a1);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0241/results/T_7a5277407195ea71158c/decision.json 的 payload 与记录哈希不符(stored=61aebe703e97, actual=4b99ef2ce6a1);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3474c1c47f0d7cd6bc2afd0aaac4475984c242983795eecc7702aa9bebaf045a",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0253",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0253/results/T_ff22da0b2b3bd214b35a/decision.json 的 payload 与记录哈希不符(stored=31a9b6fffb3b, actual=b28c4bb820d2);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0253/results/T_ff22da0b2b3bd214b35a/decision.json 的 payload 与记录哈希不符(stored=31a9b6fffb3b, actual=b28c4bb820d2);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "11b9b8e431280147bee122fd8fe55902f7cb11f073df62070e76ea3eeb377106",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0276",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0276/results/T_9ccd64c0fcb708288966/decision.json 的 payload 与记录哈希不符(stored=78736a353521, actual=b6f249d4b0c7);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0276/results/T_9ccd64c0fcb708288966/decision.json 的 payload 与记录哈希不符(stored=78736a353521, actual=b6f249d4b0c7);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "80d366a173bcdbfdc8f065d66e1cda913813e650694294a9e13821b4858468f9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0313",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0313/results/T_e88707c85d261632fd82/decision.json 的 payload 与记录哈希不符(stored=15dca1dc745b, actual=ede0bbef3057);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0313/results/T_e88707c85d261632fd82/decision.json 的 payload 与记录哈希不符(stored=15dca1dc745b, actual=ede0bbef3057);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "03ed32ec06168216ea8e3ab866f2bca2d3367cae56f2f542a4ac0841c728fa3d",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0316",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "26ba1459bf6d458ba8857745546dbb8031323cf2b5b0e924a17328b9fd126923",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0324",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "55fca21f3544bcec37887a09d6f056bb0d0fea294cbe976e17ca823e3339290c",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0349",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "8511b5839bb406a2801463596f944e2c72ff63d4fdf50bf942343e5e6415b3c9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0370",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0370/results/T_9a9226bb76ee08c732f6/decision.json 的 payload 与记录哈希不符(stored=c758cfd97fa1, actual=62cb584059da);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0370/results/T_9a9226bb76ee08c732f6/decision.json 的 payload 与记录哈希不符(stored=c758cfd97fa1, actual=62cb584059da);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "0f62a403213c8503e4b5c1677e7c406112c438ab8f5a3108716b8220d093a5df",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0401",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "ebcb36127ec592444ae6fad1c5a5450eb4e38177fae93add92cc68325360e8ea",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0410",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0410/results/T_ea35db6a82bdf07dc65f/decision.json 的 payload 与记录哈希不符(stored=0c034aa5821a, actual=13b260286a72);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0410/results/T_ea35db6a82bdf07dc65f/decision.json 的 payload 与记录哈希不符(stored=0c034aa5821a, actual=13b260286a72);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "af84f9e16dfe1443821eea161cebbd39730ce1cc4b1076ba787e80764a117446",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0447",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0447/results/T_30b78a12d9d1174dce69/decision.json 的 payload 与记录哈希不符(stored=d6ca99b6e1de, actual=00ebbcbe08dc);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0447/results/T_30b78a12d9d1174dce69/decision.json 的 payload 与记录哈希不符(stored=d6ca99b6e1de, actual=00ebbcbe08dc);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3781e849768051245b62036276ff72cb413df5fd8692682ab6a73d40e94ff162",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0459",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "a67b0118c91a50eb90cd92f329ee81af1f8a4a9ef8b4611543266f2204abfbde",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0471",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0471/results/T_908e7ef1b7d3fe6893ad/decision.json 的 payload 与记录哈希不符(stored=69ce0dfe6b4c, actual=6ee383bd3d4f);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_C0/runs/dev_89bdbcf4_pb_0471/results/T_908e7ef1b7d3fe6893ad/decision.json 的 payload 与记录哈希不符(stored=69ce0dfe6b4c, actual=6ee383bd3d4f);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "b087af468b31e7b0755a1852bd00693838eb574572ec89e3e66133d8f7bc1926",
+        "predictions_file_sha256": null
+      }
+    ]
+  },
+  "phase_d_D3": {
+    "batch_status": "completed",
+    "n_routes": 20,
+    "usage": {
+      "n_calls_issued": 45,
+      "n_responses": 45,
+      "n_usage_records": 29,
+      "n_usage_missing": 16,
+      "n_orphaned": 0,
+      "n_transport_failed": 16
+    },
+    "cost_fields": {
+      "cost_basis": "known-usage portion priced at help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu @ 2026-09-25; 16 attempt(s) without usage (timeout/transport/orphan) remain unknown",
+      "cost_estimate_cny": "unknown",
+      "cost_estimate_known_usage_cny": 0.8259
+    },
+    "n_failed_routes": 12,
+    "n_export_not_ok": 0,
+    "answer_kind_counts": {
+      "empty": 9,
+      "partial": 7,
+      "full": 4
+    },
+    "stop_reason_counts": {
+      "FAILED:ArtifactIntegrityError:产物完整性校验失败:/usrdat": 11,
+      "awaiting_prediction": 4,
+      "FAILED:TypeError:'NoneType' object is not subsc": 1,
+      "completed": 4
+    },
+    "rows": [
+      {
+        "route_id": "pb_0002",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0002/results/T_b253ab5f859c0f2927a7/decision.json 的 payload 与记录哈希不符(stored=15d9f3ee601e, actual=a9c207c8df32);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0002/results/T_b253ab5f859c0f2927a7/decision.json 的 payload 与记录哈希不符(stored=15d9f3ee601e, actual=a9c207c8df32);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3a1584491fb21d30c05c1eca0a501f4dfcb9d42a77fcd5af380619431c59dba9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0065",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "a5945a1c9ea77a49232446c161874822a6f3efc6770f110e7a7299286f877f84",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0074",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "70902f1ec062d69756559e13e645da5d4749238dbeabbc76a2984e49178ffa73",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0117",
+        "failed": "TypeError:'NoneType' object is not subscriptable",
+        "failed_detail_kind": "TypeError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "TypeError:'NoneType' object is not subscriptable",
+        "predictions_sha256_meta": "6d5105f01e8e34902f5865711037ff378868b1acc14f9613d4413cf6c6a6c76d",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0130",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0130/results/T_d0f8299ddf004399b907/decision.json 的 payload 与记录哈希不符(stored=ecfe08d19107, actual=6641a4552e25);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0130/results/T_d0f8299ddf004399b907/decision.json 的 payload 与记录哈希不符(stored=ecfe08d19107, actual=6641a4552e25);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "1b06890156ed902a04b20574131e87a1252ca901a5ebde76bb41e8f038b00839",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0201",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "278c7a8c538ad28a0096e1056da7fa35d30f6f9111fa5e94d8f67c1fd3d8c303",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0221",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0221/results/T_549a83d69500847bbc85/decision.json 的 payload 与记录哈希不符(stored=bddc2bac95af, actual=785f05d50c82);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0221/results/T_549a83d69500847bbc85/decision.json 的 payload 与记录哈希不符(stored=bddc2bac95af, actual=785f05d50c82);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "605fbd01330924816b0bde9472a083f4a96b23c58ad7dee70f1f67faa387a331",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0241",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0241/results/T_567dd25380fda0191a82/decision.json 的 payload 与记录哈希不符(stored=cd4268965a8e, actual=c425f4b806ff);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0241/results/T_567dd25380fda0191a82/decision.json 的 payload 与记录哈希不符(stored=cd4268965a8e, actual=c425f4b806ff);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3474c1c47f0d7cd6bc2afd0aaac4475984c242983795eecc7702aa9bebaf045a",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0253",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0253/results/T_6c99de4bf62953fe9424/decision.json 的 payload 与记录哈希不符(stored=9d9383f061bb, actual=8c937ade51b0);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0253/results/T_6c99de4bf62953fe9424/decision.json 的 payload 与记录哈希不符(stored=9d9383f061bb, actual=8c937ade51b0);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "11b9b8e431280147bee122fd8fe55902f7cb11f073df62070e76ea3eeb377106",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0276",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0276/results/T_b2fd2703cb62b8a96e71/decision.json 的 payload 与记录哈希不符(stored=845d38b4fdce, actual=cf7ee496fb75);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0276/results/T_b2fd2703cb62b8a96e71/decision.json 的 payload 与记录哈希不符(stored=845d38b4fdce, actual=cf7ee496fb75);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "80d366a173bcdbfdc8f065d66e1cda913813e650694294a9e13821b4858468f9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0313",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0313/results/T_68c186d17fe53239ff58/decision.json 的 payload 与记录哈希不符(stored=92e28c463d29, actual=b7832214aa51);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0313/results/T_68c186d17fe53239ff58/decision.json 的 payload 与记录哈希不符(stored=92e28c463d29, actual=b7832214aa51);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "03ed32ec06168216ea8e3ab866f2bca2d3367cae56f2f542a4ac0841c728fa3d",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0316",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "26ba1459bf6d458ba8857745546dbb8031323cf2b5b0e924a17328b9fd126923",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0324",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "55fca21f3544bcec37887a09d6f056bb0d0fea294cbe976e17ca823e3339290c",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0349",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "8511b5839bb406a2801463596f944e2c72ff63d4fdf50bf942343e5e6415b3c9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0370",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0370/results/T_236863a494f369ef7c9e/decision.json 的 payload 与记录哈希不符(stored=9c60f62a5eac, actual=58c562e4d89b);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0370/results/T_236863a494f369ef7c9e/decision.json 的 payload 与记录哈希不符(stored=9c60f62a5eac, actual=58c562e4d89b);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "0f62a403213c8503e4b5c1677e7c406112c438ab8f5a3108716b8220d093a5df",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0401",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "ebcb36127ec592444ae6fad1c5a5450eb4e38177fae93add92cc68325360e8ea",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0410",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0410/results/T_d808196122f5e207bb5a/decision.json 的 payload 与记录哈希不符(stored=c7989c2a6fa0, actual=50cdd0fe0ca1);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0410/results/T_d808196122f5e207bb5a/decision.json 的 payload 与记录哈希不符(stored=c7989c2a6fa0, actual=50cdd0fe0ca1);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "af84f9e16dfe1443821eea161cebbd39730ce1cc4b1076ba787e80764a117446",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0447",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0447/results/T_f61b9631e6b7db893e3e/decision.json 的 payload 与记录哈希不符(stored=0b9f194104f0, actual=7ae6f7d42822);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0447/results/T_f61b9631e6b7db893e3e/decision.json 的 payload 与记录哈希不符(stored=0b9f194104f0, actual=7ae6f7d42822);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3781e849768051245b62036276ff72cb413df5fd8692682ab6a73d40e94ff162",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0459",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0459/results/T_652a8cd841f8a6e9ef61/decision.json 的 payload 与记录哈希不符(stored=ff4a5ecd239a, actual=96144c3ab83d);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D3/runs/dev_2f824816_pb_0459/results/T_652a8cd841f8a6e9ef61/decision.json 的 payload 与记录哈希不符(stored=ff4a5ecd239a, actual=96144c3ab83d);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "5b052aede44ef4786153df6f8f4b5417c7dd3e3c5538b09160dda81e4243ea45",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0471",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": null,
+        "predictions_sha256_meta": "cd4d14e1e81285fdcbfbe8bb8c36383031a35ac89908ceefc468bb34adb3d756",
+        "predictions_file_sha256": null
+      }
+    ]
+  },
+  "phase_d_D5": {
+    "batch_status": "completed",
+    "n_routes": 20,
+    "usage": {
+      "n_calls_issued": 35,
+      "n_responses": 35,
+      "n_usage_records": 24,
+      "n_usage_missing": 11,
+      "n_orphaned": 0,
+      "n_transport_failed": 11
+    },
+    "cost_fields": {
+      "cost_basis": "known-usage portion priced at help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu @ 2026-09-25; 11 attempt(s) without usage (timeout/transport/orphan) remain unknown",
+      "cost_estimate_cny": "unknown",
+      "cost_estimate_known_usage_cny": 0.6447
+    },
+    "n_failed_routes": 12,
+    "n_export_not_ok": 0,
+    "answer_kind_counts": {
+      "empty": 9,
+      "partial": 8,
+      "full": 3
+    },
+    "stop_reason_counts": {
+      "FAILED:ArtifactIntegrityError:产物完整性校验失败:/usrdat": 12,
+      "awaiting_prediction": 5,
+      "completed": 3
+    },
+    "rows": [
+      {
+        "route_id": "pb_0002",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0002/results/T_d303a86e3f445730ffb3/decision.json 的 payload 与记录哈希不符(stored=15148ee83aaf, actual=be94a5d6e1e6);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0002/results/T_d303a86e3f445730ffb3/decision.json 的 payload 与记录哈希不符(stored=15148ee83aaf, actual=be94a5d6e1e6);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3a1584491fb21d30c05c1eca0a501f4dfcb9d42a77fcd5af380619431c59dba9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0065",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "c05d7f5f33e8336be3e0769ba13d1094abf917bb717bfdcc02ea992ba93a4522",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0074",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "70902f1ec062d69756559e13e645da5d4749238dbeabbc76a2984e49178ffa73",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0117",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "a974797c67ca75b0234b3d0f8422a0e1f6880f27a89a4689efc223128d1bcb0f",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0130",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0130/results/T_b1ac19fcb9e5fff09999/decision.json 的 payload 与记录哈希不符(stored=00be51deca4b, actual=3c24b93fa87d);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0130/results/T_b1ac19fcb9e5fff09999/decision.json 的 payload 与记录哈希不符(stored=00be51deca4b, actual=3c24b93fa87d);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "1b06890156ed902a04b20574131e87a1252ca901a5ebde76bb41e8f038b00839",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0201",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "a530f20d8139c3b300cddb9f140b8b91f7927301e891bcadee699bba53deec8b",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0221",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0221/results/T_8e09048563b420c4705b/decision.json 的 payload 与记录哈希不符(stored=12e3b2f67ce2, actual=ae45ddc1e283);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0221/results/T_8e09048563b420c4705b/decision.json 的 payload 与记录哈希不符(stored=12e3b2f67ce2, actual=ae45ddc1e283);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "605fbd01330924816b0bde9472a083f4a96b23c58ad7dee70f1f67faa387a331",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0241",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0241/results/T_12f127603080fb840a06/decision.json 的 payload 与记录哈希不符(stored=be7fea890960, actual=750d75f8613a);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0241/results/T_12f127603080fb840a06/decision.json 的 payload 与记录哈希不符(stored=be7fea890960, actual=750d75f8613a);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3474c1c47f0d7cd6bc2afd0aaac4475984c242983795eecc7702aa9bebaf045a",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0253",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0253/results/T_3f24fa731f9c1f81da2f/decision.json 的 payload 与记录哈希不符(stored=1a4b26d8191e, actual=88f8a333cd66);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0253/results/T_3f24fa731f9c1f81da2f/decision.json 的 payload 与记录哈希不符(stored=1a4b26d8191e, actual=88f8a333cd66);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "11b9b8e431280147bee122fd8fe55902f7cb11f073df62070e76ea3eeb377106",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0276",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0276/results/T_a1587b0f302d26bdc8b1/decision.json 的 payload 与记录哈希不符(stored=c68e80e98e80, actual=5c602609df6c);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0276/results/T_a1587b0f302d26bdc8b1/decision.json 的 payload 与记录哈希不符(stored=c68e80e98e80, actual=5c602609df6c);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "80d366a173bcdbfdc8f065d66e1cda913813e650694294a9e13821b4858468f9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0313",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0313/results/T_27d1c95d5d35ab010f53/decision.json 的 payload 与记录哈希不符(stored=ea1b79ca5615, actual=e5cbc7ccf446);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0313/results/T_27d1c95d5d35ab010f53/decision.json 的 payload 与记录哈希不符(stored=ea1b79ca5615, actual=e5cbc7ccf446);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "03ed32ec06168216ea8e3ab866f2bca2d3367cae56f2f542a4ac0841c728fa3d",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0316",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "26ba1459bf6d458ba8857745546dbb8031323cf2b5b0e924a17328b9fd126923",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0324",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0324/results/T_035890967c2c8a594663/decision.json 的 payload 与记录哈希不符(stored=73572fd062c9, actual=20e8425f42db);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0324/results/T_035890967c2c8a594663/decision.json 的 payload 与记录哈希不符(stored=73572fd062c9, actual=20e8425f42db);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "35d28c99357de9dc64380e8e75ebca2d3e5c58e99ad80815e266aadce7aecc68",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0349",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "8511b5839bb406a2801463596f944e2c72ff63d4fdf50bf942343e5e6415b3c9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0370",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0370/results/T_eb2e0a1b949a6796e059/decision.json 的 payload 与记录哈希不符(stored=e3001b5dbd6d, actual=89b723dd4e10);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0370/results/T_eb2e0a1b949a6796e059/decision.json 的 payload 与记录哈希不符(stored=e3001b5dbd6d, actual=89b723dd4e10);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "0f62a403213c8503e4b5c1677e7c406112c438ab8f5a3108716b8220d093a5df",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0401",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "ebcb36127ec592444ae6fad1c5a5450eb4e38177fae93add92cc68325360e8ea",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0410",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0410/results/T_a318b9898fa4a3e6e69c/decision.json 的 payload 与记录哈希不符(stored=fac07fda7874, actual=b1b24cadd7c3);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0410/results/T_a318b9898fa4a3e6e69c/decision.json 的 payload 与记录哈希不符(stored=fac07fda7874, actual=b1b24cadd7c3);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "af84f9e16dfe1443821eea161cebbd39730ce1cc4b1076ba787e80764a117446",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0447",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0447/results/T_6533eb9fdb65e631b5e5/decision.json 的 payload 与记录哈希不符(stored=c8d1016c6096, actual=d392e16727e6);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0447/results/T_6533eb9fdb65e631b5e5/decision.json 的 payload 与记录哈希不符(stored=c8d1016c6096, actual=d392e16727e6);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3781e849768051245b62036276ff72cb413df5fd8692682ab6a73d40e94ff162",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0459",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0459/results/T_7eaf7222d7161632a5a9/decision.json 的 payload 与记录哈希不符(stored=4690da20561c, actual=3effd893b537);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D5/runs/dev_9ace5da3_pb_0459/results/T_7eaf7222d7161632a5a9/decision.json 的 payload 与记录哈希不符(stored=4690da20561c, actual=3effd893b537);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "5b052aede44ef4786153df6f8f4b5417c7dd3e3c5538b09160dda81e4243ea45",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0471",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": null,
+        "predictions_sha256_meta": "cd4d14e1e81285fdcbfbe8bb8c36383031a35ac89908ceefc468bb34adb3d756",
+        "predictions_file_sha256": null
+      }
+    ]
+  },
+  "phase_d_D10": {
+    "batch_status": "completed",
+    "n_routes": 20,
+    "usage": {
+      "n_calls_issued": 43,
+      "n_responses": 43,
+      "n_usage_records": 27,
+      "n_usage_missing": 16,
+      "n_orphaned": 0,
+      "n_transport_failed": 16
+    },
+    "cost_fields": {
+      "cost_basis": "known-usage portion priced at help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu @ 2026-09-25; 16 attempt(s) without usage (timeout/transport/orphan) remain unknown",
+      "cost_estimate_cny": "unknown",
+      "cost_estimate_known_usage_cny": 0.7597
+    },
+    "n_failed_routes": 17,
+    "n_export_not_ok": 0,
+    "answer_kind_counts": {
+      "empty": 11,
+      "partial": 7,
+      "full": 2
+    },
+    "stop_reason_counts": {
+      "FAILED:ArtifactIntegrityError:产物完整性校验失败:/usrdat": 16,
+      "FAILED:TypeError:'NoneType' object is not subsc": 1,
+      "awaiting_prediction": 1,
+      "completed": 2
+    },
+    "rows": [
+      {
+        "route_id": "pb_0002",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0002/results/T_cb8e6ff74d957171179d/decision.json 的 payload 与记录哈希不符(stored=484086090278, actual=c452f3f2aebb);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0002/results/T_cb8e6ff74d957171179d/decision.json 的 payload 与记录哈希不符(stored=484086090278, actual=c452f3f2aebb);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3a1584491fb21d30c05c1eca0a501f4dfcb9d42a77fcd5af380619431c59dba9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0065",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0065/results/T_6d7bffbb7c7a776a62ee/decision.json 的 payload 与记录哈希不符(stored=95836ef971cd, actual=e5580ce1c54b);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0065/results/T_6d7bffbb7c7a776a62ee/decision.json 的 payload 与记录哈希不符(stored=95836ef971cd, actual=e5580ce1c54b);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "1c4e39bbfa5d7854a2b5caadaac0b6d810c8d90c73140491bf69de1acd13c086",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0074",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0074/results/T_4d92d5e5d1d96a8f3697/decision.json 的 payload 与记录哈希不符(stored=84965b7683e5, actual=ecacdb5a48be);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0074/results/T_4d92d5e5d1d96a8f3697/decision.json 的 payload 与记录哈希不符(stored=84965b7683e5, actual=ecacdb5a48be);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "5d221899b07eb4083164e31315117b549e65cfc269e0118805a54529dbfe2d35",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0117",
+        "failed": "TypeError:'NoneType' object is not subscriptable",
+        "failed_detail_kind": "TypeError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "TypeError:'NoneType' object is not subscriptable",
+        "predictions_sha256_meta": "668a0fd1b921805f4716fb9ccfec093b64df27d7671f99ea45ab84fbe5871433",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0130",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0130/results/T_38d8e5b031b527a41a71/decision.json 的 payload 与记录哈希不符(stored=8f2d8fa35c19, actual=9d72173bc7cd);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0130/results/T_38d8e5b031b527a41a71/decision.json 的 payload 与记录哈希不符(stored=8f2d8fa35c19, actual=9d72173bc7cd);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "1b06890156ed902a04b20574131e87a1252ca901a5ebde76bb41e8f038b00839",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0201",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "awaiting_prediction",
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": null,
+        "predictions_sha256_meta": "a530f20d8139c3b300cddb9f140b8b91f7927301e891bcadee699bba53deec8b",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0221",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0221/results/T_45445639e9e4949afe2f/decision.json 的 payload 与记录哈希不符(stored=be33800c0ad0, actual=8eb154fbd03d);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0221/results/T_45445639e9e4949afe2f/decision.json 的 payload 与记录哈希不符(stored=be33800c0ad0, actual=8eb154fbd03d);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "605fbd01330924816b0bde9472a083f4a96b23c58ad7dee70f1f67faa387a331",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0241",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0241/results/T_64769c86789b136feb6e/decision.json 的 payload 与记录哈希不符(stored=5453727f9967, actual=6d869d90e0e2);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0241/results/T_64769c86789b136feb6e/decision.json 的 payload 与记录哈希不符(stored=5453727f9967, actual=6d869d90e0e2);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3474c1c47f0d7cd6bc2afd0aaac4475984c242983795eecc7702aa9bebaf045a",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0253",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0253/results/T_d36fdcb898fda57606ed/decision.json 的 payload 与记录哈希不符(stored=b11801604241, actual=ce3a035fa8ca);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0253/results/T_d36fdcb898fda57606ed/decision.json 的 payload 与记录哈希不符(stored=b11801604241, actual=ce3a035fa8ca);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "11b9b8e431280147bee122fd8fe55902f7cb11f073df62070e76ea3eeb377106",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0276",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0276/results/T_6c9c2b9a35510b8c7188/decision.json 的 payload 与记录哈希不符(stored=36edb79639c8, actual=8edc6c1d6598);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0276/results/T_6c9c2b9a35510b8c7188/decision.json 的 payload 与记录哈希不符(stored=36edb79639c8, actual=8edc6c1d6598);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "80d366a173bcdbfdc8f065d66e1cda913813e650694294a9e13821b4858468f9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0313",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0313/results/T_8f116fcf28d6b820d6ae/decision.json 的 payload 与记录哈希不符(stored=7b26525722e7, actual=6c67c012f3de);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0313/results/T_8f116fcf28d6b820d6ae/decision.json 的 payload 与记录哈希不符(stored=7b26525722e7, actual=6c67c012f3de);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "03ed32ec06168216ea8e3ab866f2bca2d3367cae56f2f542a4ac0841c728fa3d",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0316",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0316/results/T_4eb2325a88d2801a21b4/decision.json 的 payload 与记录哈希不符(stored=df0aa7c4fce7, actual=a303678e9995);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0316/results/T_4eb2325a88d2801a21b4/decision.json 的 payload 与记录哈希不符(stored=df0aa7c4fce7, actual=a303678e9995);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "c9bca77ea256c6ded699614d1f4a9d2423ee8447715aeac82f43ec41c6aa31a4",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0324",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0324/results/T_2c161a284f4888d58834/decision.json 的 payload 与记录哈希不符(stored=48601c469d48, actual=fe73a52cab19);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0324/results/T_2c161a284f4888d58834/decision.json 的 payload 与记录哈希不符(stored=48601c469d48, actual=fe73a52cab19);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "95eaaad88e7c3768a459997d69dfa9987e5ed769f1e73f7e7bc1b75829995c28",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0349",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "8511b5839bb406a2801463596f944e2c72ff63d4fdf50bf942343e5e6415b3c9",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0370",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0370/results/T_8d1e0ece93406c0931f1/decision.json 的 payload 与记录哈希不符(stored=5ad7d836e7ac, actual=9ed5616a491c);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0370/results/T_8d1e0ece93406c0931f1/decision.json 的 payload 与记录哈希不符(stored=5ad7d836e7ac, actual=9ed5616a491c);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "0f62a403213c8503e4b5c1677e7c406112c438ab8f5a3108716b8220d093a5df",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0401",
+        "failed": null,
+        "failed_detail_kind": null,
+        "stop_reason": "completed",
+        "export_ok": true,
+        "answer_kind": "full",
+        "failure_reason": null,
+        "predictions_sha256_meta": "ebcb36127ec592444ae6fad1c5a5450eb4e38177fae93add92cc68325360e8ea",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0410",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0410/results/T_fb1791d76e4ec8aab598/decision.json 的 payload 与记录哈希不符(stored=85eae716ee37, actual=0af1c29c1ad5);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0410/results/T_fb1791d76e4ec8aab598/decision.json 的 payload 与记录哈希不符(stored=85eae716ee37, actual=0af1c29c1ad5);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "af84f9e16dfe1443821eea161cebbd39730ce1cc4b1076ba787e80764a117446",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0447",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0447/results/T_7627894c542e0194e71a/decision.json 的 payload 与记录哈希不符(stored=d90a28e18f96, actual=c0094d6e3feb);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "empty",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0447/results/T_7627894c542e0194e71a/decision.json 的 payload 与记录哈希不符(stored=d90a28e18f96, actual=c0094d6e3feb);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "3781e849768051245b62036276ff72cb413df5fd8692682ab6a73d40e94ff162",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0459",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0459/results/T_03027385279e574c3881/decision.json 的 payload 与记录哈希不符(stored=8f4abce53b38, actual=054646d2cd6b);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0459/results/T_03027385279e574c3881/decision.json 的 payload 与记录哈希不符(stored=8f4abce53b38, actual=054646d2cd6b);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "5b052aede44ef4786153df6f8f4b5417c7dd3e3c5538b09160dda81e4243ea45",
+        "predictions_file_sha256": null
+      },
+      {
+        "route_id": "pb_0471",
+        "failed": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0471/results/T_f227aa63c919b21c48cf/decision.json 的 payload 与记录哈希不符(stored=928f1d7d8d8d, actual=f2f4085a9226);产物可能被篡改或损坏",
+        "failed_detail_kind": "ArtifactIntegrityError",
+        "stop_reason": null,
+        "export_ok": true,
+        "answer_kind": "partial",
+        "failure_reason": "ArtifactIntegrityError:产物完整性校验失败:/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/phase_d_D10/runs/dev_2fab5f1a_pb_0471/results/T_f227aa63c919b21c48cf/decision.json 的 payload 与记录哈希不符(stored=928f1d7d8d8d, actual=f2f4085a9226);产物可能被篡改或损坏",
+        "predictions_sha256_meta": "04fdcc7c0deb132b0f6bb7016cd643ed402b8412ff87189ca114d0440abad809",
+        "predictions_file_sha256": null
+      }
+    ]
+  }
+}

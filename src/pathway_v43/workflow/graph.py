@@ -5,9 +5,11 @@
     START → normalize_input → select_frontier → retrieve_reactions
           → classify_evidence
               ├─ 唯一可接受已记录反应 → validate_products ─┐
-              ├─ 需要预测且有模型 → prepare_prediction → call_model
-              │     ├─ 选中既有卡/提案卡 → apply_prediction → validate_products ─┐
-              │     └─ held/弃权/失败 → select_frontier(显式停留,原因入账)
+              ├─ 需要预测且有模型 → prepare_prediction
+              │     ├─ 任务挂起 → call_model
+              │     │     ├─ 选中既有卡/提案卡 → apply_prediction → validate_products ┐
+              │     │     └─ held/弃权/失败 → select_frontier(显式停留,原因入账)
+              │     └─ prepare 失败/停留 → select_frontier(R1:不再误入 call_model)
               ├─ 需要预测但无模型 → mark_awaiting_prediction(明确停待预测)
               └─ 无有效证据 → mark_dead_end
           → adjudicate_candidates(Phase B 候选报告裁决:草稿固定)
@@ -67,7 +69,10 @@ def build_graph(services: Services,
          "mark_awaiting_prediction": "mark_awaiting_prediction",
          "mark_dead_end": "mark_dead_end"},
     )
-    g.add_edge("prepare_prediction", "call_model")
+    g.add_conditional_edges(
+        "prepare_prediction", routing.route_after_prepare,
+        {"call_model": "call_model", "select_frontier": "select_frontier"},
+    )
     g.add_conditional_edges(
         "call_model", routing.route_after_call_model,
         {"apply_prediction": "apply_prediction",

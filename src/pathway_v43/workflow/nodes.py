@@ -112,7 +112,14 @@ def _maybe_crash(svc: Services, node_name: str) -> None:
 
 
 def _read_decision(svc: Services, decision_task_id: str) -> dict:
-    return svc.artifacts.read(decision_task_id, "decision")["payload"]
+    # R1 防御:产物缺失/损坏时结构化报错,不以 None 下标崩溃
+    env = svc.artifacts.read(decision_task_id, "decision")
+    if env is None:
+        raise NodeStateError(
+            "decision 产物缺失(读取方无法重放裁决)",
+            {"task_id": decision_task_id,
+             "run_id": svc.store.current_run() or ""})
+    return env["payload"]
 
 
 def _novel_dead_route(svc: Services, state: WorkflowState, mode: str) -> bool:
@@ -444,11 +451,25 @@ def call_model(svc: Services) -> Callable[[WorkflowState], dict]:
     def node(state: WorkflowState) -> dict:
         task_id = state["prediction_task_id"]
         mode = state["prediction_mode"]
+        # R1 防御(pb_0117 事故):进节点而无挂起任务 = 图路由/状态损坏,
+        # 结构化报错(带身份),绝不以 None 下标崩溃或补空值掩盖
+        if not task_id or not mode:
+            raise NodeStateError(
+                "call_model 进入时无挂起预测任务(路由或状态损坏)",
+                {"run_id": state.get("run_id", ""),
+                 "prediction_task_id": task_id, "prediction_mode": mode,
+                 "phase": state.get("phase", ""),
+                 "prediction_failed": bool(state.get("prediction_failed"))})
         done = svc.artifacts.read(task_id, "prediction")
         if done is not None:
             return {"phase": "apply_prediction",
                     "prediction_response_ref": _resp_ref(done["payload"])}
         task_env = svc.artifacts.read(task_id, "prediction_task")
+        if task_env is None:
+            raise NodeStateError(
+                "prediction_task 产物缺失(call_model 无法重放)",
+                {"run_id": state.get("run_id", ""), "task_id": task_id,
+                 "mode": mode})
         task = task_env["payload"]
         candidate_ids = [c["evidence_id"] for c in task.get("candidates", [])]
         policy = svc.prediction_policy

@@ -16,6 +16,19 @@ def route_after_classify(state: WorkflowState) -> str:
     return "mark_dead_end"
 
 
+def route_after_prepare(state: WorkflowState) -> str:
+    """prepare 成功(挂起任务)→ 调用模型;prepare 显式停留 → 主循环。
+
+    R1 修复(pb_0117 事故):prepare 失败(资格供体缺失/表示有损等)经
+    ``_hold_or_dead`` 只改 state 字段,旧固定边仍把控制流送进 call_model,
+    后者以空/陈旧 task_id 读产物触发裸 ``TypeError`` 使 worker 崩溃。
+    成功的显式信号 = phase=="call_model" 且挂起了任务 id。
+    """
+    if state.get("phase") == "call_model" and state.get("prediction_task_id"):
+        return "call_model"
+    return "select_frontier"
+
+
 def route_after_call_model(state: WorkflowState) -> str:
     """预测结果可入校验流(选中/提案)→ apply;显式停留 → 主循环。"""
     if state.get("phase") == "apply_prediction":

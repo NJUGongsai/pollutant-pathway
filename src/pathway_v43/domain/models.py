@@ -48,7 +48,7 @@ CONDITION_CONFLICT = "conflict"
 
 ATOM_MAPPING_UNAVAILABLE = "unavailable"
 
-STRATEGY_VERSION = "v43-policy-4"  # 选择策略版本;策略变更须升版本并拒绝旧 run resume(v4=Phase D:reactant_similar 检索通道)
+STRATEGY_VERSION = "v43-policy-5"  # 选择策略版本;策略变更须升版本并拒绝旧 run resume(v5=R1 修复:prepare 失败不再误入 call_model、相似通道 selected 携带 donor_ref;v4=Phase D:reactant_similar 检索通道)
 
 
 def now_iso() -> str:

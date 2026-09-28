@@ -195,9 +195,20 @@ def build_prediction_task(
         sel_eid = analogy_eligibility["selected"]["evidence_id"]
         candidates = [e for e in evidences if e["evidence_id"] == sel_eid]
         if not candidates:
-            raise PredictionTaskError(
-                "selected_donor_card_missing",
-                f"资格块选定的证据卡不在检索产物中:{sel_eid}")
+            # R1 修复(v43-applicability-3):相似通道等资格块自有供体的
+            # 载体卡不在检索 evidences 中;selected 自带完整 donor_ref
+            # (含映射模板)时在任务内合成载体卡,不回写检索产物。
+            # 旧形状(无 donor_ref)仍显式失败 —— 不静默换供体。
+            sel_ref = (analogy_eligibility["selected"].get("donor_ref")
+                       or {})
+            if sel_ref.get("mapped_lhs") and sel_ref.get("mapped_rhs"):
+                candidates = [{"evidence_id": sel_eid,
+                               "donor_refs": [dict(sel_ref)]}]
+            else:
+                raise PredictionTaskError(
+                    "selected_donor_card_missing",
+                    f"资格块选定的证据卡不在检索产物中且 selected 不含"
+                    f"完整供体引用:{sel_eid}")
     else:
         candidates = []
 

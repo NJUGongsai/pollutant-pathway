@@ -40,12 +40,117 @@ import shutil
 import subprocess
 import sys
 import time
+import traceback
 from pathlib import Path
 
 from .adapters.rate_gate import FileRateGate
 from .domain.models import canonical_json
 
 BATCH_SCHEMA_VERSION = "v43-batch-1"
+
+ROUTE_STATE_SCHEMA = "v43-route-state-1"
+
+# run 级合法终态(policy.stop_reason 全集):awaiting_prediction /
+# budget_exhausted 是**合法停留**(可产生空答卷),与异常失败不同。
+LEGAL_RUN_TERMINALS = frozenset({
+    "completed", "already_completed", "awaiting_prediction",
+    "budget_exhausted", "invalid_input",
+})
+
+
+# ------------------------------------------------ 路线终态分类(R1-c)
+
+
+def classify_route_state(status: dict | None) -> dict:
+    """单路线终态分类(机器可读,§4.1 五类;判定只认 worker 状态文件
+    的持久事实,不信批次报告汇总字段)。
+
+    route_state:
+      - ``success_completed``:run 正常完成且导出成功;
+      - ``legal_stop``:合法停留(awaiting_prediction/budget_exhausted/
+        invalid_input)且导出成功 —— 空答卷也是合法答卷;
+      - ``failed``:worker 记录了异常失败(``failed`` 字段非空;
+        ArtifactIntegrityError/TypeError/worker_failed_no_terminal 等);
+      - ``export_failed``:run 未记失败但导出失败;
+      - ``missing``:无终态状态文件或未终止(无 finished_at/stop_reason)。
+
+    ``failed`` 即使 ``export_ok=true``(部分答卷已导出)也**不**是成功
+    完成 —— 部分答卷只可诊断,不可计入发布型配对判定。
+    """
+    base = {"schema_version": ROUTE_STATE_SCHEMA}
+    if not status or not status.get("finished_at"):
+        return {**base, "route_state": "missing",
+                "failure_class": None, "stop_reason": None,
+                "export_ok": None, "failed": None}
+    failed = status.get("failed")
+    if failed:
+        return {**base, "route_state": "failed",
+                "failure_class": str(failed).split(":", 1)[0],
+                "stop_reason": status.get("stop_reason", ""),
+                "export_ok": bool(status.get("export_ok")),
+                "failed": str(failed)[:300]}
+    if not status.get("export_ok"):
+        return {**base, "route_state": "export_failed",
+                "failure_class": "ExportFailure",
+                "stop_reason": status.get("stop_reason", ""),
+                "export_ok": False,
+                "failed": str(status.get("export_failed", ""))[:300]}
+    sr = status.get("stop_reason") or ""
+    if sr in ("completed", "already_completed"):
+        return {**base, "route_state": "success_completed",
+                "failure_class": None, "stop_reason": sr,
+                "export_ok": True, "failed": None}
+    if sr in LEGAL_RUN_TERMINALS:
+        return {**base, "route_state": "legal_stop",
+                "failure_class": None, "stop_reason": sr,
+                "export_ok": True, "failed": None}
+    return {**base, "route_state": "missing",
+            "failure_class": "NoTerminalStopReason",
+            "stop_reason": sr, "export_ok": True, "failed": None}
+
+
+def batch_terminal_summary(route_ids: list[str],
+                           terminal: dict[str, dict]) -> dict:
+    """批次终态汇总:``completed`` / ``incomplete`` / ``failed``。
+
+    - ``failed``:存在异常失败路线或导出失败路线(任一即阻断发布型
+      配对;r1 四臂 `status="completed"` 却有 52 条失败路线的事故
+      就是这个门要拦的形状);
+    - ``incomplete``:存在缺失/未终止路线(无异常失败);
+    - ``completed``:全部路线处于合法终态(成功完成或合法停留)。
+
+    ``n_expected``/``n_valid_terminal``/``n_success_completed``/
+    ``n_legal_stop``/``n_failed``/``n_export_failed``/``n_missing`` 与
+    失败路线清单一并给出,语义见 docs/EC298_PHASE_D_R1_REPAIR_REPORT.md。
+    """
+    states = {rid: classify_route_state(terminal.get(rid))
+              for rid in route_ids}
+    failed_ids = sorted(r for r, s in states.items()
+                        if s["route_state"] == "failed")
+    export_failed_ids = sorted(r for r, s in states.items()
+                               if s["route_state"] == "export_failed")
+    missing_ids = sorted(r for r, s in states.items()
+                         if s["route_state"] == "missing")
+    if failed_ids or export_failed_ids:
+        status = "failed"
+    elif missing_ids:
+        status = "incomplete"
+    else:
+        status = "completed"
+    counts = {k: sum(1 for s in states.values() if s["route_state"] == k)
+              for k in ("success_completed", "legal_stop", "failed",
+                        "export_failed", "missing")}
+    return {
+        "schema_version": ROUTE_STATE_SCHEMA,
+        "status": status,
+        "n_expected": len(route_ids),
+        "n_valid_terminal": counts["success_completed"] + counts["legal_stop"],
+        **{f"n_{k}": v for k, v in counts.items()},
+        "failed_route_ids": failed_ids,
+        "export_failed_route_ids": export_failed_ids,
+        "missing_route_ids": missing_ids,
+        "route_states": states,
+    }
 
 SPLIT_EXPECTED_N = {"dev": 20, "eval": 100}
 
@@ -348,6 +453,9 @@ def run_worker(*, config, runs_root: Path, run_id: str, root_smiles: str,
     except Exception as exc:
         status["failed"] = f"{type(exc).__name__}:{str(exc)[:300]}"
         status["failed_detail"] = dict(getattr(exc, "detail", {}) or {})
+        # R1 教训(pb_0117):只记类型+消息不足以定位根因,worker 日志也
+        # 没有落 traceback —— 现在随终态状态文件落盘完整调用栈
+        status["failed_traceback"] = traceback.format_exc()[-4000:]
     # 无论 run 成败,尽量导出已提交事实(部分/空答卷也是答卷)
     try:
         from .output.export_v3 import export_run_v3
@@ -575,8 +683,13 @@ def run_batch(
         identity=identity, export_policy=export_policy, terminal=terminal)
     account = api_account(runs_root, run_ids,
                           price_snapshot=config.get("provider_price_snapshot"))
+    # R1-c:批次终态由逐路线分类汇总(任一异常失败 → failed,不再无条件
+    # completed;合法停留不算失败)
+    terminal_summary = batch_terminal_summary(
+        list(manifest["route_order"]), terminal)
     report = {
-        "status": "completed",
+        "status": terminal_summary["status"],
+        "terminal_summary": terminal_summary,
         "batch_sha256": identity["sha256"],
         "batch_short": identity["short"],
         "split": split,
@@ -994,6 +1107,7 @@ def merge_predictions(*, batch_root: Path, runs_root: Path, manifest: dict,
             "stop_reason": status.get("stop_reason", ""),
             "answer_kind": answer_kind,
             "failure_reason": failure,
+            "route_state": classify_route_state(status)["route_state"],
             "predictions_sha256": status.get("predictions_sha256"),
         })
     if len(lines) != len(manifest["route_order"]):
@@ -1004,6 +1118,10 @@ def merge_predictions(*, batch_root: Path, runs_root: Path, manifest: dict,
     tmp = out_path.with_suffix(".tmp")
     tmp.write_text(text, encoding="utf-8")
     os.replace(tmp, out_path)
+    # R1-c:归并元数据保留批次终态与逐路线失败标志 —— 固定 20 行只是
+    # 文件形制,部分/补空答卷不得被当作"有效完成"
+    terminal_summary = batch_terminal_summary(
+        list(manifest["route_order"]), terminal)
     meta = {
         "schema_version": BATCH_SCHEMA_VERSION,
         "kind": "batch_merged_predictions",
@@ -1012,6 +1130,13 @@ def merge_predictions(*, batch_root: Path, runs_root: Path, manifest: dict,
         "export_policy_sha256": export_policy_hash(export_policy),
         "n_lines": len(lines),
         "n_unique_route_ids": len({json.loads(l)["route_id"] for l in lines}),
+        "batch_terminal_status": terminal_summary["status"],
+        "n_routes_failed": terminal_summary["n_failed"],
+        "n_routes_export_failed": terminal_summary["n_export_failed"],
+        "n_routes_missing": terminal_summary["n_missing"],
+        "n_routes_valid_terminal": terminal_summary["n_valid_terminal"],
+        "failed_route_ids": terminal_summary["failed_route_ids"],
+        "missing_route_ids": terminal_summary["missing_route_ids"],
         "predictions_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
         "per_route": per_route,
     }
@@ -1032,8 +1157,26 @@ def _root_from_manifest(manifest: dict, route_id: str) -> str:
 
 
 def api_account(runs_root: Path, run_ids: list[str],
-                price_snapshot: dict | None = None) -> dict:
-    """逐条调用/孤儿/429/用量/费用账(持久事实源 = results/ 产物)。"""
+                price_snapshot: dict | None = None,
+                *, conservative_missing_input: bool = True) -> dict:
+    """逐条调用/孤儿/429/用量/费用账(R1-d;持久事实源 = results/ 产物)。
+
+    每条调用一行明细(``calls``):task/attempt、issued、响应/超时/
+    传输失败/孤儿、usage 是否存在、已知 token。费用口径:
+
+    - ``cost_estimate_known_usage_cny``:有 usage 的响应按快照价格的小计
+      (与既有语义一致);
+    - ``cost_estimate_cny``:**只有零缺 usage 才给数**;有任何缺失 →
+      ``unknown``;
+    - ``conservative_reservation_cny``(usage 缺失的保守预留,上界口径):
+      输入按**已发出的请求文本**实算字符数 ÷ 4 的 token 上界估算
+      (请求侧事实可证明);输出侧**无请求级 max_tokens 上限** →
+      无法证明上界,预留记 ``null`` 且 ``reservation_output_bound``=
+      ``unprovable_no_request_output_cap``。运行结束后须以服务商
+      用量/账单回填核对;未核实前**费用硬门不得报绿**。
+
+    ``conservative_missing_input`` 关闭时跳过输入预留(仅审计已知部分)。
+    """
     totals = {
         "n_calls_issued": 0, "n_responses": 0, "n_orphaned": 0,
         "n_transport_failed": 0, "n_http_429": 0,
@@ -1044,6 +1187,7 @@ def api_account(runs_root: Path, run_ids: list[str],
         "elapsed_s_sum": 0.0,
     }
     per_route: dict[str, dict] = {}
+    calls: list[dict] = []
     for run_id in run_ids:
         results = Path(runs_root) / run_id / "results"
         t = dict.fromkeys(totals, 0)
@@ -1060,6 +1204,9 @@ def api_account(runs_root: Path, run_ids: list[str],
                     try:
                         envp = json.loads(rp.read_text(encoding="utf-8"))
                     except Exception:
+                        calls.append({"run_id": run_id,
+                                      "artifact": rp.name,
+                                      "read_error": "unreadable"})
                         continue
                     payload = envp.get("payload", {})
                     t["n_responses"] += 1
@@ -1072,6 +1219,7 @@ def api_account(runs_root: Path, run_ids: list[str],
                         if att.get("status") == 429:
                             t["n_http_429"] += 1
                     usage = transport.get("usage") or {}
+                    known_tokens: dict = {}
                     if usage:
                         from .adapters.llm_client import normalize_usage
 
@@ -1082,17 +1230,30 @@ def api_account(runs_root: Path, run_ids: list[str],
                                     "total_tokens"):
                             if norm.get(key) is not None:
                                 t[key] += int(norm[key])
+                                known_tokens[key] = int(norm[key])
                         t["n_usage_records"] += 1
                     else:
                         t["n_usage_missing"] += 1
-                    t["elapsed_s_sum"] += float(transport.get("elapsed_s") or 0)
+                    t["elapsed_s_sum"] += float(
+                        transport.get("elapsed_s") or 0)
+                    calls.append({
+                        "run_id": run_id, "task_id": task_dir.name,
+                        "attempt": payload.get("attempt"),
+                        "status": payload.get("status"),
+                        "error_kind": transport.get("error_kind"),
+                        "n_http_attempts": len(
+                            transport.get("http_attempts") or []),
+                        "usage_present": bool(usage),
+                        "known_tokens": known_tokens or None,
+                        "elapsed_s": transport.get("elapsed_s"),
+                    })
         per_route[run_id] = t
         for key in totals:
             if key == "elapsed_s_sum":
                 totals[key] += t[key]
             else:
                 totals[key] += t.get(key, 0)
-    account = {"per_route": per_route, "totals": totals,
+    account = {"per_route": per_route, "totals": totals, "calls": calls,
                "usage_basis": "response_provided_only_missing_marked"}
     if price_snapshot:
         p = price_snapshot
@@ -1126,5 +1287,61 @@ def api_account(runs_root: Path, run_ids: list[str],
         else:
             account["cost_estimate_cny"] = "unknown"
             account["cost_basis"] = "usage incomplete; not estimated"
+        # ---- R1-d:usage 缺失/孤儿的保守预留(仅当存在未核实调用) ----
+        if totals["n_usage_missing"] > 0 or totals["n_orphaned"] > 0:
+            if conservative_missing_input:
+                reserved_input_tokens = 0
+                for run_id in run_ids:
+                    results = Path(runs_root) / run_id / "results"
+                    if not results.is_dir():
+                        continue
+                    # 需要预留的 = 有响应但无 usage 的调用(超时后
+                    # 成功重试/传输失败);孤儿调用只有 request_hash
+                    # 无请求文本,单独计数不入文本预留
+                    for rp in sorted(results.glob(
+                            "*/prediction_response.*.json")):
+                        try:
+                            envp = json.loads(rp.read_text(encoding="utf-8"))
+                        except Exception:
+                            continue
+                        payload = envp.get("payload", {})
+                        transport = payload.get("transport") or {}
+                        if transport.get("usage"):
+                            continue
+                        # 请求侧文本:从对应 call 产物取 request_hash
+                        # 不可反推;请求体不含在产物中,字符上界
+                        # 不可证明 → 以该 run 的 prediction_task
+                        # 文本长度作为可证明的请求规模上界来源
+                        task_dir = rp.parent
+                        tp = task_dir / "prediction_task.json"
+                        if not tp.is_file():
+                            continue
+                        try:
+                            task_env = json.loads(
+                                tp.read_text(encoding="utf-8"))
+                            task_text = canonical_json(
+                                task_env.get("payload", {}))
+                        except Exception:
+                            continue
+                        reserved_input_tokens += max(1, len(task_text) // 4)
+                # 输出上界:请求未设 max_tokens,输出规模不可证明 → 不臆造
+                account["conservative_reservation"] = {
+                    "input_tokens_upper": reserved_input_tokens,
+                    "input_cost_upper_cny": round(
+                        reserved_input_tokens / 1e6
+                        * p["input_cny_per_m"], 4),
+                    "output_bound": "unprovable_no_request_output_cap",
+                    "output_cost_upper_cny": None,
+                    "orphan_calls_not_reserved": totals["n_orphaned"],
+                    "basis": (
+                        "input: issued request text length // 4 chars"
+                        " (request-side provable); output: no request"
+                        "-level token cap -> no provable upper bound;"
+                        " must reconcile with provider statement/billing"
+                        " before cost gate can pass"),
+                }
+            else:
+                account["conservative_reservation"] = {
+                    "skipped": "conservative_missing_input=False"}
         account["price_snapshot"] = p
     return account

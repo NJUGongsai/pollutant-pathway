@@ -8,7 +8,7 @@
 
 ## 1. 链接方式
 
-- **SSH**:`/tmp/cy_ssh.sh "<远端命令>"`(本地执行;expect 封装,单命令 300s 硬超时)。脚本含凭证,**不入仓**;/tmp 易失,丢失时找主窗口重建(配方凭证来自 `.env.chenyu` 的 CHENYU_HOST/PORT/USER/PASS)。
+- **SSH**:`/tmp/cy_ssh.sh "<远端命令>"`(本地执行;expect 封装,单命令 7200s 上限,2026-09-29 用户指令拆除原 300s 硬超时墙;若连接仍被代理掐断,按下方长任务纪律 nohup+短连接轮询)。脚本含凭证,**不入仓**;/tmp 易失,丢失时找主窗口重建(配方凭证来自 `.env.chenyu` 的 CHENYU_HOST/PORT/USER/PASS)。
 - **文件上行**:`/tmp/cy_scp.sh <本地文件> <远端路径>`(同款封装)。
 - **stdout 噪声(必踩)**:两个助手的前两行是 expect 噪声(`spawn ssh…`+密码提示行),拉数据必须 `| grep -v "^spawn ssh\|password:"`。
 - **长任务纪律**:chenyu 上 `nohup … > 日志 2>&1 &` 落盘 + 短连接轮询(直连长命令会被代理掐);hybrid 进程 stdout 块缓冲,**日志冻结≠进度冻结,进度看 case 目录计数**;单一协调者,多作业共存时不碰别人目录。

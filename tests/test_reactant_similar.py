@@ -339,7 +339,7 @@ def test_policy_similarity_fields_frozen_in_block():
     assert p["similarity_top_k"] == 16
     assert p["similarity_version"] == SIMILARITY_VERSION
     assert p["schema_version"] if False else block["schema_version"] == \
-        "v43-applicability-2"
+        "v43-applicability-3"
 
 
 def test_deterministic_order_same_similarity():
@@ -415,7 +415,7 @@ def test_workflow_classify_uses_similar_channel(tmp_path, monkeypatch):
                 for ch in (r.get("find_channels") or [])]
             assert CHANNEL_SIMILAR in chans
             assert el["policy"]["similarity_version"] == SIMILARITY_VERSION
-            assert el["schema_version"] == "v43-applicability-2"
+            assert el["schema_version"] == "v43-applicability-3"
             break
     else:
         raise AssertionError("未找到带资格块的 decision")

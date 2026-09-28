@@ -10,6 +10,12 @@
 4. 预注册规则判定(任务书 §4.3,仅硬门全过后才给 adopt 结论;本脚本
    打印判定输入,发布声明写在阶段报告)。
 
+R1 修复(任务书 §4.3):评分前先过 pairing_gate 完整性门禁(冻结
+清单/臂身份/批次终态/逐路线导出 SHA;独立重读 worker 终态,不信旧
+batch_report 的 status 字段)。任一臂不完整 → verdict=
+diagnostic_incomplete、complete_20_of_20 恒 false,只可出部分诊断,
+不得作为发布型配对结论。
+
 用法(Chenyu,零 LLM):
   OMP_NUM_THREADS=1 PYTHONPATH=src .venv/bin/python \
       scripts/phase_d_paired_scoring.py \
@@ -49,6 +55,35 @@ def main() -> int:
     assert "C0" in arms, "配对基线臂 C0 必须在列"
     out_dir = Path(a.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    # ---- R1:完整性门禁先于读答卷(任务书 §4.3) ----
+    from pathway_v43.output.pairing_gate import (
+        paired_release_verdict, validate_arm,
+    )
+
+    # 冻结清单 = C0 臂自己的 input_manifest(各臂 route_order 必须与之一致)
+    c0_manifest = Path(arms["C0"]) / "input_manifest.json"
+    expected_ids: list[str] | None = None
+    if c0_manifest.is_file():
+        try:
+            expected_ids = list(json.loads(
+                c0_manifest.read_text(encoding="utf-8")
+            ).get("route_order") or [])
+        except Exception:
+            expected_ids = None
+    gate = paired_release_verdict({
+        label: validate_arm(root, expected_route_ids=expected_ids)
+        for label, root in arms.items()})
+    (out_dir / "pairing_gate.json").write_text(
+        json.dumps(gate, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8")
+    print("[gate] verdict:", gate["verdict"],
+          "release_eligible:", gate["release_eligible"])
+    for label, res in gate["per_arm"].items():
+        if not res["ok"]:
+            print(f"[gate][{label}] {res['n_violations']} violation(s):")
+            for v in res["violations"][:10]:
+                print("   -", json.dumps(v, ensure_ascii=False)[:200])
 
     per_arm = {}
     for label, root in arms.items():
@@ -91,6 +126,8 @@ def main() -> int:
         rows.append(row)
 
     # 配对净赢:题级 win/lose(step_hits@1 差 >0 / <0)+ 步级净差(参考)
+    # R1:complete_20_of_20 受门禁约束 —— verdict!=complete 时恒 false,
+    # 该结果只能作 diagnostic_incomplete 部分诊断,不是发布型结论
     pair_summary = {}
     for label in per_arm:
         if label == "C0":
@@ -104,7 +141,10 @@ def main() -> int:
         lose5 = sum(1 for r in both if r[f"{label}_s5"] < r["C0_s5"])
         pair_summary[label] = {
             "n_paired": len(both),
-            "complete_20_of_20": len(both) == 20,
+            "complete_20_of_20": (len(both) == 20
+                                  and gate["verdict"] == "complete"),
+            "verdict": gate["verdict"],
+            "release_eligible": gate["release_eligible"],
             "win_at1": win1, "lose_at1": lose1,
             "net_win_at1_questions": win1 - lose1,
             "step_delta_at1": sum(r[f"{label}_s1"] for r in both)
@@ -115,9 +155,10 @@ def main() -> int:
         }
 
     out = {
-        "schema_version": "pd-paired-1",
+        "schema_version": "pd-paired-2",
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "arms": {k: str(v) for k, v in arms.items()},
+        "pairing_gate": gate,
         "overall": {label: per_arm[label]["report"]["calibers"]["cn"]
                     ["overall"] for label in per_arm},
         "pair_summary_vs_c0": pair_summary,
