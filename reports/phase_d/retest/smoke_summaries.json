@@ -1,0 +1,87 @@
+{
+  "api_totals": {
+    "cached_input_tokens": 0,
+    "elapsed_s_sum": 0.0,
+    "input_tokens": 0,
+    "n_calls_issued": 0,
+    "n_empty_response": 0,
+    "n_http_429": 0,
+    "n_orphaned": 0,
+    "n_responses": 0,
+    "n_transport_failed": 0,
+    "n_usage_missing": 0,
+    "n_usage_records": 0,
+    "output_tokens": 0,
+    "reasoning_output_tokens": 0,
+    "total_tokens": 0
+  },
+  "cost_basis": "usage incomplete; not estimated",
+  "cost_estimate_cny": "unknown",
+  "cost_estimate_known_usage_cny": null,
+  "generated_at": "2026-09-28T17:29:42+0000",
+  "note": "non-298 synthetic fixture (pb_0117 dev root_smiles); paid connectivity/billing smoke; separate ledger, not counted into arm batches; results not used to tune arms",
+  "results": {
+    "smoke_pd_retest_c0like": {
+      "elapsed_s": 46.6,
+      "export_ok": true,
+      "failed": null,
+      "predictions_sha256": "5edddc2ea47383f5522fdf6035dd3d2e2684e19b269138728dd03952aefc5ac9",
+      "stop_reason": "completed",
+      "worker_rc": 0
+    },
+    "smoke_pd_retest_d3like": {
+      "elapsed_s": 16.7,
+      "export_ok": true,
+      "failed": null,
+      "predictions_sha256": "5c2000ae30d7a4337bfa3bfcb4f50274e7e22ddc7a19cf3d924cb1d4765c2aaa",
+      "stop_reason": "completed",
+      "worker_rc": 0
+    }
+  },
+  "schema_version": "ec298-pd-retest-smoke-1",
+  "substrate": "C\\C=C\\C=C(\\O)C([O-])=O"
+}
+{
+  "api_totals": {
+    "cached_input_tokens": 0,
+    "elapsed_s_sum": 582.1445776820183,
+    "input_tokens": 4451,
+    "n_calls_issued": 2,
+    "n_empty_response": 0,
+    "n_http_429": 0,
+    "n_orphaned": 0,
+    "n_responses": 2,
+    "n_transport_failed": 0,
+    "n_usage_missing": 0,
+    "n_usage_records": 2,
+    "output_tokens": 25922,
+    "reasoning_output_tokens": 24160,
+    "total_tokens": 30373
+  },
+  "cost_basis": "snapshotted prices help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu @ 2026-09-29;reasoning billed as output",
+  "cost_estimate_cny": 0.0761,
+  "cost_estimate_known_usage_cny": null,
+  "generated_at": "2026-09-28T17:45:15+0000",
+  "note": "non-298 synthetic fixture (dev benchmark root_smiles); paid connectivity/billing smoke; separate ledger, not counted into arm batches; results not used to tune arms",
+  "results": {
+    "smoke_pd_retest_c0like_r2": {
+      "elapsed_s": 234.2,
+      "export_ok": true,
+      "failed": null,
+      "predictions_sha256": "02ba668ef905d1bcabb88ba31a0700e2550dc7885574d7c3912bc00707269938",
+      "stop_reason": "completed",
+      "worker_rc": 0
+    },
+    "smoke_pd_retest_d3like_r2": {
+      "elapsed_s": 419.2,
+      "export_ok": true,
+      "failed": null,
+      "predictions_sha256": "e0878b9256feb724a395c36e203e9be3f8fd0a76996a5e9b85b574873572454f",
+      "stop_reason": "completed",
+      "worker_rc": 0
+    }
+  },
+  "schema_version": "ec298-pd-retest-smoke-1",
+  "substrate": "C#CC(C)(C)NC(=O)C1=CC(=CC(=C1)Cl)Cl",
+  "substrate_choice": "pb0002"
+}

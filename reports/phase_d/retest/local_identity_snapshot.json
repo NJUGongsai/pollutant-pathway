@@ -1,0 +1,51 @@
+{
+  "asset_manifest": {
+    "manifest_sha256": "ac9b97b872c9666eebbe32b42c626997aca34438ade17d7bbf36a8154b848e6c",
+    "n_files": 22,
+    "total_bytes": 166849006
+  },
+  "captured_at_utc": "2026-09-28T17:06:36.336404Z",
+  "code_aggregate_sha256": "07fef84f0945bcba055a6424d37efcab2c60ebf47cd1d639d676dd00133764bc",
+  "code_n_files": 50,
+  "export_policy": {
+    "in_parent_dedupe": "keep_first_rank",
+    "multi_event_merge": "commit_order_created_at_then_event_id",
+    "parent_merge": "first_seen_identity_by_parent_seq",
+    "products_per_parent_cap": 5,
+    "raw_smiles_field": "product_smiles_full_fallback_product_smiles",
+    "step_order": "parent_seq"
+  },
+  "export_policy_sha256": "a5bd77bba99328d8a3c64a3b0990dcf5d1af4a88b671de61744bb3d19f8571aa",
+  "prediction_policy_defaults": {
+    "allow_noop_edit": false,
+    "allow_novel_on_mapping_failure": true,
+    "allow_novel_on_no_evidence": true,
+    "analogy_enabled": true,
+    "max_analogy_donor_candidates": 3,
+    "max_candidates_for_ranking": 8,
+    "max_parse_retries": 2,
+    "max_reportable_products": 5,
+    "policy_version": "v43-predpol-3",
+    "reactant_similar_enabled": false,
+    "reactant_similar_threshold": 0.45,
+    "reactant_similar_top_k": 16
+  },
+  "prompt_versions": {
+    "analogy_edit": "6d228935da95f59a060e16e3f2034f3c191b6557cbc7ab31e7595a3d518a5979",
+    "novel_proposal": "1aa413937f3700669527ed81b6410d887ef23472d801adb4e4fbe68e1e850b19",
+    "rank_candidates": "864a5f301de04bae891e189aad40af03bca3cd95286644f220f0e6d785a9e210"
+  },
+  "python": "3.11.16",
+  "rdkit": "2026.03.6",
+  "scorer_v2": "v43-ec298-scorer-2",
+  "sha256_scripts_ec298_phase_a": "7510f2b7b9f865ad68f72cb311042bf186386e7119153dd5564c1c601674cb54",
+  "sha256_scripts_phase_d_paired_scoring": "5861d0cb56b7dd5d88640894c6cfe373224f5eb667618c8fc544766c3dea48fd",
+  "sha256_src_pathway_v43_exam_v2": "b86a1f39eb16b05864a3983c1bbd94c712d77fd7583cf8c57cb994df1e86c1cb",
+  "sha256_src_pathway_v43_output_pairing_gate": "c03bda976ce68ed6cd6b4a5859a222f37567a9e1164ede537e2b8dff780b7222",
+  "versions": {
+    "APPLICABILITY_VERSION": "v43-applicability-3",
+    "PREDICTION_POLICY_VERSION": "v43-predpol-3",
+    "SIMILARITY_VERSION": "v43-rsim-1",
+    "STRATEGY_VERSION": "v43-policy-5"
+  }
+}

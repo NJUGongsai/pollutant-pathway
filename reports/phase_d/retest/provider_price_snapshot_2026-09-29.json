@@ -1,0 +1,19 @@
+{
+  "model_id": "ZHIPU/GLM-5.3-Flash",
+  "region": "cn-beijing",
+  "input_cny_per_m": 0.8,
+  "output_cny_per_m": 2.8,
+  "cache_read_cny_per_m": 0.23,
+  "rpm": 200,
+  "tpm": 3000000,
+  "max_input_tokens": 1048576,
+  "max_output_tokens": 131072,
+  "thinking_billed_as_output": true,
+  "billing_mode": "pay-per-token (按量)",
+  "checked": "2026-09-29",
+  "checked_at_utc": "2026-09-28T17:07:35Z",
+  "source": "https://help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+  "fetch_method": "WebFetch of official Aliyun Model Studio doc page; numbers quoted verbatim",
+  "note": "Values identical to 2026-09-25 snapshot (kept as historical record); page shows no explicit reasoning-token pricing; thinking tokens counted as output per prior calibration",
+  "prior_snapshot_checked": "2026-09-25"
+}
