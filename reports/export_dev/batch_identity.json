@@ -1,0 +1,82 @@
+{
+  "created_at": "2026-09-24T18:42:19+0000",
+  "identity": {
+    "asset_manifest_sha256": "def94d82b65915f0ecd2377971cb082ba2b1c1464b4eb165a32d5e57e259aa34",
+    "code_aggregate_sha256": "459497ba756b26f5764b65710e2ef5aa0421269d9a5d6953c5a02407c83adb3f",
+    "config": {
+      "batch_cost_cap_cny": 30.0,
+      "budget_rationale": "dev 20 路金标深度分布 2:4,3:4,4:3,5:2,6:2,7:4,8:1;max_depth=6 覆盖 15/20 条路线的完整深度预算(leaf-reached 的结构性上限),expansions=40 为检索预算上限;LLM 调用上限随展开派生(+2)。v4.1/v4.2 历史臂用 depth=12/expands=50 且模型为 deepseek-v4.1-flash,口径不同,比较时须标注。",
+      "budgets": {
+        "max_depth": 6,
+        "max_expansions": 40,
+        "max_frontier_width": 3,
+        "max_llm_calls": 42,
+        "max_proposals": 40
+      },
+      "capacity": {
+        "memory_gb_per_worker": 3.0,
+        "min_free_disk_gb": 20.0
+      },
+      "export_policy_overrides": {},
+      "llm_timeout_s": 300.0,
+      "max_http_retries": 4,
+      "max_parallel": 20,
+      "max_worker_respawns": 2,
+      "model_request_params": {
+        "reasoning_effort": "max"
+      },
+      "poll_interval_s": 10.0,
+      "provider_price_snapshot": {
+        "cache_read_cny_per_m": 0.23,
+        "checked": "2026-09-25",
+        "input_cny_per_m": 0.8,
+        "model_id": "ZHIPU/GLM-5.3-Flash",
+        "output_cny_per_m": 2.8,
+        "region": "cn-beijing",
+        "rpm": 200,
+        "source": "help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+        "thinking_billed_as_output": true,
+        "tpm": 3000000
+      },
+      "rate": {
+        "acquire_timeout_s": 600.0,
+        "cooldown_cap_s": 60.0,
+        "max_calls": 1000,
+        "rpm": 180,
+        "tpm": 2700000
+      },
+      "worker_wall_clock_cap_s": 28800
+    },
+    "export_policy": {
+      "in_parent_dedupe": "keep_first_rank",
+      "multi_event_merge": "commit_order_created_at_then_event_id",
+      "parent_merge": "first_seen_identity_by_parent_seq",
+      "products_per_parent_cap": 5,
+      "raw_smiles_field": "product_smiles_full_fallback_product_smiles",
+      "step_order": "parent_seq"
+    },
+    "input_manifest_sha256": "b53d87d11b2281fd51e66ab40b2bc3a5e265e017b99c6757b61678ac1396ee56",
+    "model": {
+      "model_id": "ZHIPU/GLM-5.3-Flash",
+      "prompt_versions": {
+        "analogy_edit": "bb8dbd1115e01d37df0b9265c75e1241c79e736eae5a1a937badf9866e98f097",
+        "novel_proposal": "1aa413937f3700669527ed81b6410d887ef23472d801adb4e4fbe68e1e850b19",
+        "rank_candidates": "efe7c9d6e5caf4671509b25aac6d9e52679197f7e380549042fa68ca730a6bc4"
+      },
+      "provider": "openai_compatible",
+      "request_params": {
+        "reasoning_effort": "max"
+      },
+      "timeout_s": 300.0
+    },
+    "schema_version": "v43-batch-1",
+    "source": {
+      "gold_routes_sha256": "d8e626a266ec0ee36dd6cd9befcf761fc7c3ff95efe384abcae5094527fbdcdc",
+      "split_manifest_sha256": "fb7742f98b6511275d16e613b18ca2dc62340403958f92ead6a0c2bf15d25dce",
+      "v3_root": "/usrdata/EnzymeCAGE_data/workspaces/dependingv3"
+    },
+    "split": "dev"
+  },
+  "sha256": "c366e72412daa23290a9aa9ffa42fb334418010ffe6d591a0bfe626a3fb69da1",
+  "short": "c366e724"
+}

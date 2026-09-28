@@ -76,7 +76,10 @@ def test_artifact_concurrent_write_no_overwrite(tmp_path):
 def test_retrieval_asset_identity_real_and_scripted():
     real = retrieval_asset_identity(resolve_config())
     assert real["mode"] == "repo_assets"
-    assert real["n_manifest_files"] == 21
+    assert real["n_manifest_files"] == 22   # Phase D D2 起 +corpus_templates_v2
+    assert real["analog_corpus"] == "v1"     # 默认装载 v1(显式选择进身份)
+    assert real["analog_corpus_file"] == \
+        "analog/corpus_templates_v1.jsonl"
     # v35 资产集的实际环境 lookup 库(v3 identity block "library")
     assert real["source_file"] == "v3_reactions/library/library_full.jsonl"
     assert real["source_file_sha256"] == \

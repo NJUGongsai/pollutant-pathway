@@ -1,0 +1,47 @@
+{
+  "accepted_gate_check": {
+    "ambiguous": 4,
+    "applicable": 5,
+    "inapplicable": 6
+  },
+  "alignment_strategy_distribution": {
+    "center_only": 44,
+    "full_donor": 22
+  },
+  "analogy_outcomes": {
+    "abstained": 28,
+    "proposed": 15,
+    "rejected": 23
+  },
+  "gold_coverage_gate": "task_qids_covered_unique_and_gold_rows_unique",
+  "inputs": {
+    "gold_sha256": "9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c",
+    "seal_run_dir": "/Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/dependingv43_dev/runs/ec298_v43r1",
+    "seal_run_dir_sha256_note": "只读;未写封存目录"
+  },
+  "n_analogy_tasks": 66,
+  "n_gold_duplicate_qids": 0,
+  "n_gold_unique_qids": 298,
+  "n_questions_with_analogy": 66,
+  "n_task_qids_duplicate": 0,
+  "n_task_qids_found_in_gold": 66,
+  "n_task_qids_missing_from_gold": 0,
+  "n_tasks_with_center_atoms_le_3": 62,
+  "outputs": [
+    "analogy_route_audit.tsv",
+    "rejections_reclassified.tsv",
+    "accepted_gate_check.tsv",
+    "routing_ablation_offline.tsv",
+    "summary.json"
+  ],
+  "rejections_reclassified": {
+    "executable": 1,
+    "not_executable": 22
+  },
+  "routing_ablation_transitions": {
+    "analogy_edit->analogy_edit": 23,
+    "analogy_edit->novel_or_hold": 43
+  },
+  "schema_version": "v43-phase-c-offline-audit-1",
+  "zero_api": true
+}

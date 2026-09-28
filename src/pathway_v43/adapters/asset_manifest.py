@@ -25,11 +25,25 @@ EXTENSION_FILES = (
     "v3_reactions/eawag/donor_product.jsonl",
 )
 
-# v4 类比最终索引(启用类比桥时两份都必须在清单内且哈希一致)。
+# v4 类比最终索引(启用类比桥时都必须在清单内且哈希一致)。
+# Phase D D2:corpus_templates_v2(重映射版)同列版本化必需 —— 本仓带
+# v2 资产起,清单与磁盘必须覆盖全部三份;装载选择仍显式(v1/v2),
+# 选 v2 时文件缺失/哈希不符 fail-closed,不静默回退 v1。
 ANALOG_INDEX_FILES = (
     "analog/uspto_relaxed_index_v1.jsonl",
     "analog/corpus_templates_v1.jsonl",
+    "analog/corpus_templates_v2.jsonl",
 )
+
+
+def analog_corpus_rel(version: str) -> str:
+    """类比模板语料的清单相对路径(v1/v2 显式白名单)。"""
+    if version == "v2":
+        return "analog/corpus_templates_v2.jsonl"
+    if version == "v1":
+        return "analog/corpus_templates_v1.jsonl"
+    raise AssetManifestError(
+        f"未知类比语料版本:{version!r}(允许 v1/v2)", {"version": version})
 
 
 class AssetManifestError(RuntimeError):

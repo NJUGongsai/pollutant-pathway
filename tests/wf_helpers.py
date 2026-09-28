@@ -113,12 +113,14 @@ def fake_model(script: dict[str, list[str]] | None = None,
 
 
 def rank_response(evidence_id: str, reasons: dict | None = None,
-                  reason: str = "选中检索首位的已记录反应") -> str:
+                  reason: str = "选中检索首位的已记录反应",
+                  order: list[str] | None = None) -> str:
     import json
 
     return json.dumps({
         "decision": "select", "evidence_id": evidence_id,
-        "order": [evidence_id], "reasons": reasons or {},
+        "order": order if order is not None else [evidence_id],
+        "reasons": reasons or {},
         "reason": reason,
     }, ensure_ascii=False)
 

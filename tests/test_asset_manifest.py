@@ -64,9 +64,9 @@ def _write_mini_assets(root, *, entries, json_meta=None,
 
 
 def test_repo_manifest_passes_real_assets(manifest_identity):
-    assert manifest_identity["n_files"] == 21
-    assert manifest_identity["total_bytes"] == 149_475_454
-    assert len(manifest_identity["files"]) == 21
+    assert manifest_identity["n_files"] == 22
+    assert manifest_identity["total_bytes"] == 166_849_006  # Phase D D2 起 +corpus_templates_v2
+    assert len(manifest_identity["files"]) == 22
     assert all(len(h) == 64 for h in manifest_identity["files"].values())
 
 

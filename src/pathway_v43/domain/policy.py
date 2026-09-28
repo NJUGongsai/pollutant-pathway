@@ -28,11 +28,12 @@ OUTCOME_COMMIT_RECORDED = "commit_recorded"
 OUTCOME_AWAITING_PREDICTION = "awaiting_prediction"
 OUTCOME_DEAD_END = "dead_end"
 
-STRATEGY_VERSION = "v43-policy-2"  # v2:预测路由进入策略(变更拒绝旧 run resume)
+# STRATEGY_VERSION 单一事实源在 models.py(v43-policy-4:Phase D D1 的
+# reactant_similar 检索通道与相似参数进入策略身份;变更拒绝旧 run resume)。
 
-# ---------------- 预测策略取值(v43-predpol-1;全部可写入 run_identity)----
+# ---------------- 预测策略取值(v43-predpol-3;全部可写入 run_identity)----
 
-PREDICTION_POLICY_VERSION = "v43-predpol-1"
+PREDICTION_POLICY_VERSION = "v43-predpol-3"
 
 PREDICTION_POLICY_DEFAULTS: dict = {
     "policy_version": PREDICTION_POLICY_VERSION,
@@ -41,6 +42,18 @@ PREDICTION_POLICY_DEFAULTS: dict = {
     "allow_novel_on_mapping_failure": True,
     "allow_novel_on_no_evidence": True,
     "max_parse_retries": 2,            # 解析失败重试上限(不含首次)
+    # --- Phase C:类比资格与消融开关 ---
+    "analogy_enabled": True,           # false = 类比路由关闭(recorded/rank 不受影响;消融用)
+    "max_analogy_donor_candidates": 3,  # 每父节点最多核查的候选供体数(冻结进策略身份)
+    "allow_noop_edit": False,          # 空 edits 仅当目标图==当前图且此处允许才成立
+    # --- Phase D D1:供体反应物相似度检索(reactant_similar 通道)---
+    # 参数卡 docs/PHASE_D_D1_PARAM_CARD.md;threshold<=0 或 top_k<=0 或
+    # enabled=false = C0 旧检索配置。相似度只决定召回次序,不替代门禁。
+    # 默认关闭(Phase D 预注册判定 no_release:真实 dev 20 四臂对照中
+    # D-3 配对 @1 净赢 -2 且 @5 下降,保留 C0;显式开启须过新对照)。
+    "reactant_similar_enabled": False,
+    "reactant_similar_threshold": 0.45,   # Tanimoto >= 阈值才召回(含边界)
+    "reactant_similar_top_k": 16,         # 检索召回上限(与每父评估预算分开计数)
 }
 
 
@@ -53,6 +66,14 @@ def prediction_policy(overrides: dict | None = None) -> dict:
     return pol
 
 
+# 类比 fallback 拒因词表(与 services.donor_applicability 对齐;此处仅
+# 依赖字符串字面量,避免 domain → services 反向依赖)
+_ANALOGY_FALLBACKS = (
+    "no_mapping", "mapping_ambiguous", "applicability_failed",
+    "applicability_unknown", "multiple_competing_transforms",
+)
+
+
 def decide_prediction_route(
     outcome: str,
     evidences: list[dict],
@@ -62,6 +83,7 @@ def decide_prediction_route(
     model_enabled: bool,
     llm_remaining: int = 0,
     proposals_remaining: int = 0,
+    eligibility: dict | None = None,
 ) -> tuple[str, str]:
     """预测协议路由(任务书 §2 三模式;纯函数,确定性)。
 
@@ -70,9 +92,14 @@ def decide_prediction_route(
 
     1. commit_recorded → 永不进模型(唯一 recorded 确定性直通);
     2. usable recorded ≥2 → rank_candidates(模型只能在既有候选中裁决);
-    3. 存在 mapping_status=resolved 的规则/类比卡 → analogy_edit;
-    4. 规则/类比卡但映射不可用/歧义 → 策略允许则 novel_proposal,否则停留;
-    5. 无可用证据(dead_end)→ 策略允许则 novel_proposal,否则 dead_end;
+    3. 存在**通过适用性门禁**的类比证据(eligibility.status=applicable)
+       → analogy_edit;``mapping_status=resolved`` 单独出现不再触发
+       (Phase C:来源找回 ≠ 迁移资格);
+    4. 规则/类比卡但资格不可用/失败/歧义 → 按具体拒因(no_mapping /
+       mapping_ambiguous / applicability_failed / applicability_unknown /
+       multiple_competing_transforms)走受约束 novel 或显式停留;
+    5. ``analogy_enabled=false``(消融开关)→ 类比路由不进入,recorded/
+       rank 语义不变;预测性证据按既有 novel 策略与预算处置;
     6. 预算(LLM 调用/提案)耗尽 → 不进模型(停留原状态,不静默烧钱)。
     """
     if outcome == OUTCOME_COMMIT_RECORDED:
@@ -95,46 +122,90 @@ def decide_prediction_route(
         for e in evidences
     )
     if has_predictive:
-        aligned = [
-            e for e in evidences
-            if e.get("mapping_status") == "resolved"
-        ]
-        if aligned:
+        if not policy.get("analogy_enabled", True):
+            # 消融开关:类比路由整体关闭;预测性证据按既有 novel 语义处置
+            if policy.get("allow_novel_on_mapping_failure") \
+                    and proposals_remaining > 0:
+                return PREDICTION_MODE_NOVEL, (
+                    "analogy_disabled_novel_allowed:类比开关关闭,"
+                    "策略允许受约束新提案")
+            return "", "analogy_disabled_hold"
+        status = (eligibility or {}).get("status", "")
+        fallback = (eligibility or {}).get("fallback_reason", "")
+        if status == "applicable":
+            selected = (eligibility or {}).get("selected") or {}
             return PREDICTION_MODE_ANALOGY, (
-                "aligned_analog_donor:存在已找回映射且对齐当前分子的类比证据"
+                f"applicable_donor:{fallback or 'gated'}:"
+                f"{selected.get('record_id', '')}"
+                f"@{selected.get('evidence_id', '')}"
             )
+        # 未通过资格门禁:按具体拒因 fallback(不统称"无证据")
+        if fallback not in _ANALOGY_FALLBACKS:
+            # 资格块未评估(纯函数直调):按证据卡上是否带供体引用推断
+            # 最诚实的默认拒因 —— 有 refs 而未评估 = 无法判断;无 refs =
+            # 根本没有映射来源
+            has_refs = any(
+                e.get("donor_refs")
+                for e in evidences
+                if e.get("kind") in (EVIDENCE_KIND_RULE, EVIDENCE_KIND_ANALOG)
+            )
+            fallback = ("applicability_unknown" if has_refs
+                        else "no_mapping")
         if policy.get("allow_novel_on_mapping_failure") \
                 and proposals_remaining > 0:
             return PREDICTION_MODE_NOVEL, (
-                "mapping_unavailable_novel_allowed:规则/类比映射不可用,"
-                "策略允许受约束新提案(拒因留任务书/响应)"
-            )
-        return "", "mapping_unavailable_hold"
+                f"{fallback}:类比供体未通过适用性门禁,"
+                "策略允许受约束新提案")
+        return "", f"{fallback}_hold"
     if outcome == OUTCOME_DEAD_END and policy.get("allow_novel_on_no_evidence") \
             and proposals_remaining > 0:
         return PREDICTION_MODE_NOVEL, "no_evidence_novel_allowed"
     return "", "no_model_route"
 
 
-def _usable_recorded(evidence: dict, substrate_identity: str) -> bool:
-    """已记录反应的接受前提:同一规范底物 + 方向正确 + 条件无冲突。
+def recorded_eligibility_reasons(evidence: dict,
+                                 substrate_identity: str) -> list[str]:
+    """recorded 卡的**完整证据资格判据**(逐项拒因;单一事实源)。
 
-    方向与底物匹配由来源保证(eawag lookup 为同规范底物精确键命中,
-    donor_exact_match);此处再核对证据卡上的身份字段,双保险。
+    同一判据服务于四处(Phase B R1 修复:消除选中卡资格绕过):
+    1. classify_evidence 的可用 recorded 分级(accept 前提);
+    2. rank_candidates 任务候选筛选(prediction.py;此前只查 kind+条件,
+       不核身份/精确挂牌,模型可选中异底物卡);
+    3. 候选裁决的逐卡验证(report_adjudication);
+    4. 选中卡复验(不凭模型 evidence_id 升格脏卡)。
+
+    判据:同规范底物(query/reactant identity 双核对)、方向与来源精确
+    挂牌(match_type + source_id + donor_exact_match)、条件无冲突。
     条件缺失(unknown)不算冲突 —— 缺数据不猜测;显式 conflict 不可用。
     """
+    reasons: list[str] = []
     if evidence.get("kind") != EVIDENCE_KIND_RECORDED:
-        return False
-    if evidence.get("condition_fit") == CONDITION_CONFLICT:
-        return False
+        return reasons
+    if evidence.get("match_type") != "exact_donor_cn_match":
+        reasons.append(
+            "direction_or_source:recorded 证据缺少精确底物匹配挂牌")
+    if not evidence.get("source_id"):
+        reasons.append("direction_or_source:缺少来源 ID")
     if evidence.get("query_identity") != substrate_identity:
-        return False
+        reasons.append("substrate_mismatch:query_identity 非当前规范底物")
     if evidence.get("reactant_identity") != substrate_identity:
-        return False
+        reasons.append("direction_mismatch:反应底物与当前分子不一致")
+    if evidence.get("condition_fit") == CONDITION_CONFLICT:
+        reasons.append("condition_conflict:来源条件与本任务条件冲突")
     record = evidence.get("source_record") or {}
     if record.get("donor_exact_match") is False:
-        return False
-    return True
+        reasons.append("donor_not_exact:来源非同规范底物精确记录")
+    return reasons
+
+
+def _usable_recorded(evidence: dict, substrate_identity: str) -> bool:
+    """已记录反应的接受前提 = kind 为 recorded 且完整资格判据无拒因。
+
+    (recorded_eligibility_reasons 对非 recorded 卡返回空表 = "门禁不适用";
+    分级语义要求显式排除非 recorded —— 否则规则/类比卡会被误判 usable。)
+    """
+    return (evidence.get("kind") == EVIDENCE_KIND_RECORDED
+            and not recorded_eligibility_reasons(evidence, substrate_identity))
 
 
 def _tier_note(ev: dict, substrate_identity: str) -> tuple[str, str]:

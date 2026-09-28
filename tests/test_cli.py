@@ -67,6 +67,6 @@ def test_checkenv_success_json_contract(assets_root, v3_code_root):
     assert proc.returncode == 0, proc.stdout + proc.stderr
     payload = json.loads(proc.stdout)
     assert payload["ok"] is True
-    assert payload["repo_manifest"]["n_files"] == 21
+    assert payload["repo_manifest"]["n_files"] == 22
     assert len(payload["v3_run_root"]["core_files"]) == 8
-    assert len(payload["analog_index_files"]) == 2
+    assert len(payload["analog_index_files"]) == 3  # Phase D D2 起 +corpus_templates_v2

@@ -62,6 +62,43 @@ ATOM_ID_RE = re.compile(
 
 ATOMTOOL_VERSION = "v43-atomtool-1"
 
+# 编辑协议 v2(Phase C 任务书 §4/C2):新增 change_bond_order;add_atom
+# 必须显式给 new_atom_id(元素须与 ID 内嵌元素一致);废除 remove_atom。
+# 每条操作在**当前图副本上按列表顺序执行**,逐步核验前提;最终提案仍须
+# 经过 validation 全部门禁 —— 本协议只核"编辑可执行且与目标一致"。
+# Phase C R2 复核:严格四操作,旧别名 remove_bond/add_bond 不再接受
+# (任务书 §4:未知操作/未知字段必须有稳定拒因;提示词声明"仅以下四种")。
+EDIT_PROTOCOL_VERSION = "v43-editproto-2"
+
+_EDIT_OPS = ("break_bond", "form_bond", "change_bond_order", "add_atom")
+# 逐操作允许字段表(多余字段 = edit_invalid:unknown_field:<name>:edit[i])
+_EDIT_OP_FIELDS: dict[str, frozenset] = {
+    "break_bond": frozenset({"op", "atom1", "atom2"}),
+    "form_bond": frozenset({"op", "atom1", "atom2"}),
+    "change_bond_order": frozenset(
+        {"op", "atom1", "atom2", "from_order", "to_order"}),
+    "add_atom": frozenset({"op", "atom1", "element", "new_atom_id"}),
+}
+_BOND_TOKENS = {
+    "single": Chem.BondType.SINGLE,
+    "double": Chem.BondType.DOUBLE,
+    "triple": Chem.BondType.TRIPLE,
+}
+_ELEMENT_RE = re.compile(r"^[A-Z][a-z]?$")
+
+
+def _element_known(symbol: str) -> bool:
+    """元素符号必须命中 RDKit 周期表且非通配(atomic number ≥ 1)。
+
+    Phase C R3:``_ELEMENT_RE`` 只核形状,``Xx``/``Zz`` 等形似元素会漏过,
+    直到执行器 ``Chem.Atom(...)`` 才抛未捕获异常 —— 资格判断必须与执行器
+    同一事实源(RDKit 周期表),哑原子 "*" 同样拒绝(add_atom 不造占位)。
+    """
+    try:
+        return Chem.GetPeriodicTable().GetAtomicNumber(str(symbol)) >= 1
+    except Exception:
+        return False
+
 
 class AtomToolError(ValueError):
     """结构/表示/编辑核验失败(fail-closed)。reason 为稳定机读码。"""
@@ -277,6 +314,364 @@ def check_edit_references(current: MoleculeRender,
                 if op in ("form_bond", "add_bond") and pair in bonds:
                     reasons.append(f"edit_invalid:bond_already_present:{a1}~{a2}")
     return (not reasons), reasons
+
+
+def validate_edits(current: MoleculeRender, edits: list) -> dict:
+    """编辑列表结构化校验(v2 协议;不执行,拓扑前提留给执行步)。
+
+    校验:op 合法(严格四操作;旧别名 remove_bond/add_bond 一律
+    unknown_op)、**逐操作字段表**(未声明字段 = unknown_field:<name>)、
+    必填字段齐、引用原子 ID 存在、键级 token 合法、add_atom 的
+    new_atom_id 合法(格式/元素一致/不冲突/列表内唯一)且 element 命中
+    周期表(形状合法的 ``Xx`` 在此拒,不再漏到执行器抛异常)。
+    引用按列表时点判定:先前 add_atom 声明的新 ID 可被后续操作引用
+    (先增后引合法,与执行器一致)。键是否存在**不在本步判定** ——
+    编辑按列表顺序执行,先断后成等序列的拓扑前提只在执行时点的图上
+    成立。拒因稳定机读码,均带操作索引 edit[i]。
+    """
+    reasons: list[str] = []
+    ids = set(current.atom_id_map)
+    seen_new: set[str] = set()
+    n = len(edits or [])
+    for i, edit in enumerate(edits or []):
+        tag = f"edit[{i}]"
+        if not isinstance(edit, dict):
+            reasons.append(f"edit_invalid:not_an_object:{tag}")
+            continue
+        op = str(edit.get("op", "")).lower()
+        if op not in _EDIT_OPS:
+            reasons.append(f"edit_invalid:unknown_op:{op or 'missing'}:{tag}")
+            continue
+        # 逐操作字段表:未声明字段一律显式拒绝(任务书 §4;R2 复核)
+        for field in sorted(set(edit) - _EDIT_OP_FIELDS[op]):
+            reasons.append(f"edit_invalid:unknown_field:{field}:{tag}")
+        a1, a2 = edit.get("atom1"), edit.get("atom2")
+        if a1 is None or (a2 is None and op != "add_atom"):
+            reasons.append(f"edit_invalid:missing_atom_reference:{tag}")
+            continue
+        # 引用合法性按列表时点判定:既有原子或本列表**先前 add_atom 已声明**
+        # 的新 ID 都可用(先增后引与执行器一致);引用未声明/后声明仍拒。
+        for ref in (a1, a2):
+            if ref is not None and ref not in ids \
+                    and str(ref) not in seen_new:
+                reasons.append(f"edit_invalid:unknown_atom:{ref}:{tag}")
+        if op == "change_bond_order":
+            for field in ("from_order", "to_order"):
+                v = edit.get(field)
+                if v is None:
+                    reasons.append(f"edit_invalid:missing_field:{field}:{tag}")
+                elif str(v).lower() not in _BOND_TOKENS:
+                    reasons.append(
+                        f"edit_invalid:bad_bond_order:{v}:{tag}")
+        elif op == "add_atom":
+            element = edit.get("element")
+            element_ok = bool(element) \
+                and _ELEMENT_RE.match(str(element)) is not None \
+                and _element_known(str(element))
+            if not element_ok:
+                reasons.append(
+                    f"edit_invalid:bad_element:{element!r}:{tag}")
+            new_id = edit.get("new_atom_id")
+            if not new_id:
+                reasons.append(f"edit_invalid:missing_field:new_atom_id:{tag}")
+                continue
+            new_id = str(new_id)
+            m = ATOM_ID_RE.match(new_id)
+            if m is None or m.group(0) != new_id:
+                reasons.append(
+                    f"edit_invalid:bad_new_atom_id_format:{new_id}:{tag}")
+                continue
+            if new_id in ids or new_id in seen_new:
+                reasons.append(
+                    f"edit_invalid:new_atom_id_conflict:{new_id}:{tag}")
+                continue
+            if element and _id_element(new_id) and \
+                    _id_element(new_id).lower() != str(element).lower():
+                reasons.append(
+                    f"edit_invalid:new_atom_id_element_mismatch:{new_id}:{tag}")
+                continue
+            # 元素非法的新原子不注册:后续引用它的编辑按 unknown_atom 拒,
+            # 与执行器("非法元素不入图")保持同一语义
+            if element_ok:
+                seen_new.add(new_id)
+    return {"ok": not reasons, "reasons": reasons, "protocol_version":
+            EDIT_PROTOCOL_VERSION, "n_edits": n,
+            "new_atom_ids": sorted(seen_new)}
+
+
+def execute_edits(current: MoleculeRender, edits: list) -> dict:
+    """在当前分子图副本上**按列表顺序**执行编辑(事务式;任务书 §4)。
+
+    每步以更新后的图核验拓扑前提(键存在/不存在、原键级);中间态允许
+    暂时不满足完整价态(事务内暂存),但每步前提必须成立,最终 sanitize
+    必须成功。旧原子 ID 不消失、不变元素;新增原子按 new_atom_id 入图。
+    失败 fail-closed,拒因带操作索引 edit[i]。
+    """
+    mol = Chem.MolFromSmiles(current.smiles)
+    if mol is None:
+        return {"ok": False, "reasons": ["internal:substrate_unparseable"],
+                "product_smiles": "", "atom_id_map": {},
+                "protocol_version": EDIT_PROTOCOL_VERSION,
+                "n_edits": len(edits or [])}
+    try:
+        Chem.Kekulize(mol, clearAromaticFlags=True)
+    except Exception:
+        pass  # 少数结构无法 kekulize:按芳香形式继续(键级前提将如实失配)
+    rw = Chem.RWMol(mol)
+    id_to_idx = dict(current.atom_id_map)
+    idx_to_id = {v: k for k, v in id_to_idx.items()}
+    reasons: list[str] = []
+
+    def bond_between(a1, a2):
+        i1, i2 = id_to_idx.get(a1), id_to_idx.get(a2)
+        if i1 is None or i2 is None:
+            return None
+        return rw.GetBondBetweenAtoms(i1, i2)
+
+    for i, edit in enumerate(edits or []):
+        tag = f"edit[{i}]"
+        op = str(edit.get("op", "")).lower()
+        a1, a2 = edit.get("atom1"), edit.get("atom2")
+        if op == "break_bond":
+            bond = bond_between(a1, a2)
+            if bond is None:
+                reasons.append(
+                    f"edit_execution_failed:bond_not_present:{a1}~{a2}:{tag}")
+                continue
+            rw.RemoveBond(id_to_idx[a1], id_to_idx[a2])
+        elif op == "form_bond":
+            if bond_between(a1, a2) is not None:
+                # 硬拒绝(任务书 §4):form_bond 对已有键仍报
+                # bond_already_present;键级变化必须显式走 change_bond_order
+                reasons.append(
+                    f"edit_execution_failed:bond_already_present:"
+                    f"{a1}~{a2}:{tag}")
+                continue
+            rw.AddBond(id_to_idx[a1], id_to_idx[a2], Chem.BondType.SINGLE)
+        elif op == "change_bond_order":
+            bond = bond_between(a1, a2)
+            if bond is None:
+                reasons.append(
+                    f"edit_execution_failed:bond_not_present:{a1}~{a2}:{tag}")
+                continue
+            frm = str(edit.get("from_order", "")).lower()
+            to = str(edit.get("to_order", "")).lower()
+            have = _order_token_of(bond.GetBondType())
+            if have != frm:
+                reasons.append(
+                    f"edit_execution_failed:bond_order_mismatch:"
+                    f"{a1}~{a2}:expected_{frm}_have_{have}:{tag}")
+                continue
+            bond.SetBondType(_BOND_TOKENS[to])
+        elif op == "add_atom":
+            element = str(edit.get("element", ""))
+            new_id = str(edit.get("new_atom_id", ""))
+            anchor = id_to_idx.get(a1)
+            if anchor is None:
+                reasons.append(
+                    f"edit_execution_failed:unknown_atom:{a1}:{tag}")
+                continue
+            # 防御(Phase C R3):非法元素在这里必须落结构化拒因,
+            # 不能让 RDKit 异常逃逸成节点崩溃(预校验已挡,此处兜底)
+            try:
+                idx = rw.AddAtom(Chem.Atom(element))
+            except Exception:
+                reasons.append(
+                    f"edit_execution_failed:bad_element:{element}:{tag}")
+                continue
+            rw.AddBond(anchor, idx, Chem.BondType.SINGLE)
+            id_to_idx[new_id] = idx
+            idx_to_id[idx] = new_id
+        else:  # validate_edits 应已拒绝;防御
+            reasons.append(f"edit_execution_failed:unknown_op:{op}:{tag}")
+    if reasons:
+        return {"ok": False, "reasons": reasons, "product_smiles": "",
+                "atom_id_map": {}, "protocol_version": EDIT_PROTOCOL_VERSION,
+                "n_edits": len(edits or [])}
+    out = rw.GetMol()
+    try:
+        Chem.SanitizeMol(out)
+    except Exception as exc:
+        reasons.append(
+            f"edit_execution_failed:sanitize_failed:"
+            f"{type(exc).__name__}:edit[last]")
+        return {"ok": False, "reasons": reasons, "product_smiles": "",
+                "atom_id_map": {}, "protocol_version": EDIT_PROTOCOL_VERSION,
+                "n_edits": len(edits or [])}
+    # 身份核对:旧原子 ID 不得变元素(执行器本身不改元素;此处防御 ID 图)
+    for aid, idx in id_to_idx.items():
+        elem = _id_element(aid)
+        if elem and out.GetAtomWithIdx(idx).GetSymbol().lower() \
+                != elem.lower() and idx_to_id.get(idx) == aid:
+            reasons.append(f"internal:element_identity_drift:{aid}")
+    if reasons:
+        return {"ok": False, "reasons": reasons, "product_smiles": "",
+                "atom_id_map": {}, "protocol_version": EDIT_PROTOCOL_VERSION,
+                "n_edits": len(edits or [])}
+    return {"ok": True, "reasons": [], "product_smiles": Chem.MolToSmiles(out),
+            "atom_id_map": id_to_idx,
+            "protocol_version": EDIT_PROTOCOL_VERSION,
+            "n_edits": len(edits or [])}
+
+
+def _order_token_of(bond_type) -> str:
+    for token, bt in _BOND_TOKENS.items():
+        if bt == bond_type:
+            return token
+    return str(bond_type)
+
+
+def _id_graph_from_mol(mol, id_to_idx: dict) -> dict:
+    """(kekulé 化后的)分子图 → ID 级带标签图 {ids, elements, charges,
+    bonds: {frozenset(id,id): order_token}}。"""
+    try:
+        Chem.Kekulize(mol, clearAromaticFlags=True)
+    except Exception:
+        pass
+    idx_to_id = {v: k for k, v in id_to_idx.items()}
+    elements, charges = {}, {}
+    for aid, idx in id_to_idx.items():
+        atom = mol.GetAtomWithIdx(idx)
+        elements[aid] = atom.GetSymbol()
+        charges[aid] = atom.GetFormalCharge()
+    bonds = {}
+    for b in mol.GetBonds():
+        a1 = idx_to_id.get(b.GetBeginAtomIdx())
+        a2 = idx_to_id.get(b.GetEndAtomIdx())
+        if a1 and a2:
+            bonds[frozenset((a1, a2))] = _order_token_of(b.GetBondType())
+    return {"ids": set(id_to_idx), "elements": elements,
+            "charges": charges, "bonds": bonds}
+
+
+_LABEL_CHARGE_RE = re.compile(r"\((\d*)([+-])\)$")
+_LABEL_RE = re.compile(r"^([A-Z][a-z]?)(?:H(\d*))?(?:\((\d*[+-])\))?$")
+
+
+def _label_parse(label: str) -> tuple[str, int, int]:
+    """MoleCode 节点标签 → (元素, 显式 H 数, 形式电荷)。"""
+    m = _LABEL_RE.match((label or "").strip())
+    if m is None:
+        return "", 0, 0
+    element = m.group(1)
+    h_digits = m.group(2)
+    if h_digits is None:
+        h = 0
+    elif h_digits == "":
+        h = 1
+    else:
+        h = int(h_digits)
+    charge = 0
+    ch = m.group(3)
+    if ch:
+        if ch in ("+", "-"):
+            charge = 1 if ch == "+" else -1
+        else:
+            charge = int(ch[:-1]) if ch[-1] == "+" else -int(ch[:-1])
+    return element, h, charge
+
+
+def check_target_consistency(current: MoleculeRender,
+                             execution: dict, target_text: str) -> dict:
+    """目标 MoleCode 独立解析并与**执行结果图**逐项对账(任务书 §4)。
+
+    - 目标可解析(否则 molecode_unparseable);
+    - 既有原子 ID 不消失、元素一致(mapping_inconsistent:*);
+    - ID 级带标签图对账:原子 ID 集合、元素、形式电荷、键集合与键级
+      (两侧 kekulé 归一)逐项一致 —— 文本中正则搜到 ID 不算结构相符;
+    - 最终 canonical SMILES(含立体)一致(target_edit_mismatch)。
+    """
+    reasons: list[str] = []
+    if not execution.get("ok"):
+        return {"ok": False,
+                "reasons": ["target_check_skipped:execution_failed"],
+                "target_smiles": ""}
+    from pathway_v43.vendor.molecode.molecule.mermaid_to_rdkit import (
+        MermaidMolParser,
+    )
+
+    parser = MermaidMolParser()
+    target_mol = parser.parse_mermaid_graph(target_text or "")
+    if target_mol is None:
+        return {"ok": False,
+                "reasons": ["molecode_unparseable:目标 MoleCode 无法解析"],
+                "target_smiles": ""}
+    tgt_ids = parse_atom_ids(target_text or "")
+    cur_ids = set(current.atom_id_map)
+    for aid in sorted(cur_ids - tgt_ids):
+        reasons.append(f"mapping_inconsistent:atom_removed:{aid}")
+    for aid in sorted(cur_ids & tgt_ids):
+        cur_elem = _id_element(aid)
+        tgt_elem = _id_element(aid)
+        if cur_elem and tgt_elem and cur_elem != tgt_elem:
+            reasons.append(
+                f"mapping_inconsistent:element_mismatch:"
+                f"{aid}({cur_elem}->{tgt_elem})")
+    exec_mol = Chem.MolFromSmiles(execution["product_smiles"])
+    exec_graph = _id_graph_from_mol(exec_mol, execution["atom_id_map"])
+    # 目标侧 ID 级图:解析器自持 atoms(id→label)/bonds(id,id,token)
+    tgt_elements, tgt_charges = {}, {}
+    for aid, label in (parser.atoms or {}).items():
+        element, _h, charge = _label_parse(label)
+        tgt_elements[aid] = element
+        tgt_charges[aid] = charge
+    tgt_bonds = {}
+    for entry in parser.bonds or []:
+        a1, a2, token = entry[0], entry[1], entry[2]
+        order = {"---": "single", "===": "double", "-.-": "triple"}.get(
+            token, "aromatic")
+        tgt_bonds[frozenset((a1, a2))] = order
+    if not reasons:
+        if exec_graph["ids"] != set(tgt_elements):
+            missing = sorted(exec_graph["ids"] - set(tgt_elements))
+            extra = sorted(set(tgt_elements) - exec_graph["ids"])
+            if missing:
+                reasons.append(
+                    f"target_edit_mismatch:atom_id_sets_differ:"
+                    f"missing_in_target:{','.join(missing[:6])}")
+            if extra:
+                reasons.append(
+                    f"target_edit_mismatch:atom_id_sets_differ:"
+                    f"extra_in_target:{','.join(extra[:6])}")
+        else:
+            for aid in sorted(exec_graph["ids"]):
+                if exec_graph["elements"][aid] != tgt_elements.get(aid):
+                    reasons.append(
+                        f"target_edit_mismatch:element:"
+                        f"{aid}({exec_graph['elements'][aid]}"
+                        f"!={tgt_elements.get(aid)})")
+                if exec_graph["charges"][aid] != tgt_charges.get(aid):
+                    reasons.append(
+                        f"target_edit_mismatch:formal_charge:{aid}"
+                        f"({exec_graph['charges'][aid]}"
+                        f"!={tgt_charges.get(aid)})")
+            only_exec = sorted({k for k in exec_graph["bonds"]
+                                if k not in tgt_bonds})
+            only_tgt = sorted({k for k in tgt_bonds
+                               if k not in exec_graph["bonds"]})
+            for k in only_exec[:4]:
+                reasons.append(
+                    f"target_edit_mismatch:bond_in_execution_not_target:"
+                    f"{'~'.join(sorted(k))}")
+            for k in only_tgt[:4]:
+                reasons.append(
+                    f"target_edit_mismatch:bond_in_target_not_execution:"
+                    f"{'~'.join(sorted(k))}")
+            for k in sorted(set(exec_graph["bonds"]) & set(tgt_bonds)):
+                if exec_graph["bonds"][k] != tgt_bonds[k]:
+                    reasons.append(
+                        f"target_edit_mismatch:bond_order:"
+                        f"{'~'.join(sorted(k))}"
+                        f"({exec_graph['bonds'][k]}!={tgt_bonds[k]})")
+    target_smiles = Chem.MolToSmiles(target_mol)
+    if not reasons and target_smiles != execution["product_smiles"]:
+        reasons.append(
+            f"target_edit_mismatch:canonical_smiles_diff:"
+            f"executed={execution['product_smiles']!r}"
+            f"_target={target_smiles!r}")
+    return {"ok": not reasons, "reasons": reasons,
+            "target_smiles": target_smiles,
+            "n_target_atoms": len(tgt_elements)}
 
 
 def align_donor_mapping(donor_mol, current_mol, center_map_nums=None,

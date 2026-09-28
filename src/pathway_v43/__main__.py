@@ -208,15 +208,13 @@ def cmd_run(args) -> int:
     config = resolve_config(args.v3_code_root, args.assets_root)
     model = None if args.model == "off" else _model_setup(
         args.model, args.fake_script)
-    # 模型启用时同时启用类比供体找回(任务书 §1:证据可用性优先)
+    # 类比供体找回恒启用(Phase D D1:reactant_similar 通道在离线/无模型
+    # 配置同样需要;找回本身确定性、零 API 成本,门禁仍在下游)
     engine = get_engine(config)
-    analog_resolver = None
-    if model is not None:
-        from pathway_v43.services.analog_source import AnalogSourceResolver
+    from pathway_v43.services.analog_source import AnalogSourceResolver
 
-        analog_resolver = AnalogSourceResolver(config)
-    finder = EngineReactionFinder(engine, config,
-                                  analog_resolver=analog_resolver)
+    finder = EngineReactionFinder(
+        engine, config, analog_resolver=AnalogSourceResolver(config))
     summary = start_run(
         config=config, runs_root=_runs_root(args), run_id=args.run_id,
         smiles=args.smiles, max_depth=args.max_depth,
@@ -258,6 +256,117 @@ def cmd_inspect(args) -> int:
                **inspect_payload(_runs_root(args), args.run_id)}
     _emit(payload, args.out)
     return 0
+
+
+def cmd_export(args) -> int:
+    from pathway_v43.output.export_v3 import export_run_v3
+
+    policy = None
+    if args.cap is not None:
+        policy = {"products_per_parent_cap": args.cap}
+    result = export_run_v3(
+        _runs_root(args), args.run_id, route_id=args.route_id,
+        policy=policy, verify_only=args.verify)
+    _emit({"command": "export", **result}, args.out)
+    return 0
+
+
+def cmd_batch(args) -> int:
+    from pathlib import Path as _P
+
+    from pathway_v43.batch import (
+        build_input_manifest, load_batch_config, load_input_manifest,
+        merge_predictions_terminal, run_batch,
+    )
+    from pathway_v43.config import resolve_config
+    from pathway_v43.output.export_v3 import load_export_policy
+
+    action = args.action
+    batch_root = _P(args.batch_root).expanduser().resolve()
+    # v3 冻结基准根:显式 > 环境变量 > 默认(../dependingv3)
+    v3_root = resolve_config(args.v3_code_root, args.assets_root).v3_code_root
+    if action == "plan":
+        manifest = build_input_manifest(v3_root, args.split,
+                                        batch_root / "input_manifest.json")
+        _emit({"command": "batch plan", "ok": True,
+               "n_routes": len(manifest["routes"]),
+               "route_order": manifest["route_order"],
+               "source": manifest["source"],
+               "path": str(batch_root / "input_manifest.json")},
+              args.out)
+        return 0
+
+    if action == "precheck":
+        from pathway_v43.batch import precheck_capacity as pc
+
+        facts = pc(batch_root, load_batch_config(args.batch_config))
+        _emit({"command": "batch precheck", "ok": True, **facts}, args.out)
+        return 0
+
+    if action == "status":
+        import json as _json
+
+        progress = batch_root / "progress.json"
+        payload = {"command": "batch status", "batch_root": str(batch_root)}
+        if progress.is_file():
+            payload["progress"] = _json.loads(
+                progress.read_text(encoding="utf-8"))
+        else:
+            payload["progress"] = None
+            payload["note"] = "no progress yet(协调器未启动或未写进度)"
+        _emit(payload, args.out)
+        return 0
+
+    # run / merge 共同前置:配置、清单、导出策略、批次身份
+    config = load_batch_config(args.batch_config)
+    export_policy = load_export_policy(config["export_policy_overrides"])
+    manifest_path = batch_root / "input_manifest.json"
+    if not manifest_path.is_file():
+        manifest = build_input_manifest(args.v3_code_root, args.split,
+                                        manifest_path)
+    manifest = load_input_manifest(manifest_path)
+
+    if action == "run":
+        run_batch(
+            split=args.split, batch_root=batch_root,
+            runs_root=_P(args.runs_root).expanduser().resolve()
+            if args.runs_root else batch_root / "runs",
+            manifest=manifest, config=config, export_policy=export_policy,
+            model_choice=args.model, env_file=args.env_file,
+            batch_config_path=args.batch_config,
+            v3_code_root=args.v3_code_root, out=args.out,
+        )
+        return 0
+
+    if action == "merge":
+        from pathway_v43.batch import merge_predictions_terminal
+
+        meta = merge_predictions_terminal(
+            batch_root=batch_root, manifest=manifest, config=config,
+            export_policy=export_policy)
+        _emit({"command": "batch merge", "ok": True, **meta}, args.out)
+        return 0
+    raise ValueError(f"未知 batch 动作:{action}")
+
+
+def cmd_score(args) -> int:
+    from pathway_v43.output.score_report import score_predictions_file
+
+    result = score_predictions_file(
+        predictions_path=args.predictions,
+        out_dir=args.out_dir, v3_root=args.v3_code_root, label=args.label,
+    )
+    _emit({"command": "score", "ok": True, "label": result["label"],
+           "report_path": result["path"],
+           "overall": result["report"]["calibers"]["cn"]["overall"]},
+          args.out)
+    return 0
+
+
+def cmd_batch_worker(args) -> int:
+    from pathway_v43.batch import worker_main
+
+    return worker_main(["--plan", args.plan])
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -320,6 +429,40 @@ def main(argv: list[str] | None = None) -> int:
                                help="查看 run 状态/停止原因/路径与证据摘要")
     p_inspect.add_argument("--run-id", required=True)
 
+    p_export = sub.add_parser("export", parents=[common],
+                              help="从已提交账本导出 v3 冻结预测格式(零 LLM)")
+    p_export.add_argument("--run-id", required=True)
+    p_export.add_argument("--route-id", default=None,
+                          help="答卷行 route_id(缺省 = run_id;批跑传冻结映射)")
+    p_export.add_argument("--cap", type=int, default=None,
+                          help="每父产物上限(默认 5;进导出策略哈希)")
+    p_export.add_argument("--verify", action="store_true",
+                          help="只核对现有导出是否新鲜(revision/策略/身份)")
+
+    p_batch = sub.add_parser("batch", parents=[common],
+                             help="dev 批跑:plan/precheck/run/status/merge")
+    p_batch.add_argument("action",
+                         choices=["plan", "precheck", "run", "status", "merge"])
+    p_batch.add_argument("--split", default="dev", choices=["dev"])
+    p_batch.add_argument("--batch-root", required=True)
+    p_batch.add_argument("--model", default="off",
+                         choices=["off", "fake", "real"])
+    p_batch.add_argument("--env-file", default=None,
+                         help="V43_LLM_* 凭证文件(只读入环境,不打印不复制)")
+    p_batch.add_argument("--batch-config", default=None,
+                         help="批次配置 JSON(缺省 configs/dev_batch.json)")
+    # --runs-root 由 common 提供(默认 <batch-root>/runs 由 run_batch 处理)
+
+    p_score = sub.add_parser("score", parents=[common],
+                             help="只读调用 v3 冻结评测器 --split dev 判分")
+    p_score.add_argument("--predictions", required=True)
+    p_score.add_argument("--out-dir", required=True)
+    p_score.add_argument("--label", default="v43",
+                         help="结果文件标签(eval_<label>.json)")
+
+    p_bw = sub.add_parser("batch-worker", help="内部:协调器派生的单路线进程")
+    p_bw.add_argument("--plan", required=True)
+
     args = parser.parse_args(argv)
     try:
         if args.command == "checkenv":
@@ -332,6 +475,14 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_resume(args)
         if args.command == "inspect":
             return cmd_inspect(args)
+        if args.command == "export":
+            return cmd_export(args)
+        if args.command == "batch":
+            return cmd_batch(args)
+        if args.command == "score":
+            return cmd_score(args)
+        if args.command == "batch-worker":
+            return cmd_batch_worker(args)
         parser.error(f"未知子命令:{args.command}")
     except Exception as exc:  # 结构化 fail-closed 退出;不含凭证
         payload = {

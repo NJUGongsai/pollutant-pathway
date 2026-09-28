@@ -26,6 +26,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from rdkit import Chem, RDLogger
+from rdkit.Chem import rdMolDescriptors
 
 RDLogger.DisableLog("rdApp.*")
 
@@ -33,9 +34,32 @@ from ..adapters.asset_manifest import sha256_file  # noqa: E402
 from ..domain.identity import cn_identity, stereo_blind  # noqa: E402
 from .atom_tool import align_donor_mapping  # noqa: E402
 
-ANALOG_CORPUS_REL = "analog/corpus_templates_v1.jsonl"
 CORPUS_V1_REL = "v3_reactions/corpus_env/corpus_v1.jsonl"
 DONOR_INDEX_REL = "v3_reactions/corpus_env/donor_index.jsonl"
+
+
+def _analog_corpus_rel(config) -> str:
+    """Phase D D2:按配置显式选择 v1/v2 语料(白名单外的值在 config 层
+    已拒;此处再 fail-closed 一次,防旁路构造)。"""
+    from ..adapters.asset_manifest import analog_corpus_rel
+
+    return analog_corpus_rel(getattr(config, "analog_corpus", "v1"))
+
+# ---- Phase D D1:供体反应物相似度检索(reactant_similar 通道) ----
+# 检索定义整体版本化:指纹/半径/位数/立体/规范化/阈值边界任何一项变化
+# 都必须升版本并使跨版本缓存失效(索引键含本串)。
+SIMILARITY_VERSION = "v43-rsim-1"
+SIMILARITY_FP_KIND = "morgan"
+SIMILARITY_FP_RADIUS = 2
+SIMILARITY_FP_BITS = 2048
+SIMILARITY_FP_CHIRALITY = False   # 立体盲(与 stereo_blind 身份口径一致)
+SIMILARITY_METRIC = "tanimoto"
+SIMILARITY_CMP = "ge"             # 阈值边界:相似度 >= threshold 才召回
+
+# 找回通道(Phase D 任务书 §2:三通道合并,全部留痕)
+CHANNEL_PRODUCT = "product_producing"
+CHANNEL_SIMILAR = "reactant_similar"
+CHANNEL_TRACE = "corpus_trace"
 
 # mapping_status(检索卡字段;缺省 unavailable,兼容 v1 读取)
 MAPPING_RESOLVED = "resolved"        # 唯一映射模板 + 已对齐当前分子
@@ -68,9 +92,29 @@ class DonorRef:
     mapped_rhs: str = ""
     center_atoms: list = field(default_factory=list)
     alignment: dict | None = None  # {strategy, n_aligned, alignment:{donor_idx: current_idx}}
+    # Phase D D1:找回通道与相似度留痕(find_channels 可多值 = 多通道召回同一供体)
+    find_channels: list = field(default_factory=list)
+    similarity: float | None = None       # reactant_similar 通道分数
+    similarity_version: str = ""
+    similarity_rank: int | None = None    # 通道内召回位次(1-based)
 
     def to_dict(self) -> dict:
         return dict(self.__dict__)
+
+
+def _reactant_fingerprint(smiles: str):
+    """供体反应物/底物的检索指纹(Morgan r2 b2048 立体盲;失败返回 None)。"""
+    mol = Chem.MolFromSmiles(smiles) if smiles else None
+    if mol is None:
+        return None
+    try:
+        return rdMolDescriptors.GetMorganFingerprintAsBitVect(
+            mol, SIMILARITY_FP_RADIUS,
+            nBits=SIMILARITY_FP_BITS,
+            useChirality=SIMILARITY_FP_CHIRALITY,
+        )
+    except Exception:
+        return None
 
 
 class AnalogSourceError(RuntimeError):
@@ -121,8 +165,17 @@ class AnalogSourceResolver:
 
         self.assets_root = Path(config.assets_root).resolve()
         self.manifest = verify_repo_manifest(self.assets_root)  # fail-closed
+        # Phase D D2:显式 v1/v2 装载选择;所选文件必须在清单内且哈希
+        # 一致(verify 已核),缺失/不在清单 → 失败,绝不静默回退另一版
+        corpus_rel = _analog_corpus_rel(config)
+        if corpus_rel not in self.manifest["files"]:
+            raise AnalogSourceError(
+                f"所选类比语料不在清单内:{corpus_rel}"
+                f"(analog_corpus={getattr(config, 'analog_corpus', 'v1')})",
+                {"selected": corpus_rel})
+        self.analog_corpus_version = getattr(config, "analog_corpus", "v1")
         self.paths = {
-            "analog_corpus_templates": self.assets_root / ANALOG_CORPUS_REL,
+            "analog_corpus_templates": self.assets_root / corpus_rel,
             "corpus_v1": self.assets_root / CORPUS_V1_REL,
         }
         for name, path in self.paths.items():
@@ -133,7 +186,7 @@ class AnalogSourceResolver:
         self._asset_meta = {
             name: {"asset_file": rel, "asset_sha256": self.manifest["files"][rel]}
             for name, rel in (
-                ("analog_corpus_templates", ANALOG_CORPUS_REL),
+                ("analog_corpus_templates", corpus_rel),
                 ("corpus_v1", CORPUS_V1_REL),
             )
         }
@@ -204,6 +257,35 @@ class AnalogSourceResolver:
             AnalogSourceResolver._INDEX_CACHE[key] = cached
         return cached
 
+    def _reactant_fp_index(self) -> list[dict]:
+        """供体反应物指纹索引(Phase D D1):[{row, line_no, fp, reactant}]。
+
+        索引键含资产 SHA **与算法版本串**:任一变化都重建,跨版本缓存
+        不串用。反应物不可解析的行如实跳过(检索层不猜;该行仍可被
+        record_id / 产物通道找回)。"""
+        key = self._index_key("analog_corpus_templates") \
+            + ("reactant_fp", SIMILARITY_VERSION)
+        cached = AnalogSourceResolver._INDEX_CACHE.get(key)
+        if cached is None:
+            cached = []
+            with open(self.paths["analog_corpus_templates"],
+                      encoding="utf-8") as f:
+                for line_no, line in enumerate(f, 1):
+                    if not line.strip():
+                        continue
+                    row = json.loads(line)
+                    lhs, _rhs = _lhs_rhs(row)
+                    reactant = _strip_map(lhs)
+                    if not reactant:
+                        continue
+                    fp = _reactant_fingerprint(reactant)
+                    if fp is None:
+                        continue
+                    cached.append({"row": row, "line_no": line_no,
+                                   "fp": fp, "reactant": reactant})
+            AnalogSourceResolver._INDEX_CACHE[key] = cached
+        return cached
+
     # ------------------------------------------------------------ 找回
 
     def resolve_template(self, record_id: str) -> DonorRef | None:
@@ -225,6 +307,7 @@ class AnalogSourceResolver:
             product_smiles=_strip_map(rhs),
             mapped_lhs=lhs, mapped_rhs=rhs,
             center_atoms=[int(x) for x in (row.get("center_atoms") or [])],
+            find_channels=[CHANNEL_PRODUCT],
         )
 
     def templates_producing(self, product_identity: str) -> list[DonorRef]:
@@ -247,6 +330,7 @@ class AnalogSourceResolver:
                 product_smiles=_strip_map(rhs),
                 mapped_lhs=lhs, mapped_rhs=rhs,
                 center_atoms=[int(x) for x in (row.get("center_atoms") or [])],
+                find_channels=[CHANNEL_PRODUCT],
             ))
         return out
 
@@ -268,6 +352,61 @@ class AnalogSourceResolver:
                 product_smiles="",
                 mapped_lhs="", mapped_rhs="",
                 center_atoms=[],
+                find_channels=[CHANNEL_TRACE],
+            ))
+        return out
+
+    def templates_similar_to(self, substrate_smiles: str, *,
+                             threshold: float, top_k: int) -> list[DonorRef]:
+        """按供体**反应物**与当前底物的结构相似度召回模板(Phase D D1)。
+
+        语义边界(任务书 §2):相似度只决定**召回次序**,绝不替代
+        ``assess_donor`` 的化学适用性判定;无映射模板不会被本通道召回
+        (索引只含带 mapped_lhs 的行,但召回后仍按 Phase C 全门禁评估)。
+
+        - 相似度 = Tanimoto(Morgan r2 b2048 立体盲);
+        - 阈值边界 **>=**(SIMILARITY_CMP),恰在阈值上的召回;
+        - 底物不可解析 → 返回 [](检索层不猜,调用方按无召回处理);
+        - 排序 (-similarity, line_no, record_id) 确定性 tie-break,
+          与引擎异构 score 无关;取前 ``top_k``;
+        - 同一底物与自身完全相同的模板(相似度 1.0)也会召回 —— 是否
+          属"精确查找领域"由 assess_donor 的 donor_same_as_substrate 判。
+        """
+        fp = _reactant_fingerprint(substrate_smiles)
+        if fp is None or top_k <= 0 or threshold > 1.0:
+            return []
+        from rdkit import DataStructs
+
+        index = self._reactant_fp_index()
+        scored: list[tuple[float, int, str, dict]] = []
+        for entry in index:
+            sim = DataStructs.TanimotoSimilarity(fp, entry["fp"])
+            if sim >= threshold:
+                row = entry["row"]
+                scored.append((sim, entry["line_no"],
+                               str(row.get("record_id", "")), entry))
+        scored.sort(key=lambda t: (-t[0], t[1], t[2]))
+        meta = self._asset_meta["analog_corpus_templates"]
+        out: list[DonorRef] = []
+        for rank, (sim, _ln, _rid, entry) in enumerate(scored[:top_k], 1):
+            row = entry["row"]
+            lhs, rhs = _lhs_rhs(row)
+            out.append(DonorRef(
+                record_id=str(row.get("record_id", "")),
+                index="analog_corpus_templates",
+                asset_file=meta["asset_file"],
+                asset_sha256=meta["asset_sha256"],
+                line_no=entry["line_no"],
+                mapping_quality=_mapping_quality(
+                    lhs, rhs, row.get("qc_flags") or {}),
+                reactant_smiles=entry["reactant"],
+                product_smiles=_strip_map(rhs),
+                mapped_lhs=lhs, mapped_rhs=rhs,
+                center_atoms=[int(x) for x in (row.get("center_atoms") or [])],
+                find_channels=[CHANNEL_SIMILAR],
+                similarity=round(float(sim), 6),
+                similarity_version=SIMILARITY_VERSION,
+                similarity_rank=rank,
             ))
         return out
 
@@ -344,3 +483,18 @@ def build_card_mapping_fields(
                 "mapping_reason": "no_mapped_template:traceability_only"}
     return {"donor_refs": [], "mapping_status": MAPPING_UNAVAILABLE,
             "mapping_reason": "no_donor_record"}
+
+
+def similar_donor_refs(resolver: AnalogSourceResolver | None,
+                        substrate_smiles: str, *,
+                        threshold: float, top_k: int) -> list[dict]:
+    """当前底物的相似供体引用(Phase D D1 reactant_similar 通道)。
+
+    resolver 缺席 / 通道参数关闭(threshold<=0 或 top_k<=0) → [](不猜)。
+    返回按相似度降序的 ref dict 列表(含通道、分数、版本与召回位次);
+    供体资格仍由 build_eligibility/assess_donor 判定,本函数只召回。
+    """
+    if resolver is None or threshold <= 0 or top_k <= 0:
+        return []
+    return [r.to_dict() for r in resolver.templates_similar_to(
+        substrate_smiles, threshold=threshold, top_k=top_k)]

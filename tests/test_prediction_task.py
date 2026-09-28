@@ -304,24 +304,86 @@ def test_route_competitive_recorded_to_rank():
     assert mode == PREDICTION_MODE_RANK and "竞争" in reason
 
 
+def _elig(status: str, fallback: str = "", selected: bool = True) -> dict:
+    """Phase C 资格块(路由测试用最小形状)。"""
+    return {
+        "schema_version": "v43-applicability-1",
+        "status": status,
+        "fallback_reason": fallback,
+        "selected": ({"evidence_id": "E-x", "record_id": "r1"}
+                     if status == "applicable" and selected else None),
+    }
+
+
 def test_route_analog_resolved_vs_unmapped():
+    # Phase C:``mapping_status=resolved`` 单独出现不再触发类比 —— 必须有
+    # 通过适用性门禁的资格块;无资格块按未评估处置,走受约束 novel。
     resolved = _ev("analog_reaction")
     resolved["mapping_status"] = "resolved"
-    mode, _ = decide_prediction_route(
+    mode, reason = decide_prediction_route(
         "awaiting_prediction", [resolved], S, prediction_policy(),
         model_enabled=True, llm_remaining=5, proposals_remaining=5)
-    assert mode == PREDICTION_MODE_ANALOGY
+    assert mode == PREDICTION_MODE_NOVEL
+    assert "applicability" in reason or "no_mapping" in reason
+    # 资格块 applicable → analogy_edit,reason 带选定供体
+    mode, reason = decide_prediction_route(
+        "awaiting_prediction", [resolved], S, prediction_policy(),
+        model_enabled=True, llm_remaining=5, proposals_remaining=5,
+        eligibility=_elig("applicable"))
+    assert mode == PREDICTION_MODE_ANALOGY and "applicable_donor" in reason
+    # 资格失败/歧义/竞争 → 具体拒因 fallback,不统称无证据
+    for status, fallback in (("inapplicable", "applicability_failed"),
+                             ("ambiguous", "multiple_competing_transforms"),
+                             ("unavailable", "mapping_ambiguous")):
+        mode, reason = decide_prediction_route(
+            "awaiting_prediction", [resolved], S, prediction_policy(),
+            model_enabled=True, llm_remaining=5, proposals_remaining=5,
+            eligibility=_elig(status, fallback))
+        assert mode == PREDICTION_MODE_NOVEL and fallback in reason
+        pol = prediction_policy({"allow_novel_on_mapping_failure": False})
+        mode, reason = decide_prediction_route(
+            "awaiting_prediction", [resolved], S, pol,
+            model_enabled=True, llm_remaining=5, proposals_remaining=5,
+            eligibility=_elig(status, fallback))
+        assert mode == "" and fallback in reason
     unmapped = _ev("analog_reaction")
     unmapped["mapping_status"] = "unavailable"
     mode, reason = decide_prediction_route(
         "awaiting_prediction", [unmapped], S, prediction_policy(),
         model_enabled=True, llm_remaining=5, proposals_remaining=5)
-    assert mode == PREDICTION_MODE_NOVEL and "mapping" in reason
+    assert mode == PREDICTION_MODE_NOVEL and "no_mapping" in reason
     pol = prediction_policy({"allow_novel_on_mapping_failure": False})
     mode, reason = decide_prediction_route(
         "awaiting_prediction", [unmapped], S, pol,
         model_enabled=True, llm_remaining=5, proposals_remaining=5)
     assert mode == "" and "hold" in reason
+
+
+def test_route_analogy_disabled_ablation_switch():
+    """Phase C 消融开关:analogy_enabled=false 时类比路由整体关闭,
+    recorded/rank 语义不变;预测性证据按既有 novel 策略处置。"""
+    resolved = _ev("analog_reaction")
+    resolved["mapping_status"] = "resolved"
+    pol = prediction_policy({"analogy_enabled": False})
+    # 即使资格块 applicable 也不进类比
+    mode, reason = decide_prediction_route(
+        "awaiting_prediction", [resolved], S, pol,
+        model_enabled=True, llm_remaining=5, proposals_remaining=5,
+        eligibility=_elig("applicable"))
+    assert mode == PREDICTION_MODE_NOVEL and "analogy_disabled" in reason
+    mode, reason = decide_prediction_route(
+        "awaiting_prediction", [resolved], S,
+        prediction_policy({"analogy_enabled": False,
+                           "allow_novel_on_mapping_failure": False}),
+        model_enabled=True, llm_remaining=5, proposals_remaining=5,
+        eligibility=_elig("applicable"))
+    assert mode == "" and "analogy_disabled_hold" in reason
+    # recorded/rank 不受开关影响
+    mode, _ = decide_prediction_route(
+        "awaiting_prediction",
+        [_ev("recorded_reaction"), _ev("recorded_reaction")],
+        S, pol, model_enabled=True, llm_remaining=5, proposals_remaining=5)
+    assert mode == PREDICTION_MODE_RANK
 
 
 def test_route_no_evidence_and_budget_gates():
@@ -471,7 +533,8 @@ def test_real_provider_urlerror_transport_error(monkeypatch):
 
 
 def test_real_provider_http_error_transport_error(monkeypatch):
-    """HTTPError(URLError 子类)→ transport_error,消息保留异常类型名。"""
+    """HTTPError(URLError 子类)→ transport_error,消息带 HTTP 状态码
+    (任务书 §3:传输失败结构化,状态可审计)。"""
     import urllib.error
 
     resp = _complete_with_transport_error(
@@ -480,4 +543,44 @@ def test_real_provider_http_error_transport_error(monkeypatch):
             {}, None))
     assert resp.ok is False
     assert resp.error_kind == "transport_error"
-    assert resp.error_message == "HTTPError"
+    assert resp.error_message == "HTTPError:503"
+    assert resp.status == 503
+
+
+# ---------------------------------------------------- Phase C R3 补钉
+
+
+def test_forged_analog_card_never_passes_as_usable_recorded(tmp_path):
+    """P1-1(review R3):非 recorded 卡的资格判据空表 = "门禁不适用",
+    **不等于合格**。kind=analog_reaction 的卡即使伪造全部 recorded 挂牌
+    (精确匹配/身份一致/donor_exact_match):
+    ① 唯一卡不得被判 usable recorded → commit_recorded 直通;
+    ② 与两条真 recorded 竞争进 rank 任务时,不得混入候选
+       (Phase B R2:rank 可选 ID 限合格 recorded —— 曾要求"只出现一次",
+       现语义更严:类比卡一律不进 rank 任务,走 analogy_edit 流程)。"""
+    from pathway_v43.domain.policy import classify_evidence
+
+    forged = evidence("an", "analog_reaction", S, [P2],
+                      match_type="exact_donor_cn_match",
+                      extra={"source_record": {"donor_exact_match": True,
+                                               "btid": "an"}})
+    # ① 唯一卡:不得直通 commit_recorded,按预测证据停留
+    d = classify_evidence([forged], "runX", "p1", S)
+    assert d.outcome != "commit_recorded"
+    assert d.reason.startswith("only_rule_or_analog")
+
+    # ② rank 场景:候选去重且 kind 如实
+    scripted = {S: [rec("btA", S, [P1]), rec("btB", S, ["CC=O"]), forged]}
+    model = fake_model_stub(rank_responses=[rank_response("E-btA")])
+    _, runs = run_scripted(
+        "p11forged", scripted, max_depth=2, max_expansions=4,
+        max_frontier_width=2, runs_root=tmp_path, model=model,
+    )
+    tasks = _read_tasks(runs, "p11forged")
+    rank_tasks = [t for t in tasks if t["mode"] == PREDICTION_MODE_RANK]
+    assert len(rank_tasks) == 1
+    cands = rank_tasks[0]["candidates"]
+    ids = [c["evidence_id"] for c in cands]
+    assert "E-an" not in ids, ids  # Phase B R2:类比卡不进 rank 任务
+    kinds = {c["evidence_id"]: c["kind"] for c in cands}
+    assert set(kinds.values()) == {"recorded_reaction"}

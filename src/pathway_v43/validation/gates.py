@@ -66,6 +66,22 @@ def gate_direction_source(evidence: dict) -> tuple[bool, str]:
     return True, ""
 
 
+def gate_recorded_eligibility(evidence: dict,
+                              substrate_identity: str) -> tuple[bool, str]:
+    """recorded 卡完整资格门禁(Phase B R1:validate_products 防线)。
+
+    与任务候选筛选/路由/逐卡验证共用 policy.recorded_eligibility_reasons
+    同一判据 —— 模型选中的卡也必须复验,不凭 evidence_id 升格脏卡。
+    非 recorded 卡不适用(返回通过)。
+    """
+    from ..domain.policy import recorded_eligibility_reasons
+
+    reasons = recorded_eligibility_reasons(evidence, substrate_identity)
+    if reasons:
+        return False, ";".join(reasons)
+    return True, ""
+
+
 def gate_atom_mapping_declared(evidence: dict) -> tuple[bool, str]:
     """原子映射必须显式声明(可用或 unavailable),不许含糊缺席。"""
     am = evidence.get("atom_mapping")

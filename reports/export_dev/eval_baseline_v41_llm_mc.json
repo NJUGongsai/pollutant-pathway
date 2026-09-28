@@ -1,0 +1,814 @@
+{
+  "benchmark": "eawag_pathway_benchmark",
+  "calibers": {
+    "cn": {
+      "by_stratum": {
+        "D": {
+          "gold_leaf_reached": 0.105,
+          "n_gold_edges": 78,
+          "n_leaves": 17,
+          "n_root_mismatch": 0,
+          "n_routes": 5,
+          "route_recall": 0.104286,
+          "spurious_rate": 0.235294,
+          "step_hit@1": 0.102564,
+          "step_hit@3": 0.153846,
+          "step_hit@5": 0.166667
+        },
+        "M": {
+          "gold_leaf_reached": 0.142857,
+          "n_gold_edges": 92,
+          "n_leaves": 10,
+          "n_root_mismatch": 0,
+          "n_routes": 7,
+          "route_recall": 0.213137,
+          "spurious_rate": 0.359477,
+          "step_hit@1": 0.130435,
+          "step_hit@3": 0.184783,
+          "step_hit@5": 0.184783
+        },
+        "S": {
+          "gold_leaf_reached": 0.25,
+          "n_gold_edges": 37,
+          "n_leaves": 15,
+          "n_root_mismatch": 0,
+          "n_routes": 8,
+          "route_recall": 0.25,
+          "spurious_rate": 0.225242,
+          "step_hit@1": 0.081081,
+          "step_hit@3": 0.108108,
+          "step_hit@5": 0.108108
+        }
+      },
+      "overall": {
+        "gold_leaf_reached": 0.17625,
+        "n_gold_edges": 207,
+        "n_leaves": 42,
+        "n_root_mismatch": 0,
+        "n_routes": 20,
+        "route_recall": 0.200669,
+        "spurious_rate": 0.274737,
+        "step_hit@1": 0.111111,
+        "step_hit@3": 0.15942,
+        "step_hit@5": 0.164251
+      },
+      "per_route": [
+        {
+          "flags": {},
+          "gold_leaf_reached": 1.0,
+          "n_gold_edges": 17,
+          "n_leaves": 1,
+          "n_predicted_products": 17,
+          "root_mismatch": false,
+          "route_id": "pb_0002",
+          "route_recall": 0.23529411764705882,
+          "spurious_rate": 0.7058823529411765,
+          "step_hits": {
+            "1": 3,
+            "3": 4,
+            "5": 4
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.125,
+          "n_gold_edges": 35,
+          "n_leaves": 8,
+          "n_predicted_products": 17,
+          "root_mismatch": false,
+          "route_id": "pb_0065",
+          "route_recall": 0.17142857142857143,
+          "spurious_rate": 0.6470588235294118,
+          "step_hits": {
+            "1": 3,
+            "3": 5,
+            "5": 6
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 1.0,
+          "n_gold_edges": 2,
+          "n_leaves": 1,
+          "n_predicted_products": 23,
+          "root_mismatch": false,
+          "route_id": "pb_0074",
+          "route_recall": 1.0,
+          "spurious_rate": 0.9130434782608695,
+          "step_hits": {
+            "1": 2,
+            "3": 2,
+            "5": 2
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 1.0,
+          "n_gold_edges": 2,
+          "n_leaves": 1,
+          "n_predicted_products": 18,
+          "root_mismatch": false,
+          "route_id": "pb_0117",
+          "route_recall": 1.0,
+          "spurious_rate": 0.8888888888888888,
+          "step_hits": {
+            "1": 1,
+            "3": 2,
+            "5": 2
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 4,
+          "n_leaves": 1,
+          "n_predicted_products": 9,
+          "root_mismatch": false,
+          "route_id": "pb_0130",
+          "route_recall": 0.75,
+          "spurious_rate": 0.6666666666666666,
+          "step_hits": {
+            "1": 3,
+            "3": 3,
+            "5": 3
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.4,
+          "n_gold_edges": 20,
+          "n_leaves": 5,
+          "n_predicted_products": 17,
+          "root_mismatch": false,
+          "route_id": "pb_0201",
+          "route_recall": 0.35,
+          "spurious_rate": 0.5294117647058824,
+          "step_hits": {
+            "1": 5,
+            "3": 7,
+            "5": 7
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 25,
+          "n_leaves": 2,
+          "n_predicted_products": 17,
+          "root_mismatch": false,
+          "route_id": "pb_0221",
+          "route_recall": 0.24,
+          "spurious_rate": 0.5882352941176471,
+          "step_hits": {
+            "1": 4,
+            "3": 6,
+            "5": 6
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 15,
+          "n_leaves": 1,
+          "n_predicted_products": 9,
+          "root_mismatch": false,
+          "route_id": "pb_0241",
+          "route_recall": 0.26666666666666666,
+          "spurious_rate": 0.5555555555555556,
+          "step_hits": {
+            "1": 2,
+            "3": 4,
+            "5": 4
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 4,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0253",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 19,
+          "n_leaves": 2,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0276",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 3,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0313",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 9,
+          "n_leaves": 2,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0316",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 7,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0324",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 6,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0349",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 2,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0370",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 7,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0401",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 9,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0410",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 8,
+          "n_leaves": 6,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0447",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 6,
+          "n_leaves": 2,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0459",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 7,
+          "n_leaves": 3,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0471",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        }
+      ]
+    },
+    "raw_sb": {
+      "by_stratum": {
+        "D": {
+          "gold_leaf_reached": 0.105,
+          "n_gold_edges": 78,
+          "n_leaves": 17,
+          "n_root_mismatch": 0,
+          "n_routes": 5,
+          "route_recall": 0.104286,
+          "spurious_rate": 0.235294,
+          "step_hit@1": 0.102564,
+          "step_hit@3": 0.153846,
+          "step_hit@5": 0.166667
+        },
+        "M": {
+          "gold_leaf_reached": 0.142857,
+          "n_gold_edges": 92,
+          "n_leaves": 10,
+          "n_root_mismatch": 0,
+          "n_routes": 7,
+          "route_recall": 0.213137,
+          "spurious_rate": 0.359477,
+          "step_hit@1": 0.130435,
+          "step_hit@3": 0.184783,
+          "step_hit@5": 0.184783
+        },
+        "S": {
+          "gold_leaf_reached": 0.25,
+          "n_gold_edges": 37,
+          "n_leaves": 15,
+          "n_root_mismatch": 0,
+          "n_routes": 8,
+          "route_recall": 0.25,
+          "spurious_rate": 0.225242,
+          "step_hit@1": 0.081081,
+          "step_hit@3": 0.108108,
+          "step_hit@5": 0.108108
+        }
+      },
+      "overall": {
+        "gold_leaf_reached": 0.17625,
+        "n_gold_edges": 207,
+        "n_leaves": 42,
+        "n_root_mismatch": 0,
+        "n_routes": 20,
+        "route_recall": 0.200669,
+        "spurious_rate": 0.274737,
+        "step_hit@1": 0.111111,
+        "step_hit@3": 0.15942,
+        "step_hit@5": 0.164251
+      },
+      "per_route": [
+        {
+          "flags": {},
+          "gold_leaf_reached": 1.0,
+          "n_gold_edges": 17,
+          "n_leaves": 1,
+          "n_predicted_products": 17,
+          "root_mismatch": false,
+          "route_id": "pb_0002",
+          "route_recall": 0.23529411764705882,
+          "spurious_rate": 0.7058823529411765,
+          "step_hits": {
+            "1": 3,
+            "3": 4,
+            "5": 4
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.125,
+          "n_gold_edges": 35,
+          "n_leaves": 8,
+          "n_predicted_products": 17,
+          "root_mismatch": false,
+          "route_id": "pb_0065",
+          "route_recall": 0.17142857142857143,
+          "spurious_rate": 0.6470588235294118,
+          "step_hits": {
+            "1": 3,
+            "3": 5,
+            "5": 6
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 1.0,
+          "n_gold_edges": 2,
+          "n_leaves": 1,
+          "n_predicted_products": 23,
+          "root_mismatch": false,
+          "route_id": "pb_0074",
+          "route_recall": 1.0,
+          "spurious_rate": 0.9130434782608695,
+          "step_hits": {
+            "1": 2,
+            "3": 2,
+            "5": 2
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 1.0,
+          "n_gold_edges": 2,
+          "n_leaves": 1,
+          "n_predicted_products": 18,
+          "root_mismatch": false,
+          "route_id": "pb_0117",
+          "route_recall": 1.0,
+          "spurious_rate": 0.8888888888888888,
+          "step_hits": {
+            "1": 1,
+            "3": 2,
+            "5": 2
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 4,
+          "n_leaves": 1,
+          "n_predicted_products": 9,
+          "root_mismatch": false,
+          "route_id": "pb_0130",
+          "route_recall": 0.75,
+          "spurious_rate": 0.6666666666666666,
+          "step_hits": {
+            "1": 3,
+            "3": 3,
+            "5": 3
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.4,
+          "n_gold_edges": 20,
+          "n_leaves": 5,
+          "n_predicted_products": 17,
+          "root_mismatch": false,
+          "route_id": "pb_0201",
+          "route_recall": 0.35,
+          "spurious_rate": 0.5294117647058824,
+          "step_hits": {
+            "1": 5,
+            "3": 7,
+            "5": 7
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 25,
+          "n_leaves": 2,
+          "n_predicted_products": 17,
+          "root_mismatch": false,
+          "route_id": "pb_0221",
+          "route_recall": 0.24,
+          "spurious_rate": 0.5882352941176471,
+          "step_hits": {
+            "1": 4,
+            "3": 6,
+            "5": 6
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 15,
+          "n_leaves": 1,
+          "n_predicted_products": 9,
+          "root_mismatch": false,
+          "route_id": "pb_0241",
+          "route_recall": 0.26666666666666666,
+          "spurious_rate": 0.5555555555555556,
+          "step_hits": {
+            "1": 2,
+            "3": 4,
+            "5": 4
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 4,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0253",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 19,
+          "n_leaves": 2,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0276",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 3,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0313",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 9,
+          "n_leaves": 2,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0316",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 7,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0324",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 6,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0349",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 2,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0370",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 7,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0401",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "D"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 9,
+          "n_leaves": 1,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0410",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 8,
+          "n_leaves": 6,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0447",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 6,
+          "n_leaves": 2,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0459",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "M"
+        },
+        {
+          "flags": {},
+          "gold_leaf_reached": 0.0,
+          "n_gold_edges": 7,
+          "n_leaves": 3,
+          "n_predicted_products": 0,
+          "root_mismatch": false,
+          "route_id": "pb_0471",
+          "route_recall": 0.0,
+          "spurious_rate": 0.0,
+          "step_hits": {
+            "1": 0,
+            "3": 0,
+            "5": 0
+          },
+          "stratum": "S"
+        }
+      ]
+    }
+  },
+  "corpus_assembly_warning": "Corpus-graph assembly: every edge carries its own btid#reac_id experimental evidence, but whole-route experimental validity is NOT verified (A->B and B->C may come from different experiments/compartments). This mirrors how the engine consumes the same data; not a defect, but must not be propagated without this annotation.",
+  "duplicate_route_ids": [],
+  "extra_predictions": [],
+  "missing_predictions": [
+    "pb_0253",
+    "pb_0276",
+    "pb_0313",
+    "pb_0316",
+    "pb_0324",
+    "pb_0349",
+    "pb_0370",
+    "pb_0401",
+    "pb_0410",
+    "pb_0447",
+    "pb_0459",
+    "pb_0471"
+  ],
+  "n_routes": 20,
+  "primary_caliber": "cn",
+  "run_once_note": "eval split is run-once and locked: the first agent run's numbers are the numbers; any rerun must be labelled post-hoc. Thresholds must be preregistered in PROTOCOL.md BEFORE the first run.",
+  "split": "dev"
+}

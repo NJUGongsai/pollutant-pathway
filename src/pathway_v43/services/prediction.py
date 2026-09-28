@@ -23,15 +23,17 @@ from dataclasses import dataclass, field
 from ..domain.models import (
     EVIDENCE_KIND_ANALOG,
     EVIDENCE_KIND_NOVEL,
+    EVIDENCE_KIND_RECORDED,
     PREDICTION_MODE_ANALOGY,
     PREDICTION_MODE_NOVEL,
     PREDICTION_MODE_RANK,
     content_hash,
     stable_id,
 )
+from ..domain.policy import recorded_eligibility_reasons
 from ..adapters.llm_client import request_hash
 
-PREDICTION_TASK_SCHEMA_VERSION = "v43-prediction-task-2"  # v2:siblings 实装;current 去 smiles_raw
+PREDICTION_TASK_SCHEMA_VERSION = "v43-prediction-task-3"  # v3:donor 块带 applicability/transform/编辑协议 v2(Phase C)
 PREDICTION_RESPONSE_SCHEMA_VERSION = "v43-prediction-response-1"
 PREDICTION_RESULT_SCHEMA_VERSION = "v43-prediction-result-1"
 
@@ -150,12 +152,16 @@ def build_prediction_task(
     atomtool_info: dict | None = None,
     molecule_render: dict | None = None,
     siblings: list[dict] | None = None,
+    analogy_eligibility: dict | None = None,
 ) -> dict:
     """组装 PredictionTask(版本化 JSON;只读素材,落盘后不可变)。
 
     molecule_render:analogy_edit 模式必填(当前分子的 MoleCode 编辑视图,
     由 AtomTool 往返核对后传入;缺失/有损在调用方先处理)。
     siblings:已有兄弟路径(sibling_task_block 组装;缺省空)。
+    analogy_eligibility:Phase C 资格裁决产物(classify 落盘的不可变块);
+    analogy_edit 模式必填且 status=applicable —— 供体由门禁选定,
+    ``mapping_status=resolved`` 不再单独构成进入类比的资格。
     """
     if mode not in (PREDICTION_MODE_RANK, PREDICTION_MODE_ANALOGY,
                     PREDICTION_MODE_NOVEL):
@@ -166,50 +172,86 @@ def build_prediction_task(
         key=lambda e: (e.get("retrieval_rank", 0), e.get("evidence_id", "")),
     )
     if mode == PREDICTION_MODE_RANK:
+        # Phase B R1/R2 修复:rank 的可选 ID 限于**合格 recorded 卡**
+        # (任务书 §1:rank 在既有已记录候选间裁决;规则/类比卡属预测,
+        # 须各走 analogy_edit/novel 的适用性与编辑流程,不得经 rank 选择
+        # 后直接提交为 ReactionEvent)。判据 = policy 完整资格单一事实源
+        # (身份/精确挂牌/条件全核);脏卡与规则/类比卡仍保留在检索产物
+        # 与裁决审查范围,只是不进任务。
         usable = [
             e for e in evidences
-            if e.get("kind") == "recorded_reaction"
-            and e.get("condition_fit") != "conflict"
+            if e.get("kind") == EVIDENCE_KIND_RECORDED
+            and not recorded_eligibility_reasons(e, substrate_identity)
         ]
-        predictive = [e for e in evidences
-                      if e.get("kind") in ("rule_application",
-                                           "analog_reaction")]
-        candidates = (usable + predictive)[
-            : int(policy.get("max_candidates_for_ranking", 8))
-        ]
+        candidates = usable[: int(policy.get("max_candidates_for_ranking", 8))]
     elif mode == PREDICTION_MODE_ANALOGY:
-        candidates = [
-            e for e in evidences if e.get("mapping_status") == "resolved"
-        ][:1]  # 取排位最高的已对齐卡(排序已保证)
+        if not analogy_eligibility \
+                or analogy_eligibility.get("status") != "applicable" \
+                or not (analogy_eligibility.get("selected") or {}):
+            raise PredictionTaskError(
+                "donor_not_applicable",
+                "analogy_edit 需要通过适用性门禁的选定供体(资格块缺失或"
+                "未通过;mapping_status=resolved 单独出现不再构成资格)")
+        sel_eid = analogy_eligibility["selected"]["evidence_id"]
+        candidates = [e for e in evidences if e["evidence_id"] == sel_eid]
         if not candidates:
             raise PredictionTaskError(
-                "no_aligned_donor", "analogy_edit 需要已对齐的供体卡"
-            )
+                "selected_donor_card_missing",
+                f"资格块选定的证据卡不在检索产物中:{sel_eid}")
     else:
         candidates = []
 
     donor_block = None
     if mode == PREDICTION_MODE_ANALOGY:
+        from ..services.atom_tool import EDIT_PROTOCOL_VERSION
+
         card = candidates[0]
-        refs = card.get("donor_refs") or []
-        aligned = next((r for r in refs if r.get("alignment")), None)
-        if aligned is None:
-            raise PredictionTaskError(
-                "donor_not_aligned", "供体卡缺少对齐映射,不得进入类比编辑"
-            )
         if molecule_render is None:
             raise PredictionTaskError(
                 "representation_required", "analogy_edit 需要当前分子 MoleCode"
             )
+        sel = analogy_eligibility["selected"]
+        # 选定供体的引用必须与资格块一致(donor_refs 内含该 record_id 且
+        # 挂所选对齐 —— 对齐来自门禁枚举,不再取 RDKit 首个匹配)
+        donor_ref = next((r for r in (card.get("donor_refs") or [])
+                          if r.get("record_id") == sel.get("record_id")
+                          and r.get("mapped_lhs")), None)
+        if donor_ref is None:
+            raise PredictionTaskError(
+                "selected_donor_ref_missing",
+                f"选定供体 {sel.get('record_id')!r} 不在证据卡 donor_refs")
+        donor_ref = dict(donor_ref)
+        donor_ref["alignment"] = sel.get("alignment")
+        donor_ref["alignment_strategy"] = (sel.get("alignment") or {}).get(
+            "strategy", "")
         donor_block = {
             "evidence_id": card["evidence_id"],
-            "donor": aligned,
+            "donor": donor_ref,
+            "transform": sel.get("transform"),
+            "applicability": {
+                "schema_version": (analogy_eligibility or {}).get(
+                    "schema_version", ""),
+                "status": "applicable",
+                "target_expectation": sel.get("target_smiles", ""),
+                "unverified_conditions": sel.get(
+                    "unverified_conditions", []),
+                "n_supporting_donors": sel.get("n_supporting_donors", 1),
+            },
+            "edit_protocol_version": EDIT_PROTOCOL_VERSION,
+            "alternatives_considered": (analogy_eligibility or {}).get(
+                "alternatives", []),
             "current_molecode": molecule_render["molecode"],
             "current_atom_ids": molecule_render["atom_ids"],
             "edit_rules": [
                 "edits_must_reference_existing_atom_ids",
                 "existing_atoms_must_not_vanish",
                 "element_of_existing_atom_ids_must_not_change",
+                "bond_order_changes_must_use_change_bond_order_with_"
+                "explicit_from_and_to",
+                "form_bond_rejects_bonds_that_already_exist",
+                "add_atom_requires_unique_new_atom_id_matching_element",
+                "edits_execute_in_list_order_on_the_current_molecule",
+                "referenced_evidence_id_must_equal_donor_evidence_id",
                 "abstain_is_a_valid_answer",
             ],
         }
@@ -377,6 +419,27 @@ def parse_model_response(mode: str, raw_text: str,
                 ok=False, mode=mode, error_kind="invalid_evidence_id",
                 error_message=f"order 含非法证据 ID:{unknown}",
             )
+        # Phase B 排序契约(任务书 §3.2):order 全部来自本次任务候选、
+        # 无重复;selected_evidence_id 恰出现一次并排第一。违反 = 解析失败,
+        # 走既有有界重试。旧形制未给 order 仍接受(报告侧记录
+        # order_missing_selected_only)。
+        if len(set(order)) != len(order):
+            dupes = sorted({x for x in order if order.count(x) > 1})
+            return ParsedPrediction(
+                ok=False, mode=mode, error_kind="duplicate_order_id",
+                error_message=f"order 含重复证据 ID:{dupes}",
+            )
+        if decision == "select" and order:
+            if selected not in order:
+                return ParsedPrediction(
+                    ok=False, mode=mode, error_kind="selected_missing_from_order",
+                    error_message=f"选中 {selected!r} 未出现在 order 中",
+                )
+            if order[0] != selected:
+                return ParsedPrediction(
+                    ok=False, mode=mode, error_kind="selected_not_first",
+                    error_message=f"选中 {selected!r} 必须排在 order 首位",
+                )
         reasons = obj.get("reasons") or {}
         if not isinstance(reasons, dict):
             reasons = {}

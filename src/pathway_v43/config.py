@@ -14,6 +14,11 @@ from pathlib import Path
 
 V3_CODE_ROOT_ENV = "V3_CODE_ROOT"
 ASSET_ROOT_ENV = "V43_ASSET_ROOT"
+ANALOG_CORPUS_ENV = "V43_ANALOG_CORPUS"
+
+# Phase D D2:类比模板语料版本(v1 = 原资产;v2 = 重映射版,仅显式选择,
+# 缺失/不在清单 → fail-closed,绝不静默回退 v1)
+ANALOG_CORPUS_VERSIONS = ("v1", "v2")
 
 # 本文件位于 <repo>/src/pathway_v43/config.py
 _PACKAGE_REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -39,6 +44,7 @@ class V43Config:
 
     v3_code_root: Path
     assets_root: Path
+    analog_corpus: str = "v1"
 
     @property
     def v3_run_root(self) -> Path:
@@ -57,6 +63,7 @@ class V43Config:
 
     def to_dict(self) -> dict:
         return {
+            "analog_corpus": self.analog_corpus,
             "v3_code_root": str(self.v3_code_root.resolve()),
             "assets_root": str(self.assets_root.resolve()),
             "v3_run_root": str(self.v3_run_root.resolve()),
@@ -80,10 +87,17 @@ def resolve_config(
         return Path(str(raw)).expanduser().resolve()
 
     root = repo_root()
+    corpus = os.environ.get(ANALOG_CORPUS_ENV, "").strip() or "v1"
+    if corpus not in ANALOG_CORPUS_VERSIONS:
+        raise ValueError(
+            f"V43_ANALOG_CORPUS 取值非法:{corpus!r}"
+            f"(允许:{list(ANALOG_CORPUS_VERSIONS)})"
+        )
     cfg = V43Config(
         v3_code_root=_pick(
             v3_code_root, V3_CODE_ROOT_ENV, root.parent / "dependingv3"
         ),
         assets_root=_pick(assets_root, ASSET_ROOT_ENV, root / "assets"),
+        analog_corpus=corpus,
     )
     return cfg

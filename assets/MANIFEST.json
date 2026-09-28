@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "created_on": "2026-09-24",
-  "asset_count": 21,
-  "total_bytes": 149475454,
+  "asset_count": 22,
+  "total_bytes": 166849006,
   "entries": [
     {
       "path": "analog/MANIFEST.sha256",
@@ -23,6 +23,16 @@
       "source_commit": "3d46e3e2f3783094323f5dda7746ecba84ae870c",
       "asset_role": "runtime",
       "source_and_license_note": "v4 derived final analogy indexes and source build metadata; upstream source licenses not recorded locally."
+    },
+    {
+      "path": "analog/corpus_templates_v2.jsonl",
+      "bytes": 17373552,
+      "sha256": "fabe4e24fa37eecc3dd544b0f31a72d46d9557c941943b1a2c4a9883a6b3d6db",
+      "source_path": "derived/analog/corpus_templates_v2.jsonl",
+      "source_version": "dependingv43 Phase D D2 (v43-analogmap-1 remap of corpus_templates_v1)",
+      "source_commit": "5c8f284423716137af24053f067ffdc7489066f2",
+      "asset_role": "analog_corpus_v2",
+      "source_and_license_note": "Phase D D2 离线重映射产物(确定性 MCS 映射器 v43-analogmap-1);上游许可沿 v1 条目"
     },
     {
       "path": "analog/uspto_relaxed_index_v1.build_report.json",
@@ -214,5 +224,6 @@
       "asset_role": "runtime",
       "source_and_license_note": "USPTO templates derived from v2 reaction_analogy/templates.json; independent redistribution terms not recorded locally."
     }
-  ]
+  ],
+  "updated_on": "2026-09-28"
 }

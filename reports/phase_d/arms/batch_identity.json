@@ -1,0 +1,102 @@
+{
+  "created_at": "2026-09-28T10:38:47+0000",
+  "identity": {
+    "asset_manifest_sha256": "ac9b97b872c9666eebbe32b42c626997aca34438ade17d7bbf36a8154b848e6c",
+    "code_aggregate_sha256": "ca15d2ade33632fa3aa84ed8c0827aa052070361e1810e426b3d3e128f4377e9",
+    "config": {
+      "batch_cost_cap_cny": 30.0,
+      "budget_rationale": "dev 20 路金标深度分布 2:4,3:4,4:3,5:2,6:2,7:4,8:1;max_depth=6 覆盖 15/20 条路线的完整深度预算(leaf-reached 的结构性上限),expansions=40 为检索预算上限;LLM 调用上限随展开派生(+2)。v4.1/v4.2 历史臂用 depth=12/expands=50 且模型为 deepseek-v4.1-flash,口径不同,比较时须标注。 | Phase D 臂:phase_d_D5",
+      "budgets": {
+        "max_depth": 6,
+        "max_expansions": 40,
+        "max_frontier_width": 3,
+        "max_llm_calls": 42,
+        "max_proposals": 40
+      },
+      "capacity": {
+        "memory_gb_per_worker": 3.0,
+        "min_free_disk_gb": 20.0
+      },
+      "export_policy_overrides": {},
+      "llm_timeout_s": 300.0,
+      "max_http_retries": 4,
+      "max_parallel": 20,
+      "max_worker_respawns": 2,
+      "model_request_params": {
+        "reasoning_effort": "max"
+      },
+      "poll_interval_s": 10.0,
+      "prediction_policy_overrides": {
+        "max_analogy_donor_candidates": 5,
+        "reactant_similar_enabled": true,
+        "reactant_similar_threshold": 0.45,
+        "reactant_similar_top_k": 16
+      },
+      "provider_price_snapshot": {
+        "cache_read_cny_per_m": 0.23,
+        "checked": "2026-09-25",
+        "input_cny_per_m": 0.8,
+        "model_id": "ZHIPU/GLM-5.3-Flash",
+        "output_cny_per_m": 2.8,
+        "region": "cn-beijing",
+        "rpm": 200,
+        "source": "help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+        "thinking_billed_as_output": true,
+        "tpm": 3000000
+      },
+      "rate": {
+        "acquire_timeout_s": 600.0,
+        "cooldown_cap_s": 60.0,
+        "max_calls": 1000,
+        "rpm": 180,
+        "tpm": 2700000
+      },
+      "worker_wall_clock_cap_s": 28800
+    },
+    "export_policy": {
+      "in_parent_dedupe": "keep_first_rank",
+      "multi_event_merge": "commit_order_created_at_then_event_id",
+      "parent_merge": "first_seen_identity_by_parent_seq",
+      "products_per_parent_cap": 5,
+      "raw_smiles_field": "product_smiles_full_fallback_product_smiles",
+      "step_order": "parent_seq"
+    },
+    "input_manifest_sha256": "b53d87d11b2281fd51e66ab40b2bc3a5e265e017b99c6757b61678ac1396ee56",
+    "model": {
+      "model_id": "ZHIPU/GLM-5.3-Flash",
+      "prediction_policy": {
+        "allow_noop_edit": false,
+        "allow_novel_on_mapping_failure": true,
+        "allow_novel_on_no_evidence": true,
+        "analogy_enabled": true,
+        "max_analogy_donor_candidates": 5,
+        "max_candidates_for_ranking": 8,
+        "max_parse_retries": 2,
+        "max_reportable_products": 5,
+        "policy_version": "v43-predpol-3",
+        "reactant_similar_enabled": true,
+        "reactant_similar_threshold": 0.45,
+        "reactant_similar_top_k": 16
+      },
+      "prompt_versions": {
+        "analogy_edit": "6d228935da95f59a060e16e3f2034f3c191b6557cbc7ab31e7595a3d518a5979",
+        "novel_proposal": "1aa413937f3700669527ed81b6410d887ef23472d801adb4e4fbe68e1e850b19",
+        "rank_candidates": "864a5f301de04bae891e189aad40af03bca3cd95286644f220f0e6d785a9e210"
+      },
+      "provider": "openai_compatible",
+      "request_params": {
+        "reasoning_effort": "max"
+      },
+      "timeout_s": 300.0
+    },
+    "schema_version": "v43-batch-1",
+    "source": {
+      "gold_routes_sha256": "d8e626a266ec0ee36dd6cd9befcf761fc7c3ff95efe384abcae5094527fbdcdc",
+      "split_manifest_sha256": "fb7742f98b6511275d16e613b18ca2dc62340403958f92ead6a0c2bf15d25dce",
+      "v3_root": "/usrdata/EnzymeCAGE_data/workspaces/dependingv3"
+    },
+    "split": "dev"
+  },
+  "sha256": "9ace5da3a335cdb33ffd68be47f079a3e2a0d2fb1011c6814c55504c63a763ca",
+  "short": "9ace5da3"
+}

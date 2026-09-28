@@ -28,7 +28,11 @@ def retrieval_asset_identity(config) -> dict:
     """
     from ..adapters.asset_manifest import verify_repo_manifest
 
+    from ..adapters.asset_manifest import analog_corpus_rel
+
     manifest = verify_repo_manifest(config.assets_root)
+    corpus_rel = analog_corpus_rel(
+        getattr(config, "analog_corpus", "v1"))
     return {
         "mode": "repo_assets",
         "assets_root": manifest["assets_root"],
@@ -36,6 +40,11 @@ def retrieval_asset_identity(config) -> dict:
         "n_manifest_files": manifest["n_files"],
         "source_file": RECORDING_SOURCE_FILE,
         "source_file_sha256": manifest["files"].get(RECORDING_SOURCE_FILE),
+        # Phase D D2:所选类比语料版本 + SHA 进入 run 身份
+        # (v1/v2 臂身份不同;资产变化拒绝旧 run resume)
+        "analog_corpus": getattr(config, "analog_corpus", "v1"),
+        "analog_corpus_file": corpus_rel,
+        "analog_corpus_sha256": manifest["files"].get(corpus_rel),
     }
 
 
@@ -95,6 +104,13 @@ def build_run_identity(
     from ..domain.policy import PREDICTION_POLICY_VERSION
     from ..services.atom_tool import verify_vendor_integrity
 
+    # 裁决 schema/策略版本进入身份:排序或门禁规则变更 = 不同身份,
+    # 旧 run resume 被拒(任务书 Phase B §3.5)
+    from ..services.report_adjudication import (
+        REPORT_ADJUDICATION_POLICY_VERSION,
+        REPORT_ADJUDICATION_SCHEMA_V2,
+    )
+
     try:
         molecode_block = verify_vendor_integrity()
     except Exception as exc:  # vendor 缺失/被改:身份如实记录失败原因
@@ -113,6 +129,10 @@ def build_run_identity(
             "prompt_versions": {},
             "policy_version": PREDICTION_POLICY_VERSION, "policy": {},
         },
+        "adjudication": {
+            "schema_version": REPORT_ADJUDICATION_SCHEMA_V2,
+            "policy_version": REPORT_ADJUDICATION_POLICY_VERSION,
+        },
         "molecode": molecode_block,
         "code_identity": code_identity(),
         "dependency_versions": dependency_versions(),
@@ -122,8 +142,8 @@ def build_run_identity(
 def identity_fingerprint(identity: dict) -> str:
     """参与 resume 核对的字段指纹(排除 created_at 等时间性字段)。"""
     keys = ("domain_schema_version", "inputs", "strategy", "asset_identity",
-            "v3_engine_code", "prediction", "molecode", "code_identity",
-            "dependency_versions")
+            "v3_engine_code", "prediction", "adjudication", "molecode",
+            "code_identity", "dependency_versions")
     slim = {k: identity.get(k) for k in keys}
     return hashlib.sha256(
         json.dumps(slim, ensure_ascii=False, sort_keys=True).encode()
@@ -162,7 +182,8 @@ def check_resume_identity(saved: dict, current: dict) -> None:
     diffs: dict = {}
     for key in ("domain_schema_version", "inputs", "strategy",
                 "asset_identity", "v3_engine_code", "prediction",
-                "molecode", "code_identity", "dependency_versions"):
+                "adjudication", "molecode", "code_identity",
+                "dependency_versions"):
         if saved.get(key) != current.get(key):
             diffs[key] = {"saved_fingerprint": _fp(saved.get(key)),
                           "current_fingerprint": _fp(current.get(key))}

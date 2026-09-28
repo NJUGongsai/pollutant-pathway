@@ -124,19 +124,29 @@ def _donor_fixture_card(substrate_identity: str) -> dict:
 
 
 def test_analogy_edit_end_to_end_with_roundtrip(tmp_path):
-    """验收 5.3a:可映射类比 → analogy_edit;编辑经 MoleCode 往返与映射核验。"""
+    """验收 5.3a(Phase C):门禁适用的供体 → analogy_edit;编辑在图上
+    顺序执行并与目标 MoleCode 逐项对账。"""
     scripted = {
         S: [rec("btR1", S, [ALCOHOL])],  # 唯一 recorded → 确定性直通到 S11(A)
         A: [_donor_fixture_card(A)],
     }
-    # 供体转换 = 伯醇氧化为醛;模型把同一转换迁移到当前分子(A→B)
+    # 供体转换 = 伯醇氧化为醛;模型给出显式键级编辑(端 C–O single→double)
     from pathway_v43.services.atom_tool import render
 
+    render_a = render(ALCOHOL, name="S")
+    c_end = next(a for a in render_a.atom_ids if "_C_" in a
+                 and render_a.atom_id_map[a] == max(
+                     i for aid, i in render_a.atom_id_map.items()
+                     if "_C_" in aid))
+    o_end = next(a for a in render_a.atom_ids if "_O_" in a)
     target = render(ALDEHYDE, name="S").molecode
     model = fake_model(script={
         "analogy_edit": [json.dumps({
             "decision": "apply", "target_molecode": target,
-            "edits": [], "referenced_evidence_id": "E-src-analog",
+            "edits": [{"op": "change_bond_order", "atom1": c_end,
+                       "atom2": o_end, "from_order": "single",
+                       "to_order": "double"}],
+            "referenced_evidence_id": "E-src-analog",
             "reason": "把供体的醇氧化迁移到当前分子",
         })],
     }, default_by_mode={
@@ -160,8 +170,20 @@ def test_analogy_edit_end_to_end_with_roundtrip(tmp_path):
         "model_proposal_qualitative_only_no_calibrated_probability")
     assert card["source_record"]["donor"]["record_id"] == REAL_DONOR_RECORD
     assert card["source_record"]["donor"]["asset_sha256"]
-    # AtomTool 核验结果随卡留痕
-    assert card["source_record"]["atomtool_checks"]["target_molecode"]["ok"]
+    # AtomTool 核验结果随卡留痕:结构校验/执行/目标对账三段全过
+    checks = card["source_record"]["atomtool_checks"]
+    assert checks["edit_validation"]["ok"]
+    assert checks["edit_execution"]["ok"]
+    assert checks["edit_execution"]["product_smiles"] == ALDEHYDE
+    assert checks["target_consistency"]["ok"]
+    # donor 块携带资格与变换表(任务书 v3)
+    assert card["source_record"]["donor"]["alignment"]["strategy"]
+    task = json.loads(next(
+        (runs / "ana1" / "results").glob("*/prediction_task.json")
+    ).read_text())["payload"]
+    assert task["donor"]["applicability"]["status"] == "applicable"
+    assert task["donor"]["transform"]["bond_changes"]
+    assert task["schema_version"] == "v43-prediction-task-3"
 
 
 def test_analogy_missing_mapping_cannot_fake_success(tmp_path):

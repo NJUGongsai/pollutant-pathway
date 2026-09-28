@@ -304,7 +304,7 @@ def test_phase1_style_run_resume_rejected_then_migrate_from_works(tmp_path):
     assert new_identity["inputs"]["root_smiles"] == CATECHOL
     assert new_identity["prediction"] == {
         "enabled": False, "provider": "off", "model_id": "",
-        "prompt_versions": {}, "policy_version": "v43-predpol-1",
+        "prompt_versions": {}, "policy_version": "v43-predpol-3",
         "policy": {},
     }
     # 旧 run 自身仍不可 resume(不改写旧身份)

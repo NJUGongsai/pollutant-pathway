@@ -1,0 +1,153 @@
+{
+  "batch_identity": {
+    "created_at": "2026-09-24T20:28:28+0000",
+    "identity": {
+      "asset_manifest_sha256": "def94d82b65915f0ecd2377971cb082ba2b1c1464b4eb165a32d5e57e259aa34",
+      "code_aggregate_sha256": "d856414debff500f8da92bf676a8a44c2de7667e4a2a5d4088d0dec9a3958cfc",
+      "config": {
+        "batch_cost_cap_cny": 40.0,
+        "budgets": {
+          "max_depth": 1,
+          "max_expansions": 1,
+          "max_frontier_width": 5,
+          "max_llm_calls": 3,
+          "max_proposals": 1
+        },
+        "capacity": {
+          "memory_gb_per_worker": 3.0,
+          "min_free_disk_gb": 20.0
+        },
+        "exam": {
+          "engine_top_k": 10,
+          "max_in_flight": 40,
+          "single_step_note": "max_depth=1, max_expansions=1 (TASK_V43_EC298 §1.2)",
+          "workers": 40
+        },
+        "export_policy_overrides": {},
+        "llm_timeout_s": 900.0,
+        "max_http_retries": 4,
+        "max_worker_respawns": 2,
+        "model_request_params": {
+          "reasoning_effort": "max"
+        },
+        "poll_interval_s": 10.0,
+        "provider_price_snapshot": {
+          "cache_read_cny_per_m": 0.23,
+          "checked": "2026-09-25",
+          "input_cny_per_m": 0.8,
+          "model_id": "ZHIPU/GLM-5.3-Flash",
+          "output_cny_per_m": 2.8,
+          "region": "cn-beijing",
+          "rpm": 200,
+          "source": "help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+          "tpm": 3000000
+        },
+        "rate": {
+          "acquire_timeout_s": 600.0,
+          "cooldown_cap_s": 60.0,
+          "max_calls": 900,
+          "max_in_flight": 40,
+          "rpm": 180,
+          "tpm": 2700000
+        },
+        "worker_wall_clock_cap_s": 14400
+      },
+      "export_policy": {
+        "in_parent_dedupe": "keep_first_rank",
+        "multi_event_merge": "commit_order_created_at_then_event_id",
+        "parent_merge": "first_seen_identity_by_parent_seq",
+        "products_per_parent_cap": 5,
+        "raw_smiles_field": "product_smiles_full_fallback_product_smiles",
+        "step_order": "parent_seq"
+      },
+      "input_manifest_sha256": "322e808793072a9b81fc0c7927084efb74f3668d0fcb3985debf809163427fd3",
+      "model": {
+        "model_id": "ZHIPU/GLM-5.3-Flash",
+        "prompt_versions": {
+          "analogy_edit": "bb8dbd1115e01d37df0b9265c75e1241c79e736eae5a1a937badf9866e98f097",
+          "novel_proposal": "1aa413937f3700669527ed81b6410d887ef23472d801adb4e4fbe68e1e850b19",
+          "rank_candidates": "efe7c9d6e5caf4671509b25aac6d9e52679197f7e380549042fa68ca730a6bc4"
+        },
+        "provider": "openai_compatible",
+        "request_params": {
+          "reasoning_effort": "max"
+        },
+        "timeout_s": 900.0
+      },
+      "schema_version": "v43-batch-1",
+      "source": {
+        "exam_inputs_sha256": "cb5996c9b960bb4a61fd5747d275077c65ef49bf2cdb74102b9d22dc7f11d703"
+      },
+      "split": "exam298"
+    },
+    "sha256": "1328faf97261390e62337014e8260aa038a05b298041a26c9fabf280d920a11a",
+    "short": "1328faf9"
+  },
+  "batch_sha256": "1328faf97261390e62337014e8260aa038a05b298041a26c9fabf280d920a11a",
+  "batch_short": "1328faf9",
+  "config": {
+    "batch_cost_cap_cny": 40.0,
+    "budgets": {
+      "max_depth": 1,
+      "max_expansions": 1,
+      "max_frontier_width": 5,
+      "max_llm_calls": 3,
+      "max_proposals": 1
+    },
+    "capacity": {
+      "memory_gb_per_worker": 3.0,
+      "min_free_disk_gb": 20.0
+    },
+    "exam": {
+      "engine_top_k": 10,
+      "max_in_flight": 40,
+      "single_step_note": "max_depth=1, max_expansions=1 (TASK_V43_EC298 §1.2)",
+      "workers": 40
+    },
+    "export_policy_overrides": {},
+    "llm_timeout_s": 900.0,
+    "max_http_retries": 4,
+    "max_worker_respawns": 2,
+    "model_request_params": {
+      "reasoning_effort": "max"
+    },
+    "poll_interval_s": 10.0,
+    "provider_price_snapshot": {
+      "cache_read_cny_per_m": 0.23,
+      "checked": "2026-09-25",
+      "input_cny_per_m": 0.8,
+      "model_id": "ZHIPU/GLM-5.3-Flash",
+      "output_cny_per_m": 2.8,
+      "region": "cn-beijing",
+      "rpm": 200,
+      "source": "help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+      "tpm": 3000000
+    },
+    "rate": {
+      "acquire_timeout_s": 600.0,
+      "cooldown_cap_s": 60.0,
+      "max_calls": 900,
+      "max_in_flight": 40,
+      "rpm": 180,
+      "tpm": 2700000
+    },
+    "worker_wall_clock_cap_s": 14400
+  },
+  "dev_basis": {
+    "choice": "r3 timeout=900s: r2 17/36 调用 300s 超时致 8 路待预测;r3 完成路 12->15, cn hit@1 0.2271->0.2512;超时属基础设施参数,非模型/策略调分",
+    "chosen_from": [
+      "devbatch_v43r2 (timeout 300s)",
+      "devbatch_v43r3 (timeout 900s)"
+    ],
+    "other_frozen": "reasoning_effort=max, max_depth=1, max_expansions=1, workers=40, max_in_flight=40 (TASK_V43_EC298 §1.2)"
+  },
+  "engine_arm_results_sha256": "c6b9156f97566b596c79c8cdc637cf72cb25cab9f3ee55000ed3621ab205bc8f",
+  "exam_inputs_sha256": "cb5996c9b960bb4a61fd5747d275077c65ef49bf2cdb74102b9d22dc7f11d703",
+  "frozen_batch_sha256_superseded": "4233adaa3bc2c098",
+  "frozen_before_answers": true,
+  "identity_reissue_note": "冻结后、发车前 exam.py 有一次 Path 参数强制的机械修复(不影响任何预测行为);批次身份机制按设计察觉 code_aggregate_sha256 变化。本文件 v2 记录实际执行批次身份(1328faf9)与首次冻结身份(4233adaa);答卷在其后产生,封存哈希不变。",
+  "questions_csv_sha256": "a3cb7955c1b9e9c1ae0d70636e9df057a35fc35f311f683835de4f19a02ffd0a",
+  "questions_jsonl_sha256": "9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c",
+  "schema_version": "v43-exam-identity-1",
+  "scorer_version": "v43-ec298-scorer-1"
+}

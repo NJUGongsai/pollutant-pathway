@@ -4,12 +4,15 @@
 
     START → normalize_input → select_frontier → retrieve_reactions
           → classify_evidence
-              ├─ 唯一可接受已记录反应 → validate_products → commit_pathway
+              ├─ 唯一可接受已记录反应 → validate_products ─┐
               ├─ 需要预测且有模型 → prepare_prediction → call_model
-              │     ├─ 选中既有卡/提案卡 → apply_prediction → validate_products
+              │     ├─ 选中既有卡/提案卡 → apply_prediction → validate_products ─┐
               │     └─ held/弃权/失败 → select_frontier(显式停留,原因入账)
               ├─ 需要预测但无模型 → mark_awaiting_prediction(明确停待预测)
               └─ 无有效证据 → mark_dead_end
+          → adjudicate_candidates(Phase B 候选报告裁决:草稿固定)
+              ├─ 选中卡有合格产品 → commit_pathway(提交事件 + 最终裁决)
+              └─ 全被拒 → mark_dead_end(no_event 终态已最终化)
           → select_frontier(循环,预算与深度受控)
           → export_results → END
 
@@ -38,6 +41,7 @@ def build_graph(services: Services,
     g.add_node("call_model", nodes.call_model(services))
     g.add_node("apply_prediction", nodes.apply_prediction(services))
     g.add_node("validate_products", nodes.validate_products_node(services))
+    g.add_node("adjudicate_candidates", nodes.adjudicate_candidates(services))
     g.add_node("commit_pathway", nodes.commit_pathway(services))
     g.add_node("mark_awaiting_prediction",
                nodes.mark_awaiting_prediction(services))
@@ -74,8 +78,9 @@ def build_graph(services: Services,
         {"validate_products": "validate_products",
          "select_frontier": "select_frontier"},
     )
+    g.add_edge("validate_products", "adjudicate_candidates")
     g.add_conditional_edges(
-        "validate_products", routing.route_after_validate,
+        "adjudicate_candidates", routing.route_after_adjudicate,
         {"commit_pathway": "commit_pathway",
          "mark_dead_end": "mark_dead_end"},
     )

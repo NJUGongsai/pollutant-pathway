@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+import os
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
@@ -66,6 +67,27 @@ class LedgerRolledBack(RunError):
             {"checkpoint_revision": state_revision,
              "store_revision": store_revision},
         )
+
+
+def _barrier_wait_for_tests(runs_root: Path, run_id: str) -> None:
+    """测试钩子(PATHWAY_V43_RUN_BARRIER_DIR):身份落盘后、进图前等待
+    ``GO`` 文件。仅批跑屏障夹具(证明 N 个 worker 同时处于运行态)使用;
+    生产环境不设置该变量,本函数立即返回。"""
+    barrier_dir = os.environ.get("PATHWAY_V43_RUN_BARRIER_DIR")
+    if not barrier_dir:
+        return
+    import time
+
+    bdir = Path(barrier_dir)
+    bdir.mkdir(parents=True, exist_ok=True)
+    (bdir / f"{run_id}.ready").write_text("ready\n", encoding="utf-8")
+    go = bdir / "GO"
+    deadline = time.monotonic() + 300.0
+    while not go.exists():
+        if time.monotonic() > deadline:
+            raise RunError(
+                f"屏障等待超时:{go}", {"run_id": run_id})
+        time.sleep(0.05)
 
 
 @dataclass
@@ -196,6 +218,7 @@ def start_run(
     if migrated_block is not None:
         identity["migrated_from"] = migrated_block
     write_run_identity(runs_root, identity)
+    _barrier_wait_for_tests(runs_root, run_id)
 
     handle = open_run(config, runs_root, run_id, finder, asset_identity,
                       strategy, model=model, crash_after=crash_after)
@@ -312,9 +335,15 @@ def _finder_for(config: V43Config, mode: str):
             {"mode": mode},
         )
     from ..adapters.v3_engine import get_engine
+    from ..services.analog_source import AnalogSourceResolver
     from ..services.reaction_finder import EngineReactionFinder
 
-    return EngineReactionFinder(get_engine(config), config)
+    # 与 batch/_engine_finder 同款注入(Phase D D1:resume 不得因检索器
+    # 缺 resolver 而静默丢失 reactant_similar 通道 —— 代码身份变更本就
+    # 拒绝跨阶段 resume,这里是同身份内的行为一致性)
+    return EngineReactionFinder(
+        get_engine(config), config,
+        analog_resolver=AnalogSourceResolver(config))
 
 
 def _summary(handle: RunHandle, final: dict, resumed: bool = False,

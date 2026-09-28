@@ -149,6 +149,44 @@ python -m pathway_v43 run --run-id v43-migrated --migrate-from v43-smoke
 (`--migrate-from` 只读旧 run 身份的输入/策略,旧目录零改动;LLM/提案预算
 可用 `--max-llm-calls/--max-proposals` 显式设定,缺省随 `--max-expansions` 派生。)
 
+## dev 批跑、冻结导出与判分(第四阶段)
+
+```sh
+# ① 一次性白名单提取 dev 20 路输入(只含 route_id + root_smiles + 哈希)
+python -m pathway_v43 batch plan --split dev --batch-root batch_dev_v1 \
+    --v3-code-root ../dependingv3
+# ② 资源预检(20 路并行容量;不足 → CapacityBlocked,不暗改串行)
+python -m pathway_v43 batch precheck --batch-root batch_dev_v1
+# ③ 发车(real=DashScope 按量;凭证经 --env-file 读入环境,不落盘不打印)
+nohup python -m pathway_v43 batch run --split dev --batch-root batch_dev_v1 \
+    --model real --env-file /path/to/.dependingv43-dashscope.env \
+    --batch-config configs/dev_batch.json > batch.log 2>&1 &
+#    监控:短连接轮询 batch_dev_v1/progress.json 与 batch status
+python -m pathway_v43 batch status --batch-root batch_dev_v1
+# ④ 单 run 导出 v3 冻结格式(零 LLM;verify 核对新鲜度)
+python -m pathway_v43 export --run-id <run_id> --route-id pb_0002
+python -m pathway_v43 export --run-id <run_id> --verify
+# ⑤ 归并 20 行答卷(冻结 route_id 顺序;失败路线补显式空行)
+python -m pathway_v43 batch merge --batch-root batch_dev_v1
+# ⑥ 只读调用 v3 冻结评测器 --split dev 判分
+python -m pathway_v43 score --predictions batch_dev_v1/merged/predictions.jsonl \
+    --out-dir report --label v43 --v3-code-root ../dependingv3
+```
+
+- 批次身份(`batch_dev_v1/batch_identity.json`):代码/资产/提示词/模型/
+  请求参数/预算/限流/输入清单 SHA 全部冻结;run_id 含批次短哈希与
+  route_id;同批次根不同身份 → 结构化冲突。
+- 20 个 worker 为独立 OS 进程,各自只写自己的 run 目录/SQLite;共享
+  闸门(`V43_LLM_RATE_GATE`)跨进程管理 RPM/TPM/批次调用预算,429 有界
+  退避、403/配额错误全局停止新付费请求。
+- 对失败/预算耗尽/awaiting 路线仍生成显式空或部分答卷,保持 20 行且
+  每个 route_id 恰一次。
+- DashScope 烟测(一次真实低额度调用,与正式批次分开记录):
+  `python scripts/dashscope_smoke.py --out smoke/dashscope_smoke.json`
+- 对照报告:`python scripts/build_dev_report.py --batch-root ... \
+  --v3-root ../dependingv3 --baseline <label>=<历史dev目录> --out-dir ...`
+  然后 `python scripts/render_export_dev_report.py --report ... --out docs/EXPORT_DEV_REPORT.md`
+
 ## v4 / v4.3 对拍
 
 ```sh

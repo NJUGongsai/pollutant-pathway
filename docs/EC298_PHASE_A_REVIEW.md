@@ -1,6 +1,6 @@
-# EC298 Phase A 实施首轮 Review（2026-09-27）
+# EC298 Phase A 实施 Review（2026-09-27）
 
-> 本文保留首轮发现作为修复记录；**最新判定见文末 R2 复核**。
+> 本文保留前两轮发现作为修复记录；**最新判定见文末 R3 复核**。
 
 **审查提交**：`a66ceae`、`e51675e`、`27829ad`。  
 **审查范围**：scorer v2、A1–A6 派生表、输入/输出清单、两份报告；只读检查封存件，未改实施代码或结果。  
@@ -67,3 +67,15 @@ Phase A 任务书 §2 要求版本化的逐题正式评分文件，产物树也�
 
 1. **Orphan 键只核文件名 attempt，未核 `payload.attempt`。** [`_call_response_ledger`](../src/pathway_v43/phase_a_attribution.py) 的键是 `(task 相对目录, 文件名 stem)`；未读取 call/response payload 中的 `attempt`。同目录的 `call.a1` 与 `response.a1` 若 payload 分别写 2 与 1，当前实现仍计为成对。封存首跑的 191 对我已独立核到文件名/payload 一致，因此当前 **0 orphan 正确**；请让实现对两侧 payload 与文件名逐条校验，并补一个 payload 错配夹具。
 2. **scorer 的空引擎文件仍可静默计分。** [`score_exam_v2`](../src/pathway_v43/exam_v2.py) 仅在 `engine` 非空时检查其 qid 集合；显式传入一个存在但零行的引擎结果文件时，会把所有题记为引擎未命中，不报集合不一致。正式 Phase A 管线的输入清单保护了本次非空封存文件，当前分数不受影响；但 standalone scorer 声称 fail-closed，应在显式指定引擎文件时要求其 qid 集合与金标完全一致，包括空文件，并加测试。
+
+---
+
+## R3 复核（提交 `5c8f284`）：Phase A 通过
+
+**最终判定**：R2 剩余两处 P2 已闭环，Phase A 可作为后续阶段 B/C 的**离线基线**。正式分数、逐题评分和 A4 归因不变；本轮不涉及模型调用、引擎/agent 重跑或首跑答卷改写。
+
+1. **调用审计：通过。** `_call_response_ledger` 现以完整 task 目录和 `payload.attempt` 配对，并把 payload 与文件名 `aN` 不一致逐条计入 `attempt_mismatch_count`；错配 call/response 不会互相抵消。新增夹具的 `call.a1` payload attempt=2 / `response.a1` payload attempt=1 得 **错配 1、orphan 2**。封存首跑的 191 call、191 response 我再次独立核对：382 个文件均带 attempt，文件名/payload **0 错配**、全路径配对 **0 orphan**；A2/A6 与新增锚点均为 0。
+2. **空引擎拒绝：通过。** 显式引擎路径缺失或文件零行时 `_engine_rows` 抛 `ScorerV2Error`；`score_exam_v2`、多组分敏感性和差异表共用此入口。新增测试覆盖缺文件、空文件及敏感性入口；`None` 仍是明确的无引擎臂模式。
+3. **产物与复算：通过。** 在 Chenyu 临时目录独立运行本轮相关测试 **32 passed**；用原始封存 run、只读金标、历史对照、资产库和受保护清单执行 Phase A 管线，**43/43 锚点通过**。`score_v2.json`、A2 两表、A6 表、A4 表与提交版 SHA 逐文件一致；提交的外层输出清单亦全部通过。用户所报全仓 **264 passed** 未在本轮独立复跑。
+
+**非阻断门禁范围说明**：`verify_score_v2_against_tsvs` 现在会回读并核对六张**全量逐题**含 rank 的 TSV，解决了 R2 的主要文案问题；`hit5_engine_only.tsv`、`hit5_agent_only.tsv` 两张筛选视图和 `awaiting_prediction_fates.tsv` 的 rank 列未纳入该自动门禁。其代码只验表行数与每行 rank，没有显式拒绝重复 qid 导致的等量缺题；本次提交的所有这些表我已独立核对 qid/取值，当前数据无误。建议将报告的“全部含 rank 的 TSV”改称“六张全量逐题 TSV”，并在后续维护中对筛选视图、qid 集合加断言。`payload.attempt` 缺失时审计器会回退文件名；本次封存 382 个调用/响应文件均无缺失，当前 0 错配结论不受影响。

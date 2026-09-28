@@ -32,7 +32,7 @@ def _scan_results(run_dir: Path) -> dict:
         if not task_dir.is_dir():
             continue
         for name in ("retrieval", "decision", "validation",
-                     "prediction_task", "prediction"):
+                     "prediction_task", "prediction", "report_adjudication"):
             path = task_dir / f"{name}.json"
             if not path.is_file():
                 continue
@@ -109,6 +109,51 @@ def _top5_candidates(refs: dict) -> list[dict]:
     return out
 
 
+def _adjudication_entries(adj: dict) -> list[dict]:
+    """兼容读取:v1 裁决的条目在 ``entries``,v2(Phase B)在 ``products``。"""
+    if adj.get("schema_version") == "v43-report-adjudication-2":
+        return adj.get("products", [])
+    return adj.get("entries", [])
+
+
+def _top5_reportable_products(refs: dict) -> list[dict]:
+    """候选裁决产物 → 已校验可报告 top-5(按 report_rank;与展开分离)。
+
+    这是 `top5_reportable_products` 视图(TASK_V43_EXPORT_DEV §1 /
+    TASK_V43_EC298_PHASE_B §4):与 `top5_candidates`(检索卡视图)不同 ——
+    只含已通过确定性门禁、被策略接纳为可报告的候选,并显式给出
+    expand_selected 与是否已提交(committed_event_ref;v2:仅报告未提交
+    候选可报告但不展开)。检索原始卡、模型原文与被拒产品不进本视图;
+    草稿产物不进本视图。raw 取值与导出同规则(full 优先,回落 smiles)。
+    """
+    adj = refs.get("report_adjudication", {}).get("payload")
+    if not adj:
+        return []
+    entries = sorted(
+        (e for e in _adjudication_entries(adj) if e.get("reportable")),
+        key=lambda e: (e.get("report_rank") or 0))
+    out = []
+    seen: set[str] = set()
+    for e in entries[:5]:
+        raw = (e.get("product_smiles_full") or "").strip() \
+            or (e.get("product_smiles") or "").strip()
+        ident = e.get("cn_identity") or e.get("product_identity") or ""
+        if ident and ident in seen:
+            continue
+        seen.add(ident)
+        out.append({
+            "report_rank": e.get("report_rank"),
+            "product_smiles": raw,
+            "product_identity": ident,
+            "evidence_id": e.get("evidence_id"),
+            "validation_ref": e.get("validation_ref", ""),
+            "expand_selected": bool(e.get("expand_selected")),
+            "expand_status": e.get("expand_status"),
+            "committed_event_ref": e.get("committed_event_ref"),
+        })
+    return out
+
+
 def _prediction_view(refs: dict) -> dict:
     """路径的预测分支视图(任务/模式/结果/响应引用;无预测为空 dict)。"""
     task = refs.get("prediction_task", {}).get("payload")
@@ -153,6 +198,25 @@ def build_report(store, run_dir: str | Path, run_id: str,
         name = display_name(chain)
         refs = results.get(p["path_id"], {})
         decision = refs.get("decision", {}).get("payload")
+        adj_payload = refs.get("report_adjudication", {}).get("payload")
+        adj_entries = _adjudication_entries(adj_payload) if adj_payload else []
+        top5_reportable = _top5_reportable_products(refs)
+        # 报告宽度与展开宽度分列(Phase B §4:不把报告宽度说成展开宽度)
+        report_counts = {
+            "n_reported": sum(1 for e in adj_entries if e.get("reportable")),
+            "n_committed": sum(
+                1 for e in adj_entries if e.get("committed_event_ref")),
+            "n_report_only": sum(
+                1 for e in adj_entries
+                if e.get("reportable")
+                and e.get("committed_event_ref") is None),
+            "n_expand_selected": sum(
+                1 for e in adj_entries if e.get("expand_selected")),
+            "source_kinds": sorted({
+                (e.get("card_kind") or (adj_payload or {}).get("evidence_kind")
+                 or "unknown")
+                for e in adj_entries if e.get("reportable")}),
+        }
         record = {
             "path_id": p["path_id"],
             "display_name": name,
@@ -178,6 +242,18 @@ def build_report(store, run_dir: str | Path, run_id: str,
             "prediction": _prediction_view(refs),
             # 每步 top-5 候选报告(与 frontier 展开分离;待预测/死端路径同样输出)
             "top5_candidates": _top5_candidates(refs),
+            # 已校验可报告 top-5(候选裁决产物视图;与检索卡视图分离)
+            "top5_reportable_products": top5_reportable,
+            # 报告/提交/仅报告/展开计数与来源等级(Phase B §4)
+            "report": report_counts,
+            "adjudication": {
+                "schema_version": (adj_payload or {}).get("schema_version"),
+                "stage": (adj_payload or {}).get("stage"),
+                "rank_basis": (adj_payload or {}).get("rank_basis"),
+                "task_id": refs.get("report_adjudication", {}).get("task_id"),
+            },
+            "report_adjudication_task_id":
+                refs.get("report_adjudication", {}).get("task_id"),
             "retrieval_task_id": refs.get("retrieval", {}).get("task_id"),
             "validation_task_id": refs.get("validation", {}).get("task_id"),
         }
@@ -260,6 +336,29 @@ def build_report(store, run_dir: str | Path, run_id: str,
                  "top5": p["top5_candidates"]}
                 for p in path_records if p["top5_candidates"]
             ],
+            # 已报告 top-5 与实际展开数量(任务书 §4 诊断列:两视图分离)
+            "top5_reportable_paths": [
+                {"display_name": p["display_name"], "status": p["status"],
+                 "top5_reportable": p["top5_reportable_products"],
+                 "n_reportable": len(p["top5_reportable_products"]),
+                 "n_expand_selected": sum(
+                     1 for e in p["top5_reportable_products"]
+                     if e["expand_selected"])}
+                for p in path_records if p["top5_reportable_products"]
+            ],
+            # 六层诊断合计(原始检索→任务候选→通过验证→可报告→已提交→
+            # 已展开的下游四层;检索/候选层由逐路径 report/counts 细节给出)
+            "report_vs_expansion": {
+                "n_reported": sum(
+                    p["report"]["n_reported"] for p in path_records),
+                "n_committed": sum(
+                    p["report"]["n_committed"] for p in path_records),
+                "n_report_only": sum(
+                    p["report"]["n_report_only"] for p in path_records),
+                "n_expand_selected": sum(
+                    p["report"]["n_expand_selected"] for p in path_records),
+                "n_frontier_paths": len(by_status.get("frontier", [])),
+            },
         },
     }
 

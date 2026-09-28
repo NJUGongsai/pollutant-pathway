@@ -1,0 +1,48 @@
+{
+  "built_at": "2026-09-28T16:10:58+0800",
+  "elapsed_s": 21.3,
+  "funnel": {
+    "rejected": 2061,
+    "rejected_reasons": {
+      "mcs_timeout": 2,
+      "no_structural_change": 2059
+    },
+    "remap_candidates_v1_undecidable": 0,
+    "remapped": 767,
+    "total": 17183,
+    "unchanged_v1_decidable": 14355
+  },
+  "gold_contact": "none",
+  "line_level_one_to_one": true,
+  "n_v1_lines": 17183,
+  "n_v2_lines": 17183,
+  "record_id_note": {
+    "max_rows_per_record_id": 6,
+    "n_duplicate_record_ids": 96,
+    "n_unique_record_ids": 17035,
+    "policy": "v1 事实:96 个 record_id 多行(template_id 行级唯一);v2 行级一一对应,不删行(任务书 §3.2 '不删除' 红线)"
+  },
+  "tool": {
+    "config": {
+      "center_rule": "endpoints_of_bond_changes_and_added_bonds_plus_added_removed_h_delta_charge_maps",
+      "kind": "deterministic_mcs_mapping",
+      "match_selection": "lexicographic_min_each_side",
+      "mcs_atom_compare": "CompareElements",
+      "mcs_bond_compare": "CompareOrder",
+      "mcs_complete_rings_only": false,
+      "mcs_match_valences": false,
+      "mcs_ring_matches_ring_only": true,
+      "numbering": "common_atoms_by_lhs_idx_then_side_uniques",
+      "smiles_form": "aromatic_perception_as_parsed"
+    },
+    "name": "v43-analogmap-1",
+    "rdkit": "2026.03.6",
+    "weights": "none (algorithmic; no model weights)"
+  },
+  "v1_bytes": 16915192,
+  "v1_file": "assets/analog/corpus_templates_v1.jsonl",
+  "v1_sha256": "8f3f2c1ac0cb17501e6a6f2ab65c22ae9e1768a3f1e8e4227b8305ba5ccfad92",
+  "v2_bytes": 17373552,
+  "v2_file": "assets/analog/corpus_templates_v2.jsonl",
+  "v2_sha256": "fabe4e24fa37eecc3dd544b0f31a72d46d9557c941943b1a2c4a9883a6b3d6db"
+}

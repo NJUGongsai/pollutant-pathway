@@ -266,5 +266,13 @@ def test_state_keeps_references_not_chemistry(tmp_path):
     # 根 + P1(子路径无证据也要检索一次)各一份检索产物
     retrieval_dirs = list((runs / "state1" / "results").glob("*/retrieval.json"))
     assert len(retrieval_dirs) == 2
-    envelope = json.loads(retrieval_dirs[0].read_text())
-    assert envelope["payload"]["evidences"][0]["kind"] == "recorded_reaction"
+    # 产物目录名含 STRATEGY_VERSION 哈希,目录序不承诺;
+    # 取"带 recorded 证据"的那份(根;P1 无证据)
+    for rd in retrieval_dirs:
+        envelope = json.loads(rd.read_text())
+        if envelope["payload"]["evidences"]:
+            assert envelope["payload"]["evidences"][0][
+                "kind"] == "recorded_reaction"
+            break
+    else:
+        raise AssertionError("根检索产物缺 recorded 证据")

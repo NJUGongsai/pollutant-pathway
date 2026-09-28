@@ -31,6 +31,14 @@ def route_after_apply(state: WorkflowState) -> str:
 
 
 def route_after_validate(state: WorkflowState) -> str:
+    """Phase B:validate 之后一律先做候选报告裁决(固定草稿 → 提交或
+    no_event 终态),不再直连提交/死端。"""
+    return "adjudicate_candidates"
+
+
+def route_after_adjudicate(state: WorkflowState) -> str:
+    """草稿中选中卡有合格产品 → 提交事件;全被拒 → 死端(裁决已 no_event
+    终态最终化)。"""
     return "commit_pathway" if state.get("last_outcome") == "commit_recorded" \
         else "mark_dead_end"
 

@@ -1,0 +1,51 @@
+{
+  "schema_version": "v43-dashscope-smoke-1",
+  "started_at": "2026-09-24T17:51:05+0000",
+  "model_id": "ZHIPU/GLM-5.3-Flash",
+  "base_url_host": "dashscope.aliyuncs.com",
+  "request_params": {
+    "reasoning_effort": "max"
+  },
+  "timeout_s": 60.0,
+  "user_payload_sha256": "563a0f4d594fbf03aff25e488d90b1ca2471c349c2cd1919fffca1e3c5177649",
+  "request_hash": "d7e51a2b68ed479c8b1cf993705a1c071930489e598f758953b61b9cbe6c04ea",
+  "ok": true,
+  "error_kind": "",
+  "error_message": "",
+  "status": 200,
+  "http_attempts": [],
+  "elapsed_s": 3.47,
+  "raw_text_preview": "{\"decision\":\"ok\",\"note\":\"冒烟通过\"}",
+  "parsed_json_ok": true,
+  "usage_normalized": {
+    "input_tokens": 58,
+    "output_tokens": 154,
+    "cached_input_tokens": 0,
+    "reasoning_output_tokens": 140,
+    "total_tokens": 212,
+    "raw": {
+      "completion_tokens": 154,
+      "completion_tokens_details": {
+        "reasoning_tokens": 140
+      },
+      "prompt_tokens": 58,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "total_tokens": 212
+    }
+  },
+  "usage_raw": {
+    "completion_tokens": 154,
+    "completion_tokens_details": {
+      "reasoning_tokens": 140
+    },
+    "prompt_tokens": 58,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 212
+  },
+  "note": "smoke call is recorded separately from the formal batch; no API key stored in this file",
+  "parsed_decision": "ok"
+}

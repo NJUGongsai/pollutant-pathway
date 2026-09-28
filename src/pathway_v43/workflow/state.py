@@ -33,6 +33,7 @@ class WorkflowState(TypedDict, total=False):
     retrieval_reused: bool          # True = 命中既有产物,未重新检索(幂等证据)
     decision_task_id: str
     validation_task_id: str
+    adjudication_task_id: str       # 候选报告裁决产物任务(Phase B;草稿+最终)
     budget: Budget
     phase: str                      # init|explore|classify|select|export|done|failed
     last_outcome: str               # commit_recorded|awaiting_prediction|dead_end

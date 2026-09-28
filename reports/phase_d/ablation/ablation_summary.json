@@ -1,0 +1,1239 @@
+{
+  "schema_version": "pd-ablation-1",
+  "inputs": {
+    "manifest": "reports/export_dev/input_manifest.json",
+    "manifest_sha256": "b53d87d11b2281fd51e66ab40b2bc3a5e265e017b99c6757b61678ac1396ee56",
+    "gold_fields_excluded": true,
+    "sim_threshold": 0.45,
+    "sim_top_k": 16,
+    "budget": 3
+  },
+  "arms": {
+    "C0": {
+      "corpus": "v1",
+      "sim": false
+    },
+    "D1-only": {
+      "corpus": "v1",
+      "sim": true
+    },
+    "D2-only": {
+      "corpus": "v2",
+      "sim": false
+    },
+    "D1+D2": {
+      "corpus": "v2",
+      "sim": true
+    }
+  },
+  "summary": {
+    "C0": {
+      "n_routes": 20,
+      "n_parents_audited": 52,
+      "eligibility": {
+        "inapplicable": 24,
+        "ambiguous": 17,
+        "applicable": 11
+      },
+      "fallback_reasons": {
+        "applicability_failed": 24,
+        "multiple_competing_transforms": 17
+      },
+      "n_evaluated_refs": 156,
+      "n_budget_not_assessed": 2233,
+      "n_displaced": 0,
+      "n_similar_refs_recalled": 0,
+      "channels": {
+        "product_producing": 156
+      },
+      "donor_statuses": {
+        "unavailable": 13,
+        "inapplicable": 91,
+        "ambiguous": 26,
+        "applicable": 26
+      }
+    },
+    "D1-only": {
+      "n_routes": 20,
+      "n_parents_audited": 52,
+      "eligibility": {
+        "inapplicable": 22,
+        "ambiguous": 16,
+        "applicable": 14
+      },
+      "fallback_reasons": {
+        "applicability_failed": 22,
+        "multiple_competing_transforms": 16
+      },
+      "n_evaluated_refs": 156,
+      "n_budget_not_assessed": 2537,
+      "n_displaced": 42,
+      "n_similar_refs_recalled": 493,
+      "channels": {
+        "product_producing": 125,
+        "reactant_similar": 73
+      },
+      "donor_statuses": {
+        "unavailable": 12,
+        "inapplicable": 91,
+        "ambiguous": 26,
+        "applicable": 27
+      }
+    },
+    "D2-only": {
+      "n_routes": 20,
+      "n_parents_audited": 52,
+      "eligibility": {
+        "inapplicable": 14,
+        "applicable": 19,
+        "ambiguous": 19
+      },
+      "fallback_reasons": {
+        "applicability_failed": 14,
+        "multiple_competing_transforms": 19
+      },
+      "n_evaluated_refs": 156,
+      "n_budget_not_assessed": 2233,
+      "n_displaced": 0,
+      "n_similar_refs_recalled": 0,
+      "channels": {
+        "product_producing": 156
+      },
+      "donor_statuses": {
+        "inapplicable": 86,
+        "applicable": 35,
+        "ambiguous": 34,
+        "unavailable": 1
+      }
+    },
+    "D1+D2": {
+      "n_routes": 20,
+      "n_parents_audited": 52,
+      "eligibility": {
+        "inapplicable": 12,
+        "applicable": 22,
+        "ambiguous": 18
+      },
+      "fallback_reasons": {
+        "applicability_failed": 12,
+        "multiple_competing_transforms": 18
+      },
+      "n_evaluated_refs": 156,
+      "n_budget_not_assessed": 2537,
+      "n_displaced": 37,
+      "n_similar_refs_recalled": 493,
+      "channels": {
+        "product_producing": 130,
+        "reactant_similar": 69
+      },
+      "donor_statuses": {
+        "inapplicable": 85,
+        "applicable": 36,
+        "ambiguous": 34,
+        "unavailable": 1
+      }
+    }
+  },
+  "transitions_vs_c0": {
+    "D1-only": [
+      {
+        "route_id": "pb_0002",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 14,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0065",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 16,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0074",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "applicable"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "applicable"
+        ],
+        "n_parents": 3,
+        "changed": false,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 8,
+        "first_selected_record": "env:EAWAG-SLUDGE:a13e5fc4-9ad4-4c77-bc0d-958c84003757"
+      },
+      {
+        "route_id": "pb_0117",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "n_parents": 3,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 48,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0130",
+        "c0_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "n_parents": 5,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 80,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0201",
+        "c0_statuses": [
+          "applicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 10,
+        "first_selected_record": "env:EAWAG-BBD:bt0036#r0265"
+      },
+      {
+        "route_id": "pb_0221",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 16,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0241",
+        "c0_statuses": [
+          "applicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 12,
+        "first_selected_record": "env:EAWAG-SEDIMENT:bdee6357-76a7-464e-a1d4-bc5407e34570"
+      },
+      {
+        "route_id": "pb_0253",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 13,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0276",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 16,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0313",
+        "c0_statuses": [
+          "applicable",
+          "applicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "n_parents": 4,
+        "changed": false,
+        "n_applicable_c0": 2,
+        "n_applicable_arm": 2,
+        "n_similar_refs": 8,
+        "first_selected_record": "env:EAWAG-BBD:bt0367#r0052"
+      },
+      {
+        "route_id": "pb_0316",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 16,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0324",
+        "c0_statuses": [
+          "ambiguous",
+          "ambiguous",
+          "applicable",
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "ambiguous",
+          "applicable",
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "applicable"
+        ],
+        "n_parents": 7,
+        "changed": true,
+        "n_applicable_c0": 3,
+        "n_applicable_arm": 4,
+        "n_similar_refs": 90,
+        "first_selected_record": "env:EAWAG-BBD:bt0012#r0270"
+      },
+      {
+        "route_id": "pb_0349",
+        "c0_statuses": [
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "n_parents": 7,
+        "changed": false,
+        "n_applicable_c0": 2,
+        "n_applicable_arm": 2,
+        "n_similar_refs": 11,
+        "first_selected_record": "env:EAWAG-BBD:bt0367#r0526"
+      },
+      {
+        "route_id": "pb_0370",
+        "c0_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "applicable"
+        ],
+        "arm_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "applicable"
+        ],
+        "n_parents": 3,
+        "changed": false,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 32,
+        "first_selected_record": "env:EAWAG-BBD:bt0338#r1306"
+      },
+      {
+        "route_id": "pb_0401",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "applicable",
+          "applicable",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous",
+          "ambiguous"
+        ],
+        "n_parents": 7,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 2,
+        "n_similar_refs": 76,
+        "first_selected_record": "rhea:62557"
+      },
+      {
+        "route_id": "pb_0410",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 2,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0447",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 4,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0459",
+        "c0_statuses": [
+          "ambiguous",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "ambiguous"
+        ],
+        "n_parents": 2,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 14,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0471",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 7,
+        "first_selected_record": ""
+      }
+    ],
+    "D2-only": [
+      {
+        "route_id": "pb_0002",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 0,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0065",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-SOIL:bce43d52-9a96-476e-9de8-58f5a119d14b"
+      },
+      {
+        "route_id": "pb_0074",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "applicable"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "ambiguous",
+          "applicable"
+        ],
+        "n_parents": 3,
+        "changed": true,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-SLUDGE:a13e5fc4-9ad4-4c77-bc0d-958c84003757"
+      },
+      {
+        "route_id": "pb_0117",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "n_parents": 3,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-SLUDGE:c7705394-0521-42b3-b04c-403cb9417943"
+      },
+      {
+        "route_id": "pb_0130",
+        "c0_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "n_parents": 5,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 0,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0201",
+        "c0_statuses": [
+          "applicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-BBD:bt0036#r0265"
+      },
+      {
+        "route_id": "pb_0221",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-SOIL:89d92dae-5104-4558-a614-33cc6b436a31"
+      },
+      {
+        "route_id": "pb_0241",
+        "c0_statuses": [
+          "applicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-SEDIMENT:bdee6357-76a7-464e-a1d4-bc5407e34570"
+      },
+      {
+        "route_id": "pb_0253",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 0,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0276",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-SOIL:0d472e23-b58a-41e0-87b4-5cb986245a7d"
+      },
+      {
+        "route_id": "pb_0313",
+        "c0_statuses": [
+          "applicable",
+          "applicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "n_parents": 4,
+        "changed": false,
+        "n_applicable_c0": 2,
+        "n_applicable_arm": 2,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-BBD:bt0367#r0052"
+      },
+      {
+        "route_id": "pb_0316",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 0,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0324",
+        "c0_statuses": [
+          "ambiguous",
+          "ambiguous",
+          "applicable",
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "ambiguous",
+          "applicable",
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "applicable"
+        ],
+        "n_parents": 7,
+        "changed": true,
+        "n_applicable_c0": 3,
+        "n_applicable_arm": 4,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-BBD:bt0012#r0270"
+      },
+      {
+        "route_id": "pb_0349",
+        "c0_statuses": [
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "ambiguous",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "n_parents": 7,
+        "changed": true,
+        "n_applicable_c0": 2,
+        "n_applicable_arm": 2,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-BBD:bt0367#r0526"
+      },
+      {
+        "route_id": "pb_0370",
+        "c0_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "applicable"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "applicable"
+        ],
+        "n_parents": 3,
+        "changed": true,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 3,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-SOIL:0d2c66c8-5e20-4766-a6fc-4b5d8f65a41b"
+      },
+      {
+        "route_id": "pb_0401",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "inapplicable",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous",
+          "ambiguous"
+        ],
+        "n_parents": 7,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 0,
+        "first_selected_record": "env:EAWAG-SLUDGE:bd3a274f-e527-4a32-8df3-33e01f3b3272"
+      },
+      {
+        "route_id": "pb_0410",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 0,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0447",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 0,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0459",
+        "c0_statuses": [
+          "ambiguous",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "ambiguous"
+        ],
+        "n_parents": 2,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 0,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0471",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 0,
+        "first_selected_record": ""
+      }
+    ],
+    "D1+D2": [
+      {
+        "route_id": "pb_0002",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 14,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0065",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 16,
+        "first_selected_record": "env:EAWAG-SOIL:bce43d52-9a96-476e-9de8-58f5a119d14b"
+      },
+      {
+        "route_id": "pb_0074",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "applicable"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "ambiguous",
+          "applicable"
+        ],
+        "n_parents": 3,
+        "changed": true,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 8,
+        "first_selected_record": "env:EAWAG-SLUDGE:a13e5fc4-9ad4-4c77-bc0d-958c84003757"
+      },
+      {
+        "route_id": "pb_0117",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "n_parents": 3,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 48,
+        "first_selected_record": "env:EAWAG-SLUDGE:c7705394-0521-42b3-b04c-403cb9417943"
+      },
+      {
+        "route_id": "pb_0130",
+        "c0_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous"
+        ],
+        "n_parents": 5,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 80,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0201",
+        "c0_statuses": [
+          "applicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 10,
+        "first_selected_record": "env:EAWAG-BBD:bt0036#r0265"
+      },
+      {
+        "route_id": "pb_0221",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 16,
+        "first_selected_record": "env:EAWAG-SOIL:89d92dae-5104-4558-a614-33cc6b436a31"
+      },
+      {
+        "route_id": "pb_0241",
+        "c0_statuses": [
+          "applicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 12,
+        "first_selected_record": "env:EAWAG-SEDIMENT:bdee6357-76a7-464e-a1d4-bc5407e34570"
+      },
+      {
+        "route_id": "pb_0253",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 13,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0276",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable"
+        ],
+        "n_parents": 1,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 1,
+        "n_similar_refs": 16,
+        "first_selected_record": "env:EAWAG-SOIL:0d472e23-b58a-41e0-87b4-5cb986245a7d"
+      },
+      {
+        "route_id": "pb_0313",
+        "c0_statuses": [
+          "applicable",
+          "applicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "n_parents": 4,
+        "changed": false,
+        "n_applicable_c0": 2,
+        "n_applicable_arm": 2,
+        "n_similar_refs": 8,
+        "first_selected_record": "env:EAWAG-BBD:bt0367#r0052"
+      },
+      {
+        "route_id": "pb_0316",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 16,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0324",
+        "c0_statuses": [
+          "ambiguous",
+          "ambiguous",
+          "applicable",
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "ambiguous",
+          "applicable",
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "applicable"
+        ],
+        "n_parents": 7,
+        "changed": true,
+        "n_applicable_c0": 3,
+        "n_applicable_arm": 4,
+        "n_similar_refs": 90,
+        "first_selected_record": "env:EAWAG-BBD:bt0012#r0270"
+      },
+      {
+        "route_id": "pb_0349",
+        "c0_statuses": [
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable",
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "ambiguous",
+          "ambiguous",
+          "ambiguous",
+          "inapplicable",
+          "applicable"
+        ],
+        "n_parents": 7,
+        "changed": true,
+        "n_applicable_c0": 2,
+        "n_applicable_arm": 3,
+        "n_similar_refs": 11,
+        "first_selected_record": "env:EAWAG-BBD:bt0367#r0526"
+      },
+      {
+        "route_id": "pb_0370",
+        "c0_statuses": [
+          "inapplicable",
+          "inapplicable",
+          "applicable"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "applicable"
+        ],
+        "n_parents": 3,
+        "changed": true,
+        "n_applicable_c0": 1,
+        "n_applicable_arm": 3,
+        "n_similar_refs": 32,
+        "first_selected_record": "env:EAWAG-SOIL:0d2c66c8-5e20-4766-a6fc-4b5d8f65a41b"
+      },
+      {
+        "route_id": "pb_0401",
+        "c0_statuses": [
+          "ambiguous",
+          "inapplicable",
+          "ambiguous",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "applicable",
+          "applicable",
+          "applicable",
+          "inapplicable",
+          "inapplicable",
+          "ambiguous",
+          "ambiguous"
+        ],
+        "n_parents": 7,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 3,
+        "n_similar_refs": 76,
+        "first_selected_record": "env:EAWAG-SLUDGE:bd3a274f-e527-4a32-8df3-33e01f3b3272"
+      },
+      {
+        "route_id": "pb_0410",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "inapplicable"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 2,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0447",
+        "c0_statuses": [
+          "inapplicable"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": true,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 4,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0459",
+        "c0_statuses": [
+          "ambiguous",
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous",
+          "ambiguous"
+        ],
+        "n_parents": 2,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 14,
+        "first_selected_record": ""
+      },
+      {
+        "route_id": "pb_0471",
+        "c0_statuses": [
+          "ambiguous"
+        ],
+        "arm_statuses": [
+          "ambiguous"
+        ],
+        "n_parents": 1,
+        "changed": false,
+        "n_applicable_c0": 0,
+        "n_applicable_arm": 0,
+        "n_similar_refs": 7,
+        "first_selected_record": ""
+      }
+    ]
+  },
+  "elapsed_s": 1564.0,
+  "generated_at": "2026-09-28T16:48:51+0800"
+}

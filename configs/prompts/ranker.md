@@ -26,3 +26,8 @@
 
 `decision=hold` 表示现有候选都不足以现在选择,须给出具体理由;
 未选中的候选也必须在 `reasons` 中留理由(不删除、不隐瞒)。
+
+`order` 排序契约(违反即解析失败):`order` 只能引用本次任务书
+`candidates` 中列出的 `evidence_id`,不得重复;`decision=select` 时
+`evidence_id` 必须恰好出现一次并排在 `order` 首位。`order` 可整段省略
+(省略时只按选中卡报告)。

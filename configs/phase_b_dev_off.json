@@ -1,0 +1,38 @@
+{
+  "budgets": {
+    "max_depth": 6,
+    "max_expansions": 40,
+    "max_frontier_width": 3,
+    "max_llm_calls": 42,
+    "max_proposals": 40
+  },
+  "budget_rationale": "Phase B 离线结构诊断专用(off-model 确定性批跑;新批次根,不改原 dev 对照)。预算与原 dev 批一致以便逐层对比。",
+  "model_request_params": {
+    "reasoning_effort": "max"
+  },
+  "llm_timeout_s": 300.0,
+  "max_http_retries": 4,
+  "batch_cost_cap_cny": 30.0,
+  "provider_price_snapshot": {
+    "model_id": "ZHIPU/GLM-5.3-Flash",
+    "region": "cn-beijing",
+    "input_cny_per_m": 0.8,
+    "output_cny_per_m": 2.8,
+    "cache_read_cny_per_m": 0.23,
+    "rpm": 200,
+    "tpm": 3000000,
+    "source": "help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+    "checked": "2026-09-25",
+    "thinking_billed_as_output": true
+  },
+  "export_policy_overrides": {},
+  "capacity": {
+    "memory_gb_per_worker": 3.0,
+    "min_free_disk_gb": 20.0
+  },
+  "worker_wall_clock_cap_s": 28800,
+  "max_worker_respawns": 2,
+  "poll_interval_s": 10.0,
+  "max_parallel": 8,
+  "notes": "phase_b_offline_dev: provider=off,无 LLM 调用;仅用于 v2 裁决六层结构诊断,不是真实模型对照。"
+}
