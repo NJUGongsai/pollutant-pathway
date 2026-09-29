@@ -1,0 +1,86 @@
+{
+  "counts": {
+    "C0": {
+      "api_rows": 187,
+      "remote_rows": 187,
+      "token_sums_match": [
+        345123,
+        1656491
+      ],
+      "remote_sums": {
+        "input": 345123,
+        "output": 1656491,
+        "cached": 40640,
+        "reasoning": 1554372
+      }
+    },
+    "D3": {
+      "api_rows": 187,
+      "remote_rows": 187,
+      "token_sums_match": [
+        356637,
+        1764086
+      ],
+      "remote_sums": {
+        "input": 356637,
+        "output": 1764086,
+        "cached": 40640,
+        "reasoning": 1660114
+      }
+    }
+  },
+  "inflight_bug_rows": {
+    "C0": [
+      {
+        "qid": "RXNG_16560019e952c8daec04b2e44ad1db7ac46aff14645c5ca96127deb688726ef3",
+        "run_id": "exam298_31549aab_RXNG_16560019e952c8daec04b2e44ad1db7ac46aff14645c5ca96127deb688726ef3",
+        "task_id": "T_900d196341de803b1c31",
+        "attempt": "2",
+        "request_id": "f58844e8-1d81-9152-8a04-522394ccd473",
+        "sent_at_epoch": "1790617813.9225783",
+        "done_at_epoch": "1790618003.6418588",
+        "duration_s": "189.719",
+        "http_status": "200",
+        "total_tokens": "24039"
+      },
+      {
+        "qid": "RXNG_16560019e952c8daec04b2e44ad1db7ac46aff14645c5ca96127deb688726ef3",
+        "run_id": "exam298_31549aab_RXNG_16560019e952c8daec04b2e44ad1db7ac46aff14645c5ca96127deb688726ef3",
+        "task_id": "T_900d196341de803b1c31",
+        "attempt": "2",
+        "request_id": "c9e2576d-fcff-9346-a1ad-149d49d64b49",
+        "sent_at_epoch": "1790618003.6533034",
+        "done_at_epoch": "1790618405.4873483",
+        "duration_s": "401.834",
+        "http_status": "200",
+        "total_tokens": "21168"
+      }
+    ],
+    "D3": [
+      {
+        "qid": "RXNG_7701b6993b95ebfde638f35a13f1abe8db8ff759bf02454fce1b1b2d85dfe290",
+        "run_id": "exam298_cfe1534a_RXNG_7701b6993b95ebfde638f35a13f1abe8db8ff759bf02454fce1b1b2d85dfe290",
+        "task_id": "T_dc74022fb8a0c8e002b6",
+        "attempt": "2",
+        "request_id": "143af641-3c8d-99a4-9911-ee1fd00fcc10",
+        "sent_at_epoch": "1790619707.0124712",
+        "done_at_epoch": "1790620692.6516016",
+        "duration_s": "985.639",
+        "http_status": "200",
+        "total_tokens": "45251"
+      },
+      {
+        "qid": "RXNG_7701b6993b95ebfde638f35a13f1abe8db8ff759bf02454fce1b1b2d85dfe290",
+        "run_id": "exam298_cfe1534a_RXNG_7701b6993b95ebfde638f35a13f1abe8db8ff759bf02454fce1b1b2d85dfe290",
+        "task_id": "T_dc74022fb8a0c8e002b6",
+        "attempt": "2",
+        "request_id": "7589f5d7-d7ff-971d-832b-5458430a36ba",
+        "sent_at_epoch": "1790620692.6636312",
+        "done_at_epoch": "1790621530.5455678",
+        "duration_s": "837.882",
+        "http_status": "200",
+        "total_tokens": "40452"
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "keys": [
+    "arm_root",
+    "generated_at",
+    "leak_scan",
+    "n_sealed_files",
+    "schema_version",
+    "seal_sha256_of_manifest"
+  ],
+  "n_sealed": 309,
+  "leak": {
+    "gold_path_markers": [
+      "ec298_gold_readonly",
+      "questions.jsonl",
+      "products_smiles",
+      "raw_reaction"
+    ],
+    "n_answer_rows_bad_fields": 0,
+    "n_files_scanned": 601,
+    "n_whitelist_rows_bad_fields": 0,
+    "note": "scan covers structured run-side files and worker plans/statuses; decision payloads legitimately contain corpus SMILES and are structurally covered by identity/manifest checks, not by gold-string scans",
+    "violations": []
+  },
+  "manifest_sha": "ac1e0d2c10016184df33a0218f09806aeeb7e6e0fdcf2474de671fb0e1b7adeb"
+}

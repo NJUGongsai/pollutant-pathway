@@ -1,0 +1,122 @@
+{
+  "diff_vs_recorded": {
+    "C0": {
+      "n_mismatch": 0,
+      "mismatches": [],
+      "indep_hits": {
+        "@1": 136,
+        "@3": 182,
+        "@5": 186
+      },
+      "recorded_summary": {
+        "agent": {
+          "hit@1": 136,
+          "hit@10": 186,
+          "hit@10_note": "agent \u6bcf\u6b65\u6700\u591a\u62a5\u544a\u4e94\u4e2a\u5019\u9009,hit@10 \u6052\u7b49\u4e8e hit@5(\u8f93\u51fa\u5bbd\u5ea6\u4e0a\u9650,\u4e0d\u4ee3\u8868\u7b2c 6-10 \u4f4d\u6027\u80fd)",
+          "hit@3": 182,
+          "hit@5": 186,
+          "n_miss": 112
+        },
+        "engine_top10": {
+          "hit@1": 118,
+          "hit@10": 209,
+          "hit@3": 174,
+          "hit@5": 193,
+          "n_miss": 89
+        },
+        "identity": "cn (v3 eawag_lookup._cn_identity \u540c\u53e3\u5f84:charge-normalized stereo-blind;\u4e24\u81c2\u5747\u4ece\u539f\u59cb\u5019\u9009 SMILES \u73b0\u7b97,\u5f15\u64ce\u7f13\u5b58 product_identity \u4e00\u5f8b\u5ffd\u7565)",
+        "n_questions": 298,
+        "paired_delta_note": "\u9010\u9898\u914d\u5bf9\u51c0\u5dee\u89c1 per_question(agent_rank/engine_rank \u6bd4\u8f83)\u4e0e paired_hit5",
+        "paired_hit5": {
+          "agent_only": 37,
+          "both": 149,
+          "engine_only": 44,
+          "neither": 68
+        },
+        "schema_version": "v43-exam-1",
+        "scorer_version": "v43-ec298-scorer-2",
+        "scoring_unit": "\u6574\u6761\u5019\u9009\u5b57\u7b26\u4e32(\u4e0e v1 \u76f8\u540c;\u591a\u7ec4\u5206\u654f\u611f\u6027\u53e6\u8868)",
+        "tiers_v2": {
+          "engine_top10_hit": 209,
+          "not_in_exported_top10": 89,
+          "note": "\u4ec5\u63cf\u8ff0\u5df2\u5bfc\u51fa Top-10 \u5185\u5916;\u4e0d\u80fd\u79f0\u4e3a\u5b8c\u6574\u5019\u9009\u6c60\u5206\u6863(\u5c01\u5b58\u4ef6\u65e0\u771f\u5b9e\u5168\u6c60)"
+        }
+      }
+    },
+    "D3": {
+      "n_mismatch": 0,
+      "mismatches": [],
+      "indep_hits": {
+        "@1": 132,
+        "@3": 174,
+        "@5": 182
+      },
+      "recorded_summary": {
+        "agent": {
+          "hit@1": 132,
+          "hit@10": 182,
+          "hit@10_note": "agent \u6bcf\u6b65\u6700\u591a\u62a5\u544a\u4e94\u4e2a\u5019\u9009,hit@10 \u6052\u7b49\u4e8e hit@5(\u8f93\u51fa\u5bbd\u5ea6\u4e0a\u9650,\u4e0d\u4ee3\u8868\u7b2c 6-10 \u4f4d\u6027\u80fd)",
+          "hit@3": 174,
+          "hit@5": 182,
+          "n_miss": 116
+        },
+        "engine_top10": {
+          "hit@1": 118,
+          "hit@10": 209,
+          "hit@3": 174,
+          "hit@5": 193,
+          "n_miss": 89
+        },
+        "identity": "cn (v3 eawag_lookup._cn_identity \u540c\u53e3\u5f84:charge-normalized stereo-blind;\u4e24\u81c2\u5747\u4ece\u539f\u59cb\u5019\u9009 SMILES \u73b0\u7b97,\u5f15\u64ce\u7f13\u5b58 product_identity \u4e00\u5f8b\u5ffd\u7565)",
+        "n_questions": 298,
+        "paired_delta_note": "\u9010\u9898\u914d\u5bf9\u51c0\u5dee\u89c1 per_question(agent_rank/engine_rank \u6bd4\u8f83)\u4e0e paired_hit5",
+        "paired_hit5": {
+          "agent_only": 34,
+          "both": 148,
+          "engine_only": 45,
+          "neither": 71
+        },
+        "schema_version": "v43-exam-1",
+        "scorer_version": "v43-ec298-scorer-2",
+        "scoring_unit": "\u6574\u6761\u5019\u9009\u5b57\u7b26\u4e32(\u4e0e v1 \u76f8\u540c;\u591a\u7ec4\u5206\u654f\u611f\u6027\u53e6\u8868)",
+        "tiers_v2": {
+          "engine_top10_hit": 209,
+          "not_in_exported_top10": 89,
+          "note": "\u4ec5\u63cf\u8ff0\u5df2\u5bfc\u51fa Top-10 \u5185\u5916;\u4e0d\u80fd\u79f0\u4e3a\u5b8c\u6574\u5019\u9009\u6c60\u5206\u6863(\u5c01\u5b58\u4ef6\u65e0\u771f\u5b9e\u5168\u6c60)"
+        }
+      }
+    }
+  },
+  "paired_indep": {
+    "@1": {
+      "both": 127,
+      "C0_only": 9,
+      "D3_only": 5,
+      "neither": 157
+    },
+    "@3": {
+      "both": 172,
+      "C0_only": 10,
+      "D3_only": 2,
+      "neither": 114
+    },
+    "@5": {
+      "both": 178,
+      "C0_only": 8,
+      "D3_only": 4,
+      "neither": 108
+    }
+  },
+  "indep_hits": {
+    "C0": {
+      "@1": 136,
+      "@3": 182,
+      "@5": 186
+    },
+    "D3": {
+      "@1": 132,
+      "@3": 174,
+      "@5": 182
+    }
+  }
+}

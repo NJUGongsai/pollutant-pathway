@@ -1,0 +1,29 @@
+{
+  "audit_started_local": "2026-09-29T03:19:17Z",
+  "audit_remote_start": "2026-09-29T03:22:53+0000",
+  "audit_remote_end": "2026-09-29T03:24:33+0000",
+  "local_HEAD": "ea6de2529445722921da7a50527241dab027757b",
+  "local_status_protected": [
+    "docs/EC298_PD_RETEST_LOSS_ATTRIBUTION.md",
+    "docs/EC298_PD_RETEST_LOSS_ATTRIBUTION_PLAIN.md",
+    "docs/TASK_V43_EC298_PHASE_D_RETEST_RAW_RUN_AUDIT.md",
+    "docs/TASK_V43_EC298_PHASE_E_POST_RETEST.md",
+    "docs/TASK_V43_EC298_PHASE_F_HIT1.md",
+    "reports/phase_d/retest/loss_audit/",
+    "scripts/ec298_pd_retest_loss_audit.py"
+  ],
+  "remote_git": "not_a_git_repo (GIT_DISCOVERY boundary; no .git under /usrdata/EnzymeCAGE_data/workspaces/dependingv43) -> code identity verified via aggregate SHA instead",
+  "remote_python": "3.11.16",
+  "remote_rdkit": "2026.03.6",
+  "local_python": "3.14.7 (no rdkit locally; scoring recomputed remotely)",
+  "read_roots": [
+    "runs/ec298_pd_retest_C0",
+    "runs/ec298_pd_retest_D3",
+    "runs/ec298_pd_retest_engine",
+    "runs/ec298_pd_retest_smoke",
+    "/usrdata/EnzymeCAGE_data/workspaces/ec298_gold_readonly/questions.jsonl (isolated scoring only)"
+  ],
+  "out_dir": "reports/phase_d/retest/raw_run_audit (independent; never --out-dir into arm roots or scoring/)",
+  "remote_audit_dir": "/tmp/raw_audit (independent dir on Chenyu)",
+  "no_llm_no_paid_api": true
+}
