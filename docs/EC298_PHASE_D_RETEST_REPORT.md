@@ -96,7 +96,7 @@
 | failed / export_failed / missing | 0 / 0 / 0 | 0 / 0 / 0 |
 | 归并 | 298 行、298 唯一 qid | 298 行、298 唯一 qid |
 | answer_kind | full 286 + empty 12 | full 285 + empty 13 |
-| issued 调用 | 187(186 题各 1 次 + 1 题 2 次;112 题零调用走 recorded 直通) | 187(分布与 C0 逐题相同) |
+| issued 调用 | 187(185 题各 1 次 + 1 题 2 次，二次尝试题 `RXNG_16560019…`；112 题零调用走 recorded 直通；185+1+112=298) | 187(185 题各 1 次 + 1 题 2 次，二次尝试题 `RXNG_7701b699…`，与 C0 不同；112 题零调用题与 C0 集合相同) |
 | 响应 | 187 ok / 0 失败 / 0 孤儿 / 0 次 429 | 187 ok / 0 失败 / 0 孤儿 / 0 次 429 |
 | usage | 187/187 齐全(缺 0) | 187/187 齐全(缺 0) |
 | tokens | 输入 345,123 / 输出 1,656,491(思考 1,554,372) | 输入 356,637 / 输出 1,764,086(思考 1,660,114) |
@@ -236,17 +236,24 @@
 ## 9. 并发证据与披露
 
 - **实测峰值:C0 = 33、D-3 = 32 个提供方正常响应同时在途**(以请求
-  发出/响应结束的单调时间戳重叠计算;限流拒绝/失败不计;闸门持久
-  `peak_in_flight` 证据 + 响应产物 `sent_at/done_at/request_id/
-  status/usage` 逐请求可查)。
-- **仓内可独立复核(修订 v2)**:逐请求派生表
+  发出/响应结束的 epoch 墙钟时间戳(`sent_at_epoch`/`done_at_epoch` 取自
+  `time.time()`;`elapsed_s` 为单调时钟差,不参与排序)在半开区间
+  `[sent_at_epoch, done_at_epoch)` 下的重叠计算,同一时刻先处理完成再
+  处理发出;限流拒绝/失败不计;闸门持久 `peak_in_flight` 证据 + 响应产物
+  `sent_at/done_at/request_id/status/usage` 逐请求可查)。
+- **仓内可独立复核(修订 v3)**:逐请求派生表
   `reports/phase_d/retest/{C0,D3}_inflight_events.tsv`(各 187 行,零
   凭证:qid/run_id/task_id/attempt/request_id/sent_at_epoch/
   done_at_epoch/duration_s/http_status/total_tokens),由
   `scripts/ec298_pd_retest_inflight.py` 从封存响应产物只读重导;
+  每行 attempt 取自该响应文件自身的 `payload.attempt`,并与文件名
+  (`prediction_response.aN.json` → attempt N)及 request_id 三方交叉
+  核对(旧版以 `(run_id, task_id)` 回填致二次尝试题两行均标 `2` 的
+  F1 缺陷已修;旧表留 `inflight_v1_superseded/` 备查;现表 schema
+  `ec298-pd-retest-inflight-2`,与旧表逐格比对每臂仅改 1 格);
   峰值用与批次协调器**同一函数同一口径**
-  (`pathway_v43.exam.inflight_evidence`)重算:C0 33/32 记录值复核
-  一致(peaks_match=true),D-3 32/32 一致;摘要见
+  (`pathway_v43.exam.inflight_evidence`,v3 起半开区间先完后发)重算:
+  C0 33/32 记录值复核一致(peaks_match=true),D-3 32/32 一致;摘要见
   `{C0,D3}_inflight_summary.json`。r1 版后处理只保留峰值、丢弃逐请求
   时间区间,仓内无法复核——该缺陷已修(driver 现落盘
   `_inflight_requests.json`,§12)。
@@ -286,7 +293,8 @@
   `ec298_pd_retest_pairing.py`(门禁+评分+配对;v2 起首位产物来源从
   裁决产物重建并交叉核对)、`ec298_pd_retest_deepdiff.py`(逐题分层;
   v2 起报告层按 products[reportable] 口径)、
-  `ec298_pd_retest_inflight.py`(并发逐请求派生表+峰值复核,新增)、
+  `ec298_pd_retest_inflight.py`(并发逐请求派生表+峰值复核;v3 起逐文件
+  attempt + 文件名/request_id 三方交叉核对)、
   `ec298_pd_retest_seal.py`(封存审计);
 - `C0/`、`D3/`(两臂身份/归并答卷/汇总/seal 拉回副本)、
   `scoring/`(pairing_gate、score_v2_C0/D3、paired_scoring_298
@@ -294,7 +302,8 @@
   `scoring_r1_superseded/`(r1 派生表存档,见 §12)、
   `{C0,D3}_api_calls.tsv`(逐调用账)、
   `{C0,D3}_inflight_events.tsv` + `{C0,D3}_inflight_summary.json`
-  (并发逐请求派生表与峰值复核,新增)、`engine_arm_metadata.json`、
+  (并发逐请求派生表与峰值复核;**v3 重生成版**,schema `-2`;旧版见
+  `inflight_v1_superseded/`，见 §12)、`engine_arm_metadata.json`、
   `smoke_summaries.json`。
 
 **远端(Chenyu dependingv43,原始产物,不入仓)**:
@@ -369,3 +378,48 @@ hits/四格/赢输平相同;298×2 逐题 `agent_rank` 全部相同;deepdiff
 **对本报告的影响**:§4 补首位产物来源口径与填充统计;§5 补报告层
 口径;§9 补逐请求派生表与峰值复核;§11 产物索引更新;登记勘误 #3
 追加(见 EC298_PHASE_D_RETEST_REGISTRATION.md)。
+
+### v3(2026-09-29,综合 review F1/F2/K1/K2 修复)
+
+综合 review(`EC298_PHASE_D_RETEST_COMBINED_REVIEW.md`)指出两处冲突与
+两处勘误——已全部修复,主分数/配对/费用/峰值数字未受影响:
+
+1. **[F1] 在途表 attempt 错标**:`ec298_pd_retest_inflight.py` 旧版以
+   `(run_id, task_id)` 字典回填 attempt,二次尝试题两行均标 `2`。
+   修复:逐 `prediction_response.aN.json` 文件读取自身
+   `payload.attempt`,并与文件名(`aN` → N)及 request_id 三方交叉核对
+   (0 文件名不匹配、0 重复 request_id);现表 schema 升
+   `ec298-pd-retest-inflight-2`,旧表留 `inflight_v1_superseded/` 备查。
+   与旧表逐格比对每臂仅改 1 格(C0 `RXNG_16560019…`/a1 行、D-3
+   `RXNG_7701b699…`/a1 行 attempt 2→1),其余 187×10−1 格逐字节相同;
+   峰值仍 C0 33/D-3 32(peaks_match=true)。
+2. **[F2] 调用分布表述与算式**:§3 曾写 C0“186 题各 1 次 + 1 题 2 次”
+   (和为 188)且 D-3“分布与 C0 逐题相同”。修复:两臂均为
+   **185×1+1×2=187**(另 112 题零调用,185+1+112=298);二次尝试题
+   分别为 C0 `RXNG_16560019…` 与 D-3 `RXNG_7701b699…`,112 题零调用
+   集合两臂相同。187 调用总数及费用数字不变。
+3. **[K1] 时钟术语**:`llm_client.py` 注释曾称 `time.time()` 为“单调时钟
+   时间戳”。修复:明称为 epoch 墙钟时间戳;`elapsed_s` 明称为单调时钟
+   差;§9 首段同步改写。
+4. **[K2] 同时间戳事件顺序**:`exam.inflight_evidence` 曾同分秒先发后完
+   (闭区间口径)。修复:固定为半开区间 `[sent, done)` 同分秒先完后发,
+   函数文档与 `note` 同步;新增边界相接反例测试
+   (`tests/test_exam.py::test_inflight_peak_half_open_boundary_touching`)。
+   本轮两口径峰值相同,重算仍为 C0 33/D-3 32。
+
+**代码部署披露**:本次改动 `src/pathway_v43/exam.py` 与
+`src/pathway_v43/adapters/llm_client.py`(注释),已同步至 Chenyu
+`dependingv43` 工作区(改前 SHA `094bc76b…`/`d8456425…`,改后
+`6a922aa4…`/`3f94e160…`,两地逐字节一致);远端代码聚合现为
+`538a5bc61847778ed5086d5a9f3ce7977888f461492cd49b324b9e0c96c43beb`
+(50 文件)。冻结锚 `07fef84f…` 仍是两臂运行时刻的验收字节,不追溯改写;
+原始臂、金标、批次身份、评分口径、默认策略零改动。
+
+**不变性证明(v3 修复前后逐项比对)**:298×2 逐题 rank、hits(@1/@3/@5)、
+@1/@3/@5 四格、赢/输/平、来源 762/762 与 740/740、费用 ¥4.8911/¥5.2016/
+¥0.0761、引擎/归并/seal SHA 均未变;评分与配对文件零改写(见关账核验)。
+修复只影响在途表 attempt 证据列(每臂 1 格)、§3 表述、§9 口径文字与
+衍生代码注释,零 LLM、零付费调用、封存运行产物零改写(全部只读重导)。
+
+**对本报告的影响**:§3 改算式与 D-3 措辞;§9 改时钟术语、半开区间口径
+与 v3 重导说明;§11 产物索引更新;§12 追加本条。

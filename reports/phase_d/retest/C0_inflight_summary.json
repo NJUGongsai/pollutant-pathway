@@ -1,0 +1,21 @@
+{
+  "arm_root": "/usrdata/EnzymeCAGE_data/workspaces/dependingv43/runs/ec298_pd_retest_C0",
+  "attempt_crosscheck": {
+    "filename_mismatches": [],
+    "n_filename_mismatches": 0,
+    "n_response_files": 187
+  },
+  "caliber": "峰值按请求发出/响应结束的 epoch 墙钟时间戳以半开区间[sent_at_epoch, done_at_epoch)重叠计算,同一时刻先处理完成再处理发出;限流拒绝、连接失败与本地排队不计入达标峰值",
+  "derived_from": "sealed results/T_*/prediction_response.*.json transport (sent_at_epoch/done_at_epoch/request_id); per-file payload.attempt cross-checked against prediction_response.aN.json filename; same function as batch coordinator: pathway_v43.exam.inflight_evidence",
+  "duplicate_request_ids": [],
+  "events_tsv": "reports/phase_d/retest/C0_inflight_events.tsv",
+  "generated_at": "2026-09-29T07:07:16+0000",
+  "label": "C0",
+  "n_duplicate_request_ids": 0,
+  "n_failed_or_rejected": 0,
+  "n_provider_ok_responses": 187,
+  "peaks_match": true,
+  "recomputed_peak_in_flight_provider_ok": 33,
+  "recorded_peak_in_flight_provider_ok": 33,
+  "schema_version": "ec298-pd-retest-inflight-2"
+}

@@ -79,9 +79,10 @@ class LLMResponse:
     status: int | None = None
     http_attempts: list = field(default_factory=list)
     error_detail: dict = field(default_factory=dict)
-    # 单调时钟时间戳(time.time();任务书 EC298 §3:以请求发出/响应结束的
+    # epoch 墙钟时间戳(time.time();任务书 EC298 §3:以请求发出/响应结束的
     # 时间戳计算在途重叠数)。sent = 本尝试 HTTP 请求发出时刻,
     # done = 提供者响应结束时刻;闸门拒绝/未发到 HTTP 层时为 None。
+    # 注意:单调时钟(time.monotonic())仅用于 elapsed_s 计时,不用于排序。
     sent_at_epoch: float | None = None
     done_at_epoch: float | None = None
     request_id: str | None = None

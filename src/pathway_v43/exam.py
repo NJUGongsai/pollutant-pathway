@@ -404,7 +404,14 @@ def run_exam_agent(*, batch_root: Path, exam_inputs_path: Path,
 
 def inflight_evidence(runs_root: Path, run_ids: list[str]) -> dict:
     """响应产物 → 每请求 (sent, done, request_id, status, usage) 表 +
-    峰值同时在途数(仅提供方正常响应计入;闸门拒绝/失败不计)。"""
+    峰值同时在途数(仅提供方正常响应计入;闸门拒绝/失败不计)。
+
+    口径(2026-09-29 K2 固定为半开区间):区间为
+    ``[sent_at_epoch, done_at_epoch)``;同一时刻的事件先处理完成
+    (done, -1)再处理发出 (sent, +1),即边界相接的两个区间不计重叠。
+    ``sent_at_epoch``/``done_at_epoch`` 是 epoch 墙钟时间戳
+    (``time.time()``);单调时钟仅用于 ``elapsed_s`` 计时,不参与排序。
+    """
     spans = []
     n_failed = 0
     for run_id in run_ids:
@@ -438,7 +445,9 @@ def inflight_evidence(runs_root: Path, run_ids: list[str]) -> dict:
     for s in spans:
         events.append((s["sent_at"], 1))
         events.append((s["done_at"], -1))
-    events.sort(key=lambda x: (x[0], -x[1]))
+    # 半开区间 [sent, done):同一时刻先处理完成(-1)再处理发出(+1),
+    # 边界相接的两个区间不计入同时在途。
+    events.sort(key=lambda x: (x[0], x[1]))
     cur = peak = 0
     for _, delta in events:
         cur += delta
@@ -448,8 +457,9 @@ def inflight_evidence(runs_root: Path, run_ids: list[str]) -> dict:
         "n_failed_or_rejected": n_failed,
         "peak_in_flight_provider_ok": peak,
         "requests": spans,
-        "note": ("峰值按请求发出/响应结束的单调时间戳重叠计算;"
-                 "限流拒绝、连接失败与本地排队不计入达标峰值"),
+        "note": ("峰值按请求发出/响应结束的 epoch 墙钟时间戳以半开区间"
+                 "[sent_at_epoch, done_at_epoch)重叠计算,同一时刻先处理"
+                 "完成再处理发出;限流拒绝、连接失败与本地排队不计入达标峰值"),
     }
 
 

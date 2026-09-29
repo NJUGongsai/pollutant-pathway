@@ -21,6 +21,7 @@ from pathway_v43.domain.identity import cn_identity  # noqa: E402
 from pathway_v43.exam import (  # noqa: E402
     ExamError,
     build_exam_inputs,
+    inflight_evidence,
     load_exam_inputs,
     score_exam,
 )
@@ -251,3 +252,52 @@ def test_gate_default_backcompat_no_inflight_limit(tmp_path):
     g = gate.acquire()
     gate.record_response(status=200)
     assert gate.snapshot()["peak_in_flight"] == 1
+
+
+# ------------------------------------------------- 在途峰值半开区间口径
+
+
+def _fake_response(run_dir: Path, task: str, name: str, sent: float,
+                   done: float, ok: bool = True, status: int = 200,
+                   attempt: int = 1) -> None:
+    d = run_dir / "results" / task
+    d.mkdir(parents=True, exist_ok=True)
+    (d / name).write_text(json.dumps({
+        "payload": {
+            "attempt": attempt,
+            "status": "completed" if ok else "failed",
+            "transport": {
+                "ok": ok, "status": status,
+                "sent_at_epoch": sent, "done_at_epoch": done,
+                "request_id": f"req-{task}-{name}",
+                "usage": {"total_tokens": 10},
+                "http_attempts": [],
+            },
+        },
+    }), encoding="utf-8")
+
+
+def test_inflight_peak_half_open_boundary_touching(tmp_path):
+    """K2:半开区间 [sent, done),边界相接不计重叠。
+
+    A=[100,200)、B=[200,300):同一时刻先处理完成再处理发出,峰值应为 1
+    (先发后完的旧口径会误算为 2)。另设一组真正重叠 C=[100,200)、
+    D=[150,250),峰值应为 2;失败响应不计入,只进 n_failed_or_rejected。
+    """
+    runs = tmp_path / "runs"
+    r1 = runs / "run_A"
+    _fake_response(r1, "T_1", "prediction_response.a1.json", 100.0, 200.0)
+    _fake_response(r1, "T_2", "prediction_response.a1.json", 200.0, 300.0)
+    r2 = runs / "run_B"
+    _fake_response(r2, "T_1", "prediction_response.a1.json", 100.0, 200.0)
+    _fake_response(r2, "T_2", "prediction_response.a1.json", 150.0, 250.0)
+    _fake_response(r2, "T_3", "prediction_response.a1.json", 400.0, 500.0,
+                   ok=False, status=500)
+    ev = inflight_evidence(runs, ["run_A"])
+    assert ev["n_provider_ok_responses"] == 2
+    assert ev["n_failed_or_rejected"] == 0
+    assert ev["peak_in_flight_provider_ok"] == 1
+    ev = inflight_evidence(runs, ["run_B"])
+    assert ev["n_provider_ok_responses"] == 2
+    assert ev["n_failed_or_rejected"] == 1
+    assert ev["peak_in_flight_provider_ok"] == 2
