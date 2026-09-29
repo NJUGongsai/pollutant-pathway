@@ -278,3 +278,34 @@ ac9b97b8)不一致,按任务书 §5.3 **不直接复用**;本轮另跑零 API �
    落盘时间早于该时刻。
 
 
+### 勘误 #3(2026-09-29 运行后;R2 外部 review 的派生表修复,零 LLM 零付费调用)
+
+R2 review 指出两张**运行后派生分析表**的 schema 读取缺陷(P1×2)与
+仓内并发证据不足(P2)。修复事实登记如下:
+
+1. **修复对象仅为运行后派生表与脚本,封存运行产物零改写**(全部
+   只读重导;两臂 batch identity、merged 答卷、逐 run 原始产物、
+   seal 清单均未触碰,远端旧 run 目录 mtime 早于本轮)。
+2. **[P1] 首位产物来源**:r1 配对脚本读 merged 答卷不存在的
+   `steps[].source` 字段,286/285 非空答卷来源列全空。修复后从
+   `results/T_*/report_adjudication.json` 的
+   `products[reportable=true]`(report_rank 排序)重建,与 merged
+   `predicted_products[0]` 交叉核对:填充 286/286 与 285/285,
+   **首位产物不匹配 0 题**。
+3. **[P1] deepdiff 报告层**:r1 读不存在的 `report/entries` 键且
+   `n_report_products` 计入全部裁决候选(max 505)。修复后按
+   `products[reportable=true]` 口径:两臂 max 恰为 5、0 题越界;
+   schema 升 `ec298-pd-retest-deepdiff-2`。
+4. **[P2] 并发复核**:新增 `scripts/ec298_pd_retest_inflight.py`,
+   从封存响应产物只读重导逐请求派生表(各 187 行,零凭证:
+   request_id/sent_at_epoch/done_at_epoch 等),以与批次协调器同一
+   函数(`pathway_v43.exam.inflight_evidence`)同口径重算峰值:
+   **C0 33、D-3 32,与封存记录值一致**;driver 后处理同步改为落盘
+   `_inflight_requests.json`。
+5. **不变性**:重生成前后 score_v2 两臂 summary、hits、四格、
+   赢/输/平、298×2 逐题 agent_rank 全部相同(旧表存档
+   `scoring_r1_superseded/`);deepdiff 决策层指标(265/11/25/9)
+   相同。主分数与配对结论不受影响。
+6. 重生成命令与时间:2026-09-29 02:0xZ 前后于 Chenyu
+   (pairing/deepdiff/inflight 三脚本,命令同报告 §11 复现节)。
+   本勘误本身不含金标、密钥或答案内容。

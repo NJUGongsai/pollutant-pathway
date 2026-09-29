@@ -82,25 +82,40 @@ def _call_stats_for_run(run_dir: Path) -> dict:
     return stats
 
 
-def _first_product_with_source(pred_row: dict) -> tuple[str, str, str]:
-    """First predicted product + source evidence + kind from merged row."""
-    steps = pred_row.get("steps") or []
-    if not steps:
-        return "", "", ""
-    prods = steps[0].get("predicted_products") or []
-    first = prods[0] if prods else ""
-    src = steps[0].get("source") or ""
-    return first, str(src.get("evidence_id", "")) if isinstance(src, dict) \
-        else str(src), ""
+def _first_reportable_source(run_dir: Path) -> dict | None:
+    """First reportable product source from the sealed adjudication artifact.
 
-
-def _prediction_source(pred_row: dict) -> dict:
-    """Source block of the first step (defensive to schema variants)."""
-    steps = pred_row.get("steps") or []
-    if not steps:
-        return {}
-    src = steps[0].get("source")
-    return src if isinstance(src, dict) else {}
+    The merged export step carries only parent_smiles/predicted_products (no
+    source block), so per-question source references are rebuilt from
+    results/T_*/report_adjudication.json: products[] filtered by
+    reportable=true, ordered by report_rank. Read-only; zero LLM.
+    """
+    results = run_dir / "results"
+    if not results.is_dir():
+        return None
+    for t in sorted(results.iterdir()):
+        rp = t / "report_adjudication.json"
+        if not rp.is_file():
+            continue
+        try:
+            payload = json.loads(
+                rp.read_text(encoding="utf-8")).get("payload") or {}
+        except Exception:
+            return None
+        rep = [x for x in payload.get("products") or []
+               if x.get("reportable")]
+        rep.sort(key=lambda x: (x.get("report_rank") is None,
+                                x.get("report_rank") or 0))
+        if not rep:
+            return None
+        first = rep[0]
+        return {
+            "evidence_id": first.get("evidence_id"),
+            "kind": first.get("card_kind"),
+            "report_rank": first.get("report_rank"),
+            "product_smiles_full": first.get("product_smiles_full"),
+        }
+    return None
 
 
 def main() -> int:
@@ -200,6 +215,8 @@ def main() -> int:
     quadrant = {k: {"both": 0, "C0_only": 0, "D3_only": 0, "neither": 0}
                 for k in (1, 3, 5)}
     win_lose = {k: {"win": 0, "lose": 0, "tie": 0} for k in (1, 3, 5)}
+    source_filled = {"C0": 0, "D3": 0}
+    source_mismatch = {"C0": 0, "D3": 0}
     for qid in qids:
         rc0, rd3 = rank_c0.get(qid), rank_d3.get(qid)
         row = {"qid": qid}
@@ -217,12 +234,28 @@ def main() -> int:
             steps = mrow.get("steps") or []
             prods = (steps[0].get("predicted_products")
                      if steps else None) or []
-            src = _prediction_source(mrow)
             row[f"{label}_first_product"] = prods[0] if prods else ""
-            row[f"{label}_first_source_evidence_id"] = src.get("evidence_id")
-            row[f"{label}_first_source_kind"] = src.get("kind")
-            row[f"{label}_first_source_report_rank"] = src.get("report_rank")
             run_id = pr.get("run_id") or ""
+            # First-product source: merged steps carry no source field —
+            # rebuild from the sealed adjudication artifact (reportable,
+            # report_rank ordering) and cross-check against the merged
+            # first product so the reference is provably about the same
+            # product.
+            src = _first_reportable_source(
+                runs_roots[label] / run_id) if run_id else None
+            row[f"{label}_first_source_evidence_id"] = (
+                src or {}).get("evidence_id")
+            row[f"{label}_first_source_kind"] = (src or {}).get("kind")
+            row[f"{label}_first_source_report_rank"] = (
+                src or {}).get("report_rank")
+            if src is not None and prods:
+                if str(src.get("product_smiles_full") or "") != str(
+                        prods[0] if prods else ""):
+                    source_mismatch[label] += 1
+            elif src is not None and not prods:
+                source_mismatch[label] += 1
+            if src is not None:
+                source_filled[label] += 1
             row[f"{label}_run_id"] = run_id
             row[f"{label}_calls"] = _call_stats_for_run(
                 runs_roots[label] / run_id) if run_id else {}
@@ -266,6 +299,16 @@ def main() -> int:
         "quadrant_sums_ok": {f"hit@{k}": sum(quadrant[k].values()) == 298
                              for k in (1, 3, 5)},
         "d3_win_lose_tie": {f"hit@{k}": win_lose[k] for k in (1, 3, 5)},
+        "first_product_source": {
+            label: {
+                "n_filled": source_filled[label],
+                "n_first_product_mismatch": source_mismatch[label],
+                "source": "results/T_*/report_adjudication.json "
+                          "products[reportable=true] ordered by report_rank; "
+                          "cross-checked product_smiles_full == merged "
+                          "predicted_products[0]",
+            }
+            for label in ("C0", "D3")},
         "note_hit10": "hit@10 equals hit@5 for a five-per-step agent "
                       "(output width ceiling), width statement only",
         "engine_background_note": "engine ranks are background reference "
@@ -285,6 +328,7 @@ def main() -> int:
                  f"{label}_answer_kind", f"{label}_stop_reason",
                  f"{label}_route_state", f"{label}_first_product",
                  f"{label}_first_source_evidence_id",
+                 f"{label}_first_source_kind",
                  f"{label}_first_source_report_rank"]
     lines = ["\t".join(cols)]
     for r in rows:

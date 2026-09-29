@@ -184,6 +184,15 @@ def phase_post(args) -> int:
         runs_root, run_ids,
         price_snapshot=config.get("provider_price_snapshot"))
     inflight = inflight_evidence(runs_root, run_ids)
+    # R2 review P2 fix: persist the credential-free per-request spans so the
+    # peak can be independently recomputed from in-repo materials (previously
+    # only the peak was kept and the spans discarded).
+    (arm_root / "_inflight_requests.json").write_text(
+        json.dumps({"schema_version": "ec298-pd-retest-inflight-1",
+                    "caliber": inflight["note"],
+                    "requests": inflight["requests"]},
+                   ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8")
     gate = validate_arm(arm_root, expected_route_ids=route_ids)
     result = {
         "schema_version": "ec298-pd-retest-arm-summary-1",

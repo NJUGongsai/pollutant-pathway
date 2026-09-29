@@ -11,7 +11,9 @@ trace the retest task §5.4 requires:
   L3 eligibility        : analogy_eligibility status / fallback / selected;
   L4 routing            : decision outcome + prediction_mode;
   L5 validation         : validation.json state / rejection reasons;
-  L6 report             : answer presence, first product, report rank, hit.
+  L6 report             : report_adjudication.json products[reportable]:
+                          evidence ids, first rank/card_kind/product,
+                          n_reportable (must be <= 5 per step).
 
 Read-only over run dirs; no gold, no network, no LLM.
 
@@ -73,7 +75,8 @@ def _mine_run(run_dir: Path) -> dict:
         "donor_reject_reasons": [],
         "validation_state": "", "validation_reject_reasons": [],
         "report_evidence_ids": [], "report_first_rank": None,
-        "n_report_products": 0,
+        "report_first_card_kind": None, "report_first_product": None,
+        "n_report_products": 0, "n_adjudication_products_total": 0,
         "prediction_outcome": "", "prediction_parsed": None,
     }
     decs = _decisions(run_dir)
@@ -125,15 +128,25 @@ def _mine_run(run_dir: Path) -> dict:
             rp = t / "report_adjudication.json"
             if rp.is_file():
                 r = (_load_json(rp) or {}).get("payload") or {}
-                entries = r.get("report") or r.get("entries") or []
-                for e in entries:
-                    trace["report_evidence_ids"].append(e.get("evidence_id"))
-                trace["n_report_products"] += len(
-                    r.get("products") or entries or [])
-                ranks = [e.get("report_rank") for e in entries
-                         if e.get("report_rank") is not None]
-                if ranks and trace["report_first_rank"] is None:
-                    trace["report_first_rank"] = min(ranks)
+                # v2 adjudication schema: products[] with reportable flag;
+                # reportable items carry report_rank/evidence_id/card_kind.
+                # (report/entries does not exist — the old reading left the
+                # report layer empty and counted all candidates, not the
+                # reportable subset.)
+                rep = [x for x in r.get("products") or []
+                       if x.get("reportable")]
+                rep.sort(key=lambda x: (x.get("report_rank") is None,
+                                        x.get("report_rank") or 0))
+                trace["report_evidence_ids"] = [
+                    x.get("evidence_id") for x in rep]
+                trace["n_report_products"] = len(rep)
+                trace["n_adjudication_products_total"] = len(
+                    r.get("products") or [])
+                if rep:
+                    trace["report_first_rank"] = rep[0].get("report_rank")
+                    trace["report_first_card_kind"] = rep[0].get("card_kind")
+                    trace["report_first_product"] = rep[0].get(
+                        "product_smiles_full")
             pp = t / "prediction.json"
             if pp.is_file():
                 pr = (_load_json(pp) or {}).get("payload") or {}
@@ -205,12 +218,12 @@ def main() -> int:
         rows.append(row)
 
     summary = {
-        "schema_version": "ec298-pd-retest-deepdiff-1",
+        "schema_version": "ec298-pd-retest-deepdiff-2",
         "n_questions": len(rows),
-        "n_d3_similar_channel_engaged": sum(
-            1 for r in rows if (r.get("d3_n_similar_channel_refs") or 0) > 0),
         "n_c0_similar_channel_engaged": sum(
             1 for r in rows if (r.get("c0_n_similar_channel_refs") or 0) > 0),
+        "n_d3_similar_channel_engaged": sum(
+            1 for r in rows if (r.get("d3_n_similar_channel_refs") or 0) > 0),
         "n_d1_new_recall_questions": sum(
             1 for r in rows if (r.get("d1_new_recall_refs") or 0) > 0),
         "n_similar_selected_d3_only": sum(
@@ -218,6 +231,21 @@ def main() -> int:
         "n_eligibility_changed": sum(
             1 for r in rows if r.get("eligibility_changed")),
         "n_route_changed": sum(1 for r in rows if r.get("route_changed")),
+        "report_layer": {
+            label: {
+                "n_questions_with_reportable": sum(
+                    1 for r in rows
+                    if (r.get(f"{label}_n_report_products") or 0) > 0),
+                "max_n_report_products": max(
+                    (r.get(f"{label}_n_report_products") or 0)
+                    for r in rows),
+                "n_report_products_over_5": sum(
+                    1 for r in rows
+                    if (r.get(f"{label}_n_report_products") or 0) > 5),
+                "caliber": "report_adjudication.json "
+                           "products[reportable=true]; report_rank ordered",
+            }
+            for label in ("c0", "d3")},
         "layer_note": ("layers are descriptive; similarity/applicable gains "
                        "are not hit evidence; single-model samples do not "
                        "prove deterministic causation"),

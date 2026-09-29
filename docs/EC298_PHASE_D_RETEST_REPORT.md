@@ -2,12 +2,18 @@
 
 > **状态:complete**(六项 review 硬门自检全部通过,见 §8;结论措辞按任务书
 > §5.5 限定为"在已见 298 题、这次冻结配置下观察到的差异")。
+> **修订 v2(2026-09-29 R2 review)**:外部 review 发现两张派生表的
+> schema 读取缺陷(首位产物来源全空、deepdiff 报告层计入了非报告候选)
+> 与仓内并发证据不足;已修复并重生成(§12)。**主分数与逐题 rank
+> 逐字节不变**(重跑前后 score_v2 摘要、hits、四格、赢/输/平全部相同),
+> 受影响的只有逐题证据列与并发复核材料。
 > 任务书:[TASK_V43_EC298_PHASE_D_RETEST_298.md](TASK_V43_EC298_PHASE_D_RETEST_298.md);
 > 实验标签:`seen298_post_hoc_repair_check`。
 > 发车前不可变登记:[EC298_PHASE_D_RETEST_REGISTRATION.md](EC298_PHASE_D_RETEST_REGISTRATION.md)
 > (登记原文 SHA `449ea043…`;含两臂身份 SHA 的勘误 #1 版本 `603467ac…` 于首次
 > 付费调用前落盘;勘误 #2 记录引擎臂/烟测/首次付费时刻,在烟测后、两臂
-> 运行前追加,现版 `f95fa8fb…`)。
+> 运行前追加,版 `f95fa8fb…`;勘误 #3 登记本轮 R2 review 派生表修复
+> (§12),现版 `b2c11c13…`)。
 > 通俗版:[EC298_PHASE_D_RETEST_REPORT_PLAIN.md](EC298_PHASE_D_RETEST_REPORT_PLAIN.md)。
 > 执行环境:本地(conda env depending43)+ Chenyu
 > `/usrdata/EnzymeCAGE_data/workspaces/dependingv43`(与验收字节一致);
@@ -116,8 +122,18 @@
   归并元数据/逐路线答卷 SHA/行唯一性),verdict = **complete**。
 - 逐题 298 行配对表:`reports/phase_d/retest/scoring/paired_scoring_298.tsv`
   (qid、两臂 rank、@1/@3/@5 命中、n_predicted、answer_kind、
-  stop_reason、route_state、首位产物、来源 evidence_id/report_rank;
+  stop_reason、route_state、首位产物、来源 evidence_id/kind/report_rank;
   JSON 版含逐题调用/重试/孤儿/usage 状态)。
+  **首位产物来源(修订 v2)**:merged 答卷的 step 不含来源字段,来源引用
+  从封存裁决产物 `results/T_*/report_adjudication.json` 的
+  `products[reportable=true]`(按 `report_rank` 排序)重建,并与 merged
+  `predicted_products[0]` 逐题交叉核对:填充 C0 286/286、D-3 285/285
+  (恰为各臂非空答卷数),**首位产物不匹配 0 题**(脚本内置校验,见
+  `paired_scoring_298.json` summary.first_product_source)。首位产物的
+  card_kind 分布:C0 recorded 182 / novel 91 / analogy 13(空答 12);
+  D-3 recorded 182 / novel 86 / analogy 17(空答 13)。注意此口径是
+  **首位报告产物的卡类型**,与 §4 末的 prediction_mode(决策层路由
+  分布)是两个不同层面,不能互相替代。
 
 | K | C0 | D-3 | both | C0_only | D3_only | neither | 和 | D-3 赢/输/平 |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
@@ -157,8 +173,15 @@
 - 层级证据引用:逐题事件/卡/验证文件在远端各 run 根
   `runs/ec298_pd_retest_{C0,D3}/runs/<run_id>/results/T_*/`
   (decision/validation/report_adjudication/cardval.*);本地汇总
-  `reports/phase_d/retest/scoring/deepdiff_298.json`(298 行,含
-  六层字段与来源引用)。
+  `reports/phase_d/retest/scoring/deepdiff_298.json`(298 行,schema
+  `ec298-pd-retest-deepdiff-2`,含六层字段与来源引用)。**报告层(L6)
+  口径(修订 v2)**:读取 `report_adjudication.json` 的
+  `products[reportable=true]`(report_rank 排序)——`n_report_products`
+  为可报告产物数(两臂 max 恰为 5、0 题越界;裁决总候选数另记
+  `n_adjudication_products_total`,如某题 503 选 2),`report_evidence_ids`
+  为可报告产物的 evidence_id 列表。r1 版曾误读不存在的 `report/entries`
+  键且把全部候选计入报告层(max 505、286/285 题"越界"),已废弃并
+  保留于 `scoring_r1_superseded/`(§12)。
 - **限定**:相似召回/applicable 增加不是命中证据;A/B 层差异不能与 C 层
   噪声在单次抽样下定量分离;3 题 A 层损失是本轮唯一可归因到 D1 通道的
   直接证据,方向为负。
@@ -216,6 +239,17 @@
   发出/响应结束的单调时间戳重叠计算;限流拒绝/失败不计;闸门持久
   `peak_in_flight` 证据 + 响应产物 `sent_at/done_at/request_id/
   status/usage` 逐请求可查)。
+- **仓内可独立复核(修订 v2)**:逐请求派生表
+  `reports/phase_d/retest/{C0,D3}_inflight_events.tsv`(各 187 行,零
+  凭证:qid/run_id/task_id/attempt/request_id/sent_at_epoch/
+  done_at_epoch/duration_s/http_status/total_tokens),由
+  `scripts/ec298_pd_retest_inflight.py` 从封存响应产物只读重导;
+  峰值用与批次协调器**同一函数同一口径**
+  (`pathway_v43.exam.inflight_evidence`)重算:C0 33/32 记录值复核
+  一致(peaks_match=true),D-3 32/32 一致;摘要见
+  `{C0,D3}_inflight_summary.json`。r1 版后处理只保留峰值、丢弃逐请求
+  时间区间,仓内无法复核——该缺陷已修(driver 现落盘
+  `_inflight_requests.json`,§12)。
 - 未达 40 的原因(如实披露,与首轮 33 相同):298 题中 112 题为
   recorded 确定性直通(无模型调用),需要模型的题目在补位调度下的
   重叠不足以填满 40 槽;两臂均未设发车屏障(生产纪律),未用伪请求/
@@ -247,14 +281,20 @@
 - `local_identity_snapshot.json` / `local_pytest.log` / `remote_pytest.log`
   / `local_tree_manifest.txt` / `provider_price_snapshot_2026-09-29.json`;
 - `ec298_pd_retest_driver.py`(身份/运行/后处理三段驱动,
-  `--phase identity|run|post`)、`ec298_pd_retest_smoke.py`(发车烟测)、
-  `ec298_pd_retest_pairing.py`(门禁+评分+配对)、
-  `ec298_pd_retest_deepdiff.py`(逐题分层)、`ec298_pd_retest_seal.py`
-  (封存审计);
+  `--phase identity|run|post`;v2 起后处理落盘 `_inflight_requests.json`
+  逐请求表)、`ec298_pd_retest_smoke.py`(发车烟测)、
+  `ec298_pd_retest_pairing.py`(门禁+评分+配对;v2 起首位产物来源从
+  裁决产物重建并交叉核对)、`ec298_pd_retest_deepdiff.py`(逐题分层;
+  v2 起报告层按 products[reportable] 口径)、
+  `ec298_pd_retest_inflight.py`(并发逐请求派生表+峰值复核,新增)、
+  `ec298_pd_retest_seal.py`(封存审计);
 - `C0/`、`D3/`(两臂身份/归并答卷/汇总/seal 拉回副本)、
   `scoring/`(pairing_gate、score_v2_C0/D3、paired_scoring_298
-  .json/.tsv、multicomponent、deepdiff_298)、
-  `{C0,D3}_api_calls.tsv`(逐调用账)、`engine_arm_metadata.json`、
+  .json/.tsv、multicomponent、deepdiff_298;**v2 重生成版**)、
+  `scoring_r1_superseded/`(r1 派生表存档,见 §12)、
+  `{C0,D3}_api_calls.tsv`(逐调用账)、
+  `{C0,D3}_inflight_events.tsv` + `{C0,D3}_inflight_summary.json`
+  (并发逐请求派生表与峰值复核,新增)、`engine_arm_metadata.json`、
   `smoke_summaries.json`。
 
 **远端(Chenyu dependingv43,原始产物,不入仓)**:
@@ -294,3 +334,38 @@ OMP_NUM_THREADS=1 PYTHONPATH=src python -m pytest tests/ -q
 (臂运行复现:`ec298_pd_retest_driver.py --phase identity|run|post`
 命令见 `runs/ec298_pd_retest_pre/ec298_pd_retest_driver.py` 文档串;
 运行侧复现受模型非确定性影响,同配置重跑的逐题答卷不保证逐字节一致。)
+
+## 12. 修订记录
+
+### v2(2026-09-29,R2 外部 review 修复)
+
+review 指出三处问题并"暂不接受 complete"——已全部修复,主分数未受
+影响,complete 结论维持:
+
+1. **[P1] 首位产物来源未交付**:r1 配对脚本从 merged 答卷不存在的
+   `steps[].source` 字段取来源,导致 286/285 个非空答卷的
+   evidence_id/kind/report_rank 全空。修复:从封存裁决产物
+   `report_adjudication.json products[reportable=true]`(report_rank
+   排序)重建,并与 merged 首位产物逐题交叉核对(0 不匹配);填充率
+   286/286、285/285。
+2. **[P1] deepdiff 报告层读错 schema**:r1 读不存在的 `report/entries`
+   键,`report_evidence_ids` 全空;`n_report_products` 计入全部候选
+   (max 505、两臂各 286/285 题"超过 5")。修复:改读
+   `products[reportable=true]`,两臂 max 恰为 5、0 题越界;裁决总候选
+   数另记。schema 升 `ec298-pd-retest-deepdiff-2`。
+3. **[P2] 仓内无法复核并发峰值**:r1 后处理只保存峰值、丢弃逐请求
+   时间区间。修复:新增 `scripts/ec298_pd_retest_inflight.py` 只读
+   重导逐请求派生表(187+187 行,零凭证),用与批次协调器同一函数
+   同一口径重算峰值:C0 33、D-3 32,与记录值一致(peaks_match=
+   true);driver 后处理同步改为落盘 `_inflight_requests.json`。
+
+**不变性证明(修复前后逐项比对,`scoring_r1_superseded/` vs
+`scoring/`)**:score_v2 两臂 summary 相同;paired_scoring 的
+hits/四格/赢输平相同;298×2 逐题 `agent_rank` 全部相同;deepdiff
+决策层指标(召回 265/selected 11/资格变化 25/路由变化 9)相同。
+修复只影响逐题证据列(来源引用、报告层)与并发复核材料,零 LLM、
+零付费调用、封存运行产物零改写(全部只读重导)。
+
+**对本报告的影响**:§4 补首位产物来源口径与填充统计;§5 补报告层
+口径;§9 补逐请求派生表与峰值复核;§11 产物索引更新;登记勘误 #3
+追加(见 EC298_PHASE_D_RETEST_REGISTRATION.md)。
