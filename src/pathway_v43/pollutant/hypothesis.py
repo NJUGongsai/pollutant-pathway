@@ -27,7 +27,7 @@ from fractions import Fraction
 from ..domain.models import canonical_json, stable_id
 from .profile import PPV1_HYPOTHESIS_SCHEMA_VERSION
 
-PPV1_HYPOTHESIS_SUPPORTED_VERSIONS = ("ppv1-hypothesis-2",)
+PPV1_HYPOTHESIS_SUPPORTED_VERSIONS = ("ppv1-hypothesis-3",)
 
 PARTICIPANT_SIDE_REACTANT = "reactant"
 PARTICIPANT_SIDE_PRODUCT = "product"
@@ -383,9 +383,10 @@ def build_hypothesis(
     """构造反应假设(参与物先过 H02/H03 契约与归并)。
 
     hypothesis_id = 冻结反应语义哈希(父路径 + 底物状态 + 参与物规范化 +
-    转化引用 + 参与物列表状态 + step_scope + 来源组键)。origin_group_key
-    是调用方给的来源组指纹(如同一供体记录);不同来源组键默认不合并
-    (无法确认等价时不强制合并)。
+    转化引用 + 参与物列表状态 + step_scope + 来源组键 + **科学前提**
+    (requirements 全语义/顺序无关、assumptions、dependency_refs,
+    R2-07))。origin_group_key 是调用方给的来源组指纹(如同一供体记录);
+    不同来源组键默认不合并(无法确认等价时不强制合并)。
     """
     if not participants:
         raise HypothesisContractError(
@@ -421,10 +422,18 @@ def build_hypothesis(
             "完整声明的假设必须至少有一个产物侧参与物",
             {"parent_path_id": parent_path_id})
     semantic = canonical_json([p.to_dict() for p in normalized])
+    # R2-07:科学前提入身份 —— requirements(essential/preference 全语义,
+    # 顺序无关)、assumptions、dependency_refs 均影响假设语义:同父/同
+    # 结构/同来源但要求有氧/无氧/带未解决依赖是三个不同假设,可共存
+    # 落账;相同语义重放 ⇒ 同 id 幂等。
     hypothesis_id = stable_id(
         "hyp", parent_path_id, substrate_state_ref, semantic,
         transformation_ref, participant_list_status, step_scope,
-        origin_group_key)
+        origin_group_key,
+        canonical_json(sorted(canonical_json(dict(r))
+                              for r in (requirements or []))),
+        canonical_json(sorted(assumptions or [])),
+        canonical_json(sorted(dependency_refs or [])))
     return ReactionHypothesis(
         hypothesis_id=hypothesis_id,
         parent_path_id=parent_path_id,

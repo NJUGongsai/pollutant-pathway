@@ -765,17 +765,27 @@ def test_h04_circular_cosubstrate_dependency_diagnosis() -> None:
     assert result["cycles"] == [["speciesA", "speciesB"]]
     assert result["unresolved_initial_supply"] == [
         ["speciesA", "speciesB"]]
+    assert result["unsupported_relation_cycles"] == [
+        ["speciesA", "speciesB"]]  # 关系未支持单独披露(R2-06 分轴)
     assert "不称化学不可能" in result["note"]
+    # R2-06 修正:接种证据显式声明 initial_supply 轴(原用例把
+    # "全部边 supported→启动未知为空"当过强正例,被复审证伪——
+    # 关系支持不等于启动供给已知,轴必须显式声明)
     resolved = resolve_dependency(
         a_b, new_evidence=["src:inoculation"], resolution="supported",
-        note="接种提供初始供给")
+        support_axis="initial_supply", note="接种提供初始供给(可追溯)")
     result2 = detect_circular_dependencies([resolved, b_a])
-    assert result2["unresolved_initial_supply"] == [
+    # 初始供给已知 ⇒ 不再列入 unresolved_initial_supply;
+    # 但 B→A 关系未支持仍单独披露(两轴分开呈现,不混)
+    assert result2["unresolved_initial_supply"] == []
+    assert result2["unsupported_relation_cycles"] == [
         ["speciesA", "speciesB"]]
     both = resolve_dependency(
-        b_a, new_evidence=["src:regeneration"], resolution="supported")
+        b_a, new_evidence=["src:regeneration"], resolution="supported",
+        support_axis="regeneration")
     result3 = detect_circular_dependencies([resolved, both])
     assert result3["unresolved_initial_supply"] == []
+    assert result3["unsupported_relation_cycles"] == []
 
 
 def test_f06_three_node_cycle_detected() -> None:
@@ -791,12 +801,19 @@ def test_f06_three_node_cycle_detected() -> None:
     result = detect_circular_dependencies(deps)
     assert result["cycles"] == [["A", "B", "C"]]
     assert result["unresolved_initial_supply"] == [["A", "B", "C"]]
-    # 全部有来源支持 ⇒ 不阻断(unresolved 为空)
+    # R2-06 修正:仅关系/再生支持(默认 reaction 轴)⇒ 启动未知保留
+    # (原用例"全部边 supported→启动未知为空"是过强正例,被复审证伪)
     resolved = [
         resolve_dependency(d, new_evidence=["src:e"], resolution="supported")
         for d in deps]
     assert detect_circular_dependencies(
-        resolved)["unresolved_initial_supply"] == []
+        resolved)["unresolved_initial_supply"] == [["A", "B", "C"]]
+    # 补可追溯初始供给证据(initial_supply 轴)才解决启动未知
+    seeded = resolve_dependency(
+        resolved[0], new_evidence=["src:inoculation:A"],
+        resolution="supported", support_axis="initial_supply")
+    assert detect_circular_dependencies(
+        [seeded] + resolved[1:])["unresolved_initial_supply"] == []
 
 
 def test_dependency_resolution_needs_evidence_and_keeps_log() -> None:

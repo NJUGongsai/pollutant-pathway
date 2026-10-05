@@ -1,38 +1,55 @@
-"""PathContext — 路径上下文、条件事实与证据依赖(v2 回修,S2)。
+"""PathContext — 路径上下文、条件事实与证据依赖(v3 回修,S2)。
 
-v2(ppv1-context-2 / ppv1-condition-assessment-2 / ppv1-dependency-2,
-2026-10-05 回修)相对 v1 的变化(F02/F03/F06):
-- **要求按步骤/阶段累积,不覆盖(F02)**:子上下文同键不同要求**双方都
-  保留**;评估按全部适用要求的**合取**(任一 conflict → conflict,
-  否则任一 unknown → unknown);仅语义完全相同的要求可去重。v1 的
-  "同键以假设侧为准"已废除(审核 §6 裁定不接受);
-- **事实适用性分场景/阶段/来源(F03)**:上下文持有当前 scenario_ref;
-  curated_source 事实仅当 subject_scenario_ref 匹配当前场景才适用
-  (历史实验条件=来源场景事实,不自动成为当前事实);phase_id 非空
-  的事实只在对应阶段适用;必需物 known_absent ⇒ conflict(未列出 ⇒
-  unknown ≠ absent);
-- **必要性必须有来源(F03)**:无 source_refs 的 essential 是未核实
-  假设 —— 不进门禁(不产生 conflict),但阻止 compatible;
-- **值语义分 basis(mimo 4.2 采纳 + Codex 纠偏)**:range(显式区间)/
-  point(声明点值)/optimum(最适值,永不产生 conflict,偏离只作
-  preference)/label(定性标签,须注册表映射,首版注册表为空 ⇒ unknown,
-  禁止现推区间);单数值未声明 basis ⇒ unknown(不自动推为 optimum
-  或 range);
-- **context_id 冻结全部语义字段(F06)**:事实/要求/假设/依赖/评估
-  范围/场景/阶段/转换全部入哈希 —— 不同前提不得共享身份(S3 缓存
-  消费的前提);
-- **供给环检测为任意长环(F06)**:结构化多边图;环上任一边无来源
-  支持即 unresolved_initial_supply(不称化学不可能)。
+v3(ppv1-context-3 / ppv1-condition-assessment-3 / ppv1-dependency-3,
+2026-10-06 R3 回修)相对 v2 的变化(R2-04/05/06 + P2):
+- **要求绑定所属边/阶段(R2-04)**:Requirement 引入时的
+  phase_id/scenario_ref/边(introduced_edge,最佳努力 = hypothesis_id)
+  随要求保存;评估用**该阶段适用**的事实,不得拿新阶段事实重评旧
+  要求。derive_child 的 scenario_transition 把旧阶段评估冻结为
+  phase_history 历史快照(只影响后续步骤;转换不是反应边);
+  路线聚合按选定边逐边合取——任何旧边冲突在路线结果中保持,
+  旧要求也不因拿到新阶段事实而假冲突。本步评估
+  (current_step_assessment)与全路线评估(route_assessment /
+  assessed_scope)分开呈现。
+- **不可变性(R2-04)**:Requirement/ConditionFact/Dependency 为
+  frozen dataclass;构造/派生路径对嵌套可变值(区间 dict/来源列表/
+  轨迹)做深拷贝隔离——兄弟分支修改不得影响父与其他分支。
+- **数值/单位/实体作用域(R2-05)**:区间×点双向(点在不确定区间
+  ⇒ unknown point_in_uncertain_range;退化区间含点 ⇒ satisfied;
+  点在区间外 ⇒ conflict point_outside_interval,理由码独立);
+  单位不匹配 ⇒ unknown unit_mismatch(首版无 K→°C 换算,显式拒绝
+  比较);物种键按**实体身份**先匹配(他实体缺席/在场不证明本实体
+  状态;多种已知供体并存),枚举键(oxygen_regime)封闭集字符串
+  不匹配仍 conflict。
+- **label 范围定案(P2/复审 4.2(b) 缺口 2)**:label 仅适用于区间键
+  (INTERVAL_CONDITION_KEYS)且须注册表映射(首版注册表为空 ⇒
+  unknown);物种/枚举/矩阵键字符串是**实体/枚举比对**(value_basis
+  =entity),不走 label/注册表。
+- **再生支持与启动供给分轴(R2-06)**:resolve_dependency 声明
+  support_axis(reaction|regeneration|initial_supply,默认 reaction);
+  环上仅有再生/反应关系支持 ⇒ unresolved_initial_supply 保留;
+  补可追溯初始供给证据才解决。关系未支持单独披露
+  (unsupported_relation_cycles),不混入启动语义;环不自动 reject,
+  不称化学不可能。
+- **scope/coverage/来源/basis(P2)**:assessment_scope 从**实际执行
+  的检查**派生(有事实 ≠ 已检查);声明收窄留痕 scope_narrowed_by,
+  且不得隐藏必需未知维度;coverage 按同键最坏状态聚合
+  (conflict > unknown > satisfied),区分 assessed_keys 与
+  satisfied_keys,逐条结果全保留;同值不同来源不是事实不一致
+  (来源全部保留在 fact_sources),值真正不同才走不一致路径;
+  构造期/数据类直构校验 basis 与值形状一致(dict⇒range;标量⇒
+  point/optimum/unspecified;字符串⇒区间键 label 或实体/枚举键
+  entity),不一致抛 ConditionContractError。
 
-既有不变量(§6):条件键封闭枚举(首版 7 键);"土壤/污水"不推出氧条件;
-观察条件(observed_condition_reference)只作参考不进门禁;preference
-只提示;assessed_scope 由聚合派生不继承请求;空要求列表不自动相容;
-scenario_transition 须有来源,只影响后续步骤;依赖解决须有来源新
-证据并保留轨迹,下游精确匹配不消除上游猜测。
+v2 已修语义保留(F02/F03/F06):要求按步骤累积不覆盖、合取评估;
+事实适用性分场景/阶段/来源;无源 essential 阻止相容不产生冲突;
+optimum 永不冲突;单数值未声明 basis ⇒ unknown;context_id 冻结
+全部语义字段(含 phase_history 与要求绑定);供给环任意长可检出。
 """
 
 from __future__ import annotations
 
+import copy
 import math
 from dataclasses import dataclass, field
 
@@ -43,7 +60,7 @@ from .profile import (
     PPV1_DEPENDENCY_SCHEMA_VERSION,
 )
 
-PPV1_CONTEXT_SUPPORTED_VERSIONS = ("ppv1-context-2",)
+PPV1_CONTEXT_SUPPORTED_VERSIONS = ("ppv1-context-3",)
 
 CONDITION_KEY_OXYGEN = "oxygen_regime"
 CONDITION_KEY_PH = "pH"
@@ -58,14 +75,23 @@ CONDITION_KEYS = frozenset({
     CONDITION_KEY_ELECTRON_ACCEPTOR, CONDITION_KEY_GROWTH_SUBSTRATE,
 })
 
-# 区间型条件键(数值/区间语义)
+# 区间型条件键(数值/区间语义;定性标签须注册表映射)
 INTERVAL_CONDITION_KEYS = frozenset({CONDITION_KEY_PH,
                                      CONDITION_KEY_TEMPERATURE})
-# 物种类键(值=物种引用/枚举;known_absent 有独立语义)
+# 物种类键(值=物种实体引用;实体身份先匹配;多值可并存)
 SPECIES_CONDITION_KEYS = frozenset({CONDITION_KEY_ELECTRON_DONOR,
                                     CONDITION_KEY_ELECTRON_ACCEPTOR,
                                     CONDITION_KEY_GROWTH_SUBSTRATE})
+# 枚举键(封闭集;字符串不匹配 = 互斥 ⇒ conflict,C02 语义)
+ENUM_CONDITION_KEYS = frozenset({CONDITION_KEY_OXYGEN})
 OXYGEN_REGIME_VALUES = frozenset({"aerobic", "anaerobic", "facultative"})
+
+# 键 → 视作键名既定量纲的规范单位(空 = 无单位/未声明,按键名量纲);
+# 首版不做换算:非规范单位 ⇒ unit_mismatch ⇒ unknown,不得按数值直比
+CONDITION_KEY_UNITS: dict[str, frozenset[str]] = {
+    CONDITION_KEY_TEMPERATURE: frozenset({"", "°C", "C", "celsius"}),
+    CONDITION_KEY_PH: frozenset({"", "pH", "dimensionless"}),
+}
 
 # 已登记的 v2 条件键缺口(mimo 4.2(2) + Codex"登记未评估维度"):
 # 首版不评估这些维度 ⇒ 相容结论只覆盖已评估维度,不得显示为全维度相容
@@ -75,8 +101,7 @@ UNASSESSED_DIMENSIONS = frozenset({
     "substrate_concentration", "inoculum_source", "phase_bioavailability",
 })
 
-# 定性标签 → 支持区间的注册表(mimo 4.2:标签必须经注册表映射;
-# 首版注册表**为空** ⇒ 一切标签 unknown,禁止现推区间)
+# 定性标签 → 支持区间的注册表(仅区间键;物种/枚举键不走注册表)
 LABEL_RANGE_REGISTRY: dict[str, dict[str, tuple[float, float]]] = {}
 
 FACT_STATUS_KNOWN_PRESENT = "known_present"
@@ -110,15 +135,16 @@ REQUIREMENT_LEVELS = frozenset({REQUIREMENT_ESSENTIAL,
 REQUIREMENT_BASIS_ESSENTIAL_CLAIMED = "essential_claimed_by_source"
 REQUIREMENT_BASIS_OBSERVED_REFERENCE = "observed_condition_reference"
 
-# 值语义 basis(F03/mimo 4.2 + Codex 纠偏)
+# 值语义 basis(R2-05/P2 定案)
 VALUE_BASIS_RANGE = "range"        # 显式支持区间 {lo, hi}
 VALUE_BASIS_POINT = "point"        # 声明的必需点值
 VALUE_BASIS_OPTIMUM = "optimum"    # 最适值:永不产生 conflict
-VALUE_BASIS_LABEL = "label"        # 定性标签:须注册表映射
+VALUE_BASIS_LABEL = "label"        # 定性标签:仅区间键,须注册表映射
+VALUE_BASIS_ENTITY = "entity"      # 实体/枚举身份比对(物种/枚举/矩阵键)
 VALUE_BASIS_UNSPECIFIED = "unspecified"  # 单数值未声明语义 ⇒ unknown
 VALUE_BASES = frozenset({VALUE_BASIS_RANGE, VALUE_BASIS_POINT,
                          VALUE_BASIS_OPTIMUM, VALUE_BASIS_LABEL,
-                         VALUE_BASIS_UNSPECIFIED})
+                         VALUE_BASIS_ENTITY, VALUE_BASIS_UNSPECIFIED})
 
 SATISFIED = "satisfied"
 CONFLICT = "conflict"
@@ -131,6 +157,15 @@ DEPENDENCY_UNRESOLVED = "unresolved"
 DEPENDENCY_STATUSES = frozenset({DEPENDENCY_SUPPORTED,
                                  DEPENDENCY_CONTRADICTED,
                                  DEPENDENCY_UNRESOLVED})
+
+# 依赖支持轴(R2-06):关系证据(reaction/regeneration)与启动供给
+# 状态(initial_supply)分轴;默认 reaction(下游命中/关系支持不解决启动)
+SUPPORT_AXIS_REACTION = "reaction"
+SUPPORT_AXIS_REGENERATION = "regeneration"
+SUPPORT_AXIS_INITIAL_SUPPLY = "initial_supply"
+SUPPORT_AXES = frozenset({SUPPORT_AXIS_REACTION,
+                          SUPPORT_AXIS_REGENERATION,
+                          SUPPORT_AXIS_INITIAL_SUPPLY})
 
 
 class ConditionContractError(RuntimeError):
@@ -147,12 +182,16 @@ def _check_finite(value, where: dict) -> None:
             f"条件数值非有限:{value!r}", {**where, "value": repr(value)})
 
 
+def _is_number(value) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
 # ---------------------------------------------------------------- 条件事实
 
 
-@dataclass
+@dataclass(frozen=True)
 class ConditionFact:
-    """一条条件事实(键/值/状态/来源/所属场景/阶段)。"""
+    """一条条件事实(键/值/状态/来源/所属场景/阶段;不可变,R2-04)。"""
 
     key: str
     value: float | int | str | dict | None
@@ -163,8 +202,19 @@ class ConditionFact:
     subject_scenario_ref: str = ""   # 空=当前场景(user_input);非空须匹配
     phase_id: str = ""               # 非空=仅该阶段适用
 
+    def __post_init__(self) -> None:
+        # 深隔离:嵌套区间 dict 拷贝,不与调用方共享可变对象
+        if isinstance(self.value, dict):
+            object.__setattr__(self, "value", copy.deepcopy(self.value))
+
     def to_dict(self) -> dict:
-        return dict(self.__dict__)
+        return {
+            "key": self.key, "value": copy.deepcopy(self.value),
+            "unit": self.unit, "status": self.status,
+            "origin": self.origin, "source_ref": self.source_ref,
+            "subject_scenario_ref": self.subject_scenario_ref,
+            "phase_id": self.phase_id,
+        }
 
 
 def _validate_interval(value: dict, where: dict) -> None:
@@ -191,7 +241,12 @@ def build_condition_fact(
     source_ref: str = "", subject_scenario_ref: str = "",
     phase_id: str = "",
 ) -> ConditionFact:
-    """构造条件事实(fail-closed 校验;数值有限性/枚举域/区间形状)。"""
+    """构造条件事实(fail-closed 校验;数值有限性/枚举域/区间形状)。
+
+    单位边界(R2-05):temperature_C/pH 等带量纲键的非规范单位在
+    **评估时**判 unit_mismatch ⇒ unknown(不拒构造,事实可入账但
+    不参与数值比较);首版无 K→°C 等换算。
+    """
     if key not in CONDITION_KEYS:
         raise ConditionContractError(
             f"未知条件键:{key!r}(第一版限定 {sorted(CONDITION_KEYS)})",
@@ -209,8 +264,7 @@ def build_condition_fact(
         if key in INTERVAL_CONDITION_KEYS:
             if isinstance(value, dict):
                 _validate_interval(value, where)
-            elif isinstance(value, (int, float)) and not isinstance(
-                    value, bool):
+            elif _is_number(value):
                 _check_finite(value, where)
             else:
                 raise ConditionContractError(
@@ -236,27 +290,92 @@ def build_condition_fact(
 # ---------------------------------------------------------------- 要求
 
 
-@dataclass
+@dataclass(frozen=True)
 class Requirement:
     """一条环境/供给要求(essential|preference;来源;观察条件另存)。
 
-    value_basis(v2):range/point/optimum/label/unspecified —— 决定该值
-    参与判定的语义;unspecified(单数值未声明)按 unknown 处理,不自动
-    推断为 optimum 或 range(Codex 纠偏)。
+    不可变(R2-04):frozen dataclass + 嵌套值深拷贝;引入时的所属
+    绑定(introduced_phase_id/scenario_ref/introduced_edge = 边的
+    hypothesis_id,最佳努力)随要求保存,评估用该阶段适用事实。
+
+    value_basis:range/point/optimum/label/entity/unspecified ——
+    label 仅区间键(须注册表映射);entity 是物种/枚举/矩阵键字符串
+    的实体/枚举身份比对;unspecified(单数值未声明)按 unknown 处理。
     """
 
     key: str
     level: str                        # essential | preference
     value: float | int | str | dict | None
     basis: str = REQUIREMENT_BASIS_ESSENTIAL_CLAIMED
-    value_basis: str = VALUE_BASIS_UNSPECIFIED
+    value_basis: str = ""
     source_refs: list[str] = field(default_factory=list)
     applicable_dimensions: list[str] = field(default_factory=list)
     observed_source_conditions: list[dict] = field(default_factory=list)
     note: str = ""
+    introduced_phase_id: str = ""     # R2-04:引入阶段(空=未绑定)
+    introduced_scenario_ref: str = ""  # R2-04:引入场景
+    introduced_edge: str = ""         # R2-04:引入边(hypothesis_id)
+
+    def __post_init__(self) -> None:
+        # 深隔离 + basis 校验/推断(数据类直构路径同样把关,P2)
+        if isinstance(self.value, dict):
+            object.__setattr__(self, "value", copy.deepcopy(self.value))
+        object.__setattr__(self, "source_refs", list(self.source_refs))
+        object.__setattr__(self, "applicable_dimensions",
+                           list(self.applicable_dimensions))
+        object.__setattr__(self, "observed_source_conditions",
+                           copy.deepcopy(self.observed_source_conditions))
+        if not self.value_basis:
+            object.__setattr__(self, "value_basis",
+                               _infer_value_basis(self.key, self.value,
+                                                  None))
+        _validate_value_basis_shape(self.key, self.value, self.value_basis)
 
     def to_dict(self) -> dict:
-        return dict(self.__dict__)
+        return {
+            "key": self.key, "level": self.level,
+            "value": copy.deepcopy(self.value), "basis": self.basis,
+            "value_basis": self.value_basis,
+            "source_refs": list(self.source_refs),
+            "applicable_dimensions": list(self.applicable_dimensions),
+            "observed_source_conditions": copy.deepcopy(
+                self.observed_source_conditions),
+            "note": self.note,
+            "introduced_phase_id": self.introduced_phase_id,
+            "introduced_scenario_ref": self.introduced_scenario_ref,
+            "introduced_edge": self.introduced_edge,
+        }
+
+
+def _allowed_value_bases(key: str, value) -> set[str]:
+    """basis 与值形状的一致矩阵(P2:构造期/from_dict 校验)。"""
+    if isinstance(value, dict):
+        return {VALUE_BASIS_RANGE}
+    if _is_number(value):
+        return {VALUE_BASIS_POINT, VALUE_BASIS_OPTIMUM,
+                VALUE_BASIS_UNSPECIFIED}
+    if isinstance(value, str):
+        if key in INTERVAL_CONDITION_KEYS:
+            return {VALUE_BASIS_LABEL}
+        # 物种/枚举/矩阵键:实体/枚举比对;容忍 v2 遗留 unspecified
+        # 声明(该声明对比对无作用,不静默改写来源声明)
+        return {VALUE_BASIS_ENTITY, VALUE_BASIS_UNSPECIFIED}
+    return {VALUE_BASIS_UNSPECIFIED}
+
+
+def _validate_value_basis_shape(key: str, value, basis: str) -> None:
+    if basis not in VALUE_BASES:
+        raise ConditionContractError(
+            f"值语义 basis 非法:{basis!r}(允许 {sorted(VALUE_BASES)})",
+            {"key": key, "basis": basis})
+    allowed = _allowed_value_bases(key, value)
+    if basis not in allowed:
+        raise ConditionContractError(
+            f"basis 与值形状不一致:key={key!r} value={value!r} 声明 "
+            f"{basis!r}(该形状允许 {sorted(allowed)};不做静默规范化,"
+            "不追改来源声明的点值/最适/标签语义)",
+            {"key": key, "basis": basis, "value": repr(value),
+             "kind": "basis_shape_mismatch"})
 
 
 def _infer_value_basis(key: str, value, explicit: str | None) -> str:
@@ -270,9 +389,12 @@ def _infer_value_basis(key: str, value, explicit: str | None) -> str:
         return VALUE_BASIS_UNSPECIFIED
     if isinstance(value, dict):
         return VALUE_BASIS_RANGE
-    if isinstance(value, (int, float)) and not isinstance(value, bool):
+    if _is_number(value):
         return VALUE_BASIS_UNSPECIFIED  # 单数值未声明语义:从严 unknown
-    return VALUE_BASIS_LABEL  # 区间键上的字符串值 = 定性标签
+    # 字符串:区间键 = 定性标签;物种/枚举/矩阵键 = 实体/枚举比对
+    if key in INTERVAL_CONDITION_KEYS:
+        return VALUE_BASIS_LABEL
+    return VALUE_BASIS_ENTITY
 
 
 def build_requirement(*, key: str, level: str, value=None,
@@ -302,8 +424,6 @@ def build_requirement(*, key: str, level: str, value=None,
         raise ConditionContractError(
             f"oxygen_regime 要求取值非法:{value!r}", {"value": value})
     resolved_basis = _infer_value_basis(key, value, value_basis)
-    if isinstance(value, dict):
-        resolved_basis = VALUE_BASIS_RANGE  # 区间形状即 range
     return Requirement(key=key, level=level, value=value, basis=basis,
                        value_basis=resolved_basis,
                        source_refs=list(source_refs or []),
@@ -312,6 +432,34 @@ def build_requirement(*, key: str, level: str, value=None,
                        observed_source_conditions=list(
                            observed_source_conditions or []),
                        note=note)
+
+
+def _bind_requirement(req: Requirement, *, phase_id: str,
+                      scenario_ref: str, edge: str) -> Requirement:
+    """引入时绑定所属阶段/场景/边(仅填补空值,不追改既有绑定)。"""
+    if (req.introduced_phase_id in ("", phase_id)
+            and req.introduced_scenario_ref in ("", scenario_ref)
+            and req.introduced_edge in ("", edge)):
+        return Requirement(
+            key=req.key, level=req.level,
+            value=copy.deepcopy(req.value), basis=req.basis,
+            value_basis=req.value_basis,
+            source_refs=list(req.source_refs),
+            applicable_dimensions=list(req.applicable_dimensions),
+            observed_source_conditions=copy.deepcopy(
+                req.observed_source_conditions),
+            note=req.note,
+            introduced_phase_id=req.introduced_phase_id or phase_id,
+            introduced_scenario_ref=(req.introduced_scenario_ref
+                                     or scenario_ref),
+            introduced_edge=req.introduced_edge or edge)
+    # 预绑定到其他阶段/场景的要求:原样深拷贝保留(按其自身绑定评估)
+    return Requirement(**req.to_dict())
+
+
+def _requirement_copy(req: Requirement) -> Requirement:
+    """深拷贝(分支隔离:不与任何现有对象共享嵌套可变值)。"""
+    return Requirement(**req.to_dict())
 
 
 # ---------------------------------------------------------------- 评估
@@ -327,33 +475,55 @@ def _interval_relation(fact_value, req_value) -> str:
         if flo >= rlo and fhi <= rhi:
             return SATISFIED     # 实际区间完整落在支持范围内
         return UNKNOWN           # 部分相交但实际值不确定
-    if isinstance(fact_value, (int, float)) and isinstance(req_value, dict):
+    if _is_number(fact_value) and isinstance(req_value, dict):
         rlo, rhi = req_value["lo"], req_value["hi"]
         if rlo <= fact_value <= rhi:
             return SATISFIED     # 输入点位于支持范围
         return CONFLICT          # 点值在支持范围外 = 矛盾
-    if isinstance(fact_value, (int, float)) and isinstance(
-            req_value, (int, float)):
+    if _is_number(fact_value) and _is_number(req_value):
         return SATISFIED if fact_value == req_value else CONFLICT
     if fact_value is None or req_value is None:
         return UNKNOWN
     return SATISFIED if fact_value == req_value else CONFLICT
 
 
-def _applicable_facts(context: "PathContext") -> dict[str, list[
-        ConditionFact]]:
-    """按场景/阶段/来源适用性过滤事实(F03)。
+def _semantic_value_signature(fact: ConditionFact):
+    """事实的语义值签名(P2:同值不同来源不是不一致)。
 
+    只按 (状态, 值, 单位) 比较——source_ref/origin 等记账字段不参与
+    一致性判定;数值做 float 归一(7 与 7.0 同值)。
+    """
+    value = fact.value
+    if _is_number(value):
+        value = float(value)
+    elif isinstance(value, dict):
+        value = {k: (float(v) if _is_number(v) else v)
+                 for k, v in value.items()}
+    return (fact.status, canonical_json(value), fact.unit)
+
+
+def _unit_ok(key: str, unit: str) -> bool:
+    allowed = CONDITION_KEY_UNITS.get(key)
+    if allowed is None:
+        return unit == ""  # 无量纲键不携带单位
+    return unit in allowed
+
+
+def _applicable_facts(context: "PathContext",
+                      phase_id: str = "") -> dict[str, list[
+                          ConditionFact]]:
+    """按场景/阶段/来源适用性过滤事实(F03/R2-04)。
+
+    - 阶段:phase_id 非空的事实只在对应阶段适用;评估某条要求时用
+      **该要求引入阶段**适用的事实,不拿新阶段事实重评旧要求;
     - user_input:subject_scenario_ref 为空或匹配当前场景 → 适用;
     - curated_source:**必须** subject_scenario_ref 匹配当前场景才适用
-      (历史实验条件标的是来源场景,不自动成为当前事实;来源的
-      培养/实验设置属来源场景事实,同样只有显式采用该场景才作数);
-    - scenario_transition:同 curated 匹配规则,且 phase_id 限定生效;
-    - phase_id 非空的事实只在对应阶段适用(转换只影响后续步骤)。
+      (历史实验条件标的是来源场景,不自动成为当前事实);
+    - scenario_transition:同 curated 匹配规则。
     """
     out: dict[str, list[ConditionFact]] = {}
     for f in context.condition_facts:
-        if f.phase_id and f.phase_id != context.phase_id:
+        if f.phase_id and f.phase_id != phase_id:
             continue
         if f.origin in (FACT_ORIGIN_CURATED_SOURCE,
                         FACT_ORIGIN_SCENARIO_TRANSITION):
@@ -366,93 +536,169 @@ def _applicable_facts(context: "PathContext") -> dict[str, list[
     return out
 
 
+def _assess_species_requirement(req: Requirement,
+                                facts: list[ConditionFact],
+                                ) -> tuple[str, str, list[str]]:
+    """物种键评估(R2-05):实体身份先匹配;多值并存。
+
+    - 必需实体有自身事实:known_absent ⇒ conflict(实体自身缺席);
+      known_present ⇒ satisfied;unknown ⇒ unknown;
+    - 无自身事实:他实体在场/缺席不证明本实体状态 ⇒ unknown
+      (未列出 ≠ absent;多种已知供体可并存,不按键 last-wins);
+    - 同实体同阶段同场景既有 present 又有 absent ⇒ 值真正不一致 ⇒
+      保守 unknown。
+    """
+    entity = req.value
+    same = [f for f in facts if f.value == entity]
+    sources = [f.source_ref for f in facts if f.source_ref]
+    if not same:
+        others = sorted({str(f.value) for f in facts})
+        reason = (f"entity_not_among_known_facts:{req.key}:"
+                  f"required={entity!r},known={others}"
+                  if others else
+                  f"no_applicable_fact:{req.key}")
+        return UNKNOWN, reason, sources
+    if any(f.status == FACT_STATUS_KNOWN_ABSENT for f in same) and \
+            any(f.status == FACT_STATUS_KNOWN_PRESENT for f in same):
+        return (UNKNOWN,
+                f"conflicting_applicable_facts:{req.key}", sources)
+    first = same[0]
+    if first.status == FACT_STATUS_UNKNOWN:
+        return UNKNOWN, f"fact_unknown:{req.key}", sources
+    if first.status == FACT_STATUS_KNOWN_ABSENT:
+        return (CONFLICT,
+                f"required_entity_known_absent:{req.key}", sources)
+    return SATISFIED, f"entity_present:{req.key}", sources
+
+
 def _assess_requirement(
     req: Requirement, fact_lists: dict[str, list[ConditionFact]],
     preference_notes: list[str],
-) -> tuple[str, str]:
-    """单项评估 → (status, reason)。"""
+) -> tuple[str, str, list[str]]:
+    """单项评估 → (status, reason, fact_sources)。"""
     # 文献观察条件不是必需条件:只作参考,不参与门禁
     if req.basis == REQUIREMENT_BASIS_OBSERVED_REFERENCE:
-        return NOT_APPLICABLE, "observed_condition_reference_not_gating"
+        return NOT_APPLICABLE, "observed_condition_reference_not_gating", []
     # 无来源必要性(F03):未核实假设 —— 不进门禁(不产生 conflict),
     # 也不作为"来源已证必需";阻止 compatible 由 unknown 语义承担
     if req.level == REQUIREMENT_ESSENTIAL and not req.source_refs:
-        return UNKNOWN, "necessity_unsourced_not_gating"
+        return UNKNOWN, "necessity_unsourced_not_gating", []
     facts = fact_lists.get(req.key)
     if not facts:
         # 未列出某共底物 = 未知,不是 absent(C01/F03)
-        return UNKNOWN, f"no_applicable_fact:{req.key}"
-    if len(facts) > 1:
-        # 同键多条适用事实且互不一致 → 保守 unknown(不任选其一)
-        signatures = {(f.status, canonical_json(f.to_dict()))
-                      for f in facts}
-        if len(signatures) > 1:
-            return UNKNOWN, f"conflicting_applicable_facts:{req.key}"
+        return UNKNOWN, f"no_applicable_fact:{req.key}", []
+    sources = [f.source_ref for f in facts if f.source_ref]
+    # 物种键:实体身份先匹配(R2-05)
+    if req.key in SPECIES_CONDITION_KEYS and isinstance(req.value, str):
+        return _assess_species_requirement(req, facts)
+    # 单值维度:适用事实值真正不一致 → 保守 unknown(P2:同值不同
+    # 来源不是不一致——按语义值签名比较,来源保留)
+    known = [f for f in facts if f.status != FACT_STATUS_UNKNOWN]
+    if len({_semantic_value_signature(f) for f in known}) > 1:
+        return UNKNOWN, f"conflicting_applicable_facts:{req.key}", sources
+    if any(f.status == FACT_STATUS_UNKNOWN for f in facts):
+        return UNKNOWN, f"fact_unknown:{req.key}", sources
     fact = facts[0]
-    if fact.status == FACT_STATUS_UNKNOWN:
-        return UNKNOWN, f"fact_unknown:{req.key}"
-    # 必需物已知缺席 ⇒ 冲突(物质身份与供应存在分开,F03)
-    if fact.status == FACT_STATUS_KNOWN_ABSENT:
-        return CONFLICT, f"required_entity_known_absent:{req.key}"
+    # 单位边界(R2-05):带量纲键的非规范单位 ⇒ 不做数值比较
+    if not _unit_ok(fact.key, fact.unit):
+        return (UNKNOWN,
+                f"unit_mismatch:{fact.key}:{fact.unit!r}"
+                f"(首版无换算,不按数值直比)", sources)
     if req.value is None:
-        return UNKNOWN, f"requirement_value_unspecified:{req.key}"
-    # 定性标签:须注册表映射;首版注册表为空 ⇒ unknown(禁止现推区间)
+        return UNKNOWN, f"requirement_value_unspecified:{req.key}", sources
+    # 定性标签:仅区间键须注册表映射;首版注册表为空 ⇒ unknown
+    # (物种/枚举/矩阵键字符串是实体/枚举比对,不走 label/注册表)
     if req.value_basis == VALUE_BASIS_LABEL:
         if req.key in INTERVAL_CONDITION_KEYS and str(
                 req.value) not in LABEL_RANGE_REGISTRY.get(req.key, {}):
             return UNKNOWN, \
-                f"label_without_registered_range:{req.value!r}"
-        # 物种类键上的字符串值按物种/枚举比较
+                f"label_without_registered_range:{req.value!r}", sources
     # 最适值:永不产生 conflict(偏离只作 preference 提示)
     if req.value_basis == VALUE_BASIS_OPTIMUM:
         rel = _interval_relation(fact.value, req.value)
         if rel == SATISFIED:
-            return SATISFIED, f"at_optimum:{req.key}"
+            return SATISFIED, f"at_optimum:{req.key}", sources
         preference_notes.append(
             f"optimum_deviation:{req.key}(最适 {req.value!r},实际 "
             f"{fact.value!r};偏离不构成冲突)")
-        return NOT_APPLICABLE, "optimum_deviation_preference_not_gating"
+        return NOT_APPLICABLE, "optimum_deviation_preference_not_gating", \
+            sources
     # 单数值未声明 basis:不自动推 optimum/point ⇒ unknown
-    if req.value_basis == VALUE_BASIS_UNSPECIFIED and isinstance(
-            req.value, (int, float)):
-        return UNKNOWN, f"value_basis_unspecified:{req.key}"
-    # point 语义:声明必需点值
-    if req.value_basis == VALUE_BASIS_POINT and isinstance(
-            fact.value, (int, float)) and isinstance(
-            req.value, (int, float)):
-        return (SATISFIED if fact.value == req.value else CONFLICT,
-                f"point_match:{req.key}" if fact.value == req.value
-                else f"point_mismatch:{req.key}")
-    # 物种/枚举类:值不同且双方已知 → 冲突
+    if req.value_basis == VALUE_BASIS_UNSPECIFIED and _is_number(
+            req.value):
+        return UNKNOWN, f"value_basis_unspecified:{req.key}", sources
+    # point 语义:声明必需点值;事实为区间时双向分码(R2-05)
+    if req.value_basis == VALUE_BASIS_POINT:
+        if _is_number(fact.value) and _is_number(req.value):
+            return ((SATISFIED if fact.value == req.value else CONFLICT),
+                    (f"point_match:{req.key}" if fact.value == req.value
+                     else f"point_mismatch:{req.key}"), sources)
+        if isinstance(fact.value, dict) and _is_number(req.value):
+            lo, hi = fact.value["lo"], fact.value["hi"]
+            if not (lo <= req.value <= hi):
+                return (CONFLICT,
+                        f"point_outside_interval:{req.key}", sources)
+            if lo == hi:
+                return (SATISFIED,
+                        f"point_in_degenerate_interval:{req.key}", sources)
+            return (UNKNOWN,
+                    f"point_in_uncertain_range:{req.key}", sources)
+    # 实体/枚举比对:枚举键(封闭集)与开放单值键字符串不匹配 ⇒
+    # conflict(不得为过测试把所有字符串改 unknown;C02)
     if isinstance(req.value, str) and isinstance(fact.value, str):
         if req.value != fact.value:
             return (CONFLICT,
-                    f"value_mismatch:{req.key}:{req.value}!={fact.value}")
-        return SATISFIED, f"value_match:{req.key}"
+                    f"value_mismatch:{req.key}:{req.value}!={fact.value}",
+                    sources)
+        return SATISFIED, f"value_match:{req.key}", sources
     status = _interval_relation(fact.value, req.value)
     reason = {
         SATISFIED: f"within_range:{req.key}",
         CONFLICT: f"range_disjoint_or_outside:{req.key}",
         UNKNOWN: f"partial_overlap_or_point_unknown:{req.key}",
     }[status]
-    return status, reason
+    return status, reason, sources
+
+
+def _effective_phase(req: Requirement, context_phase_id: str) -> str:
+    """要求的有效评估阶段:引入绑定优先,未绑定 = 当前阶段。"""
+    return req.introduced_phase_id or context_phase_id
 
 
 @dataclass
 class ConditionAssessment:
-    """条件评估结果(单项 + 合取聚合;v2)。"""
+    """条件评估结果(单项 + 合取聚合;v3)。
+
+    assessment_scope = **实际执行的检查**覆盖的键(从评估过的必要
+    要求派生,不继承声明;有事实 ≠ 已检查);declared_scope 是调用
+    方声明(只能收窄,收窄留痕 scope_narrowed_by,且不能隐藏必需
+    未知维度)。requirement_coverage 按同键最坏状态聚合
+    (conflict > unknown > satisfied),assessed_keys 与
+    satisfied_keys 分开,逐条 per_requirement 全保留不 last-wins。
+    """
 
     per_requirement: list[dict]
     environment_fit: str          # compatible | unknown | conflict
     assessed_scope: str           # condition_compatible | possible | conflicted
-    assessment_scope: list[str]   # 声明覆盖的环境维度(已评估)
+    assessment_scope: list[str]   # 实际已评估的环境维度(执行派生)
     unassessed_dimensions: list[str]  # 已登记未评估维度(相容结论的边界)
     requirement_coverage: dict
     preference_notes: list[str]
+    declared_scope: list[str] = field(default_factory=list)
+    scope_narrowed: bool = False
+    scope_narrowed_by: list[str] = field(default_factory=list)
     schema_version: str = PPV1_CONDITION_ASSESSMENT_VERSION
 
     def to_dict(self) -> dict:
         return dict(self.__dict__)
+
+
+def _worst_status(statuses: list[str]) -> str:
+    if CONFLICT in statuses:
+        return CONFLICT
+    if UNKNOWN in statuses:
+        return UNKNOWN
+    return SATISFIED
 
 
 def aggregate_environment_fit(
@@ -463,20 +709,29 @@ def aggregate_environment_fit(
     scenario_ref: str = "",
     phase_id: str = "",
 ) -> ConditionAssessment:
-    """条件聚合(§6 + F02/F03:全部适用要求的**合取**,不按键覆盖)。
+    """条件聚合(§6 + F02/F03/R2-04/R2-05:全部适用要求的**合取**,
+    不按键覆盖;每条要求按其**引入阶段**适用的事实评估)。
 
     - 任一 essential(有来源)与适用事实冲突 → conflict;
     - 无冲突但任一 unknown(缺事实/覆盖未知/无源必要性/值语义未声明/
-      标签无注册映射/要求空)→ unknown(空要求列表不自动相容);
-    - 全部满足且声明覆盖维度 ⊇ 全部必要要求键 → compatible;相容结论
-      只覆盖 assessment_scope 列出的维度,已登记未评估维度
-      (UNASSESSED_DIMENSIONS)显式随附,不得读作全维度相容。
+      标签无注册映射/单位不匹配/点在不确定区间/要求空)→ unknown
+      (空要求列表不自动相容);
+    - 全部满足、必要要求非空且声明覆盖非空 → compatible;相容结论
+      只覆盖实际评估维度(assessment_scope),已登记未评估维度
+      (UNASSESSED_DIMENSIONS)显式随附。
     """
     ctx_probe = PathContext(
         context_id="", parent_context_ref="", phase_id=phase_id,
         requested_scope=REQUESTED_SCOPE_POSSIBLE,
-        condition_facts=list(facts), scenario_ref=scenario_ref)
-    fact_lists = _applicable_facts(ctx_probe)
+        condition_facts=[_fact_copy(x) for x in facts],
+        scenario_ref=scenario_ref)
+    fact_lists_by_phase: dict[str, dict[str, list[ConditionFact]]] = {}
+
+    def _facts_for(phase: str) -> dict[str, list[ConditionFact]]:
+        if phase not in fact_lists_by_phase:
+            fact_lists_by_phase[phase] = _applicable_facts(ctx_probe, phase)
+        return fact_lists_by_phase[phase]
+
     per: list[dict] = []
     notes: list[str] = []
     any_conflict = False
@@ -490,11 +745,16 @@ def aggregate_environment_fit(
                         "reason": "preference_not_gating",
                         "basis": req.basis})
             continue
-        status, reason = _assess_requirement(req, fact_lists, notes)
+        fact_lists = _facts_for(_effective_phase(req, phase_id))
+        status, reason, sources = _assess_requirement(req, fact_lists,
+                                                      notes)
         per.append({"key": req.key, "level": req.level, "status": status,
                     "reason": reason, "basis": req.basis,
                     "value_basis": req.value_basis,
-                    "sourced": bool(req.source_refs)})
+                    "sourced": bool(req.source_refs),
+                    "introduced_phase_id": _effective_phase(req, phase_id),
+                    "introduced_edge": req.introduced_edge,
+                    "fact_sources": sources})
         if status == CONFLICT:
             any_conflict = True
         elif status == UNKNOWN:
@@ -506,16 +766,30 @@ def aggregate_environment_fit(
         any_unknown = True  # (有效)必要要求为空:未知,不自动相容
 
     scope = [k for k in (declared_scope or []) if k in CONDITION_KEYS]
-    per_status = {p["key"]: p["status"] for p in per}
-    essential_key_set = {r.key for r in essential}
-    covered = [k for k in essential_key_set
-               if per_status.get(k) == SATISFIED and k in scope]
+    # P2:已评估维度从实际执行的检查派生(评过的必要要求键),
+    # 不继承声明——评过氧不得到"氧+pH+温度已评估";有事实 ≠ 已检查
+    assessed_keys = sorted({p["key"] for p in per
+                            if p["level"] == REQUIREMENT_ESSENTIAL
+                            and p["basis"]
+                            == REQUIREMENT_BASIS_ESSENTIAL_CLAIMED})
+    # 同键最坏状态(P2:不 last-wins;"评过且冲突"可呈现)
+    key_status: dict[str, str] = {}
+    for p in per:
+        if p["status"] == NOT_APPLICABLE:
+            continue
+        key_status[p["key"]] = _worst_status(
+            [key_status.get(p["key"], SATISFIED), p["status"]])
+    satisfied_keys = sorted(k for k, s in key_status.items()
+                            if s == SATISFIED)
+    narrowed_by = sorted(k for k in assessed_keys if k not in scope)
     fit = UNKNOWN
     if any_conflict:
         fit = CONFLICT
-    elif (not any_unknown and essential
-          and set(covered) == essential_key_set and scope):
-        fit = "compatible"  # 全部必要要求 satisfied 且覆盖声明完整
+    elif (not any_unknown and essential and scope
+          and set(satisfied_keys) >= {r.key for r in essential}):
+        # 全部必要要求 satisfied(optimum 等永不门禁的行是 N/A,
+        # 不构成满足 ⇒ 保持 unknown,不冒充相容)
+        fit = "compatible"
     assessed = {
         CONFLICT: ASSESSED_SCOPE_CONFLICTED,
         "compatible": ASSESSED_SCOPE_CONDITION_COMPATIBLE,
@@ -523,18 +797,27 @@ def aggregate_environment_fit(
     }[fit]
     return ConditionAssessment(
         per_requirement=per, environment_fit=fit, assessed_scope=assessed,
-        assessment_scope=scope,
+        assessment_scope=assessed_keys,
         unassessed_dimensions=sorted(UNASSESSED_DIMENSIONS),
         requirement_coverage={
-            "essential_keys": sorted(essential_key_set),
-            "covered_keys": covered,
-            "unknown_keys": sorted(
-                p["key"] for p in per if p["status"] == UNKNOWN),
-            "conflict_keys": sorted(
-                p["key"] for p in per if p["status"] == CONFLICT),
+            "essential_keys": sorted({r.key for r in essential}),
+            "assessed_keys": assessed_keys,
+            "satisfied_keys": satisfied_keys,
+            "covered_keys": list(satisfied_keys),
+            "unknown_keys": sorted(k for k, s in key_status.items()
+                                   if s == UNKNOWN),
+            "conflict_keys": sorted(k for k, s in key_status.items()
+                                    if s == CONFLICT),
         },
         preference_notes=notes,
+        declared_scope=scope,
+        scope_narrowed=bool(narrowed_by),
+        scope_narrowed_by=narrowed_by,
     )
+
+
+def _fact_copy(f: ConditionFact) -> ConditionFact:
+    return ConditionFact(**f.to_dict())
 
 
 def assess_conditions(context: "PathContext",
@@ -542,8 +825,9 @@ def assess_conditions(context: "PathContext",
     """§7.1 固定接口:上下文 × 假设要求 → 条件评估(纯函数)。
 
     评估范围 = 上下文累积的全部必要要求(父路径继承,含同键多条,
-    **不去重不覆盖**,F02)+ 该假设自带 requirements(逐条并入)。
-    事实按当前 scenario_ref/phase_id 的适用性过滤(F03)。
+    **不去重不覆盖**,F02;R2-04:每条按其引入阶段评估)+ 该假设自带
+    requirements(逐条并入,按假设所属 = 当前阶段/边评估)。
+    事实按当前 scenario_ref 与各要求引入阶段的适用性过滤(F03)。
     """
     hyp_reqs = getattr(hypothesis, "requirements", None)
     if hyp_reqs is None and isinstance(hypothesis, dict):
@@ -551,8 +835,13 @@ def assess_conditions(context: "PathContext",
     hyp_reqs = list(hyp_reqs or [])
     merged: list[Requirement] = list(context.accumulated_requirements)
     existing = {canonical_json(r.to_dict()) for r in merged}
-    for r in hyp_reqs:
-        req = r if isinstance(r, Requirement) else Requirement(**r)
+    for raw in hyp_reqs:
+        req = _requirement_copy(raw) if isinstance(raw, Requirement) \
+            else Requirement(**dict(raw))
+        req = _bind_requirement(
+            req, phase_id=context.phase_id,
+            scenario_ref=context.scenario_ref,
+            edge=getattr(hypothesis, "hypothesis_id", ""))
         # 仅语义完全相同的要求去重(F02);不同来源/不同区间/不同值
         # 一律保留(按合取评估,不覆盖)
         sig = canonical_json(req.to_dict())
@@ -568,9 +857,14 @@ def assess_conditions(context: "PathContext",
 # ---------------------------------------------------------------- 依赖
 
 
-@dataclass
+@dataclass(frozen=True)
 class Dependency:
-    """证据依赖(§6;status 固定三值;解决保留轨迹)。"""
+    """证据依赖(§6;status 固定三值;解决保留轨迹;不可变,R2-04)。
+
+    R2-06 支持分轴:support_axis 区分 reaction/regeneration(关系
+    支持)与 initial_supply(启动供给状态)——关系全 supported 不
+    等于启动供给已知。
+    """
 
     dependency_id: str
     kind: str                      # cosubstrate_supply | mechanism | …
@@ -579,10 +873,25 @@ class Dependency:
     source_refs: list[str] = field(default_factory=list)
     introduced_at_hypothesis_id: str = ""
     resolution_log: list[dict] = field(default_factory=list)
+    support_axis: str = SUPPORT_AXIS_REACTION  # 最近一次解决的支持轴
     schema_version: str = PPV1_DEPENDENCY_SCHEMA_VERSION
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "source_refs", list(self.source_refs))
+        object.__setattr__(self, "resolution_log",
+                           copy.deepcopy(self.resolution_log))
+
     def to_dict(self) -> dict:
-        return dict(self.__dict__)
+        return {
+            "dependency_id": self.dependency_id, "kind": self.kind,
+            "statement": self.statement, "status": self.status,
+            "source_refs": list(self.source_refs),
+            "introduced_at_hypothesis_id":
+                self.introduced_at_hypothesis_id,
+            "resolution_log": copy.deepcopy(self.resolution_log),
+            "support_axis": self.support_axis,
+            "schema_version": self.schema_version,
+        }
 
 
 def build_dependency(*, kind: str, statement: str,
@@ -597,29 +906,39 @@ def build_dependency(*, kind: str, statement: str,
 
 
 def resolve_dependency(dep: Dependency, *, new_evidence: list[str],
-                       resolution: str, note: str = "") -> Dependency:
+                       resolution: str, note: str = "",
+                       support_axis: str = SUPPORT_AXIS_REACTION
+                       ) -> Dependency:
     """解决/反驳依赖(只有有来源新证据或显式转换才可调;保留轨迹)。
 
     下游精确匹配不能消除上游猜测 —— 调用方须只在持有**来源新证据**
     (source_refs)时调用;resolution ∈ supported|contradicted。
+    support_axis(R2-06)声明该证据支持哪一轴:reaction/regeneration
+    = 关系支持(不解决启动供给);initial_supply = 可追溯初始供给
+    (解决环的启动未知)。默认 reaction:关系证据不自动变成启动证据。
     重复引用不升级支持(轨迹如实追加,不乘分数)。
     """
     if resolution not in (DEPENDENCY_SUPPORTED, DEPENDENCY_CONTRADICTED):
         raise ConditionContractError(
             f"解决状态非法:{resolution!r}", {"resolution": resolution})
+    if support_axis not in SUPPORT_AXES:
+        raise ConditionContractError(
+            f"支持轴非法:{support_axis!r}(允许 {sorted(SUPPORT_AXES)})",
+            {"support_axis": support_axis})
     if not new_evidence:
         raise ConditionContractError(
             "解决依赖需要来源新证据(下游精确匹配不消除上游猜测)",
             {"dependency_id": dep.dependency_id})
-    log = list(dep.resolution_log)
+    log = copy.deepcopy(list(dep.resolution_log))
     log.append({"resolution": resolution, "evidence": list(new_evidence),
-                "note": note})
+                "note": note, "support_axis": support_axis})
     return Dependency(
         dependency_id=dep.dependency_id, kind=dep.kind,
         statement=dep.statement, status=resolution,
         source_refs=list(dep.source_refs),
         introduced_at_hypothesis_id=dep.introduced_at_hypothesis_id,
         resolution_log=log,
+        support_axis=support_axis,
     )
 
 
@@ -634,12 +953,16 @@ def _parse_supply_edge(statement: str) -> tuple[str, str] | None:
 def detect_circular_dependencies(
     dependencies: list[Dependency],
 ) -> dict:
-    """共底物供给环诊断(§17.4 H04;v2:任意长环,结构化多边图)。
+    """共底物供给环诊断(§17.4 H04;R2-06:支持分轴)。
 
     - 多边图(同源可有多个供给目标),DFS 检出全部简单环;
-    - 环上任一供给依赖无来源支持(status != supported)⇒ 该环计入
-      unresolved_initial_supply(未知启动供给,依显式策略处理,
-      不称化学不可能);环上全部 supported = 有启动/再生支持,不阻断;
+    - **启动供给与关系支持分轴(R2-06)**:环上没有任何
+      initial_supply 轴支持的依赖 ⇒ 计入 unresolved_initial_supply
+      (未知启动供给,依显式策略处理,不称化学不可能);
+      环上全部关系 supported(含 regeneration)只表示关系成立,
+      **不**删除启动未知;
+    - 关系未支持(status != supported)单独披露
+      (unsupported_relation_cycles),不混入启动语义;
     - 下游命中(反应证据)不自动解决上游依赖 —— 支持状态由
       resolve_dependency 的来源新证据语义管理,此处不代改。
     """
@@ -675,16 +998,25 @@ def detect_circular_dependencies(
         return out
 
     unresolved: list[list[str]] = []
+    unsupported_relation: list[list[str]] = []
     for cycle in sorted(cycles):
         deps = _edge_deps(cycle)
-        if not all(d.status == DEPENDENCY_SUPPORTED for d in deps):
+        has_initial = any(
+            d.status == DEPENDENCY_SUPPORTED
+            and d.support_axis == SUPPORT_AXIS_INITIAL_SUPPLY
+            for d in deps)
+        if not has_initial:
             unresolved.append(list(cycle))
+        if not all(d.status == DEPENDENCY_SUPPORTED for d in deps):
+            unsupported_relation.append(list(cycle))
     return {
         "cycles": [list(c) for c in sorted(cycles)],
         "unresolved_initial_supply": unresolved,
-        "note": ("cosubstrate_cycle:有启动/再生支持不自动阻断;未知标 "
-                 "unresolved_initial_supply,依显式策略处理,不称化学"
-                 "不可能;下游命中不自动解决上游依赖"),
+        "unsupported_relation_cycles": unsupported_relation,
+        "note": ("cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/"
+                 "关系支持不解决初始供给,未知标 unresolved_initial_"
+                 "supply,依显式策略处理,不称化学不可能;下游命中不"
+                 "自动解决上游依赖"),
     }
 
 
@@ -693,11 +1025,18 @@ def detect_circular_dependencies(
 
 @dataclass
 class PathContext:
-    """路径上下文(§6 全字段;v2 +scenario_ref;分支隔离;JSON 往返)。
+    """路径上下文(§6 全字段;v3;分支隔离;JSON 往返)。
 
     scenario_ref:当前场景身份(F03)——curated_source 事实按其匹配
     适用;历史/来源场景事实(subject_scenario_ref 不匹配)不成为当前
-    事实。context_id 冻结全部语义字段(F06)。
+    事实。context_id 冻结全部语义字段(F06;含 phase_history 与要求
+    绑定)。
+
+    phase_history(R2-04):scenario_transition 时冻结的旧阶段评估
+    快照(environment_fit + per_requirement,含来源);只影响后续
+    步骤,不追改此前步骤,也不写成反应边。路线聚合
+    (route_assessment/assessed_scope)= 历史快照逐边合取 + 当前
+    阶段 live 评估;本步评估(current_step_assessment)单独呈现。
     """
 
     context_id: str
@@ -712,17 +1051,8 @@ class PathContext:
     assessment_scope: list[str] = field(default_factory=list)
     scenario_ref: str = ""
     scenario_transition: dict | None = None
+    phase_history: list[dict] = field(default_factory=list)
     schema_version: str = PPV1_CONTEXT_SCHEMA_VERSION
-
-    @property
-    def assessed_scope(self) -> str:
-        """由事实×要求派生,不继承 requested_scope(C05)。"""
-        return aggregate_environment_fit(
-            facts=self.condition_facts,
-            requirements=self.accumulated_requirements,
-            declared_scope=self.assessment_scope,
-            scenario_ref=self.scenario_ref, phase_id=self.phase_id,
-        ).assessed_scope
 
     def to_dict(self) -> dict:
         return {
@@ -738,7 +1068,8 @@ class PathContext:
             "dependency_refs": list(self.dependency_refs),
             "assessment_scope": list(self.assessment_scope),
             "scenario_ref": self.scenario_ref,
-            "scenario_transition": self.scenario_transition,
+            "scenario_transition": copy.deepcopy(self.scenario_transition),
+            "phase_history": copy.deepcopy(self.phase_history),
         }
 
     @classmethod
@@ -764,7 +1095,93 @@ class PathContext:
             assessment_scope=list(d.get("assessment_scope", [])),
             scenario_ref=d.get("scenario_ref", ""),
             scenario_transition=d.get("scenario_transition"),
+            phase_history=copy.deepcopy(list(d.get("phase_history", []))),
         )
+
+    # ---- 评估(两层:本步 vs 全路线,R2-04) ----
+
+    def current_step_assessment(self) -> ConditionAssessment:
+        """本步(当前阶段)评估:只含当前阶段有效绑定的必要要求,
+        按当前阶段适用事实评估。"""
+        reqs = [r for r in self.accumulated_requirements
+                if _effective_phase(r, self.phase_id) == self.phase_id]
+        return aggregate_environment_fit(
+            facts=self.condition_facts, requirements=reqs,
+            declared_scope=self.assessment_scope,
+            scenario_ref=self.scenario_ref, phase_id=self.phase_id)
+
+    def route_assessment(self) -> ConditionAssessment:
+        """全路线评估:历史阶段快照(冻结)逐边合取 + 当前阶段 live。
+
+        任何旧边冲突在路线结果中保持;旧要求不拿新阶段事实重评。
+        空阶段(无可评估必要要求)不贡献未知,也不产生相容声明。
+        """
+        live = self.current_step_assessment()
+        history = list(self.phase_history)
+        if not history:
+            return live
+        contributors = [h for h in history
+                        if h.get("has_gate_requirements")]
+        live_has_reqs = bool(live.requirement_coverage["essential_keys"])
+        if not contributors and not live_has_reqs:
+            return live
+        fits = [h["environment_fit"] for h in contributors]
+        if live_has_reqs:
+            fits.append(live.environment_fit)
+        if CONFLICT in fits:
+            fit = CONFLICT
+        elif UNKNOWN in fits:
+            fit = UNKNOWN
+        else:
+            fit = "compatible"
+        per = [row for h in contributors
+               for row in h.get("per_requirement", [])] \
+            + (live.per_requirement if live_has_reqs else [])
+        notes = [n for h in contributors
+                 for n in h.get("preference_notes", [])] \
+            + live.preference_notes
+        key_status: dict[str, str] = {}
+        for p in per:
+            if p.get("status") == NOT_APPLICABLE:
+                continue
+            key_status[p["key"]] = _worst_status(
+                [key_status.get(p["key"], SATISFIED), p["status"]])
+        scopes = sorted({k for h in contributors
+                         for k in h.get("assessment_scope", [])}
+                        | set(live.assessment_scope if live_has_reqs
+                              else []))
+        assessed = {
+            CONFLICT: ASSESSED_SCOPE_CONFLICTED,
+            "compatible": ASSESSED_SCOPE_CONDITION_COMPATIBLE,
+            UNKNOWN: ASSESSED_SCOPE_POSSIBLE,
+        }[fit]
+        return ConditionAssessment(
+            per_requirement=per, environment_fit=fit,
+            assessed_scope=assessed, assessment_scope=scopes,
+            unassessed_dimensions=sorted(UNASSESSED_DIMENSIONS),
+            requirement_coverage={
+                "essential_keys": sorted(key_status),
+                "assessed_keys": sorted(key_status),
+                "satisfied_keys": sorted(k for k, s in key_status.items()
+                                         if s == SATISFIED),
+                "covered_keys": sorted(k for k, s in key_status.items()
+                                       if s == SATISFIED),
+                "unknown_keys": sorted(k for k, s in key_status.items()
+                                       if s == UNKNOWN),
+                "conflict_keys": sorted(k for k, s in key_status.items()
+                                        if s == CONFLICT),
+            },
+            preference_notes=notes,
+            declared_scope=live.declared_scope,
+            scope_narrowed=live.scope_narrowed,
+            scope_narrowed_by=live.scope_narrowed_by,
+        )
+
+    @property
+    def assessed_scope(self) -> str:
+        """路线级派生结果(历史快照 + 当前阶段;不继承
+        requested_scope,C05/F02:旧边冲突保持,子评估不回 compatible)。"""
+        return self.route_assessment().assessed_scope
 
 
 def _context_hash(
@@ -772,12 +1189,12 @@ def _context_hash(
     facts: list[ConditionFact], requirements: list[Requirement],
     assumptions: list[str], dependency_refs: list[str],
     assessment_scope: list[str], scenario_ref: str,
-    scenario_transition: dict | None,
+    scenario_transition: dict | None, phase_history: list[dict],
 ) -> str:
-    """context_id = 全部语义字段的冻结哈希(F06)。
+    """context_id = 全部语义字段的冻结哈希(F06 + R2-04)。
 
-    影响科学前提/评估范围/继承依赖的字段全部入哈希;S3 的缓存与图
-    节点不得混用不同前提的上下文身份。
+    影响科学前提/评估范围/继承依赖/阶段历史的字段全部入哈希;S3 的
+    缓存与图节点不得混用不同前提的上下文身份。
     """
     return stable_id(
         "pc", parent_context_ref, phase_id, requested_scope, scenario_ref,
@@ -786,7 +1203,8 @@ def _context_hash(
         canonical_json(sorted(assumptions)),
         canonical_json(sorted(dependency_refs)),
         canonical_json(sorted(assessment_scope)),
-        canonical_json(scenario_transition or {}))
+        canonical_json(scenario_transition or {}),
+        canonical_json(phase_history or []))
 
 
 def build_path_context(
@@ -801,20 +1219,28 @@ def build_path_context(
     assessment_scope: list[str] | None = None,
     scenario_ref: str = "",
 ) -> PathContext:
-    """构造根/独立上下文(分支各自构建,不共享可变对象)。"""
+    """构造根/独立上下文(分支各自构建,不共享可变对象)。
+
+    要求在引入时绑定当前 phase_id/scenario_ref(R2-04;边为空 =
+    根上下文引入)。
+    """
     if requested_scope not in REQUESTED_SCOPES:
         raise ConditionContractError(
             f"requested_scope 非法:{requested_scope!r}",
             {"requested_scope": requested_scope})
-    facts = list(condition_facts or [])
-    requirements = list(accumulated_requirements or [])
+    facts = [_fact_copy(f) for f in (condition_facts or [])]
+    requirements = [
+        _bind_requirement(_requirement_copy(r), phase_id=phase_id,
+                          scenario_ref=scenario_ref, edge="")
+        for r in (accumulated_requirements or [])]
     context_hash = _context_hash(
         parent_context_ref=parent_context_ref, phase_id=phase_id,
         requested_scope=requested_scope, facts=facts,
         requirements=requirements, assumptions=list(assumptions or []),
         dependency_refs=list(dependency_refs or []),
         assessment_scope=list(assessment_scope or []),
-        scenario_ref=scenario_ref, scenario_transition=None)
+        scenario_ref=scenario_ref, scenario_transition=None,
+        phase_history=[])
     return PathContext(
         context_id=context_hash, parent_context_ref=parent_context_ref,
         phase_id=phase_id, requested_scope=requested_scope,
@@ -833,41 +1259,23 @@ def derive_child_context(
     step_assumptions: list[str] | None = None,
     step_dependency_refs: list[str] | None = None,
     scenario_transition: dict | None = None,
+    step_edge_ref: str = "",
 ) -> PathContext:
     """子路径上下文 = 父事实/必要依赖 + 本步新增(分支隔离,C03)。
 
-    F02:同键不同要求**双方都保留**(父要求与子要求并存在
-    accumulated_requirements,评估按合取;不再"以假设侧为准");
-    仅语义完全相同(canonical JSON 一致)的要求去重。同固定场景的
-    同键差异仍显式记入 assumptions(供审阅;判定由合取承担)。
-    scenario_transition:仅用户/来源提供的显式转换(带 source_ref);
-    转换只影响后续步骤,不追改此前步骤。
+    F02:同键同场景不同要求**双方都保留**(按合取评估,不覆盖);
+    仅语义完全相同(canonical JSON 一致)的要求去重。
+    R2-04:scenario_transition(须带 source_ref)把父阶段评估冻结为
+    phase_history 历史快照;转换只影响后续步骤,不追改此前步骤,
+    也不写成反应边;旧要求保留原阶段绑定,不拿新阶段事实重评。
+    step_edge_ref:本步边的最佳努力标识(hypothesis_id),随新引入
+    要求保存。
     """
     if scenario_transition is not None:
         if not scenario_transition.get("source_ref"):
             raise ConditionContractError(
                 "阶段转换必须有来源(用户/来源提供;不自行换场景)",
                 {"scenario_transition": scenario_transition})
-    merged: list[Requirement] = list(parent.accumulated_requirements)
-    seen = {canonical_json(r.to_dict()) for r in merged}
-    conflict_notes: list[str] = []
-    parent_by_key: dict[str, list[Requirement]] = {}
-    for r in parent.accumulated_requirements:
-        parent_by_key.setdefault(r.key, []).append(r)
-    for req in (step_requirements or []):
-        sig = canonical_json(req.to_dict())
-        if sig in seen:
-            continue  # 语义完全相同:去重
-        merged.append(req)
-        seen.add(sig)
-        existing = parent_by_key.get(req.key)
-        if existing:
-            conflict_notes.append(
-                f"requirement_differs_at_same_scenario:{req.key}:"
-                f"parent={[e.value for e in existing]},step={req.value}"
-                "(双方保留,按合取评估;显式记录,不覆盖)")
-    assumptions = list(parent.assumptions) + list(step_assumptions or []) \
-        + conflict_notes
     phase_id = parent.phase_id
     scenario_ref = parent.scenario_ref
     if scenario_transition is not None:
@@ -875,20 +1283,68 @@ def derive_child_context(
                                                parent.phase_id))
         scenario_ref = str(scenario_transition.get(
             "new_scenario_ref", parent.scenario_ref))
+    merged: list[Requirement] = [
+        _requirement_copy(r) for r in parent.accumulated_requirements]
+    seen = {canonical_json(r.to_dict()) for r in merged}
+    conflict_notes: list[str] = []
+    parent_by_scope: dict[tuple[str, str, str], list[Requirement]] = {}
+    for r in parent.accumulated_requirements:
+        key = (_effective_phase(r, phase_id), r.introduced_scenario_ref,
+               r.key)
+        parent_by_scope.setdefault(key, []).append(r)
+    for req in (step_requirements or []):
+        bound = _bind_requirement(_requirement_copy(req),
+                                  phase_id=phase_id,
+                                  scenario_ref=scenario_ref,
+                                  edge=step_edge_ref)
+        sig = canonical_json(bound.to_dict())
+        if sig in seen:
+            continue  # 语义完全相同:去重
+        merged.append(bound)
+        seen.add(sig)
+        scope_key = (bound.introduced_phase_id or phase_id,
+                     bound.introduced_scenario_ref, bound.key)
+        existing = parent_by_scope.get(scope_key)
+        if existing:
+            conflict_notes.append(
+                f"requirement_differs_at_same_scenario:{bound.key}:"
+                f"parent={[e.value for e in existing]},step={bound.value}"
+                "(双方保留,按各自阶段适用事实合取评估;显式记录,不覆盖)")
+    assumptions = list(parent.assumptions) + list(step_assumptions or []) \
+        + conflict_notes
+    phase_history = copy.deepcopy(list(parent.phase_history))
+    if scenario_transition is not None:
+        # 冻结父阶段评估为历史快照(旧边结果保留;不追改;不是反应边)
+        snapshot = parent.current_step_assessment()
+        phase_history.append({
+            "phase_id": parent.phase_id,
+            "scenario_ref": parent.scenario_ref,
+            "environment_fit": snapshot.environment_fit,
+            "assessed_scope": snapshot.assessed_scope,
+            "assessment_scope": list(snapshot.assessment_scope),
+            "per_requirement": copy.deepcopy(snapshot.per_requirement),
+            "requirement_coverage": copy.deepcopy(
+                snapshot.requirement_coverage),
+            "preference_notes": list(snapshot.preference_notes),
+            "has_gate_requirements": bool(
+                snapshot.requirement_coverage["essential_keys"]),
+            "snapshot_basis": "scenario_transition",
+            "source_ref": scenario_transition.get("source_ref", ""),
+        })
     child = PathContext(
         context_id="",
         parent_context_ref=parent.context_id,
         phase_id=phase_id,
         requested_scope=parent.requested_scope,
-        condition_facts=[ConditionFact(**f.to_dict())
-                         for f in parent.condition_facts],
+        condition_facts=[_fact_copy(f) for f in parent.condition_facts],
         accumulated_requirements=merged,
         assumptions=assumptions,
         dependency_refs=list(parent.dependency_refs)
         + list(step_dependency_refs or []),
         assessment_scope=list(parent.assessment_scope),
         scenario_ref=scenario_ref,
-        scenario_transition=scenario_transition,
+        scenario_transition=copy.deepcopy(scenario_transition),
+        phase_history=phase_history,
     )
     child.context_id = _context_hash(
         parent_context_ref=parent.context_id, phase_id=phase_id,
@@ -898,5 +1354,6 @@ def derive_child_context(
         dependency_refs=child.dependency_refs,
         assessment_scope=child.assessment_scope,
         scenario_ref=scenario_ref,
-        scenario_transition=scenario_transition)
+        scenario_transition=scenario_transition,
+        phase_history=phase_history)
     return child
