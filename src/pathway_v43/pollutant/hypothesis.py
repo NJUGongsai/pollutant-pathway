@@ -27,6 +27,8 @@ from fractions import Fraction
 from ..domain.models import canonical_json, stable_id
 from .profile import PPV1_HYPOTHESIS_SCHEMA_VERSION
 
+PPV1_HYPOTHESIS_SUPPORTED_VERSIONS = ("ppv1-hypothesis-2",)
+
 PARTICIPANT_SIDE_REACTANT = "reactant"
 PARTICIPANT_SIDE_PRODUCT = "product"
 PARTICIPANT_SIDES = frozenset({PARTICIPANT_SIDE_REACTANT,
@@ -325,6 +327,12 @@ class ReactionHypothesis:
 
     @classmethod
     def from_dict(cls, d: dict) -> "ReactionHypothesis":
+        version = d.get("schema_version")
+        if version not in PPV1_HYPOTHESIS_SUPPORTED_VERSIONS:
+            raise HypothesisContractError(
+                f"ReactionHypothesis schema 版本未知:{version!r}(支持 "
+                f"{list(PPV1_HYPOTHESIS_SUPPORTED_VERSIONS)};fail-closed)",
+                {"schema_version": version})
         return cls(
             hypothesis_id=d["hypothesis_id"],
             parent_path_id=d["parent_path_id"],
@@ -348,8 +356,7 @@ class ReactionHypothesis:
             legacy_relationship_status=d.get(
                 "legacy_relationship_status", ""),
             ambiguous_participants=bool(d.get("ambiguous_participants", False)),
-            schema_version=d.get("schema_version",
-                                 PPV1_HYPOTHESIS_SCHEMA_VERSION),
+            schema_version=version,
         )
 
 
@@ -390,6 +397,21 @@ def build_hypothesis(
     if step_scope not in STEP_SCOPES:
         raise HypothesisContractError(
             f"step_scope 非法:{step_scope!r}", {"step_scope": step_scope})
+    # 底物锚点(F07):substrate_state_ref 必须是本假设的 reactant 侧
+    # primary_substrate 参与物 —— 引用不属于反应物锚点的状态属于
+    # 结构性违约,不能构造后又被审计为"全核实"
+    anchor_ok = any(
+        p.side == PARTICIPANT_SIDE_REACTANT
+        and p.role == PARTICIPANT_ROLE_PRIMARY_SUBSTRATE
+        and p.state_ref == substrate_state_ref
+        for p in participants)
+    if not anchor_ok:
+        raise HypothesisContractError(
+            "substrate_state_ref 不是本假设的 reactant 侧 primary_"
+            "substrate 参与物(底物锚点违约)",
+            {"kind": "substrate_anchor_violation",
+             "substrate_state_ref": substrate_state_ref,
+             "parent_path_id": parent_path_id})
     normalized, ambiguous = normalize_participants(list(participants))
     if participant_list_status in (
             PARTICIPANT_LIST_SOURCE_COMPLETE, PARTICIPANT_LIST_DECLARED_COMPLETE

@@ -43,7 +43,7 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    assert block["schema_version"] == "ppv1-profile-1"
+    assert block["schema_version"] == "ppv1-profile-2"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),
@@ -63,6 +63,7 @@ def test_ppv1_identity_block_contract_versions() -> None:
         ("condition_assessment", "ppv1-condition-assessment-"),
     ):
         assert contracts[key].startswith(prefix), key
+    assert contracts["gate_mapper"] == "ppv1-gate-mapper-1"
     assert contracts["legacy_gate_ref"] == "frozen_hit60_gate"
 
 
@@ -99,9 +100,24 @@ def test_search_limits_validation() -> None:
     ok = ppv1_profile.build_profile_identity_block(
         search_limits={"max_search_depth": 3})
     assert ok["search_limits"]["max_search_depth"] == 3
-    # P0-3 建议小值(每父备选 2/产物宽度 2/深度 3/总 action 10)在范围内
+    # P2-4 配置往返:完整序列化输出可原样回灌(含 version 字符串键)
+    full = ok["search_limits"]
+    round_trip = ppv1_profile.build_profile_identity_block(
+        search_limits=full)["search_limits"]
+    assert round_trip == full
+    with pytest.raises(ValueError, match="search_limits.version"):
+        ppv1_profile.build_profile_identity_block(
+            search_limits={"version": "ppv1-search-limits-1-proposed"})
+    # P2-4 零预算夹具合法(独立零深度/零预算,不再笼统拒绝)
+    zero = ppv1_profile.build_profile_identity_block(
+        search_limits={"max_search_depth": 0,
+                       "max_total_search_actions": 0})["search_limits"]
+    assert zero["max_search_depth"] == 0
+    assert zero["max_total_search_actions"] == 0
+    # P0-3 建议小值(备选假设 2/尝试 2/产物宽度 2/深度 3/总 action 10)
     ranges = ppv1_profile.SEARCH_LIMITS_RANGES
-    small = {"max_hypotheses_per_parent_alternative": 2,
+    small = {"max_alternative_hypotheses_per_parent": 2,
+             "max_attempts_per_hypothesis": 2,
              "max_product_expansion_width": 2, "max_search_depth": 3,
              "max_total_search_actions": 10}
     for k, v in small.items():

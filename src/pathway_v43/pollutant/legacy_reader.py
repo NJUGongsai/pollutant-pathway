@@ -1,20 +1,20 @@
-"""legacy 只读适配 — 旧 v43 账本到新表示(实施书 §3.1/§11 S1)。
+"""legacy 只读适配 — 旧 v43 账本到新表示(v2 回修,S1)。
 
-- **只读**:以 sqlite 只读 URI 打开旧 pathway.sqlite,不经过
-  PathwayStore 构造(其建表/迁移有写副作用);本模块零写回 —— 旧
-  run、封存资产、旧评测程序不回写,历史导入输出写新模式自己的库/对象;
-- 旧数据读出后按新表示恢复,保留原始引用与不确定字段:
-  * 产物侧结构 = event_products.product_smiles_full(存档形恢复,
-    representation_fidelity=archive_recovered,不冒称原实验全部结构
-    细节已知);
-  * 反应物侧:父路径若为事件产物 → 用其存档结构;根路径 → run
-    identity inputs.root_smiles;均不可得时才退 legacy_cn_only;
-  * novel 平列表(一个 evidence 多产物、无共同产物分组信息)→
-    一个假设挂 legacy_relationship_unspecified,不静默拆分、不重解释
-    (A04);
-  * kind/source_id/match_type/asset_sources 经 provenance 映射细分,
-    原字段保留。
-- 旧账本 schema 未知 → fail-closed(不做"默认当作完整新契约"的读取)。
+v2(2026-10-05 回修)相对 v1 的变化(F09/F10/F04):
+- **子路径缺存档不借根结构(F09)**:只有经路径关系确认的根节点
+  (event_id 与 product_position 均空)才允许使用 run identity 的
+  root_smiles;子路径找不到来源产物行 ⇒ 退 CN-only 只读状态并留
+  未知说明,**绝不**以根污染物结构冒充子底物;
+- **模型来源保留(F10)**:旧事件行的 model_ref 非空 ⇒ provenance
+  映射按模型提案/类比处理,不再丢失;来源细分记录随导入持久保存到
+  新账本 provenance_records;
+- **存档形分轴保真(F04/F05)**:产物与子底物的存档结构按
+  archive_recovered 分轴 fidelity 构建(立体/同位素 absent_in_
+  archive,电荷 as_written);CN-only 按 CN-only 分轴(电荷 unknown)。
+
+既有不变量:只读(sqlite ro URI,不经 PathwayStore 构造);旧库零
+写回(字节不变);novel 平列表挂 legacy_relationship_unspecified 不
+猜分组(A04);旧账本 schema 未知 fail-closed。
 """
 
 from __future__ import annotations
@@ -23,11 +23,11 @@ import json
 import sqlite3
 from pathlib import Path
 
-from ..domain.models import EVIDENCE_KIND_NOVEL, stable_id
+from ..domain.models import EVIDENCE_KIND_NOVEL
 from .chemstate import (
-    REPRESENTATION_ARCHIVE_RECOVERED,
     STRUCTURE_ORIGIN_RAW_INPUT,
     STRUCTURE_ORIGIN_SOURCE_PRODUCT,
+    archive_recovered_fidelity,
     build_chemical_state,
     build_chemical_state_from_cn_only,
 )
@@ -106,30 +106,34 @@ def _legacy_root_smiles(run_dir: Path) -> str | None:
 
 def _substrate_structure_for_path(
     conn: sqlite3.Connection, run_dir: Path, path_id: str,
-) -> tuple[str, bool, bool]:
-    """父路径底物结构:(structure, is_archive_recovered, is_root)。
+) -> tuple[str, str]:
+    """父路径底物结构来源 → (structure_or_cn, source_kind)。
 
-    父路径为事件产物 → 存档形;根路径 → run identity 原始输入
-    (origin=raw_input);都不可得 → (CN, False, False)(调用方退
-    legacy_cn_only)。
+    source_kind ∈ {"archive"(事件产物存档形), "root"(经路径关系确认的
+    根节点原始输入), "cn_only"(子路径缺存档 —— 退 CN,绝不借根
+    结构冒充,F09)}。
     """
     row = conn.execute(
         "SELECT * FROM path_instances WHERE path_id = ?", (path_id,)).fetchone()
     if row is None:
         raise LegacyStoreError(
             f"旧账本缺路径:{path_id}", {"path_id": path_id})
-    if row["event_id"] is not None and row["product_position"] is not None:
+    is_root = row["event_id"] is None and row["product_position"] is None
+    if not is_root:
         prod = conn.execute(
             "SELECT * FROM event_products WHERE event_id = ? AND"
             " position = ?",
             (row["event_id"], row["product_position"])).fetchone()
         if prod is not None:
             return (prod["product_smiles_full"] or prod["product_smiles"],
-                    True, False)
+                    "archive")
+        # 子路径缺存档:CN-only(不借根结构;F09)
+        return row["substrate_identity"], "cn_only"
     root_smiles = _legacy_root_smiles(run_dir)
     if root_smiles:
-        return root_smiles, False, True
-    return row["substrate_identity"], False, False
+        return root_smiles, "root"
+    # 根节点连身份文件都缺:CN-only(如实)
+    return row["substrate_identity"], "cn_only"
 
 
 def import_legacy_event(
@@ -141,44 +145,42 @@ def import_legacy_event(
     """单条旧事件 → 新表示(hypothesis + 事件 + 缺省投影/展开 + 状态)。
 
     返回 {"hypothesis", "event", "report_projection", "expansion_plan",
-    "states", "provenance", "uncertainty_notes"}。缺省投影/展开计划只
-    是**只读导入占位**(全部产物位次=legacy 位次、展开状态=not_tracked,
-    原因 legacy_import_no_expansion_info);真实报告/展开决策不在此猜。
-    novel 平列表:一个假设含全部产物,legacy_relationship_unspecified。
+    "states", "provenance", "provenance_record_id", "uncertainty_notes",
+    "context_hash", "event_id", "hypothesis_id"}。缺省投影/展开计划是
+    **只读导入占位**(全部产物位次=legacy 位次、展开 not_tracked、
+    原因 legacy_import_no_expansion_info;与真实决策区分,不把
+    not_tracked 当化学终点)。
     """
     run_dir = Path(run_dir)
     conn = _read_only_conn(run_dir / "pathway.sqlite")
     try:
-        substrate_smiles, recovered, is_root = \
-            _substrate_structure_for_path(
-                conn, run_dir, legacy_event["parent_path_id"])
-        substrate_is_cn_only = (not is_root and not recovered
-                                and substrate_smiles ==
-                                legacy_event["substrate_identity"])
+        substrate_source, source_kind = _substrate_structure_for_path(
+            conn, run_dir, legacy_event["parent_path_id"])
     finally:
         conn.close()
 
     uncertainty_notes: list[str] = []
-    if substrate_is_cn_only:
+    if source_kind == "cn_only":
         substrate_state = build_chemical_state_from_cn_only(
             legacy_event["substrate_identity"],
             source_refs=[{"role": "legacy_path_substrate",
-                          "path_id": legacy_event["parent_path_id"]}])
+                          "path_id": legacy_event["parent_path_id"],
+                          "reason": "substrate_archive_missing"}])
         uncertainty_notes.append(
-            "substrate_structure_legacy_cn_only:历史路径只余 CN,结构/立体未知")
+            "substrate_structure_legacy_cn_only:历史路径只余 CN"
+            "(存档缺失),结构/立体/原始电荷未知;不以根结构冒充子底物")
     else:
         substrate_state = build_chemical_state(
-            substrate_smiles,
-            STRUCTURE_ORIGIN_RAW_INPUT if is_root
+            substrate_source,
+            STRUCTURE_ORIGIN_RAW_INPUT if source_kind == "root"
             else STRUCTURE_ORIGIN_SOURCE_PRODUCT,
             source_refs=[{
                 "role": "legacy_path_substrate",
                 "path_id": legacy_event["parent_path_id"],
-                "archive_recovered": recovered,
+                "source_kind": source_kind,
             }],
-            representation_fidelity=(
-                REPRESENTATION_ARCHIVE_RECOVERED if recovered
-                else "full_parse"))
+            fidelity=(archive_recovered_fidelity()
+                      if source_kind == "archive" else None))
 
     participants: list[Participant] = [
         Participant(
@@ -196,7 +198,7 @@ def import_legacy_event(
             source_refs=[{"role": "legacy_event_product",
                           "event_id": legacy_event["event_id"],
                           "position": prod.get("position")}],
-            representation_fidelity=REPRESENTATION_ARCHIVE_RECOVERED)
+            fidelity=archive_recovered_fidelity())
         product_states[state.state_id] = state
         participants.append(Participant(
             state_ref=state.state_id, side=PARTICIPANT_SIDE_PRODUCT,
@@ -204,10 +206,6 @@ def import_legacy_event(
             coefficient=None, coefficient_status=COEFFICIENT_UNKNOWN,
         ))
 
-    # 平列表语义:全部产物归入同一假设;novel 显式挂牌,其余 kind 的
-    # 多产物记录(同一已记录反应 ID 聚合)在 legacy 语义中即"同一反应
-    # 共同产物" —— 但导入侧不重解释,统一保留 unknown 列表状态与来源
-    # 引用,由后续有来源的审核确认
     legacy_novel = legacy_event.get("kind") == EVIDENCE_KIND_NOVEL
     relationship_status = ("legacy_relationship_unspecified"
                            if legacy_novel else "")
@@ -215,6 +213,11 @@ def import_legacy_event(
         uncertainty_notes.append(
             "legacy_novel_flat_product_list:历史 novel 平列表语义不明确,"
             "不猜共同产物分组,不拆成单产物反应")
+    model_ref = str(legacy_event.get("model_ref", "") or "")
+    if model_ref:
+        uncertainty_notes.append(
+            f"legacy_model_decision:{model_ref[:120]}(模型决策引用随导入"
+            "保留,来源细分按模型提案处理)")
     context_hash = "legacy-import"  # 导入侧无原上下文:显式常量,不伪造
 
     hypothesis = build_hypothesis(
@@ -224,6 +227,7 @@ def import_legacy_event(
         participant_list_status=PARTICIPANT_LIST_UNKNOWN,
         step_scope="unknown",
         provenance_refs=[legacy_event["evidence_id"]],
+        model_decision_ref=model_ref,
         legacy_relationship_status=relationship_status,
         origin_group_key=legacy_event["evidence_id"],
     )
@@ -243,13 +247,18 @@ def import_legacy_event(
         reasons={ref: "legacy_import_no_expansion_info" for
                  ref in product_refs},
     )
+    # model_ref 非空 ⇒ 模型决策参与(F10:导入不丢模型来源)
     provenance = map_legacy_card({
         "kind": legacy_event.get("kind", ""),
         "source_id": legacy_event.get("source_id", ""),
-        "match_type": "",  # 旧事件行不存 match_type;不伪造
+        "match_type": ("model_analogy_transfer" if model_ref else ""),
         "asset_sources": [],
+        "source_record": ({"predicted_by_model": True} if model_ref
+                          else {}),
     })
     all_states = {substrate_state.state_id: substrate_state, **product_states}
+    from ..domain.models import stable_id
+
     return {
         "hypothesis": hypothesis,
         "event": event,
@@ -257,6 +266,8 @@ def import_legacy_event(
         "expansion_plan": expansion.to_dict(),
         "states": [s.to_dict() for s in all_states.values()],
         "provenance": provenance.to_dict(),
+        "provenance_record_id": stable_id(
+            "ppprov", legacy_event["event_id"]),
         "uncertainty_notes": uncertainty_notes,
         "context_hash": context_hash,
         "event_id": event.event_id,
@@ -272,8 +283,11 @@ def import_legacy_run(
 ) -> dict:
     """整个旧 run 只读导入到新模式账本(逐事件;零写回旧库)。
 
-    target_store:PollutantPathwayStore(新库);事件幂等重放返回
-    created=False,不重复入账。
+    - 每事件:states/hypothesis/provenance 先行落账,事件+投影+展开
+      同事务提交(事务要求假设关联,store v2);
+    - 幂等:重放返回 created=False,不重复入账;
+    - 连续多步路径(共享中间物)正常导入(F04:同一结构不同来源引用
+      是出现记录追加,不构成身份冲突)。
     """
     run_dir = Path(run_dir)
     events = read_legacy_events(run_dir)
@@ -288,16 +302,22 @@ def import_legacy_run(
         target_store.put_hypothesis(
             imported["hypothesis"].to_dict(),
             context_hash=imported["context_hash"])
+        target_store.put_provenance(
+            imported["provenance_record_id"], new_run_id,
+            imported["provenance"])
         result = target_store.submit_event(
             imported["event"],
             report_projection=imported["report_projection"],
             expansion_plan=imported["expansion_plan"],
-            states=imported["states"])
+            states=imported["states"],
+            hypothesis_dict=imported["hypothesis"].to_dict())
         if result["created"]:
             n_created += 1
         else:
             n_replayed += 1
         notes.extend(imported["uncertainty_notes"])
+    from ..domain.models import stable_id
+
     return {"n_events": len(events), "n_created": n_created,
             "n_replayed": n_replayed, "uncertainty_notes": notes,
             "legacy_run_dir": str(run_dir),

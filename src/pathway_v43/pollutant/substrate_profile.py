@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-from collections import Counter
 from dataclasses import dataclass, field
 
 from rdkit import Chem
@@ -55,7 +54,7 @@ class SubstrateProfile:
     isotope_information_status: str
     structure_origin: str
     original_structure_available: bool
-    representation_fidelity: str
+    representation_fidelity: dict = field(default_factory=dict)
     element_counts: dict[str, int] = field(default_factory=dict)
     molecular_formula: str = ""
     source_refs: list[dict] = field(default_factory=list)
@@ -94,9 +93,12 @@ def build_substrate_profile(
             raise SubstrateProfileError(
                 "底物状态的结构无法解析(档案构造失败)",
                 {"state_ref": state.state_id})
-        counts = Counter(
-            atom.GetSymbol() for atom in mol.GetAtoms())
-        element_counts = dict(sorted(counts.items()))
+        # 全氢基准(F01:与 audit 元素账同一事实源 —— 重原子 GetTotalNumHs
+        # + 独立氢顶点,不重不漏;formula 由 RDKit 按 same 基准给出)
+        from .audit import element_counts_full
+
+        counts = element_counts_full(mol)
+        element_counts = {k: int(v) for k, v in sorted(counts.items())}
         try:
             from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 
@@ -120,7 +122,7 @@ def build_substrate_profile(
         isotope_information_status=state.isotope_information_status,
         structure_origin=state.structure_origin,
         original_structure_available=state.original_structure_available,
-        representation_fidelity=state.representation_fidelity,
+        representation_fidelity=dict(state.representation_fidelity or {}),
         element_counts=element_counts if policy[
             "include_element_counts"] else {},
         molecular_formula=formula if policy[

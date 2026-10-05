@@ -26,6 +26,8 @@ from .hypothesis import (
 )
 from .profile import PPV1_EVENT_SCHEMA_VERSION
 
+PPV1_EVENT_SUPPORTED_VERSIONS = ("ppv1-event-2",)
+
 EXPANSION_STATUS_EXPANDED = "expanded"
 EXPANSION_STATUS_DEFERRED = "deferred"
 EXPANSION_STATUS_NOT_TRACKED = "not_tracked"
@@ -134,9 +136,12 @@ def build_event_states(
 ) -> dict[str, ChemicalState]:
     """为假设的全部参与物构建 ChemicalState(整体构建,不部分提交)。
 
-    raw_structures: state_ref → 原始结构串。任一参与物缺结构串或解析
-    失败 → ParticipantStateError(含参与物定位;不静默丢掉任何共同
-    产物,由调用方拒绝/挂起整个假设)。
+    raw_structures: state_ref → 原始结构串。F07 诚实性约束:
+    - 任一参与物缺结构串或解析失败 → ParticipantStateError(整体问题,
+      不静默丢掉任何共同产物);
+    - **state_ref 欺骗检查**:以某 state_ref 提供的结构实际构建出的
+      state_id 与该 state_ref 不一致(拿别的分子冒充)→ 拒绝,不返回
+      张冠李戴的状态集。
     """
     states: dict[str, ChemicalState] = {}
     for p in hypothesis.participants:
@@ -148,7 +153,7 @@ def build_event_states(
                 {"state_ref": ref, "hypothesis_id": hypothesis.hypothesis_id,
                  "kind": "missing_structure"})
         try:
-            states[ref] = build_chemical_state(
+            state = build_chemical_state(
                 structure,
                 (state_origins or {}).get(ref, "source_product"),
                 (state_source_refs or {}).get(ref),
@@ -160,6 +165,15 @@ def build_event_states(
                  "hypothesis_id": hypothesis.hypothesis_id,
                  "kind": "unparseable_participant",
                  "reason": str(exc)[:200]}) from exc
+        if state.state_id != ref:
+            raise ParticipantStateError(
+                "参与物 state_ref 与所提供结构的实际身份不一致"
+                "(不得以其他分子冒充该状态)",
+                {"state_ref": ref,
+                 "hypothesis_id": hypothesis.hypothesis_id,
+                 "kind": "state_ref_mismatch",
+                 "actual_state_id": state.state_id})
+        states[ref] = state
     return states
 
 
@@ -238,10 +252,22 @@ def build_expansion_plan(
     not_tracked: list[str],
     reasons: dict[str, str] | None = None,
 ) -> ExpansionPlan:
-    """展开计划(独立原因;A03:not_tracked 产物在事件中完整保留)。"""
+    """展开计划(独立原因;A03:not_tracked 产物在事件中完整保留)。
+
+    F07:同一产物的展开状态互斥 —— 不得同时出现在两个名单
+    (expanded/deferred/not_tracked 两两交集必须为空)。
+    """
     reasons = reasons or {}
     product_refs = {p.state_ref for p in hypothesis.participants
                     if p.side == PARTICIPANT_SIDE_PRODUCT}
+    overlap = (set(expanded) & set(deferred)) | \
+        (set(expanded) & set(not_tracked)) | \
+        (set(deferred) & set(not_tracked))
+    if overlap:
+        raise EventContractError(
+            "展开计划状态互斥违反:同一产物出现在多个名单",
+            {"conflicting_refs": sorted(overlap),
+             "hypothesis_id": hypothesis.hypothesis_id})
     declared = set(expanded) | set(deferred) | set(not_tracked)
     unknown = declared - product_refs
     if unknown:

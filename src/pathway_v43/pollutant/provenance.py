@@ -112,21 +112,25 @@ class ProvenanceInfo:
 
 
 def map_legacy_card(card: dict) -> ProvenanceInfo:
-    """既有证据卡 → 来源细分(P0-1 映射;不升格、不重做分类)。
+    """既有证据卡 → 来源细分(P0-1 映射 v2/F10 回修;不升格、不猜)。
 
-    规则(与 reaction_finder.py 的产出逻辑一一对应):
+    规则(与 reaction_finder.py 的产出逻辑一一对应;v2 修正):
     - kind=recorded_reaction → curated_reaction / curated_record_only
       (库中记录 ≠ 本场景直接实测;experimentally_observed_exact 不在
       此处产出 —— 需要显式观察记录);
-    - kind=rule_application → envipath/eawag 规则 → biotransformation_rule;
-      uspto → patent_template;evidence_basis=rule_derived(规则推演);
-    - kind=analog_reaction 且 match_type 为模型类比提案 →
-      model_proposal(模型产物,含供体成分引用);
+    - kind=rule_application:**显式**来源标识才映射 —— uspto →
+      patent_template;envipath/eawag 规则标识 → biotransformation_
+      rule;来源与资产成分都无标识 ⇒ **unknown**(不默认生物转化规则;
+      rule_derived 是推演性质,不代表生物来源已知,F10);
+    - 组合来源逐成分映射:asset role envipath → biotransformation_
+      rule、uspto → patent_template、**retrieval/语料 → analog_
+      transfer**(语料检索邻居通道,不是生物转化规则,F10);
+    - kind=analog_reaction 且 match_type 为模型类比提案或
+      predicted_by_model → model_proposal(模型产物,与库中类比证据
+      分开,F10);
     - kind=analog_reaction(检索邻居) → analog_transfer /
       analog_transferred;
-    - kind=novel_proposal → model_proposal / model_proposed;
-    - 组合来源逐成分保留(asset_sources 透传,每成分各给细分);
-    - 未知/混合按 unknown(不猜)。
+    - kind=novel_proposal → model_proposal / model_proposed。
     """
     kind = str(card.get("kind", "") or "")
     source_id = str(card.get("source_id", "") or "")
@@ -134,6 +138,16 @@ def map_legacy_card(card: dict) -> ProvenanceInfo:
     asset_sources = card.get("asset_sources") or []
     source_record = card.get("source_record") or {}
     predicted_by_model = bool(source_record.get("predicted_by_model"))
+
+    def _component_origin(asset: dict) -> str | None:
+        token = str(asset.get("role", "")).lower()
+        if "uspto" in token:
+            return SOURCE_ORIGIN_PATENT_TEMPLATE
+        if "envipath" in token or "eawag" in token:
+            return SOURCE_ORIGIN_BIOTRANSFORMATION_RULE
+        if "retrieval" in token or "corpus" in token:
+            return SOURCE_ORIGIN_ANALOG_TRANSFER
+        return None  # 成分无标识 ⇒ 该成分 unknown
 
     components: list[ProvenanceComponent] = []
     if kind == EVIDENCE_KIND_RECORDED:
@@ -147,20 +161,26 @@ def map_legacy_card(card: dict) -> ProvenanceInfo:
                 asset_sha256=str(a.get("asset_sha256", "")),
                 source_id=source_id, role=str(a.get("role", "recorded"))))
     elif kind == EVIDENCE_KIND_RULE:
-        # kind=rule_application 已声明"规则模板应用";细分规则库:
-        # uspto → patent_template,其余(含 envipath/eawag 规则/来源
-        # 字符串未携带库标识)→ biotransformation_rule;未知库标识不
-        # 升格也不改 kind 语义
         s = source_id.lower()
-        main_origin = (SOURCE_ORIGIN_PATENT_TEMPLATE if "uspto" in s
-                       else SOURCE_ORIGIN_BIOTRANSFORMATION_RULE)
+        has_uspto = "uspto" in s
+        has_envipath = ("envipath" in s) or ("eawag" in s)
+        component_origins = [c for c in (_component_origin(a)
+                                         for a in asset_sources)
+                             if c is not None]
+        if has_uspto:
+            main_origin = SOURCE_ORIGIN_PATENT_TEMPLATE
+        elif has_envipath:
+            main_origin = SOURCE_ORIGIN_BIOTRANSFORMATION_RULE
+        elif component_origins:
+            # 来源字符串无标识,但资产成分显式(组合来源主成分)
+            main_origin = component_origins[0]
+        else:
+            main_origin = SOURCE_ORIGIN_UNKNOWN  # 无任何显式标识:不猜
         main_basis = EVIDENCE_BASIS_RULE_DERIVED
         for a in asset_sources or []:
-            token = str(a.get("role", "")).lower()
-            origin = (SOURCE_ORIGIN_PATENT_TEMPLATE if "uspto" in token
-                      else SOURCE_ORIGIN_BIOTRANSFORMATION_RULE)
+            origin = _component_origin(a)
             components.append(ProvenanceComponent(
-                source_origin=origin,
+                source_origin=origin or SOURCE_ORIGIN_UNKNOWN,
                 evidence_basis=EVIDENCE_BASIS_RULE_DERIVED,
                 asset_file=str(a.get("asset_file", "")),
                 asset_sha256=str(a.get("asset_sha256", "")),
@@ -197,12 +217,18 @@ def map_legacy_card(card: dict) -> ProvenanceInfo:
 
 @dataclass
 class SupportGroup:
-    """支持组(§5.4:相同来源记录重复引用只算一组)。"""
+    """支持组(§5.4:相同来源记录重复引用只算一组;v2/F10)。
+
+    independent_support_count:研究身份可追溯(study_map)时=不同原
+    研究身份数;否则 None(未知)—— 不以布尔开关代替研究身份。
+    n_unresolved_study_identity:study_map 下仍有未知研究身份的组数。
+    """
 
     group_id: str
     record_refs: list[dict]
     independent_support_count: int | None   # None = 原研究身份未知
     origin_study_ref: str | None = None
+    n_unresolved_study_identity: int | None = None
     schema_version: str = PPV1_PROVENANCE_SCHEMA_VERSION
 
     def to_dict(self) -> dict:
@@ -212,15 +238,26 @@ class SupportGroup:
             "record_refs": [dict(r) for r in self.record_refs],
             "independent_support_count": self.independent_support_count,
             "origin_study_ref": self.origin_study_ref,
+            "n_unresolved_study_identity":
+                self.n_unresolved_study_identity,
         }
 
 
 def build_support_groups(
     cards: list[dict],
     *,
-    origin_study_known: bool = False,
+    study_map: dict[str, str] | None = None,
 ) -> list[SupportGroup]:
-    """证据卡 → 支持组列表(重复引用归组;独立支持数按来源身份诚实)。"""
+    """证据卡 → 支持组列表(v2/F10:记录去重与原研究独立性分开)。
+
+    - 记录去重:相同 (kind, source_id) 的重复引用归一组(一组=一条
+      库记录的引用集合);
+    - 原研究独立性:study_map(库记录 key "kind:source_id" → 原研究
+      身份)给出**实际可追溯**的原研究归并时,独立支持数 = 不同研究
+      身份数,组携带 origin_study_ref;未提供 study_map(默认,本仓
+      资产无原研究身份链)⇒ 独立支持数 = **None(未知)**,不以布尔
+      开关冒充研究身份、不把多个数据库 ID 当多次独立实验。
+    """
     groups: dict[tuple[str, str], list[dict]] = {}
     for card in cards:
         key = (str(card.get("kind", "")), str(card.get("source_id", "")))
@@ -232,13 +269,29 @@ def build_support_groups(
             "asset_sha256": card.get("asset_sha256", ""),
         })
     out: list[SupportGroup] = []
+    study_of_group: dict[tuple[str, str], str | None] = {}
+    for key in sorted(groups):
+        kind, sid = key
+        if study_map is not None:
+            study_of_group[key] = study_map.get(f"{kind}:{sid}")
+        else:
+            study_of_group[key] = None
+    n_independent = None
+    if study_map is not None:
+        known_studies = {s for s in study_of_group.values() if s}
+        unknown_groups = [k for k, s in study_of_group.items()
+                          if not s]
+        # 有未知研究身份的组存在 ⇒ 独立支持数上限不可靠,仍如实计数
+        # 已知研究数,并保留 unknown 组数供审计
+        n_independent = len(known_studies)
     for (kind, sid), refs in sorted(groups.items()):
         out.append(SupportGroup(
             group_id=stable_id("sg", kind, sid, content_hash(refs)),
             record_refs=refs,
-            # 原研究身份未知(默认)时独立支持数=未知,不把多个库 ID
-            # 当多次独立实验;known 时 = 组数
-            independent_support_count=(
-                len(groups) if origin_study_known else None),
+            independent_support_count=n_independent,
+            origin_study_ref=study_of_group.get((kind, sid)),
+            n_unresolved_study_identity=(
+                len([k for k, s in study_of_group.items() if not s])
+                if study_map is not None else None),
         ))
     return out

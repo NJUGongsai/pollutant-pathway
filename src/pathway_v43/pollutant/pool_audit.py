@@ -52,7 +52,12 @@ POOL_STAGES = (
 
 @dataclass
 class PoolStageTrace:
-    """单阶段记录(§7.3:hash/计数/处置/来源分布/排序键/预算/截断)。"""
+    """单阶段记录(§7.3:hash/计数/处置/来源分布/排序键/预算/截断)。
+
+    from_previous(v2/P2-5):False = 本阶段输入**不是**上一已执行阶段的
+    原样输出(阶段跳过/显式注入/外部改写),必须在 transition_reason
+    登记原因;True 时相邻阶段的 hash 连续性由 build_pool_audit 校验。
+    """
 
     stage: str
     input_hash: str
@@ -65,6 +70,8 @@ class PoolStageTrace:
     char_budget: int | None = None
     token_budget: int | None = None
     truncation_reason: str = ""
+    from_previous: bool = True
+    transition_reason: str = ""
 
     def to_dict(self) -> dict:
         return dict(self.__dict__)
@@ -120,6 +127,8 @@ def record_pool_stage(
     char_budget: int | None = None,
     token_budget: int | None = None,
     truncation_reason: str = "",
+    from_previous: bool = True,
+    transition_reason: str = "",
 ) -> PoolStageTrace:
     """单阶段落账(纯记录;hash 由内容派生,可重放核对)。"""
     if stage not in POOL_STAGES:
@@ -138,6 +147,8 @@ def record_pool_stage(
         char_budget=char_budget,
         token_budget=token_budget,
         truncation_reason=truncation_reason,
+        from_previous=from_previous,
+        transition_reason=transition_reason,
     )
 
 
@@ -149,11 +160,14 @@ def build_pool_audit(
     input_preview_policy: str,
     input_preview: dict | None = None,
 ) -> PoolAuditRecord:
-    """组装池审计(阶段顺序校验:与 §7.3 声明顺序一致)。
+    """组装池审计(阶段顺序 + **相邻阶段哈希链**校验,P2-5)。
 
-    - off 且未附诊断块:自动记录 {"status": "not_run",
-      "reason": "input_preview_policy_off"}(不冒称已做 G2);
-    - diagnostic:必须传入实际诊断块(缺失 → fail-closed,不静默当 off)。
+    - off 且未附诊断块:自动记录 {"status": "not_run", ...}(不冒称
+      已做 G2);diagnostic 必须传入实际诊断块(缺失 fail-closed);
+    - 相邻已执行阶段:后一阶段 input_hash 必须等于前一阶段
+      output_hash(前一输出 a、下一输入 b 的拼接不能再生成审计);
+    - 阶段跳过/显式注入:该阶段 from_previous=False 且 transition_reason
+      必填,hash 连续性豁免但转换留痕。
     """
     seen = [s.stage for s in stages]
     expected = list(POOL_STAGES)
@@ -167,6 +181,23 @@ def build_pool_audit(
         raise PoolAuditError(
             f"input_preview_policy 非法:{input_preview_policy!r}",
             {"input_preview_policy": input_preview_policy})
+    for prev, nxt in zip(stages, stages[1:]):
+        adjacent_in_protocol = (
+            expected.index(nxt.stage) == expected.index(prev.stage) + 1)
+        if not nxt.from_previous:
+            if not nxt.transition_reason:
+                raise PoolAuditError(
+                    f"阶段 {nxt.stage} 声明输入非前阶段原样输出,但未登记 "
+                    "transition_reason(阶段跳过/显式注入必须留痕)",
+                    {"stage": nxt.stage})
+            continue
+        if adjacent_in_protocol and nxt.input_hash != prev.output_hash:
+            raise PoolAuditError(
+                f"相邻阶段哈希链断裂:{prev.stage}→{nxt.stage}"
+                f"(前输出 {prev.output_hash[:12]}…,后输入 "
+                f"{nxt.input_hash[:12]}…;拼接审计不合法,跳过/注入须"
+                "显式登记 from_previous=False + transition_reason)",
+                {"prev_stage": prev.stage, "next_stage": nxt.stage})
     if input_preview_policy == INPUT_PREVIEW_OFF:
         block = input_preview or {
             "policy": INPUT_PREVIEW_OFF, "status": "not_run",
@@ -255,13 +286,20 @@ def order_pool(
     *,
     limit: int | None = None,
 ) -> tuple[list[dict], dict]:
-    """首版新池排序 + 有界截断(§7.3)。
+    """首版新池排序 + 有界截断(§7.3;P2-5:limit 值域校验)。
 
     排序键:(retrieval_rank, source_origin, evidence_id/hypothesis_id) ——
     稳定原检索位次,来源/ID tie-break;未经验证的分数不作排序键(不跨
-    来源解释为概率)。截断披露:n_truncated、来源分布、原因。截断后
-    的有限池不覆盖全检索池时,如实报告(不称"中性全量")。
+    来源解释为概率)。limit:None = 不限;必须为 ≥0 的整数(负数拒绝,
+    不再落进 Python 切片静默保留一部分)。截断披露:n_truncated、
+    来源分布、原因。截断后的有限池不覆盖全检索池时,如实报告。
     """
+    if limit is not None and (isinstance(limit, bool)
+                               or not isinstance(limit, int) or limit < 0):
+        raise PoolAuditError(
+            f"limit 非法:{limit!r}(None=不限;否则须为 ≥0 的整数)",
+            {"limit": limit})
+
     def key(it: dict):
         rank = it.get("retrieval_rank")
         rank = rank if isinstance(rank, int) else 1 << 30

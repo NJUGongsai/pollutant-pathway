@@ -18,23 +18,26 @@ from ..storage.run_identity import (
 PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 
 # ---- 契约版本清单(全部版本进入 profile 身份块;变更须升版本) ----
+# v2(2026-10-05 回修):F01–F11/P2 回修涉及的契约全部升版;本 profile
+# 从未放行执行流,无历史产物需要迁移(升版即兼容声明,见回修交付书)。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-1"
-PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-1"
-PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-1"
-PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-1"
-PPV1_STORE_SCHEMA_VERSION = "ppv1-store-1"
-PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-1"
-PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-1"
-PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-1"
-PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-1"
-PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-1"
-PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-1"
-PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-1"
-PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-1"
-PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-1"
-PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-1"
-PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-1"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-2"
+PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-2"
+PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-2"
+PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-2"
+PPV1_STORE_SCHEMA_VERSION = "ppv1-store-2"
+PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-2"
+PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-2"
+PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-2"
+PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-2"
+PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-2"
+PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-2"
+PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-2"
+PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-2"
+PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-2"
+PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-2"
+PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-2"
+PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-1"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)
 LEGACY_G2_FAMILY_REF = "v43-cons-2"            # 有限规则诊断复用族(conservation.py)
@@ -62,25 +65,40 @@ SEARCH_INTENTS = frozenset({SEARCH_INTENT_EXPLORATION,
                             SEARCH_INTENT_VERIFICATION,
                             SEARCH_INTENT_GAP_FILLING})
 
-# ---- P0-3 有界搜索上限(proposed 草案;S3 才实施计数/恢复/E04) ----
+# ---- P0-3 有界搜索上限(proposed 草案 v2;S3 才实施计数/恢复/E04) ----
+# v2(P2-3/P2-4 回修):
+# - 键拆分:父路径**备选假设数**与单假设**语义尝试次数**独立计数,
+#   不得相互代替(v1 的 max_hypotheses_per_parent_alternative 把两个
+#   单位混在一个键里,已废除);
+# - 下限放宽到 0:S3 需要独立的零深度/零预算验收夹具(0 = 该维度
+#   零预算,立即停),不再用"其他零预算已覆盖"搪塞;
+# - 配置往返:build_profile_identity_block 接受覆盖配置或完整序列化
+#   配置(version 字符串键不按预算校验),输出可原样回灌(P2-4)。
 # 计数单位与语义(全部来自持久记录,不取内存状态):
-# - max_hypotheses_per_parent_alternative:同一父路径上每个备选反应假设
-#   允许的语义尝试次数(每父备选)
+# - max_alternative_hypotheses_per_parent:同一父路径上并行备选反应
+#   **假设**的数量(假设数)
+# - max_attempts_per_hypothesis:单个假设的**语义尝试**次数(含首次;
+#   attempt 数,重开是其中的子类,由 max_reopens_per_hypothesis 单独
+#   限制"无新信息重开")
 # - max_product_expansion_width:单个事件产物继续展开的宽度(产物宽度)
-# - max_search_depth:搜索深度(路径边数,与 legacy max_depth 语义分开)
-# - max_total_search_actions:run 级 SearchAction 总数(含 scenario_transition)
+# - max_search_depth:搜索深度(路径边数;0 = 不展开任何产物)
+# - max_total_search_actions:run 级 SearchAction 总数(含
+#   scenario_transition;0 = 不执行任何搜索动作)
 # - max_scenario_transitions:阶段转换次数(不是反应边,单独计数)
 # - max_reopens_per_hypothesis:同一假设无新信息时的重开次数上限
-# - max_real_model_requests:真实模型请求登记数(默认 0 = 不发出付费请求)
-# - max_retrievals_per_parent:每父路径实际检索次数(复用产物不重复计数)
-# - max_retrievals_total:run 级实际检索总数
+# - max_real_model_requests:真实模型请求登记数(0 = 默认不发出付费
+#   请求;悬空请求也计额度)
+# - max_retrievals_per_parent:每父路径实际检索次数(复用产物不重复
+#   计数;0 = 不检索)
+# - max_retrievals_total:run 级实际检索总数(0 = 不检索)
 # 优先级(多原因同时发生时的主因次序,S3 冻结;user_stop 恒最优先):
 #   user_stop > budget_limit > depth_limit > no_local_candidate >
 #   awaiting_prediction > exhausted_search
-SEARCH_LIMITS_VERSION = "ppv1-search-limits-1-proposed"
+SEARCH_LIMITS_VERSION = "ppv1-search-limits-2-proposed"
 SEARCH_LIMITS_DEFAULTS: dict = {
     "version": SEARCH_LIMITS_VERSION,
-    "max_hypotheses_per_parent_alternative": 2,
+    "max_alternative_hypotheses_per_parent": 2,
+    "max_attempts_per_hypothesis": 2,
     "max_product_expansion_width": 2,
     "max_search_depth": 3,
     "max_total_search_actions": 10,
@@ -91,16 +109,18 @@ SEARCH_LIMITS_DEFAULTS: dict = {
     "max_retrievals_total": 64,
 }
 SEARCH_LIMITS_RANGES: dict = {
-    # 键 → (下限, 上限);超出装配期拒绝(测试小值在允许范围内)
-    "max_hypotheses_per_parent_alternative": (1, 8),
-    "max_product_expansion_width": (1, 8),
-    "max_search_depth": (1, 10),
-    "max_total_search_actions": (1, 1000),
+    # 键 → (下限, 上限);超出装配期拒绝。下限 0 = 零预算验收夹具合法
+    # (测试小值在允许范围内)
+    "max_alternative_hypotheses_per_parent": (0, 8),
+    "max_attempts_per_hypothesis": (0, 8),
+    "max_product_expansion_width": (0, 8),
+    "max_search_depth": (0, 10),
+    "max_total_search_actions": (0, 1000),
     "max_scenario_transitions": (0, 4),
     "max_reopens_per_hypothesis": (0, 3),
     "max_real_model_requests": (0, 10000),
-    "max_retrievals_per_parent": (1, 4),
-    "max_retrievals_total": (1, 4096),
+    "max_retrievals_per_parent": (0, 4),
+    "max_retrievals_total": (0, 4096),
 }
 
 
@@ -123,6 +143,7 @@ def contract_versions() -> dict:
         "pool_order": PPV1_POOL_ORDER_VERSION,
         "input_preview": PPV1_INPUT_PREVIEW_VERSION,
         "condition_assessment": PPV1_CONDITION_ASSESSMENT_VERSION,
+        "gate_mapper": PPV1_GATE_MAPPER_VERSION,
         "legacy_gate_ref": LEGACY_GATE_PROFILE_REF,
         "legacy_g2_family_ref": LEGACY_G2_FAMILY_REF,
     }
@@ -162,9 +183,24 @@ def _validate_search_intent(value) -> str:
 
 
 def _validate_search_limits(limits: dict | None) -> dict:
+    """校验/归一搜索上限(P2-4:接受覆盖配置或完整序列化配置)。
+
+    - "version" 是版本字符串键(非预算),仅校验值等于当前版本,
+      不按整数预算校验(v1 的 KeyError 缺陷修复);
+    - 输出恒为**完整**配置(缺省键补默认;可直接原样回灌本函数,
+      round-trip 稳定);
+    - 未知键/类型错误/越界 fail-closed。
+    """
     out = dict(SEARCH_LIMITS_DEFAULTS)
     for k, v in (limits or {}).items():
-        if k not in out:
+        if k == "version":
+            if v != SEARCH_LIMITS_VERSION:
+                raise ValueError(
+                    f"search_limits.version 非法:{v!r}(当前 "
+                    f"{SEARCH_LIMITS_VERSION})")
+            out["version"] = v
+            continue
+        if k not in SEARCH_LIMITS_RANGES:
             allowed = sorted(SEARCH_LIMITS_RANGES)
             raise ValueError(
                 f"未知搜索上限键:{k!r}(允许 {allowed})")

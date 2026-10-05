@@ -23,13 +23,18 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from pathway_v43.pollutant.chemstate import (  # noqa: E402
-    REPRESENTATION_ARCHIVE_RECOVERED,
+    FIDELITY_ABSENT_IN_ARCHIVE,
+    FIDELITY_AS_WRITTEN,
+    FIDELITY_NEUTRALIZED_BY_CN,
+    FIDELITY_UNKNOWN,
     STRUCTURE_ORIGIN_LEGACY_CN_ONLY,
     STRUCTURE_ORIGIN_RAW_INPUT,
     STRUCTURE_ORIGIN_SOURCE_PRODUCT,
     ChemicalStateError,
+    archive_recovered_fidelity,
     build_chemical_state,
     build_chemical_state_from_cn_only,
+    strict_identity_of,
 )
 from pathway_v43.pollutant.events import (  # noqa: E402
     ParticipantStateError,
@@ -123,10 +128,40 @@ def test_b02_cn_only_does_not_fabricate_stereo() -> None:
     assert state.original_structure_available is False
     assert state.formal_charge is None
     assert state.smiles_isomeric == ""
-    assert state.representation_fidelity == "cn_only_projection"
+    # 分轴保真(F05):CN 已中和 ⇒ 电荷轴不可猜回,质子化基轴声明中和
+    assert state.representation_fidelity == {
+        "stereo": FIDELITY_UNKNOWN,
+        "isotope": FIDELITY_UNKNOWN,
+        "formal_charge": FIDELITY_UNKNOWN,
+        "protonation_basis": FIDELITY_NEUTRALIZED_BY_CN,
+    }
     # 幂等:同 CN 重建同 id
     assert build_chemical_state_from_cn_only(
         "CC(O)C").state_id == state.state_id
+    # 通用工厂拒绝 CN-only(F05:不得伪装原始结构可知)
+    with pytest.raises(ChemicalStateError, match="不能用通用结构工厂"):
+        build_chemical_state("CC(O)C", STRUCTURE_ORIGIN_LEGACY_CN_ONLY)
+
+
+def test_b02_enhanced_stereo_distinct_identities() -> None:
+    """F05:普通/AND/OR/ABSOLUTE 增强立体组不得静默合并为同一身份。"""
+    plain = build_chemical_state("F[C@H](Cl)Br",
+                                 STRUCTURE_ORIGIN_RAW_INPUT)
+    and_group = build_chemical_state("F[C@H](Cl)Br |&1:1|",
+                                     STRUCTURE_ORIGIN_RAW_INPUT)
+    or_group = build_chemical_state("F[C@H](Cl)Br |o1:1|",
+                                    STRUCTURE_ORIGIN_RAW_INPUT)
+    ids = {plain.state_id, and_group.state_id, or_group.state_id}
+    assert len(ids) == 3  # 三个立体事实 ⇒ 三个严格身份
+    # 幂等:同输入重复构建同身份
+    assert build_chemical_state(
+        "F[C@H](Cl)Br |&1:1|",
+        STRUCTURE_ORIGIN_RAW_INPUT).state_id == and_group.state_id
+    # strict_identity_of 与 state_id 同一事实源(供体诊断 strict 轴用)
+    assert strict_identity_of("F[C@H](Cl)Br |&1:1|") == strict_identity_of(
+        "F[C@H](Cl)Br |&1:1|")
+    assert strict_identity_of("F[C@H](Cl)Br") != strict_identity_of(
+        "F[C@H](Cl)Br |&1:1|")
 
 
 def test_chemstate_unparseable_fails_closed() -> None:
@@ -142,12 +177,26 @@ def test_chemstate_json_roundtrip_and_archive_fidelity() -> None:
     state = build_chemical_state(
         "O", STRUCTURE_ORIGIN_SOURCE_PRODUCT,
         source_refs=[{"role": "legacy_event_product", "event_id": "e1"}],
-        representation_fidelity=REPRESENTATION_ARCHIVE_RECOVERED)
+        fidelity=archive_recovered_fidelity())
     d = state.to_dict()
-    assert d["representation_fidelity"] == REPRESENTATION_ARCHIVE_RECOVERED
+    # 存档形分轴:立体/同位素 absent_in_archive(不代表原实验没有);
+    # 电荷 as_written(中性是合法结构事实,不从中性猜"电荷丢失")
+    assert d["representation_fidelity"] == {
+        "stereo": FIDELITY_ABSENT_IN_ARCHIVE,
+        "isotope": FIDELITY_ABSENT_IN_ARCHIVE,
+        "formal_charge": FIDELITY_AS_WRITTEN,
+        "protonation_basis": FIDELITY_AS_WRITTEN,
+    }
     assert json.loads(json.dumps(d))["state_id"] == state.state_id
     again = build_chemical_state("O", STRUCTURE_ORIGIN_SOURCE_PRODUCT)
     assert again.state_id == state.state_id  # 幂等重建
+    # from_dict 未知版本 fail-closed(F08)
+    bad = dict(d)
+    bad["schema_version"] = "ppv1-chemstate-999"
+    from pathway_v43.pollutant.chemstate import ChemicalState
+
+    with pytest.raises(ChemicalStateError, match="版本未知"):
+        ChemicalState.from_dict(bad)
 
 
 # ---------------------------------------------------------------- A01
@@ -255,7 +304,8 @@ def test_a02_cleavage_event_keeps_both_products_even_k1(tmp_path: Path) -> None:
             hyp, expanded=[b.state_id], deferred=[],
             not_tracked=[c.state_id],
             reasons={c.state_id: "test:not tracking CO2"}).to_dict(),
-        states=[s.to_dict() for s in states.values()])
+        states=[s.to_dict() for s in states.values()],
+        hypothesis_dict=hyp.to_dict())
     assert result["created"] is True
     # K=1 之后事件里 C 仍然在(存储层程序证据)
     stored = store.get_event(event.event_id)
@@ -304,7 +354,8 @@ def test_a03_not_tracked_product_kept_with_reason(tmp_path: Path) -> None:
         hyp, max_reportable=2, ranked_state_refs=[b.state_id, c.state_id],
         reasons=[""]).to_dict(),
         expansion_plan=plan.to_dict(),
-        states=[s.to_dict() for s in states.values()])
+        states=[s.to_dict() for s in states.values()],
+        hypothesis_dict=hyp.to_dict())
     stored_plan = store.expansion_plan(event.event_id)
     by_ref = {e["state_ref"]: e for e in stored_plan["entries"]}
     assert by_ref[c.state_id]["status"] == "not_tracked"
@@ -441,11 +492,13 @@ def test_event_idempotent_replay_and_conflict(tmp_path: Path) -> None:
     first = store.submit_event(event, report_projection=report.to_dict(),
                                expansion_plan=plan.to_dict(),
                                states=[s.to_dict() for s in
-                                       states.values()])
+                                       states.values()],
+                               hypothesis_dict=hyp.to_dict())
     again = store.submit_event(event, report_projection=report.to_dict(),
                                expansion_plan=plan.to_dict(),
                                states=[s.to_dict() for s in
-                                       states.values()])
+                                       states.values()],
+                               hypothesis_dict=hyp.to_dict())
     assert first["created"] is True
     assert again["created"] is False     # 同键重放不新增事件
     assert store.counts()["events"] == 1
@@ -456,7 +509,8 @@ def test_event_idempotent_replay_and_conflict(tmp_path: Path) -> None:
     with pytest.raises(Ppv1EventConflict):
         store.submit_event(event, report_projection=report2.to_dict(),
                            expansion_plan=plan.to_dict(),
-                           states=[s.to_dict() for s in states.values()])
+                           states=[s.to_dict() for s in states.values()],
+                           hypothesis_dict=hyp.to_dict())
     store.close()
 
 
@@ -601,8 +655,10 @@ def test_legacy_import_states_recovered_as_archive(tmp_path: Path) -> None:
                                    new_run_id="r-new")
     for state in imported["states"]:
         if state["structure_origin"] == "source_product":
-            assert state["representation_fidelity"] == \
-                REPRESENTATION_ARCHIVE_RECOVERED  # 存档形:不冒称全知
+            # 存档形分轴:立体/同位素 absent_in_archive;电荷 as_written
+            fidelity = state["representation_fidelity"]
+            assert fidelity["stereo"] == "absent_in_archive"
+            assert fidelity["formal_charge"] == "as_written"  # 不冒称全知
     substrate = [s for s in imported["states"]
                  if s["structure_origin"] == "raw_input"]
     assert substrate and substrate[0]["structure_smiles_raw"] == ETHANOL

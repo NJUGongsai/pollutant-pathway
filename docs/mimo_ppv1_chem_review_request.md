@@ -1,163 +1,171 @@
-# mimo 化学评审请求:pollutant_pathway_v1 首批化学判据(S0–S2)
+# mimo 化学评审请求:pollutant_pathway_v1 首批化学判据(S0–S2 回修版 v2)
 
-- 日期:2026-10-05
+- 日期:2026-10-05(回修版;替换同日 v1 请求)
 - 触发点:AGENTS.md mimo 三触发点之 1(需评判化学结构时——冻结或发布前)
-- 评审对象:本仓新 profile `pollutant_pathway_v1` 在 S0–S2 实施中引入的
-  **新化学判据草案**(尚未冻结)
-- 自包含性:本文只含规则级表述与人工构造的规则级夹具(简单小分子,
-  无任何金标/题面/封存逐题数据)
-- 用途:由用户转交 mimo;回复原文落盘 `docs/`;结论采信到与程序证据
-  互证的程度为止(AGENTS.md;teacher 批复 §八.5)
+- 评审对象:S0–S2 回修后的化学判据草案 v2(实现于
+  `src/pathway_v43/pollutant/`,ppv1-*-2 版本族);**尚未冻结**
+- 与 v1 的差异来源:第一轮 mimo 回应
+  (`docs/mimo_ppv1_chem_review_response.md`)已逐条处置;Codex 源码
+  复核(`docs/POLLUTANT_PATHWAY_S0_S2_CODEX_REVIEW_2026-10-05.md` §4)
+  对 mimo 意见做了采纳/纠偏裁定,本请求按该裁定修订判据文本
+  (不整段照搬 mimo 原文)
+- 自包含性:规则级表述与人工构造的规则级夹具,无任何金标/题面/
+  封存逐题数据;由用户转交,回复原文落盘 `docs/`
 
 ## 0. 背景(一段话)
 
-本仓 v4.3 原模式(legacy_v43)做"单步反应答题"。现按实施书
-`docs/POLLUTANT_PATHWAY_ARCHITECTURE_UPGRADE_SPEC_2026-10-05.md`
-升级为"有界污染物路径探索":目标输出是**可能降解路径**与
-**与已知条件相容的可能路径**,不是实际主导路线。S0–S2 交付了领域
-契约(ChemicalState/ReactionHypothesis/事件-报告-展开分离)、
-上下文与条件评估(PathContext)、化学审计(ChemicalAudit)与
-admission 策略。下面是需要化学复核的判据草案,全部只做**声明与
-核算的诚实性**检查,不涉及性能预测。
+v1 判据经代码复核发现实现层缺陷(氢计数漏算、条件覆盖丢失、身份
+碰撞等),已全部回修;同时 mimo 第一轮意见按 Codex 裁定吸收。本轮
+请评审**回修后的判据文本**。目标不变:可能降解路径与条件相容路径
+的诚实表示,不是实际主导路线预测。
 
-## 1. 判据一:分子身份(ChemicalState.state_id)
+## 1. 判据一:分子身份(v2 文本)
 
-**规则**:
-1. state_id 由"去除原子映射号后的 canonical isomeric SMILES"哈希生成;
-   保留形式电荷、同位素、立体信息;
-2. 原子映射号([CH3:1])不属于分子身份——改映射号不改变 state_id;
-3. 旧口径 CN(电荷归一化 + 立体盲 canonical,引擎/评分冻结口径)仅作
-   评分/资产键适配,不作为结构事实;严格结构与 CN 分开保存;
-4. 历史只剩 CN 的分子标 `legacy_cn_only`:立体/同位素状态记 unknown、
-   formal_charge 记不可知,不猜回结构;
-5. 存档产物串(product_smiles_full)可恢复"存档形"状态,但标注
-   representation_fidelity=archive_recovered——存档串不含立体/同位素
-   不代表原实验没有。
+1. state_id 仅对 sanitize 成功、芳香性已感知的分子生成(canonical
+   在感知后输出,Kekulé 写法差异不入键);sanitize 失败不生成
+   state_id(归 admission R1)。
+2. 身份键 = canonical 重排后的 isomeric SMILES **+ 增强立体组
+   (StereoGroups AND/OR/ABS)显式序列化**;普通/AND/OR/ABS 四种
+   立体事实得到四个不同身份(不再静默合并)。原子映射号不属于身份。
+3. representation_fidelity **分轴**:stereo / isotope /
+   formal_charge / protonation_basis,每轴 ∈ {as_written,
+   absent_in_archive, unknown, neutralized_by_cn}:
+   - CN-only:四轴 = unknown/unknown/unknown/neutralized_by_cn;
+   - 存档形:stereo/isotope=absent_in_archive;formal_charge=
+     **as_written**(Codex 纠偏:中性串电荷为零是合法结构事实,
+     不从中性猜"电荷丢失";电荷是否曾丢失按**来源转换历史**判定,
+     不看字符串长相)。
+4. 互变异构体/质子化态/对映体保留**不同**严格身份;派生等价类
+   (互变组/中性母体)只用于展示提示,永不并入身份;展开去重键 =
+   state_id,**禁止 CN 去重**;仅质子化/互变差异的边标
+   edge_kind(S3 落地),不以降解转化面目出现。
+5. CN 只出现在评分/资产键,出现处标 basis=scoring_key。
 
-**请评审**:
-- (a) "去映射号 + 保留电荷/立体/同位素的 canonical 串"作为分子身份
-  键,是否有化学上不妥的合并或分裂风险(例如互变异构体、芳香 kekulé
-  表示、互变 protonation)?
-- (b) 对映体(手性相反)与"可中和电荷差异"(如质子化胺 vs 游离胺)
-  得到不同 state_id、相同 CN——这个分轴是否符合"结构事实与评分键
-  分开"的意图?
-- (c) CN-only 不猜立体、存档形不冒称全知,是否有遗漏的诚实性缺口?
+**请评审**:(a) 增强立体序列化的键设计是否还有碰撞/分裂风险;
+(b) 分轴 fidelity 的 archive 电荷轴 as_written 立场(Codex 纠偏
+后)是否成立;(c) 合法投影缺结构(CN-only)与语法非法在
+admission 分开处理(R1 只收语法非法)是否正确。
 
-## 2. 判据二:参与物计量与元素/电荷核算
+## 2. 判据二:参与物计量与元素/电荷核算(v2 文本)
 
-**规则**:
-1. 已知系数必须是正有限有理数;零/负/非有限一律拒绝(且拒绝只表示
-   **输入表示违反契约**,不宣称反应本身化学不可能);
-2. 系数未知时记 null+unknown,不得参与配平核算;
-3. **只有**参与物列表为 source_complete/declared_complete 且全部系数
-   known 时才核全反应元素账与形式电荷账:
-   - 元素账:Σ(系数×反应物元素计数) 必须等于 Σ(系数×产物元素计数);
-   - 电荷账:Σ(系数×原始 formal_charge) 必须为零;**不允许先做电荷
-     中和再验守恒**;**不允许自动补 H₂O/O₂/辅酶凑平**;
-4. 参与物不完整(partial/unknown)时可以核局部结构差值,但
-   full_balance 一律 unknown——不以局部核算冒充全反应配平;
-5. 元素/电荷账核实 ≠ 氧化还原转移、辅酶循环、机制、酶催化、热力学、
-   速率已核实(生物支持另轴,默认 unknown);
-6. 酶/催化剂记 catalytic_support,不进净反应计量。
+1. 系数正有限有理数;零/负/非有限拒绝(reject 落 R2b,见判据三)。
+2. 元素账**计入全部氢**:重原子隐式+显式属性氢(GetTotalNumHs)
+   与独立氢顶点都入账;底物档案 formula/element_counts 同一基准。
+   (v1 只数图顶点导致 CCO→CC=O 假 verified,已修复并有正反例。)
+3. 完整声明(列表 complete 且全系数 known 且无歧义重复)才核全账;
+   否则 full_balance=unknown。**未声明完整性子型不默认
+   complete_stoichiometric**(Codex 裁定:未说明就保持完整性
+   unknown,不把缺信息升级为完整净反应)。
+4. 电荷账前提:参与物 formal_charge 轴 == as_written 才可算;
+   CN/中和形输入 ⇒ unknown(不得拿中和后电荷算出假通过)。
+   不先中和再验;不自动补水/氧/辅酶。
+5. 账不平 ⇒ violated,输出**逐元素 Δ 向量**与电荷缺口;与常见
+   漏项模式(H2O/H+/O2/2H)的**数值相符**单独标注
+   (omission_pattern_matches,含方向 reactant_side/product_side),
+   语义声明:仅数值相符,**不证明实际缺该物质、不推断遗漏原因、
+   不含电子/质子计量**(Codex 收紧:缺 2H 不标 +2e)。
+6. violated ⇒ retain_conditional(独立理由码
+   declared_account_violated),不 reject(账不平只证明声明内部
+   矛盾);绝不进入"全部核实"。
+7. 局部结构差 = 具名反应物与产物之间的逐分子差;系数未知/非 1:1
+   时只报方向,不作定量解释;与 full_balance 并列时各自带状态、
+   系数假设与适用范围标注(便于审阅发现缺项,不实施"永不同屏"
+   或词语禁令,Codex 裁定)。
 
-**请评审**:
-- (a) "禁止先中和再验电荷守恒 + 禁止自动补水/氧/辅酶"是否正确?
-  现实中生物反应常涉及未列出的 H₂O/O₂/NAD⁺——我们的立场是:
-  未声明的参与物导致 unknown,而不是替用户补齐。这会不会把大量
-  真实生物反应错判为"元素账 violated"?(注意:我们只在全参与物
-  声明完整时才核账,不完整时是 unknown 而非 violated。)
-- (b) 局部差值(partial 时)与全账的边界是否清晰?
-- (c) 有没有必须补的第 7 条?
+**请评审**:(a) 全氢计数的口径;(b) 模式标注的"仅数值相符"
+语义边界;(c) violated→retain_conditional(不 reject)的立场。
 
-## 3. 判据三:admission 决策表(P0-4)
-
-**规则**(有序,首中即决;任何 unknown 不自动 reject):
+## 3. 判据三:admission 决策表(v2 文本;有序,首中即决)
 
 | 规则 | 条件 | 处置 | 理由码 |
 |---|---|---|---|
-| R1 | 结构无法解析(parse violated) | reject | structure_unparseable |
-| R2 | 活动门禁显式拒绝(仅经评审的名单:方向/资格/SMILES 门) | reject | active_gate_rejected |
-| R3 | 当前场景有来源的必要条件冲突(如无氧 vs 必需 O₂) | defer(blocked) | current_scenario_conflict |
-| R4 | 预算/等待状态 | defer | budget_or_wait |
+| R1 | 实际输入语法非法(parse violated) | reject | structure_unparseable |
+| R2 | 活动门禁显式拒绝(经评审名单;旧门禁经版本化 mapper 接入,逐产物 verdict 保留) | reject | active_gate_rejected |
+| R2b | 表示契约违反(零/负/非有限系数;酶计入净计量;结构性违约) | reject | contract_violated_representation(非化学) |
+| R3 | 有来源 essential 条件与当前场景已知事实冲突 | defer(blocked) | current_scenario_conflict |
+| R4 | 预算/等待 | defer | budget_or_wait |
+| R5d | 元素/电荷账 violated(声明与结构不一致,有证据) | retain_conditional | declared_account_violated(与 unknown 分码) |
 | R5 | 条件/完整账/映射/step_scope 未知 | retain_conditional | unknown_checks_present |
 | R6 | 全部核实且无冲突 | expand | all_verified |
+| R7 | 无适用检查 | retain_conditional | 保守,不冒充核实 |
 
-语义要点:
-- reject 只因"结构非法"或"经评审的活动门禁显式拒绝"——化学上
-  **未知**的东西不产生 reject;
-- 条件冲突(当前场景事实 vs 反应有来源的必需条件)→ defer:假设
-  保留、不在此场景展开,可展示为"需不同条件的备选";
-- retain_conditional 允许有界探索,未知依赖沿途继承;
-- step_scope=multistep_summary 保留为汇总边,不冒充净酶反应。
+R3 的 essential 判据:仅来源明示必需(封闭短语集;一切观察性表述
+与来源培养/实验设置不进门禁);无来源 essential = 未核实假设
+(necessity_unsourced):不产生冲突、不能证明相容。已知覆盖率
+特性:文献极少用 essential 字面,R3 触发率预期偏低属已知特性,
+不得读成"条件冲突罕见"。
 
-**请评审**:
-- (a) "元素账 violated"是否应进入 R2 类 reject?(当前设计:完整
-  声明配平后元素不守恒 → violated → 落在 R5 之前的哪个位置?
-  实际当前实现里元素 violated 会让 audit 有 violated 检查但 admission
-  只对"结构非法/活动门禁"reject,元素 violated 走 retain_conditional
-  ——这是**故意的保守**(violated 的账目说明声明有问题,但我们
-  不宣称反应不可能)。这个立场对吗?)
-- (b) R3 的"有来源的必需条件冲突"边界:观察条件(文献说 25°C
-  观察到)不算必需条件,只有来源明确声明 essential 才算——对吗?
+**请评审**:(a) R2b 的落点与措辞;(b) R5d 与 R5 分码;
+(c) R7 空审计的保守保留。
 
-## 4. 判据四:条件相容聚合(环境轴)
+## 4. 判据四:条件相容聚合(v2 文本)
 
-**规则**:
-1. 首版条件键限定:oxygen_regime、pH、temperature_C、matrix、
-   electron_donor、electron_acceptor、growth_substrate;
-2. 聚合:有来源 essential 要求与明确已知事实矛盾 → conflict;
-   声明覆盖维度内全部必要要求有来源并满足 → compatible;
-   缺事实/覆盖未知/要求列表空 → unknown(**空列表不自动相容**);
-3. pH/温度:范围无交集 → conflict;部分相交但实际值不确定 →
-   unknown;**输入点**位于支持范围才判满足;
-4. 文献观察条件只作参考(basis=observed_condition_reference),
-   不参与门禁,不自动成为当前场景事实;
-5. preference 只提示,不作冲突门;
-6. assessed_scope 由聚合派生不继承请求:请求 condition_compatible
-   但有未知 → 最终 possible;
-7. 未列出某共底物 ≠ 已证实没有它(unknown ≠ known_absent);
-   "土壤/污水"不推出氧条件。
+1. 条件键首版封闭 7 键;oxygen_regime/pH/temperature_C/matrix/
+   electron_donor/electron_acceptor/growth_substrate。
+2. 已登记 v2 缺口键 {biotic_abiotic, light_regime,
+   salinity_ionic_strength, redox_regime_eh,
+   required_trace_elements_cofactors, substrate_concentration,
+   inoculum_source, phase_bioavailability}:相容结论**必须**附
+   unassessed_dimensions,只显示"已评估维度内相容"(遇具体路径
+   已知涉及的条件须显式处理,不宣称全维度相容)。
+3. 值语义分 basis:range(显式区间)/point(声明必需点)/optimum
+   (最适值:永不产生 conflict,偏离只作 preference;**来源单点
+   basis 不明不自动推为 optimum**,按 unknown 处理 —— Codex 纠偏)/
+   label(定性标签:须经注册表映射;首版注册表为空 ⇒ 一律
+   unknown,禁止现推区间;且通用类别范围不能替代该反应/酶的来源
+   支持范围)。
+4. 事实适用性:curated_source 事实仅当 subject_scenario_ref 匹配
+   当前场景才适用;phase_id 非空的事实只在对应阶段适用;必需物
+   known_absent ⇒ conflict(未列出 ⇒ unknown ≠ absent);同键多条
+   适用事实互不一致 ⇒ unknown。
+5. 聚合:全部适用必要要求**合取**(同键多条要求不覆盖:父子要求
+   并存,各与事实评估);任一冲突 → conflict;否则任一 unknown
+   (含无源必要性/值语义未声明/标签无映射/要求空)→ unknown;
+   全部 satisfied 且声明覆盖完整 → compatible(未评估维度另列)。
+6. 观察条件不进门禁;preference 只提示;assessed_scope 派生不
+   继承请求;"土壤/污水"不推氧。
 
-**请评审**:
-- (a) 第 3 条区间语义(无交集=冲突/部分交集+不确定=未知/点在范围内
-  =满足)是否与生物降解文献的常见表述相容?
-- (b) 有没有应该在首版键集合里但缺失的条件键(会显著影响
-   条件相容性判断的)?
+**请评审**:(a) 未评估维度的显式化是否足以防偏乐观读数;
+(b) optimum/label/basis 不明的三态处理;(c) 合取聚合。
 
-## 5. 判据五:供体一致性诊断分轴
+## 5. 判据五:供体一致性诊断(v2 文本)
 
-**规则**(类比编辑结果 vs 供体预期):
-- strict_target_match:实际产物与预期产物的严格 isomeric canonical
-  一致(合法编辑但偏离预期 → False);
-- legacy_cn_match:CN 一致,仅作旁证,不升格为结构一致;
-- reaction_center_match:仅在原子对齐 resolved 时判定;对称等价
-  (对齐等价类内的原子替换)不判 False;对齐不可得/歧义 → unknown
-  (不猜中心);立体信息未知不使已有充分映射支持的 center 判定
-  变 unknown;
-- extra_changes:不属于中心(及等价类)的编辑原子列表。
+诊断**消费真实 AtomTool 编辑协议**(v43-editproto-2:
+op/atom1/atom2/from_order/to_order;execute_edits 的
+product_mapped_smiles + atom_id_map):
 
-**请评审**:
-- (a) "对称等价类内的中心替换视为 center 匹配"是否正确?
-- (b) strict/cn/center 三轴分离是否足以避免"CN 相同冒充结构一致"和
-  "映射缺失伪造中心核实"两类错误?
+1. 实际键变化集合 = 执行前后结构的键 diff(成键/断键/键级变化,
+   原子增删另列)——不是"编辑原子是否落入允许集合";
+2. strict_target_match:与 ChemicalState 同源的严格身份(含增强
+   立体)比对;
+3. reaction_center_match:供体中心(经对齐映射)与**实际键变化**
+   比对;全部中心原子须有映射(部分缺 ⇒ unknown,不部分 True);
+   命中带 center_match_basis ∈ {direct, symmetric_equivalent};
+4. **等价关系从分子图自同构验证**(canonical rank 对称类),
+   调用方自报的非等价类被整体拒用(不部分采信);
+5. symmetric_equivalent 不升格为"机制已证"(图等价 ≠ 酶识别等价,
+   前手性面/对映面专一无法由图等价给出);
+6. legacy_cn_match 仅旁证(corroborating),任何汇总/计数/门禁
+   不得以 CN 计"一致数";
+7. extra_changes 附逐原子 Δ 摘要(元素语言可读);
+8. 编辑声明与执行结果不一致时不授予 verified;执行失败 ⇒ 全轴
+   unknown(execution_failed)。
+
+**请评审**:(a) 键变化集合作为 center 判定基础是否充分;
+(b) 等价类图自同构验证的口径;(c) 部分中心缺映射 ⇒ unknown。
 
 ## 6. 程序证据与状态
 
-- 以上判据全部有规则级单元测试(简单小分子夹具:乙醇/乙酸/O₂/
-  丙氨酸对映体/水杨酸裂解占位等),88 个 ppv1 测试全绿;
-- 判据**尚未冻结**:采纳与否待本评审与本仓 review 会话复核;
-- 实施书 §8 的参考立场:本仓已知 G2(v43-cons-2)是 H/O 自由的
-  有限规则筛查,unclassified=覆盖未知不惩罚;元素/电荷账是
-  **新增**的分项,不改变 G2 语义;
-- 参考(仅外部常识,非本仓资产):IUBMB 乙酰苯羧化酶(EC 6.4.1.8,
-  厌氧乙苯降解增碳)说明"新增碳/辅底物反应不能被元素白名单否定
-  为普遍不可能"——本仓未因该例修改任何旧门禁。
+- 回修后的规则级测试:129 passed / 1 显式 skip(合成分子夹具;
+  含 v1 错误正例的修正与全部复核反例的仓库化回归);
+- 判据未冻结;上一轮 mimo 意见的处置表见回修交付书;
+- 元素/电荷账是新增分项;G2(v43-cons-2)仅旧规则诊断,
+  unclassified=覆盖未知,语义未动;
+- 参考(外部常识,非本仓资产):IUBMB EC 6.4.1.8 说明新增碳/辅
+  底物反应不能被元素白名单否定为普遍不可能 —— 本仓未因此改旧门禁。
 
 ## 7. 请求的回复格式
 
-对每条判据给出:
-1. 结论:同意 / 不同意 / 有条件同意(条件是什么);
-2. 具体修改建议(若有),请给出可直接落进规则表述的文字;
-3. 明确指出任何"程序上诚实但化学上误导"的风险点。
-
-不接受"总体看起来不错"式回复;逐条表态。
+对每条判据:1) 结论(同意/不同意/有条件同意+条件);2) 可直接
+落进规则文字的修改建议;3) "程序上诚实但化学上误导"风险点。
+逐条表态,不接受总体评价式回复。

@@ -17,6 +17,9 @@ from pathlib import Path
 from ..domain.models import DOMAIN_SCHEMA_VERSION, STRATEGY_VERSION, now_iso
 
 IDENTITY_SCHEMA_VERSION = "v43-identity-2"
+# 读取端明确支持的版本(v1 兼容不扩展为"任意未知版本按旧版解释",
+# F08:future-identity-999 之类的未知版本一律拒绝)
+SUPPORTED_IDENTITY_SCHEMA_VERSIONS = ("v43-identity-1", "v43-identity-2")
 # v2:新增 profile 块(污染物路径实施书 §3.1 新旧模式分开);v1 保存的
 # identity 无该字段,读取端按 legacy_v43 兼容。本文件自身随 v2 变更,
 # 升级后旧 run 的一次性 resume 拒绝(code_identity 变化)是设计行为。
@@ -224,6 +227,18 @@ class IdentityMismatch(RuntimeError):
 
 
 def check_resume_identity(saved: dict, current: dict) -> None:
+    # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+    # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+    # 版本失败,由后续逐字段差异如实核对
+    saved_schema = saved.get("schema_version")
+    if saved_schema is not None and \
+            saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+        raise IdentityMismatch({
+            "schema_version": {
+                "saved_fingerprint": _fp(saved_schema),
+                "current_fingerprint": _fp(
+                    SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+        )
     diffs: dict = {}
     for key in ("domain_schema_version", "inputs", "profile", "strategy",
                 "asset_identity", "v3_engine_code", "prediction",
