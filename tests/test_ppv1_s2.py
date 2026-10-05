@@ -1183,8 +1183,9 @@ def test_d02_symmetry_equivalent_center_via_validated_class() -> None:
               "atom1": "S_C_1", "atom2": "S_C_2",
               "from_order": "single", "to_order": "double"}]
     execution = execute_edits(render, edits)
-    if not execution["ok"]:
-        pytest.skip("苯该位键级编辑在本环境不可执行(非诊断缺陷)")
+    # R3 skip 清理:本环境实测该编辑可执行(Kekulé 读取后 single→
+    # double 成功);"环境不可执行"skip 不保留 —— 执行失败应如实失败
+    assert execution["ok"] is True, execution["reasons"]
     current = {"smiles": render.smiles,
                "atom_id_map": dict(render.atom_id_map)}
     # 供体中心只对齐到 S_C_3(与 S_C_5 在苯图上对称等价);
@@ -1250,11 +1251,12 @@ def test_f11_same_center_different_bond_op_reported() -> None:
     from pathway_v43.services.atom_tool import execute_edits, roundtrip
 
     render = roundtrip("CCOCC", name="S")  # 乙氧基乙烷
-    # 真实断键:C2-O3(醚键断裂是真实转化中心的操作)
-    edits = [{"op": "break_bond", "atom1": "S_C_2", "atom2": "S_O_3"}]
+    # 真实断键:C2–O1 醚键断裂(R3 夹具修正:S_O_3 不存在,该原子 ID
+    # 是 S_O_1 —— 审核对照 skip_control.json:S_C_2–S_O_1 断键成功,
+    # 产物 CC.CCO;不用环境 skip 掩盖夹具错误)
+    edits = [{"op": "break_bond", "atom1": "S_C_2", "atom2": "S_O_1"}]
     execution = execute_edits(render, edits)
-    if not execution["ok"]:
-        pytest.skip("该断键编辑在本环境不可执行")
+    assert execution["ok"] is True, execution["reasons"]
     current = {"smiles": render.smiles,
                "atom_id_map": dict(render.atom_id_map)}
     diag = check_edit_against_donor(
@@ -1266,7 +1268,7 @@ def test_f11_same_center_different_bond_op_reported() -> None:
         expectation={"target_smiles": execution["product_smiles"]},
         result=execution,
         edits=edits)
-    # 断键涉及 S_O_3,不在中心 {S_C_2} 内 ⇒ extra_changes 报告 O 侧
+    # 断键涉及 S_O_1,不在中心 {S_C_2} 内 ⇒ extra_changes 报告 O 侧
     assert diag.reaction_center_match is False
     assert diag.extra_changes  # 中心外变化以元素语言可读
     kinds = {c["kind"] for c in diag.executed_bond_changes}

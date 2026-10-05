@@ -11,7 +11,9 @@
 - recorded 表示库中记录,不自动表示本场景直接实测;
 - 组合来源(如 envipath+retrieval)保存每个成分,不糊成单一"实测";
 - 相同来源记录的重复引用只算一个支持组;原研究身份未知时独立支持数
-  也未知(不把多个数据库 ID 当多次独立实验)。
+  也未知(不把多个数据库 ID 当多次独立实验)。部分 study_map 映射
+  下独立支持数是**已知下界**,以 count_basis 分轴披露(R3/P2:
+  exact | known_lower_bound + unresolved 计数)。
 
 既有标签产出处(P0-1 现状映射,均为本仓代码):
 - kind 常量:domain/models.py:35-38(recorded_reaction / rule_application /
@@ -89,7 +91,11 @@ class ProvenanceComponent:
 
 @dataclass
 class ProvenanceInfo:
-    """一条证据的来源细分(主成分 + 全部成分;原字段由调用方透传)。"""
+    """一条证据的来源细分(主成分 + 全部成分;原字段由调用方透传)。
+
+    legacy_evidence_id(R3/P2):旧账本的证据 ID —— 导入映射到新
+    record_id 后,旧 ID 保留在此字段供追溯(不悬空)。
+    """
 
     source_origin: str
     evidence_basis: str
@@ -97,6 +103,7 @@ class ProvenanceInfo:
     legacy_kind: str = ""
     legacy_source_id: str = ""
     legacy_match_type: str = ""
+    legacy_evidence_id: str = ""
     schema_version: str = PPV1_PROVENANCE_SCHEMA_VERSION
 
     def to_dict(self) -> dict:
@@ -108,6 +115,7 @@ class ProvenanceInfo:
             "legacy_kind": self.legacy_kind,
             "legacy_source_id": self.legacy_source_id,
             "legacy_match_type": self.legacy_match_type,
+            "legacy_evidence_id": self.legacy_evidence_id,
         }
 
 
@@ -212,20 +220,27 @@ def map_legacy_card(card: dict) -> ProvenanceInfo:
     return ProvenanceInfo(
         source_origin=main_origin, evidence_basis=main_basis,
         components=components, legacy_kind=kind,
-        legacy_source_id=source_id, legacy_match_type=match_type)
+        legacy_source_id=source_id, legacy_match_type=match_type,
+        legacy_evidence_id=str(card.get("evidence_id", "") or ""))
 
 
 @dataclass
 class SupportGroup:
-    """支持组(§5.4:相同来源记录重复引用只算一组;v2/F10)。
+    """支持组(§5.4:相同来源记录重复引用只算一组;v3/R3-P2)。
 
-    independent_support_count:研究身份可追溯(study_map)时=不同原
-    研究身份数;否则 None(未知)—— 不以布尔开关代替研究身份。
-    n_unresolved_study_identity:study_map 下仍有未知研究身份的组数。
+    independent_support_count 与 **count_basis 分轴**(P2:部分
+    study_map 映射下该数是已知**下界**,不是精确独立研究数):
+    - count_basis="exact":全部组的研究身份已知,计数精确;
+    - count_basis="known_lower_bound":存在未知研究身份的组,
+      independent_support_count = 已知不同研究身份数(**下界**),
+      n_unresolved_study_identity = 未知组数 —— 不得把下界当精确值;
+    - count_basis="unknown_study_identity":未提供 study_map,
+      independent_support_count = None(不以布尔开关冒充研究身份)。
     """
 
     group_id: str
     record_refs: list[dict]
+    count_basis: str                      # exact | known_lower_bound | unknown_study_identity
     independent_support_count: int | None   # None = 原研究身份未知
     origin_study_ref: str | None = None
     n_unresolved_study_identity: int | None = None
@@ -236,6 +251,7 @@ class SupportGroup:
             "schema_version": self.schema_version,
             "group_id": self.group_id,
             "record_refs": [dict(r) for r in self.record_refs],
+            "count_basis": self.count_basis,
             "independent_support_count": self.independent_support_count,
             "origin_study_ref": self.origin_study_ref,
             "n_unresolved_study_identity":
@@ -243,20 +259,26 @@ class SupportGroup:
         }
 
 
+COUNT_BASIS_EXACT = "exact"
+COUNT_BASIS_KNOWN_LOWER_BOUND = "known_lower_bound"
+COUNT_BASIS_UNKNOWN_STUDY_IDENTITY = "unknown_study_identity"
+
+
 def build_support_groups(
     cards: list[dict],
     *,
     study_map: dict[str, str] | None = None,
 ) -> list[SupportGroup]:
-    """证据卡 → 支持组列表(v2/F10:记录去重与原研究独立性分开)。
+    """证据卡 → 支持组列表(v3:记录去重与原研究独立性分开 + 分轴)。
 
     - 记录去重:相同 (kind, source_id) 的重复引用归一组(一组=一条
       库记录的引用集合);
     - 原研究独立性:study_map(库记录 key "kind:source_id" → 原研究
       身份)给出**实际可追溯**的原研究归并时,独立支持数 = 不同研究
       身份数,组携带 origin_study_ref;未提供 study_map(默认,本仓
-      资产无原研究身份链)⇒ 独立支持数 = **None(未知)**,不以布尔
-      开关冒充研究身份、不把多个数据库 ID 当多次独立实验。
+      资产无原研究身份链)⇒ 独立支持数 = **None(未知)**;
+    - P2:study_map 有未知映射时,计数标 **known_lower_bound**
+      (已知下界,不冒称精确独立研究数),未知组数单独披露。
     """
     groups: dict[tuple[str, str], list[dict]] = {}
     for card in cards:
@@ -277,21 +299,22 @@ def build_support_groups(
         else:
             study_of_group[key] = None
     n_independent = None
+    n_unresolved = None
+    basis = COUNT_BASIS_UNKNOWN_STUDY_IDENTITY
     if study_map is not None:
         known_studies = {s for s in study_of_group.values() if s}
-        unknown_groups = [k for k, s in study_of_group.items()
-                          if not s]
-        # 有未知研究身份的组存在 ⇒ 独立支持数上限不可靠,仍如实计数
-        # 已知研究数,并保留 unknown 组数供审计
+        n_unresolved = len(
+            [k for k, s in study_of_group.items() if not s])
         n_independent = len(known_studies)
+        basis = (COUNT_BASIS_EXACT if n_unresolved == 0
+                 else COUNT_BASIS_KNOWN_LOWER_BOUND)
     for (kind, sid), refs in sorted(groups.items()):
         out.append(SupportGroup(
             group_id=stable_id("sg", kind, sid, content_hash(refs)),
             record_refs=refs,
+            count_basis=basis,
             independent_support_count=n_independent,
             origin_study_ref=study_of_group.get((kind, sid)),
-            n_unresolved_study_identity=(
-                len([k for k, s in study_of_group.items() if not s])
-                if study_map is not None else None),
+            n_unresolved_study_identity=n_unresolved,
         ))
     return out

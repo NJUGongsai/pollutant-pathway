@@ -26,7 +26,11 @@ from .hypothesis import (
 )
 from .profile import PPV1_EVENT_SCHEMA_VERSION
 
-PPV1_EVENT_SUPPORTED_VERSIONS = ("ppv1-event-2",)
+# 版本门引用 profile 常量(R2-10:不散落字面量;真实提交入口消费)
+PPV1_EVENT_SUPPORTED_VERSIONS = (PPV1_EVENT_SCHEMA_VERSION,)
+# 投影/展开计划的载荷版本(事件三集合各自的格式版本;store 写入门引用)
+PPV1_REPORT_PROJECTION_VERSION = "ppv1-report-projection-1"
+PPV1_EXPANSION_POLICY_VERSION = "ppv1-expansion-1"
 
 EXPANSION_STATUS_EXPANDED = "expanded"
 EXPANSION_STATUS_DEFERRED = "deferred"
@@ -96,7 +100,7 @@ class ReportProjection:
     max_reportable: int                # 报告宽度 K(投影参数,非事件事实)
     dedup_notes: list[dict] = field(default_factory=list)
     reasons: list[str] = field(default_factory=list)
-    projection_version: str = "ppv1-report-projection-1"
+    projection_version: str = PPV1_REPORT_PROJECTION_VERSION
 
     def to_dict(self) -> dict:
         return {
@@ -113,7 +117,7 @@ class ExpansionPlan:
     """展开计划:哪些产物继续探索 + 不追踪原因(§5.3)。"""
 
     entries: list[dict]                # [{state_ref, status, reason}]
-    policy_version: str = "ppv1-expansion-1"
+    policy_version: str = PPV1_EXPANSION_POLICY_VERSION
 
     def to_dict(self) -> dict:
         return {"entries": [dict(e) for e in self.entries],
