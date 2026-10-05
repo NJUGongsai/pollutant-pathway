@@ -25,6 +25,9 @@ from ..domain.models import STRATEGY_VERSION
 from ..storage.artifact_store import ArtifactStore
 from ..storage.pathway_store import PathwayStore
 from ..storage.run_identity import (
+    KNOWN_PROFILES,
+    PROFILE_LEGACY_V43,
+    PROFILE_POLLUTANT_PATHWAY_V1,
     build_run_identity,
     check_resume_identity,
     load_run_identity,
@@ -114,6 +117,8 @@ def strategy_dict(max_depth: int, max_expansions: int,
 def _build_identity(
     config: V43Config, run_id: str, smiles: str, root_cn: str | None,
     strategy: dict, asset_identity: dict, prediction: dict | None,
+    profile: str = PROFILE_LEGACY_V43,
+    profile_policy: dict | None = None,
 ) -> dict:
     return build_run_identity(
         run_id=run_id, root_smiles=smiles, root_cn=root_cn or smiles,
@@ -121,7 +126,25 @@ def _build_identity(
         asset_identity=asset_identity,
         v3_code_identity=v3_code_identity(config.v3_code_root),
         prediction=prediction,
+        profile=profile,
+        profile_policy=profile_policy,
     )
+
+
+def _refuse_undelivered_profile(profile: str) -> None:
+    """pollutant_pathway_v1 的执行流入口(实施书 §11 首阶段边界)。
+
+    S0–S2 只交付 profile 注册/版本、领域契约、上下文与固定诊断;有界
+    搜索与任务身份属 S3,交付前显式 fail-closed(不建 run 目录、不写
+    identity、不进图)。legacy_v43 不受影响。
+    """
+    if profile == PROFILE_POLLUTANT_PATHWAY_V1:
+        raise RunError(
+            "profile=pollutant_pathway_v1 已注册,但执行流未交付:"
+            "S0–S2 仅含领域契约/上下文/固定诊断(显式启用);有界搜索与"
+            "任务身份/恢复按实施书 §11 属 S3,交付前拒绝运行",
+            {"profile": profile, "delivered_stages": "S0-S2",
+             "missing_stages": "S3-S5"})
 
 
 def open_run(config: V43Config, runs_root: str | Path, run_id: str,
@@ -174,9 +197,16 @@ def start_run(
     migrate_from: str | None = None,
     max_llm_calls: int = 0,
     max_proposals: int = 0,
+    profile: str = PROFILE_LEGACY_V43,
+    profile_policy: dict | None = None,
 ) -> dict:
     runs_root = Path(runs_root)
     run_dir = runs_root / run_id
+    if profile not in KNOWN_PROFILES:
+        raise RunError(
+            f"未知 profile:{profile!r}(允许 {sorted(KNOWN_PROFILES)})",
+            {"profile": profile})
+    _refuse_undelivered_profile(profile)
     if (run_dir / "run_identity.json").is_file():
         raise RunAlreadyExists(run_id, run_dir)
 
@@ -213,7 +243,8 @@ def start_run(
     )
     identity = _build_identity(
         config, run_id, smiles, root_cn, strategy, asset_identity,
-        _prediction_block(model),
+        _prediction_block(model), profile=profile,
+        profile_policy=profile_policy,
     )
     if migrated_block is not None:
         identity["migrated_from"] = migrated_block
@@ -261,6 +292,16 @@ def resume_run(
     saved = load_run_identity(runs_root, run_id)
     if saved is None:
         raise RunNotFound(run_id, runs_root)
+    # v43-identity-1 旧身份无 profile 块 → 按 legacy_v43 读取;
+    # 旧模式自身的同策略恢复继续可用(代码/资产变更仍由身份门槛拒绝)
+    saved_profile = (saved.get("profile") or {}).get(
+        "name", PROFILE_LEGACY_V43)
+    if saved_profile not in KNOWN_PROFILES:
+        raise RunError(
+            f"保存的 run 身份含未知 profile:{saved_profile!r}(不猜测,"
+            "fail-closed;legacy 旧身份缺该字段按 legacy_v43 读取)",
+            {"run_id": run_id, "saved_profile": saved_profile})
+    _refuse_undelivered_profile(saved_profile)
     saved_mode = (saved.get("asset_identity") or {}).get("mode", "repo_assets")
     current_asset = (
         scripted_asset_identity() if saved_mode == "scripted_fixture"
@@ -290,7 +331,7 @@ def resume_run(
     current = _build_identity(
         config, run_id, saved["inputs"]["root_smiles"],
         saved["inputs"].get("root_identity"), strategy, current_asset,
-        current_prediction,
+        current_prediction, profile=saved_profile,
     )
     check_resume_identity(saved, current)
 

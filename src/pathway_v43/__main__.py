@@ -224,6 +224,7 @@ def cmd_run(args) -> int:
         crash_after=os.environ.get("PATHWAY_V43_CRASH_AFTER") or None,
         migrate_from=args.migrate_from,
         max_llm_calls=args.max_llm_calls, max_proposals=args.max_proposals,
+        profile=getattr(args, "profile", "legacy_v43"),
     )
     payload = {"command": "run", "ok": True, **summary}
     _emit(payload, args.out)
@@ -369,7 +370,7 @@ def cmd_batch_worker(args) -> int:
     return worker_main(["--plan", args.plan])
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="pathway_v43",
         description="v4.3 CLI(资产接线:checkenv/probe;主干:run/resume/inspect)",
@@ -417,6 +418,11 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--migrate-from", default=None,
                        help="显式迁移:读取旧 run 身份的输入/策略开新 run"
                             "(旧 run 目录零改动;直接 resume 旧 run 仍被身份门槛拒绝)")
+    p_run.add_argument("--profile", default="legacy_v43",
+                       choices=["legacy_v43", "pollutant_pathway_v1"],
+                       help="运行 profile:legacy_v43(默认,冻结口径不变)/ "
+                            "pollutant_pathway_v1(新模式,S0–S2 仅领域契约与"
+                            "诊断,执行流属 S3 交付前显式拒绝)")
 
     p_resume = sub.add_parser("resume", parents=[common],
                               help="从 LangGraph 检查点恢复既有 run")
@@ -424,6 +430,10 @@ def main(argv: list[str] | None = None) -> int:
     p_resume.add_argument("--model", default="off",
                           choices=["off", "fake", "real"])
     p_resume.add_argument("--fake-script", default=None)
+    p_resume.add_argument("--profile", default="legacy_v43",
+                          choices=["legacy_v43", "pollutant_pathway_v1"],
+                          help="仅用于当前身份声明:实际 profile 以保存的 "
+                               "run_identity.json 为准(不换 profile resume)")
 
     p_inspect = sub.add_parser("inspect", parents=[common],
                                help="查看 run 状态/停止原因/路径与证据摘要")
@@ -463,6 +473,11 @@ def main(argv: list[str] | None = None) -> int:
     p_bw = sub.add_parser("batch-worker", help="内部:协调器派生的单路线进程")
     p_bw.add_argument("--plan", required=True)
 
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
     args = parser.parse_args(argv)
     try:
         if args.command == "checkenv":
