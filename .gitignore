@@ -13,3 +13,38 @@ reports/ec298/phase_b/
 
 # CodeGraph 本地代码图索引(10MB+ SQLite,各机自行 codegraph init/sync 生成,不入仓)
 .codegraph/
+
+# HIT60 S0 人工复核工作簿含金标(底物+答案),隔离不入仓;同目录金标无关产物正常入仓
+reports/phase_s0_hit60/manual_review/
+
+# HIT60 S1 dev 集金标文件(答案),隔离不入仓;题面三字段与清单正常入仓
+reports/phase_s1_hit60/dev_gold/
+
+# mimo E1 化学评审请求(含 dev 56 题金标与 C0 答卷产物,数据出仓评审件),不入仓
+docs/mimo_e1_chem_review_request.md
+
+# mimo 评审回复(含 dev 金标 SMILES 片段与逐题化学复算),同款隔离,不入仓
+docs/mimo_e1_chem_review_comment.md
+
+# HIT60 T9 编辑路径重放:原始编辑输入(含模型声明目标,其中部分题=金标),金标红线不入仓
+reports/phase_s15_hit60/edit_path_replay/raw_inputs/
+
+# HIT60 T6 口径 v3:双轨重算离线工作区(298 金标只读副本/注入审计中间件),金标红线不入仓
+reports/phase_s15_hit60/dual_track_rescore/work/
+
+# HIT60 T7 题源救援:pool_rescue 中间件(源库原始记录的底物/产物 SMILES、论文全文
+# 存档、分子级命中明细),按源库条款与金标红线不入仓;池级统计与脚本正常入仓
+reports/phase_s1_hit60/pool_rescue/intermediates/
+
+
+# HIT60 T6 口径 v3:mimo 结果复核请求/回复(含 dev 金标与答卷内容,数据出仓评审件),不入仓
+docs/mimo_v3_rescore_review_request.md
+docs/mimo_v3_rescore_review_response.md
+
+# HIT60 T8 门 1:深位召回测量的原始检索 dump(含候选分子 SMILES/身份,其中部分
+# 候选=金标分子),金标红线不入仓;封存件只含 qid/位次/旗标/信号值,零 SMILES
+reports/phase_s15_hit60/deep_recall_gate1/raw_dumps/
+
+# HIT60 S1.5 金标体检 v2 人审桶逐题化学复核工作表(含底物/金标 SMILES,金标红线
+# 不入仓;仓内只留 manual_review_summary.md 零 SMILES 汇总)
+reports/phase_s15_hit60/gold_health_check/v2/manual_review/

@@ -584,3 +584,266 @@ def test_forged_analog_card_never_passes_as_usable_recorded(tmp_path):
     assert "E-an" not in ids, ids  # Phase B R2:类比卡不进 rank 任务
     kinds = {c["evidence_id"]: c["kind"] for c in cands}
     assert set(kinds.values()) == {"recorded_reaction"}
+
+
+# ------------------------------------------ S1 E1:rank v2 分层候选呈现(HIT60)
+
+
+def _build_rank_task(policy: dict, tmp_path, evidences=None):
+    from pathlib import Path
+
+    from pathway_v43.storage.pathway_store import PathwayStore
+
+    if evidences is None:
+        evidences = [rec(f"btE{i}#r{i}", S, ["O=CCC=CO"], rank=i)
+                     for i in (1, 2)]
+    store_dir = Path(tmp_path)
+    store_dir.mkdir(parents=True, exist_ok=True)
+    store = PathwayStore(store_dir / "t.sqlite")
+    root = store.ensure_run("r1-e1", CATECHOL, S)
+    from pathway_v43.services.prediction import build_prediction_task
+    return build_prediction_task(
+        store=store, run_id="r1-e1", path_id=root,
+        substrate_identity=S, substrate_smiles=CATECHOL,
+        root_smiles=CATECHOL, mode=PREDICTION_MODE_RANK,
+        retrieval_payload={"evidences": evidences},
+        retrieval_payload_hash="h", conditions=[], model_block={},
+        policy=policy,
+        budget={"active_depth": 0, "max_depth": 1, "max_expansions": 1,
+                "max_frontier_width": 5, "max_llm_calls": 3,
+                "max_proposals": 1, "used_expansions": 0,
+                "used_llm_calls": 0, "used_proposals": 0},
+        siblings=[], analogy_eligibility=None,
+    )
+
+
+def test_v1_presentation_default_is_byte_identical_to_head(tmp_path):
+    """黄金测试(E1_DESIGN §5.1):开关缺省/显式 v1 时任务书与打补丁前
+    HEAD 逐字节相等 —— schema 仍 v3、候选仍平铺白名单卡、无 candidate_set;
+    两载荷 SHA 相等(实施时已对 reverse-patch 副本逐字节核对一致:
+    f7742643…5065,登记于 RUN_JOURNAL E1 节)。"""
+    from pathway_v43.services.prediction import (
+        PREDICTION_TASK_SCHEMA_VERSION, task_user_payload,
+    )
+
+    t_default = _build_rank_task(prediction_policy(), tmp_path / "g1")
+    t_explicit = _build_rank_task(
+        prediction_policy({"rank_candidate_presentation": "v1"}),
+        tmp_path / "g2")
+    assert task_user_payload(t_default) == task_user_payload(t_explicit)
+    assert t_default["schema_version"] == PREDICTION_TASK_SCHEMA_VERSION \
+        == "v43-prediction-task-3"
+    assert "candidate_set" not in t_default
+    # 平铺候选卡字段白名单与 HEAD 完全一致(v1 路径零改动)
+    for c in t_default["candidates"]:
+        assert set(c) == {
+            "evidence_id", "kind", "source_id", "match_type",
+            "condition_fit", "retrieval_rank", "score", "score_semantics",
+            "mapping_status", "products", "asset_sources", "donor_refs"}
+        assert set(c["products"][0]) == {
+            "position", "product_smiles", "product_identity"}
+
+
+def test_v2_presentation_layered_cards_and_candidate_set(tmp_path):
+    """v2 开:schema v4、四层卡、candidate_set 存在;恒真字段上提单份、
+    资产来源去重;条件状态恒在逐卡层(设计:condition 留逐卡)。"""
+    from pathway_v43.services.prediction import (
+        DENSITY_DROP_ORDER, DENSITY_PER_CANDIDATE_CHAR_CAP,
+        DENSITY_PRODUCT_SMILES_FULL_CHAR_CAP, PREDICTION_TASK_SCHEMA_VERSION,
+        PREDICTION_TASK_SCHEMA_VERSION_V2, _rank_uniform_facts,
+    )
+
+    evs = [evidence(f"btE{i}#r{i}", "recorded_reaction", S,
+                    ["O=CCC=CO", "CC(O)=O"], rank=i,
+                    extra={"condition_fit": "unknown" if i == 1 else "compatible",
+                           "asset_sources": [
+                               {"role": "recorded", "asset_file": "a.jsonl",
+                                "asset_sha256": "0" * 64}]})
+           for i in (1, 2)]
+    task = _build_rank_task(
+        prediction_policy({"rank_candidate_presentation": "v2"}),
+        tmp_path, evidences=evs)
+    assert task["schema_version"] == PREDICTION_TASK_SCHEMA_VERSION_V2
+    assert PREDICTION_TASK_SCHEMA_VERSION == "v43-prediction-task-3"
+    cs = task["candidate_set"]
+    assert cs["presentation"] == "v2" and cs["n_candidates"] == 2
+    assert cs["selection_rule"] == "eligible_recorded_only"
+    # 恒真字段(kind/match_type/mapping_status/donor_refs)上提单份
+    assert cs["uniform_facts"]["kind"] == "recorded_reaction"
+    assert cs["uniform_facts"]["match_type"] == "exact_donor_cn_match"
+    # 资产来源去重单份;答卷语义显式告知
+    assert cs["provenance"] == {"recorded": {"asset_file": "a.jsonl",
+                                             "asset_sha256": "0" * 64}}
+    assert cs["answer_semantics"]["answer_width"] == 5
+    assert cs["answer_semantics"]["within_card_product_order"] \
+        == "fixed_by_position"
+    assert cs["density_budget"]["per_candidate_char_cap"] \
+        == DENSITY_PER_CANDIDATE_CHAR_CAP
+    assert cs["density_budget"]["product_smiles_full_char_cap"] \
+        == DENSITY_PRODUCT_SMILES_FULL_CHAR_CAP
+    assert cs["density_budget"]["drop_order"] == list(DENSITY_DROP_ORDER)
+    # 逐卡四层结构;条件状态逐卡(本例不同 → 不恒真不上提,仍在卡上)
+    for c in task["candidates"]:
+        assert set(c) == {"evidence_id", "engine", "source", "condition",
+                          "verification", "density"}
+        assert set(c["engine"]) == {"reference_rank", "score",
+                                    "score_semantics"}
+        assert c["condition"] in ("unknown", "compatible")
+    conds = {c["condition"] for c in task["candidates"]}
+    assert conds == {"unknown", "compatible"}
+    assert "condition_fit" not in cs["uniform_facts"]
+    # 恒真性核对单一出口:构造一张 mapping_status 不同的卡 → 不上提、
+    # 留逐卡层(E1_DESIGN §3.1"不恒真不上提,该字段仍在逐卡层")
+    evs2 = [dict(e) for e in evs]
+    evs2[1] = dict(evs2[1], mapping_status="resolved")
+    uniform, non_uniform = _rank_uniform_facts(evs2)
+    assert "mapping_status" in non_uniform and "mapping_status" not in uniform
+    task2 = _build_rank_task(
+        prediction_policy({"rank_candidate_presentation": "v2"}),
+        tmp_path / "nu", evidences=evs2)
+    per_card = [c.get("mapping_status") for c in task2["candidates"]]
+    assert sorted(x for x in per_card if x is not None) == ["resolved"]
+    assert "mapping_status" not in task2["candidate_set"]["uniform_facts"]
+
+
+def test_v2_card_verification_preview_deterministic(tmp_path):
+    """verification 层 = 与裁决层同源同函数的确定性预览:parse_ok /
+    identity_match 重算、in_path_cycle 只在真回到祖先链时为真;
+    同输入重放同输出(确定性)。"""
+    task = _build_rank_task(
+        prediction_policy({"rank_candidate_presentation": "v2"}),
+        tmp_path / "d1",
+        evidences=[rec("btE1#r1", S, ["O=CCC=CO"], rank=1)])
+    card = task["candidates"][0]
+    v = card["verification"]
+    assert v["all_products_parse_ok"] is True
+    assert v["all_identity_match"] is True
+    assert v["any_in_path_cycle"] is False   # 产物不在祖先链(根→当前)
+    p = v["products"][0]
+    assert set(p) >= {"position", "product_smiles", "product_identity",
+                      "parse_ok", "identity_match"}
+    task2 = _build_rank_task(
+        prediction_policy({"rank_candidate_presentation": "v2"}),
+        tmp_path / "d2",
+        evidences=[rec("btE1#r1", S, ["O=CCC=CO"], rank=1)])
+    assert json.dumps(task["candidates"], sort_keys=True) == json.dumps(
+        task2["candidates"], sort_keys=True)
+
+
+# -------------------------------- S1 E1:v2 解析契约(fail-closed 七坏形)
+
+
+def _v2(mode=None):
+    from pathway_v43.services.prediction import RANK_PRESENTATION_V2
+    return {"rank_presentation": RANK_PRESENTATION_V2}
+
+
+IDS = ["E-a", "E-b", "E-c"]
+
+
+def test_v2_select_without_order_fails_closed():
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "select", "evidence_id": "E-a",
+                    "reason": "x"}), IDS, **_v2())
+    assert not p.ok and p.error_kind == "order_missing"
+
+
+def test_v2_select_partial_order_fails_closed():
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "select", "evidence_id": "E-a",
+                    "order": ["E-a", "E-b"], "reason": "x"}), IDS, **_v2())
+    assert not p.ok and p.error_kind == "order_incomplete"
+
+
+def test_v2_hold_without_block_fails_closed():
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "hold", "reason": "不确定"}), IDS, **_v2())
+    assert not p.ok and p.error_kind == "hold_reason_invalid"
+
+
+def test_v2_hold_bad_enum_fails_closed():
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "hold",
+                    "hold": {"kind": "vibes", "note": "n"}}), IDS, **_v2())
+    assert not p.ok and p.error_kind == "hold_reason_invalid"
+
+
+def test_v2_hold_other_without_note_fails_closed():
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "hold", "hold": {"kind": "other"}}),
+        IDS, **_v2())
+    assert not p.ok and p.error_kind == "hold_reason_invalid"
+
+
+def test_v2_hold_with_order_fails_closed():
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "hold",
+                    "hold": {"kind": "condition_conflict", "note": "n"},
+                    "order": ["E-a"]}), IDS, **_v2())
+    assert not p.ok and p.error_kind == "order_with_hold"
+
+
+def test_v2_hold_block_not_dict_fails_closed():
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "hold", "hold": "conflict"}), IDS, **_v2())
+    assert not p.ok and p.error_kind == "hold_reason_invalid"
+
+
+def test_v2_legal_hold_and_select_full_order_pass():
+    # 合法 hold:枚举内 kind + 超长 note(截 500,不因长度失败)
+    long_note = "缺" * 800
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "hold",
+                    "hold": {"kind": "insufficient_discrimination",
+                             "note": long_note},
+                    "reason": "四层信号不足"}), IDS, **_v2())
+    assert p.ok and p.decision == "hold"
+    assert p.hold_kind == "insufficient_discrimination"
+    assert p.hold_note == long_note[:500]
+    assert p.order == []
+    # 合法 select:全部候选各一次、选中居首;理由新形结构化
+    p2 = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "select", "evidence_id": "E-b",
+                    "order": ["E-b", "E-c", "E-a"],
+                    "reasons": {"E-a": {"verdict": "rejected", "note": "弱"},
+                                "E-c": "旧字符串形"},
+                    "reason": "选 b"}), IDS, **_v2())
+    assert p2.ok and p2.selected_evidence_id == "E-b"
+    assert p2.order == ["E-b", "E-c", "E-a"]
+    assert p2.reasons["E-a"] == {"verdict": "rejected", "note": "弱"}
+    # 旧字符串形规约为 {verdict:"",note},不失败
+    assert p2.reasons["E-c"] == {"verdict": "", "note": "旧字符串形"}
+
+
+def test_v1_parse_contract_unchanged_by_v2_switch():
+    """v1 回归:order 可省略(select 仍过)、hold 自由文本、reasons 字符串;
+    v2 开关不传 = 既有行为(既有全部 parse 测试不改一行通过的本体钉)。"""
+    p = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "select", "evidence_id": "E-a",
+                    "reason": "x"}), IDS)
+    assert p.ok and p.order == [] and p.hold_kind == ""
+    h = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "hold", "reason": "自由文本理由"}), IDS)
+    assert h.ok and h.decision == "hold" and h.hold_kind == ""
+    # v1 下 hold 携带 order 不失败(既有契约未禁);select 漏卡不失败
+    h2 = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "hold", "reason": "r",
+                    "order": ["E-a"]}), IDS)
+    assert h2.ok
+    p3 = parse_model_response(
+        PREDICTION_MODE_RANK,
+        json.dumps({"decision": "select", "evidence_id": "E-a",
+                    "order": ["E-a"], "reasons": {"E-b": "字符串"}}), IDS)
+    assert p3.ok and p3.reasons["E-b"] == "字符串"

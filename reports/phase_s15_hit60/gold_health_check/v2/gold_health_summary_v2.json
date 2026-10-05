@@ -1,0 +1,346 @@
+{
+  "dev": {
+    "flags": {
+      "degenerate_full": 2,
+      "degenerate_mixed": 0,
+      "gold_conserv_violation": 3,
+      "gold_cosubstrate_unreachable": 2,
+      "gold_unreachable_cosubstrate": 0
+    },
+    "manual_review_reasons": {
+      "r3_gap_leq_minus3": 6,
+      "r3_gap_unlisted": 3,
+      "unclassified_oh_equivalents": 5
+    },
+    "n_flagged_any": 5,
+    "n_manual_review_bucket": 14,
+    "n_parse_fail": 0,
+    "n_questions": 56,
+    "n_ribose_observed": 2,
+    "n_salt_form": 0,
+    "r2_pattern_distribution": {
+      "dehydration": 1,
+      "dehydrogenation": 2,
+      "dihydroxylation": 2,
+      "dioxygenation": 4,
+      "hydration": 9,
+      "monooxygenation": 8,
+      "reduction": 3
+    },
+    "r3_attribution_distribution": {
+      "unattributed": 3
+    },
+    "r3_gap_distribution": {
+      "CO": 2,
+      "CO2": 3
+    },
+    "rule_level": {
+      "r1": 2,
+      "r3": 3,
+      "r3_unreachable": 0,
+      "r3_violation": 3,
+      "r4": 2,
+      "r4_full": 2,
+      "r4_mixed": 0
+    }
+  },
+  "dev_denominator_51": {
+    "flags": {
+      "degenerate_full": 0,
+      "degenerate_mixed": 0,
+      "gold_conserv_violation": 0,
+      "gold_cosubstrate_unreachable": 0,
+      "gold_unreachable_cosubstrate": 0
+    },
+    "manual_review_reasons": {
+      "r3_gap_leq_minus3": 6,
+      "r3_gap_unlisted": 3,
+      "unclassified_oh_equivalents": 5
+    },
+    "n_flagged_any": 0,
+    "n_manual_review_bucket": 14,
+    "n_parse_fail": 0,
+    "n_questions": 51,
+    "n_ribose_observed": 0,
+    "n_salt_form": 0,
+    "r2_pattern_distribution": {
+      "dehydration": 1,
+      "dehydrogenation": 2,
+      "dihydroxylation": 2,
+      "dioxygenation": 4,
+      "hydration": 9,
+      "monooxygenation": 8,
+      "reduction": 3
+    },
+    "r3_attribution_distribution": {},
+    "r3_gap_distribution": {
+      "CO": 2,
+      "CO2": 3
+    },
+    "rule_level": {
+      "r1": 0,
+      "r3": 0,
+      "r3_unreachable": 0,
+      "r3_violation": 0,
+      "r4": 0,
+      "r4_full": 0,
+      "r4_mixed": 0
+    }
+  },
+  "dev_quarantine_proposal_v2": {
+    "denominator_if_adopted": 51,
+    "n_proposed": 0,
+    "note": "提案不生效:待新冻结链(mimo 评审→人审→双人确认);当前生效分母仍为 51(QUARANTINE_EFFECTIVE)",
+    "proposed_qids": []
+  },
+  "dev_quarantined_5": {
+    "flags": {
+      "degenerate_full": 2,
+      "degenerate_mixed": 0,
+      "gold_conserv_violation": 3,
+      "gold_cosubstrate_unreachable": 2,
+      "gold_unreachable_cosubstrate": 0
+    },
+    "manual_review_reasons": {},
+    "n_flagged_any": 5,
+    "n_manual_review_bucket": 0,
+    "n_parse_fail": 0,
+    "n_questions": 5,
+    "n_ribose_observed": 2,
+    "n_salt_form": 0,
+    "r2_pattern_distribution": {},
+    "r3_attribution_distribution": {
+      "unattributed": 3
+    },
+    "r3_gap_distribution": {},
+    "rule_level": {
+      "r1": 2,
+      "r3": 3,
+      "r3_unreachable": 0,
+      "r3_violation": 3,
+      "r4": 2,
+      "r4_full": 2,
+      "r4_mixed": 0
+    }
+  },
+  "dev_v1_v2_compare": {
+    "attribution_changes": [],
+    "lost_rule_hits": {
+      "R1": [],
+      "R3": [],
+      "R4": []
+    },
+    "n_new_flagged_qids": 0,
+    "n_v1_flagged": 5,
+    "n_v2_flagged": 5,
+    "new_rule_hits": {
+      "R1": [],
+      "R3": [],
+      "R4": []
+    },
+    "note": "R4 拆旗只改旗名(degenerate→full/mixed)属设计内改名,不算翻转;attribution_change/rule_change 才是新证据(单列待新冻结链,不静默改判)。",
+    "quarantined_flips_new_evidence": [],
+    "quarantined_v1_qids": [
+      "b1_BIOPATH150_028__S04__BSY-r03812",
+      "b1_BIOPATH150_067__S03__BSY-r02126",
+      "b1_BIOPATH150_114__S01__BSY-r01911",
+      "b1_BIOPATH150_149__S01__BSY-r01831",
+      "b1_BIOPATH150_149__S06__BSY-r03410"
+    ],
+    "rule_changes": []
+  },
+  "ec298": {
+    "flags": {
+      "degenerate_full": 1,
+      "degenerate_mixed": 0,
+      "gold_conserv_violation": 21,
+      "gold_cosubstrate_unreachable": 8,
+      "gold_unreachable_cosubstrate": 4
+    },
+    "manual_review_reasons": {
+      "unclassified_oh_equivalents": 44
+    },
+    "n_flagged_any": 26,
+    "n_manual_review_bucket": 44,
+    "n_parse_fail": 0,
+    "n_questions": 298,
+    "n_ribose_observed": 2,
+    "n_salt_form": 0,
+    "r2_pattern_distribution": {
+      "dehydration": 6,
+      "dehydrogenation": 68,
+      "dihydroxylation": 15,
+      "dioxygenation": 20,
+      "hydration": 36,
+      "monooxygenation": 49,
+      "reduction": 14
+    },
+    "r3_attribution_distribution": {
+      "acetylation": 4,
+      "unattributed": 21
+    },
+    "r3_gap_distribution": {},
+    "rule_level": {
+      "r1": 8,
+      "r3": 25,
+      "r3_unreachable": 4,
+      "r3_violation": 21,
+      "r4": 1,
+      "r4_full": 1,
+      "r4_mixed": 0
+    }
+  },
+  "ec298_question_flag_cross": {
+    "ambiguous_substrate": {
+      "flagged_qids": [
+        "RXNG_2a805c8fc232e6b0c279dbb3d18d113fe2ffedfef5528573a60f251c0a879196",
+        "RXNG_8e87765558aab9758c28a2969c3dca0b1ff8068d4a25b416534e9ada9a1d7b08",
+        "RXNG_4ec68aa8196aac55358f9bfe4b506519fab0f5cfbb4e46c90b7147a2cd429c3d",
+        "RXNG_b34d5882f63b2bca8233d83fdf0b8f4029b9480607be024986565a22672cc33b"
+      ],
+      "n_true": 4,
+      "n_true_and_flagged": 4
+    },
+    "fallback_large": {
+      "flagged_qids": [],
+      "n_true": 6,
+      "n_true_and_flagged": 0
+    },
+    "nucleotide_fallback": {
+      "flagged_qids": [],
+      "n_true": 5,
+      "n_true_and_flagged": 0
+    }
+  },
+  "ec298_v1_v2_compare": {
+    "attribution_changes": [
+      {
+        "qid": "RXNG_e47fbe85b234d1f3c612b234e040e3cdeaf17b9fd641f889e9ff23fba0f8ab70",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_unreachable_cosubstrate"
+        ]
+      },
+      {
+        "qid": "RXNG_59a61f5ced676149aaad318749d845aa01a843e00b444a824c8702187d798995",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_unreachable_cosubstrate"
+        ]
+      },
+      {
+        "qid": "RXNG_aefef2f58e31e2feb6d07e43d4076cd899a7e02d6262fec3adbfd6e1f28b8df7",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_unreachable_cosubstrate"
+        ]
+      },
+      {
+        "qid": "RXNG_cc87d036f89aefeb441daebda4b31c3cee21438d1c6c6b7974f9cd98a1af85ac",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_unreachable_cosubstrate"
+        ]
+      }
+    ],
+    "lost_rule_hits": {
+      "R1": [],
+      "R3": [],
+      "R4": []
+    },
+    "n_new_flagged_qids": 0,
+    "n_v1_flagged": 26,
+    "n_v2_flagged": 26,
+    "new_rule_hits": {
+      "R1": [
+        "RXNG_11aa04deb97743c957fe3090fffedc48d9977720dbb6877a201513fa3d789395",
+        "RXNG_2bf5e81efc657849a128f8ea0458736bbb6b66e8c91481df266d9d01c6ffc25d",
+        "RXNG_6a813df32c174715980075b3bdb0bbecbab719e83e07afc4ef38d9a7eeebe6d8",
+        "RXNG_bd3bc48984cbae8677446ad46fcfc9d11aeadaa52fc743b20f62b8498147862a",
+        "RXNG_eebc99542192a23453205caef7d0a5c1fabe01300b2dc48ca04e5728d84bba1f"
+      ],
+      "R3": [],
+      "R4": []
+    },
+    "note": "R4 拆旗只改旗名(degenerate→full/mixed)属设计内改名,不算翻转;attribution_change/rule_change 才是新证据(单列待新冻结链,不静默改判)。",
+    "rule_changes": [
+      {
+        "qid": "RXNG_11aa04deb97743c957fe3090fffedc48d9977720dbb6877a201513fa3d789395",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_cosubstrate_unreachable",
+          "gold_conserv_violation"
+        ]
+      },
+      {
+        "qid": "RXNG_2bf5e81efc657849a128f8ea0458736bbb6b66e8c91481df266d9d01c6ffc25d",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_cosubstrate_unreachable",
+          "gold_conserv_violation"
+        ]
+      },
+      {
+        "qid": "RXNG_6a813df32c174715980075b3bdb0bbecbab719e83e07afc4ef38d9a7eeebe6d8",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_cosubstrate_unreachable",
+          "gold_conserv_violation"
+        ]
+      },
+      {
+        "qid": "RXNG_eebc99542192a23453205caef7d0a5c1fabe01300b2dc48ca04e5728d84bba1f",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_cosubstrate_unreachable",
+          "gold_conserv_violation"
+        ]
+      },
+      {
+        "qid": "RXNG_bd3bc48984cbae8677446ad46fcfc9d11aeadaa52fc743b20f62b8498147862a",
+        "v1_flags": [
+          "gold_conserv_violation"
+        ],
+        "v2_flags": [
+          "gold_cosubstrate_unreachable",
+          "gold_conserv_violation"
+        ]
+      }
+    ]
+  },
+  "inputs_sha256": {
+    "dev_gold": "d285dc0b63546bef3799f71a6065feeaa60bf202a97597b7431b4e4265262f2a",
+    "dev_questions": "8869cd05cea1a44220f3001f0b6415c6bf97eb5f0122ebc4609aa1c77ab0360c",
+    "q298_chenyu_readonly": "9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c",
+    "q298_local_sealed_copy": "9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c"
+  },
+  "q298_gold_source": {
+    "note": "远端只读副本(任务书路径 Enzyme_CAGE_DATA 实机为 EnzymeCAGE_data);拉取经 /tmp/cy_ssh.sh(expect 封装,stdout 噪声 grep -v 过滤,CR 为管道伪影已 tr -d '\\r' 剥离);SHA 与封存本地副本一致(9f5955d4…)",
+    "remote_path": "/usrdata/Enzyme_CAGE_DATA/workspaces/ec298_gold_readonly/questions.jsonl",
+    "remote_path_actual": "/usrdata/EnzymeCAGE_data/workspaces/ec298_gold_readonly/questions.jsonl"
+  },
+  "redlines": [
+    "零 LLM 零 API;金标 SMILES 零入仓(输出仅 qid+旗标+计数)",
+    "v1 封存产物零覆写(本脚本只写 v2/ 子目录)",
+    "298 只诊断打标不动分数不动金标",
+    "不追溯作废 QUARANTINE_EFFECTIVE(2026-09-30)"
+  ],
+  "rules_version": "v43-gold-health-2 (mimo 评审采纳 v2 改版:计数差/去盐前置/parse_fail 人审/含H分子式+ΔDoU/R4双轴/R1白名单补集/R3缺口分子式表+归因分流;打标为提案,待新冻结链[人审+双人确认]采纳,不追溯作废 v1 生效登记)",
+  "status": "提案:待新冻结链(mimo 评审→人审→双人确认)采纳;不追溯作废 QUARANTINE_EFFECTIVE(2026-09-30 已生效 5 题)"
+}

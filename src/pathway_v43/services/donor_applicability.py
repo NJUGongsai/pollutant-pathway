@@ -31,6 +31,15 @@ from dataclasses import dataclass
 
 from rdkit import Chem, RDLogger
 
+from ..domain.models import (
+    DONOR_FALLBACK_APPLICABILITY_FAILED,
+    DONOR_FALLBACK_APPLICABILITY_UNKNOWN,
+    DONOR_FALLBACK_COMPETING_TRANSFORMS,
+    DONOR_FALLBACK_MAPPING_AMBIGUOUS,
+    DONOR_FALLBACK_NO_MAPPING,
+    DONOR_FALLBACK_REASONS,
+)
+
 RDLogger.DisableLog("rdApp.*")
 
 APPLICABILITY_VERSION = "v43-applicability-3"
@@ -46,12 +55,17 @@ APPLICABILITY_UNAVAILABLE = "unavailable"
 # Phase D D1:预算耗尽而未评估的供体(不是化学失败,不得冒充 inapplicable)
 APPLICABILITY_BUDGET_NOT_ASSESSED = "budget_not_assessed"
 
-# fallback 拒因词表(任务书 §3:不把这些情况统称"无证据")
-FALLBACK_NO_MAPPING = "no_mapping"
-FALLBACK_MAPPING_AMBIGUOUS = "mapping_ambiguous"
-FALLBACK_APPLICABILITY_FAILED = "applicability_failed"
-FALLBACK_APPLICABILITY_UNKNOWN = "applicability_unknown"
-FALLBACK_COMPETING_TRANSFORMS = "multiple_competing_transforms"
+# fallback 拒因词表(任务书 §3:不把这些情况统称"无证据")。
+# fable5 P1c:字面量单一事实源上移 domain/models(DONOR_FALLBACK_*),
+# 本模块(产出方)与 domain/policy._ANALOGY_FALLBACKS(消费方)共用同一
+# 常量集合;FALLBACK_* 保留为本模块内的惯用别名(既有引用与落盘值不变)。
+FALLBACK_NO_MAPPING = DONOR_FALLBACK_NO_MAPPING
+FALLBACK_MAPPING_AMBIGUOUS = DONOR_FALLBACK_MAPPING_AMBIGUOUS
+FALLBACK_APPLICABILITY_FAILED = DONOR_FALLBACK_APPLICABILITY_FAILED
+FALLBACK_APPLICABILITY_UNKNOWN = DONOR_FALLBACK_APPLICABILITY_UNKNOWN
+FALLBACK_COMPETING_TRANSFORMS = DONOR_FALLBACK_COMPETING_TRANSFORMS
+# 本模块可能写入 eligibility.fallback_reason 的值域(钉住:恰为全集)
+EMITTED_FALLBACK_REASONS = frozenset(DONOR_FALLBACK_REASONS)
 
 ALIGN_FULL = "full_donor_substructure"
 ALIGN_CENTER = "reaction_center_substructure"

@@ -1,0 +1,28 @@
+# SEAL_MANIFEST — HIT60 T6 口径 v3 重刷封存(2026-09-30)
+# 预注册:reports/phase_s15_hit60/PREREGISTRATION_V3.md(先于重刷落盘)
+# 判分身份:cn-v1;口径:v43-exam-caliber-3(全主产物命中)
+# 主封存=全 56 分母(dev)/298 分母(两臂);quarantine 变体另件,待人审生效
+#
+# 输入锚点(SHA256):
+#   dev_gold.jsonl            d285dc0b63546bef3799f71a6065feeaa60bf202a97597b7431b4e4265262f2a
+#   dev_questions.jsonl       8869cd05cea1a442...(冻结件,见 split_manifest)
+#   answers_C0a/C0b/E1/E2a/E2b/E3  与官方 score.json answers_sha256 逐一相同(见各 readings 内 answers_sha256)
+#   questions_298.jsonl       9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c
+#   298 两臂 predictions       48c84bd6...(C0) / 61386590...(D3)(=官方 inputs_sha256)
+#   --check 复算:8/8 件 PASS(命令见 RESUMARY.md)
+#
+12f259ad3fd4995f36efddf186bf91df589984fec087149eefab204ca47f0099  reports/phase_s15_hit60/dual_track_rescore/sealed/readings_s15_dev_C0a.json
+f4612b03e408d3ab3331f5d6b0c2791aa34615bdb9197889e9ab9cbf8f160dc2  reports/phase_s15_hit60/dual_track_rescore/sealed/readings_s15_dev_C0b.json
+aed4c6a11f5fa368ef819f9f9614db4a7284bd250750fe66b433076aeca718f7  reports/phase_s15_hit60/dual_track_rescore/sealed/readings_s15_dev_E1.json
+5c9aec45954eec843651ccbb72b43637fe6c899a98ae9477a343a570e0fa7a88  reports/phase_s15_hit60/dual_track_rescore/sealed/readings_s15_dev_E2a.json
+c02f4f72617ddda2a362fba857821687a3c19d7dfab943e167688ea8d10e8ba7  reports/phase_s15_hit60/dual_track_rescore/sealed/readings_s15_dev_E2b.json
+20c24d6bbe017bbdf005568b84232a17fcd3bef74b1b552a669c0e0413719986  reports/phase_s15_hit60/dual_track_rescore/sealed/readings_s15_dev_E3.json
+c6ded0a1867fb61f2cd41d897ca5e2e386ef0e36eb89b1544575fe77a301070e  reports/phase_s15_hit60/dual_track_rescore/sealed/readings_s15_298_pd_retest_C0.json
+377a8d5f9f98143068dd99dc10b70969fa0125488f450ecfe82254c8a1b71ca6  reports/phase_s15_hit60/dual_track_rescore/sealed/readings_s15_298_pd_retest_D3.json
+424d8892be2f708bf0f6788db0185cb5c9fc63dc8e5b074f38c82fd812faed81  reports/phase_s15_hit60/dual_track_rescore/sealed/injection_audit.json
+a6e1dbaa1b8a60163bb0ec03b571ecb99a8f8026c796d0cf48b89008bca853ae  reports/phase_s15_hit60/dual_track_rescore/sealed/quarantine_variant_dev.json
+75b47a0925e939bd792d60c777b3a7e6c514671bc4ee8f84561f139af45fbc9f  reports/phase_s15_hit60/gold_health_check/gold_health_labels_dev.tsv
+50bbf25b2054895c4495d3aa27583d78eee5e1a3ebc55e313f8ee066fa629552  reports/phase_s15_hit60/gold_health_check/gold_health_labels_298.tsv
+b848ca3cdb1ec62383ff19fe641d8cfdded22496a7a43e3dbaf9ddfb6cf248a3  reports/phase_s15_hit60/gold_health_check/quarantine_proposal_dev.tsv
+805549d9a09e666a7a6c540bea1e39ad05643563563251e38beb72561a55af7b  reports/phase_s15_hit60/gold_health_check/gold_health_summary.json
+# manifest 自身 SHA256: ff01b01e2bd8acdfceb0ef0f7a7e1fa71794e18aec134698ea754dcb9d9cbfc8

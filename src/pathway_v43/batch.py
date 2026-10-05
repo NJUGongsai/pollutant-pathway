@@ -616,7 +616,12 @@ def run_batch(
             policy=prediction_policy(
                 config.get("prediction_policy_overrides")),
         )
-        required = config.get("provider_price_snapshot", {}).get("model_id")
+        # null/缺席的价格快照 = 占位未填(S1 dev 三配置模板形态):
+        # 不在此处崩 AttributeError,模型钉扎检查自然跳过,费用账由
+        # api_account 按"无快照=不计价"如实登记(发车前必须回填,见
+        # configs/s1_dev_*.json 的 config_notes)
+        required = (config.get("provider_price_snapshot")
+                    or {}).get("model_id")
         if required and setup.model_id != required:
             report = {
                 "status": "not_run:model_id_mismatch",

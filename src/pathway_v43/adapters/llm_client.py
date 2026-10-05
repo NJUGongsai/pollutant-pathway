@@ -19,6 +19,15 @@
 ``reasoning_effort`` 等由批次身份显式冻结)。``request_params`` 进入
 run_identity 的 prediction 块(模型身份的一部分,resume 逐字段核对)。
 
+temperature 单通道纪律(S1 E2,HIT60):温度**只**经
+``prediction_policy_overrides.temperature`` 表达(None=不发送,与历史
+行为逐字节一致;数值=显式携带,取值进 run/batch identity)。env 的
+``V43_LLM_REQUEST_PARAMS`` 与显式 ``request_params`` 一如既往禁止
+temperature/enable_thinking/thinking;不支持温度参数的模型(如
+kimi-k3,API 400 ``Parameter 'temperature' is not supported``,见
+docs/CHENYU_ACCESS.md 坑清单)在装配期 fail-closed 报"该模型不支持
+温度臂",不静默忽略、不带病发请求。
+
 HTTP 语义:429 记录 status / Retry-After / 请求 ID 后做**有上限**的指数
 退避 + 抖动重试(提供者不把 429 计费,重试不烧钱);401/403 与配额类
 错误置全局闸门停止标志并返回结构化失败,停止一切新付费请求;其余 HTTP
@@ -57,6 +66,24 @@ DEFAULT_TIMEOUT_S = 60.0
 DEFAULT_MAX_HTTP_RETRIES = 4     # 429 重试上限(有界;总计 ≤5 次 HTTP 尝试)
 BACKOFF_BASE_S = 2.0             # 指数退避基值:2/4/8/16s + 抖动
 BACKOFF_CAP_S = 60.0             # 单次等待封顶(Retry-After 一并封顶)
+
+# 温度/思考类参数只许走 policy 通道(prediction_policy_overrides.temperature),
+# env 与显式 request_params 一律拒绝(见 _request_params_from_env 与
+# resolve_model_setup;单一表达通道 = 差异可预登记、身份可冻结)
+FORBIDDEN_REQUEST_PARAM_KEYS = frozenset(
+    {"temperature", "enable_thinking", "thinking"})
+
+# 已知不接受 temperature 参数的模型(CHENYU_ACCESS 坑清单:远端 DashScope
+# 的 kimi-k3 对 temperature 直接 API 400)。匹配 = 模型 ID 小写包含任一
+# 子串;policy 设了 temperature 且模型命中 → 装配期 fail-closed(报
+# "该模型不支持温度臂"),绝不静默忽略后让 20 路 worker 逐题吃 400。
+MODELS_WITHOUT_TEMPERATURE_SUPPORT = ("kimi-k3",)
+
+
+def model_supports_temperature(model_id: str) -> bool:
+    """模型是否接受 temperature 参数(只做已知不支持名单的保守匹配)。"""
+    m = (model_id or "").lower()
+    return not any(pat in m for pat in MODELS_WITHOUT_TEMPERATURE_SUPPORT)
 
 
 @dataclass
@@ -117,11 +144,18 @@ class ModelNotConfigured(RuntimeError):
 
 
 def prompt_versions(prompts_root: str | Path) -> dict[str, str]:
-    """三协议提示词的 SHA256 版本(内容变更即升版本;身份核对用)。"""
+    """协议提示词的 SHA256 版本(内容变更即升版本;身份核对用)。
+
+    S1 E1:新增常驻文件 ranker_v2.md(协议臂提示词),SHA 以
+    "rank_candidates_v2" 键进本表 → 进 run/batch identity;装载哪个文件
+    由 prediction_policy.rank_candidate_presentation 决定
+    (workflow.nodes._prompt_for),文件常驻树内、两版 SHA 恒在身份里。
+    """
     root = Path(prompts_root)
     out = {}
     for mode, fname in (
         ("rank_candidates", "ranker.md"),
+        ("rank_candidates_v2", "ranker_v2.md"),
         ("analogy_edit", "analogy_editor.md"),
         ("novel_proposal", "novel_proposal.md"),
     ):
@@ -154,12 +188,12 @@ def _request_params_from_env() -> dict:
     if not isinstance(params, dict):
         raise ModelNotConfigured(
             f"{LLM_REQUEST_PARAMS_ENV} 必须是 JSON 对象", {"type": type(params).__name__})
-    forbidden = {"temperature", "enable_thinking", "thinking"}
-    bad = forbidden & set(params)
+    bad = FORBIDDEN_REQUEST_PARAM_KEYS & set(params)
     if bad:
         raise ModelNotConfigured(
             f"request_params 禁止包含 {sorted(bad)}:"
-            "(仅思考模型不得发送关闭思考/温度参数;温度用官方默认)",
+            "(仅思考模型不得发送关闭思考/温度参数;温度用官方默认,"
+            "实验臂温度只走 prediction_policy_overrides.temperature 通道)",
             {"keys": sorted(bad)})
     return params
 
@@ -234,7 +268,8 @@ class OpenAICompatibleClient:
                 {"role": "user", "content": user_payload},
             ],
         }
-        body.update(params)  # 显式冻结参数;无 temperature
+        body.update(params)  # 显式冻结参数;temperature 仅经 extra_params
+        # (policy 通道,S1 E2)进入 —— request_params 本身永不含温度键
         return json.dumps(body, ensure_ascii=False).encode("utf-8")
 
     @staticmethod
@@ -456,6 +491,9 @@ class FakeLLMClient:
         self.calls.append({
             "mode": mode, "idempotency_key": idempotency_key,
             "model_id": self.model_id,
+            # S1 E2:记录温度臂会随请求发送的附加参数(仅当 policy 设了
+            # temperature;None = 与真实缺省一致,不发送任何温度键)
+            "extra_params": (dict(extra_params) if extra_params else None),
         })
         return LLMResponse(
             ok=bool(raw.strip()), raw_text=raw,
@@ -538,12 +576,31 @@ def resolve_model_setup(
             timeout_s=float(timeout_s or 0.0),
         )
     if provider in (PROVIDER_REAL, "real"):  # "real" 为 CLI 简称
+        bad = FORBIDDEN_REQUEST_PARAM_KEYS & set(request_params or {})
+        if bad:
+            raise ModelNotConfigured(
+                f"request_params 禁止包含 {sorted(bad)}:"
+                "(温度/思考参数只走 prediction_policy_overrides."
+                "temperature 通道,确保差异进身份、可预登记)",
+                {"keys": sorted(bad)})
         client = OpenAICompatibleClient.from_env()
         if timeout_s is not None:
             client.timeout_s = float(timeout_s)
         if request_params:
             client.request_params = {
                 **client.request_params, **request_params}
+        # S1 E2:policy 设了 temperature 而模型不支持(kimi-k3 对该参数
+        # 直接 API 400)→ 装配期 fail-closed,报"该模型不支持温度臂",
+        # 不静默忽略(那会让整批在远端逐请求吃 400)
+        temp = pol.get("temperature")
+        if temp is not None and not model_supports_temperature(client.model):
+            raise ModelNotConfigured(
+                "该模型不支持温度臂:" f"{client.model} 不接受 temperature 参数"
+                "(API 400: Parameter 'temperature' is not supported);"
+                "请去掉 prediction_policy_overrides.temperature 或换用"
+                "支持温度的模型",
+                {"model_id": client.model, "temperature": temp,
+                 "known_unsupported": list(MODELS_WITHOUT_TEMPERATURE_SUPPORT)})
         return ModelSetup(
             provider=PROVIDER_REAL, model_id=client.model, client=client,
             prompts_root=root, prompt_versions=versions, policy=pol,

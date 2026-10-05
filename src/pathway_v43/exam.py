@@ -342,12 +342,20 @@ def run_exam_agent(*, batch_root: Path, exam_inputs_path: Path,
             return {"status": "not_run:no_credentials_or_access",
                     "missing_env": missing}
         from .adapters.llm_client import resolve_model_setup
+        from .domain.policy import prediction_policy
 
+        # S1:exam/dev 跑分装配同样带 policy(温度臂开关进 worker 的同一
+        # 通道;不支持温度的模型在装配期 fail-closed,与 batch 路径一致)
         setup = resolve_model_setup(
             "openai_compatible",
             request_params=config["model_request_params"],
-            timeout_s=config["llm_timeout_s"])
-        required = config.get("provider_price_snapshot", {}).get("model_id")
+            timeout_s=config["llm_timeout_s"],
+            policy=prediction_policy(
+                config.get("prediction_policy_overrides")))
+        # 同 batch.run_batch:null/缺席价格快照 = 占位未填,不崩
+        # AttributeError;发车前必须回填(configs/s1_dev_*.json 约定)
+        required = (config.get("provider_price_snapshot")
+                    or {}).get("model_id")
         if required and setup.model_id != required:
             return {"status": "not_run:model_id_mismatch",
                     "required": required, "actual": setup.model_id}

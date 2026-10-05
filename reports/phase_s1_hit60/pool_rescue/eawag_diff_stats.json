@@ -1,0 +1,117 @@
+{
+ "library": {
+  "rows": 4454,
+  "packages": [
+   "EAWAG-BBD",
+   "EAWAG-SEDIMENT",
+   "EAWAG-SLUDGE",
+   "EAWAG-SOIL"
+  ],
+  "by_package": {
+   "EAWAG-BBD": 1002,
+   "EAWAG-SEDIMENT": 931,
+   "EAWAG-SLUDGE": 544,
+   "EAWAG-SOIL": 1977
+  }
+ },
+ "corpus_envipath": {
+  "rows": 6077,
+  "packages": [
+   "EAWAG-BBD",
+   "EAWAG-BBD-educt",
+   "EAWAG-SEDIMENT",
+   "EAWAG-SLUDGE",
+   "EAWAG-SOIL"
+  ],
+  "by_package": {
+   "EAWAG-BBD": 1066,
+   "EAWAG-BBD-educt": 580,
+   "EAWAG-SEDIMENT": 1393,
+   "EAWAG-SLUDGE": 553,
+   "EAWAG-SOIL": 2485
+  }
+ },
+ "A_package": {
+  "library_only": [],
+  "corpus_only": [
+   "EAWAG-BBD-educt"
+  ],
+  "common": [
+   "EAWAG-BBD",
+   "EAWAG-SEDIMENT",
+   "EAWAG-SLUDGE",
+   "EAWAG-SOIL"
+  ]
+ },
+ "B_record": {
+  "EAWAG-BBD": {
+   "library_keys": 1002,
+   "corpus_keys": 1066,
+   "library_minus_corpus": 0,
+   "corpus_minus_library": 64,
+   "intersection": 1002
+  },
+  "EAWAG-SEDIMENT": {
+   "library_keys": 691,
+   "corpus_keys": 961,
+   "library_minus_corpus": 0,
+   "corpus_minus_library": 270,
+   "intersection": 691
+  },
+  "EAWAG-SLUDGE": {
+   "library_keys": 485,
+   "corpus_keys": 494,
+   "library_minus_corpus": 0,
+   "corpus_minus_library": 9,
+   "intersection": 485
+  },
+  "EAWAG-SOIL": {
+   "library_keys": 1950,
+   "corpus_keys": 2445,
+   "library_minus_corpus": 0,
+   "corpus_minus_library": 495,
+   "intersection": 1950
+  },
+  "ALL": {
+   "library_keys": 4128,
+   "corpus_keys": 5546,
+   "library_minus_corpus": 0,
+   "corpus_minus_library": 1418,
+   "intersection": 4128
+  }
+ },
+ "C_pairs": {
+  "note": "library 行四口径命中 corpus 的计数（key=记录ID, pair_exact=精确串对, pair_cn=规范化对, donoronly=仅给体侧 educt 记录）",
+  "n_lib_rows": 4454,
+  "n_key_in_corpus": 4454,
+  "n_pair_in_corpus_exact": 4454,
+  "n_pair_in_corpus_cn": 4454,
+  "n_lib_donor_in_corpus_educt_donors": 748,
+  "n_diff_rows(key与pair_cn均不在corpus)": 0
+ },
+ "degeneracy": {
+  "n_diff_rows": 0,
+  "flags": {},
+  "n_clean_after_degeneracy": 0
+ },
+ "overlap_other_assets": {
+  "note": "差集行（key/pair_cn 均不在 corpus_v1）与其余证据资产的重叠。library_full 自身即 recorded 路由查找库，差集行 100% 与其重叠（结构性，见报告）。",
+  "vs_eawag_donor_product_pair_cn": 0,
+  "vs_eawag_donor_product_pair_exact": 0,
+  "vs_corpus_templates_v1_pair_cn": 0,
+  "vs_corpus_templates_v2_pair_cn": 0,
+  "vs_donor_index_donor_molecule": 0
+ },
+ "reverse": {
+  "corpus_envipath_pairs_total": 5497,
+  "in_library_pair_cn": 5497
+ },
+ "D_string_scan_library_full": {
+  "ecreact": 0,
+  "evodex": 0,
+  "brenda": 0,
+  "enzymemap": 0,
+  "metanetx": 0,
+  "pathbank": 0
+ }
+}

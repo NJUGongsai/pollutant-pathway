@@ -123,8 +123,11 @@ def test_real_catechol_rank_candidates_smoke(tmp_path):
         (run_dir / "run_identity.json").read_text(encoding="utf-8"))
     assert identity["prediction"]["enabled"] is True
     assert identity["prediction"]["provider"] == "fake"
+    # S1 E1:rank_candidates_v2(ranker_v2.md,协议臂提示词)为常驻第四键,
+    # 两版 prompt 的 SHA 恒在身份(装载哪个由 policy 开关决定)
     assert set(identity["prediction"]["prompt_versions"]) == {
-        "rank_candidates", "analogy_edit", "novel_proposal"}
+        "rank_candidates", "rank_candidates_v2",
+        "analogy_edit", "novel_proposal"}
     assert identity["molecode"]["upstream_commit"].startswith("a4df3b04")
     assert identity["strategy"]["max_llm_calls"] >= 1
 

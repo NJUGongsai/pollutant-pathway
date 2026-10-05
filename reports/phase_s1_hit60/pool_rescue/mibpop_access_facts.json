@@ -1,0 +1,101 @@
+{
+  "task": "HIT60 T7 路一：mibPOPdb 许可与获取调研事实卡（池级，无 SMILES）",
+  "date": "2026-09-30",
+  "paper": {
+    "title": "mibPOPdb: An online database for microbial biodegradation of persistent organic pollutants.",
+    "journal": "iMeta (Wiley, OA)",
+    "year": 2022,
+    "doi": "10.1002/imt2.45",
+    "pmid": 38867901,
+    "pmc": "PMC10989864",
+    "license": "CC BY 4.0（论文全文，Europe PMC 元数据 pmc-license-ref=CC BY）",
+    "fulltext_local": "intermediates/mibpop_imeta45_paper_fulltext.xml"
+  },
+  "website": {
+    "url_paper": "http://mibpop.genome-mining.cn/",
+    "status": "不可达（2026-09-30 本地与 chenyu 双通道 curl 均 000；连 http 明文也超时）",
+    "wayback": "不可核（archive.org 在本环境两通道均不可达，登记为待复核项）",
+    "download_policy_paper_quote": "Downloading data: All data sets used in constructing the mibPOPdb can be freely accessed on the download page. Users are strongly encouraged to cite the original works when redistributing or reproducing the data sets.",
+    "formal_db_license": "论文与已获取材料中未见数据库正式许可文本（无 CC/EULA 条款）；官网条款待其恢复后复核"
+  },
+  "github": {
+    "repo": "monsterZeng/MIBPOP",
+    "license": "无 LICENSE 文件（GitHub API license=null；默认版权保留）",
+    "created": "2021-12-10",
+    "last_push": "2021-12-14（冻结，与论文同期）",
+    "contents": "Genes/ 23 个 xlsx（共 1,468 行）、Organism/ 32 个 xlsx（共 115 行）、POP_Compounds.xlsx（442 行/33 sheet）、code/（GNN 可生物降解性分类代码，读 CSV 无反应对）",
+    "note": "GitHub 快照为论文补充材料级子集，远小于官网全量（9,215 菌株条目）"
+  },
+  "scale_clarification": {
+    "9215": "官网全量菌株条目总数（论文摘要口径）",
+    "3479": "其中有 16S/18S rRNA/基因组分类学描述的菌株条目（论文正文口径；teacher/任务书引用的 3,479 即此，为子集而非全量）",
+    "5736": "带 POP 降解功能基因注释的菌株条目",
+    "1064": "纳入抽取的同行评审文献数"
+  },
+  "offline_data_audit": {
+    "intermediates": {
+      "source": "PMC 补充材料 IMT2-1-e45-s002.xlsx sheet 'POP and Intermediates'",
+      "rows": 593,
+      "with_smiles": 583,
+      "rdkit_valid": 573,
+      "invalid_placeholder": 10（值='not yet determined'）,
+      "distinct_cn_molecules": 303,
+      "pathway_groupings": 48,
+      "with_cas": 452,
+      "fields": "pathway / POP degraded / intermediate name / CAS / formula / MW / SMILES / PubChem CID / KEGG / ChemSpider（字段表=论文补充 Table S8）"
+    },
+    "pop_compounds": {
+      "source": "GitHub POP_Compounds.xlsx",
+      "rows": 442（33 sheet，每 POP 一 sheet）,
+      "with_smiles": 30,
+      "distinct_cn_molecules": 27,
+      "note": "主 POP 行有 SMILES；同系物/相关化合物行多缺 SMILES，但有 PubChem CID/DSSTox/KEGG 可回补"
+    },
+    "organisms": {
+      "source": "GitHub Organism/ 32 个 xlsx",
+      "rows": 115,
+      "fields": "Compound / Aphial ID / Organism / Strain ID / POP metabolized / Primary Intermediate/s / Final product / 酶活 / 修复类型 / 浓度 / 采样地 / PMID / 文献",
+      "primary_intermediate_resolution": {
+        "name_mentions": 269,
+        "resolved_exact": 8,
+        "resolved_with_synonym_parenthetical": 67,
+        "distinct_pairs_resolved": 14,
+        "both_side_smiles_pairs": 8,
+        "note": "未解析项多为泛称（Epoxide、tri-/tetra- 等）或一格多值；同义词通道（括号缩写+全名包含）有效"
+      }
+    },
+    "genes": {
+      "source": "GitHub Genes/ 23 个 xlsx",
+      "rows": 1468,
+      "fields": "Compound / Model Substrate / Degradation Pathway Map(链接 eawag-bbd.ethz.ch 旧站) / Enzyme / Gene / EC / KO / Organism / GenBank / UniProt / PMID"
+    },
+    "reaction_edges": "四份数据均无机器可读反应边（底物→产物对）字段；通路以中间体清单+行序（阶段分组，BDE-209 验证为去溴级联序）+官网图形通路图（宕机）三种形态存在"
+  },
+  "evidence_surface_visibility": {
+    "note": "分子级可见性（非配对泄漏），2026-09-30 本地 cn_identity 对撞",
+    "intermediates_303": {
+      "library_donor": 63,
+      "library_product": 61,
+      "corpus_donor": 74,
+      "corpus_product": 69,
+      "donor_index": 80,
+      "corpus_templates_v1": 84
+    },
+    "pop_parents_27": {
+      "library_donor": 5,
+      "library_product": 0,
+      "corpus_donor": 5,
+      "corpus_product": 2,
+      "donor_index": 6,
+      "corpus_templates_v1": 4
+    }
+  },
+  "routing_buckets": {
+    "combined_321_molecules": {
+      "recorded_route_reachable": 67,
+      "retrieval_route_reachable": 85,
+      "novel": 236
+    },
+    "reference_dev56": "dev 集题面底物在 library 给体侧可见 11/56≈20%，同型承载面"
+  }
+}

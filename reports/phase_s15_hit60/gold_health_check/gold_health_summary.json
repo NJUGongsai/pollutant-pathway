@@ -1,0 +1,93 @@
+{
+  "dev": {
+    "corpus": "dev56(B1 环境路径中间步骤)",
+    "distinct_flagged_qids": [
+      "b1_BIOPATH150_028__S04__BSY-r03812",
+      "b1_BIOPATH150_067__S03__BSY-r02126",
+      "b1_BIOPATH150_114__S01__BSY-r01911",
+      "b1_BIOPATH150_149__S01__BSY-r01831",
+      "b1_BIOPATH150_149__S06__BSY-r03410"
+    ],
+    "n_flagged": 5,
+    "n_questions": 56,
+    "n_r1": 2,
+    "n_r2_retained": 1,
+    "n_r3": 3,
+    "n_r4": 2,
+    "n_unlisted_new_elements": 2,
+    "rules_version": "v43-gold-health-1 (判据待 mimo 评审冻结)"
+  },
+  "dev_quarantine_proposal": {
+    "disposition": "剔出分母入 quarantine(题卷与金标冻结不改)",
+    "n_proposed": 5,
+    "note": "提案不生效:剔分母处置等人审 + mimo 评审(docs/mimo_gold_rules_review_request.md 待送)后再生效;v3 主封存仍为全 56 分母。",
+    "proposed_denominator": 51,
+    "status": "提案:待人审+mimo 评审后生效(本轮不生效)"
+  },
+  "ec298": {
+    "corpus": "ec298(RHEA 通用酶学;只诊断打标)",
+    "distinct_flagged_qids": [
+      "RXNG_036534a3cd44ca02a8ea600357cdfc927dfb425471464464c89234af8d762bab",
+      "RXNG_10a2cec904c1ebbf019e47c451fc44c16bb87194fce814d41497e93d186938b2",
+      "RXNG_11aa04deb97743c957fe3090fffedc48d9977720dbb6877a201513fa3d789395",
+      "RXNG_1eba3a0e9758a34a8748492031b9339a2d0980143cc6f336d112d760607fc0f5",
+      "RXNG_2a805c8fc232e6b0c279dbb3d18d113fe2ffedfef5528573a60f251c0a879196",
+      "RXNG_2bf5e81efc657849a128f8ea0458736bbb6b66e8c91481df266d9d01c6ffc25d",
+      "RXNG_31299a2c77ec97998ff6c2d057a92d5bf9e80d5ef08e71cdfb8fc473cf906fba",
+      "RXNG_3d58685aebce44376b74102596b979baa8aeaac74e31da59b4b15a8c96277858",
+      "RXNG_4ec68aa8196aac55358f9bfe4b506519fab0f5cfbb4e46c90b7147a2cd429c3d",
+      "RXNG_50891a38435740df53bf862bb6ce44253586b1f11971322a242199ca584cfe18",
+      "RXNG_59a61f5ced676149aaad318749d845aa01a843e00b444a824c8702187d798995",
+      "RXNG_6a813df32c174715980075b3bdb0bbecbab719e83e07afc4ef38d9a7eeebe6d8",
+      "RXNG_78f1592b5a2ed5d12a9d0e1c9aee90eadc81c4818b050f3caf1f16c3e5f342d1",
+      "RXNG_8e87765558aab9758c28a2969c3dca0b1ff8068d4a25b416534e9ada9a1d7b08",
+      "RXNG_96836273fb2c376cc96985d7ab5b3f35566778d7b9778ea812534ecbecc2a180",
+      "RXNG_a401c95418f5ee54961cc1f417f34526e92b56d02e63e227f545f14abd990c32",
+      "RXNG_aefef2f58e31e2feb6d07e43d4076cd899a7e02d6262fec3adbfd6e1f28b8df7",
+      "RXNG_b34d5882f63b2bca8233d83fdf0b8f4029b9480607be024986565a22672cc33b",
+      "RXNG_bd3bc48984cbae8677446ad46fcfc9d11aeadaa52fc743b20f62b8498147862a",
+      "RXNG_bd4f6f39af2d555bcae7cba6702f9cc0755995bd7f0af42f8482ca751303b32a",
+      "RXNG_cc87d036f89aefeb441daebda4b31c3cee21438d1c6c6b7974f9cd98a1af85ac",
+      "RXNG_ce4d20e8f037641dc9b3108ba5cd2a4245ae91a1b4f920943b771f3879a83021",
+      "RXNG_e06acfcee44f4216f1461cfbff4918bc555647a32201058a5fe0124a9b8ed27b",
+      "RXNG_e47fbe85b234d1f3c612b234e040e3cdeaf17b9fd641f889e9ff23fba0f8ab70",
+      "RXNG_eebc99542192a23453205caef7d0a5c1fabe01300b2dc48ca04e5728d84bba1f",
+      "RXNG_fd4e0bad9fcb62a9191cb4fc66f1fe30dc7a94dced3bc57adbd633f674f12978"
+    ],
+    "n_flagged": 26,
+    "n_questions": 298,
+    "n_r1": 3,
+    "n_r2_retained": 49,
+    "n_r3": 25,
+    "n_r4": 1,
+    "n_unlisted_new_elements": 3,
+    "question_flag_cross": {
+      "ambiguous_substrate": {
+        "flagged_qids": [
+          "RXNG_2a805c8fc232e6b0c279dbb3d18d113fe2ffedfef5528573a60f251c0a879196",
+          "RXNG_8e87765558aab9758c28a2969c3dca0b1ff8068d4a25b416534e9ada9a1d7b08",
+          "RXNG_4ec68aa8196aac55358f9bfe4b506519fab0f5cfbb4e46c90b7147a2cd429c3d",
+          "RXNG_b34d5882f63b2bca8233d83fdf0b8f4029b9480607be024986565a22672cc33b"
+        ],
+        "n_true": 4,
+        "n_true_and_flagged": 4
+      },
+      "fallback_large": {
+        "flagged_qids": [],
+        "n_true": 6,
+        "n_true_and_flagged": 0
+      },
+      "nucleotide_fallback": {
+        "flagged_qids": [],
+        "n_true": 5,
+        "n_true_and_flagged": 0
+      }
+    },
+    "rules_version": "v43-gold-health-1 (判据待 mimo 评审冻结)"
+  },
+  "inputs_sha256": {
+    "dev_gold": "d285dc0b63546bef3799f71a6065feeaa60bf202a97597b7431b4e4265262f2a",
+    "dev_questions": "8869cd05cea1a44220f3001f0b6415c6bf97eb5f0122ebc4609aa1c77ab0360c",
+    "questions_298": "9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c"
+  }
+}

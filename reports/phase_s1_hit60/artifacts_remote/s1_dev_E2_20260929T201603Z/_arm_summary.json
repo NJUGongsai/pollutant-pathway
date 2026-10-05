@@ -1,0 +1,583 @@
+{
+  "api_account_totals": {
+    "cached_input_tokens": 16640,
+    "elapsed_s_sum": 16829.963736191392,
+    "input_tokens": 75058,
+    "n_calls_issued": 49,
+    "n_empty_response": 0,
+    "n_http_429": 0,
+    "n_orphaned": 0,
+    "n_responses": 49,
+    "n_transport_failed": 0,
+    "n_usage_missing": 0,
+    "n_usage_records": 49,
+    "output_tokens": 756425,
+    "reasoning_output_tokens": 729731,
+    "total_tokens": 831483
+  },
+  "arm": "s1_dev_E2",
+  "arm_root": "/usrdata/EnzymeCAGE_data/workspaces/dependingv43_s1/runs/s1_dev_E2_20260929T201603Z",
+  "batch_sha256": "1c0e9a73c60c5541cf8f9ae727d22bb31ff69c064f8fa60c02e423ccb8eb3739",
+  "batch_short": "1c0e9a73",
+  "conservative_reservation": null,
+  "cost_estimate_cny": 2.1686,
+  "cost_estimate_known_usage_cny": null,
+  "generated_at": "2026-09-29T20:44:25+0000",
+  "inflight": {
+    "n_failed_or_rejected": 0,
+    "n_provider_ok_responses": 49,
+    "note": "峰值按请求发出/响应结束的 epoch 墙钟时间戳以半开区间[sent_at_epoch, done_at_epoch)重叠计算,同一时刻先处理完成再处理发出;限流拒绝、连接失败与本地排队不计入达标峰值",
+    "peak_in_flight_provider_ok": 20
+  },
+  "merged": {
+    "batch_sha256": "1c0e9a73c60c5541cf8f9ae727d22bb31ff69c064f8fa60c02e423ccb8eb3739",
+    "batch_terminal_status": "completed",
+    "export_policy_sha256": "a5bd77bba99328d8a3c64a3b0990dcf5d1af4a88b671de61744bb3d19f8571aa",
+    "failed_route_ids": [],
+    "kind": "batch_merged_predictions",
+    "missing_route_ids": [],
+    "n_lines": 56,
+    "n_routes_export_failed": 0,
+    "n_routes_failed": 0,
+    "n_routes_missing": 0,
+    "n_routes_valid_terminal": 56,
+    "n_unique_route_ids": 56,
+    "predictions_sha256": "1c6f18e2a8d8200715d8871999143faeaa3cb42b45b7f24127088ce88ae0686c",
+    "schema_version": "v43-batch-1",
+    "split": "exam298"
+  },
+  "model_id": "ZHIPU/GLM-5.3-Flash",
+  "n_routes": 56,
+  "pairing_gate": {
+    "batch_sha256": "1c0e9a73c60c5541cf8f9ae727d22bb31ff69c064f8fa60c02e423ccb8eb3739",
+    "n_routes": 56,
+    "n_violations": 0,
+    "ok": true,
+    "route_states": {
+      "b1_BIOPATH150_002__S03__BSY-r00519": "success_completed",
+      "b1_BIOPATH150_005__S01__BSY-r00480": "success_completed",
+      "b1_BIOPATH150_008__S01__BSY-r00616": "success_completed",
+      "b1_BIOPATH150_008__S03__BSY-r00618": "success_completed",
+      "b1_BIOPATH150_010__S02__BSY-r01369": "success_completed",
+      "b1_BIOPATH150_010__S03__BSY-r01370": "success_completed",
+      "b1_BIOPATH150_010__S04__BSY-r01371": "success_completed",
+      "b1_BIOPATH150_015__S03__BSY-r00080": "success_completed",
+      "b1_BIOPATH150_019__S02__BSY-r01748": "success_completed",
+      "b1_BIOPATH150_019__S06__BSY-r01754": "success_completed",
+      "b1_BIOPATH150_023__S03__BSY-r02073": "success_completed",
+      "b1_BIOPATH150_025__S01__BSY-r02034": "success_completed",
+      "b1_BIOPATH150_025__S02__BSY-r02055": "success_completed",
+      "b1_BIOPATH150_028__S04__BSY-r03812": "success_completed",
+      "b1_BIOPATH150_037__S02__BSY-r03561": "success_completed",
+      "b1_BIOPATH150_050__S05__BSY-r03327": "success_completed",
+      "b1_BIOPATH150_053__S02__BSY-r02820": "success_completed",
+      "b1_BIOPATH150_053__S03__BSY-r02825": "success_completed",
+      "b1_BIOPATH150_055__S03__BSY-r02338": "success_completed",
+      "b1_BIOPATH150_058__S01__BSY-r01866": "success_completed",
+      "b1_BIOPATH150_067__S03__BSY-r02126": "success_completed",
+      "b1_BIOPATH150_067__S05__BSY-r02911": "legal_stop",
+      "b1_BIOPATH150_068__S03__BSY-r03302": "success_completed",
+      "b1_BIOPATH150_068__S04__BSY-r03303": "success_completed",
+      "b1_BIOPATH150_069__S03__BSY-r01935": "success_completed",
+      "b1_BIOPATH150_077__S04__BSY-r02881": "success_completed",
+      "b1_BIOPATH150_079__S02__BSY-r01955": "success_completed",
+      "b1_BIOPATH150_079__S03__BSY-r02897": "success_completed",
+      "b1_BIOPATH150_081__S03__BSY-r02834": "success_completed",
+      "b1_BIOPATH150_086__S01__BSY-r02334": "success_completed",
+      "b1_BIOPATH150_092__S03__BSY-r02946": "success_completed",
+      "b1_BIOPATH150_095__S05__BSY-r03787": "success_completed",
+      "b1_BIOPATH150_098__S03__BSY-r01600": "success_completed",
+      "b1_BIOPATH150_100__S04__BSY-r02814": "success_completed",
+      "b1_BIOPATH150_100__S06__BSY-r02960": "success_completed",
+      "b1_BIOPATH150_101__S05__BSY-r02218": "success_completed",
+      "b1_BIOPATH150_101__S08__BSY-r03433": "success_completed",
+      "b1_BIOPATH150_102__S03__BSY-r03432": "success_completed",
+      "b1_BIOPATH150_103__S03__BSY-r03409": "success_completed",
+      "b1_BIOPATH150_114__S01__BSY-r01911": "success_completed",
+      "b1_BIOPATH150_114__S02__BSY-r02745": "success_completed",
+      "b1_BIOPATH150_114__S03__BSY-r02746": "success_completed",
+      "b1_BIOPATH150_124__S03__BSY-r02044": "success_completed",
+      "b1_BIOPATH150_124__S07__BSY-r03741": "success_completed",
+      "b1_BIOPATH150_125__S02__BSY-r00874": "success_completed",
+      "b1_BIOPATH150_125__S05__BSY-r02046": "success_completed",
+      "b1_BIOPATH150_125__S08__BSY-r02381": "success_completed",
+      "b1_BIOPATH150_132__S03__BSY-r01832": "success_completed",
+      "b1_BIOPATH150_135__S06__BSY-r03400": "success_completed",
+      "b1_BIOPATH150_137__S03__BSY-r02047": "success_completed",
+      "b1_BIOPATH150_137__S05__BSY-r02849": "success_completed",
+      "b1_BIOPATH150_137__S06__BSY-r03064": "success_completed",
+      "b1_BIOPATH150_143__S04__BSY-r03533": "success_completed",
+      "b1_BIOPATH150_149__S01__BSY-r01831": "success_completed",
+      "b1_BIOPATH150_149__S04__BSY-r02930": "success_completed",
+      "b1_BIOPATH150_149__S06__BSY-r03410": "success_completed"
+    },
+    "schema_version": "v43-pairing-gate-1",
+    "violations": []
+  },
+  "price_snapshot_checked": "2026-09-29",
+  "schema_version": "s1-dev-arm-summary-1",
+  "terminal_summary": {
+    "export_failed_route_ids": [],
+    "failed_route_ids": [],
+    "missing_route_ids": [],
+    "n_expected": 56,
+    "n_export_failed": 0,
+    "n_failed": 0,
+    "n_legal_stop": 1,
+    "n_missing": 0,
+    "n_success_completed": 55,
+    "n_valid_terminal": 56,
+    "route_states": {
+      "b1_BIOPATH150_002__S03__BSY-r00519": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_005__S01__BSY-r00480": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_008__S01__BSY-r00616": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_008__S03__BSY-r00618": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_010__S02__BSY-r01369": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_010__S03__BSY-r01370": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_010__S04__BSY-r01371": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_015__S03__BSY-r00080": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_019__S02__BSY-r01748": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_019__S06__BSY-r01754": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_023__S03__BSY-r02073": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_025__S01__BSY-r02034": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_025__S02__BSY-r02055": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_028__S04__BSY-r03812": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_037__S02__BSY-r03561": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_050__S05__BSY-r03327": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_053__S02__BSY-r02820": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_053__S03__BSY-r02825": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_055__S03__BSY-r02338": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_058__S01__BSY-r01866": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_067__S03__BSY-r02126": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_067__S05__BSY-r02911": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "legal_stop",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "awaiting_prediction"
+      },
+      "b1_BIOPATH150_068__S03__BSY-r03302": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_068__S04__BSY-r03303": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_069__S03__BSY-r01935": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_077__S04__BSY-r02881": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_079__S02__BSY-r01955": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_079__S03__BSY-r02897": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_081__S03__BSY-r02834": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_086__S01__BSY-r02334": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_092__S03__BSY-r02946": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_095__S05__BSY-r03787": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_098__S03__BSY-r01600": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_100__S04__BSY-r02814": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_100__S06__BSY-r02960": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_101__S05__BSY-r02218": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_101__S08__BSY-r03433": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_102__S03__BSY-r03432": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_103__S03__BSY-r03409": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_114__S01__BSY-r01911": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_114__S02__BSY-r02745": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_114__S03__BSY-r02746": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_124__S03__BSY-r02044": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_124__S07__BSY-r03741": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_125__S02__BSY-r00874": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_125__S05__BSY-r02046": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_125__S08__BSY-r02381": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_132__S03__BSY-r01832": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_135__S06__BSY-r03400": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_137__S03__BSY-r02047": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_137__S05__BSY-r02849": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_137__S06__BSY-r03064": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_143__S04__BSY-r03533": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_149__S01__BSY-r01831": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_149__S04__BSY-r02930": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      },
+      "b1_BIOPATH150_149__S06__BSY-r03410": {
+        "export_ok": true,
+        "failed": null,
+        "failure_class": null,
+        "route_state": "success_completed",
+        "schema_version": "v43-route-state-1",
+        "stop_reason": "completed"
+      }
+    },
+    "schema_version": "v43-route-state-1",
+    "status": "completed"
+  }
+}

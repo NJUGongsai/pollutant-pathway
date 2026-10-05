@@ -438,3 +438,175 @@ def test_gate_cross_process_rpm_and_stop(tmp_path):
     r4 = run("acquire1", 4)
     assert not r4["ok"] and r4["type"] == "GateStopped", \
         "跨进程全局停止生效"
+
+
+# --------------------------------------- 跨进程竞态与崩溃恢复(fable5 P1a)
+
+# 并发自增 worker:独立进程内 N 次 acquire(不 record,在途计数只增),
+# 成功次数写入各自结果文件 —— 终值必须与闸门状态文件精确一致。
+_CONCUR_WORKER = """
+import json, sys
+sys.path.insert(0, {src!r})
+from pathlib import Path
+from pathway_v43.adapters.rate_gate import FileRateGate
+
+gate_dir, out_path, n_acq = sys.argv[1], sys.argv[2], int(sys.argv[3])
+gate = FileRateGate(gate_dir, rpm=10**9, tpm=10**9, max_calls=10**6)
+n = 0
+for _ in range(n_acq):
+    gate.acquire()
+    n += 1
+Path(out_path).write_text(json.dumps({{"acquired": n}}))
+"""
+
+# 持锁睡眠进程:进入 _locked() 临界区后写标记文件再长睡,供父进程
+# SIGKILL 后验证 flock 内核自动释放。
+_HOLD_LOCK = """
+import sys, time
+sys.path.insert(0, {src!r})
+from pathlib import Path
+from pathway_v43.adapters.rate_gate import FileRateGate
+
+gate = FileRateGate(sys.argv[1], rpm=10**9, tpm=10**9, max_calls=10**6)
+with gate._locked():
+    Path(sys.argv[2]).write_text("held")
+    time.sleep(120)
+"""
+
+# 压测 worker:循环 acquire+record_response(读写都经临界区);被杀时
+# 已完成的 acquire 数不可知,由父进程按闸门持久计数核对。
+_HAMMER = """
+import json, sys, time
+sys.path.insert(0, {src!r})
+from pathlib import Path
+from pathway_v43.adapters.rate_gate import FileRateGate
+
+gate = FileRateGate(sys.argv[1], rpm=10**9, tpm=10**9, max_calls=10**6,
+                    acquire_timeout_s=30)
+deadline = time.time() + float(sys.argv[3])
+n = 0
+try:
+    while time.time() < deadline:
+        gate.acquire()
+        n += 1
+        gate.record_response(status=200, usage={{"total_tokens": 7}})
+except Exception:
+    pass  # 超时/预算等结构化异常:如实带完成数退出
+Path(sys.argv[2]).write_text(json.dumps({{"acquired": n}}))
+"""
+
+
+def _run_py(src: Path, body: str, args: list[str], tmp_path: Path,
+            name: str) -> subprocess.Popen:
+    script = tmp_path / f"{name}.py"
+    script.write_text(body.format(src=str(src)))
+    return subprocess.Popen(
+        [sys.executable, str(script), *args],
+        env={"OMP_NUM_THREADS": "1", "PATH": "/usr/bin:/bin"},
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def test_gate_multiprocess_no_lost_updates(tmp_path):
+    """8 进程 × 25 次 acquire 并发自增:终值精确,不丢更新(fable5 §3.1)。
+
+    rpm/tpm 放开使全部进程纯竞争读-改-写临界区;不 record_response,
+    in_flight 单调增 → total/in_flight/peak 与滑窗长度四项都必须精确等于
+    200,任何一次读-改-写竞争丢失都会使终值偏小。
+    """
+    src = Path(__file__).resolve().parents[1] / "src"
+    gate_dir = tmp_path / "gate"
+    n_procs, n_each = 8, 25
+    procs = []
+    for i in range(n_procs):
+        out = tmp_path / f"conc-{i}.json"
+        procs.append((_run_py(src, _CONCUR_WORKER,
+                              [str(gate_dir), str(out), str(n_each)],
+                              tmp_path, f"conc{i}"), out))
+    for p, _ in procs:
+        assert p.wait(timeout=120) == 0
+    reported = sum(json.loads(out.read_text())["acquired"]
+                   for _, out in procs)
+    state = json.loads((gate_dir / "gate.json").read_text())
+    total = n_procs * n_each
+    assert reported == total, "各进程自报成功数必须齐全"
+    assert state["total_requests"] == total, \
+        f"丢失更新:total_requests={state['total_requests']} != {total}"
+    assert state["in_flight"] == total
+    assert state["peak_in_flight"] == total, "在途峰值必须等于并发上限值"
+    assert len(state["request_starts"]) == total
+
+
+def test_gate_lock_released_after_holder_killed(tmp_path):
+    """持锁进程被 SIGKILL:flock 由内核自动释放,下一进程立即可用。
+
+    子进程进入 _locked() 临界区后长睡;父进程确认锁已被持有(marker
+    出现)后杀之。若锁不释放,父进程的 FileRateGate 构造(_init_state
+    也要拿锁)会死等 —— 这里用小超时证明可继续,且计数未被破坏。
+    """
+    src = Path(__file__).resolve().parents[1] / "src"
+    gate_dir = tmp_path / "gate"
+    marker = tmp_path / "held.marker"
+    holder = _run_py(src, _HOLD_LOCK, [str(gate_dir), str(marker)],
+                     tmp_path, "hold")
+    try:
+        import time as _t
+
+        for _ in range(100):  # 等子进程真正拿到锁(最多 10s)
+            if marker.exists():
+                break
+            _t.sleep(0.1)
+        assert marker.exists(), "子进程未能进入临界区"
+    finally:
+        holder.kill()  # SIGKILL:不给任何清理机会
+        holder.wait(timeout=30)
+
+    gate = FileRateGate(gate_dir, rpm=10**9, tpm=10**9, max_calls=10**6,
+                        acquire_timeout_s=10)
+    snap = gate.acquire()  # 构造+acquire 都要拿锁:锁必须已被内核释放
+    assert snap["total_requests"] == 1, "崩溃未破坏计数"
+
+
+def test_gate_survives_sigkill_during_writes(tmp_path):
+    """写入中途被杀:状态文件不损坏(原子落盘),幸存者继续可用。
+
+    6 个 worker 循环 acquire+record_response(每次迭代两趟临界区写);
+    0.4s 后 SIGKILL 其中 3 个(任意时刻,含落盘中途)。全部结束后:
+    - 状态文件必须仍是合法 JSON(snapshot 不抛 GateCorrupt);
+    - total_requests ≥ 幸存者自报数(被杀者最多各差 1 次记账);
+    - in_flight 有界(被杀者至多各泄漏 1 个在途槽)。
+    旧实现(seek/write/truncate 直写原文件)截断前被杀会留下半截
+    JSON → GateCorrupt fail-closed;原子 replace 后不可能。
+    """
+    import time as _t
+
+    src = Path(__file__).resolve().parents[1] / "src"
+    gate_dir = tmp_path / "gate"
+    workers = []
+    for i in range(6):
+        out = tmp_path / f"ham-{i}.json"
+        workers.append((_run_py(src, _HAMMER,
+                                [str(gate_dir), str(out), "1.5"],
+                                tmp_path, f"ham{i}"), out, i))
+    _t.sleep(0.4)
+    killed = 0
+    for p, out, i in workers:
+        if i % 2 == 0:
+            p.kill()  # SIGKILL 3 个(写中途任意时刻)
+            killed += 1
+    survivor_total = 0
+    for p, out, i in workers:
+        p.wait(timeout=60)
+        if i % 2 == 1:
+            assert p.returncode == 0
+            survivor_total += json.loads(out.read_text())["acquired"]
+    assert killed == 3
+
+    gate = FileRateGate(gate_dir, rpm=10**9, tpm=10**9, max_calls=10**6)
+    snap = gate.snapshot()  # GateCorrupt 会在此抛出:必须仍是合法状态
+    # 被杀 worker 被杀前的完成数只入闸门账(结果文件未写),不做上界;
+    # 可核对的账目不变量:幸存者自报数必须全额入账 + 在途泄漏有界
+    # (worker 循环 acquire/record 严格配对,被杀者至多各泄漏 1 槽)。
+    assert snap["total_requests"] >= survivor_total, "幸存者完成数必须入账"
+    assert 0 <= snap["in_flight"] <= killed + 1
+    # 幸存者继续可用(崩溃的 worker 不阻塞批次)
+    gate.acquire()

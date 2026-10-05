@@ -12,8 +12,13 @@
 
 from __future__ import annotations
 
+import math
+
 from .models import (
     CONDITION_CONFLICT,
+    DONOR_FALLBACK_APPLICABILITY_UNKNOWN,
+    DONOR_FALLBACK_NO_MAPPING,
+    DONOR_FALLBACK_REASONS,
     Decision,
     EVIDENCE_KIND_ANALOG,
     EVIDENCE_KIND_RECORDED,
@@ -54,7 +59,96 @@ PREDICTION_POLICY_DEFAULTS: dict = {
     "reactant_similar_enabled": False,
     "reactant_similar_threshold": 0.45,   # Tanimoto >= 阈值才召回(含边界)
     "reactant_similar_top_k": 16,         # 检索召回上限(与每父评估预算分开计数)
+    # --- S1 E2(HIT60):温度臂开关 ---
+    # None = 不发送 temperature 参数(与历史行为逐字节一致:请求体不含该键,
+    # 仅思考模型按官方默认温度运行);设为 [0.0, 2.0] 内的有限数值 = 显式
+    # 随每次模型请求发送。取值随 policy 块进 run/batch identity(身份不同
+    # 即拒绝 resume);模型不支持温度参数(kimi-k3 等)在装配期 fail-closed,
+    # 见 adapters/llm_client.resolve_model_setup。
+    "temperature": None,
+    # --- S1 E1(HIT60):rank_candidates 协议呈现开关 ---
+    # v1 = 当前协议(ranker.md + 平铺候选卡;C0/E2/E3 臂请求体逐字节不变);
+    # v2 = E1 协议臂(候选分层呈现 + 密度预算 + 完整 order 契约 + hold
+    # 结构化理由;提示词 ranker_v2.md,由 workflow.nodes._prompt_for 按
+    # 本开关选择)。取值随 policy 块进 run/batch identity(身份不同即拒绝
+    # resume);对 analogy/novel 两协议无任何作用。
+    "rank_candidate_presentation": "v1",
+    # --- T8 G2(HIT60):novel/analogy 守恒过滤 + 自排序开关 ---
+    # off = 当前行为(C0 逐字节不变:novel/analogy 提案不经守恒过滤与
+    # 自排序,_apply_novel/_apply_analogy 行为与历史一致);on = G2 臂
+    # (v43-cons-1 判据 + v43-norm-1 规范化 + v43-selfrank-1 自排序,
+    # 纯后处理无生成端反馈;recorded/rank 路由不受影响)。取值随 policy
+    # 块进 run/batch identity(身份不同即拒绝 resume);判据冻结版见
+    # reports/phase_s15_hit60/g2_arm/PREREGISTRATION_G2.md。
+    "novel_conservation_filter": "off",
 }
+
+# temperature 合法区间(OpenAI 兼容 /chat/completions 通行口径;超出按
+# 提供方约定必然 4xx,fail-closed 不等远端报错)
+TEMPERATURE_MIN = 0.0
+TEMPERATURE_MAX = 2.0
+
+# rank_candidates 协议呈现合法版本(E1 臂唯一实验变量;值域 fail-closed)
+RANK_PRESENTATION_VERSIONS = frozenset({"v1", "v2"})
+
+# novel/analogy 守恒过滤开关合法取值(T8 G2 臂唯一实验变量;值域 fail-closed)
+NOVEL_CONSERVATION_FILTER_VERSIONS = frozenset({"off", "on"})
+
+
+def _normalize_rank_presentation(value) -> str:
+    """校验并归一 rank_candidate_presentation(fail-closed;单一出口)。
+
+    - 合法取值只有 "v1"(当前协议)与 "v2"(S1 E1 协议臂);
+    - 其他任何取值(大小写变体、None、数字、空串)一律装配期拒绝,
+      不静默回退 v1 —— 臂身份必须显式,不得靠默认值蒙混。
+    """
+    v = "" if value is None else str(value)
+    if v not in RANK_PRESENTATION_VERSIONS:
+        raise ValueError(
+            "prediction_policy.rank_candidate_presentation 非法取值:"
+            f"{value!r}(允许 {'/'.join(sorted(RANK_PRESENTATION_VERSIONS))};"
+            "v1=当前协议,v2=S1 E1 协议臂)")
+    return v
+
+
+def _normalize_novel_conservation_filter(value) -> str:
+    """校验并归一 novel_conservation_filter(fail-closed;单一出口)。
+
+    - 合法取值只有 "off"(C0 行为,逐字节不变)与 "on"(T8 G2 臂);
+    - 其他任何取值(大小写变体、None、数字、空串)一律装配期拒绝,
+      不静默回退 off —— 臂身份必须显式,不得靠默认值蒙混。
+    """
+    v = "" if value is None else str(value)
+    if v not in NOVEL_CONSERVATION_FILTER_VERSIONS:
+        raise ValueError(
+            "prediction_policy.novel_conservation_filter 非法取值:"
+            f"{value!r}(允许 {'/'.join(sorted(NOVEL_CONSERVATION_FILTER_VERSIONS))};"
+            "off=C0 行为,on=T8 G2 守恒过滤+自排序臂)")
+    return v
+
+
+def _normalize_temperature(value) -> float | None:
+    """校验并归一 temperature 取值(fail-closed;单一出口)。
+
+    - None = 开关未设(缺省行为:请求不携带 temperature);
+    - 数值必须有限且在 [0.0, 2.0] 内(bool 不算数值);
+    - JSON 的 NaN/Infinity 字面量、越界、字符串一律当场拒绝;
+    - 归一为 float,保证 0 与 0.0 在 run identity 里字节一致。
+    """
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(
+            "prediction_policy.temperature 必须是 null 或数值,"
+            f"得到 {type(value).__name__}:{value!r}")
+    t = float(value)
+    if math.isnan(t) or math.isinf(t) \
+            or not (TEMPERATURE_MIN <= t <= TEMPERATURE_MAX):
+        raise ValueError(
+            f"prediction_policy.temperature 非法取值:{value!r}"
+            f"(允许 null 或 [{TEMPERATURE_MIN}, {TEMPERATURE_MAX}] 内的"
+            "有限数值;NaN/Infinity/越界一律 fail-closed)")
+    return t
 
 
 def prediction_policy(overrides: dict | None = None) -> dict:
@@ -63,15 +157,19 @@ def prediction_policy(overrides: dict | None = None) -> dict:
     for k, v in (overrides or {}).items():
         if k in pol:
             pol[k] = v
+    pol["temperature"] = _normalize_temperature(pol["temperature"])
+    pol["rank_candidate_presentation"] = _normalize_rank_presentation(
+        pol["rank_candidate_presentation"])
+    pol["novel_conservation_filter"] = _normalize_novel_conservation_filter(
+        pol["novel_conservation_filter"])
     return pol
 
 
-# 类比 fallback 拒因词表(与 services.donor_applicability 对齐;此处仅
-# 依赖字符串字面量,避免 domain → services 反向依赖)
-_ANALOGY_FALLBACKS = (
-    "no_mapping", "mapping_ambiguous", "applicability_failed",
-    "applicability_unknown", "multiple_competing_transforms",
-)
+# 类比 fallback 拒因词表(fable5 P1c 修复):单一事实源在 models.py
+# (DONOR_FALLBACK_*),与产出方 services.donor_applicability 共用同一
+# 常量集合 —— 不再各自维护字面量,服务层改产出时本判据不可能静默失配;
+# domain 也不因此反向依赖 services。
+_ANALOGY_FALLBACKS = frozenset(DONOR_FALLBACK_REASONS)
 
 
 def decide_prediction_route(
@@ -149,8 +247,8 @@ def decide_prediction_route(
                 for e in evidences
                 if e.get("kind") in (EVIDENCE_KIND_RULE, EVIDENCE_KIND_ANALOG)
             )
-            fallback = ("applicability_unknown" if has_refs
-                        else "no_mapping")
+            fallback = (DONOR_FALLBACK_APPLICABILITY_UNKNOWN if has_refs
+                        else DONOR_FALLBACK_NO_MAPPING)
         if policy.get("allow_novel_on_mapping_failure") \
                 and proposals_remaining > 0:
             return PREDICTION_MODE_NOVEL, (

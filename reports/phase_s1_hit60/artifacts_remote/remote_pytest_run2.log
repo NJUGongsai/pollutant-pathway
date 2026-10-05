@@ -1,0 +1,39 @@
+..................s..s.................................................. [ 14%]
+........................................................................ [ 28%]
+........................................................................ [ 42%]
+........................................................................ [ 56%]
+...................................F.................................... [ 70%]
+........................................................................ [ 85%]
+........................................................................ [ 99%]
+....                                                                     [100%]
+=================================== FAILURES ===================================
+__________ test_crash_after_response_persisted_no_recall_no_duplicate __________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-26/test_crash_after_response_pers0')
+
+    def test_crash_after_response_persisted_no_recall_no_duplicate(tmp_path):
+        """响应落盘后、prediction.json 前硬杀:恢复不重复调用、不重复事件。"""
+        runs_root = tmp_path / "runs"
+        proc = _driver("run", runs_root, "pr1", tmp_path,
+                       crash_after="call_model_response")
+        assert proc.returncode == 70, proc.stdout + proc.stderr
+        llm_counter = tmp_path / "llm_pr1.txt"
+        assert llm_counter.read_text() == "1"  # 恰好一次调用
+        # prediction.json 尚未写(崩溃点在响应落盘后)
+        assert _task_results(runs_root, "pr1", "prediction.json") == []
+    
+        proc2 = _driver("resume", runs_root, "pr1", tmp_path)
+        assert proc2.returncode == 0, proc2.stdout + proc2.stderr
+        summary = _summary(proc2)
+>       assert llm_counter.read_text() == "1", "恢复不得重复调用模型"
+E       AssertionError: 恢复不得重复调用模型
+E       assert '2' == '1'
+E         
+E         - 1
+E         + 2
+
+tests/test_prediction_recovery.py:122: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_prediction_recovery.py::test_crash_after_response_persisted_no_recall_no_duplicate
+1 failed, 505 passed, 2 skipped in 652.97s (0:10:52)
+EXIT=1

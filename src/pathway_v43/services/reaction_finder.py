@@ -31,6 +31,49 @@ from ..domain.models import (
 )
 
 RETRIEVAL_SCHEMA_VERSION = "v43-retrieval-2"  # v2:+donor_refs/mapping_status/mapping_reason(§1 兼容读取)
+# 读取端接受的全部历史版本(runs/ 既有产物含 v43-retrieval-1 与 -2;
+# 命名风格与 PREDICTION_TASK_SCHEMA_VERSION 等既有版本常量一致)
+SUPPORTED_RETRIEVAL_SCHEMA_VERSIONS = ("v43-retrieval-1", "v43-retrieval-2")
+
+
+class RetrievalSchemaError(RuntimeError):
+    """检索产物 schema 版本未知(fail-closed:拒绝解析,不静默猜测字段义)。
+
+    fable5 §5.1[缺失]/§7-2:检索实现变更字段结构时,下游必须能区分旧新
+    格式;未知版本一律显式报错,不允许按旧结构静默解析。
+    """
+
+    def __init__(self, detail: dict | None = None):
+        detail = detail or {}
+        super().__init__(
+            "检索产物 schema 版本未知:"
+            f"{detail.get('schema_version')!r}(支持:"
+            f"{list(SUPPORTED_RETRIEVAL_SCHEMA_VERSIONS)};"
+            f"origin={detail.get('origin', '')})— fail-closed 拒绝解析")
+        self.detail = detail
+
+
+def validate_retrieval_payload(payload: dict, *,
+                               origin: str = "retrieval") -> dict:
+    """校验检索产物 envelope 的 schema 版本(消费端统一入口)。
+
+    - 已知版本(v43-retrieval-1/2)→ 原样返回(只校验,不改写产物);
+    - **缺失字段 → legacy 容忍**:早期产物与手工测试夹具无版本字段,按
+      既有结构继续解析(旧 run 产物读取路径必须可用);
+    - 未知版本 → ``RetrievalSchemaError``(明确异常,不静默解析)。
+    """
+    if not isinstance(payload, dict):
+        raise RetrievalSchemaError({
+            "schema_version": None, "origin": origin,
+            "reason": "payload_not_dict"})
+    version = payload.get("schema_version")
+    if version is None:
+        return payload  # legacy:无版本字段,按既有格式读取
+    if version not in SUPPORTED_RETRIEVAL_SCHEMA_VERSIONS:
+        raise RetrievalSchemaError({
+            "schema_version": version, "origin": origin,
+            "supported": list(SUPPORTED_RETRIEVAL_SCHEMA_VERSIONS)})
+    return payload
 
 # 类比来源适配(任务书 §1):注入 AnalogSourceResolver 后,检索卡按产物
 # 身份做供体找回(映射模板/corpus_v1 溯源)并如实标注 mapping_status;

@@ -1,0 +1,34 @@
+# SEAL_MANIFEST — HIT60 T8 门 1 迭代 2:纯检索信号升级复测(2026-09-30)
+# 封存原则:本目录只含 qid/位次/旗标/守恒特征值/信号值,零 SMILES 零身份串
+# (已 grep 审计);金标只在 gate1_iter2_measure.py 离线进程只读(红线)。
+# 门 1 封存件(../sealed/、../raw_dumps/)只读不覆写;本文件为迭代 2 新增,
+# 是门 1 SEAL_MANIFEST 的追加链(锚沿用门 1)。
+
+## 封存件(SHA256)
+a4d078e7d5f28986bdeefc92c226b066f2cf0b30c0dbb17fc84891ffca36ea3f  signals2.py
+15051823c2128007b19ffbbfd4efbda61a4661b4bf085507e6b3a758f6e6d2ce  gate1_iter2_measure.py
+20591b1b1b0f0b189276351bcbaa63df2067781f03f4e7d2a70a43ff56258a52  README.md
+55d21bcfbd954a071bf258f580056dc0fbf9d8d5e6ef65d4a690fa742409857b  sealed/iter2_measurements.json
+b43e4dd74bef3a3ea6efcf4201db1565ac8162eab6c8f8ab55b7efa48cc3de8b  sealed/iter2_summary.json
+51d476dfd906085382ba6685d75237458bbb5011aebfd31182a3f7c02e18d2bc  sealed/iter2_gold_depth_22.tsv
+
+## 输入(只读复用门 1 封存 dump,零重拉;SHA 见 ../raw_dumps/DUMP_SHA256.txt
+## 与 ../sealed/SEAL_MANIFEST.sha256)
+# 参照批 C0-b: d6332a3bdbe111eddd8a3511fac74431bda1230c81654e940ea4002b35c9a585
+# 仓内输入锚(与门 1 SEAL_MANIFEST 相同):
+#   reports/phase_s1_hit60/dev_questions.jsonl  8869cd05cea1a44220f3001f0b6415c6bf97eb5f0122ebc4609aa1c77ab0360c
+#   reports/phase_s1_hit60/coverage_stat/qid_flags_C0b.tsv  d2dc0037fbcb68ca567e106d40a8c69e4a78d20aa144884ddd9d30d19984e225
+#   reports/phase_s1_hit60/dev_gold/dev_gold.jsonl  d285dc0b63546bef3799f71a6065feeaa60bf202a97597b7431b4e4265262f2a
+
+## 基线复现(测量内 assert,与门 1 sealed/gate1_measurements.json 逐数相等)
+# engine 金标位次 + 基线 S3 位次:PASS(56/56 题逐题相等)
+
+## --check 复算
+OMP_NUM_THREADS=1 PYTHONPATH=src python reports/phase_s15_hit60/deep_recall_gate1/iteration2/gate1_iter2_measure.py --check
+# 2026-09-30 实测:CHECK PASS 2/2(iter2_measurements.json 65875 B /
+# iter2_summary.json 85012 B 逐字节一致;互变规范化指纹计算确定性核验通过)
+
+## grep 审计(零 SMILES 零身份串)
+# sealed/*.json|*.tsv 无 "=" 结构串/无 product_smiles 字段名;
+# 仅 qid/route/bucket/位次/旗标/守恒特征值(dC/dO/…为相对底物的差值)/
+# 信号值/来源标签。

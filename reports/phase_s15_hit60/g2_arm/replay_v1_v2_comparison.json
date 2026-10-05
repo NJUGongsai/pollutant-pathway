@@ -1,0 +1,189 @@
+{
+  "note": "v1(v43-cons-1)→v2(v43-cons-2) 判据修订对照;两侧均为同批复封答卷的离线重放(in-sample 工程验证,非确证);零 SMILES",
+  "per_batch": [
+    {
+      "batch": "C0a",
+      "orig": {
+        "empty": 1,
+        "hit@1": 14,
+        "hit@3": 22,
+        "hit@5": 25,
+        "spurious": 24
+      },
+      "v1_downgraded": 16,
+      "v1_new": {
+        "empty": 1,
+        "hit@1": 17,
+        "hit@3": 21,
+        "hit@5": 25,
+        "spurious": 24
+      },
+      "v1_rerouted": 13,
+      "v2_downgraded": 6,
+      "v2_new": {
+        "empty": 1,
+        "hit@1": 16,
+        "hit@3": 21,
+        "hit@5": 25,
+        "spurious": 24
+      },
+      "v2_rerouted": 8
+    },
+    {
+      "batch": "C0b",
+      "orig": {
+        "empty": 0,
+        "hit@1": 15,
+        "hit@3": 22,
+        "hit@5": 26,
+        "spurious": 24
+      },
+      "v1_downgraded": 18,
+      "v1_new": {
+        "empty": 0,
+        "hit@1": 15,
+        "hit@3": 20,
+        "hit@5": 26,
+        "spurious": 24
+      },
+      "v1_rerouted": 18,
+      "v2_downgraded": 6,
+      "v2_new": {
+        "empty": 0,
+        "hit@1": 16,
+        "hit@3": 21,
+        "hit@5": 26,
+        "spurious": 24
+      },
+      "v2_rerouted": 10
+    },
+    {
+      "batch": "E1",
+      "orig": {
+        "empty": 1,
+        "hit@1": 15,
+        "hit@3": 22,
+        "hit@5": 25,
+        "spurious": 24
+      },
+      "v1_downgraded": 19,
+      "v1_new": {
+        "empty": 1,
+        "hit@1": 15,
+        "hit@3": 20,
+        "hit@5": 25,
+        "spurious": 24
+      },
+      "v1_rerouted": 16,
+      "v2_downgraded": 5,
+      "v2_new": {
+        "empty": 1,
+        "hit@1": 17,
+        "hit@3": 21,
+        "hit@5": 25,
+        "spurious": 24
+      },
+      "v2_rerouted": 10
+    },
+    {
+      "batch": "E2a",
+      "orig": {
+        "empty": 1,
+        "hit@1": 14,
+        "hit@3": 24,
+        "hit@5": 26,
+        "spurious": 23
+      },
+      "v1_downgraded": 24,
+      "v1_new": {
+        "empty": 1,
+        "hit@1": 13,
+        "hit@3": 22,
+        "hit@5": 26,
+        "spurious": 23
+      },
+      "v1_rerouted": 18,
+      "v2_downgraded": 6,
+      "v2_new": {
+        "empty": 1,
+        "hit@1": 15,
+        "hit@3": 23,
+        "hit@5": 26,
+        "spurious": 23
+      },
+      "v2_rerouted": 12
+    },
+    {
+      "batch": "E2b",
+      "orig": {
+        "empty": 1,
+        "hit@1": 12,
+        "hit@3": 21,
+        "hit@5": 24,
+        "spurious": 24
+      },
+      "v1_downgraded": 19,
+      "v1_new": {
+        "empty": 1,
+        "hit@1": 14,
+        "hit@3": 19,
+        "hit@5": 24,
+        "spurious": 24
+      },
+      "v1_rerouted": 16,
+      "v2_downgraded": 5,
+      "v2_new": {
+        "empty": 1,
+        "hit@1": 13,
+        "hit@3": 20,
+        "hit@5": 24,
+        "spurious": 24
+      },
+      "v2_rerouted": 9
+    },
+    {
+      "batch": "E3",
+      "orig": {
+        "empty": 0,
+        "hit@1": 15,
+        "hit@3": 21,
+        "hit@5": 22,
+        "spurious": 28
+      },
+      "v1_downgraded": 17,
+      "v1_new": {
+        "empty": 0,
+        "hit@1": 14,
+        "hit@3": 19,
+        "hit@5": 22,
+        "spurious": 28
+      },
+      "v1_rerouted": 14,
+      "v2_downgraded": 9,
+      "v2_new": {
+        "empty": 0,
+        "hit@1": 15,
+        "hit@3": 20,
+        "hit@5": 22,
+        "spurious": 28
+      },
+      "v2_rerouted": 7
+    }
+  ],
+  "rescue_check": {
+    "b1_BIOPATH150_092__S03__BSY-r02946": {
+      "batch": "C0b",
+      "orig_rank": 1,
+      "route": "novel_proposal",
+      "v1_rank": 3,
+      "v2_rank": 1
+    },
+    "b1_BIOPATH150_101__S05__BSY-r02218": {
+      "batch": "C0b",
+      "orig_rank": 1,
+      "route": "novel_proposal",
+      "v1_rank": 4,
+      "v2_rank": 1
+    }
+  }
+}

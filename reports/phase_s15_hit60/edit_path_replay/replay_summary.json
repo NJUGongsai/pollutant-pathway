@@ -1,0 +1,56 @@
+{
+  "task": "HIT60 T9 edit-path replay (zero LLM, deterministic)",
+  "code_identity": {
+    "atom_tool_py_sha256": "b20092dcf4d651a59a644ab7a8ba90aa83036958877918d3bd131901ec996f27",
+    "src_aggregate_sha256": "0f0a4be5f50320de4b18238c13faab421d4a55b34e63b84e259b0f9a2c947e02",
+    "n_src_files": 51,
+    "git_head": "bf1ac3849e803097c9ae39f802bf774597f4f27d",
+    "note": "工作树含 T4 门禁修复(未提交);重放即该树行为"
+  },
+  "batch1_old8": {
+    "n": 8,
+    "revived_gate_pass": 0,
+    "executable": 0,
+    "still_blocked": 8,
+    "short_circuit_fired": 0,
+    "target_matches_gold": 8,
+    "post_product_matches_gold": 0
+  },
+  "batch2a_c0_12": {
+    "n": 12,
+    "revived_gate_pass": 10,
+    "executable": 10,
+    "still_blocked": 2,
+    "short_circuit_fired": 10,
+    "target_matches_gold": 1,
+    "post_product_matches_gold": 1
+  },
+  "batch2b_dev_s1": {
+    "n_task_instances": 18,
+    "n_unique_qids": 3,
+    "consistent_with_run_record": 16,
+    "differs": 0,
+    "abstained_no_proposal": 2
+  },
+  "b978fd0b_anchor": {
+    "found": true,
+    "pre_fix_target_ok": false,
+    "post_fix_target_ok": true,
+    "short_circuit": "canonical_equivalence_short_circuit",
+    "post_product_matches_gold": true,
+    "pre_product_matches_gold": true
+  },
+  "inputs": {
+    "remote_edit_inputs_rows": 30,
+    "gold_298_sha256": "9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c",
+    "gold_dev_sha256": "d285dc0b63546bef3799f71a6065feeaa60bf202a97597b7431b4e4265262f2a",
+    "phase_c_tsv_sha256": "efbef9ca3b006f0dd4abe997a9a48d2b00f9778d2d308d6d665e814b72d30b15",
+    "boundary_pools_sha256": "5ad32442e7552cb39e36330243711186abadd053e47d7f68a7d267603ccc9ce9"
+  },
+  "outputs": {
+    "tsv": "replay_per_question.tsv",
+    "raw_results_gitignored": "raw_inputs/replay_raw_results.jsonl",
+    "raw_batch1_inputs_gitignored": "raw_inputs/batch1_sealed_inputs.jsonl"
+  },
+  "zero_llm": true
+}

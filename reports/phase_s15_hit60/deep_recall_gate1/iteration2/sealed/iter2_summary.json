@@ -1,0 +1,4212 @@
+{
+ "schema_version": "gate1-iter2-recall-1",
+ "caliber": {
+  "denominator": "dev 56(口径 v3 分母;quarantine 5 题待人审未生效,维持 56)",
+  "gold_card": "证据卡任一产物 product_identity ∈ 金标 cn 或精确串(整串,与 FULL_SURFACE §2/M1 同判据)",
+  "engine_order": "retrieval_rank(引擎 merged 池 1 起始位次;含深位)",
+  "reference_batch": "C0b",
+  "list22_source": "qid_flags_C0b.tsv gold_in_pool & !hit5_whole(审计 2x2 的 22 题口径假+真丢弃合集)"
+ },
+ "reference_batch": "C0b",
+ "signal_defs": "见 iteration2/signals2.py docstring(预声明主口径 s3x:cons 升序 + Morgan 子序;权重 W_C/N/S/P/X/O=1/2/2/2/3/0.25,化学先验定,未在 dev 调参;其余为敏感性变体)",
+ "multiplicity_note": "本迭代为信号族测量(17 全局 + 12 hybrid 形态);「任一配置过线」的判定含多重比较风险,须结合预声明主口径 s3x/hybrid_s3x 解读",
+ "n_questions": 56,
+ "n_list22": 22,
+ "n_parse_fail_cards": 1,
+ "baseline_reproduction": {
+  "engine_rank_and_s3_rank_vs_sealed": "PASS(assert 逐题相等)",
+  "baseline_list22_recall": {
+   "engine": {
+    "K=16": 6,
+    "K=24": 10,
+    "K=32": 14
+   },
+   "s2a_source_tier": {
+    "K=16": 11,
+    "K=24": 12,
+    "K=32": 13
+   },
+   "s2b_puspto": {
+    "K=16": 10,
+    "K=24": 10,
+    "K=32": 13
+   },
+   "s3_product_substrate": {
+    "K=16": 9,
+    "K=24": 12,
+    "K=32": 13
+   },
+   "s4_composite_tier_x_s3": {
+    "K=16": 10,
+    "K=24": 11,
+    "K=32": 11
+   },
+   "hybrid_s2a_tier": {
+    "K=16": 11,
+    "K=24": 12,
+    "K=32": 14
+   },
+   "hybrid_s2b_puspto": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "hybrid_s3_prodsub": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 14
+   },
+   "hybrid_s4_composite": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   }
+  },
+  "baseline_sign_p_list22": {
+   "s2a_source_tier": {
+    "K=16": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.1797
+    },
+    "K=24": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.7266
+    },
+    "K=32": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "s2b_puspto": {
+    "K=16": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.2891
+    },
+    "K=24": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "K=32": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "s3_product_substrate": {
+    "K=16": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    },
+    "K=24": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    },
+    "K=32": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "hybrid_s2a_tier": {
+    "K=16": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.125
+    },
+    "K=24": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    },
+    "K=32": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "hybrid_s2b_puspto": {
+    "K=16": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.625
+    },
+    "K=24": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    },
+    "K=32": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.6875
+    }
+   },
+   "hybrid_s3_prodsub": {
+    "K=16": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    },
+    "K=24": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "K=32": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    }
+   }
+  }
+ },
+ "signal_engine_spearman_mean": {
+  "cons_penalty": 0.0236,
+  "s3x_additive": -0.1099
+ },
+ "recall": {
+  "s3_maccs": {
+   "list22": {
+    "K=16": 9,
+    "K=24": 10,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 15,
+    "K=24": 17,
+    "K=32": 20
+   },
+   "all56": {
+    "K=16": 15,
+    "K=24": 17,
+    "K=32": 20
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3_fcfp6": {
+   "list22": {
+    "K=16": 8,
+    "K=24": 10,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 15,
+    "K=24": 18,
+    "K=32": 19
+   },
+   "all56": {
+    "K=16": 15,
+    "K=24": 18,
+    "K=32": 19
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 9
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 2,
+    "K=24": 2,
+    "K=32": 2
+   }
+  },
+  "s3_taut": {
+   "list22": {
+    "K=16": 12,
+    "K=24": 13,
+    "K=32": 14
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 18,
+    "K=24": 20,
+    "K=32": 22
+   },
+   "all56": {
+    "K=16": 18,
+    "K=24": 20,
+    "K=32": 22
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 9,
+    "K=24": 10,
+    "K=32": 11
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3_max_fp": {
+   "list22": {
+    "K=16": 9,
+    "K=24": 10,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 15,
+    "K=24": 17,
+    "K=32": 20
+   },
+   "all56": {
+    "K=16": 15,
+    "K=24": 17,
+    "K=32": 20
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3x": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 10,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 9,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "all56": {
+    "K=16": 9,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3x_wo0": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 11,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 11,
+    "K=24": 15,
+    "K=32": 15
+   },
+   "all56": {
+    "K=16": 11,
+    "K=24": 15,
+    "K=32": 15
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3x_wo1": {
+   "list22": {
+    "K=16": 8,
+    "K=24": 10,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "all56": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 2,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3x_taut": {
+   "list22": {
+    "K=16": 6,
+    "K=24": 10,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 8,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "all56": {
+    "K=16": 8,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 5,
+    "K=24": 7,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3x_maccs": {
+   "list22": {
+    "K=16": 6,
+    "K=24": 9,
+    "K=32": 9
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "all56": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 5,
+    "K=24": 6,
+    "K=32": 6
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3x_max_fp": {
+   "list22": {
+    "K=16": 6,
+    "K=24": 9,
+    "K=32": 9
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "all56": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 5,
+    "K=24": 6,
+    "K=32": 6
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s3x_add": {
+   "list22": {
+    "K=16": 8,
+    "K=24": 10,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 14
+   },
+   "all56": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 14
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 7,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s2b_z": {
+   "list22": {
+    "K=16": 10,
+    "K=24": 10,
+    "K=32": 13
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 16,
+    "K=32": 20
+   },
+   "all56": {
+    "K=16": 16,
+    "K=24": 16,
+    "K=32": 20
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 7,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 5
+   }
+  },
+  "s2b_q": {
+   "list22": {
+    "K=16": 10,
+    "K=24": 10,
+    "K=32": 13
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 16,
+    "K=32": 20
+   },
+   "all56": {
+    "K=16": 16,
+    "K=24": 16,
+    "K=32": 20
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 7,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 5
+   }
+  },
+  "hC": {
+   "list22": {
+    "K=16": 12,
+    "K=24": 12,
+    "K=32": 14
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 18,
+    "K=24": 18,
+    "K=32": 21
+   },
+   "all56": {
+    "K=16": 18,
+    "K=24": 18,
+    "K=32": 21
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 8,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 4,
+    "K=24": 4,
+    "K=32": 6
+   }
+  },
+  "hC_flat": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 9,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 14,
+    "K=24": 18,
+    "K=32": 19
+   },
+   "all56": {
+    "K=16": 14,
+    "K=24": 18,
+    "K=32": 19
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 9
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 1,
+    "K=32": 1
+   }
+  },
+  "filterA_engine": {
+   "list22": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 14
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 15,
+    "K=24": 19,
+    "K=32": 21
+   },
+   "all56": {
+    "K=16": 15,
+    "K=24": 19,
+    "K=32": 21
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 2,
+    "K=24": 2,
+    "K=32": 2
+   }
+  },
+  "filterA_s3x": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 10,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 9,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "all56": {
+    "K=16": 9,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "filterA_s3x_add": {
+   "list22": {
+    "K=16": 8,
+    "K=24": 10,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 14
+   },
+   "all56": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 14
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 7,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "filterB_s3x": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 10,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 9,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "all56": {
+    "K=16": 9,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3x": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 10,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 13,
+    "K=24": 16,
+    "K=32": 18
+   },
+   "all56": {
+    "K=16": 13,
+    "K=24": 16,
+    "K=32": 18
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3x_add": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 11,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 13,
+    "K=24": 17,
+    "K=32": 19
+   },
+   "all56": {
+    "K=16": 13,
+    "K=24": 17,
+    "K=32": 19
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3x_taut": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 9,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 13,
+    "K=24": 15,
+    "K=32": 18
+   },
+   "all56": {
+    "K=16": 13,
+    "K=24": 15,
+    "K=32": 18
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 6,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3x_maccs": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 9,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 13,
+    "K=24": 15,
+    "K=32": 17
+   },
+   "all56": {
+    "K=16": 13,
+    "K=24": 15,
+    "K=32": 17
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 6,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3x_max_fp": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 9,
+    "K=32": 10
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 13,
+    "K=24": 15,
+    "K=32": 17
+   },
+   "all56": {
+    "K=16": 13,
+    "K=24": 15,
+    "K=32": 17
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 6,
+    "K=32": 7
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3_maccs": {
+   "list22": {
+    "K=16": 9,
+    "K=24": 11,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "all56": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 2,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3_fcfp6": {
+   "list22": {
+    "K=16": 9,
+    "K=24": 9,
+    "K=32": 12
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 19,
+    "K=24": 20,
+    "K=32": 23
+   },
+   "all56": {
+    "K=16": 19,
+    "K=24": 20,
+    "K=32": 23
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 7,
+    "K=32": 10
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 2,
+    "K=24": 2,
+    "K=32": 2
+   }
+  },
+  "hybrid_s3_taut": {
+   "list22": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 15
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 18,
+    "K=24": 23,
+    "K=32": 26
+   },
+   "all56": {
+    "K=16": 18,
+    "K=24": 23,
+    "K=32": 26
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 10,
+    "K=32": 12
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3_max_fp": {
+   "list22": {
+    "K=16": 9,
+    "K=24": 11,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "all56": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 2,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_hC": {
+   "list22": {
+    "K=16": 10,
+    "K=24": 13,
+    "K=32": 13
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 18,
+    "K=24": 22,
+    "K=32": 22
+   },
+   "all56": {
+    "K=16": 18,
+    "K=24": 22,
+    "K=32": 22
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 9,
+    "K=32": 9
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 4,
+    "K=32": 4
+   }
+  },
+  "hybrid_hC_flat": {
+   "list22": {
+    "K=16": 6,
+    "K=24": 9,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 15,
+    "K=24": 19,
+    "K=32": 22
+   },
+   "all56": {
+    "K=16": 15,
+    "K=24": 19,
+    "K=32": 22
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 10
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 0,
+    "K=24": 1,
+    "K=32": 1
+   }
+  },
+  "hybrid_filterA_s3x": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 10,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 13,
+    "K=24": 16,
+    "K=32": 18
+   },
+   "all56": {
+    "K=16": 13,
+    "K=24": 16,
+    "K=32": 18
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_filterB_s3x": {
+   "list22": {
+    "K=16": 7,
+    "K=24": 10,
+    "K=32": 11
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 13,
+    "K=24": 16,
+    "K=32": 18
+   },
+   "all56": {
+    "K=16": 13,
+    "K=24": 16,
+    "K=32": 18
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 7,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s2b_q": {
+   "list22": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "all56": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 9
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 2,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "oracle_iter2_family(measurement-only)": {
+   "list22": {
+    "K=16": 18,
+    "K=24": 18,
+    "K=32": 20
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 32,
+    "K=24": 32,
+    "K=32": 35
+   },
+   "all56": {
+    "K=16": 32,
+    "K=24": 32,
+    "K=32": 35
+   },
+   "note": "逐题取本迭代全部可部署新信号最小位次(用金标标签选信号,不可部署,只作上界解读;口径与门 1 oracle 同,族更宽)"
+  }
+ },
+ "sign_tests_vs_engine": {
+  "s3_maccs": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7905
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.5488
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 11,
+     "sign_p_two_sided": 0.6476
+    }
+   }
+  },
+  "s3_fcfp6": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.7266
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 10,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 0.8145
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.5078
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 11,
+     "sign_p_two_sided": 0.4807
+    }
+   }
+  },
+  "s3_taut": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.0703
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 10,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.5078
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 9,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.8036
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 9,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 1.0
+    }
+   }
+  },
+  "s3_max_fp": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7905
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.5488
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 11,
+     "sign_p_two_sided": 0.6476
+    }
+   }
+  },
+  "s3x": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.424
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 13,
+     "sign_p_two_sided": 0.0213
+    }
+   }
+  },
+  "s3x_wo0": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.8036
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 0.6291
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 12,
+     "sign_p_two_sided": 0.0768
+    }
+   }
+  },
+  "s3x_wo1": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.7539
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.6072
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 13,
+     "sign_p_two_sided": 0.0213
+    }
+   }
+  },
+  "s3x_taut": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.2668
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 13,
+     "sign_p_two_sided": 0.0213
+    }
+   }
+  },
+  "s3x_maccs": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.2668
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 11,
+     "sign_p_two_sided": 0.1185
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.1797
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 14,
+     "sign_p_two_sided": 0.0127
+    }
+   }
+  },
+  "s3x_max_fp": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.2668
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 11,
+     "sign_p_two_sided": 0.1185
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.1797
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 14,
+     "sign_p_two_sided": 0.0127
+    }
+   }
+  },
+  "s3x_add": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.7539
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.6072
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 13,
+     "sign_p_two_sided": 0.049
+    }
+   }
+  },
+  "s2b_z": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.5811
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7539
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.6072
+    }
+   }
+  },
+  "s2b_q": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.5811
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7539
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.6072
+    }
+   }
+  },
+  "hC": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.1094
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 10,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.7266
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.8036
+    }
+   }
+  },
+  "hC_flat": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.3438
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.424
+    }
+   }
+  },
+  "filterA_engine": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 0,
+     "sign_p_two_sided": 0.125
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.7539
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.375
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7539
+    }
+   }
+  },
+  "filterA_s3x": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.424
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 13,
+     "sign_p_two_sided": 0.0213
+    }
+   }
+  },
+  "filterA_s3x_add": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.7539
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.6072
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 13,
+     "sign_p_two_sided": 0.049
+    }
+   }
+  },
+  "filterB_s3x": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.424
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 10,
+     "sign_p_two_sided": 0.3018
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 13,
+     "sign_p_two_sided": 0.0213
+    }
+   }
+  },
+  "hybrid_s3x": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7539
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 0.2266
+    }
+   }
+  },
+  "hybrid_s3x_add": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 0.3877
+    }
+   }
+  },
+  "hybrid_s3x_taut": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.5488
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 0.2266
+    }
+   }
+  },
+  "hybrid_s3x_maccs": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.5488
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.146
+    }
+   }
+  },
+  "hybrid_s3x_max_fp": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.5488
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.146
+    }
+   }
+  },
+  "hybrid_s3_maccs": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.375
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.7744
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.5078
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.8036
+    }
+   }
+  },
+  "hybrid_s3_fcfp6": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 9,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.146
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.7744
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.7266
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 1.0
+    }
+   }
+  },
+  "hybrid_s3_taut": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.2188
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.1797
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.2266
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 9,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.6072
+    }
+   }
+  },
+  "hybrid_s3_max_fp": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.375
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.7744
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.5078
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.8036
+    }
+   }
+  },
+  "hybrid_hC": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.2188
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.125
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.2891
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    }
+   }
+  },
+  "hybrid_hC_flat": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.7266
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 1,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    }
+   }
+  },
+  "hybrid_filterA_s3x": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7539
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 0.2266
+    }
+   }
+  },
+  "hybrid_filterB_s3x": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7539
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 0.2266
+    }
+   }
+  },
+  "hybrid_s2b_q": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.625
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.375
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.6875
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.7266
+    }
+   }
+  }
+ },
+ "guardrails": {
+  "s3_maccs": {
+   "K=16": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3_fcfp6": {
+   "K=16": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_124__S07__BSY-r03741",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3_taut": {
+   "K=16": {
+    "all56_vs_engine": 5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_124__S07__BSY-r03741"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S07__BSY-r03741"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_124__S07__BSY-r03741",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3_max_fp": {
+   "K=16": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3x": {
+   "K=16": {
+    "all56_vs_engine": -4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -10,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3x_wo0": {
+   "K=16": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -8,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3x_wo1": {
+   "K=16": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -10,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3x_taut": {
+   "K=16": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -10,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3x_maccs": {
+   "K=16": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -7,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -11,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3x_max_fp": {
+   "K=16": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -7,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -11,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3x_add": {
+   "K=16": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -9,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s2b_z": {
+   "K=16": {
+    "all56_vs_engine": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_005__S01__BSY-r00480",
+     "b1_BIOPATH150_008__S03__BSY-r00618",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s2b_q": {
+   "K=16": {
+    "all56_vs_engine": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_005__S01__BSY-r00480",
+     "b1_BIOPATH150_008__S03__BSY-r00618",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hC": {
+   "K=16": {
+    "all56_vs_engine": 5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_005__S01__BSY-r00480",
+     "b1_BIOPATH150_008__S03__BSY-r00618",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hC_flat": {
+   "K=16": {
+    "all56_vs_engine": 1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_053__S02__BSY-r02820",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_053__S02__BSY-r02820",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_053__S02__BSY-r02820",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "filterA_engine": {
+   "K=16": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "filterA_s3x": {
+   "K=16": {
+    "all56_vs_engine": -4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -10,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "filterA_s3x_add": {
+   "K=16": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -9,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "filterB_s3x": {
+   "K=16": {
+    "all56_vs_engine": -4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -10,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3x": {
+   "K=16": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3x_add": {
+   "K=16": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3x_taut": {
+   "K=16": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3x_maccs": {
+   "K=16": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -6,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3x_max_fp": {
+   "K=16": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -6,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3_maccs": {
+   "K=16": {
+    "all56_vs_engine": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3_fcfp6": {
+   "K=16": {
+    "all56_vs_engine": 6,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3_taut": {
+   "K=16": {
+    "all56_vs_engine": 5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3_max_fp": {
+   "K=16": {
+    "all56_vs_engine": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_hC": {
+   "K=16": {
+    "all56_vs_engine": 5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_hC_flat": {
+   "K=16": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_086__S01__BSY-r02334"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_068__S03__BSY-r03302"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_filterA_s3x": {
+   "K=16": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_filterB_s3x": {
+   "K=16": {
+    "all56_vs_engine": 0,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s2b_q": {
+   "K=16": {
+    "all56_vs_engine": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911"
+    ]
+   },
+   "K=24": {
+    "all56_vs_engine": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911"
+    ]
+   },
+   "K=32": {
+    "all56_vs_engine": -2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  }
+ }
+}

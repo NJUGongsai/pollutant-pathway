@@ -338,3 +338,142 @@ def test_llm_budget_exhaustion_stops_run(tmp_path):
     assert summary["stop_reason"] == "budget_exhausted"
     assert summary["budget"]["used_llm_calls"] == 1
     assert summary["counts"]["reaction_events"] == 0
+
+
+# --------------------------------- S1 E1(HIT60):rank v2 协议臂端到端(假模型)
+
+
+def _fake_model_v2(rank_responses: list[str]):
+    from pathlib import Path as _P
+
+    from pathway_v43.adapters.llm_client import resolve_model_setup
+    from pathway_v43.domain.policy import prediction_policy
+
+    repo = _P(__file__).resolve().parents[1]
+    return resolve_model_setup(
+        "fake",
+        fake_script={"rank_candidates": rank_responses},
+        prompts_root=repo / "configs" / "prompts",
+        policy=prediction_policy(
+            {"rank_candidate_presentation": "v2"}),
+    )
+
+
+def _ranker_v2_sha() -> str:
+    import hashlib
+    from pathlib import Path as _P
+
+    repo = _P(__file__).resolve().parents[1]
+    return hashlib.sha256(
+        (repo / "configs" / "prompts" / "ranker_v2.md").read_bytes()
+    ).hexdigest()
+
+
+def test_v2_rank_e2e_prompt_sha_task_shape_and_full_order(tmp_path):
+    """v2 端到端:调用产物 system_prompt_sha256 = ranker_v2.md 的 SHA;
+    任务书 schema v4 + 分层卡;prediction.json 带完整 order;
+    裁决层消费完整 order(in_model_order 覆盖全部候选,零改动行为证明)。"""
+    scripted = {
+        S: [rec("bt0001#r0001", S, ["O=CCC=CO", "CC(O)=O"]),
+            rec("bt0002#r0002", S, ["O=C=O"]),
+            rec("bt0003#r0003", S, ["CCCO"])],
+    }
+    model = _fake_model_v2([json.dumps({
+        "decision": "select", "evidence_id": "E-bt0002#r0002",
+        "order": ["E-bt0002#r0002", "E-bt0001#r0001", "E-bt0003#r0003"],
+        "reasons": {"E-bt0001#r0001": {"verdict": "competitive",
+                                       "note": "证据次之"},
+                    "E-bt0003#r0003": {"verdict": "rejected",
+                                       "note": "信号弱"}},
+        "reason": "选 2 号"})])
+    summary, runs = run_scripted("e1sel", scripted, max_depth=1,
+                                 runs_root=tmp_path, model=model,
+                                 max_llm_calls=3)
+    assert summary["counts"]["reaction_events"] == 1
+    base = runs / "e1sel" / "results"
+    task_dirs = [d for d in sorted(base.iterdir())
+                 if (d / "prediction_task.json").is_file()]
+    assert len(task_dirs) == 1
+    task = json.loads(
+        (task_dirs[0] / "prediction_task.json").read_text())["payload"]
+    assert task["schema_version"] == "v43-prediction-task-4"
+    assert task["candidate_set"]["presentation"] == "v2"
+    assert all("engine" in c and "verification" in c
+               for c in task["candidates"])
+    call = json.loads(
+        (task_dirs[0] / "prediction_call.a1.json").read_text())["payload"]
+    assert call["system_prompt_sha256"] == _ranker_v2_sha()
+    pred = json.loads(
+        (task_dirs[0] / "prediction.json").read_text())["payload"]
+    assert pred["outcome"] == "selected"
+    assert pred["order"] == ["E-bt0002#r0002", "E-bt0001#r0001",
+                             "E-bt0003#r0003"]
+    # 裁决层零改动:完整 order 是既有输入的合法超集 → 报告按模型序背书
+    report = load_report(runs, "e1sel")
+    ev = report["reaction_events"][0]
+    assert ev["evidence_id"] == "E-bt0002#r0002"
+    endorse = {(c.get("evidence_id"), c.get("in_model_order"),
+                c.get("model_order_position"))
+               for c in report.get("candidate_endorsements", [])
+               } if report.get("candidate_endorsements") else set()
+    if endorse:
+        assert all(flag is True for _, flag, _pos in endorse)
+
+
+def test_v2_rank_e2e_legal_hold_records_kind(tmp_path):
+    """v2 合法 hold:prediction.json 落 hold_kind/hold_note;路径停
+    awaiting_prediction(model_hold);诚实弃权不改写、不惩罚(N6)。"""
+    scripted = {
+        S: [rec("bt0001#r0001", S, ["O=CCC=CO"]),
+            rec("bt0002#r0002", S, ["O=C=O"])],
+    }
+    model = _fake_model_v2([json.dumps({
+        "decision": "hold",
+        "hold": {"kind": "insufficient_discrimination",
+                 "note": "四层信号都不足以区分两条候选"},
+        "reason": "证据密度不足"})])
+    summary, runs = run_scripted("e1hold", scripted, max_depth=1,
+                                 runs_root=tmp_path, model=model,
+                                 max_llm_calls=3)
+    base = runs / "e1hold" / "results"
+    task_dirs = [d for d in sorted(base.iterdir())
+                 if (d / "prediction.json").is_file()]
+    pred = json.loads(
+        (task_dirs[0] / "prediction.json").read_text())["payload"]
+    assert pred["outcome"] == "held"
+    assert pred["parsed"]["hold_kind"] == "insufficient_discrimination"
+    assert "四层信号" in pred["parsed"]["hold_note"]
+    # 下游处置与 v1 相同:path 停 awaiting_prediction、reason 记录
+    report = load_report(runs, "e1hold")
+    assert report["reaction_events"] == []
+    import sqlite3
+    with sqlite3.connect(runs / "e1hold" / "pathway.sqlite") as conn:
+        row = conn.execute(
+            "SELECT status, status_reason FROM path_instances "
+            "WHERE status_reason LIKE 'model_hold%'").fetchone()
+    assert row and row[0] == "awaiting_prediction"
+
+
+def test_v2_rank_parse_failure_retries_then_fails_bounded(tmp_path):
+    """v2 解析 fail-closed 走既有有界重试:漏卡 order → 重试用尽 →
+    prediction failed(error_kind=order_incomplete),不静默降级;
+    重试次数 = 1+max_parse_retries。"""
+    scripted = {
+        S: [rec("bt0001#r0001", S, ["O=CCC=CO"]),
+            rec("bt0002#r0002", S, ["O=C=O"])],
+    }
+    bad = json.dumps({"decision": "select", "evidence_id": "E-bt0001#r0001",
+                      "order": ["E-bt0001#r0001"], "reason": "漏卡"})
+    model = _fake_model_v2([bad, bad, bad, bad])
+    summary, runs = run_scripted("e1fail", scripted, max_depth=1,
+                                 runs_root=tmp_path, model=model,
+                                 max_llm_calls=3)
+    base = runs / "e1fail" / "results"
+    task_dirs = [d for d in sorted(base.iterdir())
+                 if (d / "prediction.json").is_file()]
+    pred = json.loads(
+        (task_dirs[0] / "prediction.json").read_text())["payload"]
+    assert pred["outcome"] == "failed"
+    assert "order_incomplete" in pred["fail_reason"]
+    attempts = sorted((task_dirs[0]).glob("prediction_response.a*.json"))
+    assert len(attempts) == 3   # 1 + max_parse_retries=2(既有有界重试)

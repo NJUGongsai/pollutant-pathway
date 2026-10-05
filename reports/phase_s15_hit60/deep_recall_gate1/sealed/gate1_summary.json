@@ -1,0 +1,1662 @@
+{
+ "schema_version": "gate1-recall-1",
+ "caliber": {
+  "denominator": "dev 56(口径 v3 分母;quarantine 5 题待人审未生效,维持 56)",
+  "gold_card": "证据卡任一产物 product_identity ∈ 金标 cn 或精确串(整串,与 FULL_SURFACE §2/M1 同判据)",
+  "engine_order": "retrieval_rank(引擎 merged 池 1 起始位次;含深位)",
+  "reference_batch": "C0b",
+  "list22_source": "qid_flags_C0b.tsv gold_in_pool & !hit5_whole(审计 2x2 的 22 题口径假+真丢弃合集)"
+ },
+ "batch_invariance": {
+  "C0a": false,
+  "C0b": true,
+  "E1": false,
+  "E2a": false,
+  "E2b": false,
+  "E3": false
+ },
+ "gold_rank_batch_invariance": {
+  "C0a": true,
+  "C0b": true,
+  "E1": true,
+  "E2a": true,
+  "E2b": true,
+  "E3": true
+ },
+ "retrieval_jitter_qids": [
+  "b1_BIOPATH150_067__S05__BSY-r02911",
+  "b1_BIOPATH150_135__S06__BSY-r03400",
+  "b1_BIOPATH150_143__S04__BSY-r03533"
+ ],
+ "retrieval_jitter_note": "53/56 题六批检索骨架(位次/分数/产物身份)完全一致;3 题深位采样抖动(见 jitter_qids),但金标卡位次六批全部一致,测量结论批间稳定",
+ "n_questions": 56,
+ "n_in_pool_retrieval": 37,
+ "n_in_pool_cardval": 37,
+ "n_list22": 22,
+ "engine_score_vs_rank": {
+  "adjacent_pairs": 12248,
+  "monotonicity_violations": 87,
+  "violation_rate": 0.007103,
+  "note": "引擎原序 ≈ 卡总分序(edge_score);按总分重排不是独立信号"
+ },
+ "signal_engine_spearman_mean": {
+  "s1_donor_substrate": -0.0109,
+  "s2b_puspto": -0.023,
+  "s3_product_substrate": -0.3802
+ },
+ "k_engine_top": 8,
+ "engine_context": {
+  "recall_K8": {
+   "all56": 9,
+   "in_pool": 9,
+   "list22": 3
+  },
+  "note": "K=8 为现产 rank 任务合格卡窗(参照行,非门 1 三档)"
+ },
+ "recall": {
+  "engine": {
+   "all56": {
+    "K=16": 13,
+    "K=24": 18,
+    "K=32": 23
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 13,
+    "K=24": 18,
+    "K=32": 23
+   },
+   "list22": {
+    "K=16": 6,
+    "K=24": 10,
+    "K=32": 14
+   },
+   "rank_dist_list22": {
+    "1-8": 3,
+    "9-16": 3,
+    "17-24": 4,
+    "25-32": 4,
+    "33-64": 3,
+    "65+": 5,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 9,
+    "9-16": 4,
+    "17-24": 5,
+    "25-32": 5,
+    "33-64": 7,
+    "65+": 7,
+    "none": 0
+   }
+  },
+  "s1_donor_substrate": {
+   "all56": {
+    "K=16": 12,
+    "K=24": 17,
+    "K=32": 19
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 12,
+    "K=24": 17,
+    "K=32": 19
+   },
+   "list22": {
+    "K=16": 6,
+    "K=24": 10,
+    "K=32": 10
+   },
+   "rank_dist_list22": {
+    "1-8": 5,
+    "9-16": 1,
+    "17-24": 4,
+    "25-32": 0,
+    "33-64": 4,
+    "65+": 8,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 10,
+    "9-16": 2,
+    "17-24": 5,
+    "25-32": 2,
+    "33-64": 7,
+    "65+": 11,
+    "none": 0
+   }
+  },
+  "s1_analog_local": {
+   "all56": {
+    "K=16": 4,
+    "K=24": 6,
+    "K=32": 7
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 4,
+    "K=24": 6,
+    "K=32": 7
+   },
+   "list22": {
+    "K=16": 3,
+    "K=24": 5,
+    "K=32": 5
+   },
+   "rank_dist_list22": {
+    "1-8": 1,
+    "9-16": 2,
+    "17-24": 2,
+    "25-32": 0,
+    "33-64": 1,
+    "65+": 1,
+    "none": 15
+   },
+   "rank_dist_in_pool": {
+    "1-8": 1,
+    "9-16": 3,
+    "17-24": 2,
+    "25-32": 1,
+    "33-64": 2,
+    "65+": 1,
+    "none": 27
+   }
+  },
+  "s2a_source_tier": {
+   "all56": {
+    "K=16": 19,
+    "K=24": 22,
+    "K=32": 23
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 19,
+    "K=24": 22,
+    "K=32": 23
+   },
+   "list22": {
+    "K=16": 11,
+    "K=24": 12,
+    "K=32": 13
+   },
+   "rank_dist_list22": {
+    "1-8": 6,
+    "9-16": 5,
+    "17-24": 1,
+    "25-32": 1,
+    "33-64": 3,
+    "65+": 6,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 13,
+    "9-16": 6,
+    "17-24": 3,
+    "25-32": 1,
+    "33-64": 5,
+    "65+": 9,
+    "none": 0
+   }
+  },
+  "s2b_puspto": {
+   "all56": {
+    "K=16": 16,
+    "K=24": 16,
+    "K=32": 19
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 16,
+    "K=32": 19
+   },
+   "list22": {
+    "K=16": 10,
+    "K=24": 10,
+    "K=32": 13
+   },
+   "rank_dist_list22": {
+    "1-8": 4,
+    "9-16": 6,
+    "17-24": 0,
+    "25-32": 3,
+    "33-64": 2,
+    "65+": 7,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 7,
+    "9-16": 9,
+    "17-24": 0,
+    "25-32": 3,
+    "33-64": 6,
+    "65+": 12,
+    "none": 0
+   }
+  },
+  "s3_product_substrate": {
+   "all56": {
+    "K=16": 15,
+    "K=24": 20,
+    "K=32": 22
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 15,
+    "K=24": 20,
+    "K=32": 22
+   },
+   "list22": {
+    "K=16": 9,
+    "K=24": 12,
+    "K=32": 13
+   },
+   "rank_dist_list22": {
+    "1-8": 5,
+    "9-16": 4,
+    "17-24": 3,
+    "25-32": 1,
+    "33-64": 3,
+    "65+": 6,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 8,
+    "9-16": 7,
+    "17-24": 5,
+    "25-32": 2,
+    "33-64": 8,
+    "65+": 7,
+    "none": 0
+   }
+  },
+  "s4_composite_tier_x_s3": {
+   "all56": {
+    "K=16": 16,
+    "K=24": 17,
+    "K=32": 18
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 17,
+    "K=32": 18
+   },
+   "list22": {
+    "K=16": 10,
+    "K=24": 11,
+    "K=32": 11
+   },
+   "rank_dist_list22": {
+    "1-8": 4,
+    "9-16": 6,
+    "17-24": 1,
+    "25-32": 0,
+    "33-64": 3,
+    "65+": 8,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 7,
+    "9-16": 9,
+    "17-24": 1,
+    "25-32": 1,
+    "33-64": 7,
+    "65+": 12,
+    "none": 0
+   }
+  },
+  "hybrid_s1": {
+   "all56": {
+    "K=16": 14,
+    "K=24": 18,
+    "K=32": 19
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 14,
+    "K=24": 18,
+    "K=32": 19
+   },
+   "list22": {
+    "K=16": 6,
+    "K=24": 9,
+    "K=32": 10
+   },
+   "rank_dist_list22": {
+    "1-8": 3,
+    "9-16": 3,
+    "17-24": 3,
+    "25-32": 1,
+    "33-64": 4,
+    "65+": 8,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 9,
+    "9-16": 5,
+    "17-24": 4,
+    "25-32": 1,
+    "33-64": 8,
+    "65+": 10,
+    "none": 0
+   }
+  },
+  "hybrid_s2a_tier": {
+   "all56": {
+    "K=16": 19,
+    "K=24": 21,
+    "K=32": 25
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 19,
+    "K=24": 21,
+    "K=32": 25
+   },
+   "list22": {
+    "K=16": 11,
+    "K=24": 12,
+    "K=32": 14
+   },
+   "rank_dist_list22": {
+    "1-8": 3,
+    "9-16": 8,
+    "17-24": 1,
+    "25-32": 2,
+    "33-64": 3,
+    "65+": 5,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 9,
+    "9-16": 10,
+    "17-24": 2,
+    "25-32": 4,
+    "33-64": 4,
+    "65+": 8,
+    "none": 0
+   }
+  },
+  "hybrid_s2b_puspto": {
+   "all56": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "list22": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "rank_dist_list22": {
+    "1-8": 3,
+    "9-16": 5,
+    "17-24": 3,
+    "25-32": 1,
+    "33-64": 4,
+    "65+": 6,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 9,
+    "9-16": 7,
+    "17-24": 4,
+    "25-32": 1,
+    "33-64": 7,
+    "65+": 9,
+    "none": 0
+   }
+  },
+  "hybrid_s3_prodsub": {
+   "all56": {
+    "K=16": 16,
+    "K=24": 22,
+    "K=32": 26
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 22,
+    "K=32": 26
+   },
+   "list22": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 14
+   },
+   "rank_dist_list22": {
+    "1-8": 3,
+    "9-16": 5,
+    "17-24": 3,
+    "25-32": 3,
+    "33-64": 3,
+    "65+": 5,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 9,
+    "9-16": 7,
+    "17-24": 6,
+    "25-32": 4,
+    "33-64": 5,
+    "65+": 6,
+    "none": 0
+   }
+  },
+  "hybrid_s4_composite": {
+   "all56": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 16,
+    "K=24": 20,
+    "K=32": 21
+   },
+   "list22": {
+    "K=16": 8,
+    "K=24": 11,
+    "K=32": 12
+   },
+   "rank_dist_list22": {
+    "1-8": 3,
+    "9-16": 5,
+    "17-24": 3,
+    "25-32": 1,
+    "33-64": 3,
+    "65+": 7,
+    "none": 0
+   },
+   "rank_dist_in_pool": {
+    "1-8": 9,
+    "9-16": 7,
+    "17-24": 4,
+    "25-32": 1,
+    "33-64": 5,
+    "65+": 11,
+    "none": 0
+   }
+  },
+  "oracle_best_of_deployable(measurement-only)": {
+   "all56": {
+    "K=16": 26,
+    "K=24": 29,
+    "K=32": 33
+   },
+   "in_pool(37 retrieval-caliber)": {
+    "K=16": 26,
+    "K=24": 29,
+    "K=32": 33
+   },
+   "list22": {
+    "K=16": 15,
+    "K=24": 16,
+    "K=32": 19
+   },
+   "note": "逐题取可部署信号最小位次(用金标标签选信号,不可部署,只作上界解读)"
+  }
+ },
+ "recall_list22_by_bucket": {
+  "engine": {
+   "C1_true_dropped(16)": {
+    "K=16": 5,
+    "K=24": 8,
+    "K=32": 11
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 1,
+    "K=24": 2,
+    "K=32": 3
+   }
+  },
+  "s1_donor_substrate": {
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 0,
+    "K=24": 2,
+    "K=32": 2
+   }
+  },
+  "s1_analog_local": {
+   "C1_true_dropped(16)": {
+    "K=16": 3,
+    "K=24": 5,
+    "K=32": 5
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 0,
+    "K=24": 0,
+    "K=32": 0
+   }
+  },
+  "s2a_source_tier": {
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 4,
+    "K=24": 4,
+    "K=32": 5
+   }
+  },
+  "s2b_puspto": {
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 7,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 5
+   }
+  },
+  "s3_product_substrate": {
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 9,
+    "K=32": 10
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "s4_composite_tier_x_s3": {
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s1": {
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 8
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 0,
+    "K=24": 1,
+    "K=32": 2
+   }
+  },
+  "hybrid_s2a_tier": {
+   "C1_true_dropped(16)": {
+    "K=16": 7,
+    "K=24": 8,
+    "K=32": 9
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 4,
+    "K=24": 4,
+    "K=32": 5
+   }
+  },
+  "hybrid_s2b_puspto": {
+   "C1_true_dropped(16)": {
+    "K=16": 6,
+    "K=24": 8,
+    "K=32": 9
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 2,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s3_prodsub": {
+   "C1_true_dropped(16)": {
+    "K=16": 5,
+    "K=24": 8,
+    "K=32": 11
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 3
+   }
+  },
+  "hybrid_s4_composite": {
+   "C1_true_dropped(16)": {
+    "K=16": 5,
+    "K=24": 8,
+    "K=32": 9
+   },
+   "B_caliber_rescuable(6)": {
+    "K=16": 3,
+    "K=24": 3,
+    "K=32": 3
+   }
+  }
+ },
+ "sign_tests_vs_engine": {
+  "s1_donor_substrate": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 0,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.125
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 1,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.2188
+    }
+   }
+  },
+  "s1_analog_local": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 1,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.375
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 11,
+     "sign_p_two_sided": 0.0225
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.1797
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 15,
+     "sign_p_two_sided": 0.0075
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 11,
+     "sign_p_two_sided": 0.0225
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 20,
+     "sign_p_two_sided": 0.0015
+    }
+   }
+  },
+  "s2a_source_tier": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.1797
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 9,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.146
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.7266
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.3877
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 1.0
+    }
+   }
+  },
+  "s2b_puspto": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.5811
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7539
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 0.424
+    }
+   }
+  },
+  "s3_product_substrate": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7905
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.7905
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 9,
+     "sign_p_two_sided": 1.0
+    }
+   }
+  },
+  "s4_composite_tier_x_s3": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.2891
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 9,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.6072
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 8,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 6,
+     "sign_p_two_sided": 0.5078
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 11,
+     "sign_p_two_sided": 0.3323
+    }
+   }
+  },
+  "hybrid_s1": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 0,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.125
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 0,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.125
+    }
+   }
+  },
+  "hybrid_s2a_tier": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.125
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.0703
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.4531
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 7,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.7744
+    }
+   }
+  },
+  "hybrid_s2b_puspto": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.625
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 1,
+     "sign_p_two_sided": 0.375
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 2,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.6875
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.7266
+    }
+   }
+  },
+  "hybrid_s3_prodsub": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.5078
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.3877
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 8,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.5811
+    }
+   }
+  },
+  "hybrid_s4_composite": {
+   "K=16": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 2,
+     "sign_p_two_sided": 0.6875
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 0.5078
+    }
+   },
+   "K=24": {
+    "list22": {
+     "signal_in_engine_out": 4,
+     "engine_in_signal_out": 3,
+     "sign_p_two_sided": 1.0
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 6,
+     "engine_in_signal_out": 4,
+     "sign_p_two_sided": 0.7539
+    }
+   },
+   "K=32": {
+    "list22": {
+     "signal_in_engine_out": 3,
+     "engine_in_signal_out": 5,
+     "sign_p_two_sided": 0.7266
+    },
+    "in_pool37": {
+     "signal_in_engine_out": 5,
+     "engine_in_signal_out": 7,
+     "sign_p_two_sided": 0.7744
+    }
+   }
+  }
+ },
+ "gains_vs_engine": {
+  "s1_donor_substrate": {
+   "K=16": {
+    "list22_gained": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044"
+    ],
+    "all56_lost_from_topK": 4,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_124__S07__BSY-r03741",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_124__S03__BSY-r02044"
+    ],
+    "all56_lost_from_topK": 5,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_124__S07__BSY-r03741",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 0,
+    "list22_gained_qids": [],
+    "all56_lost_from_topK": 5,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s1_analog_local": {
+   "K=16": {
+    "list22_gained": 1,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_081__S03__BSY-r02834"
+    ],
+    "all56_lost_from_topK": 11,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S02__BSY-r02055",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_053__S02__BSY-r02820",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_124__S07__BSY-r03741",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_125__S08__BSY-r02381",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_081__S03__BSY-r02834"
+    ],
+    "all56_lost_from_topK": 15,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_025__S02__BSY-r02055",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_053__S02__BSY-r02820",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S07__BSY-r03741",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_125__S08__BSY-r02381",
+     "b1_BIOPATH150_137__S05__BSY-r02849"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_023__S03__BSY-r02073",
+     "b1_BIOPATH150_081__S03__BSY-r02834"
+    ],
+    "all56_lost_from_topK": 20,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_025__S02__BSY-r02055",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_053__S02__BSY-r02820",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_079__S03__BSY-r02897",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_124__S07__BSY-r03741",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_125__S08__BSY-r02381",
+     "b1_BIOPATH150_137__S05__BSY-r02849",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s2a_source_tier": {
+   "K=16": {
+    "list22_gained": 7,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044"
+    ],
+    "all56_lost_from_topK": 3,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_095__S05__BSY-r03787"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 4,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_095__S05__BSY-r03787"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S03__BSY-r00618",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 7,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s2b_puspto": {
+   "K=16": {
+    "list22_gained": 6,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 5,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 6,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_005__S01__BSY-r00480",
+     "b1_BIOPATH150_008__S03__BSY-r00618",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 9,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s3_product_substrate": {
+   "K=16": {
+    "list22_gained": 5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 6,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_124__S07__BSY-r03741"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 6,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_124__S07__BSY-r03741"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 9,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_124__S07__BSY-r03741",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "s4_composite_tier_x_s3": {
+   "K=16": {
+    "list22_gained": 6,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 6,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 5,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 8,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 11,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_050__S05__BSY-r03327",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_079__S02__BSY-r01955",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_095__S05__BSY-r03787",
+     "b1_BIOPATH150_101__S05__BSY-r02218",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s1": {
+   "K=16": {
+    "list22_gained": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044"
+    ],
+    "all56_lost_from_topK": 2,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_124__S03__BSY-r02044"
+    ],
+    "all56_lost_from_topK": 3,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_125__S02__BSY-r00874"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 0,
+    "list22_gained_qids": [],
+    "all56_lost_from_topK": 4,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_125__S02__BSY-r00874",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s2a_tier": {
+   "K=16": {
+    "list22_gained": 6,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_114__S02__BSY-r02745",
+     "b1_BIOPATH150_124__S03__BSY-r02044"
+    ],
+    "all56_lost_from_topK": 1,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_124__S03__BSY-r02044"
+    ],
+    "all56_lost_from_topK": 2,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_008__S03__BSY-r00618",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 5,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s2b_puspto": {
+   "K=16": {
+    "list22_gained": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_086__S01__BSY-r02334",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 1,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 2,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 2,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 5,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s3_prodsub": {
+   "K=16": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 3,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 4,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_114__S02__BSY-r02745"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_081__S03__BSY-r02834",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 5,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  },
+  "hybrid_s4_composite": {
+   "K=16": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 3,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_077__S04__BSY-r02881",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=24": {
+    "list22_gained": 4,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S02__BSY-r01369",
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_124__S03__BSY-r02044",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 4,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_092__S03__BSY-r02946"
+    ]
+   },
+   "K=32": {
+    "list22_gained": 3,
+    "list22_gained_qids": [
+     "b1_BIOPATH150_010__S04__BSY-r01371",
+     "b1_BIOPATH150_058__S01__BSY-r01866",
+     "b1_BIOPATH150_149__S01__BSY-r01831"
+    ],
+    "all56_lost_from_topK": 7,
+    "all56_lost_qids": [
+     "b1_BIOPATH150_008__S01__BSY-r00616",
+     "b1_BIOPATH150_025__S01__BSY-r02034",
+     "b1_BIOPATH150_067__S05__BSY-r02911",
+     "b1_BIOPATH150_068__S03__BSY-r03302",
+     "b1_BIOPATH150_068__S04__BSY-r03303",
+     "b1_BIOPATH150_092__S03__BSY-r02946",
+     "b1_BIOPATH150_143__S04__BSY-r03533"
+    ]
+   }
+  }
+ },
+ "rank75_case": {
+  "qid": "b1_BIOPATH150_005__S01__BSY-r00480",
+  "in_22_list": true,
+  "gold_engine_rank": 75,
+  "expected_rank": 75,
+  "match": true,
+  "gold_channels": [
+   "uspto"
+  ]
+ }
+}

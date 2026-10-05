@@ -46,6 +46,26 @@ CONDITION_COMPATIBLE = "compatible"
 CONDITION_UNKNOWN = "unknown"
 CONDITION_CONFLICT = "conflict"
 
+# 供体不可迁移拒因枚举(fable5 评审 §1.1[P1]/§7-3 单一事实源修复):
+# services.donor_applicability(产出方,写入 eligibility.fallback_reason)
+# 与 domain.policy._ANALOGY_FALLBACKS(消费方,decide_prediction_route 的
+# 类比回退分支判据)共用本组常量 —— 消除两处字面量的隐性对齐,服务层
+# 改产出时本判据不可能再静默失配。字面量同时是落盘产物与 run 恢复的
+# 稳定机读码:只增不改值,语义映射见 policy.decide_prediction_route。
+DONOR_FALLBACK_NO_MAPPING = "no_mapping"
+DONOR_FALLBACK_MAPPING_AMBIGUOUS = "mapping_ambiguous"
+DONOR_FALLBACK_APPLICABILITY_FAILED = "applicability_failed"
+DONOR_FALLBACK_APPLICABILITY_UNKNOWN = "applicability_unknown"
+DONOR_FALLBACK_COMPETING_TRANSFORMS = "multiple_competing_transforms"
+
+DONOR_FALLBACK_REASONS = (
+    DONOR_FALLBACK_NO_MAPPING,
+    DONOR_FALLBACK_MAPPING_AMBIGUOUS,
+    DONOR_FALLBACK_APPLICABILITY_FAILED,
+    DONOR_FALLBACK_APPLICABILITY_UNKNOWN,
+    DONOR_FALLBACK_COMPETING_TRANSFORMS,
+)
+
 ATOM_MAPPING_UNAVAILABLE = "unavailable"
 
 STRATEGY_VERSION = "v43-policy-5"  # 选择策略版本;策略变更须升版本并拒绝旧 run resume(v5=R1 修复:prepare 失败不再误入 call_model、相似通道 selected 携带 donor_ref;v4=Phase D:reactant_similar 检索通道)

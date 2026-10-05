@@ -334,3 +334,143 @@ def test_validate_rejects_undeclared_fields_and_legacy_aliases():
         {"op": "break_bond", "atom1": c[0], "atom2": c[1]},
     ])
     assert ok["ok"], ok["reasons"]
+
+
+# ---------------------------------------- S0 门禁误杀回归(b978fd0b 型)
+#
+# 取证(reports/phase_s0_hit60/manual_review/,gitignored):execute_edits
+# 在底物解析索引空间建 atom_id_map 原样随 canonical product_smiles 返回,
+# check_target_consistency 对 canonical 重解析(新索引空间)套旧映射 →
+# "元素/电荷互换"伪拒因;canonical 等价终判写在 ID 级拒因之后永不可达。
+# 本节用**合成**同构夹具(硝基苄醇→硝基苯甲醛的位置异构体,硝基前置
+# 写法触发索引置换;非任何真实金标分子)钉住三方向修复:短路终判/
+# 索引空间统一/真不同分子仍拒。
+
+from rdkit import Chem  # noqa: E402
+
+from pathway_v43.services.atom_tool import (  # noqa: E402
+    _exec_id_index,
+    _id_element,
+)
+
+# 底物 = 间硝基苄醇(硝基前置 SMILES:输入解析序 ≠ canonical 输出序,
+# 正是索引置换的触发条件);编辑 = 苄位 C–O 单键升双键(醇→醛)
+_SCRAMBLE_SUBSTRATE = "O=[N+]([O-])c1cccc(CO)c1"
+_SCRAMBLE_PRODUCT = "O=Cc1cccc([N+](=O)[O-])c1"
+
+
+def _benzyl_ids(current):
+    """(苄位 C id, 羟基 O id)——O 取"邻居含 C"的那颗(硝基 O 邻居是 N)。"""
+    mol = Chem.MolFromSmiles(current.smiles)
+    o_idx = next(a.GetIdx() for a in mol.GetAtoms()
+                 if a.GetSymbol() == "O"
+                 and any(n.GetSymbol() == "C" for n in a.GetNeighbors()))
+    c_idx = next(n.GetIdx() for n in mol.GetAtomWithIdx(o_idx).GetNeighbors())
+    return current.idx_atom_map[c_idx], current.idx_atom_map[o_idx]
+
+
+def _oxidized_target(current, c_id: str, o_id: str) -> str:
+    """模型风格目标:底物 MoleCode 上改键线(--- → ===)并同步端点标签
+    (CH2→CH、OH→O)—— 与真实事故中模型的产物写法同构。"""
+    out = []
+    for ln in current.molecode.split("\n"):
+        s = ln.strip()
+        if s == f"{c_id}[CH2]":
+            ln = ln.replace("[CH2]", "[CH]")
+        elif s == f"{o_id}[OH]":
+            ln = ln.replace("[OH]", "[O]")
+        elif s in (f"{c_id} --- {o_id}", f"{o_id} --- {c_id}"):
+            ln = ln.replace("---", "===")
+        out.append(ln)
+    return "\n".join(out)
+
+
+def _benzyl_oxidation():
+    r = render(_SCRAMBLE_SUBSTRATE, name="S")
+    c_id, o_id = _benzyl_ids(r)
+    exe = execute_edits(r, [{"op": "change_bond_order", "atom1": c_id,
+                             "atom2": o_id, "from_order": "single",
+                             "to_order": "double"}])
+    assert exe["ok"], exe["reasons"]
+    assert exe["product_smiles"] == _SCRAMBLE_PRODUCT
+    return r, exe, _oxidized_target(r, c_id, o_id)
+
+
+def test_same_molecule_scrambled_numbering_passes():
+    """正例(b978fd0b 型误杀):目标与执行产物是同一分子、但目标文本按
+    底物 ID 分配而执行侧 canonical 重排 → 必须 PASS(canonical 等价短路
+    终判,且留 note 遥测标记)。修复前此夹具产出 17 条伪拒因被误杀。"""
+    r, exe, target = _benzyl_oxidation()
+    t = check_target_consistency(r, exe, target)
+    assert t["ok"], t["reasons"]
+    assert t["target_smiles"] == exe["product_smiles"]
+    assert t.get("note") == "canonical_equivalence_short_circuit"
+
+
+def test_exec_id_index_space_unified():
+    """方向 2:执行产物重解析后按映射号还原的 ID↔idx 与元素逐一对应
+    (修复前同夹具 4 个 ID 落到错的元素上,即"元素互换"伪拒因来源)。"""
+    _, exe, _ = _benzyl_oxidation()
+    assert exe.get("product_mapped_smiles")
+    exec_mol, id_to_idx = _exec_id_index(exe)
+    assert exec_mol is not None and set(id_to_idx) == set(exe["atom_id_map"])
+    for aid, idx in id_to_idx.items():
+        elem = _id_element(aid)
+        assert exec_mol.GetAtomWithIdx(idx).GetSymbol() == elem, aid
+    # 旧形状 execution dict(无 product_mapped_smiles)仍可回退消费
+    legacy = {k: v for k, v in exe.items() if k != "product_mapped_smiles"}
+    mol2, map2 = _exec_id_index(legacy)
+    assert mol2 is not None and map2 == exe["atom_id_map"]
+
+
+def test_short_circuit_covers_legacy_execution_dict():
+    """止血独立性:即使 execution dict 缺 product_mapped_smiles(旧产物/
+    手工构造),分子相同的目标仍被短路放行,不再依赖索引对齐。"""
+    r, exe, target = _benzyl_oxidation()
+    legacy = {k: v for k, v in exe.items() if k != "product_mapped_smiles"}
+    t = check_target_consistency(r, legacy, target)
+    assert t["ok"], t["reasons"]
+
+
+def test_positional_isomer_target_still_rejected():
+    """负例:位置异构体(邻位硝基苯甲醛 ≠ 执行产物间位)→ 必须拒。"""
+    r, exe, _ = _benzyl_oxidation()
+    isomer = render("O=Cc1ccccc1[N+](=O)[O-]", name="S").molecode
+    t = check_target_consistency(r, exe, isomer)
+    assert not t["ok"]
+    assert any("target_edit_mismatch" in x for x in t["reasons"])
+
+
+def test_charge_and_element_variants_still_rejected():
+    """负例:质子化醛(电荷差)与硫代醛(元素差)是真不同分子 → 必须拒。"""
+    r, exe, _ = _benzyl_oxidation()
+    charged = render("O=[N+]([O-])c1cccc(C=[OH+])c1", name="S").molecode
+    t = check_target_consistency(r, exe, charged)
+    assert not t["ok"]
+    assert any("formal_charge" in x or "canonical_smiles_diff" in x
+               for x in t["reasons"])
+    thio = render("O=[N+]([O-])c1cccc(C=S)c1", name="S").molecode
+    t2 = check_target_consistency(r, exe, thio)
+    assert not t2["ok"]
+    assert any("atom_removed" in x or "atom_id_sets_differ" in x
+               or "canonical_smiles_diff" in x for x in t2["reasons"])
+
+
+def test_stereo_different_target_not_short_circuited():
+    """fail-closed 红线:cn_identity(立体盲)相同但 canonical(含立体)
+    不同的立体异构体 → **不**得短路放行。
+    - E/Z 双键立体:ID 级对账无差异,由终判兜底 canonical_smiles_diff 拒;
+    - 四面体对映体:MoleCode ID 本身内嵌 R/S,经 ID 集差异拒。"""
+    r = render("C/C=C/O", name="S")
+    exe = execute_edits(r, [])  # 空 edits:执行图 = 当前分子
+    assert exe["ok"]
+    t = check_target_consistency(
+        r, exe, render("C/C=C\\O", name="S").molecode)
+    assert not t["ok"]
+    assert any("canonical_smiles_diff" in x for x in t["reasons"])
+    r2 = render("C[C@H](O)Cl", name="S")
+    exe2 = execute_edits(r2, [])
+    t2 = check_target_consistency(
+        r2, exe2, render("C[C@@H](O)Cl", name="S").molecode)
+    assert not t2["ok"]
+    assert t2["reasons"]

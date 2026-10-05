@@ -32,12 +32,46 @@ from ..domain.models import (
 )
 from ..domain.policy import recorded_eligibility_reasons
 from ..adapters.llm_client import request_hash
+from .reaction_finder import validate_retrieval_payload
 
 PREDICTION_TASK_SCHEMA_VERSION = "v43-prediction-task-3"  # v3:donor 块带 applicability/transform/编辑协议 v2(Phase C)
+PREDICTION_TASK_SCHEMA_VERSION_V2 = "v43-prediction-task-4"  # v4:S1 E1 分层候选卡(仅 rank+presentation=v2 任务;v1 任务保持 v3 逐字节不变)
 PREDICTION_RESPONSE_SCHEMA_VERSION = "v43-prediction-response-1"
 PREDICTION_RESULT_SCHEMA_VERSION = "v43-prediction-result-1"
 
 MAX_REPORTABLE_PRODUCTS = 5  # 每步最多报告五个候选(任务书 §0)
+
+# ---------------------------------------------------------------- S1 E1 协议臂
+# rank_candidates v2 呈现(HIT60 S1 E1):分层候选卡 + 有界证据卡密度 +
+# 完整 order 契约 + 结构化放弃理由。单一开关 domain.policy.
+# rank_candidate_presentation(默认 v1 = 与历史行为逐字节一致)。
+
+RANK_PRESENTATION_V2 = "v2"  # 值域对齐 domain.policy.RANK_PRESENTATION_VERSIONS
+
+# 密度预算(硬上限;确定性截断,逐项留痕)。上限是界不是目标:现状合格
+# recorded 卡约 600–800 字符/卡,以下取值留约 2× 余量,正常路径不触发;
+# 触发时按 DENSITY_DROP_ORDER 逐级裁剪,决策字段不裁(见 _apply_density_cap)。
+DENSITY_PRODUCT_SMILES_FULL_CHAR_CAP = 300   # 单条 full SMILES 字符上限
+DENSITY_PER_CANDIDATE_CHAR_CAP = 1600        # 单卡序列化字符上限(不含 density 留痕块)
+DENSITY_DROP_ORDER = (
+    "per_product_filter_flags",   # ① 逐产物 ion/cofactor 过滤标记(最弱信号)
+    "product_smiles_full",        # ② full SMILES(保留短形 + 规范身份)
+    "source_n_evidence",          # ③ 来源文献行数
+)
+
+# decision=hold 的结构化放弃理由枚举(v2 解析 fail-closed 判据)。
+# 枚举维度 = v2 任务书呈现的四层决策信号(来源/条件/验证/引擎)+ 密度
+# 充分性 + 兜底,不含任何逐题或题库语义(I1:协议模型无关、题目无关)。
+HOLD_KINDS = (
+    "condition_conflict",             # 条件层:候选条件状态与任务条件冲突
+    "direction_or_substrate_doubt",   # 来源层:底物/方向挂牌存疑
+    "product_validity_doubt",         # 验证层:产物验证预览有红标
+    "insufficient_discrimination",    # 密度层:四层信号不足以区分候选
+    "engine_rank_disagreement",       # 引擎层:引擎位次与证据强度矛盾
+    "other",                          # 其余(note 必填)
+)
+HOLD_NOTE_CHAR_CAP = 500      # hold.note 确定性截断上限(截断不失败)
+REASON_TEXT_CHAR_CAP = 600    # 逐候选理由文本确定性截断上限
 
 DISCIPLINE_RULES = [
     "model_output_is_not_chemical_fact",
@@ -134,6 +168,215 @@ def sibling_task_block(store, path_id: str) -> list[dict]:
     return blocks
 
 
+# ----------------------------------------------- S1 E1:rank v2 分层候选呈现
+
+
+def _rank_v2_candidate_card(e: dict, ancestry_cns: list[str],
+                            per_card_keys: tuple[str, ...] = (),
+                            ) -> tuple[dict, list[dict]]:
+    """单张 v2 分层候选卡:engine / source / condition / verification 四层。
+
+    字段白名单 = 检索卡运行时已有字段,不引入任何需要回查金标的信息;
+    verification 层为确定性**预览**(与裁决层逐卡验证同源同函数:
+    gate_smiles / cn_identity / is_in_path_cycle),仅呈现、不门禁 ——
+    门禁语义仍在裁决层,此处不放宽也不收紧。返回 (卡, 截断清单)。
+
+    per_card_keys:E1_DESIGN §3.1"不恒真不上提,该字段仍在逐卡层"——
+    候选间**不恒真**的 uniform 候选字段(kind/match_type/mapping_status/
+    donor_refs)逐卡原样保留,不静默丢失(正常 rank 任务中四字段由入围
+    资格保证恒真,本参数为空)。
+    """
+    from ..validation.gates import gate_smiles
+    from ..domain.identity import cn_identity
+    from ..domain.pathway import is_in_path_cycle
+
+    drops: list[dict] = []
+    products: list[dict] = []
+    for p in e.get("products", []):
+        raw_full = (p.get("product_smiles_full") or "").strip()
+        raw = (p.get("product_smiles") or "").strip()
+        source_raw = raw_full or raw
+        computed = cn_identity(source_raw) if source_raw else None
+        stored = p.get("product_identity")
+        parse_ok, _gate_reason = gate_smiles(source_raw)
+        entry: dict = {
+            "position": p.get("position"),
+            "product_smiles": raw,
+            "product_identity": stored,
+            "parse_ok": parse_ok,
+            "identity_match": bool(computed is not None
+                                   and stored == computed),
+        }
+        if computed is not None and is_in_path_cycle(computed, ancestry_cns):
+            entry["in_path_cycle"] = True
+        if raw_full and raw_full != raw:
+            # 密度规则 1:超长 full SMILES 截掉(短形 + 规范身份保留,
+            # 决策键不丢);截断留痕,被裁 ≠ 不存在
+            if len(raw_full) <= DENSITY_PRODUCT_SMILES_FULL_CHAR_CAP:
+                entry["product_smiles_full"] = raw_full
+            else:
+                drops.append({"field": "product_smiles_full",
+                              "action": "dropped_over_char_cap",
+                              "chars": len(raw_full)})
+        # 运行时已有的行级过滤标记(lookup 产物行)
+        for flag in ("ion_filtered", "cofactor_filtered"):
+            if p.get(flag) is not None:
+                entry[flag] = bool(p[flag])
+        products.append(entry)
+    record = e.get("source_record") or {}
+    card = {
+        "evidence_id": e["evidence_id"],
+        "engine": {
+            # 引擎参照位次:检索引擎的排序,不是裁决结论(prompt 明示)
+            "reference_rank": e.get("retrieval_rank"),
+            "score": e.get("score"),
+            "score_semantics": e.get("score_semantics"),
+        },
+        "source": {
+            "source_id": e.get("source_id"),
+            "n_evidence": record.get("n_evidence"),
+        },
+        "condition": e.get("condition_fit"),
+        "verification": {
+            "products": products,
+            "all_products_parse_ok": all(p["parse_ok"] for p in products),
+            "all_identity_match": all(p["identity_match"] for p in products),
+            "any_in_path_cycle": any(p.get("in_path_cycle", False)
+                                     for p in products),
+        },
+    }
+    # 不恒真字段留逐卡层(见 docstring;在密度预算之前加入,预算内可裁
+    # 情况与四层字段一致对待)
+    for k in per_card_keys:
+        card[k] = e.get(k)
+    drops = _apply_density_cap(card, drops)
+    return card, drops
+
+
+def _apply_density_cap(card: dict, drops: list[dict]) -> list[dict]:
+    """单卡密度预算:序列化(不含 density 留痕块)超
+    DENSITY_PER_CANDIDATE_CHAR_CAP 时按 DENSITY_DROP_ORDER 逐级裁剪
+    (确定性、可重放);evidence_id / engine / condition / verification
+    聚合与 product_identity 永不裁 —— 卡间可区分性不因预算受损。"""
+
+    def _chars() -> int:
+        return len(json.dumps(card, ensure_ascii=False, sort_keys=True))
+
+    def _drop(step: str) -> None:
+        if step == "per_product_filter_flags":
+            for p in card["verification"]["products"]:
+                p.pop("ion_filtered", None)
+                p.pop("cofactor_filtered", None)
+        elif step == "product_smiles_full":
+            for p in card["verification"]["products"]:
+                p.pop("product_smiles_full", None)
+        elif step == "source_n_evidence":
+            card["source"].pop("n_evidence", None)
+
+    for step in DENSITY_DROP_ORDER:
+        if _chars() <= DENSITY_PER_CANDIDATE_CHAR_CAP:
+            break
+        _drop(step)
+        drops.append({"field": step, "action": "dropped_over_card_cap"})
+    card["density"] = {
+        "per_candidate_char_cap": DENSITY_PER_CANDIDATE_CHAR_CAP,
+        "truncated": drops,
+    }
+    return drops
+
+
+UNIFORM_FACT_CANDIDATE_KEYS = ("kind", "match_type", "mapping_status",
+                               "donor_refs")
+
+
+def _rank_uniform_facts(cards: list[dict]
+                        ) -> tuple[dict, tuple[str, ...]]:
+    """逐字段核对恒真性:跨候选恒真的字段上提 candidate_set(单份),
+    不恒真的返回键名列表(调用方使其留逐卡层,不静默丢失)。"""
+    uniform: dict = {}
+    non_uniform: list[str] = []
+    for key in UNIFORM_FACT_CANDIDATE_KEYS:
+        vals = [json.dumps(e.get(key), sort_keys=True, ensure_ascii=False)
+                for e in cards]
+        if cards and len(set(vals)) == 1:
+            uniform[key] = cards[0].get(key)
+        else:
+            non_uniform.append(key)
+    return uniform, tuple(non_uniform)
+
+
+def _rank_v2_candidate_set(cards: list[dict], policy: dict,
+                           truncations: list[dict],
+                           uniform: dict | None = None) -> dict:
+    """candidate_set:候选集级事实(上提到任务层,逐卡不再重复)。
+
+    - uniform_facts:跨候选**恒真**的卡级字段才上提(组装时点逐字段
+      核对;不恒真不上提,该字段仍在逐卡层);kind/match_type 等由
+      入围资格保证恒真,通常全部上提;
+    - provenance:全部候选共用的资产来源去重后单份(逐卡不再重复
+      64 位 SHA 等零区分度字段);
+    - answer_semantics:把下游(不变量的)答卷语义显式告知模型 ——
+      选中卡产物按卡内 position 顺序占据答卷位次、宽度上限;
+    - density_budget:预算常量 + 全部截断留痕。
+    """
+    if uniform is None:
+        uniform, _ = _rank_uniform_facts(cards)
+    provenance: dict[str, dict] = {}
+    for e in cards:
+        for src in e.get("asset_sources") or []:
+            role = str(src.get("role", ""))
+            if role and role not in provenance:
+                provenance[role] = {
+                    "asset_file": src.get("asset_file", ""),
+                    "asset_sha256": src.get("asset_sha256", ""),
+                }
+    return {
+        "presentation": RANK_PRESENTATION_V2,
+        "n_candidates": len(cards),
+        "selection_rule": "eligible_recorded_only",
+        "uniform_facts": uniform,
+        "provenance": provenance,
+        "answer_semantics": {
+            "answer_width": int(policy.get(
+                "max_reportable_products", MAX_REPORTABLE_PRODUCTS)),
+            "within_card_product_order": "fixed_by_position",
+            "selected_card_products_fill_answer": "in_card_position_order",
+        },
+        "density_budget": {
+            "per_candidate_char_cap": DENSITY_PER_CANDIDATE_CHAR_CAP,
+            "product_smiles_full_char_cap":
+                DENSITY_PRODUCT_SMILES_FULL_CHAR_CAP,
+            "drop_order": list(DENSITY_DROP_ORDER),
+            "truncated": truncations,
+        },
+    }
+
+
+def _apply_rank_presentation_v2(task: dict, cards: list[dict],
+                                policy: dict) -> dict:
+    """E1 协议臂:rank 任务候选分层呈现 + 密度预算(呈现层唯一改动)。
+
+    只读运行时已有素材(检索卡 + 任务书祖先链),不回写检索产物、不改
+    入围规则、不触窗口/裁决/门禁;schema_version 升 v4 供消费端区分,
+    v1 任务保持 v3 逐字节不变。
+    """
+    ancestry_cns = [s.get("substrate_identity") or ""
+                    for s in task.get("ancestry", [])]
+    uniform, non_uniform = _rank_uniform_facts(cards)
+    layered: list[dict] = []
+    truncations: list[dict] = []
+    for e in cards:
+        card, drops = _rank_v2_candidate_card(e, ancestry_cns, non_uniform)
+        layered.append(card)
+        truncations.extend({"evidence_id": card["evidence_id"], **d}
+                           for d in drops)
+    task["schema_version"] = PREDICTION_TASK_SCHEMA_VERSION_V2
+    task["candidates"] = layered
+    task["candidate_set"] = _rank_v2_candidate_set(
+        cards, policy, truncations, uniform)
+    return task
+
+
 def build_prediction_task(
     *,
     store,
@@ -166,6 +409,9 @@ def build_prediction_task(
     if mode not in (PREDICTION_MODE_RANK, PREDICTION_MODE_ANALOGY,
                     PREDICTION_MODE_NOVEL):
         raise PredictionTaskError("unknown_mode", mode)
+    # 消费端版本校验(fable5 §5.1/§7-2):任务组装基于检索产物组装候选,
+    # 未知 schema 版本 fail-closed,不按旧结构静默解析(缺失字段 legacy 容忍)
+    validate_retrieval_payload(retrieval_payload, origin="prediction_task")
 
     evidences = sorted(
         retrieval_payload.get("evidences", []),
@@ -183,6 +429,10 @@ def build_prediction_task(
             if e.get("kind") == EVIDENCE_KIND_RECORDED
             and not recorded_eligibility_reasons(e, substrate_identity)
         ]
+        # 入围上限从 policy 读(默认 8;S1 E3 窗口臂经
+        # prediction_policy_overrides.max_candidates_for_ranking=16 表达,
+        # 取值随 policy 块进 run/batch identity)。只截断数量,不改入围
+        # 规则:仍只合格 recorded 卡,脏卡/规则/类比卡照旧不进任务。
         candidates = usable[: int(policy.get("max_candidates_for_ranking", 8))]
     elif mode == PREDICTION_MODE_ANALOGY:
         if not analogy_eligibility \
@@ -343,6 +593,11 @@ def build_prediction_task(
         },
         "policy_version": policy.get("policy_version", ""),
     }
+    # S1 E1:rank 协议 v2 呈现(组装末端的纯呈现层改写;默认 v1 时本块
+    # 不执行,任务书与历史行为逐字节一致)
+    if mode == PREDICTION_MODE_RANK and str(policy.get(
+            "rank_candidate_presentation", "v1")) == RANK_PRESENTATION_V2:
+        task = _apply_rank_presentation_v2(task, candidates, policy)
     return task
 
 
@@ -371,13 +626,15 @@ class ParsedPrediction:
 
     ok: bool
     mode: str
-    error_kind: str = ""            # not_json | bad_shape | invalid_evidence_id | too_many_products | abstain...
+    error_kind: str = ""            # not_json | bad_shape | invalid_evidence_id | too_many_products | order_missing | order_incomplete | order_with_hold | hold_reason_invalid | ...
     error_message: str = ""
     decision: str = ""              # select|hold|apply|abstain|propose
     selected_evidence_id: str | None = None
     order: list = field(default_factory=list)
     reasons: dict = field(default_factory=dict)
     reason: str = ""
+    hold_kind: str = ""             # S1 E1 v2:hold 结构化理由枚举(HOLD_KINDS)
+    hold_note: str = ""             # S1 E1 v2:放弃理由说明(确定性截断)
     target_molecode: str = ""
     edits: list = field(default_factory=list)
     referenced_evidence_id: str | None = None
@@ -389,8 +646,15 @@ class ParsedPrediction:
 
 
 def parse_model_response(mode: str, raw_text: str,
-                         candidate_ids: list[str] | None = None) -> ParsedPrediction:
-    """模型原文 → 结构化结果;契约违反都是显式 error(任务书 §2)。"""
+                         candidate_ids: list[str] | None = None, *,
+                         rank_presentation: str = "v1") -> ParsedPrediction:
+    """模型原文 → 结构化结果;契约违反都是显式 error(任务书 §2)。
+
+    rank_presentation(S1 E1):默认 "v1" = 既有契约(order 可省略、hold
+    只要自由文本 reason),全部既有调用方行为不变;"v2" = E1 协议臂契约
+    (select 必须给任务书全部候选的完整 order;hold 必须给结构化
+    hold={kind,note},kind ∈ HOLD_KINDS;违反 fail-closed 走既有有界重试)。
+    """
     text = (raw_text or "").strip()
     if not text:
         return ParsedPrediction(ok=False, mode=mode, error_kind="empty_response")
@@ -440,6 +704,56 @@ def parse_model_response(mode: str, raw_text: str,
                 ok=False, mode=mode, error_kind="duplicate_order_id",
                 error_message=f"order 含重复证据 ID:{dupes}",
             )
+        # ---- S1 E1 v2 契约(仅 rank_presentation=v2;v1 行为不变)----
+        hold_kind, hold_note = "", ""
+        if rank_presentation == RANK_PRESENTATION_V2:
+            if decision == "select":
+                # 完整 order 契约:select 必须给任务书**全部**候选各一次的
+                # 排列(答卷 2–5 位由 order 尾部决定;漏卡 = 隐式弃权,
+                # 不允许 —— 要弃就显式 hold)。fail-closed 走既有有界重试。
+                if not order:
+                    return ParsedPrediction(
+                        ok=False, mode=mode, error_kind="order_missing",
+                        error_message="decision=select 必须给出 order"
+                                      "(任务书全部候选的完整排列)",
+                    )
+                missing = [c for c in (candidate_ids or [])
+                           if c not in order]
+                if missing:
+                    return ParsedPrediction(
+                        ok=False, mode=mode, error_kind="order_incomplete",
+                        error_message=f"order 缺少任务书候选:{missing}"
+                                      "(须全部候选各出现一次)",
+                    )
+            else:
+                # hold:结构化放弃理由(枚举 + note);不得携带 order
+                if order:
+                    return ParsedPrediction(
+                        ok=False, mode=mode, error_kind="order_with_hold",
+                        error_message="decision=hold 不得携带 order",
+                    )
+                hold = obj.get("hold")
+                if not isinstance(hold, dict):
+                    return ParsedPrediction(
+                        ok=False, mode=mode, error_kind="hold_reason_invalid",
+                        error_message="decision=hold 需要 "
+                                      "hold={kind,note}(kind 为任务书"
+                                      "枚举值)",
+                    )
+                hold_kind = str(hold.get("kind", ""))
+                hold_note = str(hold.get("note", ""))
+                if hold_kind not in HOLD_KINDS:
+                    return ParsedPrediction(
+                        ok=False, mode=mode, error_kind="hold_reason_invalid",
+                        error_message=f"hold.kind {hold_kind!r} 不在枚举 "
+                                      f"{list(HOLD_KINDS)}",
+                    )
+                if hold_kind == "other" and not hold_note.strip():
+                    return ParsedPrediction(
+                        ok=False, mode=mode, error_kind="hold_reason_invalid",
+                        error_message="hold.kind=other 时 note 必填",
+                    )
+                hold_note = hold_note[:HOLD_NOTE_CHAR_CAP]
         if decision == "select" and order:
             if selected not in order:
                 return ParsedPrediction(
@@ -454,11 +768,32 @@ def parse_model_response(mode: str, raw_text: str,
         reasons = obj.get("reasons") or {}
         if not isinstance(reasons, dict):
             reasons = {}
+        if rank_presentation == RANK_PRESENTATION_V2:
+            # v2:逐候选理由结构化 {verdict, note}(verdict ∈
+            # chosen|competitive|rejected;旧字符串形规约为 note,不失败);
+            # 文本确定性截断,不因长度 fail
+            norm: dict = {}
+            for k, v in reasons.items():
+                if isinstance(v, dict):
+                    norm[str(k)] = {
+                        "verdict": str(v.get("verdict", "")),
+                        "note": str(v.get("note", ""))[:REASON_TEXT_CHAR_CAP],
+                    }
+                else:
+                    norm[str(k)] = {
+                        "verdict": "",
+                        "note": str(v)[:REASON_TEXT_CHAR_CAP],
+                    }
+            reasons = norm
+        else:
+            reasons = {str(k): str(v) for k, v in reasons.items()}
         return ParsedPrediction(
             ok=True, mode=mode, decision=decision,
             selected_evidence_id=selected if decision == "select" else None,
-            order=order, reasons={str(k): str(v) for k, v in reasons.items()},
+            order=order, reasons=reasons,
             reason=reason,
+            hold_kind=hold_kind if decision == "hold" else "",
+            hold_note=hold_note if decision == "hold" else "",
         )
 
     if mode == PREDICTION_MODE_ANALOGY:

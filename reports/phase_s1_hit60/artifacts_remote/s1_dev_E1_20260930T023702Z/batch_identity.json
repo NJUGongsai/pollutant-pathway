@@ -1,0 +1,101 @@
+{
+  "created_at": "2026-09-30T02:37:14+0000",
+  "identity": {
+    "asset_manifest_sha256": "ac9b97b872c9666eebbe32b42c626997aca34438ade17d7bbf36a8154b848e6c",
+    "code_aggregate_sha256": "3fe38c861f41d723ed850e4d0d4faee50176ba9fc2746e056b1ea68fb3a39c3c",
+    "config": {
+      "arm": "s1_dev_E1",
+      "batch_cost_cap_cny": 6.0,
+      "batch_root": "s1_dev_E1",
+      "budget_rationale": "S1 HIT60 dev 基线臂:56 题(B1/BIOSYSMOdb 拆步冻结卷,SHA 8869cd05…,见 reports/phase_s1_hit60/PREREGISTRATION.md §1)单步口径,预算与 EC298 单步重考同口径(max_depth=1/max_expansions=1/width=5/llm_calls=3/proposals=1,任务书 T1 §1.5);reactant_similar=false(类比线封存,任何臂不得打开)。C0=当前行为基线:不发送 temperature(缺省 null)、rank 窗口 8(缺省)。对照臂 = 同版 C0:除预登记差异(reports/phase_s1_hit60/ARM_CONFIG_DIFFS.md)外,三配置逐字段相等。",
+      "budgets": {
+        "max_depth": 1,
+        "max_expansions": 1,
+        "max_frontier_width": 5,
+        "max_llm_calls": 3,
+        "max_proposals": 1
+      },
+      "capacity": {
+        "memory_gb_per_worker": 3.0,
+        "min_free_disk_gb": 20.0
+      },
+      "config_notes": "JSON 无注释,占位说明登记于此(三臂同文):batch_cost_cap_cny=null 与 provider_price_snapshot=null 为部署占位,发车前由部署代理回填(费用上限按 ¥50 总预算与 PREREGISTRATION §2/§5 分摊;价格快照三臂必须同值回填,回填后须在 ARM_CONFIG_DIFFS.md 补登记,否则身份 diff 超出预登记字段);batch_root 为批次根基名,部署代理发车时加时间戳后缀并新建目录(一律新批次根,禁跨身份 resume);exam_inputs 为远端部署位(/usrdata/EnzymeCAGE_data/ 下)的 dev 题卷路径占位,由部署代理放置,勿写本地路径;exam.py 的白名单构造期望 qid/substrate_smiles 字段名,而 dev_questions.jsonl 为 qid/root_smiles,部署代理运行侧转换时须保留三字段白名单口径(qid/root_smiles/root_smiles_sha256)。",
+      "exam_inputs": "workspaces/dependingv43_s1/exam/dev_questions.jsonl",
+      "export_policy_overrides": {},
+      "llm_timeout_s": 3600.0,
+      "max_http_retries": 4,
+      "max_parallel": 20,
+      "max_worker_respawns": 2,
+      "model_request_params": {
+        "reasoning_effort": "max"
+      },
+      "poll_interval_s": 10.0,
+      "prediction_policy_overrides": {
+        "max_analogy_donor_candidates": 3,
+        "rank_candidate_presentation": "v2",
+        "reactant_similar_enabled": false,
+        "reactant_similar_threshold": 0.0,
+        "reactant_similar_top_k": 0
+      },
+      "provider_price_snapshot": {
+        "billing_mode": "pay-per-token (按量)",
+        "cache_read_cny_per_m": 0.23,
+        "checked": "2026-09-29",
+        "checked_at_utc": "2026-09-28T17:07:35Z",
+        "input_cny_per_m": 0.8,
+        "max_input_tokens": 1048576,
+        "max_output_tokens": 131072,
+        "model_id": "ZHIPU/GLM-5.3-Flash",
+        "output_cny_per_m": 2.8,
+        "region": "cn-beijing",
+        "reverified_by_s1_deploy": "2026-09-29 page re-fetch: input 0.8/M, output 2.8/M, cache 0.23/M, RPM 200, TPM 3000000, max_in 1048576, max_out 131072 identical",
+        "rpm": 200,
+        "source": "https://help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+        "thinking_billed_as_output": true,
+        "tpm": 3000000
+      },
+      "rate": {
+        "acquire_timeout_s": 600.0,
+        "cooldown_cap_s": 60.0,
+        "max_calls": 1000,
+        "max_in_flight": 20,
+        "rpm": 180,
+        "tpm": 2700000
+      },
+      "worker_wall_clock_cap_s": 28800
+    },
+    "export_policy": {
+      "in_parent_dedupe": "keep_first_rank",
+      "multi_event_merge": "commit_order_created_at_then_event_id",
+      "parent_merge": "first_seen_identity_by_parent_seq",
+      "products_per_parent_cap": 5,
+      "raw_smiles_field": "product_smiles_full_fallback_product_smiles",
+      "step_order": "parent_seq"
+    },
+    "input_manifest_sha256": "aa018462b1d0b52a460be4900a0a7a1a5b3e0e953c8b1e9ba3365df783fe080e",
+    "model": {
+      "model_id": "ZHIPU/GLM-5.3-Flash",
+      "prediction_policy": {
+        "policy_version": "v43-predpol-default"
+      },
+      "prompt_versions": {
+        "analogy_edit": "6d228935da95f59a060e16e3f2034f3c191b6557cbc7ab31e7595a3d518a5979",
+        "novel_proposal": "1aa413937f3700669527ed81b6410d887ef23472d801adb4e4fbe68e1e850b19",
+        "rank_candidates": "864a5f301de04bae891e189aad40af03bca3cd95286644f220f0e6d785a9e210",
+        "rank_candidates_v2": "830569834771417ba556ca805f66cae4066763aee84ef2a5d5071645e0c4b359"
+      },
+      "provider": "openai_compatible",
+      "request_params": {
+        "reasoning_effort": "max"
+      },
+      "timeout_s": 3600.0
+    },
+    "schema_version": "v43-batch-1",
+    "source": {
+      "exam_inputs_sha256": "afded066c27023669459b0782b55ae1f50558aa24439c8dca624030cda120a09"
+    },
+    "split": "exam298"
+  },
+  "sha256": "f6a6e18b4e76d7f062a3e58a105a6115a089bc39388655b5535a52acdf0bb4c1",
+  "short": "f6a6e18b"
+}

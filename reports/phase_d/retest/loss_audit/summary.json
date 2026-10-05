@@ -1,0 +1,329 @@
+{
+  "anchors": {
+    "C0": {
+      "hit1": 136,
+      "hit3": 182,
+      "hit5": 186,
+      "n_empty": 12
+    },
+    "D3": {
+      "hit1": 132,
+      "hit3": 174,
+      "hit5": 182,
+      "n_empty": 13
+    },
+    "engine": {
+      "hit1": 118,
+      "hit10": 209,
+      "hit3": 174,
+      "hit5": 193
+    },
+    "first_card_kind": {
+      "C0": {
+        "13": "analogy",
+        "182": "recorded",
+        "91": "novel"
+      },
+      "D3": {
+        "17": "analogy",
+        "182": "recorded",
+        "86": "novel"
+      }
+    },
+    "n_questions": 298
+  },
+  "arms": [
+    {
+      "all_by_category": {
+        "": 111,
+        "agrochemical": 21,
+        "agrochemical|halogenated": 2,
+        "agrochemical|halogenated|industrial": 3,
+        "agrochemical|hydrocarbon": 2,
+        "agrochemical|hydrocarbon|halogenated|industrial": 2,
+        "agrochemical|industrial": 1,
+        "halogenated": 19,
+        "halogenated|industrial": 13,
+        "hydrocarbon": 29,
+        "hydrocarbon|halogenated": 4,
+        "hydrocarbon|halogenated|industrial": 5,
+        "hydrocarbon|industrial": 6,
+        "industrial": 45,
+        "industrial|pharma": 1,
+        "pah_btex_petroleum": 14,
+        "pharma": 6,
+        "plastic": 14
+      },
+      "all_multi_gold_products": {
+        "1": 253,
+        "2": 41,
+        "3": 4
+      },
+      "arm": "C0",
+      "component_flip_hit1_qids": [
+        "RXNG_043656495555eab986eb1f00c64dcfc33a9b9d44612a13e7c135579da51d46af",
+        "RXNG_330df242afd7597dc85f5232af68565f95477402b60ca19c9b26449c2632ead0",
+        "RXNG_59a408497ff3441288b65b3636dc59e09933cf08c13e68ebb9357d7dbe3cd6a5",
+        "RXNG_fce2c28fb263c86f242772bf9e13687d1db5ec1006d31531616f516ae3fa5562",
+        "RXNG_74406a79d20da3ebe8b3821ec202769268c49e735e77f8bb2a1b1da28c766766",
+        "RXNG_164844b4b76b8ac5477595bb93d376ba7bfb3ac5d31abc4f096c9ea3d196364b",
+        "RXNG_1c56dceb435794abce028e458a1e9a0f35a1945e3d8983c27aa2bc3961f13124",
+        "RXNG_3c9d29b41b6fe8671fe31d2e5cccc9e9510f49088e5b985b7ee05e902c4b3d4e",
+        "RXNG_8237d7deec2b6c95fd5cd28030daf14d1705e2983338a3378d958672af640996",
+        "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+        "RXNG_d953c142283c45f194a11555a38d8e07a6e8a3bed6f2cf55a69292120c70231f",
+        "RXNG_e0bca2993398057efd9faedb1a1ef42ec352c3cd3dd3e55006541bcab5986511",
+        "RXNG_36ff61dc5881f095cb1fbb698f2959a66e43814e1d728c9dc5aa0773ef5c6746"
+      ],
+      "engine_miss_top10": 73,
+      "first_card_kind_all": {
+        "analog_reaction": 13,
+        "empty": 12,
+        "novel_proposal": 91,
+        "recorded_reaction": 182
+      },
+      "hit_rate_by_mode": {
+        "analogy_edit": {
+          "hit1": 8,
+          "n": 25
+        },
+        "novel_proposal": {
+          "hit1": 38,
+          "n": 91
+        },
+        "rank_candidates": {
+          "hit1": 26,
+          "n": 70
+        },
+        "recorded_direct": {
+          "hit1": 64,
+          "n": 112
+        }
+      },
+      "labels_all": {
+        "empty_no_model_answer": 11,
+        "reported_at_rank_2_to_5": 186,
+        "retrieval_absence_within_observed_scope": 31,
+        "selected_wrong_product": 44,
+        "unknown": 25,
+        "validation_rejected_gold": 1
+      },
+      "labels_miss_only": {
+        "empty_no_model_answer": 11,
+        "reported_at_rank_2_to_5": 50,
+        "retrieval_absence_within_observed_scope": 31,
+        "selected_wrong_product": 44,
+        "unknown": 25,
+        "validation_rejected_gold": 1
+      },
+      "miss_by_category": {
+        "": 45,
+        "agrochemical": 16,
+        "agrochemical|halogenated": 2,
+        "agrochemical|halogenated|industrial": 2,
+        "agrochemical|hydrocarbon": 2,
+        "agrochemical|hydrocarbon|halogenated|industrial": 1,
+        "agrochemical|industrial": 1,
+        "halogenated": 9,
+        "halogenated|industrial": 8,
+        "hydrocarbon": 14,
+        "hydrocarbon|halogenated": 2,
+        "hydrocarbon|halogenated|industrial": 5,
+        "hydrocarbon|industrial": 3,
+        "industrial": 30,
+        "industrial|pharma": 1,
+        "pah_btex_petroleum": 8,
+        "pharma": 5,
+        "plastic": 8
+      },
+      "miss_label_x_engine_bucket": {
+        "empty_no_model_answer|e1": 4,
+        "empty_no_model_answer|e2_5": 3,
+        "empty_no_model_answer|e_none": 4,
+        "reported_at_rank_2_to_5|e1": 4,
+        "reported_at_rank_2_to_5|e2_5": 27,
+        "reported_at_rank_2_to_5|e6_10": 4,
+        "reported_at_rank_2_to_5|e_none": 15,
+        "retrieval_absence_within_observed_scope|e_none": 31,
+        "selected_wrong_product|e2_5": 27,
+        "selected_wrong_product|e6_10": 3,
+        "selected_wrong_product|e_none": 14,
+        "unknown|e1": 3,
+        "unknown|e2_5": 7,
+        "unknown|e6_10": 7,
+        "unknown|e_none": 8,
+        "validation_rejected_gold|e_none": 1
+      },
+      "miss_label_x_mode": {
+        "empty_no_model_answer|analogy_edit": 11,
+        "reported_at_rank_2_to_5|novel_proposal": 27,
+        "reported_at_rank_2_to_5|rank_candidates": 23,
+        "retrieval_absence_within_observed_scope|analogy_edit": 1,
+        "retrieval_absence_within_observed_scope|novel_proposal": 5,
+        "retrieval_absence_within_observed_scope|rank_candidates": 8,
+        "retrieval_absence_within_observed_scope|recorded_direct": 17,
+        "selected_wrong_product|rank_candidates": 13,
+        "selected_wrong_product|recorded_direct": 31,
+        "unknown|analogy_edit": 4,
+        "unknown|novel_proposal": 21,
+        "validation_rejected_gold|analogy_edit": 1
+      },
+      "miss_multi_gold_products": {
+        "1": 128,
+        "2": 31,
+        "3": 3
+      }
+    },
+    {
+      "all_by_category": {
+        "": 111,
+        "agrochemical": 21,
+        "agrochemical|halogenated": 2,
+        "agrochemical|halogenated|industrial": 3,
+        "agrochemical|hydrocarbon": 2,
+        "agrochemical|hydrocarbon|halogenated|industrial": 2,
+        "agrochemical|industrial": 1,
+        "halogenated": 19,
+        "halogenated|industrial": 13,
+        "hydrocarbon": 29,
+        "hydrocarbon|halogenated": 4,
+        "hydrocarbon|halogenated|industrial": 5,
+        "hydrocarbon|industrial": 6,
+        "industrial": 45,
+        "industrial|pharma": 1,
+        "pah_btex_petroleum": 14,
+        "pharma": 6,
+        "plastic": 14
+      },
+      "all_multi_gold_products": {
+        "1": 253,
+        "2": 41,
+        "3": 4
+      },
+      "arm": "D3",
+      "component_flip_hit1_qids": [
+        "RXNG_043656495555eab986eb1f00c64dcfc33a9b9d44612a13e7c135579da51d46af",
+        "RXNG_330df242afd7597dc85f5232af68565f95477402b60ca19c9b26449c2632ead0",
+        "RXNG_59a408497ff3441288b65b3636dc59e09933cf08c13e68ebb9357d7dbe3cd6a5",
+        "RXNG_fce2c28fb263c86f242772bf9e13687d1db5ec1006d31531616f516ae3fa5562",
+        "RXNG_74406a79d20da3ebe8b3821ec202769268c49e735e77f8bb2a1b1da28c766766",
+        "RXNG_164844b4b76b8ac5477595bb93d376ba7bfb3ac5d31abc4f096c9ea3d196364b",
+        "RXNG_1c56dceb435794abce028e458a1e9a0f35a1945e3d8983c27aa2bc3961f13124",
+        "RXNG_3c9d29b41b6fe8671fe31d2e5cccc9e9510f49088e5b985b7ee05e902c4b3d4e",
+        "RXNG_8237d7deec2b6c95fd5cd28030daf14d1705e2983338a3378d958672af640996",
+        "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+        "RXNG_d953c142283c45f194a11555a38d8e07a6e8a3bed6f2cf55a69292120c70231f",
+        "RXNG_e0bca2993398057efd9faedb1a1ef42ec352c3cd3dd3e55006541bcab5986511",
+        "RXNG_36ff61dc5881f095cb1fbb698f2959a66e43814e1d728c9dc5aa0773ef5c6746"
+      ],
+      "engine_miss_top10": 75,
+      "first_card_kind_all": {
+        "analog_reaction": 17,
+        "empty": 13,
+        "novel_proposal": 86,
+        "recorded_reaction": 182
+      },
+      "hit_rate_by_mode": {
+        "analogy_edit": {
+          "hit1": 6,
+          "n": 30
+        },
+        "novel_proposal": {
+          "hit1": 35,
+          "n": 86
+        },
+        "rank_candidates": {
+          "hit1": 27,
+          "n": 70
+        },
+        "recorded_direct": {
+          "hit1": 64,
+          "n": 112
+        }
+      },
+      "labels_all": {
+        "empty_no_model_answer": 13,
+        "reported_at_rank_2_to_5": 182,
+        "retrieval_absence_within_observed_scope": 31,
+        "selected_wrong_product": 44,
+        "unknown": 28
+      },
+      "labels_miss_only": {
+        "empty_no_model_answer": 13,
+        "reported_at_rank_2_to_5": 50,
+        "retrieval_absence_within_observed_scope": 31,
+        "selected_wrong_product": 44,
+        "unknown": 28
+      },
+      "miss_by_category": {
+        "": 46,
+        "agrochemical": 17,
+        "agrochemical|halogenated": 2,
+        "agrochemical|halogenated|industrial": 2,
+        "agrochemical|hydrocarbon": 2,
+        "agrochemical|hydrocarbon|halogenated|industrial": 1,
+        "agrochemical|industrial": 1,
+        "halogenated": 11,
+        "halogenated|industrial": 9,
+        "hydrocarbon": 14,
+        "hydrocarbon|halogenated": 2,
+        "hydrocarbon|halogenated|industrial": 5,
+        "hydrocarbon|industrial": 3,
+        "industrial": 29,
+        "industrial|pharma": 1,
+        "pah_btex_petroleum": 8,
+        "pharma": 5,
+        "plastic": 8
+      },
+      "miss_label_x_engine_bucket": {
+        "empty_no_model_answer|e1": 5,
+        "empty_no_model_answer|e2_5": 3,
+        "empty_no_model_answer|e_none": 5,
+        "reported_at_rank_2_to_5|e1": 5,
+        "reported_at_rank_2_to_5|e2_5": 27,
+        "reported_at_rank_2_to_5|e6_10": 5,
+        "reported_at_rank_2_to_5|e_none": 13,
+        "retrieval_absence_within_observed_scope|e_none": 31,
+        "selected_wrong_product|e2_5": 27,
+        "selected_wrong_product|e6_10": 3,
+        "selected_wrong_product|e_none": 14,
+        "unknown|e1": 3,
+        "unknown|e2_5": 7,
+        "unknown|e6_10": 6,
+        "unknown|e_none": 12
+      },
+      "miss_label_x_mode": {
+        "empty_no_model_answer|analogy_edit": 13,
+        "reported_at_rank_2_to_5|novel_proposal": 28,
+        "reported_at_rank_2_to_5|rank_candidates": 22,
+        "retrieval_absence_within_observed_scope|analogy_edit": 2,
+        "retrieval_absence_within_observed_scope|novel_proposal": 4,
+        "retrieval_absence_within_observed_scope|rank_candidates": 8,
+        "retrieval_absence_within_observed_scope|recorded_direct": 17,
+        "selected_wrong_product|rank_candidates": 13,
+        "selected_wrong_product|recorded_direct": 31,
+        "unknown|analogy_edit": 9,
+        "unknown|novel_proposal": 19
+      },
+      "miss_multi_gold_products": {
+        "1": 132,
+        "2": 31,
+        "3": 3
+      }
+    }
+  ],
+  "engine_summary": {
+    "hit1": 118,
+    "hit10": 209,
+    "hit3": 174,
+    "hit5": 193
+  },
+  "inputs_sha256": {
+    "c0_root": "runs/ec298_pd_retest_C0",
+    "d3_root": "runs/ec298_pd_retest_D3",
+    "engine_results": "0e16268c375585f622f826a3649ef272f70154d22b2bae02c6e99b90537992cf",
+    "gold_questions": "9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c"
+  },
+  "script_version": "v43-ec298-pd-retest-loss-audit-1",
+  "zero_api": true
+}

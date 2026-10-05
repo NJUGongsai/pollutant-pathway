@@ -45,6 +45,7 @@ from ..domain.policy import (
 from ..services.prediction import (
     ParsedPrediction,
     PredictionTaskError,
+    RANK_PRESENTATION_V2,
     build_prediction_task,
     build_proposed_card,
     parse_model_response,
@@ -53,7 +54,10 @@ from ..services.prediction import (
     task_input_hash,
     task_user_payload,
 )
-from ..services.reaction_finder import ReactionContext
+from ..services.reaction_finder import (
+    ReactionContext,
+    validate_retrieval_payload,
+)
 from ..services.report_adjudication import (
     REPORT_ADJUDICATION_POLICY_DEFAULTS,
     STAGE_FINAL,
@@ -69,6 +73,10 @@ from ..validation.gates import (
     gate_recorded_eligibility,
     gate_smiles,
     validate_event_products,
+)
+from ..validation.conservation import (
+    STATUS_HOLD,
+    conservation_filter_and_rank,
 )
 from .state import WorkflowState
 
@@ -238,6 +246,9 @@ def retrieve_reactions(svc: Services) -> Callable[[WorkflowState], dict]:
                 ancestry=ancestry,
             )
             envelope = svc.finder.find(ctx)
+            # 活调用返回强制校验(fable5 §5.1/§7-2):未知 schema 版本
+            # fail-closed,不落盘不可辨格式的产物
+            validate_retrieval_payload(envelope, origin="finder_live")
             svc.artifacts.write(task_id, "retrieval", envelope)
             _maybe_crash(svc, "retrieve_reactions")  # 检索已落盘,checkpoint 未写
         # 预算记账以持久事实为准(已落盘检索产物数):恢复重放不丢计数,
@@ -259,6 +270,9 @@ def classify_evidence(svc: Services) -> Callable[[WorkflowState], dict]:
         path_id = state["active_path_id"]
         substrate_identity = state["active_substrate_identity"]
         envelope = svc.artifacts.read(state["retrieval_task_id"], "retrieval")
+        # 消费端版本校验:缺失字段按 legacy 容忍,未知版本 fail-closed
+        validate_retrieval_payload(envelope["payload"],
+                                   origin="classify_evidence")
         task_id = task_id_for(svc, path_id, "decision", substrate_identity)
         # 幂等重放:decision 已落盘(如供体裁决后硬杀的恢复)→ 原样复用,
         # 不重写不可变产物(created_at 变化会造成 ArtifactConflict)
@@ -368,6 +382,7 @@ def prepare_prediction(svc: Services) -> Callable[[WorkflowState], dict]:
         mode = state["prediction_mode"]
         retrieval_env = svc.artifacts.read(state["retrieval_task_id"], "retrieval")
         payload = retrieval_env["payload"]
+        validate_retrieval_payload(payload, origin="prepare_prediction")
         r_hash = retrieval_env["payload_hash"]
         task_id = _prediction_task_id(svc, state, mode, payload, r_hash)
         existing = svc.artifacts.read(task_id, "prediction_task")
@@ -474,7 +489,12 @@ def call_model(svc: Services) -> Callable[[WorkflowState], dict]:
         candidate_ids = [c["evidence_id"] for c in task.get("candidates", [])]
         policy = svc.prediction_policy
         max_attempts = 1 + int(policy.get("max_parse_retries", 0))
-        system_prompt = _prompt_for(svc, mode)
+        # S1 E1:rank 协议呈现版本(prompt 选择与解析契约用同一开关;
+        # v1 = 与历史行为逐字节一致;非 rank 模式恒为 v1)
+        rank_presentation = (
+            str(policy.get("rank_candidate_presentation", "v1"))
+            if mode == PREDICTION_MODE_RANK else "v1")
+        system_prompt = _prompt_for(svc, mode, rank_presentation)
 
         attempt = 1
         parsed: ParsedPrediction | None = None
@@ -501,7 +521,15 @@ def call_model(svc: Services) -> Callable[[WorkflowState], dict]:
                     }
                     from ..adapters.llm_client import request_hash
 
-                    svc.artifacts.write(task_id, f"prediction_call.a{attempt}", {
+                    # S1 E2(HIT60):policy 设了 temperature → 显式随请求
+                    # 发送(extra_params 通道);未设(None)则不发送,请求体
+                    # 与历史行为逐字节一致。取值已随 policy 块进 run
+                    # identity;不支持温度的模型(kimi-k3 等)在装配期已
+                    # fail-closed,这里不重复拦截。
+                    temperature = policy.get("temperature")
+                    extra_params = ({"temperature": float(temperature)}
+                                    if temperature is not None else None)
+                    call_artifact = {
                         "status": "issued",
                         "attempt": attempt,
                         "model": {"provider": svc.model.provider,
@@ -509,15 +537,30 @@ def call_model(svc: Services) -> Callable[[WorkflowState], dict]:
                         "request_hash": request_hash(request_payload),
                         "idempotency_key": f"{task_id}#a{attempt}",
                         "system_prompt_sha256": _sha_of(system_prompt),
-                    })
+                    }
+                    if temperature is not None:
+                        # 温度臂审计:该调用实际携带的 temperature 落调用
+                        # 产物(未设臂不写此键,产物与历史逐字节一致)
+                        call_artifact["temperature"] = float(temperature)
+                    svc.artifacts.write(
+                        task_id, f"prediction_call.a{attempt}", call_artifact)
                     _maybe_crash(svc, "call_model")  # 悬空注入点(请求已登记)
+                    # 未设温度臂时不传 extra_params 键:complete() 调用形状
+                    # 与 HEAD 完全一致(任何按旧签名实现的客户端不受影响)
+                    call_kwargs = ({}
+                                   if extra_params is None
+                                   else {"extra_params": extra_params})
                     resp = svc.model.client.complete(
                         mode=mode, system_prompt=system_prompt,
                         user_payload=request_payload["user_payload"],
                         idempotency_key=f"{task_id}#a{attempt}",
+                        **call_kwargs,
                     )
-                    parsed = parse_model_response(mode, resp.raw_text,
-                                                  candidate_ids)
+                    # S1 E1:v2 呈现时解析器按 v2 契约校验(完整 order +
+                    # hold 结构化理由);v1 解析行为不变
+                    parsed = parse_model_response(
+                        mode, resp.raw_text, candidate_ids,
+                        rank_presentation=rank_presentation)
                     svc.artifacts.write(
                         task_id, f"prediction_response.a{attempt}", {
                             "status": ("completed" if resp.ok else
@@ -613,9 +656,18 @@ def _sha_of(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def _prompt_for(svc: Services, mode: str) -> str:
-    """按模式装载提示词(版本已在 ModelSetup 校验)。"""
-    fname = {"rank_candidates": "ranker.md",
+def _prompt_for(svc: Services, mode: str,
+                rank_presentation: str = "v1") -> str:
+    """按模式装载提示词(版本已在 ModelSetup 校验)。
+
+    S1 E1:rank_candidates 且 rank_presentation=v2 时装载 ranker_v2.md
+    (协议臂提示词,SHA 经 prompt_versions 以 rank_candidates_v2 键进
+    身份);其余模式/取值一律原文件,行为与历史一致。
+    """
+    ranker_fname = ("ranker_v2.md"
+                    if rank_presentation == RANK_PRESENTATION_V2
+                    else "ranker.md")
+    fname = {"rank_candidates": ranker_fname,
              "analogy_edit": "analogy_editor.md",
              "novel_proposal": "novel_proposal.md"}[mode]
     path = Path(svc.model.prompts_root) / fname
@@ -664,7 +716,8 @@ def _finalize_parsed(svc: Services, state: WorkflowState, task: dict,
         base["outcome"] = "abstained"
         base["reason"] = parsed.reason or "model_proposed_no_products"
         return "abstained", base
-    return _apply_novel(state, task, task_id, parsed, attempt, base)
+    return _apply_novel(state, task, task_id, parsed, attempt, base,
+                        policy=svc.prediction_policy)
 
 
 def _apply_analogy(svc: Services, state: WorkflowState, task: dict,
@@ -750,6 +803,22 @@ def _apply_analogy(svc: Services, state: WorkflowState, task: dict,
         "score_semantics":
             "model_proposal_qualitative_only_no_calibrated_probability",
     }]
+    # T8 G2(v43-cons-1):analogy 提案同过守恒过滤(单候选;剔除 → held
+    # 诚实弃权,降位/标注随产物落账)。off 时与历史行为逐字节一致。
+    if _conservation_filter_on(svc.prediction_policy):
+        ranked, cons_env, held = _apply_conservation(
+            state, task, [{"smiles": product_smiles, "note": ""}],
+            products)
+        if held:
+            base["outcome"] = "held"
+            base["reason"] = (
+                f"conservation_filter_hold:"
+                f"{cons_env.get('hold_reason', '')}")[:300]
+            base["conservation_filter"] = cons_env
+            base["atomtool_checks"] = checks
+            return "held", base
+        products = ranked
+        base["conservation_filter"] = cons_env
     card = build_proposed_card(
         run_id=state["run_id"], path_id=state["active_path_id"],
         substrate_identity=state["active_substrate_identity"],
@@ -775,8 +844,14 @@ def _real_render(state: WorkflowState):
 
 def _apply_novel(state: WorkflowState, task: dict, task_id: str,
                  parsed: ParsedPrediction, attempt: int,
-                 base: dict) -> tuple[str, dict]:
-    """无证据提案:有序产物构造提案卡(门禁在 validate_products)。"""
+                 base: dict, policy: dict | None = None) -> tuple[str, dict]:
+    """无证据提案:有序产物构造提案卡(门禁在 validate_products)。
+
+    T8 G2(v43-cons-1):novel_conservation_filter=on 时,提案产物在落账前
+    过守恒过滤 + 确定性自排序(纯后处理、无生成端反馈、无重试):剔除项
+    不入卡、降位项垫底、结构化拒因/降位标记随产物落账;剔空或底物不可
+    判定 → held(诚实弃权)。off 时本函数与历史行为逐字节一致。
+    """
     products = []
     for pos, p in enumerate(parsed.products):
         smi = p["smiles"]
@@ -790,6 +865,19 @@ def _apply_novel(state: WorkflowState, task: dict, task_id: str,
             "score_semantics":
                 "model_proposal_qualitative_only_no_calibrated_probability",
         })
+    if _conservation_filter_on(policy):
+        products, cons_env, held = _apply_conservation(
+            state, task, parsed.products, products)
+        if held:
+            # 剔空/底物不可判定 → hold(诚实弃权,不被迫回报最优违规者);
+            # 结构化环境(含被剔除候选与拒因)随 prediction.json 落账
+            base["outcome"] = "held"
+            base["reason"] = (
+                f"conservation_filter_hold:"
+                f"{cons_env.get('hold_reason', '')}")[:300]
+            base["conservation_filter"] = cons_env
+            return "held", base
+        base["conservation_filter"] = cons_env
     card = build_proposed_card(
         run_id=state["run_id"], path_id=state["active_path_id"],
         substrate_identity=state["active_substrate_identity"],
@@ -802,6 +890,55 @@ def _apply_novel(state: WorkflowState, task: dict, task_id: str,
         "products_smiles": [p["product_smiles"] for p in products],
     })
     return "proposed", base
+
+
+def _conservation_filter_on(policy: dict | None) -> bool:
+    """T8 G2 开关(默认 off = C0 行为逐字节不变;值域见 domain.policy)。"""
+    return bool(policy) and str(
+        policy.get("novel_conservation_filter", "off")) == "on"
+
+
+def _surface_text(task: dict) -> str:
+    """题面条件文本(供体登记表 v43-donor-registry-1 扫描源;确定性序列化)。
+
+    dev 题卷条件块为空 → 扫描源为空 → 默认隐式供体恒为 {H2O, O2}。
+    """
+    import json as _json
+
+    conditions = (task or {}).get("conditions")
+    if not conditions:
+        return ""
+    return _json.dumps(conditions, ensure_ascii=False, sort_keys=True)
+
+
+def _apply_conservation(
+    state: WorkflowState, task: dict, parsed_products: list[dict],
+    products: list[dict],
+) -> tuple[list[dict], dict, bool]:
+    """守恒过滤 + 自排序落账(开关 on 时调用;纯后处理)。
+
+    返回 (新 products, 结构化环境, held):held=True 表示剔空或底物不可
+    判定(调用方转 held 诚实弃权;环境含被剔除候选与结构化拒因)。
+    剔除项的结构化拒因随环境块入 prediction.json;降位/标注随每条产物
+    conservation 块入提案卡(可审计)。
+    """
+    result = conservation_filter_and_rank(
+        substrate_smiles=state["active_substrate_identity"],
+        candidates=[
+            {"smiles": p.get("smiles", ""), "note": p.get("note", "")}
+            for p in parsed_products],
+        surface_text=_surface_text(task))
+    env = result.to_dict()
+    if result.status == STATUS_HOLD:
+        # hold 只由"过滤器无法判定"与"剔空"触发,不作化学违规软化通道
+        return [], env, True
+    ranked_products: list[dict] = []
+    for rank_pos, judgment in enumerate(result.ranked):
+        prod = dict(products[judgment.index])
+        prod["position"] = rank_pos
+        prod["conservation"] = judgment.to_dict()
+        ranked_products.append(prod)
+    return ranked_products, env, False
 
 
 def apply_prediction(svc: Services) -> Callable[[WorkflowState], dict]:
@@ -880,6 +1017,7 @@ def validate_products_node(svc: Services) -> Callable[[WorkflowState], dict]:
         path_id = state["active_path_id"]
         substrate_identity = state["active_substrate_identity"]
         retrieval = svc.artifacts.read(state["retrieval_task_id"], "retrieval")["payload"]
+        validate_retrieval_payload(retrieval, origin="validate_products")
         decision = _read_decision(svc, state["decision_task_id"])
         evidence_id = (state.get("predicted_evidence_id")
                        or decision.get("accepted_evidence_id"))
@@ -1070,6 +1208,7 @@ def adjudicate_candidates(svc: Services) -> Callable[[WorkflowState], dict]:
         substrate_identity = state["active_substrate_identity"]
         retrieval_payload = svc.artifacts.read(
             state["retrieval_task_id"], "retrieval")["payload"]
+        validate_retrieval_payload(retrieval_payload, origin="adjudication")
         card, decision = _resolve_selected_card(svc, state, retrieval_payload)
         validation = svc.artifacts.read(state["validation_task_id"],
                                         "validation")
@@ -1162,6 +1301,7 @@ def commit_pathway(svc: Services) -> Callable[[WorkflowState], dict]:
         substrate_identity = state["active_substrate_identity"]
         retrieval_payload = svc.artifacts.read(
             state["retrieval_task_id"], "retrieval")["payload"]
+        validate_retrieval_payload(retrieval_payload, origin="adjudication")
         card, decision = _resolve_selected_card(svc, state, retrieval_payload)
         validation = svc.artifacts.read(state["validation_task_id"],
                                         "validation")

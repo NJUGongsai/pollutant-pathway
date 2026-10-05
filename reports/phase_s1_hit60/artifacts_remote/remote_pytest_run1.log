@@ -1,0 +1,55 @@
+..................s..s.................................................. [ 14%]
+........................................................................ [ 28%]
+...........................................F............................ [ 42%]
+........................................................................ [ 56%]
+.......................................F................................ [ 70%]
+........................................................................ [ 85%]
+........................................................................ [ 99%]
+....                                                                     [100%]
+=================================== FAILURES ===================================
+_______________________ test_arms_ran_on_expected_roots ________________________
+
+comparison = {'ok': True, 'fixtures': [{'name': 'benzenediol', 'ok': True, 'n_candidates': {'old': 97, 'new': 97}, 'declared_catego...es/dependingv3/assets', 'asset_root_new': '/usrdata/EnzymeCAGE_data/workspaces/dependingv43/assets/v3_reactions', ...}}
+v3_code_root = PosixPath('/usrdata/EnzymeCAGE_data/workspaces/dependingv3')
+
+    def test_arms_ran_on_expected_roots(comparison, v3_code_root):
+        env = comparison["env"]
+        assert env["asset_root_old"] == str(v3_code_root / "assets")
+>       assert env["asset_root_new"].startswith(str(REPO_ROOT / "assets"))
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x7fbc08fe53b0>('/usrdata/EnzymeCAGE_data/workspaces/dependingv43_s1/assets')
+E        +    where <built-in method startswith of str object at 0x7fbc08fe53b0> = '/usrdata/EnzymeCAGE_data/workspaces/dependingv43/assets/v3_reactions'.startswith
+E        +    and   '/usrdata/EnzymeCAGE_data/workspaces/dependingv43_s1/assets' = str((PosixPath('/usrdata/EnzymeCAGE_data/workspaces/dependingv43_s1') / 'assets'))
+
+tests/test_engine_asset_parity.py:88: AssertionError
+____________ test_dangling_request_orphan_audited_then_retried_once ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_dangling_request_orphan_a0')
+
+    def test_dangling_request_orphan_audited_then_retried_once(tmp_path):
+        """悬空调用:请求已登记、响应未落盘 → 孤儿审计卡 + 恰好一次重试。"""
+        runs_root = tmp_path / "runs"
+        proc = _driver("run", runs_root, "pr3", tmp_path,
+                       crash_after="call_model")
+        assert proc.returncode == 70, proc.stdout + proc.stderr
+        llm_counter = tmp_path / "llm_pr3.txt"
+        # 崩溃点在调用记录落盘后、模型调用前:counter 尚为 0,
+        # 但请求**可能**已发出 —— 恢复侧不得假定没有,必须按悬空处置
+        calls = _task_results(runs_root, "pr3", "prediction_call")
+        assert len(calls) == 1 and calls[0]["status"] == "issued"
+    
+        proc2 = _driver("resume", runs_root, "pr3", tmp_path)
+        assert proc2.returncode == 0, proc2.stdout + proc2.stderr
+        summary = _summary(proc2)
+        # 孤儿审计卡:记录悬空请求与处置方式
+        orphans = _task_results(runs_root, "pr3", "prediction_orphan")
+>       assert len(orphans) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/test_prediction_recovery.py:225: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_engine_asset_parity.py::test_arms_ran_on_expected_roots - A...
+FAILED tests/test_prediction_recovery.py::test_dangling_request_orphan_audited_then_retried_once
+2 failed, 504 passed, 2 skipped in 658.32s (0:10:58)
+EXIT=1

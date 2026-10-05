@@ -508,7 +508,19 @@ def execute_edits(current: MoleculeRender, edits: list) -> dict:
         return {"ok": False, "reasons": reasons, "product_smiles": "",
                 "atom_id_map": {}, "protocol_version": EDIT_PROTOCOL_VERSION,
                 "n_edits": len(edits or [])}
-    return {"ok": True, "reasons": [], "product_smiles": Chem.MolToSmiles(out),
+    product_smiles = Chem.MolToSmiles(out)
+    # 索引空间统一(S0 取证 §6-2,b978fd0b 误杀根因):product_smiles 是
+    # canonical 重序列化,其**重解析索引空间**与构造 atom_id_map 的底物
+    # 解析索引空间不一致 —— 消费方(check_target_consistency)对旧映射
+    # 套新索引即产生"元素/电荷互换"伪拒因。随产物附带带原子映射号的
+    # 内部 SMILES(映射号 = 执行图原子 idx + 1):映射号随 canonical
+    # 排序原样穿越序列化/重解析,消费方按映射号还原 ID↔idx,天然免疫
+    # 重排。product_smiles 对外口径不变(不带映射号)。
+    mapped = Chem.Mol(out)
+    for idx in range(mapped.GetNumAtoms()):
+        mapped.GetAtomWithIdx(idx).SetAtomMapNum(idx + 1)
+    return {"ok": True, "reasons": [], "product_smiles": product_smiles,
+            "product_mapped_smiles": Chem.MolToSmiles(mapped),
             "atom_id_map": id_to_idx,
             "protocol_version": EDIT_PROTOCOL_VERSION,
             "n_edits": len(edits or [])}
@@ -571,15 +583,48 @@ def _label_parse(label: str) -> tuple[str, int, int]:
     return element, h, charge
 
 
+def _exec_id_index(execution: dict) -> tuple:
+    """执行产物 → (exec_mol, id→idx 映射),两者索引空间一致(§6-2)。
+
+    优先消费 ``execute_edits`` 附带的 ``product_mapped_smiles``(原子
+    映射号 = 执行图原子 idx + 1):重解析后按映射号还原 ID↔idx,与
+    canonical 重排无关。缺该字段或还原不完整(旧产物/手工构造的
+    execution dict)时 fail-closed 回退旧行为(直接解析 product_smiles
+    并套用调用方映射)——旧路径可能错位,但同一分子已由 canonical 等价
+    短路放行,真不同分子仍会因图差异被拒,不会误放行。
+    """
+    id_to_idx = dict(execution.get("atom_id_map") or {})
+    mapped_smiles = execution.get("product_mapped_smiles") or ""
+    if mapped_smiles and id_to_idx:
+        mm = Chem.MolFromSmiles(mapped_smiles)
+        if mm is not None:
+            idx_of_map = {a.GetAtomMapNum(): a.GetIdx()
+                          for a in mm.GetAtoms()}
+            rebuilt = {aid: idx_of_map[idx + 1]
+                       for aid, idx in id_to_idx.items()
+                       if idx + 1 in idx_of_map}
+            if len(rebuilt) == len(id_to_idx):
+                return mm, rebuilt
+    return Chem.MolFromSmiles(execution.get("product_smiles", "")), id_to_idx
+
+
 def check_target_consistency(current: MoleculeRender,
                              execution: dict, target_text: str) -> dict:
     """目标 MoleCode 独立解析并与**执行结果图**逐项对账(任务书 §4)。
 
     - 目标可解析(否则 molecode_unparseable);
-    - 既有原子 ID 不消失、元素一致(mapping_inconsistent:*);
+    - **canonical 等价短路终判**(S0 取证 §6-1,b978fd0b 误杀修复):
+      目标与执行产物经 RDKit canonical SMILES(含立体/电荷)与判分同源
+      口径 ``cn_identity`` **双口径一致** = 同一分子 → 直接 PASS;
+      ID 级差异(原子编号置换/ID 分配错位)不是化学差异,不得拒。
+      只放行 canonical 相同的分子 —— 双口径任一不等都不短路;
+    - 既有原子 ID 不消失、目标标签元素与 ID 内嵌元素一致
+      (mapping_inconsistent:*);
     - ID 级带标签图对账:原子 ID 集合、元素、形式电荷、键集合与键级
       (两侧 kekulé 归一)逐项一致 —— 文本中正则搜到 ID 不算结构相符;
-    - 最终 canonical SMILES(含立体)一致(target_edit_mismatch)。
+      执行侧图经 ``_exec_id_index`` 在统一索引空间重建(§6-2);
+    - 最终 canonical SMILES(含立体)一致(target_edit_mismatch;ID 级
+      对账不比较立体,此为立体/互变异构差异的最后防线)。
     """
     reasons: list[str] = []
     if not execution.get("ok"):
@@ -598,17 +643,6 @@ def check_target_consistency(current: MoleculeRender,
                 "target_smiles": ""}
     tgt_ids = parse_atom_ids(target_text or "")
     cur_ids = set(current.atom_id_map)
-    for aid in sorted(cur_ids - tgt_ids):
-        reasons.append(f"mapping_inconsistent:atom_removed:{aid}")
-    for aid in sorted(cur_ids & tgt_ids):
-        cur_elem = _id_element(aid)
-        tgt_elem = _id_element(aid)
-        if cur_elem and tgt_elem and cur_elem != tgt_elem:
-            reasons.append(
-                f"mapping_inconsistent:element_mismatch:"
-                f"{aid}({cur_elem}->{tgt_elem})")
-    exec_mol = Chem.MolFromSmiles(execution["product_smiles"])
-    exec_graph = _id_graph_from_mol(exec_mol, execution["atom_id_map"])
     # 目标侧 ID 级图:解析器自持 atoms(id→label)/bonds(id,id,token)
     tgt_elements, tgt_charges = {}, {}
     for aid, label in (parser.atoms or {}).items():
@@ -621,6 +655,39 @@ def check_target_consistency(current: MoleculeRender,
         order = {"---": "single", "===": "double", "-.-": "triple"}.get(
             token, "aromatic")
         tgt_bonds[frozenset((a1, a2))] = order
+    target_smiles = Chem.MolToSmiles(target_mol)
+    # ---- canonical 等价短路终判(§6-1;先于一切 ID 级对账)----
+    exec_smiles = execution.get("product_smiles", "")
+    exec_cn = cn_identity(exec_smiles)
+    tgt_cn = cn_identity(target_smiles)
+    if exec_smiles == target_smiles and exec_cn is not None \
+            and exec_cn == tgt_cn:
+        # 目标与执行产物是同一分子(canonical 与 cn_identity 双口径一致):
+        # 此后的 ID 级差异只可能是原子编号置换/ID 分配错位,不得作为拒因
+        # —— b978fd0b 类误杀(19 条全伪拒因)在此终结。真不同分子
+        # (位置异构体/元素/电荷/立体差异)canonical 必不相同,不进此分支。
+        return {"ok": True, "reasons": [], "target_smiles": target_smiles,
+                "n_target_atoms": len(tgt_elements),
+                "note": "canonical_equivalence_short_circuit"}
+    for aid in sorted(cur_ids - tgt_ids):
+        reasons.append(f"mapping_inconsistent:atom_removed:{aid}")
+    # 元素一致性(真实比对):ID 内嵌元素 vs 目标节点标签元素 ——
+    # 旧实现对同一 aid 两次取 ID 内嵌元素(恒等死检查,S0 取证 §4-b),
+    # 现改为标签元素与 ID 元素的真比对(模型改写标识体系仍被拦)
+    for aid in sorted(cur_ids & tgt_ids):
+        id_elem = _id_element(aid)
+        label_elem = tgt_elements.get(aid, "")
+        if id_elem and label_elem and id_elem != label_elem:
+            reasons.append(
+                f"mapping_inconsistent:element_mismatch:"
+                f"{aid}({id_elem}->{label_elem})")
+    exec_mol, exec_id_to_idx = _exec_id_index(execution)
+    if exec_mol is None:
+        return {"ok": False,
+                "reasons": ["internal:product_unparseable"],
+                "target_smiles": target_smiles,
+                "n_target_atoms": len(tgt_elements)}
+    exec_graph = _id_graph_from_mol(exec_mol, exec_id_to_idx)
     if not reasons:
         if exec_graph["ids"] != set(tgt_elements):
             missing = sorted(exec_graph["ids"] - set(tgt_elements))
@@ -663,11 +730,13 @@ def check_target_consistency(current: MoleculeRender,
                         f"target_edit_mismatch:bond_order:"
                         f"{'~'.join(sorted(k))}"
                         f"({exec_graph['bonds'][k]}!={tgt_bonds[k]})")
-    target_smiles = Chem.MolToSmiles(target_mol)
-    if not reasons and target_smiles != execution["product_smiles"]:
+    # 终判兜底(保留):ID 级对账不比较立体/互变异构细节,canonical
+    # (含立体)不一致即拒 —— 立体异构体等 cn_identity 相同但 canonical
+    # 不同的分子不满足上方短路条件,必须在此被拒(fail-closed)。
+    if not reasons and target_smiles != exec_smiles:
         reasons.append(
             f"target_edit_mismatch:canonical_smiles_diff:"
-            f"executed={execution['product_smiles']!r}"
+            f"executed={exec_smiles!r}"
             f"_target={target_smiles!r}")
     return {"ok": not reasons, "reasons": reasons,
             "target_smiles": target_smiles,

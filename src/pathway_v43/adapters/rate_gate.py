@@ -20,12 +20,23 @@
 
 状态文件是协调器/worker 间的共享事实源;损坏时 fail-closed(拒绝发起,
 不静默清零计数)。
+
+并发正确性(fable5 §3.1[问题2]/§7-1,P1a 修复):
+- 所有读-改-写(total_requests / in_flight / peak_in_flight / 滑窗 /
+  冷却 / 停止标志)都在 ``_locked()`` 的 flock 独占临界区内完成 —— 伴生
+  锁文件 ``gate.lock`` 串行化全部 worker 进程,进程被杀内核自动释放锁;
+- 状态文件以**临时文件 + os.replace 原子落盘**:进程在写入中途被杀也
+  只会留下旧/新两个完整 JSON 之一,不会留下半截文件触发 GateCorrupt
+  (旧实现 seek/write/truncate 直接写原文件,截断前被杀即损坏)。
+  闸门文件**格式不变**(schema=v43-rate-gate-1),既有批次根 resume 不受
+  影响。
 """
 
 from __future__ import annotations
 
 import fcntl
 import json
+import os
 import random
 import time
 from contextlib import contextmanager
@@ -102,10 +113,7 @@ class FileRateGate:
         with self._locked() as f:
             text = f.read()
             if not text.strip():
-                state = self._fresh_state()
-                f.seek(0)
-                f.write(json.dumps(state, ensure_ascii=False, indent=1))
-                f.truncate()
+                self._save(self._fresh_state())
                 return
             try:
                 json.loads(text)
@@ -164,10 +172,19 @@ class FileRateGate:
         state.setdefault("peak_in_flight", 0)
         return state
 
-    def _save(self, f, state: dict) -> None:
-        f.seek(0)
-        f.write(json.dumps(state, ensure_ascii=False, indent=1))
-        f.truncate()
+    def _save(self, state: dict) -> None:
+        """原子落盘(必须在 ``_locked()`` 临界区内调用)。
+
+        临时文件写全量后 ``os.replace`` 原名换入:进程在写入中途被杀,
+        磁盘上只可能是完整的旧状态或完整的新状态,不会留下半截 JSON
+        (半截文件会被 ``_load`` 判 GateCorrupt,fail-closed 拒绝整批
+        发起)。replace 不影响 flock(锁在伴生 gate.lock 上);文件格式
+        与旧实现完全一致,既有批次根 resume 不受影响。
+        """
+        tmp = self.dir / (GATE_STATE_FILE + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as out:
+            out.write(json.dumps(state, ensure_ascii=False, indent=1))
+        os.replace(tmp, self.state_path)
 
     @staticmethod
     def _purge(state: dict, now: float) -> None:
@@ -217,7 +234,7 @@ class FileRateGate:
                     state["peak_in_flight"] = max(
                         int(state.get("peak_in_flight", 0)),
                         int(state["in_flight"]))
-                    self._save(f, state)
+                    self._save(state)
                     return {"acquired_at": now,
                             "total_requests": state["total_requests"],
                             "in_flight": state["in_flight"]}
@@ -264,7 +281,7 @@ class FileRateGate:
                     "request_id": request_id,
                     "at": now,
                 }
-            self._save(f, state)
+            self._save(state)
 
     # ------------------------------------------------------------ 只读快照
 

@@ -13,6 +13,13 @@ scorer-1)对 agent 臂从原始 SMILES 求 ``cn_identity``,对引擎臂却直接
   分母规则与 v1 完全一致。含 ``.`` 的多组分候选不混入主分数,只进
   ``multicomponent_sensitivity`` 的"任一组分命中"探索性表。
 
+**口径 v3(component-aware,HIT60 S1.5 判分勘误)**:主分判定改为
+"候选组分集合包含全部金标主产物组分"(``gold_main_component_ids`` +
+``first_full_coverage_rank``;细则见
+``reports/phase_s15_hit60/PREREGISTRATION_V3.md``)。既有
+``component_mode``(any-of)与整串 any-of 语义均被 v3 明令禁止进主分,
+仅保留用于历史敏感性读数的复现。
+
 判分零 LLM、零网络;金标仅在判分进程读取;不写回任何封存输入。
 v1 实现与结果原样保留供审计(exam.py / scoring/per_question_scoring.json)。
 
@@ -36,6 +43,12 @@ from pathlib import Path
 
 SCORER_V2_VERSION = "v43-ec298-scorer-2"
 SCORER_V1_VERSION = "v43-ec298-scorer-1"
+CALIBER_V3_VERSION = "v43-exam-caliber-3"
+CALIBER_V3_DEF = (
+    "component-aware,全主产物命中:候选按 '.' 拆分的 cn 身份集合 ⊇ 金标"
+    "主产物组分身份集合(部分命中=partial 单列不进主分;any-of 禁止;"
+    "超集不破命中——见 reports/phase_s15_hit60/PREREGISTRATION_V3.md)"
+)
 IDENTITY_CALIBER = (
     "cn (v3 eawag_lookup._cn_identity 同口径:charge-normalized stereo-blind;"
     "两臂均从原始候选 SMILES 现算,引擎缓存 product_identity 一律忽略)"
@@ -114,6 +127,12 @@ def first_hit_rank(candidates: list[str], gold_ids: set[str],
     - 重复身份跳过(首-hit 语义下与 v1 等价,保留以防口径漂移);
     - ``component_mode`` 仅用于多组分敏感性表:含 ``.`` 的候选任一组分
       命中即算;主分数一律整条候选。
+
+    .. deprecated-v3::
+        ``component_mode=True`` 是 **any-of 语义,口径 v3 明令禁止进主分**
+        (见 PREREGISTRATION_V3 §1.1)。保留仅为复现历史探索性读数
+        (multicomponent_sensitivity / COVERAGE_STAT M3);v3 主分路径
+        一律使用 :func:`first_full_coverage_rank`。
     """
     from .domain.identity import cn_identity
 
@@ -136,6 +155,90 @@ def first_hit_rank(candidates: list[str], gold_ids: set[str],
         if hit and rank is None:
             rank = r
     return rank
+
+
+# ---------------------------------------------------------------- 口径 v3
+
+
+def candidate_component_ids(candidate: str) -> frozenset[str]:
+    """候选(或金标产物条目)按 ``.`` 拆分后的非 None cn 身份集合。
+
+    与 cn-v1 同口径(电荷归一 + 立体盲);条目无 ``.`` 时退化为单身份。
+    不可解析片段贡献空;全部不可解析 → 空集合(候选占名次但不可能命中)。
+    """
+    from .domain.identity import cn_identity
+
+    return frozenset(
+        i for i in (cn_identity(part) for part in candidate.split("."))
+        if i)
+
+
+def gold_main_component_ids(products_smiles: list[str]) -> frozenset[str]:
+    """v3 金标主产物组分身份集合 G(qid)。
+
+    每条 ``products_smiles`` 条目按 ``.`` 拆分(点串条目为前瞻泛化,现有
+    dev/298 题卷条目内均无点串,与 v2 ``gold_ids`` 同集),逐组分取
+    ``cn_identity``,收集全部非 None 身份。
+
+    fail-closed:集合为空(全部产物不可解析)时抛错——空 G 会令任何候选
+    平凡"全覆盖",必须拦截。
+    """
+    ids: set[str] = set()
+    for product in products_smiles:
+        ids |= candidate_component_ids(product)
+    if not ids:
+        raise ScorerV2Error(
+            "金标主产物组分集合为空(全部不可解析;fail-closed)",
+            {"n_products": len(products_smiles)})
+    return frozenset(ids)
+
+
+def first_full_coverage_rank(candidates: list[str],
+                             gold_component_ids: frozenset[str] | set[str],
+                             ) -> int | None:
+    """口径 v3 主分 rank:最早满足 ``G ⊆ S(c_r)`` 的 1-based 位次。
+
+    - "全部主产物组分命中 = 对"(teacher §五.4.1);部分命中不取名次;
+    - **any-of 禁止**:单组分候选只命中多产物金标之一 → 不命中;
+    - 不可解析候选**占名次但不命中**(与 v2 整串口径一致);
+    - 超集不破命中:触发候选含 G 之外组分仍算命中(已注册边界,
+      PREREGISTRATION_V3 §1.2,配套 hit_with_extra_components 披露列)。
+    """
+    for r, candidate in enumerate(candidates, 1):
+        if gold_component_ids <= candidate_component_ids(candidate):
+            return r
+    return None
+
+
+def component_coverage_profile(candidates: list[str],
+                               gold_component_ids: frozenset[str] | set[str],
+                               ) -> dict:
+    """v3 partial 指标(单列,不进主分)。
+
+    - ``covered``:答卷(全部候选并集)覆盖的金标组分身份集合;
+    - ``partial``:主分未命中且 covered 非空(部分命中,单列指标);
+    - ``scattered_full``:主分未命中但 covered = G——金标组分全被覆盖、
+      却分散在不同候选、无任何单候选全覆盖(any-of 假阳性的残影,
+      归 partial 不归主分);
+    - ``hit_with_extra_components``:触发候选组分严格多于 G(注册边界
+      披露列)。
+    """
+    gold = set(gold_component_ids)
+    rank = first_full_coverage_rank(candidates, gold)
+    covered: set[str] = set()
+    for c in candidates:
+        covered |= candidate_component_ids(c) & gold
+    hit_extra = False
+    if rank is not None:
+        hit_extra = candidate_component_ids(candidates[rank - 1]) - gold != set()
+    return {
+        "rank": rank,
+        "n_gold_components": len(gold),
+        "n_covered": len(covered),
+        "partial": rank is None and bool(covered),
+        "scattered_full": rank is None and covered == gold,
+        "hit_with_extra_components": hit_extra,
+    }
 
 
 def _engine_rows(engine_results_path: str | Path | None) -> dict[str, dict]:

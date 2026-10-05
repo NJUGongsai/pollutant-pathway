@@ -1,0 +1,28 @@
+# SEAL_MANIFEST — HIT60 T8 门 1 深位召回测量(2026-09-30)
+# 封存原则:本目录只含 qid/位次/旗标/信号值/来源标签,零 SMILES 零身份串
+# (已 grep 审计);金标只在 gate1_measure.py 离线进程只读(红线)。
+
+## 封存件(SHA256)
+45d564cd5d72fd86ef71081ba6063cb07bc1f21a7a8643f56b68adfa94f957b2  gate1_measure.py
+6978b6403bf688f689d1fa5c8c9f86e7d495c7c1df65225659eb2202bdffe917  gate1_remote_extract.py
+592a923296f8b6f8d2eb906b2f849dbd39cf246059f30c7e4ed8659b3f36664a  sealed/gate1_measurements.json
+b9f9bc6ea5ff61b344a2140398bbcaea6aff130a610303c85ae6a460cf90620c  sealed/gate1_summary.json
+e6de629559d4c2138634e4a6a722326ab7707734a07052bd6a7775ee252e7861  sealed/gold_depth_22.tsv
+
+## 输入(gitignored raw_dumps/,含候选分子 → 不入仓;SHA 见 raw_dumps/DUMP_SHA256.txt)
+cf044ed267789c0d9074329921d591ea2cb780797b06e29e2ff1a54f1bec77d3  raw_dumps/gate1_C0a.json
+d6332a3bdbe111eddd8a3511fac74431bda1230c81654e940ea4002b35c9a585  raw_dumps/gate1_C0b.json
+697a0d315bf477b085d0d8fe4468d645d7be9b08b9ef962fb5fc3aab356d9857  raw_dumps/gate1_E1.json
+9f94b9117c9904f62ffa59c986a2c9053b61338cb8ff9b2ae870e1dfdd9291bb  raw_dumps/gate1_E2a.json
+72632284a4bc98af1f3f329e619f664b1e595e0893e5641057e84e80e74bd476  raw_dumps/gate1_E2b.json
+75478d647bdd421d02241ceb48e2354a661b29817e397312282fe17f45f81a6b  raw_dumps/gate1_E3.json
+# 远端只读拉取:gate1_remote_extract.py(六批 runs/*/retrieval.json+cardval 紧凑化)
+
+## 仓内输入
+8869cd05cea1a44220f3001f0b6415c6bf97eb5f0122ebc4609aa1c77ab0360c  reports/phase_s1_hit60/dev_questions.jsonl   (= COVERAGE_STAT §5 锚)
+d2dc0037fbcb68ca567e106d40a8c69e4a78d20aa144884ddd9d30d19984e225  reports/phase_s1_hit60/coverage_stat/qid_flags_C0b.tsv (M1 封存旗标,22 题清单源)
+d285dc0b63546bef3799f71a6065feeaa60bf202a97597b7431b4e4265262f2a  reports/phase_s1_hit60/dev_gold/dev_gold.jsonl  (gitignored;= COVERAGE_STAT §5/T6 SEAL 锚)
+
+## --check 复算
+OMP_NUM_THREADS=1 PYTHONPATH=src python reports/phase_s15_hit60/deep_recall_gate1/gate1_measure.py --check
+# 2026-09-30 实测:CHECK PASS 2/2(gate1_measurements.json 40004 B / gate1_summary.json 31004 B 逐字节一致)
