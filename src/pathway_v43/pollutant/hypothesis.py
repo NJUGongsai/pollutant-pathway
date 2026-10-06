@@ -16,15 +16,46 @@
 - step_scope=multistep_summary 保留为汇总边,不冒充净酶反应;
 - hypothesis_id 来自冻结反应语义(参与物规范化 + 转化引用 + 来源组
   键);无法确认等价的来源不强制合并(不同来源组键 → 不同 id)。
+
+R4 回修(R3-08,ppv1-hypothesis-4):
+- **requirements 完整构造校验**:元素必须是 dict(Requirement 对象
+  不受支持 ⇒ HypothesisContractError(kind=requirement_object_not_
+  supported),绝无裸 TypeError);level 必填且 ∈ {essential,
+  preference};value 必填;key 必须是已知条件键;区间值 lo ≤ hi;
+  source_refs/绑定字段类型校验(共用 path_context.
+  validate_requirement_dict)。
+- **外来绑定结构化拒绝(R3-06)**:requirements 预填**外来**
+  introduced_phase_id/introduced_edge/scenario_ref(属于另一旧边)
+  ⇒ HypothesisContractError(kind=foreign_requirement_binding);
+  合法自绑定(introduced_edge == 本假设 id,重放上下文绑定过的要求
+  集)允许。绑定字段是**上下文层出处,不进假设身份**——存储载荷中
+  一律归零(同语义的未绑定/自绑定构造 ⇒ 同 id 且同 payload)。
+- **深拷贝**:requirements dicts 构造期深拷贝,caller-owned dict
+  后续修改不影响假设内容/身份。
+- **排序幂等(R3-08 下半套)**:canonical_hypothesis_payload——
+  requirements 按每条 canonical_json 排序、assumptions/dependency_
+  refs 排序,其余字段原样;to_dict 输出此规范形;hypothesis_id 的
+  身份哈希也基于此规范形(同语义不同顺序 ⇒ 同 id 且同 payload)。
+- **可重推导身份**:recompute_hypothesis_id 从载荷(不含
+  hypothesis_id 字段)按构造期同算法重推导 id(存储线 submit 复核
+  "提供的 id 与载荷一致");payload 增加 origin_group_key 字段
+  (身份输入完整可重推导;版本已升 -4,旧 -3 载荷由版本门拒绝)。
 """
 
 from __future__ import annotations
 
+import copy
 import math
 from dataclasses import dataclass, field
 from fractions import Fraction
 
 from ..domain.models import canonical_json, stable_id
+from .path_context import (
+    REQUIREMENT_BINDING_FIELDS,
+    ConditionContractError as _ConditionContractError,
+    Requirement as _Requirement,
+    validate_requirement_dict as _validate_requirement_dict,
+)
 from .profile import PPV1_HYPOTHESIS_SCHEMA_VERSION
 
 PPV1_HYPOTHESIS_SUPPORTED_VERSIONS = (PPV1_HYPOTHESIS_SCHEMA_VERSION,)
@@ -279,7 +310,13 @@ def normalize_participants(
 
 @dataclass
 class ReactionHypothesis:
-    """反应假设(§5.2 全字段;参与物经 normalize 后入账)。"""
+    """反应假设(§5.2 全字段;参与物经 normalize 后入账)。
+
+    R3-08:requirements 为**规范形深拷贝**(校验通过、绑定字段归零、
+    按每条 canonical_json 排序);to_dict 输出 canonical_hypothesis_
+    payload 规范形——同语义不同顺序 ⇒ 同 id 且同 payload。载荷含
+    origin_group_key(身份输入完整,可 recompute_hypothesis_id 重推导)。
+    """
 
     hypothesis_id: str
     parent_path_id: str
@@ -299,10 +336,13 @@ class ReactionHypothesis:
     model_decision_ref: str = ""
     legacy_relationship_status: str = ""   # A04:legacy 平列表挂牌
     ambiguous_participants: bool = False   # H03:保留歧义标记
+    origin_group_key: str = ""             # R3-08:入载荷,身份可重推导
     schema_version: str = PPV1_HYPOTHESIS_SCHEMA_VERSION
 
     def to_dict(self) -> dict:
-        return {
+        """规范形载荷(canonical_hypothesis_payload:requirements/
+        assumptions/dependency_refs 排序归一,其余原样)。"""
+        return canonical_hypothesis_payload({
             "schema_version": self.schema_version,
             "hypothesis_id": self.hypothesis_id,
             "parent_path_id": self.parent_path_id,
@@ -316,14 +356,16 @@ class ReactionHypothesis:
             "step_scope_evidence_refs": list(self.step_scope_evidence_refs),
             "provenance_refs": list(self.provenance_refs),
             "support_group_refs": list(self.support_group_refs),
-            "requirements": [dict(r) for r in self.requirements],
+            "requirements": [copy.deepcopy(dict(r))
+                             for r in self.requirements],
             "assumptions": list(self.assumptions),
             "dependency_refs": list(self.dependency_refs),
             "audit_ref": self.audit_ref,
             "model_decision_ref": self.model_decision_ref,
             "legacy_relationship_status": self.legacy_relationship_status,
             "ambiguous_participants": self.ambiguous_participants,
-        }
+            "origin_group_key": self.origin_group_key,
+        })
 
     @classmethod
     def from_dict(cls, d: dict) -> "ReactionHypothesis":
@@ -333,6 +375,19 @@ class ReactionHypothesis:
                 f"ReactionHypothesis schema 版本未知:{version!r}(支持 "
                 f"{list(PPV1_HYPOTHESIS_SUPPORTED_VERSIONS)};fail-closed)",
                 {"schema_version": version})
+        raw_requirements = list(d.get("requirements", []))
+        for i, raw in enumerate(raw_requirements):
+            if not isinstance(raw, dict):
+                raise HypothesisContractError(
+                    f"假设要求必须是 dict:{type(raw).__name__}",
+                    {"kind": "requirement_object_not_supported",
+                     "requirement_index": i})
+            try:
+                _validate_requirement_dict(
+                    raw, where={"requirement_index": i})
+            except _ConditionContractError as exc:
+                raise HypothesisContractError(
+                    str(exc), dict(exc.detail)) from exc
         return cls(
             hypothesis_id=d["hypothesis_id"],
             parent_path_id=d["parent_path_id"],
@@ -348,7 +403,8 @@ class ReactionHypothesis:
                 d.get("step_scope_evidence_refs", [])),
             provenance_refs=list(d.get("provenance_refs", [])),
             support_group_refs=list(d.get("support_group_refs", [])),
-            requirements=[dict(r) for r in d.get("requirements", [])],
+            requirements=[copy.deepcopy(dict(r))
+                          for r in raw_requirements],
             assumptions=list(d.get("assumptions", [])),
             dependency_refs=list(d.get("dependency_refs", [])),
             audit_ref=d.get("audit_ref", ""),
@@ -356,8 +412,141 @@ class ReactionHypothesis:
             legacy_relationship_status=d.get(
                 "legacy_relationship_status", ""),
             ambiguous_participants=bool(d.get("ambiguous_participants", False)),
+            origin_group_key=d.get("origin_group_key", ""),
             schema_version=version,
         )
+
+
+def _requirement_identity_signature(raw: dict) -> str:
+    """单条要求的身份签名(R3-08:与构造期同口径)。
+
+    Requirement 规范形(value_basis 推断、字段补全)+ **绑定字段归零**
+    ——introduced_* 是上下文层出处,不进假设身份:同语义的未绑定
+    构造与自绑定重放 ⇒ 同 id(这是"合法自绑定允许"的前提);外来
+    绑定的拒绝在外层按 introduced_edge ≠ 本假设 id 判定。
+    """
+    try:
+        _validate_requirement_dict(raw)
+        req = _Requirement(**dict(raw))
+    except _ConditionContractError as exc:
+        raise HypothesisContractError(str(exc), dict(exc.detail)) from exc
+    d = req.to_dict()
+    for k in REQUIREMENT_BINDING_FIELDS:
+        d[k] = ""
+    return canonical_json(d)
+
+
+def _hypothesis_id_from_payload(payload: dict) -> str:
+    """从规范载荷推导 hypothesis_id(构造期同算法;不含
+    hypothesis_id 字段本身)。"""
+    d = {k: v for k, v in payload.items() if k != "hypothesis_id"}
+    req_sigs = sorted(_requirement_identity_signature(r)
+                      for r in (d.get("requirements") or []))
+    return stable_id(
+        "hyp", str(d.get("parent_path_id", "")),
+        str(d.get("substrate_state_ref", "")),
+        canonical_json(d.get("participants") or []),
+        str(d.get("transformation_ref", "")),
+        str(d.get("participant_list_status", "")),
+        str(d.get("step_scope", "")),
+        str(d.get("origin_group_key", "")),
+        canonical_json(req_sigs),
+        canonical_json(sorted(str(x) for x in (d.get("assumptions") or []))),
+        canonical_json(sorted(str(x)
+                              for x in (d.get("dependency_refs") or []))))
+
+
+def _reject_foreign_requirement_bindings(raw_requirements: list,
+                                         hypothesis_id: str) -> None:
+    """R3-06 外来绑定拒绝:任一要求带非空绑定字段而 introduced_edge
+    ≠ 本假设 id(属于另一旧边/根上下文)⇒ 结构化拒绝;自绑定
+    (introduced_edge == 本假设 id)允许(归零存档)。"""
+    for i, raw in enumerate(raw_requirements):
+        bindings = {k: str(raw.get(k, "") or "")
+                    for k in REQUIREMENT_BINDING_FIELDS}
+        if not any(bindings.values()):
+            continue
+        if bindings["introduced_edge"] != hypothesis_id:
+            raise HypothesisContractError(
+                "假设 requirements 携带外来引入绑定(introduced_* 属于"
+                "另一旧边/上下文,不得冒称本候选要求的出处;新要求的"
+                "评估绑定由上下文/审计按当前作用域完成)",
+                {"kind": "foreign_requirement_binding",
+                 "requirement_index": i,
+                 "introduced_phase_id": bindings["introduced_phase_id"],
+                 "introduced_scenario_ref":
+                     bindings["introduced_scenario_ref"],
+                 "introduced_edge": bindings["introduced_edge"],
+                 "hypothesis_id": hypothesis_id})
+
+
+def canonical_hypothesis_payload(hypothesis_dict: dict) -> dict:
+    """规范化假设载荷(R3-08 契约:排序幂等下半套)。
+
+    - requirements 按每条的 canonical_json 排序(顺序无关);
+    - assumptions / dependency_refs 排序;
+    - 其余字段原样(浅结构新容器,不修改输入;requirements 逐条
+      深拷贝,调用方可持有)。
+    hypothesis.to_dict() 输出此规范形;hypothesis_id 的身份哈希也
+    基于此规范形——同语义不同顺序 ⇒ 同 id 且同 payload(第二次
+    put 语义比较不因顺序报冲突)。
+    """
+    if not isinstance(hypothesis_dict, dict):
+        raise HypothesisContractError(
+            f"假设载荷必须是 dict:{type(hypothesis_dict).__name__}",
+            {"kind": "invalid_hypothesis_payload_type",
+             "got": type(hypothesis_dict).__name__})
+    out = dict(hypothesis_dict)
+    raw_reqs = out.get("requirements")
+    if raw_reqs is None:
+        raw_reqs = []
+    if not isinstance(raw_reqs, (list, tuple)):
+        raise HypothesisContractError(
+            f"requirements 必须是列表:{type(raw_reqs).__name__}",
+            {"kind": "invalid_requirements_type"})
+    reqs = []
+    for i, item in enumerate(raw_reqs):
+        if not isinstance(item, dict):
+            raise HypothesisContractError(
+                f"假设要求必须是 dict:{type(item).__name__}",
+                {"kind": "requirement_object_not_supported",
+                 "requirement_index": i,
+                 "got": type(item).__name__})
+        reqs.append(copy.deepcopy(dict(item)))
+    try:
+        out["requirements"] = sorted(reqs, key=canonical_json)
+    except TypeError as exc:
+        raise HypothesisContractError(
+            f"要求载荷不可规范化(JSON 不可序列化):{exc}",
+            {"kind": "requirement_not_canonicalizable"}) from exc
+    for field_name, kind in (("assumptions", "invalid_assumptions_type"),
+                             ("dependency_refs",
+                              "invalid_dependency_refs_type")):
+        items = out.get(field_name)
+        if items is None:
+            items = []
+        if not isinstance(items, (list, tuple)) or not all(
+                isinstance(x, str) for x in items):
+            raise HypothesisContractError(
+                f"{field_name} 必须是字符串列表:{items!r}",
+                {"kind": kind, "field": field_name})
+        out[field_name] = sorted(items)
+    return out
+
+
+def recompute_hypothesis_id(hypothesis_dict: dict) -> str:
+    """从载荷重推导 hypothesis_id(R3-08 契约;存储线 submit 复核用)。
+
+    与构造期同算法:先 canonical_hypothesis_payload 归一(排序),
+    再按要求身份签名(绑定字段归零)推导 id;外来绑定与构造期同样
+    结构化拒绝(kind=foreign_requirement_binding)。输入含不含
+    hypothesis_id 字段均可(该字段不参与推导)。
+    """
+    payload = canonical_hypothesis_payload(dict(hypothesis_dict))
+    hid = _hypothesis_id_from_payload(payload)
+    _reject_foreign_requirement_bindings(
+        list(payload.get("requirements") or []), hid)
+    return hid
 
 
 def build_hypothesis(
@@ -384,9 +573,21 @@ def build_hypothesis(
 
     hypothesis_id = 冻结反应语义哈希(父路径 + 底物状态 + 参与物规范化 +
     转化引用 + 参与物列表状态 + step_scope + 来源组键 + **科学前提**
-    (requirements 全语义/顺序无关、assumptions、dependency_refs,
-    R2-07))。origin_group_key 是调用方给的来源组指纹(如同一供体记录);
-    不同来源组键默认不合并(无法确认等价时不强制合并)。
+    (requirements 全语义/顺序无关/绑定归零、assumptions、
+    dependency_refs,R2-07/R3-08))。origin_group_key 是调用方给的
+    来源组指纹(如同一供体记录);不同来源组键默认不合并(无法确认
+    等价时不强制合并)。
+
+    R3-08 构造校验(fail-closed,绝无裸 TypeError):
+    - requirements 元素必须是 dict(Requirement 对象不受支持 ⇒
+      HypothesisContractError(kind=requirement_object_not_supported));
+    - 逐条过 path_context.validate_requirement_dict(level/value 必填、
+      level 枚举、区间 lo ≤ hi、已知条件键、来源/绑定字段类型),
+      ConditionContractError 统一转 HypothesisContractError(detail 保留);
+    - requirements dicts 深拷贝规范化(绑定字段归零、按 canonical_json
+      排序):caller-owned dict 后续修改不影响假设;
+    - 外来引入绑定(属于另一旧边)⇒ HypothesisContractError(kind=
+      foreign_requirement_binding);自绑定(本假设 id)允许(R3-06)。
     """
     if not participants:
         raise HypothesisContractError(
@@ -421,19 +622,57 @@ def build_hypothesis(
         raise HypothesisContractError(
             "完整声明的假设必须至少有一个产物侧参与物",
             {"parent_path_id": parent_path_id})
-    semantic = canonical_json([p.to_dict() for p in normalized])
-    # R2-07:科学前提入身份 —— requirements(essential/preference 全语义,
-    # 顺序无关)、assumptions、dependency_refs 均影响假设语义:同父/同
-    # 结构/同来源但要求有氧/无氧/带未解决依赖是三个不同假设,可共存
-    # 落账;相同语义重放 ⇒ 同 id 幂等。
-    hypothesis_id = stable_id(
-        "hyp", parent_path_id, substrate_state_ref, semantic,
-        transformation_ref, participant_list_status, step_scope,
-        origin_group_key,
-        canonical_json(sorted(canonical_json(dict(r))
-                              for r in (requirements or []))),
-        canonical_json(sorted(assumptions or [])),
-        canonical_json(sorted(dependency_refs or [])))
+    # R3-08:requirements 完整构造校验 + 深拷贝规范化(绑定归零)
+    raw_requirements = list(requirements or [])
+    normalized_reqs: list[dict] = []
+    for i, raw in enumerate(raw_requirements):
+        if not isinstance(raw, dict):
+            raise HypothesisContractError(
+                f"假设要求必须是 dict:{type(raw).__name__}"
+                "(Requirement 对象不受支持;请传 to_dict() 后的字典)",
+                {"kind": "requirement_object_not_supported",
+                 "requirement_index": i,
+                 "got": type(raw).__name__})
+        try:
+            _validate_requirement_dict(
+                raw, where={"requirement_index": i})
+            req = _Requirement(**dict(raw))
+        except _ConditionContractError as exc:
+            raise HypothesisContractError(
+                str(exc), dict(exc.detail)) from exc
+        d = req.to_dict()          # 规范形(value_basis 推断/字段补全)
+        for k in REQUIREMENT_BINDING_FIELDS:
+            d[k] = ""              # 绑定出处归上下文层,不进假设载荷
+        normalized_reqs.append(d)
+    normalized_reqs.sort(key=canonical_json)   # 排序归一(顺序无关)
+    # R2-07/R3-08:科学前提入身份 —— requirements(essential/preference
+    # 全语义,顺序无关,绑定归零)、assumptions、dependency_refs 均影响
+    # 假设语义:同父/同结构/同来源但要求有氧/无氧/带未解决依赖是三个
+    # 不同假设,可共存落账;相同语义重放 ⇒ 同 id 幂等(同 payload)。
+    payload = {
+        "schema_version": PPV1_HYPOTHESIS_SCHEMA_VERSION,
+        "parent_path_id": parent_path_id,
+        "substrate_state_ref": substrate_state_ref,
+        "participants": [p.to_dict() for p in normalized],
+        "participant_list_status": participant_list_status,
+        "step_scope": step_scope,
+        "transformation_ref": transformation_ref,
+        "transformation_signature_status": transformation_signature_status,
+        "step_scope_evidence_refs": list(step_scope_evidence_refs or []),
+        "provenance_refs": list(provenance_refs or []),
+        "support_group_refs": list(support_group_refs or []),
+        "requirements": normalized_reqs,
+        "assumptions": list(assumptions or []),
+        "dependency_refs": list(dependency_refs or []),
+        "audit_ref": audit_ref,
+        "model_decision_ref": model_decision_ref,
+        "legacy_relationship_status": legacy_relationship_status,
+        "ambiguous_participants": ambiguous,
+        "origin_group_key": origin_group_key,
+    }
+    hypothesis_id = _hypothesis_id_from_payload(payload)
+    # R3-06:外来绑定结构化拒绝(自绑定 == 本 id 允许,已归零存档)
+    _reject_foreign_requirement_bindings(raw_requirements, hypothesis_id)
     return ReactionHypothesis(
         hypothesis_id=hypothesis_id,
         parent_path_id=parent_path_id,
@@ -446,11 +685,12 @@ def build_hypothesis(
         step_scope_evidence_refs=list(step_scope_evidence_refs or []),
         provenance_refs=list(provenance_refs or []),
         support_group_refs=list(support_group_refs or []),
-        requirements=[dict(r) for r in requirements or []],
+        requirements=[copy.deepcopy(d) for d in normalized_reqs],
         assumptions=list(assumptions or []),
         dependency_refs=list(dependency_refs or []),
         audit_ref=audit_ref,
         model_decision_ref=model_decision_ref,
         legacy_relationship_status=legacy_relationship_status,
         ambiguous_participants=ambiguous,
+        origin_group_key=origin_group_key,
     )

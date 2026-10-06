@@ -833,7 +833,10 @@ def test_dependency_resolution_needs_evidence_and_keeps_log() -> None:
         dep, new_evidence=["src:evidence"], resolution="supported",
         note="来源新证据")
     assert resolved.status == DEPENDENCY_SUPPORTED
-    assert resolved.resolution_log[0]["evidence"] == ["src:evidence"]
+    # R4 修改说明:R3-08 将依赖轨迹(resolution_log 嵌套集合)构造期
+    # 冻结(就地修改被拒);轨迹内容语义不变,evidence 用 list() 视图
+    # 比较(to_dict 输出仍是普通列表形态)
+    assert list(resolved.resolution_log[0]["evidence"]) == ["src:evidence"]
 
 
 def test_f06_dependency_refs_without_resolution_not_verified() -> None:

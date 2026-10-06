@@ -175,7 +175,14 @@ def test_r2_04_transition_only_affects_subsequent_not_reaction_edge() -> None:
 
 def test_r2_04_branch_isolation_requirement_objects() -> None:
     """分支不共享可变要求对象(R2-04 反例 requirement_branch_alias):
-    改 A 分支温度要求字典不得影响 parent 与 B 分支结果。"""
+    改 A 分支温度要求字典不得影响 parent 与 B 分支结果。
+
+    R4 修改说明:原用例就地改 branch_a **自身**要求的区间 dict 并
+    断言 branch_a 评估随之变化——R3-08 将嵌套集合构造期冻结(自身
+    就地修改 fail-closed,杜绝"内容改了、context_id 不变"的前提
+    漂移),该段改为断言修改被拒。分支隔离的本意(深拷贝、parent/
+    sibling 不受影响、frozen dataclass)不变且更严。
+    """
     parent = build_path_context(
         condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25)],
         accumulated_requirements=[
@@ -186,14 +193,16 @@ def test_r2_04_branch_isolation_requirement_objects() -> None:
     assert parent.assessed_scope == "condition_compatible"
     assert branch_a.accumulated_requirements[0] \
         is not parent.accumulated_requirements[0]
-    # 深隔离:改 A 的要求值(区间字典)只影响 A
-    branch_a.accumulated_requirements[0].value["lo"] = 40
-    branch_a.accumulated_requirements[0].value["hi"] = 50
+    # R3-08:嵌套区间值冻结——对自身 value 的就地修改被结构化拒绝
+    with pytest.raises(TypeError, match="冻结"):
+        branch_a.accumulated_requirements[0].value["lo"] = 40
     assert parent.assessed_scope == "condition_compatible"
     assert branch_b.assessed_scope == "condition_compatible"
-    assert branch_a.assessed_scope == "conflicted"
-    # parent 语义对象未被改动
+    assert branch_a.assessed_scope == "condition_compatible"
+    # parent 语义对象未被改动(内容不变)
     assert parent.accumulated_requirements[0].value == {"lo": 20, "hi": 30}
+    assert branch_a.accumulated_requirements[0].value == \
+        {"lo": 20, "hi": 30}
     # 要求对象不可属性赋值(frozen)
     with pytest.raises(Exception):
         parent.accumulated_requirements[0].level = "preference"
