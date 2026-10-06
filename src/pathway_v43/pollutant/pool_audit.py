@@ -14,7 +14,10 @@
 - 首版新池排序:稳定原检索位次,来源/假设 ID tie-break
   (PPV1_POOL_ORDER_VERSION);未经验证的分数不跨来源解释为概率;
 - bounded 截断后的有限池可以不覆盖全检索池,必须诚实报告(截断数量、
-  来源分布、原因)。
+  来源分布、原因);
+- 哈希链核**相邻实际记录**(R3/P2 修正):from_previous=True 的阶段
+  输入必须等于上一实际阶段输出 —— 跳过协议阶段的拼接同样非法,跳过/
+  注入须 from_previous=False + transition_reason 留痕。
 
 injected_to_model 阶段在 S3 才有真实模型任务;S2 只提供阶段记录
 结构与占位断言(未实施注入时显式记录 not_applicable)。
@@ -164,8 +167,9 @@ def build_pool_audit(
 
     - off 且未附诊断块:自动记录 {"status": "not_run", ...}(不冒称
       已做 G2);diagnostic 必须传入实际诊断块(缺失 fail-closed);
-    - 相邻已执行阶段:后一阶段 input_hash 必须等于前一阶段
-      output_hash(前一输出 a、下一输入 b 的拼接不能再生成审计);
+    - **相邻实际记录**哈希链(R3/P2):后一阶段声明 from_previous=True
+      时,其 input_hash 必须等于前一**实际记录**阶段的 output_hash
+      —— 不只核协议索引相邻(跳过协议阶段的拼接同样非法);
     - 阶段跳过/显式注入:该阶段 from_previous=False 且 transition_reason
       必填,hash 连续性豁免但转换留痕。
     """
@@ -182,8 +186,6 @@ def build_pool_audit(
             f"input_preview_policy 非法:{input_preview_policy!r}",
             {"input_preview_policy": input_preview_policy})
     for prev, nxt in zip(stages, stages[1:]):
-        adjacent_in_protocol = (
-            expected.index(nxt.stage) == expected.index(prev.stage) + 1)
         if not nxt.from_previous:
             if not nxt.transition_reason:
                 raise PoolAuditError(
@@ -191,7 +193,9 @@ def build_pool_audit(
                     "transition_reason(阶段跳过/显式注入必须留痕)",
                     {"stage": nxt.stage})
             continue
-        if adjacent_in_protocol and nxt.input_hash != prev.output_hash:
+        # 相邻实际记录(与协议索引无关):from_previous=True 即要求
+        # 输入 == 上一实际阶段的输出(R3/P2 修正)
+        if nxt.input_hash != prev.output_hash:
             raise PoolAuditError(
                 f"相邻阶段哈希链断裂:{prev.stage}→{nxt.stage}"
                 f"(前输出 {prev.output_hash[:12]}…,后输入 "
