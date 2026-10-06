@@ -313,8 +313,8 @@ def test_r4_09_put_hypothesis_reordered_requirements_idempotent(
     store = PollutantPathwayStore(tmp_path / "hr.sqlite")
     sub = _pstate(ETHANOL, STRUCTURE_ORIGIN_RAW_INPUT)
     prod = _pstate(ACETALDEHYDE)
-    reqs = [{"key": "oxygen", "level": "essential", "value": "aerobic"},
-            {"key": "ph", "level": "preference", "value": 7}]
+    reqs = [{"key": "oxygen_regime", "level": "essential", "value": "aerobic"},
+            {"key": "pH", "level": "preference", "value": 7}]
     hyp_a = _simple_hyp(sub, prod, requirements=list(reqs))
     hyp_b = _simple_hyp(sub, prod, requirements=list(reversed(reqs)))
     assert hyp_a.hypothesis_id == hyp_b.hypothesis_id  # id 侧已排序归一
@@ -329,8 +329,8 @@ def test_r4_09_submit_replay_reordered_requirements_idempotent(
     """R3-09/R3-10 存储侧:重放提供排序不同的同语义 hypothesis 载荷 ⇒
     canonical 比较 ⇒ 幂等成功(created=False),不报冲突。"""
     store, sub, prod, hyp, event, args, states = _fixture(tmp_path, "sr")
-    reqs = [{"key": "oxygen", "level": "essential", "value": "aerobic"},
-            {"key": "ph", "level": "preference", "value": 7}]
+    reqs = [{"key": "oxygen_regime", "level": "essential", "value": "aerobic"},
+            {"key": "pH", "level": "preference", "value": 7}]
     hyp_a = _simple_hyp(sub, prod, origin_group="sr",
                         requirements=list(reqs))
     hyp_b = _simple_hyp(sub, prod, origin_group="sr",
