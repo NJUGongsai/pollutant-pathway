@@ -261,7 +261,8 @@ def test_r3_02_enhanced_stereo_joint_unsupported_unknown() -> None:
         expectation={"target_smiles": execution["product_smiles"]},
         result=execution, edits=edits)
     assert diag.reaction_center_match is None
-    assert any("enhanced_stereo_unsupported" in r
+    # R5(R4-07):unsupported 消息覆盖增强组与非四面体两类
+    assert any("joint_mapping_stereo_unsupported" in r
                for r in diag.missing_info_reasons)
 
 
@@ -526,17 +527,30 @@ def test_r3_01_strict_axis_unknown_blocks_all_verified() -> None:
     补 [H] 只闭合数值账、strict=False 的变体)。"""
     states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN)
     hyp = _bound_hyp(states)
+    # R5(R4-01):真实诊断产生 strict=None(执行成功、区域核实,但
+    # 期望产物未提供 ⇒ 产物比对轴未核实)——证据带完整 proof_record,
+    # audit 复算一致后按复算轴消费;手写字段拼接不再可采信
+    render = roundtrip(ETHANOL, name="S")
+    edits = [{"op": "change_bond_order", "atom1": "S_C_2",
+              "atom2": "S_O_1", "from_order": "single",
+              "to_order": "double"}]
+    execution = execute_edits(render, edits)
+    assert execution["ok"] is True
+    diag = check_edit_against_donor(
+        current={"smiles": render.smiles,
+                 "atom_id_map": dict(render.atom_id_map)},
+        donor={"center_atom_ids": ["dC", "dO"]},
+        alignment={"status": "resolved",
+                   "donor_to_current": {"dC": "S_C_2", "dO": "S_O_1"},
+                   "equivalence_classes": [], "ref": "r5-strict"},
+        expectation={"target_smiles": ""},  # 期望缺失 ⇒ strict=None
+        result=execution, edits=edits)
+    assert diag.reaction_center_match is True
+    assert diag.strict_target_match is None
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),
-        center_evidence={"checker_version": "ppv1-donor-diagnostic-4",
-                         "checker_scope": "region_net_change",
-                         "center_match": True,
-                         "declaration_mismatch": False,
-                         "strict_target_match": None,  # 未核实
-                         "bound_inputs": {
-                             "substrate_identity": "CCO",
-                             "product_identity": ACETALDEHYDE}})
+        center_evidence=center_evidence_from_donor_diagnostic(diag))
     center = next(c for c in audit.checks
                   if c.name == CHECK_TRANSFORMATION_CENTER)
     assert center.status == CHECK_UNKNOWN
@@ -553,7 +567,7 @@ def test_r3_01_unknown_checker_scope_rejected() -> None:
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),
-        center_evidence={"checker_version": "ppv1-donor-diagnostic-4",
+        center_evidence={"checker_version": "ppv1-donor-diagnostic-5",
                          "checker_scope": "full_template_visionary",
                          "center_match": True,
                          "bound_inputs": {
@@ -716,9 +730,26 @@ def test_r3_08_input_hash_covers_real_inputs() -> None:
     b = audit_hypothesis(hyp, states=state_map, context=ctx,
                          center_evidence=evidence,
                          unresolved_dependency_ids=["dep:x"])
-    # ② 中心证据结论(True vs False)
-    evidence_false = dict(evidence)
-    evidence_false["center_match"] = False
+    # ② 中心证据结论(True vs False)——R5(R4-01):真实诊断产生
+    # 不同结论(供体中心声明偏移 ⇒ center_match=False),不是改写
+    # 自报字段(改写会被 integrity 复算结构化拒绝)
+    render_off = roundtrip(ETHANOL, name="S")
+    edits_off = [{"op": "change_bond_order", "atom1": "S_C_2",
+                  "atom2": "S_O_1", "from_order": "single",
+                  "to_order": "double"}]
+    execution_off = execute_edits(render_off, edits_off)
+    assert execution_off["ok"] is True
+    diag_off = check_edit_against_donor(
+        current={"smiles": render_off.smiles,
+                 "atom_id_map": dict(render_off.atom_id_map)},
+        donor={"center_atom_ids": ["d1", "d2"]},
+        alignment={"status": "resolved",
+                   "donor_to_current": {"d1": "S_C_1", "d2": "S_C_2"},
+                   "equivalence_classes": [], "ref": "r5-off"},
+        expectation={"target_smiles": execution_off["product_smiles"]},
+        result=execution_off, edits=edits_off)
+    assert diag_off.reaction_center_match is False
+    evidence_false = center_evidence_from_donor_diagnostic(diag_off)
     c = audit_hypothesis(hyp, states=state_map, context=ctx,
                          center_evidence=evidence_false,
                          unresolved_dependency_ids=None)

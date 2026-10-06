@@ -1,4 +1,29 @@
-"""PathContext — 路径上下文、条件事实与证据依赖(v4 回修,S2)。
+"""PathContext — 路径上下文、条件事实与证据依赖(v5 回修,S2)。
+
+v5(ppv1-context-5 / ppv1-condition-assessment-5 / ppv1-dependency-5,
+2026-10-07 R5 回修)相对 v4 的变化(Codex R4 复审 R4-03/04/05 +
+R4-02 部分):
+- **单位未知不满足(R4-03)**:带量纲且必须显式单位的键
+  (temperature_C)空单位事实 = 原来源单位未知 ⇒ 评估
+  **unknown(source_unit_unknown)**,不再按数值直比后以
+  assumed_canonical 注记落 satisfied;显式规范单位 ⇒ canonical;
+  非规范单位 ⇒ unit_mismatch(既有);pH 等无量纲键空单位合法,
+  oxygen/matrix/物种键不受影响;
+- **live 作用域含 scenario+phase(R4-04)**:live 判定与快照覆盖
+  用 (引入场景, 引入阶段) 二元组 —— 同阶段名不同场景的旧要求不再
+  被当前场景事实重评(旧边结论由 phase_history 快照承载);接口
+  允许只转 scenario,不强迫改阶段名规避;
+- **快照覆盖按具体要求签名(R4-04)**:冻结快照记录
+  covered_requirement_signatures(该次评估实际覆盖的要求集合)——
+  覆盖核对要求**具体要求**被评估,不再"阶段存在即覆盖";空快照
+  不能掩盖孤儿必要要求(孤儿 ⇒ 显式 unknown);
+- **依赖支持按轴当前有效状态(R4-05)**:每轴取最近一次解决结论
+  (contradicted 撤销该轴此前的 supported;后续再生支持不洗掉已
+  反驳的初始供给;恢复某轴须该轴新证据);总体 status:任一轴
+  contradicted ⇒ contradicted,否则任一轴 supported ⇒ supported;
+  support_axes = 当前有效支持轴(不再"曾经支持永久保留");
+- **冻结 dict 封 __ior__(R4-02)**:`|=` 就地合并不经 __setitem__,
+  子类不覆盖即静默改值;现在与 setitem/update 同样立即 TypeError。
 
 v4(ppv1-context-4 / ppv1-condition-assessment-4 / ppv1-dependency-4,
 2026-10-06 R4 回修)相对 v3 的变化(Codex R3-06/07/08/12 + §4 行 1/2/8):
@@ -91,9 +116,14 @@ OXYGEN_REGIME_VALUES = frozenset({"aerobic", "anaerobic", "facultative"})
 # 键 → 视作键名既定量纲的规范单位(空 = 无单位/未声明,按键名量纲);
 # 首版不做换算:非规范单位 ⇒ unit_mismatch ⇒ unknown,不得按数值直比
 CONDITION_KEY_UNITS: dict[str, frozenset[str]] = {
-    CONDITION_KEY_TEMPERATURE: frozenset({"", "°C", "C", "celsius"}),
+    CONDITION_KEY_TEMPERATURE: frozenset({"°C", "C", "celsius"}),
     CONDITION_KEY_PH: frozenset({"", "pH", "dimensionless"}),
 }
+# R4-03:带量纲且单位必须显式声明的键 —— 空单位事实 = 原来源单位未知
+# ⇒ 评估 unknown(unit_basis=source_unit_unknown),不得靠
+# assumed_canonical 注记落 satisfied/conflict;pH 无量纲("" 合法),
+# oxygen/matrix/物种键恒不带单位,不一概判未知
+UNIT_REQUIRED_KEYS = frozenset({CONDITION_KEY_TEMPERATURE})
 
 # 已登记的 v2 条件键缺口(mimo 4.2(2) + Codex"登记未评估维度"):
 # 首版不评估这些维度 ⇒ 相容结论只覆盖已评估维度,不得显示为全维度相容
@@ -206,6 +236,10 @@ class _FrozenValueDict(dict):
     pop = _immutable
     popitem = _immutable
     clear = _immutable
+    # R4-02:dict.__ior__ 就地合并不经 __setitem__,子类若不覆盖即
+    # 静默改值(复审 frozen_value_dict_ior_bypass 反例:
+    # alias |= {"lo":20,"hi":30} 改必要区间而 context_id 不变)
+    __ior__ = _immutable
 
     def __deepcopy__(self, memo):
         return _FrozenValueDict(
@@ -481,12 +515,11 @@ def build_requirement(*, key: str, level: str, value=None,
                       note: str = "") -> Requirement:
     """构造要求(fail-closed 校验)。
 
-    单位契约(§4 行 1,文档钉死):**要求值恒为键规范单位**——本
-    构造器不支持 unit 字段(单位只属于事实侧);带量纲键
-    (temperature_C/pH)的非规范单位事实在评估时判 unit_mismatch ⇒
-    unknown,无单位事实按键规范单位比较并在结果中注记
-    unit_basis=assumed_canonical(原来源单位未知,风险由事实来源
-    注记承担)。
+    单位契约(R4-03):**要求值恒为键规范单位** —— 本构造器不支持
+    unit 字段(单位只属于事实侧);带量纲键(temperature_C)的事实
+    **必须显式携带键规范单位**才参与数值比较(评估 canonical),
+    空单位 = 原来源单位未知 ⇒ 评估 unknown(source_unit_unknown),
+    非规范单位 ⇒ unit_mismatch ⇒ unknown;pH 等无量纲键空单位合法。
     """
     if key not in CONDITION_KEYS:
         raise ConditionContractError(
@@ -661,11 +694,12 @@ def _assess_requirement(
 ) -> tuple[str, str, list[str], dict]:
     """单项评估 → (status, reason, fact_sources, extras)。
 
-    extras(R3-08/§4 行 1):unit_basis 注记——带量纲键(在
-    CONDITION_KEY_UNITS)的事实被消费时,显式规范单位 ⇒ "canonical"
-    (已归一输入);无单位 ⇒ "assumed_canonical"(被假定键规范单位,
-    原来源单位未知,风险由事实来源注记承担)。显式错误单位 ⇒
-    unit_mismatch ⇒ unknown(不带注记冒充)。
+    extras(R4-03):unit_basis —— 带量纲键(在 CONDITION_KEY_UNITS)
+   的事实被消费时:显式规范单位 ⇒ "canonical"(已归一输入);
+    必须显式单位的键(temperature_C)无单位 ⇒ **unknown +
+    "source_unit_unknown"**(原来源单位未知;注记不把未知来源升级为
+    satisfied/conflict,mimo 4.3 案 A);非规范单位 ⇒ unit_mismatch ⇒
+    unknown;pH 等无量纲键空单位合法,不因本契约判未知。
     """
     # 文献观察条件不是必需条件:只作参考,不参与门禁
     if req.basis == REQUIREMENT_BASIS_OBSERVED_REFERENCE:
@@ -693,17 +727,29 @@ def _assess_requirement(
     if any(f.status == FACT_STATUS_UNKNOWN for f in facts):
         return UNKNOWN, f"fact_unknown:{req.key}", sources, {}
     fact = facts[0]
-    # 单位边界(R2-05):带量纲键的非规范单位 ⇒ 不做数值比较
-    if not _unit_ok(fact.key, fact.unit):
-        return (UNKNOWN,
-                f"unit_mismatch:{fact.key}:{fact.unit!r}"
-                f"(首版无换算,不按数值直比)", sources, {})
-    # §4 行 1:带量纲键的事实被消费 ⇒ 注记其单位基(区分已归一输入
-    # 与原来源单位未知;要求侧恒为键规范单位,见 build_requirement)
     extras: dict = {}
+    # 单位边界(R2-05 + R4-03):带量纲键的单位三态分立 ——
+    # ① 必须显式单位的键(temperature_C)空单位 = 原来源单位未知 ⇒
+    #   unknown(source_unit_unknown),不做数值比较;注记不能把未知
+    #   来源升级为已归一;
+    # ② 非规范单位(如温度给 K)⇒ unit_mismatch ⇒ unknown(首版无换算,
+    #   不按数值直比);
+    # ③ 无量纲键(pH ""/显式)与 oxygen/matrix/物种键不受影响,不因
+    #   本契约判未知。
     if fact.key in CONDITION_KEY_UNITS:
-        extras["unit_basis"] = ("assumed_canonical" if fact.unit == ""
-                                else "canonical")
+        if fact.unit == "" and fact.key in UNIT_REQUIRED_KEYS:
+            return (UNKNOWN,
+                    f"source_unit_unknown:{fact.key}"
+                    "(带量纲键的事实未声明单位=原来源单位未知;不按数值"
+                    "直比,不以注记升级为已归一;单位归一由事实来源/适配"
+                    "器承担)",
+                    sources, {"unit_basis": "source_unit_unknown"})
+        if not _unit_ok(fact.key, fact.unit):
+            return (UNKNOWN,
+                    f"unit_mismatch:{fact.key}:{fact.unit!r}"
+                    f"(首版无换算,不按数值直比)", sources, {})
+        # §4 行 1:显式规范单位 ⇒ 已归一输入(canonical)
+        extras["unit_basis"] = "canonical"
     if req.value is None:
         return UNKNOWN, f"requirement_value_unspecified:{req.key}", \
             sources, extras
@@ -775,6 +821,48 @@ def _assess_requirement(
 def _effective_phase(req: Requirement, context_phase_id: str) -> str:
     """要求的有效评估阶段:引入绑定优先,未绑定 = 当前阶段。"""
     return req.introduced_phase_id or context_phase_id
+
+
+def _effective_scope(req: Requirement, context_scenario_ref: str,
+                     context_phase_id: str) -> tuple[str, str]:
+    """要求的有效评估作用域(R4-04):(引入场景, 引入阶段)。
+
+    引入绑定优先(场景空 = 未绑定,视作当前场景);live 判定必须
+    scenario+phase **同时**匹配 —— 只比 phase 会让"同阶段名、不同
+    场景"的旧要求被当前场景事实重评(复审 new_same_local_phase_
+    different_scenario 反例:旧有氧要求在 sB:p0 被无氧事实重评出
+    conflict);接口允许只转 scenario,不强迫改阶段名规避。
+    """
+    return (req.introduced_scenario_ref or context_scenario_ref,
+            req.introduced_phase_id or context_phase_id)
+
+
+def _requirement_covered_by_snapshot(
+        req: Requirement, phase_history: list[dict],
+        context_scenario_ref: str, context_phase_id: str) -> bool:
+    """快照覆盖核对(R4-04):**具体要求**的评估被快照承载,而非仅
+    阶段存在。
+
+    derive_child_context 冻结快照时记录 covered_requirement_
+    signatures(该次评估实际覆盖的全部要求签名);覆盖 = 存在快照
+    其 (phase_id, scenario_ref) 匹配该要求的引入作用域,且其签名
+    ∈ covered_requirement_signatures。空快照(无必要要求)不再掩盖
+    孤儿必要要求(复审 orphan_covered_by_empty_unrelated_snapshot
+    反例:空快照的 has_gate_requirements=False 使绑定 p0 的 essential
+    pH 从评估中消失,audit verified/R6)。
+    """
+    scenario, phase = _effective_scope(req, context_scenario_ref,
+                                       context_phase_id)
+    sig = canonical_json(req.to_dict())
+    for h in phase_history:
+        if h.get("phase_id") != phase:
+            continue
+        if req.introduced_scenario_ref and \
+                h.get("scenario_ref") != req.introduced_scenario_ref:
+            continue
+        if sig in (h.get("covered_requirement_signatures") or []):
+            return True
+    return False
 
 
 @dataclass
@@ -1045,10 +1133,12 @@ def assess_candidate_conditions(
             introduced_phase_id=context.phase_id,
             introduced_scenario_ref=context.scenario_ref,
             introduced_edge=hyp_id))
-    # 当前阶段 live:仍在当前阶段的累积旧要求 + 本候选新要求
+    # 当前阶段 live(R4-04:scenario+phase 同时匹配;仍在当前作用域的
+    # 累积旧要求 + 本候选新要求)
     live_reqs = [r for r in context.accumulated_requirements
-                 if _effective_phase(r, context.phase_id)
-                 == context.phase_id]
+                 if _effective_scope(r, context.scenario_ref,
+                                     context.phase_id)
+                 == (context.scenario_ref, context.phase_id)]
     merged = list(live_reqs)
     seen = {canonical_json(r.to_dict()) for r in merged}
     for req in new_reqs:
@@ -1063,28 +1153,27 @@ def assess_candidate_conditions(
     # 旧边:phase_history 记录值(不重评)
     history = [h for h in context.phase_history
                if h.get("has_gate_requirements")]
-    # 孤儿绑定:绑定旧阶段且无快照承载 ⇒ 显式 unknown(fail-closed)
+    # 孤儿绑定:绑定旧作用域且无快照**按签名**承载 ⇒ 显式未知
+    # (fail-closed;R4-04:阶段存在 ≠ 覆盖,空快照不能掩盖孤儿必要要求)
     orphan_rows: list[dict] = []
     for r in context.accumulated_requirements:
-        eff_phase = _effective_phase(r, context.phase_id)
-        if eff_phase == context.phase_id:
+        eff_scope = _effective_scope(r, context.scenario_ref,
+                                     context.phase_id)
+        if eff_scope == (context.scenario_ref, context.phase_id):
             continue
-        covered = any(
-            h.get("phase_id") == eff_phase
-            and (not r.introduced_scenario_ref
-                 or h.get("scenario_ref") == r.introduced_scenario_ref)
-            for h in context.phase_history)
-        if covered:
+        if _requirement_covered_by_snapshot(
+                r, context.phase_history, context.scenario_ref,
+                context.phase_id):
             continue
         orphan_rows.append({
             "key": r.key, "level": r.level, "status": UNKNOWN,
             "reason": (f"requirement_binding_not_in_route_snapshot:"
-                       f"{r.introduced_scenario_ref}:{eff_phase}"
-                       "(绑定旧阶段且无历史快照承载;显式未知,不静默"
-                       "丢弃,也不拿当前事实重评)"),
+                       f"{eff_scope[0]}:{eff_scope[1]}"
+                       "(绑定旧作用域且无历史快照按签名承载该要求的评估;"
+                       "显式未知,不静默丢弃,也不拿当前事实重评)"),
             "basis": r.basis, "value_basis": r.value_basis,
             "sourced": bool(r.source_refs),
-            "introduced_phase_id": eff_phase,
+            "introduced_phase_id": eff_scope[1],
             "introduced_edge": r.introduced_edge,
             "fact_sources": [],
             "route_edge_source": "orphan_binding",
@@ -1334,12 +1423,19 @@ def validate_requirement_dict(raw: dict,
 class Dependency:
     """证据依赖(§6;status 固定三值;解决保留轨迹;不可变)。
 
-    R2-06 支持分轴 + R4 按轴累积(§4 行 2):support_axis 是**最近
-    一次**解决声明的轴(兼容保留);support_axes 是按轴集合**累积**
-    的全部已支持轴——initial_supply supported 后再 regeneration
-    supported ⇒ 两轴都在,启动未知不回退;初始供给轴无证据 ⇒ 该轴
-    保持无支持(unknown)。resolve_dependency 只累积 supported 轴
-    (contradicted 不计支持轴)。
+    R2-06 支持分轴;R4-05 改为**按轴当前有效状态**:
+    - resolution_log 是轴状态的唯一事实源 —— 每轴取其**最近一次**
+      解决事件的结论(contradicted 撤销该轴此前的 supported);
+    - support_axes = **当前有效支持**的轴集合(不再"曾经支持过就
+      永久保留"——复审 contradicted_initial_axis_restored_by_
+      regeneration 反例:initial_supply supported→该轴 contradicted→
+      仅 regeneration supported,support_axes 仍保留初始支持、全局
+      status=supported,audit 当作已解决进 R6);
+    - 总体 status:任一轴当前 contradicted ⇒ contradicted;否则任一
+      轴当前 supported ⇒ supported;否则 unresolved;
+    - 恢复某轴须有**该轴**新证据(该轴新的 supported 事件;
+      regeneration 支持不重新证明已反驳的初始供给);
+    - 重复引用不升级支持(轨迹如实追加,不乘分数)。
 
     R3-08 嵌套不可变:source_refs/resolution_log 构造期深拷贝转
     tuple/冻结映射——对自身轨迹的就地修改立即失败。
@@ -1353,7 +1449,7 @@ class Dependency:
     introduced_at_hypothesis_id: str = ""
     resolution_log: tuple[dict, ...] = ()
     support_axis: str = SUPPORT_AXIS_REACTION  # 最近一次解决声明的轴
-    support_axes: tuple[str, ...] = ()  # R3-08:按轴累积的全部支持轴
+    support_axes: tuple[str, ...] = ()  # R4-05:当前有效支持的轴集合
     schema_version: str = PPV1_DEPENDENCY_SCHEMA_VERSION
 
     def __post_init__(self) -> None:
@@ -1362,9 +1458,18 @@ class Dependency:
             self, "resolution_log",
             tuple(_freeze(dict(x)) if isinstance(x, dict) else x
                   for x in self.resolution_log))
-        # 旧载荷兼容:未携带 support_axes 但已 supported 且声明了
-        # support_axis 的序列化对象,按其唯一轴补齐(不丢失轴信息)
-        if not self.support_axes and self.support_axis and \
+        # R4-05:轨迹存在 ⇒ 轴状态/总体状态从轨迹重推导(构造入口
+        # 同一把关,serialization 往返不漂移);无轨迹的旧载荷兼容
+        # (仅 support_axis + supported)按其唯一轴补齐,不丢失轴信息
+        states = _axis_states_from_log(self.resolution_log)
+        if states:
+            object.__setattr__(
+                self, "support_axes",
+                tuple(sorted(a for a, s in states.items()
+                             if s == DEPENDENCY_SUPPORTED)))
+            object.__setattr__(self, "status",
+                               _overall_status_from_axis_states(states))
+        elif not self.support_axes and self.support_axis and \
                 self.status == DEPENDENCY_SUPPORTED:
             object.__setattr__(self, "support_axes",
                                (self.support_axis,))
@@ -1381,6 +1486,31 @@ class Dependency:
             "support_axes": list(self.support_axes),
             "schema_version": self.schema_version,
         }
+
+
+def _axis_states_from_log(
+        resolution_log: tuple[dict, ...]) -> dict[str, str]:
+    """轨迹 → 每轴最近一次解决结论(R4-05 轴状态的事实源)。"""
+    states: dict[str, str] = {}
+    for entry in resolution_log:
+        if not isinstance(entry, dict):
+            continue
+        axis = str(entry.get("support_axis", "") or "")
+        resolution = str(entry.get("resolution", "") or "")
+        if axis in SUPPORT_AXES and resolution in (
+                DEPENDENCY_SUPPORTED, DEPENDENCY_CONTRADICTED):
+            states[axis] = resolution
+    return states
+
+
+def _overall_status_from_axis_states(states: dict[str, str]) -> str:
+    """轴状态 → 总体状态(R4-05:任一轴 contradicted ⇒ contradicted;
+    否则任一轴 supported ⇒ supported;否则 unresolved)。"""
+    if DEPENDENCY_CONTRADICTED in states.values():
+        return DEPENDENCY_CONTRADICTED
+    if DEPENDENCY_SUPPORTED in states.values():
+        return DEPENDENCY_SUPPORTED
+    return DEPENDENCY_UNRESOLVED
 
 
 def build_dependency(*, kind: str, statement: str,
@@ -1405,11 +1535,14 @@ def resolve_dependency(dep: Dependency, *, new_evidence: list[str],
     support_axis(R2-06)声明该证据支持哪一轴:reaction/regeneration
     = 关系支持(不解决启动供给);initial_supply = 可追溯初始供给
     (解决环的启动未知)。默认 reaction:关系证据不自动变成启动证据。
-    R3-08/§4 行 2:**支持按轴集合累积**——后续解决不再"最近覆盖"前
-    轴:initial_supply supported 后再 regeneration supported ⇒
-    support_axes 两轴都在(启动未知不回退);仅 supported 的轴入集合,
-    contradicted 不计支持轴。重复引用不升级支持(轨迹如实追加,
-    不乘分数)。
+
+    R4-05 **按轴当前有效状态**(不再"最近覆盖"或"曾经支持永久保留"):
+    - 该轴取本次事件结论;其他轴保留各自最近结论(contradicted
+      撤销该轴此前的 supported;后续再生支持不洗掉已反驳的初始供给);
+    - support_axes = 当前有效支持的轴;总体 status:任一轴
+      contradicted ⇒ contradicted,否则任一轴 supported ⇒ supported;
+    - 恢复某轴须有该轴新证据(该轴新的 supported 事件);
+    - 重复引用不升级支持(轨迹如实追加,不乘分数)。
     """
     if resolution not in (DEPENDENCY_SUPPORTED, DEPENDENCY_CONTRADICTED):
         raise ConditionContractError(
@@ -1425,17 +1558,18 @@ def resolve_dependency(dep: Dependency, *, new_evidence: list[str],
     log = list(dep.resolution_log)
     log.append({"resolution": resolution, "evidence": list(new_evidence),
                 "note": note, "support_axis": support_axis})
-    axes = set(dep.support_axes)
-    if resolution == DEPENDENCY_SUPPORTED:
-        axes.add(support_axis)
+    states = _axis_states_from_log(tuple(
+        _freeze(dict(x)) if isinstance(x, dict) else x for x in log))
     return Dependency(
         dependency_id=dep.dependency_id, kind=dep.kind,
-        statement=dep.statement, status=resolution,
+        statement=dep.statement,
+        status=_overall_status_from_axis_states(states),
         source_refs=tuple(dep.source_refs),
         introduced_at_hypothesis_id=dep.introduced_at_hypothesis_id,
         resolution_log=log,
         support_axis=support_axis,
-        support_axes=tuple(sorted(axes)),
+        support_axes=tuple(sorted(a for a, s in states.items()
+                                  if s == DEPENDENCY_SUPPORTED)),
     )
 
 
@@ -1590,22 +1724,26 @@ class PathContext:
         hypothesis.dependency_refs ∪ 本结果并集)。
 
         返回 {dependency_id: {"status": supported|contradicted|
-        unresolved, "support_axes": [轴列表(按轴累积)],
-        "statement": str}}——覆盖依赖**对象**与**裸引用**:裸引用
-        无对象/无解析 ⇒ unresolved(引用存在但解析未提供,不等于
+        unresolved, "support_axes": [当前有效支持轴(R4-05)],
+        "axis_status": {axis: supported|contradicted(逐轴当前
+        有效状态)}, "statement": str}}——覆盖依赖**对象**与**裸引用**:
+        裸引用无对象/无解析 ⇒ unresolved(引用存在但解析未提供,不等于
         没有依赖);空上下文 ⇒ 空字典。
         """
         states: dict[str, dict] = {}
         for dep in self.dependencies:
+            axis_states = _axis_states_from_log(dep.resolution_log)
             states[dep.dependency_id] = {
                 "status": dep.status,
                 "support_axes": sorted(dep.support_axes),
+                "axis_status": dict(sorted(axis_states.items())),
                 "statement": dep.statement,
             }
         for ref in self.dependency_refs:
             if ref not in states:
                 states[ref] = {"status": DEPENDENCY_UNRESOLVED,
-                               "support_axes": [], "statement": ""}
+                               "support_axes": [], "axis_status": {},
+                               "statement": ""}
         return states
 
     @classmethod
@@ -1653,9 +1791,15 @@ class PathContext:
 
     def current_step_assessment(self) -> ConditionAssessment:
         """本步(当前阶段)评估:只含当前阶段有效绑定的必要要求,
-        按当前阶段适用事实评估。"""
+        按当前阶段适用事实评估。
+
+        R4-04:live 判定含 scenario+phase —— 引入场景 ≠ 当前场景的
+        要求不 live(其结论由 phase_history 快照承载,不拿当前场景
+        事实重评);跨阶段事实(空 phase_id)仍可服务多条边。
+        """
         reqs = [r for r in self.accumulated_requirements
-                if _effective_phase(r, self.phase_id) == self.phase_id]
+                if _effective_scope(r, self.scenario_ref, self.phase_id)
+                == (self.scenario_ref, self.phase_id)]
         return aggregate_environment_fit(
             facts=self.condition_facts, requirements=reqs,
             declared_scope=self.assessment_scope,
@@ -1899,6 +2043,12 @@ def derive_child_context(
     if scenario_transition is not None:
         # 冻结父阶段评估为历史快照(旧边结果保留;不追改;不是反应边)
         snapshot = parent.current_step_assessment()
+        # R4-04:记录该次评估**实际覆盖**的要求签名(快照覆盖核对用
+        # 具体要求,不是仅阶段存在 —— 空快照不能掩盖孤儿必要要求)
+        snapshot_reqs = [
+            r for r in parent.accumulated_requirements
+            if _effective_scope(r, parent.scenario_ref, parent.phase_id)
+            == (parent.scenario_ref, parent.phase_id)]
         phase_history.append({
             "phase_id": parent.phase_id,
             "scenario_ref": parent.scenario_ref,
@@ -1911,6 +2061,8 @@ def derive_child_context(
             "preference_notes": list(snapshot.preference_notes),
             "has_gate_requirements": bool(
                 snapshot.requirement_coverage["essential_keys"]),
+            "covered_requirement_signatures": [
+                canonical_json(r.to_dict()) for r in snapshot_reqs],
             "snapshot_basis": "scenario_transition",
             "source_ref": scenario_transition.get("source_ref", ""),
         })

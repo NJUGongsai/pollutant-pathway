@@ -1,4 +1,42 @@
-"""ChemicalAudit — 检查范围明确,未知不可冒充核实(v3 回修,S2)。
+"""ChemicalAudit — 检查范围明确,未知不可冒充核实(v5 回修,S2)。
+
+v5(ppv1-audit-5 / ppv1-admission-5,2026-10-07 R5 回修)相对 v4 的
+变化(Codex R4 复审 R4-01/02/06/07 + §4):
+- **证据证明链内部重算(R4-01)**:center_evidence 携带 proof_record
+  (诊断完整输入集)⇒ audit **复跑**确定性 checker,自报轴/绑定
+  字段须与复算值一致(不一致 ⇒ 结构化拒绝,kind=center_evidence_
+  integrity_mismatch);类型契约(Center_match/strict 须 bool|None
+  等)违约 ⇒ 结构化拒绝(kind=center_evidence_type_violation)——
+  字符串'false'/整数 0/空容器不再绕过 is False/is None;无
+  proof_record ⇒ unknown(两条身份字符串/六条自报字段不构成证明);
+- **产物集合覆盖(R4-01)**:绑定核验按复算的底物/产物身份做**整
+  分子或碎片**两级映射(真实断裂的分列产物正确绑定);未覆盖产物
+  与未覆盖共底物同时存在 ⇒ 部分覆盖 ⇒ unknown(额外未核实转化
+  不得借一个产物达 all_verified);区域与 strict 分轴保留;
+- **input_hash 补有限规则诊断与证明记录哈希(R4-02)**:
+  finite_rule_diagnostic(实际审核入参)与 proof_record/bound_
+  inputs 的 content_hash 入 fingerprint —— not_run(合法 NA)与
+  diagnostic_only(unknown/retain)不再同 hash;
+- **audit.scope 遮蔽修复(§4)**:证据门的局部 checker scope 变量
+  不再覆盖函数 scope 参数(audit.scope/audit_id 如实反映调用方
+  范围,如 'synthetic:review-scope');
+- **镜像活 ID 表 + 前置复核(R4-06)**:_simulate_declared_edits
+  维护顺序执行后的 ID 状态(先增后引合法,与执行器一致)并逐操作
+  复核协议前置(键存在/不存在、from_order == 时点键级)——失败为
+  结构化机读码(declared_precondition_violated:*),错误 from_order
+  不再零失配通过;不改冻结执行器;
+- **键级立体入变化集(R4-07)**:_bond_changes 增 bond_stereo_change
+  (映射原子对的 E/Z 几何 diff;入声明对账签名——ops 声明语言无
+  E/Z ⇒ 执行图带未声明立体变化即失配);身份不同而图轴空 ⇒ 理由
+  net_change_only_in_stereo_representation,不得称"实际净变化为空";
+- **非四面体公开列项(R4-07)**:_stereo_config_delta 先判标签类型
+  (非四面体 ⇒ unsupported,不再返回"构型保持");stereo_
+  comparison_unsupported_atoms 公开清单;中心外存在 unsupported
+  立体轴 ⇒ center 不可判 True;联合映射对增强组与非四面体标签
+  均 unsupported(useChirality 只覆盖四面体标签);
+- 声明对账支持的立体范围声明扩为三类(全指定/无手性骨架/部分或
+  全未指定——按所写表示,mimo probe3);一个 useChirality 开关
+  不证明全范围。
 
 v3(ppv1-audit-3 / ppv1-admission-3,2026-10-06 R3 回修)相对 v2 的变化
 (Codex R2 复审 R2-01/02/03/12 + mimo R2 §3/5 采纳边界):
@@ -78,7 +116,9 @@ from .chemstate import (
     FIDELITY_AS_WRITTEN,
     STRUCTURE_ORIGIN_LEGACY_CN_ONLY,
     ChemicalState,
+    ChemicalStateError,
     build_chemical_state,
+    strict_identity_of,
 )
 from .hypothesis import (
     COEFFICIENT_KNOWN,
@@ -542,7 +582,8 @@ def audit_hypothesis(
                 coverage="full_balance"))
 
     # ---- ⑦ 映射/变换中心(证据门:自报签名不是检查结果,R2-01;
-    # v4 证据绑定本反应 + strict 轴消费 + checker scope,R3-01) ----
+    # v4 证据绑定本反应 + strict 轴消费 + checker scope,R3-01;
+    # v5 证明链内部重算 + 类型契约 + 产物集合覆盖,R4-01) ----
     def _evidence_binding_detail(evidence: dict, problem: str) -> dict:
         bound = evidence.get("bound_inputs") or {}
         return {"problem": problem,
@@ -550,6 +591,184 @@ def audit_hypothesis(
                 "product_identity": bound.get("product_identity", ""),
                 "edits_signature": bound.get("edits_signature", ""),
                 "checker_scope": evidence.get("checker_scope", "")}
+
+    def _evidence_type_violation(evidence: dict) -> str:
+        """证据载荷类型契约(R4-01:字符串'false'/整数0/空容器绕过
+        is False/is None ⇒ 曾直达 R6;表示违约结构化拒绝,不是化学
+        未知)。返回违约描述或空串。"""
+        for field_name in ("center_match", "strict_target_match"):
+            value = evidence.get(field_name)
+            if value is not None and not isinstance(value, bool):
+                return f"{field_name}:{type(value).__name__}={value!r}"
+        if not isinstance(evidence.get("declaration_mismatch", False),
+                          bool):
+            return (f"declaration_mismatch:"
+                    f"{type(evidence.get('declaration_mismatch')).__name__}")
+        bound = evidence.get("bound_inputs")
+        if bound is None:
+            return ""
+        if not isinstance(bound, dict):
+            return f"bound_inputs:{type(bound).__name__}"
+        for key in ("substrate_identity", "product_identity",
+                    "edits_signature", "alignment_ref",
+                    "execution_fingerprint"):
+            value = bound.get(key)
+            if value is not None and not isinstance(value, str):
+                return f"bound_inputs.{key}:{type(value).__name__}"
+        centers = bound.get("donor_centers")
+        if centers is not None and (
+                not isinstance(centers, list)
+                or not all(isinstance(x, str) for x in centers)):
+            return f"bound_inputs.donor_centers:{type(centers).__name__}"
+        record = evidence.get("proof_record")
+        if record is not None and not isinstance(record, dict):
+            return f"proof_record:{type(record).__name__}"
+        return ""
+
+    def _rerun_proof_record(proof: dict) -> DonorConsistencyDiagnostic:
+        """证明记录 → 复跑确定性诊断(R4-01:内部重算建立证明链)。
+
+        proof_record 是 check_edit_against_donor 的完整输入集
+        (current/donor/alignment/expectation/result/edits)——audit
+        在此**重跑**同一确定性 checker,得到可核验的轴结论与绑定
+        输入;诊断对契约违约的 AuditContractError 原样上抛(结构化)。
+        """
+        missing_keys = [key for key in ("current", "donor", "alignment",
+                                        "expectation", "result")
+                        if not isinstance(proof.get(key), dict)]
+        if missing_keys or not isinstance(proof.get("edits"), list):
+            raise AuditContractError(
+                "center_evidence 的 proof_record 形状不完整(须携带"
+                "current/donor/alignment/expectation/result 全部 dict"
+                "与 edits list —— 诊断完整输入集)",
+                {"kind": "center_evidence_proof_record_invalid",
+                 "missing": missing_keys,
+                 "edits_type": type(proof.get("edits")).__name__})
+        return check_edit_against_donor(
+            current=dict(proof["current"]), donor=dict(proof["donor"]),
+            alignment=dict(proof["alignment"]),
+            expectation=dict(proof["expectation"]),
+            result=dict(proof["result"]),
+            edits=list(proof["edits"]))
+
+    def _evidence_integrity_mismatches(
+            evidence: dict, recomputed: dict) -> list[str]:
+        """自报轴/绑定字段 vs 复算值(R4-01:改真实诊断的任一绑定
+        字段不得仅换 input_hash 后照常 verified)。"""
+        out: list[str] = []
+        for key in ("center_match", "strict_target_match"):
+            if key not in evidence or \
+                    evidence.get(key) is not recomputed.get(key):
+                out.append(f"{key}:claimed={evidence.get(key)!r}"
+                           f":recomputed={recomputed.get(key)!r}")
+        if evidence.get("declaration_mismatch", None) != \
+                recomputed.get("declaration_mismatch"):
+            out.append("declaration_mismatch:claimed="
+                       f"{evidence.get('declaration_mismatch')!r}"
+                       f":recomputed="
+                       f"{recomputed.get('declaration_mismatch')!r}")
+        bound = evidence.get("bound_inputs")
+        if bound is None:
+            out.append("bound_inputs:missing")
+            return out
+        rbound = recomputed.get("bound_inputs") or {}
+        for key in ("substrate_identity", "product_identity",
+                    "edits_signature", "alignment_ref",
+                    "execution_fingerprint"):
+            if key not in bound:
+                out.append(f"bound_inputs.{key}:missing")
+            elif bound[key] != rbound.get(key):
+                out.append(f"bound_inputs.{key}:claimed≠recomputed")
+        if "donor_centers" not in bound:
+            out.append("bound_inputs.donor_centers:missing")
+        elif sorted(str(x) for x in bound["donor_centers"]) != \
+                sorted(str(x) for x in (rbound.get("donor_centers")
+                                        or [])):
+            out.append("bound_inputs.donor_centers:claimed≠recomputed")
+        return out
+
+    def _participant_identity(state_ref: str) -> str:
+        st = states.get(state_ref)
+        return st.smiles_isomeric if st is not None else ""
+
+    def _center_evidence_binding(
+            recomputed_bound: dict) -> tuple[bool, str, dict]:
+        """R4-01 绑定 + 产物集合覆盖:证据的底物/产物(复算值)对
+        被审假设参与物核对;产物支持**整分子或碎片**两级映射(真实
+        断裂的分列产物能正确绑定,不要求把碎片拼成一个物种);
+        未覆盖产物与未覆盖共底物**同时**存在 ⇒ 部分覆盖(额外未核实
+        转化不得借一个产物达到 all_verified);仅未覆盖产物(底物
+        侧脱除原子的计量共产物)或仅未覆盖共底物(原子并入已覆盖
+        产物)⇒ 完全覆盖。区域与 strict 分轴保留。
+        """
+        substrate_state = states.get(hypothesis.substrate_state_ref)
+        if substrate_state is None or not \
+                substrate_state.smiles_isomeric:
+            return False, \
+                "center_evidence_binding_unverifiable_substrate", {}
+        bound_substrate = str(recomputed_bound.get("substrate_identity",
+                                                   ""))
+        if bound_substrate != substrate_state.smiles_isomeric:
+            return False, "center_evidence_binding_mismatch:substrate", {}
+        bound_product = str(recomputed_bound.get("product_identity", ""))
+        if not bound_product:
+            return False, \
+                "center_evidence_binding_unverifiable:product", {}
+        reactant_refs = [
+            p.state_ref for p in hypothesis.participants
+            if p.side == PARTICIPANT_SIDE_REACTANT]
+        product_refs = [
+            p.state_ref for p in hypothesis.participants
+            if p.side == PARTICIPANT_SIDE_PRODUCT]
+        product_identities = {_participant_identity(ref)
+                              for ref in product_refs}
+        product_identities.discard("")
+        uncovered_reactants = [
+            ref for ref in reactant_refs
+            if ref != hypothesis.substrate_state_ref]
+        if bound_product in product_identities:
+            covered_identities = {bound_product}
+            coverage_mode = "whole_molecule"
+            uncovered_products = [
+                ref for ref in product_refs
+                if _participant_identity(ref) not in covered_identities]
+        else:
+            fragment_identities: list[str] = []
+            for fragment in bound_product.split("."):
+                try:
+                    fragment_identities.append(
+                        strict_identity_of(fragment))
+                except ChemicalStateError:
+                    return False, (
+                        "center_evidence_binding_unverifiable:fragment"), {}
+            undeclared = sorted({f for f in fragment_identities
+                                 if f not in product_identities})
+            if undeclared:
+                return False, (
+                    "center_evidence_binding_mismatch:"
+                    "undeclared_product_fragment"), {
+                        "undeclared_fragments": undeclared}
+            covered_identities = set(fragment_identities)
+            coverage_mode = "fragments"
+            uncovered_products = [
+                ref for ref in product_refs
+                if _participant_identity(ref) not in covered_identities]
+        detail = {
+            "coverage_mode": coverage_mode,
+            "covered_product_identities": sorted(covered_identities),
+            "uncovered_product_refs": sorted(uncovered_products),
+            "uncovered_reactant_refs": sorted(uncovered_reactants),
+            "product_coverage": ("full" if not (
+                uncovered_products and uncovered_reactants)
+                else "partial_unchecked_transformation"),
+        }
+        if uncovered_products and uncovered_reactants:
+            return False, (
+                "center_evidence_partial_coverage_unchecked_"
+                "transformation(证据仅覆盖底物→其产物的转化;未覆盖"
+                "共底物与未覆盖产物同时存在 = 存在额外未核实转化,"
+                "不得计入全部核实;可明确部分覆盖而 retain)"), detail
+        return True, "", detail
 
     if CHECK_TRANSFORMATION_CENTER in requested:
         sig = hypothesis.transformation_signature_status
@@ -568,7 +787,7 @@ def audit_hypothesis(
                 detail={"declared_signature_status": sig or ""}))
         else:
             checker = str(center_evidence.get("checker_version", ""))
-            scope = str(center_evidence.get("checker_scope", ""))
+            ev_scope = str(center_evidence.get("checker_scope", ""))
             if checker not in CENTER_CHECKER_REGISTRY:
                 checks.append(AuditCheck(
                     name=CHECK_TRANSFORMATION_CENTER, status=CHECK_UNKNOWN,
@@ -577,135 +796,164 @@ def audit_hypothesis(
                     coverage="mapping_dependent",
                     detail={"declared_signature_status": sig or "",
                             "checker_version": checker}))
-            elif scope not in CENTER_CHECKER_SCOPES:
+            elif ev_scope not in CENTER_CHECKER_SCOPES:
                 checks.append(AuditCheck(
                     name=CHECK_TRANSFORMATION_CENTER, status=CHECK_UNKNOWN,
-                    reason_code=f"center_checker_scope_unknown:{scope}"
+                    reason_code=f"center_checker_scope_unknown:{ev_scope}"
                     "(checker 检查范围未声明/未登记:限定区域证据不得"
                     "冒充完整变换验证)",
                     coverage="mapping_dependent",
                     detail={"checker_version": checker}))
             else:
-                bound = center_evidence.get("bound_inputs") or {}
-                refs = [str(r) for r in center_evidence.get(
-                    "evidence_refs", [])][:10]
-                base_detail = {"declared_signature_status": sig or "",
-                               "checker_version": checker,
-                               "checker_scope": scope}
-                # ---- 绑定核验(R3-01):证据必须属于本反应 ----
-                substrate_state = states.get(hypothesis.substrate_state_ref)
-                product_refs = [p.state_ref for p in hypothesis.participants
-                                if p.side == PARTICIPANT_SIDE_PRODUCT]
-                bound_substrate = str(bound.get("substrate_identity", ""))
-                bound_product = str(bound.get("product_identity", ""))
-                binding_ok = True
-                binding_reason = ""
-                if not bound:
-                    binding_ok = False
-                    binding_reason = "center_evidence_binding_missing"
-                elif substrate_state is None or not \
-                        substrate_state.smiles_isomeric:
-                    binding_ok = False
-                    binding_reason = \
-                        "center_evidence_binding_unverifiable_substrate"
-                elif bound_substrate != substrate_state.smiles_isomeric:
-                    binding_ok = False
-                    binding_reason = \
-                        "center_evidence_binding_mismatch:substrate"
-                elif not bound_product:
-                    binding_ok = False
-                    binding_reason = \
-                        "center_evidence_binding_missing:product"
-                elif not any(
-                        bound_product == states[ref].smiles_isomeric
-                        for ref in product_refs
-                        if states.get(ref) is not None
-                        and states[ref].smiles_isomeric):
-                    binding_ok = False
-                    binding_reason = \
-                        "center_evidence_binding_mismatch:product"
-                if not binding_ok:
-                    # 跨反应复用/改产物/无依据 True 均不得认证
-                    # (R3-01 真实诊断复用反例)
+                type_violation = _evidence_type_violation(center_evidence)
+                if type_violation:
+                    # R4-01:表示违约 ⇒ 结构化拒绝(不是化学"未知就拒绝")
+                    raise AuditContractError(
+                        "center_evidence 载荷类型违约:"
+                        f"{type_violation}(轴字段须为 bool|None;"
+                        "字符串'false'/整数0/空容器不得绕过类型契约"
+                        "直达 R6)",
+                        {"kind": "center_evidence_type_violation",
+                         "violation": type_violation,
+                         "checker_version": checker})
+                proof = center_evidence.get("proof_record")
+                if not proof:
+                    # 无可复算证明记录:两条身份字符串或六条自报字段
+                    # 不构成核实(R4-01 反例)⇒ unknown,不授信
                     checks.append(AuditCheck(
                         name=CHECK_TRANSFORMATION_CENTER,
                         status=CHECK_UNKNOWN,
-                        reason_code=binding_reason
-                        + "(证据未绑定本假设的底物/产物;注册名+True "
-                        "不构成核实)",
-                        evidence_refs=refs, coverage="mapping_dependent",
-                        detail={**base_detail, **_evidence_binding_detail(
-                            center_evidence, binding_reason)}))
+                        reason_code=(
+                            "center_evidence_proof_missing"
+                            "(证据未携带 proof_record:不可内部复算的"
+                            "自报字段/身份字符串不构成 checker 曾对"
+                            "本次输入执行的证明;诚实 unknown,不改"
+                            "文字收窄)"),
+                        coverage="mapping_dependent",
+                        detail={**_evidence_binding_detail(
+                            center_evidence, "proof_record_missing"),
+                            "checker_version": checker,
+                            "checker_scope": ev_scope,
+                            "declared_signature_status": sig or ""}))
                 else:
-                    mismatch = bool(center_evidence.get(
-                        "declaration_mismatch"))
-                    center_match = center_evidence.get("center_match")
-                    strict_axis = center_evidence.get("strict_target_match")
-                    axis_detail = {**base_detail,
-                                   "center_match": center_match,
-                                   "strict_target_match": strict_axis}
-                    if mismatch or center_match is None:
+                    # ---- 内部重算(R4-01):复跑诊断,自报字段须一致 ----
+                    rerun = _rerun_proof_record(dict(proof))
+                    recomputed = rerun.center_evidence
+                    integrity = _evidence_integrity_mismatches(
+                        center_evidence, recomputed)
+                    if integrity:
+                        raise AuditContractError(
+                            "center_evidence 自报字段与证明记录复算值"
+                            "不一致(证据被改写/拼接;结构化拒绝,不改"
+                            "输入即不改结论):" + ";".join(integrity[:6]),
+                            {"kind": "center_evidence_integrity_mismatch",
+                             "mismatches": integrity[:20],
+                             "checker_version": checker})
+                    refs = [str(r) for r in center_evidence.get(
+                        "evidence_refs", [])][:10]
+                    base_detail = {
+                        "declared_signature_status": sig or "",
+                        "checker_version": checker,
+                        "checker_scope": ev_scope}
+                    binding_ok, binding_reason, coverage_detail = \
+                        _center_evidence_binding(
+                            recomputed.get("bound_inputs") or {})
+                    if not binding_ok and not binding_reason.startswith(
+                            "center_evidence_partial_coverage"):
+                        # 跨反应复用/改产物/未申报碎片 ⇒ 不得认证
                         checks.append(AuditCheck(
                             name=CHECK_TRANSFORMATION_CENTER,
                             status=CHECK_UNKNOWN,
-                            reason_code=(
-                                "center_evidence_inconclusive"
-                                + ("_declaration_mismatch" if mismatch
-                                   else "")
-                                + ("_center_unknown"
-                                   if center_match is None else "")),
+                            reason_code=binding_reason
+                            + "(证据未绑定本假设的底物/产物集合;复算"
+                            "证明链对不上,注册名+True 不构成核实)",
                             evidence_refs=refs,
                             coverage="mapping_dependent",
-                            detail=axis_detail))
-                    elif strict_axis is False:
-                        # R3-01/mimo 3.3(3):确定性 checker 发现产物
-                        # 偏离预期(strict=False)——适用失败轴不得在
-                        # all_verified 语义下消失;区域 True 与 strict
-                        # False 分别保留在 detail,各轴不互相覆盖
-                        checks.append(AuditCheck(
-                            name=CHECK_TRANSFORMATION_CENTER,
-                            status=CHECK_VIOLATED,
-                            reason_code=(
-                                "center_evidence_strict_target_mismatch"
-                                "(产物与声明位点预期不同:区域轴与"
-                                "strict 轴分别报告,完整核实不忽略"
-                                "适用失败)"),
-                            evidence_refs=refs,
-                            coverage="mapping_dependent",
-                            detail=axis_detail))
-                    elif strict_axis is None:
-                        # 适用的未核实轴同样阻断 all_verified
-                        checks.append(AuditCheck(
-                            name=CHECK_TRANSFORMATION_CENTER,
-                            status=CHECK_UNKNOWN,
-                            reason_code="center_evidence_strict_unknown"
-                            "(产物比对轴未核实:不得计入全部核实)",
-                            evidence_refs=refs,
-                            coverage="mapping_dependent",
-                            detail=axis_detail))
-                    elif center_match is True:
-                        basis_str = str(center_evidence.get(
-                            "center_match_basis", ""))
-                        checks.append(AuditCheck(
-                            name=CHECK_TRANSFORMATION_CENTER,
-                            status=CHECK_VERIFIED,
-                            reason_code=(
-                                "center_evidence_verified"
-                                f":{checker}(scope={scope};basis="
-                                f"{basis_str})"),
-                            evidence_refs=refs,
-                            coverage="mapping_dependent",
-                            detail=axis_detail))
-                    else:  # center_match is False:声明中心与实际偏离
-                        checks.append(AuditCheck(
-                            name=CHECK_TRANSFORMATION_CENTER,
-                            status=CHECK_VIOLATED,
-                            reason_code=(
-                                f"center_mismatch_per_deterministic_"
-                                f"checker:{checker}"),
-                            evidence_refs=refs,
-                            coverage="mapping_dependent",
-                            detail=axis_detail))
+                            detail={**base_detail,
+                                    **_evidence_binding_detail(
+                                        center_evidence, binding_reason),
+                                    **coverage_detail}))
+                    else:
+                        mismatch = bool(recomputed.get(
+                            "declaration_mismatch"))
+                        center_match = recomputed.get("center_match")
+                        strict_axis = recomputed.get("strict_target_match")
+                        axis_detail = {**base_detail,
+                                       "center_match": center_match,
+                                       "strict_target_match": strict_axis,
+                                       **coverage_detail}
+                        if not binding_ok:
+                            # 部分覆盖:额外未核实转化 ⇒ 不可 verified
+                            # (可明确部分覆盖而 retain,R4-01 验收)
+                            checks.append(AuditCheck(
+                                name=CHECK_TRANSFORMATION_CENTER,
+                                status=CHECK_UNKNOWN,
+                                reason_code=binding_reason,
+                                evidence_refs=refs,
+                                coverage="mapping_dependent",
+                                detail=axis_detail))
+                        elif mismatch or center_match is None:
+                            checks.append(AuditCheck(
+                                name=CHECK_TRANSFORMATION_CENTER,
+                                status=CHECK_UNKNOWN,
+                                reason_code=(
+                                    "center_evidence_inconclusive"
+                                    + ("_declaration_mismatch" if mismatch
+                                       else "")
+                                    + ("_center_unknown"
+                                       if center_match is None else "")),
+                                evidence_refs=refs,
+                                coverage="mapping_dependent",
+                                detail=axis_detail))
+                        elif strict_axis is False:
+                            # R3-01/mimo 3.3(3):确定性 checker 发现产物
+                            # 偏离预期(strict=False)——适用失败轴不得在
+                            # all_verified 语义下消失;区域 True 与 strict
+                            # False 分别保留在 detail,各轴不互相覆盖
+                            checks.append(AuditCheck(
+                                name=CHECK_TRANSFORMATION_CENTER,
+                                status=CHECK_VIOLATED,
+                                reason_code=(
+                                    "center_evidence_strict_target_mismatch"
+                                    "(产物与声明位点预期不同:区域轴与"
+                                    "strict 轴分别报告,完整核实不忽略"
+                                    "适用失败)"),
+                                evidence_refs=refs,
+                                coverage="mapping_dependent",
+                                detail=axis_detail))
+                        elif strict_axis is None:
+                            # 适用的未核实轴同样阻断 all_verified
+                            checks.append(AuditCheck(
+                                name=CHECK_TRANSFORMATION_CENTER,
+                                status=CHECK_UNKNOWN,
+                                reason_code="center_evidence_strict_unknown"
+                                "(产物比对轴未核实:不得计入全部核实)",
+                                evidence_refs=refs,
+                                coverage="mapping_dependent",
+                                detail=axis_detail))
+                        elif center_match is True:
+                            basis_str = str(recomputed.get(
+                                "center_match_basis", ""))
+                            checks.append(AuditCheck(
+                                name=CHECK_TRANSFORMATION_CENTER,
+                                status=CHECK_VERIFIED,
+                                reason_code=(
+                                    "center_evidence_verified"
+                                    f":{checker}(scope={ev_scope};basis="
+                                    f"{basis_str})"),
+                                evidence_refs=refs,
+                                coverage="mapping_dependent",
+                                detail=axis_detail))
+                        else:  # center_match is False:声明中心与实际偏离
+                            checks.append(AuditCheck(
+                                name=CHECK_TRANSFORMATION_CENTER,
+                                status=CHECK_VIOLATED,
+                                reason_code=(
+                                    f"center_mismatch_per_deterministic_"
+                                    f"checker:{checker}"),
+                                evidence_refs=refs,
+                                coverage="mapping_dependent",
+                                detail=axis_detail))
 
     # ---- ⑧ step_scope ----
     if CHECK_STEP_SCOPE in requested:
@@ -846,12 +1094,21 @@ def audit_hypothesis(
                             if context is not None else None),
         "audit_scope": sorted(requested),
         "checker_versions": versions,
+        # R4-02:实际消费的全部审核入参入 hash —— 有限规则诊断
+        # (默认 not_run 合法 NA、admission expand 与 diagnostic_only 的
+        # unknown/retain 是不同输入状态,不得同 hash:复审
+        # finite_rule_diagnostic_active 反例两次 input_hash 相同)
+        "finite_rule_diagnostic": (
+            content_hash(finite_rule_diagnostic)
+            if finite_rule_diagnostic is not None else None),
         "center_evidence": (
             {k: v for k, v in sorted(
                 (center_evidence or {}).items())
-                if k != "bound_inputs"}
+            if k not in ("bound_inputs", "proof_record")}
             | {"bound_inputs_hash": content_hash(
-                (center_evidence or {}).get("bound_inputs") or {})}
+                (center_evidence or {}).get("bound_inputs") or {}),
+               "proof_record_hash": content_hash(
+                (center_evidence or {}).get("proof_record") or {})}
             if center_evidence is not None else None),
         "unresolved_dependency_ids": (
             [str(u) for u in sorted(unresolved_dependency_ids)]
@@ -1383,8 +1640,16 @@ class DonorConsistencyDiagnostic:
         # 只披露不判 center(区域归属由 changed 集合判定)
     center_evidence: dict = field(default_factory=dict)
         # 绑定本诊断全部输入的证据载荷(checker scope/各轴结论/
-        # bound_inputs),供 audit 的 transformation_center 证据门
-        # 消费(R3-01:跨反应复用/改产物/无依据 True 均不得认证)
+        # bound_inputs/**proof_record 完整输入集**),供 audit 的
+        # transformation_center 证据门消费(R3-01/R4-01:跨反应复用/
+        # 改产物/无依据 True/自报字段拼接均不得认证 —— audit 内部
+        # 复跑本确定性 checker 复核)
+    # v5(R4-07):
+    stereo_comparison_unsupported_atoms: list[str] = field(
+        default_factory=list)
+        # 立体轴**比较支持范围外**的原子清单(非四面体手性标签/
+        # 配体集合改变后不可比)—— 公开列项,不静默缺席;中心外
+        # 存在此类原子 ⇒ center 不可判 True(区域约束对该轴不可核)
     schema_version: str = PPV1_DONOR_DIAGNOSTIC_VERSION
 
     def to_dict(self) -> dict:
@@ -1416,25 +1681,35 @@ def _kekulized(mol: Chem.Mol) -> Chem.Mol:
 
 def _bond_changes(before: Chem.Mol, after_mapped: Chem.Mol,
                   id_to_idx_after: dict[str, int]) -> list[dict]:
-    """执行前后结构的实际键变化集合(键级/成断键;原子增删另列)。
+    """执行前后结构的实际键变化集合(键级/成断键/**键级立体**;原子
+    增删另列)。
 
     before/after 均按 Kekulé 归一后再比较(芳香/kekulé 表示差异不是
     化学变化)。after_mapped:带映射号的执行图产物(映射号 = 执行图
     原子 idx+1);id_to_idx_after:MoleCode ID → 执行图 idx。
-    返回 [{atom1_id, atom2_id, kind: order_change|bond_formed|bond_broken,
-    from_order, to_order}]。
+    返回 [{atom1_id, atom2_id, kind: order_change|bond_formed|
+    bond_broken|bond_stereo_change, from_order, to_order}]。
+
+    R4-07:键级立体(cis/trans,E/Z)按**映射原子对的几何**入 diff
+    (同一原子对前后 GetStereo 不同 ⇒ bond_stereo_change,from/to 为
+    立体名)——身份键不同而图轴全空时不得称"实际净变化为空"(复审
+    interface_ez_only/off_center 反例);kind 与 from/to 进入声明对账
+    签名(ops 声明语言无法表达 E/Z ⇒ 执行图若带未声明立体变化即为
+    失配,接口合成不得冒充执行器结果)。
     """
     before_k = _kekulized(before)
     after_k = _kekulized(after_mapped)
-    before_bonds: dict[frozenset, str] = {}
+    before_bonds: dict[frozenset, tuple[str, str]] = {}
     for bond in before_k.GetBonds():
         key = frozenset((bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()))
-        before_bonds[key] = _bond_order_name(bond.GetBondType())
-    after_bonds: dict[frozenset, str] = {}
+        before_bonds[key] = (_bond_order_name(bond.GetBondType()),
+                             str(bond.GetStereo()))
+    after_bonds: dict[frozenset, tuple[str, str]] = {}
     for bond in after_k.GetBonds():
         a = bond.GetBeginAtom().GetAtomMapNum() - 1
         b = bond.GetEndAtom().GetAtomMapNum() - 1
-        after_bonds[frozenset((a, b))] = _bond_order_name(bond.GetBondType())
+        after_bonds[frozenset((a, b))] = (
+            _bond_order_name(bond.GetBondType()), str(bond.GetStereo()))
 
     def idx_to_id(idx: int) -> str:
         for aid, i in id_to_idx_after.items():
@@ -1443,21 +1718,28 @@ def _bond_changes(before: Chem.Mol, after_mapped: Chem.Mol,
         return f"idx:{idx}"
 
     changes: list[dict] = []
-    for key, order_after in after_bonds.items():
-        order_before = before_bonds.get(key)
+    for key, (order_after, stereo_after) in after_bonds.items():
+        prior = before_bonds.get(key)
         a, b = tuple(key)
-        if order_before is None:
+        if prior is None:
             changes.append({"atom1_id": idx_to_id(a),
                             "atom2_id": idx_to_id(b),
                             "kind": "bond_formed",
                             "from_order": "", "to_order": order_after})
-        elif order_before != order_after:
+        elif prior[0] != order_after:
             changes.append({"atom1_id": idx_to_id(a),
                             "atom2_id": idx_to_id(b),
                             "kind": "order_change",
-                            "from_order": order_before,
+                            "from_order": prior[0],
                             "to_order": order_after})
-    for key, order_before in before_bonds.items():
+        elif prior[1] != stereo_after:
+            # R4-07:同键同键级而立体几何不同 ⇒ 键级立体变化
+            changes.append({"atom1_id": idx_to_id(a),
+                            "atom2_id": idx_to_id(b),
+                            "kind": "bond_stereo_change",
+                            "from_order": prior[1],
+                            "to_order": stereo_after})
+    for key, (order_before, _stereo_before) in before_bonds.items():
         if key not in after_bonds:
             a, b = tuple(key)
             changes.append({"atom1_id": idx_to_id(a),
@@ -1519,14 +1801,18 @@ def _stereo_config_delta(before_atom, after_atom) -> str | None:
     b_tag, a_tag = before_atom.GetChiralTag(), after_atom.GetChiralTag()
     b_chiral = b_tag in _TET_CHIRAL
     a_chiral = a_tag in _TET_CHIRAL
-    if not b_chiral and not a_chiral:
-        return ""
+    # R4-07/mimo 5.2(a) 条件 1:**非四面体手性标签先判 unsupported**
+    # (标签类型是判据,不是"是否四面体指定")——两侧同为非四面体
+    # (平面/四方/八面/三角双锥,金属配合物常见)甚至一侧非四面体
+    # 另一侧 UNSPECIFIED,都不得返回"构型保持"的肯定结论
     if b_tag not in _TET_CHIRAL and b_tag != \
             Chem.ChiralType.CHI_UNSPECIFIED:
         return None  # 非四面体手性(如平面手性):不支持
     if a_tag not in _TET_CHIRAL and a_tag != \
             Chem.ChiralType.CHI_UNSPECIFIED:
         return None
+    if not b_chiral and not a_chiral:
+        return ""
     if not (b_chiral and a_chiral):
         return "stereo_created" if a_chiral else "stereo_lost"
     # 邻居按构造 idx 映射(after 用映射号-1;before 用自身 idx)
@@ -1618,17 +1904,29 @@ def _atom_property_diffs(
 def _simulate_declared_edits(
         before: Chem.Mol, edits: list[dict],
         id_to_idx_before: dict[str, int],
-        id_to_idx_after: dict[str, int]) -> Chem.Mol | None:
+        id_to_idx_after: dict[str, int]) -> tuple[Chem.Mol | None,
+                                                   list[str]]:
     """按冻结执行器语义(v43-editproto-2)模拟**声明的有序编辑序列**。
 
-    返回带映射号的声明终态图(映射号 = 构造 idx+1;新增原子用执行图
-    的构造 idx+1,保持与实际执行同一索引空间)。**不改冻结执行器**
-    (services/atom_tool.py)——本函数是净效应的镜像重推导:
-    - add_atom 隐含 anchor–新原子单键(执行器自动形成,atom_tool.py
-      的协议行为;不需要多余 form_bond 声明,R3-05);
-    - 有序操作按净效应结算:中间态不留痕(s→d→s→d 终态 = double)。
-    声明引用未知原子 ⇒ 返回 None(记失配)。
+    返回 (带映射号的声明终态图, 前置违约列表);违约非空时图为 None。
+    映射号 = 构造 idx+1;新增原子沿用执行图的构造 idx+1(与实际执行
+    同一索引空间)。**不改冻结执行器**(services/atom_tool.py)——
+    本函数是净效应与前置条件的镜像重推导(v5,R4-06):
+    - **活 ID 表**:先增后引合法(与执行器一致)——add_atom 声明的
+      新 ID **立即**进入 id→idx 映射,后续操作(含 anchor 引用新
+      原子、change_bond_order 作用于新键)按列表时点解析(复审
+      real_add_then_add/change 反例:引用先前新增原子/新键曾被误报
+      declared_edits_not_simulable);
+    - **逐操作前置条件**(与 execute_edits 同语义):break_bond 键须
+      存在;form_bond 键须不存在;change_bond_order 须键存在**且
+      from_order == 当前键级**(错误 from_order 被冻结执行器拒绝,
+      镜像同样拒 —— 复审 interface_wrong_from_order 反例:错误声明
+      曾零失配通过);
+    - add_atom 隐含 anchor–新原子单键(执行器协议行为,atom_tool.py
+      的 add_atom 自动形成,不需要多余 form_bond 声明,R3-05);
+    - 有序操作按净效应结算:中间态不留痕(s→d→s→d 终态=double)。
     """
+    failures: list[str] = []
     # 执行器路径的第一步(atom_tool.py:417):编辑前先
     # Kekulize(clearAromaticFlags=True) —— 芳香底物以显式键级进入
     # 编辑序列;模拟必须镜像(否则芳香标志残留产生不同 Kekulé 指派)
@@ -1640,46 +1938,98 @@ def _simulate_declared_edits(
     rw = Chem.RWMol(mol)
     for atom in rw.GetAtoms():
         atom.SetAtomMapNum(atom.GetIdx() + 1)
-    for edit in edits or []:
+    # R4-06:活 ID 表 —— 先增后引(执行器 validate_edits/execute_edits
+    # 的列表时点语义);新原子用执行图最终构造 idx(与实际执行同空间)
+    live_idx: dict[str, int] = dict(id_to_idx_before)
+    for i, edit in enumerate(edits or []):
+        tag = f"edit[{i}]"
         op = str(edit.get("op", "")).lower()
         a1 = str(edit.get("atom1")) if edit.get("atom1") is not None \
             else None
         if op == "add_atom":
             new_id = str(edit.get("new_atom_id", ""))
             element = str(edit.get("element", ""))
-            anchor_idx = id_to_idx_before.get(a1) if a1 else None
+            anchor_idx = live_idx.get(a1) if a1 else None
             new_idx = id_to_idx_after.get(new_id)
-            if anchor_idx is None or new_idx is None or not element:
-                return None
+            if anchor_idx is None:
+                failures.append(
+                    f"declared_precondition_violated:unknown_atom:"
+                    f"{a1}:{tag}(镜像复核:anchor 原子按列表时点未声明)")
+                continue
+            if new_idx is None or not element:
+                failures.append(
+                    f"declared_precondition_violated:bad_add_atom:"
+                    f"{new_id!r}:{element!r}:{tag}(镜像复核:new_atom_id"
+                    " 不在执行图索引空间或元素缺失)")
+                continue
             added = rw.AddAtom(Chem.Atom(element))
             rw.GetAtomWithIdx(added).SetAtomMapNum(new_idx + 1)
             rw.AddBond(anchor_idx, added, Chem.BondType.SINGLE)
+            live_idx[new_id] = added
             continue
         a2 = str(edit.get("atom2")) if edit.get("atom2") is not None \
             else None
-        i1 = id_to_idx_before.get(a1) if a1 else None
-        i2 = id_to_idx_before.get(a2) if a2 else None
+        i1 = live_idx.get(a1) if a1 else None
+        i2 = live_idx.get(a2) if a2 else None
         if i1 is None or i2 is None:
-            return None
+            unknown = [x for x in (a1, a2)
+                       if x is not None and x not in live_idx]
+            failures.append(
+                f"declared_precondition_violated:unknown_atom:"
+                f"{','.join(str(u) for u in unknown)}:{tag}"
+                "(镜像复核:引用原子按列表时点不在活 ID 表)")
+            continue
         bond = rw.GetBondBetweenAtoms(i1, i2)
         if op == "break_bond":
             if bond is None:
-                return None  # 声明断不存在的键 ⇒ 失配
+                failures.append(
+                    f"declared_precondition_violated:bond_not_present:"
+                    f"{a1}~{a2}:{tag}(镜像复核:断不存在的键)")
+                continue
             rw.RemoveBond(i1, i2)
         elif op == "form_bond":
             if bond is not None:
-                return None
+                failures.append(
+                    f"declared_precondition_violated:bond_already_present:"
+                    f"{a1}~{a2}:{tag}(镜像复核:对已有键 form_bond)")
+                continue
             rw.AddBond(i1, i2, Chem.BondType.SINGLE)
         elif op == "change_bond_order":
             to_order = str(edit.get("to_order", "")).lower()
+            from_order = str(edit.get("from_order", "")).lower()
             bond_type = {"single": Chem.BondType.SINGLE,
                          "double": Chem.BondType.DOUBLE,
                          "triple": Chem.BondType.TRIPLE}.get(to_order)
             if bond_type is None or bond is None:
-                return None
+                reason = ("bad_bond_order:"
+                          f"{to_order!r}") if bond is not None \
+                    else ("bond_not_present:"
+                          f"{a1}~{a2}")
+                failures.append(
+                    f"declared_precondition_violated:{reason}:{tag}"
+                    "(镜像复核:键级声明不可达)")
+                continue
+            have = {Chem.BondType.SINGLE: "single",
+                    Chem.BondType.DOUBLE: "double",
+                    Chem.BondType.TRIPLE: "triple"}.get(
+                        bond.GetBondType(), str(bond.GetBondType()))
+            if have != from_order:
+                # R4-06:from_order 是协议显式前置条件 —— 冻结执行器
+                # 拒绝错误 from_order(bond_order_mismatch),镜像同拒;
+                # 声明不得零失配通过
+                failures.append(
+                    f"declared_precondition_violated:bond_order_mismatch:"
+                    f"{a1}~{a2}:expected_{from_order}_have_{have}:{tag}"
+                    "(镜像复核:声明前置键级与列表时点实际键级不符;"
+                    "冻结执行器拒绝该声明)")
+                continue
             rw.GetBondBetweenAtoms(i1, i2).SetBondType(bond_type)
         else:
-            return None  # 未知操作(执行器会拒;此处按失配)
+            failures.append(
+                f"declared_precondition_violated:unknown_op:{op}:{tag}"
+                "(镜像复核:未知操作,执行器会拒)")
+    if failures:
+        return None, failures
     out = rw.GetMol()
     # 执行器路径的最后一步:SanitizeMol(失败 ⇒ 执行器本会报
     # sanitize_failed;此处失败按原样比较,由失配/unknown 检出)
@@ -1687,7 +2037,7 @@ def _simulate_declared_edits(
         Chem.SanitizeMol(out)
     except Exception:
         pass
-    return out
+    return out, []
 
 
 def _bond_change_signature(changes: list[dict]) -> list[tuple]:
@@ -1717,12 +2067,14 @@ def _declaration_accounting(
     返回 (失配明细, 声明终态键变化)。
     """
     mismatches: list[str] = []
-    declared_final = _simulate_declared_edits(
+    declared_final, precondition_failures = _simulate_declared_edits(
         mol_before, edits, id_to_idx_before, id_to_idx_after)
     if declared_final is None:
-        mismatches.append(
+        # R4-06:前置违约/不可模拟,机读码镜像执行器语义(结构化,
+        # 不再笼统 declared_edits_not_simulable)
+        mismatches.extend(precondition_failures or [
             "declared_edits_not_simulable(引用未知原子/键或未知操作;"
-            "执行器语义下声明不可达)")
+            "执行器语义下声明不可达)"])
         return mismatches, []
     declared_bond_changes = _bond_changes(
         mol_before, declared_final, id_to_idx_after)
@@ -1807,19 +2159,26 @@ def _validate_equivalence_classes(equivalence_classes: list,
 def _joint_symmetric_image(
         before: Chem.Mol, center_idxs: set[int],
         changed_idxs: set[int]) -> dict | None | str:
-    """联合中心对称(v4,手性感知):存在**单一保手性图自同构**把
-    **整个**中心集合映到实际变化集合。
+    """联合中心对称(v4 手性感知;v5 R4-07 非四面体门):存在**单一
+    保手性图自同构**把**整个**中心集合映到实际变化集合。
 
     - useChirality=True(R3-02):忽略指定手性会把立体可区分位点判
     等价(实测 meso 底物 blind=2/aware=1——两端的严格身份不同);
     无手性/非指定骨架不受影响(butane/cyclohexane blind=aware);
     真对称正例保留((2S,4S)-戊二醇 C2 互换 aware=2);
-    - 支持范围:绝对四面体指定/无手性骨架;底物带**增强立体组**
-    (AND/OR)时联合映射 unsupported ⇒ 上层记 unknown(R3-02 验收:
-    声明支持的手性范围,不冒称全范围覆盖);
+    - 支持范围(v5 声明为三类,R4-07/mimo probe3):①绝对四面体
+    **全部指定**;②**无手性骨架**(无任何四面体中心);③**部分
+    指定/全未指定**四面体中心——按所写表示参与保手性匹配(指定↔
+    未指定互换被拒,全未指定两端产物同一身份时可判 True);
+    - **增强立体组(AND/OR)⇒ unsupported ⇒ unknown**(R3-02);
+      **非四面体手性标签 ⇒ unsupported ⇒ unknown**(R4-07:
+      useChirality 只覆盖四面体标签,平面/四方/八面/三角双锥中心
+      被其忽略 ⇒ 自同构会把非四面体可区分位点判等价,联合映射
+      不可信 —— 复审 non_tetra_joint 反例:非四面体底物 center
+      被误授 True);
     - 返回 dict(找到,含中心像与自同构数)/ None(确定不存在)/
-    "truncated"(搜索截断 ⇒ unknown)。单原子各自可替换不等于整个
-    中心存在一致替换(R2-03 联合反例)。
+      "truncated"(搜索截断)/ "unsupported_stereo"(上述立体范围
+      外)。单原子各自可替换不等于整个中心存在一致替换(R2-03)。
     """
     if not center_idxs or not changed_idxs:
         return None
@@ -1827,6 +2186,11 @@ def _joint_symmetric_image(
         return None
     if before.GetStereoGroups():
         return "unsupported_stereo"
+    for atom in before.GetAtoms():
+        tag = atom.GetChiralTag()
+        if tag not in _TET_CHIRAL and tag != \
+                Chem.ChiralType.CHI_UNSPECIFIED:
+            return "unsupported_stereo"  # 非四面体手性:范围外
     try:
         matches = before.GetSubstructMatches(
             before, uniquify=False, useChirality=True,
@@ -2021,11 +2385,21 @@ def check_edit_against_donor(
         center_match = None
         missing.append("center_or_edits_unavailable")
     elif not changed_atoms:
-        # 零净变化:实际什么都没发生 ⇒ 永不 True(R2-03)
+        # 零图轴变化:身份相同(上方 net_change_empty 已记 no_executed_
+        # change)或**身份不同而图轴空** —— 后者只能是图变化集未承载的
+        # 立体表示差异(非四面体等 unsupported 立体轴,R4-07):
+        # 不得称"实际净变化为空"(理由码断言一件身份轴已证伪的事)
         center_match = None
-        missing.append(
-            "no_executed_change(实际净变化为空:声明触及≠已发生;"
-            "center 不可判 True)")
+        if not net_change_empty:
+            missing.append(
+                "net_change_only_in_stereo_representation(身份键不同而"
+                "图轴无差异:非四面体/未比较立体轴的差异不经图变化集"
+                "承载,见 stereo_comparison_unsupported_atoms;center "
+                "不可判,不得称实际净变化为空)")
+        else:
+            missing.append(
+                "no_executed_change(实际净变化为空:声明触及≠已发生;"
+                "center 不可判 True)")
     else:
         mapping = {
             str(k): str(v)
@@ -2081,9 +2455,12 @@ def check_edit_against_donor(
                         center_match = None
                         basis = ""
                         missing.append(
-                            "joint_mapping_enhanced_stereo_unsupported"
-                            "(底物带增强立体组:联合映射的手性感知范围"
-                            "未覆盖,中心不可判;不冒称全范围解决)")
+                            "joint_mapping_stereo_unsupported"
+                            "(底物带增强立体组或非四面体手性标签:联合"
+                            "映射的手性感知范围未覆盖 —— useChirality 只"
+                            "覆盖四面体标签,增强组/非四面体中心被其忽略"
+                            "会将可区分位点判等价;中心不可判,不冒称"
+                            "全范围解决,R4-07)")
                     elif isinstance(joint, dict):
                         center_match = True
                         basis = "symmetric_equivalent"
@@ -2099,16 +2476,39 @@ def check_edit_against_donor(
                             outside, mol_before, mol_after, id_to_idx_after,
                             atom_records)
 
-    # ---- 中心原子属性披露(R3-01/05:ops 对账不覆盖属性,E-iii) ----
+    # ---- R4-07:中心外存在立体轴 unsupported 的原子 ⇒ 区域约束不可核
+    # (该原子的立体可能已变但比较范围外 ⇒ "变化局限于中心"不可证;
+    # 中心内的 unsupported 不阻断 —— 中心内立体变化本就允许) ----
+    stereo_unsupported_atoms = sorted(
+        aid for aid, rec in atom_records.items()
+        if rec.get("stereo_comparison_unsupported"))
+    stereo_unsupported_outside = [
+        aid for aid in stereo_unsupported_atoms
+        if aid not in center_direct_ids]
+    if center_match is True and stereo_unsupported_outside:
+        center_match = None
+        basis = ""
+        missing.append(
+            "stereo_comparison_unsupported_outside_center:"
+            + ",".join(stereo_unsupported_outside[:10])
+            + "(中心外原子的立体轴在比较支持范围外(非四面体/配体集合"
+            "改变后不可比):区域约束对该轴不可核 ⇒ center 不可判 True;"
+            "unsupported 原子清单公开于 stereo_comparison_unsupported_"
+            "atoms)")
+
+    # ---- 中心原子属性披露(R3-01/05:ops 对账不覆盖属性,E-iii;
+    # R4-07:unsupported 立体轴同通道公开,不静默缺席) ----
     center_property_deltas: list[dict] = []
     for aid in sorted(center_direct_ids):
         rec = atom_records.get(aid)
-        if rec and (rec.get("property_delta") or "presence" in rec):
+        if rec and (rec.get("property_delta") or "presence" in rec
+                    or rec.get("stereo_comparison_unsupported")):
             entry = {"atom_id": aid}
             entry.update(rec)
             center_property_deltas.append(entry)
 
-    # ---- 证据载荷(R3-01:绑定本诊断全部输入 + 各轴结论 + scope) ----
+    # ---- 证据载荷(R3-01 + R4-01:绑定本诊断全部输入 + 各轴结论 +
+    # scope + **完整证明记录** proof_record 供 audit 内部重算) ----
     normalized_edits = sorted(
         {f"{str(e.get('op', ''))}|{str(e.get('atom1', ''))}|"
          f"{str(e.get('atom2', ''))}|{str(e.get('from_order', ''))}|"
@@ -2136,6 +2536,29 @@ def check_edit_against_donor(
                                 id_to_idx_after.items()},
             }),
         },
+        # R4-01:证明记录 = 本诊断的完整输入集(check_edit_against_
+        # donor 的入参原样);audit 证据门复跑本确定性 checker 复核
+        # 自报字段与绑定 —— 两条身份字符串/六条自报字段不构成证明
+        "proof_record": {
+            "current": {"smiles": str(current_smiles),
+                        "atom_id_map": dict(id_to_idx_before)},
+            "donor": {"center_atom_ids": list(donor_centers)},
+            "alignment": {"status": alignment_status,
+                          "donor_to_current": {
+                              str(k): str(v) for k, v in
+                              (alignment.get("donor_to_current")
+                               or {}).items()},
+                          "equivalence_classes": [
+                              list(c) for c in
+                              (alignment.get("equivalence_classes")
+                               or [])],
+                          "ref": alignment_ref},
+            "expectation": {"target_smiles":
+                            ("" if expected_smiles is None
+                             else str(expected_smiles))},
+            "result": dict(result),
+            "edits": [dict(e) for e in (edits or [])],
+        },
     }
 
     return DonorConsistencyDiagnostic(
@@ -2152,6 +2575,7 @@ def check_edit_against_donor(
         joint_mapping=joint_mapping,
         net_change_empty=net_change_empty,
         center_property_deltas=center_property_deltas,
+        stereo_comparison_unsupported_atoms=stereo_unsupported_atoms,
         center_evidence=evidence_payload)
 
 

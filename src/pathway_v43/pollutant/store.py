@@ -1,4 +1,32 @@
-"""PollutantPathwayStore — 新模式的独立 SQLite 账本(v4 回修,S1)。
+"""PollutantPathwayStore — 新模式的独立 SQLite 账本(v5 回修,S1)。
+
+v5(ppv1-store-5,R5 回修 2026-10-07)相对 v4 的变化(R4 复审
+R4-02/09/10):
+- **writer 完整事实契约(R4-09)**:put_state/submit 对**全部原结构
+  可得的来源**(raw_input/source_product/executed_product)核
+  structure_smiles_raw 与 strict 身份同源(同图异拼写 OCC ⇒ 接受;
+  跨分子 CCN/非法 raw ⇒ 结构化拒绝零写入);有结构 state 重推
+  严格身份/state_id、形式电荷、**CN/立体/同位素状态**须与提供值
+  一致;smiles_isomeric 须为身份键规范形;original_structure_
+  available 须 True;representation_fidelity 走 chemstate 同源校验
+  (未知枚举/缺轴拒绝);
+- **CN-only 专用契约闭合(R4-09)**:smiles 空的载荷按专用命名空间
+  重算(cs(cn-only,cn))+ 未知事实契约(电荷 None/结构不可得/
+  立体同位素 unknown/fidelity=CN-only 模板)整体复核——CN-only
+  不得占完整身份、不得虚构电荷/保真;空串不自动当 CN-only;
+- **事件出现清单(R4-10)**:首次提交把本事件断言的出现集合
+  (state_id + appearance_hash 列表)持久进事件 payload
+  (event_appearance_manifest);重放从账本校验每个清单项(行存在
+  +内容哈希复算一致+不引用事件外状态)——**不依赖 caller 重复
+  提供 states**;"有一条同物种出现"不能代替本事件集合;
+- **重放侧强化(R4-10)**:已存 states 行核载荷内 state_id == 行键、
+  CN/立体/同位素状态重推一致、空结构行须满足 CN-only 专用契约;
+  已存假设载荷做 recompute_hypothesis_id 内容复算(改前提不换 ID ⇒
+  损坏);损坏 ⇒ Ppv1LedgerCorrupt 保全,不静默补账;
+- **入口身份复算(R4-02)**:put_hypothesis/submit_event(及重放对已
+  存载荷)调用同源 recompute_hypothesis_id 复核"载荷 ID == 内容
+  重推导 ID"——合法新增前提用旧 ID 的载荷结构化拒绝(零写入),
+  不以载荷 ID=SQL 键替代内容复算。
 
 v4(ppv1-store-4,R4 回修 2026-10-06)相对 v3 的变化(R3 复审 R3-09/10
 + §4):
@@ -84,6 +112,7 @@ from .hypothesis import (
     HypothesisContractError,
     Participant,
     _entry_fingerprint as _participant_entry_fingerprint,
+    recompute_hypothesis_id,
 )
 from .profile import (
     PPV1_CHEMSTATE_SCHEMA_VERSION,
@@ -279,16 +308,25 @@ def _hypothesis_payload_hash(hypothesis_dict: dict) -> str:
 
 
 def _verify_state_payload_facts(state_dict: dict) -> None:
-    """公共 writer 边界的 state 身份/科学事实重推导(R3-09;fail-closed)。
+    """公共 writer 边界的 state 身份/科学事实重推导(R3-09 + R4-09)。
 
     - 有结构(smiles_isomeric 非空):解析并重推严格身份(chemstate
       build_chemical_state 同源算法)⇒ 必须 == state_id;重算
-      formal_charge ⇒ 必须 == 提供值;不可解析 ⇒ 结构化拒绝;
-    - CN-only(smiles 空 + origin=legacy_cn_only):保持未知,不重推导
-      (合法);CN-only 却带结构 / 结构态缺 smiles ⇒ 拒绝;
-    - raw_input 表示层:structure_smiles_raw 须解析到同一身份(当面
-      输入的身份声明,不一致 ⇒ 拒绝);source_product/executed_product
-      的 raw 保留原样不强制(同图不同拼写的出现通道,R2-08 控制);
+      formal_charge/cn_identity/stereo/isotope 状态 ⇒ 必须与提供值
+      一致;smiles_isomeric 须为**身份键规范形**(往返重建同 id);
+      original_structure_available 须为 True;不可解析 ⇒ 结构化拒绝;
+    - **全部原结构可得的来源核 raw 与 strict 身份(R4-09)**:
+      raw_input/source_product/executed_product 的
+      structure_smiles_raw 须解析并解析到**同一严格身份**(同图
+      异拼写如 OCC ⇒ 接受;跨分子 CCN 或非法 raw ⇒ 拒绝);
+    - representation_fidelity 走 chemstate 同源校验(枚举 + 全四轴
+      必填;未知枚举/缺轴 ⇒ 拒绝,R4-09);
+    - **CN-only 契约闭合(R4-09)**:smiles 空 + origin=legacy_cn_only
+      的载荷按**专用命名空间**重算(state_id == cs(cn-only,cn))并核
+      未知事实契约(formal_charge=None、original_structure_available=
+      False、stereo/isotope=unknown、fidelity=CN-only 模板)——
+      CN-only 不得占用完整结构身份、不得虚构电荷/保真/结构可知;
+      空串 smiles 不自动当 CN-only;
     - 未知 structure_origin ⇒ 拒绝。
     """
     origin = state_dict.get("structure_origin")
@@ -306,11 +344,69 @@ def _verify_state_payload_facts(state_dict: dict) -> None:
                 f"state:{sid} 声明 legacy_cn_only 却携带 smiles_isomeric"
                 "(CN-only 状态不得伪装结构可知)",
                 {"state_id": sid, "kind": "cn_only_with_structure"})
-        return  # CN-only:保持未知,不重推导
+        # R4-09:CN-only 专用隔离身份 + 未知事实契约整体复核
+        from ..domain.models import stable_id as _stable_id
+
+        from .chemstate import (
+            ISOTOPE_UNKNOWN as _ISOTOPE_UNKNOWN,
+            STEREO_UNKNOWN as _STEREO_UNKNOWN,
+            _CN_ONLY_FIDELITY as _CN_ONLY_FIDELITY,
+        )
+        cn = state_dict.get("cn_identity") or ""
+        expected_id = _stable_id("cs", "cn-only", cn) if cn else ""
+        problems: list[str] = []
+        if not cn:
+            problems.append("cn_identity_missing")
+        elif sid != expected_id:
+            problems.append("cn_only_identity_mismatch"
+                            "(CN-only 须用专用命名空间身份,不得占用完整"
+                            "结构身份空间)")
+        if state_dict.get("formal_charge") is not None:
+            problems.append("cn_only_formal_charge_fabricated")
+        if state_dict.get("original_structure_available"):
+            problems.append("cn_only_original_structure_claimed")
+        if state_dict.get("stereo_information_status") != _STEREO_UNKNOWN:
+            problems.append("cn_only_stereo_status_fabricated")
+        if state_dict.get("isotope_information_status") != _ISOTOPE_UNKNOWN:
+            problems.append("cn_only_isotope_status_fabricated")
+        if dict(state_dict.get("representation_fidelity")
+                or {}) != dict(_CN_ONLY_FIDELITY):
+            problems.append("cn_only_fidelity_fabricated")
+        if problems:
+            raise Ppv1StateContractError(
+                f"state:{sid} 的 CN-only 载荷违反未知事实契约"
+                "(R4-09:不从 CN 猜完整结构,不虚构电荷/保真/结构可知;"
+                "零写入)",
+                {"state_id": sid,
+                 "kind": "cn_only_contract_violated",
+                 "problems": problems})
+        return  # CN-only:保持未知,不重推导结构
     if not isomeric:
         raise Ppv1StateContractError(
-            f"state:{sid} 为结构态(origin={origin!r})但缺 smiles_isomeric",
-            {"state_id": sid, "kind": "structured_state_missing_isomeric"})
+            f"state:{sid} 为结构态(origin={origin!r})但缺 smiles_isomeric"
+            "(空串不是合法 CN-only:CN-only 须 origin=legacy_cn_only 且走"
+            "专用契约)",
+            {"state_id": sid,
+             "kind": "structured_state_missing_isomeric"})
+    # R4-09:fidelity 分轴契约(chemstate 同源校验:枚举 + 全四轴)
+    from .chemstate import _validate_fidelity as _validate_fidelity
+
+    try:
+        _validate_fidelity(state_dict.get("representation_fidelity"),
+                           str(origin))
+    except ChemicalStateError as exc:
+        raise Ppv1StateContractError(
+            f"state:{sid} 的 representation_fidelity 违反分轴契约"
+            "(R4-09:未知枚举/缺轴拒绝;零写入)",
+            {"state_id": sid,
+             "kind": "state_fidelity_contract_violated",
+             "reason": getattr(exc, "detail", {})}) from exc
+    if state_dict.get("original_structure_available") is not True:
+        raise Ppv1StateContractError(
+            f"state:{sid} 为结构态却声明 original_structure_available !="
+            " True(结构既可得,不得声明不可得)",
+            {"state_id": sid,
+             "kind": "structured_state_availability_mismatch"})
     try:
         derived = build_chemical_state(
             isomeric, STRUCTURE_ORIGIN_SOURCE_PRODUCT)
@@ -329,31 +425,57 @@ def _verify_state_payload_facts(state_dict: dict) -> None:
         mismatches["formal_charge"] = {
             "provided": state_dict.get("formal_charge"),
             "rederived": derived.formal_charge}
+    if derived.cn_identity != state_dict.get("cn_identity"):
+        mismatches["cn_identity"] = {
+            "provided": state_dict.get("cn_identity"),
+            "rederived": derived.cn_identity}
+    if derived.stereo_information_status != \
+            state_dict.get("stereo_information_status"):
+        mismatches["stereo_information_status"] = {
+            "provided": state_dict.get("stereo_information_status"),
+            "rederived": derived.stereo_information_status}
+    if derived.isotope_information_status != \
+            state_dict.get("isotope_information_status"):
+        mismatches["isotope_information_status"] = {
+            "provided": state_dict.get("isotope_information_status"),
+            "rederived": derived.isotope_information_status}
+    if derived.smiles_isomeric != isomeric:
+        mismatches["smiles_isomeric_not_canonical"] = {
+            "provided": isomeric[:120],
+            "canonical": derived.smiles_isomeric[:120]}
     if mismatches:
         raise Ppv1StateContractError(
-            f"state:{sid} 的语义事实与结构重推导不一致(R3-09 公共 writer"
-            " 复核;零写入)",
+            f"state:{sid} 的语义事实与结构重推导不一致(R3-09/R4-09 "
+            "公共 writer 复核;零写入)",
             {"state_id": sid,
              "kind": "state_fact_rederivation_mismatch",
              "mismatches": mismatches})
-    if origin == STRUCTURE_ORIGIN_RAW_INPUT:
-        raw = state_dict.get("structure_smiles_raw")
-        try:
-            raw_identity = strict_identity_of(raw)
-        except ChemicalStateError as exc:
-            raise Ppv1StateContractError(
-                f"state:{sid} 的 raw_input 原始串无法解析",
-                {"state_id": sid, "kind": "raw_input_unparseable",
-                 "structure_smiles_raw": str(raw)[:200]}) from exc
-        if raw_identity != derived.smiles_isomeric:
-            raise Ppv1StateContractError(
-                f"state:{sid} 的 raw_input 原始串解析到另一身份"
-                f"(期望 {derived.smiles_isomeric[:80]}…,实际"
-                f" {raw_identity[:80]}…;表示层身份声明不一致)",
-                {"state_id": sid, "kind": "raw_input_identity_mismatch",
-                 "expected_identity": derived.smiles_isomeric,
-                 "raw_structure": str(raw)[:200],
-                 "raw_identity": raw_identity})
+    # R4-09:所有原结构可得的来源核 raw 与 strict 身份(同图异拼写
+    # 接受;跨分子/非法 raw 拒绝)
+    raw = state_dict.get("structure_smiles_raw")
+    if not isinstance(raw, str) or not raw.strip():
+        raise Ppv1StateContractError(
+            f"state:{sid} 缺 structure_smiles_raw(原结构可得的来源必须"
+            "携带原始串)",
+            {"state_id": sid, "kind": "raw_structure_missing"})
+    try:
+        raw_identity = strict_identity_of(raw)
+    except ChemicalStateError as exc:
+        raise Ppv1StateContractError(
+            f"state:{sid} 的 structure_smiles_raw 无法解析(公共 writer "
+            "复核;R4-09:非法 raw 拒绝)",
+            {"state_id": sid, "kind": "raw_structure_unparseable",
+             "structure_smiles_raw": str(raw)[:200]}) from exc
+    if raw_identity != derived.smiles_isomeric:
+        raise Ppv1StateContractError(
+            f"state:{sid} 的 structure_smiles_raw 解析到另一身份"
+            f"(期望 {derived.smiles_isomeric[:80]}…,实际"
+            f" {raw_identity[:80]}…;同图异拼写接受,跨分子/表示层身份"
+            "声明不一致拒绝,R4-09)",
+            {"state_id": sid, "kind": "raw_identity_mismatch",
+             "expected_identity": derived.smiles_isomeric,
+             "raw_structure": str(raw)[:200],
+             "raw_identity": raw_identity})
 
 
 def _verify_participants_contract(eid: str, participants) -> None:
@@ -389,6 +511,35 @@ def _verify_participants_contract(eid: str, participants) -> None:
                  "participant_index": i, "state_ref": p.get("state_ref"),
                  "provided_entry_id": p.get("entry_id"),
                  "rederived_entry_id": expected})
+
+
+def _verify_hypothesis_id_rederivation(hypothesis_dict: dict,
+                                        where: str) -> None:
+    """R4-02:put/submit/重放的**同源完整假设 ID 复算**。
+
+    recompute_hypothesis_id(载荷,排序归一 + 绑定归零,与构造期同
+    算法)必须等于载荷内 hypothesis_id —— 合法新增前提用旧 ID /
+    改已存前提不换 ID 的载荷在入口拒绝(零写入),不以
+    "载荷 ID == SQL 行键"替代内容复算。契约异常原样上抛(结构化)。
+    """
+    provided = hypothesis_dict.get("hypothesis_id")
+    try:
+        rederived = recompute_hypothesis_id(hypothesis_dict)
+    except HypothesisContractError:
+        raise
+    except Exception as exc:  # 不可规范化的载荷:结构化拒绝
+        raise Ppv1SubmitContractError(
+            f"{where}:假设载荷不可复算身份({exc})",
+            {"kind": "hypothesis_payload_not_recomputable",
+             "where": where, "reason": str(exc)[:200]}) from exc
+    if rederived != provided:
+        raise Ppv1SubmitContractError(
+            f"{where}:假设载荷的 hypothesis_id 与内容重推导不一致"
+            f"(provided={provided!r},rederived={rederived!r};科学前提"
+            "变化必须换 ID —— 同 ID 不同前提不得落账;零写入)",
+            {"kind": "hypothesis_id_rederivation_mismatch",
+             "where": where, "provided": provided,
+             "rederived": rederived})
 
 
 class PollutantPathwayStore:
@@ -551,11 +702,15 @@ class PollutantPathwayStore:
 
     def put_hypothesis(self, hypothesis_dict: dict,
                        context_hash: str = "") -> None:
-        """假设草稿幂等落账(v4:载荷排序归一后比较,R3-08/R3-09)。
+        """假设草稿幂等落账(v4:载荷排序归一后比较,R3-08/R3-09;
+        v5:载荷身份复算,R4-02)。
 
         相同语义、requirements/assumptions/dependency_refs 顺序不同 ⇒
         同 hypothesis_id ⇒ 幂等(不报冲突);语义不同 ⇒ 冲突(不覆盖)。
         落账字节仍是调用方原始 dict(canonical 视图只用于比较)。
+        **R4-02:入口身份复算**——recompute_hypothesis_id(载荷)须
+        等于载荷内的 hypothesis_id(改科学前提但保留旧 ID 的载荷 ⇒
+        结构化拒绝,零写入;不以载荷 ID=SQL 键替代内容复算)。
         """
         _check_object_version("hypothesis",
                               hypothesis_dict.get("schema_version"),
@@ -563,6 +718,8 @@ class PollutantPathwayStore:
         _verify_participants_contract(
             f"hypothesis:{hypothesis_dict['hypothesis_id']}",
             hypothesis_dict.get("participants"))
+        _verify_hypothesis_id_rederivation(
+            hypothesis_dict, where="put_hypothesis")
         hid = hypothesis_dict["hypothesis_id"]
         self.conn.execute("BEGIN IMMEDIATE")
         try:
@@ -870,12 +1027,24 @@ class PollutantPathwayStore:
                  "kind": "event_hypothesis_participants_corrupt"})
 
     def _verify_stored_state_rows(self, eid: str, derived_refs) -> None:
-        """已存 state 行重解析/重算身份与电荷 + schema 门(R3-10)。
+        """已存 state 行重解析/重算身份与电荷 + schema 门(R3-10 +
+        R4-10:载荷内 ID、CN、立体/同位素状态、空结构的 CN-only 契约)。
 
-        行缺失由 missing_states 检查先报;此处核**内容**:CN-only(smiles
-        空)保持未知不重推导,有结构行重推严格身份 == 行键、形式电荷 ==
-        存值(schema 未知/不可解析/事实不一致 ⇒ 损坏)。
+        行缺失由 missing_states 检查先报;此处核**内容**:
+        - 载荷内 state_id == 行键(保存行被改内 ID ⇒ 损坏);
+        - CN-only(smiles 空)**必须**满足专用命名空间身份与未知事实
+          契约(空结构不自动当 CN-only;电荷 99 等虚构 ⇒ 损坏),
+          不重推导结构;
+        - 有结构行重推严格身份 == 行键、formal_charge/cn_identity/
+          stereo/isotope 状态 == 存值(schema 未知/不可解析/事实不
+          一致 ⇒ 损坏)。
         """
+        from ..domain.models import stable_id as _stable_id
+
+        from .chemstate import (
+            ISOTOPE_UNKNOWN as _ISOTOPE_UNKNOWN,
+            STEREO_UNKNOWN as _STEREO_UNKNOWN,
+        )
         for ref in sorted(derived_refs):
             row = self.conn.execute(
                 "SELECT payload FROM states WHERE state_id = ?",
@@ -890,9 +1059,33 @@ class PollutantPathwayStore:
                     {"event_id": eid, "table": "states",
                      "kind": "state_schema_corrupt", "state_id": ref,
                      "schema_version": semantic.get("schema_version")})
+            if semantic.get("state_id") != ref:
+                raise Ppv1LedgerCorrupt(
+                    f"重放 {eid} 发现已存状态行的载荷内 state_id 与行键"
+                    "不一致(损坏;保存行被改内 ID)",
+                    {"event_id": eid, "table": "states",
+                     "kind": "state_inner_id_corrupt", "state_id": ref,
+                     "payload_state_id": semantic.get("state_id")})
             isomeric = semantic.get("smiles_isomeric") or ""
             if not isomeric:
-                continue  # CN-only:保持未知,不重推导
+                # R4-10:空结构必须满足 CN-only 专用契约(不自动当合法)
+                cn = semantic.get("cn_identity") or ""
+                expected_id = _stable_id("cs", "cn-only", cn) if cn else ""
+                if (not cn or ref != expected_id
+                        or semantic.get("formal_charge") is not None
+                        or semantic.get("stereo_information_status")
+                        != _STEREO_UNKNOWN
+                        or semantic.get("isotope_information_status")
+                        != _ISOTOPE_UNKNOWN):
+                    raise Ppv1LedgerCorrupt(
+                        f"重放 {eid} 发现已存状态 {ref} 的空结构行不满足"
+                        "CN-only 专用契约(损坏;空串 smiles 不是合法"
+                        "CN-only:须专用命名空间身份 + 未知事实)",
+                        {"event_id": eid, "table": "states",
+                         "kind": "state_row_blank_structure_corrupt",
+                         "state_id": ref,
+                         "expected_cn_only_id": expected_id})
+                continue
             try:
                 derived = build_chemical_state(
                     isomeric, STRUCTURE_ORIGIN_SOURCE_PRODUCT)
@@ -902,18 +1095,35 @@ class PollutantPathwayStore:
                     {"event_id": eid, "table": "states",
                      "kind": "state_row_unparseable", "state_id": ref,
                      "reason": getattr(exc, "detail", {})}) from exc
-            if derived.state_id != ref \
-                    or derived.formal_charge != semantic.get("formal_charge"):
+            fact_mismatches = {}
+            if derived.state_id != ref:
+                fact_mismatches["state_id"] = {
+                    "stored": ref, "rederived": derived.state_id}
+            if derived.formal_charge != semantic.get("formal_charge"):
+                fact_mismatches["formal_charge"] = {
+                    "stored": semantic.get("formal_charge"),
+                    "rederived": derived.formal_charge}
+            if derived.cn_identity != semantic.get("cn_identity"):
+                fact_mismatches["cn_identity"] = {
+                    "stored": semantic.get("cn_identity"),
+                    "rederived": derived.cn_identity}
+            if derived.stereo_information_status != \
+                    semantic.get("stereo_information_status"):
+                fact_mismatches["stereo_information_status"] = {
+                    "stored": semantic.get("stereo_information_status"),
+                    "rederived": derived.stereo_information_status}
+            if derived.isotope_information_status != \
+                    semantic.get("isotope_information_status"):
+                fact_mismatches["isotope_information_status"] = {
+                    "stored": semantic.get("isotope_information_status"),
+                    "rederived": derived.isotope_information_status}
+            if fact_mismatches:
                 raise Ppv1LedgerCorrupt(
                     f"重放 {eid} 发现已存状态 {ref} 的语义事实与结构重推导"
                     "不一致(损坏)",
                     {"event_id": eid, "table": "states",
                      "kind": "state_row_corrupt", "state_id": ref,
-                     "rederived": {"state_id": derived.state_id,
-                                   "formal_charge": derived.formal_charge},
-                     "stored": {"state_id": ref,
-                                "formal_charge":
-                                    semantic.get("formal_charge")}})
+                     "mismatches": fact_mismatches})
 
     def _verify_stored_appearances(self, eid: str, derived_refs,
                                    states: list[dict]) -> None:
@@ -955,6 +1165,61 @@ class PollutantPathwayStore:
                      "kind": "expected_appearance_missing",
                      "state_id": sid,
                      "expected_appearance_hash": expected_hash})
+
+    def _verify_event_appearance_manifest(self, eid: str, payload: dict,
+                                          derived_refs) -> None:
+        """事件出现清单校验(R4-10:重放不依赖 caller 重复提供 dict)。
+
+        首次提交把**本事件断言的出现集合**(state_id + appearance_hash
+        列表)持久进事件 payload(event_appearance_manifest);重放从
+        账本校验:每个清单项的 (state_id, appearance_hash) 行仍存在且
+        内容 hash 复算一致、清单项不引用事件外状态——"有一条同物种
+        出现"不能代替本事件集合(删本事件 prod-A 只留无关 prod-B ⇒
+        损坏,不静默 created=False)。
+        """
+        manifest = payload.get("event_appearance_manifest")
+        if not isinstance(manifest, list) or not manifest:
+            raise Ppv1LedgerCorrupt(
+                f"重放 {eid} 发现已存事件载荷缺出现清单"
+                "(event_appearance_manifest;本事件断言的出现集合是重放"
+                "校验的依据,缺失即损坏)",
+                {"event_id": eid, "table": "events",
+                 "kind": "event_appearance_manifest_missing"})
+        for entry in manifest:
+            if not isinstance(entry, dict):
+                raise Ppv1LedgerCorrupt(
+                    f"重放 {eid} 发现已存事件出现清单条目形状损坏",
+                    {"event_id": eid, "table": "events",
+                     "kind": "event_appearance_manifest_corrupt",
+                     "entry": str(entry)[:200]})
+            sid = str(entry.get("state_id", ""))
+            appearance_hash = str(entry.get("appearance_hash", ""))
+            if sid not in derived_refs:
+                raise Ppv1LedgerCorrupt(
+                    f"重放 {eid} 发现已存事件出现清单引用事件外状态"
+                    f"{sid}(损坏)",
+                    {"event_id": eid, "table": "events",
+                     "kind": "event_appearance_manifest_ref_corrupt",
+                     "state_id": sid})
+            row = self.conn.execute(
+                "SELECT payload FROM state_appearances WHERE state_id = ?"
+                " AND appearance_hash = ?", (sid, appearance_hash)).fetchone()
+            if row is None:
+                raise Ppv1LedgerCorrupt(
+                    f"重放 {eid} 缺少本事件出现清单项(状态 {sid} 的"
+                    "出现不在账本;损坏,不默默成功、不补账)",
+                    {"event_id": eid, "table": "state_appearances",
+                     "kind": "event_appearance_manifest_entry_missing",
+                     "state_id": sid,
+                     "appearance_hash": appearance_hash})
+            if content_hash(json.loads(row["payload"])) != appearance_hash:
+                raise Ppv1LedgerCorrupt(
+                    f"重放 {eid} 发现已存状态 {sid} 的出现记录内容与哈希"
+                    "不一致(损坏)",
+                    {"event_id": eid, "table": "state_appearances",
+                     "kind": "appearance_hash_corrupt",
+                     "state_id": sid,
+                     "appearance_hash": appearance_hash})
 
     def submit_event(
         self,
@@ -1040,6 +1305,11 @@ class PollutantPathwayStore:
                      "event_semantics_hash": semantics}})
         # 参与物工厂契约(系数合法/entry_id 指纹)在提交边界独立复核
         _verify_participants_contract(eid, event.participants)
+        # R4-02:同源完整假设 ID 复算(随事务提供的假设:新增前提用
+        # 旧 ID ⇒ 结构化拒绝;与 put/重放同一复算源)
+        if hypothesis_dict is not None:
+            _verify_hypothesis_id_rederivation(
+                hypothesis_dict, where=f"submit_event:{eid}")
 
         self.conn.execute("BEGIN IMMEDIATE")
         try:
@@ -1105,6 +1375,29 @@ class PollutantPathwayStore:
                 self._verify_stored_state_rows(eid, derived_refs)
                 self._verify_stored_appearances(eid, derived_refs,
                                                 states or [])
+                # R4-10:本事件出现清单从账本校验(不依赖 caller 重复
+                # 提供 states;删本事件出现只留同物种无关出现 ⇒ 损坏)
+                self._verify_event_appearance_manifest(
+                    eid, json.loads(existing["payload"]), derived_refs)
+                # R4-02:已存假设载荷的**内容身份复算**(不提供 dict 的
+                # 重放同样复核:改已存前提/换 ID ⇒ 损坏,不静默成功)
+                try:
+                    rederived_hid = recompute_hypothesis_id(stored_hyp)
+                except HypothesisContractError as exc:
+                    raise Ppv1LedgerCorrupt(
+                        f"重放 {eid} 发现已存假设载荷不可复算身份(损坏)",
+                        {"event_id": eid, "table": "hypotheses",
+                         "kind": "hypothesis_payload_corrupt",
+                         "hypothesis_id": event.hypothesis_id,
+                         "reason": getattr(exc, "detail", {})}) from exc
+                if rederived_hid != event.hypothesis_id:
+                    raise Ppv1LedgerCorrupt(
+                        f"重放 {eid} 发现已存假设载荷的 ID 与内容重推导"
+                        "不一致(损坏;科学前提被改而 ID 未换)",
+                        {"event_id": eid, "table": "hypotheses",
+                         "kind": "hypothesis_payload_id_corrupt",
+                         "row_key": event.hypothesis_id,
+                         "rederived": rederived_hid})
                 if stored_hyp.get("hypothesis_id") != event.hypothesis_id:
                     raise Ppv1LedgerCorrupt(
                         f"重放 {eid} 发现已存假设载荷 ID 与行键不一致"
@@ -1218,6 +1511,11 @@ class PollutantPathwayStore:
                     " appearance_hash, payload, created_at)"
                     " VALUES (?, ?, ?, ?)",
                     (sid, appearance_hash, appearance_json, now_iso()))
+            # R4-10:本事件断言的出现集合持久进事件载荷(重放的账本校验
+            # 依据;不依赖 caller 重复提供 states)
+            appearance_manifest = [
+                {"state_id": sid, "appearance_hash": appearance_hash}
+                for sid, appearance_hash, _ in appearance_writes]
             if hyp_row is None:
                 self.conn.execute(
                     "INSERT INTO hypotheses (hypothesis_id, parent_path_id,"
@@ -1239,6 +1537,7 @@ class PollutantPathwayStore:
                      "participant_state_refs":
                          event.participant_state_refs,
                      "catalytic_support": event.catalytic_support,
+                     "event_appearance_manifest": appearance_manifest,
                  }, ensure_ascii=False, sort_keys=True), now_iso()))
             self.conn.execute(
                 "INSERT INTO report_projections (event_id, payload,"

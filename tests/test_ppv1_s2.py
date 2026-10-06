@@ -444,7 +444,7 @@ def test_f03_historical_scenario_fact_not_current() -> None:
 def test_f03_phase_scoped_fact_not_applicable_across_phases() -> None:
     """F03:阶段限定事实只在该阶段适用(转换只影响后续)。"""
     fact = build_condition_fact(
-        key=CONDITION_KEY_TEMPERATURE, value=25.0,
+        key=CONDITION_KEY_TEMPERATURE, value=25.0, unit="C",
         status=FACT_STATUS_KNOWN_PRESENT,
         origin=FACT_ORIGIN_SCENARIO_TRANSITION,
         subject_scenario_ref="s1", phase_id="phase-1", source_ref="user:t")
@@ -467,7 +467,7 @@ def test_f03_label_value_unknown_without_registry() -> None:
     """F03/mimo:mesophilic 标签无注册映射 ⇒ unknown(不产生假冲突)。"""
     facts = [build_condition_fact(
         key=CONDITION_KEY_TEMPERATURE, value=25.0,
-        status=FACT_STATUS_KNOWN_PRESENT)]
+        status=FACT_STATUS_KNOWN_PRESENT, unit="C")]
     reqs = [build_requirement(
         key=CONDITION_KEY_TEMPERATURE, level="essential",
         value="mesophilic", source_refs=SRC)]
@@ -486,7 +486,7 @@ def test_f03_optimum_never_conflicts() -> None:
     单数值未声明 basis 不自动推为 optimum ⇒ unknown。"""
     facts = [build_condition_fact(
         key=CONDITION_KEY_TEMPERATURE, value=45.0,
-        status=FACT_STATUS_KNOWN_PRESENT)]
+        status=FACT_STATUS_KNOWN_PRESENT, unit="C")]
     req_opt = build_requirement(
         key=CONDITION_KEY_TEMPERATURE, level="essential", value=30.0,
         value_basis=VALUE_BASIS_OPTIMUM, source_refs=SRC)
@@ -566,7 +566,7 @@ def test_f02_conflict_inherited_not_overwritten() -> None:
     40–50°C 后评估仍为 conflict(不允许覆盖成 compatible)。"""
     facts = [build_condition_fact(
         key=CONDITION_KEY_TEMPERATURE, value=45.0,
-        status=FACT_STATUS_KNOWN_PRESENT)]
+        status=FACT_STATUS_KNOWN_PRESENT, unit="C")]
     root = build_path_context(
         condition_facts=facts,
         accumulated_requirements=[build_requirement(
@@ -589,7 +589,7 @@ def test_f02_step_conflict_survives_derivation() -> None:
     派生上下文仍 conflict(不允许子评估回 compatible)。"""
     facts = [build_condition_fact(
         key=CONDITION_KEY_TEMPERATURE, value=25.0,
-        status=FACT_STATUS_KNOWN_PRESENT)]
+        status=FACT_STATUS_KNOWN_PRESENT, unit="C")]
     root = build_path_context(
         condition_facts=facts,
         accumulated_requirements=[build_requirement(
@@ -978,7 +978,7 @@ def test_admission_policy_decision_table_explicit() -> None:
         AdmissionPolicy.from_dict({"policy_version": "bogus"})
     with pytest.raises(AuditContractError, match="未知门禁"):
         AdmissionPolicy.from_dict({
-            "policy_version": "ppv1-admission-4",
+            "policy_version": "ppv1-admission-5",
             "reject_gates": ["gate_not_reviewed"]})
 
 
@@ -1436,7 +1436,7 @@ def test_pool_order_stable_and_truncation_disclosed() -> None:
     assert disclosure["n_truncated"] == 1
     assert disclosure["truncated_source_origins"] == {"analog_transfer": 1}
     assert disclosure["covers_full_pool"] is False
-    assert disclosure["order_key_version"] == "ppv1-pool-order-4"
+    assert disclosure["order_key_version"] == "ppv1-pool-order-5"
     _, full = order_pool(items)
     assert full["covers_full_pool"] is True
     again, _ = order_pool(list(reversed(items)), limit=3)

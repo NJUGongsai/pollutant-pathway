@@ -187,7 +187,7 @@ def test_r3_06_current_phase_live_requirements_follow_r3_semantics() -> None:
 
 def test_r3_06_cross_phase_fact_serves_multiple_edges() -> None:
     """空 phase_id 的跨阶段事实可同时服务旧边与当前边(保持)。"""
-    fact = f(CONDITION_KEY_TEMPERATURE, 25)  # 无 phase_id:全阶段适用
+    fact = f(CONDITION_KEY_TEMPERATURE, 25, unit="C")  # 无 phase_id:全阶段适用
     root = build_path_context(
         condition_facts=[fact], phase_id="p0", scenario_ref="s",
         accumulated_requirements=[
@@ -689,11 +689,13 @@ def test_r3_12_oxygen_enum_mismatch_still_conflict() -> None:
 
 
 def test_unit_basis_assumed_canonical_disclosed() -> None:
-    """要求值恒为键规范单位(构造器无 unit 字段);事实无单位 ⇒
-    仍按规范单位比较,但 per-requirement 带 unit_basis:
-    assumed_canonical(原来源单位未知,风险由事实来源注记承担);
-    显式规范单位 ⇒ canonical;显式错误单位仍 unknown/unit_mismatch。"""
-    # 无单位事实:比较照常,注记假定规范单位
+    """R5(R4-03):要求值恒为键规范单位(构造器无 unit 字段);事实
+    无单位(必须显式单位的键 temperature_C)= 原来源单位未知 ⇒
+    **unknown + unit_basis: source_unit_unknown**(注记不再把未知
+    来源升级为 satisfied;此前 v4 的 assumed_canonical+satisfied 是
+    复审点名缺陷);显式规范单位 ⇒ canonical + 参与比较;显式错误
+    单位仍 unknown/unit_mismatch;pH 等无量纲键空单位合法。"""
+    # 无单位事实:原来源单位未知 ⇒ unknown,不按数值直比
     no_unit = aggregate_environment_fit(
         facts=[f(CONDITION_KEY_TEMPERATURE, 25, origin="curated_source",
                  source_ref="src:unit_not_reported",
@@ -701,8 +703,9 @@ def test_unit_basis_assumed_canonical_disclosed() -> None:
         requirements=[r(CONDITION_KEY_TEMPERATURE, {"lo": 20, "hi": 30})],
         scenario_ref="s", declared_scope=[CONDITION_KEY_TEMPERATURE])
     row = per_key(no_unit)[CONDITION_KEY_TEMPERATURE]
-    assert row["status"] == "satisfied"
-    assert row["unit_basis"] == "assumed_canonical"
+    assert row["status"] == "unknown"
+    assert row["unit_basis"] == "source_unit_unknown"
+    assert "source_unit_unknown" in row["reason"]
     # 显式规范单位:已归一输入
     explicit = aggregate_environment_fit(
         facts=[f(CONDITION_KEY_TEMPERATURE, 25, unit="°C")],
@@ -728,15 +731,26 @@ def test_unit_basis_assumed_canonical_disclosed() -> None:
 
 def test_unit_basis_in_candidate_assessment_rows() -> None:
     """assess_candidate_conditions 的 per-requirement 同样带
-    unit_basis 注记(§4 行 1 适用全部评估路径)。"""
+    unit_basis(§4 行 1 适用全部评估路径;R5:显式规范单位 ⇒
+    canonical,空单位 ⇒ source_unit_unknown + unknown)。"""
     ctx = build_path_context(
-        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25)],
+        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25, unit="C")],
         phase_id="p0", scenario_ref="s",
         assessment_scope=[CONDITION_KEY_TEMPERATURE])
     hyp = _cand_hyp([r(CONDITION_KEY_TEMPERATURE, {"lo": 20, "hi": 30})])
     result = assess_candidate_conditions(ctx, hyp)
     row = per_key(result)[CONDITION_KEY_TEMPERATURE]
-    assert row["unit_basis"] == "assumed_canonical"
+    assert row["status"] == "satisfied"
+    assert row["unit_basis"] == "canonical"
+    # 空单位(原来源单位未知):candidate 路径同样 unknown + 注记
+    ctx2 = build_path_context(
+        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25)],
+        phase_id="p0", scenario_ref="s",
+        assessment_scope=[CONDITION_KEY_TEMPERATURE])
+    result2 = assess_candidate_conditions(ctx2, hyp)
+    row2 = per_key(result2)[CONDITION_KEY_TEMPERATURE]
+    assert row2["status"] == "unknown"
+    assert row2["unit_basis"] == "source_unit_unknown"
 
 
 # ================================================================ 契约函数

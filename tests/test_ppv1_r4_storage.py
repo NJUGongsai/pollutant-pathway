@@ -204,7 +204,7 @@ def test_r4_09_put_state_forged_formal_charge_rejected(tmp_path) -> None:
     store.close()
 
 
-def test_r4_09_put_state_raw_input_identity_mismatch_rejected(
+def test_r4_09_put_state_raw_identity_mismatch_rejected(
         tmp_path) -> None:
     """R3-09 复现(put_forged_raw_structure,raw_input 变体):CCO 语义配
     CCN raw 且 origin=raw_input ⇒ 表示层身份核对不一致 ⇒ 拒绝。"""
@@ -213,7 +213,7 @@ def test_r4_09_put_state_raw_input_identity_mismatch_rejected(
     forged["structure_smiles_raw"] = ACETONITRILE
     with pytest.raises(Ppv1StateContractError) as exc_info:
         store.put_state(forged)
-    assert exc_info.value.detail["kind"] == "raw_input_identity_mismatch"
+    assert exc_info.value.detail["kind"] == "raw_identity_mismatch"
     assert store.counts()["states"] == 0
     store.close()
 

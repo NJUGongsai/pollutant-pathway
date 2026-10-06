@@ -1,4 +1,20 @@
-"""legacy 只读适配 — 旧 v43 账本到新表示(v4 回修,S1)。
+"""legacy 只读适配 — 旧 v43 账本到新表示(v5 回修,S1)。
+
+v5(2026-10-07 R5 回修)相对 v4 的变化(Codex R4 复审 R4-11):
+- **来源关系核验(CN 相同也核)**:archive 指针不只核内容(行内
+  自洽+CN 一致),还核**关系**——来源事件 E 的 parent_path_id 须
+  等于本路径 parent_path_id,且 E 的该 position 产物生成的子路径须
+  包含本路径;违反 ⇒ CN-only + 原因
+  `substrate_source_event_relation_mismatch`(复审 same_cn_wrong_
+  relation 反例:子路径指针被改指向自身消耗事件,错误手性产物
+  (同 CN)曾被当底物 origin=source_product 无 uncertainty);
+- **记录间矛盾披露(保留可信 raw)**:事件声明的 substrate_identity
+  与其父路径声明不一致 / 产物行声明的 product_identity 与 raw 重算
+  CN 不一致 ⇒ uncertainty 披露(不吞掉);**保留指针链可核的 raw
+  结构,不为服从错误 CN 丢可信 raw**(R4-11 辅助反例:事件底物
+  声明 CCN/raw CCO、产物声明 CCN/raw CC=O 曾未披露);
+- 旧库只读、字节不变、版本门、root/多步/多位置/空指针降级控制
+  全部保留。
 
 v4(2026-10-06 R4 回修)相对 v3 的变化(R3-11 + R3-10 导入侧):
 - **archive 来源核对(R3-11)**:子底物的来源指针指向**存在但错误**的
@@ -87,6 +103,11 @@ CN_ONLY_REASON_SUBSTRATE_ARCHIVE_IDENTITY_MISMATCH = \
     "substrate_archive_identity_mismatch"
 CN_ONLY_REASON_ROOT_SMILES_IDENTITY_MISMATCH = \
     "root_smiles_identity_mismatch"
+# R4-11:来源事件与父路径/子路径的**关系**矛盾(即使 CN 相同;
+# 指针指向"存在但关系错误"的产物行 —— 如子路径指针被改指向其自身
+# 消耗事件,父路径关系原样 ⇒ 错误手性产物被当底物)
+CN_ONLY_REASON_SUBSTRATE_SOURCE_EVENT_RELATION_MISMATCH = \
+    "substrate_source_event_relation_mismatch"
 
 
 class LegacyStoreError(RuntimeError):
@@ -174,11 +195,13 @@ def _legacy_cn_of(structure: str | None) -> str | None:
 
 def _substrate_structure_for_path(
     conn: sqlite3.Connection, run_dir: Path, path_id: str,
-) -> tuple[str, str, str]:
-    """父路径底物结构来源 → (structure_or_cn, source_kind, reason)。
+) -> tuple[str, str, str, str]:
+    """父路径底物结构来源 → (structure_or_cn, source_kind, reason,
+    path_substrate_identity)。
 
     source_kind ∈ {"archive", "root", "cn_only"};reason 是 cn_only
-    降级的原因码(archive/root 为空串)。
+    降级的原因码(archive/root 为空串);path_substrate_identity 是
+    路径行声明的底物 CN(供调用方核"事件声明 vs 路径声明",R4-11)。
 
     R2-11:root 身份须依据**实际父关系**确认 —— parent_path_id 为空
     AND event/product_position 指针为空 AND substrate_identity 与
@@ -194,6 +217,15 @@ def _substrate_structure_for_path(
     - archive:指针行的结构/CN(重算)须与子底物声明的 substrate_
       identity 一致且行内自洽 —— 指向存在但错误的产物行 ⇒ cn_only
       (substrate_archive_identity_mismatch),不把错误引用当完整结构。
+
+    R4-11 **关系核对**(CN 相同也核;错关系即使 CN 同也降级):
+    - 来源事件 E(= event_ptr)的 parent_path_id 须等于本路径的
+      parent_path_id(产物在父路径上反应产生,才可能是本路径底物);
+    - E 的 POS 产物生成的子路径须包含本路径(本路径是该产物的
+      消耗方;指针被改指自身消耗事件/兄弟事件 ⇒ 关系断裂,
+      复审 same_cn_wrong_relation 反例);
+    - 违反 ⇒ cn_only(substrate_source_event_relation_mismatch),
+      不为服从指针的 raw 冒充底物。
     """
     row = conn.execute(
         "SELECT * FROM path_instances WHERE path_id = ?", (path_id,)).fetchone()
@@ -203,6 +235,7 @@ def _substrate_structure_for_path(
     parent_id = row["parent_path_id"]
     event_ptr = row["event_id"]
     pos_ptr = row["product_position"]
+    path_substrate_identity = row["substrate_identity"]
     if parent_id is None and event_ptr is None and pos_ptr is None:
         root_smiles, root_identity = _legacy_root_identity(run_dir)
         if root_smiles and root_identity \
@@ -210,12 +243,14 @@ def _substrate_structure_for_path(
             # R3-11 根核对:root_smiles 重算旧身份,与声明根身份矛盾 ⇒
             # 不当 raw_input(降级 CN-only 并保留原因)
             if _legacy_cn_of(root_smiles) == root_identity:
-                return root_smiles, "root", ""
+                return root_smiles, "root", "", path_substrate_identity
             return (row["substrate_identity"], "cn_only",
-                    CN_ONLY_REASON_ROOT_SMILES_IDENTITY_MISMATCH)
+                    CN_ONLY_REASON_ROOT_SMILES_IDENTITY_MISMATCH,
+                    path_substrate_identity)
         # 指针全空但身份无法与 run 根确认一致 ⇒ 不借根结构
         return (row["substrate_identity"], "cn_only",
-                CN_ONLY_REASON_ROOT_IDENTITY_UNCONFIRMED)
+                CN_ONLY_REASON_ROOT_IDENTITY_UNCONFIRMED,
+                path_substrate_identity)
     if event_ptr is not None and pos_ptr is not None:
         prod = conn.execute(
             "SELECT * FROM event_products WHERE event_id = ? AND"
@@ -230,18 +265,39 @@ def _substrate_structure_for_path(
             row_consistent = (
                 prod["product_identity"] == row["substrate_identity"]
                 and recomputed_cn == prod["product_identity"])
-            if row_consistent:
-                return product_structure, "archive", ""
+            # R4-11 关系核对:来源事件与父路径/子路径关系(CN 相同也核)
+            source_event = conn.execute(
+                "SELECT parent_path_id FROM reaction_events WHERE"
+                " event_id = ?", (event_ptr,)).fetchone()
+            child_paths = [
+                r["path_id"] for r in conn.execute(
+                    "SELECT path_id FROM path_instances WHERE event_id = ?"
+                    " AND product_position = ?",
+                    (event_ptr, pos_ptr)).fetchall()]
+            relation_ok = (
+                source_event is not None
+                and source_event["parent_path_id"] == parent_id
+                and path_id in child_paths)
+            if row_consistent and relation_ok:
+                return (product_structure, "archive", "",
+                        path_substrate_identity)
+            if not row_consistent:
+                return (row["substrate_identity"], "cn_only",
+                        CN_ONLY_REASON_SUBSTRATE_ARCHIVE_IDENTITY_MISMATCH,
+                        path_substrate_identity)
             return (row["substrate_identity"], "cn_only",
-                    CN_ONLY_REASON_SUBSTRATE_ARCHIVE_IDENTITY_MISMATCH)
+                    CN_ONLY_REASON_SUBSTRATE_SOURCE_EVENT_RELATION_MISMATCH,
+                    path_substrate_identity)
         # 指针齐全但存档行缺失:CN-only(不借根结构;F09)
         return (row["substrate_identity"], "cn_only",
-                CN_ONLY_REASON_SUBSTRATE_ARCHIVE_MISSING)
+                CN_ONLY_REASON_SUBSTRATE_ARCHIVE_MISSING,
+                path_substrate_identity)
     # 指针残缺:子路径丢来源指针 / 矛盾指针 ⇒ CN-only,保留原因
     reason = (CN_ONLY_REASON_CHILD_MISSING_ARCHIVE_POINTERS
               if parent_id is not None
               else CN_ONLY_REASON_ARCHIVE_POINTERS_BROKEN)
-    return row["substrate_identity"], "cn_only", reason
+    return (row["substrate_identity"], "cn_only", reason,
+            path_substrate_identity)
 
 
 def import_legacy_event(
@@ -276,13 +332,25 @@ def import_legacy_event(
         # R3-11:所有公开导入入口共同守版本门(store schema + run identity)
         _gate_legacy_store_version(conn)
         _legacy_root_identity(run_dir)  # 未来 identity 版本 ⇒ 显式拒绝
-        substrate_source, source_kind, cn_reason = \
+        substrate_source, source_kind, cn_reason, path_substrate_id = \
             _substrate_structure_for_path(
                 conn, run_dir, legacy_event["parent_path_id"])
     finally:
         conn.close()
 
     uncertainty_notes: list[str] = []
+    # R4-11:事件声明底物 vs 路径声明底物的记录间一致性 —— 矛盾
+    # **披露**且保留可信 raw(不为服从错误 CN 丢可信 raw;路径指针链
+    # 是结构来源,事件声明只是记录,二者矛盾时以披露保真)
+    event_declared_substrate = str(
+        legacy_event.get("substrate_identity") or "")
+    if event_declared_substrate and path_substrate_id \
+            and event_declared_substrate != path_substrate_id:
+        uncertainty_notes.append(
+            "substrate_declaration_mismatch_event_vs_path:event="
+            f"{event_declared_substrate}:path={path_substrate_id}"
+            "(旧记录事件声明的底物 CN 与其父路径声明不一致;保留指针链"
+            "可核的 raw 结构,披露记录间矛盾,不以事件声明覆盖可信 raw)")
     if source_kind == "cn_only":
         substrate_state = build_chemical_state_from_cn_only(
             legacy_event["substrate_identity"],
@@ -300,6 +368,9 @@ def import_legacy_event(
                 "来源指针指向存在但身份矛盾的产物行(不借错误结构)",
             CN_ONLY_REASON_ROOT_SMILES_IDENTITY_MISMATCH:
                 "root_smiles 重算身份与声明根身份矛盾(不用矛盾根串)",
+            CN_ONLY_REASON_SUBSTRATE_SOURCE_EVENT_RELATION_MISMATCH:
+                "来源事件与父路径/子路径关系矛盾(即使 CN 相同也不信"
+                "其产物行当本路径底物;R4-11)",
         }.get(cn_reason, "来源不可用")
         uncertainty_notes.append(
             f"substrate_structure_legacy_cn_only:{cn_reason}:历史路径"
@@ -331,6 +402,19 @@ def import_legacy_event(
     n_product_occurrences = 0
     for prod in legacy_event.get("products", []):
         full = prod.get("product_smiles_full") or prod.get("product_smiles")
+        # R4-11:产物行声明的 product_identity(CN)与 raw 重算 CN 的
+        # 记录间一致性 —— 矛盾披露且保留可信 raw(不从声明 CN 丢 raw)
+        declared_product_cn = str(prod.get("product_identity") or "")
+        raw_product_cn = _legacy_cn_of(full)
+        if declared_product_cn and raw_product_cn \
+                and declared_product_cn != raw_product_cn:
+            uncertainty_notes.append(
+                "product_identity_vs_raw_mismatch:event="
+                f"{legacy_event['event_id']}:position="
+                f"{prod.get('position')}:declared="
+                f"{declared_product_cn}:raw={raw_product_cn}"
+                "(旧产物行声明的 CN 与产物 raw 串重算不一致;保留 raw"
+                " 结构,披露记录间矛盾,不以声明 CN 覆盖可信 raw)")
         state = build_chemical_state(
             full, STRUCTURE_ORIGIN_SOURCE_PRODUCT,
             source_refs=[{"role": "legacy_event_product",

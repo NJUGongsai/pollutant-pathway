@@ -22,6 +22,19 @@ R3 复审 R3-04 与 mimo R3 1.2/1.3 的落实):
   逐字相同;**自由基分子带 |^n:…| 后缀是例外**(radical 保真轴
   为已登记缺口,身份层区分自由基)。
 
+v5(ppv1-chemstate-5,2026-10-07 R5 回修)相对 v4 的变化(Codex R4
+复审 R4-08 + mimo R4 1.2):
+- **DATA SGroup(SgD)分子级剥离**:纯出现/注记元数据(如
+  review_note)不再改变严格身份(R4 反例:裸 CO 与两种 DATA 注记
+  分裂三个 state_id);值可含逗号,字符串级剥离不可靠,故按
+  SubstanceGroup 类型在分子级 Clear+重加;
+- **SRU/聚合物等非 DAT SGroup 保留**(承载化学事实,不盲目剥掉);
+- **未登记 CX 类显式拒绝**(unregistered_cx_class):登记表
+  Sg/SgD/a/oN/&N/^N 之外的注解头/旗标块 ⇒ ChemicalStateError,
+  不再"默认原样进身份"(mimo 1.1 拒绝表口径);$\_{_AV}$/molLnkNode
+  实测以 atomProp 形式承载,生成前清除(同 ID,R4 复审核对);bond
+  prop 实测不外写。
+
 v2(ppv1-chemstate-2,2026-10-05 回修)的变化:
 - 身份键在 canonical 重排后的分子图上生成,并显式序列化增强立体组
   (v1 普通 MolToSmiles 静默丢组造成三输入碰撞,F05);
@@ -123,15 +136,24 @@ class ChemicalStateError(RuntimeError):
 
 
 def _identity_key(mol: Chem.Mol) -> str:
-    """分子身份键(v4):**化学 CX 事实子集**的规范化 canonical CXSMILES。
+    """分子身份键(v5):**化学 CX 事实子集**的规范化 canonical CXSMILES。
 
     - 原子映射号不属于分子身份(生成前去除);
     - **非化学 CX 元数据移除**:二维/三维坐标(conformer)、原子标签
       (atomLabel)、任意 atomProp —— 绘图与注释不改变严格分子图身份
       (R3-04:普通 CO / 原子标签 / 坐标 / atomProp note 五输入同键);
+    - **DATA SGroup(SgD)分子级剥离(R4-08)**:RDKit SubstanceGroup 的
+      DAT 组携带纯出现/注记元数据(如 review_note),不是化学图事实;
+      以分子级 Clear+按类型重加实现(值可含逗号,字符串级剥离不可靠,
+      R4 复审 DATA 反例);
     - **保留化学事实**:增强立体组(AND/OR)、自由基层(^n:idx)、
-      同位素/电荷/立体(基串);RDKit canonical 写出器对增强立体做
-      规范化(AND/OR 整组翻转同键、部分反转保持不同);
+      同位素/电荷/立体(基串)、SRU/聚合物等非 DAT SGroup(承载化学
+      事实,不盲目剥掉,R4-08 验收);RDKit canonical 写出器对增强立体
+      做规范化(AND/OR 整组翻转同键、部分反转保持不同);
+    - **未登记 CX 类拒绝(R4-08/mimo 1.1)**:输出扩展段中出现登记表
+      之外的注解类(如 w:/LN:/atomProp/r 等,本仓生成路径不应产出;
+      属性/坐标已在生成前清除)⇒ ChemicalStateError
+      (kind=unregistered_cx_class,拒绝该表示,不默认原样进身份);
     - ABS 组是冗余注解(与 isomeric SMILES 默认绝对构型同一事实)
       ⇒ **令牌级**剥离(支持混合并列形态:a:1,&1:3 / ^1:0,a:1 /
       a:2,5,&1:2,5;逗号既分隔注解头也分隔组内原子列表,故按"有
@@ -149,7 +171,64 @@ def _identity_key(mol: Chem.Mol) -> str:
     m.RemoveAllConformers()
     for prop in list(m.GetPropNames()):
         m.ClearProp(prop)
-    return _strip_abs_tokens(Chem.MolToCXSmiles(m))
+    # R4-08:DATA SGroup 分子级剥离(值含逗号时字符串级解析不可靠;
+    # 其余 SGroup 类型按登记保留 —— 化学事实)
+    sgroups = list(Chem.GetMolSubstanceGroups(m))
+    if any(g.GetProp("TYPE") == "DAT" for g in sgroups):
+        Chem.ClearMolSubstanceGroups(m)
+        for group in sgroups:
+            if group.GetProp("TYPE") != "DAT":
+                Chem.AddMolSubstanceGroup(m, group)
+    cx = Chem.MolToCXSmiles(m)
+    _guard_registered_cx_classes(cx)
+    return _strip_abs_tokens(cx)
+
+
+# CX 注解类登记表(R4-08/mimo 1.1:拒绝表 → 显式登记;未登记类拒绝
+# 该表示,不再"默认原样进身份"):
+# - 生成前已移除:坐标(conformer)、atomLabel、任意 atomProp(含
+#   $_AV/molLnkNode,实测同 ID —— R4 复审核对)、原子映射号;
+# - 剥离:DATA SGroup(SgD,纯出现注记;分子级剥离);
+# - 保留(化学事实):Sg(SRU/聚合物等非 DAT 组)、增强立体 a/&N/oN、
+#   自由基层 ^N;
+# - bond prop 实测不外写(MolToCXSmiles 无对应输出;R4 登记测试钉住)。
+_CX_REGISTERED_HEAD_RE = re.compile(
+    r"^(?:Sg|SgD|a|o\d+|&\d+|\^\d+)!?:")
+_CX_REGISTERED_FLAG_BLOCKS = frozenset()  # 无冒号旗标块:目前无登记类
+
+
+def _guard_registered_cx_classes(cxsmiles: str) -> None:
+    """输出扩展段的注解类登记守卫(R4-08;fail-closed)。
+
+    对 |…| 扩展段逐块逐 token 检查:含冒号且头部非数字的 token 视为
+    注解头,头部必须命中登记表(Sg/SgD/a/oN/&N/^N);无冒号的旗标块
+    目前无登记类 ⇒ 拒绝。未登记类 ⇒ ChemicalStateError —— 未知 CX 事实
+    不得默认进身份(身份静默分裂)也不得默认剥掉(丢事实后称完整),
+    二者都是无声明状态。
+    """
+    m = re.search(r"\|([^|]*)\|\s*$", cxsmiles)
+    if not m:
+        return
+    for block in m.group(1).split(" "):
+        if not block:
+            continue
+        if ":" not in block and block not in _CX_REGISTERED_FLAG_BLOCKS:
+            raise ChemicalStateError(
+                f"CX 扩展段含未登记旗标块:{block[:80]!r}(身份键的 CX 子集"
+                "按登记表处理;未知类型显式拒绝该表示,不默认进身份)",
+                {"kind": "unregistered_cx_class", "block": block[:200]})
+        for token in block.split(","):
+            head, sep, _ = token.partition(":")
+            has_head = bool(sep) and bool(head) \
+                and not head.lstrip("!").isdigit() \
+                and head.lstrip("!") != ""
+            if has_head and not _CX_REGISTERED_HEAD_RE.match(token):
+                raise ChemicalStateError(
+                    f"CX 扩展段含未登记注解类:{token[:80]!r}(登记表:"
+                    "Sg/SgD/a/oN/&N/^N;坐标/atomLabel/atomProp/映射号"
+                    "生成前已移除;未知类型显式拒绝,不默认进身份)",
+                    {"kind": "unregistered_cx_class",
+                     "token": token[:200]})
 
 
 def _strip_abs_tokens(cxsmiles: str) -> str:

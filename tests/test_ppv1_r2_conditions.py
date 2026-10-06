@@ -159,7 +159,7 @@ def test_r2_04_transition_only_affects_subsequent_not_reaction_edge() -> None:
     """转换只影响后续步骤;阶段转换不写成反应边(留在
     scenario_transition/phase_history,不产生参与物或事件)。"""
     root = build_path_context(
-        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25.0)],
+        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25.0, unit="C")],
         accumulated_requirements=[
             r(CONDITION_KEY_TEMPERATURE, {"lo": 20, "hi": 30})],
         assessment_scope=[CONDITION_KEY_TEMPERATURE])
@@ -184,7 +184,7 @@ def test_r2_04_branch_isolation_requirement_objects() -> None:
     sibling 不受影响、frozen dataclass)不变且更严。
     """
     parent = build_path_context(
-        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25)],
+        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25, unit="C")],
         accumulated_requirements=[
             r(CONDITION_KEY_TEMPERATURE, {"lo": 20, "hi": 30})],
         assessment_scope=[CONDITION_KEY_TEMPERATURE])
@@ -211,7 +211,7 @@ def test_r2_04_branch_isolation_requirement_objects() -> None:
 def test_r2_04_fact_and_dependency_objects_isolated() -> None:
     """事实/依赖同样不可变隔离:子上下文事实列表不与父共享对象。"""
     parent = build_path_context(
-        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25)])
+        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 25, unit="C")])
     child = derive_child_context(parent)
     assert child.condition_facts[0] is not parent.condition_facts[0]
     with pytest.raises(Exception):
@@ -228,7 +228,7 @@ def test_r2_04_fact_and_dependency_objects_isolated() -> None:
 def test_r2_04_current_step_vs_route_two_layers() -> None:
     """本步相容与全路线相容分开呈现(两个字段/两层 API)。"""
     root = build_path_context(
-        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 45, phase_id="p0")],
+        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 45, phase_id="p0", unit="C")],
         phase_id="p0",
         accumulated_requirements=[
             r(CONDITION_KEY_TEMPERATURE, {"lo": 20, "hi": 30})],
@@ -242,7 +242,7 @@ def test_r2_04_current_step_vs_route_two_layers() -> None:
     assert child.assessed_scope == "conflicted"
     # 对照:无阶段限定事实按语义对全部阶段适用(本步按当前事实评估)
     root2 = build_path_context(
-        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 45)],
+        condition_facts=[f(CONDITION_KEY_TEMPERATURE, 45, unit="C")],
         accumulated_requirements=[
             r(CONDITION_KEY_TEMPERATURE, {"lo": 20, "hi": 30})],
         assessment_scope=[CONDITION_KEY_TEMPERATURE])
@@ -266,7 +266,7 @@ def test_r2_04_context_json_roundtrip_v3() -> None:
         root, scenario_transition={"new_phase_id": "p1",
                                    "source_ref": "user:t"})
     d = child.to_dict()
-    assert d["schema_version"] == "ppv1-context-4"
+    assert d["schema_version"] == "ppv1-context-5"
     restored = PathContext.from_dict(d)
     assert restored.context_id == child.context_id
     assert restored.phase_history == child.phase_history
@@ -406,7 +406,7 @@ def test_r2_05_label_basis_only_for_interval_keys() -> None:
     label_req = r(CONDITION_KEY_TEMPERATURE, "mesophilic")
     assert label_req.value_basis == "label"
     result = aggregate_environment_fit(
-        facts=[f(CONDITION_KEY_TEMPERATURE, 25.0)],
+        facts=[f(CONDITION_KEY_TEMPERATURE, 25.0, unit="C")],
         requirements=[label_req],
         declared_scope=[CONDITION_KEY_TEMPERATURE])
     row = per_key(result)[CONDITION_KEY_TEMPERATURE]
@@ -591,7 +591,7 @@ def test_r2_07_hypothesis_from_dict_gate_v3() -> None:
     sub, prod = _states_for_hyp()
     h = _hyp(sub, prod, [r(CONDITION_KEY_OXYGEN, "aerobic")])
     d = h.to_dict()
-    assert d["schema_version"] == "ppv1-hypothesis-4"
+    assert d["schema_version"] == "ppv1-hypothesis-5"
     assert ReactionHypothesis.from_dict(d).hypothesis_id == h.hypothesis_id
     bad = dict(d)
     bad["schema_version"] = "ppv1-hypothesis-999"

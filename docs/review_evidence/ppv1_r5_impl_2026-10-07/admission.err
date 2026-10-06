@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1-r5-probes.rFHXFk/admission_probe.py", line 53, in <module>
+    audit_case('genuine_evidence_mutated_'+key,h,ss,altered)
+  File "/private/tmp/ppv1-r5-probes.rFHXFk/admission_probe.py", line 35, in audit_case
+    a=audit_hypothesis(h,states=states,context=ctx,center_evidence=ev,**kw)
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/audit.py", line 845, in audit_hypothesis
+    raise AuditContractError(
+pathway_v43.pollutant.audit.AuditContractError: center_evidence 自报字段与证明记录复算值不一致(证据被改写/拼接;结构化拒绝,不改输入即不改结论):bound_inputs.edits_signature:claimed≠recomputed

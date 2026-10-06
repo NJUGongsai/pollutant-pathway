@@ -43,7 +43,7 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    assert block["schema_version"] == "ppv1-profile-4"
+    assert block["schema_version"] == "ppv1-profile-5"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),

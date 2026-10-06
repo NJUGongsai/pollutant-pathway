@@ -40,6 +40,17 @@ R4 回修(R3-08,ppv1-hypothesis-4):
   hypothesis_id 字段)按构造期同算法重推导 id(存储线 submit 复核
   "提供的 id 与载荷一致");payload 增加 origin_group_key 字段
   (身份输入完整可重推导;版本已升 -4,旧 -3 载荷由版本门拒绝)。
+
+R5 回修(R4-02,ppv1-hypothesis-5):
+- **requirements 嵌套冻结**:存储侧 requirement dict 为冻结映射、
+  区间 value 递归冻结(path_context 的 _FrozenValueDict/_freeze)——
+  对自身科学前提的就地修改(setitem/update/`|=`/嵌套 value 改写)
+  立即 TypeError,不再"改科学前提而保留 hypothesis_id"(复审
+  hypothesis_live_nested_mutation 反例);to_dict 输出普通可变副本
+  (存储/哈希路径不变)。
+- **入口身份复算接线(R4-02)**:store 的 put_hypothesis/submit/
+  重放调用 recompute_hypothesis_id 复核"载荷 ID == 内容重推导 ID"
+  (见 store v5)——对象级冻结与入口复算双层。
 """
 
 from __future__ import annotations
@@ -54,6 +65,9 @@ from .path_context import (
     REQUIREMENT_BINDING_FIELDS,
     ConditionContractError as _ConditionContractError,
     Requirement as _Requirement,
+    _FrozenValueDict as _FrozenValueDict,
+    _freeze as _freeze_value,
+    _thaw as _thaw_value,
     validate_requirement_dict as _validate_requirement_dict,
 )
 from .profile import PPV1_HYPOTHESIS_SCHEMA_VERSION
@@ -106,6 +120,17 @@ class HypothesisContractError(RuntimeError):
     def __init__(self, message: str, detail: dict | None = None):
         super().__init__(message)
         self.detail = detail or {}
+
+
+def _freeze_requirement_dict(req: dict) -> dict:
+    """R4-02:requirement dict 的存储侧冻结形(顶层冻结映射 + 嵌套
+    value 递归冻结)。对科学前提的就地修改立即 TypeError;to_dict/
+    载荷路径经 _thaw_requirement_dict 转回普通可变副本。"""
+    return _FrozenValueDict({k: _freeze_value(v) for k, v in req.items()})
+
+
+def _thaw_requirement_dict(req: dict) -> dict:
+    return _thaw_value(dict(req))
 
 
 def parse_coefficient(value) -> Fraction:
@@ -341,7 +366,8 @@ class ReactionHypothesis:
 
     def to_dict(self) -> dict:
         """规范形载荷(canonical_hypothesis_payload:requirements/
-        assumptions/dependency_refs 排序归一,其余原样)。"""
+        assumptions/dependency_refs 排序归一,其余原样;R4-02:
+        requirements 冻结存储形在此转回普通可变副本)。"""
         return canonical_hypothesis_payload({
             "schema_version": self.schema_version,
             "hypothesis_id": self.hypothesis_id,
@@ -356,7 +382,7 @@ class ReactionHypothesis:
             "step_scope_evidence_refs": list(self.step_scope_evidence_refs),
             "provenance_refs": list(self.provenance_refs),
             "support_group_refs": list(self.support_group_refs),
-            "requirements": [copy.deepcopy(dict(r))
+            "requirements": [_thaw_requirement_dict(r)
                              for r in self.requirements],
             "assumptions": list(self.assumptions),
             "dependency_refs": list(self.dependency_refs),
@@ -403,7 +429,7 @@ class ReactionHypothesis:
                 d.get("step_scope_evidence_refs", [])),
             provenance_refs=list(d.get("provenance_refs", [])),
             support_group_refs=list(d.get("support_group_refs", [])),
-            requirements=[copy.deepcopy(dict(r))
+            requirements=[_freeze_requirement_dict(r)
                           for r in raw_requirements],
             assumptions=list(d.get("assumptions", [])),
             dependency_refs=list(d.get("dependency_refs", [])),
@@ -685,7 +711,8 @@ def build_hypothesis(
         step_scope_evidence_refs=list(step_scope_evidence_refs or []),
         provenance_refs=list(provenance_refs or []),
         support_group_refs=list(support_group_refs or []),
-        requirements=[copy.deepcopy(d) for d in normalized_reqs],
+        requirements=[_freeze_requirement_dict(d)
+                      for d in normalized_reqs],
         assumptions=list(assumptions or []),
         dependency_refs=list(dependency_refs or []),
         audit_ref=audit_ref,

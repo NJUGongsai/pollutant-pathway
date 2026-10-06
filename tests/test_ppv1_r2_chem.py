@@ -388,7 +388,7 @@ def test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified(
                  {"dC": "S_C_2", "dO": "S_O_1"})
     assert diag.reaction_center_match is True
     evidence = center_evidence_from_donor_diagnostic(diag)
-    assert evidence["checker_version"] == "ppv1-donor-diagnostic-4"
+    assert evidence["checker_version"] == "ppv1-donor-diagnostic-5"
     assert evidence["checker_scope"] == "region_net_change"
     # 绑定输入携带本诊断的全部科学输入(R3-01)
     bound = evidence["bound_inputs"]
@@ -424,7 +424,10 @@ def test_r4_01_cross_reaction_evidence_reuse_rejected() -> None:
     center = next(c for c in audit.checks
                   if c.name == CHECK_TRANSFORMATION_CENTER)
     assert center.status == CHECK_UNKNOWN
-    assert "center_evidence_binding_mismatch:product" in center.reason_code
+    # R5(R4-01):产物集合覆盖模型 —— 证据产物 CC=O 不是本假设任何
+    # 产物/碎片(乙酸+水假设)⇒ 未申报碎片,绑定失败
+    assert "center_evidence_binding_mismatch:undeclared_product_fragment" \
+        in center.reason_code
     d, reasons = decide_admission(audit, gate_decisions={
         "gate_direction_source": {"ok": True}})
     assert d != ADMISSION_EXPAND  # 复审反例:曾 expand/R6
@@ -439,13 +442,15 @@ def test_r4_01_name_only_evidence_not_verified() -> None:
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),
-        center_evidence={"checker_version": "ppv1-donor-diagnostic-4",
+        center_evidence={"checker_version": "ppv1-donor-diagnostic-5",
                          "center_match": True,
                          "checker_scope": "region_net_change"})
     center = next(c for c in audit.checks
                   if c.name == CHECK_TRANSFORMATION_CENTER)
     assert center.status == CHECK_UNKNOWN
-    assert "center_evidence_binding_missing" in center.reason_code
+    # R5(R4-01):无可复算证明记录 ⇒ proof_missing(两条身份字符串/
+    # 自报字段不构成证明;与 binding_missing 同族,均为不可信依据)
+    assert "center_evidence_proof_missing" in center.reason_code
     d, _ = decide_admission(audit)
     assert d != ADMISSION_EXPAND
 
@@ -467,22 +472,23 @@ def test_r2_01_unregistered_center_checker_rejected() -> None:
 
 def test_r2_01_center_mismatch_is_violated_r5v_not_r5d() -> None:
     """center_match=False(确定性 checker 偏离)⇒ violated + R5v
-    declared_violated_other;不落 R5d(集合显式限定元素/电荷,mimo 3.2(4))。"""
-    states = _states(ETHANOL, O2, ACETIC_ACID, WATER)
-    hyp = _balanced_hypothesis(states)
+    declared_violated_other;不落 R5d(集合显式限定元素/电荷,mimo 3.2(4))。
+
+    R5(R4-01):真实诊断产生 center_match=False(供体中心声明偏移,
+    实际变化在中心外)——证据带完整 proof_record,audit 复算一致;
+    自报 center_match=False 的手写字段不再是可采信输入(拼接会被
+    integrity 复算结构化拒绝)。"""
     states = _states(ETHANOL, ACETALDEHYDE, "[H][H]")
     hyp = _bound_evidence_hypothesis(states)
+    current, edits, execution = _ethanol_co_execution()
+    # 供体中心声明在 C–C 键原子(不含实际变化的 O)⇒ center=False
+    diag = _diag(current, edits, execution, ["d1", "d2"],
+                 {"d1": "S_C_1", "d2": "S_C_2"})
+    assert diag.reaction_center_match is False
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),
-        center_evidence={"checker_version": "ppv1-donor-diagnostic-4",
-                         "checker_scope": "region_net_change",
-                         "center_match": False,
-                         "declaration_mismatch": False,
-                         "strict_target_match": True,
-                         "bound_inputs": {
-                             "substrate_identity": "CCO",
-                             "product_identity": "CC=O"}})
+        center_evidence=center_evidence_from_donor_diagnostic(diag))
     center = next(c for c in audit.checks
                   if c.name == CHECK_TRANSFORMATION_CENTER)
     assert center.status == CHECK_VIOLATED
