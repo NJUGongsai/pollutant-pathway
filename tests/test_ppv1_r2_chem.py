@@ -105,6 +105,21 @@ def _states(*smiles, origin=STRUCTURE_ORIGIN_SOURCE_PRODUCT):
     return {s: build_chemical_state(s, origin) for s in smiles}
 
 
+def _bound_evidence_hypothesis(states):
+    """合法绑定假设:CCO → CC=O + [H][H](全氢配平:底物/产物与
+    乙醇 C–O 编辑诊断的绑定输入一致,R3-01 正例路径)。"""
+    sub = states[ETHANOL]
+    acetal = states[ACETALDEHYDE]
+    hydrogen = states["[H][H]"]
+    return build_hypothesis(
+        parent_path_id="p1", substrate_state_ref=sub.state_id,
+        participants=[_sub(sub.state_id),
+                      _prod(acetal.state_id),
+                      _prod(hydrogen.state_id, role="coproduct")],
+        participant_list_status=PARTICIPANT_LIST_DECLARED_COMPLETE,
+        step_scope="net_reaction", origin_group_key="bound-ev")
+
+
 def _balanced_hypothesis(states):
     """CCO + O=O → CC(=O)O + O(全氢配平正例,系数已知)。"""
     return build_hypothesis(
@@ -361,16 +376,28 @@ def test_r2_01_self_reported_signature_not_center_evidence() -> None:
 
 def test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified(
         ) -> None:
-    """注册确定性 checker(供体诊断)证据 ⇒ 中心 verified;合法全核实
-    路径(真实编辑协议)可达 R6 expand。"""
+    """注册确定性 checker(供体诊断)证据且**绑定本反应**(底物/产物
+    身份与被审参与物一致)⇒ 中心 verified;合法全核实路径可达 R6。
+
+    R4 修正(R3-01 复审点名):v3 版本曾把乙醇→乙醛诊断用于乙酸
+    假设(跨反应)并把 expand 当正例 —— 过强断言已废除;本正例改用
+    绑定一致的 CCO→CC=O+[H][H] 假设,跨反应复用另设负例钉住。
+    """
     current, edits, execution = _ethanol_co_execution()
     diag = _diag(current, edits, execution, ["dC", "dO"],
                  {"dC": "S_C_2", "dO": "S_O_1"})
     assert diag.reaction_center_match is True
     evidence = center_evidence_from_donor_diagnostic(diag)
     assert evidence["checker_version"] == "ppv1-donor-diagnostic-4"
-    states = _states(ETHANOL, O2, ACETIC_ACID, WATER)
-    hyp = _balanced_hypothesis(states)
+    assert evidence["checker_scope"] == "region_net_change"
+    # 绑定输入携带本诊断的全部科学输入(R3-01)
+    bound = evidence["bound_inputs"]
+    assert bound["substrate_identity"] == "CCO"
+    assert bound["product_identity"] == "CC=O"
+    assert bound["edits_signature"]
+    assert bound["execution_fingerprint"]
+    states = _states(ETHANOL, ACETALDEHYDE, "[H][H]")
+    hyp = _bound_evidence_hypothesis(states)
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(), center_evidence=evidence)
@@ -380,6 +407,47 @@ def test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified(
     d, _ = decide_admission(audit, gate_decisions={
         "gate_direction_source": {"ok": True}})
     assert d == ADMISSION_EXPAND
+
+
+def test_r4_01_cross_reaction_evidence_reuse_rejected() -> None:
+    """R3-01 真实诊断复用反例:乙醇→乙醛诊断用于乙酸假设(跨反应)
+    ⇒ 绑定核验失败 ⇒ 中心 unknown ⇒ 不得 R6(v3 曾 expand)。"""
+    current, edits, execution = _ethanol_co_execution()
+    diag = _diag(current, edits, execution, ["dC", "dO"],
+                 {"dC": "S_C_2", "dO": "S_O_1"})
+    evidence = center_evidence_from_donor_diagnostic(diag)
+    states = _states(ETHANOL, O2, ACETIC_ACID, WATER)
+    hyp = _balanced_hypothesis(states)  # 产物是乙酸+水,与证据产物不符
+    audit = audit_hypothesis(
+        hyp, states={s.state_id: s for s in states.values()},
+        context=_aerobic_context(), center_evidence=evidence)
+    center = next(c for c in audit.checks
+                  if c.name == CHECK_TRANSFORMATION_CENTER)
+    assert center.status == CHECK_UNKNOWN
+    assert "center_evidence_binding_mismatch:product" in center.reason_code
+    d, reasons = decide_admission(audit, gate_decisions={
+        "gate_direction_source": {"ok": True}})
+    assert d != ADMISSION_EXPAND  # 复审反例:曾 expand/R6
+    assert any(r.startswith("R5:unknown_checks_present") for r in reasons)
+
+
+def test_r4_01_name_only_evidence_not_verified() -> None:
+    """R3-01 注册名-only 反例:{checker_version, center_match: True}
+    无绑定 ⇒ 中心 unknown,不到 R6。"""
+    states = _states(ETHANOL, ACETALDEHYDE, "[H][H]")
+    hyp = _bound_evidence_hypothesis(states)
+    audit = audit_hypothesis(
+        hyp, states={s.state_id: s for s in states.values()},
+        context=_aerobic_context(),
+        center_evidence={"checker_version": "ppv1-donor-diagnostic-4",
+                         "center_match": True,
+                         "checker_scope": "region_net_change"})
+    center = next(c for c in audit.checks
+                  if c.name == CHECK_TRANSFORMATION_CENTER)
+    assert center.status == CHECK_UNKNOWN
+    assert "center_evidence_binding_missing" in center.reason_code
+    d, _ = decide_admission(audit)
+    assert d != ADMISSION_EXPAND
 
 
 def test_r2_01_unregistered_center_checker_rejected() -> None:
@@ -402,12 +470,19 @@ def test_r2_01_center_mismatch_is_violated_r5v_not_r5d() -> None:
     declared_violated_other;不落 R5d(集合显式限定元素/电荷,mimo 3.2(4))。"""
     states = _states(ETHANOL, O2, ACETIC_ACID, WATER)
     hyp = _balanced_hypothesis(states)
+    states = _states(ETHANOL, ACETALDEHYDE, "[H][H]")
+    hyp = _bound_evidence_hypothesis(states)
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),
         center_evidence={"checker_version": "ppv1-donor-diagnostic-4",
+                         "checker_scope": "region_net_change",
                          "center_match": False,
-                         "declaration_mismatch": False})
+                         "declaration_mismatch": False,
+                         "strict_target_match": True,
+                         "bound_inputs": {
+                             "substrate_identity": "CCO",
+                             "product_identity": "CC=O"}})
     center = next(c for c in audit.checks
                   if c.name == CHECK_TRANSFORMATION_CENTER)
     assert center.status == CHECK_VIOLATED
@@ -771,11 +846,12 @@ def _gate_mapper_payload(per_product):
 
 
 def _all_verified_audit():
+    """R4:合法全核实审计 —— 证据绑定本反应(R3-01),非注册名-only。"""
     current, edits, execution = _ethanol_co_execution()
     diag = _diag(current, edits, execution, ["dC", "dO"],
                  {"dC": "S_C_2", "dO": "S_O_1"})
-    states = _states(ETHANOL, O2, ACETIC_ACID, WATER)
-    hyp = _balanced_hypothesis(states)
+    states = _states(ETHANOL, ACETALDEHYDE, "[H][H]")
+    hyp = _bound_evidence_hypothesis(states)
     return audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),

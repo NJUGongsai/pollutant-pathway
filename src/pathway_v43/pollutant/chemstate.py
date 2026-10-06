@@ -1,20 +1,26 @@
 """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
 
-v3(ppv1-chemstate-3,2026-10-06 R3 回修)相对 v2 的变化(均为 Codex R2
-复审 R2-02 与 mimo 1.3(1) 的落实):
-- **身份键 = 规范化 canonical CXSMILES**(剥原子映射号、剥 ABS 冗余
-  注解)。RDKit canonical 写出器本身对增强立体做规范化:AND/OR 组
-  **整组翻转**得到同一 canonical 串(同一相对立体事实);**部分翻转**
-  (组内只翻一个中心)保持不同;不同组类型(AND vs OR)不合并;原子
-  排列差异归一。v2 的手工 |SG:…| 键保留 as-drawn 手性,造成整组反转
-  分裂(R2-02);
-- **公开表示往返闭合**:`smiles_isomeric` 即规范化 CXSMILES —— 对
-  带增强立体组的结构携带 |&1:…| / |o1:…| 注解,重新解析可重建同一
-  state_id。v2 的 smiles_isomeric 用普通 MolToSmiles 会静默丢组注解,
-  下游拿到的"完整结构"丢事实(R2-02);
-- **plain 与 ABS 归一**:ABS 组与普通 isomeric SMILES 的默认绝对构型
-  是同一立体事实 ⇒ 剥离 ABS 段后同键(mimo 1.3(1) 归一分支);
-- 无增强立体的分子输出与 v2 完全相同(无 CX 扩展段)。
+v3(ppv1-chemstate-3,2026-10-06 R3 回修)相对 v2 的变化:
+- 身份键 = 规范化 canonical CXSMILES(RDKit canonical 写出器对增强
+  立体做规范化:AND/OR 整组翻转同键、部分反转保持不同);公开表示
+  smiles_isomeric 同源携带注解,往返闭合;plain 与 ABS 归一。
+
+v4(ppv1-chemstate-4,2026-10-06 R4 回修)相对 v3 的变化(均为 Codex
+R3 复审 R3-04 与 mimo R3 1.2/1.3 的落实):
+- 身份键 = **化学 CX 事实子集**:生成前移除非化学 CX 元数据 ——
+  坐标(conformer)、原子标签(atomLabel)、任意 atomProp(绘图/
+  注释不改严格分子图身份);保留增强立体组、自由基层、基串内的
+  同位素/电荷/立体;
+- **混合并列 ABS 归一**:ABS 剥离改为令牌级语法解析(``a:1,&1:3``
+  ≡ ``|&1:3|``、``^1:0,a:1`` ≡ ``|^1:0|``;v3 的段级正则对逗号并列
+  形态永远匹配不上,同一立体事实分裂成两个 state_id,mimo A2b);
+- 与 RDKit RegistrationHash 的一致性**限定**在整组翻转/部分反转/
+  排列/kekulé/映射号子集;plain≡|a:…| 同键是本仓归一设计,与
+  RegistrationHash 的 CANONICAL_SMILES 层(保留 |a:…|)存在
+  **已登记分歧**;
+- 无组且无自由基层注解的分子输出与普通 canonical isomeric SMILES
+  逐字相同;**自由基分子带 |^n:…| 后缀是例外**(radical 保真轴
+  为已登记缺口,身份层区分自由基)。
 
 v2(ppv1-chemstate-2,2026-10-05 回修)的变化:
 - 身份键在 canonical 重排后的分子图上生成,并显式序列化增强立体组
@@ -117,40 +123,67 @@ class ChemicalStateError(RuntimeError):
 
 
 def _identity_key(mol: Chem.Mol) -> str:
-    """分子身份键(v3):规范化 canonical CXSMILES。
+    """分子身份键(v4):**化学 CX 事实子集**的规范化 canonical CXSMILES。
 
     - 原子映射号不属于分子身份(生成前去除);
-    - RDKit canonical 写出器对增强立体做规范化:AND/OR 组**整组翻转**
-      ⇒ 同一键(同一相对立体事实);**部分翻转** ⇒ 不同键;不同组
-      类型(AND vs OR)不合并(R2-02);
-    - ABS 组是冗余注解(与普通 isomeric SMILES 的默认绝对构型同一
-      事实)⇒ 序列化后从 CX 扩展段剥离,plain 与 |a:…| 同键
-      (mimo 1.3(1) 归一分支);
-    - Kekulé/芳香表示差异由 RDKit 感知归一,不入键(同一分子图);
-    - 键值 = 公开表示(smiles_isomeric),同一事实源。
+    - **非化学 CX 元数据移除**:二维/三维坐标(conformer)、原子标签
+      (atomLabel)、任意 atomProp —— 绘图与注释不改变严格分子图身份
+      (R3-04:普通 CO / 原子标签 / 坐标 / atomProp note 五输入同键);
+    - **保留化学事实**:增强立体组(AND/OR)、自由基层(^n:idx)、
+      同位素/电荷/立体(基串);RDKit canonical 写出器对增强立体做
+      规范化(AND/OR 整组翻转同键、部分反转保持不同);
+    - ABS 组是冗余注解(与 isomeric SMILES 默认绝对构型同一事实)
+      ⇒ **令牌级**剥离(支持混合并列形态:a:1,&1:3 / ^1:0,a:1 /
+      a:2,5,&1:2,5;逗号既分隔注解头也分隔组内原子列表,故按"有
+      前缀的注解头 token + 其后裸数字延续"语法解析,R3-04/mimo
+      A2b);
+    - Kekulé/芳香表示差异由 RDKit 感知归一;
+    - 键值 = 公开表示(smiles_isomeric),同一事实源(往返重建同 id)。
     """
     m = Chem.Mol(mol)
     for atom in m.GetAtoms():
         if atom.GetAtomMapNum():
             atom.SetAtomMapNum(0)
-    return _strip_abs_segments(Chem.MolToCXSmiles(m))
+        for prop in list(atom.GetPropNames()):
+            atom.ClearProp(prop)
+    m.RemoveAllConformers()
+    for prop in list(m.GetPropNames()):
+        m.ClearProp(prop)
+    return _strip_abs_tokens(Chem.MolToCXSmiles(m))
 
 
-# CXSMILES 扩展段中的 ABS 组注解(|a:1,2|;与 plain 绝对构型等价的
-# 冗余注解,身份键与公开表示统一剥离)
-_ABS_SEGMENT_RE = re.compile(r"(?:^|\s)a:[\d,]+(?=\s|$)")
+def _strip_abs_tokens(cxsmiles: str) -> str:
+    """从 canonical CXSMILES 的 |…| 扩展段剥离 ABS 组注解(令牌级)。
 
-
-def _strip_abs_segments(cxsmiles: str) -> str:
-    """从 canonical CXSMILES 的 |…| 扩展段剥离 ABS 组注解。
-
-    无扩展段或剥后为空 ⇒ 返回基串(plain);其余段(AND/OR 组、
-    其他注解)原样保留。仅做段级删除,不改写任何保留内容。
+    语法依据(CXSMILES 写出器实测):注解段内不同组以逗号连接
+    (如 ``a:1,&1:3``、``^1:0,a:1``),组内原子列表同样以逗号连接
+    (如 ``&1:2,5``)。token 含 ``:`` 且前缀为注解头(``a``/``&N``/
+    ``oN``/``^N``)时开新注解;裸数字 token 是上一注解的原子列表
+    延续。ABS 组(``a:`` 前缀)与其后的延续数字一并剥除;其余
+    (AND/OR 组、自由基层)原样保留。段间仍按空白分块。
     """
     m = re.search(r"\|([^|]*)\|\s*$", cxsmiles)
     if not m:
         return cxsmiles
-    body = _ABS_SEGMENT_RE.sub("", m.group(1)).strip()
+    blocks = m.group(1).split(" ")
+    kept_blocks = []
+    for block in blocks:
+        tokens = block.split(",")
+        kept: list[str] = []
+        skipping_abs = False
+        for token in tokens:
+            head, sep, _ = token.partition(":")
+            has_annotation_head = bool(sep) and bool(head) and not \
+                head.lstrip("!").isdigit() and head.lstrip("!") != ""
+            if has_annotation_head:
+                skipping_abs = head.rstrip("!") == "a"
+                if not skipping_abs:
+                    kept.append(token)
+            else:
+                if not skipping_abs:
+                    kept.append(token)
+        kept_blocks.append(",".join(kept))
+    body = " ".join(b for b in kept_blocks if b).strip()
     if not body:
         return cxsmiles[:m.start()].strip()
     return cxsmiles[:m.start()].rstrip() + " |" + body + "|"
@@ -160,7 +193,10 @@ def normalized_structure_smiles(mol: Chem.Mol) -> str:
     """公开规范表示(= 身份键;供 smiles_isomeric 输出)。
 
     带增强立体组的结构携带 CX 注解(往返可重建同一 state_id);
-    无组的分子输出与普通 canonical isomeric SMILES 相同。
+    无组**且无自由基层注解**的分子输出与普通 canonical isomeric
+    SMILES 逐字相同;自由基分子带 ``|^n:…|`` 后缀(radical 保真轴
+    为已登记缺口,身份层区分自由基)。非化学元数据(坐标/标签/
+    atomProp)不进入公开表示。
     """
     return _identity_key(mol)
 

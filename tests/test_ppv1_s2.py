@@ -855,7 +855,7 @@ def test_f06_dependency_refs_without_resolution_not_verified() -> None:
     check = next(c for c in audit.checks
                  if c.name == "provenance_dependency")
     assert check.status == CHECK_UNKNOWN
-    assert check.reason_code == "dependency_resolution_not_provided"
+    assert check.reason_code.startswith("dependency_resolution_not_provided")
 
 
 # ---------------------------------------------------------------- H01/C06/D03
@@ -1104,9 +1104,10 @@ def test_admission_all_verified_expand() -> None:
             build_requirement(key=CONDITION_KEY_OXYGEN, level="essential",
                               value="aerobic", source_refs=SRC)],
         assessment_scope=["oxygen_regime"])
-    # v3(R2-01):中心 verified 须有注册确定性 checker 证据 ——
-    # 自报 transformation_signature_status 不再授信;用真实供体诊断
-    # 转证据(乙醇 C–O 编辑,center=True/direct)达到合法 expand
+    # v4(R3-01):中心 verified 须有**绑定本反应**的注册 checker 证据
+    # —— 乙醇→乙醛诊断绑定 CCO→CC=O,假设改为同反应的
+    # CCO→CC=O+[H][H](配平;H2=state of [H][H]);跨反应复用另在
+    # test_ppv1_r2_chem 钉负例
     from pathway_v43.pollutant.audit import (
         center_evidence_from_donor_diagnostic)
 
@@ -1120,6 +1121,17 @@ def test_admission_all_verified_expand() -> None:
         expectation={"target_smiles": execution["product_smiles"]},
         result=execution, edits=edits)
     assert diag.reaction_center_match is True
+    states = {s: _pstate(s) for s in (ETHANOL, ACETALDEHYDE, HYDROGEN)}
+    sub = states[ETHANOL]
+    hyp = build_hypothesis(
+        parent_path_id="p1", substrate_state_ref=sub.state_id,
+        participants=[
+            _sub(sub.state_id, coefficient=1),
+            _prod(states[ACETALDEHYDE].state_id, coefficient=1),
+            _prod(states[HYDROGEN].state_id, coefficient=1,
+                  role="coproduct")],
+        participant_list_status=PARTICIPANT_LIST_DECLARED_COMPLETE,
+        step_scope="net_reaction", origin_group_key="bound-expand")
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()}, context=ctx,
         center_evidence=center_evidence_from_donor_diagnostic(diag))
