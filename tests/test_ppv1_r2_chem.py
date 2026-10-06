@@ -368,7 +368,7 @@ def test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified(
                  {"dC": "S_C_2", "dO": "S_O_1"})
     assert diag.reaction_center_match is True
     evidence = center_evidence_from_donor_diagnostic(diag)
-    assert evidence["checker_version"] == "ppv1-donor-diagnostic-3"
+    assert evidence["checker_version"] == "ppv1-donor-diagnostic-4"
     states = _states(ETHANOL, O2, ACETIC_ACID, WATER)
     hyp = _balanced_hypothesis(states)
     audit = audit_hypothesis(
@@ -405,7 +405,7 @@ def test_r2_01_center_mismatch_is_violated_r5v_not_r5d() -> None:
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),
-        center_evidence={"checker_version": "ppv1-donor-diagnostic-3",
+        center_evidence={"checker_version": "ppv1-donor-diagnostic-4",
                          "center_match": False,
                          "declaration_mismatch": False})
     center = next(c for c in audit.checks

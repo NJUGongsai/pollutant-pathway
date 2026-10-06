@@ -975,7 +975,7 @@ def test_admission_policy_decision_table_explicit() -> None:
         AdmissionPolicy.from_dict({"policy_version": "bogus"})
     with pytest.raises(AuditContractError, match="未知门禁"):
         AdmissionPolicy.from_dict({
-            "policy_version": "ppv1-admission-3",
+            "policy_version": "ppv1-admission-4",
             "reject_gates": ["gate_not_reviewed"]})
 
 
@@ -1043,7 +1043,7 @@ def test_p2_2_legacy_gate_mapper_keeps_per_product_verdicts() -> None:
         {"position": 0, "accepted": True, "reasons": []},
         {"position": 1, "accepted": False, "reasons": ["smiles_invalid"]},
     ]
-    assert mapped["gate_ref"]["mapper_version"] == "ppv1-gate-mapper-2"
+    assert mapped["gate_ref"]["mapper_version"] == "ppv1-gate-mapper-3"
     # mapper 输出可直接喂 decide_admission(资格失败 → reject)
     states = _states(ETHANOL, ACETIC_ACID)
     hyp = build_hypothesis(
@@ -1421,7 +1421,7 @@ def test_pool_order_stable_and_truncation_disclosed() -> None:
     assert disclosure["n_truncated"] == 1
     assert disclosure["truncated_source_origins"] == {"analog_transfer": 1}
     assert disclosure["covers_full_pool"] is False
-    assert disclosure["order_key_version"] == "ppv1-pool-order-3"
+    assert disclosure["order_key_version"] == "ppv1-pool-order-4"
     _, full = order_pool(items)
     assert full["covers_full_pool"] is True
     again, _ = order_pool(list(reversed(items)), limit=3)

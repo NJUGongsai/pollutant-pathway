@@ -20,29 +20,30 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # ---- 契约版本清单(全部版本进入 profile 身份块;变更须升版本) ----
 # v2(2026-10-05 回修):F01–F11/P2 回修涉及的契约全部升版;本 profile
 # 从未放行执行流,无历史产物需要迁移(升版即兼容声明,见回修交付书)。
-# v3(2026-10-06 R3 回修):Codex R2 复审 R2-01~R2-12 + P2 涉及的契约
-# 全部升版(增强立体规范化/admission 覆盖/供体实际变化/条件阶段绑定/
-# 假设变体身份/存储出现保真/版本门接线/门禁逐产物消费);profile 仍未
-# 放行执行流,无历史产物需要迁移。search-limits 为 proposed 草案,
-# 本轮语义未变,保持 -2-proposed 不动。
+# v3(2026-10-06 R3 回修):R2-01~12 + P2(见 v2 注释下方)。
+# v4(2026-10-06 R4 回修):Codex R3 复审 R3-01~12 + §4 涉及的契约全部
+# 升版(证据绑定/手性感知联合映射/CIP 构型比较/CX 事实子集身份/
+# 声明净效应模拟/路线快照消费/依赖并集/完整 input_hash/writer 重推导/
+# 重放内容校验/导入引用核对/matrix unknown)。profile 仍未放行执行流,
+# 无历史产物需要迁移。search-limits 为 proposed 草案,语义未变不动。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-3"
-PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-3"
-PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-3"
-PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-3"
-PPV1_STORE_SCHEMA_VERSION = "ppv1-store-3"
-PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-3"
-PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-3"
-PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-3"
-PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-3"
-PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-3"
-PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-3"
-PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-3"
-PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-3"
-PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-3"
-PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-3"
-PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-3"
-PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-2"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-4"
+PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-4"
+PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-4"
+PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-4"
+PPV1_STORE_SCHEMA_VERSION = "ppv1-store-4"
+PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-4"
+PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-4"
+PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-4"
+PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-4"
+PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-4"
+PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-4"
+PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-4"
+PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-4"
+PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-4"
+PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-4"
+PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-4"
+PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)
 LEGACY_G2_FAMILY_REF = "v43-cons-2"            # 有限规则诊断复用族(conservation.py)

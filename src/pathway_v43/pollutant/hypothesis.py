@@ -27,7 +27,7 @@ from fractions import Fraction
 from ..domain.models import canonical_json, stable_id
 from .profile import PPV1_HYPOTHESIS_SCHEMA_VERSION
 
-PPV1_HYPOTHESIS_SUPPORTED_VERSIONS = ("ppv1-hypothesis-3",)
+PPV1_HYPOTHESIS_SUPPORTED_VERSIONS = (PPV1_HYPOTHESIS_SCHEMA_VERSION,)
 
 PARTICIPANT_SIDE_REACTANT = "reactant"
 PARTICIPANT_SIDE_PRODUCT = "product"
