@@ -1,0 +1,36 @@
+{
+  "repo_head": "0002f71af23a2d00db7734e15bf1142c64c85145",
+  "method": "synthetic real executor control",
+  "atom_id_map": {
+    "S_C_1": 0,
+    "S_C_2": 1,
+    "S_O_1": 2,
+    "S_C_3": 3,
+    "S_C_4": 4
+  },
+  "invalid_fixture": {
+    "ok": false,
+    "reasons": [
+      "edit_execution_failed:bond_not_present:S_C_2~S_O_3:edit[0]"
+    ],
+    "product_smiles": "",
+    "atom_id_map": {},
+    "protocol_version": "v43-editproto-2",
+    "n_edits": 1
+  },
+  "existing_bond_control": {
+    "ok": true,
+    "reasons": [],
+    "product_smiles": "CC.CCO",
+    "product_mapped_smiles": "[CH3:1][CH3:2].[OH:3][CH2:4][CH3:5]",
+    "atom_id_map": {
+      "S_C_1": 0,
+      "S_C_2": 1,
+      "S_O_1": 2,
+      "S_C_3": 3,
+      "S_C_4": 4
+    },
+    "protocol_version": "v43-editproto-2",
+    "n_edits": 1
+  }
+}

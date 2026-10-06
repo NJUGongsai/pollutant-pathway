@@ -965,7 +965,7 @@ def test_admission_policy_decision_table_explicit() -> None:
         AdmissionPolicy.from_dict({"policy_version": "bogus"})
     with pytest.raises(AuditContractError, match="未知门禁"):
         AdmissionPolicy.from_dict({
-            "policy_version": "ppv1-admission-2",
+            "policy_version": "ppv1-admission-3",
             "reject_gates": ["gate_not_reviewed"]})
 
 
@@ -1394,7 +1394,7 @@ def test_pool_order_stable_and_truncation_disclosed() -> None:
     assert disclosure["n_truncated"] == 1
     assert disclosure["truncated_source_origins"] == {"analog_transfer": 1}
     assert disclosure["covers_full_pool"] is False
-    assert disclosure["order_key_version"] == "ppv1-pool-order-2"
+    assert disclosure["order_key_version"] == "ppv1-pool-order-3"
     _, full = order_pool(items)
     assert full["covers_full_pool"] is True
     again, _ = order_pool(list(reversed(items)), limit=3)

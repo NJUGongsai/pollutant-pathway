@@ -1,0 +1,713 @@
+{
+  "F06_identity_controls": {
+    "dependency_ids_different": true,
+    "scope_ids_different": true
+  },
+  "F10_mixed_components": {
+    "components": [
+      {
+        "asset_file": "",
+        "asset_sha256": "",
+        "evidence_basis": "rule_derived",
+        "role": "envipath",
+        "source_id": "envipath+retrieval",
+        "source_origin": "biotransformation_rule"
+      },
+      {
+        "asset_file": "",
+        "asset_sha256": "",
+        "evidence_basis": "rule_derived",
+        "role": "retrieval",
+        "source_id": "envipath+retrieval",
+        "source_origin": "analog_transfer"
+      }
+    ],
+    "evidence_basis": "rule_derived",
+    "legacy_kind": "rule_application",
+    "legacy_match_type": "",
+    "legacy_source_id": "envipath+retrieval",
+    "schema_version": "ppv1-provenance-2",
+    "source_origin": "biotransformation_rule"
+  },
+  "F10_no_study_map": [
+    {
+      "group_id": "sg_781befc3ec53d229e85f",
+      "independent_support_count": null,
+      "n_unresolved_study_identity": null,
+      "origin_study_ref": null,
+      "record_refs": [
+        {
+          "asset_file": "",
+          "asset_sha256": "",
+          "evidence_id": "a",
+          "kind": "recorded_reaction",
+          "source_id": "dbA"
+        }
+      ],
+      "schema_version": "ppv1-provenance-2"
+    },
+    {
+      "group_id": "sg_1a47d7bbca777504d0aa",
+      "independent_support_count": null,
+      "n_unresolved_study_identity": null,
+      "origin_study_ref": null,
+      "record_refs": [
+        {
+          "asset_file": "",
+          "asset_sha256": "",
+          "evidence_id": "b",
+          "kind": "recorded_reaction",
+          "source_id": "dbB"
+        }
+      ],
+      "schema_version": "ppv1-provenance-2"
+    }
+  ],
+  "F10_same_study": [
+    {
+      "group_id": "sg_781befc3ec53d229e85f",
+      "independent_support_count": 1,
+      "n_unresolved_study_identity": 0,
+      "origin_study_ref": "doi:synthetic",
+      "record_refs": [
+        {
+          "asset_file": "",
+          "asset_sha256": "",
+          "evidence_id": "a",
+          "kind": "recorded_reaction",
+          "source_id": "dbA"
+        }
+      ],
+      "schema_version": "ppv1-provenance-2"
+    },
+    {
+      "group_id": "sg_1a47d7bbca777504d0aa",
+      "independent_support_count": 1,
+      "n_unresolved_study_identity": 0,
+      "origin_study_ref": "doi:synthetic",
+      "record_refs": [
+        {
+          "asset_file": "",
+          "asset_sha256": "",
+          "evidence_id": "b",
+          "kind": "recorded_reaction",
+          "source_id": "dbB"
+        }
+      ],
+      "schema_version": "ppv1-provenance-2"
+    }
+  ],
+  "F10_unidentified_rule": {
+    "components": [],
+    "evidence_basis": "rule_derived",
+    "legacy_kind": "rule_application",
+    "legacy_match_type": "",
+    "legacy_source_id": "engine_pred",
+    "schema_version": "ppv1-provenance-2",
+    "source_origin": "unknown"
+  },
+  "basis_point_interval_silently_rewritten": {
+    "applicable_dimensions": [],
+    "basis": "essential_claimed_by_source",
+    "key": "pH",
+    "level": "essential",
+    "note": "",
+    "observed_source_conditions": [],
+    "source_refs": [
+      "src:synthetic"
+    ],
+    "value": {
+      "hi": 8,
+      "lo": 6
+    },
+    "value_basis": "range"
+  },
+  "basis_range_point_accepted": {
+    "applicable_dimensions": [],
+    "basis": "essential_claimed_by_source",
+    "key": "pH",
+    "level": "essential",
+    "note": "",
+    "observed_source_conditions": [],
+    "source_refs": [
+      "src:synthetic"
+    ],
+    "value": 7.0,
+    "value_basis": "range"
+  },
+  "coverage_conflict_then_satisfied": {
+    "assessed_scope": "conflicted",
+    "assessment_scope": [
+      "pH"
+    ],
+    "environment_fit": "conflict",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "pH",
+        "level": "essential",
+        "reason": "range_disjoint_or_outside:pH",
+        "sourced": true,
+        "status": "conflict",
+        "value_basis": "range"
+      },
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "pH",
+        "level": "essential",
+        "reason": "within_range:pH",
+        "sourced": true,
+        "status": "satisfied",
+        "value_basis": "range"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [
+        "pH"
+      ],
+      "covered_keys": [
+        "pH"
+      ],
+      "essential_keys": [
+        "pH"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "empty_study_map": [
+    {
+      "group_id": "sg_781befc3ec53d229e85f",
+      "independent_support_count": 0,
+      "n_unresolved_study_identity": 2,
+      "origin_study_ref": null,
+      "record_refs": [
+        {
+          "asset_file": "",
+          "asset_sha256": "",
+          "evidence_id": "a",
+          "kind": "recorded_reaction",
+          "source_id": "dbA"
+        }
+      ],
+      "schema_version": "ppv1-provenance-2"
+    },
+    {
+      "group_id": "sg_1a47d7bbca777504d0aa",
+      "independent_support_count": 0,
+      "n_unresolved_study_identity": 2,
+      "origin_study_ref": null,
+      "record_refs": [
+        {
+          "asset_file": "",
+          "asset_sha256": "",
+          "evidence_id": "b",
+          "kind": "recorded_reaction",
+          "source_id": "dbB"
+        }
+      ],
+      "schema_version": "ppv1-provenance-2"
+    }
+  ],
+  "fixed_F02_25": {
+    "child": "conflicted",
+    "parent": "condition_compatible",
+    "requirements": 2
+  },
+  "fixed_F02_45": {
+    "child": "conflicted",
+    "parent": "conflicted",
+    "requirements": 2
+  },
+  "hypothesis_condition_dependency_identity_collision": {
+    "admission": [
+      [
+        "expand",
+        [
+          "R6:all_verified_no_conflict"
+        ]
+      ],
+      [
+        "defer",
+        [
+          "R3:current_scenario_conflict(当前环境相容路线不展开;假设保留,留原因,可展示为需不同条件的备选)"
+        ]
+      ]
+    ],
+    "ids": [
+      "hyp_25890824e08f297c5809",
+      "hyp_25890824e08f297c5809",
+      "hyp_25890824e08f297c5809"
+    ],
+    "input_hashes": [
+      "ain_af39732ee2239dc39ef9",
+      "ain_af39732ee2239dc39ef9"
+    ],
+    "second_put": {
+      "message": "幂等键冲突:hypothesis:hyp_25890824e08f297c5809 已提交但内容不同",
+      "type": "Ppv1EventConflict"
+    }
+  },
+  "identical_facts_distinct_sources": {
+    "assessed_scope": "possible",
+    "assessment_scope": [
+      "pH"
+    ],
+    "environment_fit": "unknown",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "pH",
+        "level": "essential",
+        "reason": "conflicting_applicable_facts:pH",
+        "sourced": true,
+        "status": "unknown",
+        "value_basis": "range"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [],
+      "covered_keys": [],
+      "essential_keys": [
+        "pH"
+      ],
+      "unknown_keys": [
+        "pH"
+      ]
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "multiple_present_donors": {
+    "assessed_scope": "possible",
+    "assessment_scope": [
+      "electron_donor"
+    ],
+    "environment_fit": "unknown",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "electron_donor",
+        "level": "essential",
+        "reason": "conflicting_applicable_facts:electron_donor",
+        "sourced": true,
+        "status": "unknown",
+        "value_basis": "label"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [],
+      "covered_keys": [],
+      "essential_keys": [
+        "electron_donor"
+      ],
+      "unknown_keys": [
+        "electron_donor"
+      ]
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "partial_study_map": [
+    {
+      "group_id": "sg_781befc3ec53d229e85f",
+      "independent_support_count": 1,
+      "n_unresolved_study_identity": 1,
+      "origin_study_ref": "doi:synthetic",
+      "record_refs": [
+        {
+          "asset_file": "",
+          "asset_sha256": "",
+          "evidence_id": "a",
+          "kind": "recorded_reaction",
+          "source_id": "dbA"
+        }
+      ],
+      "schema_version": "ppv1-provenance-2"
+    },
+    {
+      "group_id": "sg_1a47d7bbca777504d0aa",
+      "independent_support_count": 1,
+      "n_unresolved_study_identity": 1,
+      "origin_study_ref": null,
+      "record_refs": [
+        {
+          "asset_file": "",
+          "asset_sha256": "",
+          "evidence_id": "b",
+          "kind": "recorded_reaction",
+          "source_id": "dbB"
+        }
+      ],
+      "schema_version": "ppv1-provenance-2"
+    }
+  ],
+  "phase_transition_erases_past_conflict": {
+    "child": "condition_compatible",
+    "parent": "conflicted",
+    "parent_unchanged": "conflicted"
+  },
+  "phase_transition_false_conflict": {
+    "assessment": {
+      "assessed_scope": "conflicted",
+      "assessment_scope": [
+        "oxygen_regime"
+      ],
+      "environment_fit": "conflict",
+      "per_requirement": [
+        {
+          "basis": "essential_claimed_by_source",
+          "key": "oxygen_regime",
+          "level": "essential",
+          "reason": "value_mismatch:oxygen_regime:aerobic!=anaerobic",
+          "sourced": true,
+          "status": "conflict",
+          "value_basis": "label"
+        },
+        {
+          "basis": "essential_claimed_by_source",
+          "key": "oxygen_regime",
+          "level": "essential",
+          "reason": "value_match:oxygen_regime",
+          "sourced": true,
+          "status": "satisfied",
+          "value_basis": "label"
+        }
+      ],
+      "preference_notes": [],
+      "requirement_coverage": {
+        "conflict_keys": [
+          "oxygen_regime"
+        ],
+        "covered_keys": [
+          "oxygen_regime"
+        ],
+        "essential_keys": [
+          "oxygen_regime"
+        ],
+        "unknown_keys": []
+      },
+      "schema_version": "ppv1-condition-assessment-2",
+      "unassessed_dimensions": [
+        "biotic_abiotic",
+        "inoculum_source",
+        "light_regime",
+        "phase_bioavailability",
+        "redox_regime_eh",
+        "required_trace_elements_cofactors",
+        "salinity_ionic_strength",
+        "substrate_concentration"
+      ]
+    },
+    "child": "conflicted",
+    "parent": "condition_compatible"
+  },
+  "point_interval_6.8_7.2": {
+    "assessed_scope": "conflicted",
+    "assessment_scope": [
+      "pH"
+    ],
+    "environment_fit": "conflict",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "pH",
+        "level": "essential",
+        "reason": "range_disjoint_or_outside:pH",
+        "sourced": true,
+        "status": "conflict",
+        "value_basis": "point"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [
+        "pH"
+      ],
+      "covered_keys": [],
+      "essential_keys": [
+        "pH"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "point_interval_7.0_7.0": {
+    "assessed_scope": "conflicted",
+    "assessment_scope": [
+      "pH"
+    ],
+    "environment_fit": "conflict",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "pH",
+        "level": "essential",
+        "reason": "range_disjoint_or_outside:pH",
+        "sourced": true,
+        "status": "conflict",
+        "value_basis": "point"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [
+        "pH"
+      ],
+      "covered_keys": [],
+      "essential_keys": [
+        "pH"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "point_interval_8.0_9.0": {
+    "assessed_scope": "conflicted",
+    "assessment_scope": [
+      "pH"
+    ],
+    "environment_fit": "conflict",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "pH",
+        "level": "essential",
+        "reason": "range_disjoint_or_outside:pH",
+        "sourced": true,
+        "status": "conflict",
+        "value_basis": "point"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [
+        "pH"
+      ],
+      "covered_keys": [],
+      "essential_keys": [
+        "pH"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "regeneration_only_cycle_loses_startup_unknown": {
+    "cycles": [
+      [
+        "A",
+        "B",
+        "C"
+      ]
+    ],
+    "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;下游命中不自动解决上游依赖",
+    "unresolved_initial_supply": []
+  },
+  "requirement_branch_alias": {
+    "parent_after": "conflicted",
+    "parent_before": "condition_compatible",
+    "parent_id_unchanged": true,
+    "same_requirement_object": true,
+    "sibling_after": "conflicted"
+  },
+  "scope_claim_without_evaluation": {
+    "assessed_scope": "condition_compatible",
+    "assessment_scope": [
+      "oxygen_regime",
+      "pH",
+      "temperature_C"
+    ],
+    "environment_fit": "compatible",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "oxygen_regime",
+        "level": "essential",
+        "reason": "value_match:oxygen_regime",
+        "sourced": true,
+        "status": "satisfied",
+        "value_basis": "label"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [],
+      "covered_keys": [
+        "oxygen_regime"
+      ],
+      "essential_keys": [
+        "oxygen_regime"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "temperature_kelvin_compared_as_celsius": {
+    "assessed_scope": "condition_compatible",
+    "assessment_scope": [
+      "temperature_C"
+    ],
+    "environment_fit": "compatible",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "temperature_C",
+        "level": "essential",
+        "reason": "within_range:temperature_C",
+        "sourced": true,
+        "status": "satisfied",
+        "value_basis": "range"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [],
+      "covered_keys": [
+        "temperature_C"
+      ],
+      "essential_keys": [
+        "temperature_C"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "three_node_unresolved_control": {
+    "cycles": [
+      [
+        "A",
+        "B",
+        "C"
+      ]
+    ],
+    "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;下游命中不自动解决上游依赖",
+    "unresolved_initial_supply": [
+      [
+        "A",
+        "B",
+        "C"
+      ]
+    ]
+  },
+  "unrelated_donor_absence": {
+    "assessed_scope": "conflicted",
+    "assessment_scope": [
+      "electron_donor"
+    ],
+    "environment_fit": "conflict",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "key": "electron_donor",
+        "level": "essential",
+        "reason": "required_entity_known_absent:electron_donor",
+        "sourced": true,
+        "status": "conflict",
+        "value_basis": "label"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "conflict_keys": [
+        "electron_donor"
+      ],
+      "covered_keys": [],
+      "essential_keys": [
+        "electron_donor"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-2",
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  }
+}
