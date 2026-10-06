@@ -1,4 +1,21 @@
-"""legacy 只读适配 — 旧 v43 账本到新表示(v3 回修,S1)。
+"""legacy 只读适配 — 旧 v43 账本到新表示(v4 回修,S1)。
+
+v4(2026-10-06 R4 回修)相对 v3 的变化(R3-11 + R3-10 导入侧):
+- **archive 来源核对(R3-11)**:子底物的来源指针指向**存在但错误**的
+  产物行时,核对指针行的结构/CN(重算)与子底物声明的 CN/身份 ——
+  矛盾 ⇒ CN-only + 原因 `substrate_archive_identity_mismatch`,不再把
+  错误引用当完整结构(不借乙酸冒充乙醛);
+- **根核对(R3-11)**:root_smiles 重算旧身份(chemstate/legacy CN 同源),
+  与库声明的 root CN 矛盾 ⇒ CN-only + 原因
+  `root_smiles_identity_mismatch`,不再直接把 root_smiles 当 raw_input
+  无注记;
+- **所有公开导入入口守版本门(R3-11)**:import_legacy_event(单事件)
+  与 import_legacy_run 同口径 —— 旧库 store schema 未知版本拒绝 +
+  run identity 显式未来版本拒绝(fail-closed,旧库零写回);
+- **导入重放不得先 put 绕过(R3-10)**:import_legacy_run 的重放路径
+  (event 已存)先校验已存记录完整性(provenance 缺/损 ⇒ 结构化损坏
+  错误;其余由 submit_event 重放分支从已存行复算),**不先 put_state
+  补依赖**再报 n_replayed;仅首次导入(event 不存在)走 put+submit。
 
 v3(2026-10-06 R3 回修)相对 v2 的变化(R2-08/R2-11/P2):
 - **先保留全部 occurrence 再归并分子身份(R2-08)**:同事件同图不同
@@ -27,7 +44,9 @@ import json
 import sqlite3
 from pathlib import Path
 
-from ..domain.models import EVIDENCE_KIND_NOVEL, stable_id
+from ..domain.identity import cn_identity as _legacy_cn_identity
+from ..domain.models import EVIDENCE_KIND_NOVEL, content_hash, stable_id
+from ..storage.run_identity import SUPPORTED_IDENTITY_SCHEMA_VERSIONS
 from .chemstate import (
     STRUCTURE_ORIGIN_RAW_INPUT,
     STRUCTURE_ORIGIN_SOURCE_PRODUCT,
@@ -50,17 +69,24 @@ from .hypothesis import (
     Participant,
     build_hypothesis,
 )
+from .profile import PPV1_PROVENANCE_SCHEMA_VERSION
 from .provenance import map_legacy_card
+from .store import Ppv1LedgerCorrupt
 
 SUPPORTED_LEGACY_STORE_VERSIONS = ("v43-store-1", "v43-store-2")
 
-# 子路径来源指针损坏的降级原因码(R2-11;保留在 source_refs 与
-# uncertainty_notes 中,不吞掉)
+# 子路径来源指针损坏/矛盾的降级原因码(R2-11/R3-11;保留在 source_refs
+# 与 uncertainty_notes 中,不吞掉)
 CN_ONLY_REASON_SUBSTRATE_ARCHIVE_MISSING = "substrate_archive_missing"
 CN_ONLY_REASON_CHILD_MISSING_ARCHIVE_POINTERS = \
     "child_missing_archive_pointers"
 CN_ONLY_REASON_ROOT_IDENTITY_UNCONFIRMED = "root_identity_unconfirmed"
 CN_ONLY_REASON_ARCHIVE_POINTERS_BROKEN = "archive_pointers_broken"
+# R3-11:指针/根的内容与声明身份矛盾(存在但错误)
+CN_ONLY_REASON_SUBSTRATE_ARCHIVE_IDENTITY_MISMATCH = \
+    "substrate_archive_identity_mismatch"
+CN_ONLY_REASON_ROOT_SMILES_IDENTITY_MISMATCH = \
+    "root_smiles_identity_mismatch"
 
 
 class LegacyStoreError(RuntimeError):
@@ -81,18 +107,23 @@ def _read_only_conn(db_path: str | Path) -> sqlite3.Connection:
     return conn
 
 
+def _gate_legacy_store_version(conn: sqlite3.Connection) -> None:
+    """旧库 store schema 版本门(所有公开导入入口共同执行,R3-11)。"""
+    meta = conn.execute(
+        "SELECT value FROM meta WHERE key='schema_version'").fetchone()
+    version = meta["value"] if meta else None
+    if version not in SUPPORTED_LEGACY_STORE_VERSIONS:
+        raise LegacyStoreError(
+            f"旧账本 schema 版本未知:{version!r}(支持 "
+            f"{SUPPORTED_LEGACY_STORE_VERSIONS};fail-closed 不猜)",
+            {"schema_version": version})
+
+
 def read_legacy_events(run_dir: str | Path) -> list[dict]:
     """只读列出旧账本事件(含产物行;零写回)。"""
     conn = _read_only_conn(Path(run_dir) / "pathway.sqlite")
     try:
-        meta = conn.execute(
-            "SELECT value FROM meta WHERE key='schema_version'").fetchone()
-        version = meta["value"] if meta else None
-        if version not in SUPPORTED_LEGACY_STORE_VERSIONS:
-            raise LegacyStoreError(
-                f"旧账本 schema 版本未知:{version!r}(支持 "
-                f"{SUPPORTED_LEGACY_STORE_VERSIONS};fail-closed 不猜)",
-                {"schema_version": version})
+        _gate_legacy_store_version(conn)
         events = [dict(r) for r in conn.execute(
             "SELECT * FROM reaction_events ORDER BY created_at, event_id"
         ).fetchall()]
@@ -106,16 +137,39 @@ def read_legacy_events(run_dir: str | Path) -> list[dict]:
 
 
 def _legacy_root_identity(run_dir: Path) -> tuple[str | None, str | None]:
-    """run identity 的 (root_smiles, root_identity);缺/坏 ⇒ (None,None)。"""
+    """run identity 的 (root_smiles, root_identity);缺/坏 ⇒ (None,None)。
+
+    R3-11:run_identity.json 的 schema_version 显式未来/未知版本 ⇒
+    LegacyStoreError(所有导入入口共同拒绝,与 store 版本门同口径);
+    文件缺失/解析失败 ⇒ (None,None)(根无法确认,走 CN-only 降级)。
+    """
     ident = run_dir / "run_identity.json"
     if not ident.is_file():
         return None, None
     try:
-        inputs = (json.loads(ident.read_text(encoding="utf-8"))
-                  .get("inputs", {}))
-        return (inputs.get("root_smiles"), inputs.get("root_identity"))
+        data = json.loads(ident.read_text(encoding="utf-8"))
     except Exception:
         return None, None
+    version = data.get("schema_version")
+    if version is not None and version not in \
+            SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+        raise LegacyStoreError(
+            f"旧 run identity schema 版本未知:{version!r}(支持 "
+            f"{list(SUPPORTED_IDENTITY_SCHEMA_VERSIONS)};fail-closed,"
+            "不猜测解析)",
+            {"schema_version": version, "path": str(ident)})
+    inputs = data.get("inputs", {})
+    return (inputs.get("root_smiles"), inputs.get("root_identity"))
+
+
+def _legacy_cn_of(structure: str | None) -> str | None:
+    """结构串 → 旧口径 CN(chemstate cn_identity 同源);失败 ⇒ None。"""
+    if not isinstance(structure, str) or not structure.strip():
+        return None
+    try:
+        return _legacy_cn_identity(structure)
+    except Exception:
+        return None
 
 
 def _substrate_structure_for_path(
@@ -132,6 +186,14 @@ def _substrate_structure_for_path(
     (parent 非空)指针损坏 ⇒ cn_only(child_missing_archive_
     pointers),绝不借根结构冒充;指针残缺/矛盾 ⇒ cn_only 并保留
     原因码。
+
+    R3-11 内容核对:
+    - root:root_smiles **重算旧身份**(chemstate/legacy CN 同源)须与
+      库声明的 root_identity 一致 —— 矛盾 ⇒ cn_only
+      (root_smiles_identity_mismatch),不把矛盾根串当 raw_input;
+    - archive:指针行的结构/CN(重算)须与子底物声明的 substrate_
+      identity 一致且行内自洽 —— 指向存在但错误的产物行 ⇒ cn_only
+      (substrate_archive_identity_mismatch),不把错误引用当完整结构。
     """
     row = conn.execute(
         "SELECT * FROM path_instances WHERE path_id = ?", (path_id,)).fetchone()
@@ -145,7 +207,12 @@ def _substrate_structure_for_path(
         root_smiles, root_identity = _legacy_root_identity(run_dir)
         if root_smiles and root_identity \
                 and row["substrate_identity"] == root_identity:
-            return root_smiles, "root", ""
+            # R3-11 根核对:root_smiles 重算旧身份,与声明根身份矛盾 ⇒
+            # 不当 raw_input(降级 CN-only 并保留原因)
+            if _legacy_cn_of(root_smiles) == root_identity:
+                return root_smiles, "root", ""
+            return (row["substrate_identity"], "cn_only",
+                    CN_ONLY_REASON_ROOT_SMILES_IDENTITY_MISMATCH)
         # 指针全空但身份无法与 run 根确认一致 ⇒ 不借根结构
         return (row["substrate_identity"], "cn_only",
                 CN_ONLY_REASON_ROOT_IDENTITY_UNCONFIRMED)
@@ -155,8 +222,18 @@ def _substrate_structure_for_path(
             " position = ?",
             (event_ptr, pos_ptr)).fetchone()
         if prod is not None:
-            return (prod["product_smiles_full"] or prod["product_smiles"],
-                    "archive", "")
+            # R3-11 archive 来源核对:指针行的结构/CN 与子底物声明的
+            # 身份一致且行内自洽 ⇒ 才可用其结构;矛盾 ⇒ CN-only+原因
+            product_structure = (prod["product_smiles_full"]
+                                 or prod["product_smiles"])
+            recomputed_cn = _legacy_cn_of(product_structure)
+            row_consistent = (
+                prod["product_identity"] == row["substrate_identity"]
+                and recomputed_cn == prod["product_identity"])
+            if row_consistent:
+                return product_structure, "archive", ""
+            return (row["substrate_identity"], "cn_only",
+                    CN_ONLY_REASON_SUBSTRATE_ARCHIVE_IDENTITY_MISMATCH)
         # 指针齐全但存档行缺失:CN-only(不借根结构;F09)
         return (row["substrate_identity"], "cn_only",
                 CN_ONLY_REASON_SUBSTRATE_ARCHIVE_MISSING)
@@ -188,11 +265,17 @@ def import_legacy_event(
       重复报告),去重在 reasons 留痕;
     - provenance_refs 指向新账本 record_id(P2:导入后可按
       get_provenance 解析);legacy evidence_id 保存在 provenance
-      载荷的 legacy_evidence_id/legacy_source_id。
+      载荷的 legacy_evidence_id/legacy_source_id;
+    - **R3-11 版本门**:本入口与 import_legacy_run 同口径 —— 旧库
+      store schema 未知版本、run identity 显式未来版本 ⇒
+      LegacyStoreError(旧库零写回)。
     """
     run_dir = Path(run_dir)
     conn = _read_only_conn(run_dir / "pathway.sqlite")
     try:
+        # R3-11:所有公开导入入口共同守版本门(store schema + run identity)
+        _gate_legacy_store_version(conn)
+        _legacy_root_identity(run_dir)  # 未来 identity 版本 ⇒ 显式拒绝
         substrate_source, source_kind, cn_reason = \
             _substrate_structure_for_path(
                 conn, run_dir, legacy_event["parent_path_id"])
@@ -206,10 +289,22 @@ def import_legacy_event(
             source_refs=[{"role": "legacy_path_substrate",
                           "path_id": legacy_event["parent_path_id"],
                           "reason": cn_reason}])
+        reason_detail = {
+            CN_ONLY_REASON_SUBSTRATE_ARCHIVE_MISSING: "存档行缺失",
+            CN_ONLY_REASON_CHILD_MISSING_ARCHIVE_POINTERS:
+                "子路径来源指针残缺",
+            CN_ONLY_REASON_ROOT_IDENTITY_UNCONFIRMED:
+                "根身份无法与 run 根确认一致",
+            CN_ONLY_REASON_ARCHIVE_POINTERS_BROKEN: "指针残缺/矛盾",
+            CN_ONLY_REASON_SUBSTRATE_ARCHIVE_IDENTITY_MISMATCH:
+                "来源指针指向存在但身份矛盾的产物行(不借错误结构)",
+            CN_ONLY_REASON_ROOT_SMILES_IDENTITY_MISMATCH:
+                "root_smiles 重算身份与声明根身份矛盾(不用矛盾根串)",
+        }.get(cn_reason, "来源不可用")
         uncertainty_notes.append(
             f"substrate_structure_legacy_cn_only:{cn_reason}:历史路径"
-            "只余 CN(存档缺失或来源指针损坏),结构/立体/原始电荷"
-            "未知;不以根结构冒充子底物")
+            f"只余 CN({reason_detail}),结构/立体/原始电荷未知;不以根"
+            "结构或错误引用冒充子底物")
     else:
         substrate_state = build_chemical_state(
             substrate_source,
@@ -333,6 +428,39 @@ def import_legacy_event(
     }
 
 
+def _verify_imported_provenance(target_store, imported: dict,
+                                new_run_id: str) -> None:
+    """导入重放路径的 provenance 完整性核验(R3-10;不补账)。
+
+    缺失/版本未知/内容与重推导值不符 ⇒ Ppv1LedgerCorrupt(结构化损坏
+    错误;不先 put 补回依赖)。states/appearances/hypotheses/projections
+    /plans 及行内容由 submit_event 重放分支从已存行复算。
+    """
+    record_id = imported["provenance_record_id"]
+    stored = target_store.get_provenance(record_id)
+    if stored is None:
+        raise Ppv1LedgerCorrupt(
+            f"重放导入(new_run_id={new_run_id})缺 provenance 记录"
+            f"{record_id}(账本不完整;不补账、不默默成功)",
+            {"table": "provenance_records", "record_id": record_id,
+             "kind": "provenance_record_missing",
+             "legacy_evidence_id":
+                 imported["provenance"].get("legacy_evidence_id", "")})
+    if stored.get("schema_version") != PPV1_PROVENANCE_SCHEMA_VERSION:
+        raise Ppv1LedgerCorrupt(
+            f"重放导入(new_run_id={new_run_id})的 provenance 记录"
+            f"{record_id} schema 版本未知(损坏)",
+            {"table": "provenance_records", "record_id": record_id,
+             "kind": "provenance_schema_corrupt",
+             "schema_version": stored.get("schema_version")})
+    if content_hash(stored) != content_hash(imported["provenance"]):
+        raise Ppv1LedgerCorrupt(
+            f"重放导入(new_run_id={new_run_id})的 provenance 记录"
+            f"{record_id} 内容与重推导值不一致(损坏)",
+            {"table": "provenance_records", "record_id": record_id,
+             "kind": "provenance_payload_corrupt"})
+
+
 def import_legacy_run(
     run_dir: str | Path,
     *,
@@ -341,9 +469,13 @@ def import_legacy_run(
 ) -> dict:
     """整个旧 run 只读导入到新模式账本(逐事件;零写回旧库)。
 
-    - 每事件:states(出现列表,R2-08)/hypothesis/provenance 先行
-      落账,事件+投影+展开同事务提交(事务要求假设关联);
-    - 幂等:重放返回 created=False,不重复入账;
+    - 每事件:先判 event 是否已在目标账本 —— **首次导入**(event 不
+      存在)走 states(出现列表,R2-08)/hypothesis/provenance 先行
+      落账 + 事件/投影/展开同事务提交;**重放**(event 已存在)不先
+      put 补账:provenance 显式核(缺/损 ⇒ 结构化损坏错误),其余
+      必要记录由 submit_event 重放分支从已存行复算(R3-10 反例:
+      先 put_state 补依赖再报 n_replayed=1 不再发生);
+    - 幂等:完整且一致的重放返回 n_replayed 计数,不重复入账;
     - 连续多步路径(共享中间物)与 root 循环再出现正常导入
       (R2-08:同一结构不同来源/保真度是出现记录追加,不是身份冲突)。
     """
@@ -355,24 +487,33 @@ def import_legacy_run(
     for legacy_event in events:
         imported = import_legacy_event(run_dir, legacy_event,
                                        new_run_id=new_run_id)
-        for state in imported["states"]:
-            target_store.put_state(state)
-        target_store.put_hypothesis(
-            imported["hypothesis"].to_dict(),
-            context_hash=imported["context_hash"])
-        target_store.put_provenance(
-            imported["provenance_record_id"], new_run_id,
-            imported["provenance"])
-        result = target_store.submit_event(
-            imported["event"],
-            report_projection=imported["report_projection"],
-            expansion_plan=imported["expansion_plan"],
-            states=imported["states"],
-            hypothesis_dict=imported["hypothesis"].to_dict())
-        if result["created"]:
-            n_created += 1
-        else:
+        if target_store.get_event(imported["event"].event_id) is not None:
+            # 重放:不先 put 补账 —— 先校验已存记录完整性(R3-10)
+            _verify_imported_provenance(target_store, imported, new_run_id)
+            target_store.submit_event(
+                imported["event"],
+                report_projection=imported["report_projection"],
+                expansion_plan=imported["expansion_plan"],
+                states=imported["states"],
+                hypothesis_dict=imported["hypothesis"].to_dict())
             n_replayed += 1
+        else:
+            for state in imported["states"]:
+                target_store.put_state(state)
+            target_store.put_hypothesis(
+                imported["hypothesis"].to_dict(),
+                context_hash=imported["context_hash"])
+            target_store.put_provenance(
+                imported["provenance_record_id"], new_run_id,
+                imported["provenance"])
+            result = target_store.submit_event(
+                imported["event"],
+                report_projection=imported["report_projection"],
+                expansion_plan=imported["expansion_plan"],
+                states=imported["states"],
+                hypothesis_dict=imported["hypothesis"].to_dict())
+            if result["created"]:
+                n_created += 1
         notes.extend(imported["uncertainty_notes"])
 
     return {"n_events": len(events), "n_created": n_created,
