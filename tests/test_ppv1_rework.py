@@ -55,6 +55,7 @@ from pathway_v43.pollutant.provenance import (  # noqa: E402
 from pathway_v43.pollutant.store import (  # noqa: E402
     Ppv1EventConflict,
     Ppv1LedgerCorrupt,
+    Ppv1StateContractError,
     Ppv1StoreSchemaError,
     PollutantPathwayStore,
 )
@@ -114,13 +115,18 @@ def test_f04_same_structure_different_sources_no_conflict(tmp_path) -> None:
 
 
 def test_f04_true_semantic_conflict_still_rejected(tmp_path) -> None:
-    """语义冲突(同 state_id 不同结构事实)仍然拒绝(fail-closed)。"""
+    """语义冲突(同 state_id 不同结构事实)仍然拒绝(fail-closed)。
+
+    R4/R3-09 修改理由:公共 writer 的身份/事实重推导先于已存语义比较
+    ⇒ 篡改 formal_charge 现在先报 Ppv1StateContractError(同一伪造输入、
+    更早且更强的拒绝;旧 Ppv1EventConflict 语义比较路径保留为兜底)。
+    """
     store = PollutantPathwayStore(tmp_path / "ppv1.sqlite")
     good = _pstate(ETHANOL).to_dict()
     store.put_state(good)
     forged = dict(good)
     forged["formal_charge"] = 99  # 篡改结构语义
-    with pytest.raises(Ppv1EventConflict):
+    with pytest.raises((Ppv1StateContractError, Ppv1EventConflict)):
         store.put_state(forged)
     store.close()
 

@@ -70,6 +70,7 @@ from pathway_v43.pollutant.provenance import build_support_groups  # noqa: E402
 from pathway_v43.pollutant.store import (  # noqa: E402
     Ppv1EventConflict,
     Ppv1LedgerCorrupt,
+    Ppv1StateContractError,
     Ppv1SubmitContractError,
     Ppv1ObjectSchemaError,
     PollutantPathwayStore,
@@ -190,7 +191,10 @@ def test_r2_08_fidelity_only_difference_is_not_semantic_conflict(
         _pstate(ACETALDEHYDE).state_id)) == 2
     forged = dict(full)
     forged["formal_charge"] = 99  # 严格分子事实不同 ⇒ 仍拒
-    with pytest.raises(Ppv1EventConflict):
+    # R4/R3-09 修改理由:公共 writer 的身份/事实重推导先于已存语义比较
+    # ⇒ 篡改电荷现在先报 Ppv1StateContractError(同一伪造输入、更早且
+    # 更强的拒绝;旧 Ppv1EventConflict 语义比较路径保留为兜底)。
+    with pytest.raises((Ppv1StateContractError, Ppv1EventConflict)):
         store.put_state(forged)
     store.close()
 

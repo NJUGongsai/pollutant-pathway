@@ -15,9 +15,13 @@
   (PPV1_POOL_ORDER_VERSION);未经验证的分数不跨来源解释为概率;
 - bounded 截断后的有限池可以不覆盖全检索池,必须诚实报告(截断数量、
   来源分布、原因);
-- 哈希链核**相邻实际记录**(R3/P2 修正):from_previous=True 的阶段
-  输入必须等于上一实际阶段输出 —— 跳过协议阶段的拼接同样非法,跳过/
-  注入须 from_previous=False + transition_reason 留痕。
+    - 哈希链核**相邻实际记录**(R3/P2 修正):from_previous=True 的阶段
+      输入必须等于上一实际阶段输出 —— 跳过协议阶段的拼接同样非法,跳过/
+      注入须 from_previous=False + transition_reason 留痕;
+      **同 hash 跳阶段同样要登记原因(§4 行 5,R4)**:两个相邻记录之间
+      省略了协议阶段时,即便 hash 恰好连续(前输出 == 后输入),后一阶段
+      也必须登记 transition_reason(跳过留痕不以"哈希链没断"为由豁免;
+      不把同 hash 连续记录说成哈希链已断,但跳过本身须显式)。
 
 injected_to_model 阶段在 S3 才有真实模型任务;S2 只提供阶段记录
 结构与占位断言(未实施注入时显式记录 not_applicable)。
@@ -171,7 +175,11 @@ def build_pool_audit(
       时,其 input_hash 必须等于前一**实际记录**阶段的 output_hash
       —— 不只核协议索引相邻(跳过协议阶段的拼接同样非法);
     - 阶段跳过/显式注入:该阶段 from_previous=False 且 transition_reason
-      必填,hash 连续性豁免但转换留痕。
+      必填,hash 连续性豁免但转换留痕;
+    - **同 hash 跳阶段留痕(§4 行 5,R4)**:相邻两记录之间省略了协议
+      阶段时(如 retrieved_raw → structure_screened 略过
+      typed_and_grouped),即便 hash 恰好连续,后一阶段也必须登记
+      transition_reason —— 跳过须显式登记不以"哈希链没断"为由豁免。
     """
     seen = [s.stage for s in stages]
     expected = list(POOL_STAGES)
@@ -185,6 +193,7 @@ def build_pool_audit(
         raise PoolAuditError(
             f"input_preview_policy 非法:{input_preview_policy!r}",
             {"input_preview_policy": input_preview_policy})
+    stage_index = {stage: i for i, stage in enumerate(POOL_STAGES)}
     for prev, nxt in zip(stages, stages[1:]):
         if not nxt.from_previous:
             if not nxt.transition_reason:
@@ -194,7 +203,8 @@ def build_pool_audit(
                     {"stage": nxt.stage})
             continue
         # 相邻实际记录(与协议索引无关):from_previous=True 即要求
-        # 输入 == 上一实际阶段的输出(R3/P2 修正)
+        # 输入 == 上一实际阶段的输出(R3/P2 修正;先于跳阶段留痕检查,
+        # 保留"哈希链断裂"控制的既有口径)
         if nxt.input_hash != prev.output_hash:
             raise PoolAuditError(
                 f"相邻阶段哈希链断裂:{prev.stage}→{nxt.stage}"
@@ -202,6 +212,20 @@ def build_pool_audit(
                 f"{nxt.input_hash[:12]}…;拼接审计不合法,跳过/注入须"
                 "显式登记 from_previous=False + transition_reason)",
                 {"prev_stage": prev.stage, "next_stage": nxt.stage})
+        # 同 hash 跳阶段(§4 行 5):省略协议阶段 ⇒ 后一阶段必须登记原因,
+        # 即便 input_hash 恰好等于前一实际阶段 output_hash
+        skipped_protocol = [
+            stage for stage in POOL_STAGES
+            if stage_index[prev.stage] < stage_index[stage]
+            < stage_index[nxt.stage]]
+        if skipped_protocol and not nxt.transition_reason:
+            raise PoolAuditError(
+                f"阶段 {nxt.stage} 之前省略了协议阶段"
+                f"{skipped_protocol} 但未登记 transition_reason(跳过须"
+                "显式留痕;同 hash 跳阶段同样要登记原因,不以哈希链未断"
+                "为由豁免)",
+                {"stage": nxt.stage, "skipped_protocol": skipped_protocol,
+                 "prev_stage": prev.stage})
     if input_preview_policy == INPUT_PREVIEW_OFF:
         block = input_preview or {
             "policy": INPUT_PREVIEW_OFF, "status": "not_run",
