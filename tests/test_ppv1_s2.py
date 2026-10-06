@@ -194,7 +194,12 @@ def test_f01_missing_hydrogen_violated_not_verified() -> None:
     assert check.status == CHECK_VIOLATED
     assert check.reason_code.startswith("declared_account_violated")
     assert check.detail["element_delta"] == {"H": "2"}
-    assert check.detail["omission_pattern_matches"] == ["2H:reactant_side"]
+    # v3(mimo 2.3(2)):模式标注为结构化字段(excess_on=多出侧/
+    # missing_from=缺写侧;不证明缺项原因,不含电子/质子计量)
+    assert check.detail["omission_pattern_matches"] == [{
+        "pattern": "2H", "excess_on": "reactant_side",
+        "missing_from": "product_side",
+        "element_delta": {"H": "2"}}]
     # 违规不 reject(P2-1 独立理由码),且绝不进入"全部核实"
     disposition, reasons = decide_admission(audit)
     assert disposition == ADMISSION_RETAIN_CONDITIONAL
@@ -265,8 +270,10 @@ def test_f01_hydrolysis_convention_pattern_flagged() -> None:
                  if c.name == CHECK_ELEMENT_ACCOUNTING)
     assert check.status == CHECK_VIOLATED
     assert check.detail["element_delta"] == {"H": "-2", "O": "-1"}
-    assert check.detail["omission_pattern_matches"] == \
-        ["H2O:product_side"]
+    assert check.detail["omission_pattern_matches"] == [{
+        "pattern": "H2O", "excess_on": "product_side",
+        "missing_from": "reactant_side",
+        "element_delta": {"H": "-2", "O": "-1"}}]
     assert "不证明实际缺该物质" in \
         check.detail["omission_pattern_semantics"]
 
@@ -947,16 +954,19 @@ def test_c06_structure_valid_gate_ok_unknowns_retain_conditional() -> None:
 
 
 def test_admission_policy_decision_table_explicit() -> None:
-    """P0-4(v2):决策表显式有序(含 R2b/R5d/R7);JSON 往返;版本门。"""
+    """P0-4(v3):决策表显式有序(+R1b/R2p/R5v/R5c);JSON 往返;版本门。"""
     policy = AdmissionPolicy()
     d = policy.to_dict()
     rules = d["rules"]
     assert [r["rule_id"] for r in rules] == [
-        "R1", "R2", "R2b", "R3", "R4", "R5d", "R5", "R6", "R7"]
+        "R1", "R1b", "R2", "R2p", "R2b", "R3", "R4", "R5d", "R5v",
+        "R5c", "R5", "R6", "R7"]
     assert [r["disposition"] for r in rules] == [
-        "reject", "reject", "reject", "defer", "defer",
-        "retain_conditional", "retain_conditional", "expand",
-        "retain_conditional"]
+        "reject", "reject", "reject", "reject|retain_conditional",
+        "reject", "defer", "defer", "retain_conditional",
+        "retain_conditional", "retain_conditional", "retain_conditional",
+        "expand", "retain_conditional"]
+    assert d["per_product_gate_consumption"] == "on"
     restored = AdmissionPolicy.from_dict(d)
     assert restored.to_dict() == d
     from pathway_v43.pollutant.audit import AuditContractError
@@ -1033,7 +1043,7 @@ def test_p2_2_legacy_gate_mapper_keeps_per_product_verdicts() -> None:
         {"position": 0, "accepted": True, "reasons": []},
         {"position": 1, "accepted": False, "reasons": ["smiles_invalid"]},
     ]
-    assert mapped["gate_ref"]["mapper_version"] == "ppv1-gate-mapper-1"
+    assert mapped["gate_ref"]["mapper_version"] == "ppv1-gate-mapper-2"
     # mapper 输出可直接喂 decide_admission(资格失败 → reject)
     states = _states(ETHANOL, ACETIC_ACID)
     hyp = build_hypothesis(
@@ -1091,8 +1101,25 @@ def test_admission_all_verified_expand() -> None:
             build_requirement(key=CONDITION_KEY_OXYGEN, level="essential",
                               value="aerobic", source_refs=SRC)],
         assessment_scope=["oxygen_regime"])
+    # v3(R2-01):中心 verified 须有注册确定性 checker 证据 ——
+    # 自报 transformation_signature_status 不再授信;用真实供体诊断
+    # 转证据(乙醇 C–O 编辑,center=True/direct)达到合法 expand
+    from pathway_v43.pollutant.audit import (
+        center_evidence_from_donor_diagnostic)
+
+    current, edits, execution = _ethanol_co_edit_execution()
+    diag = check_edit_against_donor(
+        current=current,
+        donor={"center_atom_ids": ["dC", "dO"]},
+        alignment={"status": "resolved",
+                   "donor_to_current": {"dC": "S_C_2", "dO": "S_O_1"},
+                   "equivalence_classes": [], "ref": "align-expand"},
+        expectation={"target_smiles": execution["product_smiles"]},
+        result=execution, edits=edits)
+    assert diag.reaction_center_match is True
     audit = audit_hypothesis(
-        hyp, states={s.state_id: s for s in states.values()}, context=ctx)
+        hyp, states={s.state_id: s for s in states.values()}, context=ctx,
+        center_evidence=center_evidence_from_donor_diagnostic(diag))
     d, _ = decide_admission(audit, gate_decisions={
         "gate_direction_source": {"ok": True}})
     assert d == ADMISSION_EXPAND

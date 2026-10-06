@@ -1,27 +1,42 @@
-"""ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v2 回修)。
+"""ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
 
-v2(ppv1-chemstate-2,2026-10-05 回修)相对 v1 的变化(均为审核 F04/F05
-与 mimo 分轴意见的落实):
-- 身份键在 canonical 重排后的分子图上生成,并**显式序列化增强立体组**
-  (StereoGroups AND/OR/ABSOLUTE)——普通 isomeric SMILES 会把增强
-  立体静默丢掉造成身份碰撞(F05);
+v3(ppv1-chemstate-3,2026-10-06 R3 回修)相对 v2 的变化(均为 Codex R2
+复审 R2-02 与 mimo 1.3(1) 的落实):
+- **身份键 = 规范化 canonical CXSMILES**(剥原子映射号、剥 ABS 冗余
+  注解)。RDKit canonical 写出器本身对增强立体做规范化:AND/OR 组
+  **整组翻转**得到同一 canonical 串(同一相对立体事实);**部分翻转**
+  (组内只翻一个中心)保持不同;不同组类型(AND vs OR)不合并;原子
+  排列差异归一。v2 的手工 |SG:…| 键保留 as-drawn 手性,造成整组反转
+  分裂(R2-02);
+- **公开表示往返闭合**:`smiles_isomeric` 即规范化 CXSMILES —— 对
+  带增强立体组的结构携带 |&1:…| / |o1:…| 注解,重新解析可重建同一
+  state_id。v2 的 smiles_isomeric 用普通 MolToSmiles 会静默丢组注解,
+  下游拿到的"完整结构"丢事实(R2-02);
+- **plain 与 ABS 归一**:ABS 组与普通 isomeric SMILES 的默认绝对构型
+  是同一立体事实 ⇒ 剥离 ABS 段后同键(mimo 1.3(1) 归一分支);
+- 无增强立体的分子输出与 v2 完全相同(无 CX 扩展段)。
+
+v2(ppv1-chemstate-2,2026-10-05 回修)的变化:
+- 身份键在 canonical 重排后的分子图上生成,并显式序列化增强立体组
+  (v1 普通 MolToSmiles 静默丢组造成三输入碰撞,F05);
 - representation_fidelity 由单旗标改为**分轴声明**(stereo / isotope /
-  formal_charge / protonation_basis),电荷轴直接决定电荷账可算性
-  (mimo 1.2(2) 采纳;Codex §4"来源保真分轴"接受);
-- 通用工厂拒绝 origin=legacy_cn_only(CN-only 只能走专用只读工厂,
-  不得伪装原始结构可知,F05);
+  formal_charge / protonation_basis),电荷轴直接决定电荷账可算性;
+- 通用工厂拒绝 origin=legacy_cn_only(CN-only 只能走专用只读工厂);
 - from_dict 校验 schema 版本,未知版本 fail-closed(F08)。
 
 既有不变量(自 v1):state_id 按保留形式电荷、同位素和立体信息的确定性
 分子图生成;原子映射号不属于分子身份;原始结构与解析后的图都保留;
-形式电荷是结构事实不表示某 pH 质子化分布;CN 仅作旧评分/资产键适配;
-CN-only 不猜回立体信息;存档形恢复不冒称原实验全部结构细节已知。
+形式电荷是结构事实不表示某 pH 质子化分布;CN 仅作旧评分/资产键适配
+(cn_identity 的 basis: scoring_key —— contract clause,
+implementation pending;未落地前不得在报告呈现该字段);CN-only 不
+猜回立体信息;存档形恢复不冒称原实验全部结构细节已知。
 
 解析失败 fail-closed(ChemicalStateError,kind=unparseable_smiles)。
 """
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 
 from rdkit import Chem, RDLogger
@@ -32,7 +47,7 @@ from .profile import PPV1_CHEMSTATE_SCHEMA_VERSION
 
 RDLogger.DisableLog("rdApp.*")
 
-PPV1_CHEMSTATE_SUPPORTED_VERSIONS = ("ppv1-chemstate-2",)
+PPV1_CHEMSTATE_SUPPORTED_VERSIONS = (PPV1_CHEMSTATE_SCHEMA_VERSION,)
 
 STRUCTURE_ORIGIN_RAW_INPUT = "raw_input"
 STRUCTURE_ORIGIN_SOURCE_PRODUCT = "source_product"
@@ -102,34 +117,52 @@ class ChemicalStateError(RuntimeError):
 
 
 def _identity_key(mol: Chem.Mol) -> str:
-    """分子身份键:canonical 重排 + 增强立体组显式序列化。
+    """分子身份键(v3):规范化 canonical CXSMILES。
 
     - 原子映射号不属于分子身份(生成前去除);
-    - 以 canonical 秩重排保证同图任意输入顺序得到同一键;
-    - StereoGroups(AND/OR/ABSOLUTE)以 |SG:<type>:<atoms>| 附加 ——
-      普通 MolToSmiles 会静默丢弃增强立体(F05 反例三输入在本键下
-      互不相同);
-    - Kekulé/芳香表示差异由 RDKit 感知归一,不入键(同一分子图)。
+    - RDKit canonical 写出器对增强立体做规范化:AND/OR 组**整组翻转**
+      ⇒ 同一键(同一相对立体事实);**部分翻转** ⇒ 不同键;不同组
+      类型(AND vs OR)不合并(R2-02);
+    - ABS 组是冗余注解(与普通 isomeric SMILES 的默认绝对构型同一
+      事实)⇒ 序列化后从 CX 扩展段剥离,plain 与 |a:…| 同键
+      (mimo 1.3(1) 归一分支);
+    - Kekulé/芳香表示差异由 RDKit 感知归一,不入键(同一分子图);
+    - 键值 = 公开表示(smiles_isomeric),同一事实源。
     """
-    for atom in mol.GetAtoms():
+    m = Chem.Mol(mol)
+    for atom in m.GetAtoms():
         if atom.GetAtomMapNum():
             atom.SetAtomMapNum(0)
-    ranks = list(Chem.CanonicalRankAtoms(mol, breakTies=True))
-    order = sorted(range(mol.GetNumAtoms()), key=lambda i: ranks[i])
-    m2 = Chem.RenumberAtoms(mol, order)
-    base = Chem.MolToSmiles(m2)  # isomeric 默认:保留立体/同位素/电荷
-    names = {
-        Chem.StereoGroupType.STEREO_ABSOLUTE: "a",
-        Chem.StereoGroupType.STEREO_AND: "&",
-        Chem.StereoGroupType.STEREO_OR: "o",
-    }
-    groups = []
-    for sg in m2.GetStereoGroups():
-        atoms = sorted(a.GetIdx() for a in sg.GetAtoms())
-        groups.append(
-            f"{names.get(sg.GetGroupType(), '?')}:{','.join(str(i) for i in atoms)}")
-    ext = ("|SG:" + ";".join(sorted(groups)) + "|") if groups else ""
-    return base + ext
+    return _strip_abs_segments(Chem.MolToCXSmiles(m))
+
+
+# CXSMILES 扩展段中的 ABS 组注解(|a:1,2|;与 plain 绝对构型等价的
+# 冗余注解,身份键与公开表示统一剥离)
+_ABS_SEGMENT_RE = re.compile(r"(?:^|\s)a:[\d,]+(?=\s|$)")
+
+
+def _strip_abs_segments(cxsmiles: str) -> str:
+    """从 canonical CXSMILES 的 |…| 扩展段剥离 ABS 组注解。
+
+    无扩展段或剥后为空 ⇒ 返回基串(plain);其余段(AND/OR 组、
+    其他注解)原样保留。仅做段级删除,不改写任何保留内容。
+    """
+    m = re.search(r"\|([^|]*)\|\s*$", cxsmiles)
+    if not m:
+        return cxsmiles
+    body = _ABS_SEGMENT_RE.sub("", m.group(1)).strip()
+    if not body:
+        return cxsmiles[:m.start()].strip()
+    return cxsmiles[:m.start()].rstrip() + " |" + body + "|"
+
+
+def normalized_structure_smiles(mol: Chem.Mol) -> str:
+    """公开规范表示(= 身份键;供 smiles_isomeric 输出)。
+
+    带增强立体组的结构携带 CX 注解(往返可重建同一 state_id);
+    无组的分子输出与普通 canonical isomeric SMILES 相同。
+    """
+    return _identity_key(mol)
 
 
 def _stereo_status(mol: Chem.Mol) -> str:
@@ -183,7 +216,8 @@ class ChemicalState:
 
     state_id: str
     structure_smiles_raw: str        # 原始输入串(未规范化,含映射号如有)
-    smiles_isomeric: str             # 解析后的 canonical isomeric(无映射号)
+    smiles_isomeric: str             # 规范化 canonical CXSMILES(=身份键;
+                                     # 增强立体注解保留,往返重建同一 id)
     cn_identity: str                 # 旧口径 CN(评分/资产键;非结构事实)
     structure_origin: str
     original_structure_available: bool
@@ -266,7 +300,7 @@ def build_chemical_state(
     return ChemicalState(
         state_id=stable_id("cs", identity),
         structure_smiles_raw=structure,
-        smiles_isomeric=Chem.MolToSmiles(mol),
+        smiles_isomeric=identity,  # 规范化 CXSMILES(=身份键,往返闭合)
         cn_identity=cn,
         structure_origin=origin,
         original_structure_available=True,
