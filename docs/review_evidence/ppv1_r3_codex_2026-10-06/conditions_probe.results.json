@@ -1,0 +1,2310 @@
+{
+  "baseline_full_audit": {
+    "admission": [
+      "expand",
+      [
+        "R6:all_verified_no_conflict"
+      ]
+    ],
+    "audit_id": "audit_7d8a6111fa2a32f2c27b",
+    "checks": {
+      "condition_check": {
+        "reason": "environment_fit:compatible;coverage:oxygen_regime",
+        "refs": [],
+        "status": "verified"
+      },
+      "element_accounting": {
+        "reason": "elements_balanced_all_hydrogen",
+        "refs": [],
+        "status": "verified"
+      },
+      "finite_rule_diagnostic": {
+        "reason": "not_provided",
+        "refs": [
+          "v43-cons-2"
+        ],
+        "status": "not_applicable"
+      },
+      "formal_charge_accounting": {
+        "reason": "formal_charge_balanced",
+        "refs": [],
+        "status": "verified"
+      },
+      "identity_fidelity": {
+        "reason": "identity_states_consistent",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_completeness": {
+        "reason": "declared_complete_with_known_coefficients",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_state_refs": {
+        "reason": "all_participant_states_resolved",
+        "refs": [],
+        "status": "verified"
+      },
+      "provenance_dependency": {
+        "reason": "no_unresolved_dependencies",
+        "refs": [],
+        "status": "verified"
+      },
+      "step_scope_check": {
+        "reason": "step_scope:net_reaction",
+        "refs": [],
+        "status": "verified"
+      },
+      "structure_parse_valence": {
+        "reason": "all_participants_parse",
+        "refs": [],
+        "status": "verified"
+      },
+      "transformation_center": {
+        "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+        "refs": [
+          "synthetic:checker_output"
+        ],
+        "status": "verified"
+      }
+    },
+    "input_hash": "ain_ad7a9b8512ed6ec73a98"
+  },
+  "branch_alias_fixed_but_self_hash_stale": {
+    "child": "conflicted",
+    "child_id_unchanged": true,
+    "parent": "condition_compatible",
+    "sibling": "condition_compatible"
+  },
+  "contract_invalid_interval": {
+    "audit": {
+      "admission": [
+        "retain_conditional",
+        [
+          "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):condition_check"
+        ]
+      ],
+      "audit_id": "audit_545ef2d8bf414516ef59",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:unknown;coverage:pH",
+          "refs": [],
+          "status": "unknown"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_c31700a0cfcf098c3d74"
+    },
+    "constructed": true,
+    "id": "hyp_b2afae006a74e80fb026"
+  },
+  "contract_invalid_level": {
+    "audit": {
+      "admission": [
+        "retain_conditional",
+        [
+          "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):condition_check"
+        ]
+      ],
+      "audit_id": "audit_8ef0b743c17bc4e26861",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:unknown;coverage:",
+          "refs": [],
+          "status": "unknown"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_2e233d09f0baca8e9ea2"
+    },
+    "constructed": true,
+    "id": "hyp_a1599353d480312fecda"
+  },
+  "contract_missing_fields": {
+    "audit_error": {
+      "detail": null,
+      "message": "Requirement.__init__() missing 2 required positional arguments: 'level' and 'value'",
+      "type": "TypeError"
+    },
+    "constructed": true,
+    "id": "hyp_ea17ff4ef1f5e0b4b932"
+  },
+  "contract_requirement_object": {
+    "constructed": false,
+    "detail": null,
+    "error_type": "TypeError",
+    "message": "'Requirement' object is not iterable"
+  },
+  "direct_audit_context_version_None": {
+    "admission": [
+      "expand",
+      [
+        "R6:all_verified_no_conflict"
+      ]
+    ],
+    "audit_id": "audit_7d8a6111fa2a32f2c27b",
+    "checks": {
+      "condition_check": {
+        "reason": "environment_fit:compatible;coverage:oxygen_regime",
+        "refs": [],
+        "status": "verified"
+      },
+      "element_accounting": {
+        "reason": "elements_balanced_all_hydrogen",
+        "refs": [],
+        "status": "verified"
+      },
+      "finite_rule_diagnostic": {
+        "reason": "not_provided",
+        "refs": [
+          "v43-cons-2"
+        ],
+        "status": "not_applicable"
+      },
+      "formal_charge_accounting": {
+        "reason": "formal_charge_balanced",
+        "refs": [],
+        "status": "verified"
+      },
+      "identity_fidelity": {
+        "reason": "identity_states_consistent",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_completeness": {
+        "reason": "declared_complete_with_known_coefficients",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_state_refs": {
+        "reason": "all_participant_states_resolved",
+        "refs": [],
+        "status": "verified"
+      },
+      "provenance_dependency": {
+        "reason": "no_unresolved_dependencies",
+        "refs": [],
+        "status": "verified"
+      },
+      "step_scope_check": {
+        "reason": "step_scope:net_reaction",
+        "refs": [],
+        "status": "verified"
+      },
+      "structure_parse_valence": {
+        "reason": "all_participants_parse",
+        "refs": [],
+        "status": "verified"
+      },
+      "transformation_center": {
+        "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+        "refs": [
+          "synthetic:checker_output"
+        ],
+        "status": "verified"
+      }
+    },
+    "input_hash": "ain_ad7a9b8512ed6ec73a98"
+  },
+  "direct_audit_context_version_future-context-999": {
+    "admission": [
+      "expand",
+      [
+        "R6:all_verified_no_conflict"
+      ]
+    ],
+    "audit_id": "audit_7d8a6111fa2a32f2c27b",
+    "checks": {
+      "condition_check": {
+        "reason": "environment_fit:compatible;coverage:oxygen_regime",
+        "refs": [],
+        "status": "verified"
+      },
+      "element_accounting": {
+        "reason": "elements_balanced_all_hydrogen",
+        "refs": [],
+        "status": "verified"
+      },
+      "finite_rule_diagnostic": {
+        "reason": "not_provided",
+        "refs": [
+          "v43-cons-2"
+        ],
+        "status": "not_applicable"
+      },
+      "formal_charge_accounting": {
+        "reason": "formal_charge_balanced",
+        "refs": [],
+        "status": "verified"
+      },
+      "identity_fidelity": {
+        "reason": "identity_states_consistent",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_completeness": {
+        "reason": "declared_complete_with_known_coefficients",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_state_refs": {
+        "reason": "all_participant_states_resolved",
+        "refs": [],
+        "status": "verified"
+      },
+      "provenance_dependency": {
+        "reason": "no_unresolved_dependencies",
+        "refs": [],
+        "status": "verified"
+      },
+      "step_scope_check": {
+        "reason": "step_scope:net_reaction",
+        "refs": [],
+        "status": "verified"
+      },
+      "structure_parse_valence": {
+        "reason": "all_participants_parse",
+        "refs": [],
+        "status": "verified"
+      },
+      "transformation_center": {
+        "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+        "refs": [
+          "synthetic:checker_output"
+        ],
+        "status": "verified"
+      }
+    },
+    "input_hash": "ain_ad7a9b8512ed6ec73a98"
+  },
+  "foreign_entity_absent_fixed": {
+    "assessed_scope": "possible",
+    "assessment_scope": [
+      "electron_donor"
+    ],
+    "declared_scope": [
+      "electron_donor"
+    ],
+    "environment_fit": "unknown",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "electron_donor",
+        "level": "essential",
+        "reason": "entity_not_among_known_facts:electron_donor:required='NADH',known=['acetate']",
+        "sourced": true,
+        "status": "unknown",
+        "value_basis": "entity"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "assessed_keys": [
+        "electron_donor"
+      ],
+      "conflict_keys": [],
+      "covered_keys": [],
+      "essential_keys": [
+        "electron_donor"
+      ],
+      "satisfied_keys": [],
+      "unknown_keys": [
+        "electron_donor"
+      ]
+    },
+    "schema_version": "ppv1-condition-assessment-3",
+    "scope_narrowed": false,
+    "scope_narrowed_by": [],
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "from_dict_context_version_None": {
+    "message": "PathContext schema 版本未知:None(支持 ['ppv1-context-3'];fail-closed)",
+    "type": "ConditionContractError"
+  },
+  "from_dict_context_version_future-context-999": {
+    "message": "PathContext schema 版本未知:'future-context-999'(支持 ['ppv1-context-3'];fail-closed)",
+    "type": "ConditionContractError"
+  },
+  "frozen_nested_source_refs_mutable": {
+    "after": "condition_compatible",
+    "after_audit": {
+      "admission": [
+        "expand",
+        [
+          "R6:all_verified_no_conflict"
+        ]
+      ],
+      "audit_id": "audit_7d8a6111fa2a32f2c27b",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_8480f43ca0efe2af73b8"
+    },
+    "before": "possible",
+    "before_audit": {
+      "admission": [
+        "retain_conditional",
+        [
+          "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):condition_check"
+        ]
+      ],
+      "audit_id": "audit_f1c10313e812ed6cfe94",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:unknown;coverage:oxygen_regime",
+          "refs": [],
+          "status": "unknown"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_8480f43ca0efe2af73b8"
+    },
+    "id_unchanged": true
+  },
+  "hash_center_payload": {
+    "negative": {
+      "admission": [
+        "retain_conditional",
+        [
+          "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):transformation_center"
+        ]
+      ],
+      "audit_id": "audit_f8379352dfcaefa3a428",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_mismatch_per_deterministic_checker:ppv1-donor-diagnostic-3",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "violated"
+        }
+      },
+      "input_hash": "ain_ad7a9b8512ed6ec73a98"
+    },
+    "positive": {
+      "admission": [
+        "expand",
+        [
+          "R6:all_verified_no_conflict"
+        ]
+      ],
+      "audit_id": "audit_7d8a6111fa2a32f2c27b",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_ad7a9b8512ed6ec73a98"
+    }
+  },
+  "hash_dependency_resolution": {
+    "resolved": {
+      "admission": [
+        "expand",
+        [
+          "R6:all_verified_no_conflict"
+        ]
+      ],
+      "audit_id": "audit_8ec158d09c9cf4904c6e",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "all_dependency_refs_reported_resolved",
+          "refs": [
+            "dep:1"
+          ],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_1d2dd315a75bbecae096"
+    },
+    "unresolved": {
+      "admission": [
+        "retain_conditional",
+        [
+          "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):provenance_dependency"
+        ]
+      ],
+      "audit_id": "audit_fa42246044e0f6a20e5d",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "unresolved_dependencies_inherited",
+          "refs": [
+            "dep:1"
+          ],
+          "status": "unknown"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_1d2dd315a75bbecae096"
+    }
+  },
+  "hash_state_charge_fidelity": {
+    "raw": {
+      "admission": [
+        "expand",
+        [
+          "R6:all_verified_no_conflict"
+        ]
+      ],
+      "audit_id": "audit_7d8a6111fa2a32f2c27b",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_ad7a9b8512ed6ec73a98"
+    },
+    "same_state_id": true,
+    "unknown_charge": {
+      "admission": [
+        "retain_conditional",
+        [
+          "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):identity_fidelity,formal_charge_accounting"
+        ]
+      ],
+      "audit_id": "audit_1f02c70c132c28c1ab5e",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "original_charge_unavailable(CN/中和形输入的电荷账不可算,不得拿中和后电荷算)",
+          "refs": [
+            "cs_ab1de819ede91df490e6"
+          ],
+          "status": "unknown"
+        },
+        "identity_fidelity": {
+          "reason": "identity_fidelity_axes_not_as_written:cs_ab1de819ede91df490e6:formal_charge=unknown",
+          "refs": [],
+          "status": "unknown"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_ad7a9b8512ed6ec73a98"
+    }
+  },
+  "hash_state_fidelity": {
+    "archive": {
+      "admission": [
+        "retain_conditional",
+        [
+          "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):identity_fidelity"
+        ]
+      ],
+      "audit_id": "audit_e8794ad234acb729a3c9",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_fidelity_axes_not_as_written:cs_ab1de819ede91df490e6:isotope=absent_in_archive;cs_ab1de819ede91df490e6:stereo=absent_in_archive",
+          "refs": [],
+          "status": "unknown"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_ad7a9b8512ed6ec73a98"
+    },
+    "raw": {
+      "admission": [
+        "expand",
+        [
+          "R6:all_verified_no_conflict"
+        ]
+      ],
+      "audit_id": "audit_7d8a6111fa2a32f2c27b",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_ad7a9b8512ed6ec73a98"
+    },
+    "same_state_id": true
+  },
+  "hypothesis_nested_caller_alias": {
+    "changed_hypothesis_value": {
+      "hi": 50,
+      "lo": 40
+    },
+    "id_unchanged": true
+  },
+  "hypothesis_order_invariant_id_conflicts_payload": {
+    "same_id": true,
+    "second_put": {
+      "message": "幂等键冲突:hypothesis:hyp_f67ecf3ffefacd22257b 已提交但内容不同",
+      "type": "Ppv1EventConflict"
+    }
+  },
+  "hypothesis_scientific_identity_fixed": [
+    "hyp_57197d8a2d1d172bcaef",
+    "hyp_7a0f1dc0735cfddce9da",
+    "hyp_8310ad1030f79049ebea"
+  ],
+  "inherited_context_dependency_default": {
+    "admission": [
+      "expand",
+      [
+        "R6:all_verified_no_conflict"
+      ]
+    ],
+    "audit_id": "audit_7d8a6111fa2a32f2c27b",
+    "checks": {
+      "condition_check": {
+        "reason": "environment_fit:compatible;coverage:oxygen_regime",
+        "refs": [],
+        "status": "verified"
+      },
+      "element_accounting": {
+        "reason": "elements_balanced_all_hydrogen",
+        "refs": [],
+        "status": "verified"
+      },
+      "finite_rule_diagnostic": {
+        "reason": "not_provided",
+        "refs": [
+          "v43-cons-2"
+        ],
+        "status": "not_applicable"
+      },
+      "formal_charge_accounting": {
+        "reason": "formal_charge_balanced",
+        "refs": [],
+        "status": "verified"
+      },
+      "identity_fidelity": {
+        "reason": "identity_states_consistent",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_completeness": {
+        "reason": "declared_complete_with_known_coefficients",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_state_refs": {
+        "reason": "all_participant_states_resolved",
+        "refs": [],
+        "status": "verified"
+      },
+      "provenance_dependency": {
+        "reason": "no_unresolved_dependencies",
+        "refs": [],
+        "status": "verified"
+      },
+      "step_scope_check": {
+        "reason": "step_scope:net_reaction",
+        "refs": [],
+        "status": "verified"
+      },
+      "structure_parse_valence": {
+        "reason": "all_participants_parse",
+        "refs": [],
+        "status": "verified"
+      },
+      "transformation_center": {
+        "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+        "refs": [
+          "synthetic:checker_output"
+        ],
+        "status": "verified"
+      }
+    },
+    "input_hash": "ain_2122cf8c34d9f65d502b"
+  },
+  "inherited_context_dependency_explicit_unresolved": {
+    "admission": [
+      "retain_conditional",
+      [
+        "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):provenance_dependency"
+      ]
+    ],
+    "audit_id": "audit_17d6b7f342b816963482",
+    "checks": {
+      "condition_check": {
+        "reason": "environment_fit:compatible;coverage:oxygen_regime",
+        "refs": [],
+        "status": "verified"
+      },
+      "element_accounting": {
+        "reason": "elements_balanced_all_hydrogen",
+        "refs": [],
+        "status": "verified"
+      },
+      "finite_rule_diagnostic": {
+        "reason": "not_provided",
+        "refs": [
+          "v43-cons-2"
+        ],
+        "status": "not_applicable"
+      },
+      "formal_charge_accounting": {
+        "reason": "formal_charge_balanced",
+        "refs": [],
+        "status": "verified"
+      },
+      "identity_fidelity": {
+        "reason": "identity_states_consistent",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_completeness": {
+        "reason": "declared_complete_with_known_coefficients",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_state_refs": {
+        "reason": "all_participant_states_resolved",
+        "refs": [],
+        "status": "verified"
+      },
+      "provenance_dependency": {
+        "reason": "unresolved_dependencies_inherited",
+        "refs": [
+          "dep:unresolved_upstream"
+        ],
+        "status": "unknown"
+      },
+      "step_scope_check": {
+        "reason": "step_scope:net_reaction",
+        "refs": [],
+        "status": "verified"
+      },
+      "structure_parse_valence": {
+        "reason": "all_participants_parse",
+        "refs": [],
+        "status": "verified"
+      },
+      "transformation_center": {
+        "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+        "refs": [
+          "synthetic:checker_output"
+        ],
+        "status": "verified"
+      }
+    },
+    "input_hash": "ain_2122cf8c34d9f65d502b"
+  },
+  "kelvin_fact_fixed": {
+    "assessed_scope": "possible",
+    "assessment_scope": [
+      "temperature_C"
+    ],
+    "declared_scope": [
+      "temperature_C"
+    ],
+    "environment_fit": "unknown",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "temperature_C",
+        "level": "essential",
+        "reason": "unit_mismatch:temperature_C:'K'(首版无换算,不按数值直比)",
+        "sourced": true,
+        "status": "unknown",
+        "value_basis": "range"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "assessed_keys": [
+        "temperature_C"
+      ],
+      "conflict_keys": [],
+      "covered_keys": [],
+      "essential_keys": [
+        "temperature_C"
+      ],
+      "satisfied_keys": [],
+      "unknown_keys": [
+        "temperature_C"
+      ]
+    },
+    "schema_version": "ppv1-condition-assessment-3",
+    "scope_narrowed": false,
+    "scope_narrowed_by": [],
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "later_regeneration_overwrites_initial_axis": {
+    "cycles": [
+      [
+        "A",
+        "B",
+        "C"
+      ]
+    ],
+    "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/关系支持不解决初始供给,未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;下游命中不自动解决上游依赖",
+    "unresolved_initial_supply": [
+      [
+        "A",
+        "B",
+        "C"
+      ]
+    ],
+    "unsupported_relation_cycles": []
+  },
+  "matrix_overlap": {
+    "assessed_scope": "conflicted",
+    "assessment_scope": [
+      "matrix"
+    ],
+    "declared_scope": [
+      "matrix"
+    ],
+    "environment_fit": "conflict",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "matrix",
+        "level": "essential",
+        "reason": "value_mismatch:matrix:soil!=sandy soil",
+        "sourced": true,
+        "status": "conflict",
+        "value_basis": "entity"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "assessed_keys": [
+        "matrix"
+      ],
+      "conflict_keys": [
+        "matrix"
+      ],
+      "covered_keys": [],
+      "essential_keys": [
+        "matrix"
+      ],
+      "satisfied_keys": [],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-3",
+    "scope_narrowed": false,
+    "scope_narrowed_by": [],
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "old_phase_false_conflict_fixed": {
+    "audit": {
+      "admission": [
+        "expand",
+        [
+          "R6:all_verified_no_conflict"
+        ]
+      ],
+      "audit_id": "audit_7690f78fa2cd6ec2b009",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_5731947edf9fc1f8cca7"
+    },
+    "current": "compatible",
+    "route": "compatible"
+  },
+  "old_phase_past_conflict_fixed": {
+    "audit": {
+      "admission": [
+        "defer",
+        [
+          "R3:current_scenario_conflict(当前环境相容路线不展开;假设保留,留原因,可展示为需不同条件的备选)"
+        ]
+      ],
+      "audit_id": "audit_0283282a2df188894c32",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:conflict;coverage:oxygen_regime",
+          "refs": [],
+          "status": "violated"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_acaf82e25118c1435c38"
+    },
+    "current": "compatible",
+    "route": "conflict"
+  },
+  "own_step_foreign_phase_binding": {
+    "admission": [
+      "expand",
+      [
+        "R6:all_verified_no_conflict"
+      ]
+    ],
+    "audit_id": "audit_cafdc652d788129acc68",
+    "checks": {
+      "condition_check": {
+        "reason": "environment_fit:compatible;coverage:oxygen_regime",
+        "refs": [],
+        "status": "verified"
+      },
+      "element_accounting": {
+        "reason": "elements_balanced_all_hydrogen",
+        "refs": [],
+        "status": "verified"
+      },
+      "finite_rule_diagnostic": {
+        "reason": "not_provided",
+        "refs": [
+          "v43-cons-2"
+        ],
+        "status": "not_applicable"
+      },
+      "formal_charge_accounting": {
+        "reason": "formal_charge_balanced",
+        "refs": [],
+        "status": "verified"
+      },
+      "identity_fidelity": {
+        "reason": "identity_states_consistent",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_completeness": {
+        "reason": "declared_complete_with_known_coefficients",
+        "refs": [],
+        "status": "verified"
+      },
+      "participant_state_refs": {
+        "reason": "all_participant_states_resolved",
+        "refs": [],
+        "status": "verified"
+      },
+      "provenance_dependency": {
+        "reason": "no_unresolved_dependencies",
+        "refs": [],
+        "status": "verified"
+      },
+      "step_scope_check": {
+        "reason": "step_scope:net_reaction",
+        "refs": [],
+        "status": "verified"
+      },
+      "structure_parse_valence": {
+        "reason": "all_participants_parse",
+        "refs": [],
+        "status": "verified"
+      },
+      "transformation_center": {
+        "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+        "refs": [
+          "synthetic:checker_output"
+        ],
+        "status": "verified"
+      }
+    },
+    "input_hash": "ain_75fa6878393c402851c9"
+  },
+  "point_inside": {
+    "assessed_scope": "possible",
+    "assessment_scope": [
+      "pH"
+    ],
+    "declared_scope": [
+      "pH"
+    ],
+    "environment_fit": "unknown",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "pH",
+        "level": "essential",
+        "reason": "point_in_uncertain_range:pH",
+        "sourced": true,
+        "status": "unknown",
+        "value_basis": "point"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "assessed_keys": [
+        "pH"
+      ],
+      "conflict_keys": [],
+      "covered_keys": [],
+      "essential_keys": [
+        "pH"
+      ],
+      "satisfied_keys": [],
+      "unknown_keys": [
+        "pH"
+      ]
+    },
+    "schema_version": "ppv1-condition-assessment-3",
+    "scope_narrowed": false,
+    "scope_narrowed_by": [],
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "point_singleton": {
+    "assessed_scope": "condition_compatible",
+    "assessment_scope": [
+      "pH"
+    ],
+    "declared_scope": [
+      "pH"
+    ],
+    "environment_fit": "compatible",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "pH",
+        "level": "essential",
+        "reason": "point_in_degenerate_interval:pH",
+        "sourced": true,
+        "status": "satisfied",
+        "value_basis": "point"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "assessed_keys": [
+        "pH"
+      ],
+      "conflict_keys": [],
+      "covered_keys": [
+        "pH"
+      ],
+      "essential_keys": [
+        "pH"
+      ],
+      "satisfied_keys": [
+        "pH"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-3",
+    "scope_narrowed": false,
+    "scope_narrowed_by": [],
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "regeneration_only_fixed": {
+    "cycles": [
+      [
+        "A",
+        "B",
+        "C"
+      ]
+    ],
+    "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/关系支持不解决初始供给,未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;下游命中不自动解决上游依赖",
+    "unresolved_initial_supply": [
+      [
+        "A",
+        "B",
+        "C"
+      ]
+    ],
+    "unsupported_relation_cycles": []
+  },
+  "scenario_switch_old_req_aerobic": {
+    "assess_conditions": {
+      "assessed_scope": "conflicted",
+      "assessment_scope": [
+        "oxygen_regime"
+      ],
+      "declared_scope": [
+        "oxygen_regime"
+      ],
+      "environment_fit": "conflict",
+      "per_requirement": [
+        {
+          "basis": "essential_claimed_by_source",
+          "fact_sources": [],
+          "introduced_edge": "",
+          "introduced_phase_id": "p0",
+          "key": "oxygen_regime",
+          "level": "essential",
+          "reason": "value_mismatch:oxygen_regime:aerobic!=anaerobic",
+          "sourced": true,
+          "status": "conflict",
+          "value_basis": "entity"
+        },
+        {
+          "basis": "essential_claimed_by_source",
+          "fact_sources": [],
+          "introduced_edge": "",
+          "introduced_phase_id": "p1",
+          "key": "oxygen_regime",
+          "level": "essential",
+          "reason": "value_match:oxygen_regime",
+          "sourced": true,
+          "status": "satisfied",
+          "value_basis": "entity"
+        },
+        {
+          "basis": "essential_claimed_by_source",
+          "fact_sources": [],
+          "introduced_edge": "hyp_7a0f1dc0735cfddce9da",
+          "introduced_phase_id": "p1",
+          "key": "oxygen_regime",
+          "level": "essential",
+          "reason": "value_match:oxygen_regime",
+          "sourced": true,
+          "status": "satisfied",
+          "value_basis": "entity"
+        }
+      ],
+      "preference_notes": [],
+      "requirement_coverage": {
+        "assessed_keys": [
+          "oxygen_regime"
+        ],
+        "conflict_keys": [
+          "oxygen_regime"
+        ],
+        "covered_keys": [],
+        "essential_keys": [
+          "oxygen_regime"
+        ],
+        "satisfied_keys": [],
+        "unknown_keys": []
+      },
+      "schema_version": "ppv1-condition-assessment-3",
+      "scope_narrowed": false,
+      "scope_narrowed_by": [],
+      "unassessed_dimensions": [
+        "biotic_abiotic",
+        "inoculum_source",
+        "light_regime",
+        "phase_bioavailability",
+        "redox_regime_eh",
+        "required_trace_elements_cofactors",
+        "salinity_ionic_strength",
+        "substrate_concentration"
+      ]
+    },
+    "audit": {
+      "admission": [
+        "defer",
+        [
+          "R3:current_scenario_conflict(当前环境相容路线不展开;假设保留,留原因,可展示为需不同条件的备选)"
+        ]
+      ],
+      "audit_id": "audit_0283282a2df188894c32",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:conflict;coverage:oxygen_regime",
+          "refs": [],
+          "status": "violated"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_cdce0df05fefcb37f349"
+    },
+    "current": "compatible",
+    "parent": "compatible",
+    "route": "compatible"
+  },
+  "scenario_switch_old_req_anaerobic": {
+    "assess_conditions": {
+      "assessed_scope": "condition_compatible",
+      "assessment_scope": [
+        "oxygen_regime"
+      ],
+      "declared_scope": [
+        "oxygen_regime"
+      ],
+      "environment_fit": "compatible",
+      "per_requirement": [
+        {
+          "basis": "essential_claimed_by_source",
+          "fact_sources": [],
+          "introduced_edge": "",
+          "introduced_phase_id": "p0",
+          "key": "oxygen_regime",
+          "level": "essential",
+          "reason": "value_match:oxygen_regime",
+          "sourced": true,
+          "status": "satisfied",
+          "value_basis": "entity"
+        },
+        {
+          "basis": "essential_claimed_by_source",
+          "fact_sources": [],
+          "introduced_edge": "",
+          "introduced_phase_id": "p1",
+          "key": "oxygen_regime",
+          "level": "essential",
+          "reason": "value_match:oxygen_regime",
+          "sourced": true,
+          "status": "satisfied",
+          "value_basis": "entity"
+        },
+        {
+          "basis": "essential_claimed_by_source",
+          "fact_sources": [],
+          "introduced_edge": "hyp_7a0f1dc0735cfddce9da",
+          "introduced_phase_id": "p1",
+          "key": "oxygen_regime",
+          "level": "essential",
+          "reason": "value_match:oxygen_regime",
+          "sourced": true,
+          "status": "satisfied",
+          "value_basis": "entity"
+        }
+      ],
+      "preference_notes": [],
+      "requirement_coverage": {
+        "assessed_keys": [
+          "oxygen_regime"
+        ],
+        "conflict_keys": [],
+        "covered_keys": [
+          "oxygen_regime"
+        ],
+        "essential_keys": [
+          "oxygen_regime"
+        ],
+        "satisfied_keys": [
+          "oxygen_regime"
+        ],
+        "unknown_keys": []
+      },
+      "schema_version": "ppv1-condition-assessment-3",
+      "scope_narrowed": false,
+      "scope_narrowed_by": [],
+      "unassessed_dimensions": [
+        "biotic_abiotic",
+        "inoculum_source",
+        "light_regime",
+        "phase_bioavailability",
+        "redox_regime_eh",
+        "required_trace_elements_cofactors",
+        "salinity_ionic_strength",
+        "substrate_concentration"
+      ]
+    },
+    "audit": {
+      "admission": [
+        "expand",
+        [
+          "R6:all_verified_no_conflict"
+        ]
+      ],
+      "audit_id": "audit_7690f78fa2cd6ec2b009",
+      "checks": {
+        "condition_check": {
+          "reason": "environment_fit:compatible;coverage:oxygen_regime",
+          "refs": [],
+          "status": "verified"
+        },
+        "element_accounting": {
+          "reason": "elements_balanced_all_hydrogen",
+          "refs": [],
+          "status": "verified"
+        },
+        "finite_rule_diagnostic": {
+          "reason": "not_provided",
+          "refs": [
+            "v43-cons-2"
+          ],
+          "status": "not_applicable"
+        },
+        "formal_charge_accounting": {
+          "reason": "formal_charge_balanced",
+          "refs": [],
+          "status": "verified"
+        },
+        "identity_fidelity": {
+          "reason": "identity_states_consistent",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_completeness": {
+          "reason": "declared_complete_with_known_coefficients",
+          "refs": [],
+          "status": "verified"
+        },
+        "participant_state_refs": {
+          "reason": "all_participant_states_resolved",
+          "refs": [],
+          "status": "verified"
+        },
+        "provenance_dependency": {
+          "reason": "no_unresolved_dependencies",
+          "refs": [],
+          "status": "verified"
+        },
+        "step_scope_check": {
+          "reason": "step_scope:net_reaction",
+          "refs": [],
+          "status": "verified"
+        },
+        "structure_parse_valence": {
+          "reason": "all_participants_parse",
+          "refs": [],
+          "status": "verified"
+        },
+        "transformation_center": {
+          "reason": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "refs": [
+            "synthetic:checker_output"
+          ],
+          "status": "verified"
+        }
+      },
+      "input_hash": "ain_8a9a4a36feb96c126a5e"
+    },
+    "current": "compatible",
+    "parent": "conflict",
+    "route": "conflict"
+  },
+  "scope_actual_fixed": {
+    "assessed_scope": "condition_compatible",
+    "assessment_scope": [
+      "oxygen_regime"
+    ],
+    "declared_scope": [
+      "oxygen_regime",
+      "pH",
+      "temperature_C"
+    ],
+    "environment_fit": "compatible",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "oxygen_regime",
+        "level": "essential",
+        "reason": "value_match:oxygen_regime",
+        "sourced": true,
+        "status": "satisfied",
+        "value_basis": "entity"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "assessed_keys": [
+        "oxygen_regime"
+      ],
+      "conflict_keys": [],
+      "covered_keys": [
+        "oxygen_regime"
+      ],
+      "essential_keys": [
+        "oxygen_regime"
+      ],
+      "satisfied_keys": [
+        "oxygen_regime"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-3",
+    "scope_narrowed": false,
+    "scope_narrowed_by": [],
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "scope_narrowing_does_not_hide_unknown": {
+    "assessed_scope": "possible",
+    "assessment_scope": [
+      "oxygen_regime",
+      "pH"
+    ],
+    "declared_scope": [
+      "oxygen_regime"
+    ],
+    "environment_fit": "unknown",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "oxygen_regime",
+        "level": "essential",
+        "reason": "value_match:oxygen_regime",
+        "sourced": true,
+        "status": "satisfied",
+        "value_basis": "entity"
+      },
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "pH",
+        "level": "essential",
+        "reason": "no_applicable_fact:pH",
+        "sourced": true,
+        "status": "unknown",
+        "value_basis": "range"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "assessed_keys": [
+        "oxygen_regime",
+        "pH"
+      ],
+      "conflict_keys": [],
+      "covered_keys": [
+        "oxygen_regime"
+      ],
+      "essential_keys": [
+        "oxygen_regime",
+        "pH"
+      ],
+      "satisfied_keys": [
+        "oxygen_regime"
+      ],
+      "unknown_keys": [
+        "pH"
+      ]
+    },
+    "schema_version": "ppv1-condition-assessment-3",
+    "scope_narrowed": true,
+    "scope_narrowed_by": [
+      "pH"
+    ],
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "source_temperature_unit_unknown": {
+    "assessed_scope": "condition_compatible",
+    "assessment_scope": [
+      "temperature_C"
+    ],
+    "declared_scope": [
+      "temperature_C"
+    ],
+    "environment_fit": "compatible",
+    "per_requirement": [
+      {
+        "basis": "essential_claimed_by_source",
+        "fact_sources": [
+          "src:unit_not_reported"
+        ],
+        "introduced_edge": "",
+        "introduced_phase_id": "",
+        "key": "temperature_C",
+        "level": "essential",
+        "reason": "within_range:temperature_C",
+        "sourced": true,
+        "status": "satisfied",
+        "value_basis": "range"
+      }
+    ],
+    "preference_notes": [],
+    "requirement_coverage": {
+      "assessed_keys": [
+        "temperature_C"
+      ],
+      "conflict_keys": [],
+      "covered_keys": [
+        "temperature_C"
+      ],
+      "essential_keys": [
+        "temperature_C"
+      ],
+      "satisfied_keys": [
+        "temperature_C"
+      ],
+      "unknown_keys": []
+    },
+    "schema_version": "ppv1-condition-assessment-3",
+    "scope_narrowed": false,
+    "scope_narrowed_by": [],
+    "unassessed_dimensions": [
+      "biotic_abiotic",
+      "inoculum_source",
+      "light_regime",
+      "phase_bioavailability",
+      "redox_regime_eh",
+      "required_trace_elements_cofactors",
+      "salinity_ionic_strength",
+      "substrate_concentration"
+    ]
+  },
+  "startup_evidence_control": {
+    "cycles": [
+      [
+        "A",
+        "B",
+        "C"
+      ]
+    ],
+    "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/关系支持不解决初始供给,未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;下游命中不自动解决上游依赖",
+    "unresolved_initial_supply": [],
+    "unsupported_relation_cycles": []
+  }
+}

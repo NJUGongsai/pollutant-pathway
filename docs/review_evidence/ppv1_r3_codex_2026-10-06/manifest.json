@@ -1,0 +1,93 @@
+{
+  "reviewed_head": "af14fb2bb66e8afbbbbecd38722a9cacbd0699c3",
+  "date": "2026-10-06",
+  "python_version": "3.11.16",
+  "rdkit_version": "2026.03.6",
+  "independent_ppv1_tests": {
+    "passed": 226,
+    "skipped": 0
+  },
+  "probe_record_counts": {
+    "storage_probe.output.jsonl": 29,
+    "chemistry_probe.output.jsonl": 40,
+    "conditions_probe.results.json": 36
+  },
+  "artifacts": {
+    "README.md": {
+      "sha256": "356f9c3e3854ad1e40c09b5abef227dc0a3a99dde89a4b04fa23f59de30062da",
+      "bytes": 4204
+    },
+    "admission_binding_probe.json": {
+      "sha256": "8ea07151875086b49348c65526890c0150fb73dd915632b8e76857cb9d16ae17",
+      "bytes": 16005
+    },
+    "admission_binding_probe.py": {
+      "sha256": "1893fb33da292af0e387981e4eabfd40cacf8d7ad2849e6da7f74f54d5c9ce8a",
+      "bytes": 3847
+    },
+    "chemistry_probe.output.jsonl": {
+      "sha256": "cb414f5cf360933ec82a05ee8f92ddaf82c62daa9412b5167526798796e0d9f9",
+      "bytes": 62145
+    },
+    "chemistry_probe.py": {
+      "sha256": "c800eb45c4f814dcdefc7e4248bf28931770444123a3299d8ec2e16e3d5efff6",
+      "bytes": 15787
+    },
+    "conditions_probe.py": {
+      "sha256": "12974aac551eced47240185501586ba272467bbac97fda8ef522d04f02880794",
+      "bytes": 13868
+    },
+    "conditions_probe.results.json": {
+      "sha256": "0f3162a0044d40280db868e755f18804844ea3736083ba82d4288e17039f024d",
+      "bytes": 65045
+    },
+    "pytest_output.txt": {
+      "sha256": "e91c9aa40f4af4f74882745ccd47c7fdc3f788fe61582f98dcd0a26bc3692f8b",
+      "bytes": 340
+    },
+    "storage_probe.output.jsonl": {
+      "sha256": "ab24356654f9cb97a1483a46e36f67e97ea84ec798ee93efa2c3ae6a75515ff0",
+      "bytes": 48108
+    },
+    "storage_probe.py": {
+      "sha256": "cea141d474c8c622a67b6f4166cc7e128241e98b2985cb354ad86a7957cc0063",
+      "bytes": 15160
+    }
+  },
+  "report": {
+    "path": "/Volumes/CC/Enzyme_Agent/dependingv43/docs/POLLUTANT_PATHWAY_S0_S2_CODEX_REVIEW_R3_2026-10-06.md",
+    "sha256": "f38a4e062c8d2c0463ca08e957af515470503ffa5b671303669bc247ab1ee28f",
+    "bytes": 34960
+  },
+  "review_inputs": {
+    "/Volumes/CC/Enzyme_Agent/dependingv43/AGENTS.md": "cb01f5f7f346157699fcebf3a74abe1aff2880b913d8bb792b334b12a879ed51",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/docs/POLLUTANT_PATHWAY_ARCHITECTURE_UPGRADE_SPEC_2026-10-05.md": "6ac66fe27921ee995081854119b00642c2d6d965484b4589ca27f600b9b2ac24",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/docs/POLLUTANT_PATHWAY_S0_S2_CODEX_REVIEW_R2_2026-10-06.md": "8da944eb0e70f5984b5dd5c145781e325fe4aec2b2282cb593f542af55108c6e",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/docs/POLLUTANT_PATHWAY_S0_S2_REWORK_DELIVERY_R3_2026-10-06.md": "ec253627b12e9d9368fcfbb452bb7e34b1d92aba2d05bb42fdec12e0822d4203",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/docs/mimo_ppv1_chem_review_request.md": "bb1591a8b633b95c1464f96495900d6340c55b4f2c2fdb0a839b5c65a59c638a",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/docs/mimo_ppv1_chem_review_response_r3.md": "f500d59eee93e72c4d7c8fecb3a6c13ec909d514ea6ba4b8d9d1430f19873dfb"
+  },
+  "reviewed_sources_and_tests": {
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/__init__.py": "739c94405fcc7363e41546d7ff7b44d53778abb38295b2b0a70d8779420f2a02",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/audit.py": "df382a935dcacfd52e8987a1143c8bc13b1f8937646a807cd597a3560fd601b1",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/chemstate.py": "9f1803e9b15be6139827037a20f063481bf0f63339ce59c4ae36e7f701b04a11",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/events.py": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/hypothesis.py": "da17eab342117b58aaa2c51b5f24792f5d9c1ef9b84f0846d59763d9030901ef",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/legacy_reader.py": "c012cafe5405f124fea0c0c471714e767818aed6febdf37c69169807ff76c46f",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/path_context.py": "66267fbf237ebd18b5a4427eaa03c43ae8eeb51e20be3ce92f6742a958a821c9",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/pool_audit.py": "89d84f0b3d97aa3d20174887c29cc04a4c3f4792844ac8dae7e1337e81ff15f5",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/profile.py": "0d1a1b029f0d17c989c8ffb228c7ea8fdfada4a1220421d0866fba4076aa4cd3",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/provenance.py": "d8668c3fadd1b37e2eb131479ff0b5778f86eed8c9e49c458fb30d7561f3afbf",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/store.py": "7208930c1d8696d90a5eda71412bc4466041b3b20dfa3f881cbbbd27816fb28a",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/pollutant/substrate_profile.py": "718fb34b8fbc34919272cf64c7c740ce6dda00f18b014d2c90be7873506cce32",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/services/atom_tool.py": "b20092dcf4d651a59a644ab7a8ba90aa83036958877918d3bd131901ec996f27",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/src/pathway_v43/workflow/runner.py": "ec7889c59a883ca4230a54e618a947d71ab68fcc8c7fc9a191f2e9b0fcba96f0",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/tests/test_ppv1_domain.py": "c8a46844c6baaa5192c598fc475a352d38f77ace1751c9be836b38eaeb9d3488",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/tests/test_ppv1_profile.py": "ab791441e29b9c401d61fc76d35bca95f263df896a3ff94c54e3d299232af322",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/tests/test_ppv1_r2_chem.py": "737a22028e1b3866a5a43d842d66c1426de4ad8c386b6bba732e8b4a1b815f88",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/tests/test_ppv1_r2_conditions.py": "be5a194b3eb20059f37f19ae723710ffc55f9d33e21c127e6e401bef0eedfb68",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/tests/test_ppv1_r2_storage.py": "be4224eed45e3b732c0da8428b7eb21e3f1bbb2758edf31e934caa51b10d78d9",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/tests/test_ppv1_rework.py": "e3be2f0c9e8d9c083979ba5fbe137c568fd592462cb4666e462effb6f21a2749",
+    "/Volumes/CC/Enzyme_Agent/dependingv43/tests/test_ppv1_s2.py": "79901a045140741d8741556dc1b35254e96381e7bfd7e1168fc82662b0e800c9"
+  }
+}

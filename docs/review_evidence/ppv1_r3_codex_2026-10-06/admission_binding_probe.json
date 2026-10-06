@@ -1,0 +1,487 @@
+{
+  "head": "af14fb2bb66e8afbbbbecd38722a9cacbd0699c3",
+  "actual_execution": {
+    "ok": true,
+    "reasons": [],
+    "product_smiles": "CC=O",
+    "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+    "atom_id_map": {
+      "S_C_1": 0,
+      "S_C_2": 1,
+      "S_O_1": 2
+    },
+    "protocol_version": "v43-editproto-2",
+    "n_edits": 1
+  },
+  "real_diagnostic": {
+    "strict_target_match": true,
+    "legacy_cn_match": true,
+    "reaction_center_match": true,
+    "center_match_basis": "direct",
+    "extra_changes": [],
+    "alignment_ref": "synthetic:ethanol-to-acetaldehyde",
+    "missing_info_reasons": [],
+    "executed_bond_changes": [
+      {
+        "atom1_id": "S_C_2",
+        "atom2_id": "S_O_1",
+        "kind": "order_change",
+        "from_order": "single",
+        "to_order": "double"
+      }
+    ],
+    "declaration_only": [],
+    "declaration_mismatches": [],
+    "equivalence_basis": "",
+    "joint_mapping": {},
+    "net_change_empty": false,
+    "schema_version": "ppv1-donor-diagnostic-3"
+  },
+  "center_evidence": {
+    "checker_version": "ppv1-donor-diagnostic-3",
+    "center_match": true,
+    "declaration_mismatch": false,
+    "center_match_basis": "direct",
+    "evidence_refs": [
+      "synthetic:ethanol-to-acetaldehyde"
+    ]
+  },
+  "disclaimer": "Inputs are synthetic contract fixtures, not biological feasibility claims.",
+  "acetic_acid": {
+    "hypothesis": {
+      "schema_version": "ppv1-hypothesis-3",
+      "hypothesis_id": "hyp_0acc9e174464324415e1",
+      "parent_path_id": "synthetic:root",
+      "substrate_state_ref": "cs_ab1de819ede91df490e6",
+      "participants": [
+        {
+          "state_ref": "cs_ab1de819ede91df490e6",
+          "side": "reactant",
+          "role": "primary_substrate",
+          "coefficient": "1",
+          "coefficient_status": "known",
+          "parallel_contribution": false,
+          "merged_from": [],
+          "entry_id": "pentry_0c81cff0b0cf1fa2a727"
+        },
+        {
+          "state_ref": "cs_a41af84d453ceaadda96",
+          "side": "reactant",
+          "role": "cosubstrate",
+          "coefficient": "1",
+          "coefficient_status": "known",
+          "parallel_contribution": false,
+          "merged_from": [],
+          "entry_id": "pentry_753278939b570d441cc0"
+        },
+        {
+          "state_ref": "cs_b00014bedbaba3c96c5a",
+          "side": "product",
+          "role": "principal_product",
+          "coefficient": "1",
+          "coefficient_status": "known",
+          "parallel_contribution": false,
+          "merged_from": [],
+          "entry_id": "pentry_8032c2b5eb873d997409"
+        },
+        {
+          "state_ref": "cs_c4694f2e93d5c4e7d51f",
+          "side": "product",
+          "role": "coproduct",
+          "coefficient": "1",
+          "coefficient_status": "known",
+          "parallel_contribution": false,
+          "merged_from": [],
+          "entry_id": "pentry_fd6d8f3ebbc489d0b620"
+        }
+      ],
+      "participant_list_status": "declared_complete",
+      "step_scope": "net_reaction",
+      "transformation_ref": "",
+      "transformation_signature_status": "unknown",
+      "step_scope_evidence_refs": [],
+      "provenance_refs": [],
+      "support_group_refs": [],
+      "requirements": [],
+      "assumptions": [],
+      "dependency_refs": [],
+      "audit_ref": "",
+      "model_decision_ref": "",
+      "legacy_relationship_status": "",
+      "ambiguous_participants": false
+    },
+    "audit": {
+      "schema_version": "ppv1-audit-3",
+      "audit_id": "audit_712c9398fa2320833932",
+      "scope": "hypothesis_admission",
+      "input_hash": "ain_fae7374524fe4b63a48b",
+      "checks": [
+        {
+          "name": "structure_parse_valence",
+          "status": "verified",
+          "reason_code": "all_participants_parse",
+          "evidence_refs": [],
+          "coverage": "participants_with_state",
+          "detail": {}
+        },
+        {
+          "name": "participant_state_refs",
+          "status": "verified",
+          "reason_code": "all_participant_states_resolved",
+          "evidence_refs": [],
+          "coverage": "state_ledger_references",
+          "detail": {}
+        },
+        {
+          "name": "identity_fidelity",
+          "status": "verified",
+          "reason_code": "identity_states_consistent",
+          "evidence_refs": [],
+          "coverage": "state_ids",
+          "detail": {
+            "fidelity_axis_notes": []
+          }
+        },
+        {
+          "name": "finite_rule_diagnostic",
+          "status": "not_applicable",
+          "reason_code": "not_provided",
+          "evidence_refs": [
+            "v43-cons-2"
+          ],
+          "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+          "detail": {}
+        },
+        {
+          "name": "participant_completeness",
+          "status": "verified",
+          "reason_code": "declared_complete_with_known_coefficients",
+          "evidence_refs": [],
+          "coverage": "participant_list",
+          "detail": {}
+        },
+        {
+          "name": "element_accounting",
+          "status": "verified",
+          "reason_code": "elements_balanced_all_hydrogen",
+          "evidence_refs": [],
+          "coverage": "full_balance",
+          "detail": {
+            "element_delta": {},
+            "accounting_scope": "full_balance_all_hydrogen",
+            "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+            "omission_pattern_matches": [],
+            "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+          }
+        },
+        {
+          "name": "formal_charge_accounting",
+          "status": "verified",
+          "reason_code": "formal_charge_balanced",
+          "evidence_refs": [],
+          "coverage": "full_balance",
+          "detail": {
+            "charge_delta": "0",
+            "accounting_scope": "full_balance_original_formal_charge"
+          }
+        },
+        {
+          "name": "transformation_center",
+          "status": "verified",
+          "reason_code": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "evidence_refs": [
+            "synthetic:ethanol-to-acetaldehyde"
+          ],
+          "coverage": "mapping_dependent",
+          "detail": {
+            "declared_signature_status": "unknown",
+            "checker_version": "ppv1-donor-diagnostic-3"
+          }
+        },
+        {
+          "name": "step_scope_check",
+          "status": "verified",
+          "reason_code": "step_scope:net_reaction",
+          "evidence_refs": [],
+          "coverage": "step_scope",
+          "detail": {}
+        },
+        {
+          "name": "condition_check",
+          "status": "verified",
+          "reason_code": "environment_fit:compatible;coverage:oxygen_regime",
+          "evidence_refs": [],
+          "coverage": "declared_dimensions",
+          "detail": {
+            "unassessed_dimensions": [
+              "biotic_abiotic",
+              "inoculum_source",
+              "light_regime",
+              "phase_bioavailability",
+              "redox_regime_eh",
+              "required_trace_elements_cofactors",
+              "salinity_ionic_strength",
+              "substrate_concentration"
+            ],
+            "assessment_scope": [
+              "oxygen_regime"
+            ]
+          }
+        },
+        {
+          "name": "provenance_dependency",
+          "status": "verified",
+          "reason_code": "no_unresolved_dependencies",
+          "evidence_refs": [],
+          "coverage": "dependency_set",
+          "detail": {}
+        }
+      ],
+      "legacy_gate_result_ref": "",
+      "participant_accounting_status": "full",
+      "biological_support_status": "unknown",
+      "admission_disposition": "",
+      "admission_policy_ref": "ppv1-admission-3",
+      "admission_reasons": [],
+      "checker_versions": {
+        "audit": "ppv1-audit-3",
+        "chemstate": "ppv1-chemstate-3",
+        "hypothesis": "ppv1-hypothesis-3",
+        "condition_assessment": "ppv1-condition-assessment-3",
+        "donor_diagnostic": "ppv1-donor-diagnostic-3",
+        "legacy_g2_family": "v43-cons-2"
+      }
+    },
+    "admission": [
+      "expand",
+      [
+        "R6:all_verified_no_conflict"
+      ]
+    ]
+  },
+  "unrelated_propene_cyclization": {
+    "hypothesis": {
+      "schema_version": "ppv1-hypothesis-3",
+      "hypothesis_id": "hyp_55814c74d1e33a78bcb7",
+      "parent_path_id": "synthetic:root",
+      "substrate_state_ref": "cs_352be92276f69bf453b9",
+      "participants": [
+        {
+          "state_ref": "cs_352be92276f69bf453b9",
+          "side": "reactant",
+          "role": "primary_substrate",
+          "coefficient": "1",
+          "coefficient_status": "known",
+          "parallel_contribution": false,
+          "merged_from": [],
+          "entry_id": "pentry_2566d2d7d465a2565ce0"
+        },
+        {
+          "state_ref": "cs_3b139ddd2a925eb70d94",
+          "side": "product",
+          "role": "principal_product",
+          "coefficient": "1",
+          "coefficient_status": "known",
+          "parallel_contribution": false,
+          "merged_from": [],
+          "entry_id": "pentry_70899e163cb0d74c198b"
+        }
+      ],
+      "participant_list_status": "declared_complete",
+      "step_scope": "net_reaction",
+      "transformation_ref": "",
+      "transformation_signature_status": "unknown",
+      "step_scope_evidence_refs": [],
+      "provenance_refs": [],
+      "support_group_refs": [],
+      "requirements": [],
+      "assumptions": [],
+      "dependency_refs": [],
+      "audit_ref": "",
+      "model_decision_ref": "",
+      "legacy_relationship_status": "",
+      "ambiguous_participants": false
+    },
+    "audit": {
+      "schema_version": "ppv1-audit-3",
+      "audit_id": "audit_d8193f7b264651cea8c0",
+      "scope": "hypothesis_admission",
+      "input_hash": "ain_f6b73e2e8faf069a9f16",
+      "checks": [
+        {
+          "name": "structure_parse_valence",
+          "status": "verified",
+          "reason_code": "all_participants_parse",
+          "evidence_refs": [],
+          "coverage": "participants_with_state",
+          "detail": {}
+        },
+        {
+          "name": "participant_state_refs",
+          "status": "verified",
+          "reason_code": "all_participant_states_resolved",
+          "evidence_refs": [],
+          "coverage": "state_ledger_references",
+          "detail": {}
+        },
+        {
+          "name": "identity_fidelity",
+          "status": "verified",
+          "reason_code": "identity_states_consistent",
+          "evidence_refs": [],
+          "coverage": "state_ids",
+          "detail": {
+            "fidelity_axis_notes": []
+          }
+        },
+        {
+          "name": "finite_rule_diagnostic",
+          "status": "not_applicable",
+          "reason_code": "not_provided",
+          "evidence_refs": [
+            "v43-cons-2"
+          ],
+          "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+          "detail": {}
+        },
+        {
+          "name": "participant_completeness",
+          "status": "verified",
+          "reason_code": "declared_complete_with_known_coefficients",
+          "evidence_refs": [],
+          "coverage": "participant_list",
+          "detail": {}
+        },
+        {
+          "name": "element_accounting",
+          "status": "verified",
+          "reason_code": "elements_balanced_all_hydrogen",
+          "evidence_refs": [],
+          "coverage": "full_balance",
+          "detail": {
+            "element_delta": {},
+            "accounting_scope": "full_balance_all_hydrogen",
+            "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+            "omission_pattern_matches": [],
+            "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+          }
+        },
+        {
+          "name": "formal_charge_accounting",
+          "status": "verified",
+          "reason_code": "formal_charge_balanced",
+          "evidence_refs": [],
+          "coverage": "full_balance",
+          "detail": {
+            "charge_delta": "0",
+            "accounting_scope": "full_balance_original_formal_charge"
+          }
+        },
+        {
+          "name": "transformation_center",
+          "status": "verified",
+          "reason_code": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=direct)",
+          "evidence_refs": [
+            "synthetic:ethanol-to-acetaldehyde"
+          ],
+          "coverage": "mapping_dependent",
+          "detail": {
+            "declared_signature_status": "unknown",
+            "checker_version": "ppv1-donor-diagnostic-3"
+          }
+        },
+        {
+          "name": "step_scope_check",
+          "status": "verified",
+          "reason_code": "step_scope:net_reaction",
+          "evidence_refs": [],
+          "coverage": "step_scope",
+          "detail": {}
+        },
+        {
+          "name": "condition_check",
+          "status": "verified",
+          "reason_code": "environment_fit:compatible;coverage:oxygen_regime",
+          "evidence_refs": [],
+          "coverage": "declared_dimensions",
+          "detail": {
+            "unassessed_dimensions": [
+              "biotic_abiotic",
+              "inoculum_source",
+              "light_regime",
+              "phase_bioavailability",
+              "redox_regime_eh",
+              "required_trace_elements_cofactors",
+              "salinity_ionic_strength",
+              "substrate_concentration"
+            ],
+            "assessment_scope": [
+              "oxygen_regime"
+            ]
+          }
+        },
+        {
+          "name": "provenance_dependency",
+          "status": "verified",
+          "reason_code": "no_unresolved_dependencies",
+          "evidence_refs": [],
+          "coverage": "dependency_set",
+          "detail": {}
+        }
+      ],
+      "legacy_gate_result_ref": "",
+      "participant_accounting_status": "full",
+      "biological_support_status": "unknown",
+      "admission_disposition": "",
+      "admission_policy_ref": "ppv1-admission-3",
+      "admission_reasons": [],
+      "checker_versions": {
+        "audit": "ppv1-audit-3",
+        "chemstate": "ppv1-chemstate-3",
+        "hypothesis": "ppv1-hypothesis-3",
+        "condition_assessment": "ppv1-condition-assessment-3",
+        "donor_diagnostic": "ppv1-donor-diagnostic-3",
+        "legacy_g2_family": "v43-cons-2"
+      }
+    },
+    "admission": [
+      "expand",
+      [
+        "R6:all_verified_no_conflict"
+      ]
+    ]
+  },
+  "gate_consumption_on": [
+    "retain_conditional",
+    [
+      "R2p:per_product_gate_rejected:some_products_gate_rejected(部分共同产物被活动门禁拒绝:被拒产物保留在事件中、拒因可追溯、不可展开;不删除被拒共同产物凑合法事件):position:0:synthetic:element_gate_rejected"
+    ]
+  ],
+  "gate_consumption_off": [
+    "expand",
+    [
+      "R6:all_verified_no_conflict"
+    ]
+  ],
+  "registered_name_only": {
+    "center_check": [
+      {
+        "name": "transformation_center",
+        "status": "verified",
+        "reason_code": "center_evidence_verified:ppv1-donor-diagnostic-3(basis=)",
+        "evidence_refs": [],
+        "coverage": "mapping_dependent",
+        "detail": {
+          "declared_signature_status": "unknown",
+          "checker_version": "ppv1-donor-diagnostic-3"
+        }
+      }
+    ],
+    "admission": [
+      "expand",
+      [
+        "R6:all_verified_no_conflict"
+      ]
+    ]
+  }
+}
