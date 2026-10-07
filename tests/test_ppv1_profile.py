@@ -43,7 +43,8 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    assert block["schema_version"] == "ppv1-profile-9"
+    # v10(S3a 回修 r2):搜索消费协议闭合(search 契约 -1 → -2)
+    assert block["schema_version"] == "ppv1-profile-10"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),
@@ -61,8 +62,10 @@ def test_ppv1_identity_block_contract_versions() -> None:
         ("pool_order", "ppv1-pool-order-"),
         ("input_preview", "ppv1-input-preview-"),
         ("condition_assessment", "ppv1-condition-assessment-"),
+        ("search", "ppv1-search-"),
     ):
         assert contracts[key].startswith(prefix), key
+    assert contracts["search"] == "ppv1-search-2"  # S3A-01~05 消费协议闭合
     assert contracts["gate_mapper"] == "ppv1-gate-mapper-3"
     assert contracts["legacy_gate_ref"] == "frozen_hit60_gate"
 

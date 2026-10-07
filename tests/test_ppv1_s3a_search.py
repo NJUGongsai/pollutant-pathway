@@ -1,4 +1,4 @@
-"""S3a 持久搜索底座回归(身份/E03/E04/H05/H06/请求;ppv1-search-1)。
+"""S3a 持久搜索底座回归(身份/E03/E04/H05/H06/请求;ppv1-search-2 r2 回修)。
 
 规则级合成夹具(CCO → CC=O);临时 SQLite/artifact,无金标/封存材料。
 覆盖(任务书 §7 矩阵 a 批行):
@@ -46,6 +46,7 @@ from pathway_v43.pollutant.search import (  # noqa: E402
     ACTION_KIND_SCENARIO_TRANSITION,
     ACTION_STATUSES,
     ATTEMPT_STATUS_OPEN,
+    COMMIT_KIND_OUTCOME,
     PROVIDER_KIND_REAL,
     PROVIDER_KIND_SCRIPTED,
     REQUEST_STATUS_REGISTERED,
@@ -402,7 +403,10 @@ def test_budget_ledger_stepwise_recompute(tmp_path: Path) -> None:
         subject_ref="pool-1", action_kind=ACTION_KIND_RETRIEVE,
         policy_version=PV, payload={"task_key": "tk-r"})
     ledger.claim_action(ret["action_id"], worker_id="w1")
-    ledger.complete_action(ret["action_id"], worker_id="w1")
+    # 非事件 outcome 须显式声明(S3A-02:事件类 outcome 不再接受空
+    # event_id;decide/retrieve/transition 的合法完成走 OUTCOME)
+    ledger.complete_action(ret["action_id"], worker_id="w1",
+                            outcome_kind=COMMIT_KIND_OUTCOME)
     s = ledger.budget_snapshot(run)
     assert s["run_level"]["max_total_search_actions"]["used"] == 1
     assert s["scoped"]["max_retrievals_per_parent"]["p1"]["used"] == 1
@@ -413,7 +417,8 @@ def test_budget_ledger_stepwise_recompute(tmp_path: Path) -> None:
         subject_ref="pool-1", action_kind="decide", policy_version=PV,
         payload={"task_key": "tk-d", "frozen_pool_digest": "poolA"})
     ledger.claim_action(dec["action_id"], worker_id="w1")
-    ledger.complete_action(dec["action_id"], worker_id="w1")
+    ledger.complete_action(dec["action_id"], worker_id="w1",
+                            outcome_kind=COMMIT_KIND_OUTCOME)
     s = ledger.budget_snapshot(run)
     assert s["run_level"]["max_total_search_actions"]["used"] == 2
     assert s["run_level"]["max_retrievals_total"]["used"] == 1
@@ -435,7 +440,8 @@ def test_budget_ledger_stepwise_recompute(tmp_path: Path) -> None:
         action_kind=ACTION_KIND_SCENARIO_TRANSITION,
         policy_version=PV, payload={"task_key": "tk-t"})
     ledger.claim_action(tr["action_id"], worker_id="w1")
-    ledger.complete_action(tr["action_id"], worker_id="w1")
+    ledger.complete_action(tr["action_id"], worker_id="w1",
+                            outcome_kind=COMMIT_KIND_OUTCOME)
     s = ledger.budget_snapshot(run)
     assert s["run_level"]["max_scenario_transitions"]["used"] == 1
     assert s["run_level"]["max_total_search_actions"]["used"] == 4
@@ -502,6 +508,7 @@ def test_reopen_cap_and_double_constraint(tmp_path: Path) -> None:
     receipt = ledger.claim_action(out1["action_id"], worker_id="w1")
     first = receipt["attempt_refs"][0]
     ledger.complete_action(out1["action_id"], worker_id="w1",
+                            outcome_kind=COMMIT_KIND_OUTCOME,
                             attempt_status="failed")
     # 重开 1:合法(占 attempts+reopen 双重额度)
     out2 = enqueue_expand(ledger, run, parent="p1", context="ctx1",
@@ -511,6 +518,7 @@ def test_reopen_cap_and_double_constraint(tmp_path: Path) -> None:
                                    reopen_of=first)
     assert receipt2["claimed"]
     ledger.complete_action(out2["action_id"], worker_id="w1",
+                           outcome_kind=COMMIT_KIND_OUTCOME,
                            attempt_status="failed")
     # 重开 2:超 max_reopens_per_hypothesis=1
     out3 = enqueue_expand(ledger, run, parent="p1", context="ctx1",
@@ -943,12 +951,15 @@ def test_h06_stale_worker_cannot_submit_or_overwrite(tmp_path) -> None:
                                    **ev_args)
     assert e1.value.detail["kind"] == "owner_mismatch"
     with pytest.raises(SearchClaimError) as e2:
-        ledger.complete_action(out["action_id"], worker_id="w2")
+        ledger.complete_action(out["action_id"], worker_id="w2",
+                               outcome_kind=COMMIT_KIND_OUTCOME)
     assert e2.value.detail["kind"] == "owner_mismatch"
     # 认领者完成后,陈晚到的 w2 不能覆盖 outcome(幂等 unchanged)
     ledger.complete_action(out["action_id"], worker_id="w-owner",
+                           outcome_kind=COMMIT_KIND_OUTCOME,
                            outcome_ref="OUT-1")
     late = ledger.complete_action(out["action_id"], worker_id="w2",
+                                  outcome_kind=COMMIT_KIND_OUTCOME,
                                   outcome_ref="EVIL")
     assert late["completed"] is False and late["unchanged"]
     assert ledger.action(out["action_id"])["outcome_ref"] == "OUT-1"

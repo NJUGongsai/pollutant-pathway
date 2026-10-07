@@ -1,0 +1,63 @@
+.....................................................F......F........... [ 88%]
+.........                                                                [100%]
+=================================== FAILURES ===================================
+___________________ test_h08_commit_record_tampered_event_id ___________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-245/test_h08_commit_record_tampere0')
+
+    def test_h08_commit_record_tampered_event_id(tmp_path: Path) -> None:
+        """H08 负控 2:提交记录的 event_id 被改指向不存在的事件 ⇒ 恢复
+        失败保全(引用缺失),不猜数据。"""
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, "h8b")
+        _, _, hyp, _, _ = make_fixture("h8b", "p1", "k1", "ctx1")
+        out = enqueue(ledger, "h8b", hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        _, _, _, event, ev_args = make_fixture("h8b", "p1", "k1", "ctx1")
+        commit_search_event(
+            ledger, out["action_id"], event, worker_id="w1",
+            attempt_id=receipt["attempt_refs"][0], task_key="tk1", **ev_args)
+        ledger.conn.execute(
+            "UPDATE search_commit_records SET event_id = 'ev-missing' WHERE"
+            " action_id = ?", (out["action_id"],))
+        ledger.conn.commit()
+        ledger.store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, "h8b")
+        with pytest.raises(SearchIntegrityError) as ei:
+            ledger2.recover_run("h8b")
+        # S3A-02 回修:记录哈希复算先行 —— 改 event_id 同时破坏记录哈希,
+        # 同案在哈希层先拒(拒绝保持,kind 从 event_missing 收紧为
+        # hash_mismatch;纯删事件行的 h8a 案仍报 event_missing)
+>       assert ei.value.detail["kind"] == "commit_record_hash_mismatch"
+E       AssertionError: assert 'commit_record_event_missing' == 'commit_record_hash_mismatch'
+E         
+E         - commit_record_hash_mismatch
+E         + commit_record_event_missing
+
+tests/test_ppv1_s3a_recover.py:470: AssertionError
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v10(S3a 回修 r2):搜索消费协议闭合(search 契约 -1 → -2)
+>       assert block["schema_version"] == "ppv1-profile-10"
+E       AssertionError: assert 'ppv1-profile-9' == 'ppv1-profile-10'
+E         
+E         - ppv1-profile-10
+E         ?              ^^
+E         + ppv1-profile-9
+E         ?              ^
+
+tests/test_ppv1_profile.py:47: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s3a_r2_baseline/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_s3a_recover.py::test_h08_commit_record_tampered_event_id
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions
+2 failed, 79 passed, 1 warning in 3.04s
+exit=1

@@ -1,4 +1,4 @@
-"""S3a 崩溃恢复回归(四崩溃边界/H07/H08/H06 双进程;ppv1-search-1)。
+"""S3a 崩溃恢复回归(四崩溃边界/H07/H08/H06 双进程;ppv1-search-2 r2 回修)。
 
 全部用**独立子进程硬杀**(os._exit,不做连接清理)模拟真实进程崩溃,
 父测试随后用全新 store/ledger 连接跑恢复协议 —— 不以“同进程内存异常
@@ -464,7 +464,10 @@ def test_h08_commit_record_tampered_event_id(tmp_path: Path) -> None:
     ledger2 = fresh_ledger(db, runs_root, "h8b")
     with pytest.raises(SearchIntegrityError) as ei:
         ledger2.recover_run("h8b")
-    assert ei.value.detail["kind"] == "commit_record_event_missing"
+    # S3A-02 回修:记录哈希复算先行 —— 改 event_id 同时破坏记录哈希,
+    # 同案在哈希层先拒(拒绝保持,kind 从 event_missing 收紧为
+    # hash_mismatch;纯删事件行的 h8a 案仍报 event_missing)
+    assert ei.value.detail["kind"] == "commit_record_hash_mismatch"
     ledger2.store.close()
 
 
