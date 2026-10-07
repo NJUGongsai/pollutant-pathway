@@ -1,0 +1,30 @@
+{
+  "title": "r4 有限探针(复审 R3 反例矩阵同构复跑,前后完整表)",
+  "argv": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "s3a_r4_probe.py",
+    "/tmp/s3a_r4_probe2_1791398722/out"
+  ],
+  "cwd": "/tmp/s3a_r4_probe2_1791398722",
+  "exit_code": 0,
+  "elapsed_wall_seconds": 0.974,
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "source": "完整 src/tests/pyproject 复制到仓外 tmp /tmp/s3a_r4_probe2_1791398722/repo(脚本同目录复制,不在永久证据原地执行;源为最终提交字节)",
+  "cases": 89,
+  "matrix": {
+    "S3A-02": "9 入口 × {clean,仅删ref,删ref+row} × 3 必要预约 = 63(54 坏 + 9 clean;clean 只测 max_total)",
+    "S3A-03": "6 损坏 × 3 状态口 + legal×3 = 21",
+    "S3A-04": "corrupt-status × 5 入口 = 5"
+  },
+  "result": "89/89 contract_passed;坏案全部结构化拒(kind ∈ {reservation_row_missing, necessary_reservation_ref_missing, search_policy_block_corrupt, request_status_unknown} 或既有 request_not_*;前后表零变化;B3 artifact 保全;recover 对 unknown 状态行披露且不改行",
+  "outputs": [
+    "current/probe_stdout.jsonl(逐案 JSONL)",
+    "current/probe/probe_observations.json(逐案完整前后 14 表)",
+    "current/probe/omitted_databases.json(仓外 tmp 数据库逐案SHA/大小登记,不入永久证据)"
+  ],
+  "note": "stdout/stderr 为执行原始重定向;网络 0、外部模型 0、全部合成输入(CCO→CC=O)"
+}

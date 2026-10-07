@@ -1,0 +1,22 @@
+{
+  "title": "同基线更新的既有测试(profile 副本名 test_ppv1_profile_r4.py)",
+  "argv": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--junitxml=docs/review_evidence/ppv1_s3_impl_2026-10-08/s3a_r4/baseline/updated_existing/junit.xml",
+    "tests/test_ppv1_profile_r4.py"
+  ],
+  "cwd": "/tmp/s3a_r4_baseline_41d0cd5",
+  "exit_code": 1,
+  "elapsed_wall_seconds": 0.7,
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "note": "stdout/stderr 为执行原始重定向;junit 为执行现场产出;pytest cache 禁用(-p no:cacheprovider、-B);结果数字以 stdout/junit 为准;1 failed(版本字面量 -12/-4,唯一改动)/ 22 passed"
+}

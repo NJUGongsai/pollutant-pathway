@@ -1,0 +1,577 @@
+{
+  "title": "父 41d0cd5 同字节 r4 新回归逐案分类",
+  "totals": {
+    "failed": 78,
+    "passed": 12
+  },
+  "categories": {
+    "behavior-integrity-refusal-missing": {
+      "count": 58,
+      "nodes": [
+        "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_attempts_per_hypothesis]",
+        "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_total_search_actions]",
+        "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+        "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_attempts_per_hypothesis]",
+        "test_one_action_budget_chain_total_removal_refused",
+        "test_cache_hit_retrieve_not_forced_necessary",
+        "test_scenario_transition_necessary_reservation",
+        "test_register_same_key_unknown_stored_status_refused"
+      ]
+    },
+    "behavior-recovery-refusal-missing": {
+      "count": 18,
+      "nodes": [
+        "test_request_status_entries_policy_guard[null_limits-sent]",
+        "test_request_status_entries_policy_guard[null_limits-response]",
+        "test_request_status_entries_policy_guard[null_limits-failed]",
+        "test_request_status_entries_policy_guard[missing_version-sent]",
+        "test_request_status_entries_policy_guard[missing_version-response]",
+        "test_request_status_entries_policy_guard[missing_version-failed]",
+        "test_request_status_entries_policy_guard[bool-sent]",
+        "test_request_status_entries_policy_guard[bool-response]",
+        "test_request_status_entries_policy_guard[bool-failed]",
+        "test_request_status_entries_policy_guard[out_of_range-sent]",
+        "test_request_status_entries_policy_guard[out_of_range-response]",
+        "test_request_status_entries_policy_guard[out_of_range-failed]",
+        "test_request_status_entries_policy_guard[unknown_key-sent]",
+        "test_request_status_entries_policy_guard[unknown_key-response]",
+        "test_request_status_entries_policy_guard[unknown_key-failed]",
+        "test_request_status_entries_policy_guard[negative-sent]",
+        "test_request_status_entries_policy_guard[negative-response]",
+        "test_request_status_entries_policy_guard[negative-failed]"
+      ]
+    },
+    "behavior-contract-refusal-missing": {
+      "count": 1,
+      "nodes": [
+        "test_mark_request_failed_unknown_status_refused_and_preserved"
+      ]
+    },
+    "other:": {
+      "count": 1,
+      "nodes": [
+        "test_recover_discloses_unknown_status_requests"
+      ]
+    }
+  },
+  "cases": [
+    {
+      "node": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_total_search_actions]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_one_action_budget_chain_total_removal_refused",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_cache_hit_retrieve_not_forced_necessary",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_scenario_transition_necessary_reservation",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[null_limits-sent]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[null_limits-response]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[null_limits-failed]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[missing_version-sent]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[missing_version-response]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[missing_version-failed]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[bool-sent]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[bool-response]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[bool-failed]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[out_of_range-sent]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[out_of_range-response]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[out_of_range-failed]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[unknown_key-sent]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[unknown_key-response]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[unknown_key-failed]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[negative-sent]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[negative-response]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_request_status_entries_policy_guard[negative-failed]",
+      "type": "",
+      "category": "behavior-recovery-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_mark_request_failed_unknown_status_refused_and_preserved",
+      "type": "",
+      "category": "behavior-contract-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchContractError"
+    },
+    {
+      "node": "test_register_same_key_unknown_stored_status_refused",
+      "type": "",
+      "category": "behavior-integrity-refusal-missing",
+      "message_head": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_recover_discloses_unknown_status_requests",
+      "type": "",
+      "category": "other:",
+      "message_head": "KeyError: 'unknown_status_requests'"
+    }
+  ]
+}

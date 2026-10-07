@@ -1,0 +1,34 @@
+{
+  "title": "安全隔离 G01 工程回归(r4:R7 路径白名单 + R8/S3a/r2/r3/r4 输入)",
+  "controller": "docs/review_evidence/ppv1_s3_impl_2026-10-08/s3a_r4/scripts/safe_g01_s3a_r4.py(由 r3 控制器适配,新增 tests/test_ppv1_s3a_rework_r4.py 输入)",
+  "out_root": "/tmp/s3a_r4_g01_run2_1791398728",
+  "copied_repo": "/tmp/s3a_r4_g01_run2_1791398728/repo",
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "exit_code": 0,
+  "elapsed_wall_seconds": 198.034,
+  "pytest_summary": "1389 passed / 8 skipped / 17 deselected (196.85s)",
+  "inputs": 277,
+  "inputs_note": "277 = R7 清单 216 + 普通 dependingv3/src 42 + 本仓普通资产镜像 18 + r4 新增 tests/test_ppv1_s3a_rework_r4.py(r3 为 276;fresh SHA256 于 input_sha256.json,实际 HEAD 与脏状态记于 preparation.json)",
+  "boundary": "不复制 evaluation/金标/题面/封存 run/v4;空 BBD_DATA_ROOT;PYTHONPATH/V3_CODE_ROOT/V43_ASSET_ROOT/DEPENDING_V3_ROOT 固定隔离树;-m 'not slow' + 显式排除 1 export 用例;pytest cache/字节码禁用;输出全部在仓外新 tmp,证据只拷回 JSON/日志/JUnit",
+  "skips_8": {
+    "real_evaluation_dependency": [
+      "tests/test_batch_runner.py::test_input_manifest_whitelist_from_frozen_v3",
+      "tests/test_score_report.py::110",
+      "tests/test_score_report.py:163",
+      "tests/test_score_report.py:172",
+      "tests/test_score_report.py:184"
+    ],
+    "v4_parser_source_missing": [
+      "tests/test_analog_assets.py:95"
+    ],
+    "phase_d_provenance_missing": [
+      "tests/test_analog_v2_corpus.py:62",
+      "tests/test_analog_v2_corpus.py:153"
+    ]
+  },
+  "deselected_17": "16 slow + 1 显式排除,逐 nodeid 见 deselected_nodeids.txt(junit 不含未执行项,由同树 pytest -m slow --collect-only 差集提取)",
+  "engineering_only": true,
+  "no_gold_benchmark_sealed_v4": true,
+  "no_real_provider_network": true,
+  "history_not_mixed": "R7 1110、R8 1138、S3a 首批 1196、r2 1250、r3 1299 各自单列;本审 1389 = r3 1299 + 90 新 r4 测试"
+}

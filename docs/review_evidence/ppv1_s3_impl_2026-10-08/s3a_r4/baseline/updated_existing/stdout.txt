@@ -1,0 +1,21 @@
+..F....................                                                  [100%]
+=================================== FAILURES ===================================
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v12(S3a 回修 r4):必要预约集合完整性/请求状态口策略/生命周期
+        # 来源闭合(search 契约 -3 → -4)
+>       assert block["schema_version"] == "ppv1-profile-12"
+E       AssertionError: assert 'ppv1-profile-11' == 'ppv1-profile-12'
+E         
+E         - ppv1-profile-12
+E         ?               ^
+E         + ppv1-profile-11
+E         ?               ^
+
+tests/test_ppv1_profile_r4.py:48: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_profile_r4.py::test_ppv1_identity_block_contract_versions
+1 failed, 22 passed in 0.40s

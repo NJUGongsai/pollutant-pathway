@@ -1,0 +1,22 @@
+{
+  "title": "当前源 r4 新回归单独执行(90 项)",
+  "argv": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--junitxml=docs/review_evidence/ppv1_s3_impl_2026-10-08/s3a_r4/current/rework_r4/junit.xml",
+    "tests/test_ppv1_s3a_rework_r4.py"
+  ],
+  "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "exit_code": 0,
+  "elapsed_wall_seconds": 1.405,
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "note": "stdout/stderr 为执行原始重定向;junit 为执行现场产出;pytest cache 禁用(-p no:cacheprovider、-B);结果数字以 stdout/junit 为准;90 passed(54 必要集合坏分案 + 9 入口正控 + 上限1双链+ cache_hit 正控/坏案 + transition + 18 状态口策略 + 合法控制 + S3A-04 生命周期)"
+}

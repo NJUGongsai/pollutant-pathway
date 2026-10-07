@@ -1,0 +1,22 @@
+{
+  "title": "直接父基线 41d0cd5 detached worktree 同字节 r4 新回归",
+  "argv": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--junitxml=docs/review_evidence/ppv1_s3_impl_2026-10-08/s3a_r4/baseline/rework_r4/junit.xml",
+    "tests/test_ppv1_s3a_rework_r4.py"
+  ],
+  "cwd": "/tmp/s3a_r4_baseline_41d0cd5",
+  "exit_code": 1,
+  "elapsed_wall_seconds": 1.855,
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "note": "stdout/stderr 为执行原始重定向;junit 为执行现场产出;pytest cache 禁用(-p no:cacheprovider、-B);结果数字以 stdout/junit 为准;78 failed / 12 passed / 0 collection error;逐案分类见 failure_classification.json(58 未发生 SearchIntegrityError + 18 未发生 SearchRecoveryError + 1 未发生 SearchContractError + 1 形态缺报告键;12 绿 = 9 入口正控 + sent/response 未知状态已拒保持 + 2 合法生命周期控制);未改测试适配父"
+}

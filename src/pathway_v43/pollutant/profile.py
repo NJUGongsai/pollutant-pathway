@@ -95,8 +95,23 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # verify_event_attachment_content 共享判据入口,复用既有首提校验,
 # 不另造判据)。profile 仍未放行执行流,无历史产物需要迁移;v10
 # 身份载荷按既有门拒绝。
+# v12(2026-10-08 S3a 回修 r4,Codex S3a 复审 R3 残余三组
+# S3A-02/03/04):必要集合/状态口策略/生命周期来源闭合升版 —— search
+# 契约 ppv1-search-3 → ppv1-search-4(_verify_action_references 先按
+# claim/attempt 现有创建规则同源核必要预约集合完整性,必要行被删或
+# 引用清单缺项即使剩余清单非空也先结构化拒,覆盖 first complete/B4/
+# B3 事件提交前/B1/defer/done 四口,预约 ID 派生抽出 _reservation_id
+# 与 _reserve 单一来源;record_request_sent/response/failed 在新
+# status 写入之前消费同一严格冻结块校验,null/缺版本/坏值状态口先
+# 结构化拒且无成功状态变化;mark_request_failed 正面限定 registered/
+# sent 合法来源,枚举外未知来源结构化拒并保全不静默洗成 failed,
+# register 同键复用核存储状态枚举,recover 报告结构化披露状态枚举外
+# 请求行)。search-limits 保持 -3(键/默认/范围/单位/计数语义未动,
+# 状态口接守卫是消费语义,按 r2/r3 先例随 search 契约登记);store
+# 保持 -9(表结构与 writer 行为未改,核验全部复用既有函数)。profile
+# 仍未放行执行流,无历史产物需要迁移;v11 身份载荷按既有门拒绝。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-11"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-12"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -135,7 +150,17 @@ PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
 # 装配块;读取/恢复/预算/认领严格核必需完整键/版本,不补默认);
 # 请求已有 row 复用对照 stored 与 incoming 全部身份内容,状态口核
 # run 绑定与 expand 必要 attempt,恢复 pending 逐行同源守卫。
-PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-3"
+# v4(S3a 回修 r4,2026-10-08,Codex S3a 复审 R3 残余 S3A-02/03/04):
+# 必要集合完整性 + 请求状态口策略守卫 + 生命周期来源闭合 ——
+# _verify_action_references 先按 claim/attempt 现有创建规则同源核
+# 必要预约集合(总 action 恒有/transition/expand alternatives+
+# attempts+reopens/retrieve 行存在即必须被引用,cache_hit 合法不强
+# 加),缺项即使剩余清单非空也先结构化拒,预约 ID 派生与 _reserve
+# 单一来源;请求 sent/response/failed 状态口在新 status 写入前消费
+# 同一严格冻结块校验(不补默认、无成功状态变化);mark_request_
+# failed 正面限定 registered/sent 来源,未知来源结构化拒并保全,
+# register 同键复用核存储状态枚举,recover 报告结构化披露枚举外行。
+PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-4"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)
 LEGACY_G2_FAMILY_REF = "v43-cons-2"            # 有限规则诊断复用族(conservation.py)

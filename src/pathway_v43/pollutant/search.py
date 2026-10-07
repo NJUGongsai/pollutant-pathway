@@ -69,20 +69,51 @@ artifact 校验、低层提交恢复协议、停止原因、四崩溃/H05–H08/
   坏/失效引用结构化披露,不伪装普通合法 pending、不新状态成功
   写入/不猜补。
 
-入口矩阵(每处消费的对象/身份/版本/权威及校验来源;回修 r3 更新):
+**S3a 回修 r4(2026-10-08,Codex S3a 复审 R3 残余三组 S3A-02/03/04;
+契约 ppv1-search-3 → -4)**:本版把三组残余 P1 的消费缺口闭合(见各
+方法 docstring 的"S3A-0x r4"标注):
+
+- S3A-02 必要预约集合完整性:`_verify_action_references`(逐行
+  守卫保留)补充必要集合完整性核验 —— 按 claim/`_create_attempt`
+  现有创建规则同源派生本 action 应具有的必要预约集合(总 action
+  恒有;transition 另有 transitions;expand 按 attempt 引用集有
+  alternatives/attempts,reopen_of 非空另有 reopens;retrieve 的
+  两条检索预约按"行存在 ⇒ 必须被引用"核验 —— cache_hit 合法
+  认领不落检索预约行,不强加),预约 ID 派生抽出 `_reservation_id`
+  单一来源与 `_reserve` 共用;必要行被删(reservation_row_
+  missing)或必要行存在但冻结引用清单缺项(necessary_reservation_
+  ref_missing)即使剩余清单非空也先结构化拒 —— 覆盖 first
+  complete/B4/B3 事件提交前/B1/defer/done 四口(claim/submit/
+  complete/recover),坏 action 零新 commit/consume/成功确认、B3
+  零 event 新增、不猜补缺行;
+- S3A-03 请求状态口接冻结策略守卫:record_request_sent/response/
+  mark_request_failed 在新 status 写入之前消费同一严格冻结块校验
+  (`_limits`/validate_frozen_search_limits)—— 存储 search_limits
+  为 null/缺 version/四坏值 ⇒ 状态口先结构化拒
+  (search_policy_block_corrupt)且无成功状态变化,与预算/认领/恢复
+  同一守卫来源(不补默认、不依赖 expected policy 或调用方预验);
+- S3A-04 非法来源状态不能改记合法 failed:mark_request_failed 正面
+  限定只有 registered/sent 是合法来源(枚举外未知来源结构化拒
+  request_status_unknown 并保全,不静默洗成合法终态;合法 closed
+  状态照旧 request_not_failable);register 同键复用对存储状态核
+  枚举(坏行按完整性失败拒,不把坏状态当合法幂等 unchanged 返回);
+  recover_run 对 run 范围状态枚举外的请求行结构化披露
+  (unknown_status_requests,不改状态、不猜补)。
+
+入口矩阵(每处消费的对象/身份/版本/权威及校验来源;回修 r4 更新):
 
 | # | 入口 | 消费 | 校验/事务 |
 | 1 | register_search_run | profile 身份块(search_limits) | 十键同源校验(profile.validate_search_limits;四非法块零写入拒);**落账完整装配块**;幂等/异块冲突按装配后块比较(S3A-03 r3) |
 | 2 | enqueue_action | 任务身份输入(run/父/context/subject/kind/revision/policy) | 幂等;同键异内容冲突;深度/宽度结构性拒绝;_limits 读取**严格冻结块校验**(S3A-03 r3:不补默认) |
-| 3 | claim_action | 冻结 action 行 + 预算账 | BEGIN IMMEDIATE;all-or-nothing 预约;done 复用前经完整提交权威+记录+引用核验(S3A-02) |
+| 3 | claim_action | 冻结 action 行 + 预算账 | BEGIN IMMEDIATE;all-or-nothing 预约;done 复用前经完整提交权威+记录+**必要集合+行级引用**核验(S3A-02/r4) |
 | 4 | create/continue attempt | hypothesis 语义尝试 | 恢复同 attempt 不再扣;新备选/重开换 attempt |
-| 5 | register_model_request | 请求载荷+执行引用 | 同键异身份内容冲突(S3A-04;**已有 row 复用对照 stored/incoming 全部身份列**,r3);action 须 claimed、attempt 归属且 open;真实 provider 预登记即时占额 |
-| 6 | record_request_sent/response/failed | 请求状态迁移 | 状态机 + 执行引用闭合(**run 绑定 + expand 必要 attempt**,r3;已释放执行权不可继续发送/记响应) |
-| 7 | submit_action_event | PathwayEvent(冻结身份) | 沿 action 冻结 run/parent/hypothesis/context;经公共 store.submit_event(不绕过首消费验证);done 复用前经提交权威+引用核验,**返回真实已完成 event 或明确冲突**(r3) |
+| 5 | register_model_request | 请求载荷+执行引用 | 同键异身份内容冲突(S3A-04;已有 row 复用对照 stored/incoming 全部身份列,r3;**存储状态枚举核**,r4);action 须 claimed、attempt 归属且 open;真实 provider 预登记即时占额 |
+| 6 | record_request_sent/response/failed | 请求状态迁移 | 状态机(**失败口正面限定 registered/sent 来源 + 未知状态结构化拒**,r4)+ 执行引用闭合(run 绑定 + expand 必要 attempt,r3)+ **新 status 写入前严格冻结块校验**(r4) |
+| 7 | submit_action_event | PathwayEvent(冻结身份) | 沿 action 冻结 run/parent/hypothesis/context;经公共 store.submit_event(不绕过首消费验证);done 复用前经提交权威+记录+引用核验,**返回真实已完成 event 或明确冲突**(r3) |
 | 8 | write_commit_bundle | 事件+投影+计划+states+假设 | 事件身份冻结到 action + task_key 绑定(S3A-01);不可覆盖 |
-| 9 | complete_action | 认领所有权+事件/引用权威 | 事件类 outcome:非空/存在/身份冻结/完整账权威+**附随内容同源核验**;attempt/预约**行级内容**核验(r3);已有 commit 复用同样核记录归属/kind/适用引用+完整引用(r3);幂等复用同样核验(S3A-02) |
-| 10 | defer_action | 认领所有权+未执行事实 | 先核未执行(事件/请求/attempt 执行证据 ⇒ 拒);引用行**行级内容**核验(r3);合法未执行释放预约、abandon attempt、registered 请求转 abandoned(S3A-03) |
-| 11 | recover_run | 持久权威记录 | **先严格核冻结策略块**(r3);B4/done 经 complete/_verify_commit_event 完整权威+记录+引用;B3 经 bundle 身份+**事件提交前引用前置核验**+公共 writer;B1 核引用行;pending 请求逐行同源守卫(r3);损坏保全失败(H07/H08) |
+| 9 | complete_action | 认领所有权+事件/引用权威 | 事件类 outcome:非空/存在/身份冻结/完整账权威+附随内容同源核验;attempt/预约**必要集合完整性(r4)+行级内容**核验(r3);已有 commit 复用同样核记录归属/kind/适用引用+完整引用(r3);幂等复用同样核验(S3A-02) |
+| 10 | defer_action | 认领所有权+未执行事实 | 先核未执行(事件/请求/attempt 执行证据 ⇒ 拒);引用行**必要集合完整性(r4)+行级内容**核验(r3);合法未执行释放预约、abandon attempt、registered 请求转 abandoned(S3A-03) |
+| 11 | recover_run | 持久权威记录 | **先严格核冻结策略块**(r3);B4/done 经 complete/_verify_commit_event 完整权威+记录+引用;B3 经 bundle 身份+**事件提交前必要集合+引用前置核验**(r4)+公共 writer;B1 核引用行;pending 请求逐行同源守卫(r3)+**状态枚举外行结构化披露**(r4);损坏保全失败(H07/H08) |
 | 12 | budget_snapshot / stop_report | 持久记录派生值 | _limits 严格冻结块校验(r3);内存重置仍从记录复算;stop 披露 claimed/open attempt(S3A-05) |
 
 预算账表(十上限的预约/consume/release 边界;持久行为事实源):
@@ -539,9 +570,18 @@ def read_search_artifact(artifact_store, task_key: str, name: str) -> dict:
 # ---- 预算可用性核算(纯派生;事实源是 budget_reservations 行) ----
 
 
+def _reservation_id(run_id: str, limit_key: str, scope: str,
+                    id_basis: str) -> str:
+    """预约 ID 的确定性派生(**单一来源**:claim/_create_attempt 的
+    _reserve 创建与 S3A-02 r4 的必要集合完整性核验共用同一函数 ——
+    消费侧期望的预约 ID 与创建侧写入的 ID 恒同源,不在核验处另写
+    第二套派生规则)。"""
+    return stable_id("sres", run_id, limit_key, scope, id_basis)
+
+
 def _reservation_units(conn, run_id: str, limit_key: str, scope: str,
-                        *, statuses=(RESERVATION_STATUS_RESERVED,
-                                     RESERVATION_STATUS_CONSUMED)) -> int:
+                       *, statuses=(RESERVATION_STATUS_RESERVED,
+                                    RESERVATION_STATUS_CONSUMED)) -> int:
     rows = conn.execute(
         "SELECT units FROM budget_reservations WHERE run_id = ? AND"
         " limit_key = ? AND scope = ? AND status IN (?, ?)",
@@ -847,9 +887,10 @@ class SearchLedger:
         """确定性预约(幂等):同 id_basis 行存在 ⇒ 复用;额度不足 ⇒
         拒绝。id_basis 是幂等基准 —— action 作用域上限用 action_id,
         主体作用域上限(alternatives/attempts/reopens)用 subject,使
-        同一主体跨 action 不重复扣。"""
-        reservation_id = stable_id("sres", run_id, limit_key, scope,
-                                   id_basis)
+        同一主体跨 action 不重复扣。预约 ID 派生经 `_reservation_id`
+        单一来源(S3A-02 r4:消费侧必要集合核验共用同一派生)。"""
+        reservation_id = _reservation_id(run_id, limit_key, scope,
+                                         id_basis)
         row = self.conn.execute(
             "SELECT status FROM budget_reservations WHERE"
             " reservation_id = ?", (reservation_id,)).fetchone()
@@ -1109,7 +1150,9 @@ class SearchLedger:
           purpose/payload_hash/retry_of,任一不同 ⇒ SearchIdentity
           Conflict 结构化冲突、零写入(同键换 payload/换 purpose/换
           action/存储 hash 被改坏后重注册均拒),不以"键相同"当幂等
-          证书;
+          证书;**S3A-04 r4:存储状态枚举核** —— 已有行的 status 枚举
+          外(记账行损坏)同键复用按完整性失败拒绝、零写入,不把坏
+          状态当合法幂等 unchanged 返回;
         - provider_kind=real ⇒ 即时占 max_real_model_requests 额度
           (失败/超时/悬空均占额,永不释放);额度 0 ⇒ 拒绝登记
           ⇒ 网络发送被阻止(PPV1 不接受"传了模型对象就派生正额度");
@@ -1238,6 +1281,17 @@ class SearchLedger:
                         {"request_id": request_id, "run_id": run_id,
                          "kind": "request_identity_conflict",
                          "conflicts": conflicts})
+                # ---- S3A-04 r4:存储状态枚举核(适用语义明确)—— 同键
+                # 复用不把枚举外坏状态当合法幂等结果返回 unchanged;
+                # 坏行按完整性失败拒绝、保全、零写入 ----
+                if row["status"] not in REQUEST_STATUSES:
+                    raise SearchIntegrityError(
+                        f"请求 {request_id} 存储状态未知:"
+                        f"{row['status']!r}(枚举外 ⇒ 记账行损坏;同键复用"
+                        "不把坏状态当合法幂等返回,保全失败、零写入)",
+                        {"request_id": request_id, "run_id": run_id,
+                         "kind": "request_status_unknown",
+                         "status": row["status"]})
                 self.conn.rollback()
                 return {"registered": False, "unchanged": True,
                         "request_id": request_id,
@@ -1401,7 +1455,12 @@ class SearchLedger:
         """登记 → sent(真实 provider 计 network_request_count=1;
         scripted/fake 恒 0)。已 sent ⇒ 拒绝(不默发第二请求)。
         **S3A-04**:发送前核执行引用(action 仍 claimed、attempt 仍
-        open)——已释放执行权(defer/完成/abandon 后)不可继续发送。"""
+        open)——已释放执行权(defer/完成/abandon 后)不可继续发送。
+        **S3A-03 r4**:新 status 写入之前消费同一严格冻结块校验
+        (`_limits`/validate_frozen_search_limits)—— 存储 search_limits
+        为 null/缺 version/坏值 ⇒ 状态口先结构化拒
+        (search_policy_block_corrupt)且无成功状态变化(与预算/认领/
+        恢复同一守卫来源,不在状态口补默认或另造判据)。"""
         self._begin()
         try:
             row = self.conn.execute(
@@ -1419,6 +1478,7 @@ class SearchLedger:
                      "kind": "request_not_resendable",
                      "status": row["status"]})
             self._verify_request_execution(row, where="record_request_sent")
+            self._limits(row["run_id"])
             network = 1 if row["provider_kind"] == PROVIDER_KIND_REAL else 0
             self.conn.execute(
                 "UPDATE model_requests SET status = ?,"
@@ -1433,7 +1493,10 @@ class SearchLedger:
     def record_request_response(self, request_id: str,
                                 response_ref: str) -> None:
         """sent → responded(记录响应引用;响应缺失由恢复暴露 unknown)。
-        **S3A-04**:响应消费前核执行引用(已释放执行权不可记响应)。"""
+        **S3A-04**:响应消费前核执行引用(已释放执行权不可记响应)。
+        **S3A-03 r4**:新 status 写入之前消费同一严格冻结块校验
+        (`_limits`;null/缺 version/坏值 ⇒ 状态口先结构化拒、无成功
+        状态变化)。"""
         self._begin()
         try:
             row = self.conn.execute(
@@ -1447,6 +1510,7 @@ class SearchLedger:
                      "status": row["status"] if row else None})
             self._verify_request_execution(
                 row, where="record_request_response")
+            self._limits(row["run_id"])
             self.conn.execute(
                 "UPDATE model_requests SET status = ?, response_ref = ?,"
                 " updated_at = ? WHERE request_id = ?",
@@ -1459,7 +1523,15 @@ class SearchLedger:
 
     def mark_request_failed(self, request_id: str) -> None:
         """registered/sent → failed(方法失败如实记录;占额不释放)。
-        **S3A-04**:失败记账前核执行引用(消费口与发送/响应同一闭合)。"""
+        **S3A-04 r4:失败口只允许合法 registered/sent 来源** —— 状态
+        枚举外的未知来源(corrupt-status 等)结构化拒并保全
+        (request_status_unknown),不能把损坏的生命周期静默洗成合法
+        终态 failed;合法 closed 状态(responded/failed/abandoned)照旧
+        request_not_failable。
+        **S3A-04**:失败记账前核执行引用(消费口与发送/响应同一闭合)。
+        **S3A-03 r4**:新 status 写入之前消费同一严格冻结块校验
+        (`_limits`;null/缺 version/坏值 ⇒ 状态口先结构化拒、无成功
+        状态变化)。"""
         self._begin()
         try:
             row = self.conn.execute(
@@ -1469,17 +1541,28 @@ class SearchLedger:
                 raise SearchContractError(
                     f"请求不存在:{request_id}",
                     {"request_id": request_id, "kind": "request_missing"})
-            if row["status"] in (REQUEST_STATUS_RESPONDED,
-                                 REQUEST_STATUS_FAILED,
-                                 REQUEST_STATUS_ABANDONED):
+            stored_status = row["status"]
+            # ---- S3A-04 r4:正面限定合法来源状态(未知值不可改记
+            # failed;不能只排除已知终态而放行枚举外来源) ----
+            if stored_status not in REQUEST_STATUSES:
                 raise SearchContractError(
-                    f"请求 {request_id} 状态为 {row['status']}(不可改记"
+                    f"请求 {request_id} 状态未知:{stored_status!r}(枚举"
+                    "外 ⇒ 记账行损坏;未知生命周期不能改记 failed,保全"
+                    "失败、零状态写入,不静默洗成合法终态)",
+                    {"request_id": request_id,
+                     "kind": "request_status_unknown",
+                     "status": stored_status})
+            if stored_status not in (REQUEST_STATUS_REGISTERED,
+                                     REQUEST_STATUS_SENT):
+                raise SearchContractError(
+                    f"请求 {request_id} 状态为 {stored_status}(不可改记"
                     "失败)",
                     {"request_id": request_id,
                      "kind": "request_not_failable",
-                     "status": row["status"]})
+                     "status": stored_status})
             self._verify_request_execution(
                 row, where="mark_request_failed")
+            self._limits(row["run_id"])
             self.conn.execute(
                 "UPDATE model_requests SET status = ?, updated_at = ? WHERE"
                 " request_id = ?",
@@ -1651,9 +1734,21 @@ class SearchLedger:
     def _verify_action_references(self, action_row, *,
                                   where: str = "action_references",
                                   done: bool = False) -> None:
-        """S3A-02/03(r3 扩展):action 冻结引用的**行级内容**核验
-        (写账/挂起/恢复/done 复用之前;不只核"行存在/run/action")。
+        """S3A-02/03(r3 扩展;r4 补必要集合完整性):action 冻结引用的
+        **行级内容**核验(写账/挂起/恢复/done 复用之前;不只核"行存在/
+        run/action")。
 
+        - **S3A-02 r4:必要预约集合完整性(逐行守卫保留;缺项即使
+          剩余清单非空也先拒)** —— 按现有 claim/attempt 创建规则同源
+          派生本 action 应具有的必要预约(max_total_search_actions 恒
+          有;scenario_transition 另有 transitions;expand 按 attempt
+          引用集有 alternatives/attempts,attempt 行记录 reopen_of 非
+          空另有 reopens;retrieve 的两条检索预约仅在非 cache_hit
+          认领时创建,行存在 ⇒ 必须被引用,行不存在按 cache_hit 合法
+          不强制)。必要集合缺项(引用清单少了该行、或行本身被删)
+          在任何写账/补账/成功确认之前结构化拒 —— 剩余行全部合法
+          不能证明本 action 已完整结算/有权完成;缺行不猜补、坏
+          action 零新 commit/consume/成功确认;
         - claim 必留 ≥1 预约引用、expand 必留 ≥1 attempt 引用
           (空引用集合 = 记账不变量破坏,缺权威失败);
         - 每个预约行:存在且归属本 run;action 归属(例外:主体共享的
@@ -1698,6 +1793,7 @@ class SearchLedger:
                  "kind": "claimed_action_attempt_missing"})
         # ---- attempt 行:存在/归属 + 状态/task_key/hypothesis 内容 ----
         attempt_hypothesis: dict[str, str] = {}
+        attempt_reopens: dict[str, str] = {}
         for aid in attempt_refs:
             arow = self.conn.execute(
                 "SELECT * FROM search_attempts WHERE"
@@ -1758,6 +1854,7 @@ class SearchLedger:
                      "action_task_key": task_key,
                      "kind": "attempt_task_key_mismatch"})
             attempt_hypothesis[aid] = arow["hypothesis_id"]
+            attempt_reopens[aid] = _row_get(arow, "reopen_of", "") or ""
         if len(set(attempt_hypothesis.values())) > 1:
             raise SearchIntegrityError(
                 f"action {action_id} 的 attempt 引用跨多个 hypothesis"
@@ -1921,6 +2018,68 @@ class SearchLedger:
                          "reservation_run": rrow["run_id"],
                          "reservation_action": rrow["action_id"],
                          "kind": "reservation_binding_mismatch"})
+        # ---- S3A-02 r4:必要预约集合完整性(逐行守卫保留之后;按
+        # claim/_create_attempt 现有创建规则同源派生本 action 应有的
+        # 必要预约 —— 剩余清单非空不能代替必要集合齐全,缺项即使剩余
+        # 行全部合法也先结构化拒、保全、零新成功消费、不猜补缺行) ----
+        expected_reservations: dict[str, str] = {}
+
+        def _expect(limit_key: str, scope: str, id_basis: str) -> None:
+            rid = _reservation_id(run_id, limit_key, scope, id_basis)
+            expected_reservations[rid] = limit_key
+
+        # max_total_search_actions:每次认领恒创建(创建规则无条件)
+        _expect("max_total_search_actions", "", action_id)
+        if kind == ACTION_KIND_SCENARIO_TRANSITION:
+            _expect("max_scenario_transitions", "", action_id)
+        if kind == ACTION_KIND_EXPAND_HYPOTHESIS:
+            # 认领建 attempt 时同事务预约 alternatives/attempts;
+            # reopen 认领另预约 reopens(attempt 行的 reopen_of 同源)
+            for aid, hyp_id in attempt_hypothesis.items():
+                _expect("max_alternative_hypotheses_per_parent",
+                        parent_path_id, f"alt:{hyp_id}")
+                _expect("max_attempts_per_hypothesis", hyp_id,
+                        f"att:{aid}")
+                if attempt_reopens.get(aid):
+                    _expect("max_reopens_per_hypothesis", hyp_id,
+                            f"re:{aid}")
+        if kind == ACTION_KIND_RETRIEVE:
+            # 检索预约仅在**非 cache_hit** 认领时创建(创建规则的条件
+            # 参数不落独立列):行存在 ⇒ claim 非 cache_hit ⇒ 必须被
+            # 引用;行不存在 ⇒ cache_hit 合法不强制(合法缓存复用不
+            # 强加未消费的资源预约,正控保持)
+            for limit_key, scope in (
+                    ("max_retrievals_per_parent", parent_path_id),
+                    ("max_retrievals_total", "")):
+                rid = _reservation_id(run_id, limit_key, scope, action_id)
+                exists = self.conn.execute(
+                    "SELECT 1 FROM budget_reservations WHERE"
+                    " reservation_id = ?", (rid,)).fetchone()
+                if exists is not None:
+                    expected_reservations[rid] = limit_key
+        for rid, limit_key in expected_reservations.items():
+            erow = self.conn.execute(
+                "SELECT 1 FROM budget_reservations WHERE"
+                " reservation_id = ?", (rid,)).fetchone()
+            if erow is None:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的必要预约行缺失:{limit_key}"
+                    f"(预约 {rid};创建规则同源派生 —— 剩余清单非空不能"
+                    "证明必要额度齐全;保全、零新成功消费、不猜补缺行)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "limit_key": limit_key,
+                     "kind": "reservation_row_missing"})
+            if rid not in reservation_refs:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的必要预约未被冻结引用清单收录:"
+                    f"{limit_key}(预约 {rid} 行存在但 budget_reservation_"
+                    "ref 缺项 —— 必要结算证据不完整,不能据此完成/复用/"
+                    "挂起;保全、不猜补)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "limit_key": limit_key,
+                     "kind": "necessary_reservation_ref_missing"})
 
     def _verify_event_ledger_authority(self, event_id: str, *,
                                        action_id: str,
@@ -2576,7 +2735,10 @@ class SearchLedger:
           **S3A-04 r3:每个 pending 请求逐行同源守卫**(_verify_
           request_execution 同一判据)—— 行引用的 action/attempt
           缺失、run 绑定破坏或执行权已失效 ⇒ 结构化完整性披露,不
-          伪装成普通合法 pending、不新状态成功写入/不猜补。
+          伪装成普通合法 pending、不新状态成功写入/不猜补;
+          **S3A-04 r4:run 范围请求行状态枚举外的坏行在报告中结构化
+          披露**(unknown_status_requests;不改状态、不猜补;跨 run
+          行不在本 run 扫描内是已登记作用域边界)。
         返回结构化恢复报告(每 action 的边界归类与处置结果)。
         """
         stored = self.search_policy_block(run_id)
@@ -2599,6 +2761,17 @@ class SearchLedger:
                     {"run_id": run_id,
                      "kind": "search_policy_identity_mismatch"})
         state = _crash_boundary_rows(self.conn, run_id)
+        # ---- S3A-04 r4:run 范围请求行状态枚举核(结构化披露,不伪装
+        # 合法 pending、不猜补、不新状态写入;跨 run 行不在本扫描内是
+        # 已登记作用域边界) ----
+        unknown_status_requests = [
+            {"request_id": r["request_id"], "status": r["status"],
+             "provider_kind": r["provider_kind"],
+             "note": ("请求状态枚举外(记账行损坏;结构化披露、保全、"
+                      "不改状态、不猜补;显式处置须修复行或显式换新"
+                      "request_key 重试)")}
+            for r in state["requests"]
+            if r["status"] not in REQUEST_STATUSES]
         # ---- S3A-04 r3:pending 请求逐行同源守卫(结构化披露) ----
         pending_requests = []
         for r in state["pending_requests"]:
@@ -2627,6 +2800,7 @@ class SearchLedger:
             "run_id": run_id, "policy_version": SEARCH_LIMITS_VERSION,
             "actions": [],
             "pending_requests": pending_requests,
+            "unknown_status_requests": unknown_status_requests,
             "budget": self.budget_snapshot(run_id),
         }
         for a in state["actions"]:
