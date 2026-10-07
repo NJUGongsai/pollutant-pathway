@@ -43,7 +43,7 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    assert block["schema_version"] == "ppv1-profile-8"
+    assert block["schema_version"] == "ppv1-profile-9"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),
@@ -72,9 +72,10 @@ def test_ppv1_identity_block_default_switches() -> None:
     assert block["input_preview_policy"] == "off"
     assert block["chemical_reproposal"] == "off"
     assert block["search_intent"] == "exploration"
-    assert block["search_limits"]["version"].endswith("proposed")
+    # S3a:search-limits 由 -2-proposed 草案升为实际可执行版本 v3
+    assert block["search_limits"]["version"] == "ppv1-search-limits-3"
     assert block["search_limits"]["max_total_search_actions"] == 10
-    assert block["delivered_stages"] == "S0-S2"
+    assert block["delivered_stages"] == "S0-S2,S3a-base"
 
 
 @pytest.mark.parametrize("field,bad", [

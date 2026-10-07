@@ -1,5 +1,14 @@
 """PollutantPathwayStore — 新模式的独立 SQLite 账本(v8 回修,S1)。
 
+v9(ppv1-store-9,S3a 批次 2026-10-07):新增 S3a 持久搜索底座表
+(search_runs / search_actions / search_attempts / budget_reservations /
+model_requests / search_commit_records;任务书 §4/实施书 §9)。表结构
+随 schema 版本升 v9 拒旧库,无兼容迁移(profile 从未放行执行流,无历史
+产物)。本版本**不改变既有事件/状态/假设路径的任何校验语义** —— 搜索
+记账逻辑在 pollutant/search.py(SearchLedger,共享本类连接与公共
+submit_event 事务边界);事件提交继续走本类冻结入口,首消费验证
+(R7-01/R7-02/R6-04/R6-05)全部保持。
+
 v8(ppv1-store-8,R8 回修 2026-10-07)相对 v7 的变化(Codex R7 复审
 R7-02):
 - **首提校验 supplied SID 的既存同 (SID,hash) 出现行(R7-02)**:
@@ -237,6 +246,91 @@ CREATE TABLE IF NOT EXISTS event_appearance_links (
     appearance_hash TEXT NOT NULL,
     PRIMARY KEY (event_id, state_id, appearance_hash)
 );
+CREATE TABLE IF NOT EXISTS search_runs (
+    run_id       TEXT PRIMARY KEY,
+    policy_block TEXT NOT NULL,
+    created_at   TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS search_actions (
+    action_id    TEXT PRIMARY KEY,
+    run_id       TEXT NOT NULL,
+    parent_path_id TEXT NOT NULL DEFAULT '',
+    context_ref  TEXT NOT NULL DEFAULT '',
+    subject_ref  TEXT NOT NULL DEFAULT '',
+    action_kind  TEXT NOT NULL,
+    parent_search_revision INTEGER NOT NULL DEFAULT 0,
+    policy_version TEXT NOT NULL,
+    status       TEXT NOT NULL,
+    payload      TEXT NOT NULL,
+    task_key     TEXT NOT NULL DEFAULT '',
+    outcome_ref  TEXT NOT NULL DEFAULT '',
+    budget_reservation_ref TEXT NOT NULL DEFAULT '[]',
+    attempt_refs TEXT NOT NULL DEFAULT '[]',
+    defer_reason TEXT NOT NULL DEFAULT '',
+    created_at   TEXT NOT NULL,
+    claimed_at   TEXT,
+    claimed_by   TEXT,
+    updated_at   TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_ppv1_search_actions_run
+    ON search_actions (run_id, status);
+CREATE TABLE IF NOT EXISTS search_attempts (
+    expansion_attempt_id TEXT PRIMARY KEY,
+    run_id       TEXT NOT NULL,
+    action_id    TEXT NOT NULL,
+    hypothesis_id TEXT NOT NULL DEFAULT '',
+    attempt_index INTEGER NOT NULL,
+    reopen_of    TEXT NOT NULL DEFAULT '',
+    status       TEXT NOT NULL,
+    task_key     TEXT NOT NULL DEFAULT '',
+    payload_hash TEXT NOT NULL DEFAULT '',
+    outcome_ref  TEXT NOT NULL DEFAULT '',
+    created_at   TEXT NOT NULL,
+    recorded_at  TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_ppv1_search_attempts_action
+    ON search_attempts (action_id);
+CREATE TABLE IF NOT EXISTS budget_reservations (
+    reservation_id TEXT PRIMARY KEY,
+    run_id        TEXT NOT NULL,
+    limit_key     TEXT NOT NULL,
+    scope         TEXT NOT NULL DEFAULT '',
+    subject       TEXT NOT NULL DEFAULT '',
+    units         INTEGER NOT NULL,
+    action_id     TEXT NOT NULL DEFAULT '',
+    status        TEXT NOT NULL,
+    created_at    TEXT NOT NULL,
+    settled_at    TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_ppv1_budget_run
+    ON budget_reservations (run_id, limit_key, scope, status);
+CREATE TABLE IF NOT EXISTS model_requests (
+    request_id   TEXT PRIMARY KEY,
+    run_id       TEXT NOT NULL,
+    action_id    TEXT NOT NULL,
+    attempt_id   TEXT NOT NULL DEFAULT '',
+    provider_kind TEXT NOT NULL,
+    purpose      TEXT NOT NULL DEFAULT '',
+    status       TEXT NOT NULL,
+    network_request_count INTEGER NOT NULL DEFAULT 0,
+    payload_hash TEXT NOT NULL DEFAULT '',
+    response_ref TEXT NOT NULL DEFAULT '',
+    retry_of     TEXT NOT NULL DEFAULT '',
+    created_at   TEXT NOT NULL,
+    updated_at   TEXT
+);
+CREATE TABLE IF NOT EXISTS search_commit_records (
+    commit_id    TEXT PRIMARY KEY,
+    run_id       TEXT NOT NULL,
+    action_id    TEXT NOT NULL,
+    attempt_id   TEXT NOT NULL DEFAULT '',
+    event_id     TEXT NOT NULL DEFAULT '',
+    commit_kind  TEXT NOT NULL,
+    payload_hash TEXT NOT NULL DEFAULT '',
+    created_at   TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ppv1_commit_action
+    ON search_commit_records (action_id);
 CREATE TABLE IF NOT EXISTS provenance_records (
     record_id TEXT PRIMARY KEY,
     run_id    TEXT NOT NULL,

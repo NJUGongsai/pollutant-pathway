@@ -4,9 +4,9 @@
 - run_identity 在 profile=pollutant_pathway_v1 时经
   ``build_profile_identity_block`` 延迟取用本模块(legacy 路径不 import);
 - 全部版本常量只增不改值;取值域校验 fail-closed(未知值拒绝,不回退);
-- P0-3 的搜索上限为 **proposed 草案**(实施书 §17.1:S2 交设计草案,
-  S3 才有实际计数/恢复代码);此处只冻结键名、默认值、允许范围、
-  计数单位与优先级,不据此运行任何搜索。
+- P0-3 的搜索上限为**实际可执行版本 v3**(S3a 批次落地计数/恢复,
+  由 pollutant/search.py 消费;S2 时期的 -2-proposed 草案从未放行执行,
+  无历史产物迁移)。
 """
 
 from __future__ import annotations
@@ -47,12 +47,25 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # hash,损坏 ⇒ LedgerCorrupt 零新增,不延后到重放)。gate_mapper
 # (-3,未触碰)与 search-limits(proposed)不动;profile 仍未放行
 # 执行流,v7 载荷按未知版本既有门拒绝,无兼容迁移。
+# v9(2026-10-07 S3a 批次):S3a 持久搜索底座交付 —— 新增 search
+# 契约(ppv1-search-1:SearchAction/expansion_attempt/预算预约/模型
+# 请求/提交记录/四崩溃恢复协议/停止原因主因优先级,见 pollutant/
+# search.py)与 store(ppv1-store-9:六张搜索底座表);search-limits
+# 由 proposed 草案 v2 升为**实际可执行版本 v3**(键/默认/范围/单位
+# 全部沿用草案,不凭空重造;新增计数/预约/consume/release 规则);
+# 其余 S0–S2 契约语义不动(chemstate/hypothesis/event/context/
+# dependency/provenance/substrate_profile/audit/admission_policy/
+# donor_diagnostic/pool_audit/pool_order/input_preview/condition_
+# assessment 保持 -8;gate_mapper -3 不动)。delivered_stages 更新
+# 为 S0-S2,S3a-base(底座;队列化学集成/生产链/runner 分流属 S3b,
+# workflow.runner 对本 profile 继续 fail-closed)。profile 仍未放行
+# 执行流,无历史产物需要迁移;v8 身份载荷按既有门拒绝。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-8"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-9"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
-PPV1_STORE_SCHEMA_VERSION = "ppv1-store-8"
+PPV1_STORE_SCHEMA_VERSION = "ppv1-store-9"
 PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-8"
 PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-8"
 PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-8"
@@ -65,6 +78,9 @@ PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-8"
 PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-8"
 PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-8"
 PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
+# S3a:持久搜索底座契约(SearchAction/attempt/预约/请求/提交记录/
+# 恢复协议/停止原因优先级;pollutant/search.py)
+PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-1"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)
 LEGACY_G2_FAMILY_REF = "v43-cons-2"            # 有限规则诊断复用族(conservation.py)
@@ -92,15 +108,17 @@ SEARCH_INTENTS = frozenset({SEARCH_INTENT_EXPLORATION,
                             SEARCH_INTENT_VERIFICATION,
                             SEARCH_INTENT_GAP_FILLING})
 
-# ---- P0-3 有界搜索上限(proposed 草案 v2;S3 才实施计数/恢复/E04) ----
-# v2(P2-3/P2-4 回修):
-# - 键拆分:父路径**备选假设数**与单假设**语义尝试次数**独立计数,
-#   不得相互代替(v1 的 max_hypotheses_per_parent_alternative 把两个
-#   单位混在一个键里,已废除);
-# - 下限放宽到 0:S3 需要独立的零深度/零预算验收夹具(0 = 该维度
-#   零预算,立即停),不再用"其他零预算已覆盖"搪塞;
-# - 配置往返:build_profile_identity_block 接受覆盖配置或完整序列化
-#   配置(version 字符串键不按预算校验),输出可原样回灌(P2-4)。
+# ---- P0-3 有界搜索上限(实际可执行版本 v3;S3a 落地计数/恢复) ----
+# v2(proposed 草案):键拆分(父备选假设数 vs 单假设语义尝试数)、
+# 下限放宽到 0(独立零预算夹具)、配置完整往返可重放。
+# v3(S3a 实际可执行,2026-10-07):继承 v2 全部键/默认/范围/单位,
+# 不凭空重造;由 pollutant/search.py 的 SearchLedger 落地实际计数
+# (认领预约/consume/release/账表见该模块 docstring)、四崩溃恢复
+# 与 E04 循环稳定停。草案 v2 从未放行执行(无历史产物迁移),升版
+# 即生效;旧 -2-proposed 配置按版本门拒绝。停止原因主因优先级
+# (user_stop > budget_limit > depth_limit > no_local_candidate >
+# awaiting_prediction > exhausted_search)随 ppv1-search-1 在
+# search.py 登记,多原因同时成立取主因并保留其余原因。
 # 计数单位与语义(全部来自持久记录,不取内存状态):
 # - max_alternative_hypotheses_per_parent:同一父路径上并行备选反应
 #   **假设**的数量(假设数)
@@ -121,7 +139,7 @@ SEARCH_INTENTS = frozenset({SEARCH_INTENT_EXPLORATION,
 # 优先级(多原因同时发生时的主因次序,S3 冻结;user_stop 恒最优先):
 #   user_stop > budget_limit > depth_limit > no_local_candidate >
 #   awaiting_prediction > exhausted_search
-SEARCH_LIMITS_VERSION = "ppv1-search-limits-2-proposed"
+SEARCH_LIMITS_VERSION = "ppv1-search-limits-3"
 SEARCH_LIMITS_DEFAULTS: dict = {
     "version": SEARCH_LIMITS_VERSION,
     "max_alternative_hypotheses_per_parent": 2,
@@ -171,6 +189,7 @@ def contract_versions() -> dict:
         "input_preview": PPV1_INPUT_PREVIEW_VERSION,
         "condition_assessment": PPV1_CONDITION_ASSESSMENT_VERSION,
         "gate_mapper": PPV1_GATE_MAPPER_VERSION,
+        "search": PPV1_SEARCH_SCHEMA_VERSION,
         "legacy_gate_ref": LEGACY_GATE_PROFILE_REF,
         "legacy_g2_family_ref": LEGACY_G2_FAMILY_REF,
     }
@@ -210,7 +229,8 @@ def _validate_search_intent(value) -> str:
 
 
 def _validate_search_limits(limits: dict | None) -> dict:
-    """校验/归一搜索上限(P2-4:接受覆盖配置或完整序列化配置)。
+    """校验/归一搜索上限(实际可执行版本 v3;接受覆盖配置或完整
+    序列化配置)。
 
     - "version" 是版本字符串键(非预算),仅校验值等于当前版本,
       不按整数预算校验(v1 的 KeyError 缺陷修复);
@@ -251,8 +271,8 @@ def build_profile_identity_block(
     """pollutant_pathway_v1 的 run 身份 profile 块(全部开关进身份)。
 
     未知取值 fail-closed(ValueError,装配期拒绝),不静默回退默认。
-    search_limits 为 P0-3 proposed 草案,S3 交付实际计数前仅作身份
-    冻结与配置校验。
+    search_limits 为实际可执行版本 v3(S3a 底座计数);S3b 公共链
+    集成交付前 run 执行入口仍 fail-closed(见 workflow.runner)。
     """
     return {
         "name": PPV1_PROFILE_NAME,
@@ -264,7 +284,9 @@ def build_profile_identity_block(
             chemical_reproposal),
         "search_intent": _validate_search_intent(search_intent),
         "search_limits": _validate_search_limits(search_limits),
-        # S0–S2 只交付领域契约与固定诊断;执行流未交付前 run 入口
-        # fail-closed(见 workflow.runner),此处身份如实声明交付阶段
-        "delivered_stages": "S0-S2",
+        # S0–S2 交付领域契约/上下文/固定诊断;S3a 交付持久搜索底座
+        # (身份/预算/认领/恢复,测试入口用 pollutant.search 底座 API);
+        # 公共执行流入口 workflow.runner 对本 profile 继续 fail-closed
+        # (队列化学集成与生产链属 S3b,交付前拒绝运行)
+        "delivered_stages": "S0-S2,S3a-base",
     }

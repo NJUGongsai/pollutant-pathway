@@ -1,0 +1,32 @@
+{
+  "batch": "s3a_r1",
+  "date": "2026-10-07",
+  "actual_head_at_run": "00e509a974b40a7c9779fcd35e53b16637a13d60",
+  "branch": "v4.3",
+  "working_tree": "uncommitted S3a changes during G01 run (dirty status recorded in preparation.json)",
+  "scope": "S3a persistent search foundation (identity/budget/claim/recovery/stop); S3b not delivered; runner still fail-closed for PPV1",
+  "results": {
+    "ppv1_full": "594 passed / 0 skipped (536 legacy + 58 new S3a)",
+    "baseline_red": "2 behavior failed (profile assertions) + 2 files collection error (58 cases not executed, module missing)",
+    "g01_safe_isolation": "1196 passed / 8 skipped / 17 deselected, exit 0, 194.8s (1138 + 58)"
+  },
+  "files": {
+    "README.md": "fa23883f82bff2ea71bc3aecee4a895f6a68b6b73d7afbece3ae39a58b644c1f",
+    "baseline_red/baseline_red_profile_behavior.txt": "85327f14b3541afbadba75813785819933e5846f804a30e600258ce0829a28a0",
+    "baseline_red/baseline_red_s3a_collection.txt": "8a6e78bf0b3beb6176924c3ec9ed60c16fb27c2133beab386167e4067edd95fe",
+    "g01_safe_isolation/controller_stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "g01_safe_isolation/controller_stdout.json": "545790d30d91ce4b747ae1eb387e6e619b0b4739eba11f8b9bcf1714da0693aa",
+    "g01_safe_isolation/execution_result.json": "58923792f76985f53ebd7beb55ac00b0f17ae9552133af6fe1dd41eed360a981",
+    "g01_safe_isolation/g01_safe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "g01_safe_isolation/g01_safe.stdout.txt": "07f5ce13185b08296ece25a9c9f88bb45a540bb19993aeca259a35824a563820",
+    "g01_safe_isolation/input_sha256.json": "c225fdcaea17b5de8f7edd9fedc2987b557ec5e871da6338074d069b1cfce9d6",
+    "g01_safe_isolation/preparation.json": "9fda477b7307bf675fd5abc8bdf171b1c1f9cd420e9fdbbf4852f5bd64a8357e",
+    "mimo/mimo_ppv1_chem_review_request_v8_snapshot.md": "9c66e2d89b6070dc20a7d10adec89851a502e6d3a2bfb245f745a15b11068bb4",
+    "mimo/mimo_ppv1_chem_review_request_v9_snapshot.md": "ee5ff189d8ae8718873bbb833eef331eb919306ecd0866e955f439eb8c69cc8a",
+    "ppv1_current/pytest_full_output.txt": "5bf8349b040ddcd619c26b42b0ccbaf57e34c2018fced2a150e412e86db2b44a",
+    "red_green_worktree_log.md": "9ad693138c57de2fad8ae3937efc3a75d9896ee049b0dd11e86d4580818ed695",
+    "safe_g01_s3a.py": "d62f0a7c6a5a6284304f270aab398d786e73bbff3e91d736eead07e0fb4c721e"
+  },
+  "hash_policy": "fresh SHA-256 of all attachments; SHA256SUMS and manifest.json themselves not self-hashed",
+  "no_gold_no_benchmark_no_v4_no_sealed": true
+}
