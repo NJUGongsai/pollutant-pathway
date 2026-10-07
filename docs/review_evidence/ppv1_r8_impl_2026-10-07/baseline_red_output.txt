@@ -1,0 +1,266 @@
+# R8 新回归对基线 858dd94(父提交/R7 交付)的红验证
+# worktree: git worktree add --detach /private/tmp/ppv1_r8_baseline_wt 858dd94c7c6c8fc387940242403d67b6b36b5313
+# 复制 tests/test_ppv1_r8_chem.py tests/test_ppv1_r8_storage.py(无 import 适配——顶层只用基线已存在符号)
+# 命令: PYTHONDONTWRITEBYTECODE=1 ~/miniconda3/envs/depending43/bin/python -B -m pytest -p no:cacheprovider -q tests/test_ppv1_r8_chem.py tests/test_ppv1_r8_storage.py
+
+FFFFFFFFFFFF.......FF.......                                             [100%]
+=================================== FAILURES ===================================
+____________ test_r7_01_from_dict_raw_unregistered_cx_rejected[CCO] ____________
+
+smiles = 'CCO'
+
+    @pytest.mark.parametrize("smiles", [ETHANOL, ACETALDEHYDE, HYDROGEN])
+    def test_r7_01_from_dict_raw_unregistered_cx_rejected(smiles) -> None:
+        """R7 复审反例,基线 858dd94 红:序列化状态只改
+        structure_smiles_raw=<smiles> |r|(state_id/规范串/版本/四轴
+        as_written 全保留)—— 基线 from_dict 接受;v8:恢复入口共用
+        writer 同源验证,raw 未过输入守卫 ⇒ ChemicalStateError,机器码
+        披露违规项(不静默清洗信息再授 full)。"""
+        state = build_chemical_state(smiles, STRUCTURE_ORIGIN_SOURCE_PRODUCT)
+        payload = state.to_dict()
+        payload["structure_smiles_raw"] = smiles + " |r|"
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:193: Failed
+___________ test_r7_01_from_dict_raw_unregistered_cx_rejected[CC=O] ____________
+
+smiles = 'CC=O'
+
+    @pytest.mark.parametrize("smiles", [ETHANOL, ACETALDEHYDE, HYDROGEN])
+    def test_r7_01_from_dict_raw_unregistered_cx_rejected(smiles) -> None:
+        """R7 复审反例,基线 858dd94 红:序列化状态只改
+        structure_smiles_raw=<smiles> |r|(state_id/规范串/版本/四轴
+        as_written 全保留)—— 基线 from_dict 接受;v8:恢复入口共用
+        writer 同源验证,raw 未过输入守卫 ⇒ ChemicalStateError,机器码
+        披露违规项(不静默清洗信息再授 full)。"""
+        state = build_chemical_state(smiles, STRUCTURE_ORIGIN_SOURCE_PRODUCT)
+        payload = state.to_dict()
+        payload["structure_smiles_raw"] = smiles + " |r|"
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:193: Failed
+__________ test_r7_01_from_dict_raw_unregistered_cx_rejected[[H][H]] ___________
+
+smiles = '[H][H]'
+
+    @pytest.mark.parametrize("smiles", [ETHANOL, ACETALDEHYDE, HYDROGEN])
+    def test_r7_01_from_dict_raw_unregistered_cx_rejected(smiles) -> None:
+        """R7 复审反例,基线 858dd94 红:序列化状态只改
+        structure_smiles_raw=<smiles> |r|(state_id/规范串/版本/四轴
+        as_written 全保留)—— 基线 from_dict 接受;v8:恢复入口共用
+        writer 同源验证,raw 未过输入守卫 ⇒ ChemicalStateError,机器码
+        披露违规项(不静默清洗信息再授 full)。"""
+        state = build_chemical_state(smiles, STRUCTURE_ORIGIN_SOURCE_PRODUCT)
+        payload = state.to_dict()
+        payload["structure_smiles_raw"] = smiles + " |r|"
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:193: Failed
+_____________ test_r7_01_from_dict_raw_different_molecule_rejected _____________
+
+    def test_r7_01_from_dict_raw_different_molecule_rejected() -> None:
+        """R7 复审同根辅助反例,基线 858dd94 红:H2 状态 raw 改 CC=O
+        (canonical/ID 仍 H2)—— 基线恢复/审核均接受;v8:raw 重推严格
+        身份 != smiles_isomeric ⇒ raw_identity_mismatch(同图异拼写接受,
+        跨分子拒绝)。"""
+        state = build_chemical_state(HYDROGEN, STRUCTURE_ORIGIN_SOURCE_PRODUCT)
+        payload = state.to_dict()
+        payload["structure_smiles_raw"] = ACETALDEHYDE
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:209: Failed
+____________ test_r7_01_from_dict_structured_fact_mismatch_rejected ____________
+
+    def test_r7_01_from_dict_structured_fact_mismatch_rejected() -> None:
+        """同源验证的规范身份/结构事实轴:载荷 formal_charge 被改(结构
+        未变)—— 基线 from_dict 接受、audit 电荷轴用假值;v8:工厂同源
+        重推导不一致 ⇒ state_fact_rederivation_mismatch。"""
+        state = build_chemical_state(ETHANOL, STRUCTURE_ORIGIN_SOURCE_PRODUCT)
+        payload = state.to_dict()
+        payload["formal_charge"] = 99
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:224: Failed
+_________________ test_r7_01_from_dict_unknown_origin_rejected _________________
+
+    def test_r7_01_from_dict_unknown_origin_rejected() -> None:
+        """同源验证的 origin 轴:载荷 structure_origin 改为未知值 ——
+        基线 from_dict 接受(dataclass 无校验);v8:invalid_structure_
+        origin 拒绝(与公共 writer 同口径)。"""
+        state = build_chemical_state(ETHANOL, STRUCTURE_ORIGIN_SOURCE_PRODUCT)
+        payload = state.to_dict()
+        payload["structure_origin"] = "bogus-origin"
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:237: Failed
+_____________ test_r7_01_restored_tainted_states_recovery_rejected _____________
+
+    def test_r7_01_restored_tainted_states_recovery_rejected() -> None:
+        """R7 复审反例(恢复入口),基线 858dd94 红:恢复对象经
+        audit_hypothesis→decide_admission 全 verified/full/R6 expand;
+        v8:恢复入口(from_dict)在构造期即结构化拒绝,篡改对象不再到达
+        audit;模拟绕过 from_dict 的 dataclass 构造(ChemicalState(**payload))
+        时,audit 首次消费同源验证同样拒绝 —— 两入口闭合,不产出任何
+        disposition(不吞异常后按 retain/verified 记录)。"""
+        states, hyp, evidence = _oxidation_base()
+        payload = states[ETHANOL].to_dict()
+        payload["structure_smiles_raw"] = ETHANOL + " |r|"
+>       with pytest.raises(ChemicalStateError):
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:252: Failed
+______________ test_r7_01_restored_h2_different_molecule_rejected ______________
+
+    def test_r7_01_restored_h2_different_molecule_rejected() -> None:
+        """R7 复审同根反例(完整公共链),基线 858dd94 红:H2 恢复对象
+        raw=CC=O(身份仍 H2)经公共链审核 full/R6;v8:恢复入口与 audit
+        首次消费均 raw_identity_mismatch 拒绝。"""
+        states, hyp, evidence = _oxidation_base()
+        payload = states[HYDROGEN].to_dict()
+        payload["structure_smiles_raw"] = ACETALDEHYDE
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:267: Failed
+___________ test_r7_01_direct_dataclass_raw_tampered_audit_rejected ____________
+
+    def test_r7_01_direct_dataclass_raw_tampered_audit_rejected() -> None:
+        """R7 复审反例,基线 858dd94 红:**直接 dataclass 绕路** —— 不经
+        from_dict,就地改工厂构建对象的 structure_smiles_raw,基线
+        audit_hypothesis(states=...) 全 verified/full/R6 expand;v8:audit
+        入口对每个被消费 state 同源验证(不只补 from_dict),非法对象
+        结构化拒绝、不 R6。"""
+        states, hyp, evidence = _oxidation_base()
+        tampered = dict(states)
+        tampered[ETHANOL] = copy.copy(states[ETHANOL])
+        tampered[ETHANOL].structure_smiles_raw = ETHANOL + " |r|"
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:289: Failed
+____________ test_r7_01_direct_dataclass_h2_raw_swap_audit_rejected ____________
+
+    def test_r7_01_direct_dataclass_h2_raw_swap_audit_rejected() -> None:
+        """R7 复审同根反例(直接对象),基线 858dd94 红:H2 对象 raw 就地
+        改 CC=O,基线公共链 verified/full/R6;v8:首次消费 raw_identity_
+        mismatch。"""
+        states, hyp, evidence = _oxidation_base()
+        tampered = dict(states)
+        tampered[HYDROGEN] = copy.copy(states[HYDROGEN])
+        tampered[HYDROGEN].structure_smiles_raw = ACETALDEHYDE
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:302: Failed
+___________ test_r7_01_direct_dataclass_fact_tampered_audit_rejected ___________
+
+    def test_r7_01_direct_dataclass_fact_tampered_audit_rejected() -> None:
+        """直接对象的结构事实轴,基线 858dd94 红:就地改 formal_charge,
+        基线 audit 用假电荷记账(verified);v8:重推导不一致拒绝。"""
+        states, hyp, evidence = _oxidation_base()
+        tampered = dict(states)
+        tampered[ACETALDEHYDE] = copy.copy(states[ACETALDEHYDE])
+        tampered[ACETALDEHYDE].formal_charge = 99
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:314: Failed
+_______________ test_r7_01_chiral_substrate_raw_tamper_rejected ________________
+
+    def test_r7_01_chiral_substrate_raw_tamper_rejected() -> None:
+        """R7 复审反例,基线 858dd94 红:指定手性表示 F[C@H](Cl)CCO 的
+        远端氧化,真实供体诊断证明保持,仅恢复/直接对象 substrate raw
+        加 |r| —— 基线同样 R6;v8:恢复入口与 audit 直接对象均同源守卫
+        拒绝。"""
+        evidence = _donor_evidence(CHIRAL_SUBSTRATE, "S_C_3", "S_O_1",
+                                   "single", "double")
+        product = evidence["bound_inputs"]["product_identity"]
+        states = _states(CHIRAL_SUBSTRATE, product, HYDROGEN)
+        hyp = _hyp(states, [(CHIRAL_SUBSTRATE, 1)],
+                   [(product, 1), (HYDROGEN, 1)], group="r7-01-chiral")
+        payload = states[CHIRAL_SUBSTRATE].to_dict()
+        payload["structure_smiles_raw"] = CHIRAL_SUBSTRATE + " |r|"
+>       with pytest.raises(ChemicalStateError):
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r8_chem.py:334: Failed
+_________ test_r7_02_prod_only_resupply_corrupt_first_submit_rejected __________
+
+    def test_r7_02_prod_only_resupply_corrupt_first_submit_rejected() -> None:
+        """R7 复审反例,基线 858dd94 红:先 public put 合法 sub/prod,仅
+        在合成库改产物 appearance.source_refs(hash 不动),再首提**只重给
+        原本有效的产物 payload** —— 基线 created=True 并新增 event/
+        projection/plan 各 1、links 2(重放才 appearance_hash_corrupt);
+        v8:实际复用的坏 appearance 在首提立即 Ppv1LedgerCorrupt(
+        appearance_hash_corrupt)、零新增,不延后。"""
+        store, sub, prod, hyp, event, args = fixture(
+            "r7_02_prod_only_corrupt")
+        for s in args["states"]:
+            store.put_state(s)
+        corrupt_prod_appearance(store, prod)
+        outcome, preserved = observed(store, event,
+                                      dict(args, states=[prod.to_dict()]))
+>       assert outcome == {"error": "Ppv1LedgerCorrupt",
+                           "kind": "appearance_hash_corrupt"}
+E       AssertionError: assert {'created': True} == {'error': 'Pp...hash_corrupt'}
+E         
+E         Left contains 1 more item:
+E         {'created': True}
+E         Right contains 2 more items:
+E         {'error': 'Ppv1LedgerCorrupt', 'kind': 'appearance_hash_corrupt'}
+E         Use -v to get more diff
+
+tests/test_ppv1_r8_storage.py:133: AssertionError
+_________ test_r7_02_all_states_resupply_corrupt_first_submit_rejected _________
+
+    def test_r7_02_all_states_resupply_corrupt_first_submit_rejected() -> None:
+        """R7 复审反例,基线 858dd94 红:同上损坏,**重给原本有效的全量
+        states** —— 基线同样 created=True 并新增记录;v8:首提即
+        LedgerCorrupt、零新增(supplied 不从复用校验豁免,不按
+        supplied/unsupplied 两套规则授信)。"""
+        store, sub, prod, hyp, event, args = fixture("r7_02_all_corrupt")
+        for s in args["states"]:
+            store.put_state(s)
+        corrupt_prod_appearance(store, prod)
+        outcome, preserved = observed(
+            store, event,
+            dict(args, states=[sub.to_dict(), prod.to_dict()]))
+>       assert outcome == {"error": "Ppv1LedgerCorrupt",
+                           "kind": "appearance_hash_corrupt"}
+E       AssertionError: assert {'created': True} == {'error': 'Pp...hash_corrupt'}
+E         
+E         Left contains 1 more item:
+E         {'created': True}
+E         Right contains 2 more items:
+E         {'error': 'Ppv1LedgerCorrupt', 'kind': 'appearance_hash_corrupt'}
+E         Use -v to get more diff
+
+tests/test_ppv1_r8_storage.py:152: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_r8_baseline_wt/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_from_dict_raw_unregistered_cx_rejected[CCO]
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_from_dict_raw_unregistered_cx_rejected[CC=O]
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_from_dict_raw_unregistered_cx_rejected[[H][H]]
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_from_dict_raw_different_molecule_rejected
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_from_dict_structured_fact_mismatch_rejected
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_from_dict_unknown_origin_rejected
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_restored_tainted_states_recovery_rejected
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_restored_h2_different_molecule_rejected
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_direct_dataclass_raw_tampered_audit_rejected
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_direct_dataclass_h2_raw_swap_audit_rejected
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_direct_dataclass_fact_tampered_audit_rejected
+FAILED tests/test_ppv1_r8_chem.py::test_r7_01_chiral_substrate_raw_tamper_rejected
+FAILED tests/test_ppv1_r8_storage.py::test_r7_02_prod_only_resupply_corrupt_first_submit_rejected
+FAILED tests/test_ppv1_r8_storage.py::test_r7_02_all_states_resupply_corrupt_first_submit_rejected
+14 failed, 14 passed, 1 warning in 0.61s

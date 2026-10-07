@@ -38,23 +38,32 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 须对应已记录评估行/首提复用既存行立即共用重放校验/事件出现集合
 # 独立完整性表 event_appearance_links)。profile 仍未放行执行流,
 # 无历史产物需要迁移;v6 载荷按未知版本既有门拒绝。
+# v8(2026-10-07 R8 回修):Codex R7 复审两项 P1 涉及的契约族升版
+# (R7-01:ChemicalState.from_dict 恢复与 audit 直接 states 首次消费
+# 共用与公共 writer 同源的纯状态验证 —— raw 登记守卫 + raw→strict
+# 身份一致 + 规范身份/结构事实重推导 + CN-only 专用契约,不只补
+# from_dict 留 dataclass 绕路、不静默清洗信息再授 full;R7-02:首提
+# 对 supplied SID 的既存同 (SID,hash) 出现行在收集阶段立即复算内容
+# hash,损坏 ⇒ LedgerCorrupt 零新增,不延后到重放)。gate_mapper
+# (-3,未触碰)与 search-limits(proposed)不动;profile 仍未放行
+# 执行流,v7 载荷按未知版本既有门拒绝,无兼容迁移。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-7"
-PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-7"
-PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-7"
-PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-7"
-PPV1_STORE_SCHEMA_VERSION = "ppv1-store-7"
-PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-7"
-PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-7"
-PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-7"
-PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-7"
-PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-7"
-PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-7"
-PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-7"
-PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-7"
-PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-7"
-PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-7"
-PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-7"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-8"
+PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
+PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
+PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
+PPV1_STORE_SCHEMA_VERSION = "ppv1-store-8"
+PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-8"
+PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-8"
+PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-8"
+PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-8"
+PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-8"
+PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-8"
+PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-8"
+PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-8"
+PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-8"
+PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-8"
+PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-8"
 PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)

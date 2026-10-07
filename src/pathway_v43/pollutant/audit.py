@@ -1,4 +1,14 @@
-"""ChemicalAudit — 检查范围明确,未知不可冒充核实(v7 回修,S2)。
+"""ChemicalAudit — 检查范围明确,未知不可冒充核实(v8 回修,S2)。
+
+v8(ppv1-audit-8 / ppv1-admission-8 / ppv1-donor-diagnostic-8,
+2026-10-07 R8 回修)相对 v7 的变化(Codex R7 复审 R7-01):
+- **直接 states 首次消费同源验证**:audit_hypothesis 对每个被消费的
+  ChemicalState 对象(直接 dataclass 与 raw_structures 构建)调用
+  chemstate.validate_state_object(与公共 writer 同源:raw 登记守卫 +
+  raw→strict 身份一致 + 规范身份/结构事实重推导 + CN-only 专用契约)
+  —— 调用方直传的 dataclass 不再绕过工厂输入守卫,篡改 raw(如
+  CCO |r|、H2 挂 CC=O)的对象不再送 verified/full/R6;非法对象结构化
+  拒绝,不静默清洗信息再授 full,不认证来源真伪/历史执行/机制。
 
 v7(ppv1-audit-7 / ppv1-admission-7 / ppv1-donor-diagnostic-7,
 2026-10-07 R7 回修)相对 v6 的变化(Codex R6 复审 R6-01 + R6-02B):
@@ -167,6 +177,7 @@ from .chemstate import (
     _guard_input_cx_classes,
     build_chemical_state,
     strict_identity_of,
+    validate_state_object,
 )
 from .hypothesis import (
     COEFFICIENT_KNOWN,
@@ -455,6 +466,13 @@ def audit_hypothesis(
                     "(不得以其他分子冒充)",
                     {"state_ref": ref, "actual_state_id": built.state_id})
             states[ref] = built
+    # R7-01/R8:直接 dataclass 对象与恢复对象共用与公共 writer 同源的
+    # 纯状态验证(与 from_dict 同一验证源)—— 工厂入口的输入守卫不因
+    # "对象已构造"而豁免;篡改 raw(未登记 CX 项/跨分子)的对象在首次
+    # 消费即结构化拒绝(ChemicalStateError),不再进入 verified/R6;
+    # 不静默清洗信息再授 full。CN-only 合法未知保持诚实 unknown。
+    for ref in sorted(states):
+        validate_state_object(states[ref])
     requested = set(audit_scope or REQUIRED_CHECK_NAMES)
 
     checks: list[AuditCheck] = []

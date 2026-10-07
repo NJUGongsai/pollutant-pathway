@@ -1,0 +1,101 @@
+{
+  "implementation_date": "2026-10-07",
+  "baseline_HEAD": "858dd94c7c6c8fc387940242403d67b6b36b5313",
+  "actual_HEAD_at_evidence_run": "858dd94c7c6c8fc387940242403d67b6b36b5313",
+  "working_tree_note": "v8 修改未提交时生成证据(与 R7 impl 同口径);HEAD 仍为 858dd94,工作树含 v8 源码/测试/docs 修改;交付提交在证据之后,以提交 diff 为准",
+  "schema_versions": {
+    "family": "ppv1-*-8(15 项;gate-mapper-3 不动)",
+    "chemstate": "ppv1-chemstate-8",
+    "store": "ppv1-store-8",
+    "audit": "ppv1-audit-8"
+  },
+  "python": "~/miniconda3/envs/depending43/bin/python(-B;PYTHONDONTWRITEBYTECODE=1;pytest -p no:cacheprovider)",
+  "rdkit": "2026.03.6",
+  "commands": {
+    "ppv1_full": "pytest -q tests/test_ppv1_*.py(21 文件,见 pytest_full_output.txt 头注) => 536 passed / 0 skipped",
+    "baseline_red": "git worktree add --detach /private/tmp/ppv1_r8_baseline_wt 858dd94;cp tests/test_ppv1_r8_{chem,storage}.py <wt>/tests/;pytest -q 两文件 => 14 failed / 14 passed(无 import 适配);worktree 已 remove --force",
+    "g01_safe_isolation": "docs/review_evidence/ppv1_r8_impl_2026-10-07/safe_g01_r8.py --repo <repo> --out /private/tmp/ppv1_r8_g01_safe --python <py> => 1138 passed / 8 skipped / 17 deselected(0 failed)",
+    "chemistry_probe_replay": "复制 R7 codex chemical_boundary_probe.py + src + tests/test_ppv1_r7_chem.py 到 /private/tmp/ppv1_r8_impl_probe 后运行 => 55/57 条(第 123 行 from_dict 处停止,拒绝 traceback 即修复;尾部 2 案由 chem/r8_probe_completion.py 补跑 3 条)",
+    "storage_probe_replay": "复制 R7 codex storage_contract_probe.py 到同一 tmp 运行 => 15 案完整 exit 0;SQLite 只写 tmp",
+    "observed_asserts": "两个 R7 观察断言脚本按设计在翻转点失败(钉住 R7 修前缺口,非修后验收线):storage_assert_observed.py 首个断言 first=created=True 失败;assert_chemical_observed.py 在 len(rows)==57 失败(v8 复跑 55 条)"
+  },
+  "baseline_red_classification": {
+    "total": 28,
+    "red": 14,
+    "green": 14,
+    "red_breakdown": {
+      "R7-01_behavior_flips": 12,
+      "R7-02_behavior_flips": 2,
+      "field_or_table_reds": 0
+    },
+    "green_breakdown": "全部为正控制/基线已拒形状(clean 往返/同图异拼写/含空格 atomProp/手性正常链/CN-only/存档 fidelity/writer 同源/none-partial-all 先存/全新库/states=0 拒/带载荷重放/语义冲突零写入)"
+  },
+  "g01_safe_isolation_result": {
+    "passed": 1138,
+    "skipped": 8,
+    "deselected": 17,
+    "failed": 0,
+    "skip_categories": {
+      "real_evaluation_benchmark": 5,
+      "missing_v4_parser_source": 1,
+      "uncopied_phase_d_provenance_summary": 2
+    },
+    "deselect_categories": {
+      "slow": 16,
+      "explicit_excluded_export_case": 1
+    },
+    "note": "R7 审核方隔离口径 1110/8/17 + 28 项 R8 新测试;非原环境 1119 数字;工程回归不代表科学性能;两轮隔离数字分开登记"
+  },
+  "probe_flip_summary": {
+    "C1_raw_substrate/product/H2_unknown_flag": "ok/R6 expand -> ChemicalStateError(raw_structure_rejected/unregistered_cx_class)",
+    "C1_raw_uncovered_H2_different_molecule": "ok/R6 -> ChemicalStateError(raw_identity_mismatch)",
+    "C1_chiral_raw_unknown_flag": "ok/R6 -> ChemicalStateError(补全脚本;原探针 from_dict 处停止)",
+    "C1_canonical_*": "retain -> 拒绝(state_structure_unparseable;canonical 加 r 不可解析,方向不回退)",
+    "controls_kept": [
+      "clean_factory_public_chain",
+      "C1_restore_control_clean",
+      "C1_restore_control_same_graph_spelling",
+      "C1_restore_control_registered_metadata",
+      "C1_chiral_clean_control",
+      "C1_CN_only_honest_unknown_control",
+      "C3_*",
+      "CX_boundary_*",
+      "R6_01_*",
+      "C6_*"
+    ],
+    "storage_first_existing_appearance_prod_only/all_corrupt": "created=True(+写入) -> Ppv1LedgerCorrupt(appearance_hash_corrupt) 零写入",
+    "storage_controls_kept": [
+      "none_corrupt 首提拒",
+      "valid none/prod_only/all 首提 created=True+重放 created=False",
+      "first_reused_semantic_*",
+      "multi_occurrence 全 6 案"
+    ]
+  },
+  "source_sha256_at_run": {
+    "src/pathway_v43/pollutant/profile.py": "e98b94e9de4510cf05145480f886a650a13803b2cb4e2cc881b70a765c5f4959",
+    "src/pathway_v43/pollutant/chemstate.py": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+    "src/pathway_v43/pollutant/audit.py": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+    "src/pathway_v43/pollutant/store.py": "71d2872d8c2a646f61480b943a510e79a19de9582a77881c793932527ce4994b"
+  },
+  "evidence_files_sha256": {
+    "baseline_red_output.txt": "f4bac5a9e95b0f55b86eb5b937f258dd7ba0dbe9a5efdc76599f992b0bf2763a",
+    "chem/r7_chemical_observed_assert_rerun.txt": "98d9982f6ef48b5fb74be92663018d61a1ee4d8d56b99c133f596e042ab5ba49",
+    "chem/r7_chemistry_probe_replay.jsonl": "b7b1aa56beb516e4bc397680a29fb3b960d50fe7ec12b7bda90ea5e57c96c79b",
+    "chem/r7_chemistry_probe_replay.stderr.txt": "5dd6edb8bf69a67ee8be10c637362c98ddab2d8746485afeff86b3524c95438a",
+    "chem/r8_probe_completion.output.jsonl": "fba4f99383a617444220f3327a4e944edebaa4c63670afa5b28a7f17af7b84e4",
+    "chem/r8_probe_completion.py": "7463e54e546b22b8328636724e3e37bc548c34d0e06732df4a7e6bebdd488c62",
+    "chem/r8_probe_completion.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "g01_safe_isolation/execution_result.json": "0aff9102fa8d1b3da10ba9081e6c6323e609863caf89bb93104e500755f646c4",
+    "g01_safe_isolation/g01_safe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "g01_safe_isolation/g01_safe.stdout.txt": "294e9e68608cb9dab01fa6f1d9366ee0de3605d6a00c2e05d648d1a32a62c9b5",
+    "g01_safe_isolation/input_sha256.json": "5d500cbfbee0a55432f7b16820e51606d14f035607ff9b3539ab33e1c2c7df10",
+    "g01_safe_isolation/preparation.json": "ded67d71317216d714e4d9272fd8e9d1453f4c6ca45504e6f0be23746f8f5360",
+    "g01_safe_isolation/run_result.json": "4546550d30b62bd563ef226a2781a48ac048a1b159b2a0fb13d9d4d2442b3b45",
+    "pytest_full_output.txt": "14fc7ec1a5db9f712803d36d7efcf54d00a5f8a69697eb091fdb38cc5b17ca4d",
+    "safe_g01_r8.py": "f65d2ba7e06452963a06f05279c109f7ef0905634c15a3b33d3676dd6b799db4",
+    "storage/r7_storage_observed_assert_rerun.txt": "465c6e0b07ed90eab546d7c151defd29e2dcb46fed2adebd9d714a86945d8779",
+    "storage/r7_storage_probe_replay.jsonl": "5f1cf5e2fadf34e2bad1117b1f16a589b128a6998d4b022ee898dbd7218e0a00",
+    "storage/r7_storage_probe_replay.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "README.md": "30f469ce2f6e5658fe92e312012f5a642e355ae20c25539de9170f2d70be3a51"
+  }
+}

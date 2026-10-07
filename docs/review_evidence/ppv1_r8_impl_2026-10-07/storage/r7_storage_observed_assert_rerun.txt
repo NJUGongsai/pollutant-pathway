@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_r8_impl_probe/storage_assert_observed.py", line 25, in <module>
+    outcome(case,'first',{'created':True})
+  File "/private/tmp/ppv1_r8_impl_probe/storage_assert_observed.py", line 12, in outcome
+    assert {k:got.get(k) for k in expected}==expected,(case,phase,got,expected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('first_existing_appearance_prod_only_corrupt', 'first', {'detail': {'appearance_hash': 'cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6', 'event_id': 'ppev_79db8e9a6d5575aad0c3', 'kind': 'appearance_hash_corrupt', 'state_id': 'cs_540cc0181e112b383323', 'table': 'state_appearances'}, 'error': 'Ppv1LedgerCorrupt', 'kind': 'appearance_hash_corrupt'}, {'created': True})

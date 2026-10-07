@@ -22,6 +22,18 @@ R3 复审 R3-04 与 mimo R3 1.2/1.3 的落实):
   逐字相同;**自由基分子带 |^n:…| 后缀是例外**(radical 保真轴
   为已登记缺口,身份层区分自由基)。
 
+v8(ppv1-chemstate-8,2026-10-07 R8 回修)相对 v7 的变化(Codex R7
+复审 R7-01):
+- **恢复/直接对象首次消费的纯状态验证**(validate_state_object,与
+  公共 writer 同源):ChemicalState.from_dict 恢复与 audit_hypothesis
+  直接 states 对象在首次授信前核 raw 登记守卫(raw 含未登记 CX 项
+  ⇒ 拒,不静默清洗后仍授 full/verified/R6)、raw 重推严格身份 ==
+  smiles_isomeric(同图异拼写 OCC 接受;跨分子/表示层不一致拒绝)、
+  规范身份与结构事实(state_id/formal_charge/cn_identity/立体/
+  同位素状态)按工厂同源重推导、CN-only 专用契约;不再只补 from_dict
+  留 dataclass 绕路。只核对象内部可确定的一致性,不认证来源真伪/
+  历史执行/机制。
+
 v7(ppv1-chemstate-7,2026-10-07 R7 回修)相对 v6 的变化(Codex R6
 复审 R6-02A + §4-1 P2):
 - **原始 CX 输入守卫按真实类边界逐项词法**(_guard_input_cx_classes
@@ -628,7 +640,13 @@ class ChemicalState:
             d.get("structure_origin", ""))
         payload = dict(d)
         payload["representation_fidelity"] = fidelity
-        return cls(**payload)
+        state = cls(**payload)
+        # R7-01/R8:恢复入口在首次授信前共用与公共 writer 同源的纯状态
+        # 验证(版本/fidelity 已核,此处补 raw 登记守卫、raw→strict 身份
+        # 一致、规范身份/结构事实重推导、CN-only 契约)—— 序列化载荷
+        # raw 改写(如 CCO |r|、H2 挂 CC=O)不再被恢复后送 verified/R6
+        validate_state_object(state)
+        return state
 
 
 def build_chemical_state(
@@ -731,6 +749,165 @@ def build_chemical_state_from_cn_only(
         source_refs=[dict(r) for r in (source_refs or [])],
         representation_fidelity=dict(_CN_ONLY_FIDELITY),
     )
+
+
+def validate_state_object(state: "ChemicalState") -> None:
+    """ChemicalState 对象首次消费的纯状态验证(R8;R7-01)。
+
+    与公共 writer(store._verify_state_payload_facts)同源,供
+    ChemicalState.from_dict 恢复与 audit 直接 states 消费共用 ——
+    工厂/strict/供体诊断入口的输入侧守卫不因"对象已构造"而豁免:
+
+    - 版本门(schema 未知 ⇒ 拒)+ fidelity 分轴契约(枚举 + 全四轴);
+    - 结构态(raw_input/source_product/executed_product):
+      original_structure_available 须为 True;structure_smiles_raw
+      须为非空字符串且**过输入 CX 守卫**(未登记项 ⇒ 拒 —— 静默剥掉
+      后仍称 as_written/verified 是谎称完整保真,不清洗信息再授
+      full);raw 重推严格身份须 == smiles_isomeric(同图异拼写如
+      OCC ⇒ 接受;跨分子如 H2 状态挂 CC=O raw ⇒ 拒);smiles_
+      isomeric 须为**身份键规范形**且 state_id/formal_charge/
+      cn_identity/立体/同位素状态按工厂同源重推导一致;
+    - CN-only 态(legacy_cn_only):专用命名空间身份 +
+      未知事实契约(不重推导结构,不从 CN 猜);
+    - 未知 structure_origin / 空结构且非 CN-only ⇒ 拒。
+
+    违约 ⇒ ChemicalStateError(结构化 kind);只核对象内部可确定的
+    一致性,不认证来源真伪、历史执行或机制。
+    """
+    version = state.schema_version
+    if version not in PPV1_CHEMSTATE_SUPPORTED_VERSIONS:
+        raise ChemicalStateError(
+            f"ChemicalState schema 版本未知:{version!r}(支持 "
+            f"{list(PPV1_CHEMSTATE_SUPPORTED_VERSIONS)};fail-closed,"
+            "不静默按当前版本解析)",
+            {"schema_version": version})
+    origin = state.structure_origin
+    if origin not in STRUCTURE_ORIGINS:
+        raise ChemicalStateError(
+            f"未知 structure_origin:{origin!r}(允许 "
+            f"{sorted(STRUCTURE_ORIGINS)})",
+            {"kind": "invalid_structure_origin", "origin": origin})
+    _validate_fidelity(state.representation_fidelity, str(origin))
+    if origin == STRUCTURE_ORIGIN_LEGACY_CN_ONLY:
+        # CN-only:专用命名空间身份 + 未知事实契约(与 writer 同源,
+        # 不重推导结构;结构与 CN-only 不得互相冒充)
+        cn = state.cn_identity or ""
+        expected_id = stable_id("cs", "cn-only", cn) if cn else ""
+        problems: list[str] = []
+        if state.smiles_isomeric != "":
+            problems.append("cn_only_structure_claimed")
+        if not cn:
+            problems.append("cn_identity_missing")
+        elif state.state_id != expected_id:
+            problems.append("cn_only_identity_mismatch")
+        if state.formal_charge is not None:
+            problems.append("cn_only_formal_charge_fabricated")
+        if state.original_structure_available:
+            problems.append("cn_only_original_structure_claimed")
+        if state.stereo_information_status != STEREO_UNKNOWN:
+            problems.append("cn_only_stereo_status_fabricated")
+        if state.isotope_information_status != ISOTOPE_UNKNOWN:
+            problems.append("cn_only_isotope_status_fabricated")
+        if dict(state.representation_fidelity or {}) \
+                != dict(_CN_ONLY_FIDELITY):
+            problems.append("cn_only_fidelity_fabricated")
+        if problems:
+            raise ChemicalStateError(
+                f"state:{state.state_id} 违反 CN-only 未知事实契约"
+                "(R7-01/R8:不从 CN 猜完整结构,不虚构电荷/保真/结构"
+                "可知;首次消费拒绝)",
+                {"kind": "cn_only_contract_violated",
+                 "state_id": state.state_id, "problems": problems})
+        return
+    isomeric = state.smiles_isomeric
+    if not isomeric:
+        raise ChemicalStateError(
+            f"state:{state.state_id} 为结构态(origin={origin!r})却缺"
+            " smiles_isomeric(空串不是合法 CN-only:CN-only 须 origin="
+            "legacy_cn_only 且走专用契约)",
+            {"kind": "structured_state_missing_isomeric",
+             "state_id": state.state_id})
+    if state.original_structure_available is not True:
+        raise ChemicalStateError(
+            f"state:{state.state_id} 为结构态却声明 "
+            "original_structure_available != True(结构既可得,不得"
+            "声明不可得)",
+            {"kind": "structured_state_availability_mismatch",
+             "state_id": state.state_id})
+    # 规范身份与结构事实重推导(工厂同源;state_id/电荷/CN/立体/
+    # 同位素全对,canonical 形须一致)
+    try:
+        derived = build_chemical_state(isomeric,
+                                       STRUCTURE_ORIGIN_SOURCE_PRODUCT)
+    except ChemicalStateError as exc:
+        raise ChemicalStateError(
+            f"state:{state.state_id} 的 smiles_isomeric 无法解析(首次"
+            "消费重推导失败;不猜结构)",
+            {"kind": "state_structure_unparseable",
+             "state_id": state.state_id,
+             "smiles_isomeric": isomeric[:200],
+             "reason": getattr(exc, "detail", {})}) from exc
+    mismatches: dict = {}
+    if derived.state_id != state.state_id:
+        mismatches["state_id"] = {"provided": state.state_id,
+                                  "rederived": derived.state_id}
+    if derived.formal_charge != state.formal_charge:
+        mismatches["formal_charge"] = {
+            "provided": state.formal_charge,
+            "rederived": derived.formal_charge}
+    if derived.cn_identity != state.cn_identity:
+        mismatches["cn_identity"] = {
+            "provided": state.cn_identity,
+            "rederived": derived.cn_identity}
+    if derived.stereo_information_status != state.stereo_information_status:
+        mismatches["stereo_information_status"] = {
+            "provided": state.stereo_information_status,
+            "rederived": derived.stereo_information_status}
+    if derived.isotope_information_status != state.isotope_information_status:
+        mismatches["isotope_information_status"] = {
+            "provided": state.isotope_information_status,
+            "rederived": derived.isotope_information_status}
+    if derived.smiles_isomeric != isomeric:
+        mismatches["smiles_isomeric_not_canonical"] = {
+            "provided": isomeric[:120],
+            "canonical": derived.smiles_isomeric[:120]}
+    if mismatches:
+        raise ChemicalStateError(
+            f"state:{state.state_id} 的语义事实与结构重推导不一致"
+            "(R7-01/R8:恢复/直接对象首次消费共用 writer 同源复核;"
+            "零授信)",
+            {"kind": "state_fact_rederivation_mismatch",
+             "state_id": state.state_id, "mismatches": mismatches})
+    # raw 登记守卫 + raw→strict 身份一致(原结构可得的来源都核;同图
+    # 异拼写接受,跨分子/非法 raw 拒绝;不静默清洗信息再授 full)
+    raw = state.structure_smiles_raw
+    if not isinstance(raw, str) or not raw.strip():
+        raise ChemicalStateError(
+            f"state:{state.state_id} 缺 structure_smiles_raw(原结构"
+            "可得的来源必须携带原始串)",
+            {"kind": "raw_structure_missing", "state_id": state.state_id})
+    try:
+        raw_identity = strict_identity_of(raw)
+    except ChemicalStateError as exc:
+        raise ChemicalStateError(
+            f"state:{state.state_id} 的 structure_smiles_raw 未通过输入"
+            "守卫或无法解析(R7-01/R8:原始串含未登记 CX 项即拒 —— 静默"
+            "丢弃后不得称 as_written/verified;首次消费零授信)",
+            {"kind": "raw_structure_rejected",
+             "state_id": state.state_id,
+             "structure_smiles_raw": raw[:200],
+             "reason": getattr(exc, "detail", {})}) from exc
+    if raw_identity != derived.smiles_isomeric:
+        raise ChemicalStateError(
+            f"state:{state.state_id} 的 structure_smiles_raw 解析到另一"
+            f"身份(期望 {derived.smiles_isomeric[:80]}…,实际 "
+            f"{raw_identity[:80]}…;同图异拼写接受,跨分子/表示层身份"
+            "声明不一致拒绝,R7-01/R8)",
+            {"kind": "raw_identity_mismatch",
+             "state_id": state.state_id,
+             "expected_identity": derived.smiles_isomeric,
+             "structure_smiles_raw": raw[:200],
+             "raw_identity": raw_identity})
 
 
 def strict_identity_of(structure: str) -> str:

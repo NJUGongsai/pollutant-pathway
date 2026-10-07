@@ -186,9 +186,12 @@ def test_r6_03_derive_rejects_tampered_parent() -> None:
 
 
 def test_r6_03_from_dict_rejects_signature_without_rows() -> None:
-    """R6 复审反例,基线 6d90201 红:篡改后的子载荷(id 未换)经
-    from_dict 恢复 ⇒ 基线接受且 audit R6;v7:快照一致性(签名↔
-    评估行双向)拒绝,恢复入口与 audit/derive 同源。"""
+    """R6-03 恢复入口收紧,v7 生效(基线说明按 Codex R7 §6.4 更正:
+    **id 未换**的篡改载荷经 from_dict 在基线已由内容身份层拒绝,此项
+    基线绿;R6-03 原反例的基线红在 **derive 洗出新 ID** 后恢复接受。
+    v7 新增的是快照一致性层签名↔评估行双向对应—— 保留签名/删行且
+    id 未换的形状现在在该层报 signature_row_correspondence,恢复入口
+    与 audit/derive 同源)。"""
     child = _tamper_snapshot(_ph_unknown_child())
     raw = child.to_dict()
     with pytest.raises(ConditionContractError) as ei:
@@ -328,7 +331,11 @@ def test_r6_03_invented_signature_still_rejected() -> None:
 
 def test_r6_03_snapshot_row_tampering_still_rejected() -> None:
     """既有控制(基线亦绿):摘要/旗标篡改(洗绿)在恢复与直接对象
-    入口保持拒绝(v7 签名↔行对应在其上再加一层,不替代)。"""
+    入口保持拒绝(v7 签名↔行对应在其上再加一层,不替代)。
+    R8 P2 修正:末段此前的实参顺序写反(_oxygen_hyp() 展开把 evidence
+    当 context 传,实际断的是 context_object_invalid_type 而非旗标
+    篡改);修正后 child2 的 has_gate_requirements 篡改按真实链路报
+    gate_flag_mismatch(Codex R7 §6.3)。"""
     child = _ph_unknown_child()
     raw = child.to_dict()
     raw["phase_history"][0]["environment_fit"] = "compatible"
@@ -336,5 +343,7 @@ def test_r6_03_snapshot_row_tampering_still_rejected() -> None:
         PathContext.from_dict(raw)
     child2 = _ph_unknown_child()
     child2.phase_history[0]["has_gate_requirements"] = False
-    with pytest.raises(ConditionContractError):
-        _audit(*_oxygen_hyp(), child2)
+    hyp, states, evidence = _oxygen_hyp()
+    with pytest.raises(ConditionContractError) as ei:
+        _audit(hyp, states, child2, evidence)
+    assert ei.value.detail["check"] == "gate_flag_mismatch"

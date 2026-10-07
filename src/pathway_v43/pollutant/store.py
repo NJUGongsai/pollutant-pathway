@@ -1,4 +1,19 @@
-"""PollutantPathwayStore — 新模式的独立 SQLite 账本(v7 回修,S1)。
+"""PollutantPathwayStore — 新模式的独立 SQLite 账本(v8 回修,S1)。
+
+v8(ppv1-store-8,R8 回修 2026-10-07)相对 v7 的变化(Codex R7 复审
+R7-02):
+- **首提校验 supplied SID 的既存同 (SID,hash) 出现行(R7-02)**:
+  首提复用既存行的同源校验此前把**本次事务提供的 SID**从复用集合
+  排除 —— 显式重给有效 payload 时,INSERT OR IGNORE 落在同 hash 的
+  已损坏出现行上(合成库仅改 source_refs 不改 hash),首提仍
+  created=True 并写 event/projection/plan/links,损坏被拖到无输入
+  重放才 appearance_hash_corrupt。现在该复用在**收集阶段**
+  (_collect_state_writes,首提与重放共用)立即核:既存同
+  (state_id, appearance_hash) 行的内容 hash 复算不一致 ⇒ 首提即
+  Ppv1LedgerCorrupt(appearance_hash_corrupt)、零新增,不延后、不
+  自动覆盖修库;不按 supplied/unsupplied 两套规则授信;合法
+  none/partial/all 先存、显式多来源、排序幂等与无输入重放保持;
+  已正确零写入拒绝的 state 语义冲突保持(不为改错误类型返工)。
 
 v7(ppv1-store-7,R7 回修 2026-10-07)相对 v6 的变化(Codex R6 复审
 R6-04/R6-05):
@@ -981,8 +996,13 @@ class PollutantPathwayStore:
         - **R3-09**:每个 state dict 过公共 writer 身份/事实重推导
           (`_verify_state_payload_facts`;不一致 ⇒ 结构化拒绝、回滚);
         - 已存在/待插语义相同 ⇒ 幂等;不同 ⇒ 语义冲突(回滚)。
-        同一 state_id 多次出现(先保留全部 occurrence 再归并身份,
-        R2-08)语义必然一致(由结构派生),不一致即冲突。
+          同一 state_id 多次出现(先保留全部 occurrence 再归并身份,
+        R2-08)语义必然一致(由结构派生),不一致即冲突;
+        - **R7-02/R8**:每个提供 state 的既存同 (state_id,
+          appearance_hash) 出现行是 INSERT OR IGNORE 的**实际复用
+          对象**(首提与重放共用本收集阶段)—— 立即复算其内容 hash,
+          与 hash 列不一致 ⇒ Ppv1LedgerCorrupt(损坏,不延后到重放、
+          不自动覆盖修库);显式重给有效载荷不能证明被复用行有效。
         """
         pending_semantics: dict[str, dict] = {}
         appearance_writes: list[tuple[str, str, str]] = []
@@ -1007,8 +1027,26 @@ class PollutantPathwayStore:
                           "differing_fields": _semantic_conflict_detail(
                               known, semantic)})
             pending_semantics[sid] = semantic
+            appearance_hash = content_hash(appearance)
+            # R7-02/R8:supplied SID 的既存同 hash 出现行立即核内容
+            # (首提/重放共用;行不存在 ⇒ 新增,合法)
+            existing_row = self.conn.execute(
+                "SELECT payload FROM state_appearances WHERE state_id = ?"
+                " AND appearance_hash = ?", (sid, appearance_hash)
+            ).fetchone()
+            if existing_row is not None and content_hash(
+                    json.loads(existing_row["payload"])) != \
+                    appearance_hash:
+                raise Ppv1LedgerCorrupt(
+                    f"{eid} 复用既存出现行(状态 {sid} 的同 hash 出现)"
+                    "内容与哈希不一致(损坏;显式重给有效载荷不能证明"
+                    "被复用行有效,不自动覆盖修库,零写入)",
+                    {"event_id": eid, "table": "state_appearances",
+                     "kind": "appearance_hash_corrupt",
+                     "state_id": sid,
+                     "appearance_hash": appearance_hash})
             appearance_writes.append((
-                sid, content_hash(appearance),
+                sid, appearance_hash,
                 json.dumps(appearance, ensure_ascii=False, sort_keys=True)))
         return pending_semantics, appearance_writes
 
@@ -1598,7 +1636,9 @@ class PollutantPathwayStore:
             # _verify_stored_state_rows / _verify_stored_appearances,
             # 损坏 ⇒ 首提即 Ppv1LedgerCorrupt、零写入,不以"重放能
             # 发现"代替。合法先存行(全量/部分先存、显式绑定路径)
-            # 幂等通过。
+            # 幂等通过。R7-02/R8:supplied SID 的既存同 (SID,hash)
+            # 出现行的复用校验在 _collect_state_writes(收集阶段)同源
+            # 执行,不再把"本次提供"从复用校验中豁免。
             supplied_sids = {sid for sid, _, _ in appearance_writes}
             reuse_refs = derived_refs - supplied_sids
             if reuse_refs:

@@ -266,7 +266,7 @@ def test_r2_04_context_json_roundtrip_v3() -> None:
         root, scenario_transition={"new_phase_id": "p1",
                                    "source_ref": "user:t"})
     d = child.to_dict()
-    assert d["schema_version"] == "ppv1-context-7"
+    assert d["schema_version"] == "ppv1-context-8"
     restored = PathContext.from_dict(d)
     assert restored.context_id == child.context_id
     assert restored.phase_history == child.phase_history
@@ -591,7 +591,7 @@ def test_r2_07_hypothesis_from_dict_gate_v3() -> None:
     sub, prod = _states_for_hyp()
     h = _hyp(sub, prod, [r(CONDITION_KEY_OXYGEN, "aerobic")])
     d = h.to_dict()
-    assert d["schema_version"] == "ppv1-hypothesis-7"
+    assert d["schema_version"] == "ppv1-hypothesis-8"
     assert ReactionHypothesis.from_dict(d).hypothesis_id == h.hypothesis_id
     bad = dict(d)
     bad["schema_version"] = "ppv1-hypothesis-999"

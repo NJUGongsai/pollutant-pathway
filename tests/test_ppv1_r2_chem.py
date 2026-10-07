@@ -388,7 +388,7 @@ def test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified(
                  {"dC": "S_C_2", "dO": "S_O_1"})
     assert diag.reaction_center_match is True
     evidence = center_evidence_from_donor_diagnostic(diag)
-    assert evidence["checker_version"] == "ppv1-donor-diagnostic-7"
+    assert evidence["checker_version"] == "ppv1-donor-diagnostic-8"
     assert evidence["checker_scope"] == "region_net_change"
     # 绑定输入携带本诊断的全部科学输入(R3-01)
     bound = evidence["bound_inputs"]
@@ -442,7 +442,7 @@ def test_r4_01_name_only_evidence_not_verified() -> None:
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),
-        center_evidence={"checker_version": "ppv1-donor-diagnostic-7",
+        center_evidence={"checker_version": "ppv1-donor-diagnostic-8",
                          "center_match": True,
                          "checker_scope": "region_net_change"})
     center = next(c for c in audit.checks
