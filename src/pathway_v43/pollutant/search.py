@@ -33,21 +33,57 @@ artifact 校验、低层提交恢复协议、停止原因、四崩溃/H05–H08/
 - S3A-05 停止报告披露:claimed action 与 open attempt 计入 unexplored
   并阻止 exhausted_search(执行未完成不得称"所有路线都探索完")。
 
-入口矩阵(每处消费的对象/身份/版本/权威及校验来源;回修 r2 更新):
+**S3a 回修 r3(2026-10-07,Codex S3a 复审 R2 残余三组 S3A-02/03/04;
+契约 ppv1-search-2 → -3)**:本版把三组残余 P1 的消费缺口闭合(见各
+方法 docstring 的"S3A-0x r3"标注):
+
+- S3A-02 完整搜索权威与附随语义:预约行级内容核验(单位恒 1、状态
+  合法且未释放、各 limit 所需 scope/subject 与创建参数同源、主体
+  共享 alternative 预约按 scope=parent+subject=本 action attempt 的
+  hypothesis 识别)、attempt 状态/hypothesis/task 同源交叉核验
+  (claimed ⇒ open、done ⇒ recorded/failed;attempt task_key 与
+  action 冻结 task_key 一致;同 action 的 attempt hypothesis 唯一且
+  与 alternatives 预约主体一致);提交记录核 run/action 归属、合法
+  kind、事件类记录非空 event_id、适用 attempt 引用(存在/归属);
+  done 四入口(claim 复用/submit 复用/complete 已有 commit 复用/
+  recover done)与 first complete/B4 一致消费完整引用,不只核
+  "行存在/run/action";附随 projection/plan 经公共 store 新增只读
+  verify_event_attachment_content 按首提同一判据核内容(不从当前
+  坏行取出再自比较);B3 在事件提交**之前**先核必要 attempt/预约
+  引用(坏链 0 event/commit/consume 并保全 artifact);done submit
+  只返回真实已完成 event(提交异身份事件是明确冲突,不能 created=
+  False 却返回未存储的 foreign event);
+- S3A-03 冻结策略消费不补默认:register 落账**完整装配块**(用户
+  partial 覆盖经 validate_search_limits 合法补齐后存储;幂等/冲突
+  按装配后完整块比较);存储块读取/恢复/预算/认领/请求消费先严格核
+  类型/必需完整键/版本(validate_frozen_search_limits;null/缺版本/
+  坏值消费前结构化拒、零执行预约,budget 0 不被坏恢复变默认 10);
+  recover 不传 expected policy 同样先严格核存储块(不靠调用方传
+  expected 或先手工校验弥补公共恢复缺口);
+- S3A-04 所有请求消费同源冻结引用:已有 row 复用对照 stored 与
+  incoming 的 run/action/attempt/provider/目的/payload digest/
+  retry_of(request_id 派生输入被改坏的存储行按身份冲突拒,零写入);
+  发送/响应/失败/恢复共用 _verify_request_execution 并补 run 绑定
+  (request.run_id == action.run_id)与 expand 必要 attempt(非
+  expand 合法空 attempt 保留);恢复的 pending 请求逐行同源守卫,
+  坏/失效引用结构化披露,不伪装普通合法 pending、不新状态成功
+  写入/不猜补。
+
+入口矩阵(每处消费的对象/身份/版本/权威及校验来源;回修 r3 更新):
 
 | # | 入口 | 消费 | 校验/事务 |
-| 1 | register_search_run | profile 身份块(search_limits) | 十键同源校验(profile.validate_search_limits;四非法块零写入拒);幂等/异块冲突 |
-| 2 | enqueue_action | 任务身份输入(run/父/context/subject/kind/revision/policy) | 幂等;同键异内容冲突;深度/宽度结构性拒绝;_limits 读取时同源校验 |
-| 3 | claim_action | 冻结 action 行 + 预算账 | BEGIN IMMEDIATE;all-or-nothing 预约;done 复用前经完整提交权威核验(S3A-02) |
+| 1 | register_search_run | profile 身份块(search_limits) | 十键同源校验(profile.validate_search_limits;四非法块零写入拒);**落账完整装配块**;幂等/异块冲突按装配后块比较(S3A-03 r3) |
+| 2 | enqueue_action | 任务身份输入(run/父/context/subject/kind/revision/policy) | 幂等;同键异内容冲突;深度/宽度结构性拒绝;_limits 读取**严格冻结块校验**(S3A-03 r3:不补默认) |
+| 3 | claim_action | 冻结 action 行 + 预算账 | BEGIN IMMEDIATE;all-or-nothing 预约;done 复用前经完整提交权威+记录+引用核验(S3A-02) |
 | 4 | create/continue attempt | hypothesis 语义尝试 | 恢复同 attempt 不再扣;新备选/重开换 attempt |
-| 5 | register_model_request | 请求载荷+执行引用 | 同键异身份内容冲突(S3A-04);action 须 claimed、attempt 归属且 open;真实 provider 预登记即时占额 |
-| 6 | record_request_sent/response/failed | 请求状态迁移 | 状态机 + 执行引用闭合(已释放执行权不可继续发送/记响应,S3A-04) |
-| 7 | submit_action_event | PathwayEvent(冻结身份) | 沿 action 冻结 run/parent/hypothesis/context;经公共 store.submit_event(不绕过首消费验证);done 复用前经提交权威核验 |
+| 5 | register_model_request | 请求载荷+执行引用 | 同键异身份内容冲突(S3A-04;**已有 row 复用对照 stored/incoming 全部身份列**,r3);action 须 claimed、attempt 归属且 open;真实 provider 预登记即时占额 |
+| 6 | record_request_sent/response/failed | 请求状态迁移 | 状态机 + 执行引用闭合(**run 绑定 + expand 必要 attempt**,r3;已释放执行权不可继续发送/记响应) |
+| 7 | submit_action_event | PathwayEvent(冻结身份) | 沿 action 冻结 run/parent/hypothesis/context;经公共 store.submit_event(不绕过首消费验证);done 复用前经提交权威+引用核验,**返回真实已完成 event 或明确冲突**(r3) |
 | 8 | write_commit_bundle | 事件+投影+计划+states+假设 | 事件身份冻结到 action + task_key 绑定(S3A-01);不可覆盖 |
-| 9 | complete_action | 认领所有权+事件/引用权威 | 事件类 outcome:非空/存在/身份冻结/完整账权威;attempt/预约引用行核验;幂等复用同样核验(S3A-02) |
-| 10 | defer_action | 认领所有权+未执行事实 | 先核未执行(事件/请求/attempt 执行证据 ⇒ 拒);合法未执行释放预约、abandon attempt、registered 请求转 abandoned(S3A-03) |
-| 11 | recover_run | 持久权威记录 | B4/done 经 complete/_verify_commit_event 完整权威;B3 经 bundle 身份+公共 writer;B1 核引用行;损坏保全失败(H07/H08) |
-| 12 | budget_snapshot / stop_report | 持久记录派生值 | 内存重置仍从记录复算;stop 披露 claimed/open attempt(S3A-05) |
+| 9 | complete_action | 认领所有权+事件/引用权威 | 事件类 outcome:非空/存在/身份冻结/完整账权威+**附随内容同源核验**;attempt/预约**行级内容**核验(r3);已有 commit 复用同样核记录归属/kind/适用引用+完整引用(r3);幂等复用同样核验(S3A-02) |
+| 10 | defer_action | 认领所有权+未执行事实 | 先核未执行(事件/请求/attempt 执行证据 ⇒ 拒);引用行**行级内容**核验(r3);合法未执行释放预约、abandon attempt、registered 请求转 abandoned(S3A-03) |
+| 11 | recover_run | 持久权威记录 | **先严格核冻结策略块**(r3);B4/done 经 complete/_verify_commit_event 完整权威+记录+引用;B3 经 bundle 身份+**事件提交前引用前置核验**+公共 writer;B1 核引用行;pending 请求逐行同源守卫(r3);损坏保全失败(H07/H08) |
+| 12 | budget_snapshot / stop_report | 持久记录派生值 | _limits 严格冻结块校验(r3);内存重置仍从记录复算;stop 披露 claimed/open attempt(S3A-05) |
 
 预算账表(十上限的预约/consume/release 边界;持久行为事实源):
 
@@ -114,6 +150,7 @@ from .events import PathwayEvent, event_id_for
 from .profile import (
     PPV1_SEARCH_SCHEMA_VERSION,
     SEARCH_LIMITS_VERSION,
+    validate_frozen_search_limits,
     validate_search_limits,
 )
 from .store import PollutantPathwayStore
@@ -182,6 +219,39 @@ RESERVATION_STATUSES = frozenset({
 COMMIT_KIND_EVENT = "event_committed"
 COMMIT_KIND_OUTCOME = "outcome_recorded"
 COMMIT_KINDS = frozenset({COMMIT_KIND_EVENT, COMMIT_KIND_OUTCOME})
+
+# ---- S3A-02 r3:预约行内容判据(与 _reserve/_create_attempt 的创建
+# 参数同源;不另造第二套规则) ----
+# limit_key → (期望 scope 来源, 期望 subject 来源):
+#   ""          ⇒ scope 必须为空串(run 级)
+#   "parent"    ⇒ scope == 本 action 的 parent_path_id
+#   "hypothesis" ⇒ scope == 所引用 attempt 的 hypothesis_id
+# subject:action ⇒ subject == 本 action_id;hypothesis ⇒ subject ==
+# 本 action attempt 的 hypothesis_id;attempt ⇒ subject == attempt_id
+# (scope 为该 attempt 的 hypothesis_id)。
+_RESERVATION_CONTENT = {
+    "max_total_search_actions": ("", "action"),
+    "max_retrievals_per_parent": ("parent", "action"),
+    "max_retrievals_total": ("", "action"),
+    "max_scenario_transitions": ("", "action"),
+    "max_alternative_hypotheses_per_parent": ("parent", "hypothesis"),
+    "max_attempts_per_hypothesis": ("hypothesis", "attempt"),
+    "max_reopens_per_hypothesis": ("hypothesis", "attempt"),
+    "max_real_model_requests": ("", "request"),
+}
+# limit_key → 仅适用的 action kind(None = 任意 kind)。max_real_model_
+# requests 的预约行由 register_model_request 直接创建,**不进** action
+# 的 budget_reservation_ref(出现即记账不变量破坏)。
+_RESERVATION_KIND_APPLICABILITY = {
+    "max_total_search_actions": None,
+    "max_retrievals_per_parent": ACTION_KIND_RETRIEVE,
+    "max_retrievals_total": ACTION_KIND_RETRIEVE,
+    "max_scenario_transitions": ACTION_KIND_SCENARIO_TRANSITION,
+    "max_alternative_hypotheses_per_parent": ACTION_KIND_EXPAND_HYPOTHESIS,
+    "max_attempts_per_hypothesis": ACTION_KIND_EXPAND_HYPOTHESIS,
+    "max_reopens_per_hypothesis": ACTION_KIND_EXPAND_HYPOTHESIS,
+    "max_real_model_requests": None,
+}
 
 # ---- 停止原因(S3 版本登记;主因优先级冻结于 profile) ----
 
@@ -376,6 +446,34 @@ def _event_identity_mismatch(action_row, event) -> dict | None:
     return mismatch or None
 
 
+def _normalized_policy_block(policy_block: dict) -> dict:
+    """S3A-03 r3:注册/恢复共用的策略块装配 —— search_limits 经
+    validate_search_limits(**用户覆盖装配语义**:缺省键合法补默认,
+    输出恒为完整块),其余键原样保留。块非 dict/无 search_limits/
+    版本不符 ⇒ ValueError(调用方按各自入口包装为结构化失败)。
+    register 持久化装配后的完整块;恢复的 expected 身份比较按装配后
+    块进行(同一 effective 策略 ⇒ 同一身份)。"""
+
+    if not isinstance(policy_block, dict):
+        raise ValueError(
+            f"search policy 块必须是 dict,得到 {type(policy_block).__name__}")
+    limits = policy_block.get("search_limits")
+    if not isinstance(limits, dict) \
+            or limits.get("version") != SEARCH_LIMITS_VERSION:
+        raise ValueError(
+            "search policy 块须含版本正确的 search_limits"
+            f"(当前 {SEARCH_LIMITS_VERSION})")
+    normalized = dict(policy_block)
+    normalized["search_limits"] = validate_search_limits(limits)
+    return normalized
+
+
+def _encoded_policy_block(policy_block: dict) -> str:
+    """装配后策略块的规范序列化(幂等/身份比较的同一字节判据)。"""
+    return json.dumps(_normalized_policy_block(policy_block),
+                      ensure_ascii=False, sort_keys=True)
+
+
 # ---- 停止原因解析(H05;纯规则级) ----
 
 
@@ -533,38 +631,37 @@ class SearchLedger:
     def register_search_run(self, run_id: str, policy_block: dict) -> None:
         """run 的搜索策略注册(配置实际计数,完整往返可重放)。
 
-        - policy_block 至少含 search_limits(经 profile 校验的完整块);
+        - policy_block 至少含 search_limits(**S3A-03 r3:落账完整装配
+          块** —— 用户 partial 覆盖经 validate_search_limits 合法补齐
+          为完整块后存储,读取/恢复消费按 validate_frozen_search_limits
+          严格核完整键,存储块缺/null ⇒ 消费前结构化拒,不再依赖装配
+          语义补默认);
         - **S3A-03:注册入口共用现成十键类型/范围/版本校验**(单一实现
           profile.validate_search_limits,不在本层复制):未知键/bool/
           负数/越界块在写入**之前**拒绝(零写入),不借 int coercion
           接受 bool、不让越界块入账后仅按额度不足拒;
-        - 重复注册:幂等(同 run 同块);同 run 异块 ⇒ 身份冲突拒绝
-          (不原地切换策略;语义改变升版本开新 run);
+        - 重复注册:幂等(同 run 同 effective 策略 —— 按装配后完整块
+          比较);同 run 异块 ⇒ 身份冲突拒绝(不原地切换策略;语义
+          改变升版本开新 run);
         - 未注册 run 的 enqueue/claim/恢复一律 fail-closed。
         """
-        limits = (policy_block or {}).get("search_limits")
-        if not isinstance(limits, dict) or \
-                limits.get("version") != SEARCH_LIMITS_VERSION:
-            raise SearchContractError(
-                f"run {run_id} 的 search policy 块非法(须含经 profile "
-                f"校验的完整 search_limits,版本 {SEARCH_LIMITS_VERSION})",
-                {"run_id": run_id, "kind": "invalid_search_policy_block"})
         try:
-            validate_search_limits(limits)
+            encoded = _encoded_policy_block(policy_block)
         except ValueError as exc:
             raise SearchContractError(
-                f"run {run_id} 的 search policy 块非法(十键类型/范围/"
-                f"版本同源校验失败;零写入):{exc}",
+                f"run {run_id} 的 search policy 块非法(须含经 profile "
+                f"校验的 search_limits,版本 {SEARCH_LIMITS_VERSION})",
                 {"run_id": run_id, "kind": "invalid_search_policy_block",
                  "reason": str(exc)[:300]}) from exc
-        encoded = json.dumps(policy_block, ensure_ascii=False,
-                             sort_keys=True)
         self._begin()
         try:
             row = self.conn.execute(
                 "SELECT policy_block FROM search_runs WHERE run_id = ?",
                 (run_id,)).fetchone()
             if row is not None:
+                # r3 注册侧即落账装配后完整块 ⇒ 幂等比较按同一规范序列化;
+                # 存储块被改坏(不再与任何合法装配块字节相等)同样按
+                # 冲突拒绝,不静默改写、不猜迁移
                 if row["policy_block"] != encoded:
                     raise SearchIdentityConflict(
                         f"run {run_id} 已注册不同搜索策略(不原地切换;"
@@ -582,9 +679,12 @@ class SearchLedger:
             raise
 
     def _limits(self, run_id: str) -> dict:
-        """读取 run 的搜索上限(**S3A-03:读取/恢复实际消费配置用与
-        注册/装配同一实现的十键类型/范围/版本校验**;存储块被改坏 ⇒
-        消费前结构化拒绝,不猜数据)。"""
+        """读取 run 的搜索上限(**S3A-03 r3:已冻结存储块的严格消费
+        核验** —— validate_frozen_search_limits:非 dict/null、缺
+        "version"、缺任一必需预算键、未知键、坏类型/越界一律消费前
+        结构化拒绝,零执行/零预约;不补默认、不猜迁移。装配补齐只在
+        register 的写入侧发生,存储块被改坏 ⇒ 读取/恢复/预算/认领/
+        请求消费前拒)。"""
         row = self.conn.execute(
             "SELECT policy_block FROM search_runs WHERE run_id = ?",
             (run_id,)).fetchone()
@@ -595,14 +695,15 @@ class SearchLedger:
                  "kind": "search_run_unregistered"})
         try:
             block = json.loads(row["policy_block"])
-            limits = (block or {}).get("search_limits")
-            return validate_search_limits(limits)
+            limits = (block or {}).get("search_limits") \
+                if isinstance(block, dict) else None
+            return validate_frozen_search_limits(limits)
         except SearchRecoveryError:
             raise
         except Exception as exc:
             raise SearchRecoveryError(
-                f"run {run_id} 的存储搜索策略块非法(同源十键校验失败;"
-                f"不猜数据、不静默修块):{exc}",
+                f"run {run_id} 的存储搜索策略块非法(严格冻结块校验失败;"
+                f"不猜数据、不静默修块、不补默认):{exc}",
                 {"run_id": run_id,
                  "kind": "search_policy_block_corrupt",
                  "reason": str(exc)[:300]}) from exc
@@ -1002,11 +1103,13 @@ class SearchLedger:
           abandoned 的 attempt 是已失效执行引用);空 attempt 仅对
           非 expand 类合法(decide/retrieve 的 action 驱动路径),
           expand 类请求必须绑定语义 attempt;
-        - **S3A-04 同键幂等须同身份内容**:已有同 request_id 行时比对
-          action/purpose/payload_hash/retry_of(其余身份列已进 ID 派生),
-          任一不同 ⇒ SearchIdentityConflict 结构化冲突、零写入(同键换
-          payload/换 purpose/换 action/存储 hash 被改坏后重注册均拒),
-          不以"键相同"当幂等证书;
+        - **S3A-04 同键幂等须同身份内容(r3 扩展)**:已有同 request_id
+          行时比对**全部**身份内容 —— run/attempt/provider(request_id
+          派生输入;存储行被改坏后原参数重登记 ⇒ 冲突)、action/
+          purpose/payload_hash/retry_of,任一不同 ⇒ SearchIdentity
+          Conflict 结构化冲突、零写入(同键换 payload/换 purpose/换
+          action/存储 hash 被改坏后重注册均拒),不以"键相同"当幂等
+          证书;
         - provider_kind=real ⇒ 即时占 max_real_model_requests 额度
           (失败/超时/悬空均占额,永不释放);额度 0 ⇒ 拒绝登记
           ⇒ 网络发送被阻止(PPV1 不接受"传了模型对象就派生正额度");
@@ -1098,8 +1201,23 @@ class SearchLedger:
                 "SELECT * FROM model_requests WHERE request_id = ?",
                 (request_id,)).fetchone()
             if row is not None:
-                # ---- S3A-04:同键幂等须同身份内容(异内容零写入拒) ----
+                # ---- S3A-04 r3:同键幂等须同身份内容(异内容零写入拒;
+                # 对照 stored 与 incoming 的**全部**身份列 —— run/
+                # attempt/provider 已进 request_id 派生,存储行被改坏
+                # (run_id/attempt_id/provider_kind 与派生输入不一致)
+                # 时不能以"键相同"当幂等证书) ----
                 conflicts: dict = {}
+                if row["run_id"] != run_id:
+                    conflicts["run_id"] = {
+                        "stored": row["run_id"], "submitted": run_id}
+                if row["attempt_id"] != attempt_id:
+                    conflicts["attempt_id"] = {
+                        "stored": row["attempt_id"],
+                        "submitted": attempt_id}
+                if row["provider_kind"] != provider_kind:
+                    conflicts["provider_kind"] = {
+                        "stored": row["provider_kind"],
+                        "submitted": provider_kind}
                 if row["action_id"] != action_id:
                     conflicts["action_id"] = {
                         "stored": row["action_id"], "submitted": action_id}
@@ -1169,10 +1287,21 @@ class SearchLedger:
 
     def _verify_request_execution(self, request_row, *,
                                   where: str) -> None:
-        """S3A-04:请求**状态消费**前的执行引用闭合 —— 请求行引用的
-        action 存在且处于 claimed、attempt(若绑定)存在/归属本 action
-        且 open。已释放执行权(action deferred/done/attempt abandoned
-        等)不可继续发送/记录响应/记失败;不能消费不存在或异属引用。"""
+        """S3A-04(r3 扩展):请求**状态消费**前的执行引用闭合 —— 请求行
+        引用的 action 存在且处于 claimed、attempt(若绑定)存在/归属本
+        action 且 open。已释放执行权(action deferred/done/attempt
+        abandoned 等)不可继续发送/记录响应/记失败;不能消费不存在或
+        异属引用。
+
+        **r3 补充(发送/响应/失败/恢复同源)**:
+        - **run 绑定**:request_row.run_id 必须与引用 action 的 run_id
+          一致(存储行 run 被改坏成 foreign run ⇒ 结构化拒,不把已
+          损坏的请求权威当合法执行引用);
+        - **expand 必要 attempt**:expand 类 action 的请求必须绑定
+          非空 attempt(存储行 attempt 被清空 ⇒ 拒;空 attempt 仅
+          非 expand 类合法 —— 与登记入口同一判据);
+        - attempt 绑定核 run 归属(attempt.run_id 与 action run 一致)。
+        """
         action_id = request_row["action_id"]
         action_row = self.conn.execute(
             "SELECT * FROM search_actions WHERE action_id = ?",
@@ -1193,6 +1322,29 @@ class SearchLedger:
                  "action_id": action_id, "where": where,
                  "kind": "request_execution_released",
                  "action_status": action_row["status"]})
+        # ---- r3:run 绑定(请求行 run 被改坏成 foreign run ⇒ 拒) ----
+        if request_row["run_id"] != action_row["run_id"]:
+            raise SearchContractError(
+                f"{where}:请求 {request_row['request_id']} 的 run 绑定"
+                f"与引用 action {action_id} 不一致(请求 run "
+                f"{request_row['run_id']!r} vs action run "
+                f"{action_row['run_id']!r};异 run 请求权威损坏,不可"
+                "消费)",
+                {"request_id": request_row["request_id"],
+                 "action_id": action_id, "where": where,
+                 "request_run": request_row["run_id"],
+                 "action_run": action_row["run_id"],
+                 "kind": "request_run_binding_mismatch"})
+        # ---- r3:expand 必要 attempt(空 attempt 仅非 expand 合法) ----
+        if not request_row["attempt_id"] and action_row["action_kind"] == \
+                ACTION_KIND_EXPAND_HYPOTHESIS:
+            raise SearchContractError(
+                f"{where}:请求 {request_row['request_id']} 绑定 expand "
+                f"action {action_id} 但缺语义 attempt(存储行 attempt "
+                "被清空/未绑定 ⇒ 拒;与登记入口同一判据)",
+                {"request_id": request_row["request_id"],
+                 "action_id": action_id, "where": where,
+                 "kind": "request_attempt_required_for_expand"})
         if request_row["attempt_id"]:
             attempt_row = self.conn.execute(
                 "SELECT * FROM search_attempts WHERE"
@@ -1214,6 +1366,17 @@ class SearchLedger:
                     {"request_id": request_row["request_id"],
                      "action_id": action_id,
                      "attempt_id": request_row["attempt_id"],
+                     "where": where,
+                     "kind": "request_attempt_binding_mismatch"})
+            if attempt_row["run_id"] != action_row["run_id"]:
+                raise SearchContractError(
+                    f"{where}:请求 {request_row['request_id']} 引用的"
+                    f" attempt {request_row['attempt_id']} 的 run 归属与"
+                    " action 不一致(异属执行引用)",
+                    {"request_id": request_row["request_id"],
+                     "action_id": action_id,
+                     "attempt_id": request_row["attempt_id"],
+                     "attempt_run": attempt_row["run_id"],
                      "where": where,
                      "kind": "request_attempt_binding_mismatch"})
             if attempt_row["status"] != ATTEMPT_STATUS_OPEN:
@@ -1338,8 +1501,9 @@ class SearchLedger:
         - 事件提交走既有冻结事务(全部首消费验证照常,本模块不复制
           校验、不绕过 chemstate/store 契约);
         - 提交前核认领所有权与冻结身份一致性(陈旧 worker 拒绝;
-          done ⇒ 幂等复用,不覆盖;**S3A-02**:done 复用同样经完整
-          提交权威核验,不能 get 索引即成功);
+          done ⇒ 幂等复用,不覆盖;**S3A-02 r3**:done 复用经完整
+          提交权威+记录+引用核验后**只返回真实已完成 event**(提交
+          异身份事件是明确冲突,不返回未存储的 foreign event 引用));
         - 提交后记账未闭合 ⇒ B4,由 complete_action / recover_run 补;
         - 同事件重放幂等(store 既有行为):retry/owner/attempt 变化
           不新增事件。
@@ -1352,9 +1516,35 @@ class SearchLedger:
                 f"action 不存在:{action_id}",
                 {"action_id": action_id, "kind": "action_missing"})
         if row["status"] == ACTION_STATUS_DONE:
+            # S3A-02 r3:done 复用同样经完整提交权威 + 记录 + 冻结引用
+            # 核验(不能 get 索引即成功);**只返回真实已完成的结算
+            # 结果** —— 提交事件的身份仍须冻结到 action(异身份事件是
+            # 明确冲突,不能 created=False 却把未存储的 foreign event
+            # 当已完成引用返回)
             self._verify_done_action_authority(row)
-            return {"created": False, "event_id": event.event_id,
-                    "reason": "already_completed"}
+            commit_row = self.conn.execute(
+                "SELECT * FROM search_commit_records WHERE action_id = ?",
+                (action_id,)).fetchone()
+            mismatch = _event_identity_mismatch(row, event)
+            if mismatch:
+                raise SearchContractError(
+                    f"action {action_id} 已完成,提交的事件身份与冻结身份"
+                    "不一致(明确冲突;不覆盖既有完成结果,不把未存储的"
+                    "事件当完成引用;零写入)",
+                    {"action_id": action_id,
+                     "kind": "event_identity_not_frozen_to_action",
+                     "mismatch": mismatch,
+                     "completed_event_id": commit_row["event_id"]
+                     if commit_row is not None else "",
+                     "completed_outcome_ref": row["outcome_ref"]})
+            completed_event_id = commit_row["event_id"] \
+                if commit_row is not None else ""
+            return {"created": False, "reason": "already_completed",
+                    "event_id": completed_event_id,
+                    "submitted_event_id": event.event_id,
+                    "outcome_ref": row["outcome_ref"],
+                    "commit_kind": commit_row["commit_kind"]
+                    if commit_row is not None else ""}
         if row["status"] != ACTION_STATUS_CLAIMED:
             raise SearchClaimError(
                 f"action {action_id} 状态为 {row['status']}(未处于认领"
@@ -1458,17 +1648,38 @@ class SearchLedger:
         return self.artifact_store.write(
             task_key, "search_commit_bundle", payload)
 
-    def _verify_action_references(self, action_row) -> None:
-        """S3A-02/03:action 冻结引用的行级核验(写账/挂起/恢复前)。
+    def _verify_action_references(self, action_row, *,
+                                  where: str = "action_references",
+                                  done: bool = False) -> None:
+        """S3A-02/03(r3 扩展):action 冻结引用的**行级内容**核验
+        (写账/挂起/恢复/done 复用之前;不只核"行存在/run/action")。
 
         - claim 必留 ≥1 预约引用、expand 必留 ≥1 attempt 引用
           (空引用集合 = 记账不变量破坏,缺权威失败);
-        - 每个预约/attempt 行必须存在且归属本 run/本 action(引用行被
-          删/被挪 ⇒ UPDATE 0 行不是成功,是缺权威失败,不猜补坏行);
-        - claimed 状态下出现已释放预约 ⇒ 不变量破坏。
+        - 每个预约行:存在且归属本 run;action 归属(例外:主体共享的
+          max_alternative_hypotheses_per_parent 预约按设计跨 action
+          共享,id_basis=主体 —— 以 scope=本 action 父路径 + subject=
+          本 action attempt 的 hypothesis_id 同源识别,不要求共享行
+          由本 action 创建);**单位恒 1**(创建参数同源;改 0 ⇒ 已执行
+          而预算 used=0);**状态合法**(未知状态 ⇒ 拒;released 出现
+          在认领/完成链 ⇒ 不变量破坏;done 复用路径要求 consumed);
+          **scope/subject 与创建参数同源**(各 limit 所需范围/主体,
+          见 _RESERVATION_CONTENT;limit_key 未知/与 action kind 不
+          适用 ⇒ 拒;max_real_model_requests 预约不属 action 引用);
+        - 每个 attempt 行:存在且归属本 run/本 action(引用行被删/被挪
+          ⇒ UPDATE 0 行不是成功,是缺权威失败,不猜补坏行);**状态
+          合法且与 action 状态匹配**(claimed ⇒ open,done ⇒ recorded/
+          failed;abandoned/recorded 挂在 claimed 链上 ⇒ 拒);
+          **task_key 与 action 冻结 task_key 一致**(创建参数同源);
+          **同 action 的 attempt hypothesis_id 唯一且与 alternatives
+          预约主体一致**(hypothesis_binding 非空时主体是 binding 而
+          非 subject_ref,判据取 attempt 行记录的同一来源)。
         """
         action_id = action_row["action_id"]
         run_id = action_row["run_id"]
+        kind = _row_get(action_row, "action_kind", "")
+        parent_path_id = _row_get(action_row, "parent_path_id", "")
+        task_key = _row_get(action_row, "task_key", "")
         reservation_refs = json.loads(
             _row_get(action_row, "budget_reservation_ref", "[]") or "[]")
         attempt_refs = json.loads(
@@ -1477,87 +1688,245 @@ class SearchLedger:
             raise SearchIntegrityError(
                 f"action {action_id} 处于认领状态但无预算预约引用(记账"
                 "不变量破坏;缺权威,不补账)",
-                {"action_id": action_id, "run_id": run_id,
+                {"action_id": action_id, "run_id": run_id, "where": where,
                  "kind": "claimed_action_reservation_missing"})
-        if action_row["action_kind"] == ACTION_KIND_EXPAND_HYPOTHESIS \
-                and not attempt_refs:
+        if kind == ACTION_KIND_EXPAND_HYPOTHESIS and not attempt_refs:
             raise SearchIntegrityError(
                 f"expand action {action_id} 认领后无 attempt 引用(记账"
                 "不变量破坏;缺权威,不补账)",
-                {"action_id": action_id, "run_id": run_id,
+                {"action_id": action_id, "run_id": run_id, "where": where,
                  "kind": "claimed_action_attempt_missing"})
-        for rid in reservation_refs:
-            rrow = self.conn.execute(
-                "SELECT run_id, limit_key, scope, subject, action_id,"
-                " status FROM budget_reservations"
-                " WHERE reservation_id = ?", (rid,)).fetchone()
-            if rrow is None:
-                raise SearchIntegrityError(
-                    f"action {action_id} 的预算预约行缺失:{rid}(引用"
-                    "完整性失败;保全,不补账/不重建新 ID 洗损坏)",
-                    {"action_id": action_id, "run_id": run_id,
-                     "reservation_id": rid,
-                     "kind": "reservation_row_missing"})
-            if rrow["run_id"] != run_id:
-                raise SearchIntegrityError(
-                    f"action {action_id} 的预算预约 {rid} 归属不一致"
-                    "(run 绑定破坏;保全失败)",
-                    {"action_id": action_id, "run_id": run_id,
-                     "reservation_id": rid,
-                     "reservation_run": rrow["run_id"],
-                     "reservation_action": rrow["action_id"],
-                     "kind": "reservation_binding_mismatch"})
-            if rrow["action_id"] != action_id:
-                # 主体作用域预约(同父同假设的 alternatives)按设计跨
-                # action 共享(id_basis=主体,非 action);此时核
-                # scope=本 action 父路径与 subject=本 action 主体,
-                # 其余 limit 的预约行必须由本 action 创建
-                shared_ok = (
-                    rrow["limit_key"] ==
-                    "max_alternative_hypotheses_per_parent"
-                    and rrow["scope"] == action_row["parent_path_id"]
-                    and rrow["subject"] == action_row["subject_ref"])
-                if not shared_ok:
-                    raise SearchIntegrityError(
-                        f"action {action_id} 的预算预约 {rid} 归属不一致"
-                        "(action 绑定破坏;保全失败)",
-                        {"action_id": action_id, "run_id": run_id,
-                         "reservation_id": rid,
-                         "reservation_run": rrow["run_id"],
-                         "reservation_action": rrow["action_id"],
-                         "kind": "reservation_binding_mismatch"})
-            if rrow["status"] == RESERVATION_STATUS_RELEASED:
-                raise SearchIntegrityError(
-                    f"action {action_id} 的预算预约 {rid} 已被释放却仍处"
-                    "认领链(记账不变量破坏)",
-                    {"action_id": action_id, "run_id": run_id,
-                     "reservation_id": rid,
-                     "kind": "reservation_released_under_claim"})
+        # ---- attempt 行:存在/归属 + 状态/task_key/hypothesis 内容 ----
+        attempt_hypothesis: dict[str, str] = {}
         for aid in attempt_refs:
             arow = self.conn.execute(
-                "SELECT run_id, action_id FROM search_attempts WHERE"
+                "SELECT * FROM search_attempts WHERE"
                 " expansion_attempt_id = ?", (aid,)).fetchone()
             if arow is None:
                 raise SearchIntegrityError(
                     f"action {action_id} 的 attempt 行缺失:{aid}(引用"
-                    "完整性失败;保全,不补账)",
+                    "完整性失败;保全,不补账/不重建新 ID 洗损坏)",
                     {"action_id": action_id, "run_id": run_id,
-                     "attempt_id": aid,
+                     "where": where, "attempt_id": aid,
                      "kind": "attempt_row_missing"})
             if arow["run_id"] != run_id or arow["action_id"] != action_id:
                 raise SearchIntegrityError(
                     f"action {action_id} 的 attempt {aid} 归属不一致"
                     "(保全失败)",
                     {"action_id": action_id, "run_id": run_id,
-                     "attempt_id": aid,
+                     "where": where, "attempt_id": aid,
                      "attempt_run": arow["run_id"],
                      "attempt_action": arow["action_id"],
                      "kind": "attempt_binding_mismatch"})
+            a_status = arow["status"]
+            if a_status not in ATTEMPT_STATUSES:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的 attempt {aid} 状态未知:"
+                    f"{a_status!r}(状态枚举外 ⇒ 记账行损坏,保全失败)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "attempt_id": aid,
+                     "attempt_status": a_status,
+                     "kind": "attempt_status_unknown"})
+            if done:
+                if a_status not in (ATTEMPT_STATUS_RECORDED,
+                                    ATTEMPT_STATUS_FAILED):
+                    raise SearchIntegrityError(
+                        f"action {action_id} 已 done 但 attempt {aid} 状态"
+                        f"为 {a_status}(完成事务应同拍落账 recorded/"
+                        "failed;记账不变量破坏,保全失败)",
+                        {"action_id": action_id, "run_id": run_id,
+                         "where": where, "attempt_id": aid,
+                         "attempt_status": a_status,
+                         "kind": "attempt_status_invalid_for_done"})
+            elif a_status != ATTEMPT_STATUS_OPEN:
+                raise SearchIntegrityError(
+                    f"action {action_id} 处于认领链但 attempt {aid} 状态"
+                    f"为 {a_status}(已落账/已放弃的 attempt 不可再被完成"
+                    "消费;记账不变量破坏,保全失败)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "attempt_id": aid,
+                     "attempt_status": a_status,
+                     "kind": "attempt_status_not_open_under_claim"})
+            if _row_get(arow, "task_key", "") != task_key:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的 attempt {aid} task_key 与 "
+                    "action 冻结 task_key 不一致(创建参数同源判据;"
+                    "保全失败,不猜补)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "attempt_id": aid,
+                     "attempt_task_key": _row_get(arow, "task_key", ""),
+                     "action_task_key": task_key,
+                     "kind": "attempt_task_key_mismatch"})
+            attempt_hypothesis[aid] = arow["hypothesis_id"]
+        if len(set(attempt_hypothesis.values())) > 1:
+            raise SearchIntegrityError(
+                f"action {action_id} 的 attempt 引用跨多个 hypothesis"
+                f"(同 action 尝试共享同一 hypothesis;内容不一致 ⇒ 保全"
+                "失败)",
+                {"action_id": action_id, "run_id": run_id, "where": where,
+                 "attempt_hypotheses": sorted(
+                     set(attempt_hypothesis.values())),
+                 "kind": "attempt_hypothesis_inconsistent"})
+        # ---- 预约行:存在/归属 + 单位/状态/scope-subject 内容 ----
+        for rid in reservation_refs:
+            rrow = self.conn.execute(
+                "SELECT run_id, limit_key, scope, subject, action_id,"
+                " units, status FROM budget_reservations"
+                " WHERE reservation_id = ?", (rid,)).fetchone()
+            if rrow is None:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的预算预约行缺失:{rid}(引用"
+                    "完整性失败;保全,不补账/不重建新 ID 洗损坏)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "kind": "reservation_row_missing"})
+            if rrow["run_id"] != run_id:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的预算预约 {rid} 归属不一致"
+                    "(run 绑定破坏;保全失败)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "reservation_run": rrow["run_id"],
+                     "reservation_action": rrow["action_id"],
+                     "kind": "reservation_binding_mismatch"})
+            limit_key = rrow["limit_key"]
+            if limit_key not in _RESERVATION_CONTENT:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的预算预约 {rid} limit_key 未知:"
+                    f"{limit_key!r}(十上限枚举外 ⇒ 记账行损坏,保全失败)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "limit_key": limit_key,
+                     "kind": "reservation_limit_key_unknown"})
+            if limit_key == "max_real_model_requests":
+                # 真实请求额度预约由 register_model_request 直接创建,
+                # 永不进入 action 的 budget_reservation_ref(出现即
+                # 记账不变量破坏)
+                raise SearchIntegrityError(
+                    f"action {action_id} 的预算预约引用 {rid} 是 "
+                    "max_real_model_requests 预约(该额度由请求登记直接"
+                    "占额,不属于 action 引用;记账行损坏,保全失败)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "limit_key": limit_key,
+                     "kind": "reservation_limit_not_in_action_refs"})
+            applicable = _RESERVATION_KIND_APPLICABILITY[limit_key]
+            if applicable is not None and kind != applicable:
+                raise SearchIntegrityError(
+                    f"action {action_id}(kind={kind}) 的预算预约 {rid} "
+                    f"limit_key={limit_key} 与该 kind 不适用(该 limit "
+                    "只对相应 action kind 计数;记账行损坏,保全失败)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "limit_key": limit_key, "action_kind": kind,
+                     "kind": "reservation_kind_not_applicable"})
+            units = rrow["units"]
+            if isinstance(units, bool) or not isinstance(units, int) \
+                    or units != 1:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的预算预约 {rid} 单位非法:"
+                    f"{units!r}(预约创建恒写 1;改 0 ⇒ 已执行而预算 "
+                    "used=0,保全失败不猜补)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "limit_key": limit_key, "units": units,
+                     "kind": "reservation_units_invalid"})
+            r_status = rrow["status"]
+            if r_status not in RESERVATION_STATUSES:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的预算预约 {rid} 状态未知:"
+                    f"{r_status!r}(状态枚举外 ⇒ 记账行损坏,保全失败)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "reservation_status": r_status,
+                     "kind": "reservation_status_unknown"})
+            if r_status == RESERVATION_STATUS_RELEASED:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的预算预约 {rid} 已被释放却仍处"
+                    "认领/完成链(记账不变量破坏)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "kind": "reservation_released_under_claim"})
+            if done and r_status != RESERVATION_STATUS_CONSUMED:
+                raise SearchIntegrityError(
+                    f"action {action_id} 已 done 但预算预约 {rid} 状态为 "
+                    f"{r_status}(完成事务应同拍 consume 预约;已执行而"
+                    "预算 used=0 ⇒ 记账不变量破坏,保全失败)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "reservation_status": r_status,
+                     "kind": "reservation_status_invalid_for_done"})
+            # ---- scope/subject 与创建参数同源(_RESERVATION_CONTENT) ----
+            scope_kind, subject_kind = _RESERVATION_CONTENT[limit_key]
+            mismatch: dict = {}
+            if scope_kind == "":
+                if rrow["scope"] != "":
+                    mismatch["scope"] = {"expected": "",
+                                         "stored": rrow["scope"]}
+            elif scope_kind == "parent":
+                if rrow["scope"] != parent_path_id:
+                    mismatch["scope"] = {"expected": parent_path_id,
+                                         "stored": rrow["scope"]}
+            if subject_kind == "action":
+                if rrow["subject"] != action_id:
+                    mismatch["subject"] = {"expected": action_id,
+                                           "stored": rrow["subject"]}
+            elif subject_kind == "hypothesis":
+                expected_subjects = set(attempt_hypothesis.values())
+                if expected_subjects and \
+                        rrow["subject"] not in expected_subjects:
+                    mismatch["subject"] = {
+                        "expected": sorted(expected_subjects),
+                        "stored": rrow["subject"],
+                        "note": "本 action attempt 的 hypothesis_id"}
+            elif subject_kind == "attempt":
+                ref_attempt = rrow["subject"]
+                if ref_attempt not in attempt_refs:
+                    mismatch["subject"] = {
+                        "expected": sorted(attempt_refs),
+                        "stored": ref_attempt,
+                        "note": "预约主体必须是本 action 的 attempt"}
+                elif attempt_hypothesis.get(ref_attempt) != rrow["scope"]:
+                    mismatch["scope"] = {
+                        "expected": attempt_hypothesis.get(ref_attempt),
+                        "stored": rrow["scope"],
+                        "note": "所引用 attempt 的 hypothesis_id"}
+            if mismatch:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的预算预约 {rid} 的 scope/subject"
+                    f" 与 limit_key={limit_key} 所需内容不一致(预约创建"
+                    "参数同源判据;保全失败,不猜补)",
+                    {"action_id": action_id, "run_id": run_id,
+                     "where": where, "reservation_id": rid,
+                     "limit_key": limit_key, "mismatch": mismatch,
+                     "kind": "reservation_scope_subject_mismatch"})
+            if rrow["action_id"] != action_id:
+                # 主体作用域预约(同父同假设的 alternatives)按设计跨
+                # action 共享(id_basis=主体,非 action);共享行须满足
+                # scope=本 action 父路径且 subject=本 action attempt 的
+                # hypothesis(上方内容判据已核);其余 limit 的预约行
+                # 必须由本 action 创建
+                shared_ok = (
+                    limit_key == "max_alternative_hypotheses_per_parent"
+                    and rrow["scope"] == parent_path_id
+                    and (not attempt_hypothesis
+                         or rrow["subject"] in set(
+                             attempt_hypothesis.values())))
+                if not shared_ok:
+                    raise SearchIntegrityError(
+                        f"action {action_id} 的预算预约 {rid} 归属不一致"
+                        "(action 绑定破坏;保全失败)",
+                        {"action_id": action_id, "run_id": run_id,
+                         "where": where, "reservation_id": rid,
+                         "reservation_run": rrow["run_id"],
+                         "reservation_action": rrow["action_id"],
+                         "kind": "reservation_binding_mismatch"})
 
     def _verify_event_ledger_authority(self, event_id: str, *,
                                        action_id: str,
                                        where: str) -> None:
-        """S3A-02:已提交事件的**完整账权威**核验(只读、零写入)。
+        """S3A-02(r3 扩展):已提交事件的**完整账权威**核验(只读、
+        零写入)。
 
         复用公共 `store.submit_event` 的**重放分支**(同源校验:事件行
         语义 hash/payload 复算、参与物 states 行内容重推导、appearance
@@ -1568,7 +1937,15 @@ class SearchLedger:
         state/出现/假设行删除)在本入口**消费/补账之前**结构化失败、
         保全证据、零写入;正常 writer 同一输入重放仍拒(复审继承专项
         24/24 反例即此路径)。附带记录的哈希复算见 _verify_commit_
-        event。核验失败包装为 SearchIntegrityError(带源异常 detail)。
+        event。
+
+        **r3:附随 projection/plan 的内容按首提同一判据核验** —— 存储
+        行存在 + "从同一行取出的载荷传回重放比较"是自比较,不是内容
+        完整性证书;改坏存储投影/计划(悬空 state 引用、非法计划状态、
+        坏版本)在正常首提会被拒,权威核验同样经公共 store 新增只读
+        verify_event_attachment_content(复用 _check_projection_scope/
+        _check_expansion_plan/版本门,不另造判据)在消费前拒。
+        核验失败包装为 SearchIntegrityError(带源异常 detail)。
         """
         try:
             ev = self.store.get_event(event_id)
@@ -1590,6 +1967,8 @@ class SearchLedger:
                      "kind": "commit_attached_record_missing",
                      "missing_table": ("report_projections" if proj is None
                                        else "expansion_plans")})
+            # ---- r3:附随内容同源核验(首提同一判据,不自比较) ----
+            self.store.verify_event_attachment_content(event)
             out = self.store.submit_event(
                 event, report_projection=proj, expansion_plan=plan,
                 states=[], hypothesis_dict=None)
@@ -1691,12 +2070,16 @@ class SearchLedger:
     def _preverify_completion(self, action_id: str, *,
                               outcome_kind: str,
                               event_id: str) -> None:
-        """S3A-02:complete_action 写事务**之前**的只读权威核验。
+        """S3A-02(r3 扩展):complete_action 写事务**之前**的只读权威
+        核验。
 
         - 已有提交记录 ⇒ 幂等复用路径同样核验(记录引用的事件完整
-          权威 + 记录哈希复算);
+          权威 + 记录哈希复算 + **记录归属/kind/适用 attempt 引用**,
+          r3)+ **完整冻结引用核验**(预约/attempt 行级内容,按 action
+          当前状态选 claimed/done 判据,r3);
         - 事件类 outcome ⇒ event_id 非空/事件存在/身份冻结/完整账
-          权威(公共 writer 重放同源,12×2 坏事件账在首次消费前拒);
+          权威(公共 writer 重放同源 + 附随内容同源核验,12×2 坏事件
+          账在首次消费前拒);
         - 非事件 outcome 不强制 event(合法 decide/retrieve/transition
           的适用契约保留),但显式带了 event 引用则同样核验。
         本方法零写入(公共 writer 重放路径自带事务并在结尾回滚);写
@@ -1713,12 +2096,10 @@ class SearchLedger:
             "SELECT * FROM search_commit_records WHERE action_id = ?",
             (action_id,)).fetchone()
         if commit_row is not None:
-            record_event_id = commit_row["event_id"]
-            if record_event_id:
-                self._verify_event_outcome(
-                    row, record_event_id, where="commit_reuse")
-            self._verify_commit_record_hash(
-                row, commit_row, where="commit_reuse")
+            self._verify_commit_event(row["run_id"], row, commit_row)
+            self._verify_action_references(
+                row, where="commit_reuse",
+                done=(row["status"] == ACTION_STATUS_DONE))
             return
         if outcome_kind == COMMIT_KIND_EVENT:
             self._verify_event_outcome(
@@ -1728,9 +2109,12 @@ class SearchLedger:
                 row, event_id, where="first_complete")
 
     def _verify_done_action_authority(self, action_row) -> None:
-        """S3A-02:done/已有完成结果的**复用核验**(claim 复用/submit
-        复用/恢复 done 分支同源):提交记录存在、记录哈希可复算、
-        记录引用的事件完整权威。不能 get 索引即成功。"""
+        """S3A-02(r3 扩展):done/已有完成结果的**复用核验**(claim
+        复用/submit 复用/恢复 done 分支同源):提交记录存在、记录哈希
+        可复算、记录归属/kind/适用 attempt 引用合法、记录引用的事件
+        完整权威 + **action 的完整冻结引用**(预约/attempt 行级内容,
+        done 判据:预约 consumed、attempt recorded/failed)。不能 get
+        索引即成功。"""
         commit_row = self.conn.execute(
             "SELECT * FROM search_commit_records WHERE action_id = ?",
             (action_row["action_id"],)).fetchone()
@@ -1743,6 +2127,8 @@ class SearchLedger:
                  "kind": "done_without_commit_record"})
         self._verify_commit_event(
             action_row["run_id"], action_row, commit_row)
+        self._verify_action_references(
+            action_row, where="done_reuse", done=True)
 
     def complete_action(
         self, action_id: str, *, worker_id: str,
@@ -2162,48 +2548,85 @@ class SearchLedger:
         """四崩溃边界的恢复协议(§4.4;新进程/新连接调用)。
 
         前置:run 已注册且策略身份一致(未注册/不一致 ⇒ fail-closed,
-        不猜数据)。逐 action 按权威记录恢复:
-        - 提交记录存在 ⇒ H08 + S3A-02:事件行身份列一致**且完整事件账
-          权威核验 + 记录哈希复算**(不一致 ⇒ 保全失败,零写入;done
-          而无提交记录同样是记账不变量破坏);
+        不猜数据)。**S3A-03 r3:恢复先严格核已冻结存储策略块**
+        (validate_frozen_search_limits:非 dict/null、缺版本、缺必需
+        键、坏值 ⇒ 恢复消费前结构化拒,零补账;不靠调用方传
+        expected policy 或先手工校验弥补公共恢复缺口);expected
+        policy_block 按装配后完整块与存储块比较(同一 effective 策略
+        ⇒ 同一身份)。逐 action 按权威记录恢复:
+        - 提交记录存在 ⇒ H08 + S3A-02:事件行身份列一致**且完整事件
+          账权威核验 + 记录哈希复算 + 记录归属/kind/适用 attempt 引用
+          + 完整冻结引用核验**(不一致 ⇒ 保全失败,零写入;done 而无
+          提交记录同样是记账不变量破坏);
         - 事件已提交(公共路径)而记账未闭合 ⇒ B4 合法恢复:经
           complete_action 的写前完整权威核验后,以记录在案的 claim
           owner 名义幂等补账(consume 恰一次、不重开事件、不重复
           扣额;执行权来自已验证的持久权威记录);
-        - claimed 且有 commit bundle artifact ⇒ B3:先验版本/hash/身份
-          (S3A-01:事件完整身份冻结到 action)再消费同一 output/
-          attempt 完成(不重发请求);artifact 损坏或身份错绑 ⇒
-          H07 完整性错误、保全原文件(报告披露,不抛出中断其余
-          action 的恢复);
+        - claimed 且有 commit bundle artifact ⇒ B3:**事件提交之前**
+          先核必要 attempt/预约引用行级内容(S3A-02 r3:坏链 0 event/
+          commit/consume)与版本/hash/身份(S3A-01:事件完整身份冻结
+          到 action)再消费同一 output/attempt 完成(不重发请求);
+          artifact 损坏或身份错绑 ⇒ H07 完整性错误、保全原文件(报告
+          披露,不抛出中断其余 action 的恢复);
         - claimed 无 artifact/无事件 ⇒ B1:读冻结 action/attempt/预约
           继续(引用行核验;同 attempt、不重扣;等待执行方续跑,
           不自动执行);
         - 请求 registered/sent 无响应 ⇒ B2:暴露 pending/unknown,
-          不默发第二请求(显式重试走 register_model_request 新键)。
+          不默发第二请求(显式重试走 register_model_request 新键);
+          **S3A-04 r3:每个 pending 请求逐行同源守卫**(_verify_
+          request_execution 同一判据)—— 行引用的 action/attempt
+          缺失、run 绑定破坏或执行权已失效 ⇒ 结构化完整性披露,不
+          伪装成普通合法 pending、不新状态成功写入/不猜补。
         返回结构化恢复报告(每 action 的边界归类与处置结果)。
         """
         stored = self.search_policy_block(run_id)
+        # ---- S3A-03 r3:无 expected 也先严格核已冻结存储块 ----
+        self._limits(run_id)
         if policy_block is not None:
-            if json.dumps(policy_block, ensure_ascii=False,
-                          sort_keys=True) != json.dumps(
-                    stored, ensure_ascii=False, sort_keys=True):
+            try:
+                encoded_incoming = _encoded_policy_block(policy_block)
+            except ValueError as exc:
+                raise SearchRecoveryError(
+                    f"run {run_id} 恢复拒绝:传入的搜索策略块非法"
+                    f"(装配校验失败):{exc}",
+                    {"run_id": run_id,
+                     "kind": "search_policy_block_invalid",
+                     "reason": str(exc)[:300]}) from exc
+            if stored != json.loads(encoded_incoming):
                 raise SearchRecoveryError(
                     f"run {run_id} 恢复拒绝:搜索策略身份与注册不一致"
                     "(profile/策略身份不一致 fail-closed,不原地切换)",
                     {"run_id": run_id,
                      "kind": "search_policy_identity_mismatch"})
         state = _crash_boundary_rows(self.conn, run_id)
+        # ---- S3A-04 r3:pending 请求逐行同源守卫(结构化披露) ----
+        pending_requests = []
+        for r in state["pending_requests"]:
+            entry = {"request_id": r["request_id"],
+                     "provider_kind": r["provider_kind"],
+                     "status": r["status"],
+                     "network_request_count": r["network_request_count"]}
+            try:
+                self._verify_request_execution(
+                    r, where="recover_run_pending")
+            except SearchContractError as exc:
+                entry["reference_integrity"] = {
+                    "error": type(exc).__name__,
+                    "kind": exc.detail.get("kind"),
+                    "detail": exc.detail}
+                entry["note"] = ("请求执行引用缺失/失效或损坏(结构化"
+                                 "披露;不伪装普通合法 pending,不新状态"
+                                 "成功写入,不猜补;显式重试须新 request"
+                                 " 及剩余额度)")
+                pending_requests.append(entry)
+                continue
+            entry["note"] = ("pending/unknown;不默发第二请求,显式重试须"
+                             "新 request 及剩余额度")
+            pending_requests.append(entry)
         report = {
             "run_id": run_id, "policy_version": SEARCH_LIMITS_VERSION,
             "actions": [],
-            "pending_requests": [
-                {"request_id": r["request_id"],
-                 "provider_kind": r["provider_kind"],
-                 "status": r["status"],
-                 "network_request_count": r["network_request_count"],
-                 "note": "pending/unknown;不默发第二请求,显式重试须新"
-                         " request 及剩余额度"}
-                for r in state["pending_requests"]],
+            "pending_requests": pending_requests,
             "budget": self.budget_snapshot(run_id),
         }
         for a in state["actions"]:
@@ -2221,6 +2644,9 @@ class SearchLedger:
                         {"run_id": run_id, "action_id": a["action_id"],
                          "kind": "done_without_commit_record"})
                 self._verify_commit_event(run_id, a, commit)
+                # ---- S3A-02 r3:done 复用消费完整冻结引用 ----
+                self._verify_action_references(a, where="recover_done",
+                                               done=True)
                 entry["boundary"] = "B4_verified"
                 entry["disposition"] = "done_commit_verified"
                 report["actions"].append(entry)
@@ -2290,6 +2716,12 @@ class SearchLedger:
                 report["actions"].append(entry)
                 continue
             if bundle is not None:
+                # ---- S3A-02 r3:B3 事件提交**之前**先核必要 attempt/
+                # 预约引用行级内容(坏链 0 event/commit/consume,
+                # artifact 保全;不再靠 complete 的写事务内拒绝来
+                # "事后"发现) ----
+                self._verify_action_references(
+                    a, where="b3_precheck")
                 # ---- B3:验版本/身份后消费同一 output/attempt ----
                 event_payload = bundle["payload"]["event"]
                 event = PathwayEvent(
@@ -2323,7 +2755,7 @@ class SearchLedger:
             # ---- B1:读冻结 action/attempt/预约继续(不自动执行); ----
             # S3A-02:冻结引用行核验(预约/attempt 行缺失或异属 ⇒ 缺
             # 权威失败,不按"intact"披露)
-            self._verify_action_references(a)
+            self._verify_action_references(a, where="recover_b1")
             entry["boundary"] = "B1_claimed_pending_completion"
             entry["disposition"] = (
                 "frozen_attempt_reservation_intact;预算未重复扣,等待"
@@ -2333,19 +2765,93 @@ class SearchLedger:
 
     def _verify_commit_event(self, run_id: str, action_row,
                              commit_row) -> None:
-        """H08 + S3A-02:提交记录的完整权威核验。
+        """H08 + S3A-02(r3 扩展):提交记录的完整权威核验。
 
         - 记录哈希复算(记录列/action 内容重推;被改 ⇒ 损坏);
+        - **记录归属/kind/适用引用(r3)**:run_id/action_id 归属一致
+          (commit.run 错属不能只被 recover 单口拒,done 各口同源拒);
+          commit_kind 合法;事件类记录的 event_id 非空;commit 的
+          attempt 引用存在且归属本 action(expand 类记录必带 attempt
+          且须在 action 冻结 attempt 引用集合内);
         - 引用的事件行存在且身份列与 action 冻结身份一致(不一致 ⇒
           保全证据、明确失败,不补事件/修库);
-        - **完整事件账权威**(公共 writer 重放同源,12×2 坏事件账
-          在恢复消费前拒)—— get_event 的身份列不是完整性证书;
+        - **完整事件账权威**(公共 writer 重放同源 + 附随内容同源,
+          12×2 坏事件账在恢复消费前拒)—— get_event 的身份列不是
+          完整性证书;
         - 非事件 outcome(commit_kind 非 event_committed)只核记录
-          哈希,不强加事件。
+          哈希与归属/kind/适用引用,不强加事件。
         """
         # ---- S3A-02:记录哈希复算(先于事件核验;任何记录均核) ----
         self._verify_commit_record_hash(action_row, commit_row,
                                          where="commit_record_verify")
+        # ---- S3A-02 r3:记录归属/kind/适用 attempt 引用 ----
+        action_id = action_row["action_id"]
+        if commit_row["run_id"] != run_id or \
+                commit_row["action_id"] != action_id:
+            raise SearchIntegrityError(
+                f"提交记录 {commit_row['commit_id']} 的归属与 action "
+                f"{action_id}(run {run_id})不一致(记录被挪/改属;保全"
+                "失败,不猜修)",
+                {"run_id": run_id, "action_id": action_id,
+                 "commit_id": commit_row["commit_id"],
+                 "commit_run": commit_row["run_id"],
+                 "commit_action": commit_row["action_id"],
+                 "kind": "commit_record_binding_mismatch"})
+        if commit_row["commit_kind"] not in COMMIT_KINDS:
+            raise SearchIntegrityError(
+                f"action {action_id} 的提交记录 kind 非法:"
+                f"{commit_row['commit_kind']!r}(枚举外 ⇒ 记录损坏,"
+                "保全失败)",
+                {"run_id": run_id, "action_id": action_id,
+                 "commit_id": commit_row["commit_id"],
+                 "commit_kind": commit_row["commit_kind"],
+                 "kind": "commit_record_kind_invalid"})
+        if commit_row["commit_kind"] == COMMIT_KIND_EVENT and \
+                not commit_row["event_id"]:
+            raise SearchIntegrityError(
+                f"action {action_id} 的事件类提交记录缺 event_id(记录"
+                "被改;保全失败,不补事件)",
+                {"run_id": run_id, "action_id": action_id,
+                 "commit_id": commit_row["commit_id"],
+                 "kind": "commit_record_event_id_missing"})
+        commit_attempt = commit_row["attempt_id"]
+        attempt_refs = json.loads(
+            _row_get(action_row, "attempt_refs", "[]") or "[]")
+        if commit_attempt and commit_attempt not in attempt_refs:
+            raise SearchIntegrityError(
+                f"action {action_id} 的提交记录引用的 attempt "
+                f"{commit_attempt} 不在 action 冻结 attempt 引用集合内"
+                "(适用引用损坏;保全失败,不猜补)",
+                {"run_id": run_id, "action_id": action_id,
+                 "commit_id": commit_row["commit_id"],
+                 "attempt_id": commit_attempt,
+                 "frozen_attempts": sorted(attempt_refs),
+                 "kind": "commit_record_attempt_binding_mismatch"})
+        if commit_attempt:
+            arow = self.conn.execute(
+                "SELECT run_id, action_id FROM search_attempts WHERE"
+                " expansion_attempt_id = ?", (commit_attempt,)).fetchone()
+            if arow is None or arow["run_id"] != run_id or \
+                    arow["action_id"] != action_id:
+                raise SearchIntegrityError(
+                    f"action {action_id} 的提交记录引用的 attempt "
+                    f"{commit_attempt} 不存在或不归属本 action(适用"
+                    "引用损坏;保全失败,不猜补)",
+                    {"run_id": run_id, "action_id": action_id,
+                     "commit_id": commit_row["commit_id"],
+                     "attempt_id": commit_attempt,
+                     "attempt_run": arow["run_id"] if arow else None,
+                     "attempt_action": arow["action_id"] if arow else None,
+                     "kind": "commit_record_attempt_binding_mismatch"})
+        elif _row_get(action_row, "action_kind", "") == \
+                ACTION_KIND_EXPAND_HYPOTHESIS:
+            raise SearchIntegrityError(
+                f"action {action_id}(expand)的提交记录缺 attempt 引用"
+                "(expand 完成必落 attempt;记录被改 ⇒ 保全失败)",
+                {"run_id": run_id, "action_id": action_id,
+                 "commit_id": commit_row["commit_id"],
+                 "frozen_attempts": sorted(attempt_refs),
+                 "kind": "commit_record_attempt_binding_mismatch"})
         event_id = commit_row["event_id"]
         if not event_id:
             return  # 非事件 outcome:无事件权威可核(记录哈希已核)

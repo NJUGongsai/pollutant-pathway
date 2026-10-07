@@ -74,8 +74,29 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # writer 行为未改,权威核验从 search 层调用公共 submit_event,不在
 # store 复制校验)。profile 仍未放行执行流,无历史产物需要迁移;
 # v9 身份载荷按既有门拒绝。
+# v11(2026-10-07 S3a 回修 r3,Codex S3a 复审 R2 残余三组
+# S3A-02/03/04):搜索权威/冻结策略/请求引用消费闭合升版 —— search
+# 契约 ppv1-search-2 → ppv1-search-3(预约单位/合法状态/各 limit 所
+# 需 scope-subject 与主体共享 alternatives 的行级内容核验,attempt
+# 状态/hypothesis/task 同源交叉核验,提交记录归属/kind/适用 attempt
+# 引用核验,done 四入口(first complete 复用/B4/claim/submit)一致
+# 消费完整引用;附随投影/展开计划按首提同一判据做只读内容核验,不
+# 从当前坏行取出再自比较;B3 在事件提交之前先核必要 attempt/预约
+# 引用;done submit 只返回真实已完成 event 或明确冲突;S3A-03 区分
+# 配置装配与已冻结对象消费 —— register 落账完整装配块,读取/恢复/
+# 预算/认领消费先严格核类型/必需完整键/版本(validate_frozen_
+# search_limits),null/缺版本/坏值消费前结构化拒、零执行预约;
+# S3A-04 请求已有 row 复用对照 stored 与 incoming run/action/
+# attempt/目的/payloaddigest/retry,发送/响应/失败核 run 绑定与
+# expand 必要 attempt,恢复 pending 请求逐行同源守卫、坏引用结构化
+# 披露不伪装普通合法 pending)。search-limits 保持 -3(键/默认/
+# 范围/单位未动;装配与严格消费拆分是消费语义,按 r2 先例随 search
+# 契约登记);store 保持 -9(表结构与 writer 行为未改;新增只读
+# verify_event_attachment_content 共享判据入口,复用既有首提校验,
+# 不另造判据)。profile 仍未放行执行流,无历史产物需要迁移;v10
+# 身份载荷按既有门拒绝。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-10"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-11"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -104,7 +125,17 @@ PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
 # 周期;停止报告披露 claimed/open attempt,执行未完成不称
 # exhausted_search。v1(S3a 首批)登记 SearchAction/expansion_attempt/
 # 预算预约/模型请求/提交记录/四崩溃恢复协议/停止原因主因优先级。
-PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-2"
+# v3(S3a 回修 r3,2026-10-07,Codex S3a 复审 R2 残余 S3A-02/03/04):
+# 完整搜索权威与附随语义 —— 预约/attempt 行级内容核验(单位/状态/
+# scope-subject/主体共享 alternatives、attempt 状态/hypothesis/
+# task),提交记录归属/kind/适用 attempt 引用,done 四入口与 first
+# complete/B4 一致消费;附随投影/计划按首提同一判据只读内容核验;
+# B3 事件提交前先核必要引用;done submit 返回真实已完成 event 或
+# 明确冲突;冻结策略消费区分配置装配与已冻结对象(register 存完整
+# 装配块;读取/恢复/预算/认领严格核必需完整键/版本,不补默认);
+# 请求已有 row 复用对照 stored 与 incoming 全部身份内容,状态口核
+# run 绑定与 expand 必要 attempt,恢复 pending 逐行同源守卫。
+PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-3"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)
 LEGACY_G2_FAMILY_REF = "v43-cons-2"            # 有限规则诊断复用族(conservation.py)
@@ -141,6 +172,14 @@ SEARCH_INTENTS = frozenset({SEARCH_INTENT_EXPLORATION,
 # 与 E04 循环稳定停。S3a 回修 r2(2026-10-07):注册/读取/恢复改为
 # 同源复用下方 validate_search_limits 公开入口(十键类型/范围/版本
 # 校验单一实现,search 层不复制),计数语义本身未动、版本不升。
+# S3a 回修 r3(2026-10-07,S3A-03):区分**配置装配**与**已冻结对象
+# 消费** —— 用户覆盖仍走 validate_search_limits(缺省键合法补默认,
+# 输出恒为完整块);已登记存储块的读取/恢复/预算/认领消费改用
+# validate_frozen_search_limits 严格核验(非 dict/缺 version/缺任一
+# 必需键/未知键/坏类型/越界 ⇒ 拒,不补默认、不猜迁移),register
+# 落账完整装配块使合法注册块天然满足严格判据。键/默认/范围/单位/
+# 计数语义未动,版本不升(消费语义随 search 契约 ppv1-search-3
+# 登记)。
 # 草案 v2 从未放行执行(无历史产物迁移),升版
 # 即生效;旧 -2-proposed 配置按版本门拒绝。停止原因主因优先级
 # (user_stop > budget_limit > depth_limit > no_local_candidate >
@@ -293,6 +332,54 @@ def validate_search_limits(limits: dict | None) -> dict:
 
 # 内部名保留(装配路径历史引用;与 validate_search_limits 同一实现)
 _validate_search_limits = validate_search_limits
+
+
+def validate_frozen_search_limits(limits: dict | None) -> dict:
+    """严格校验**已冻结/已序列化**的完整搜索上限块(S3a 回修 r3,
+    S3A-03:区分配置装配与已冻结对象消费)。
+
+    与 validate_search_limits(用户覆盖装配,缺省键合法补默认)的
+    边界:本函数用于**已登记存储块**的读取/恢复/预算/认领/请求消费
+    —— 存储块必须是完整冻结对象:
+
+    - 非 dict(含 None/null)⇒ 拒(不把缺失块装配成默认额度);
+    - 缺 "version" 键或版本不符 ⇒ 拒(不做版本迁移猜测);
+    - 缺任一必需预算键(十键)⇒ 拒(不补默认);
+    - 未知键/类型错误(含 bool)/越界 ⇒ 拒(与装配期同一类型/范围
+      判据,单一来源复用 SEARCH_LIMITS_RANGES)。
+
+    消费方把 ValueError 包装为各自入口的结构化失败(零执行/零预约/
+    零补账)。返回浅拷贝(不修改传入块)。合法用户 partial 覆盖本身
+    不是坏输入 —— 它应在装配期(register/装配入口)经 validate_
+    search_limits 补齐为完整块后再落账,本函数不用于该路径。
+    """
+    if not isinstance(limits, dict):
+        raise ValueError(
+            f"冻结搜索上限块必须是完整对象,得到 {type(limits).__name__}"
+            "(不补默认、不猜迁移;消费前拒)")
+    if limits.get("version") != SEARCH_LIMITS_VERSION:
+        raise ValueError(
+            f"冻结搜索上限块缺 version 或版本不符:{limits.get('version')!r}"
+            f"(当前 {SEARCH_LIMITS_VERSION};消费前拒)")
+    required = [k for k in SEARCH_LIMITS_DEFAULTS if k != "version"]
+    missing = sorted(k for k in required if k not in limits)
+    if missing:
+        raise ValueError(
+            f"冻结搜索上限块缺必需键:{missing}(已冻结对象不补默认,"
+            "消费前拒)")
+    unknown = sorted(k for k in limits if k not in SEARCH_LIMITS_DEFAULTS)
+    if unknown:
+        raise ValueError(f"冻结搜索上限块含未知键:{unknown}")
+    out: dict = {"version": SEARCH_LIMITS_VERSION}
+    for key, (lo, hi) in SEARCH_LIMITS_RANGES.items():
+        value = limits[key]
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"搜索上限 {key} 必须是整数,得到 {value!r}")
+        if not (lo <= value <= hi):
+            raise ValueError(
+                f"搜索上限 {key}={value} 超出允许范围 [{lo},{hi}]")
+        out[key] = value
+    return out
 
 
 def build_profile_identity_block(

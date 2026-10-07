@@ -7,7 +7,11 @@ model_requests / search_commit_records;任务书 §4/实施书 §9)。表结构
 产物)。本版本**不改变既有事件/状态/假设路径的任何校验语义** —— 搜索
 记账逻辑在 pollutant/search.py(SearchLedger,共享本类连接与公共
 submit_event 事务边界);事件提交继续走本类冻结入口,首消费验证
-(R7-01/R7-02/R6-04/R6-05)全部保持。
+(R7-01/R7-02/R6-04/R6-05)全部保持。S3a 回修 r3(2026-10-07)在本类
+追加**只读**共享判据入口 verify_event_attachment_content(对已存事件
+的附随投影/展开计划复用首提同一 _check_projection_scope/_check_
+expansion_plan/版本门,供搜索层权威核验消费)—— 无表结构/写入行为
+变化,版本保持 -9。
 
 v8(ppv1-store-8,R8 回修 2026-10-07)相对 v7 的变化(Codex R7 复审
 R7-02):
@@ -1980,6 +1984,41 @@ class PollutantPathwayStore:
             "SELECT payload FROM report_projections WHERE event_id = ?",
             (event_id,)).fetchone()
         return json.loads(row["payload"]) if row else None
+
+    def verify_event_attachment_content(self, event: PathwayEvent) -> None:
+        """已存事件的附随投影/展开计划**只读内容核验**(S3a 回修 r3,
+        S3A-02:搜索层完整权威核验的共享判据入口)。
+
+        与首次提交**同一判据**(不另造第二套规则):版本门
+        (_check_object_version)+ 投影只指向本事件产物(_check_
+        projection_scope)+ 展开计划产物范围/互斥/状态/覆盖(_check_
+        expansion_plan)。搜索消费层(search._verify_event_ledger_
+        authority)对**已存储**附随载荷调用本方法 —— 存储行存在且
+        与"从同一行取出的载荷"自比较相等不是完整性证书;首提会拒的
+        坏内容(悬空 state 引用/非法计划状态/坏版本)在权威核验消费
+        之前同样拒。纯只读、零写入、零事务;不改变首提/重放任何
+        冻结行为。附随记录行缺失由调用方先行判(或本方法按损坏抛)。
+        """
+        eid = event.event_id
+        proj = self.report_projection(eid)
+        plan = self.expansion_plan(eid)
+        if proj is None or plan is None:
+            raise Ppv1LedgerCorrupt(
+                f"事件 {eid} 缺附随记录(投影/展开计划行缺失;账本不"
+                "完整,不补账)",
+                {"event_id": eid,
+                 "kind": "attached_record_missing",
+                 "missing_table": ("report_projections" if proj is None
+                                   else "expansion_plans")})
+        _check_object_version(
+            "report_projection", (proj or {}).get("projection_version"),
+            (PPV1_REPORT_PROJECTION_VERSION,))
+        _check_object_version(
+            "expansion_plan", (plan or {}).get("policy_version"),
+            (PPV1_EXPANSION_POLICY_VERSION,))
+        product_refs = self._product_state_refs(event)
+        self._check_projection_scope(eid, proj, product_refs)
+        self._check_expansion_plan(eid, plan, product_refs)
 
     def expansion_plan(self, event_id: str) -> dict | None:
         row = self.conn.execute(

@@ -1,0 +1,1342 @@
+FFFFFFFFFFFFFFFFFFFFFFFF.FFF...FFFFFF.F.FFFFFF...                        [100%]
+=================================== FAILURES ===================================
+_ test_first_complete_reservation_content_refused[UPDATE budget_reservations SET units = 0 WHERE reservation_id = ?-reservation_units_invalid] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_first_complete_reservatio0')
+mutate_sql = 'UPDATE budget_reservations SET units = 0 WHERE reservation_id = ?'
+kind = 'reservation_units_invalid'
+
+    @pytest.mark.parametrize("mutate_sql,kind", [
+        ("UPDATE budget_reservations SET units = 0 WHERE reservation_id = ?",
+         "reservation_units_invalid"),
+        ("UPDATE budget_reservations SET status = 'weird' WHERE"
+         " reservation_id = ?", "reservation_status_unknown"),
+        ("UPDATE budget_reservations SET scope = 'evil-scope' WHERE"
+         " reservation_id = ?", "reservation_scope_subject_mismatch"),
+    ])
+    def test_first_complete_reservation_content_refused(
+            tmp_path: Path, mutate_sql: str, kind: str) -> None:
+        """S3A-02 r3:合法事件已提交(B4 状态)后改坏预约行内容(单位 0/
+        未知状态/错 scope)⇒ 首次 complete 在写 done/commit/consume 之前
+        结构化拒(零提交记录;已执行但 used=0 的缺口关闭)。"""
+        name = f"r3a-res-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        res_refs, _ = refs_of(ledger, out["action_id"])
+        # 改坏本 action 的总 action 预约(scope 期望为空串)
+        total_rid = [r for r in res_refs
+                     if one(ledger, "SELECT limit_key FROM budget_reservations"
+                            " WHERE reservation_id = ?", (r,))
+                     == "max_total_search_actions"][0]
+        ledger.conn.execute(mutate_sql, (total_rid,))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:159: Failed
+_ test_first_complete_reservation_content_refused[UPDATE budget_reservations SET status = 'weird' WHERE reservation_id = ?-reservation_status_unknown] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_first_complete_reservatio1')
+mutate_sql = "UPDATE budget_reservations SET status = 'weird' WHERE reservation_id = ?"
+kind = 'reservation_status_unknown'
+
+    @pytest.mark.parametrize("mutate_sql,kind", [
+        ("UPDATE budget_reservations SET units = 0 WHERE reservation_id = ?",
+         "reservation_units_invalid"),
+        ("UPDATE budget_reservations SET status = 'weird' WHERE"
+         " reservation_id = ?", "reservation_status_unknown"),
+        ("UPDATE budget_reservations SET scope = 'evil-scope' WHERE"
+         " reservation_id = ?", "reservation_scope_subject_mismatch"),
+    ])
+    def test_first_complete_reservation_content_refused(
+            tmp_path: Path, mutate_sql: str, kind: str) -> None:
+        """S3A-02 r3:合法事件已提交(B4 状态)后改坏预约行内容(单位 0/
+        未知状态/错 scope)⇒ 首次 complete 在写 done/commit/consume 之前
+        结构化拒(零提交记录;已执行但 used=0 的缺口关闭)。"""
+        name = f"r3a-res-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        res_refs, _ = refs_of(ledger, out["action_id"])
+        # 改坏本 action 的总 action 预约(scope 期望为空串)
+        total_rid = [r for r in res_refs
+                     if one(ledger, "SELECT limit_key FROM budget_reservations"
+                            " WHERE reservation_id = ?", (r,))
+                     == "max_total_search_actions"][0]
+        ledger.conn.execute(mutate_sql, (total_rid,))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:159: Failed
+_ test_first_complete_reservation_content_refused[UPDATE budget_reservations SET scope = 'evil-scope' WHERE reservation_id = ?-reservation_scope_subject_mismatch] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_first_complete_reservatio2')
+mutate_sql = "UPDATE budget_reservations SET scope = 'evil-scope' WHERE reservation_id = ?"
+kind = 'reservation_scope_subject_mismatch'
+
+    @pytest.mark.parametrize("mutate_sql,kind", [
+        ("UPDATE budget_reservations SET units = 0 WHERE reservation_id = ?",
+         "reservation_units_invalid"),
+        ("UPDATE budget_reservations SET status = 'weird' WHERE"
+         " reservation_id = ?", "reservation_status_unknown"),
+        ("UPDATE budget_reservations SET scope = 'evil-scope' WHERE"
+         " reservation_id = ?", "reservation_scope_subject_mismatch"),
+    ])
+    def test_first_complete_reservation_content_refused(
+            tmp_path: Path, mutate_sql: str, kind: str) -> None:
+        """S3A-02 r3:合法事件已提交(B4 状态)后改坏预约行内容(单位 0/
+        未知状态/错 scope)⇒ 首次 complete 在写 done/commit/consume 之前
+        结构化拒(零提交记录;已执行但 used=0 的缺口关闭)。"""
+        name = f"r3a-res-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        res_refs, _ = refs_of(ledger, out["action_id"])
+        # 改坏本 action 的总 action 预约(scope 期望为空串)
+        total_rid = [r for r in res_refs
+                     if one(ledger, "SELECT limit_key FROM budget_reservations"
+                            " WHERE reservation_id = ?", (r,))
+                     == "max_total_search_actions"][0]
+        ledger.conn.execute(mutate_sql, (total_rid,))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:159: Failed
+___________ test_first_complete_alternative_subject_content_refused ____________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_first_complete_alternativ0')
+
+    def test_first_complete_alternative_subject_content_refused(
+            tmp_path: Path) -> None:
+        """S3A-02 r3:主体共享 alternatives 预约的 subject 被改坏(不再等
+        于本 action attempt 的 hypothesis)⇒ 内容判据拒(共享行合法语义
+        仍按 scope=parent+subject=attempt hypothesis 识别,正控另测)。"""
+        name = "r3a-alt-subject"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        res_refs, _ = refs_of(ledger, out["action_id"])
+        alt_rid = [r for r in res_refs
+                   if one(ledger, "SELECT limit_key FROM budget_reservations"
+                          " WHERE reservation_id = ?", (r,))
+                   == "max_alternative_hypotheses_per_parent"][0]
+        ledger.conn.execute(
+            "UPDATE budget_reservations SET subject = 'hyp-evil' WHERE"
+            " reservation_id = ?", (alt_rid,))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:190: Failed
+_ test_first_complete_attempt_content_refused[UPDATE search_attempts SET status = 'abandoned' WHERE expansion_attempt_id = ?-attempt_status_not_open_under_claim] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_first_complete_attempt_co0')
+mutate_sql = "UPDATE search_attempts SET status = 'abandoned' WHERE expansion_attempt_id = ?"
+kind = 'attempt_status_not_open_under_claim'
+
+    @pytest.mark.parametrize("mutate_sql,kind", [
+        ("UPDATE search_attempts SET status = 'abandoned' WHERE"
+         " expansion_attempt_id = ?", "attempt_status_not_open_under_claim"),
+        ("UPDATE search_attempts SET hypothesis_id = 'hyp-evil' WHERE"
+         " expansion_attempt_id = ?", "reservation_scope_subject_mismatch"),
+        ("UPDATE search_attempts SET task_key = 'tk-evil' WHERE"
+         " expansion_attempt_id = ?", "attempt_task_key_mismatch"),
+    ])
+    def test_first_complete_attempt_content_refused(
+            tmp_path: Path, mutate_sql: str, kind: str) -> None:
+        """S3A-02 r3:改坏 attempt 行(abandoned/异 hypothesis/异 task_key)
+        ⇒ 首次 complete 之前拒(状态与 action 不匹配/交叉核失败)。"""
+        name = f"r3a-att-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        _, att_refs = refs_of(ledger, out["action_id"])
+        ledger.conn.execute(mutate_sql, (att_refs[0],))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:220: Failed
+_ test_first_complete_attempt_content_refused[UPDATE search_attempts SET hypothesis_id = 'hyp-evil' WHERE expansion_attempt_id = ?-reservation_scope_subject_mismatch] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_first_complete_attempt_co1')
+mutate_sql = "UPDATE search_attempts SET hypothesis_id = 'hyp-evil' WHERE expansion_attempt_id = ?"
+kind = 'reservation_scope_subject_mismatch'
+
+    @pytest.mark.parametrize("mutate_sql,kind", [
+        ("UPDATE search_attempts SET status = 'abandoned' WHERE"
+         " expansion_attempt_id = ?", "attempt_status_not_open_under_claim"),
+        ("UPDATE search_attempts SET hypothesis_id = 'hyp-evil' WHERE"
+         " expansion_attempt_id = ?", "reservation_scope_subject_mismatch"),
+        ("UPDATE search_attempts SET task_key = 'tk-evil' WHERE"
+         " expansion_attempt_id = ?", "attempt_task_key_mismatch"),
+    ])
+    def test_first_complete_attempt_content_refused(
+            tmp_path: Path, mutate_sql: str, kind: str) -> None:
+        """S3A-02 r3:改坏 attempt 行(abandoned/异 hypothesis/异 task_key)
+        ⇒ 首次 complete 之前拒(状态与 action 不匹配/交叉核失败)。"""
+        name = f"r3a-att-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        _, att_refs = refs_of(ledger, out["action_id"])
+        ledger.conn.execute(mutate_sql, (att_refs[0],))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:220: Failed
+_ test_first_complete_attempt_content_refused[UPDATE search_attempts SET task_key = 'tk-evil' WHERE expansion_attempt_id = ?-attempt_task_key_mismatch] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_first_complete_attempt_co2')
+mutate_sql = "UPDATE search_attempts SET task_key = 'tk-evil' WHERE expansion_attempt_id = ?"
+kind = 'attempt_task_key_mismatch'
+
+    @pytest.mark.parametrize("mutate_sql,kind", [
+        ("UPDATE search_attempts SET status = 'abandoned' WHERE"
+         " expansion_attempt_id = ?", "attempt_status_not_open_under_claim"),
+        ("UPDATE search_attempts SET hypothesis_id = 'hyp-evil' WHERE"
+         " expansion_attempt_id = ?", "reservation_scope_subject_mismatch"),
+        ("UPDATE search_attempts SET task_key = 'tk-evil' WHERE"
+         " expansion_attempt_id = ?", "attempt_task_key_mismatch"),
+    ])
+    def test_first_complete_attempt_content_refused(
+            tmp_path: Path, mutate_sql: str, kind: str) -> None:
+        """S3A-02 r3:改坏 attempt 行(abandoned/异 hypothesis/异 task_key)
+        ⇒ 首次 complete 之前拒(状态与 action 不匹配/交叉核失败)。"""
+        name = f"r3a-att-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        _, att_refs = refs_of(ledger, out["action_id"])
+        ledger.conn.execute(mutate_sql, (att_refs[0],))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:220: Failed
+_____________ test_b4_recovery_content_refused[reservation_units] ______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_b4_recovery_content_refus0')
+case = 'reservation_units'
+
+    @pytest.mark.parametrize("case", ["reservation_units", "attempt_status"])
+    def test_b4_recovery_content_refused(tmp_path: Path, case: str) -> None:
+        """S3A-02 r3:B4 恢复(事件已提交、记账未闭合)同样先消费内容判据
+        —— 坏预约/attempt 行在补账之前拒,零补账。"""
+        name = f"r3a-b4-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if case == "reservation_units":
+            ledger.conn.execute(
+                "UPDATE budget_reservations SET units = 0 WHERE"
+                " reservation_id = ?", (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_attempts SET status = 'abandoned' WHERE"
+                " expansion_attempt_id = ?", (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:252: Failed
+_______________ test_b4_recovery_content_refused[attempt_status] _______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_b4_recovery_content_refus1')
+case = 'attempt_status'
+
+    @pytest.mark.parametrize("case", ["reservation_units", "attempt_status"])
+    def test_b4_recovery_content_refused(tmp_path: Path, case: str) -> None:
+        """S3A-02 r3:B4 恢复(事件已提交、记账未闭合)同样先消费内容判据
+        —— 坏预约/attempt 行在补账之前拒,零补账。"""
+        name = f"r3a-b4-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if case == "reservation_units":
+            ledger.conn.execute(
+                "UPDATE budget_reservations SET units = 0 WHERE"
+                " reservation_id = ?", (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_attempts SET status = 'abandoned' WHERE"
+                " expansion_attempt_id = ?", (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:252: Failed
+___ test_done_four_entries_deleted_reference_rows_refused[reservation-claim] ___
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_deleted0')
+entry = 'claim', drop = 'reservation'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_done_four_entries_deleted_reference_rows_refused(
+            tmp_path: Path, entry: str, drop: str) -> None:
+        """S3A-02 r3:done 后删必需预约/attempt 行 ⇒ claim/complete/submit/
+        recover 四口一致拒(不能一个入口能拒就当全入口闭合)。"""
+        name = f"r3a-done-{drop}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:304: Failed
+_ test_done_four_entries_deleted_reference_rows_refused[reservation-complete] __
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_deleted1')
+entry = 'complete', drop = 'reservation'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_done_four_entries_deleted_reference_rows_refused(
+            tmp_path: Path, entry: str, drop: str) -> None:
+        """S3A-02 r3:done 后删必需预约/attempt 行 ⇒ claim/complete/submit/
+        recover 四口一致拒(不能一个入口能拒就当全入口闭合)。"""
+        name = f"r3a-done-{drop}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:304: Failed
+__ test_done_four_entries_deleted_reference_rows_refused[reservation-submit] ___
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_deleted2')
+entry = 'submit', drop = 'reservation'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_done_four_entries_deleted_reference_rows_refused(
+            tmp_path: Path, entry: str, drop: str) -> None:
+        """S3A-02 r3:done 后删必需预约/attempt 行 ⇒ claim/complete/submit/
+        recover 四口一致拒(不能一个入口能拒就当全入口闭合)。"""
+        name = f"r3a-done-{drop}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:304: Failed
+__ test_done_four_entries_deleted_reference_rows_refused[reservation-recover] __
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_deleted3')
+entry = 'recover', drop = 'reservation'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_done_four_entries_deleted_reference_rows_refused(
+            tmp_path: Path, entry: str, drop: str) -> None:
+        """S3A-02 r3:done 后删必需预约/attempt 行 ⇒ claim/complete/submit/
+        recover 四口一致拒(不能一个入口能拒就当全入口闭合)。"""
+        name = f"r3a-done-{drop}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:304: Failed
+_____ test_done_four_entries_deleted_reference_rows_refused[attempt-claim] _____
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_deleted4')
+entry = 'claim', drop = 'attempt'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_done_four_entries_deleted_reference_rows_refused(
+            tmp_path: Path, entry: str, drop: str) -> None:
+        """S3A-02 r3:done 后删必需预约/attempt 行 ⇒ claim/complete/submit/
+        recover 四口一致拒(不能一个入口能拒就当全入口闭合)。"""
+        name = f"r3a-done-{drop}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:304: Failed
+___ test_done_four_entries_deleted_reference_rows_refused[attempt-complete] ____
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_deleted5')
+entry = 'complete', drop = 'attempt'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_done_four_entries_deleted_reference_rows_refused(
+            tmp_path: Path, entry: str, drop: str) -> None:
+        """S3A-02 r3:done 后删必需预约/attempt 行 ⇒ claim/complete/submit/
+        recover 四口一致拒(不能一个入口能拒就当全入口闭合)。"""
+        name = f"r3a-done-{drop}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:304: Failed
+____ test_done_four_entries_deleted_reference_rows_refused[attempt-submit] _____
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_deleted6')
+entry = 'submit', drop = 'attempt'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_done_four_entries_deleted_reference_rows_refused(
+            tmp_path: Path, entry: str, drop: str) -> None:
+        """S3A-02 r3:done 后删必需预约/attempt 行 ⇒ claim/complete/submit/
+        recover 四口一致拒(不能一个入口能拒就当全入口闭合)。"""
+        name = f"r3a-done-{drop}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:304: Failed
+____ test_done_four_entries_deleted_reference_rows_refused[attempt-recover] ____
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_deleted7')
+entry = 'recover', drop = 'attempt'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_done_four_entries_deleted_reference_rows_refused(
+            tmp_path: Path, entry: str, drop: str) -> None:
+        """S3A-02 r3:done 后删必需预约/attempt 行 ⇒ claim/complete/submit/
+        recover 四口一致拒(不能一个入口能拒就当全入口闭合)。"""
+        name = f"r3a-done-{drop}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:304: Failed
+_ test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-claim] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_commit_0')
+entry = 'claim', mutate = 'commit_attempt_missing'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("mutate", ["commit_attempt_missing",
+                                        "commit_run_foreign"])
+    def test_done_four_entries_commit_record_corruption_refused(
+            tmp_path: Path, entry: str, mutate: str) -> None:
+        """S3A-02 r3:改坏提交记录(commit.attempt_id 不存在 / commit.run
+        错属)⇒ 四口一致拒(r2 仅 recover 单口拒 run 错属)。"""
+        name = f"r3a-commit-{mutate}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        if mutate == "commit_attempt_missing":
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET attempt_id = 'sattempt-x'"
+                " WHERE action_id = ?", (out["action_id"],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET run_id = 'other-run'"
+                " WHERE action_id = ?", (out["action_id"],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:343: Failed
+_ test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-complete] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_commit_1')
+entry = 'complete', mutate = 'commit_attempt_missing'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("mutate", ["commit_attempt_missing",
+                                        "commit_run_foreign"])
+    def test_done_four_entries_commit_record_corruption_refused(
+            tmp_path: Path, entry: str, mutate: str) -> None:
+        """S3A-02 r3:改坏提交记录(commit.attempt_id 不存在 / commit.run
+        错属)⇒ 四口一致拒(r2 仅 recover 单口拒 run 错属)。"""
+        name = f"r3a-commit-{mutate}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        if mutate == "commit_attempt_missing":
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET attempt_id = 'sattempt-x'"
+                " WHERE action_id = ?", (out["action_id"],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET run_id = 'other-run'"
+                " WHERE action_id = ?", (out["action_id"],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:343: Failed
+_ test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-submit] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_commit_2')
+entry = 'submit', mutate = 'commit_attempt_missing'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("mutate", ["commit_attempt_missing",
+                                        "commit_run_foreign"])
+    def test_done_four_entries_commit_record_corruption_refused(
+            tmp_path: Path, entry: str, mutate: str) -> None:
+        """S3A-02 r3:改坏提交记录(commit.attempt_id 不存在 / commit.run
+        错属)⇒ 四口一致拒(r2 仅 recover 单口拒 run 错属)。"""
+        name = f"r3a-commit-{mutate}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        if mutate == "commit_attempt_missing":
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET attempt_id = 'sattempt-x'"
+                " WHERE action_id = ?", (out["action_id"],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET run_id = 'other-run'"
+                " WHERE action_id = ?", (out["action_id"],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:343: Failed
+_ test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-recover] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_commit_3')
+entry = 'recover', mutate = 'commit_attempt_missing'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("mutate", ["commit_attempt_missing",
+                                        "commit_run_foreign"])
+    def test_done_four_entries_commit_record_corruption_refused(
+            tmp_path: Path, entry: str, mutate: str) -> None:
+        """S3A-02 r3:改坏提交记录(commit.attempt_id 不存在 / commit.run
+        错属)⇒ 四口一致拒(r2 仅 recover 单口拒 run 错属)。"""
+        name = f"r3a-commit-{mutate}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        if mutate == "commit_attempt_missing":
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET attempt_id = 'sattempt-x'"
+                " WHERE action_id = ?", (out["action_id"],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET run_id = 'other-run'"
+                " WHERE action_id = ?", (out["action_id"],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:343: Failed
+_ test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-claim] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_commit_4')
+entry = 'claim', mutate = 'commit_run_foreign'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("mutate", ["commit_attempt_missing",
+                                        "commit_run_foreign"])
+    def test_done_four_entries_commit_record_corruption_refused(
+            tmp_path: Path, entry: str, mutate: str) -> None:
+        """S3A-02 r3:改坏提交记录(commit.attempt_id 不存在 / commit.run
+        错属)⇒ 四口一致拒(r2 仅 recover 单口拒 run 错属)。"""
+        name = f"r3a-commit-{mutate}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        if mutate == "commit_attempt_missing":
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET attempt_id = 'sattempt-x'"
+                " WHERE action_id = ?", (out["action_id"],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET run_id = 'other-run'"
+                " WHERE action_id = ?", (out["action_id"],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:343: Failed
+_ test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-complete] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_commit_5')
+entry = 'complete', mutate = 'commit_run_foreign'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("mutate", ["commit_attempt_missing",
+                                        "commit_run_foreign"])
+    def test_done_four_entries_commit_record_corruption_refused(
+            tmp_path: Path, entry: str, mutate: str) -> None:
+        """S3A-02 r3:改坏提交记录(commit.attempt_id 不存在 / commit.run
+        错属)⇒ 四口一致拒(r2 仅 recover 单口拒 run 错属)。"""
+        name = f"r3a-commit-{mutate}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        if mutate == "commit_attempt_missing":
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET attempt_id = 'sattempt-x'"
+                " WHERE action_id = ?", (out["action_id"],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET run_id = 'other-run'"
+                " WHERE action_id = ?", (out["action_id"],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:343: Failed
+_ test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-submit] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_four_entries_commit_6')
+entry = 'submit', mutate = 'commit_run_foreign'
+
+    @pytest.mark.parametrize("entry", DONE_ENTRIES)
+    @pytest.mark.parametrize("mutate", ["commit_attempt_missing",
+                                        "commit_run_foreign"])
+    def test_done_four_entries_commit_record_corruption_refused(
+            tmp_path: Path, entry: str, mutate: str) -> None:
+        """S3A-02 r3:改坏提交记录(commit.attempt_id 不存在 / commit.run
+        错属)⇒ 四口一致拒(r2 仅 recover 单口拒 run 错属)。"""
+        name = f"r3a-commit-{mutate}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        if mutate == "commit_attempt_missing":
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET attempt_id = 'sattempt-x'"
+                " WHERE action_id = ?", (out["action_id"],))
+        else:
+            ledger.conn.execute(
+                "UPDATE search_commit_records SET run_id = 'other-run'"
+                " WHERE action_id = ?", (out["action_id"],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:343: Failed
+_ test_attached_projection_plan_content_refused_before_consume[projection_dangling_ref] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_attached_projection_plan_0')
+kind = 'projection_dangling_ref'
+
+    @pytest.mark.parametrize("kind", ATTACHED_KINDS)
+    def test_attached_projection_plan_content_refused_before_consume(
+            tmp_path: Path, kind: str) -> None:
+        """S3A-02 r3:存储附随 projection/plan 被改坏(悬空 state 引用/
+        非法计划状态/incomplete 缺原因)⇒ 首次 complete 在写 done/commit
+        之前拒 —— 附随内容按首提同一判据核验,不能从当前坏行取出再自比较
+        (存储行存在 + 自比较相等不是完整性证书)。"""
+        name = f"r3a-attached-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        _tamper_attached(ledger, event.event_id, kind)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:402: Failed
+_ test_attached_projection_plan_content_refused_before_consume[plan_bad_status] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_attached_projection_plan_1')
+kind = 'plan_bad_status'
+
+    @pytest.mark.parametrize("kind", ATTACHED_KINDS)
+    def test_attached_projection_plan_content_refused_before_consume(
+            tmp_path: Path, kind: str) -> None:
+        """S3A-02 r3:存储附随 projection/plan 被改坏(悬空 state 引用/
+        非法计划状态/incomplete 缺原因)⇒ 首次 complete 在写 done/commit
+        之前拒 —— 附随内容按首提同一判据核验,不能从当前坏行取出再自比较
+        (存储行存在 + 自比较相等不是完整性证书)。"""
+        name = f"r3a-attached-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        _tamper_attached(ledger, event.event_id, kind)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:402: Failed
+_ test_attached_projection_plan_content_refused_before_consume[plan_incomplete_no_reason] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_attached_projection_plan_2')
+kind = 'plan_incomplete_no_reason'
+
+    @pytest.mark.parametrize("kind", ATTACHED_KINDS)
+    def test_attached_projection_plan_content_refused_before_consume(
+            tmp_path: Path, kind: str) -> None:
+        """S3A-02 r3:存储附随 projection/plan 被改坏(悬空 state 引用/
+        非法计划状态/incomplete 缺原因)⇒ 首次 complete 在写 done/commit
+        之前拒 —— 附随内容按首提同一判据核验,不能从当前坏行取出再自比较
+        (存储行存在 + 自比较相等不是完整性证书)。"""
+        name = f"r3a-attached-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        _, event, _ = claim_and_submit(ledger, name, out["action_id"])
+        _tamper_attached(ledger, event.event_id, kind)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:402: Failed
+___________________ test_done_reuse_attached_content_refused ___________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_reuse_attached_conte0')
+
+    def test_done_reuse_attached_content_refused(tmp_path: Path) -> None:
+        """S3A-02 r3:done 复用入口(claim/submit)对改坏的附随投影同样
+        在返回成功之前拒(完整权威含附随内容,零写入)。"""
+        name = "r3a-attached-done"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        event, ev_args = done_action(ledger, name, out["action_id"])
+        _tamper_attached(ledger, event.event_id, "projection_dangling_ref")
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+>       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r3.py:452: Failed
+__________ test_b3_reference_precheck_before_event_write[reservation] __________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_b3_reference_precheck_bef0')
+drop = 'reservation'
+
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_b3_reference_precheck_before_event_write(tmp_path: Path,
+                                                      drop: str) -> None:
+        """S3A-02 r3:B3(合法 bundle、事件未提交)恢复在**事件提交之前**
+        先核必要 attempt/预约引用 —— 删行 ⇒ 0 event/commit/consume、
+        artifact 保全、action 仍 claimed(不能先写 event 再靠 complete
+        的写事务拒绝"事后"发现)。"""
+        name = f"r3a-b3-{drop}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        _, _, _, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        ledger.write_commit_bundle(
+            action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0], event=event,
+            task_key="tk1", **ev_args)
+        path = runs_root / name / "results" / "tk1" / \
+            "search_commit_bundle.json"
+        before = path.read_bytes()
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+        with pytest.raises(SearchIntegrityError) as ei:
+            ledger2.recover_run(name)
+        assert ei.value.detail["kind"] in (
+            "reservation_row_missing" if drop == "reservation"
+            else "attempt_row_missing", "claimed_action_reservation_missing",
+            "claimed_action_attempt_missing")
+        # 坏链 0 event/commit/consume;artifact 保全;action 仍 claimed
+>       assert ledger2.store.counts()["events"] == 0
+E       assert 1 == 0
+
+tests/test_ppv1_s3a_rework_r3.py:505: AssertionError
+____________ test_b3_reference_precheck_before_event_write[attempt] ____________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_b3_reference_precheck_bef1')
+drop = 'attempt'
+
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_b3_reference_precheck_before_event_write(tmp_path: Path,
+                                                      drop: str) -> None:
+        """S3A-02 r3:B3(合法 bundle、事件未提交)恢复在**事件提交之前**
+        先核必要 attempt/预约引用 —— 删行 ⇒ 0 event/commit/consume、
+        artifact 保全、action 仍 claimed(不能先写 event 再靠 complete
+        的写事务拒绝"事后"发现)。"""
+        name = f"r3a-b3-{drop}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        _, _, _, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        ledger.write_commit_bundle(
+            action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0], event=event,
+            task_key="tk1", **ev_args)
+        path = runs_root / name / "results" / "tk1" / \
+            "search_commit_bundle.json"
+        before = path.read_bytes()
+        res_refs, att_refs = refs_of(ledger, out["action_id"])
+        if drop == "reservation":
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (res_refs[0],))
+        else:
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (att_refs[0],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+        with pytest.raises(SearchIntegrityError) as ei:
+            ledger2.recover_run(name)
+        assert ei.value.detail["kind"] in (
+            "reservation_row_missing" if drop == "reservation"
+            else "attempt_row_missing", "claimed_action_reservation_missing",
+            "claimed_action_attempt_missing")
+        # 坏链 0 event/commit/consume;artifact 保全;action 仍 claimed
+>       assert ledger2.store.counts()["events"] == 0
+E       assert 1 == 0
+
+tests/test_ppv1_s3a_rework_r3.py:505: AssertionError
+_______________ test_done_submit_foreign_event_explicit_conflict _______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_done_submit_foreign_event0')
+
+    def test_done_submit_foreign_event_explicit_conflict(tmp_path: Path) -> None:
+        """S3A-02 r3:合法 done A 后提交有效异 parent 事件 B ⇒ 明确冲突
+        (created=False 不再返回未存储的 B 当完成引用);B 不入账、零表
+        变化、commit 仍指 A;同 A 幂等重提交返回真实已完成 event。"""
+        name = "r3a-done-foreign"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp_a.hypothesis_id)
+        event_a, ev_a = done_action(ledger, name, out["action_id"])
+        # 有效异 parent 事件 B(身份全合法,仅 parent 不同)
+        _, _, hyp_b, event_b, ev_b = make_fixture(name, "p2", "k1", "ctx1")
+>       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r3.py:527: Failed
+____ test_frozen_policy_corrupt_rejected_before_any_execution[null_limits] _____
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_frozen_policy_corrupt_rej0')
+mutate = 'null_limits'
+
+    @pytest.mark.parametrize("mutate", ["null_limits", "drop_version"])
+    def test_frozen_policy_corrupt_rejected_before_any_execution(
+            tmp_path: Path, mutate: str) -> None:
+        """S3A-03 r3:已登记完整块(budget 总额度 0)的存储 search_limits
+        被改成 null/删 version ⇒ 读取(budget_snapshot)/claim/recover 在
+        消费之前结构化拒、零执行预约 —— 装配补默认只允许在注册写入侧,
+        budget 0 不被坏恢复变默认 10;不靠传 expected policy 弥补缺口。"""
+        name = f"r3b-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_total_search_actions": 0})
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        # 先入队(入队本身读取 _limits;破坏后入队会先在入队口拒)
+        out = enqueue(ledger, name, hyp.hypothesis_id, task_key="tk2")
+        # 读取消费(budget_snapshot/_limits)
+        stored = json.loads(ledger.conn.execute(
+            "SELECT policy_block FROM search_runs WHERE run_id = ?",
+            (name,)).fetchone()[0])
+        limits = stored["search_limits"]
+        if mutate == "null_limits":
+            stored["search_limits"] = None
+        else:
+            stored["search_limits"] = {k: v for k, v in limits.items()
+                                       if k != "version"}
+        ledger.conn.execute(
+            "UPDATE search_runs SET policy_block = ? WHERE run_id = ?",
+            (json.dumps(stored, ensure_ascii=False, sort_keys=True), name))
+        ledger.conn.commit()
+>       with pytest.raises(SearchRecoveryError) as eb:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r3.py:580: Failed
+____ test_frozen_policy_corrupt_rejected_before_any_execution[drop_version] ____
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_frozen_policy_corrupt_rej1')
+mutate = 'drop_version'
+
+    @pytest.mark.parametrize("mutate", ["null_limits", "drop_version"])
+    def test_frozen_policy_corrupt_rejected_before_any_execution(
+            tmp_path: Path, mutate: str) -> None:
+        """S3A-03 r3:已登记完整块(budget 总额度 0)的存储 search_limits
+        被改成 null/删 version ⇒ 读取(budget_snapshot)/claim/recover 在
+        消费之前结构化拒、零执行预约 —— 装配补默认只允许在注册写入侧,
+        budget 0 不被坏恢复变默认 10;不靠传 expected policy 弥补缺口。"""
+        name = f"r3b-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_total_search_actions": 0})
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        # 先入队(入队本身读取 _limits;破坏后入队会先在入队口拒)
+        out = enqueue(ledger, name, hyp.hypothesis_id, task_key="tk2")
+        # 读取消费(budget_snapshot/_limits)
+        stored = json.loads(ledger.conn.execute(
+            "SELECT policy_block FROM search_runs WHERE run_id = ?",
+            (name,)).fetchone()[0])
+        limits = stored["search_limits"]
+        if mutate == "null_limits":
+            stored["search_limits"] = None
+        else:
+            stored["search_limits"] = {k: v for k, v in limits.items()
+                                       if k != "version"}
+        ledger.conn.execute(
+            "UPDATE search_runs SET policy_block = ? WHERE run_id = ?",
+            (json.dumps(stored, ensure_ascii=False, sort_keys=True), name))
+        ledger.conn.commit()
+>       with pytest.raises(SearchRecoveryError) as eb:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r3.py:580: Failed
+________________ test_register_partial_override_stored_complete ________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_register_partial_override0')
+
+    def test_register_partial_override_stored_complete(tmp_path: Path) -> None:
+        """S3A-03 r3:register 对用户 partial 覆盖(带版本、缺预算键)合法
+        补齐为完整装配块落账(装配语义只在写入侧);读取/恢复按完整块
+        消费;同 effective 策略幂等、异 effective 策略冲突。"""
+        name = "r3b-partial"
+        store = PollutantPathwayStore(tmp_path / f"{name}.sqlite")
+        ledger = SearchLedger(store, None, name)
+        partial = {"search_limits": {
+            "version": SEARCH_LIMITS_VERSION,
+            "max_total_search_actions": 3}}
+        ledger.register_search_run(name, partial)
+        stored = ledger.search_policy_block(name)
+        assert stored["search_limits"]["max_total_search_actions"] == 3
+>       assert len(stored["search_limits"]) == 11  # version + 十键完整
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 2 == 11
+E        +  where 2 = len({'max_total_search_actions': 3, 'version': 'ppv1-search-limits-3'})
+
+tests/test_ppv1_s3a_rework_r3.py:638: AssertionError
+_ test_request_existing_row_stored_identity_corruption_conflict[UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_request_existing_row_stor0')
+mutate_sql = "UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?"
+
+    @pytest.mark.parametrize("mutate_sql", [
+        "UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?",
+        "UPDATE model_requests SET attempt_id = 'sattempt-evil' WHERE"
+        " request_id = ?",
+    ])
+    def test_request_existing_row_stored_identity_corruption_conflict(
+            tmp_path: Path, mutate_sql: str) -> None:
+        """S3A-04 r3:存储请求行的 run/attempt 被改坏后,用原正确参数重复
+        登记同键 ⇒ 身份冲突零写入(不能"键相同"当幂等证书放行 unchanged)。"""
+        name = "r3c-reuse"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        attempt = receipt["attempt_refs"][0]
+        base = dict(run_id=name, action_id=out["action_id"],
+                    attempt_id=attempt, provider_kind=PROVIDER_KIND_SCRIPTED,
+                    request_key="rk", purpose="rank", payload={"a": 1})
+        req = ledger.register_model_request(**base)
+        ledger.conn.execute(mutate_sql, (req["request_id"],))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIdentityConflict) as ei:
+E       Failed: DID NOT RAISE SearchIdentityConflict
+
+tests/test_ppv1_s3a_rework_r3.py:710: Failed
+_ test_request_existing_row_stored_identity_corruption_conflict[UPDATE model_requests SET attempt_id = 'sattempt-evil' WHERE request_id = ?] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_request_existing_row_stor1')
+mutate_sql = "UPDATE model_requests SET attempt_id = 'sattempt-evil' WHERE request_id = ?"
+
+    @pytest.mark.parametrize("mutate_sql", [
+        "UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?",
+        "UPDATE model_requests SET attempt_id = 'sattempt-evil' WHERE"
+        " request_id = ?",
+    ])
+    def test_request_existing_row_stored_identity_corruption_conflict(
+            tmp_path: Path, mutate_sql: str) -> None:
+        """S3A-04 r3:存储请求行的 run/attempt 被改坏后,用原正确参数重复
+        登记同键 ⇒ 身份冲突零写入(不能"键相同"当幂等证书放行 unchanged)。"""
+        name = "r3c-reuse"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        attempt = receipt["attempt_refs"][0]
+        base = dict(run_id=name, action_id=out["action_id"],
+                    attempt_id=attempt, provider_kind=PROVIDER_KIND_SCRIPTED,
+                    request_key="rk", purpose="rank", payload={"a": 1})
+        req = ledger.register_model_request(**base)
+        ledger.conn.execute(mutate_sql, (req["request_id"],))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIdentityConflict) as ei:
+E       Failed: DID NOT RAISE SearchIdentityConflict
+
+tests/test_ppv1_s3a_rework_r3.py:710: Failed
+_ test_request_state_consumption_reference_corruption_refused[UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?-request_run_binding_mismatch] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_request_state_consumption0')
+mutate_sql = "UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?"
+kind = 'request_run_binding_mismatch'
+
+    @pytest.mark.parametrize("mutate_sql,kind", [
+        ("UPDATE model_requests SET run_id = 'other-run' WHERE"
+         " request_id = ?", "request_run_binding_mismatch"),
+        ("UPDATE model_requests SET attempt_id = '' WHERE"
+         " request_id = ?", "request_attempt_required_for_expand"),
+    ])
+    def test_request_state_consumption_reference_corruption_refused(
+            tmp_path: Path, mutate_sql: str, kind: str) -> None:
+        """S3A-04 r3:状态口(发送/响应/失败)核 run 绑定与 expand 必要
+        attempt —— 存储行 run 被改坏成 foreign run / attempt 被清空 ⇒
+        结构化拒,不写 sent/responded/failed(不把已损坏的请求权威当合法
+        执行引用)。"""
+        name = f"r3c-state-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        req = ledger.register_model_request(
+            run_id=name, action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0],
+            provider_kind=PROVIDER_KIND_SCRIPTED, request_key="rk")
+        ledger.conn.execute(mutate_sql, (req["request_id"],))
+        ledger.conn.commit()
+        # 发送口
+>       with pytest.raises(SearchContractError) as e1:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r3.py:746: Failed
+_ test_request_state_consumption_reference_corruption_refused[UPDATE model_requests SET attempt_id = '' WHERE request_id = ?-request_attempt_required_for_expand] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_request_state_consumption1')
+mutate_sql = "UPDATE model_requests SET attempt_id = '' WHERE request_id = ?"
+kind = 'request_attempt_required_for_expand'
+
+    @pytest.mark.parametrize("mutate_sql,kind", [
+        ("UPDATE model_requests SET run_id = 'other-run' WHERE"
+         " request_id = ?", "request_run_binding_mismatch"),
+        ("UPDATE model_requests SET attempt_id = '' WHERE"
+         " request_id = ?", "request_attempt_required_for_expand"),
+    ])
+    def test_request_state_consumption_reference_corruption_refused(
+            tmp_path: Path, mutate_sql: str, kind: str) -> None:
+        """S3A-04 r3:状态口(发送/响应/失败)核 run 绑定与 expand 必要
+        attempt —— 存储行 run 被改坏成 foreign run / attempt 被清空 ⇒
+        结构化拒,不写 sent/responded/failed(不把已损坏的请求权威当合法
+        执行引用)。"""
+        name = f"r3c-state-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        req = ledger.register_model_request(
+            run_id=name, action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0],
+            provider_kind=PROVIDER_KIND_SCRIPTED, request_key="rk")
+        ledger.conn.execute(mutate_sql, (req["request_id"],))
+        ledger.conn.commit()
+        # 发送口
+>       with pytest.raises(SearchContractError) as e1:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r3.py:746: Failed
+________ test_recover_pending_requests_reference_guard[action_deleted] _________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_recover_pending_requests_0')
+case = 'action_deleted'
+
+    @pytest.mark.parametrize("case", ["action_deleted", "action_completed"])
+    def test_recover_pending_requests_reference_guard(tmp_path: Path,
+                                                      case: str) -> None:
+        """S3A-04 r3:恢复的 pending 请求逐行同源守卫 —— 请求引用的 action
+        被删(缺权威)/ action 已完成(执行权已失效的悬空请求)⇒ 结构化
+        完整性披露(不伪装普通合法 pending,不新状态成功写入,不猜补);
+        请求行原样保全。"""
+        name = f"r3c-pending-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        req = ledger.register_model_request(
+            run_id=name, action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0],
+            provider_kind=PROVIDER_KIND_SCRIPTED, request_key="rk")
+        if case == "action_deleted":
+            ledger.conn.execute(
+                "DELETE FROM search_actions WHERE action_id = ?",
+                (out["action_id"],))
+        else:
+            # 悬空:请求未发送但 action 已完成(执行权已释放)
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   outcome_kind=COMMIT_KIND_OUTCOME)
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+        report = ledger2.recover_run(name)
+        pending = report["pending_requests"]
+        assert len(pending) == 1
+        entry = pending[0]
+        assert entry["request_id"] == req["request_id"]
+>       assert "reference_integrity" in entry
+E       AssertionError: assert 'reference_integrity' in {'request_id': 'sreq_b27b34ea0ed84189684b', 'provider_kind': 'scripted', 'status': 'registered', 'network_request_count': 0, ...}
+
+tests/test_ppv1_s3a_rework_r3.py:795: AssertionError
+_______ test_recover_pending_requests_reference_guard[action_completed] ________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-272/test_recover_pending_requests_1')
+case = 'action_completed'
+
+    @pytest.mark.parametrize("case", ["action_deleted", "action_completed"])
+    def test_recover_pending_requests_reference_guard(tmp_path: Path,
+                                                      case: str) -> None:
+        """S3A-04 r3:恢复的 pending 请求逐行同源守卫 —— 请求引用的 action
+        被删(缺权威)/ action 已完成(执行权已失效的悬空请求)⇒ 结构化
+        完整性披露(不伪装普通合法 pending,不新状态成功写入,不猜补);
+        请求行原样保全。"""
+        name = f"r3c-pending-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        req = ledger.register_model_request(
+            run_id=name, action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0],
+            provider_kind=PROVIDER_KIND_SCRIPTED, request_key="rk")
+        if case == "action_deleted":
+            ledger.conn.execute(
+                "DELETE FROM search_actions WHERE action_id = ?",
+                (out["action_id"],))
+        else:
+            # 悬空:请求未发送但 action 已完成(执行权已释放)
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   outcome_kind=COMMIT_KIND_OUTCOME)
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+        report = ledger2.recover_run(name)
+        pending = report["pending_requests"]
+        assert len(pending) == 1
+        entry = pending[0]
+        assert entry["request_id"] == req["request_id"]
+>       assert "reference_integrity" in entry
+E       AssertionError: assert 'reference_integrity' in {'request_id': 'sreq_fbe653d04468a6ab4975', 'provider_kind': 'scripted', 'status': 'registered', 'network_request_count': 0, ...}
+
+tests/test_ppv1_s3a_rework_r3.py:795: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/s3a_r3_baseline_dcb7ed6/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_first_complete_reservation_content_refused[UPDATE budget_reservations SET units = 0 WHERE reservation_id = ?-reservation_units_invalid]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_first_complete_reservation_content_refused[UPDATE budget_reservations SET status = 'weird' WHERE reservation_id = ?-reservation_status_unknown]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_first_complete_reservation_content_refused[UPDATE budget_reservations SET scope = 'evil-scope' WHERE reservation_id = ?-reservation_scope_subject_mismatch]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_first_complete_alternative_subject_content_refused
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_first_complete_attempt_content_refused[UPDATE search_attempts SET status = 'abandoned' WHERE expansion_attempt_id = ?-attempt_status_not_open_under_claim]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_first_complete_attempt_content_refused[UPDATE search_attempts SET hypothesis_id = 'hyp-evil' WHERE expansion_attempt_id = ?-reservation_scope_subject_mismatch]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_first_complete_attempt_content_refused[UPDATE search_attempts SET task_key = 'tk-evil' WHERE expansion_attempt_id = ?-attempt_task_key_mismatch]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_b4_recovery_content_refused[reservation_units]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_b4_recovery_content_refused[attempt_status]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_deleted_reference_rows_refused[reservation-claim]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_deleted_reference_rows_refused[reservation-complete]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_deleted_reference_rows_refused[reservation-submit]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_deleted_reference_rows_refused[reservation-recover]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_deleted_reference_rows_refused[attempt-claim]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_deleted_reference_rows_refused[attempt-complete]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_deleted_reference_rows_refused[attempt-submit]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_deleted_reference_rows_refused[attempt-recover]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-claim]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-complete]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-submit]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-recover]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-claim]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-complete]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-submit]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_attached_projection_plan_content_refused_before_consume[projection_dangling_ref]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_attached_projection_plan_content_refused_before_consume[plan_bad_status]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_attached_projection_plan_content_refused_before_consume[plan_incomplete_no_reason]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_reuse_attached_content_refused
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_b3_reference_precheck_before_event_write[reservation]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_b3_reference_precheck_before_event_write[attempt]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_done_submit_foreign_event_explicit_conflict
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_frozen_policy_corrupt_rejected_before_any_execution[null_limits]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_frozen_policy_corrupt_rejected_before_any_execution[drop_version]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_register_partial_override_stored_complete
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_request_existing_row_stored_identity_corruption_conflict[UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_request_existing_row_stored_identity_corruption_conflict[UPDATE model_requests SET attempt_id = 'sattempt-evil' WHERE request_id = ?]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_request_state_consumption_reference_corruption_refused[UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?-request_run_binding_mismatch]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_request_state_consumption_reference_corruption_refused[UPDATE model_requests SET attempt_id = '' WHERE request_id = ?-request_attempt_required_for_expand]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_recover_pending_requests_reference_guard[action_deleted]
+FAILED tests/test_ppv1_s3a_rework_r3.py::test_recover_pending_requests_reference_guard[action_completed]
+40 failed, 9 passed, 1 warning in 1.07s

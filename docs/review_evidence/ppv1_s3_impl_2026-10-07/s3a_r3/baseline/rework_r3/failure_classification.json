@@ -1,0 +1,302 @@
+{
+  "summary": {
+    "total": 49,
+    "failed": 40,
+    "passed": 9,
+    "categories": {
+      "behavior_did_not_raise_integrity": 28,
+      "behavior_assert": 5,
+      "behavior_did_not_raise_contract": 3,
+      "behavior_did_not_raise_recovery": 2,
+      "behavior_did_not_raise_identity_conflict": 2
+    },
+    "note": "全部 40 失败均为行为断言失败(未发生预期拒绝/断言值不符);无 collection 红、无返回形态 TypeError、无错误 kind 先停;9 绿 = 3 首提同源判据对照 + 4 合法正控 + 1 r2 已闭合越界读拒 + 1 r2 单口 commit.run-recover 对照"
+  },
+  "cases": [
+    {
+      "node": "test_first_complete_reservation_content_refused[UPDATE budget_reservations SET units = 0 WHERE reservation_id = ?-reservation_units_invalid]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_first_complete_reservation_content_refused[UPDATE budget_reservations SET status = 'weird' WHERE reservation_id = ?-reservation_status_unknown]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_first_complete_reservation_content_refused[UPDATE budget_reservations SET scope = 'evil-scope' WHERE reservation_id = ?-reservation_scope_subject_mismatch]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_first_complete_alternative_subject_content_refused",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_first_complete_attempt_content_refused[UPDATE search_attempts SET status = 'abandoned' WHERE expansion_attempt_id = ?-attempt_status_not_open_under_claim]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_first_complete_attempt_content_refused[UPDATE search_attempts SET hypothesis_id = 'hyp-evil' WHERE expansion_attempt_id = ?-reservation_scope_subject_mismatch]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_first_complete_attempt_content_refused[UPDATE search_attempts SET task_key = 'tk-evil' WHERE expansion_attempt_id = ?-attempt_task_key_mismatch]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_b4_recovery_content_refused[reservation_units]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_b4_recovery_content_refused[attempt_status]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_deleted_reference_rows_refused[reservation-claim]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_deleted_reference_rows_refused[reservation-complete]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_deleted_reference_rows_refused[reservation-submit]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_deleted_reference_rows_refused[reservation-recover]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_deleted_reference_rows_refused[attempt-claim]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_deleted_reference_rows_refused[attempt-complete]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_deleted_reference_rows_refused[attempt-submit]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_deleted_reference_rows_refused[attempt-recover]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-claim]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-complete]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-submit]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-recover]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-claim]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-complete]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-submit]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-recover]",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    },
+    {
+      "node": "test_attached_projection_plan_content_refused_before_consume[projection_dangling_ref]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_attached_projection_plan_content_refused_before_consume[plan_bad_status]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_attached_projection_plan_content_refused_before_consume[plan_incomplete_no_reason]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_attached_bad_payload_also_refused_at_normal_first_submit[projection_dangling_ref]",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    },
+    {
+      "node": "test_attached_bad_payload_also_refused_at_normal_first_submit[plan_bad_status]",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    },
+    {
+      "node": "test_attached_bad_payload_also_refused_at_normal_first_submit[plan_incomplete_no_reason]",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    },
+    {
+      "node": "test_done_reuse_attached_content_refused",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_integrity",
+      "first_message": "Failed: DID NOT RAISE SearchIntegrityError"
+    },
+    {
+      "node": "test_b3_reference_precheck_before_event_write[reservation]",
+      "status": "FAIL",
+      "category": "behavior_assert",
+      "first_message": "assert 1 == 0"
+    },
+    {
+      "node": "test_b3_reference_precheck_before_event_write[attempt]",
+      "status": "FAIL",
+      "category": "behavior_assert",
+      "first_message": "assert 1 == 0"
+    },
+    {
+      "node": "test_done_submit_foreign_event_explicit_conflict",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_contract",
+      "first_message": "Failed: DID NOT RAISE SearchContractError"
+    },
+    {
+      "node": "test_frozen_policy_corrupt_rejected_before_any_execution[null_limits]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_recovery",
+      "first_message": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_frozen_policy_corrupt_rejected_before_any_execution[drop_version]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_recovery",
+      "first_message": "Failed: DID NOT RAISE SearchRecoveryError"
+    },
+    {
+      "node": "test_frozen_policy_out_of_range_rejected_on_read",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    },
+    {
+      "node": "test_register_partial_override_stored_complete",
+      "status": "FAIL",
+      "category": "behavior_assert",
+      "first_message": "AssertionError: assert 2 == 11"
+    },
+    {
+      "node": "test_frozen_policy_legal_roundtrip_and_zero_budget_control",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    },
+    {
+      "node": "test_request_existing_row_stored_identity_corruption_conflict[UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_identity_conflict",
+      "first_message": "Failed: DID NOT RAISE SearchIdentityConflict"
+    },
+    {
+      "node": "test_request_existing_row_stored_identity_corruption_conflict[UPDATE model_requests SET attempt_id = 'sattempt-evil' WHERE request_id = ?]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_identity_conflict",
+      "first_message": "Failed: DID NOT RAISE SearchIdentityConflict"
+    },
+    {
+      "node": "test_request_state_consumption_reference_corruption_refused[UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?-request_run_binding_mismatch]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_contract",
+      "first_message": "Failed: DID NOT RAISE SearchContractError"
+    },
+    {
+      "node": "test_request_state_consumption_reference_corruption_refused[UPDATE model_requests SET attempt_id = '' WHERE request_id = ?-request_attempt_required_for_expand]",
+      "status": "FAIL",
+      "category": "behavior_did_not_raise_contract",
+      "first_message": "Failed: DID NOT RAISE SearchContractError"
+    },
+    {
+      "node": "test_recover_pending_requests_reference_guard[action_deleted]",
+      "status": "FAIL",
+      "category": "behavior_assert",
+      "first_message": "AssertionError: assert 'reference_integrity' in {'request_id': 'sreq_b27b34ea0ed84189684b', 'provider_kind': 'scripted', 'status': 'registered', 'network_request_count': 0, ...}"
+    },
+    {
+      "node": "test_recover_pending_requests_reference_guard[action_completed]",
+      "status": "FAIL",
+      "category": "behavior_assert",
+      "first_message": "AssertionError: assert 'reference_integrity' in {'request_id': 'sreq_fbe653d04468a6ab4975', 'provider_kind': 'scripted', 'status': 'registered', 'network_request_count': 0, ...}"
+    },
+    {
+      "node": "test_request_legal_controls_kept",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    },
+    {
+      "node": "test_legal_completion_positive_control",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    },
+    {
+      "node": "test_shared_alternative_reservation_positive_control",
+      "status": "PASS",
+      "category": "positive_control_or_keep"
+    }
+  ]
+}

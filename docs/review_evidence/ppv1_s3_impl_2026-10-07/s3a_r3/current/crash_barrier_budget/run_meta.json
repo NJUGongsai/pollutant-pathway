@@ -1,0 +1,31 @@
+{
+  "title": "四崩溃/H06 双进程/零预算/悬空请求矩阵",
+  "argv": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "tests/test_ppv1_s3a_recover.py",
+    "tests/test_ppv1_s3a_search.py::test_zero_real_requests_blocks_registration_not_scripted",
+    "tests/test_ppv1_s3a_search.py::test_real_request_dangling_occupies_budget",
+    "tests/test_ppv1_s3a_search.py::test_zero_retrieval_only_blocks_retrieve",
+    "tests/test_ppv1_s3a_search.py::test_zero_transitions_only_blocks_transition",
+    "tests/test_ppv1_s3a_search.py::test_zero_total_actions_blocks_all",
+    "tests/test_ppv1_s3a_search.py::test_zero_depth_only_blocks_expansion",
+    "tests/test_ppv1_s3a_search.py::test_h05_zero_action_budget_independent_fixture",
+    "tests/test_ppv1_s3a_search.py::test_h05_zero_depth_independent_fixture",
+    "tests/test_ppv1_s3a_search.py::test_h05_empty_pool_independent_fixture",
+    "tests/test_ppv1_s3a_search.py::test_h06_two_connections_barrier_single_winner"
+  ],
+  "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "exit_code": 0,
+  "junit_tests_seconds_rounded": 1.37,
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "note": "stdout/stderr 为执行原始重定向;junit 为执行现场产出;pytest cache 禁用(-p no:cacheprovider、-B)"
+}
