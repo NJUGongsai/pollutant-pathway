@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="68" time="0.966" timestamp="2026-10-08T04:15:58.215966+08:00" hostname="bogon"><testcase classname="tests.test_ppv1_profile" name="test_profile_names_registry" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_identity_schema_version_bumped" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_contract_versions" time="0.000"><failure message="AssertionError: assert 'ppv1-profile-12' == 'ppv1-profile-13'&#10;  &#10;  - ppv1-profile-13&#10;  ?               ^&#10;  + ppv1-profile-12&#10;  ?               ^">def test_ppv1_identity_block_contract_versions() -&gt; None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v13(S3b):调度与生产链接线(search 契约 -4 → -5;新增独立
+        # 有界格式反馈策略块)
+&gt;       assert block["schema_version"] == "ppv1-profile-13"
+E       AssertionError: assert 'ppv1-profile-12' == 'ppv1-profile-13'
+E         
+E         - ppv1-profile-13
+E         ?               ^
+E         + ppv1-profile-12
+E         ?               ^
+
+tests/test_ppv1_profile.py:48: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_default_switches" time="0.000"><failure message="KeyError: 'format_feedback_policy'">def test_ppv1_identity_block_default_switches() -&gt; None:
+        block = ppv1_profile.build_profile_identity_block()
+        assert block["input_preview_policy"] == "off"
+        assert block["chemical_reproposal"] == "off"
+        assert block["search_intent"] == "exploration"
+        # S3a:search-limits 由 -2-proposed 草案升为实际可执行版本 v3
+        assert block["search_limits"]["version"] == "ppv1-search-limits-3"
+        assert block["search_limits"]["max_total_search_actions"] == 10
+        # S3b:独立有界格式反馈策略(默认 0 轮;非 search_limits 旧字段)
+&gt;       assert block["format_feedback_policy"] == {
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "version": "ppv1-format-feedback-1",
+            "max_format_feedback_rounds": 0}
+E       KeyError: 'format_feedback_policy'
+
+tests/test_ppv1_profile.py:84: KeyError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-filter]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-None]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[search_intent-anything_goes]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_search_limits_validation" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_excludes_pollutant_for_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_pollutant_includes_full_tree" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_legacy_stable_under_pollutant_changes" time="0.008" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_default_is_legacy" time="0.128" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_legacy_rejects_profile_policy" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_pollutant_block" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_profile_mismatch_rejected" time="0.006" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_v1_missing_profile_read_as_legacy" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_identity_fingerprint_includes_profile" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_pollutant_dispatches_to_runflow" time="0.077"><failure message="pathway_v43.workflow.runner.RunError: profile=pollutant_pathway_v1 已注册,但公共执行流未交付:S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座(pollutant.search,底座测试入口);队列集成/生产链与 PPV1独立分流按实施书 §11 属 S3b,交付前拒绝运行">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-333/test_start_run_pollutant_dispa0')
+
+    def test_start_run_pollutant_dispatches_to_runflow(tmp_path: Path) -&gt; None:
+        """S3b 行为翻转(2026-10-08,原 S3a fail-closed 拒绝按交付解除):
+        公共 start_run 对 pollutant_pathway_v1 分流到独立 PPV1 执行流 ——
+        建独立 run 目录(run_identity + pollutant.sqlite,不落 legacy
+        PathwayStore);空计划 ⇒ 池无候选诚实停止。E2E 见
+        tests/test_ppv1_s3b_runner.py。"""
+        from pathway_v43.config import resolve_config
+        from pathway_v43.workflow.runner import start_run
+    
+        runs_root = tmp_path / "runs"
+&gt;       out = start_run(
+            config=resolve_config(), runs_root=runs_root,
+            run_id="ppv1-probe", smiles="CCO", max_depth=2,
+            max_expansions=5, max_frontier_width=3,
+            finder=object(), scripted=True,
+            profile=ri.PROFILE_POLLUTANT_PATHWAY_V1,
+        )
+
+tests/test_ppv1_profile.py:267: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/workflow/runner.py:214: in start_run
+    _refuse_undelivered_profile(profile)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+profile = 'pollutant_pathway_v1'
+
+    def _refuse_undelivered_profile(profile: str) -&gt; None:
+        """pollutant_pathway_v1 的执行流入口(实施书 §11 阶段边界)。
+    
+        S0–S2 交付 profile 注册/版本、领域契约、上下文与固定诊断;S3a
+        交付持久搜索底座(pollutant.search,公开底座测试入口);队列化学
+        集成、生产中心证据链与 PPV1 独立分流属 S3b —— 公共执行流交付前
+        显式 fail-closed(不建 run 目录、不写 identity、不进图)。
+        legacy_v43 不受影响。注:本函数所在共享文件的文字更新会使
+        legacy code_identity 聚合哈希变化(旧 run 的跨版本 resume 按既有
+        身份门槛拒绝,是设计行为);legacy 运行时行为零改变。
+        """
+        if profile == PROFILE_POLLUTANT_PATHWAY_V1:
+&gt;           raise RunError(
+                "profile=pollutant_pathway_v1 已注册,但公共执行流未交付:"
+                "S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座"
+                "(pollutant.search,底座测试入口);队列集成/生产链与 PPV1"
+                "独立分流按实施书 §11 属 S3b,交付前拒绝运行",
+                {"profile": profile, "delivered_stages": "S0-S2,S3a-base",
+                 "missing_stages": "S3b-S5"})
+E           pathway_v43.workflow.runner.RunError: profile=pollutant_pathway_v1 已注册,但公共执行流未交付:S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座(pollutant.search,底座测试入口);队列集成/生产链与 PPV1独立分流按实施书 §11 属 S3b,交付前拒绝运行
+
+src/pathway_v43/workflow/runner.py:146: RunError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_start_run_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_cli_profile_flag_choices" time="0.003" /><testcase classname="tests.test_ppv1_s3a_search" name="test_s3a_schema_enums_registered" time="0.000" /><testcase classname="tests.test_ppv1_s3a_search" name="test_register_run_idempotent_and_conflict" time="0.007" /><testcase classname="tests.test_ppv1_s3a_search" name="test_unregistered_run_fail_closed" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_policy_identity_mismatch_recovery_refused" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_config_roundtrip_registered_block" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_enqueue_idempotent_and_payload_conflict" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_enqueue_depth_guard" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_enqueue_product_width_guard" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_decision_task_key_varies_with_all_identity_inputs" time="0.000" /><testcase classname="tests.test_ppv1_s3a_search" name="test_expansion_task_key_binds_hypothesis_and_attempt" time="0.000" /><testcase classname="tests.test_ppv1_s3a_search" name="test_substrate_feature_cache_key_excludes_search_revision" time="0.000" /><testcase classname="tests.test_ppv1_s3a_search" name="test_two_hypotheses_distinct_tasks_attempts_events" time="0.023" /><testcase classname="tests.test_ppv1_s3a_search" name="test_context_change_yields_new_action_both_legal" time="0.007" /><testcase classname="tests.test_ppv1_s3a_search" name="test_event_replay_no_duplicate_across_retry_attempt" time="0.016" /><testcase classname="tests.test_ppv1_s3a_search" name="test_recovery_follows_frozen_task_key" time="0.007" /><testcase classname="tests.test_ppv1_s3a_search" name="test_budget_ledger_stepwise_recompute" time="0.014" /><testcase classname="tests.test_ppv1_s3a_search" name="test_budget_memory_reset_recompute" time="0.012" /><testcase classname="tests.test_ppv1_s3a_search" name="test_attempts_per_hypothesis_cap" time="0.019" /><testcase classname="tests.test_ppv1_s3a_search" name="test_reopen_cap_and_double_constraint" time="0.009" /><testcase classname="tests.test_ppv1_s3a_search" name="test_alternatives_per_parent_cap" time="0.022" /><testcase classname="tests.test_ppv1_s3a_search" name="test_loop_stable_stop_on_small_limits" time="0.039" /><testcase classname="tests.test_ppv1_s3a_search" name="test_cache_retrieval_not_double_counted" time="0.006" /><testcase classname="tests.test_ppv1_s3a_search" name="test_zero_real_requests_blocks_registration_not_scripted" time="0.006" /><testcase classname="tests.test_ppv1_s3a_search" name="test_real_request_dangling_occupies_budget" time="0.006" /><testcase classname="tests.test_ppv1_s3a_search" name="test_zero_retrieval_only_blocks_retrieve" time="0.006" /><testcase classname="tests.test_ppv1_s3a_search" name="test_zero_transitions_only_blocks_transition" time="0.006" /><testcase classname="tests.test_ppv1_s3a_search" name="test_zero_total_actions_blocks_all" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_zero_depth_only_blocks_expansion" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h05_zero_action_budget_independent_fixture" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h05_zero_depth_independent_fixture" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h05_empty_pool_independent_fixture" time="0.005" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h05_user_stop_dominates_composite" time="0.001" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h05_budget_beats_depth_priority" time="0.000" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h05_awaiting_prediction" time="0.006" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h05_positive_control_mid_run" time="0.012" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h05_deferred_present_not_exhausted_search" time="0.020" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h06_two_connections_barrier_single_winner" time="0.009" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h06_claim_done_reuses_outcome_no_new_rows" time="0.014" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h06_stale_worker_cannot_submit_or_overwrite" time="0.007" /><testcase classname="tests.test_ppv1_s3a_search" name="test_h06_sqlite_busy_visible_concurrency" time="0.118" /><testcase classname="tests.test_ppv1_s3a_search" name="test_request_lifecycle_state_machine" time="0.010" /><testcase classname="tests.test_ppv1_s3a_search" name="test_crash_injection_point_b4" time="0.013" /><testcase classname="tests.test_ppv1_s3a_search" name="test_search_layer_composes_with_frozen_validation" time="0.010" /><testcase classname="tests.test_ppv1_s3a_search" name="test_runner_start_and_resume_dispatch_ppv1" time="0.000"><failure message="pathway_v43.workflow.runner.RunError: profile=pollutant_pathway_v1 已注册,但公共执行流未交付:S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座(pollutant.search,底座测试入口);队列集成/生产链与 PPV1独立分流按实施书 §11 属 S3b,交付前拒绝运行">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-333/test_runner_start_and_resume_d0')
+
+    def test_runner_start_and_resume_dispatch_ppv1(tmp_path) -&gt; None:
+        """S3b 行为翻转(2026-10-08,原 S3a fail-closed 按交付解除):公开
+        runner 双入口对 PPV1 分流到 pollutant.runflow —— start 建独立
+        PPV1 存储(resume 不重建/不覆盖既有搜索/attempt/提交记录);完整
+        E2E/崩溃恢复验收见 tests/test_ppv1_s3b_runner.py。legacy 不受影响
+        (legacy 路径回归另由既有 legacy 测试覆盖)。"""
+        from pathway_v43.storage.run_identity import (
+            PROFILE_POLLUTANT_PATHWAY_V1,
+        )
+        from pathway_v43.workflow.runner import resume_run, start_run
+        from pathway_v43.config import resolve_config
+    
+        runs_root = tmp_path / "runs"
+&gt;       out = start_run(
+            config=resolve_config(), runs_root=runs_root,
+            run_id="ppv1-s3a", smiles="CCO", max_depth=2,
+            max_expansions=5, max_frontier_width=3, finder=object(),
+            scripted=True, profile=PROFILE_POLLUTANT_PATHWAY_V1)
+
+tests/test_ppv1_s3a_search.py:1078: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/workflow/runner.py:214: in start_run
+    _refuse_undelivered_profile(profile)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+profile = 'pollutant_pathway_v1'
+
+    def _refuse_undelivered_profile(profile: str) -&gt; None:
+        """pollutant_pathway_v1 的执行流入口(实施书 §11 阶段边界)。
+    
+        S0–S2 交付 profile 注册/版本、领域契约、上下文与固定诊断;S3a
+        交付持久搜索底座(pollutant.search,公开底座测试入口);队列化学
+        集成、生产中心证据链与 PPV1 独立分流属 S3b —— 公共执行流交付前
+        显式 fail-closed(不建 run 目录、不写 identity、不进图)。
+        legacy_v43 不受影响。注:本函数所在共享文件的文字更新会使
+        legacy code_identity 聚合哈希变化(旧 run 的跨版本 resume 按既有
+        身份门槛拒绝,是设计行为);legacy 运行时行为零改变。
+        """
+        if profile == PROFILE_POLLUTANT_PATHWAY_V1:
+&gt;           raise RunError(
+                "profile=pollutant_pathway_v1 已注册,但公共执行流未交付:"
+                "S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座"
+                "(pollutant.search,底座测试入口);队列集成/生产链与 PPV1"
+                "独立分流按实施书 §11 属 S3b,交付前拒绝运行",
+                {"profile": profile, "delivered_stages": "S0-S2,S3a-base",
+                 "missing_stages": "S3b-S5"})
+E           pathway_v43.workflow.runner.RunError: profile=pollutant_pathway_v1 已注册,但公共执行流未交付:S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座(pollutant.search,底座测试入口);队列集成/生产链与 PPV1独立分流按实施书 §11 属 S3b,交付前拒绝运行
+
+src/pathway_v43/workflow/runner.py:146: RunError</failure></testcase><testcase classname="tests.test_ppv1_s3a_search" name="test_h07_wrapper_preserves_files" time="0.001" /></testsuite></testsuites>

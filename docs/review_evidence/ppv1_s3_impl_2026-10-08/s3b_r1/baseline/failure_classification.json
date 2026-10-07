@@ -1,0 +1,48 @@
+{
+  "baseline": "b7f2bba02ca49edd0a45a13bc9b8434909d99175 (detached worktree, same-byte test files)",
+  "updated_existing_files": {
+    "files": [
+      "tests/test_ppv1_profile.py",
+      "tests/test_ppv1_s3a_search.py"
+    ],
+    "passed": 64,
+    "failed": 4,
+    "failed_nodeids": [
+      "tests.test_ppv1_profile::test_ppv1_identity_block_contract_versions",
+      "tests.test_ppv1_profile::test_ppv1_identity_block_default_switches",
+      "tests.test_ppv1_profile::test_start_run_pollutant_dispatches_to_runflow",
+      "tests.test_ppv1_s3a_search::test_runner_start_and_resume_dispatch_ppv1"
+    ],
+    "classification": {
+      "behavior_red_version_literals": [
+        "test_ppv1_profile.py::test_ppv1_identity_block_contract_versions",
+        "test_ppv1_profile.py::test_ppv1_identity_block_default_switches"
+      ],
+      "behavior_red_runner_dispatch_flip": [
+        "test_ppv1_profile.py::test_start_run_pollutant_dispatches_to_runflow",
+        "test_ppv1_s3a_search.py::test_runner_start_and_resume_dispatch_ppv1"
+      ],
+      "note": "均为 S3b 有意行为翻转(版本升位 + runner 分流解除 fail-closed);基线上旧代码对 PPV1 拒绝 ⇒ 新断言红 = 未发生预期分流,不是旧错误行为"
+    }
+  },
+  "new_s3b_files": {
+    "files": [
+      "tests/test_ppv1_s3b_queue.py",
+      "tests/test_ppv1_s3b_model.py",
+      "tests/test_ppv1_s3b_production.py",
+      "tests/test_ppv1_s3b_runner.py"
+    ],
+    "collection_errors": 4,
+    "classification": {
+      "collection_red_missing_modules": [
+        "pathway_v43.pollutant.queue",
+        "pathway_v43.pollutant.model_protocol",
+        "pathway_v43.pollutant.production",
+        "pathway_v43.pollutant.runflow"
+      ],
+      "note": "新 API 缺失造成的 collection 红(不称旧行为红;无逐测试结果)"
+    },
+    "worker_script": "tests/s3b_worker.py (新脚本,不在基线收集范围)"
+  },
+  "keep_controls_on_baseline": "64 passed = 未改动的 S3a/S0-S2 断言(r4 交付的 787 全量在其原文件内;本对照只跑同字节更新的 2 文件)"
+}

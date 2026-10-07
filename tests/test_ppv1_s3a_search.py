@@ -1062,37 +1062,30 @@ def test_search_layer_composes_with_frozen_validation(tmp_path) -> None:
     assert ledger.store.counts()["events"] == 0  # 零写入
 
 
-def test_runner_start_and_resume_still_refuse_ppv1(tmp_path) -> None:
-    """S3a 边界:公开 runner 双入口对 PPV1 继续 fail-closed(S3b 未交付,
-    不提前解除;legacy 不受影响)。"""
+def test_runner_start_and_resume_dispatch_ppv1(tmp_path) -> None:
+    """S3b 行为翻转(2026-10-08,原 S3a fail-closed 按交付解除):公开
+    runner 双入口对 PPV1 分流到 pollutant.runflow —— start 建独立
+    PPV1 存储(resume 不重建/不覆盖既有搜索/attempt/提交记录);完整
+    E2E/崩溃恢复验收见 tests/test_ppv1_s3b_runner.py。legacy 不受影响
+    (legacy 路径回归另由既有 legacy 测试覆盖)。"""
     from pathway_v43.storage.run_identity import (
         PROFILE_POLLUTANT_PATHWAY_V1,
-        build_run_identity,
-        write_run_identity,
     )
-    from pathway_v43.workflow.runner import RunError, resume_run, start_run
+    from pathway_v43.workflow.runner import resume_run, start_run
     from pathway_v43.config import resolve_config
 
     runs_root = tmp_path / "runs"
-    with pytest.raises(RunError, match="执行流未交付"):
-        start_run(
-            config=resolve_config(), runs_root=runs_root,
-            run_id="ppv1-s3a", smiles="CCO", max_depth=2,
-            max_expansions=5, max_frontier_width=3, finder=object(),
-            scripted=True, profile=PROFILE_POLLUTANT_PATHWAY_V1)
-    assert not (runs_root / "ppv1-s3a").exists()
-    # resume:已保存的 PPV1 身份同样拒绝(不重建/不覆盖)
-    identity = build_run_identity(
-        run_id="ppv1-s3a", root_smiles="CCO", root_cn="CCO",
-        strategy={"max_depth": 2, "max_expansions": 5,
-                  "max_frontier_width": 3},
-        asset_identity={"mode": "scripted_fixture"},
-        v3_code_identity={"mode": "scripted_fixture"},
-        prediction=None, profile=PROFILE_POLLUTANT_PATHWAY_V1)
-    write_run_identity(runs_root, identity)
-    with pytest.raises(RunError, match="执行流未交付"):
-        resume_run(config=resolve_config(), runs_root=runs_root,
-                   run_id="ppv1-s3a", finder=object())
+    out = start_run(
+        config=resolve_config(), runs_root=runs_root,
+        run_id="ppv1-s3a", smiles="CCO", max_depth=2,
+        max_expansions=5, max_frontier_width=3, finder=object(),
+        scripted=True, profile=PROFILE_POLLUTANT_PATHWAY_V1)
+    assert out["profile"] == PROFILE_POLLUTANT_PATHWAY_V1
+    assert (runs_root / "ppv1-s3a" / "pollutant.sqlite").is_file()
+    resumed = resume_run(config=resolve_config(), runs_root=runs_root,
+                         run_id="ppv1-s3a", finder=object())
+    assert resumed["resumed"] is True
+    assert resumed["counts"]["events"] == out["counts"]["events"]
 
 
 def test_h07_wrapper_preserves_files(tmp_path: Path) -> None:

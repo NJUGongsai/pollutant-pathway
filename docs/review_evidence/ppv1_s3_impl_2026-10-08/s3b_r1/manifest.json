@@ -1,0 +1,60 @@
+{
+  "batch": "s3b_r1",
+  "date": "2026-10-08",
+  "repo": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "actual_head_at_impl": "b7f2bba02ca49edd0a45a13bc9b8434909d99175",
+  "parent": "b7f2bba02ca49edd0a45a13bc9b8434909d99175",
+  "scope": "S3b: scheduling/deferred/conditions/scenario-transition, proposals protocol + bounded format feedback, frozen-AtomTool production chain, PPV1 runner dispatch",
+  "executions": {
+    "ppv1_full": {
+      "passed": 851,
+      "skipped": 0,
+      "failed": 0
+    },
+    "s3b_new_tests": {
+      "passed": 64
+    },
+    "baseline_updated_existing": {
+      "passed": 64,
+      "failed": 4,
+      "classification": "2 version-literal behavior red + 2 runner-dispatch flip behavior red"
+    },
+    "baseline_new_files": {
+      "collection_errors": 4,
+      "classification": "missing modules queue/model_protocol/production/runflow"
+    },
+    "g01": {
+      "passed": 1453,
+      "skipped": 8,
+      "deselected": 17,
+      "inputs": 286,
+      "exit_code": 0
+    }
+  },
+  "zero": "no gold/benchmark/sealed/v4 access, no real provider, zero-LLM grading",
+  "files": {
+    "README.md": "14f25520c50c3c7396b4485dac9e3244803ff6863b2e5dc066b6867eb10cf572",
+    "baseline/failure_classification.json": "dc3eb9622a7cbed61a6ae7e14219607d8ea555a816ee04f62812e2b63fc05672",
+    "baseline/s3b_new_collection_errors.txt": "4bb2341ed773ce159a61971098f25b2c1f54e9910d330a62d1f1c1a5585a940a",
+    "baseline/s3b_new_junit.xml": "11b02c3c98782ab3a4faac5aeffd440e04f9e784e735489c3cf34af4960f296c",
+    "baseline/s3b_new_summary.txt": "bf16255abbe628672478a6eac821d4037a98c8a28d82aa11dbc8dd9dc193857a",
+    "baseline/updated_existing_junit.xml": "33cae82d797f0d2f71e740c97864b8c5873b2c8de26ad977a0ec3e3f0fc0304c",
+    "baseline/updated_existing_summary.txt": "ea3708ad314b4b9f997291c64d1c70540f03d4396a8a2e491c31164cb4422822",
+    "baseline/worktree_add.txt": "f58760c7bd7b90d90261252c69662f50dc87e3dc346fd96ff2936d1e2f258954",
+    "code_identity_after.txt": "69f37e624432119b0c951c6a5828545e9763579c51a3770e58a54f64d79bddc7",
+    "current/ppv1_full/junit.xml": "e0ab7071ce3007e813d0961a93b86b5f45b49065790551d0f0e1ee64db3cfb44",
+    "current/ppv1_full/summary.txt": "52d90d44e44ec088d9bf1c4437fec4389a9298735f83e0f9340e28c2847120b3",
+    "current/s3b_new/junit.xml": "6d528545c71e7761d0b1b424f4c430c7edd45a20b4c003aba5429dcd0342140a",
+    "current/s3b_new/summary.txt": "f8fe738100309fe97b4bcdb891958a2f3a98de08a112208a9026038b347920a7",
+    "g01/execution_result.json": "3516d4477c65852ea5c1e80b7de6353cd59a5e33b1d9550e3c71aae71bc75405",
+    "g01/g01_junit.xml": "28fda61d984e1c0ab6cd8723941e85873f1549b8371c83d740c2a3b65220751f",
+    "g01/g01_safe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "g01/g01_safe.stdout.txt": "8bd611129359b845707286dc0d804c30c01ad1b7f26c3fc305366a99b0953c3e",
+    "g01/input_sha256.json": "7646051636ebab6a6af17ef9f6d039a2d76274485e5ec02bd1c7c1fc2585a118",
+    "g01/preparation.json": "4205c6d627345be591696208472ff04df1e38457fc9222fd33a6f65f99889120",
+    "mimo/mimo_ppv1_chem_review_request_v12_sent.md": "9ef2e0561568ae705ac0c2681a000df77d14763e64565cc1f0056ce5729421b3",
+    "run_meta.txt": "db758d97ffbc45e9990e7193eaaa7b05ae07a3be5a0766279ab4deb300463a51",
+    "runner_py_hashes.txt": "023aae28e6275cec35346444ea0db59fcf212bb20a999ec79782bde8288e1872",
+    "scripts/safe_g01_s3b_r1.py": "dc34d82d84d829a462f0991fb2e3408e537570f192be6b712732e0907d8ddbea"
+  }
+}

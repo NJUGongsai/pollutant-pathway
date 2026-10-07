@@ -132,24 +132,23 @@ def _build_identity(
 
 
 def _refuse_undelivered_profile(profile: str) -> None:
-    """pollutant_pathway_v1 的执行流入口(实施书 §11 阶段边界)。
+    """阶段边界守卫(S3b 起:pollutant_pathway_v1 已交付,分流到
+    pollutant.runflow;本函数保留给未知/未交付 profile 的统一口径)。
 
     S0–S2 交付 profile 注册/版本、领域契约、上下文与固定诊断;S3a
-    交付持久搜索底座(pollutant.search,公开底座测试入口);队列化学
-    集成、生产中心证据链与 PPV1 独立分流属 S3b —— 公共执行流交付前
-    显式 fail-closed(不建 run 目录、不写 identity、不进图)。
-    legacy_v43 不受影响。注:本函数所在共享文件的文字更新会使
+    交付持久搜索底座(pollutant.search);**S3b(2026-10-08)交付队列
+    化学集成/生产中心证据链与 PPV1 独立分流** —— start_run/resume_run
+    对 pollutant_pathway_v1 分流到 pollutant.runflow(独立严格状态/
+    搜索 ledger/事件账,不落 legacy CN/PathwayStore/预算派生),不再
+    一律拒绝。legacy_v43 不受影响。注:本共享文件的文字更新会使
     legacy code_identity 聚合哈希变化(旧 run 的跨版本 resume 按既有
     身份门槛拒绝,是设计行为);legacy 运行时行为零改变。
     """
     if profile == PROFILE_POLLUTANT_PATHWAY_V1:
+        return  # S3b 起分流交付(见 start_run/resume_run 的 PPV1 分支)
+    if profile not in KNOWN_PROFILES:
         raise RunError(
-            "profile=pollutant_pathway_v1 已注册,但公共执行流未交付:"
-            "S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座"
-            "(pollutant.search,底座测试入口);队列集成/生产链与 PPV1"
-            "独立分流按实施书 §11 属 S3b,交付前拒绝运行",
-            {"profile": profile, "delivered_stages": "S0-S2,S3a-base",
-             "missing_stages": "S3b-S5"})
+            f"未知 profile:{profile!r}", {"profile": profile})
 
 
 def open_run(config: V43Config, runs_root: str | Path, run_id: str,
@@ -204,6 +203,7 @@ def start_run(
     max_proposals: int = 0,
     profile: str = PROFILE_LEGACY_V43,
     profile_policy: dict | None = None,
+    ppv1_plan: dict | None = None,
 ) -> dict:
     runs_root = Path(runs_root)
     run_dir = runs_root / run_id
@@ -211,6 +211,16 @@ def start_run(
         raise RunError(
             f"未知 profile:{profile!r}(允许 {sorted(KNOWN_PROFILES)})",
             {"profile": profile})
+    if profile == PROFILE_POLLUTANT_PATHWAY_V1:
+        # ---- S3b 分流:PPV1 独立执行/存储(不落 legacy 图/CN/
+        # PathwayStore/预算派生;策略身份走 profile_policy,不因传
+        # model 派生真实请求预算;ppv1_plan 为合成/规则级计划输入) ----
+        from ..pollutant.runflow import start_ppv1_run
+        return start_ppv1_run(
+            config=config, runs_root=runs_root, run_id=run_id,
+            smiles=smiles, plan=ppv1_plan, model=model,
+            profile_policy=profile_policy, scripted=scripted,
+            crash_after=crash_after)
     _refuse_undelivered_profile(profile)
     if (run_dir / "run_identity.json").is_file():
         raise RunAlreadyExists(run_id, run_dir)
@@ -292,11 +302,21 @@ def resume_run(
     finder=None,
     model=None,
     crash_after: str | None = None,
+    ppv1_plan: dict | None = None,
 ) -> dict:
     runs_root = Path(runs_root)
     saved = load_run_identity(runs_root, run_id)
     if saved is None:
         raise RunNotFound(run_id, runs_root)
+    # ---- S3b 分流:PPV1 独立恢复(身份核对 → 四崩溃边界恢复 →
+    # 继续驱动;不重建/不覆盖既有搜索/attempt/request/提交记录) ----
+    saved_profile_dispatch = (saved.get("profile") or {}).get(
+        "name", PROFILE_LEGACY_V43)
+    if saved_profile_dispatch == PROFILE_POLLUTANT_PATHWAY_V1:
+        from ..pollutant.runflow import resume_ppv1_run
+        return resume_ppv1_run(
+            config=config, runs_root=runs_root, run_id=run_id,
+            plan=ppv1_plan, model=model, crash_after=crash_after)
     # v43-identity-1 旧身份无 profile 块 → 按 legacy_v43 读取;
     # 旧模式自身的同策略恢复继续可用(代码/资产变更仍由身份门槛拒绝)
     saved_profile = (saved.get("profile") or {}).get(

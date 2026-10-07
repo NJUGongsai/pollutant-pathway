@@ -43,9 +43,9 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    # v12(S3a 回修 r4):必要预约集合完整性/请求状态口策略/生命周期
-    # 来源闭合(search 契约 -3 → -4)
-    assert block["schema_version"] == "ppv1-profile-12"
+    # v13(S3b):调度与生产链接线(search 契约 -4 → -5;新增独立
+    # 有界格式反馈策略块)
+    assert block["schema_version"] == "ppv1-profile-13"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),
@@ -66,7 +66,8 @@ def test_ppv1_identity_block_contract_versions() -> None:
         ("search", "ppv1-search-"),
     ):
         assert contracts[key].startswith(prefix), key
-    assert contracts["search"] == "ppv1-search-4"  # S3A-02/03/04 残余闭合(r4)
+    assert contracts["search"] == "ppv1-search-5"  # S3b 调度/生产链(r5)
+    assert contracts["format_feedback"] == "ppv1-format-feedback-1"
     assert contracts["gate_mapper"] == "ppv1-gate-mapper-3"
     assert contracts["legacy_gate_ref"] == "frozen_hit60_gate"
 
@@ -79,7 +80,11 @@ def test_ppv1_identity_block_default_switches() -> None:
     # S3a:search-limits 由 -2-proposed 草案升为实际可执行版本 v3
     assert block["search_limits"]["version"] == "ppv1-search-limits-3"
     assert block["search_limits"]["max_total_search_actions"] == 10
-    assert block["delivered_stages"] == "S0-S2,S3a-base"
+    # S3b:独立有界格式反馈策略(默认 0 轮;非 search_limits 旧字段)
+    assert block["format_feedback_policy"] == {
+        "version": "ppv1-format-feedback-1",
+        "max_format_feedback_rounds": 0}
+    assert block["delivered_stages"] == "S0-S2,S3a-base,S3b"
 
 
 @pytest.mark.parametrize("field,bad", [
@@ -249,20 +254,29 @@ def test_identity_fingerprint_includes_profile() -> None:
 # ---------------------------------------------------------------- runner/CLI
 
 
-def test_start_run_pollutant_refused_no_dir_created(tmp_path: Path) -> None:
+def test_start_run_pollutant_dispatches_to_runflow(tmp_path: Path) -> None:
+    """S3b 行为翻转(2026-10-08,原 S3a fail-closed 拒绝按交付解除):
+    公共 start_run 对 pollutant_pathway_v1 分流到独立 PPV1 执行流 ——
+    建独立 run 目录(run_identity + pollutant.sqlite,不落 legacy
+    PathwayStore);空计划 ⇒ 池无候选诚实停止。E2E 见
+    tests/test_ppv1_s3b_runner.py。"""
     from pathway_v43.config import resolve_config
-    from pathway_v43.workflow.runner import RunError, start_run
+    from pathway_v43.workflow.runner import start_run
 
     runs_root = tmp_path / "runs"
-    with pytest.raises(RunError, match="执行流未交付"):
-        start_run(
-            config=resolve_config(), runs_root=runs_root,
-            run_id="ppv1-probe", smiles="CCO", max_depth=2,
-            max_expansions=5, max_frontier_width=3,
-            finder=object(), scripted=True,
-            profile=ri.PROFILE_POLLUTANT_PATHWAY_V1,
-        )
-    assert not (runs_root / "ppv1-probe").exists()
+    out = start_run(
+        config=resolve_config(), runs_root=runs_root,
+        run_id="ppv1-probe", smiles="CCO", max_depth=2,
+        max_expansions=5, max_frontier_width=3,
+        finder=object(), scripted=True,
+        profile=ri.PROFILE_POLLUTANT_PATHWAY_V1,
+    )
+    assert out["profile"] == "pollutant_pathway_v1"
+    assert (runs_root / "ppv1-probe" / "run_identity.json").is_file()
+    assert (runs_root / "ppv1-probe" / "pollutant.sqlite").is_file()
+    assert not (runs_root / "ppv1-probe" / "pathway.sqlite").exists()
+    assert out["counts"]["events"] == 0
+    assert out["stop"]["unexplored"]["pending_actions"] == 0
 
 
 def test_start_run_unknown_profile_rejected(tmp_path: Path) -> None:

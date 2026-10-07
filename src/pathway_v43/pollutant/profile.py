@@ -110,8 +110,29 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 状态口接守卫是消费语义,按 r2/r3 先例随 search 契约登记);store
 # 保持 -9(表结构与 writer 行为未改,核验全部复用既有函数)。profile
 # 仍未放行执行流,无历史产物需要迁移;v11 身份载荷按既有门拒绝。
+# v13(2026-10-08 S3b 批次):S3b 调度与生产链接线升版 —— search 契约
+# ppv1-search-4 → ppv1-search-5(冻结池队列选择 schedule_hypotheses、
+# record_expansion_outcome 持久尝试结论、两类 deferred(共同产物/
+# 备选反应)的分别激活 activate_deferred(幂等/trigger/expected_
+# parent_revision 校验、预算不足留独立未展开原因)、条件依赖/显式
+# 场景转换进调度(转换独立 action/预算/记录、仅后效)、enqueue 支持
+# initial_status=deferred 与 reactivate_deferred_action 状态迁移;
+# 新增独立有界格式反馈策略块 ppv1-format-feedback-1(非 S2 十个
+# 搜索上限的旧草案字段,默认 0 轮、范围 0-4、单位=同任务 JSON 格式
+# 修复轮数,不把格式反馈轮数当 hypothesis 语义 attempt;反馈仅限
+# JSON 字段/类型/允许 ID/语法契约错误,结构无法解析记结构失败,
+# chemical_reproposal 首版保持 off);固定 AtomTool → check_edit_
+# against_donor → center_evidence_from_donor_diagnostic → audit_
+# hypothesis → decide_admission → 事件提交的生产调用链接入 runner
+# PPV1 分流(公开 start_run/resume_run 开放,走独立严格状态/搜索
+# ledger/事件账,不落 legacy CN/PathwayStore/预算派生)。search-
+# limits 保持 -3(十键未动);store 保持 -9(无新表:两类 deferred
+# 复用 search_actions 行 + defer_reason/payload,格式反馈轮次计数
+# 复用 model_requests 行(purpose=format_feedback),context 持久化
+# 走 artifact 存储并经 from_dict 内容身份首消费核验)。profile 仍未
+# 有放行前的历史产物需要迁移;v12 身份载荷按既有门拒绝。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-12"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-13"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -160,7 +181,21 @@ PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
 # 同一严格冻结块校验(不补默认、无成功状态变化);mark_request_
 # failed 正面限定 registered/sent 来源,未知来源结构化拒并保全,
 # register 同键复用核存储状态枚举,recover 报告结构化披露枚举外行。
-PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-4"
+# v5(S3b 批次,2026-10-08):调度与生产链接线 —— 冻结池队列选择
+# (schedule_hypotheses:selected/deferred/blocked+原因,池 digest/
+# 排序/截断可重放)、record_expansion_outcome(非事件 outcome 持久
+# 结论:unresolved_continuation/method_failed 等)、两类 deferred
+# (共同产物 coproduct_deferred / 备选反应 alternative_reaction_
+# deferred)分别激活(activate_deferred:幂等、trigger 与记录一致、
+# expected_parent_revision 匹配、预算不足留独立未展开原因、不重复
+# 安排同 action)、条件依赖/显式场景转换进调度(scenario_transition
+# 独立 action/预算/记录,须显式 source_ref,仅后效不重写旧边评估)、
+# enqueue 支持 initial_status=deferred 与 reactivate_deferred_action
+# 状态迁移(消费语义,search_actions 行复用,无新表)。生产链契约见
+# pollutant/production.py(固定 AtomTool→供体诊断→converter→audit→
+# admission→事件提交,AuditContractError 中止本次 admission/提交,
+# 不吞成 verified/R6/成功提交)。
+PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-5"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)
 LEGACY_G2_FAMILY_REF = "v43-cons-2"            # 有限规则诊断复用族(conservation.py)
@@ -231,6 +266,97 @@ SEARCH_INTENTS = frozenset({SEARCH_INTENT_EXPLORATION,
 #   user_stop > budget_limit > depth_limit > no_local_candidate >
 #   awaiting_prediction > exhausted_search
 SEARCH_LIMITS_VERSION = "ppv1-search-limits-3"
+
+# ---- S3b 独立有界格式反馈策略(任务书 §5.3;非 S2 十个搜索上限
+# 的旧草案字段,不并入 SEARCH_LIMITS_VERSION) ----
+# 适用范围:只有 JSON 字段/类型、允许 ID、语法契约错误可进格式反馈
+# (重新请求同一任务的合法格式载荷);结构无法解析记结构失败,不能
+# 以格式反馈改分子再试到通过;chemical_reproposal 首版保持 off(化学
+# 重提案数 0/路径 unsupported 如实披露)。
+# 计数单位:同任务的 JSON 格式修复轮数(**不是** hypothesis 语义
+# attempt —— 不占用/不改写 max_attempts_per_hypothesis 语义);每轮
+# 持久记录输入/错误类别/反馈版本/次数(model_requests 行,
+# purpose=format_feedback,scripted/fake 恒 network 0)。默认 0 = 不
+# 发生格式反馈轮(parse 失败即结构失败),范围 0-4。
+FORMAT_FEEDBACK_POLICY_VERSION = "ppv1-format-feedback-1"
+FORMAT_FEEDBACK_MAX_ROUNDS_RANGE = (0, 4)
+FORMAT_FEEDBACK_DEFAULTS: dict = {
+    "version": FORMAT_FEEDBACK_POLICY_VERSION,
+    "max_format_feedback_rounds": 0,
+}
+
+
+def validate_format_feedback_policy(policy: dict | None) -> dict:
+    """校验/归一格式反馈策略块(装配语义:缺省补默认,输出恒完整)。
+
+    - 仅接受 dict 与已知键(version / max_format_feedback_rounds);
+    - max_format_feedback_rounds 整数(拒 bool)、范围 [0, 4];
+    - version 必须等于当前 FORMAT_FEEDBACK_POLICY_VERSION。
+    与 validate_search_limits 同一装配/严格消费分界:已冻结存储块
+    读取消费时用 validate_frozen_format_feedback_policy 严格核验
+    (不补默认、不猜迁移)。
+    """
+    out = dict(FORMAT_FEEDBACK_DEFAULTS)
+    for k, v in (policy or {}).items():
+        if k == "version":
+            if v != FORMAT_FEEDBACK_POLICY_VERSION:
+                raise ValueError(
+                    f"format_feedback_policy.version 非法:{v!r}(当前 "
+                    f"{FORMAT_FEEDBACK_POLICY_VERSION})")
+            out["version"] = v
+            continue
+        if k != "max_format_feedback_rounds":
+            raise ValueError(
+                f"未知格式反馈策略键:{k!r}(允许 "
+                f"{sorted(FORMAT_FEEDBACK_DEFAULTS)})")
+        if isinstance(v, bool) or not isinstance(v, int):
+            raise ValueError(
+                f"max_format_feedback_rounds 必须是整数,得到 {v!r}")
+        lo, hi = FORMAT_FEEDBACK_MAX_ROUNDS_RANGE
+        if not (lo <= v <= hi):
+            raise ValueError(
+                f"max_format_feedback_rounds={v} 超出允许范围 [{lo},{hi}]")
+        out[k] = v
+    return out
+
+
+def validate_frozen_format_feedback_policy(policy: dict | None) -> dict:
+    """严格校验**已冻结/已序列化**的完整格式反馈策略块(S3b)。
+
+    与 validate_frozen_search_limits 同一边界:存储块必须是完整冻结
+    对象(非 dict/缺 version/缺必需键/未知键/坏类型/越界 ⇒ 拒,不补
+    默认)。返回浅拷贝。"""
+    if not isinstance(policy, dict):
+        raise ValueError(
+            "冻结格式反馈策略块必须是完整对象,得到 "
+            f"{type(policy).__name__}(不补默认、不猜迁移;消费前拒)")
+    if policy.get("version") != FORMAT_FEEDBACK_POLICY_VERSION:
+        raise ValueError(
+            "冻结格式反馈策略块缺 version 或版本不符:"
+            f"{policy.get('version')!r}(当前 {FORMAT_FEEDBACK_POLICY_VERSION};"
+            "消费前拒)")
+    required = [k for k in FORMAT_FEEDBACK_DEFAULTS if k != "version"]
+    missing = sorted(k for k in required if k not in policy)
+    if missing:
+        raise ValueError(
+            f"冻结格式反馈策略块缺必需键:{missing}(不补默认,消费前拒)")
+    unknown = sorted(k for k in policy
+                     if k not in FORMAT_FEEDBACK_DEFAULTS)
+    if unknown:
+        raise ValueError(f"冻结格式反馈策略块含未知键:{unknown}")
+    out: dict = {"version": FORMAT_FEEDBACK_POLICY_VERSION}
+    lo, hi = FORMAT_FEEDBACK_MAX_ROUNDS_RANGE
+    for key in required:
+        value = policy[key]
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(
+                f"格式反馈策略 {key} 必须是整数,得到 {value!r}")
+        if not (lo <= value <= hi):
+            raise ValueError(
+                f"格式反馈策略 {key}={value} 超出允许范围 [{lo},{hi}]")
+        out[key] = value
+    return out
+
 SEARCH_LIMITS_DEFAULTS: dict = {
     "version": SEARCH_LIMITS_VERSION,
     "max_alternative_hypotheses_per_parent": 2,
@@ -281,6 +407,7 @@ def contract_versions() -> dict:
         "condition_assessment": PPV1_CONDITION_ASSESSMENT_VERSION,
         "gate_mapper": PPV1_GATE_MAPPER_VERSION,
         "search": PPV1_SEARCH_SCHEMA_VERSION,
+        "format_feedback": FORMAT_FEEDBACK_POLICY_VERSION,
         "legacy_gate_ref": LEGACY_GATE_PROFILE_REF,
         "legacy_g2_family_ref": LEGACY_G2_FAMILY_REF,
     }
@@ -413,12 +540,16 @@ def build_profile_identity_block(
     chemical_reproposal: str = CHEMICAL_REPROPOSAL_DEFAULT,
     search_intent: str | None = None,
     search_limits: dict | None = None,
+    format_feedback_policy: dict | None = None,
 ) -> dict:
     """pollutant_pathway_v1 的 run 身份 profile 块(全部开关进身份)。
 
     未知取值 fail-closed(ValueError,装配期拒绝),不静默回退默认。
-    search_limits 为实际可执行版本 v3(S3a 底座计数);S3b 公共链
-    集成交付前 run 执行入口仍 fail-closed(见 workflow.runner)。
+    search_limits 为实际可执行版本 v3(S3a 底座计数);format_feedback_
+    policy 为 S3b 独立有界格式反馈策略(缺省补默认 0 轮;不并入
+    search_limits 十键、不当旧草案字段)。S3b 起 run 执行入口
+    (workflow.runner start_run/resume_run)按 profile 分流到 PPV1
+    独立执行/存储。
     """
     return {
         "name": PPV1_PROFILE_NAME,
@@ -430,9 +561,10 @@ def build_profile_identity_block(
             chemical_reproposal),
         "search_intent": _validate_search_intent(search_intent),
         "search_limits": _validate_search_limits(search_limits),
+        "format_feedback_policy": validate_format_feedback_policy(
+            format_feedback_policy),
         # S0–S2 交付领域契约/上下文/固定诊断;S3a 交付持久搜索底座
-        # (身份/预算/认领/恢复,测试入口用 pollutant.search 底座 API);
-        # 公共执行流入口 workflow.runner 对本 profile 继续 fail-closed
-        # (队列化学集成与生产链属 S3b,交付前拒绝运行)
-        "delivered_stages": "S0-S2,S3a-base",
+        # (身份/预算/认领/恢复);S3b 交付队列化学集成/生产中心证据链/
+        # PPV1 runner 分流(公开 start_run/resume_run 开放 PPV1 路径)
+        "delivered_stages": "S0-S2,S3a-base,S3b",
     }

@@ -100,6 +100,21 @@ artifact 校验、低层提交恢复协议、停止原因、四崩溃/H05–H08/
   recover_run 对 run 范围状态枚举外的请求行结构化披露
   (unknown_status_requests,不改状态、不猜补)。
 
+**S3b 批次(2026-10-08;契约 ppv1-search-4 → -5)**:调度与生产链接线
+的底座增量(见各方法 docstring 的"S3b"标注):
+
+- enqueue_action 支持 initial_status=deferred(schedule_hypotheses 的
+  备选反应/共同产物 followup 以独立未展开原因入队,defer_reason 落列
+  + defer_trigger/deferred_type 进冻结任务输入;预约仍只在 claim);
+- reactivate_deferred_action:deferred → pending 激活(trigger 与冻结
+  激活条件一致、expected_parent_revision 与冻结 revision 匹配、
+  pending/claimed/done 幂等 unchanged、旧 revision 明确
+  stale_parent_revision、预算预检不足留独立未展开原因不激活;不重建
+  任务输入、不改冻结身份列;上层语义见 pollutant/queue.py 的
+  activate_deferred(两类 deferred 分别激活);
+- pending_action_ids/actions_with_status:稳定次序只读派生视图
+  (驱动循环消费;不是预算/完成证书)。
+
 入口矩阵(每处消费的对象/身份/版本/权威及校验来源;回修 r4 更新):
 
 | # | 入口 | 消费 | 校验/事务 |
@@ -773,8 +788,12 @@ class SearchLedger:
         payload: dict,
         depth: int | None = None,
         source_event_id: str = "",
+        initial_status: str = ACTION_STATUS_PENDING,
+        defer_reason: str = "",
+        defer_trigger: str = "",
     ) -> dict:
-        """创建 pending SearchAction(幂等;同键异内容冲突)。
+        """创建 pending(或 S3b: deferred)SearchAction(幂等;同键异
+        内容冲突)。
 
         - action_id 由身份输入派生(run/父/context/subject/kind/
           revision/policy_version);payload 全量任务输入冻结落账,
@@ -785,8 +804,26 @@ class SearchLedger:
           expand_hypothesis 受深度约束,阶段转换另计);产品宽度(同
           source_event 的展开数 ≥ max_product_expansion_width ⇒ 拒
           绝;只限继续探索,不截断完整事件事实);
-        - 队列待办不计预算(claim 才预约)。
+        - 队列待办不计预算(claim 才预约);
+        - **S3b(注册于 search-5)**:initial_status 允许 pending /
+          deferred —— schedule_hypotheses 的备选反应与共同产物 followup
+          以 deferred 状态入队(defer_reason 必填、defer_trigger 记录
+          激活条件),激活走 reactivate_deferred_action /
+          queue.activate_deferred(不重跑任务输入、不覆盖冻结身份);
+          initial_status 其他取值结构化拒绝。deferred 入队同样零预算
+          预约(预约只在 claim)。
         """
+        if initial_status not in (ACTION_STATUS_PENDING,
+                                  ACTION_STATUS_DEFERRED):
+            raise SearchContractError(
+                f"initial_status 非法:{initial_status!r}(允许 "
+                f"{ACTION_STATUS_PENDING}/{ACTION_STATUS_DEFERRED})",
+                {"kind": "invalid_initial_status",
+                 "initial_status": initial_status})
+        if initial_status == ACTION_STATUS_DEFERRED and not defer_reason:
+            raise SearchContractError(
+                "deferred 入队必须携带 defer_reason(独立未展开原因)",
+                {"kind": "missing_defer_reason"})
         if action_kind not in ACTION_KINDS:
             raise SearchContractError(
                 f"action_kind 非法:{action_kind!r}"
@@ -825,6 +862,13 @@ class SearchLedger:
                                            width}}
         task_payload = dict(payload)
         task_payload.setdefault("source_event_id", source_event_id)
+        if initial_status == ACTION_STATUS_DEFERRED:
+            # S3b:deferred 元数据进冻结任务输入(身份同源;defer_reason
+            # 另落列供恢复/激活读取;defer_trigger 记录激活条件)
+            task_payload["deferred_type"] = str(
+                task_payload.get("deferred_type") or "")
+            task_payload["defer_trigger"] = str(defer_trigger)
+            task_payload["defer_reason"] = str(defer_reason)
         action_id = stable_id(
             "sact", run_id, parent_path_id, context_ref, subject_ref,
             action_kind, str(int(parent_search_revision)), policy_version)
@@ -853,12 +897,13 @@ class SearchLedger:
                 "INSERT INTO search_actions (action_id, run_id,"
                 " parent_path_id, context_ref, subject_ref, action_kind,"
                 " parent_search_revision, policy_version, status, payload,"
-                " task_key, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,"
-                " ?, ?, ?)",
+                " task_key, defer_reason, created_at) VALUES"
+                " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (action_id, run_id, parent_path_id, context_ref,
                  subject_ref, action_kind, int(parent_search_revision),
-                 policy_version, ACTION_STATUS_PENDING, payload_json,
-                 str(task_payload.get("task_key", "")), now_iso()))
+                 policy_version, initial_status, payload_json,
+                 str(task_payload.get("task_key", "")), defer_reason,
+                 now_iso()))
             self.conn.commit()
         except Exception:
             self.conn.rollback()
@@ -878,6 +923,155 @@ class SearchLedger:
         out["budget_reservation_ref"] = json.loads(
             row["budget_reservation_ref"] or "[]")
         return out
+
+    # ------------------------------------------------------------ S3b 队列
+
+    def pending_action_ids(self, run_id: str) -> list[str]:
+        """pending 状态的 action 清单(稳定次序:created_at, action_id;
+        只读派生视图,驱动循环按此顺序消费;不是预算证书)。"""
+        rows = self.conn.execute(
+            "SELECT action_id FROM search_actions WHERE run_id = ? AND"
+            " status = ? ORDER BY created_at, action_id",
+            (run_id, ACTION_STATUS_PENDING)).fetchall()
+        return [str(r["action_id"]) for r in rows]
+
+    def actions_with_status(self, run_id: str, status: str) -> list[dict]:
+        """指定状态的 action 行(只读;deferred 激活/恢复清单用)。"""
+        if status not in ACTION_STATUSES:
+            raise SearchContractError(
+                f"状态非法:{status!r}", {"kind": "invalid_action_status"})
+        rows = self.conn.execute(
+            "SELECT * FROM search_actions WHERE run_id = ? AND status = ?"
+            " ORDER BY created_at, action_id", (run_id, status)).fetchall()
+        out = []
+        for row in rows:
+            item = dict(row)
+            item["payload"] = json.loads(row["payload"])
+            item["attempt_refs"] = json.loads(row["attempt_refs"] or "[]")
+            item["budget_reservation_ref"] = json.loads(
+                row["budget_reservation_ref"] or "[]")
+            out.append(item)
+        return out
+
+    def reactivate_deferred_action(
+        self, action_id: str, *, trigger: str,
+        expected_parent_revision: int,
+    ) -> dict:
+        """**S3b(search-5)**:deferred → pending 激活(幂等;trigger 与
+        expected_parent_revision 双校验;预算预检;零预约 —— 预约仍在
+        claim 的 BEGIN IMMEDIATE 事务内权威发生)。
+
+        - 状态非 deferred:pending/claimed/done ⇒ unchanged(重复触发
+          幂等,不重复安排同 action);blocked ⇒ 结构化拒(保留原因
+          不强行执行);
+        - trigger 必须与入队时冻结的 defer_trigger 一致(可验证 trigger
+          = 与记录一致;不一致 ⇒ 冲突,不猜激活条件);
+        - expected_parent_revision 必须等于 action 冻结的
+          parent_search_revision(旧 revision ⇒ 冲突 unchanged—— 该
+          deferred 项针对更早的局部搜索状态,再调度须经新 revision 的
+          schedule 入口,不在激活口改写冻结身份);
+        - 预算预检(独立性:仅计算剩余,不预约):本 action 适用上限
+          (总 action / transition)剩余 0 ⇒ 保持 deferred,unchanged
+          带独立未展开原因 budget_exhausted;claim 侧的权威预约不受
+          本预检影响;
+        - 事务内状态迁移(deferred → pending);不重建任务输入、不改
+          冻结身份列、不清 defer_reason(历史激活可追溯)。
+        """
+        self._begin()
+        try:
+            row = self.conn.execute(
+                "SELECT * FROM search_actions WHERE action_id = ?",
+                (action_id,)).fetchone()
+            if row is None:
+                raise SearchContractError(
+                    f"action 不存在:{action_id}",
+                    {"action_id": action_id, "kind": "action_missing"})
+            status = row["status"]
+            if status == ACTION_STATUS_PENDING:
+                self.conn.rollback()
+                return {"activated": False, "unchanged": True,
+                        "action_id": action_id, "status": status,
+                        "reason": "already_active"}
+            if status in (ACTION_STATUS_CLAIMED, ACTION_STATUS_DONE):
+                self.conn.rollback()
+                return {"activated": False, "unchanged": True,
+                        "action_id": action_id, "status": status,
+                        "reason": "already_active"}
+            if status == ACTION_STATUS_BLOCKED:
+                self.conn.rollback()
+                raise SearchClaimError(
+                    f"action {action_id} 处于 blocked(保留原因不强行"
+                    "执行;解除须显式策略)",
+                    {"action_id": action_id, "kind": "blocked_not_activatable",
+                     "defer_reason": row["defer_reason"]})
+            if status != ACTION_STATUS_DEFERRED:
+                self.conn.rollback()
+                raise SearchContractError(
+                    f"action {action_id} 状态未知:{status!r}(枚举外 ⇒ "
+                    "记账行损坏;fail-closed 保全)",
+                    {"action_id": action_id, "kind": "action_status_unknown",
+                     "status": status})
+            payload = json.loads(row["payload"])
+            frozen_trigger = str(payload.get("defer_trigger") or "")
+            frozen_revision = int(row["parent_search_revision"])
+            if frozen_trigger and str(trigger) != frozen_trigger:
+                self.conn.rollback()
+                raise SearchContractError(
+                    f"action {action_id} 的激活 trigger 与冻结激活条件不"
+                    f"一致(记录 {frozen_trigger!r},请求 {str(trigger)!r};"
+                    "可验证 trigger = 与记录一致,不猜激活条件)",
+                    {"action_id": action_id, "kind": "defer_trigger_mismatch",
+                     "frozen_trigger": frozen_trigger,
+                     "submitted_trigger": str(trigger)})
+            if int(expected_parent_revision) != frozen_revision:
+                self.conn.rollback()
+                return {"activated": False, "unchanged": True,
+                        "action_id": action_id, "status": status,
+                        "reason": "stale_parent_revision",
+                        "detail": {"frozen_revision": frozen_revision,
+                                   "expected_parent_revision":
+                                       int(expected_parent_revision)}}
+            # ---- 预算预检(只读剩余;不预约,claim 才是权威) ----
+            run_id = row["run_id"]
+            limits = self._limits(run_id)
+            applicable = [("max_total_search_actions", "")]
+            if row["action_kind"] == ACTION_KIND_SCENARIO_TRANSITION:
+                applicable.append(("max_scenario_transitions", ""))
+            if row["action_kind"] == ACTION_KIND_EXPAND_HYPOTHESIS:
+                # 备选反应 deferred:激活预检父路径 alternatives 剩余
+                # (claim 的权威预约不受本预检影响;只读派生)
+                applicable.append((
+                    "max_alternative_hypotheses_per_parent",
+                    row["parent_path_id"]))
+            for limit_key, scope in applicable:
+                remaining = _remaining(
+                    self.conn, run_id, limit_key, scope,
+                    int(limits[limit_key]))
+                if remaining < 1:
+                    self.conn.rollback()
+                    return {
+                        "activated": False, "unchanged": True,
+                        "action_id": action_id, "status": status,
+                        "reason": "budget_exhausted",
+                        "detail": {"limit_key": limit_key,
+                                   "max": int(limits[limit_key]),
+                                   "remaining": remaining,
+                                   "note": ("预算不足留独立未展开原因;"
+                                            "激活不改状态,claim 才是权威"
+                                            "预约口")},
+                    }
+            self.conn.execute(
+                "UPDATE search_actions SET status = ?, updated_at = ? WHERE"
+                " action_id = ? AND status = ?",
+                (ACTION_STATUS_PENDING, now_iso(), action_id,
+                 ACTION_STATUS_DEFERRED))
+            self.conn.commit()
+        except Exception:
+            self.conn.rollback()
+            raise
+        return {"activated": True, "unchanged": False,
+                "action_id": action_id, "status": ACTION_STATUS_PENDING,
+                "reason": "reactivated"}
 
     # ------------------------------------------------------------ 认领+预算
 
