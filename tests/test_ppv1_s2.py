@@ -792,7 +792,23 @@ def test_h04_circular_cosubstrate_dependency_diagnosis() -> None:
         support_axis="regeneration")
     result3 = detect_circular_dependencies([resolved, both])
     assert result3["unresolved_initial_supply"] == []
-    assert result3["unsupported_relation_cycles"] == []
+    # R6(R5 §4 披露 2)更动说明:原断言为 unsupported_relation_cycles
+    # == []——把"A→B 总体 supported(仅 initial_supply 接种证据)"当作
+    # 关系成立,是被复审点名的"以总 status 判关系支持"的镜像混用。
+    # 按对应有效轴消费后:initial_supply 不是关系轴(关系轴 =
+    # reaction/regeneration),A→B 的关系仍未被支持 ⇒ 继续单独披露
+    # (fail-closed 披露,不自动 reject/defer);B→A 的 regeneration
+    # 只洗掉 B→A 自己的关系披露,不洗 A→B。
+    assert result3["unsupported_relation_cycles"] == [
+        ["speciesA", "speciesB"]]
+    # 关系成立的正例:A→B 补关系轴证据(reaction)后,两条边关系轴
+    # 都有当前有效支持 ⇒ unsupported_relation 清空(原控制意图保留)
+    relation_ab = resolve_dependency(
+        resolved, new_evidence=["src:reaction_ab"], resolution="supported",
+        support_axis="reaction")
+    result4 = detect_circular_dependencies([relation_ab, both])
+    assert result4["unresolved_initial_supply"] == []
+    assert result4["unsupported_relation_cycles"] == []
 
 
 def test_f06_three_node_cycle_detected() -> None:
@@ -978,7 +994,7 @@ def test_admission_policy_decision_table_explicit() -> None:
         AdmissionPolicy.from_dict({"policy_version": "bogus"})
     with pytest.raises(AuditContractError, match="未知门禁"):
         AdmissionPolicy.from_dict({
-            "policy_version": "ppv1-admission-5",
+            "policy_version": "ppv1-admission-6",
             "reject_gates": ["gate_not_reviewed"]})
 
 
@@ -1436,7 +1452,7 @@ def test_pool_order_stable_and_truncation_disclosed() -> None:
     assert disclosure["n_truncated"] == 1
     assert disclosure["truncated_source_origins"] == {"analog_transfer": 1}
     assert disclosure["covers_full_pool"] is False
-    assert disclosure["order_key_version"] == "ppv1-pool-order-5"
+    assert disclosure["order_key_version"] == "ppv1-pool-order-6"
     _, full = order_pool(items)
     assert full["covers_full_pool"] is True
     again, _ = order_pool(list(reversed(items)), limit=3)

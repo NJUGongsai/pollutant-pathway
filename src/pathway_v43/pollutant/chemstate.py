@@ -22,6 +22,21 @@ R3 复审 R3-04 与 mimo R3 1.2/1.3 的落实):
   逐字相同;**自由基分子带 |^n:…| 后缀是例外**(radical 保真轴
   为已登记缺口,身份层区分自由基)。
 
+v6(ppv1-chemstate-6,2026-10-07 R6 回修)相对 v5 的变化(Codex R5
+复审 R5-02):
+- **原始 CX 输入的注册感知验证**(_guard_input_cx_classes):在
+  build_chemical_state 与 strict_identity_of **解析之前**对原始串
+  调用 —— RDKit MolFromSmiles 解析时会静默丢弃 |r|、|Ln:1|、|c:1|、
+  |wU:1.5|、|o:1|、|O:1| 等未登记块,之后与裸输入同 state_id/
+  as_written,输出侧守卫(_guard_registered_cx_classes)永远看不到;
+  输入侧按同一注册体系做**类级**登记:$...$ 标签/值块与 (...) 坐标块
+  为登记移除类,atomProp/SgD 为登记移除类(内容不查——SgD 值可含
+  逗号,不按逗号拆整段),Sg 为登记保留类,a/oN/&N/^N 为登记保留
+  注记类(逐 token 复核注记头与裸数字延续);无冒号旗标块与其余
+  未知类 ⇒ ChemicalStateError(kind=unregistered_cx_class,构造即拒,
+  不再与裸串同 id)。语法整体不可解析且无违规 CX 块的输入维持
+  unparseable_smiles(机读码分列,同为拒绝)。
+
 v5(ppv1-chemstate-5,2026-10-07 R5 回修)相对 v4 的变化(Codex R4
 复审 R4-08 + mimo R4 1.2):
 - **DATA SGroup(SgD)分子级剥离**:纯出现/注记元数据(如
@@ -195,6 +210,95 @@ def _identity_key(mol: Chem.Mol) -> str:
 _CX_REGISTERED_HEAD_RE = re.compile(
     r"^(?:Sg|SgD|a|o\d+|&\d+|\^\d+)!?:")
 _CX_REGISTERED_FLAG_BLOCKS = frozenset()  # 无冒号旗标块:目前无登记类
+
+# R6(R5-02)输入侧登记表:原始 CX |…| 段的**类级**登记(与输出侧
+# _guard_registered_cx_classes 同一注册体系,但按类处理 —— 输入侧在
+# 解析前运行,坐标/标签/atomProp/SgD 的内容此时不可见,按登记移除类
+# 放行,由解析 + _identity_key 的生成前清除保证同 ID;Sg/a/&N/^N 按
+# 登记保留类放行;未登记类(r/Ln/c/w/wU/o/O/d/n/F …)⇒ 拒绝 —— RDKit
+# MolFromSmiles 解析时静默丢弃这些块,输出侧守卫永远看不到,丢弃后
+# 与裸输入同 state_id/as_written = 谎称完整保真)
+_CX_INPUT_REMOVED_HEADS = frozenset({"atomProp", "SgD"})
+_CX_INPUT_RETAINED_HEADS = frozenset({"Sg"})
+_CX_INPUT_ANNOTATION_HEAD_RE = re.compile(r"^(?:a|o\d+|&\d+|\^\d+)$")
+_CX_ALL_EXTENSION_RE = re.compile(r"\|([^|]*)\|")
+
+
+def _guard_input_cx_classes(structure: str) -> None:
+    """原始 CX 输入的注册感知校验(R5-02;解析**之前**对原始串调用)。
+
+    用正则提取串中全部 ``|...|`` 扩展段;每段按空白拆 block:
+    - ``$...$`` 标签/值块($_AV、$label$)⇒ 登记移除类,放行;
+    - ``(...)`` 坐标块 ⇒ 登记移除类,放行;
+    - head(首个 ``:`` 前)∈ {atomProp, SgD} ⇒ 登记移除类,放行不查
+      内容(SgD 值可含逗号,勿按逗号拆整段);
+    - head == "Sg" ⇒ 登记保留类,放行不查内容;
+    - head 匹配 ^(a|o\\d+|&\\d+|\\^\\d+)$ ⇒ 登记保留注记类:对该
+      block 逗号拆 token,token 须为无冒号裸数字(原子列表延续)或
+      注记头命中 a/o\\d+/&\\d+/\\^\\d+(含 ``!`` 前缀,同
+      _CX_REGISTERED_HEAD_RE 语义),否则拒绝;
+    - 无冒号旗标块(如 r)⇒ 拒绝;
+    - 其余(Ln、c、w、wU、o、O、d、n、F 等)⇒ 拒绝。
+
+    拒绝 ⇒ ChemicalStateError(kind=unregistered_cx_class,带违规
+    block/token):解析器静默丢弃的未知/畸形类不得丢弃后称 as_written。
+    语法整体不可解析的输入(无违规 CX 块)仍走 unparseable_smiles。
+    """
+    for segment in _CX_ALL_EXTENSION_RE.findall(structure):
+        for block in segment.split(" "):
+            if not block:
+                continue
+            if block.startswith("$") and block.endswith("$"):
+                continue  # 标签/值块($_AV、$label$):登记移除类
+            if block.startswith("(") and block.endswith(")"):
+                continue  # 坐标块:登记移除类
+            head, sep, _ = block.partition(":")
+            # ``!`` 前缀/``!:`` 前形(输出侧 _CX_REGISTERED_HEAD_RE 的
+            # ``!?`` 语义):剥后再对登记表
+            stripped_head = head.lstrip("!").rstrip("!")
+            if not sep:
+                raise ChemicalStateError(
+                    f"CX 输入扩展段含未登记旗标块:{block[:80]!r}(输入侧"
+                    "注册感知校验:解析器会静默丢弃该块,丢弃后不得称"
+                    " as_written;未知旗标类显式拒绝)",
+                    {"kind": "unregistered_cx_class",
+                     "block": block[:200]})
+            if stripped_head in _CX_INPUT_REMOVED_HEADS:
+                continue  # atomProp/SgD:登记移除类,内容不查
+            if stripped_head in _CX_INPUT_RETAINED_HEADS:
+                continue  # Sg:登记保留类,内容不查
+            if _CX_INPUT_ANNOTATION_HEAD_RE.match(stripped_head):
+                # 保留注记类:逐 token 复核注记头(裸数字为原子列表
+                # 延续;头可带 ``!`` 前缀/``!:`` 前形 —— 复用输出侧
+                # _CX_REGISTERED_HEAD_RE 的 ``!?`` 语义)
+                for token in block.split(","):
+                    token_head, token_sep, _ = token.partition(":")
+                    stripped = token_head.lstrip("!").rstrip("!")
+                    if not token_sep:
+                        if stripped.isdigit():
+                            continue  # 原子列表延续(裸数字)
+                        raise ChemicalStateError(
+                            f"CX 输入注记块含未登记 token:{token[:80]!r}"
+                            "(输入侧注册感知校验:登记注记类(a/oN/&N/^N)"
+                            "的 token 须为注记头或裸数字原子列表延续)",
+                            {"kind": "unregistered_cx_class",
+                             "token": token[:200], "block": block[:200]})
+                    if not stripped or not \
+                            _CX_INPUT_ANNOTATION_HEAD_RE.match(stripped):
+                        raise ChemicalStateError(
+                            f"CX 输入注记块含未登记注记头:{token[:80]!r}"
+                            "(输入侧注册感知校验:须命中 a/oN/&N/^N,含 !"
+                            " 前缀;未知注记头显式拒绝)",
+                            {"kind": "unregistered_cx_class",
+                             "token": token[:200], "block": block[:200]})
+                continue
+            raise ChemicalStateError(
+                f"CX 输入扩展段含未登记注记类:{head[:80]!r}(输入侧注册"
+                "感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;"
+                "登记类:atomProp/SgD/$(…)$/(…)/Sg/a/oN/&N/^N;未知类"
+                "显式拒绝)",
+                {"kind": "unregistered_cx_class",
+                 "block": block[:200], "head": head[:80]})
 
 
 def _guard_registered_cx_classes(cxsmiles: str) -> None:
@@ -396,6 +500,10 @@ def build_chemical_state(
             f"未知 structure_origin:{origin!r}(允许 "
             f"{sorted(STRUCTURE_FACTORY_ORIGINS)})",
             {"kind": "invalid_structure_origin", "origin": origin})
+    # R5-02:输入侧注册感知校验先于解析 —— RDKit MolFromSmiles 会静默
+    # 丢弃未登记 CX 类(|r|、|Ln:1| 等),丢弃后与裸输入同 state_id/
+    # as_written 是谎称完整保真;公共结构入口(build/strict)一致
+    _guard_input_cx_classes(structure)
     mol = Chem.MolFromSmiles(structure)
     if mol is None:
         raise ChemicalStateError(
@@ -466,11 +574,13 @@ def strict_identity_of(structure: str) -> str:
     """与 state_id 同一事实源的严格身份键(供体诊断 strict 轴等复用)。
 
     解析失败抛 ChemicalStateError(与 build_chemical_state 同 fail-closed
-    语义);不构造完整状态,只取身份键。
+    语义);不构造完整状态,只取身份键。R5-02:同样在解析前做输入侧
+    注册感知校验(公共结构入口一致)。
     """
     if not isinstance(structure, str) or not structure.strip():
         raise ChemicalStateError(
             "结构输入为空或非字符串", {"structure": repr(structure)[:200]})
+    _guard_input_cx_classes(structure)
     mol = Chem.MolFromSmiles(structure)
     if mol is None:
         raise ChemicalStateError(

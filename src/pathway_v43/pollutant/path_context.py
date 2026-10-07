@@ -1,4 +1,33 @@
-"""PathContext — 路径上下文、条件事实与证据依赖(v5 回修,S2)。
+"""PathContext — 路径上下文、条件事实与证据依赖(v6 回修,S2)。
+
+v6(ppv1-context-6 / ppv1-condition-assessment-6 / ppv1-dependency-6,
+2026-10-07 R6 回修)相对 v5 的变化(Codex R5 复审 R5-03/R5-04 +
+§4 披露 2):
+- **非物种 known_absent 不作正事实(R5-03)**:_assess_requirement 在
+  单位三态检查之后、值匹配之前消费 fact.status —— 数值/区间值事实
+  被明确否定 ⇒ unknown(numeric_absence_semantics_undefined,首版
+  未定义数值否定语义,单点缺席不推出区间缺席);字符串同值 ⇒
+  conflict(required_value_known_absent,必需值被明确否定);字符串
+  异值 ⇒ unknown(other_value_known_absent_not_determining)。oxygen
+  aerobic absent / matrix soil absent 不再 satisfied→R6;温度数值
+  absent 不再满足区间。物种键实体缺席(⇒ conflict)、present、
+  unknown、单位控制不受影响;
+- **恢复/审核入口核快照一致性与内容身份(R5-04)**:_validate_
+  phase_history_snapshot(模块级,from_dict 与 validate_context_
+  object 共用)对每条 phase_history 快照校验结构 + requirement_
+  coverage.essential_keys/has_gate_requirements/environment_fit 与
+  per_requirement 逐条行同源派生(单向矛盾判定)+ covered_
+  requirement_signatures ∈ 当前累积要求签名集合,不符 ⇒
+  context_snapshot_inconsistent;from_dict 另以与构造期同源的
+  _context_hash 对加载字段(含 phase_history)重算 context_id,
+  不等于载荷值 ⇒ context_content_identity_mismatch(篡改快照摘要/
+  旗标/事实而保留原 id ⇒ 拒)。消费方(assess_candidate_conditions/
+  route_assessment)逻辑不动 —— 数据入口已封口;
+- **环诊断按对应有效轴消费(§4 披露 2,P2)**:detect_circular_
+  dependencies 的 has_initial 只看 initial_supply 轴当前 supported
+  (去掉总体 status 门);关系成立按关系轴(reaction/regeneration
+  各自当前有效状态:至少一条 supported 且无一条 contradicted),
+  不再以总体 status 污染两种语义。环不自动 reject/defer。
 
 v5(ppv1-context-5 / ppv1-condition-assessment-5 / ppv1-dependency-5,
 2026-10-07 R5 回修)相对 v4 的变化(Codex R4 复审 R4-03/04/05 +
@@ -695,11 +724,17 @@ def _assess_requirement(
     """单项评估 → (status, reason, fact_sources, extras)。
 
     extras(R4-03):unit_basis —— 带量纲键(在 CONDITION_KEY_UNITS)
-   的事实被消费时:显式规范单位 ⇒ "canonical"(已归一输入);
+    的事实被消费时:显式规范单位 ⇒ "canonical"(已归一输入);
     必须显式单位的键(temperature_C)无单位 ⇒ **unknown +
     "source_unit_unknown"**(原来源单位未知;注记不把未知来源升级为
     satisfied/conflict,mimo 4.3 案 A);非规范单位 ⇒ unit_mismatch ⇒
     unknown;pH 等无量纲键空单位合法,不因本契约判未知。
+
+    R5-03:单位三态检查之后、值匹配之前消费 fact.status —— 非物种键
+    的 known_absent 不作为正事实参与值比对(数值/区间缺席 ⇒ unknown;
+    字符串同值缺席 ⇒ conflict;字符串异值缺席 ⇒ unknown)。物种键的
+    实体缺席语义在 _assess_species_requirement 保持(必需实体自身
+    缺席 ⇒ conflict)。present / unknown / 单位控制不受影响。
     """
     # 文献观察条件不是必需条件:只作参考,不参与门禁
     if req.basis == REQUIREMENT_BASIS_OBSERVED_REFERENCE:
@@ -753,6 +788,37 @@ def _assess_requirement(
     if req.value is None:
         return UNKNOWN, f"requirement_value_unspecified:{req.key}", \
             sources, extras
+    # R5-03:非物种键先消费事实 status,再值匹配 —— known_absent 不是
+    # 正事实(明确缺失不能提供正支持;物种键分支此前已按实体缺席
+    # 处理,本检查覆盖枚举/matrix/数值/区间键的通用路径):
+    # - 数值/区间值事实:首版未定义数值否定语义("25 不存在"推不出
+    #   "整个 20–30 区间不存在")⇒ unknown,不按正值直比落
+    #   satisfied/conflict;
+    # - 字符串值事实 = 必需值同词被明确否定(封闭枚举/标签)⇒
+    #   conflict;
+    # - 字符串值事实 ≠ 必需值("anaerobic 缺席"不证明 aerobic 在场;
+    #   matrix 文本不等只证明标签未解析)⇒ unknown。
+    # 多事实 conflicting_applicable_facts / fact_unknown 既有逻辑先于
+    # 本检查(先于值匹配的三态一致性门不变)。
+    if fact.status == FACT_STATUS_KNOWN_ABSENT:
+        if _is_number(fact.value) or isinstance(fact.value, dict):
+            return (UNKNOWN,
+                    f"numeric_absence_semantics_undefined:{fact.key}"
+                    "(数值/区间值事实被明确否定;首版未定义数值否定语义,"
+                    "单点缺席不推出整个必需区间缺席;不按正值直比)",
+                    sources, extras)
+        if req.value == fact.value:
+            return (CONFLICT,
+                    f"required_value_known_absent:{req.key}"
+                    "(必需值被同值 known_absent 事实明确否定;明确缺失"
+                    "不提供正支持)",
+                    sources, extras)
+        return (UNKNOWN,
+                f"other_value_known_absent_not_determining:{req.key}"
+                "(不同字符串值的缺席不判定必需值状态:oxygen 封闭枚举下"
+                "'anaerobic 缺席'不证明 aerobic 在场;matrix 文本不等只"
+                "证明标签未解析)",
+                sources, extras)
     # 定性标签:仅区间键须注册表映射;首版注册表为空 ⇒ unknown
     # (物种/枚举/矩阵键字符串是实体/枚举比对,不走 label/注册表)
     if req.value_basis == VALUE_BASIS_LABEL:
@@ -1265,14 +1331,142 @@ def assess_candidate_conditions(
     )
 
 
+def _validate_phase_history_snapshot(
+        phase_history: list[dict],
+        requirements: list[Requirement]) -> None:
+    """R5-04(a):phase_history 快照内部一致性校验。
+
+    from_dict(恢复入口)与 validate_context_object(audit 对直接对象
+    的入口)共用。快照门禁摘要(environment_fit / has_gate_requirements
+    / requirement_coverage.essential_keys / covered_requirement_
+    signatures)必须与逐条评估行(per_requirement)及当前累积要求
+    **同源派生**,内部矛盾 ⇒ ConditionContractError(kind=
+    context_snapshot_inconsistent)结构化拒绝(fail-closed,不消费):
+    - 结构:每条快照为 dict;per_requirement 为 list[dict];
+      environment_fit ∈ {compatible, unknown, conflict};
+      covered_requirement_signatures 为 list[str];
+    - ess 行 = per_requirement 中 level==essential 且
+      basis==essential_claimed 的行;requirement_coverage.essential_keys
+      必须等于 ess 行键集合(同源派生);
+    - bool(has_gate_requirements) == bool(ess 行非空)(篡改 False
+      ⇒ 拒);
+    - environment_fit 一致性(**单向矛盾判定**,不误拒合法历史):
+      ess 行含 conflict ⇒ 记录值必须是 conflict;记录值 compatible ⇒
+      ess 行非空且全部 status ∈ {satisfied, not_applicable}
+      (not_applicable 是 optimum 等不门禁行的合法状态,不构成矛盾);
+      记录值 unknown ⇒ 只要不与 conflict 行矛盾即可(全部满足但声明
+      scope 为空的历史合法情况是 unknown);
+    - covered_requirement_signatures 每条必须是当前 accumulated_
+      requirements 的 canonical_json(r.to_dict()) 签名集合成员
+      (快照在转换时冻结、子上下文只累积不删要求;签名不能凭空覆盖
+      不存在的要求)。
+
+    校验语义仅限结构/派生一致性 —— 不拿当前事实重评旧边,也不认证
+    用户事实真实性(旧边记录值保持,消费方逻辑不变)。
+    """
+    for idx, h in enumerate(phase_history):
+        where = {"kind": "context_snapshot_inconsistent",
+                 "snapshot_index": idx}
+        if not isinstance(h, dict):
+            raise ConditionContractError(
+                "phase_history 快照必须是 dict", {**where,
+                "got": type(h).__name__})
+        where = {**where,
+                 "phase_id": h.get("phase_id"),
+                 "scenario_ref": h.get("scenario_ref")}
+        per = h.get("per_requirement")
+        if not isinstance(per, list) or not all(
+                isinstance(x, dict) for x in per):
+            raise ConditionContractError(
+                "快照 per_requirement 须为 list[dict](逐条评估行;"
+                "门禁摘要须由已记录的逐条评估派生)",
+                {**where, "check": "per_requirement_structure"})
+        fit = h.get("environment_fit")
+        if fit not in ("compatible", UNKNOWN, CONFLICT):
+            raise ConditionContractError(
+                f"快照 environment_fit 非法:{fit!r}(允许 "
+                "compatible/unknown/conflict)",
+                {**where, "check": "environment_fit_value",
+                 "environment_fit": repr(fit)})
+        sigs = h.get("covered_requirement_signatures")
+        if not isinstance(sigs, list) or not all(
+                isinstance(s, str) for s in sigs):
+            raise ConditionContractError(
+                "快照 covered_requirement_signatures 须为 list[str]",
+                {**where, "check": "signatures_structure"})
+        coverage = h.get("requirement_coverage")
+        if not isinstance(coverage, dict):
+            raise ConditionContractError(
+                "快照 requirement_coverage 须为 dict",
+                {**where, "check": "coverage_structure"})
+        ess_keys_field = coverage.get("essential_keys")
+        if not isinstance(ess_keys_field, list) or not all(
+                isinstance(k, str) for k in ess_keys_field):
+            raise ConditionContractError(
+                "快照 requirement_coverage.essential_keys 须为 "
+                "list[str]", {**where, "check": "coverage_keys_structure"})
+        ess_rows = [row for row in per
+                    if row.get("level") == REQUIREMENT_ESSENTIAL
+                    and row.get("basis")
+                    == REQUIREMENT_BASIS_ESSENTIAL_CLAIMED]
+        ess_keys = sorted({str(row.get("key")) for row in ess_rows})
+        if sorted(ess_keys_field) != ess_keys:
+            raise ConditionContractError(
+                "快照 requirement_coverage.essential_keys 与逐条评估的"
+                "必要行键集合不一致(须同源派生)",
+                {**where, "check": "coverage_keys_mismatch",
+                 "recorded": sorted(ess_keys_field),
+                 "per_requirement": ess_keys})
+        if bool(h.get("has_gate_requirements")) != bool(ess_keys):
+            raise ConditionContractError(
+                "快照 has_gate_requirements 与必要行集合不一致(旗标须"
+                "同源派生;篡改 False 不能跳过必要评估)",
+                {**where, "check": "gate_flag_mismatch",
+                 "has_gate_requirements": bool(
+                     h.get("has_gate_requirements"))})
+        ess_statuses = [row.get("status") for row in ess_rows]
+        if CONFLICT in ess_statuses and fit != CONFLICT:
+            raise ConditionContractError(
+                "快照逐条评估含必要 conflict 行,记录的 environment_fit"
+                " 却不是 conflict(摘要不得洗绿已记录的冲突)",
+                {**where, "check": "fit_conflict_mismatch",
+                 "environment_fit": fit})
+        if fit == "compatible" and (not ess_rows or any(
+                s not in (SATISFIED, NOT_APPLICABLE)
+                for s in ess_statuses)):
+            raise ConditionContractError(
+                "快照记录 compatible 但必要行并非全部满足/不门禁"
+                "(须由已记录的逐条评估一致派生)",
+                {**where, "check": "fit_compatible_not_backed"})
+        # 记录值 unknown:单向矛盾判定(不因全部满足而误拒合法历史;
+        # 含 conflict 行的矛盾已由上面的 fit_conflict_mismatch 拒)
+        known_sigs = {canonical_json(r.to_dict()) for r in requirements}
+        for s in sigs:
+            if s not in known_sigs:
+                raise ConditionContractError(
+                    "快照 covered_requirement_signatures 含当前累积要求"
+                    "签名集合之外的成员(快照冻结于转换时、子上下文只"
+                    "累积不删要求;签名不能凭空覆盖不存在的要求)",
+                    {**where, "check": "signature_not_in_requirements",
+                     "signature": s[:160]})
+
+
 def validate_context_object(context) -> None:
-    """直接 context 对象的版本门(R3-08;audit 入口接线用)。
+    """直接 context 对象的版本门 + 快照一致性 + 内容身份(R3-08 +
+    R5-04;audit 入口接线用)。
 
     缺 schema_version / 未知版本 ⇒ 结构化 ConditionContractError
     (kind:context_schema_version_missing / context_schema_version_
     unknown);非 PathContext ⇒ context_object_invalid_type。
     合法对象返回 None。from_dict 已有同款门;本函数覆盖**直接对象**
     (绕过 from_dict 的调用路径)。
+
+    R5-04:直接对象(内存 PathContext 的 phase_history 是普通 list,
+    可被就地改)同样执行快照内部一致性校验(context_snapshot_
+    inconsistent)与内容身份校验(与构造期同源的 _context_hash 对
+    当前语义字段重算,须等于对象 context_id,否则 context_content_
+    identity_mismatch —— 就地篡改事实/要求/快照而保留原身份 ⇒ 拒)。
+    校验语义仅结构一致性:不拿当前事实重评旧边。
     """
     if not isinstance(context, PathContext):
         raise ConditionContractError(
@@ -1291,6 +1485,19 @@ def validate_context_object(context) -> None:
             f"{list(PPV1_CONTEXT_SUPPORTED_VERSIONS)};fail-closed)",
             {"schema_version": version,
              "kind": "context_schema_version_unknown"})
+    # R5-04(a):快照内部一致性(直接对象可被就地改)
+    _validate_phase_history_snapshot(
+        context.phase_history, context.accumulated_requirements)
+    # R5-04(b):内容身份(与构造期同源重算)
+    recomputed = _recompute_context_hash(context)
+    if recomputed != context.context_id:
+        raise ConditionContractError(
+            "PathContext 内容身份不一致(直接对象):context_id 与按当前"
+            "语义字段(含 phase_history)同源重算的内容身份不符 —— 就地"
+            "篡改任何语义字段而保留原 context_id ⇒ 拒",
+            {"kind": "context_content_identity_mismatch",
+             "object_context_id": context.context_id,
+             "recomputed_context_id": recomputed})
 
 
 def validate_requirement_dict(raw: dict,
@@ -1581,22 +1788,47 @@ def _parse_supply_edge(statement: str) -> tuple[str, str] | None:
     return None
 
 
+def _relation_axes_supported(dep: Dependency) -> bool:
+    """R5 §4 披露 2(P2):依赖的**关系轴**当前有效状态是否支持关系。
+
+    按轴消费,不以总体 status 污染关系语义:关系成立 = 至少一条
+    关系轴(reaction/regeneration)当前 supported,**且**没有任何
+    关系轴当前 contradicted(被反驳的关系证据不因另一条关系轴
+    supported 而洗绿 —— 与 R4-05 轴语义同源:反驳按轴生效,支持按轴
+    累积)。总体 status(initial_supply 轴的状态不关关系的事)不参与。
+    """
+    states = _axis_states_from_log(dep.resolution_log)
+    for axis in (SUPPORT_AXIS_REACTION, SUPPORT_AXIS_REGENERATION):
+        if states.get(axis) == DEPENDENCY_CONTRADICTED:
+            return False
+    return (SUPPORT_AXIS_REACTION in dep.support_axes
+            or SUPPORT_AXIS_REGENERATION in dep.support_axes)
+
+
 def detect_circular_dependencies(
-    dependencies: list[Dependency],
+        dependencies: list[Dependency],
 ) -> dict:
     """共底物供给环诊断(§17.4 H04;R2-06/§4 行 2:支持分轴按轴累积)。
 
     - 多边图(同源可有多个供给目标),DFS 检出全部简单环;
-    - **启动供给与关系支持分轴**:环上没有任何 initial_supply 轴
-      支持的依赖 ⇒ 计入 unresolved_initial_supply(未知启动供给,
-      依显式策略处理,不称化学不可能);环上全部关系 supported
-      (含 regeneration)只表示关系成立,**不**删除启动未知;
-      支持轴按轴集合累积(support_axes),后续 regeneration 支持
-      不覆盖/回退已支持的 initial_supply 轴;
-    - 关系未支持(status != supported)单独披露
-      (unsupported_relation_cycles),不混入启动语义;
+    - **启动供给与关系支持分轴,按对应有效轴消费,不以总体 status
+      污染两种语义**(R5 §4 披露 2 修正:此前总体 contradicted 会把
+      "初始轴 supported + reaction 轴 contradicted"误报为启动未知,
+      把"initial 轴 contradicted + regeneration 轴 supported"混入
+      关系不支持):
+      - has_initial = 环上任一依赖的 initial_supply 轴当前 supported
+        (无总体 status 门);无 ⇒ 计入 unresolved_initial_supply
+        (未知启动供给,依显式策略处理,不称化学不可能);
+      - 关系成立 = 环上全部依赖的关系轴(reaction/regeneration)按
+        _relation_axes_supported 判定通过(不再用总体 status);
+        未通过 ⇒ unsupported_relation_cycles 单独披露,不混入启动
+        语义;
+      - 支持轴按轴集合累积(support_axes),后续 regeneration 支持
+        不覆盖/回退已支持的 initial_supply 轴;
     - 下游命中(反应证据)不自动解决上游依赖 —— 支持状态由
       resolve_dependency 的来源新证据语义管理,此处不代改。
+    环不自动 reject/defer(S3 调度不在本轮);audit 侧 provenance_
+    dependency 检查仍消费 dep.status(总体),方向正确,保持不动。
     """
     adjacency: dict[str, dict[str, list[Dependency]]] = {}
     for dep in dependencies:
@@ -1633,14 +1865,16 @@ def detect_circular_dependencies(
     unsupported_relation: list[list[str]] = []
     for cycle in sorted(cycles):
         deps = _edge_deps(cycle)
-        # §4 行 2:初始供给轴按累积集合判定(不被后续再生支持覆盖)
+        # §4 行 2 + R5 P2:按对应有效轴消费 —— 启动轴只看 initial_supply
+        # 是否当前 supported(无总体 status 门);关系轴按
+        # _relation_axes_supported(总体 status 不污染两种语义)
         has_initial = any(
-            d.status == DEPENDENCY_SUPPORTED
-            and SUPPORT_AXIS_INITIAL_SUPPLY in d.support_axes
-            for d in deps)
+            SUPPORT_AXIS_INITIAL_SUPPLY in d.support_axes for d in deps)
+        relation_supported = all(_relation_axes_supported(d)
+                                 for d in deps)
         if not has_initial:
             unresolved.append(list(cycle))
-        if not all(d.status == DEPENDENCY_SUPPORTED for d in deps):
+        if not relation_supported:
             unsupported_relation.append(list(cycle))
     return {
         "cycles": [list(c) for c in sorted(cycles)],
@@ -1648,8 +1882,9 @@ def detect_circular_dependencies(
         "unsupported_relation_cycles": unsupported_relation,
         "note": ("cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/"
                  "关系支持不解决初始供给,未知标 unresolved_initial_"
-                 "supply,依显式策略处理,不称化学不可能;支持轴按轴"
-                 "累积不回退;下游命中不自动解决上游依赖"),
+                 "supply,依显式策略处理,不称化学不可能;启动/关系两"
+                 "种语义按对应有效轴分立消费(不以总体 status 污染);"
+                 "支持轴按轴累积不回退;下游命中不自动解决上游依赖"),
     }
 
 
@@ -1769,14 +2004,20 @@ class PathContext:
                 continue
             validate_requirement_dict(raw)
             requirements.append(Requirement(**dict(raw)))
-        return cls(
-            context_id=d["context_id"],
+        facts = [ConditionFact(**f) for f in d.get("condition_facts", [])]
+        phase_history = copy.deepcopy(list(d.get("phase_history", [])))
+        # R5-04(a):恢复入口核快照内部一致性(摘要/旗标/必要行/签名
+        # 覆盖须同源派生;篡改 environment_fit='compatible' 或
+        # has_gate_requirements=False 洗绿旧冲突 ⇒ 结构化拒绝)
+        _validate_phase_history_snapshot(phase_history, requirements)
+        payload_context_id = d.get("context_id", "")
+        context = cls(
+            context_id=payload_context_id,
             parent_context_ref=d.get("parent_context_ref", ""),
             phase_id=d.get("phase_id", ""),
             requested_scope=d.get("requested_scope",
                                   REQUESTED_SCOPE_POSSIBLE),
-            condition_facts=[ConditionFact(**f)
-                             for f in d.get("condition_facts", [])],
+            condition_facts=facts,
             accumulated_requirements=requirements,
             assumptions=list(d.get("assumptions", [])),
             dependency_refs=list(d.get("dependency_refs", [])),
@@ -1784,8 +2025,23 @@ class PathContext:
             assessment_scope=list(d.get("assessment_scope", [])),
             scenario_ref=d.get("scenario_ref", ""),
             scenario_transition=d.get("scenario_transition"),
-            phase_history=copy.deepcopy(list(d.get("phase_history", []))),
+            phase_history=phase_history,
         )
+        # R5-04(b):内容身份 —— 与构造期同源的 _context_hash 对加载的
+        # 全部语义字段(含 phase_history)重算,必须等于载荷 context_id;
+        # 篡改任何语义字段而保留原 context_id ⇒ 拒(不是同 hash 漏项,
+        # 是内容与派生身份须同源)。合法 to_dict→from_dict 往返幂等通过。
+        recomputed = _recompute_context_hash(context)
+        if not isinstance(payload_context_id, str) \
+                or recomputed != payload_context_id:
+            raise ConditionContractError(
+                "PathContext 内容身份不一致:载荷 context_id 与按全部"
+                "语义字段(含 phase_history)同源重算的内容身份不符"
+                "(篡改任何语义字段而保留原 context_id ⇒ 拒,不得洗绿)",
+                {"kind": "context_content_identity_mismatch",
+                 "payload_context_id": payload_context_id,
+                 "recomputed_context_id": recomputed})
+        return context
 
     # ---- 评估(两层:本步 vs 全路线,R2-04) ----
 
@@ -1904,6 +2160,27 @@ def _context_hash(
         canonical_json(sorted(assessment_scope)),
         canonical_json(scenario_transition or {}),
         canonical_json(phase_history or []))
+
+
+def _recompute_context_hash(context: "PathContext") -> str:
+    """按对象当前语义字段重算内容身份(R5-04(b);与构造期同源)。
+
+    from_dict 与 validate_context_object 共用:载荷/对象的 context_id
+    必须等于本重算值(篡改任何语义字段而保留原身份 ⇒ 拒)。
+    """
+    return _context_hash(
+        parent_context_ref=context.parent_context_ref,
+        phase_id=context.phase_id,
+        requested_scope=context.requested_scope,
+        facts=context.condition_facts,
+        requirements=context.accumulated_requirements,
+        assumptions=context.assumptions,
+        dependency_refs=context.dependency_refs,
+        dependencies=context.dependencies,
+        assessment_scope=context.assessment_scope,
+        scenario_ref=context.scenario_ref,
+        scenario_transition=context.scenario_transition,
+        phase_history=context.phase_history)
 
 
 def build_path_context(

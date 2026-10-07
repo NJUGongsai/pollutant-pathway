@@ -1,4 +1,17 @@
-"""legacy 只读适配 — 旧 v43 账本到新表示(v5 回修,S1)。
+"""legacy 只读适配 — 旧 v43 账本到新表示(v6 回修,S1)。
+
+v6(2026-10-07 R6 回修)相对 v5 的变化(Codex R5 复审 R5-07):
+- **同父同 CN 兄弟来源用独立路径身份锚核验**:_substrate_structure_
+  for_path 的关系核对不再把 child_paths 从同一 path_instances 表按
+  (event_id, product_position) 查回——指针被改后本路径自然进入查询
+  结果,是循环证明(反例:A 路径指针改指同父 B 事件,产物同 CN 相反
+  立体,错误手性 raw 曾被当 source_product 无 uncertainty)。改用
+  独立确定性身份锚:旧库子路径 path_id 恒为 product_path_id(
+  run_id, event_id, position)(storage/pathway_store 派生规则),
+  relation_ok 要求本路径 path_id == 该锚——违反 ⇒ 既有降级路径
+  (CN-only + substrate_source_event_relation_mismatch + uncertainty
+  披露)不变;root/指针残缺/存档行缺失/身份矛盾等既有分支不动;
+  旧库只读。
 
 v5(2026-10-07 R5 回修)相对 v4 的变化(Codex R4 复审 R4-11):
 - **来源关系核验(CN 相同也核)**:archive 指针不只核内容(行内
@@ -62,6 +75,7 @@ from pathlib import Path
 
 from ..domain.identity import cn_identity as _legacy_cn_identity
 from ..domain.models import EVIDENCE_KIND_NOVEL, content_hash, stable_id
+from ..storage.pathway_store import product_path_id
 from ..storage.run_identity import SUPPORTED_IDENTITY_SCHEMA_VERSIONS
 from .chemstate import (
     STRUCTURE_ORIGIN_RAW_INPUT,
@@ -218,12 +232,17 @@ def _substrate_structure_for_path(
       identity 一致且行内自洽 —— 指向存在但错误的产物行 ⇒ cn_only
       (substrate_archive_identity_mismatch),不把错误引用当完整结构。
 
-    R4-11 **关系核对**(CN 相同也核;错关系即使 CN 同也降级):
+    R4-11 **关系核对**(CN 相同也核;错关系即使 CN 同也降级;
+    R5-07 改独立身份锚):
     - 来源事件 E(= event_ptr)的 parent_path_id 须等于本路径的
       parent_path_id(产物在父路径上反应产生,才可能是本路径底物);
-    - E 的 POS 产物生成的子路径须包含本路径(本路径是该产物的
-      消耗方;指针被改指自身消耗事件/兄弟事件 ⇒ 关系断裂,
-      复审 same_cn_wrong_relation 反例);
+    - **独立确定性身份锚(R5-07)**:旧库子路径 path_id 恒为
+      product_path_id(run_id, event_id, position)(storage/
+      pathway_store 派生规则)——本路径 path_id 须等于
+      product_path_id(本路径 run_id, event_ptr, pos_ptr)。不再把
+      child_paths 从同一 path_instances 表查回:指针被改后本路径
+      自然进入查询结果,循环证明(R5-07 反例:同父同 CN 兄弟来源
+      串线);
     - 违反 ⇒ cn_only(substrate_source_event_relation_mismatch),
       不为服从指针的 raw 冒充底物。
     """
@@ -265,19 +284,20 @@ def _substrate_structure_for_path(
             row_consistent = (
                 prod["product_identity"] == row["substrate_identity"]
                 and recomputed_cn == prod["product_identity"])
-            # R4-11 关系核对:来源事件与父路径/子路径关系(CN 相同也核)
+            # R4-11/R5-07 关系核对:来源事件与父路径关系 + 独立确定性
+            # 身份锚(CN 相同也核)。身份锚不查询被改的指针字段自证:
+            # child_paths 旧实现从同一 path_instances 按 (event_ptr,
+            # pos_ptr) 查回,指针被改后本路径自然进入查询结果(循环
+            # 证明);product_path_id(run_id, event, pos) 是旧库子路径
+            # 身份的确定性派生,与本路径 path_id 相等才算关系成立。
             source_event = conn.execute(
                 "SELECT parent_path_id FROM reaction_events WHERE"
                 " event_id = ?", (event_ptr,)).fetchone()
-            child_paths = [
-                r["path_id"] for r in conn.execute(
-                    "SELECT path_id FROM path_instances WHERE event_id = ?"
-                    " AND product_position = ?",
-                    (event_ptr, pos_ptr)).fetchall()]
             relation_ok = (
                 source_event is not None
                 and source_event["parent_path_id"] == parent_id
-                and path_id in child_paths)
+                and path_id == product_path_id(
+                    row["run_id"], event_ptr, pos_ptr))
             if row_consistent and relation_ok:
                 return (product_structure, "archive", "",
                         path_substrate_identity)

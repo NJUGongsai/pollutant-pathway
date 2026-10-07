@@ -258,9 +258,19 @@ def test_r4_04_empty_snapshot_cannot_cover_orphan_requirement() -> None:
     assert cond.status == "unknown"  # 孤儿 pH ⇒ 显式未知
     d, _ = decide_admission(audit)
     assert d != "expand"  # v4 曾 R6
-    # 删除空快照对照:同样孤儿 unknown(行为一致,快照有无不改变结论)
-    child.phase_history = []
-    _, cond2 = _check(child)
+    # 无快照对照:同样孤儿 unknown(行为一致,快照有无不改变结论)。
+    # R6(R5-04)更动说明:原对照就地 child.phase_history = [] 后再走
+    # audit —— 就地删除快照属于内容身份篡改,audit 入口现在按
+    # context_content_identity_mismatch 结构化拒绝(该拒绝行为由
+    # test_ppv1_r6_conditions.py 钉住);本对照改为经 build_path_context
+    # 合法构造等价无快照上下文(p1 场景 + 同一 p0 绑定孤儿要求),
+    # 保留原控制语义"孤儿 ⇒ 显式 unknown,不依赖快照存在"。
+    orphan_ctx = build_path_context(
+        condition_facts=[f(CONDITION_KEY_OXYGEN, "aerobic")],
+        phase_id="p1", scenario_ref="s",
+        accumulated_requirements=[foreign],
+        assessment_scope=[CONDITION_KEY_OXYGEN, CONDITION_KEY_PH])
+    _, cond2 = _check(orphan_ctx)
     assert cond2.status == "unknown"
 
 

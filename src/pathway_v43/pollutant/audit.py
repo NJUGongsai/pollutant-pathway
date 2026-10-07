@@ -1,4 +1,32 @@
-"""ChemicalAudit — 检查范围明确,未知不可冒充核实(v5 回修,S2)。
+"""ChemicalAudit — 检查范围明确,未知不可冒充核实(v6 回修,S2)。
+
+v6(ppv1-audit-6 / ppv1-admission-6,2026-10-07 R6 回修)相对 v5 的
+变化(Codex R5 复审 R5-01/08 + §4 披露项 1):
+- **覆盖绑定系数/贡献 + 注册计量补全规则(R5-01)**:_center_
+  evidence_binding 由"物种身份集合 + 单侧空即 full"升级为:
+  λ_s(底物规模)= 反应物侧 identity==s 的系数和;覆盖产物集
+  whole_molecule/fragments 两级映射;每个 covered identity 的产物侧
+  声明系数总和 == λ_s × 重数(系数绑定);未覆盖参与物的元素账与
+  λ_s×Δ⁺ / λ_s×(−Δ)⁺ **各自精确相等**(注册补全规则
+  COVERAGE_COMPLETION_RULE = "atom_delta_stoichiometric_completion",
+  不许盈余/亏空互相抵消;整类 H2/水/共底物不按名称免审);未知系数
+  ⇒ coverage unknown_coefficients(中心 unknown);违反 ⇒ partial
+  (前缀 partial_coverage_unchecked_transformation 保持)+ detail
+  披露 coverage_rule/substrate_scale/atom_delta/两侧未覆盖元素/
+  coverage_violations(系数不匹配/补全盈余/亏空,带数值);
+- **镜像终态与冻结执行器同一归一(R5-08)**:_simulate_declared_
+  edits 末尾把镜像终态经 MolToSmiles 序列化再 MolFromSmiles 重解析
+  (映射号随序列化穿越)—— 执行器产物是被序列化后消费的,内存镜像
+  残留陈旧键立体(断邻位 σ 键后双键端烯化,重解析 STEREONONE 而内存
+  STEREOE)曾产生伪 undeclared_bond_change;镜像同走写出/重解析后
+  与实际一致;失败/None 按原内存图(如实失配);不改冻结执行器;
+- **proof_scope 与 center_match_basis 披露(§4-1/P2)**:
+  check_edit_against_donor 的 evidence_payload 增 center_match_basis
+  (direct|symmetric_equivalent)与 proof_scope=
+  "self_contained_recompute"(自包含输入集重算可复现;不含"编辑曾
+  被执行"的运行事实);audit 复算分支的 detail 增同源披露,verified
+  理由码的 basis= 不再空串;_evidence_integrity_mismatches 增
+  center_match_basis 比对(自报 ≠ 复算 ⇒ integrity 拒)。
 
 v5(ppv1-audit-5 / ppv1-admission-5,2026-10-07 R5 回修)相对 v4 的
 变化(Codex R4 复审 R4-01/02/06/07 + §4):
@@ -187,6 +215,22 @@ CENTER_CHECKER_SCOPES = frozenset({
     # 含声明–执行净效应对账与 strict 产物比对轴 —— 不是完整模板一致
     "region_net_change",
 })
+
+# R6(R5-01):证据覆盖绑定的**注册计量补全规则**(detail 的
+# coverage_rule 字段披露此名)。语义:设 s=复算底物身份、p=复算产物
+# 身份(可为点分碎片串)、λ_s=反应物侧 identity==s 的参与物系数和、
+# Δ=elements(s)−elements(p)(逐元素 Fraction):
+# - Σ 未覆盖产物元素(系数加权)== λ_s × Δ⁺(被核实转化释放的原子);
+# - Σ 未覆盖反应物元素 == λ_s × (−Δ)⁺(被核实转化消耗的原子);
+# - 两侧各自精确相等,不许盈余/亏空互相抵消。未覆盖参与物/贡献由此
+#   规则核实后才能计入覆盖;元素账整体平衡仍归 element_accounting
+#   独立轴,不在此重复。整类共底物/共产物(如 H2、水)不按名称免审。
+COVERAGE_COMPLETION_RULE = "atom_delta_stoichiometric_completion"
+# 覆盖绑定结论中"部分覆盖/覆盖不可算"两族理由前缀(区别于"证据未
+# 绑定本假设"族):partial ⇒ 未核实转化存在;unknown_coefficients ⇒
+# 覆盖规模不可算 —— 两者都进中心 unknown、不 R6,但理由不冒充绑定失败
+_COVERAGE_PARTIAL_PREFIX = "center_evidence_partial_coverage"
+_COVERAGE_UNKNOWN_COEFF_PREFIX = "center_evidence_coverage_unknown_"
 
 CHECK_VERIFIED = "verified"
 CHECK_VIOLATED = "violated"
@@ -654,13 +698,21 @@ def audit_hypothesis(
     def _evidence_integrity_mismatches(
             evidence: dict, recomputed: dict) -> list[str]:
         """自报轴/绑定字段 vs 复算值(R4-01:改真实诊断的任一绑定
-        字段不得仅换 input_hash 后照常 verified)。"""
+        字段不得仅换 input_hash 后照常 verified;R6/P2:自报 basis ≠
+        复算 basis(如声称 direct 实为 symmetric_equivalent)同样拒绝)。"""
         out: list[str] = []
         for key in ("center_match", "strict_target_match"):
             if key not in evidence or \
                     evidence.get(key) is not recomputed.get(key):
                 out.append(f"{key}:claimed={evidence.get(key)!r}"
                            f":recomputed={recomputed.get(key)!r}")
+        claimed_basis = str(evidence.get("center_match_basis", "") or "")
+        recomputed_basis = str(
+            recomputed.get("center_match_basis", "") or "")
+        if claimed_basis != recomputed_basis:
+            out.append("center_match_basis:claimed="
+                       f"{claimed_basis!r}:recomputed="
+                       f"{recomputed_basis!r}")
         if evidence.get("declaration_mismatch", None) != \
                 recomputed.get("declaration_mismatch"):
             out.append("declaration_mismatch:claimed="
@@ -687,54 +739,66 @@ def audit_hypothesis(
             out.append("bound_inputs.donor_centers:claimed≠recomputed")
         return out
 
-    def _participant_identity(state_ref: str) -> str:
-        st = states.get(state_ref)
-        return st.smiles_isomeric if st is not None else ""
-
     def _center_evidence_binding(
             recomputed_bound: dict) -> tuple[bool, str, dict]:
-        """R4-01 绑定 + 产物集合覆盖:证据的底物/产物(复算值)对
-        被审假设参与物核对;产物支持**整分子或碎片**两级映射(真实
-        断裂的分列产物能正确绑定,不要求把碎片拼成一个物种);
-        未覆盖产物与未覆盖共底物**同时**存在 ⇒ 部分覆盖(额外未核实
-        转化不得借一个产物达到 all_verified);仅未覆盖产物(底物
-        侧脱除原子的计量共产物)或仅未覆盖共底物(原子并入已覆盖
-        产物)⇒ 完全覆盖。区域与 strict 分轴保留。
+        """R6(R5-01)覆盖绑定参与物**系数/贡献** + 注册计量补全规则。
+
+        设 s=复算 bound_inputs.substrate_identity、p=product_identity
+        (可为点分碎片串,如 "C.CO")。参与物取 hypothesis.participants
+        (coefficient 为 Fraction,coefficient_status known/unknown):
+
+        1. 底物绑定(保留):证据底物身份 == 本假设底物状态身份;
+        2. λ_s(底物规模)= Σ 反应物侧 identity==s 的参与物系数
+           (须全部 known,否则覆盖结果 unknown);
+        3. 覆盖产物集:p ∈ 产物 identity 集合 ⇒ whole_molecule
+           (covered={p},重数 1);否则 p 按 "." 拆碎片、全部碎片须
+           ∈ 产物 identity 集合(否则维持 undeclared_product_fragment
+           拒绝)⇒ fragments(covered = 碎片 identity 多重集);
+        4. 系数绑定:每个 covered identity 的产物侧声明系数总和
+           == λ_s × 其在 p 中的重数("1/2 乙醛 + 1/2 环氧乙烷"反例的
+           关断点:声明 1/2 ≠ λ_s=1);
+        5. 注册补全规则 COVERAGE_COMPLETION_RULE:Δ = elements(s) −
+           elements(p);未覆盖产物/反应物元素账与 λ_s×Δ⁺/λ_s×(−Δ)⁺
+           **各自精确相等**,不许盈余/亏空互相抵消("环丙烷→丙烯同式
+           量异构"反例的关断点);无未覆盖参与物 ⇒ full(假设只声明了
+           被覆盖转化本身;元素账是否平归 element_accounting 独立轴,
+           不在此重复);
+        6. 未知系数 ⇒ coverage unknown_coefficients(中心 unknown,不
+           R6:覆盖规模/贡献不可算,不冒充已覆盖);
+        7. 违反 ⇒ binding_ok=False + 前缀
+           center_evidence_partial_coverage_unchecked_transformation
+           (部分覆盖,不 R6);detail 披露 coverage_rule/substrate_scale/
+           atom_delta/两侧未覆盖元素/逐条 coverage_violations。
         """
         substrate_state = states.get(hypothesis.substrate_state_ref)
         if substrate_state is None or not \
                 substrate_state.smiles_isomeric:
             return False, \
                 "center_evidence_binding_unverifiable_substrate", {}
-        bound_substrate = str(recomputed_bound.get("substrate_identity",
-                                                   ""))
-        if bound_substrate != substrate_state.smiles_isomeric:
+        s = str(recomputed_bound.get("substrate_identity", ""))
+        if s != substrate_state.smiles_isomeric:
             return False, "center_evidence_binding_mismatch:substrate", {}
-        bound_product = str(recomputed_bound.get("product_identity", ""))
-        if not bound_product:
+        p = str(recomputed_bound.get("product_identity", ""))
+        if not p:
             return False, \
                 "center_evidence_binding_unverifiable:product", {}
-        reactant_refs = [
-            p.state_ref for p in hypothesis.participants
-            if p.side == PARTICIPANT_SIDE_REACTANT]
-        product_refs = [
-            p.state_ref for p in hypothesis.participants
-            if p.side == PARTICIPANT_SIDE_PRODUCT]
-        product_identities = {_participant_identity(ref)
-                              for ref in product_refs}
+        reactant_parts = [pp for pp in hypothesis.participants
+                          if pp.side == PARTICIPANT_SIDE_REACTANT]
+        product_parts = [pp for pp in hypothesis.participants
+                         if pp.side == PARTICIPANT_SIDE_PRODUCT]
+
+        def _identity_of(pp) -> str:
+            st = states.get(pp.state_ref)
+            return st.smiles_isomeric if st is not None else ""
+
+        product_identities = {_identity_of(pp) for pp in product_parts}
         product_identities.discard("")
-        uncovered_reactants = [
-            ref for ref in reactant_refs
-            if ref != hypothesis.substrate_state_ref]
-        if bound_product in product_identities:
-            covered_identities = {bound_product}
+        if p in product_identities:
+            covered_multiplicity: dict[str, int] = {p: 1}
             coverage_mode = "whole_molecule"
-            uncovered_products = [
-                ref for ref in product_refs
-                if _participant_identity(ref) not in covered_identities]
         else:
             fragment_identities: list[str] = []
-            for fragment in bound_product.split("."):
+            for fragment in p.split("."):
                 try:
                     fragment_identities.append(
                         strict_identity_of(fragment))
@@ -748,26 +812,140 @@ def audit_hypothesis(
                     "center_evidence_binding_mismatch:"
                     "undeclared_product_fragment"), {
                         "undeclared_fragments": undeclared}
-            covered_identities = set(fragment_identities)
+            covered_multiplicity = {}
+            for fragment in fragment_identities:
+                covered_multiplicity[fragment] = \
+                    covered_multiplicity.get(fragment, 0) + 1
             coverage_mode = "fragments"
-            uncovered_products = [
-                ref for ref in product_refs
-                if _participant_identity(ref) not in covered_identities]
-        detail = {
+        covered_identities = set(covered_multiplicity)
+        uncovered_reactants = [pp for pp in reactant_parts
+                               if _identity_of(pp) != s]
+        uncovered_products = [pp for pp in product_parts
+                              if _identity_of(pp) not in covered_identities]
+        base_coverage_detail = {
             "coverage_mode": coverage_mode,
             "covered_product_identities": sorted(covered_identities),
-            "uncovered_product_refs": sorted(uncovered_products),
-            "uncovered_reactant_refs": sorted(uncovered_reactants),
-            "product_coverage": ("full" if not (
-                uncovered_products and uncovered_reactants)
-                else "partial_unchecked_transformation"),
+            "uncovered_product_refs": sorted(
+                pp.state_ref for pp in uncovered_products),
+            "uncovered_reactant_refs": sorted(
+                pp.state_ref for pp in uncovered_reactants),
         }
-        if uncovered_products and uncovered_reactants:
+        # 6. 未知系数 ⇒ 覆盖规模/贡献不可算(诚实 unknown,不 R6)
+        if any(pp.coefficient_status != COEFFICIENT_KNOWN
+               for pp in reactant_parts + product_parts):
             return False, (
-                "center_evidence_partial_coverage_unchecked_"
-                "transformation(证据仅覆盖底物→其产物的转化;未覆盖"
-                "共底物与未覆盖产物同时存在 = 存在额外未核实转化,"
-                "不得计入全部核实;可明确部分覆盖而 retain)"), detail
+                _COVERAGE_UNKNOWN_COEFF_PREFIX + "coefficients"
+                "(参与物系数未知:覆盖与贡献规模不可算,不得计入全部"
+                "核实;系数须已知或另行补全,不冒充已覆盖)"), {
+                **base_coverage_detail,
+                "product_coverage": "unknown_coefficients",
+                "coverage_rule": COVERAGE_COMPLETION_RULE}
+
+        def _elements_of(identity: str) -> dict[str, Fraction] | None:
+            mol = Chem.MolFromSmiles(identity) if identity else None
+            if mol is None:
+                return None
+            return element_counts_full(mol)
+
+        elem_s = _elements_of(s)
+        elem_p = _elements_of(p)
+        if elem_s is None or elem_p is None:
+            return False, (
+                "center_evidence_binding_unverifiable:element_"
+                "composition"), dict(base_coverage_detail)
+        lambda_s = sum((pp.coefficient for pp in reactant_parts
+                        if _identity_of(pp) == s), Fraction(0))
+        delta: dict[str, Fraction] = {}
+        for element in set(elem_s) | set(elem_p):
+            d = elem_s.get(element, Fraction(0)) \
+                - elem_p.get(element, Fraction(0))
+            if d != 0:
+                delta[element] = d
+        delta_pos = {el: v for el, v in delta.items() if v > 0}
+        delta_neg = {el: -v for el, v in delta.items() if v < 0}
+        violations: list[dict] = []
+        # 4. 系数绑定:产物侧声明贡献 == λ_s × 重数
+        for identity, multiplicity in sorted(covered_multiplicity.items()):
+            declared = sum((pp.coefficient for pp in product_parts
+                            if _identity_of(pp) == identity), Fraction(0))
+            required = lambda_s * multiplicity
+            if declared != required:
+                violations.append({
+                    "kind": "coefficient_binding_mismatch",
+                    "identity": identity,
+                    "declared_total": str(declared),
+                    "required": str(required),
+                    "multiplicity_in_bound_product": multiplicity})
+        # 5. 注册补全规则:两侧各自精确相等
+        uncovered_reactant_elements: dict[str, Fraction] = {}
+        uncovered_product_elements: dict[str, Fraction] = {}
+        composition_unverifiable = False
+        for pp, bucket in ([(pp, uncovered_reactant_elements)
+                            for pp in uncovered_reactants]
+                           + [(pp, uncovered_product_elements)
+                              for pp in uncovered_products]):
+            elements = _elements_of(_identity_of(pp))
+            if elements is None:
+                composition_unverifiable = True
+                continue
+            for element, count in elements.items():
+                bucket[element] = bucket.get(element, Fraction(0)) \
+                    + count * pp.coefficient
+        if composition_unverifiable:
+            return False, (
+                "center_evidence_binding_unverifiable:element_"
+                "composition"), dict(base_coverage_detail)
+
+        def _completion_violations(actual, required, side):
+            out = []
+            for element in sorted(set(actual) | set(required)):
+                have = actual.get(element, Fraction(0))
+                need = required.get(element, Fraction(0))
+                if have == need:
+                    continue
+                out.append({
+                    "kind": ("completion_surplus" if have > need
+                             else "completion_deficit"),
+                    "side": side,
+                    "element": element,
+                    "declared_total": str(have),
+                    "required": str(need)})
+            return out
+
+        if uncovered_reactants or uncovered_products:
+            # 无未覆盖参与物 ⇒ full(补全规则不重复元素账独立轴);
+            # 有未覆盖参与物 ⇒ 两侧各自与注册规则精确对账
+            violations += _completion_violations(
+                uncovered_product_elements,
+                {el: lambda_s * v for el, v in delta_pos.items()},
+                "product")
+            violations += _completion_violations(
+                uncovered_reactant_elements,
+                {el: lambda_s * v for el, v in delta_neg.items()},
+                "reactant")
+        detail = {
+            **base_coverage_detail,
+            "product_coverage": ("partial_unchecked_transformation"
+                                 if violations else "full"),
+            "coverage_rule": COVERAGE_COMPLETION_RULE,
+            "substrate_scale": str(lambda_s),
+            "atom_delta": {element: str(value) for element, value
+                           in sorted(delta.items())},
+            "uncovered_reactant_elements": {
+                element: str(value) for element, value
+                in sorted(uncovered_reactant_elements.items())},
+            "uncovered_product_elements": {
+                element: str(value) for element, value
+                in sorted(uncovered_product_elements.items())},
+            "coverage_violations": violations,
+        }
+        if violations:
+            return False, (
+                _COVERAGE_PARTIAL_PREFIX + "_unchecked_transformation"
+                "(证据覆盖须绑定被审参与物及贡献/系数:系数绑定或注册"
+                f"补全规则 {COVERAGE_COMPLETION_RULE} 数值不符 = 存在"
+                "额外未核实转化/未核实贡献,不得计入全部核实;可明确"
+                "部分覆盖而 retain)"), detail
         return True, "", detail
 
     if CHECK_TRANSFORMATION_CENTER in requested:
@@ -854,12 +1032,20 @@ def audit_hypothesis(
                     base_detail = {
                         "declared_signature_status": sig or "",
                         "checker_version": checker,
-                        "checker_scope": ev_scope}
+                        "checker_scope": ev_scope,
+                        # P2(R5 §4-1):proof 的命题范围如实披露 —— 本
+                        # 结论是自包含输入集的确定性重算(可复现),
+                        # 不含"编辑曾被执行"的运行事实(运行事实归执行
+                        # 器通道,如 execution_fingerprint 绑定)
+                        "proof_scope": "self_contained_recompute"}
                     binding_ok, binding_reason, coverage_detail = \
                         _center_evidence_binding(
                             recomputed.get("bound_inputs") or {})
-                    if not binding_ok and not binding_reason.startswith(
-                            "center_evidence_partial_coverage"):
+                    if not binding_ok and not (
+                            binding_reason.startswith(
+                                _COVERAGE_PARTIAL_PREFIX)
+                            or binding_reason.startswith(
+                                _COVERAGE_UNKNOWN_COEFF_PREFIX)):
                         # 跨反应复用/改产物/未申报碎片 ⇒ 不得认证
                         checks.append(AuditCheck(
                             name=CHECK_TRANSFORMATION_CENTER,
@@ -878,13 +1064,20 @@ def audit_hypothesis(
                             "declaration_mismatch"))
                         center_match = recomputed.get("center_match")
                         strict_axis = recomputed.get("strict_target_match")
+                        # P2(R5 §4-1):basis 从复算读(diagnostic 载荷
+                        # v6 起携带;direct | symmetric_equivalent,仅
+                        # center_match=True 时非空)—— 不再空串伪装依据
+                        basis_str = str(recomputed.get(
+                            "center_match_basis", ""))
                         axis_detail = {**base_detail,
                                        "center_match": center_match,
+                                       "center_match_basis": basis_str,
                                        "strict_target_match": strict_axis,
                                        **coverage_detail}
                         if not binding_ok:
-                            # 部分覆盖:额外未核实转化 ⇒ 不可 verified
-                            # (可明确部分覆盖而 retain,R4-01 验收)
+                            # 部分覆盖(额外未核实转化/未核实贡献)或
+                            # 覆盖不可算(未知系数)⇒ 不可 verified
+                            # (可明确部分覆盖而 retain,R4-01/R5-01 验收)
                             checks.append(AuditCheck(
                                 name=CHECK_TRANSFORMATION_CENTER,
                                 status=CHECK_UNKNOWN,
@@ -932,8 +1125,6 @@ def audit_hypothesis(
                                 coverage="mapping_dependent",
                                 detail=axis_detail))
                         elif center_match is True:
-                            basis_str = str(recomputed.get(
-                                "center_match_basis", ""))
                             checks.append(AuditCheck(
                                 name=CHECK_TRANSFORMATION_CENTER,
                                 status=CHECK_VERIFIED,
@@ -2037,6 +2228,21 @@ def _simulate_declared_edits(
         Chem.SanitizeMol(out)
     except Exception:
         pass
+    # R6(R5-08):镜像终态与冻结执行器同一归一 —— 执行器产物
+    # (product_mapped_smiles)是 MolToSmiles 序列化后被消费的(映射号
+    # 以 [C:1] 形式随序列化穿越),实际比较对象是重解析图;内存镜像
+    # 不走序列化会残留陈旧键立体(断邻位 σ 键后双键端烯化,重解析
+    # STEREONONE 而内存 STEREOE)⇒ 伪 undeclared_bond_change。镜像
+    # 同走写出/重解析后,键变化集合与实际一致,已声明断键的自然立体
+    # 后果不再称漏申报;序列化/重解析失败或 None ⇒ 按原内存图
+    # (如实失配)。不改冻结执行器。
+    try:
+        serialized = Chem.MolToSmiles(out)
+        reparsed = Chem.MolFromSmiles(serialized) if serialized else None
+        if reparsed is not None:
+            out = reparsed
+    except Exception:
+        pass
     return out, []
 
 
@@ -2519,8 +2725,14 @@ def check_edit_against_donor(
         "checker_version": PPV1_DONOR_DIAGNOSTIC_VERSION,
         "checker_scope": "region_net_change",
         "center_match": center_match,
+        "center_match_basis": basis,
         "declaration_mismatch": bool(declaration_mismatches),
         "strict_target_match": strict,
+        # P2(R5 §4-1):proof 的命题与范围如实披露 —— 本载荷证明的是
+        # 自包含输入集(current/donor/alignment/expectation/result/
+        # edits)的确定性重算自洽,可由任何人复算复现;**不**证明"编辑
+        # 曾被执行"的运行事实(运行事实由执行器通道的 result/指纹绑定)
+        "proof_scope": "self_contained_recompute",
         "evidence_refs": [alignment_ref],
         "bound_inputs": {
             "substrate_identity": _norm_smiles(mol_before),

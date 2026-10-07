@@ -1,4 +1,27 @@
-"""PollutantPathwayStore — 新模式的独立 SQLite 账本(v5 回修,S1)。
+"""PollutantPathwayStore — 新模式的独立 SQLite 账本(v6 回修,S1)。
+
+v6(ppv1-store-6,R6 回修 2026-10-07)相对 v5 的变化(R5 复审
+R5-05/R5-06):
+- **首提完整出现绑定(R5-05)**:首次提交的事件出现清单
+  (event_appearance_manifest)不再只收集**事务内 states**的出现——
+  对每个不在事务提供集合内的 derived_ref,从 state_appearances
+  **显式绑定**唯一既存出现(恰 1 行 ⇒ 绑定该 (sid, hash);0 行 ⇒
+  Ppv1LedgerCorrupt 账本不完整;≥2 行 ⇒
+  appearance_source_ambiguous 结构化拒绝,不替调用方猜出处——
+  须随事务显式提供该 state 载荷或先在唯一出现下提交);清单 =
+  事务提供项 + 绑定项(去重)且必须恰好覆盖本事件全部出现引用
+  ——全先存/部分先存的首提不再产出空/缺项清单,其正常重放不再
+  误报 event_appearance_manifest_missing;
+- **重放清单覆盖校验(R5-05)**:_verify_event_appearance_manifest
+  增覆盖断言——清单 state_id 集合必须 == 本事件 derived_refs
+  (缩成非空子集 ⇒ event_appearance_manifest_coverage_corrupt
+  损坏,不补账);既有逐项存在 + 哈希复算 + 不引用事件外状态保持;
+- **首提复用既存假设行同源 ID 重推(R5-06)**:hyp_row 存在时对
+  已存载荷执行 recompute_hypothesis_id 复算(与重放同一码:不可
+  复算 ⇒ hypothesis_payload_corrupt;重推 ID 不一致 ⇒
+  hypothesis_payload_id_corrupt),在校验区(写入前)执行 ⇒ 首提
+  即拒、零新增事件/投影/计划,不以"下次重放能发现"代替;
+  put_hypothesis 既有入口复算不动。
 
 v5(ppv1-store-5,R5 回修 2026-10-07)相对 v4 的变化(R4 复审
 R4-02/09/10):
@@ -1168,14 +1191,20 @@ class PollutantPathwayStore:
 
     def _verify_event_appearance_manifest(self, eid: str, payload: dict,
                                           derived_refs) -> None:
-        """事件出现清单校验(R4-10:重放不依赖 caller 重复提供 dict)。
+        """事件出现清单校验(R4-10:重放不依赖 caller 重复提供 dict;
+        R5-05:覆盖完整性)。
 
         首次提交把**本事件断言的出现集合**(state_id + appearance_hash
         列表)持久进事件 payload(event_appearance_manifest);重放从
-        账本校验:每个清单项的 (state_id, appearance_hash) 行仍存在且
-        内容 hash 复算一致、清单项不引用事件外状态——"有一条同物种
-        出现"不能代替本事件集合(删本事件 prod-A 只留无关 prod-B ⇒
-        损坏,不静默 created=False)。
+        账本校验:
+        - 每个清单项的 (state_id, appearance_hash) 行仍存在且内容
+          hash 复算一致、清单项不引用事件外状态——"有一条同物种
+          出现"不能代替本事件集合(删本事件 prod-A 只留无关 prod-B ⇒
+          损坏,不静默 created=False);
+        - **覆盖完整性(R5-05)**:清单的 state_id 集合必须 == 本事件
+          derived_refs(清单是本事件出现集合的权威断言;SQL 缩成
+          非空子集 ⇒ event_appearance_manifest_coverage_corrupt
+          损坏,不补账)。
         """
         manifest = payload.get("event_appearance_manifest")
         if not isinstance(manifest, list) or not manifest:
@@ -1220,6 +1249,21 @@ class PollutantPathwayStore:
                      "kind": "appearance_hash_corrupt",
                      "state_id": sid,
                      "appearance_hash": appearance_hash})
+        # R5-05:清单覆盖完整性——state_id 集合必须恰好等于本事件
+        # derived_refs(缩成非空子集仍是损坏;权威断言不补账)
+        manifest_sids = {str(entry.get("state_id", ""))
+                         for entry in manifest if isinstance(entry, dict)}
+        missing_refs = sorted(derived_refs - manifest_sids)
+        extra_refs = sorted(manifest_sids - derived_refs)
+        if missing_refs or extra_refs:
+            raise Ppv1LedgerCorrupt(
+                f"重放 {eid} 发现已存事件出现清单未覆盖本事件全部出现"
+                "引用(损坏;清单是本事件出现集合的权威断言,缩成子集"
+                "不补账)",
+                {"event_id": eid, "table": "events",
+                 "kind": "event_appearance_manifest_coverage_corrupt",
+                 "missing_state_refs": missing_refs,
+                 "extra_state_refs": extra_refs})
 
     def submit_event(
         self,
@@ -1241,6 +1285,11 @@ class PollutantPathwayStore:
         - 事件 ↔ 假设内容关系:parent_path_id 一致、底物锚点属于
           反应物 primary_substrate、participants 非空且与事件一致;
           已存在同 ID 假设时,随事务提交不同内容 ⇒ 冲突(不静默忽略);
+          **R5-06**:首次复用既存假设行也做同源 ID 重推(载荷被改而
+          ID 未换 ⇒ 首提即损坏,零写入);
+        - **R5-05 首提出现绑定**:事件出现清单覆盖本事件**全部**
+          出现引用(事务提供 + 先存绑定;多个既存出现不能替调用方
+          猜出处 ⇒ appearance_source_ambiguous 拒绝);
         - 投影只指向本事件产物;展开计划产物范围合法、
           expanded/deferred/not_tracked 互斥、无悬空引用;
         - 重放(同幂等键):核验**全部**必要记录(states/
@@ -1467,11 +1516,135 @@ class PollutantPathwayStore:
                     "(事务回滚;不产生悬空引用)",
                     {"event_id": eid, "missing_state_refs":
                         sorted(missing_refs)})
+            # ---- R5-05:首提绑定本事件全部出现引用(先存/部分先存)----
+            # 事务提供的出现(appearance_writes)只覆盖随事务给的 state;
+            # 其余 derived_ref 的出现来源必须**显式绑定**:恰 1 行既存
+            # 出现 ⇒ 绑定该 (sid, hash);0 行 ⇒ 账本不完整(损坏,
+            # 不补账);≥2 行 ⇒ 多个既存出现不能替调用方猜出处(结构化
+            # 拒绝、零写入;须随事务显式提供该 state 载荷——幂等重放
+            # 同图出现合法——或先在唯一出现下提交)。
+            supplied_sids = {sid for sid, _, _ in appearance_writes}
+            appearance_manifest = [
+                {"state_id": sid, "appearance_hash": appearance_hash}
+                for sid, appearance_hash, _ in appearance_writes
+                if sid in derived_refs]
+            for ref in sorted(derived_refs - supplied_sids):
+                rows = self.conn.execute(
+                    "SELECT appearance_hash FROM state_appearances"
+                    " WHERE state_id = ?", (ref,)).fetchall()
+                if not rows:
+                    raise Ppv1LedgerCorrupt(
+                        f"首提 {eid} 的参与物状态 {ref} 在账本中无任何"
+                        "出现记录(账本不完整;出现绑定无依据,不默默"
+                        "成功)",
+                        {"event_id": eid, "table": "state_appearances",
+                         "kind": "appearance_row_missing_for_binding",
+                         "state_id": ref})
+                if len(rows) > 1:
+                    raise Ppv1SubmitContractError(
+                        f"首提 {eid} 的参与物状态 {ref} 在账本中有"
+                        f" {len(rows)} 条既存出现,不能替调用方猜出处"
+                        "(须随事务显式提供该 state 载荷,或先在唯一"
+                        "出现下提交;零写入)",
+                        {"event_id": eid,
+                         "kind": "appearance_source_ambiguous",
+                         "state_id": ref,
+                         "candidate_appearance_hashes": sorted(
+                             r["appearance_hash"] for r in rows)})
+                appearance_manifest.append(
+                    {"state_id": ref,
+                     "appearance_hash": rows[0]["appearance_hash"]})
+            # 去重(同 (sid, hash) 只留一条;同图不同来源出现各自保留)
+            _seen_appearances: set = set()
+            _deduped_manifest = []
+            for _entry in appearance_manifest:
+                _key = (_entry["state_id"], _entry["appearance_hash"])
+                if _key not in _seen_appearances:
+                    _seen_appearances.add(_key)
+                    _deduped_manifest.append(_entry)
+            appearance_manifest = _deduped_manifest
+            # 防御性覆盖断言:清单必须恰好覆盖本事件全部出现引用
+            if {entry["state_id"] for entry in appearance_manifest} \
+                    != derived_refs:
+                raise Ppv1SubmitContractError(
+                    f"首提 {eid} 的出现清单覆盖断言失败(内部不变量;"
+                    "零写入)",
+                    {"event_id": eid,
+                     "kind":
+                         "event_appearance_manifest_coverage_assertion",
+                     "manifest_state_ids": sorted(
+                         {entry["state_id"]
+                          for entry in appearance_manifest}),
+                     "derived_state_refs": sorted(derived_refs)})
             hyp_row = self.conn.execute(
                 "SELECT payload FROM hypotheses WHERE hypothesis_id = ?",
                 (event.hypothesis_id,)).fetchone()
             if hyp_row is not None:
                 stored_hyp = json.loads(hyp_row["payload"])
+                # ---- R5-06:首次复用既存假设行同样做同源契约/ID 重推 ----
+                # 与重放分支同一复算源(recompute_hypothesis_id):篡改
+                # 已存前提保留 ID ⇒ 首提即损坏(同一码),不以"下次重放
+                # 能发现"代替;校验区(写入前)执行 ⇒ 零新增事件/投影/
+                # 计划。put_hypothesis 入口复算已覆盖提供载荷路径。
+                try:
+                    rederived_hid = recompute_hypothesis_id(stored_hyp)
+                except HypothesisContractError as exc:
+                    raise Ppv1LedgerCorrupt(
+                        f"首提 {eid} 复用既存假设 {event.hypothesis_id}"
+                        "时发现载荷不可复算身份(损坏)",
+                        {"event_id": eid, "table": "hypotheses",
+                         "kind": "hypothesis_payload_corrupt",
+                         "hypothesis_id": event.hypothesis_id,
+                         "reason": getattr(exc, "detail", {})}) from exc
+                except Exception as exc:  # 不可规范化的既存载荷:损坏
+                    raise Ppv1LedgerCorrupt(
+                        f"首提 {eid} 复用既存假设 {event.hypothesis_id}"
+                        "时发现载荷不可复算身份(损坏)",
+                        {"event_id": eid, "table": "hypotheses",
+                         "kind": "hypothesis_payload_corrupt",
+                         "hypothesis_id": event.hypothesis_id,
+                         "reason": str(exc)[:200]}) from exc
+                if rederived_hid != event.hypothesis_id:
+                    raise Ppv1LedgerCorrupt(
+                        f"首提 {eid} 复用既存假设 {event.hypothesis_id}"
+                        "时发现载荷的 ID 与内容重推导不一致(损坏;"
+                        "科学前提被改而 ID 未换)",
+                        {"event_id": eid, "table": "hypotheses",
+                         "kind": "hypothesis_payload_id_corrupt",
+                         "row_key": event.hypothesis_id,
+                         "rederived": rederived_hid})
+                # 同源契约的其余三项与重放分支一致(载荷内 ID=行键、
+                # schema 版本、参与物契约):首提复用与重放同一验证源,
+                # 不以"下次重放能发现"代替任何一项
+                if stored_hyp.get("hypothesis_id") != event.hypothesis_id:
+                    raise Ppv1LedgerCorrupt(
+                        f"首提 {eid} 复用既存假设时发现载荷 ID 与行键"
+                        "不一致(损坏)",
+                        {"event_id": eid, "table": "hypotheses",
+                         "kind": "hypothesis_id_corrupt",
+                         "row_key": event.hypothesis_id,
+                         "payload_hypothesis_id":
+                             stored_hyp.get("hypothesis_id")})
+                if stored_hyp.get("schema_version") not in (
+                        PPV1_HYPOTHESIS_SCHEMA_VERSION,):
+                    raise Ppv1LedgerCorrupt(
+                        f"首提 {eid} 复用既存假设时发现 schema 版本未知"
+                        "(损坏)",
+                        {"event_id": eid, "table": "hypotheses",
+                         "kind": "hypothesis_schema_corrupt",
+                         "hypothesis_id": event.hypothesis_id,
+                         "schema_version":
+                             stored_hyp.get("schema_version")})
+                try:
+                    _verify_participants_contract(
+                        eid, stored_hyp.get("participants"))
+                except Ppv1SubmitContractError as exc:
+                    raise Ppv1LedgerCorrupt(
+                        f"首提 {eid} 复用既存假设时发现参与物契约损坏",
+                        {"event_id": eid, "table": "hypotheses",
+                         "kind": "hypothesis_participants_corrupt",
+                         "hypothesis_id": event.hypothesis_id,
+                         "reason": exc.detail}) from exc
                 if hypothesis_dict is not None \
                         and _hypothesis_payload_hash(stored_hyp) != \
                         _hypothesis_payload_hash(hypothesis_dict):
@@ -1511,11 +1684,9 @@ class PollutantPathwayStore:
                     " appearance_hash, payload, created_at)"
                     " VALUES (?, ?, ?, ?)",
                     (sid, appearance_hash, appearance_json, now_iso()))
-            # R4-10:本事件断言的出现集合持久进事件载荷(重放的账本校验
-            # 依据;不依赖 caller 重复提供 states)
-            appearance_manifest = [
-                {"state_id": sid, "appearance_hash": appearance_hash}
-                for sid, appearance_hash, _ in appearance_writes]
+            # R4-10/R5-05:本事件断言的**全部**出现集合(事务提供 + 先存
+            # 绑定,已在上方校验区构建并断言覆盖)持久进事件载荷(重放
+            # 的账本校验依据;不依赖 caller 重复提供 states)
             if hyp_row is None:
                 self.conn.execute(
                     "INSERT INTO hypotheses (hypothesis_id, parent_path_id,"

@@ -1,0 +1,20 @@
+# R6 新增回归在审核基线 293bc62 的红跑(2026-10-07)
+# 方法:git worktree add --detach <tmp> 293bc62;复制 3 个 r6 测试文件;
+# test_ppv1_r6_chem.py 中 v6 新常量 COVERAGE_COMPLETION_RULE 替换为字面量
+# (该常量在基线不存在,仅影响 import,不影响断言语义)。
+# 命令:PYTHONDONTWRITEBYTECODE=1 $PY -B -m pytest -p no:cacheprovider -q \
+#   tests/test_ppv1_r6_chem.py tests/test_ppv1_r6_conditions.py tests/test_ppv1_r6_storage.py
+# 总:44 failed, 26 passed (70 用例,参数化展开后)
+# 逐文件: chem 24 failed / 13 passed; conditions 10 failed / 6 passed; storage 10 failed / 7 passed
+# 分类:
+# - 38 红 = R5 复审反例的行为翻转(断言 satisfied==conflict / verified==unknown / DID NOT RAISE 等)
+# - 6 红 = 正控制语义基线已绿、仅因 v6 新披露键 KeyError 红:
+#     test_r5_01_genuine_oxidation_control_full   (KeyError: substrate_scale)
+#     test_r5_01_genuine_hydrogenation_control_full (KeyError: atom_delta)
+#     test_r5_01_fragment_split_control_full      (KeyError: substrate_scale)
+#     test_r5_01_legal_ratio_scaling_full         (KeyError: substrate_scale)
+#     test_r5_01_completion_rule_registered_and_disclosed (KeyError: coverage_rule)
+#     test_p2_basis_and_proof_scope_disclosed     (KeyError: center_match_basis)
+#   (其核心语义断言 center=verified/full/expand 在基线 293bc62 已通过)
+# - 26 绿 = 基线已绿的正控制(登记移除类同 id/w:1.0 输出侧拒绝/SgD 逗号/
+#   SRU 往返/三/三 R5-08 正控制/lumped 控制等)

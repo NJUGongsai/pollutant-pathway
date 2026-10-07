@@ -1,0 +1,213 @@
+{
+  "R5-01a_one_sided_product": {
+    "v5(293bc62 observed)": {
+      "center": "verified",
+      "coverage": "full",
+      "admission": "expand"
+    },
+    "v6": {
+      "center": "unknown",
+      "coverage": "partial_unchecked_transformation",
+      "admission": "retain_conditional"
+    }
+  },
+  "R5-01b_one_sided_cosubstrate": {
+    "v5": {
+      "center": "verified",
+      "coverage": "full",
+      "admission": "expand"
+    },
+    "v6": {
+      "center": "unknown",
+      "coverage": "partial_unchecked_transformation",
+      "admission": "retain_conditional"
+    }
+  },
+  "R5-01_controls": {
+    "genuine_bound_control": {
+      "center": "verified",
+      "admission": "expand"
+    },
+    "genuine_hydrogenation_control": {
+      "center": "verified",
+      "admission": "expand"
+    },
+    "old_two_sided_unchecked_control": {
+      "center": "unknown",
+      "admission": "retain_conditional"
+    }
+  },
+  "P2_disclosure": {
+    "proof_scope": "self_contained_recompute",
+    "reason": "center_evidence_verified:ppv1-donor-diagnostic-6(scope=region_net_change;basis=direct)"
+  },
+  "R5-08_adjacent_sigma_break": {
+    "v5": {
+      "mismatches": [
+        "undeclared_bond_change U_C_2-U_C_3"
+      ],
+      "center": null,
+      "strict": null
+    },
+    "v6": {
+      "mismatches": [],
+      "center": true,
+      "strict": true,
+      "actual_eq_mirror_reparsed": true
+    }
+  },
+  "R5-02_input_guard": [
+    {
+      "input": "C[C@@H](N)C(=O)O",
+      "v6_accepted": true,
+      "kind": ""
+    },
+    {
+      "input": "C[C@@H](N)C(=O)O |r|",
+      "v6_accepted": false,
+      "kind": ""
+    },
+    {
+      "input": "C1CCCCC1",
+      "v6_accepted": true,
+      "kind": ""
+    },
+    {
+      "input": "C1CCCCC1 |Ln:1|",
+      "v6_accepted": false,
+      "kind": ""
+    },
+    {
+      "input": "C[C@H](F)Cl |w:1.0|",
+      "v6_accepted": false,
+      "kind": ""
+    },
+    {
+      "input": "CO |atomProp:0.note.hello|",
+      "v6_accepted": true,
+      "kind": ""
+    },
+    {
+      "input": "CO |$_AV:one;two$|",
+      "v6_accepted": true,
+      "kind": ""
+    },
+    {
+      "input": "CO",
+      "v6_accepted": true,
+      "kind": ""
+    }
+  ],
+  "R5-03_known_absent": {
+    "matrix": {
+      "check": "violated",
+      "admission": "defer"
+    },
+    "oxygen_regime": {
+      "check": "violated",
+      "admission": "defer"
+    },
+    "temperature_C": {
+      "check": "unknown",
+      "admission": "retain_conditional"
+    }
+  },
+  "R5-03_species_control": "conflict",
+  "R5-04_snapshot_tamper": {
+    "v5": {
+      "summary_changed": "expand",
+      "has_gate_false": "expand"
+    },
+    "v6": {
+      "from_dict_raises": "ConditionContractError",
+      "message": "快照逐条评估含必要 conflict 行,记录的 environment_fit 却不是 conflict(摘要不得洗绿已记录的冲突)"
+    }
+  },
+  "P2_axis_split": {
+    "initial_contradicted_later_regen": {
+      "unresolved_initial_supply": 1,
+      "unsupported_relation": 0,
+      "audit": "retain_conditional"
+    },
+    "initial_restored": {
+      "unresolved_initial_supply": 0,
+      "unsupported_relation": 0,
+      "audit": "expand"
+    },
+    "initial_supported": {
+      "unresolved_initial_supply": 0,
+      "unsupported_relation": 0,
+      "audit": "expand"
+    },
+    "initial_supported_reaction_contradicted": {
+      "unresolved_initial_supply": 0,
+      "unsupported_relation": 1,
+      "audit": "retain_conditional"
+    },
+    "regen_only": {
+      "unresolved_initial_supply": 1,
+      "unsupported_relation": 0,
+      "audit": "expand"
+    }
+  },
+  "R5-05a_pre_stored_all": {
+    "v5": {
+      "first": "created",
+      "replay": "Ppv1LedgerCorrupt(event_appearance_manifest_missing)"
+    },
+    "v6": {
+      "first": {
+        "created": true,
+        "event_id": "ppev_beeed48a90c97886e7b8"
+      },
+      "replay": {
+        "counts_preserved": true,
+        "result": {
+          "created": false,
+          "event_id": "ppev_beeed48a90c97886e7b8"
+        }
+      }
+    }
+  },
+  "R5-05b_partial_deleted": {
+    "v5": "created=False (success)",
+    "v6": "Ppv1LedgerCorrupt"
+  },
+  "R5-05c_shrunk_manifest": {
+    "v5": "created=False (success)",
+    "v6": "Ppv1LedgerCorrupt"
+  },
+  "R5-06_existing_hyp_first_use": {
+    "v5": {
+      "first": "created=True",
+      "replay": "Ppv1LedgerCorrupt(hypothesis_payload_id_corrupt)"
+    },
+    "v6": {
+      "first_submit": "Ppv1LedgerCorrupt",
+      "detail_kind": "hypothesis_payload_id_corrupt"
+    }
+  },
+  "R5-07_wrong_sibling": {
+    "v5": {
+      "uncertainty_notes": 0,
+      "raw": "B 相反立体 raw 被接受"
+    },
+    "v6": {
+      "uncertainty_notes": [
+        "substrate_structure_legacy_cn_only:substrate_source_event_relation_mismatch:历史路径只余 CN(来源事件与父路径/子路径关系矛盾(即使 CN 相同也不信其产物行当本路径底物;R4-11)),结构/立体/原始电荷未知;不以根结构或错误引用冒充子底物"
+      ],
+      "note": "substrate_structure_legacy_cn_only:substrate_source_event_relation_mismatch:历史路径只余 CN(来源事件与父路径/子路径关系",
+      "old_bytes_unchanged": true,
+      "imported_raw_is_expected_left": false
+    }
+  },
+  "R5-07_control": {
+    "uncertainty_notes": 0,
+    "raw_ok": true
+  },
+  "meta": {
+    "head_at_run": "(R6 working tree, pre-commit)",
+    "source": "reviewer probes copied to /private/tmp/ppv1-r6-probes and re-run with PYTHONPATH=<repo>/src",
+    "note": "记录含控制;v5 列为审核报告记录的观测值,非本轮回跑"
+  }
+}
