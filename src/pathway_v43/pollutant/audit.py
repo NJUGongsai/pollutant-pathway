@@ -1,4 +1,23 @@
-"""ChemicalAudit — 检查范围明确,未知不可冒充核实(v6 回修,S2)。
+"""ChemicalAudit — 检查范围明确,未知不可冒充核实(v7 回修,S2)。
+
+v7(ppv1-audit-7 / ppv1-admission-7 / ppv1-donor-diagnostic-7,
+2026-10-07 R7 回修)相对 v6 的变化(Codex R6 复审 R6-01 + R6-02B):
+- **补全许可按严格结构身份注册(R6-01)**:注册计量补全规则新增许可
+  边界 COMPLETION_LICENSE= composition_only_hydrogen_equivalents
+  (H2/[H] 按 2[H] 组成型氢当量;按严格结构身份登记,不按名称免审);
+  未登记身份的未覆盖参与物即使数值全配平 ⇒ partial(
+  completion_license_unregistered_identity),不得 full/R6 —— 元素/
+  电荷配平只证明组成贡献,不证明共底物初始图的键变化/连接贡献已
+  核实(真实 AtomTool C→CCCO 只依次新增 C/C/O,不载入任何共底物
+  初始图);detail 披露 completion_license/scope/未登记身份;正常
+  氧化/还原计量补全(H2)、比例缩放、真实断裂分列/合并正控保持;
+- **供体诊断原始字符串入口同源守卫(R6-02B)**:check_edit_against_
+  donor 的 current/mapped/plain/target 四个原始串在解析前统一过
+  chemstate 的 _guard_input_cx_classes(与工厂/strict 同源);未登记
+  /并列未知 CX 项 ⇒ AuditContractError(kind=raw_input_cx_class_
+  unregistered,带字段名),不再剥掉 |r| 等标记后以同 id/as_written
+  参与 verified 证据(audit 复算链同守卫,proof_record 内含未登记
+  项同样拒绝)。
 
 v6(ppv1-audit-6 / ppv1-admission-6,2026-10-07 R6 回修)相对 v5 的
 变化(Codex R5 复审 R5-01/08 + §4 披露项 1):
@@ -145,6 +164,7 @@ from .chemstate import (
     STRUCTURE_ORIGIN_LEGACY_CN_ONLY,
     ChemicalState,
     ChemicalStateError,
+    _guard_input_cx_classes,
     build_chemical_state,
     strict_identity_of,
 )
@@ -226,6 +246,23 @@ CENTER_CHECKER_SCOPES = frozenset({
 #   规则核实后才能计入覆盖;元素账整体平衡仍归 element_accounting
 #   独立轴,不在此重复。整类共底物/共产物(如 H2、水)不按名称免审。
 COVERAGE_COMPLETION_RULE = "atom_delta_stoichiometric_completion"
+# R7(R6-01):补全规则的**许可范围**按严格结构身份注册 —— 数值配平
+# (元素/形式电荷账闭合)只证明参与物的**组成**贡献,不证明其初始分子
+# 图的键变化/连接贡献已核实(真实 AtomTool C→CCCO 只依次新增 C/C/O,
+# 不载入任何共底物初始图;C+CC=O/C+C1CO1/C+C=C O→CCCO 三个 C2H4O
+# 异构体数值上都能补足同一 Δ,补全规则不区分 ⇒ 不得据此授 full/R6)。
+# 登记许可:组合型氢当量(H2 对 2[H] 的 composition-only 作用域说明;
+# 含 [H] 原子氢 —— radical 保真轴为已登记缺口,氢当量作用域内不因此
+# 另拒,亦不新增电子/自由基轴)。按**严格结构身份**(smiles_isomeric)
+# 登记,不按整类名称免审;未登记身份的未覆盖参与物(即使数值配平)
+# ⇒ partial(completion_license_unregistered_identity),机器披露实际
+# 证明范围;正常氧化/还原明确计量补全(H2)、比例缩放、真实断裂
+# 分列/合并的正控保持。许可边界变化待审(mimo v7 请求判据三)。
+COMPLETION_LICENSE = "composition_only_hydrogen_equivalents"
+COMPLETION_LICENSED_IDENTITIES = frozenset({
+    "[H][H]",        # H2 —— 2[H] 组成型氢当量
+    "[H] |^1:0|",    # 原子氢(基)—— 同上;不新增自由基保真轴
+})
 # 覆盖绑定结论中"部分覆盖/覆盖不可算"两族理由前缀(区别于"证据未
 # 绑定本假设"族):partial ⇒ 未核实转化存在;unknown_coefficients ⇒
 # 覆盖规模不可算 —— 两者都进中心 unknown、不 R6,但理由不冒充绑定失败
@@ -923,11 +960,41 @@ def audit_hypothesis(
                 uncovered_reactant_elements,
                 {el: lambda_s * v for el, v in delta_neg.items()},
                 "reactant")
+            # R6-01(R7):补全许可范围 —— 未覆盖参与物的严格结构身份
+            # 须在注册许可集(组合型氢当量)内;未登记身份即使数值
+            # 全配平,其初始分子图的键变化/连接贡献仍未核实(元素配平
+            # ≠ 结构贡献已核实),不得据此 full/R6
+            unlicensed_identities = sorted({
+                identity for identity in
+                (_identity_of(pp) for pp in
+                 uncovered_reactants + uncovered_products)
+                if identity and identity
+                not in COMPLETION_LICENSED_IDENTITIES})
+            if unlicensed_identities:
+                violations.append({
+                    "kind": "completion_license_unregistered_identity",
+                    "identities": unlicensed_identities,
+                    "completion_license": COMPLETION_LICENSE,
+                    "note": ("未覆盖参与物的严格结构身份未登记补全许可"
+                             f"({COMPLETION_LICENSE}=组合型氢当量);"
+                             "数值配平只证明组成贡献,不证明其初始图"
+                             "的键变化/连接贡献已核实")})
+        else:
+            unlicensed_identities = []
         detail = {
             **base_coverage_detail,
             "product_coverage": ("partial_unchecked_transformation"
                                  if violations else "full"),
             "coverage_rule": COVERAGE_COMPLETION_RULE,
+            # R6-01:许可范围/依据机器披露(登记许可=组成型氢当量;
+            # 未登记身份即使数值配平也 partial,见 coverage_violations)
+            "completion_license": COMPLETION_LICENSE,
+            "completion_license_scope": (
+                "registered:composition_only_hydrogen_equivalents("
+                "H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子"
+                "共底物初始图的结构贡献)"),
+            "unlicensed_uncovered_identities": list(
+                unlicensed_identities),
             "substrate_scale": str(lambda_s),
             "atom_delta": {element: str(value) for element, value
                            in sorted(delta.items())},
@@ -942,10 +1009,12 @@ def audit_hypothesis(
         if violations:
             return False, (
                 _COVERAGE_PARTIAL_PREFIX + "_unchecked_transformation"
-                "(证据覆盖须绑定被审参与物及贡献/系数:系数绑定或注册"
-                f"补全规则 {COVERAGE_COMPLETION_RULE} 数值不符 = 存在"
-                "额外未核实转化/未核实贡献,不得计入全部核实;可明确"
-                "部分覆盖而 retain)"), detail
+                "(证据覆盖须绑定被审参与物及贡献/系数:系数绑定、注册"
+                f"补全规则 {COVERAGE_COMPLETION_RULE} 数值不符,或未"
+                "覆盖参与物严格结构身份未登记补全许可("
+                f"{COMPLETION_LICENSE}:数值配平不证明初始图结构贡献已"
+                "核实)= 存在额外未核实转化/未核实结构贡献,不得计入"
+                "全部核实;可明确部分覆盖而 retain)"), detail
         return True, "", detail
 
     if CHECK_TRANSFORMATION_CENTER in requested:
@@ -2474,6 +2543,36 @@ def check_edit_against_donor(
                 ";".join(result.get("reasons", []) or [])[:200]],
             executed_bond_changes=[])
 
+    # ---- R6-02(R7):供体诊断全部原始字符串入口与工厂/strict 同源守卫 ----
+    # current/mapped/plain/target 的原始串此前直接 MolFromSmiles 解析,
+    # 绕过工厂/strict 的输入侧注册感知校验:RDKit 静默丢弃 |r| 等未
+    # 登记项后,绑定身份来自剥标记的解析串而 proof 保留原串 —— 原始
+    # 标记事实静默丢失仍 True/True/verified/R6。四个入口统一在解析前
+    # 过同一 _guard_input_cx_classes(build_chemical_state /
+    # strict_identity_of 同一守卫);未登记/并列未知项 ⇒ 结构化拒绝
+    # (不剥身份后当 verified 证据;clean 输入不受影响)。
+    for _field, _raw in (
+            ("current.smiles", current.get("smiles")),
+            ("result.product_mapped_smiles",
+             result.get("product_mapped_smiles")),
+            ("result.product_smiles", result.get("product_smiles")),
+            ("expectation.target_smiles",
+             expectation.get("target_smiles"))):
+        if _raw is None or str(_raw) == "":
+            continue
+        try:
+            _guard_input_cx_classes(str(_raw))
+        except ChemicalStateError as exc:
+            raise AuditContractError(
+                f"供体诊断原始输入字段 {_field} 含未登记 CX 项:"
+                f"{exc}(与工厂/strict 同源的输入侧注册感知校验:解析器"
+                "会静默丢弃该项,丢弃后不得以剥标记身份参与 verified"
+                "证据;拒绝该诊断输入,不改冻结执行器)",
+                {"kind": "raw_input_cx_class_unregistered",
+                 "field": _field,
+                 **{k: v for k, v in (exc.detail or {}).items()
+                    if k != "kind"}}) from exc
+
     # ---- 执行图事实 ----
     current_smiles = current.get("smiles", "")
     mol_before = Chem.MolFromSmiles(str(current_smiles)) \
@@ -2552,8 +2651,9 @@ def check_edit_against_donor(
         # 不得 verified —— 产物碰巧等于预期不能掩盖对账失败)
         strict = None
     elif result_smiles and expected_smiles:
-        from .chemstate import strict_identity_of, ChemicalStateError
-
+        # (strict_identity_of/ChemicalStateError 已在模块顶导入;此处
+        # 不再局部重导入 —— 局部 import 会把名字变成本函数局部变量,
+        # 使上方 R6-02 守卫的 except 提前引用未绑定名)
         try:
             strict = (strict_identity_of(str(result_smiles))
                       == strict_identity_of(str(expected_smiles)))

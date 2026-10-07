@@ -22,6 +22,21 @@ R3 复审 R3-04 与 mimo R3 1.2/1.3 的落实):
   逐字相同;**自由基分子带 |^n:…| 后缀是例外**(radical 保真轴
   为已登记缺口,身份层区分自由基)。
 
+v7(ppv1-chemstate-7,2026-10-07 R7 回修)相对 v6 的变化(Codex R6
+复审 R6-02A + §4-1 P2):
+- **原始 CX 输入守卫按真实类边界逐项词法**(_guard_input_cx_classes
+  重写):v6 按空格拆块、只查首头,登记头(atomProp/SgD/Sg)之后的
+  **并列未知项**(``atomProp:0.note.hello,r``、``SgD:…::::,r``、
+  ``Sg:n:…:::,r``)整块放行,RDKit 解析器静默丢弃 r 后与裸输入同
+  state_id/as_written;R7 依 RDKit CXSmiles 解析器(Release_2026_03_6
+  的 parse_it 主分派循环,取证见模块内注释)的真实边界:项序列由
+  ','/空格分隔,各登记类解析器自耗字段(字段内逗号/空格是内容),
+  未登记首头(含并列位置)显式拒绝;
+- **登记内容含空格不再过拒**(§4-1 P2 同修):atomProp 值、SgD/Sg
+  字段、``$…$`` 标签内容的空格是字段内容(v6 按空格拆块把
+  ``atomProp:0.note.hello world``、``SgD:…:hello world::::``、
+  ``$foo bar;$`` 误报未登记);DAT 值内逗号继续受保护。
+
 v6(ppv1-chemstate-6,2026-10-07 R6 回修)相对 v5 的变化(Codex R5
 复审 R5-02):
 - **原始 CX 输入的注册感知验证**(_guard_input_cx_classes):在
@@ -211,94 +226,242 @@ _CX_REGISTERED_HEAD_RE = re.compile(
     r"^(?:Sg|SgD|a|o\d+|&\d+|\^\d+)!?:")
 _CX_REGISTERED_FLAG_BLOCKS = frozenset()  # 无冒号旗标块:目前无登记类
 
-# R6(R5-02)输入侧登记表:原始 CX |…| 段的**类级**登记(与输出侧
-# _guard_registered_cx_classes 同一注册体系,但按类处理 —— 输入侧在
-# 解析前运行,坐标/标签/atomProp/SgD 的内容此时不可见,按登记移除类
-# 放行,由解析 + _identity_key 的生成前清除保证同 ID;Sg/a/&N/^N 按
-# 登记保留类放行;未登记类(r/Ln/c/w/wU/o/O/d/n/F …)⇒ 拒绝 —— RDKit
-# MolFromSmiles 解析时静默丢弃这些块,输出侧守卫永远看不到,丢弃后
-# 与裸输入同 state_id/as_written = 谎称完整保真)
+# R6(R5-02)→ R7(R6-02)输入侧登记表:原始 CX |…| 段的**类级**登记。
+# v6 的实现按空格拆 block、只查首头 —— 登记头(atomProp/SgD/Sg)之后的
+# **并列**未知类(``atomProp:0.note.hello,r``、``SgD:…::::,r``、
+# ``Sg:n:…:::,r``)整块放行,解析器静默丢弃 r 后与裸串同 id/as_written。
+# R7 按 RDKit CXSmiles 解析器(parseCXExtensions → parse_it 主分派循环,
+# Release_2026_03_6 实取证)的**真实类边界**逐项词法:
+# - 扩展段是"项(item)序列":每项按首字符分派;项与项之间由 ',' 或
+#   空格分隔(主循环对二者逐字符跳过);
+# - 各登记类解析器自耗字段,字段内逗号/空格是**内容**(atomProp 值
+#   到 ':'/'|'/',' 止,SgD/Sg 的冒号字段到 ':' 止 —— DAT 值可含逗号,
+#   `$…$` 标签到 '$' 止 —— 可含空格/逗号,坐标块到 ')' 止);
+# - 未知首字符(及 `&#NNN;` 转义)按原样跳过;``&#NNN;`` 转义在字段
+#   扫描中整体跨过(等价 read_text_to 的转义语义);
+# - 未登记首头(r/Ln/c/wU/o/O/d/n/F/SgH/C/H/Z/rb/u/s/m/w/t 等,
+#   含登记头后并列的未知项)⇒ ChemicalStateError(kind=
+#   unregistered_cx_class):解析器会静默丢弃该项,丢弃后不得称
+#   as_written;语法整体不可解析且无违规 CX 块的输入维持
+#   unparseable_smiles(机读码分列,同为拒绝)。
 _CX_INPUT_REMOVED_HEADS = frozenset({"atomProp", "SgD"})
 _CX_INPUT_RETAINED_HEADS = frozenset({"Sg"})
 _CX_INPUT_ANNOTATION_HEAD_RE = re.compile(r"^(?:a|o\d+|&\d+|\^\d+)$")
 _CX_ALL_EXTENSION_RE = re.compile(r"\|([^|]*)\|")
+_CX_ESCAPE_RE = re.compile(r"&#\d+;")
+# 注记项头(match(string, pos) 已按 pos 锚定,不加 '^' —— '^' 会使
+# 非零 pos 的匹配恒失败,漏掉 ``a:1,&1:3`` 的第二注记项)
+_CX_STEREO_ITEM_HEAD_RE = re.compile(r"(a|o\d+|&\d+|\^\d+):")
+
+
+def _cx_scan_field(segment: str, i: int, delims: str) -> int:
+    """read_text_to 等价:返回 i 起第一个(转义外的)分隔符下标或段末。
+
+    RDKit read_text_to 把 ``&#NNN;`` 转义解码为单字符且不作为分隔符,
+    故字段扫描遇转义整体跨过;未终结转义按普通内容继续(最终由
+    RDKit 解析失败兜底为 unparseable_smiles)。
+    """
+    n = len(segment)
+    while i < n:
+        if segment.startswith("&#", i):
+            m = _CX_ESCAPE_RE.match(segment, i)
+            if m:
+                i = m.end()
+                continue
+        if segment[i] in delims:
+            return i
+        i += 1
+    return n
+
+
+def _cx_scan_int_list(segment: str, i: int) -> int:
+    """read_int_list 等价:数字与逗号序列;返回列表结束下标。
+
+    尾随逗号被列表消耗(其后非数字即停)—— 与 C++ read_int_list 的
+    行为一致(``Sg:n:0:C:1,2,3,Sg…`` 的并列边界)。
+    """
+    n = len(segment)
+    while i < n:
+        j = i
+        while j < n and segment[j].isdigit():
+            j += 1
+        if j == i:
+            break  # 无数字:列表结束
+        i = j
+        if i < n and segment[i] == ",":
+            i += 1
+        else:
+            break
+    return i
+
+
+def _cx_scan_atom_prop_item(segment: str, i: int) -> int | None:
+    """atomProp 项(已匹配头):``atomProp:`` 后 (int.name.value 三元组)。
+
+    三元组之间由 ':' 连接(写出器的多 prop 冒号形态);value 到
+    ':'/'|'/',' 止;项在 value 止于 ',' 或段末时结束。三元组畸形 ⇒
+    返回 None(交给未知头/解析失败路径,不静默放行)。
+    """
+    n = len(segment)
+    j = i + len("atomProp:")
+    while j < n:
+        k = j
+        while k < n and segment[k].isdigit():
+            k += 1
+        if k == j or k >= n or segment[k] != ".":
+            return None
+        j = _cx_scan_field(segment, k + 1, ".")
+        if j >= n or segment[j] != ".":
+            return None
+        j = _cx_scan_field(segment, j + 1, ":|,")
+        if j >= n or segment[j] == "|":
+            return j  # 段末(或终止 '|')
+        if segment[j] == ":":
+            j += 1  # 多 prop 冒号形态:继续下一三元组
+            continue
+        return j  # ',':项结束(主分派循环跳过逗号)
+    return j
+
+
+def _cx_scan_sgd_item(segment: str, i: int) -> int | None:
+    """SgD 项(已匹配头):原子列表 + 5 个冒号字段(值可含逗号)+ 可选坐标。
+
+    字段到 ':' 止 —— DAT 值内的逗号/空格是内容(受保护);字段耗尽
+    冒号后,项在当前下标结束(``,r`` 的逗号由主分派循环作为项边界)。
+    """
+    n = len(segment)
+    j = _cx_scan_int_list(segment, i + len("SgD:"))
+    if j >= n or segment[j] != ":":
+        return None
+    j += 1
+    for _ in range(5):
+        if j < n and segment[j] != "|":
+            j = _cx_scan_field(segment, j, ":")
+            if j >= n:
+                return n  # 字段读到段末(解析器把剩余内容并入末字段)
+            j += 1  # 跳过字段后的 ':'
+    if j < n and segment[j] == "(":
+        close = segment.find(")", j)
+        if close == -1:
+            return n
+        j = close + 1
+    return j
+
+
+def _cx_scan_sg_item(segment: str, i: int) -> int | None:
+    """Sg 项(已匹配头):type:atoms[:sub[:sup[:head[:tail]]]]。
+
+    subscript 到 ':'/'|' 止;superscript 到 ':'/'|'/',' 止(逗号=并列
+    边界);head/tail 为数字列表;缺字段合法(空段省略,真实解析器对
+    非 ':' 边界即结束本项)。写出器 ``Sg:n:1,2,3:3:ht:::`` 形态会在项
+    尾留一个 ':' 字段终止符(主分派循环逐字符跳过)——由主循环按
+    残留字段终止符放行。
+    """
+    n = len(segment)
+    j = _cx_scan_field(segment, i + len("Sg:"), ":")  # type
+    if j >= n or segment[j] != ":":
+        return None
+    j = _cx_scan_int_list(segment, j + 1)  # atom indices
+    if j >= n:
+        return j
+    if segment[j] == ":":
+        j = _cx_scan_field(segment, j + 1, ":|")  # subscript
+        if j >= n:
+            return j
+        if segment[j] == ":":
+            j = _cx_scan_field(segment, j + 1, ":|,")  # superscript
+            if j >= n:
+                return j
+            if segment[j] == ":":
+                j = _cx_scan_int_list(segment, j + 1)  # head crossings
+                if j >= n or segment[j] != ":":
+                    return j
+                j = _cx_scan_int_list(segment, j + 1)  # tail crossings
+    return j
 
 
 def _guard_input_cx_classes(structure: str) -> None:
-    """原始 CX 输入的注册感知校验(R5-02;解析**之前**对原始串调用)。
+    """原始 CX 输入的注册感知校验(R5-02/R6-02;解析**之前**调用)。
 
-    用正则提取串中全部 ``|...|`` 扩展段;每段按空白拆 block:
-    - ``$...$`` 标签/值块($_AV、$label$)⇒ 登记移除类,放行;
-    - ``(...)`` 坐标块 ⇒ 登记移除类,放行;
-    - head(首个 ``:`` 前)∈ {atomProp, SgD} ⇒ 登记移除类,放行不查
-      内容(SgD 值可含逗号,勿按逗号拆整段);
-    - head == "Sg" ⇒ 登记保留类,放行不查内容;
-    - head 匹配 ^(a|o\\d+|&\\d+|\\^\\d+)$ ⇒ 登记保留注记类:对该
-      block 逗号拆 token,token 须为无冒号裸数字(原子列表延续)或
-      注记头命中 a/o\\d+/&\\d+/\\^\\d+(含 ``!`` 前缀,同
-      _CX_REGISTERED_HEAD_RE 语义),否则拒绝;
-    - 无冒号旗标块(如 r)⇒ 拒绝;
-    - 其余(Ln、c、w、wU、o、O、d、n、F 等)⇒ 拒绝。
+    对串中每个 ``|...|`` 扩展段按 RDKit 解析器的真实类边界逐项词法:
 
-    拒绝 ⇒ ChemicalStateError(kind=unregistered_cx_class,带违规
-    block/token):解析器静默丢弃的未知/畸形类不得丢弃后称 as_written。
-    语法整体不可解析的输入(无违规 CX 块)仍走 unparseable_smiles。
+    - ``(坐标块)`` ⇒ 登记移除类(内容到 ')' 止,内部逗号/分号是内容);
+    - ``$…$`` / ``$_AV:…$`` ⇒ 登记移除类(标签/值内容到 '$' 止,
+      内部空格/逗号/分号是内容 —— R6 §4-1 含空格合法往返的过拒同修);
+    - ``atomProp:`` 三元组 ⇒ 登记移除类(value 到 ':'/'|'/',' 止);
+    - ``SgD:`` ⇒ 登记移除类(5 个冒号字段,DAT 值内逗号受保护);
+    - ``Sg:`` ⇒ 登记保留类(SRU/聚合物,承载化学事实);
+    - ``a:``/``oN:``/``&N:``(增强立体)、``^N:``(自由基层)⇒ 登记
+      保留注记类(头 + 逗号数字原子列表,可并列);
+    - 项间 ','/空格为分隔符(与主分派循环一致);
+    - **其余任何首头(r/Ln/c/wU/o/O/d/n/F/SgH/C/H/Z/rb/u/s/m/w/t
+      等,含登记头后并列的未知项)⇒ 拒绝** —— 解析器静默丢弃后与裸
+      输入同 state_id/as_written 是谎称完整保真。
+
+    拒绝 ⇒ ChemicalStateError(kind=unregistered_cx_class,带违规项)。
+    语法整体不可解析的输入(无违规 CX 项)仍走 unparseable_smiles。
     """
     for segment in _CX_ALL_EXTENSION_RE.findall(structure):
-        for block in segment.split(" "):
-            if not block:
+        n = len(segment)
+        i = 0
+        while i < n:
+            ch = segment[i]
+            if ch in (" ", ",", ":"):
+                # 项分隔符与字段终止符残留(主分派循环逐字符跳过;
+                # 写出器 ``Sg:n:…:ht:::`` 尾部的 ':' 即此形态)
+                i += 1
                 continue
-            if block.startswith("$") and block.endswith("$"):
-                continue  # 标签/值块($_AV、$label$):登记移除类
-            if block.startswith("(") and block.endswith(")"):
-                continue  # 坐标块:登记移除类
-            head, sep, _ = block.partition(":")
-            # ``!`` 前缀/``!:`` 前形(输出侧 _CX_REGISTERED_HEAD_RE 的
-            # ``!?`` 语义):剥后再对登记表
-            stripped_head = head.lstrip("!").rstrip("!")
-            if not sep:
-                raise ChemicalStateError(
-                    f"CX 输入扩展段含未登记旗标块:{block[:80]!r}(输入侧"
-                    "注册感知校验:解析器会静默丢弃该块,丢弃后不得称"
-                    " as_written;未知旗标类显式拒绝)",
-                    {"kind": "unregistered_cx_class",
-                     "block": block[:200]})
-            if stripped_head in _CX_INPUT_REMOVED_HEADS:
-                continue  # atomProp/SgD:登记移除类,内容不查
-            if stripped_head in _CX_INPUT_RETAINED_HEADS:
-                continue  # Sg:登记保留类,内容不查
-            if _CX_INPUT_ANNOTATION_HEAD_RE.match(stripped_head):
-                # 保留注记类:逐 token 复核注记头(裸数字为原子列表
-                # 延续;头可带 ``!`` 前缀/``!:`` 前形 —— 复用输出侧
-                # _CX_REGISTERED_HEAD_RE 的 ``!?`` 语义)
-                for token in block.split(","):
-                    token_head, token_sep, _ = token.partition(":")
-                    stripped = token_head.lstrip("!").rstrip("!")
-                    if not token_sep:
-                        if stripped.isdigit():
-                            continue  # 原子列表延续(裸数字)
-                        raise ChemicalStateError(
-                            f"CX 输入注记块含未登记 token:{token[:80]!r}"
-                            "(输入侧注册感知校验:登记注记类(a/oN/&N/^N)"
-                            "的 token 须为注记头或裸数字原子列表延续)",
-                            {"kind": "unregistered_cx_class",
-                             "token": token[:200], "block": block[:200]})
-                    if not stripped or not \
-                            _CX_INPUT_ANNOTATION_HEAD_RE.match(stripped):
-                        raise ChemicalStateError(
-                            f"CX 输入注记块含未登记注记头:{token[:80]!r}"
-                            "(输入侧注册感知校验:须命中 a/oN/&N/^N,含 !"
-                            " 前缀;未知注记头显式拒绝)",
-                            {"kind": "unregistered_cx_class",
-                             "token": token[:200], "block": block[:200]})
+            if ch == "(":
+                close = segment.find(")", i)
+                i = n if close == -1 else close + 1
                 continue
-            raise ChemicalStateError(
-                f"CX 输入扩展段含未登记注记类:{head[:80]!r}(输入侧注册"
-                "感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;"
-                "登记类:atomProp/SgD/$(…)$/(…)/Sg/a/oN/&N/^N;未知类"
-                "显式拒绝)",
-                {"kind": "unregistered_cx_class",
-                 "block": block[:200], "head": head[:80]})
+            if ch == "$":
+                close = segment.find("$", i + 1)
+                i = n if close == -1 else close + 1
+                continue
+            if segment.startswith("atomProp:", i):
+                end = _cx_scan_atom_prop_item(segment, i)
+                if end is None:
+                    raise _cx_unregistered_item_error(segment, i, "atomProp")
+                i = max(end, i + 1)
+                continue
+            if segment.startswith("SgD:", i):
+                end = _cx_scan_sgd_item(segment, i)
+                if end is None:
+                    raise _cx_unregistered_item_error(segment, i, "SgD")
+                i = max(end, i + 1)
+                continue
+            if segment.startswith("Sg:", i):
+                end = _cx_scan_sg_item(segment, i)
+                if end is None:
+                    raise _cx_unregistered_item_error(segment, i, "Sg")
+                i = max(end, i + 1)
+                continue
+            m = _CX_STEREO_ITEM_HEAD_RE.match(segment, i)
+            if m:
+                i = _cx_scan_int_list(segment, m.end())
+                continue
+            raise _cx_unregistered_item_error(segment, i, "")
+
+
+def _cx_unregistered_item_error(segment: str, i: int,
+                                 registered_head: str) -> ChemicalStateError:
+    """构造未登记 CX 项的结构化拒绝(带违规项原文与登记头上下文)。"""
+    tail = segment[i:i + 200]
+    stop = min((pos for pos in (tail.find(" "), tail.find("|"))
+                if pos > 0), default=len(tail))
+    item = tail[:stop] if stop else tail
+    return ChemicalStateError(
+        f"CX 输入扩展段含未登记并列/未知项:{item[:80]!r}(输入侧注册"
+        "感知校验按真实 CX 类边界逐项检查:解析器会静默丢弃该项,"
+        "丢弃后不得称 as_written;登记类:atomProp/SgD/Sg/a/oN/&N/^N/"
+        "$(…)$/(…);未知项显式拒绝)"
+        + (f";违规项出现在登记头 {registered_head} 的项边界之后"
+           if registered_head else ""),
+        {"kind": "unregistered_cx_class",
+         "item": item[:200], "segment": segment[:200],
+         "item_offset": i,
+         "registered_head": registered_head})
 
 
 def _guard_registered_cx_classes(cxsmiles: str) -> None:

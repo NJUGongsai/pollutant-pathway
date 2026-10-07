@@ -32,23 +32,29 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 分轴撤销/镜像活 ID 表+前置复核/键立体与非四面体公开载荷/DATA
 # SGroup 剥离+未登记 CX 拒绝/writer 事实契约/事件出现清单/旧导入
 # 关系核验)。gate_mapper(-3,未触碰)与 search-limits(proposed)不动。
+# v7(2026-10-07 R7 回修):Codex R6 复审 R6-01~05 涉及的契约族升版
+# (补全许可按严格结构身份注册/原始 CX 输入按真实类边界逐项词法+
+# 供体诊断四个原始字符串入口同源守卫/上下文派生先验父对象+覆盖签名
+# 须对应已记录评估行/首提复用既存行立即共用重放校验/事件出现集合
+# 独立完整性表 event_appearance_links)。profile 仍未放行执行流,
+# 无历史产物需要迁移;v6 载荷按未知版本既有门拒绝。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-6"
-PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-6"
-PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-6"
-PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-6"
-PPV1_STORE_SCHEMA_VERSION = "ppv1-store-6"
-PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-6"
-PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-6"
-PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-6"
-PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-6"
-PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-6"
-PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-6"
-PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-6"
-PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-6"
-PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-6"
-PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-6"
-PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-6"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-7"
+PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-7"
+PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-7"
+PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-7"
+PPV1_STORE_SCHEMA_VERSION = "ppv1-store-7"
+PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-7"
+PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-7"
+PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-7"
+PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-7"
+PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-7"
+PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-7"
+PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-7"
+PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-7"
+PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-7"
+PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-7"
+PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-7"
 PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)

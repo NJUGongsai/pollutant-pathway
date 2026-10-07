@@ -1,4 +1,27 @@
-"""PollutantPathwayStore — 新模式的独立 SQLite 账本(v6 回修,S1)。
+"""PollutantPathwayStore — 新模式的独立 SQLite 账本(v7 回修,S1)。
+
+v7(ppv1-store-7,R7 回修 2026-10-07)相对 v6 的变化(Codex R6 复审
+R6-04/R6-05):
+- **首提复用既存行立即共用重放同源校验(R6-04)**:首次提交对不在
+  本次事务载荷中的 derived_ref 此前只查**存在性**,事实/版本/身份/
+  hash 校验被拖到第二次调用(重放)—— 现在首提即调用与重放同一
+  `_verify_stored_state_rows`(载荷内 ID=行键、schema 版本门、
+  CN/立体/同位素事实结构重推导)与 `_verify_stored_appearances`
+  (出现内容 hash 复算):先 public put 后在合成库损坏单字段
+  (CN/schema/内 ID/appearance refs 不改 hash),再 states=[] 首提
+  ⇒ 首提即 Ppv1LedgerCorrupt、零新增事件/投影/计划,不以"重放能
+  发现"代替;合法全量/部分先存、显式状态、正常首提/重放保持;
+- **事件出现集合独立完整性表(R6-05)**:新表 event_appearance_
+  links(event_id, state_id, appearance_hash)随首提写入本事件
+  **完整 (state_id, appearance_hash) 集合**;重放核验事件 payload 的
+  event_appearance_manifest 集合 == links 行集合(双向)—— 只删
+  payload 清单的 A 项(留同 SID 的 B),或连实际 A 行一起删,都
+  与 links 集合失配 ⇒ event_appearance_manifest_link_corrupt 损坏
+  不静默 created=False;保持原清单只删 A 行(行缺失)的既有
+  entry_missing 拒绝;同图多来源、排序幂等、正常无输入重放保持;
+  完整性依据独立于事件 payload(event_semantics_hash 不含清单,
+  payload 单点编辑不再能洗掉某次出现)。表结构变更随 schema 版本
+  升 v7 拒旧库,无兼容迁移。
 
 v6(ppv1-store-6,R6 回修 2026-10-07)相对 v5 的变化(R5 复审
 R5-05/R5-06):
@@ -192,6 +215,12 @@ CREATE TABLE IF NOT EXISTS expansion_plans (
     event_id  TEXT PRIMARY KEY,
     payload   TEXT NOT NULL,
     created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS event_appearance_links (
+    event_id        TEXT NOT NULL,
+    state_id        TEXT NOT NULL,
+    appearance_hash TEXT NOT NULL,
+    PRIMARY KEY (event_id, state_id, appearance_hash)
 );
 CREATE TABLE IF NOT EXISTS provenance_records (
     record_id TEXT PRIMARY KEY,
@@ -1265,6 +1294,45 @@ class PollutantPathwayStore:
                  "missing_state_refs": missing_refs,
                  "extra_state_refs": extra_refs})
 
+    def _verify_event_appearance_links(self, eid: str,
+                                       manifest: list) -> None:
+        """R6-05(R7):事件出现集合的独立完整性依据(重放路径)。
+
+        首提把本事件**完整 (state_id, appearance_hash) 集合**写入
+        event_appearance_links(独立于事件 payload —— event_semantics_
+        hash 不含清单,payload 单点编辑不再能洗掉某次出现)。重放核验:
+        payload 的 event_appearance_manifest 集合 == links 行集合
+        (双向)—— 只删 payload 清单 A 项(留同 SID 的 B),或连实际
+        A 行也删,都与 links 失配 ⇒ link_corrupt;links 行集合自身被
+        删 ⇒ 与 payload 失配 ⇒ 同拒;两处独立来源须一致,不以
+        "同 state 还有另一出现"代替完整集合。
+        """
+        link_rows = self.conn.execute(
+            "SELECT state_id, appearance_hash FROM"
+            " event_appearance_links WHERE event_id = ?",
+            (eid,)).fetchall()
+        link_set = {(str(r["state_id"]), str(r["appearance_hash"]))
+                    for r in link_rows}
+        manifest_set = set()
+        for entry in manifest:
+            if isinstance(entry, dict):
+                manifest_set.add((str(entry.get("state_id", "")),
+                                  str(entry.get("appearance_hash", ""))))
+        if link_set != manifest_set:
+            raise Ppv1LedgerCorrupt(
+                f"重放 {eid} 发现已存事件出现清单与独立完整性表"
+                " event_appearance_links 的 (state_id, appearance_hash)"
+                " 集合不一致(损坏;完整出现集合有两个同源持久依据,"
+                "单点删项不得借同 state 的另一出现冒充完整,不补账)",
+                {"event_id": eid, "table": "event_appearance_links",
+                 "kind": "event_appearance_manifest_link_corrupt",
+                 "manifest_without_links": [
+                     f"{s}:{h[:16]}" for s, h in
+                     sorted(manifest_set - link_set)[:5]],
+                 "links_without_manifest": [
+                     f"{s}:{h[:16]}" for s, h in
+                     sorted(link_set - manifest_set)[:5]]})
+
     def submit_event(
         self,
         event: PathwayEvent,
@@ -1428,6 +1496,12 @@ class PollutantPathwayStore:
                 # 提供 states;删本事件出现只留同物种无关出现 ⇒ 损坏)
                 self._verify_event_appearance_manifest(
                     eid, json.loads(existing["payload"]), derived_refs)
+                # R6-05(R7):清单与独立完整性表的双向集合一致(只删
+                # payload 清单项/连行删/删 links 行 ⇒ 损坏,不静默
+                # created=False)
+                self._verify_event_appearance_links(
+                    eid, json.loads(existing["payload"]).get(
+                        "event_appearance_manifest") or [])
                 # R4-02:已存假设载荷的**内容身份复算**(不提供 dict 的
                 # 重放同样复核:改已存前提/换 ID ⇒ 损坏,不静默成功)
                 try:
@@ -1516,6 +1590,21 @@ class PollutantPathwayStore:
                     "(事务回滚;不产生悬空引用)",
                     {"event_id": eid, "missing_state_refs":
                         sorted(missing_refs)})
+            # ---- R6-04(R7):首提复用既存行立即共用重放同源校验 ----
+            # 首提此前只核本次载荷的 states(R3-09),不在本次载荷中的
+            # derived_ref 只查存在性 —— 复用损坏行(CN/schema/内 ID 被
+            # SQL 改写、appearance 内容改而 hash 不变)的校验被拖到第
+            # 二次调用(重放)。首次消费即闭合:与重放共用同一
+            # _verify_stored_state_rows / _verify_stored_appearances,
+            # 损坏 ⇒ 首提即 Ppv1LedgerCorrupt、零写入,不以"重放能
+            # 发现"代替。合法先存行(全量/部分先存、显式绑定路径)
+            # 幂等通过。
+            supplied_sids = {sid for sid, _, _ in appearance_writes}
+            reuse_refs = derived_refs - supplied_sids
+            if reuse_refs:
+                self._verify_stored_state_rows(eid, sorted(reuse_refs))
+                self._verify_stored_appearances(eid, sorted(reuse_refs),
+                                                [])
             # ---- R5-05:首提绑定本事件全部出现引用(先存/部分先存)----
             # 事务提供的出现(appearance_writes)只覆盖随事务给的 state;
             # 其余 derived_ref 的出现来源必须**显式绑定**:恰 1 行既存
@@ -1523,7 +1612,6 @@ class PollutantPathwayStore:
             # 不补账);≥2 行 ⇒ 多个既存出现不能替调用方猜出处(结构化
             # 拒绝、零写入;须随事务显式提供该 state 载荷——幂等重放
             # 同图出现合法——或先在唯一出现下提交)。
-            supplied_sids = {sid for sid, _, _ in appearance_writes}
             appearance_manifest = [
                 {"state_id": sid, "appearance_hash": appearance_hash}
                 for sid, appearance_hash, _ in appearance_writes
@@ -1710,6 +1798,17 @@ class PollutantPathwayStore:
                      "catalytic_support": event.catalytic_support,
                      "event_appearance_manifest": appearance_manifest,
                  }, ensure_ascii=False, sort_keys=True), now_iso()))
+            # R6-05(R7):本事件**完整 (state_id, appearance_hash) 集合**
+            # 持久进独立完整性表(与事件 payload 清单同源双写;重放
+            # 双向核验 —— payload 或 links 任一侧单点删项可检,同
+            # state 另一出现不能冒充完整集合)
+            for _entry in appearance_manifest:
+                self.conn.execute(
+                    "INSERT OR IGNORE INTO event_appearance_links"
+                    " (event_id, state_id, appearance_hash)"
+                    " VALUES (?, ?, ?)",
+                    (eid, _entry["state_id"],
+                     _entry["appearance_hash"]))
             self.conn.execute(
                 "INSERT INTO report_projections (event_id, payload,"
                 " created_at) VALUES (?, ?, ?)",
@@ -1772,6 +1871,8 @@ class PollutantPathwayStore:
                 "SELECT COUNT(*) FROM report_projections"),
             "expansion_plans": one(
                 "SELECT COUNT(*) FROM expansion_plans"),
+            "event_appearance_links": one(
+                "SELECT COUNT(*) FROM event_appearance_links"),
             "provenance_records": one(
                 "SELECT COUNT(*) FROM provenance_records"),
         }

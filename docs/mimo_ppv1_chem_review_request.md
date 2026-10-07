@@ -1,235 +1,238 @@
-# mimo 化学评审请求:pollutant_pathway_v1 化学判据(S0–S2 回修版 v6)
+# mimo 化学评审请求:pollutant_pathway_v1 化学判据(S0–S2 回修版 v7)
 
-- 日期:2026-10-07(R6 回修版;替换同日 v5 请求)
+- 日期:2026-10-07(R7 回修版;替换同日 v6 请求)
 - 触发点:AGENTS.md mimo 三触发点之 1(需评判化学结构时——冻结或发布前)
-- 评审对象:S0–S2 第六轮回修后的化学判据草案 v6(实现于
-  `src/pathway_v43/pollutant/`,ppv1-*-6 版本族);**尚未冻结**
-- 与 v5 的差异来源:第五轮 mimo 回应
-  (`docs/mimo_ppv1_chem_review_response_r5.md`)+ Codex R5 复审
-  (`POLLUTANT_PATHWAY_S0_S2_CODEX_REVIEW_R5_2026-10-07.md` R5-01～08
-  与 §5 采纳边界)。Codex 已互证的 v5 缺陷:单侧覆盖自动 full
-  (R5-01)、原始 CX 输入绕过注册检查(R5-02)、非物种 known_absent
-  当正事实(R5-03)、恢复入口信任矛盾快照(R5-04)、出现清单不覆盖
-  先存来源(R5-05)、既存假设首用不验(R5-06)、旧兄弟来源循环证明
-  (R5-07)、镜像漏执行器终态序列化(R5-08)共 8 项 P1 + 2 项 P2。
-- **Codex R5 §5 不采纳并已修正的两点**(与 mimo v5 回应的分歧,供
-  本轮重新表态):①mimo 曾"完全同意判据三覆盖语义"——Codex 用两组
-  **数值完全配平**的公开 API 反例证明集合覆盖不安全(单侧空即 full),
-  本轮改为**系数绑定 + 注册计量补全规则**(见判据三 4);②mimo 曾
-  建议"断键致 E/Z 消失须另设立体申报通道才能通过"——实测同一终态
-  序列化(镜像写出/重解析)即对齐,无须新增申报通道(见判据五 4);
-  相应地"3b 恒失配"表述废除。
+- 评审对象:S0–S2 第七轮回修后的化学判据草案 v7(实现于
+  `src/pathway_v43/pollutant/`,ppv1-*-7 版本族);**尚未冻结**
+- 与 v6 的差异来源:第六轮 mimo 回应
+  (`docs/mimo_ppv1_chem_review_response_r6.md`)+ Codex R6 复审
+  (`POLLUTANT_PATHWAY_S0_S2_CODEX_REVIEW_R6_2026-10-07.md` R6-01～05
+  五组 P1 与 §4 两项 P2 文档同步)。Codex R6 §5 采信边界:采纳
+  third consumer(供体诊断原始入口)与含空格合法内容过拒;不采纳
+  "输入登记类及默认拒绝已完整"(登记头后的并列未知项仍绕过)、
+  不采纳"composition-only 注册说明或 strict 轴可兜底复杂共底物
+  全覆盖"。R6 实测缺陷五组:数值配平的复杂共底物结构贡献未核实
+  仍 full/R6(R6-01);原始 CX 并列未知类与供体诊断原始字符串入口
+  两处不闭合(R6-02);公开派生 API 可洗掉旧必要未知(R6-03);
+  首提复用既存 state/appearance 行不验、校验拖到重放(R6-04);
+  事件出现清单无独立完整性依据、删项漏检(R6-05;存储两项 mimo
+  不审,仅程序事实披露)。
 - 自包含性:规则级表述与合成规则级夹具,无任何金标/题面/封存
   逐题数据;由用户转交,回复原文落盘 `docs/`
 
 ## 0. 背景(一段话)
 
-v5 判据经第五轮代码复审发现:证据覆盖按物种集合判定,两组数值配平
-的单侧反例(真实 CCO→CC=O 证据用于 CCO→1/2CC=O+1/2C1CO1+H2;真实
-CC=O→CCO 证据用于 CC=O+C1CO1+2H2→2CCO)均直达"全部核实"并放行
-展开;原始 CX 的 |r|/|Ln:1| 被解析器静默丢弃后与裸输入同身份;
-oxygen aerobic absent/matrix soil absent/温度 25°C absent 均能满足
-必要条件;恢复入口只信快照旗标摘要;事件出现清单不覆盖先存来源;
-既存假设行首用不验;旧同父兄弟来源用循环查询自证;诊断镜像不随
-执行器做终态序列化。8 项 P1 + 2 项 P2 已全部回修并有行为级红绿
-回归(基线 293bc62 新增回归 70 例红 44/绿 26,其中 6 红仅因 v6
-新披露键、其核心语义基线已绿;ppv1 全量 451 passed/0 skip)。
-本轮请评审**回修后的判据文本 v6**。目标不变:可能降解路径与
-条件相容路径的诚实表示;unknown 不升格;verified 不靠模型或调用
-方自报字符串;**账平、物种同 CN 或一份正确局部诊断不能代替整条
-声明的覆盖与追溯**。
+v6 判据经第六轮独立复审发现五组同源/完整性缺口:真实 AtomTool
+C→CCCO(依次新增 C/C/O,不载入任何共底物初始图)的证据用于
+C+C2H4O 异构体(乙醛/环氧乙烷/乙烯醇)→CCCO,数值全配平即授
+"全部核实";工厂/strict 接受 `|atomProp:0.note.hello,r|` 等登记头后
+并列未知项(RDKit 解析时静默丢 r 后与裸串同身份);供体诊断直接
+解析 current/mapped 原始串,加 `|r|` 后仍 True/True、公共 audit→
+R6;公开派生 API 不验父对象,篡改快照删必要评估行后重算子 ID 即
+洗掉旧必要未知;首提复用既存损坏行零校验;同 SID 多出现的事件
+清单删项漏检。五组已全部回修并有行为级红绿回归(基线 6d90201
+新增回归 57 例红 33/绿 24,其中 26 红为复审反例行为翻转、7 红仅
+因 v7 新披露字段/新表缺失;ppv1 全量 508 passed/0 skip;G01 全量
+not slow 1119 passed/16 deselected)。本轮请评审**回修后的判据
+文本 v7**。目标不变:可能降解路径与条件相容路径的诚实表示;
+unknown 不升格;verified 不靠模型或调用方自报字符串;**账平、
+物种同 CN 或一份正确局部诊断不能代替整条声明的覆盖与追溯;
+数值配平不等于未覆盖参与物初始图的结构贡献已核实**。
 
-## 1. 判据一:分子身份(v6 文本)
+## 1. 判据一:分子身份(v7 文本)
 
-1–4 同 v5(state_id 生成条件/化学 CX 事实子集三类逐类登记表/
-混合并列 ABS 归一/公开表示往返闭合/fidelity 分轴;细节略,见
-仓内 v5 请求存档)。v6 改第 2 条的执行位置:
+1–4 同 v6(state_id 生成条件/化学 CX 事实子集/混合并列 ABS 归一/
+公开表示往返闭合/fidelity 分轴)。v7 改第 2 条的词法边界:
 
-2. **输入侧注册感知校验(R5-02,替换 v5 的"守卫只看规范输出")**:
-   拒绝检查以**原始输入扩展段字符串**为入口**先行**校验——
-   build_chemical_state 与 strict_identity_of 两个公共结构入口在
-   解析之前调用输入守卫;RDKit MolFromSmiles 宽容解析会**静默丢弃**
-   部分未登记块(实测旗标块 `r`、`Ln`/`LN`、`c`、`wU`、`o`、`O`、
-   `d`、`n`、`F` 等),丢弃后与裸骨架同 state_id/as_written,输出侧
-   守卫永远看不到——此前文本声称拒绝 `r` 但入口并未落地(mimo R5
-   1(b) 的例外已修)。输入侧登记表按**类级**处理(与输出侧同一
-   注册体系):
-   - 登记移除类:`$…$` 标签/值块($_AV、atomLabel)、`(…)` 坐标块、
-     `atomProp:`、`SgD:`(内容不查——SgD 值可含逗号,**不按逗号
-     拆整段**;解析为属性/组后生成前清除,同 ID);
-   - 登记保留类:`Sg:`(SRU/聚合物等非 DAT 组,内容不查);
-   - 登记保留注记类:`a`/`oN`/`&N`/`^N`(逐 token 复核注记头与
-     裸数字原子列表延续,含 `!` 前形);
-   - 无冒号旗标块与其余未知类 ⇒ ChemicalStateError
-     (kind=unregistered_cx_class,构造即拒);语法整体不可解析
-     的外部扩展段归 unparseable_smiles(同为拒绝,机读码分列);
-   - **不把输出侧逗号拆分守卫搬到原输入,也不"输入输出不等一律
-     拒绝"**(合法移除的 DATA/标签/坐标与保留事实并存)。
+2. **输入侧注册感知校验——按真实 CX 类边界逐项词法(R6-02A,
+   替换 v6 的"空格拆块 + 只查首头")**:
+   - v6 缺陷:登记头(atomProp/SgD/Sg)之后的**并列未知项**
+     (`|atomProp:0.note.hello,r|`、`|SgD:…::::,r|`、
+     `|Sg:n:…:::,r|`、`|atomProp:…,Ln:1|`、`|atomProp:…,w:1.0|`)
+     整块放行,解析器静默丢弃后与裸输入同 state_id/as_written;
+   - v7 词法:按 RDKit CXSMILES 解析器(实测 Release_2026_03_6
+     的主分派循环)的**真实类边界**逐项检查——扩展段是"项序列",
+     项间由 ','/空格分隔(逐字符跳过);各登记类解析器自耗字段,
+     **字段内逗号/空格是内容**(atomProp 值到 ':'/'|'/',' 止,
+     SgD/Sg 冒号字段到 ':' 止——DAT 值内逗号受保护,`$…$` 标签
+     到 '$' 止);未登记首头(含并列位置)⇒
+     ChemicalStateError(kind=unregistered_cx_class,带违规项原文
+     与登记头上下文);
+   - **登记内容含空格不再过拒**(R6 §4-1 P2 同修):RDKit 写出器
+     生成的 `atomProp:0.note.hello world`、`SgD:…:hello world::
+     ::`、`$foo bar;$` 可合法往返,v6 按空格拆块误报未登记;
+   - **DAT/SgD 剥离的适配器前提(明示)**:本仓把 DATA SGroup
+     (SgD)视为纯出现/注记元数据,生成身份前**分子级剥离**——
+     **化学事实不得只编码进将被视为注记的 DAT**(需要进身份的
+     化学事实走结构串本身或登记保留类 Sg/SRU;DATA 中的文本
+     不是化学事实);SRU/聚合物等非 DAT SGroup 保留;
+   - 语法整体不可解析且无违规 CX 项的输入仍归 unparseable_smiles
+     (机读码分列,同为拒绝);输出侧守卫(v4 起)不动;
+   - **不要求解释新 CX 类、不按整类名称免审**;新 CX 类默认拒绝
+     (fail-closed),RDKit 行为变化须重登记。
 
-**请评审**:(a) 输入侧类级登记表的划分(移除/保留/拒绝)与
-"解析器静默丢弃 ⇒ 拒绝"的默认行为;(b) 两个公共入口一致的
-执行位置;(c) 逗号不拆整段的边界(SgD 值内逗号)。
+**请评审**:(a) 按真实类边界逐项词法(而非按空格拆块)是否正确
+闭合"并列未知项";(b) **全部原始 CX 入口清单**——
+build_chemical_state、strict_identity_of 与判据五供体诊断的
+current/mapped/plain/target 四个原始字段共用同一守卫(见判据五),
+是否还有本仓未覆盖的公共入口;(c) DAT 剥离前提("化学事实不能
+只编码进将被视为注记的 DAT")的表述;(d) 含空格登记内容的
+放行与 DAT 值内逗号保护的边界。
 
-## 2. 判据二:参与物计量与元素/电荷核算(v6 文本)
+## 2. 判据二:参与物计量与元素/电荷核算(v7 文本)
 
-1–8 同 v5(全氢账/系数契约/完整性 unknown/电荷轴前提/结构化
+1–8 同 v6(全氢账/系数契约/完整性 unknown/电荷轴前提/结构化
 omission_pattern_matches/H+_count1 命名;R5d 触发集合限定
-{元素,电荷};恒等≠落点口径句)。v6 无变化。
+{元素,电荷};恒等≠落点口径句)。v7 无变化。
 
 **请评审**:确认已同意条款不需重评。
 
-## 3. 判据三:admission 决策表与中心证据契约(v6 文本;有序,首中即决)
+## 3. 判据三:admission 决策表与中心证据契约(v7 文本;有序,首中即决)
 
 R1/R1b/R2/R2p(on/off 披露)/R2b/R3/R4/R5d{元素,电荷}/R5v/
-R5c/R5/R6/R7 行语义同 v5。v6 重写证据门的第 4 条并增披露:
+R5c/R5/R6/R7 行语义同 v6;类型契约/内部重算/无 proof_record ⇒
+unknown/复算比对含 center_match_basis/strict 轴/input_hash 域/
+audit.scope/proof_scope+basis 披露同 v6。v7 重写注册补全规则的
+**许可范围**:
 
-- 1) 类型契约、2) 内部重算、3) 无 proof_record ⇒ unknown——
-  同 v5(结构化拒绝/自报须与复算一致/两条身份字符串不构成证明);
-  **复算比对增 center_match_basis**(自报 basis ≠ 复算 basis,
-  如声称 direct 实为 symmetric_equivalent ⇒ integrity 拒);
-- 4) **绑定核验(复算值)——覆盖绑定参与物系数/贡献 + 注册计量
-  补全规则(R5-01,替换 v5 的"集合覆盖 + 单侧空即 full")**:
-  设 s=复算底物身份、p=复算产物身份(可为点分碎片串如 "C.CO"):
-  - 底物绑定:证据底物身份 == 本假设 primary substrate 身份;
-  - **λ_s(底物规模)= Σ 反应物侧 identity==s 的参与物系数**
-    (须全部 known);
-  - 覆盖产物集:整分子(p ∈ 产物 identity 集合)或碎片(p 按
-    "." 拆、全部碎片须有对应参与物)两级映射(真实断裂的分列
-    产物正确绑定,不要求把碎片拼成一个物种);碎片无参与物 ⇒
-    未申报碎片 ⇒ unknown;
-  - **系数绑定**:每个覆盖 identity 的产物侧声明系数总和 ==
-    λ_s × 该 identity 在 p 中的重数(关断"1/2 乙醛 + 1/2 环氧
-    乙烷"类反例:声明 1/2 ≠ λ_s=1 ⇒ 部分覆盖);
-  - **注册计量补全规则**(命名
-    `atom_delta_stoichiometric_completion`):Δ=elements(s)−
-    elements(p)(逐元素分数);**Σ 未覆盖产物元素(系数加权)
-    == λ_s×Δ⁺(被核实转化释放的原子)且 Σ 未覆盖反应物元素 ==
-    λ_s×(−Δ)⁺(被核实转化消耗的原子),两侧各自精确相等,
-    不许盈余/亏空互相抵消**(关断"环丙烷→丙烯"同式量异构反例:
-    净差可抵消但两侧各自超出);**无未覆盖参与物 ⇒ 覆盖 full**
-    (元素账是否平衡归判据二独立轴,不在此重复);**整类共底物/
-    共产物(H2、水等)不按名称免审**——只按本规则的元素账判;
-    合法的 H2 计量补全(乙醇脱氢 CCO→CC=O+H2、乙醛加氢
-    CC=O+H2→CCO、比例缩放 2CCO→2CC=O+2H2)恰由 Δ 两侧精确
-    相等放行;
-  - 未知系数 ⇒ 覆盖 unknown_coefficients(中心 unknown);
-    违反 ⇒ 部分覆盖(partial_unchecked_transformation)⇒ 中心
-    unknown、不 R6;detail 披露 coverage_rule/substrate_scale/
-    atom_delta/两侧未覆盖元素/逐条 coverage_violations;
-- 5) strict 轴消费、input_hash 域、audit.scope 不遮蔽——同 v5;
-- **新增披露(P2/R5 §4-1,mimo R5 冻结前条件 ①②的落实)**:
-  verified 结论的载荷与理由码**同屏披露** `proof_scope=
-  self_contained_recompute`(自包含输入集的确定性重算可复现,
-  不含"编辑曾被执行"的运行事实;运行事实由执行器通道的 result/
-  指纹绑定)与 `center_match_basis`(direct|symmetric_equivalent,
-  仅 center_match=True 时非空,不再空串占位);覆盖括注交叉引用
-  (mimo R5 条件 ③):"完全覆盖"仅解除覆盖轴,元素/电荷核算
-  (判据二)与 strict 轴(判据五)独立把关,全部轴通过方得推进。
+- 4) 绑定核验(复算值)——系数绑定、λ_s、覆盖产物集两级映射、
+  未知系数 ⇒ unknown_coefficients 同 v6;**注册计量补全规则增
+  许可边界(R6-01)**:
+  - 规则名 `atom_delta_stoichiometric_completion` 不变:Δ=
+    elements(s)−elements(p);Σ 未覆盖产物元素 == λ_s×Δ⁺ 且
+    Σ 未覆盖反应物元素 == λ_s×(−Δ)⁺,两侧各自精确相等不许
+    抵消;无未覆盖参与物 ⇒ full;
+  - **补全许可(新增,命名
+    `composition_only_hydrogen_equivalents`)**:数值配平只证明
+    未覆盖参与物的**组成**贡献;其**初始分子图的键变化/连接
+    贡献**须另行核实。许可按**严格结构身份**(smiles_isomeric)
+    登记为组合型氢当量:H2(`[H][H]`)与原子氢(`[H]`)——
+    **H2 对 2[H] 只是 composition-only 作用域说明,不新增电子/
+    自由基轴**(radical 保真轴仍是已登记缺口);**不按整类名称
+    免审**(不因"是小分子/二原子"免),也不按整类名称一刀切
+    拒;
+  - **未登记身份的未覆盖参与物(即使数值全配平)⇒ 部分覆盖**
+    (violation kind=completion_license_unregistered_identity,
+    中心 unknown、不 R6)——依据:真实 AtomTool C→CCCO 只依次
+    新增 C/C/O,不载入任何共底物初始图;C+CC=O/C+C1CO1/C+C=CO
+    →CCCO 三个 C2H4O 异构体数值上都能补足同一 Δ,数值配平无法
+    区分乙醛 C=O/环氧环键/乙烯醇 C=C 的贡献是否属实;
+  - 正控保持:正常氧化/还原的明确计量补全(乙醇脱氢 CCO→
+    CC=O+H2、乙醛加氢 CC=O+H2→CCO、原子氢当量 CCO→CC=O+2[H])、
+    合法比例缩放(2CCO→2CC=O+2H2)、真实断裂分列/合并(碎片
+    两级映射)在许可内 full;**不要求所有小分子共产物完整走
+    AtomTool**,也不要求 S3 full_template/机制库;许可边界之外
+    的贡献可另提交可确定复算的初始图证据后扩登记;
+  - detail 机器披露:coverage_rule、completion_license、
+    completion_license_scope(作用域说明文本)、
+    unlicensed_uncovered_identities(未登记严格身份清单)、
+    逐条 coverage_violations(数值类带数值、许可类带身份);
+  - **边界声明**:本许可变化是**待审语义变更(v7)**——若认为
+    氢当量之外还应登记其他组成型身份(如 O2/H2O/CO2 的特定
+    作用域)或反之收紧,请给出可机器判定的登记判据;登记集
+    只按"结构贡献完全由组成决定"的论证接纳,不按名称。
 
-**请评审**:(a) 系数绑定与注册补全规则 `atom_delta_stoichiometric_
-completion` 的语义(两侧各自精确相等、不许抵消、无未覆盖即 full);
-(b) "整类共底物不按名称免审"与"不要求每个计量共产物完整走
-AtomTool"的边界;(c) proof_scope/center_match_basis 披露位置;
-(d) 信任边界声明同 v5(证明记录是自包含输入集,自洽构造复跑即
-通过;运行事实归执行器通道,S3 完整模板另议)。
+**请评审**:(a) 补全许可 scope 的化学合理性——"数值配平不证明
+未登记多原子共底物初始图的结构贡献"是否为正确的默认;氢当量
+(H2/[H])作为唯一登记许可是否过宽/过窄;(b) 许可按严格结构
+身份登记、不按名称免审/拒审的边界;(c) 未登记身份 partial/
+unknown(不 R6)的降级是否与"允许诚实 partial/unknown"一致;
+(d) 既有系数绑定/两侧精确相等/未知系数语义不需重评。
 
-## 4. 判据四:条件相容聚合(v6 文本)
+## 4. 判据四:条件相容聚合(v7 文本)
 
-1–4、7 同 v5(封闭 7 键/区间×点三态/实体身份/matrix unknown)。
-v5 的 5/6/8(live 二元组/快照签名/单位契约/分轴撤销)保留,v6
-新增两条:
+1–4、7、9(非物种 known_absent 三分)、11(环诊断分轴)同 v6。
+v6 的 10(a/b) 扩为:
 
-9. **非物种 known_absent 语义(R5-03,新增)**:评估在单位三态
-   检查之后、值匹配之前**先消费事实 status**——
-   - 物种键实体缺席 ⇒ conflict(v5 已有,保持);
-   - 数值/区间值事实被明确否定 ⇒ **unknown**
-     (numeric_absence_semantics_undefined:首版未定义数值否定语义,
-     "25 不存在"不推出"整个 20–30 区间不存在");
-   - 字符串值事实 = 必需值同词被明确否定(封闭枚举/标签)⇒
-     **conflict**(required_value_known_absent:必需值被明确
-     否定,明确缺失不提供正支持);
-   - 字符串值事实 ≠ 必需值 ⇒ **unknown**
-     (other_value_known_absent_not_determining:封闭枚举下
-     "anaerobic 缺席"不证明 aerobic 在场;matrix 文本不等只证明
-     标签未解析);
-   - present/unknown/单位控制不受影响;oxygen aerobic absent/
-     matrix soil absent 不再 satisfied→R6;
-10. **恢复/审核入口核快照一致性与内容身份(R5-04,新增)**:
-    - **(a) 快照内部一致性**:phase_history 每条快照的
-      environment_fit / has_gate_requirements /
-      requirement_coverage.essential_keys 必须与逐条评估行
-      (per_requirement)**同源派生**(单向矛盾判定:含 conflict
-      行而摘要非 conflict ⇒ 拒;compatible 而行非全部
-      satisfied/not_applicable ⇒ 拒;旗标与必要行集合不符 ⇒ 拒);
-      covered_requirement_signatures 须 ⊆ 当前累积要求签名集合
-      (快照冻结于转换时、子上下文只累积不删要求;签名不能凭空
-      覆盖不存在的要求);
-    - **(b) 内容身份**:from_dict 与 audit 对直接对象的入口按
-      构造期同源算法对全部语义字段(含 phase_history)重算
-      context_id,不等于载荷/对象值 ⇒ 结构化拒绝
-      (context_content_identity_mismatch)——篡改快照摘要/旗标/
-      事实而保留原 context_id ⇒ 拒;合法 to_dict→from_dict 往返
-      幂等通过;**不拿当前事实重评旧边,不认证用户事实真实性**;
-11. **环诊断按对应有效轴消费(P2/R5 §4-2,新增)**:
-    has_initial 只看 initial_supply 轴当前 supported(无总体
-    status 门);关系成立 = 全部依赖的关系轴(reaction/
-    regeneration)各自当前有效状态通过(至少一条 supported 且
-    无一条 contradicted);**不以总体 status 污染两种语义**
-    ("initial supported + reaction contradicted"不再误报启动
-    未知;"initial contradicted + regeneration supported"不再
-    混入关系不支持);环不自动 reject/defer。
+10. **恢复/审核/派生入口共用同源契约 + 签名↔评估行对应
+    (R5-04 + R6-03)**:
+    - (a) 快照内部一致性同 v6(environment_fit/has_gate/
+      essential_keys 与逐条行同源派生,单向矛盾判定;
+      covered_requirement_signatures ⊆ 累积要求签名集合);
+    - (a′) **签名↔评估行双向对应(新增)**:每条评估行携带
+      requirement_signature(=该行评估的要求的 canonical JSON);
+      快照 covered_requirement_signatures 集合必须**等于**逐条行
+      的签名集合——签名只属累积要求集合不再充分:删评估行/清
+      coverage/降 has_gate 而保留签名(快照"覆盖"了一个从未被
+      评估记录的要求)⇒ context_snapshot_inconsistent 拒;行/签名
+      由同一要求集合同源派生,任一侧单独被删即不一致;
+    - (b) 内容身份同 v6(from_dict/audit 按构造期同源重算
+      context_id;篡改任何语义字段保 id ⇒ 拒);
+    - (b′) **派生入口先验父对象(新增)**:derive_child_context
+      先调 validate_context_object(与 from_dict/audit 同源:版本
+      门 + 快照一致性[含 a′] + 内容身份)——就地篡改的父不得经
+      公开派生 API 不加新事实重算合法子 ID,再借子对象把旧必要
+      unknown 洗成 verified/R6;
+    - 保留:合法历史 unknown/conflict/satisfied 往返、正常阶段
+      转换、same phase 跨 scenario、孤儿绑定显式 unknown、凭空
+      签名拒绝;**不用当前事实重评旧边,不认证用户事实真实性,
+      不要求防完全重造自洽历史**(重算 id 的自洽空快照走孤儿
+      unknown,是诚实方向)。
 
-**请评审**:(a) 数值缺席 unknown / 同词缺席 conflict / 异词缺席
-unknown 的三分;(b) 快照同源派生的单向矛盾判定(不误拒合法
-历史);(c) 内容身份重算的位置(from_dict + audit 直接对象
-入口);(d) 环诊断关系轴的"任一关系轴被反驳 ⇒ 关系不成立"门
-(比字面"至少一条 supported"更保守,只增披露不减)。
+**请评审**:(a) 签名↔评估行双向对应(而非仅属累积集合)的
+判定;(b) 派生入口先验父对象的执行位置;(c) 既有 v6 条款
+(三分/单向矛盾/内容身份/分轴)不需重评。
 
-## 5. 判据五:供体一致性诊断(v6 文本)
+## 5. 判据五:供体一致性诊断(v7 文本)
 
-1–3、5–7 同 v5(实际净变化判定基础/奇偶构型比较与非四面体
+1–3、5–7 同 v6(实际净变化判定基础/奇偶构型比较与非四面体
 unsupported/联合映射三类支持范围/中心属性披露/strict 同源/
-证据载荷内嵌)。v6 改第 4 条:
+证据载荷内嵌);4(声明–执行净效应对账 + **镜像终态归一**)
+同 v6——镜像终态先序列化再重解析后与实际比较(与冻结执行器
+产物同口径;已声明断键的自然 E/Z 消失不称漏申报;失败按原
+内存图;不改执行器)。v7 新增第 8 条:
 
-4. **声明–执行净效应对账(R5-08,镜像终态归一)**:镜像执行器
-   路径模拟——活 ID 表 + 逐操作前置复核(from_order 等)同 v5;
-   **终态归一与冻结执行器同一**:执行器产物
-   (product_mapped_smiles)是 MolToSmiles 序列化后被消费的
-   (映射号以 [C:1] 形式随序列化穿越,立体在重解析时重感知),
-   镜像终态同样**先序列化再重解析**后才参与比较——内存镜像
-   不走序列化会残留陈旧键立体(实测:真实 C/C=C/C 断邻位 σ 键
-   成 C.C=CC,双键端烯化后无 E/Z,实际重解析 STEREONONE 而内存
-   镜像残留 STEREOE ⇒ 伪 undeclared_bond_change);镜像同走
-   写出/重解析后键变化集合与实际一致,**已声明断键的自然立体
-   后果不再称漏申报**;序列化/重解析失败按原内存图(如实失配);
-   **不新增立体操作协议、不删除 E/Z 轴、不默认忽略所有 stereo
-   loss、不改冻结 executor**;mimo R5 的"3b 恒失配/须另设申报
-   通道/镜像-执行器知觉差登记为边界"三条按本修正废除——归一
-   路径统一后无该边界;确实在比较支持范围外的情况(非四面体
-   等)用既有 unsupported 理由。
+8. **全部原始字符串入口与工厂/strict 同源守卫(R6-02B,新增)**:
+   供体诊断消费的**四个原始字符串**——current.smiles(编辑前
+   渲染事实)、result.product_mapped_smiles(执行图)、
+   result.product_smiles(对外产物)、expectation.target_smiles
+   (预期产物)——在解析之前统一过判据一的输入侧守卫;未登记/
+   并列未知 CX 项 ⇒ 结构化拒绝(kind=raw_input_cx_class_
+   unregistered,带字段名),**任何轴不得以剥掉标记后的解析
+   身份参与 verified 证据**(实测:干净乙醇→乙醛执行仅在
+   current 或 mapped 接口加 `|r|`,v6 诊断 True/True、公共
+   audit→R6;指定手性底物远端编辑同样成立;审计复算链对
+   proof_record 内含未登记项同样拒绝)。clean 输入与全部
+   既有正控不受影响。
 
-**请评审**:(a) 镜像终态序列化/重解析与执行器同口径;(b)
-已声明断键的自然 E/Z 消失不再入失配的语义;(c) 其余立体轴
-(真翻转检出/伪造失配/from_order/净效应)控制保持。
+**请评审**:(a) 四个原始入口与工厂/strict 共用同一守卫的
+完备性(是否还有消费原始串的入口);(b) 拒绝(而非轴
+unknown)的选择;(c) 镜像终态归一条款(v6)不需重评;
+(d) **两处表述边界**:原始 `r` 标记被拒绝**不**解释为"已证实
+实验精确消旋";裸指定 SMILES(无来源记录)**不**称为实验
+纯品——身份层只声明表示事实。
 
-## 6. 程序证据与状态
+## 6. 程序证据与状态(程序事实,不替代化学判断)
 
-- 规则级测试:ppv1 全量 **451 passed/0 skip**(381 v5 存量 +
-  70 新增 R6 回归,全部合成夹具);新增回归在基线 293bc62
-  **红 44/70**——其中 38 红为复审反例行为翻转、6 红仅因 v6
-  新披露键(detail 的 substrate_scale/atom_delta/coverage_rule/
-  center_match_basis/proof_scope,其核心语义断言在基线已通过)、
-  26 绿为基线已绿的正控制;
-- G01 全量 not slow 与 R5 复审探针复跑:见 R6 交付书 §5(探针
-  在 v6 复跑:8 组 P1 + 2 项 P2 逐案翻转,旧控制保持;
-  assert_observed.py 按设计在翻转点失败,不把旧观测值当新期待);
-- 判据未冻结;mimo R5 的冻结前清单处置:条件①②(proof_scope/
-  basis 载荷)已落实,③(覆盖括注交叉引用)并入判据三文本;
-  判据一输入侧预校验已落地(`r` 从"目标行为"变为已实现拒绝例);
-  判据五"3b 恒失配/立体申报通道/知觉差边界"按 Codex R5 §5
-  裁定废除(同一终态序列化足以对齐);
+- 规则级测试:ppv1 全量 **508 passed/0 skip**(451 v6 存量 +
+  57 新增 R7 回归,全部合成夹具);新增回归在基线 6d90201
+  **红 33/57**——其中 26 红为复审反例行为翻转(复杂共底物
+  3、并列未知 CX 9、供体原始入口 6、derive 洗白 2、首提既存
+  行 4、清单删项 2)、7 红仅因 v7 新披露字段(completion_
+  license/unlicensed_uncovered_identities/requirement_
+  signature)或新表(event_appearance_links)缺失(其核心语义
+  断言在基线已通过)、24 绿为基线已绿的正控制;
+- R6 复审探针在 v7 复跑(R6 证据目录 reproduce.py --allow-head-
+  change,隔离临时目录):五组 P1 逐案翻转、旧控制保持
+  (genuine 氧化/氢化 verified/full/expand;existing_state_
+  first_valid created=True;multi_occurrence normal 重放
+  created=False;删行留清单 entry_missing);assert_observed.py
+  按设计在翻转点失败(它钉住 R6 当前缺口,不是修后期望);
+- G01 全量 not slow:1119 passed/16 deselected(611 legacy +
+  508 ppv1;legacy 路径零改动,冻结 AtomTool 未改);
+- 存储两项(R6-04/05:mimo 不审,仅披露):首提复用既存行
+  立即共用重放同源校验(四例损坏首提即 Ppv1LedgerCorrupt
+  零写入);事件出现集合新增独立完整性表 event_appearance_
+  links 与 payload 清单双向核验(删清单项/删行/删 links 行
+  均损坏;schema 升 ppv1-store-7 拒旧库,无迁移);
+- 判据未冻结;v7 语义变更(补全许可/输入词法/签名对应/供体
+  原始入口守卫/存储完整性表)全部**待审**;契约族升
+  ppv1-*-7(未发布 profile,无历史产物迁移;旧 -6 载荷按
+  未知版本既有门拒绝);
 - 参考(外部常识,非本仓资产):RDKit Book(CXSMILES 扩展/
-  增强立体/立体化学章节/非四面体立体支持说明)、rdCIPLabeler API。
+  增强立体/立体化学章节/非四面体立体支持说明)、rdCIPLabeler
+  API;CXSMILES 解析器行为经 Release_2026_03_6 源码取证
+  (parseCXExtensions 主分派循环)与实证用例校准。
 
 ## 7. 请求的回复格式
 

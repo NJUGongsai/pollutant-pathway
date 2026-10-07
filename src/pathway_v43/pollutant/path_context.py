@@ -1,4 +1,20 @@
-"""PathContext — 路径上下文、条件事实与证据依赖(v6 回修,S2)。
+"""PathContext — 路径上下文、条件事实与证据依赖(v7 回修,S2)。
+
+v7(ppv1-context-7 / ppv1-condition-assessment-7 / ppv1-dependency-7,
+2026-10-07 R7 回修)相对 v6 的变化(Codex R6 复审 R6-03):
+- **derive_child_context 先验证父对象(R6-03)**:派生入口先调
+  validate_context_object(与 from_dict/audit 共用同源契约:版本门 +
+  快照一致性 + 内容身份重算)—— 就地篡改父快照(per_requirement
+  清空/coverage 清空/has_gate=False 而保留原 context_id)不能再经
+  公开派生 API 重算合法子 ID 洗掉旧必要未知;
+- **覆盖签名须对应已记录评估行(R6-03)**:逐条评估行携带
+  requirement_signature(canonical_json(req.to_dict()));
+  _validate_phase_history_snapshot 要求快照 covered_requirement_
+  signatures 集合 == 逐条行的签名集合(双向)—— 现存合法签名但
+  删空 per_requirement(签名"覆盖"了从未被评估记录的要求)⇒
+  context_snapshot_inconsistent 拒;合法历史 unknown/conflict/
+  satisfied 往返、正常阶段转换、same phase 跨 scenario、凭空签名
+  拒绝控制保持;不用当前事实重评旧边。
 
 v6(ppv1-context-6 / ppv1-condition-assessment-6 / ppv1-dependency-6,
 2026-10-07 R6 回修)相对 v5 的变化(Codex R5 复审 R5-03/R5-04 +
@@ -1012,7 +1028,10 @@ def aggregate_environment_fit(
             per.append({"key": req.key, "level": req.level,
                         "status": NOT_APPLICABLE,
                         "reason": "preference_not_gating",
-                        "basis": req.basis})
+                        "basis": req.basis,
+                        # R6-03(R7):行↔要求签名(快照覆盖对应校验用)
+                        "requirement_signature":
+                            canonical_json(req.to_dict())})
             continue
         fact_lists = _facts_for(_effective_phase(req, phase_id))
         status, reason, sources, extras = _assess_requirement(
@@ -1023,7 +1042,11 @@ def aggregate_environment_fit(
                "sourced": bool(req.source_refs),
                "introduced_phase_id": _effective_phase(req, phase_id),
                "introduced_edge": req.introduced_edge,
-               "fact_sources": sources}
+               "fact_sources": sources,
+               # R6-03(R7):行↔要求签名 —— 快照 covered_requirement_
+               # signatures 与逐条评估行的双向对应依据(签名只属累积
+               # 要求集合不再充分:必须对应实际记录的评估)
+               "requirement_signature": canonical_json(req.to_dict())}
         row.update(extras)  # §4 行 1:unit_basis 等逐行注记
         per.append(row)
         if status == CONFLICT:
@@ -1359,7 +1382,11 @@ def _validate_phase_history_snapshot(
     - covered_requirement_signatures 每条必须是当前 accumulated_
       requirements 的 canonical_json(r.to_dict()) 签名集合成员
       (快照在转换时冻结、子上下文只累积不删要求;签名不能凭空覆盖
-      不存在的要求)。
+      不存在的要求);
+    - **R6-03(R7)**:covered_requirement_signatures 集合必须等于
+      per_requirement 各行 requirement_signature 的集合(双向)——
+      签名须对应**实际记录的评估**,不能只属累积要求集合;行携带
+      requirement_signature(评估行↔要求同源)。
 
     校验语义仅限结构/派生一致性 —— 不拿当前事实重评旧边,也不认证
     用户事实真实性(旧边记录值保持,消费方逻辑不变)。
@@ -1449,6 +1476,27 @@ def _validate_phase_history_snapshot(
                     "累积不删要求;签名不能凭空覆盖不存在的要求)",
                     {**where, "check": "signature_not_in_requirements",
                      "signature": s[:160]})
+        # R6-03(R7):签名须对应**实际记录的评估行**(双向同源)——
+        # covered_requirement_signatures 集合 == per_requirement 各行
+        # requirement_signature 集合。仅证明签名属累积要求集合不再充分:
+        # 现存合法签名而删空评估行/清 coverage/降 has_gate(快照"覆盖"
+        # 了一个从未被评估记录的要求)⇒ 拒,不得洗掉旧必要未知后升
+        # verified/R6;行↔签名由同一要求集合同源派生,任一侧单独被改
+        # 即快照内部不一致。行缺 requirement_signature 键同样按不
+        # 一致处理(v7 行恒携带;v6 形状载荷在版本门已拒)。
+        row_sigs = {str(row.get("requirement_signature") or "")
+                    for row in per}
+        if row_sigs != set(sigs):
+            raise ConditionContractError(
+                "快照 covered_requirement_signatures 与逐条评估行的"
+                "requirement_signature 集合不一致(签名须对应实际记录"
+                "的评估/必要覆盖,不能只属累积要求集合;删评估行留签名"
+                "或删签名留行都使快照不同源)",
+                {**where, "check": "signature_row_correspondence",
+                 "signatures_without_rows": [
+                     s[:160] for s in sorted(set(sigs) - row_sigs)[:5]],
+                 "rows_without_signatures": [
+                     s[:160] for s in sorted(row_sigs - set(sigs))[:5]]})
 
 
 def validate_context_object(context) -> None:
@@ -2269,6 +2317,14 @@ def derive_child_context(
     R3-07:step_dependencies 为本步新增/更新的依赖对象(按
     dependency_id 后者覆盖——解析轨迹保留;其 id 并入 refs)。
     """
+    # R6-03(R7):派生入口先验证父对象 —— 与 from_dict/audit 共用
+    # validate_context_object 的同源契约(版本门 + 快照一致性[含
+    # 签名↔评估行对应] + 内容身份重算)。就地篡改的父快照(删
+    # per_requirement/清 coverage/降 has_gate 而保留原 context_id,
+    # 直接 audit 已拒)不得经公开派生 API 不加新事实重算合法子 ID、
+    # 再借子对象把旧必要未知洗成 verified/R6;合法父(build/from_
+    # dict/derive 产物)幂等通过。
+    validate_context_object(parent)
     if scenario_transition is not None:
         if not scenario_transition.get("source_ref"):
             raise ConditionContractError(

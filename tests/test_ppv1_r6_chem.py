@@ -487,8 +487,16 @@ def test_r5_01_completion_rule_registered_and_disclosed() -> None:
     kinds = {v["kind"] for v in detail["coverage_violations"]}
     assert "coefficient_binding_mismatch" in kinds
     assert "completion_surplus" in kinds
-    # 每条 violation 带数值
+    # R7(R6-01):该例同时含补全许可 violation(环氧乙烷未登记许可);
+    # 数值类 violation 带数值、许可类带未登记严格身份(v6 断言"每条
+    # violation 带数值"只覆盖数值类,许可类 disclosure 形状不同)
+    assert "completion_license_unregistered_identity" in kinds
+    assert detail["completion_license"] == \
+        "composition_only_hydrogen_equivalents"
     for violation in detail["coverage_violations"]:
+        if violation["kind"] == "completion_license_unregistered_identity":
+            assert violation["identities"]
+            continue
         assert violation.get("declared_total") is not None
         assert violation.get("required") is not None
 

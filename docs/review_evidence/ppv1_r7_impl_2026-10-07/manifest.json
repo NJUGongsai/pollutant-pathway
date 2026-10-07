@@ -1,0 +1,72 @@
+{
+  "delivery": "ppv1 R7 implementation evidence",
+  "date": "2026-10-07",
+  "review_baseline_head": "6d9020130a481866ce2f3b79933907a33d8cfc9e",
+  "working_tree_head_at_evidence_time": "6d9020130a481866ce2f3b79933907a33d8cfc9e",
+  "working_tree_status": " M AGENTS.md\n M docs/mimo_ppv1_chem_review_request.md\n M src/pathway_v43/pollutant/audit.py\n M src/pathway_v43/pollutant/chemstate.py\n M src/pathway_v43/pollutant/path_context.py\n M src/pathway_v43/pollutant/profile.py\n M src/pathway_v43/pollutant/store.py\n M tests/test_ppv1_profile.py\n M tests/test_ppv1_r2_chem.py\n M tests/test_ppv1_r2_conditions.py\n M tests/test_ppv1_r4_chem.py\n M tests/test_ppv1_r6_chem.py\n M tests/test_ppv1_s2.py\n?? docs/POLLUTANT_PATHWAY_S0_S2_CODEX_REVIEW_R5_2026-10-07.md\n?? docs/POLLUTANT_PATHWAY_S0_S2_CODEX_REVIEW_R6_2026-10-07.md\n?? docs/mimo_ppv1_chem_review_response_r5.md\n?? docs/mimo_ppv1_chem_review_response_r6.md\n?? docs/review_evidence/ppv1_r5_codex_2026-10-07/\n?? docs/review_evidence/ppv1_r6_codex_2026-10-07/\n?? docs/review_evidence/ppv1_r6_mimo_2026-10-07/\n?? docs/review_evidence/ppv1_r7_impl_2026-10-07/\n?? tests/test_ppv1_r7_chem.py\n?? tests/test_ppv1_r7_conditions.py\n?? tests/test_ppv1_r7_storage.py\n",
+  "contract_family": "ppv1-*-7 (gate_mapper -3, search-limits -2-proposed unchanged)",
+  "python": "3.11.16",
+  "env": "/Users/cc/miniconda3/envs/depending43",
+  "rdkit": "2026.03.6",
+  "flags": [
+    "PYTHONDONTWRITEBYTECODE=1",
+    "-B",
+    "-p no:cacheprovider"
+  ],
+  "commands": [
+    [
+      "PPV1 full (451+57=508)",
+      "PYTHONDONTWRITEBYTECODE=1 $PY -B -m pytest -p no:cacheprovider -q tests/test_ppv1_profile.py ... tests/test_ppv1_r7_storage.py (19 files) -> 508 passed, 0 skipped"
+    ],
+    [
+      "G01 full not slow",
+      "PYTHONDONTWRITEBYTECODE=1 $PY -B -m pytest -p no:cacheprovider -q -m \"not slow\" tests/ -> 1119 passed, 16 deselected"
+    ],
+    [
+      "Baseline red (r7 tests on 6d90201)",
+      "git worktree add --detach /private/tmp/ppv1_r7_baseline 6d90201; copy 3 r7 test files; r7_chem import COMPLETION_LICENSE replaced by same-value literal (import-only, R6 same approach); run 3 files -> 33 failed / 24 passed"
+    ],
+    [
+      "R6 probe rerun on v7 (isolated copy)",
+      "PYTHONDONTWRITEBYTECODE=1 $PY -B docs/review_evidence/ppv1_r6_codex_2026-10-07/reproduce.py --repo <repo> --out <fresh tmp> --allow-head-change --skip-pytest -> all 12 probe entries exit 0; assert_observed.py fails at first pinned R6 gap as designed (pins pre-fix observations, not post-fix expectations)"
+    ]
+  ],
+  "baseline_red_classification": {
+    "total_red": 33,
+    "behavior_flips": 26,
+    "field_or_table_missing_red": 7,
+    "detail": "behavior flips: R6-01 complex cosubstrate 3; R6-02A parallel-unknown-after-head 6 + registered-content-with-spaces (P2 false-reject) 3; R6-02B donor raw entries 4 + audit rerun 1 + chiral 1; R6-03 derive-launder 1 + signature-row 1; R6-04 first-submit existing-row corruptions 4; R6-05 manifest-delete 2. field/table red: completion_license/unlicensed_uncovered_identities KeyError 2, license violation-kind assertion 1, requirement_signature KeyError 1, event_appearance_links missing table 3 (core semantics green on baseline for the field reds)"
+  },
+  "probe_flip_summary": {
+    "admission_completion_probe": "unmapped_organic_completion_{CC=O,C1CO1,C=CO}: unknown/partial_unchecked_transformation/retain_conditional (baseline verified/full/expand); genuine_bound/genuine_hydrogenation/unmapped_radical_completion: verified/full/expand (controls kept)",
+    "cx_boundary_probe": "cx_registered_head_comma_appended_unknown rows: build rejected (item r, unregistered_cx_class); rdkit_writer_generated_registered_content_spaces rows: accepted (P2); donor_public_ethanol_{current,mapped,plain,target}_r + specified_stereo_current_r: AuditContractError raw_input_cx_class_unregistered with field name; donor clean: R6 expand",
+    "conditions/probe.py": "derive_launders_empty_evaluation_with_existing_signature: completed=False, ConditionContractError context_snapshot_inconsistent/signature_row_correspondence (baseline produced child and audited R6); other controls completed",
+    "r6_storage_boundary_probe": "existing_state_first_{cn_identity,schema_version,state_id}: first-submit Ppv1LedgerCorrupt (state_row/state_schema/state_inner_id_corrupt); existing_appearance_bad_hash_first: appearance_hash_corrupt on first submit; multi_occurrence_manifest_{remove_manifest_A_only,remove_manifest_and_row_A}: replay Ppv1LedgerCorrupt event_appearance_manifest_link_corrupt; remove_row_A_only: entry_missing (control kept); normal: created=False"
+  },
+  "files_sha256": {
+    "admission_completion_probe.output.jsonl": "c679722c606b89e1ff00ced327b05b08121dca03efb69030bb867d3f9386c794",
+    "admission_completion_probe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "baseline_red_output.txt": "f1274bef75fa6e9b83308fedf672d8c114a2e2560b2178d1785bb0c5b6aed086",
+    "chem/cx_boundary_probe.output.jsonl": "f6609ab812d2844a7ef34d01d3f06882359cceff41714c4fb22e0502c43ebed7",
+    "chem/cx_boundary_probe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "chem/r3_probe_replay.output.jsonl": "5275a02ba0aa04cb4f49850d4ce87724905efea7ccf1879d6bb9c89595364f5e",
+    "chem/r3_probe_replay.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "chem/r4_boundary_replay.output.jsonl": "0273bf982670971f64543dc3688c045540f6ba69731f39ad5b55673f2e5e5843",
+    "chem/r4_boundary_replay.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "chem/r5_focused_replay.output.jsonl": "01c047fd7409b8a7f3e8688f44e26c30c32219cff3374f35ff3112e2d5d9a6df",
+    "chem/r5_focused_replay.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "conditions/results.json": "8e76c5d4a7090a037becb4cbe3ae648449e0a18650b3cea767785d871082239c",
+    "conditions/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "conditions/summary.json": "16b1594f65149643d1b6e3419be659c62b4be0ccff91609684d0be95cc5fe66c",
+    "g01_full_run.txt": "7465a4aa606574ecc2179edbd76bfe31d67e1e92ecac959cf093c30c79764ecd",
+    "pytest_full_output.txt": "3c04e9f6021aaa3a33e394f210f51133c4227c5c80498750adcca82655920537",
+    "storage/r3_storage.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "storage/r3_storage_output.jsonl": "b7728ab5e89f3fed7d74c56be588d660daa291e71ca8a3a9d2822ca55c26333a",
+    "storage/r4_storage.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "storage/r4_storage_output.jsonl": "10fe66d110c049154f971aedb3f1ee0002ceb93e39d068da5f0d05ef5d9c6f7e",
+    "storage/r5_storage.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "storage/r5_storage_output.jsonl": "91ae419ed1687e3c9b28de9a1761b3201c0bc99d61e00bc6a5c0b6be425064a1",
+    "storage/r6_storage_boundary_probe.output.jsonl": "b1c4df0c9efa7f19236e1f7824681e99ae22786f4a81e63d44e6be54bee216e2",
+    "storage/r6_storage_boundary_probe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
