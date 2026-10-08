@@ -1,0 +1,8 @@
+# s4b_r1 baseline worktree setup
+date: 2026-10-08T05:34:58Z
+command: git worktree add /private/tmp/ppv1_s4b_parent_wt fc40605 --detach
+parent_commit: fc40605819201ae4a7101fc500b19083d78383b0 (direct parent of implementation HEAD; S4a batch)
+same-byte copies: tests/test_ppv1_s4b_export.py + tests/test_ppv1_profile.py copied from implementation tree before runs (no edits, no stubs)
+runs:
+  pytest -q tests/test_ppv1_s4b_export.py   -> exit 2 (collection: ModuleNotFoundError pathway_v43.pollutant.native_export)
+  pytest -q tests/test_ppv1_profile.py      -> exit 1 (2 version-literal red + 21 legal green)

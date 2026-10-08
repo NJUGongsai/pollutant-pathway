@@ -1,0 +1,33 @@
+{
+  "batch": "S4b r1 (S4 收尾批:正式文件导出 + v3 有损投影 + 完整公共链)",
+  "date": "2026-10-08",
+  "implementation_head_at_execution": "fc40605819201ae4a7101fc500b19083d78383b0",
+  "implementation_head_note": "fc40605 = S4a 提交(直接父);实施期间 src/tests 为未提交 S4b 改动(dirty 状态如下,随本批一并提交)",
+  "direct_parent_baseline": "fc40605819201ae4a7101fc500b19083d78383b0",
+  "working_tree_dirty_at_g01": [
+    "M docs/mimo_ppv1_chem_review_request.md",
+    " M src/pathway_v43/pollutant/native_result.py",
+    " M src/pathway_v43/pollutant/profile.py",
+    " M src/pathway_v43/pollutant/runflow.py",
+    " M tests/test_ppv1_profile.py",
+    "?? .zcodeignore",
+    "?? docs/POLLUTANT_PATHWAY_S4A_CODEX_REVIEW_2026-10-08.md",
+    "?? docs/mimo_ppv1_chem_review_response_r16.md",
+    "?? docs/review_evidence/ppv1_s4_impl_2026-10-08/s4b_r1/",
+    "?? docs/review_evidence/ppv1_s4a_codex_2026-10-08/",
+    "?? docs/review_evidence/ppv1_s4a_mimo_2026-10-08/",
+    "?? src/pathway_v43/pollutant/native_export.py",
+    "?? src/pathway_v43/pollutant/v3_projection.py",
+    "?? tests/test_ppv1_s4b_export.py"
+  ],
+  "python": "3.11.16 (depending43 conda env)",
+  "rdkit": "2026.03.6",
+  "sqlite": "3.53.4",
+  "platform": "macOS arm64 (darwin 27.0.0)",
+  "repo": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "network_requests": 0,
+  "real_provider": "off (scripted/off rule-level fixtures only)",
+  "llm_grading": 0,
+  "gold_benchmark_sealed_v4_access": "none",
+  "frozen_criteria": "ppv1-criteria-v1 untouched this batch"
+}

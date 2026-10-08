@@ -175,8 +175,22 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 新写入)。**本批不触碰冻结判据语义**:判据一–五(ppv1-*-8 族)
 # 与 0d/0e 消费契约(search-6 语义/legacy 契约)全部保持;S0–S3
 # 全量既有测试除 profile 版本字面量外零改动。
+# v16(S4b 批次,2026-10-08,S4 任务书 §7 S4b 边界):正式文件导出
+# 与 v3 有损适配 —— 新增原生正式导出契约(ppv1-native-export-1:
+# 文件级 payload + manifest + 五类首消费拒拒(stale/corrupt/version/
+# policy/reference),manifest 记录全部事实表内容 digest 作 graph
+# revision 等价身份,见 pollutant/native_export.py)、导出策略
+# (ppv1-native-export-policy-1:固定序列化/命名/无时间戳规则,无
+# 用户可配项)与 v3 有损投影契约(ppv1-v3-projection-1:显式
+# lossy_projection + 原生引用 + 信息损失清单 + 反向消费禁止,见
+# pollutant/v3_projection.py);runflow 升 -5(公共 start/resume 在
+# S4a 派生后立即正式导出 + v3 投影 + 首消费读回;零 event/attempt/
+# request/budget 新写入)。store 保持 -10(导出为 run 目录文件,无
+# 新表)。**本批不触碰冻结判据语义**:判据一–五与 0d/0e 消费契约
+# 全部保持;legacy/export_v3/G2/AtomTool 逐字节零触碰(字节专项
+# 回归见 S4b 交付书);S4a 既有测试除 profile 版本字面量外零改动。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-15"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-16"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -201,6 +215,19 @@ PPV1_ENDPOINT_POLICY_VERSION = "ppv1-endpoint-policy-1"
 # S4a:原生结果对象契约(完整字段 + 确定性规范化;正式导出/S4b;
 # pollutant/native_result.py)
 PPV1_NATIVE_RESULT_VERSION = "ppv1-native-result-1"
+# S4b:原生正式导出契约(文件级 payload + manifest + 读取/过期/
+# 完整性首消费;pollutant/native_export.py)
+PPV1_NATIVE_EXPORT_VERSION = "ppv1-native-export-1"
+# S4b:导出策略(固定序列化/命名/无时间戳规则;变更须升版本)
+PPV1_NATIVE_EXPORT_POLICY_VERSION = "ppv1-native-export-policy-1"
+# S4b:v3 有损投影适配契约(lossy_projection + 原生引用 + 信息损失
+# 清单 + 反向消费禁止;pollutant/v3_projection.py)
+PPV1_V3_PROJECTION_VERSION = "ppv1-v3-projection-1"
+# S4b:run 执行流契约(S3b 起在 runflow.py 消费;v5 = S4b 正式导出
+# 与 v3 投影接线。**单一事实源自本批起移入 profile**:runflow 与
+# native_export manifest 的 contract_versions 共用本常量,避免
+# native_export → runflow 的模块级循环导入)
+PPV1_RUNFLOW_SCHEMA_VERSION = "ppv1-runflow-5"
 # S3a:持久搜索底座契约(SearchAction/attempt/预约/请求/提交记录/
 # 恢复协议/停止原因优先级;pollutant/search.py)
 # v2(S3a 回修 r2,2026-10-07,Codex S3a 复审 S3A-01~05):搜索消费
@@ -476,6 +503,10 @@ def contract_versions() -> dict:
         "endpoint": PPV1_ENDPOINT_SCHEMA_VERSION,
         "endpoint_policy": PPV1_ENDPOINT_POLICY_VERSION,
         "native_result": PPV1_NATIVE_RESULT_VERSION,
+        "native_export": PPV1_NATIVE_EXPORT_VERSION,
+        "native_export_policy": PPV1_NATIVE_EXPORT_POLICY_VERSION,
+        "v3_projection": PPV1_V3_PROJECTION_VERSION,
+        "runflow": PPV1_RUNFLOW_SCHEMA_VERSION,
         "legacy_gate_ref": LEGACY_GATE_PROFILE_REF,
         "legacy_g2_family_ref": LEGACY_G2_FAMILY_REF,
     }
@@ -635,6 +666,7 @@ def build_profile_identity_block(
         # (身份/预算/认领/恢复);S3b 交付队列化学集成/生产中心证据链/
         # PPV1 runner 分流(公开 start_run/resume_run 开放 PPV1 路径);
         # S4a 交付 endpoint 四分账/证据/F01-F03/独立持久化与原生结果
-        # 对象底座(正式导出与 v3 适配属 S4b)
-        "delivered_stages": "S0-S2,S3a-base,S3b,S4a-endpoint",
+        # 对象底座;S4b 交付正式文件导出/文件级 G02 过期识别/v3 有损
+        # 投影与完整公共链(科学性能评测仍属 S5)
+        "delivered_stages": "S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export",
     }

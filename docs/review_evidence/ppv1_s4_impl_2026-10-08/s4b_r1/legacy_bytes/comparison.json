@@ -1,0 +1,35 @@
+{
+  "purpose": "S4b 冻结 legacy/export_v3 字节不变专项(任务书 §7 S4b 第 7 项;S4a 交付书 §20.7 遗留)",
+  "current_tree": "implementation tree (HEAD fc40605 + S4b dirty changes)",
+  "parent_tree": "detached worktree at fc40605819201ae4a7101fc500b19083d78383b0",
+  "probe": "scripts/legacy_export_byte_probe.py(同字节脚本,两树各跑一次;两组合成 legacy run:单事件多产物 / 两事件竞争同父+deferred;每树内先导出再重导出,幂等)",
+  "artifacts": {
+    "legA_predictions.jsonl": {
+      "current_sha256": "45ac163680175e3dcfb5770468d29d70aa3c8f8912ab9dc8227463116cd12b85",
+      "parent_sha256": "45ac163680175e3dcfb5770468d29d70aa3c8f8912ab9dc8227463116cd12b85",
+      "byte_identical": true
+    },
+    "legA_export_metadata.json": {
+      "current_sha256": "46c67f2c743e6bc57f77a03245385502c1d110ae8c7970ea51e9223ac18ea619",
+      "parent_sha256": "46c67f2c743e6bc57f77a03245385502c1d110ae8c7970ea51e9223ac18ea619",
+      "byte_identical": true
+    },
+    "legB_predictions.jsonl": {
+      "current_sha256": "bff09630242a0b744688e77bf62676d75d649c17880f5df27a4f2660cceb3e41",
+      "parent_sha256": "bff09630242a0b744688e77bf62676d75d649c17880f5df27a4f2660cceb3e41",
+      "byte_identical": true
+    },
+    "legB_export_metadata.json": {
+      "current_sha256": "f4fd74dadfc0efa9f24b2a960c1aa0a03917890862ab2dd73b350533ef991c5e",
+      "parent_sha256": "f4fd74dadfc0efa9f24b2a960c1aa0a03917890862ab2dd73b350533ef991c5e",
+      "byte_identical": true
+    }
+  },
+  "all_byte_identical": true,
+  "legacy_code_identity_aggregate": {
+    "current": "18007e6a7cc239606eb30921f91045540446a7d7298108be30d47fce2f1374d6",
+    "parent": "18007e6a7cc239606eb30921f91045540446a7d7298108be30d47fce2f1374d6",
+    "files": 52,
+    "differing_files": []
+  }
+}

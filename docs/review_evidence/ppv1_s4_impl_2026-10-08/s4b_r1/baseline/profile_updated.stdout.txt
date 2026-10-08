@@ -1,0 +1,53 @@
+..FF...................                                                  [100%]
+=================================== FAILURES ===================================
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v16(S4b):正式文件导出 + v3 有损投影
+        # (native-export-1 / native-export-policy-1 / v3-projection-1;
+        # endpoint-1 / endpoint-policy-1 / native-result-1 沿 S4a)
+>       assert block["schema_version"] == "ppv1-profile-16"
+E       AssertionError: assert 'ppv1-profile-15' == 'ppv1-profile-16'
+E         
+E         - ppv1-profile-16
+E         ?               ^
+E         + ppv1-profile-15
+E         ?               ^
+
+tests/test_ppv1_profile.py:49: AssertionError
+__________________ test_ppv1_identity_block_default_switches ___________________
+
+    def test_ppv1_identity_block_default_switches() -> None:
+        block = ppv1_profile.build_profile_identity_block()
+        assert block["input_preview_policy"] == "off"
+        assert block["chemical_reproposal"] == "off"
+        assert block["search_intent"] == "exploration"
+        # S3a:search-limits 由 -2-proposed 草案升为实际可执行版本 v3
+        assert block["search_limits"]["version"] == "ppv1-search-limits-3"
+        assert block["search_limits"]["max_total_search_actions"] == 10
+        # S3b:独立有界格式反馈策略(默认 0 轮;非 search_limits 旧字段)
+        assert block["format_feedback_policy"] == {
+            "version": "ppv1-format-feedback-1",
+            "max_format_feedback_rounds": 0}
+        # S4b:正式文件导出/v3 有损投影入 delivered_stages(S5 未交付)
+>       assert block["delivered_stages"] == \
+            "S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export"
+E       AssertionError: assert 'S0-S2,S3a-ba...,S4a-endpoint' == 'S0-S2,S3a-ba...nt,S4b-export'
+E         
+E         - S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export
+E         ?                                -----------
+E         + S0-S2,S3a-base,S3b,S4a-endpoint
+
+tests/test_ppv1_profile.py:89: AssertionError
+=============================== warnings summary ===============================
+tests/test_ppv1_profile.py::test_start_run_pollutant_dispatches_to_runflow
+  /private/tmp/ppv1_s4b_parent_wt/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_default_switches
+2 failed, 21 passed, 1 warning in 1.24s

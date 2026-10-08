@@ -43,9 +43,10 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    # v15(S4a):endpoint 四分账/证据/F01-F03 + 原生结果底座
-    # (endpoint-1 / endpoint-policy-1 / native-result-1;store-10)
-    assert block["schema_version"] == "ppv1-profile-15"
+    # v16(S4b):正式文件导出 + v3 有损投影
+    # (native-export-1 / native-export-policy-1 / v3-projection-1;
+    # endpoint-1 / endpoint-policy-1 / native-result-1 沿 S4a)
+    assert block["schema_version"] == "ppv1-profile-16"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),
@@ -84,8 +85,9 @@ def test_ppv1_identity_block_default_switches() -> None:
     assert block["format_feedback_policy"] == {
         "version": "ppv1-format-feedback-1",
         "max_format_feedback_rounds": 0}
-    # S4a:endpoint 分账/原生结果底座入 delivered_stages(正式导出/S4b)
-    assert block["delivered_stages"] == "S0-S2,S3a-base,S3b,S4a-endpoint"
+    # S4b:正式文件导出/v3 有损投影入 delivered_stages(S5 未交付)
+    assert block["delivered_stages"] == \
+        "S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export"
 
 
 @pytest.mark.parametrize("field,bad", [

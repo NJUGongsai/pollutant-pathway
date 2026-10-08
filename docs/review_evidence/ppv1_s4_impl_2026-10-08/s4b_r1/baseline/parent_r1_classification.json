@@ -1,0 +1,23 @@
+{
+  "parent_commit": "fc40605819201ae4a7101fc500b19083d78383b0",
+  "method": "same-byte test files copied into detached parent worktree; no stubs, no import edits, no weakened expectations, no implementation copied",
+  "new_file": "tests/test_ppv1_s4b_export.py",
+  "new_file_result": {
+    "kind": "collection_import_red",
+    "category": "implementation missing",
+    "error": "ModuleNotFoundError: No module named 'pathway_v43.pollutant.native_export'",
+    "collected_tests": 0,
+    "note": "18 用例全部因模块缺失无法收集(implementation missing 如实登记)"
+  },
+  "updated_file": "tests/test_ppv1_profile.py",
+  "updated_file_result": {
+    "failed": [
+      "test_ppv1_identity_block_contract_versions",
+      "test_ppv1_identity_block_default_switches"
+    ],
+    "passed": 21,
+    "category": "expected behavior difference (version/stage literals: profile-16 / S4b-export; parent legally implements profile-15 / S4a-endpoint)",
+    "behavior_red": 0
+  },
+  "stock_parent_suite": "not re-run this batch (S4a Codex review independently ran 914 stock green at fc40605; per AGENTS.md no re-claiming)"
+}

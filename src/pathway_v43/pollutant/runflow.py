@@ -1,5 +1,5 @@
 """S3b PPV1 独立 runner 执行流 —— start/resume 分流后的确定性驱动
-(实施书 §6.2;契约随 search-6 / profile-15 / runflow-4 登记)。
+(实施书 §6.2;契约随 search-6 / profile-16 / runflow-5 登记)。
 
 S4a 增量(runflow-4):公共 start/resume 在驱动结束(stop report
 之后)进入 **endpoint 四分账派生**(pollutant/endpoint.py:execution_
@@ -10,8 +10,18 @@ recorded 洗白/F03 去重计数不增独立支持),stop 与 endpoint 分别
 (store-10;派生只读业务表,零 event/attempt/request/budget 写入),
 派生后立即首消费读回(版本/hash/跨表引用/staleness 自校验)并构建
 **原生结果对象**(pollutant/native_result.py:完整字段 + canonical
-确定性规范化,同事实同 digest;正式文件导出/v3 适配属 S4b)。
-停止不是化学终点;endpoint 评估只由独立终点证据决定。
+确定性规范化,同事实同 digest)。
+
+S4b 增量(runflow-5):endpoint/原生对象之后立即进入**正式文件
+导出与 v3 有损投影**(pollutant/native_export.py:payload+manifest
+文件级导出,graph facts digest 新鲜度锚,首消费五类拒;
+pollutant/v3_projection.py:显式 lossy_projection + 原生引用 +
+信息损失清单 + 反向消费禁止)—— 导出后立即首消费读回(导出与
+投影的完整性/过期自校验,不留"只写不读"的未验证窗口)。完整
+公共链:scripted 输入 → start/resume → action/attempt/ledger →
+停止 → endpoint 分账 → 原生导出 → 过期识别 → v3 适配 → 再次
+读取/消费/replay。停止不是化学终点;endpoint 评估只由独立终点
+证据决定;导出/投影纯派生(零 event/attempt/request/budget 写入)。
 
 职责:workflow.runner 的 PPV1 分流目标 —— **独立**执行/存储(不落
 legacy CN/PathwayStore/预算派生/LangGraph):
@@ -128,6 +138,7 @@ from .production import (
 )
 from .profile import (
     FORMAT_FEEDBACK_POLICY_VERSION,
+    PPV1_RUNFLOW_SCHEMA_VERSION,
     build_profile_identity_block,
 )
 from .queue import (
@@ -168,11 +179,22 @@ from .search import (
     read_search_artifact,
     search_policy_version,
 )
+from .native_export import (
+    export_native_result,
+    read_native_export,
+)
 from .native_result import build_native_result, persist_native_result
 from .store import PollutantPathwayStore
 from .substrate_profile import build_substrate_profile
+from .v3_projection import (
+    build_v3_projection,
+    persist_v3_projection,
+    read_v3_projection,
+)
 
-RUNFLOW_VERSION = "ppv1-runflow-4"
+# 单一事实源:profile.PPV1_RUNFLOW_SCHEMA_VERSION(S4b 起移入 profile,
+# native_export manifest 的 contract_versions 与本模块共用同一常量)
+RUNFLOW_VERSION = PPV1_RUNFLOW_SCHEMA_VERSION
 FROZEN_PLAN_VERSION = "ppv1-frozen-plan-1"
 FROZEN_PLAN_TASK_KEY = "run-plan"
 FROZEN_PLAN_ARTIFACT = "frozen_plan"
@@ -1325,20 +1347,23 @@ class _Driver:
 def _derive_endpoint_and_native_result(ledger: SearchLedger,
                                        report: dict,
                                        driver: _Driver) -> dict:
-    """S4a:公共 start/resume 的 endpoint 分账派生 + 独立持久化 +
-    首消费读回 + 原生结果对象(确定性规范化)。
+    """S4a+S4b:公共 start/resume 的 endpoint 四分账派生 + 独立持久化 +
+    首消费读回 + 原生结果对象(确定性规范化)+ **正式文件导出 +
+    v3 有损投影 + 双首消费读回**。
 
     - 派生只读业务表(零 event/attempt/request/budget 写入;唯一
-      写入 = stop_reason_records/endpoint_records 两张派生投影表与
-      原生结果 artifact);
+      写入 = stop_reason_records/endpoint_records 两张派生投影表、
+      原生结果 artifact、导出/投影文件);
     - 派生后立即以 read_run_endpoint 首消费读回(版本门/hash/跨表
       引用/staleness 自校验 —— 派生与消费共用同一判据来源,不留
       "只写不读"的未验证窗口);
     - 原生结果对象消费已验证 endpoint 记录(过期/损坏记录不包装成
       "正式结果");
-    - endpoint 派生失败(如上下文 artifact 首消费失败)⇒ 结构化
-      EndpointContractError 上抛(不吞成成功;已写入的派生行如实
-      保留,下次派生幂等更新)。
+    - S4b:导出(payload+manifest)与 v3 投影后各自立即首消费读回
+      (integrity/version/引用/策略/staleness 自校验);
+    - 派生/导出失败(如上下文 artifact 首消费失败)⇒ 结构化
+      EndpointContractError/NativeExportContractError 上抛(不吞成
+      成功;已写入的派生行与事件如实保留,下次派生幂等更新)。
     """
     record = derive_run_endpoint(
         ledger, stop_report=report, run_error=driver.run_error,
@@ -1346,6 +1371,13 @@ def _derive_endpoint_and_native_result(ledger: SearchLedger,
     verified = read_run_endpoint(ledger, ledger.run_id)
     native = build_native_result(ledger, endpoint_record=verified)
     persisted_native = persist_native_result(ledger, native)
+    run_dir = Path(ledger.artifact_store.base).parent
+    export_out = export_native_result(ledger, native, run_dir)
+    read_native_export(ledger, run_dir, export_out["export_digest"])
+    v3_payload = build_v3_projection(
+        ledger, native, native_export=export_out, run_dir=run_dir)
+    v3_out = persist_v3_projection(run_dir, v3_payload)
+    read_v3_projection(run_dir, v3_out["projection_digest"])
     return {
         "record": record,
         "verified": verified,
@@ -1354,9 +1386,40 @@ def _derive_endpoint_and_native_result(ledger: SearchLedger,
             "task_key": persisted_native["task_key"],
             "native_result_version": native["native_result_version"],
             "note": ("S4a 对象底座:完整字段 + 确定性规范化(同事实同 "
-                     "digest);正式文件导出/manifest/读取消费契约与 "
-                     "v3 适配属 S4b"),
+                     "digest);正式文件导出见 native_export"),
         },
+        "native_export": _native_export_summary(export_out),
+        "v3_projection": _v3_projection_summary(v3_out, v3_payload),
+    }
+
+
+def _native_export_summary(export_out: dict) -> dict:
+    return {
+        "export_digest": export_out["export_digest"],
+        "dir": export_out["dir"],
+        "payload_sha256": export_out["payload_sha256"],
+        "content_digest": export_out["content_digest"],
+        "schema_version": export_out["schema_version"],
+        "export_policy_version": export_out["export_policy_version"],
+        "note": ("S4b 正式文件导出(全量事实 + manifest 新鲜度锚);"
+                 "读取/消费走 read_native_export(首消费:missing/"
+                 "corrupt/version/policy/stale/reference 拒)"),
+    }
+
+
+def _v3_projection_summary(v3_out: dict, v3_payload: dict) -> dict:
+    return {
+        "projection_digest": v3_out["projection_digest"],
+        "dir": v3_out["dir"],
+        "native_export_digest": v3_payload["native_reference"][
+            "native_export_digest"],
+        "lossy_projection": True,
+        "steps": len(v3_payload["route"]["steps"]),
+        "information_loss_axes": sorted(
+            loss["axis"] for loss in v3_payload["information_losses"]),
+        "note": ("v3 有损投影(lossy_projection;原生引用 + 信息损失"
+                 "清单);反向消费禁止 —— 不得从投影改写原生事实/事件;"
+                 "读取走 read_v3_projection"),
     }
 
 
@@ -1481,6 +1544,8 @@ def start_ppv1_run(
         summary["endpoint_record_payload_hash"] = endpoint_out["record"][
             "payload_hash"]
         summary["native_result"] = dict(endpoint_out["native_result"])
+        summary["native_export"] = dict(endpoint_out["native_export"])
+        summary["v3_projection"] = dict(endpoint_out["v3_projection"])
         return summary
 
 
@@ -1619,6 +1684,8 @@ def resume_ppv1_run(
         summary["endpoint_record_payload_hash"] = endpoint_out["record"][
             "payload_hash"]
         summary["native_result"] = dict(endpoint_out["native_result"])
+        summary["native_export"] = dict(endpoint_out["native_export"])
+        summary["v3_projection"] = dict(endpoint_out["v3_projection"])
         return summary
 
 

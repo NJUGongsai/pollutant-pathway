@@ -25,8 +25,11 @@ v3 有损适配 —— 本模块不实现文件消费契约。
 - audit 结果与 proof scope:每个 expand action 的 production_report
   artifact(H07 校验读取;含 audit/admission/执行诊断);
 - 失败/unknown/partial/violated 原因:expansion_outcome artifact
-  (unresolved_continuation/method_failed/contract_aborted 等)+ attempt
-  状态;
+  (unresolved_continuation/method_failed/contract_aborted 等)+
+  attempt 状态(S4b 修正:非事件动作完成的调度结论 artifact
+  —— record_expansion_outcome 的 action.task_key 键与 _complete_
+  action 的 soutc 键**都**聚合;S4a 只查前者,retrieve/decide 等
+  调度结论漏聚);
 - 预算预约与实际消耗:budget_reservations 聚合 + budget_snapshot
   (同 search 层派生,不复制判据);
 - 搜索停止原因:stop_reason_records 行(独立持久化;经 hash 复算);
@@ -47,7 +50,7 @@ from __future__ import annotations
 
 import json
 
-from ..domain.models import content_hash
+from ..domain.models import content_hash, stable_id
 from .profile import PPV1_NATIVE_RESULT_VERSION
 from .search import read_search_artifact
 
@@ -80,6 +83,62 @@ def _rows_sorted(rows: list, key_fields: tuple) -> list[dict]:
         out.append(item)
     return sorted(out, key=lambda d: tuple(
         str(d.get(f) or "") for f in key_fields))
+
+
+def artifact_reference_index(ledger) -> list[dict]:
+    """原生结果消费的 artifact 引用索引(**单一来源**:build_native_
+    result 的读取循环与 native_export 的 manifest 引用集合共用本函数,
+    不各自实现第二套枚举规则)。
+
+    条目 = {task_key, name, source_action_id}(稳定排序:task_key);
+    覆盖 build_native_result 实际消费的全部 artifact:
+    - path_context(上下文:条件/依赖;task_key = ctx:<ref>);
+    - production_report(按 action.task_key 与 action_kind 过滤,与
+      build 的过滤条件逐字一致);
+    - expansion_outcome(**两个写入口的键都枚举**:展开尝试的非事件
+      结论走 record_expansion_outcome ⇒ action.task_key;非事件动作
+      完成(retrieve/decide/activate/transition 的调度结论)走
+      runflow._complete_action ⇒ stable_id("soutc", action_id) ——
+      S4b 修正:S4a 只按 action.task_key 查,retrieve/decide 等的
+      调度结论 artifact 全部漏聚;两个键都登记,缺失的键读取时
+      自然跳过)。冻结计划 artifact 不在本索引内(native 构建不
+      消费它;导出侧由 native_export 单独引用)。
+    """
+    conn = ledger.conn
+    run_id = ledger.run_id
+    actions = _rows_sorted(
+        conn.execute(
+            "SELECT action_id, action_kind, context_ref, subject_ref,"
+            " task_key FROM search_actions WHERE run_id = ?"
+            " ORDER BY action_id", (run_id,)).fetchall(), ("action_id",))
+    entries: list[dict] = []
+    context_refs = sorted({
+        str(a.get("context_ref") or "") for a in actions
+        if str(a.get("context_ref") or "")})
+    for ref in context_refs:
+        entries.append({"task_key": f"ctx:{ref}",
+                        "name": _CONTEXT_ARTIFACT,
+                        "source_action_id": ""})
+    for action in actions:
+        task_key = str(action.get("task_key") or "")
+        if not task_key:
+            continue
+        kind = str(action.get("action_kind"))
+        action_id = str(action.get("action_id"))
+        if kind in ("expand_hypothesis", "retrieve", "decide"):
+            entries.append({"task_key": task_key,
+                            "name": _PRODUCTION_REPORT,
+                            "source_action_id": action_id})
+        if kind in ("expand_hypothesis", "retrieve", "decide",
+                    "activate_deferred", "scenario_transition"):
+            entries.append({"task_key": task_key,
+                            "name": _EXPANSION_OUTCOME,
+                            "source_action_id": action_id})
+            entries.append({"task_key": stable_id("soutc", action_id),
+                            "name": _EXPANSION_OUTCOME,
+                            "source_action_id": action_id})
+    return sorted(entries, key=lambda e: (
+        e["task_key"], e["name"], e["source_action_id"]))
 
 
 def build_native_result(ledger, *, endpoint_record: dict) -> dict:
@@ -195,47 +254,50 @@ def build_native_result(ledger, *, endpoint_record: dict) -> dict:
     paths = sorted(paths, key=lambda p: (
         p["path_id"], p["source_event_id"], p["product_state_ref"]))
 
-    # ---- 上下文(条件/依赖;H07 + 内容身份首消费) ----
-    context_refs = sorted({
-        str(a.get("context_ref") or "") for a in actions
-        if str(a.get("context_ref") or "")})
-    contexts = []
-    for ref in context_refs:
-        envelope = read_search_artifact(
-            ledger.artifact_store, f"ctx:{ref}", _CONTEXT_ARTIFACT)
+    # ---- 上下文(条件/依赖;H07 + 内容身份首消费)----
+    # S4b:引用集合与读取循环共用 artifact_reference_index(单一来源;
+    # 追加顺序保持 S4a 语义:contexts 按引用排序,reports/outcomes 按
+    # action 次序,name 次序 = report 先于 outcome)。
+    refs = artifact_reference_index(ledger)
+
+    def _envelope(task_key: str, name: str) -> dict | None:
+        return read_search_artifact(ledger.artifact_store, task_key, name)
+
+    contexts: list[dict] = []
+    for entry in refs:
+        if entry["name"] != _CONTEXT_ARTIFACT:
+            continue
+        envelope = _envelope(entry["task_key"], _CONTEXT_ARTIFACT)
         if envelope is not None:
-            contexts.append({"context_ref": ref,
-                             "payload": envelope.get("payload")})
+            contexts.append({
+                "context_ref": entry["task_key"][len("ctx:"):],
+                "payload": envelope.get("payload")})
 
     # ---- audit 结果/proof scope/失败原因(per-action artifact) ----
     audit_reports: list[dict] = []
     outcome_records: list[dict] = []
-    for action in actions:
-        task_key = str(action.get("task_key") or "")
-        if not task_key:
+    _NAME_RANK = {_PRODUCTION_REPORT: 0, _EXPANSION_OUTCOME: 1}
+    for entry in sorted(
+            (e for e in refs if e["name"] in _NAME_RANK),
+            key=lambda e: (e["source_action_id"], _NAME_RANK[e["name"]],
+                           e["task_key"])):
+        envelope = _envelope(entry["task_key"], entry["name"])
+        if envelope is None:
             continue
-        kind = str(action.get("action_kind"))
-        if kind in ("expand_hypothesis", "retrieve", "decide"):
-            report = read_search_artifact(
-                ledger.artifact_store, task_key, _PRODUCTION_REPORT)
-            if report is not None:
-                payload = dict(report.get("payload") or {})
-                audit_reports.append({
-                    "action_id": str(action.get("action_id")),
-                    "task_key": task_key,
-                    "production_payload": payload,
-                })
-        if kind in ("expand_hypothesis", "retrieve", "decide",
-                    "activate_deferred", "scenario_transition"):
-            outcome = read_search_artifact(
-                ledger.artifact_store, task_key, _EXPANSION_OUTCOME)
-            if outcome is not None:
-                payload = dict(outcome.get("payload") or {})
-                outcome_records.append({
-                    "action_id": str(action.get("action_id")),
-                    "task_key": task_key,
-                    "outcome_payload": payload,
-                })
+        if entry["name"] == _PRODUCTION_REPORT:
+            payload = dict(envelope.get("payload") or {})
+            audit_reports.append({
+                "action_id": str(entry["source_action_id"]),
+                "task_key": entry["task_key"],
+                "production_payload": payload,
+            })
+        else:
+            payload = dict(envelope.get("payload") or {})
+            outcome_records.append({
+                "action_id": str(entry["source_action_id"]),
+                "task_key": entry["task_key"],
+                "outcome_payload": payload,
+            })
 
     # ---- 备选反应关系(同 parent 多 expand action)+ 共同产物 ----
     alternatives: list[dict] = []
