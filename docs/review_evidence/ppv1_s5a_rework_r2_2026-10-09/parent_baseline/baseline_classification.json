@@ -1,0 +1,227 @@
+{
+  "parent_head": "1ef9e4840ff1be233dedcb543b967447cd591276",
+  "files": [
+    "tests/test_ppv1_profile.py",
+    "tests/test_ppv1_s4b_export.py",
+    "tests/test_ppv1_s5a_rework_r1.py",
+    "tests/test_ppv1_s5a_rework_r2.py",
+    "tests/test_ppv1_s5a_schema.py"
+  ],
+  "counts": {
+    "total": 121,
+    "red": 15,
+    "green": 106,
+    "error_or_collection": 0,
+    "red_by_kind": {
+      "behavior": 10,
+      "field-missing": 1,
+      "version-literal": 4
+    }
+  },
+  "red_nodeids": [
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_dimensionless_unit_unexpected-condition_unknown]",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu3')\nname = 'B1_dimensionless_unit_unexpected', expected = 'condition_unknown'\n\n    @pytest.mark.parametrize(\"name,expected\", [\n        (row[0], row[5]) for row in _B1_CASES])\n    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(\n            tmp_path: Path, "
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_F_77_vs_25C-condition_unknown]",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu2')\nname = 'B1_requirement_F_77_vs_25C', expected = 'condition_unknown'\n\n    @pytest.mark.parametrize(\"name,expected\", [\n        (row[0], row[5]) for row in _B1_CASES])\n    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(\n            tmp_path: Path, name: "
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_25_vs_25C-condition_unknown]",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu1')\nname = 'B1_requirement_K_25_vs_25C', expected = 'condition_unknown'\n\n    @pytest.mark.parametrize(\"name,expected\", [\n        (row[0], row[5]) for row in _B1_CASES])\n    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(\n            tmp_path: Path, name: "
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_298_vs_25C-condition_unknown]",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu0')\nname = 'B1_requirement_K_298_vs_25C', expected = 'condition_unknown'\n\n    @pytest.mark.parametrize(\"name,expected\", [\n        (row[0], row[5]) for row in _B1_CASES])\n    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(\n            tmp_path: Path, name:"
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_dimensionless_unit_unexpected]",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "name = 'B1_dimensionless_unit_unexpected'\n\n    @pytest.mark.parametrize(\"name\", [row[0] for row in _B1_CASES])\n    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:\n        \"\"\"B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读\n        reason=requirement_unit_not_representable,保留原 unit/value/key);\n        合法 C 与空单位正控保持 compatible。\"\"\"\n        _name, key, value, unit, fact_makers, expected, unit_kind ="
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_F_77_vs_25C]",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "name = 'B1_requirement_F_77_vs_25C'\n\n    @pytest.mark.parametrize(\"name\", [row[0] for row in _B1_CASES])\n    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:\n        \"\"\"B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读\n        reason=requirement_unit_not_representable,保留原 unit/value/key);\n        合法 C 与空单位正控保持 compatible。\"\"\"\n        _name, key, value, unit, fact_makers, expected, unit_kind = \\\n   "
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_25_vs_25C]",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "name = 'B1_requirement_K_25_vs_25C'\n\n    @pytest.mark.parametrize(\"name\", [row[0] for row in _B1_CASES])\n    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:\n        \"\"\"B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读\n        reason=requirement_unit_not_representable,保留原 unit/value/key);\n        合法 C 与空单位正控保持 compatible。\"\"\"\n        _name, key, value, unit, fact_makers, expected, unit_kind = \\\n   "
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_298_vs_25C]",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "name = 'B1_requirement_K_298_vs_25C'\n\n    @pytest.mark.parametrize(\"name\", [row[0] for row in _B1_CASES])\n    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:\n        \"\"\"B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读\n        reason=requirement_unit_not_representable,保留原 unit/value/key);\n        合法 C 与空单位正控保持 compatible。\"\"\"\n        _name, key, value, unit, fact_makers, expected, unit_kind = \\\n  "
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_preference_with_unrepresentable_unit_stays_unknown",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "def test_s5a02_r2_preference_with_unrepresentable_unit_stays_unknown() \\\n            -> None:\n        \"\"\"preference 轴遇无法表示的单位 ⇒ 同沿 unknown 族(值轴探针\n        不消费不可表示要求;preference 永不门禁语义不受影响)。\"\"\"\n        facts = [fact(\"temperature_C\", 25, unit=\"C\")]\n        result = _detailed(\n            req(\"temperature_C\", \"25\", unit=\"K\", required=\"preference\"),\n            facts)\n>       assert result[\"classificati"
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_unit_branch_not_masked_by_missing_facts",
+      "kind": "behavior",
+      "note": "parent classifies the requirement with the non-canonical/unexpected unit as compatible/essential_conflict (unit dropped before the frozen canonical-by-key comparison); r2 expects condition_unknown + requirement_unit_not_representable",
+      "detail_head": "def test_s5a02_r2_unit_branch_not_masked_by_missing_facts() -> None:\n        \"\"\"判别回归(评审 §4.2.3):合法事实在场 + necessity 来源在场 +\n        非规范要求单位 ⇒ unknown 的 reason 是单位原因;同案把单位改成\n        空单位 ⇒ compatible —— 证明 unknown 来自单位分支,不是用\n        facts=[] 天然 unknown 冒充。\"\"\"\n        facts = [fact(\"temperature_C\", 25, unit=\"C\")]\n        requirement_k = req(\"temperature_C\", \"298\", unit=\"K\")\n        assert requirement_k"
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_unit_empty_25_vs_25C]",
+      "kind": "field-missing",
+      "note": "parent disclosure lacks the machine-readable 'reason' key (requirement_unit_canonical_by_key); classification compatible itself is already correct on the parent",
+      "detail_head": "name = 'B1_requirement_unit_empty_25_vs_25C'\n\n    @pytest.mark.parametrize(\"name\", [row[0] for row in _B1_CASES])\n    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:\n        \"\"\"B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读\n        reason=requirement_unit_not_representable,保留原 unit/value/key);\n        合法 C 与空单位正控保持 compatible。\"\"\"\n        _name, key, value, unit, fact_makers, expected, unit_kin"
+    },
+    {
+      "nodeid": "tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions",
+      "kind": "version-literal",
+      "note": "parent registers evaluation-2/template-2/profile-21; r2 asserts evaluation-3/template-3/profile-22",
+      "detail_head": "def test_ppv1_identity_block_contract_versions() -> None:\n        block = ri and ppv1_profile.build_profile_identity_block()\n        assert block[\"name\"] == \"pollutant_pathway_v1\"\n        # v21(S5a 回修 r1):evaluation-2(S5A-01 identity scope 许可/\n        # S5A-02 条件同源分类/S5A-03 必要节点闭合/S5A-04 写边界根规则)\n        # + preregistration-template-2(proposed 文字同步)⇒ profile 身份\n        # 块随登记升版;v20(S5a 批次):donor-di"
+    },
+    {
+      "nodeid": "tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest",
+      "kind": "version-literal",
+      "note": "parent registers evaluation-2/template-2/profile-21; r2 asserts evaluation-3/template-3/profile-22",
+      "detail_head": "tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_native_export_public_chai0')\n\n    def test_native_export_public_chain_files_and_manifest(\n            tmp_path: Path) -> None:\n        \"\"\"公共 start → endpoint → 正式导出:summary 字段、payload/manifest\n        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即\n        首消费读回(链内自校验)。\"\"\"\n        runs_root, out "
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration",
+      "kind": "version-literal",
+      "note": "parent registers evaluation-2/template-2/profile-21; r2 asserts evaluation-3/template-3/profile-22",
+      "detail_head": "def test_s5a_rework_contract_version_registration() -> None:\n        \"\"\"S5a 回修 r1→r2:评测契约 -2→-3、预注册模板 -2→-3、profile\n        -21→-22(匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1\n        冻结正文不受影响;r2 只登记 S5A-02 单位收口与 B2 文案纠错)。\"\"\"\n>       assert PPV1_EVALUATION_VERSION == \"ppv1-evaluation-3\"\nE       AssertionError: assert 'ppv1-evaluation-2' == 'ppv1-evaluation-3'\nE         \nE         - ppv1-evaluation-3\nE     "
+    },
+    {
+      "nodeid": "tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity",
+      "kind": "version-literal",
+      "note": "parent registers evaluation-2/template-2/profile-21; r2 asserts evaluation-3/template-3/profile-22",
+      "detail_head": "@pytest.mark.skipif(\n        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),\n        reason=\"frozen criteria text not copied into allowlisted isolation \"\n               \"trees (G01 boundary); byte integrity verified at the \"\n               \"evidence level (shasum in review_evidence package)\")\n    def test_s5a_r2_contract_version_registration_and_frozen_integrity() \\\n            -> Non"
+    }
+  ],
+  "legal_green_highlights": [
+    "B1 lawful positive controls on the parent: test_s5a02_r2_b1_six_cases_classifier[B1_requirement_C_25_vs_25C] and both test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate positive params stay green (compatible kept)",
+    "B2 checked-builder/order-gate guard green on the parent (opposite facts both orders unknown; known x unknown judged by the first known fact in both orders)",
+    "r1 20 condition cases all preserved green on the parent",
+    "requirement-vs-fact unit semantics split green on the parent (fact-side source_unit_unknown / unit_mismatch / canonical)"
+  ],
+  "green_nodeids": [
+    "tests/test_ppv1_profile.py::test_build_run_identity_default_is_legacy",
+    "tests/test_ppv1_profile.py::test_build_run_identity_legacy_rejects_profile_policy",
+    "tests/test_ppv1_profile.py::test_build_run_identity_pollutant_block",
+    "tests/test_ppv1_profile.py::test_build_run_identity_unknown_profile_rejected",
+    "tests/test_ppv1_profile.py::test_check_resume_identity_profile_mismatch_rejected",
+    "tests/test_ppv1_profile.py::test_check_resume_identity_v1_missing_profile_read_as_legacy",
+    "tests/test_ppv1_profile.py::test_cli_profile_flag_choices",
+    "tests/test_ppv1_profile.py::test_code_identity_excludes_pollutant_for_legacy",
+    "tests/test_ppv1_profile.py::test_code_identity_legacy_stable_under_pollutant_changes",
+    "tests/test_ppv1_profile.py::test_code_identity_pollutant_includes_full_tree",
+    "tests/test_ppv1_profile.py::test_code_identity_unknown_profile_rejected",
+    "tests/test_ppv1_profile.py::test_identity_fingerprint_includes_profile",
+    "tests/test_ppv1_profile.py::test_identity_schema_version_bumped",
+    "tests/test_ppv1_profile.py::test_ppv1_identity_block_default_switches",
+    "tests/test_ppv1_profile.py::test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]",
+    "tests/test_ppv1_profile.py::test_ppv1_identity_block_fail_closed[input_preview_policy-None]",
+    "tests/test_ppv1_profile.py::test_ppv1_identity_block_fail_closed[input_preview_policy-filter]",
+    "tests/test_ppv1_profile.py::test_ppv1_identity_block_fail_closed[search_intent-anything_goes]",
+    "tests/test_ppv1_profile.py::test_profile_names_registry",
+    "tests/test_ppv1_profile.py::test_search_limits_validation",
+    "tests/test_ppv1_profile.py::test_start_run_pollutant_dispatches_to_runflow",
+    "tests/test_ppv1_profile.py::test_start_run_unknown_profile_rejected",
+    "tests/test_ppv1_s4b_export.py::test_empty_pool_run_exports_and_projects",
+    "tests/test_ppv1_s4b_export.py::test_endpoint_stop_reference_broken_refuses_export",
+    "tests/test_ppv1_s4b_export.py::test_full_public_chain_crash_resume_export_replay",
+    "tests/test_ppv1_s4b_export.py::test_g02_export_after_crash_resume_repeat_identical",
+    "tests/test_ppv1_s4b_export.py::test_g02_export_read_back_matches_native_authority",
+    "tests/test_ppv1_s4b_export.py::test_g02_integrity_structured_failures",
+    "tests/test_ppv1_s4b_export.py::test_g02_repeat_export_same_bytes_including_subprocess",
+    "tests/test_ppv1_s4b_export.py::test_g02_self_consistent_rewrite_not_laundered",
+    "tests/test_ppv1_s4b_export.py::test_g02_stale_after_graph_change",
+    "tests/test_ppv1_s4b_export.py::test_g02_stale_after_policy_change",
+    "tests/test_ppv1_s4b_export.py::test_native_export_full_fact_coverage",
+    "tests/test_ppv1_s4b_export.py::test_native_export_v3_projection_conflict_preserves",
+    "tests/test_ppv1_s4b_export.py::test_tampered_export_refuses_overwrite",
+    "tests/test_ppv1_s4b_export.py::test_v3_projection_deterministic_and_reverse_lookup",
+    "tests/test_ppv1_s4b_export.py::test_v3_projection_lossy_marker_reference_and_losses",
+    "tests/test_ppv1_s4b_export.py::test_v3_projection_reverse_consumption_refused_zero_writes",
+    "tests/test_ppv1_s4b_export.py::test_v3_projection_steps_per_event_no_cn_merge_no_fabrication",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_legal_strict_and_real_cn_controls_kept",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[cn_only]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[partial]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[unknown]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[cn_only]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[partial]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[unknown]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_matcher_unit_scope_cap",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[canonical_unit_positive]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_conflict_first]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_satisfied_first]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[dict_interval_present]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[entity_other_known_absent]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[matrix_label_unresolved]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[missing_fact]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[necessity_no_source]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[negative_interval_present]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[numeric_known_absent]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[opposite_known_present]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[other_known_absent]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_absent]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_present]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[same_known_absent]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[same_known_present]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_mismatch_K]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_noncanonical_F]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_unknown]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[zero_point_present]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_end_to_end_buckets_with_frozen_reasons",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_frozen_reasons_and_mapping_disclosures",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_preference_and_scenario_axes_kept",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_unsupported_key_and_fact_disclosures",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_legal_exact_superset_partial_controls_kept",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_participants_only_node_deferred_p2",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-product]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-reactant]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-product]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-reactant]",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_no_root_refused_and_plain_write_kept",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_resolved_path_authorization",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_symlink_escape_refused",
+    "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_C_25_vs_25C-compatible]",
+    "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_unit_empty_25_vs_25C-compatible]",
+    "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_C_25_vs_25C]",
+    "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b2_checked_builder_and_order_gates",
+    "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_r1_condition_cases_all_preserved",
+    "tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_requirement_vs_fact_unit_semantics_split",
+    "tests/test_ppv1_s5a_schema.py::test_emitted_status_never_evaluated",
+    "tests/test_ppv1_s5a_schema.py::test_evaluation_input_lossy_projection_contract",
+    "tests/test_ppv1_s5a_schema.py::test_evaluation_input_required_fields",
+    "tests/test_ppv1_s5a_schema.py::test_preregistration_validation_fail_closed",
+    "tests/test_ppv1_s5a_schema.py::test_real_data_scope_requires_approved_prereg",
+    "tests/test_ppv1_s5a_schema.py::test_reference_graph_distinct_occurrence_kept",
+    "tests/test_ppv1_s5a_schema.py::test_reference_graph_mineralization_evidence_floor",
+    "tests/test_ppv1_s5a_schema.py::test_reference_graph_root_limited_scope_declaration",
+    "tests/test_ppv1_s5a_schema.py::test_reference_graph_unknown_top_level_field_refused",
+    "tests/test_ppv1_s5a_schema.py::test_s5_01_missing_field_fails_with_field_path",
+    "tests/test_ppv1_s5a_schema.py::test_s5_01_reference_graph_full_field_validation",
+    "tests/test_ppv1_s5a_schema.py::test_s5_01_unknown_schema_version_refused",
+    "tests/test_ppv1_s5a_schema.py::test_s5_01_unparseable_file_refused",
+    "tests/test_ppv1_s5a_schema.py::test_s5_21_mixed_domain_refused",
+    "tests/test_ppv1_s5a_schema.py::test_s5_22_mixed_track_refused",
+    "tests/test_ppv1_s5a_schema.py::test_s5_23_preregistration_template_tbd_marking",
+    "tests/test_ppv1_s5a_schema.py::test_s5_26_paid_provider_off_by_default",
+    "tests/test_ppv1_s5a_schema.py::test_s5_27_gold_output_write_guard",
+    "tests/test_ppv1_s5a_schema.py::test_s5_28_no_native_export_pending",
+    "tests/test_ppv1_s5a_schema.py::test_split_manifest_schema"
+  ]
+}

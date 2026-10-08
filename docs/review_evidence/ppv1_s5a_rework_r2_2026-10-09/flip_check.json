@@ -1,0 +1,241 @@
+{
+  "review_source": "POLLUTANT_PATHWAY_S5A_CODEX_REVIEW_R2_2026-10-09 section 4 (S5A-02 sole remaining P1)",
+  "probe": "reviewer's mimo_conditions_probe.py + assert_B1_contract.py copied byte-faithful (SHA equal to the r2 review package), executed in fresh /private/tmp trees before (HEAD bytes) and after (r2 bytes)",
+  "b1_contract_assertions": {
+    "before": {
+      "rows": [
+        {
+          "name": "B1_requirement_K_298_vs_25C",
+          "expected_bucket": "condition_unknown",
+          "actual_buckets": {
+            "essential_conflict": 1
+          },
+          "passes_contract": false
+        },
+        {
+          "name": "B1_requirement_K_25_vs_25C",
+          "expected_bucket": "condition_unknown",
+          "actual_buckets": {
+            "compatible": 1
+          },
+          "passes_contract": false
+        },
+        {
+          "name": "B1_requirement_F_77_vs_25C",
+          "expected_bucket": "condition_unknown",
+          "actual_buckets": {
+            "essential_conflict": 1
+          },
+          "passes_contract": false
+        },
+        {
+          "name": "B1_requirement_C_25_vs_25C",
+          "expected_bucket": "compatible",
+          "actual_buckets": {
+            "compatible": 1
+          },
+          "passes_contract": true
+        },
+        {
+          "name": "B1_requirement_unit_empty_25_vs_25C",
+          "expected_bucket": "compatible",
+          "actual_buckets": {
+            "compatible": 1
+          },
+          "passes_contract": true
+        },
+        {
+          "name": "B1_dimensionless_unit_unexpected",
+          "expected_bucket": "condition_unknown",
+          "actual_buckets": {
+            "compatible": 1
+          },
+          "passes_contract": false
+        }
+      ],
+      "n_pass": 2,
+      "n_fail": 4,
+      "exit_code": 1
+    },
+    "after": {
+      "rows": [
+        {
+          "name": "B1_requirement_K_298_vs_25C",
+          "expected_bucket": "condition_unknown",
+          "actual_buckets": {
+            "condition_unknown": 1
+          },
+          "passes_contract": true
+        },
+        {
+          "name": "B1_requirement_K_25_vs_25C",
+          "expected_bucket": "condition_unknown",
+          "actual_buckets": {
+            "condition_unknown": 1
+          },
+          "passes_contract": true
+        },
+        {
+          "name": "B1_requirement_F_77_vs_25C",
+          "expected_bucket": "condition_unknown",
+          "actual_buckets": {
+            "condition_unknown": 1
+          },
+          "passes_contract": true
+        },
+        {
+          "name": "B1_requirement_C_25_vs_25C",
+          "expected_bucket": "compatible",
+          "actual_buckets": {
+            "compatible": 1
+          },
+          "passes_contract": true
+        },
+        {
+          "name": "B1_requirement_unit_empty_25_vs_25C",
+          "expected_bucket": "compatible",
+          "actual_buckets": {
+            "compatible": 1
+          },
+          "passes_contract": true
+        },
+        {
+          "name": "B1_dimensionless_unit_unexpected",
+          "expected_bucket": "condition_unknown",
+          "actual_buckets": {
+            "condition_unknown": 1
+          },
+          "passes_contract": true
+        }
+      ],
+      "n_pass": 6,
+      "n_fail": 0,
+      "exit_code": 0
+    }
+  },
+  "seventeen_case_bucket_diff": {
+    "n_cases": 17,
+    "n_changed": 4,
+    "n_kept": 13,
+    "changed": [
+      {
+        "name": "B1_requirement_K_298_vs_25C",
+        "before": {
+          "essential_conflict": 1
+        },
+        "after": {
+          "condition_unknown": 1
+        }
+      },
+      {
+        "name": "B1_requirement_K_25_vs_25C",
+        "before": {
+          "compatible": 1
+        },
+        "after": {
+          "condition_unknown": 1
+        }
+      },
+      {
+        "name": "B1_requirement_F_77_vs_25C",
+        "before": {
+          "essential_conflict": 1
+        },
+        "after": {
+          "condition_unknown": 1
+        }
+      },
+      {
+        "name": "B1_dimensionless_unit_unexpected",
+        "before": {
+          "compatible": 1
+        },
+        "after": {
+          "condition_unknown": 1
+        }
+      }
+    ],
+    "kept": [
+      {
+        "name": "B1_requirement_C_25_vs_25C",
+        "buckets": {
+          "compatible": 1
+        }
+      },
+      {
+        "name": "B1_requirement_unit_empty_25_vs_25C",
+        "buckets": {
+          "compatible": 1
+        }
+      },
+      {
+        "name": "B2_species_present_unknown",
+        "buckets": {
+          "compatible": 1
+        }
+      },
+      {
+        "name": "B2_species_unknown_present",
+        "buckets": {
+          "compatible": 1
+        }
+      },
+      {
+        "name": "B2_species_absent_unknown",
+        "buckets": {
+          "essential_conflict": 1
+        }
+      },
+      {
+        "name": "B2_species_unknown_absent",
+        "buckets": {
+          "essential_conflict": 1
+        }
+      },
+      {
+        "name": "B2_species_present_absent",
+        "buckets": {
+          "condition_unknown": 1
+        }
+      },
+      {
+        "name": "B2_species_absent_present",
+        "buckets": {
+          "condition_unknown": 1
+        }
+      },
+      {
+        "name": "B2_species_O2_NO3",
+        "buckets": {
+          "compatible": 1
+        }
+      },
+      {
+        "name": "B2_species_NO3_O2",
+        "buckets": {
+          "compatible": 1
+        }
+      },
+      {
+        "name": "B2_species_other_NO3_Fe3",
+        "buckets": {
+          "condition_unknown": 1
+        }
+      },
+      {
+        "name": "B2_species_other_Fe3_NO3",
+        "buckets": {
+          "condition_unknown": 1
+        }
+      },
+      {
+        "name": "B3_point_mismatch_disclosed",
+        "buckets": {
+          "essential_conflict": 1
+        }
+      }
+    ],
+    "note": "changed = exactly the four unsupported-requirement-unit cases downgraded to condition_unknown; kept = two B1 lawful controls (C / empty unit stay compatible) plus the ten B2 species cases and B3 point-mismatch case (all byte-identical buckets)"
+  },
+  "scoring_status_all_scored_after": true
+}

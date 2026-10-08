@@ -1,4 +1,4 @@
-"""S5a 预注册模板(ppv1-preregistration-template-2;§10.2/§14.3)。
+"""S5a 预注册模板(ppv1-preregistration-template-3;§10.2/§14.3)。
 
 模板交付边界(§14.3):
 
@@ -12,6 +12,13 @@ S5a 回修 r1(2026-10-09,复审 §4 四组 P1):模板 -1 → -2,proposed
 文字与实现证明范围同步(identity scope 许可封顶、必要节点闭合、
 条件同源口径、写边界根规则、角色/系数与 unknown==unknown 的实现
 证明范围如实标注;全部仍 proposed 不冻结,§10.1 全部 TBD 不变)。
+
+S5a 回修 r2(2026-10-09,复审 R2 §4 唯一残余 P1):模板 -2 → -3,
+condition_policy proposed 文字与实现同真 —— 要求侧单位首消费收口
+(显式非规范/无量纲键声明单位 ⇒ unknown/unsupported 族 + 机读保留
+原 unit/value/key;空单位 canonical-by-key 默认合法)与 B2 事实
+更正(同键相反事实两序 unknown;known×unknown 按首条已知事实;
+低层 dataclass 次序边界另列 P2);全部仍 proposed 不冻结。
 
 S5a 只交付模板与装配/校验程序;**不冻结任何字段取值**(§10.1 全部
 TBD 属用户/teacher 裁定,不得代定;不得从当前 dev 结果反推阈值或
@@ -125,12 +132,21 @@ def build_preregistration_template(*, note: str = "") -> dict:
             "status": PROPOSED,
             "rule": ("essential 冲突/条件未知/preference 不满足/来源"
                      "条件不可映射分桶;未知不计冲突;历史来源条件保留"
-                     "原文不改写;条件分类沿冻结同源规则(单位三态、"
-                     "实体/数值/异值 absence 保守语义、多事实保守"
-                     "unknown、necessity 来源、适用场景阶段、声明"
-                     "value_basis 由同一实现裁决);ConditionScope → "
-                     "冻结 Requirement 的登记映射限定与缺表示能力"
-                     "披露随评测契约登记;要求侧 known_absent 无冻结"
+                     "原文不改写;条件分类沿冻结同源规则(事实侧单位三态"
+                     " canonical/source_unit_unknown/unit_mismatch、"
+                     "实体/数值/异值 absence 保守语义、同键相反事实保守"
+                     " unknown——known×unknown 混合按冻结侧首条已知"
+                     "事实裁决(合法公共链的 unknown 事实经 checked 构造"
+                     "器值清 None;直接 dataclass 绕过构造器的低层"
+                     "次序差异另列 P2)、necessity 来源、适用场景阶段、"
+                     "声明 value_basis 由同一实现裁决);ConditionScope →"
+                     " 冻结 Requirement 的登记映射限定与缺表示能力披露"
+                     "随评测契约登记;要求侧单位首消费收口:显式非规范"
+                     "单位(温度 K/F)或无量纲键声明单位(物种键 mg/L)"
+                     " ⇒ 无合法冻结表示 ⇒ unknown/unsupported 族并"
+                     "机读保留原 unit/value/key(不做换算、不判相容或"
+                     "冲突);空要求单位按键规范单位约定 canonical-"
+                     "by-key 默认合法;要求侧 known_absent 无冻结"
                      "负要求表示 ⇒ 单列不判冲突(负要求语义属用户/"
                      "teacher 裁定)")},
         "unknown_partial_policy": {

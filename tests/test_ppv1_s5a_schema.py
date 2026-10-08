@@ -325,7 +325,7 @@ def synth_evaluation_input(*, domain: str = "dev",
         "evaluator_schema_version": PPV1_EVALUATION_VERSION,
         "run_identity": {
             "run_id": "synth-run-1",
-            "profile_version": "ppv1-profile-21",
+            "profile_version": "ppv1-profile-22",
             "export_schema_version": PPV1_NATIVE_EXPORT_VERSION,
         },
         "native_path_exports": exports or [],

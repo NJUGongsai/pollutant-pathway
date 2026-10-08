@@ -729,19 +729,25 @@ def test_s5a04_persist_no_root_refused_and_plain_write_kept(
 
 
 def test_s5a_rework_contract_version_registration() -> None:
-    """S5a 回修 r1:评测契约升 -2、预注册模板升 -2、profile 升 -21
-    (匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
-    冻结正文不受影响)。"""
-    assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-2"
+    """S5a 回修 r1→r2:评测契约 -2→-3、预注册模板 -2→-3、profile
+    -21→-22(匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
+    冻结正文不受影响;r2 只登记 S5A-02 单位收口与 B2 文案纠错)。"""
+    assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
     assert PPV1_PREREGISTRATION_TEMPLATE_VERSION == \
-        "ppv1-preregistration-template-2"
-    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-21"
+        "ppv1-preregistration-template-3"
+    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-22"
     template = preregistration.build_preregistration_template()
     # proposed 文本与实现证明范围同步(仍 proposed,不冻结)
     assert "identity_scope=cn_only/partial/unknown" in template[
         "identity_matching_policy"]["rule"]
     assert "状态集合" in template["edge_matching_policy"]["rule"]
     assert "冻结同源规则" in template["condition_policy"]["rule"]
+    # S5a 回修 r2:condition_policy 与单位收口实现同真
+    assert "无合法冻结表示" in template["condition_policy"]["rule"]
+    assert "canonical-by-key 默认合法" in template[
+        "condition_policy"]["rule"]
+    assert "同键相反事实保守 unknown" in template[
+        "condition_policy"]["rule"]
     assert "同一解析后实际规范路径" in template[
         "output_write_boundary_policy"]["rule"]
     assert template["identity_matching_policy"]["status"] == \

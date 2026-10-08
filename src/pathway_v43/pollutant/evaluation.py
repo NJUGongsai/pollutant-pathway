@@ -1,4 +1,4 @@
-"""S5a 科学评测器接口(ppv1-evaluation-1;S5 任务书 §8/§9/§11/§12)。
+"""S5a 科学评测器接口(ppv1-evaluation-3;S5 任务书 §8/§9/§11/§12)。
 
 S5a 边界(任务书 §15):本评测器是**接口与规则级程序行为交付** ——
 消费 S4 公开入口(``read_native_export``;§3.1)、确定性零 LLM 判分、
@@ -44,15 +44,40 @@ ppv1-evaluation-2):
   (节点→边→聚合逐层;合法 strict 与真实 CN 旁证控制保持);
 - **S5A-02 条件分类沿冻结同源规则**:登记 ConditionScope → 冻结
   Requirement/事实映射(映射限定机读披露),消费 path_context 同一
-  实现的单位三态/实体-数值-异值 absence/多事实保守 unknown/
-  necessity 来源/适用场景阶段/声明 value_basis;缺表示能力 ⇒
-  unknown/unsupported 族机读披露;要求侧 ``status=known_absent``
-  单列 ``requirement_status_not_representable``(不伪称冻结矛盾);
+  实现的事实侧单位三态/实体-数值-异值 absence/同键相反事实保守
+  unknown/necessity 来源/适用场景阶段/声明 value_basis;缺表示
+  能力 ⇒ unknown/unsupported 族机读披露;要求侧 ``status=known_
+  absent`` 单列 ``requirement_status_not_representable``(不伪称
+  冻结矛盾);
 - **S5A-03 声明必要 from/to 节点空命中不被 union 吞**:每个必要
   节点须有许可严格命中才可完整 strict;空集合保持
   ``unmatched_required_node_uncovered`` + 逐节点
   ``required_node_gaps`` 机读披露;参与物覆盖消费完整声明集合;
 - **S5A-04 persist 核验与写入同一实际规范路径**(见上)。
+
+S5a 回修 r2(S5A-02 单位收口;复审 R2 §4 唯一残余 P1,契约升
+ppv1-evaluation-3):
+
+- **S5A-02 r2 要求侧单位首消费收口**:共同 ConditionScope → 冻结
+  Requirement 映射处决定单位支持能力 —— 显式非规范单位(温度
+  K/F)或无量纲键声明单位(物种键 mg/L)无合法冻结表示 ⇒ 分类
+  ``condition_unknown`` + reason ``requirement_unit_not_
+  representable``,机读披露保留原 key/unit/value/allowed_units/
+  原因(不丢弃单位后授 compatible/conflict、不做换算、不猜测
+  单位语义);空要求单位按键规范单位约定(canonical-by-key
+  默认,合法不降档,披露 ``requirement_unit_not_declared``/
+  reason ``requirement_unit_canonical_by_key``);显式规范单位
+  (°C/C/celsius)合法;事实侧来源单位三态(canonical/source_
+  unit_unknown/unit_mismatch)仍由冻结同源 ``_assess_requirement``
+  裁决 —— 要求侧 canonical-by-key 默认与事实侧来源单位三态
+  分立(事实侧 temperature 缺单位仍 unknown);公共单条分类、
+  sample 分类与聚合同源消费(桶自动传导);
+- **B2 文案纠错(与实现同真)**:合法公共链的 unknown 事实经
+  checked ``build_condition_fact`` 值清 None(不带身份)⇒ 同键
+  **相反** present×absent 事实两序均 unknown;known×unknown 混合
+  按冻结侧首条已知事实裁决(既有实现,顺序相关);直接
+  dataclass 绕过 checked 构造器的低层次序差异是支持边界,另列
+  P2 不属本契约(改冻结侧物种语义归用户/teacher 裁定)。
 
 本模块不读取真实科学数据/金标/题面/封存 run;不写数据库;合成
 规则级测试之外的数字一律 interface/pending。
@@ -926,10 +951,25 @@ def _map_condition_scope_to_requirement(
       字符串按定性标签(label;首版注册表为空 ⇒ 冻结侧 unknown);
     - 物种/枚举/matrix 键:字符串值按实体/枚举身份比对(entity);
       非字符串值不映射(表示能力缺失);
-    - 声明单位参与消费:带量纲键的非规范单位 ⇒ 首版无换算 ⇒ 机读
-      披露 ``requirement_unit_noncanonical``(分类 unknown 族);
-      无量纲键空单位合法;键名量纲即要求值量纲(冻结契约:要求值
-      恒为键规范单位);
+    - 声明单位参与消费(**S5A-02 r2:单位支持能力在本映射首消费处
+      决定**;要求侧与事实侧分立):
+      - 要求值恒为键规范单位(冻结 ``build_requirement`` 契约,无
+        unit 形参):空 unit ⇒ 按键规范单位约定消费
+        (canonical-by-key 默认,**合法不降档**,机读披露
+        ``requirement_unit_not_declared``/reason=
+        ``requirement_unit_canonical_by_key``);显式规范 unit
+        (temperature_C 的 °C/C/celsius;pH 的 pH/dimensionless)
+        ⇒ 合法;
+      - 显式非规范 unit(温度给 K/F)或无量纲键声明 unit(物种/
+        枚举/matrix 键给 mg/L)⇒ **无合法冻结表示** ⇒ 返回 None
+        (沿既有不支持路线:分类进 unknown/unsupported 族),机读
+        披露 ``requirement_unit_noncanonical``/
+        ``requirement_unit_unexpected`` 保留原 key/unit/value/
+        allowed_units/原因 —— 不丢弃单位后授 compatible/conflict、
+        不做 K/F 换算、不猜测单位语义;
+      - 事实侧来源单位三态(canonical/source_unit_unknown/unit_
+        mismatch)由冻结同源 ``_assess_requirement`` 裁决,不在本
+        映射(事实 unit 原样入 ``build_condition_fact``);
     - requirement.status=known_absent 无冻结负要求表示 ⇒ 单列
       ``requirement_status_not_representable``(不伪称冻结矛盾);
     - source_refs 原样映射(冻结侧:necessity 无来源 ⇒ unknown);
@@ -996,7 +1036,9 @@ def _map_condition_scope_to_requirement(
                          "/枚举值;该值形状无冻结表示 ⇒ unknown 族"),
             })
             return None, disclosures
-    # ---- 声明单位参与消费(带量纲键;首版无换算) ----
+    # ---- S5A-02 r2:单位支持能力在映射首消费处决定(评审 R2 §4) ----
+    # 显式非规范/无量纲键声明单位无法合法映射 ⇒ None(既有不支持
+    # 路线);空单位 ⇒ canonical-by-key 默认合法(不降档)。
     unit = str(requirement.get("unit") or "")
     allowed_units = CONDITION_KEY_UNITS.get(key)
     if allowed_units is None:
@@ -1005,21 +1047,43 @@ def _map_condition_scope_to_requirement(
                 "kind": "requirement_unit_unexpected",
                 "key": key,
                 "unit": unit,
-                "note": ("该条件键无量纲;声明了单位 ⇒ 机读披露,分类"
-                         " unknown 族(不猜测单位语义)"),
+                "value": repr(raw_value),
+                "reason": "requirement_unit_unexpected",
+                "note": ("该条件键无量纲(物种/枚举/matrix 键无单位"
+                         "语义);显式声明单位 ⇒ 无合法冻结表示 ⇒"
+                         " unknown/unsupported 族,机读保留原"
+                         " unit/value/key(不猜测单位语义、不判"
+                         " 相容/冲突)"),
             })
+            return None, disclosures
     else:
-        if unit not in allowed_units:
-            kind = ("requirement_unit_noncanonical"
-                    if unit else
-                    "requirement_unit_not_declared")
+        if unit and unit not in allowed_units:
             disclosures.append({
-                "kind": kind,
+                "kind": "requirement_unit_noncanonical",
                 "key": key,
                 "unit": unit,
+                "value": repr(raw_value),
                 "allowed_units": sorted(allowed_units),
-                "note": ("冻结要求值恒为键规范单位且首版无换算;"
-                         "非规范/未声明单位 ⇒ 机读披露,分类 unknown 族"),
+                "reason": "requirement_unit_noncanonical",
+                "note": ("冻结要求值恒为键规范单位且首版无换算;显式"
+                         "非规范单位(如温度给 K/F)无法合法映射 ⇒"
+                         " unknown/unsupported 族,机读保留原"
+                         " unit/value/key(不做换算、不按数值直比、"
+                         "不判相容/冲突)"),
+            })
+            return None, disclosures
+        if not unit and "" not in allowed_units:
+            disclosures.append({
+                "kind": "requirement_unit_not_declared",
+                "key": key,
+                "unit": unit,
+                "value": repr(raw_value),
+                "canonical_units": sorted(allowed_units),
+                "reason": "requirement_unit_canonical_by_key",
+                "note": ("要求值恒为键规范单位(冻结契约);空单位 ⇒"
+                         " 按键规范单位约定消费(canonical-by-key"
+                         " 默认,合法不降档;事实侧来源单位三态不受"
+                         " 本约定影响)"),
             })
     return kwargs, disclosures
 
@@ -1068,14 +1132,24 @@ def _classify_condition_requirement_detailed(
     """S5A-02:ConditionScope × 条件事实 → 同源条件分类(详细结果)。
 
     消费**冻结同源规则**(path_context 的 ``aggregate_environment_``
-    ``fit``/``_assess_requirement`` —— 单位三态、实体/数值/异值
-    absence、多事实保守 unknown、necessity 来源、适用场景/阶段、声明
+    ``fit``/``_assess_requirement`` —— 事实侧单位三态、实体/数值/
+    异值 absence、同键相反事实保守 unknown(B2 更正:known×unknown
+    混合按冻结侧首条已知事实裁决,顺序相关;合法公共链的 unknown
+    事实经 checked ``build_condition_fact`` 值清 None 不带身份;直接
+    dataclass 绕过 checked 构造器的低层次序差异是支持边界,另列
+    P2 不属本契约)、necessity 来源、适用场景/阶段、声明
     value_basis 全部由同一实现裁决,评测侧不再另写字符串首条规则):
 
     - 冻结 satisfied → ``compatible``;conflict → ``essential_conflict``
       (essential)/``preference_unsatisfied``(preference,经同源值轴
       探针拷贝,preference 永不门禁);unknown → ``condition_unknown``
       (携带冻结 reason 码,机读);
+    - **S5A-02 r2**:要求侧显式非规范单位/无量纲键声明单位在
+      ConditionScope→Requirement 映射首消费处判**无合法表示** ⇒
+      ``condition_unknown`` + reason ``requirement_unit_not_
+      representable`` + 机读披露保留原 unit/value/key/原因(不丢弃
+      单位后授 compatible/conflict);空要求单位按键规范单位约定
+      (canonical-by-key 默认,合法不降档);
     - requirement.status=known_absent → 单列
       ``requirement_status_not_representable``(无冻结负要求表示,
       不伪称冻结矛盾);
@@ -1135,10 +1209,18 @@ def _classify_condition_requirement_detailed(
     # ---- 登记映射 → 冻结 Requirement ----
     kwargs, disclosures = _map_condition_scope_to_requirement(requirement)
     if kwargs is None:
+        # 无法合法映射 ⇒ 既有不支持路线(unknown 族);单位失败单独
+        # 机读 reason 码(评审 R2 §4:不能丢 unit 后授相容/冲突)
+        unit_kinds = ("requirement_unit_noncanonical",
+                      "requirement_unit_unexpected")
+        reason = ("requirement_unit_not_representable"
+                  if any(d.get("kind") in unit_kinds
+                         for d in disclosures)
+                  else "requirement_not_representable")
         return {**base,
                 "classification": "condition_unknown",
                 "frozen_status": None,
-                "reason": "requirement_not_representable",
+                "reason": reason,
                 "mapping_disclosures": disclosures}
     try:
         frozen_req = build_requirement(**kwargs)
@@ -1216,6 +1298,11 @@ def classify_condition_requirement(requirement: dict,
       单位未知/不匹配、多事实矛盾、necessity 无来源、matrix 未注册
       标签 ⇒ 冻结侧 unknown ⇒ ``condition_unknown``(S5-13:必要项
       缺失/不可判报 unknown,不报 compatible 也不报 conflict);
+    - 要求侧显式非规范单位(温度 K/F)或无量纲键声明单位(物种键
+      mg/L)⇒ 映射首消费判无合法表示 ⇒ ``condition_unknown``
+      (S5A-02 r2:reason=``requirement_unit_not_representable``,
+      机读保留原 unit/value/key;空要求单位按键规范单位约定
+      canonical-by-key 默认合法不降档);
     - preference 不满足 ⇒ ``preference_unsatisfied``(非冲突;经同源
       值轴探针,preference 永不门禁);
     - 冻结 satisfied ⇒ ``compatible``(相容是给定事实集的结论,不核
@@ -1292,7 +1379,10 @@ def classify_sample_conditions(reference_graph: dict,
         "source_conditions_preserved": source_conditions_preserved,
         "note": ("unknown 不计为冲突;满足不升级为全路径相容;"
                  "分类沿冻结同源规则(单位三态/absence 保守 unknown/"
-                 "多事实/necessity 来源;S5A-02);历史来源条件保留原文"
+                 "同键相反事实/necessity 来源;S5A-02);要求侧显式"
+                 "非规范单位/无量纲键声明单位降 unknown/unsupported"
+                 "族(S5A-02 r2:空单位按键规范单位约定合法);历史"
+                 "来源条件保留原文"
                  "(S5-13/14/15)"),
     }
 
@@ -1712,7 +1802,9 @@ def _aggregate_metrics(domain: str, track: str, split: str,
          "buckets": dict(sorted(condition_buckets.items())),
          "status": "interface_only_synthetic",
          "note": ("essential 冲突/条件未知/覆盖不足/preference 不满足/"
-                  "来源条件不可映射分桶;unknown 不计冲突,满足不升级"
+                  "来源条件不可映射分桶;要求侧显式非规范单位降"
+                  " unknown/unsupported 族不判相容/冲突(S5A-02 r2);"
+                  "unknown 不计冲突,满足不升级"
                   "为全路径相容")},
         {"metric_id": "endpoint_mineralization_misclaim_rate",
          "spec_ref": "S5-spec 9.6",

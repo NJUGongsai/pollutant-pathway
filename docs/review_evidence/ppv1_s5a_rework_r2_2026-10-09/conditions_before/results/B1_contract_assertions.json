@@ -1,0 +1,50 @@
+[
+  {
+    "name": "B1_requirement_K_298_vs_25C",
+    "expected_bucket": "condition_unknown",
+    "actual_buckets": {
+      "essential_conflict": 1
+    },
+    "passes_contract": false
+  },
+  {
+    "name": "B1_requirement_K_25_vs_25C",
+    "expected_bucket": "condition_unknown",
+    "actual_buckets": {
+      "compatible": 1
+    },
+    "passes_contract": false
+  },
+  {
+    "name": "B1_requirement_F_77_vs_25C",
+    "expected_bucket": "condition_unknown",
+    "actual_buckets": {
+      "essential_conflict": 1
+    },
+    "passes_contract": false
+  },
+  {
+    "name": "B1_requirement_C_25_vs_25C",
+    "expected_bucket": "compatible",
+    "actual_buckets": {
+      "compatible": 1
+    },
+    "passes_contract": true
+  },
+  {
+    "name": "B1_requirement_unit_empty_25_vs_25C",
+    "expected_bucket": "compatible",
+    "actual_buckets": {
+      "compatible": 1
+    },
+    "passes_contract": true
+  },
+  {
+    "name": "B1_dimensionless_unit_unexpected",
+    "expected_bucket": "condition_unknown",
+    "actual_buckets": {
+      "compatible": 1
+    },
+    "passes_contract": false
+  }
+]

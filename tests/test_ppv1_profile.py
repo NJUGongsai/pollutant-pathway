@@ -54,16 +54,18 @@ def test_ppv1_identity_block_contract_versions() -> None:
     # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
     # native-export-policy-3 / v3-projection-3;endpoint/native-result
     # 系沿 r1)
-    assert block["schema_version"] == "ppv1-profile-21"
+    assert block["schema_version"] == "ppv1-profile-22"
     contracts = block["contracts"]
     assert contracts["donor_diagnostic"] == "ppv1-donor-diagnostic-10"
     # S5a:三个新接口契约 + split manifest 进 contract_versions
-    # (S5a 回修 r1:evaluation → -2;preregistration-template → -2)
+    # (S5a 回修 r1:evaluation → -2;preregistration-template → -2;
+    # S5a 回修 r2:evaluation → -3、preregistration-template → -3、
+    # profile → -22 —— S5A-02 单位收口 + B2 文案纠错)
     assert contracts["reference_graph"] == "ppv1-reference-graph-1"
     assert contracts["split_manifest"] == "ppv1-split-manifest-1"
-    assert contracts["evaluation"] == "ppv1-evaluation-2"
+    assert contracts["evaluation"] == "ppv1-evaluation-3"
     assert contracts["preregistration_template"] == \
-        "ppv1-preregistration-template-2"
+        "ppv1-preregistration-template-3"
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),
         ("hypothesis", "ppv1-hypothesis-"),

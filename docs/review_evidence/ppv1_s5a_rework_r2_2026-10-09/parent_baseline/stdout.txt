@@ -1,0 +1,456 @@
+FFFF.FF.FFFFF....F.........................................F..F......... [ 59%]
+...............................F.................                        [100%]
+=================================== FAILURES ===================================
+______ test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_298_vs_25C] ______
+
+name = 'B1_requirement_K_298_vs_25C'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+>       assert result["classification"] == expected, name
+E       AssertionError: B1_requirement_K_298_vs_25C
+E       assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r2.py:129: AssertionError
+______ test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_25_vs_25C] _______
+
+name = 'B1_requirement_K_25_vs_25C'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+>       assert result["classification"] == expected, name
+E       AssertionError: B1_requirement_K_25_vs_25C
+E       assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r2.py:129: AssertionError
+______ test_s5a02_r2_b1_six_cases_classifier[B1_requirement_F_77_vs_25C] _______
+
+name = 'B1_requirement_F_77_vs_25C'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+>       assert result["classification"] == expected, name
+E       AssertionError: B1_requirement_F_77_vs_25C
+E       assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r2.py:129: AssertionError
+___ test_s5a02_r2_b1_six_cases_classifier[B1_dimensionless_unit_unexpected] ____
+
+name = 'B1_dimensionless_unit_unexpected'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+>       assert result["classification"] == expected, name
+E       AssertionError: B1_dimensionless_unit_unexpected
+E       assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r2.py:129: AssertionError
+__ test_s5a02_r2_b1_six_cases_classifier[B1_requirement_unit_empty_25_vs_25C] __
+
+name = 'B1_requirement_unit_empty_25_vs_25C'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -> None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+        assert result["classification"] == expected, name
+        if expected == "condition_unknown":
+            # 评审 B1 契约:不能丢 unit 后授 compatible/conflict;unknown
+            # 由单位分支产生(reason 区分,不是缺事实/无来源)
+            assert result["frozen_status"] is None, name
+            assert "requirement_unit_not_representable" in result["reason"], \
+                name
+            assert "no_applicable_fact" not in result["reason"], name
+            assert "necessity_unsourced" not in result["reason"], name
+            disclosure = result["mapping_disclosures"][0]
+            assert disclosure["kind"] == unit_kind, name
+            assert disclosure["key"] == key, name
+            assert disclosure["unit"] == unit, name
+            assert disclosure["value"] == repr(value), name
+            assert disclosure["reason"] == unit_kind, name
+            if unit_kind == "requirement_unit_noncanonical":
+                assert "K" in disclosure["allowed_units"] or \
+                    "C" in disclosure["allowed_units"], name
+        else:
+            # 合法正控:分类不降档;C 案无披露,空单位案披露 canonical-by-key
+            unit_kinds = [d["kind"] for d in result["mapping_disclosures"]
+                          if str(d.get("kind", "")).startswith(
+                              "requirement_unit")]
+            assert unit_kinds == ([unit_kind] if unit_kind else []), name
+            if unit_kind == "requirement_unit_not_declared":
+                disclosure = next(d for d in result["mapping_disclosures"]
+                                  if d["kind"] == unit_kind)
+>               assert disclosure["reason"] == \
+                       ^^^^^^^^^^^^^^^^^^^^
+                    "requirement_unit_canonical_by_key", name
+E               KeyError: 'reason'
+
+tests/test_ppv1_s5a_rework_r2.py:156: KeyError
+____________ test_s5a02_r2_unit_branch_not_masked_by_missing_facts _____________
+
+    def test_s5a02_r2_unit_branch_not_masked_by_missing_facts() -> None:
+        """判别回归(评审 §4.2.3):合法事实在场 + necessity 来源在场 +
+        非规范要求单位 ⇒ unknown 的 reason 是单位原因;同案把单位改成
+        空单位 ⇒ compatible —— 证明 unknown 来自单位分支,不是用
+        facts=[] 天然 unknown 冒充。"""
+        facts = [fact("temperature_C", 25, unit="C")]
+        requirement_k = req("temperature_C", "298", unit="K")
+        assert requirement_k["source_refs"]  # necessity 来源在场
+        result = _detailed(requirement_k, facts)
+>       assert result["classification"] == "condition_unknown"
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r2.py:170: AssertionError
+_______ test_s5a02_r2_preference_with_unrepresentable_unit_stays_unknown _______
+
+    def test_s5a02_r2_preference_with_unrepresentable_unit_stays_unknown() \
+            -> None:
+        """preference 轴遇无法表示的单位 ⇒ 同沿 unknown 族(值轴探针
+        不消费不可表示要求;preference 永不门禁语义不受影响)。"""
+        facts = [fact("temperature_C", 25, unit="C")]
+        result = _detailed(
+            req("temperature_C", "25", unit="K", required="preference"),
+            facts)
+>       assert result["classification"] == "condition_unknown"
+E       AssertionError: assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r2.py:223: AssertionError
+_ test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_298_vs_25C-condition_unknown] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu0')
+name = 'B1_requirement_K_298_vs_25C', expected = 'condition_unknown'
+
+    @pytest.mark.parametrize("name,expected", [
+        (row[0], row[5]) for row in _B1_CASES])
+    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(
+            tmp_path: Path, name: str, expected: str) -> None:
+        """B1 六案端到端(真实公共链):sample 桶与聚合
+        environment_conflict_rate 同源 —— 四不支持单位案不再记
+        compatible/essential_conflict;两合法正控保持;details 携带单位
+        reason 码、mapping_disclosures 机读保留原 unit/value/key。"""
+        _name, key, value, unit, fact_makers, _expected, unit_kind = \
+            _b1_case(name)
+        plan = _plan(select=1)
+        plan["condition_facts"] = [make() for make in fact_makers]
+        graph = synth_reference_graph(graph_id="rg-" + name)
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            req(key, value, unit=unit)]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        run_id = "condition-r2-" + name
+        runs_root, out = _run(tmp_path / name, run_id, plan)
+        digest = out["native_export"]["export_digest"]
+        output = _evaluate_graph(tmp_path / name, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored", name
+        conflicts = sample["environment_conflicts"]
+>       assert conflicts["buckets"] == {expected: 1}, name
+E       AssertionError: B1_requirement_K_298_vs_25C
+E       assert {'essential_conflict': 1} == {'condition_unknown': 1}
+E         
+E         Left contains 1 more item:
+E         {'essential_conflict': 1}
+E         Right contains 1 more item:
+E         {'condition_unknown': 1}
+E         Use -v to get more diff
+
+tests/test_ppv1_s5a_rework_r2.py:259: AssertionError
+_ test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_25_vs_25C-condition_unknown] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu1')
+name = 'B1_requirement_K_25_vs_25C', expected = 'condition_unknown'
+
+    @pytest.mark.parametrize("name,expected", [
+        (row[0], row[5]) for row in _B1_CASES])
+    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(
+            tmp_path: Path, name: str, expected: str) -> None:
+        """B1 六案端到端(真实公共链):sample 桶与聚合
+        environment_conflict_rate 同源 —— 四不支持单位案不再记
+        compatible/essential_conflict;两合法正控保持;details 携带单位
+        reason 码、mapping_disclosures 机读保留原 unit/value/key。"""
+        _name, key, value, unit, fact_makers, _expected, unit_kind = \
+            _b1_case(name)
+        plan = _plan(select=1)
+        plan["condition_facts"] = [make() for make in fact_makers]
+        graph = synth_reference_graph(graph_id="rg-" + name)
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            req(key, value, unit=unit)]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        run_id = "condition-r2-" + name
+        runs_root, out = _run(tmp_path / name, run_id, plan)
+        digest = out["native_export"]["export_digest"]
+        output = _evaluate_graph(tmp_path / name, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored", name
+        conflicts = sample["environment_conflicts"]
+>       assert conflicts["buckets"] == {expected: 1}, name
+E       AssertionError: B1_requirement_K_25_vs_25C
+E       assert {'compatible': 1} == {'condition_unknown': 1}
+E         
+E         Left contains 1 more item:
+E         {'compatible': 1}
+E         Right contains 1 more item:
+E         {'condition_unknown': 1}
+E         Use -v to get more diff
+
+tests/test_ppv1_s5a_rework_r2.py:259: AssertionError
+_ test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_F_77_vs_25C-condition_unknown] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu2')
+name = 'B1_requirement_F_77_vs_25C', expected = 'condition_unknown'
+
+    @pytest.mark.parametrize("name,expected", [
+        (row[0], row[5]) for row in _B1_CASES])
+    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(
+            tmp_path: Path, name: str, expected: str) -> None:
+        """B1 六案端到端(真实公共链):sample 桶与聚合
+        environment_conflict_rate 同源 —— 四不支持单位案不再记
+        compatible/essential_conflict;两合法正控保持;details 携带单位
+        reason 码、mapping_disclosures 机读保留原 unit/value/key。"""
+        _name, key, value, unit, fact_makers, _expected, unit_kind = \
+            _b1_case(name)
+        plan = _plan(select=1)
+        plan["condition_facts"] = [make() for make in fact_makers]
+        graph = synth_reference_graph(graph_id="rg-" + name)
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            req(key, value, unit=unit)]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        run_id = "condition-r2-" + name
+        runs_root, out = _run(tmp_path / name, run_id, plan)
+        digest = out["native_export"]["export_digest"]
+        output = _evaluate_graph(tmp_path / name, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored", name
+        conflicts = sample["environment_conflicts"]
+>       assert conflicts["buckets"] == {expected: 1}, name
+E       AssertionError: B1_requirement_F_77_vs_25C
+E       assert {'essential_conflict': 1} == {'condition_unknown': 1}
+E         
+E         Left contains 1 more item:
+E         {'essential_conflict': 1}
+E         Right contains 1 more item:
+E         {'condition_unknown': 1}
+E         Use -v to get more diff
+
+tests/test_ppv1_s5a_rework_r2.py:259: AssertionError
+_ test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_dimensionless_unit_unexpected-condition_unknown] _
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu3')
+name = 'B1_dimensionless_unit_unexpected', expected = 'condition_unknown'
+
+    @pytest.mark.parametrize("name,expected", [
+        (row[0], row[5]) for row in _B1_CASES])
+    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(
+            tmp_path: Path, name: str, expected: str) -> None:
+        """B1 六案端到端(真实公共链):sample 桶与聚合
+        environment_conflict_rate 同源 —— 四不支持单位案不再记
+        compatible/essential_conflict;两合法正控保持;details 携带单位
+        reason 码、mapping_disclosures 机读保留原 unit/value/key。"""
+        _name, key, value, unit, fact_makers, _expected, unit_kind = \
+            _b1_case(name)
+        plan = _plan(select=1)
+        plan["condition_facts"] = [make() for make in fact_makers]
+        graph = synth_reference_graph(graph_id="rg-" + name)
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            req(key, value, unit=unit)]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        run_id = "condition-r2-" + name
+        runs_root, out = _run(tmp_path / name, run_id, plan)
+        digest = out["native_export"]["export_digest"]
+        output = _evaluate_graph(tmp_path / name, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored", name
+        conflicts = sample["environment_conflicts"]
+>       assert conflicts["buckets"] == {expected: 1}, name
+E       AssertionError: B1_dimensionless_unit_unexpected
+E       assert {'compatible': 1} == {'condition_unknown': 1}
+E         
+E         Left contains 1 more item:
+E         {'compatible': 1}
+E         Right contains 1 more item:
+E         {'condition_unknown': 1}
+E         Use -v to get more diff
+
+tests/test_ppv1_s5a_rework_r2.py:259: AssertionError
+________ test_s5a_r2_contract_version_registration_and_frozen_integrity ________
+
+    @pytest.mark.skipif(
+        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),
+        reason="frozen criteria text not copied into allowlisted isolation "
+               "trees (G01 boundary); byte integrity verified at the "
+               "evidence level (shasum in review_evidence package)")
+    def test_s5a_r2_contract_version_registration_and_frozen_integrity() \
+            -> None:
+        """S5a 回修 r2:评测契约 -2→-3、模板 -2→-3、profile -21→-22
+        (S5A-02 单位收口语义由 evaluation-3 承载;reference-graph/
+        split-manifest 字段形状零变化);criteria-v1 冻结正文与
+        FREEZE_RECORD 逐字节不改(单位是消费侧语义)。"""
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
+E       AssertionError: assert 'ppv1-evaluation-2' == 'ppv1-evaluation-3'
+E         
+E         - ppv1-evaluation-3
+E         ?                 ^
+E         + ppv1-evaluation-2
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r2.py:361: AssertionError
+________________ test_s5a_rework_contract_version_registration _________________
+
+    def test_s5a_rework_contract_version_registration() -> None:
+        """S5a 回修 r1→r2:评测契约 -2→-3、预注册模板 -2→-3、profile
+        -21→-22(匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
+        冻结正文不受影响;r2 只登记 S5A-02 单位收口与 B2 文案纠错)。"""
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
+E       AssertionError: assert 'ppv1-evaluation-2' == 'ppv1-evaluation-3'
+E         
+E         - ppv1-evaluation-3
+E         ?                 ^
+E         + ppv1-evaluation-2
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r1.py:735: AssertionError
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v21(S5a 回修 r1):evaluation-2(S5A-01 identity scope 许可/
+        # S5A-02 条件同源分类/S5A-03 必要节点闭合/S5A-04 写边界根规则)
+        # + preregistration-template-2(proposed 文字同步)⇒ profile 身份
+        # 块随登记升版;v20(S5a 批次):donor-diagnostic-10(presence
+        # records isotope + axis_detail 披露,R4 §8 授权搭车 P2)+ 四个
+        # 新接口契约(reference-graph/split-manifest/evaluation/
+        # preregistration-template);v19(S4 回修 r3):
+        # donor-diagnostic-9(同位素 diff 并入实际净变化集,PPV1-ISO-01;
+        # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
+        # native-export-policy-3 / v3-projection-3;endpoint/native-result
+        # 系沿 r1)
+>       assert block["schema_version"] == "ppv1-profile-22"
+E       AssertionError: assert 'ppv1-profile-21' == 'ppv1-profile-22'
+E         
+E         - ppv1-profile-22
+E         ?               ^
+E         + ppv1-profile-21
+E         ?               ^
+
+tests/test_ppv1_profile.py:57: AssertionError
+______________ test_native_export_public_chain_files_and_manifest ______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -> None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        assert manifest["schema_version"] == "ppv1-native-export-3"
+        assert manifest["run_id"] == "s4b"
+        assert manifest["content_digest"] == out["native_result"][
+            "content_digest"]
+        assert manifest["export_policy"]["version"] == \
+            "ppv1-native-export-policy-3"
+        assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
+        # S5a 回修 r1:profile-20 → -21(evaluation-2 注册进身份块);
+        # S5a 回修 r2:profile-21 → -22(evaluation-3 单位收口)
+>       assert manifest["contract_versions"]["profile"] == "ppv1-profile-22"
+E       AssertionError: assert 'ppv1-profile-21' == 'ppv1-profile-22'
+E         
+E         - ppv1-profile-22
+E         ?               ^
+E         + ppv1-profile-21
+E         ?               ^
+
+tests/test_ppv1_s4b_export.py:179: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s5a_r2_parent/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_298_vs_25C]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_25_vs_25C]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_F_77_vs_25C]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_dimensionless_unit_unexpected]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_unit_empty_25_vs_25C]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_unit_branch_not_masked_by_missing_facts
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_preference_with_unrepresentable_unit_stays_unknown
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_298_vs_25C-condition_unknown]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_25_vs_25C-condition_unknown]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_F_77_vs_25C-condition_unknown]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_dimensionless_unit_unexpected-condition_unknown]
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity
+FAILED tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions
+FAILED tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest
+15 failed, 106 passed, 1 warning in 5.44s

@@ -260,7 +260,16 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 与 FREEZE_RECORD 逐字节不改;S4/S3 已关项不重开;判据一–五与
 # 0d/0e/0f/0g/0h 消费语义零触碰;v20 载荷按未知版本既有门拒绝,
 # 无兼容迁移。
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-21"
+# -22(S5a 回修 r2,2026-10-09,复审 R2 §4 唯一残余 P1 S5A-02):
+# 身份块携带 evaluation-3 / preregistration-template-3 —— (02r2)
+# 要求侧单位首消费收口(显式非规范/无量纲键声明单位 ⇒ 映射无合法
+# 表示 ⇒ unknown/unsupported 族 + 机读保留原 unit/value/key;空
+# 单位 canonical-by-key 默认合法)+ B2 文案纠错(同键相反事实两序
+# unknown;known×unknown 按冻结侧首条已知事实;低层 dataclass 次序
+# 边界另列 P2)。reference-graph-1/split-manifest-1 不变(单位是
+# 消费侧语义,字段形状零变化);criteria-v1 冻结正文与 FREEZE_
+# RECORD 逐字节不改;S5A-01/03/04、S4/S3、ISO-01 保持关闭不重开。
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-22"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -305,11 +314,24 @@ PPV1_SPLIT_MANIFEST_VERSION = "ppv1-split-manifest-1"
 # from/to 节点空命中不被 union 吞;(04)persist 核验与写入同一
 # 解析后实际规范路径。v1(S5a 批次)登记 §8 输入/输出 + split
 # manifest + leakage + 确定性匹配/指标接口。
-PPV1_EVALUATION_VERSION = "ppv1-evaluation-2"
+PPV1_EVALUATION_VERSION = "ppv1-evaluation-3"
+# S5a 回修 r2(2026-10-09,复审 R2 §4 唯一残余 P1 S5A-02):条件
+# 分类语义修正 ⇒ 契约升 -3,不偷换同一已登记契约 —— (02r2)要求侧
+# 单位支持能力在 ConditionScope→冻结 Requirement 映射首消费处决定:
+# 显式非规范单位(温度 K/F)或无量纲键声明单位(物种键 mg/L)无
+# 合法冻结表示 ⇒ condition_unknown + requirement_unit_not_
+# representable + 机读披露保留原 unit/value/key/原因(不丢弃单位后
+# 授 compatible/conflict);空要求单位按键规范单位约定(canonical-
+# by-key 默认合法);事实侧来源单位三态不变(冻结同源);sample
+# 分类与聚合同源传导;B2 文案纠错(文字与实现同真)。v2(r1)登记
+# S5A-01/02/03/04 四组语义;v1(S5a 批次)登记 §8 输入/输出 + split
+# manifest + leakage + 确定性匹配/指标接口。
 # S5a 回修 r1:proposed 文字与实现证明范围同步(仍 proposed 不冻结,
-# §10.1 全部 TBD;同步内容见 v21 注释)⇒ 模板版本升 -2。
+# §10.1 全部 TBD;同步内容见 v21 注释)⇒ 模板版本升 -2;r2 再升
+# -3(condition_policy 单位收口与 B2 更正同步,见 preregistration.py
+# 模块头)。
 PPV1_PREREGISTRATION_TEMPLATE_VERSION = \
-    "ppv1-preregistration-template-2"
+    "ppv1-preregistration-template-3"
 # S4 回修 r1(S4-C01,2026-10-08,确认复核 §4):endpoint 派生消费
 # 当前路线必要条件的同源 PathContext.route_assessment(历史快照逐边
 # 合取;旧边按记录值消费)—— 必要条件 unknown/conflict 阻断终点

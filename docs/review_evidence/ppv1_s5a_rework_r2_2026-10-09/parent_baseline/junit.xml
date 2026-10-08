@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="121" time="5.422" timestamp="2026-10-09T04:59:22.718856+08:00" hostname="bogon"><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_298_vs_25C]" time="0.000"><failure message="AssertionError: B1_requirement_K_298_vs_25C&#10;assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">name = 'B1_requirement_K_298_vs_25C'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -&gt; None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+&gt;       assert result["classification"] == expected, name
+E       AssertionError: B1_requirement_K_298_vs_25C
+E       assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r2.py:129: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_25_vs_25C]" time="0.000"><failure message="AssertionError: B1_requirement_K_25_vs_25C&#10;assert 'compatible' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + compatible">name = 'B1_requirement_K_25_vs_25C'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -&gt; None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+&gt;       assert result["classification"] == expected, name
+E       AssertionError: B1_requirement_K_25_vs_25C
+E       assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r2.py:129: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_six_cases_classifier[B1_requirement_F_77_vs_25C]" time="0.000"><failure message="AssertionError: B1_requirement_F_77_vs_25C&#10;assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">name = 'B1_requirement_F_77_vs_25C'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -&gt; None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+&gt;       assert result["classification"] == expected, name
+E       AssertionError: B1_requirement_F_77_vs_25C
+E       assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r2.py:129: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_six_cases_classifier[B1_dimensionless_unit_unexpected]" time="0.000"><failure message="AssertionError: B1_dimensionless_unit_unexpected&#10;assert 'compatible' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + compatible">name = 'B1_dimensionless_unit_unexpected'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -&gt; None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+&gt;       assert result["classification"] == expected, name
+E       AssertionError: B1_dimensionless_unit_unexpected
+E       assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r2.py:129: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_six_cases_classifier[B1_requirement_C_25_vs_25C]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_six_cases_classifier[B1_requirement_unit_empty_25_vs_25C]" time="0.000"><failure message="KeyError: 'reason'">name = 'B1_requirement_unit_empty_25_vs_25C'
+
+    @pytest.mark.parametrize("name", [row[0] for row in _B1_CASES])
+    def test_s5a02_r2_b1_six_cases_classifier(name: str) -&gt; None:
+        """B1 六案(公共单条分类器):四不支持单位案降 unknown 族(机读
+        reason=requirement_unit_not_representable,保留原 unit/value/key);
+        合法 C 与空单位正控保持 compatible。"""
+        _name, key, value, unit, fact_makers, expected, unit_kind = \
+            _b1_case(name)
+        requirement = req(key, value, unit=unit)
+        facts = [make() for make in fact_makers]
+        result = _detailed(requirement, facts)
+        assert result["classification"] == expected, name
+        if expected == "condition_unknown":
+            # 评审 B1 契约:不能丢 unit 后授 compatible/conflict;unknown
+            # 由单位分支产生(reason 区分,不是缺事实/无来源)
+            assert result["frozen_status"] is None, name
+            assert "requirement_unit_not_representable" in result["reason"], \
+                name
+            assert "no_applicable_fact" not in result["reason"], name
+            assert "necessity_unsourced" not in result["reason"], name
+            disclosure = result["mapping_disclosures"][0]
+            assert disclosure["kind"] == unit_kind, name
+            assert disclosure["key"] == key, name
+            assert disclosure["unit"] == unit, name
+            assert disclosure["value"] == repr(value), name
+            assert disclosure["reason"] == unit_kind, name
+            if unit_kind == "requirement_unit_noncanonical":
+                assert "K" in disclosure["allowed_units"] or \
+                    "C" in disclosure["allowed_units"], name
+        else:
+            # 合法正控:分类不降档;C 案无披露,空单位案披露 canonical-by-key
+            unit_kinds = [d["kind"] for d in result["mapping_disclosures"]
+                          if str(d.get("kind", "")).startswith(
+                              "requirement_unit")]
+            assert unit_kinds == ([unit_kind] if unit_kind else []), name
+            if unit_kind == "requirement_unit_not_declared":
+                disclosure = next(d for d in result["mapping_disclosures"]
+                                  if d["kind"] == unit_kind)
+&gt;               assert disclosure["reason"] == \
+                       ^^^^^^^^^^^^^^^^^^^^
+                    "requirement_unit_canonical_by_key", name
+E               KeyError: 'reason'
+
+tests/test_ppv1_s5a_rework_r2.py:156: KeyError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_unit_branch_not_masked_by_missing_facts" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">def test_s5a02_r2_unit_branch_not_masked_by_missing_facts() -&gt; None:
+        """判别回归(评审 §4.2.3):合法事实在场 + necessity 来源在场 +
+        非规范要求单位 ⇒ unknown 的 reason 是单位原因;同案把单位改成
+        空单位 ⇒ compatible —— 证明 unknown 来自单位分支,不是用
+        facts=[] 天然 unknown 冒充。"""
+        facts = [fact("temperature_C", 25, unit="C")]
+        requirement_k = req("temperature_C", "298", unit="K")
+        assert requirement_k["source_refs"]  # necessity 来源在场
+        result = _detailed(requirement_k, facts)
+&gt;       assert result["classification"] == "condition_unknown"
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r2.py:170: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_requirement_vs_fact_unit_semantics_split" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_preference_with_unrepresentable_unit_stays_unknown" time="0.000"><failure message="AssertionError: assert 'compatible' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + compatible">def test_s5a02_r2_preference_with_unrepresentable_unit_stays_unknown() \
+            -&gt; None:
+        """preference 轴遇无法表示的单位 ⇒ 同沿 unknown 族(值轴探针
+        不消费不可表示要求;preference 永不门禁语义不受影响)。"""
+        facts = [fact("temperature_C", 25, unit="C")]
+        result = _detailed(
+            req("temperature_C", "25", unit="K", required="preference"),
+            facts)
+&gt;       assert result["classification"] == "condition_unknown"
+E       AssertionError: assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r2.py:223: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_298_vs_25C-condition_unknown]" time="0.365"><failure message="AssertionError: B1_requirement_K_298_vs_25C&#10;assert {'essential_conflict': 1} == {'condition_unknown': 1}&#10;  &#10;  Left contains 1 more item:&#10;  {'essential_conflict': 1}&#10;  Right contains 1 more item:&#10;  {'condition_unknown': 1}&#10;  Use -v to get more diff">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu0')
+name = 'B1_requirement_K_298_vs_25C', expected = 'condition_unknown'
+
+    @pytest.mark.parametrize("name,expected", [
+        (row[0], row[5]) for row in _B1_CASES])
+    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(
+            tmp_path: Path, name: str, expected: str) -&gt; None:
+        """B1 六案端到端(真实公共链):sample 桶与聚合
+        environment_conflict_rate 同源 —— 四不支持单位案不再记
+        compatible/essential_conflict;两合法正控保持;details 携带单位
+        reason 码、mapping_disclosures 机读保留原 unit/value/key。"""
+        _name, key, value, unit, fact_makers, _expected, unit_kind = \
+            _b1_case(name)
+        plan = _plan(select=1)
+        plan["condition_facts"] = [make() for make in fact_makers]
+        graph = synth_reference_graph(graph_id="rg-" + name)
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            req(key, value, unit=unit)]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        run_id = "condition-r2-" + name
+        runs_root, out = _run(tmp_path / name, run_id, plan)
+        digest = out["native_export"]["export_digest"]
+        output = _evaluate_graph(tmp_path / name, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored", name
+        conflicts = sample["environment_conflicts"]
+&gt;       assert conflicts["buckets"] == {expected: 1}, name
+E       AssertionError: B1_requirement_K_298_vs_25C
+E       assert {'essential_conflict': 1} == {'condition_unknown': 1}
+E         
+E         Left contains 1 more item:
+E         {'essential_conflict': 1}
+E         Right contains 1 more item:
+E         {'condition_unknown': 1}
+E         Use -v to get more diff
+
+tests/test_ppv1_s5a_rework_r2.py:259: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_25_vs_25C-condition_unknown]" time="0.103"><failure message="AssertionError: B1_requirement_K_25_vs_25C&#10;assert {'compatible': 1} == {'condition_unknown': 1}&#10;  &#10;  Left contains 1 more item:&#10;  {'compatible': 1}&#10;  Right contains 1 more item:&#10;  {'condition_unknown': 1}&#10;  Use -v to get more diff">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu1')
+name = 'B1_requirement_K_25_vs_25C', expected = 'condition_unknown'
+
+    @pytest.mark.parametrize("name,expected", [
+        (row[0], row[5]) for row in _B1_CASES])
+    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(
+            tmp_path: Path, name: str, expected: str) -&gt; None:
+        """B1 六案端到端(真实公共链):sample 桶与聚合
+        environment_conflict_rate 同源 —— 四不支持单位案不再记
+        compatible/essential_conflict;两合法正控保持;details 携带单位
+        reason 码、mapping_disclosures 机读保留原 unit/value/key。"""
+        _name, key, value, unit, fact_makers, _expected, unit_kind = \
+            _b1_case(name)
+        plan = _plan(select=1)
+        plan["condition_facts"] = [make() for make in fact_makers]
+        graph = synth_reference_graph(graph_id="rg-" + name)
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            req(key, value, unit=unit)]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        run_id = "condition-r2-" + name
+        runs_root, out = _run(tmp_path / name, run_id, plan)
+        digest = out["native_export"]["export_digest"]
+        output = _evaluate_graph(tmp_path / name, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored", name
+        conflicts = sample["environment_conflicts"]
+&gt;       assert conflicts["buckets"] == {expected: 1}, name
+E       AssertionError: B1_requirement_K_25_vs_25C
+E       assert {'compatible': 1} == {'condition_unknown': 1}
+E         
+E         Left contains 1 more item:
+E         {'compatible': 1}
+E         Right contains 1 more item:
+E         {'condition_unknown': 1}
+E         Use -v to get more diff
+
+tests/test_ppv1_s5a_rework_r2.py:259: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_F_77_vs_25C-condition_unknown]" time="0.113"><failure message="AssertionError: B1_requirement_F_77_vs_25C&#10;assert {'essential_conflict': 1} == {'condition_unknown': 1}&#10;  &#10;  Left contains 1 more item:&#10;  {'essential_conflict': 1}&#10;  Right contains 1 more item:&#10;  {'condition_unknown': 1}&#10;  Use -v to get more diff">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu2')
+name = 'B1_requirement_F_77_vs_25C', expected = 'condition_unknown'
+
+    @pytest.mark.parametrize("name,expected", [
+        (row[0], row[5]) for row in _B1_CASES])
+    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(
+            tmp_path: Path, name: str, expected: str) -&gt; None:
+        """B1 六案端到端(真实公共链):sample 桶与聚合
+        environment_conflict_rate 同源 —— 四不支持单位案不再记
+        compatible/essential_conflict;两合法正控保持;details 携带单位
+        reason 码、mapping_disclosures 机读保留原 unit/value/key。"""
+        _name, key, value, unit, fact_makers, _expected, unit_kind = \
+            _b1_case(name)
+        plan = _plan(select=1)
+        plan["condition_facts"] = [make() for make in fact_makers]
+        graph = synth_reference_graph(graph_id="rg-" + name)
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            req(key, value, unit=unit)]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        run_id = "condition-r2-" + name
+        runs_root, out = _run(tmp_path / name, run_id, plan)
+        digest = out["native_export"]["export_digest"]
+        output = _evaluate_graph(tmp_path / name, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored", name
+        conflicts = sample["environment_conflicts"]
+&gt;       assert conflicts["buckets"] == {expected: 1}, name
+E       AssertionError: B1_requirement_F_77_vs_25C
+E       assert {'essential_conflict': 1} == {'condition_unknown': 1}
+E         
+E         Left contains 1 more item:
+E         {'essential_conflict': 1}
+E         Right contains 1 more item:
+E         {'condition_unknown': 1}
+E         Use -v to get more diff
+
+tests/test_ppv1_s5a_rework_r2.py:259: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_dimensionless_unit_unexpected-condition_unknown]" time="0.097"><failure message="AssertionError: B1_dimensionless_unit_unexpected&#10;assert {'compatible': 1} == {'condition_unknown': 1}&#10;  &#10;  Left contains 1 more item:&#10;  {'compatible': 1}&#10;  Right contains 1 more item:&#10;  {'condition_unknown': 1}&#10;  Use -v to get more diff">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_s5a02_r2_b1_end_to_end_pu3')
+name = 'B1_dimensionless_unit_unexpected', expected = 'condition_unknown'
+
+    @pytest.mark.parametrize("name,expected", [
+        (row[0], row[5]) for row in _B1_CASES])
+    def test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate(
+            tmp_path: Path, name: str, expected: str) -&gt; None:
+        """B1 六案端到端(真实公共链):sample 桶与聚合
+        environment_conflict_rate 同源 —— 四不支持单位案不再记
+        compatible/essential_conflict;两合法正控保持;details 携带单位
+        reason 码、mapping_disclosures 机读保留原 unit/value/key。"""
+        _name, key, value, unit, fact_makers, _expected, unit_kind = \
+            _b1_case(name)
+        plan = _plan(select=1)
+        plan["condition_facts"] = [make() for make in fact_makers]
+        graph = synth_reference_graph(graph_id="rg-" + name)
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            req(key, value, unit=unit)]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        run_id = "condition-r2-" + name
+        runs_root, out = _run(tmp_path / name, run_id, plan)
+        digest = out["native_export"]["export_digest"]
+        output = _evaluate_graph(tmp_path / name, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored", name
+        conflicts = sample["environment_conflicts"]
+&gt;       assert conflicts["buckets"] == {expected: 1}, name
+E       AssertionError: B1_dimensionless_unit_unexpected
+E       assert {'compatible': 1} == {'condition_unknown': 1}
+E         
+E         Left contains 1 more item:
+E         {'compatible': 1}
+E         Right contains 1 more item:
+E         {'condition_unknown': 1}
+E         Use -v to get more diff
+
+tests/test_ppv1_s5a_rework_r2.py:259: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_C_25_vs_25C-compatible]" time="0.096" /><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_unit_empty_25_vs_25C-compatible]" time="0.097" /><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_b2_checked_builder_and_order_gates" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a02_r2_r1_condition_cases_all_preserved" time="0.001" /><testcase classname="tests.test_ppv1_s5a_rework_r2" name="test_s5a_r2_contract_version_registration_and_frozen_integrity" time="0.000"><failure message="AssertionError: assert 'ppv1-evaluation-2' == 'ppv1-evaluation-3'&#10;  &#10;  - ppv1-evaluation-3&#10;  ?                 ^&#10;  + ppv1-evaluation-2&#10;  ?                 ^">@pytest.mark.skipif(
+        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),
+        reason="frozen criteria text not copied into allowlisted isolation "
+               "trees (G01 boundary); byte integrity verified at the "
+               "evidence level (shasum in review_evidence package)")
+    def test_s5a_r2_contract_version_registration_and_frozen_integrity() \
+            -&gt; None:
+        """S5a 回修 r2:评测契约 -2→-3、模板 -2→-3、profile -21→-22
+        (S5A-02 单位收口语义由 evaluation-3 承载;reference-graph/
+        split-manifest 字段形状零变化);criteria-v1 冻结正文与
+        FREEZE_RECORD 逐字节不改(单位是消费侧语义)。"""
+&gt;       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
+E       AssertionError: assert 'ppv1-evaluation-2' == 'ppv1-evaluation-3'
+E         
+E         - ppv1-evaluation-3
+E         ?                 ^
+E         + ppv1-evaluation-2
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r2.py:361: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[cn_only]" time="0.128" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[partial]" time="0.128" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[unknown]" time="0.128" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_all_nodes_capped[cn_only]" time="0.125" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_all_nodes_capped[partial]" time="0.125" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_all_nodes_capped[unknown]" time="0.124" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_legal_strict_and_real_cn_controls_kept" time="0.145" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_matcher_unit_scope_cap" time="0.008" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-reactant]" time="0.131" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-product]" time="0.125" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-reactant]" time="0.125" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-product]" time="0.126" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_participants_only_node_deferred_p2" time="0.123" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_legal_exact_superset_partial_controls_kept" time="0.125" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[missing_fact]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[same_known_present]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[opposite_known_present]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[same_known_absent]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[other_known_absent]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[numeric_known_absent]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[entity_other_known_absent]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[canonical_unit_positive]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[unit_unknown]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[unit_mismatch_K]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[unit_noncanonical_F]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_conflict_first]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_satisfied_first]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[necessity_no_source]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[zero_point_present]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[negative_interval_present]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[dict_interval_present]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[matrix_label_unresolved]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_absent]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_present]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_frozen_reasons_and_mapping_disclosures" time="0.001" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_unsupported_key_and_fact_disclosures" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_preference_and_scenario_axes_kept" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_end_to_end_buckets_with_frozen_reasons" time="0.096" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a04_persist_resolved_path_authorization" time="0.001" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a04_persist_symlink_escape_refused" time="0.001" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a04_persist_no_root_refused_and_plain_write_kept" time="0.001" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a_rework_contract_version_registration" time="0.000"><failure message="AssertionError: assert 'ppv1-evaluation-2' == 'ppv1-evaluation-3'&#10;  &#10;  - ppv1-evaluation-3&#10;  ?                 ^&#10;  + ppv1-evaluation-2&#10;  ?                 ^">def test_s5a_rework_contract_version_registration() -&gt; None:
+        """S5a 回修 r1→r2:评测契约 -2→-3、预注册模板 -2→-3、profile
+        -21→-22(匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
+        冻结正文不受影响;r2 只登记 S5A-02 单位收口与 B2 文案纠错)。"""
+&gt;       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
+E       AssertionError: assert 'ppv1-evaluation-2' == 'ppv1-evaluation-3'
+E         
+E         - ppv1-evaluation-3
+E         ?                 ^
+E         + ppv1-evaluation-2
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r1.py:735: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_profile_names_registry" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_identity_schema_version_bumped" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_contract_versions" time="0.000"><failure message="AssertionError: assert 'ppv1-profile-21' == 'ppv1-profile-22'&#10;  &#10;  - ppv1-profile-22&#10;  ?               ^&#10;  + ppv1-profile-21&#10;  ?               ^">def test_ppv1_identity_block_contract_versions() -&gt; None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v21(S5a 回修 r1):evaluation-2(S5A-01 identity scope 许可/
+        # S5A-02 条件同源分类/S5A-03 必要节点闭合/S5A-04 写边界根规则)
+        # + preregistration-template-2(proposed 文字同步)⇒ profile 身份
+        # 块随登记升版;v20(S5a 批次):donor-diagnostic-10(presence
+        # records isotope + axis_detail 披露,R4 §8 授权搭车 P2)+ 四个
+        # 新接口契约(reference-graph/split-manifest/evaluation/
+        # preregistration-template);v19(S4 回修 r3):
+        # donor-diagnostic-9(同位素 diff 并入实际净变化集,PPV1-ISO-01;
+        # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
+        # native-export-policy-3 / v3-projection-3;endpoint/native-result
+        # 系沿 r1)
+&gt;       assert block["schema_version"] == "ppv1-profile-22"
+E       AssertionError: assert 'ppv1-profile-21' == 'ppv1-profile-22'
+E         
+E         - ppv1-profile-22
+E         ?               ^
+E         + ppv1-profile-21
+E         ?               ^
+
+tests/test_ppv1_profile.py:57: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_default_switches" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-filter]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-None]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[search_intent-anything_goes]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_search_limits_validation" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_excludes_pollutant_for_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_pollutant_includes_full_tree" time="0.005" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_legacy_stable_under_pollutant_changes" time="0.007" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_default_is_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_legacy_rejects_profile_policy" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_pollutant_block" time="0.003" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_profile_mismatch_rejected" time="0.008" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_v1_missing_profile_read_as_legacy" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_identity_fingerprint_includes_profile" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_pollutant_dispatches_to_runflow" time="0.035" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_unknown_profile_rejected" time="0.001" /><testcase classname="tests.test_ppv1_profile" name="test_cli_profile_flag_choices" time="0.003" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_01_reference_graph_full_field_validation" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_01_missing_field_fails_with_field_path" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_01_unknown_schema_version_refused" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_01_unparseable_file_refused" time="0.001" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_reference_graph_unknown_top_level_field_refused" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_reference_graph_root_limited_scope_declaration" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_reference_graph_distinct_occurrence_kept" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_reference_graph_mineralization_evidence_floor" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_split_manifest_schema" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_evaluation_input_required_fields" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_21_mixed_domain_refused" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_22_mixed_track_refused" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_evaluation_input_lossy_projection_contract" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_23_preregistration_template_tbd_marking" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_preregistration_validation_fail_closed" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_26_paid_provider_off_by_default" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_real_data_scope_requires_approved_prereg" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_27_gold_output_write_guard" time="0.001" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_28_no_native_export_pending" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_emitted_status_never_evaluated" time="0.000" /><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_public_chain_files_and_manifest" time="0.088"><failure message="AssertionError: assert 'ppv1-profile-21' == 'ppv1-profile-22'&#10;  &#10;  - ppv1-profile-22&#10;  ?               ^&#10;  + ppv1-profile-21&#10;  ?               ^">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-513/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -&gt; None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        assert manifest["schema_version"] == "ppv1-native-export-3"
+        assert manifest["run_id"] == "s4b"
+        assert manifest["content_digest"] == out["native_result"][
+            "content_digest"]
+        assert manifest["export_policy"]["version"] == \
+            "ppv1-native-export-policy-3"
+        assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
+        # S5a 回修 r1:profile-20 → -21(evaluation-2 注册进身份块);
+        # S5a 回修 r2:profile-21 → -22(evaluation-3 单位收口)
+&gt;       assert manifest["contract_versions"]["profile"] == "ppv1-profile-22"
+E       AssertionError: assert 'ppv1-profile-21' == 'ppv1-profile-22'
+E         
+E         - ppv1-profile-22
+E         ?               ^
+E         + ppv1-profile-21
+E         ?               ^
+
+tests/test_ppv1_s4b_export.py:179: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_full_fact_coverage" time="0.093" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_repeat_export_same_bytes_including_subprocess" time="0.294" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_export_after_crash_resume_repeat_identical" time="0.149" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_export_read_back_matches_native_authority" time="0.095" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_stale_after_graph_change" time="0.191" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_stale_after_policy_change" time="0.095" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_integrity_structured_failures" time="0.092" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_self_consistent_rewrite_not_laundered" time="0.092" /><testcase classname="tests.test_ppv1_s4b_export" name="test_tampered_export_refuses_overwrite" time="0.093" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_lossy_marker_reference_and_losses" time="0.086" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_steps_per_event_no_cn_merge_no_fabrication" time="0.109" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_deterministic_and_reverse_lookup" time="0.095" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_reverse_consumption_refused_zero_writes" time="0.089" /><testcase classname="tests.test_ppv1_s4b_export" name="test_full_public_chain_crash_resume_export_replay" time="0.138" /><testcase classname="tests.test_ppv1_s4b_export" name="test_endpoint_stop_reference_broken_refuses_export" time="0.089" /><testcase classname="tests.test_ppv1_s4b_export" name="test_empty_pool_run_exports_and_projects" time="0.039" /><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_v3_projection_conflict_preserves" time="0.086" /></testsuite></testsuites>

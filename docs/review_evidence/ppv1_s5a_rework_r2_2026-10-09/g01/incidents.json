@@ -1,0 +1,21 @@
+{
+  "round": "S5a rework r2 G01 safety isolation",
+  "incidents": [
+    {
+      "id": "G01-first-run-1-failed",
+      "what": "First G01 run exited 1 with '1 failed, 1706 passed, 8 skipped, 17 deselected, 1 warning in 238.90s' (controller JSON summary, preserved verbatim). The single failure was tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity raising FileNotFoundError while reading docs/POLLUTANT_PATHWAY_CRITERIA_FROZEN_V1_2026-10-08.md.",
+      "cause": "Deliverable's own test design defect: the frozen-integrity guard reads repo docs/, but the G01 allowlisted isolation tree intentionally copies only src/tests/configs/scripts/assets (docs/ excluded) - the guard was not executable in the isolation tree.",
+      "fix": "Guard changed to pytest.mark.skipif (frozen text absent in allowlisted isolation trees -> explicit skip with reason; byte integrity verified at the evidence level via frozen_integrity.json shasum). Test file re-synced to the parent worktree and evidence trees.",
+      "rerun": "Second run: 1706 passed / 9 skipped / 17 deselected, exit 0, 305 input SHAs reverified with zero mismatches, 7 isolated pyc files honestly recorded.",
+      "evidence_limitation": "The first run's output directory was removed before the rerun (the G01 script refuses an existing out directory); its full pytest stdout/junit are NOT preserved. The preserved records are: the controller JSON summary line quoted above (background task log of this implementation session) and the failure identification (nodeid + FileNotFoundError at pathlib read_bytes) read from the first-run stdout before removal. This is honestly registered and not counted as a product failure: the r2 PPV1 full run in the repo tree (ppv1/ package, exit 0, 1105 passed) shows the same guard green where docs/ is present.",
+      "product_impact": "none claimed - the failure was in this round's own new test harness design, not in business code; no business behavior regression was observed in either G01 run (1706 business passes in both runs)."
+    }
+  ],
+  "scheduling_failures": "none this round - the conditions probe executed all 17 public cases once successfully on both before/after trees; no CLI mode dispatch errors.",
+  "unexecuted_segments": [
+    "r1's identity / required-node / write-boundary special probes and the 40-item check were NOT rerun this round (S5A-01/03/04 are closed per review R2 section 3; this round's scope is the S5A-02 unit closure only). Their behavior stays guarded by the r1 regression suite inside the 1105-passed PPV1 full run and the 1706-passed G01 isolation run.",
+    "B2's four direct-dataclass low-level order probes were not rerun (registered P2, unchanged ruling).",
+    "A1 root-pairing and C1 participant_list_status morning-report P2 items: no new fixtures constructed this round."
+  ],
+  "cache_observation": "G01 isolation tree test subprocesses produced 7 .pyc files despite -B and PYTHONDONTWRITEBYTECODE=1 (list in post_run_sha_result.json, same count as the review's r1 observation); repo tree runs left no pyc. No 'all-no-pyc' claim is made."
+}

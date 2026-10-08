@@ -1,0 +1,443 @@
+[
+  {
+    "name": "B1_requirement_K_298_vs_25C",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "conflict",
+      "reason": "point_mismatch:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "point",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":298,\"value_basis\":\"point\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B1_requirement_K_25_vs_25C",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "point_match:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "point",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":25,\"value_basis\":\"point\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B1_requirement_F_77_vs_25C",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "conflict",
+      "reason": "point_mismatch:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "point",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":77,\"value_basis\":\"point\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B1_requirement_C_25_vs_25C",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "point_match:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "point",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":25,\"value_basis\":\"point\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B1_requirement_unit_empty_25_vs_25C",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "point_match:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "point",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":25,\"value_basis\":\"point\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B1_dimensionless_unit_unexpected",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "entity_present:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_present_unknown",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "entity_present:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_unknown_present",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "entity_present:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_absent_unknown",
+    "literal_classifier": "essential_conflict",
+    "public_evaluation_buckets": {
+      "essential_conflict": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "conflict",
+      "reason": "required_entity_known_absent:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_unknown_absent",
+    "literal_classifier": "essential_conflict",
+    "public_evaluation_buckets": {
+      "essential_conflict": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "conflict",
+      "reason": "required_entity_known_absent:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_present_absent",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "conflicting_applicable_facts:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_absent_present",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "conflicting_applicable_facts:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_O2_NO3",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "entity_present:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_NO3_O2",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "entity_present:electron_acceptor",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_other_NO3_Fe3",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "entity_not_among_known_facts:electron_acceptor:required='O2',known=['Fe3', 'NO3']",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B2_species_other_Fe3_NO3",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "entity_not_among_known_facts:electron_acceptor:required='O2',known=['Fe3', 'NO3']",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "B3_point_mismatch_disclosed",
+    "literal_classifier": "essential_conflict",
+    "public_evaluation_buckets": {
+      "essential_conflict": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "conflict",
+      "reason": "point_mismatch:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "point",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":25,\"value_basis\":\"point\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  }
+]
