@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_probe_run1/probe_worker.py",
+    "/private/tmp/ppv1_s3b_r3_probe_run1/inputs/crash_after_request_registered_start.json"
+  ],
+  "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Volumes/CC/Enzyme_Agent/dependingv43/src"
+  },
+  "label": "crash_after_request_registered_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_e30ea43e613850a53376",
+      "request_id": "sreq_e8380058a45b4b53ccd1"
+    },
+    "hard_kill": "after_request_registered",
+    "pid": 39775
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_request_registered\", \"detail\": {\"action_id\": \"sact_e30ea43e613850a53376\", \"request_id\": \"sreq_e8380058a45b4b53ccd1\"}, \"pid\": 39775}\n"
+}

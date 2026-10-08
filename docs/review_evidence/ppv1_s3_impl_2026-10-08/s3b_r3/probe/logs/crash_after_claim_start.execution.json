@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_probe_run1/probe_worker.py",
+    "/private/tmp/ppv1_s3b_r3_probe_run1/inputs/crash_after_claim_start.json"
+  ],
+  "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Volumes/CC/Enzyme_Agent/dependingv43/src"
+  },
+  "label": "crash_after_claim_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_99e0be7be0308a2787aa"
+    },
+    "hard_kill": "after_claim",
+    "pid": 39763
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_claim\", \"detail\": {\"action_id\": \"sact_99e0be7be0308a2787aa\"}, \"pid\": 39763}\n"
+}

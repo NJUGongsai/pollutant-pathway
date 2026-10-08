@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_probe_run1/probe_worker.py",
+    "/private/tmp/ppv1_s3b_r3_probe_run1/inputs/transition_after_event_submitted_start.json"
+  ],
+  "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Volumes/CC/Enzyme_Agent/dependingv43/src"
+  },
+  "label": "transition_after_event_submitted_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_536010f9eec43df5b2ee",
+      "event_id": "ppev_b262289bae94b6d7c7fc",
+      "submitted": {
+        "action_id": "sact_536010f9eec43df5b2ee",
+        "created": true,
+        "event_id": "ppev_b262289bae94b6d7c7fc"
+      }
+    },
+    "hard_kill": "after_event_submitted",
+    "pid": 39832
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_event_submitted\", \"detail\": {\"action_id\": \"sact_536010f9eec43df5b2ee\", \"event_id\": \"ppev_b262289bae94b6d7c7fc\", \"submitted\": {\"created\": true, \"event_id\": \"ppev_b262289bae94b6d7c7fc\", \"action_id\": \"sact_536010f9eec43df5b2ee\"}}, \"pid\": 39832}\n"
+}

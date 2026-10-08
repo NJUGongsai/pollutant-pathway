@@ -1,0 +1,51 @@
+{
+ "head": "2bedfc060a9b19019ba44aa2a56dcacb88450c3b",
+ "suite": "pytest",
+ "cases": [
+  {
+   "name": "test_s3b01r3_b3_self_consistent_replaced_plan_rejected",
+   "time": "0.715",
+   "status": "failed",
+   "failure_text": "Failed: DID NOT RAISE PPV1RunError"
+  },
+  {
+   "name": "test_s3b01r3_b4_self_consistent_replaced_plan_rejected",
+   "time": "0.608",
+   "status": "failed",
+   "failure_text": "Failed: DID NOT RAISE PPV1RunError"
+  },
+  {
+   "name": "test_s3b01r3_replaced_artifact_with_matching_new_plan_rejected",
+   "time": "0.607",
+   "status": "failed",
+   "failure_text": "Failed: DID NOT RAISE PPV1RunError"
+  },
+  {
+   "name": "test_s3b01r3_anchor_missing_rejected",
+   "time": "0.602",
+   "status": "failed",
+   "failure_text": "Failed: DID NOT RAISE PPV1RunError"
+  },
+  {
+   "name": "test_s3b01r3_anchor_corrupt_digest_edited_rejected",
+   "time": "0.604",
+   "status": "failed",
+   "failure_text": "Failed: DID NOT RAISE PPV1RunError"
+  },
+  {
+   "name": "test_s3b01r3_b3_omitted_plan_legal_resume_positive_control",
+   "time": "0.595",
+   "status": "passed"
+  },
+  {
+   "name": "test_s3b01r3_same_plan_explicit_resume_positive_control",
+   "time": "0.583",
+   "status": "passed"
+  },
+  {
+   "name": "test_s3b01r3_b4_legal_transition_new_context_positive_control",
+   "time": "0.599",
+   "status": "passed"
+  }
+ ]
+}

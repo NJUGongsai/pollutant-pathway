@@ -1,0 +1,8 @@
+# r3 父基线(直接父 2bedfc060a9b19019ba44aa2a56dcacb88450c3b)同字节对照建立
+git worktree add --detach /private/tmp/ppv1_s3b_r3_base_2bedfc 2bedfc060a9b19019ba44aa2a56dcacb88450c3b
+# 新 r3 测试文件同字节复制(cmp BYTES-IDENTICAL):
+cp /Volumes/CC/Enzyme_Agent/dependingv43/tests/test_ppv1_s3b_r3.py /private/tmp/ppv1_s3b_r3_base_2bedfc/tests/
+# 运行(父 worktree 内,depending43,-B,无字节码/pytest 缓存):
+cd /private/tmp/ppv1_s3b_r3_base_2bedfc && PYTHONDONTWRITEBYTECODE=1 /Users/cc/miniconda3/envs/depending43/bin/python -B -m pytest -p no:cacheprovider -q tests/test_ppv1_s3b_r3.py --junitxml=parent_r3.junit.xml
+# 结果:5 failed / 3 passed / 0 collection errors(exit 1)
+# 本批未更新任何既有测试文件(父基线集合 = 新 r3 文件,无版本字面量翻转)

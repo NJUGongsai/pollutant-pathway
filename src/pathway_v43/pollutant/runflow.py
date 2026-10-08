@@ -1,5 +1,5 @@
 """S3b PPV1 独立 runner 执行流 —— start/resume 分流后的确定性驱动
-(实施书 §6.2;契约随 search-6 / profile-14 / runflow-2 登记)。
+(实施书 §6.2;契约随 search-6 / profile-14 / runflow-3 登记)。
 
 职责:workflow.runner 的 PPV1 分流目标 —— **独立**执行/存储(不落
 legacy CN/PathwayStore/预算派生/LangGraph):
@@ -10,7 +10,11 @@ legacy CN/PathwayStore/预算派生/LangGraph):
 - resume:身份逐字段核对(code/资产/策略/profile/prediction)→
   **执行会话互斥(S3b r2/S3B-04:run 目录 flock,双进程只一方取得
   执行权;崩溃 OS 自动释放,新进程接管)** → 冻结计划输入核对
-  (S3B-01:无 plan 沿冻结输入;传入内容不符结构化拒)→ recover_run
+  (S3B-01:无 plan 沿冻结输入;传入内容不符结构化拒)→ **冻结
+  计划与独立既存 run/root/task 原绑定核对(S3b r3/S3B-01 后段
+  锚定:start 落账的根 retrieve 行 plan_digest/task_key 是独立
+  权威,artifact 自洽摘要不是证书;先于 recover 补账/事件/调度/
+  consume,覆盖 root retrieve 已 done 的 B3/B4)** → recover_run
   四崩溃边界(B4 补账/B3 消费 bundle/B1 续跑/B2 披露)→ **恢复
   裁定的坏 artifact/缺权威 action 明确隔离(S3B-02:不重执行、
   证据保全,合法独立任务继续)** → 继续驱动循环(不重建/不覆盖既有
@@ -53,6 +57,20 @@ artifact(plan_digest 内容绑定);resume 的 retrieve/decide/模型
 拒绝(frozen_plan_mismatch),差异须显式新 revision/新任务登记;
 decide 已冻结的 pool_digest 与 retrieve 任务的 plan_digest 同源核验
 (同计划正控保持)。
+
+**S3b r3 后段锚定(S3B-01 残余收口)**:r2 的计划绑定只在 resume
+传入比对侧与 retrieve/decide 执行层到达 —— root retrieve 已 done 的
+B3/B4 后段不可达,自洽重封装 artifact(重算自身 plan_digest 与信封
+payload_hash)仍会被消费。r3 在 resume **首消费前**(recover_run
+补账/事件提交/新调度/预算 consume 之前)把读取的冻结计划与独立
+既存权威核对:start 时落账的根 retrieve 行(search_actions.payload
+的 plan_digest;task_key 由同一 decision_task_key 单一来源派生)
+—— artifact 文件内的自 hash/自己写的 plan_digest 不是独立证书。
+缺锚(frozen_plan_anchor_missing)/坏锚(frozen_plan_anchor_corrupt)
+/摘要不符(frozen_plan_binding_mismatch)先结构化拒,业务表/event/
+commit/consume 零新增,原资料保全。正常同计划、省略 plan、显式同
+计划、合法原计划转换恢复全保持;只改一份 artifact 的自洽重封装
+(B3/B4)必须拒。不做密码学签名、不抗全库协同改写(超范围)。
 """
 
 from __future__ import annotations
@@ -136,7 +154,7 @@ from .search import (
 from .store import PollutantPathwayStore
 from .substrate_profile import build_substrate_profile
 
-RUNFLOW_VERSION = "ppv1-runflow-2"
+RUNFLOW_VERSION = "ppv1-runflow-3"
 FROZEN_PLAN_VERSION = "ppv1-frozen-plan-1"
 FROZEN_PLAN_TASK_KEY = "run-plan"
 FROZEN_PLAN_ARTIFACT = "frozen_plan"
@@ -251,6 +269,124 @@ def _load_frozen_plan(artifact_store) -> dict:
             "冻结计划内容与摘要不符(内容身份核验失败;保全失败)",
             {"kind": "frozen_plan_digest_mismatch"})
     return plan
+
+
+def _verify_frozen_plan_binding(ledger: SearchLedger, run_id: str,
+                                frozen_plan: dict) -> dict:
+    """S3B-01 后段锚定(S3b r3):resume 首消费前,把读取的冻结计划
+    与**独立既存权威**核对 —— start 时落账的根 retrieve 行。
+
+    - 独立权威是 DB 通道的 search_actions 行(payload.plan_digest;
+      task_key 由 start 侧同一 `decision_task_key` 单一来源派生并冻结
+      落账),与 artifact 文件相互独立 —— **artifact 内自算的
+      payload_hash/plan_digest 是自洽证书,不能单独证明"仍是该
+      run/root/task 的原输入"**;
+    - 覆盖 root retrieve 已 done 的 B3/B4:retrieve 执行层的
+      plan_digest 同源核验(`_run_retrieve`)只在 retrieve 实际执行
+      时到达,后段不可达 —— 本核对在入口闭合,不依赖旧 retrieve
+      是否还会执行;
+    - 逐锚两查(单一来源派生,不另造第二套规则):
+      ① 锚行自身同源:按行内冻结字段 + 行内 plan_digest 重算
+      decision_task_key,与行内冻结 task_key(列与载荷)比对 ——
+      不符 ⇒ 坏锚(frozen_plan_anchor_corrupt)先拒;
+      ② 锚摘要与当前读取的冻结计划摘要比对 —— 不符 ⇒
+      frozen_plan_binding_mismatch(旧任务不消费新输入;差异须显式
+      新 revision/新任务登记);
+    - 无任何携带 plan_digest 的 retrieve 行(载荷不可解析视同坏锚,
+      因无法证明其未携带锚)⇒ frozen_plan_anchor_missing 先拒;
+    - 本核对发生在 recover_run(B4 补账/B3 bundle 消费)/驱动调度/
+      事件提交/预算 consume **之前**:任何锚缺失/损坏/不符 ⇒ 结构
+      化拒,业务表/event/commit/consume 零新增,原资料(artifact/
+      DB 行)保全;
+    - 不提供密码学签名服务、不抵抗全库协同改写(复审 §4 明示超出
+      范围);为符合既有身份规范的最小实现。
+    """
+    rows = ledger.conn.execute(
+        "SELECT action_id, status, parent_path_id, context_ref,"
+        " subject_ref, parent_search_revision, policy_version, payload,"
+        " task_key FROM search_actions WHERE run_id = ? AND"
+        " action_kind = ? ORDER BY created_at, action_id",
+        (run_id, ACTION_KIND_RETRIEVE)).fetchall()
+    anchors: list[dict] = []
+    for row in rows:
+        action_id = str(row["action_id"])
+        try:
+            payload = json.loads(row["payload"] or "{}")
+        except (ValueError, TypeError) as exc:
+            raise PPV1RunError(
+                f"冻结计划锚行 {action_id} 载荷不可解析(坏锚先拒;"
+                "无法证明其未携带原绑定;不猜修)",
+                {"kind": "frozen_plan_anchor_corrupt",
+                 "action_id": action_id, "run_id": run_id,
+                 "reason": str(exc)[:200]}) from exc
+        if not isinstance(payload, dict):
+            raise PPV1RunError(
+                f"冻结计划锚行 {action_id} 载荷非 dict(坏锚先拒;"
+                "不猜修)",
+                {"kind": "frozen_plan_anchor_corrupt",
+                 "action_id": action_id, "run_id": run_id})
+        anchor_digest = str(payload.get("plan_digest") or "")
+        if not anchor_digest:
+            continue  # 非锚行(followup retrieve 不绑定计划摘要)
+        # ① 锚行自身同源:行内 plan_digest + 行内冻结身份字段 →
+        # 单一来源 decision_task_key 重算,与落账 task_key 比对
+        expected_task_key = decision_task_key(
+            run_id=run_id, parent_path_id=str(row["parent_path_id"]),
+            context_ref=str(row["context_ref"]),
+            frozen_pool_digest=anchor_digest,
+            parent_search_revision=int(row["parent_search_revision"]),
+            policy_version=str(row["policy_version"]),
+            strict_state_digest=str(row["subject_ref"]),
+            tool_id="atom-tool-vendored",
+            prompt_version=anchor_digest[:16],
+            feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
+        stored_task_keys = {str(row["task_key"] or ""),
+                            str(payload.get("task_key") or "")}
+        if stored_task_keys != {expected_task_key}:
+            raise PPV1RunError(
+                f"冻结计划锚行 {action_id} 坏锚(行内 task_key 与按"
+                "单一来源 decision_task_key 重算不一致 —— 锚行自身"
+                "不再同源;先结构化拒,零补账,原行保全)",
+                {"kind": "frozen_plan_anchor_corrupt",
+                 "action_id": action_id, "run_id": run_id,
+                 "anchor_plan_digest": anchor_digest,
+                 "expected_task_key": expected_task_key,
+                 "stored_task_keys": sorted(stored_task_keys)})
+        anchors.append({"action_id": action_id,
+                        "status": str(row["status"]),
+                        "plan_digest": anchor_digest,
+                        "task_key": expected_task_key})
+    if not anchors:
+        raise PPV1RunError(
+            f"run {run_id} 缺冻结计划锚(无携带 plan_digest 的"
+            " retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何"
+            "冻结输入;零补账,原资料保全)",
+            {"kind": "frozen_plan_anchor_missing", "run_id": run_id,
+             "note": "根 retrieve 在 start 时落账 plan_digest/task_key;"
+                     "锚缺失意味着权威记录被移除或从未落账"})
+    frozen_digest = _plan_digest(frozen_plan)
+    # ② 锚摘要与当前读取的冻结计划摘要比对(每锚都核,任一不符即拒)
+    for anchor in anchors:
+        if anchor["plan_digest"] != frozen_digest:
+            raise PPV1RunError(
+                "冻结计划与既存 run/root/task 原绑定不符(读取的计划"
+                "摘要 ≠ start 落账的根任务锚摘要 —— 自洽重封装不是"
+                "原输入证书;旧任务不消费新输入,差异须显式新 revision/"
+                "新任务登记;先结构化拒,零 event/补账/新调度/consume,"
+                "原资料保全)",
+                {"kind": "frozen_plan_binding_mismatch",
+                 "run_id": run_id,
+                 "anchor_action_id": anchor["action_id"],
+                 "anchor_status": anchor["status"],
+                 "anchor_plan_digest": anchor["plan_digest"],
+                 "frozen_plan_digest": frozen_digest})
+    return {"anchor_action_ids": [a["action_id"] for a in anchors],
+            "anchor_statuses": [a["status"] for a in anchors],
+            "anchor_plan_digest": anchors[0]["plan_digest"],
+            "frozen_plan_digest": frozen_digest,
+            "task_key_verified": True,
+            "note": ("后段锚定:root retrieve 已 done(B3/B4)时执行层"
+                     "核验不可达,本核对在 resume 首消费前闭合")}
 
 
 # ------------------------------------------------------- S3B-04 执行会话互斥
@@ -1294,7 +1430,7 @@ def resume_ppv1_run(
     crash_after: str | None = None,
 ) -> dict:
     """PPV1 独立 resume(身份核对 → 执行会话互斥 → 冻结输入核对 →
-    四边界恢复 → 坏 artifact 隔离 → 继续驱动)。
+    冻结计划后段锚定 → 四边界恢复 → 坏 artifact 隔离 → 继续驱动)。
 
     - 保存身份的 profile 必须 PPV1(legacy run 不走本路径;未知
       profile fail-closed);
@@ -1307,6 +1443,15 @@ def resume_ppv1_run(
       (H07 完整性包装 + 内容身份核验;缺/坏结构化拒);不传 plan ⇒
       沿冻结输入(缺输入不变空池);传入计划内容不符 ⇒ 拒
       (frozen_plan_mismatch;差异须显式新 revision/新任务);
+    - **冻结计划后段锚定(S3b r3/S3B-01 残余)**:读取的冻结计划
+      与独立既存 run/root/task 原绑定核对(start 落账的根 retrieve
+      行 plan_digest + task_key 单一来源重算;artifact 自洽摘要不是
+      证书)—— 先于 recover 补账/事件/新调度/consume;缺锚/
+      坏锚/不符结构化拒(frozen_plan_anchor_missing/
+      frozen_plan_anchor_corrupt/frozen_plan_binding_mismatch),
+      业务表零新增,原资料保全;覆盖 root retrieve 已 done 的
+      B3/B4(retrieve 执行层核验后段不可达);正常同计划/省略
+      plan/显式同计划恢复全保持;
     - recover_run:B4 幂等补账/B3 消费同一 output/B1 读冻结记录续跑/
       B2 pending 披露(不默发);
     - **恢复裁定接执行门(S3B-02)**:坏 artifact/缺权威的 claimed
@@ -1367,6 +1512,13 @@ def resume_ppv1_run(
                      "frozen_plan_digest": frozen_digest,
                      "submitted_plan_digest": submitted_digest,
                      "run_id": run_id})
+        # ---- S3b r3(S3B-01 后段锚定):读取的冻结计划与独立既存
+        # run/root/task 原绑定核对(根 retrieve 行 plan_digest/
+        # task_key);先于 recover_run 的 B4 补账/B3 bundle 消费与
+        # 任何新调度/事件/预算 consume。自洽 artifact 内自 hash 不是
+        # 独立证书;root retrieve 已 done 的 B3/B4 同样闭合(retrieve
+        # 执行层核验后段不可达)。缺/坏锚或不符先结构化拒,零新增。 ----
+        binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)
         recovery = ledger.recover_run(
             run_id, policy_block=(saved.get("profile") or None),
             worker_id=_worker_id(run_id))
@@ -1392,6 +1544,7 @@ def resume_ppv1_run(
                 "unknown_status_requests"),
             "isolated_actions": isolated,
         }
+        summary["frozen_plan_binding"] = dict(binding)
         summary["driver_session"] = dict(session.info)
         return summary
 

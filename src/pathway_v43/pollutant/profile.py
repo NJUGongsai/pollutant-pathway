@@ -147,6 +147,19 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 以 run 目录 flock 执行会话互斥,双进程只一方取得执行权,崩溃 OS
 # 自动释放、新进程沿原 attempt/预约接管;空池仍组装底物档案并消费
 # 模型 novel 响应)。search-limits 保持 -3;store 保持 -9(无新表)。
+# S3b r3(2026-10-08,Codex S3b-r2 复审唯一残余 P1 S3B-01 后段锚定):
+# run 执行流 ppv1-runflow-2 → -3 —— resume **首消费前**把读取的冻结
+# 计划与独立既存 run/root/task 原绑定核对(start 落账的根 retrieve 行
+# payload.plan_digest 为独立权威;task_key 经同一 decision_task_key
+# 单一来源按行内字段重算比对 —— artifact 文件内自算的信封 payload_
+# hash/plan_digest 是自洽证书,不能单独证明仍是原输入);缺锚
+# (frozen_plan_anchor_missing)/坏锚(frozen_plan_anchor_corrupt)/
+# 摘要不符(frozen_plan_binding_mismatch)先结构化拒,先于 recover
+# 补账/事件提交/新调度/预算 consume,业务表零新增、原资料保全;
+# 覆盖 root retrieve 已 done 的 B3/B4(执行层 plan_digest 核验后段
+# 不可达)。正常同计划/省略 plan/显式同计划恢复全保持。profile 保持
+# -14;search 保持 -6;search-limits 保持 -3;store 保持 -9(核对读
+# 既有 search_actions 行,无新表);生产化学链 production.py 不动。
 
 PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-14"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"

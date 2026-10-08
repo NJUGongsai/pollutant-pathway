@@ -1,23 +1,22 @@
-# mimo 化学评审请求:pollutant_pathway_v1 化学判据(S3b 回修 r2 版 v14)
+# mimo 化学评审请求:pollutant_pathway_v1 化学判据(S3b 回修 r3 版 v15)
 
-- 日期:2026-10-08(S3b 回修 r2 批次;替换 2026-10-08 v13 请求。
-  v13 送审快照已存 `docs/review_evidence/ppv1_s3_impl_2026-10-08/
-  s3b_r2/mimo/mimo_ppv1_chem_review_request_v13_sent.md`(字节同
-  刚送审的 v13);旧回应 r5–r13 原样保留不覆盖)
+- 日期:2026-10-08(S3b 回修 r3 批次;替换 2026-10-08 v14 请求。
+  v14 送审快照已存 `docs/review_evidence/ppv1_s3_impl_2026-10-08/
+  s3b_r2/mimo/`(字节同刚送审的 v14);旧回应 r5–r14 原样保留不覆盖)
 - 触发点:AGENTS.md mimo 三触发点之 1(需评判化学结构时——冻结或
   发布前)
-- 评审对象:S0–S2 判据(ppv1-*-8 契约族)+ S3 消费契约的 S3b-r2
+- 评审对象:S0–S2 判据(ppv1-*-8 契约族)+ S3 消费契约的 S3b-r3
   更新(ppv1-search-6 / ppv1-store-9 / ppv1-profile-14 /
   search-limits-3 / format-feedback-1 / model-proposals-2 /
-  runflow-2);**判据尚未冻结**
-- 与 v13 的差异来源:Codex S3b 复审未放行
-  (`POLLUTANT_PATHWAY_S3B_CODEX_REVIEW_2026-10-08.md` §4 六组 P1
-  S3B-01~06 + §6 mimo v13 互证裁定)+ S3b-r2 回修交付。r2 **不新增
-  化学判据或门禁**;新增的是**恢复/调度/协议消费契约文字**(0e 节
-  六条:冻结输入身份、坏 artifact 恢复隔离、后续集合完整性、执行
-  会话互斥、novel 独立假设消费者、blocked 持久披露)与 0c-v14 节
-  (复审 §6 的精度更正落字);受审文字为 0e 全部、0c-v14 全部、
-  0d 按 0c-v14 更正后的表述、§6 数字与契约版本更新
+  **runflow-3**);**判据尚未冻结**
+- 与 v14 的差异来源:Codex S3b-r2 复审未放行
+  (`POLLUTANT_PATHWAY_S3B_CODEX_REVIEW_R2_2026-10-08.md` §4 唯一
+  残余 P1 S3B-01 后段锚定 + §2/§5/§6 精度裁定)+ S3b-r3 回修交付。
+  r3 **不新增化学判据或门禁**;新增的是**恢复消费契约文字**(0e.1
+  后段锚定段:冻结计划与独立既存 run/root/task 原绑定核对的三类
+  拒因分栏)与 0c-v15 节(复审 R2 §2/§5/§6 的精度更正落字);受审
+  文字为 0e.1 更新段、0c-v15 全部、0d 按 0c-v14/v15 更正后的表述、
+  §6 数字与契约版本更新
 - 自包含性:本版展开必要规则全文,不以"同 v7/v8"缩写引用历史;
   规则级表述与合成规则级夹具,无任何金标/题面/封存逐题数据;由
   用户转交,回复原文落盘 `docs/`;实施 agent 不调用模型,只读/执行
@@ -26,27 +25,29 @@
 ## 0. 背景(一段话)
 
 S0–S2 判据 v8 经 R8 独立复审放行;S3a r4 放行搜索底座;S3b 首批
-交付调度/生产链/PPV1 分流后,Codex S3b 复审**未放行完整 S3**
-(P1=S3B-01~06:冻结输入恢复消费、坏 artifact 恢复消费、后续调度
-集合、公开恢复执行权、novel 提案生产消费者、停止报告必要原因/未
-探索对象;化学生产链与异常义务已验过)。本批(S3b-r2)按复审
-§8 有限回修:计划/池/必要输入 start 持久化为冻结来源且 resume 内容
-绑定;recover 的坏 artifact 裁定接到 driver 执行门(隔离不重执行);
-后续/转换集合从已核事件/计划/转换事实逐对象幂等补齐(转换附随一次
-冻结);公开 start/resume 以 run 目录 flock 互斥(崩溃 OS 释放、
-新进程接管);novel 池外提案须携带完整 reaction_spec 反应内容并
-作为独立假设走固定工具→audit→admission→submit(空池仍组装底物
-档案并消费模型响应);blocked 原因/对象持久行由公开 stop 同源派
-发。工程数字:ppv1 全量 **871 passed/0 skip**(851 存量 + 20 新
-r2);直接父基线 c1211183 同字节对照(新 r2 文件)**15 行为红 +
-5 合法正控绿**、0 collection 红(父已含全部 S3b 模块),更新的
-3 个既有文件 1 版本翻转红 + 1 字段形态红 + 1 行为红;G01 安全隔离
-**1473 passed/8 skipped/17 deselected**(287 输入)。目标不变:
-可能降解路径与条件相容路径的诚实表示;unknown 不升格;verified 不
-靠模型或调用方自报字符串;账平、物种同 CN 或一份正确局部诊断不能
-代替整条声明的覆盖与追溯。停止不是化学终点;搜索记录/合成图不是
-终点结论。工程数字是合成规则级契约结果,不代表 dev(B1 环境中间
-步骤)或 298(RHEA 通用酶学)科学性能;判据未冻结;S4/S5 未启动。
+交付调度/生产链/PPV1 分流;S3b-r2 关闭六组 P1 中的五组后,Codex
+S3b-r2 复审**仍未放行完整 S3**,唯一残余 P1 = S3B-01 **后段锚定**
+(root retrieve 已 done 的 B3/B4 后段,冻结计划 artifact 被自洽
+重封装后仍被消费 —— r2 的绑定只在传入比对侧与 retrieve/decide
+执行层到达,后段不可达)。本批(S3b-r3)按复审 R2 §4 最低收口:
+resume **首消费前**(任何 recover 补账/事件提交/新调度/预算
+consume 之前)把读取的冻结计划与**独立既存权威**核对 —— start
+落账的根 retrieve 行(DB 通道 payload.plan_digest;task_key 经
+同一 `decision_task_key` 单一来源按行内字段重算比对;artifact
+文件内自算的信封 hash/plan_digest 是自洽证书,不能单独证明仍是
+原输入)。缺锚/坏锚/摘要不符先结构化拒(frozen_plan_anchor_missing / frozen_plan_anchor_corrupt / frozen_plan_binding_mismatch 三 kind),业务表/event/commit/consume 零新增,原资料保全;正常
+同计划、省略 plan、显式同计划、合法原计划转换恢复全保持(复审
+两原反例 B3/B4 自洽重封装均翻转拒绝:公开入口真子进程取证 15/15,
+十五表逻辑快照零变化)。工程数字:ppv1 全量 **879 passed/0 skip**
+(871 r2 存量 + 8 新 r3,32 文件);直接父 2bedfc0 同字节对照(新
+r3 文件)**5 行为红 + 3 合法正控绿**(0 collection/版本/字段红,
+本批不更新既有测试文件);G01 安全隔离 **1481 passed/8 skipped/
+17 deselected**(288 输入)。目标不变:可能降解路径与条件相容
+路径的诚实表示;unknown 不升格;verified 不靠模型或调用方自报
+字符串;账平、物种同 CN 或一份正确局部诊断不能代替整条声明的
+覆盖与追溯。停止不是化学终点;搜索记录/合成图不是终点结论。工程
+数字是合成规则级契约结果,不代表 dev(B1 环境路径中间步骤)或
+298(RHEA 通用酶学)科学性能;判据未冻结;S4/S5 未启动。
 
 ## 0b. S3a r4 实现与未实现边界(工程披露;受审表述)
 
@@ -287,24 +288,46 @@ S3b 把 S0–S2/S3a 的判据接进**固定生产调用链与调度**。以下�
    独立子进程复验四硬杀/新进程恢复/二次幂等恢复/并发控制(r2 起
    公开入口测试覆盖恢复/并发)。
 
-## 0e. S3b-r2 恢复/调度/协议消费契约(受审表述;v14 新增)
+## 0e. S3b 恢复/调度/协议消费契约(受审表述;v14 新增,v15 更新 0e.1)
 
-S3b-r2 按 Codex S3b 复审 §4 六组 P1 的最低回修实施。以下六条全部
+S3b-r2 按 Codex S3b 复审 §4 六组 P1 的最低回修实施;S3b-r3 按
+Codex S3b-r2 复审 §4 收口唯一残余(0e.1 后段锚定)。以下六条全部
 是**恢复/调度/协议的消费契约**(契约随 ppv1-search-6 /
-ppv1-runflow-2 / ppv1-model-proposals-2 登记;**不是新化学判
-据**;生产化学链 production.py 本批零改动):
+ppv1-runflow-3(r3 自 -2 升)/ ppv1-model-proposals-2 登记;
+**不是新化学判据**;生产化学链 production.py 两批均零改动):
 
-1. **冻结输入身份(S3B-01)**:计划(池/模型响应/转换意图/激活
-   指令/条件事实)在 start 时持久化为**冻结输入来源**
-   (run-plan/frozen_plan artifact,plan_digest 内容绑定;读取经
-   H07 完整性包装 + 内容身份核验)。resume 的 retrieve/decide/
-   模型请求/expand/followup/转换全部消费该冻结来源:**旧任务不
-   消费新输入**;不传 plan ⇒ 沿冻结输入(**缺输入不变空池**,
-   不当 no_local_candidate 合法完成);传入计划内容不符 ⇒ 结构
-   拒(frozen_plan_mismatch;差异须显式新 revision/新任务登记,
-   不复用旧裁决键);冻结计划被篡改 ⇒ 完整性失败保全。第二层:
-   retrieve 任务 plan_digest 与 decide 冻结 pool_digest 同源重算
-   核验(纵深防御)。
+1. **冻结输入身份(S3B-01;v15 补后段锚定)**:计划(池/模型
+   响应/转换意图/激活指令/条件事实)在 start 时持久化为**冻结
+   输入来源**(run-plan/frozen_plan artifact,plan_digest 内容
+   绑定)。resume 的 retrieve/decide/模型请求/expand/followup/
+   转换全部消费该冻结来源:**旧任务不消费新输入**。三类拒因
+   分栏(v15 落字):
+   - **读取侧**(artifact 完整性/自洽):H07 完整性包装 + 内容
+     身份核验 —— 缺/坏/digest 不符 ⇒ frozen_plan_missing/
+     frozen_plan_corrupt/frozen_plan_integrity_failure/
+     frozen_plan_digest_mismatch(保全原文件,不猜);
+   - **传入比对侧**:不传 plan ⇒ 沿冻结输入(**缺输入不变空
+     池**,不当 no_local_candidate 合法完成);传入计划内容
+     不符 ⇒ frozen_plan_mismatch(差异须显式新 revision/新
+     任务登记,不复用旧裁决键);
+   - **后段锚定(S3b-r3 新增;v15 受审重点)**:resume **首消费
+     前**(任何 recover 补账/事件提交/新调度/预算 consume 之前)
+     把读取的冻结计划与**独立既存权威**核对 —— start 落账的根
+     retrieve 行(DB 通道 payload.plan_digest;task_key 经同一
+     `decision_task_key` 单一来源按行内冻结字段重算比对)。
+     **artifact 文件内自算的信封 payload_hash/plan_digest 是
+     自洽证书,不能单独证明仍是该 run/root/task 的原输入**;
+     覆盖 root retrieve 已 done 的 B3/B4(执行层核验后段不可
+     达)。缺锚 ⇒ frozen_plan_anchor_missing;坏锚(锚行载荷
+     不可解析/task_key 重算不同源)⇒ frozen_plan_anchor_corrupt;
+     锚摘要 ≠ 冻结计划摘要 ⇒ frozen_plan_binding_mismatch ——
+     均先结构化拒,业务表/event/commit/consume
+     零新增,原资料保全。不做密码学签名、不抗全库协同改写
+     (复审明示范围外);正常同计划/省略 plan/显式同计划/合法
+     原计划转换恢复全保持。
+   第二层(纵深防御):retrieve 任务 plan_digest 与 decide 冻结
+   pool_digest 同源重算核验(入口锚定后正常流不可达,保持为
+   防 DB 侧输入漂移)。
 2. **恢复裁定接执行门(S3B-02)**:recover 已诚实识别的坏
    artifact(hash 不符/不可反序列化)action,在恢复后**明确隔离**
    (claimed → blocked,defer_reason=recovery_failure:<kind>):
@@ -785,48 +808,99 @@ Codex S3b 复审 §6 对 mimo v13 回应的互证裁定,本版按 r2 源码核�
    (持久上限来源=预约行+幂等键)/0d.7(默认 0 轮 = 首次格式错误
    即结构失败停止;scripted 反馈重试网络 0)。
 
+### 0c-v15. Codex S3b-r2 复审 §2/§5/§6 精度更正落字(受审;v15 补入)
+
+Codex S3b-r2 复审对 r2 交付与 mimo v14 回应的互证裁定,本版按
+r3 源码核对后落字(旧交付/旧回应原文不回写):
+
+1. **r2 父基线红绿分类更正**:r2 交付"15 行为红"应更正为
+   **13 行为红 + 2 形态红**;更新的 3 个既有文件"54 绿"应更正
+   为 **52 绿**(合计 18 failed/57 passed 保留)。两个形态红的
+   父上内部到达精度:`test_s3b01_frozen_plan_tamper_integrity_
+   failure` 在父没有新 frozen_plan.json、停在 `is_file`,**未
+   执行篡改和恢复**;`test_s3b03_transition_enqueued_crash_
+   window_closed` 在父已执行公开恢复并核转换 done,但在
+   pending_followup 缺失形态断言停止,**后面的新上下文核对未
+   执行**。不能说二者都跑完旧行为,也不能把后者写成根本未
+   resume。r3 本批不更新既有测试文件,父基线 = 新 r3 文件
+   (5 行为红全为"未结构化拒"型,父上 public resume 完整执行,
+   失败点在拒绝断言,非早停内部段)。
+2. **abstain 空池父红更正**:r2 交付 §1.5 将
+   `test_s3b05_model_abstain_empty_pool_legal` 称为父绿不准确
+   —— 父上请求数 0≠1 是**行为红**;当前合法控制通过。函数名中
+   的 positive/negative 不是实际红绿标签。
+3. **r2 证据 HEAD 采集时序**:r2 实施时点 HEAD 为 c1211183 +
+   脏工作树(实施未提交),最终受审提交为 **2bedfc0**;不能把
+   前者说成当前 HEAD。r3 实施时点 HEAD = 2bedfc0 + 脏工作树
+   (本批变更未提交),同口径登记。
+4. **novel 来源标签 P2 落字**:decide 的 prepare 传入 model
+   proposal 的 source_refs,expand 重建未传而用默认
+   synthetic-pool-spec;实际 event appearance 使用后者。hyp ID
+   不受这些 refs 影响、冻结 plan 含原响应且 action
+   proposal_context 保留,来源可追溯,未发现身份洗坏/错误
+   verified。**不宣称来源标签逐字全链一致,也不宣称已认证现实
+   来源**;冻结前清理误导文字(P2 不另加阻塞)。
+5. **audit.py:2980-2981 旧注释**:docstring 仍写"strict False ⇒
+   至少 unknown",与 0c-v14.1 的 violated/R5v 落字不一致 —— 列
+   **冻结前 P2 文本同步项**(现行实现 1188 一带为 violated→
+   R5v;不改行为)。
+6. **行号拆分(mimo v14 建议采纳,r3 源码为准)**:"冻结计划
+   runflow.py:211-321"拆为:**冻结计划持久化/读取 229-272、
+   后段锚定核对 `_verify_frozen_plan_binding` 274-390、执行
+   会话锁(`_DriverSession`)392 一带起**;勿把锁段误标为计划
+   段。0d.8 一般 followup 的 B4 补齐函数指认:
+   `_Driver.reconcile_followups`(r3 源码 runflow.py:500-558,一般
+   产物补齐)与转换补齐 `_ensure_transition_followup`:
+   577-615;`store.verify_event_attachment_content` 在
+   store.py:1988(只核附随内容/plan/projection,不单独当
+   strict state 身份证明)。
+7. **r2 交付数字口径**:新 r2 20 项已含在 871 全量内不另加总
+   (v14 已写;r3 的 8 新项已含在 879 全量内同口径);父形态红
+   与行为红分开统计;历史 871/1473 与本轮 879/1481 各自单列不
+   混计。
+
 ## 6. 程序证据与状态(程序事实,不替代化学判断;执行类声明待验证)
 
-- 规则级测试:ppv1 全量 **871 passed/0 skip**(851 存量 + 20 新
-  r2,全部合成夹具;20 项覆盖六组 P1:冻结输入三负控一同计划正控/
-  坏 bundle 两负控(隔离不重执行、独立任务继续)/部分 followup 与
-  两转换窗口三负控 + 0/全部与三产物正常正控/双进程并发恢复互斥
-  (真实工具入口计数 + barrier)/novel 三负控一正控/零深度复合与
-  重复 resume 两负控两正控;四崩溃子进程硬杀等存量 851 保持);
-- 基线红绿(直接父基线 c1211183 detached worktree 同字节,父已含
-  全部 S3b 模块 ⇒ **无 collection 红**):新 r2 文件 **15 行为红 +
-  5 合法正控绿**(正控 = 同计划 B3 恢复/B4 0-followup 窗口/三产物
-  正常/合法非零/空池,父亦绿;早停内部段不报通过);更新的 3 个
-  既有文件 **1 版本字面量翻转红(profile-13→14/search-5→6)+ 1
-  字段形态红(父 blocked 条目缺 action_id 键,底层为无持久行)+
-  1 行为红(父接受无 reaction_spec 的 novel)**;
+- 规则级测试:ppv1 全量 **879 passed/0 skip**(871 r2 存量 + 8 新
+  r3,32 文件,全部合成夹具;8 项覆盖 S3B-01 后段锚定:两原反例
+  翻转(B3/B4 自洽重封装拒)/重封装+显式同新 plan 拒/缺锚拒/
+  坏锚拒 四+一负控,与 B3 省略 plan 幂等恢复/同计划显式/合法
+  原计划转换 phase-1 三正控;r2 的 20 项与存量 851 零改动全绿);
+  另有公开入口真子进程探针 15/15(两原反例拒 + 十五表零变化 +
+  13 保留控制:同/省略/换 plan、四崩溃、合法转换 phase-1、三产物
+  2/3→3/3、重复 resume、novel、弃权、零深度复合);
+- 基线红绿(直接父 2bedfc0 detached worktree 同字节,父已含全部
+  S3b 模块 ⇒ **无 collection 红**;本批不更新既有测试文件 ⇒ 无
+  版本字面量/字段形态红):新 r3 文件 **5 行为红 + 3 合法正控绿**
+  (5 红全为"未结构化拒"型:父上 public resume 完整执行并消费
+  注入转换/补账,失败点在拒绝断言,非早停内部段;正控 = B3 省略
+  plan 幂等恢复/同计划显式/合法转换 phase-1,父亦绿);
 - G01:安全隔离工程回归(R7 路径白名单 + R8/S3a/r2/r3/r4/S3b/
-  S3b-r2 输入,**287** 项输入(286 r1 + 1 新 r2 测试文件)SHA 前
-  后一致;不复制 evaluation/金标/题面/封存/v4;固定 PYTHONPATH/空
-  BBD_DATA_ROOT/V3_CODE_ROOT/V43_ASSET_ROOT/DEPENDING_V3_ROOT)
-  ⇒ **1473 passed/8 skipped/17 deselected**,exit 0(8 skip =
-  5 真实评价依赖 + 1 v4 对照源 + 2 phase_d 派生 metadata;17
-  deselect = 16 slow + 1 明确排除 export 用例;历史 R7 1110/R8
-  1138/S3a 首批 1196/r2 1250/r3 1299/r4 1389/S3b 1453 各自单列,
-  不混计;1473 = 1453 + 20 新 r2);
-- 契约族:search ppv1-search-5 → **ppv1-search-6**(blocked 持久
-  行 + 恢复隔离 + 转换附随一次冻结的消费语义;计数键/默认/范围/
-  单位未动),profile -13 → **-14**(contracts 登记);新增登记
-  model 协议 **ppv1-model-proposals-2**(novel 须 reaction_spec)
-  与执行流 **ppv1-runflow-2**(冻结输入绑定/会话互斥/恢复门/
-  novel 消费接线);store 保持 **-9**(无新表:blocked/隔离复用
-  search_actions 行,冻结计划/底物档案走 artifact,转换附随复用
-  payload);search-limits 保持 **-3**;format-feedback-1 保持
-  (默认 0 轮);**production.py 本批零改动(生产化学链与
-  AuditContractError 义务字节不变)**;
-- **legacy 影响:本批零改动**(未触碰 workflow/runner.py 与任何
-  共享 legacy 文件;legacy code_identity 聚合保持
+  S3b-r2/S3b-r3 输入,**288** 项输入(287 r2 + 1 新 r3 测试文件)
+  SHA 前后一致;不复制 evaluation/金标/题面/封存/v4;固定
+  PYTHONPATH/空 BBD_DATA_ROOT/V3_CODE_ROOT/V43_ASSET_ROOT/
+  DEPENDING_V3_ROOT)⇒ **1481 passed/8 skipped/17 deselected**,
+  exit 0(8 skip = 5 真实评价依赖 + 1 v4 对照源 + 2 phase_d 派生
+  metadata;17 deselect = 16 slow + 1 明确排除 export 用例;历史
+  R7 1110/R8 1138/S3a 首批 1196/r2 1250/r3 1299/r4 1389/S3b
+  1453/S3b-r2 1473 各自单列,不混计;1481 = 1473 + 8 新 r3);
+- 契约族:search 保持 **ppv1-search-6**、profile 保持 **-14**、
+  store 保持 **-9**、search-limits 保持 **-3**、format-feedback-1
+  保持(默认 0 轮)、model-proposals 保持 **-2**;执行流
+  **ppv1-runflow-2 → ppv1-runflow-3**(resume 入口新增后段锚定
+  核对;无测试断言其字面量,本批 0 个既有测试文件更新);
+  FROZEN_PLAN_VERSION 保持 ppv1-frozen-plan-1(artifact 格式未变;
+  锚核对读既有 search_actions 行,无新表/列)。**production.py
+  本批零改动(生产化学链与 AuditContractError 义务字节不变)**;
+- **legacy 影响:本批零改动**(git diff 仅 pollutant/runflow.py +
+  pollutant/profile.py 契约注册注释;52 份 legacy code_identity
+  文件与九份生产/化学共享核心父↔当前逐字节一致;legacy 聚合保持
   18007e6a7cc239606eb30921f91045540446a7d7298108be30d47fce
-  2f1374d6;chemstate/hypothesis/events/audit/path_context/store
-  字节与 S3b 父一致);
-- 判据未冻结;v14 无新化学机制(判据一–五正文与 v12/v13 相同未
-  改);受审文字:0e 节六条(恢复/调度/协议消费契约)、0c-v14
-  五条精度更正、0d 按 0c-v14 更正后的表述、§6 数字与契约版本;
+  2f1374d6);
+- 判据未冻结;v15 无新化学机制(判据一–五正文与 v12/v13 相同未
+  改);受审文字:0e.1 更新段(后段锚定三类拒因分栏)、0c-v15
+  七条精度更正、0d 按 0c-v14/v15 更正后的表述、§6 数字与契约
+  版本;
 - 参考(外部常识,非本仓资产):RDKit Book(CXSMILES 扩展/增强
   立体/立体化学章节)、rdCIPLabeler API;CXSMILES 解析器行为经
   Release_2026_03_6 源码取证与实证用例校准;**冻结前须以执行
@@ -835,9 +909,9 @@ Codex S3b 复审 §6 对 mimo v13 回应的互证裁定,本版按 r2 源码核�
 ## 7. 请求的回复格式
 
 对每条判据(含 0e 节六条消费契约、0d 节八条消费契约与 0c-v13
-七条/0c-v14 五条落字):1) 结论(同意/不同意/有条件同意+条件);
-2) 可直接落进规则文字的修改建议;3) "程序上诚实但化学上误导"
-风险点。逐条表态,不接受总体评价式回复。执行类声明一律标"待执行
-验证"。引用 0c/0d/0e 清单之外的事实(分支名/版本/异常处置)时
-必须先给出可复核的源位置,否则按不采信
+七条/0c-v14 五条/0c-v15 七条落字):1) 结论(同意/不同意/有条件
+同意+条件);2) 可直接落进规则文字的修改建议;3) "程序上诚实但
+化学上误导"风险点。逐条表态,不接受总体评价式回复。执行类声明
+一律标"待执行验证"。引用 0c/0d/0e 清单之外的事实(分支名/版本/
+异常处置)时必须先给出可复核的源位置,否则按不采信
 处理。
