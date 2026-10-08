@@ -1,0 +1,4267 @@
+{
+  "totals": {
+    "tests": 851,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "passed": 851
+  },
+  "cases": [
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_b01_enantiomers_distinct_state_same_cn",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_b01_neutralizable_charge_distinct_state",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_b02_atom_map_numbers_do_not_change_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_b02_cn_only_does_not_fabricate_stereo",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_b02_enhanced_stereo_distinct_identities",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_chemstate_unparseable_fails_closed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_chemstate_json_roundtrip_and_archive_fidelity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_a01_two_alternatives_are_two_hypotheses",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_a01_same_semantics_rebuild_same_hypothesis_id",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_a02_cleavage_event_keeps_both_products_even_k1",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_a02_illegal_coproduct_fails_whole_event_not_silent_drop",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_a03_not_tracked_product_kept_with_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_a03_unlisted_product_gets_explicit_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_invalid_coefficients_rejected[0_0]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_invalid_coefficients_rejected[-1]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_invalid_coefficients_rejected[0.0]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_invalid_coefficients_rejected[-0.5]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_invalid_coefficients_rejected[inf]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_invalid_coefficients_rejected[nan]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_invalid_coefficients_rejected[0_1]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_invalid_coefficients_rejected[-2/3]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h02_known_null_and_unknown_value_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h03_parallel_declared_duplicates_summed_with_trace",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h03_undeclared_duplicates_keep_ambiguity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_h03_unknown_coefficient_duplicates_not_summed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_event_idempotent_replay_and_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_event_transaction_atomicity_on_state_failure",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_catalytic_support_not_in_reaction_stoichiometry",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_a04_legacy_novel_flat_list_import_labeled",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_legacy_import_idempotent_replay",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_domain",
+      "name": "test_legacy_import_states_recovered_as_archive",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_profile_names_registry",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_identity_schema_version_bumped",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_contract_versions",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_default_switches",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[input_preview_policy-filter]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[input_preview_policy-None]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[search_intent-anything_goes]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_search_limits_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_excludes_pollutant_for_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_pollutant_includes_full_tree",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_legacy_stable_under_pollutant_changes",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_default_is_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_legacy_rejects_profile_policy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_pollutant_block",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_check_resume_identity_profile_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_check_resume_identity_v1_missing_profile_read_as_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_identity_fingerprint_includes_profile",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_start_run_pollutant_dispatches_to_runflow",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_start_run_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_cli_profile_flag_choices",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_plain_and_abs_same_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_and_group_whole_inversion_same_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_or_group_whole_inversion_same_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_double_center_partial_inversion_stays_distinct",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_and_or_group_types_not_merged",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_public_representation_roundtrip_rebuilds_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_strict_identity_same_normalization_for_donor_axis",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_atom_map_numbers_not_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_02_substrate_profile_carries_stereo_annotation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_missing_state_structured_not_crash",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_no_context_is_unknown_not_not_applicable",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_narrow_audit_scope_cannot_reach_expand",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_self_reported_signature_not_center_evidence",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r4_01_cross_reaction_evidence_reuse_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r4_01_name_only_evidence_not_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_unregistered_center_checker_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_center_mismatch_is_violated_r5v_not_r5d",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_r5d_limited_to_element_and_charge",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_01_input_hash_covers_actual_inputs",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_zero_net_change_never_true",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_round_trip_edit_zero_net_change",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_declaration_execution_mismatch_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_joint_symmetric_equivalent_proven_by_mapping",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_single_atom_orbits_not_joint_symmetry",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_symmetry_broken_after_first_substitution",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_plain_vs_mapped_product_disagreement",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_charge_only_change_visible",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_stereo_only_change_visible",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_extra_changes_carry_h_delta",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_abs_annotation_difference_not_strict_failure",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_03_equivalence_classes_disclosed_not_used",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_12_all_products_gate_rejected_rejects",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_12_some_products_gate_rejected_retains_with_reasons",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_12_product_state_refs_surface_in_reasons",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_12_per_product_consumption_policy_versioned",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_r2_12_all_products_accepted_no_effect",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_mimo_h_plus_pattern_structured_and_renamed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_mimo_element_accounting_notes_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_mimo_identity_fidelity_axes_not_as_written_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_chem",
+      "name": "test_pending_clauses_declared_not_implemented",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_04_requirement_binds_introducing_phase_scenario_edge",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_04_phase_transition_no_false_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_04_phase_transition_keeps_past_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_04_transition_only_affects_subsequent_not_reaction_edge",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_04_branch_isolation_requirement_objects",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_04_fact_and_dependency_objects_isolated",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_04_current_step_vs_route_two_layers",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_04_context_json_roundtrip_v3",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_point_inside_interval_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_degenerate_interval_point_satisfied",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_point_outside_interval_conflict_distinct_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_kelvin_unit_not_compared_as_celsius",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_unrelated_entity_absence_not_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_multiple_known_donors_coexist",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_same_entity_known_absent_still_conflicts",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_species_requirement_other_entity_present_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_oxygen_enum_mismatch_still_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_05_label_basis_only_for_interval_keys",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_06_regeneration_only_cycle_keeps_startup_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_06_initial_supply_evidence_resolves_startup_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_06_default_axis_is_reaction_not_startup",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_06_unsupported_relation_disclosed_separately",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_07_different_premises_distinct_hypothesis_ids_coexist",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_07_same_premises_replay_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_07_requirement_level_and_assumptions_change_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_r2_07_hypothesis_from_dict_gate_v3",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_p2_scope_derived_from_executed_checks",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_p2_scope_narrowing_leaves_trace_and_cannot_hide_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_p2_coverage_worst_status_assessed_satisfied_split",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_p2_identical_facts_distinct_sources_not_inconsistent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_conditions",
+      "name": "test_p2_basis_shape_mismatch_rejected_at_construction",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_08_same_graph_source_fidelity_coexist",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_08_fidelity_only_difference_is_not_semantic_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_08_legacy_cycle_import_root_reappears",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_08_legacy_same_structure_two_positions",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_participant_refs_derived_from_participants",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_hypothesis_relation_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_existing_hypothesis_payload_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_projection_and_expansion_scope_validated",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_replay_missing_necessary_record_reports_corrupt[states]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_replay_missing_necessary_record_reports_corrupt[hypotheses]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_replay_missing_necessary_record_reports_corrupt[state_appearances]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_replay_missing_necessary_record_reports_corrupt[report_projections]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_replay_missing_necessary_record_reports_corrupt[expansion_plans]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_09_valid_submit_then_replay_created_false",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_10_future_object_schemas_rejected_zero_write",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_10_future_projection_and_plan_versions_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_10_event_payload_persists_schema_version",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_10_store_reopen_roundtrip",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_10_missing_object_version_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_11_child_missing_archive_pointers_not_root",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_11_root_identity_must_match_run_root",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_r2_11_true_root_still_uses_root_smiles",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_p2_pool_skipped_stage_breaks_hash_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_p2_pool_actual_adjacent_records_hash_checked",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_p2_study_map_count_basis_axes",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r2_storage",
+      "name": "test_p2_legacy_provenance_refs_resolvable",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_04_nonchemical_cx_metadata_not_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_04_mixed_abs_annotations_normalized",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_04_radical_fact_kept_public_repr_exception",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_02_meso_stereodistinct_sites_not_equivalent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_02_true_c2_symmetric_swap_still_accepted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_02_enhanced_stereo_joint_unsupported_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_03_far_center_config_preserved_not_fake_change",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_03_ligand_priority_rerank_not_config_change",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_03_real_inversion_detected_by_parity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_05_add_atom_implicit_anchor_bond_accounted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_05_ordered_ops_net_effect_accounted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_05_center_property_deltas_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_05_center_stereo_inversion_disclosed_with_strict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_01_strict_axis_unknown_blocks_all_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_01_unknown_checker_scope_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_06_audit_row1_old_conflict_kept_to_admission",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_06_audit_row2_satisfied_old_edge_not_falsely_killed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_07_context_only_dependency_consumed_by_audit",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_07_explicit_empty_list_with_supported_context_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_08_input_hash_covers_real_inputs",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_08_context_nested_mutation_changes_input_hash",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_r3_08_bad_context_object_structured_reject_at_audit",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_chem",
+      "name": "test_s4_per_product_off_discloses_not_consumed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_row1_old_edge_conflict_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_row2_old_edge_satisfied_not_falsely_killed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_current_phase_live_requirements_follow_r3_semantics",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_cross_phase_fact_serves_multiple_edges",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_orphan_binding_unknown_not_dropped",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_candidate_requirements_evaluated_in_current_scope",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_foreign_requirement_binding_structured_reject",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_self_binding_allowed_and_id_stable",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_06_dict_hypothesis_supported",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_07_dependency_states_covers_context_dependencies",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_07_dependencies_inherit_and_enter_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_frozen_requirement_nested_collections",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_caller_owned_requirement_list_not_shared",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_fact_value_frozen",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_dependency_nested_frozen",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_hypothesis_requirements_deep_copied",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_order_invariant_same_id_and_payload",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_recompute_hypothesis_id_matches_construction",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_recompute_rejects_foreign_binding",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_build_hypothesis_contract_errors_structured",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_support_axes_accumulate_per_axis",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_support_axes_in_dependency_states_and_payload",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_validate_context_object_structured",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_08_context_to_dict_full_science_payload",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_12_matrix_string_mismatch_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_r3_12_oxygen_enum_mismatch_still_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_unit_basis_assumed_canonical_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_unit_basis_in_candidate_assessment_rows",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_validate_requirement_dict_structured_errors",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_conditions",
+      "name": "test_candidate_assessment_shape_matches_assess_conditions",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_put_state_forged_state_id_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_put_state_forged_formal_charge_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_put_state_raw_identity_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_put_state_unparseable_isomeric_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_put_state_cn_only_keeps_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_put_state_source_product_alternative_spelling_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_submit_forged_state_zero_write",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_submit_zero_coefficient_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_submit_participants_legal_tamper_kept_id_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_put_hypothesis_reordered_requirements_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_09_submit_replay_reordered_requirements_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_run_context_swap_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_missing_event_appearance_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_appearance_payload_tampered_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_event_participants_cleared_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_event_future_schema_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_event_columns_tampered_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_hypothesis_id_field_tampered_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_hypothesis_future_schema_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_state_charge_tampered_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_state_future_schema_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_replay_valid_idempotent_created_false",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_10_import_replay_does_not_repair_missing_records",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_11_import_event_rejects_future_store_schema",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_11_import_event_rejects_future_run_identity_schema",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_11_wrong_archive_pointer_degrades_cn_only",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_11_root_smiles_cn_mismatch_degrades_cn_only",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_11_two_step_import_still_works",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_s4_empty_expansion_plan_with_products_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_s4_explicit_incomplete_plan_accepted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r4_storage",
+      "name": "test_r4_s4_pool_same_hash_skip_requires_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_genuine_bound_control_stays_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_two_identity_strings_no_proof_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_six_claimed_fields_no_execution_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_mutated_evidence_field_structured_reject[edits_signature]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_mutated_evidence_field_structured_reject[execution_fingerprint]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_mutated_evidence_field_structured_reject[donor_centers]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_mutated_evidence_field_structured_reject[alignment_ref]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_strict_axis_type_violation_structured_reject[false]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_strict_axis_type_violation_structured_reject[0]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_strict_axis_type_violation_structured_reject[value2]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_strict_axis_type_violation_structured_reject[value3]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_strict_false_from_real_diagnostic_r5v",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_fragment_products_bind_separately",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_fragment_lumped_control_unchanged",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_01_unchecked_additional_transformation_partial",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_02_finite_rule_diagnostic_in_input_hash",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_section4_audit_scope_not_shadowed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_06_add_then_add_anchor_new_atom",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_06_add_then_change_new_bond",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_06_wrong_from_order_rejected_by_mirror",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_07_ez_only_change_detected_not_empty",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_07_off_center_ez_not_center_true",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_07_real_ez_inverse_control_identity_equal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_07_non_tetrahedral_unsupported_not_retained",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_07_non_tetrahedral_identity_differs_honest_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_07_non_tetrahedral_joint_mapping_unsupported",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_07_unsupported_stereo_outside_center_blocks_true",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_08_data_sgroup_note_not_in_identity",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_08_data_sgroup_value_with_comma",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_08_sru_sgroup_retained",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_chem",
+      "name": "test_r4_08_unregistered_cx_class_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_03_source_unit_unknown_not_satisfied",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_03_explicit_canonical_unit_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_03_dimensionless_keys_not_affected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_04_same_local_phase_different_scenario_not_reevaluated",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_04_old_edge_conflict_preserved",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_04_audit_consumes_candidate_semantics_same_phase",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_04_empty_snapshot_cannot_cover_orphan_requirement",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_04_covered_requirement_not_orphan",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_05_contradiction_revokes_axis_support",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_05_circular_unresolved_initial_supply_after_contradiction",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_05_axis_restore_requires_axis_evidence",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_05_positive_control_initial_then_regen_supported",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_05_axis_status_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_02_frozen_value_dict_ior_blocked",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_conditions",
+      "name": "test_r4_02_hypothesis_requirements_nested_frozen",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[cn_identity-state_fact_rederivation_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[isotope_status-state_fact_rederivation_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[stereo_status-state_fact_rederivation_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[fidelity_unknown_enum-state_fidelity_contract_violated]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[fidelity_missing_axes-state_fidelity_contract_violated]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[source_raw_mismatch-raw_identity_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[source_raw_unparseable-raw_structure_unparseable]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[executed_raw_mismatch-raw_identity_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[same_graph_alternate_raw-accepted]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_put_state_fact_contract[cn_only_forged_identity_and_facts-cn_only_contract_violated]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_09_submit_event_raw_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_02_put_hypothesis_changed_premise_old_id_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_02_submit_changed_premise_old_id_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_02_replay_tampered_stored_hypothesis_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_10_replay_missing_event_appearance_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_10_replay_stored_state_tampering_corrupt[cn-state_row_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_10_replay_stored_state_tampering_corrupt[inner_state_id-state_inner_id_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_10_replay_stored_state_tampering_corrupt[blank_structure-state_row_blank_structure_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_10_replay_without_dicts_idempotent_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_11_same_cn_wrong_relation_degraded",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_11_event_vs_path_substrate_mismatch_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_11_product_declared_vs_raw_mismatch_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r5_storage",
+      "name": "test_r4_11_legal_multistep_import_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_half_declared_products_partial",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_cosubstrate_to_scaled_product_partial",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_genuine_oxidation_control_full",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_genuine_hydrogenation_control_full",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_fragment_split_control_full",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_fragment_lumped_control_whole_molecule",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_two_sided_isomer_no_cancellation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_legal_ratio_scaling_full",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_h2_not_exempt_by_name",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_unknown_coefficient_coverage_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_01_completion_rule_registered_and_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_raw_r_flag_rejected_not_same_id",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_raw_ln_block_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_other_dropped_classes_rejected[CO |c:1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_other_dropped_classes_rejected[CO |wU:1.5|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_other_dropped_classes_rejected[CO |o:1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_other_dropped_classes_rejected[CO |O:1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_other_dropped_classes_rejected[CO |d:1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_other_dropped_classes_rejected[CO |n:1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_other_dropped_classes_rejected[CO |F:1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_other_dropped_classes_rejected[C[C@H](F)Cl |w:1.0|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_registered_removal_classes_same_id[CO |atomProp:0.note.hello|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_registered_removal_classes_same_id[CO |$_AV:one;two$|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_registered_removal_classes_same_id[CO |$mylabel$|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_registered_removal_classes_same_id[CO |(0.5,0.8,;1,0.1,0.2,)|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_sgD_comma_value_passes_input_guard",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_sru_retained_input_and_roundtrip",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_enhanced_group_radical_mapping_inputs_pass",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_double_pipe_segment_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_annotation_token_level_guard",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_02_unparseable_smiles_still_own_kind",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_08_adjacent_sigma_break_zero_mismatch",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_08_distal_tail_break_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_08_alkene_order_change_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_r5_08_alkene_bond_break_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_p2_basis_and_proof_scope_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_chem",
+      "name": "test_p2_tampered_basis_integrity_reject",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_03_oxygen_required_value_absent_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_03_matrix_required_value_absent_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_03_numeric_absence_unknown_not_satisfied",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_03_other_string_value_absent_not_determining",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_03_positive_controls_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_04_snapshot_summary_tamper_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_04_gate_flag_tamper_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_04_legal_roundtrip_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_04_inplace_tampered_phase_history_rejected_at_audit",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_04_fact_tamper_kept_context_id_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_r5_04_normal_phase_transition_conflict_to_defer",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_p2_initial_supported_reaction_contradicted_split",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_p2_initial_contradicted_later_regen_split",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_p2_regen_only_unresolved_not_relation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_p2_double_supported_positive_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_conditions",
+      "name": "test_p2_audit_consumes_overall_status_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_05_pre_stored_all_binds_manifest_replay_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_05_pre_stored_partial_actual_source_deleted_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_05_manifest_shrunk_to_nonempty_subset_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_05_ambiguous_existing_appearances_first_submit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_05_binding_without_any_appearance_row_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_05_supplied_all_delete_appearance_replay_corrupt_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_05_normal_replay_idempotent_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_05_cn_only_valid_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_06_existing_hypothesis_tampered_first_submit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_06_pre_stored_valid_hypothesis_first_submit_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_payload_id_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_id_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_schema_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_06_reordered_requirements_same_payload_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_07_same_parent_wrong_sibling_source_degraded",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_07_correct_sibling_source_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r6_storage",
+      "name": "test_r5_07_multi_position_identity_anchor_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_01_complex_cosubstrate_completion_not_full[CC=O]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_01_complex_cosubstrate_completion_not_full[C1CO1]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_01_complex_cosubstrate_completion_not_full[C=CO]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_01_license_scope_machine_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_01_hydrogen_equivalent_controls_stay_full",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_01_license_binds_strict_identity_not_class_name",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:hello::::,r|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:a,b::::,r|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CCCCCC |Sg:n:1,2,3:3:ht:::,r|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[C1CCCCC1 |atomProp:0.note.hello,Ln:1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |atomProp:0.note.hello,w:1.0|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:hello::::,r,a:1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CO |SgD:0:note:a,b::::|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CO |SgD:0:note:a::::,SgD:0:note:b::::|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CC |atomProp:0.a.x,atomProp:1.b.y|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CC |atomProp:0.a.x:1.b.y|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CC |atomProp:0.note.hello world|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CO |SgD:0:note:hello world::::|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[C |$foo bar;$|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[C |(1,0,0;2,0,0)|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[C |$x$|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[C |$_AV:val1;val2$|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[C[C@H](Cl)[C@H](F)Cl |a:1,&1:3|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CC |^1:0,1|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CCCCCC |Sg:n:1,2,3:3:ht:::|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_registered_content_passes[CCCCCC |Sg:n:1,2,3:3:ht|]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02a_bare_unknown_still_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02b_donor_raw_r_rejected_all_four_entries[current]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02b_donor_raw_r_rejected_all_four_entries[mapped]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02b_donor_raw_r_rejected_all_four_entries[plain]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02b_donor_raw_r_rejected_all_four_entries[target]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02b_audit_rerun_rejects_tainted_proof_record",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02b_chiral_substrate_remote_edit_r_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_chem",
+      "name": "test_r6_02b_clean_diagnostic_controls_unchanged",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_untempered_child_keeps_honest_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_tampered_parent_direct_audit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_derive_rejects_tampered_parent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_from_dict_rejects_signature_without_rows",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_signature_row_correspondence_error_is_specific",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_drop_signature_and_rows_is_orphan_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_legal_conflict_history_roundtrip_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_legal_satisfied_history_and_transition_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_invented_signature_still_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_conditions",
+      "name": "test_r6_03_snapshot_row_tampering_still_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_04_existing_state_corrupt_first_submit_rejected[cn_identity-state_row_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_04_existing_state_corrupt_first_submit_rejected[schema_version-state_schema_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_04_existing_state_corrupt_first_submit_rejected[state_id-state_inner_id_corrupt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_04_existing_appearance_corrupt_first_submit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_04_valid_existing_first_submit_and_replay_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_04_partial_existing_explicit_states_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_05_multi_source_manifest_and_links_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_05_delete_manifest_entry_leaving_other_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_05_delete_manifest_entry_and_row_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_05_delete_row_only_keeps_entry_missing_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_05_delete_link_rows_only_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r7_storage",
+      "name": "test_r6_05_order_idempotence_links_set_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_from_dict_raw_unregistered_cx_rejected[CCO]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_from_dict_raw_unregistered_cx_rejected[CC=O]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_from_dict_raw_unregistered_cx_rejected[[H][H]]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_from_dict_raw_different_molecule_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_from_dict_structured_fact_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_from_dict_unknown_origin_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_restored_tainted_states_recovery_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_restored_h2_different_molecule_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_direct_dataclass_raw_tampered_audit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_direct_dataclass_h2_raw_swap_audit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_direct_dataclass_fact_tampered_audit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_chiral_substrate_raw_tamper_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_clean_restore_and_audit_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_same_graph_alternate_raw_spelling_accepted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_registered_atomprop_with_spaces_raw_accepted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_chiral_clean_chain_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_cn_only_honest_unknown_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_archive_fidelity_boundary_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_chem",
+      "name": "test_r7_01_validation_source_discloses_not_writer_only",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_prod_only_resupply_corrupt_first_submit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_all_states_resupply_corrupt_first_submit_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_replay_with_supplied_states_shared_rule",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_none_supply_corrupt_first_submit_still_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_valid_existing_supply_first_and_replay_control[none]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_valid_existing_supply_first_and_replay_control[prod_only]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_valid_existing_supply_first_and_replay_control[all]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_fresh_first_submit_with_states_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_r8_storage",
+      "name": "test_r7_02_state_semantic_conflict_zero_write_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f04_same_structure_different_sources_no_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f04_true_semantic_conflict_still_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f04_two_step_legacy_path_imports",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f07_submit_missing_product_state_rolls_back",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f07_state_ref_spoof_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f07_substrate_anchor_violation_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f07_replay_with_missing_projection_reports_corrupt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f07_expansion_status_mutex",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f07_missing_hypothesis_association_rolls_back",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f08_unknown_store_schema_rejected_before_write",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f08_identity_schema_version_gate",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f09_child_missing_archive_falls_back_cn_only_not_root",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f10_unidentified_rule_maps_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f10_composite_source_retrieval_component_analog",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f10_study_map_not_boolean_switch",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_rework",
+      "name": "test_f10_legacy_model_ref_preserved_and_provenance_persisted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f01_balanced_reaction_all_hydrogen_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f01_missing_hydrogen_violated_not_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f01_explicit_h2_product_balanced",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f01_v1_bad_example_actually_imbalanced",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f01_hydrolysis_convention_pattern_flagged",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f01_ambiguous_participants_not_full",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f05_cn_only_charge_account_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_c01_no_facts_unlisted_donor_partial_ph_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f03_required_donor_known_absent_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f03_unsourced_essential_never_compatible_no_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f03_historical_scenario_fact_not_current",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f03_phase_scoped_fact_not_applicable_across_phases",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f03_label_value_unknown_without_registry",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f03_optimum_never_conflicts",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f03_unassessed_dimensions_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_c02_anaerobic_vs_required_o2_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f02_conflict_inherited_not_overwritten",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f02_step_conflict_survives_derivation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f02_identical_requirements_deduped",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_c03_branches_isolated_and_scenario_transition_sourced",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_c03_same_scenario_requirement_diff_recorded_both_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_c04_literature_oxygen_not_current_fact",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_c05_requested_compatible_one_unknown_assessed_possible",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_all_satisfied_within_declared_scope_compatible",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_empty_requirements_not_auto_compatible",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_condition_key_validation_fail_closed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f06_context_id_covers_semantic_fields",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_h04_circular_cosubstrate_dependency_diagnosis",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f06_three_node_cycle_detected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_dependency_resolution_needs_evidence_and_keeps_log",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f06_dependency_refs_without_resolution_not_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_h01_unparseable_prerequisite_failed_not_run",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_d03_partial_participants_full_balance_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_declared_complete_but_unknown_coeff_not_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_c06_structure_valid_gate_ok_unknowns_retain_conditional",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_admission_policy_decision_table_explicit",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_p2_1_violated_reason_code_not_empty_audit",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_p2_1_r2b_contract_violation_not_chemical",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_p2_2_legacy_gate_mapper_keeps_per_product_verdicts",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_admission_gate_rejected_only_for_declared_gates",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_admission_budget_defer_independent_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_admission_all_verified_expand",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f11_donor_diagnostic_consumes_real_protocol",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f11_center_outside_mapping_unknown_not_partial_true",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f11_fake_equivalence_class_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_d01_legal_edit_deviating_from_donor_expectation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_d02_symmetry_equivalent_center_via_validated_class",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_d02_alignment_unavailable_center_unknown_others_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f11_execution_failed_all_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_f11_same_center_different_bond_op_reported",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_pool_stage_record_and_order_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_p2_5_hash_chain_continuity_enforced",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_p2_5_order_pool_limit_domain",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_input_preview_off_records_not_run",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_input_preview_diagnostic_does_not_change_pool",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_pool_order_stable_and_truncation_disclosed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_pool_dedupe_rejects_cn_key_and_keeps_unkeyed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_substrate_profile_independent_and_all_hydrogen",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_substrate_profile_cn_only_state_honest",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s2",
+      "name": "test_substrate_profile_feature_policy_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b1_claimed_reservation_frozen_then_resume",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b2_registered_request_pending_unknown_no_resend",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b3_artifact_written_consumed_same_output_after_crash",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b3_corrupt_artifact_preserved_fail_closed[garbage]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b3_corrupt_artifact_preserved_fail_closed[hash_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b3_bundle_identity_verification",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b4_event_committed_bookkeeping_completed_idempotently",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_h08_commit_record_event_missing_preserved",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_h08_commit_record_tampered_event_id",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_h08_event_identity_columns_tampered",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_h06_two_processes_barrier_single_winner",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_worker_full_commit_end_to_end",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_recover_unregistered_run_fail_closed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_b3_wrong_identity_event_rejected_before_consume[run]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_b3_wrong_identity_event_rejected_before_consume[parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_b3_wrong_identity_event_rejected_before_consume[context]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_b3_wrong_identity_event_rejected_before_consume[hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_write_bundle_rejects_wrong_identity_event",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_first_complete_event_outcome_requires_real_event",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_b4_recovery_missing_reference_rows_refused[reservation]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_b4_recovery_missing_reference_rows_refused[attempt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-state_charge]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-state_schema]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-appearance_source]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-appearance_raw]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-hypothesis_origin]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-event_manifest]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-projection_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-plan_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-links_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-state_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-appearance_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[b4-hypothesis_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-state_charge]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-state_schema]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-appearance_source]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-appearance_raw]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-hypothesis_origin]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-event_manifest]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-projection_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-plan_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-links_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-state_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-appearance_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_bad_event_ledger_authority_refused_before_consume[done-hypothesis_delete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_done_reuse_entries_verify_full_authority",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_defer_cannot_refund_submitted_event_budget",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_defer_after_sent_request_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_defer_unexecuted_releases_legal_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_defer_abandons_registered_request_real_quota_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_register_rejects_illegal_policy_blocks[bad_limits0-\\u8d8a\\u754c]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_register_rejects_illegal_policy_blocks[bad_limits1-bool \\u4e0d\\u662f\\u6574\\u6570]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_register_rejects_illegal_policy_blocks[bad_limits2-\\u672a\\u77e5\\u952e]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_register_rejects_illegal_policy_blocks[bad_limits3-\\u8d1f\\u6570]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_stored_policy_block_corrupt_rejected_on_read",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_same_key_conflicts[payload]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_same_key_conflicts[purpose]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_same_key_conflicts[action]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_same_key_conflicts[tampered_hash]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_registration_execution_reference_closed[unclaimed]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_registration_execution_reference_closed[missing_action]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_registration_execution_reference_closed[foreign_attempt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_registration_execution_reference_closed[missing_attempt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_registration_execution_reference_closed[expand_empty_attempt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_state_consumption_after_execution_released",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_request_empty_attempt_on_decide_positive_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r2",
+      "name": "test_stop_report_claimed_actions_not_exhausted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_first_complete_reservation_content_refused[UPDATE budget_reservations SET units = 0 WHERE reservation_id = ?-reservation_units_invalid]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_first_complete_reservation_content_refused[UPDATE budget_reservations SET status = 'weird' WHERE reservation_id = ?-reservation_status_unknown]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_first_complete_reservation_content_refused[UPDATE budget_reservations SET scope = 'evil-scope' WHERE reservation_id = ?-reservation_scope_subject_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_first_complete_alternative_subject_content_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_first_complete_attempt_content_refused[UPDATE search_attempts SET status = 'abandoned' WHERE expansion_attempt_id = ?-attempt_status_not_open_under_claim]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_first_complete_attempt_content_refused[UPDATE search_attempts SET hypothesis_id = 'hyp-evil' WHERE expansion_attempt_id = ?-reservation_scope_subject_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_first_complete_attempt_content_refused[UPDATE search_attempts SET task_key = 'tk-evil' WHERE expansion_attempt_id = ?-attempt_task_key_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_b4_recovery_content_refused[reservation_units]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_b4_recovery_content_refused[attempt_status]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_deleted_reference_rows_refused[reservation-claim]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_deleted_reference_rows_refused[reservation-complete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_deleted_reference_rows_refused[reservation-submit]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_deleted_reference_rows_refused[reservation-recover]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_deleted_reference_rows_refused[attempt-claim]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_deleted_reference_rows_refused[attempt-complete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_deleted_reference_rows_refused[attempt-submit]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_deleted_reference_rows_refused[attempt-recover]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-claim]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-complete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-submit]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_commit_record_corruption_refused[commit_attempt_missing-recover]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-claim]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-complete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-submit]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_four_entries_commit_record_corruption_refused[commit_run_foreign-recover]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_attached_projection_plan_content_refused_before_consume[projection_dangling_ref]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_attached_projection_plan_content_refused_before_consume[plan_bad_status]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_attached_projection_plan_content_refused_before_consume[plan_incomplete_no_reason]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_attached_bad_payload_also_refused_at_normal_first_submit[projection_dangling_ref]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_attached_bad_payload_also_refused_at_normal_first_submit[plan_bad_status]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_attached_bad_payload_also_refused_at_normal_first_submit[plan_incomplete_no_reason]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_reuse_attached_content_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_b3_reference_precheck_before_event_write[reservation]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_b3_reference_precheck_before_event_write[attempt]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_done_submit_foreign_event_explicit_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_frozen_policy_corrupt_rejected_before_any_execution[null_limits]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_frozen_policy_corrupt_rejected_before_any_execution[drop_version]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_frozen_policy_out_of_range_rejected_on_read",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_register_partial_override_stored_complete",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_frozen_policy_legal_roundtrip_and_zero_budget_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_request_existing_row_stored_identity_corruption_conflict[UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_request_existing_row_stored_identity_corruption_conflict[UPDATE model_requests SET attempt_id = 'sattempt-evil' WHERE request_id = ?]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_request_state_consumption_reference_corruption_refused[UPDATE model_requests SET run_id = 'other-run' WHERE request_id = ?-request_run_binding_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_request_state_consumption_reference_corruption_refused[UPDATE model_requests SET attempt_id = '' WHERE request_id = ?-request_attempt_required_for_expand]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_recover_pending_requests_reference_guard[action_deleted]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_recover_pending_requests_reference_guard[action_completed]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_request_legal_controls_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_legal_completion_positive_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r3",
+      "name": "test_shared_alternative_reservation_positive_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_total_search_actions]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_alternative_hypotheses_per_parent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_attempts_per_hypothesis]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[first_complete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[B4_recover]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[B1_recover]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[B3_recover]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[done_recover]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[done_claim]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[done_complete]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[done_submit]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_necessary_reservation_set_clean_controls[defer]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_one_action_budget_chain_total_removal_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_cache_hit_retrieve_not_forced_necessary",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_scenario_transition_necessary_reservation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[null_limits-sent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[null_limits-response]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[null_limits-failed]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[missing_version-sent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[missing_version-response]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[missing_version-failed]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[bool-sent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[bool-response]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[bool-failed]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[out_of_range-sent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[out_of_range-response]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[out_of_range-failed]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[unknown_key-sent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[unknown_key-response]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[unknown_key-failed]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[negative-sent]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[negative-response]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_policy_guard[negative-failed]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_request_status_entries_legal_policy_controls",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_mark_request_failed_unknown_status_refused_and_preserved",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_sent_response_entries_reject_unknown_status",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_register_same_key_unknown_stored_status_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_recover_discloses_unknown_status_requests",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_rework_r4",
+      "name": "test_mark_request_failed_legal_lifecycle_controls",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_s3a_schema_enums_registered",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_register_run_idempotent_and_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_unregistered_run_fail_closed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_policy_identity_mismatch_recovery_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_config_roundtrip_registered_block",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_enqueue_idempotent_and_payload_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_enqueue_depth_guard",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_enqueue_product_width_guard",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_decision_task_key_varies_with_all_identity_inputs",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_expansion_task_key_binds_hypothesis_and_attempt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_substrate_feature_cache_key_excludes_search_revision",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_two_hypotheses_distinct_tasks_attempts_events",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_context_change_yields_new_action_both_legal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_event_replay_no_duplicate_across_retry_attempt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_recovery_follows_frozen_task_key",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_budget_ledger_stepwise_recompute",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_budget_memory_reset_recompute",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_attempts_per_hypothesis_cap",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_reopen_cap_and_double_constraint",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_alternatives_per_parent_cap",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_loop_stable_stop_on_small_limits",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_cache_retrieval_not_double_counted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_real_requests_blocks_registration_not_scripted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_real_request_dangling_occupies_budget",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_retrieval_only_blocks_retrieve",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_transitions_only_blocks_transition",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_total_actions_blocks_all",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_depth_only_blocks_expansion",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_zero_action_budget_independent_fixture",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_zero_depth_independent_fixture",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_empty_pool_independent_fixture",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_user_stop_dominates_composite",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_budget_beats_depth_priority",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_awaiting_prediction",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_positive_control_mid_run",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_deferred_present_not_exhausted_search",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h06_two_connections_barrier_single_winner",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h06_claim_done_reuses_outcome_no_new_rows",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h06_stale_worker_cannot_submit_or_overwrite",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h06_sqlite_busy_visible_concurrency",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_request_lifecycle_state_machine",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_crash_injection_point_b4",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_search_layer_composes_with_frozen_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_runner_start_and_resume_dispatch_ppv1",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h07_wrapper_preserves_files",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_valid_pool_proposals_with_rank",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_empty_proposals_abstain_legal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_unknown_pool_id_requires_novel_context",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_novel_requires_proposal_context",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_coproduct_not_a_proposal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_duplicate_and_rank_unknown_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_shape_errors_classified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_policy_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_round_registered_and_counted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_round_exhaustion_structured",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_structure_failure_not_feedback_eligible",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_feedback_policy_from_ledger_strict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_real_provider_feedback_registration_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_execute_atomtool_expansion_legal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_execute_atomtool_failure_three_none",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_legal_chain_submits_event",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_execution_failure_method_failed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_missing_alignment_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_strict_deviation_not_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_tampered_proof_contract_error_zero_writes",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_cross_hypothesis_evidence_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_context_persist_load_roundtrip_and_tamper",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_cyclic_dependency_initial_supply_variants",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_ppv1_run_uses_independent_storage",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_selected_within_alternatives_budget",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_beyond_budget_defers_alternatives",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_max_select_cap_leaves_selection_cap_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_depth_blocked_whole_pool",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_idempotent_reschedule_and_done_blocked",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_pool_entry_contract",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_pool_digest_deterministic_and_order_sensitive",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_record_expansion_outcome_method_failed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_record_outcome_requires_claimed_owner",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_unresolved_continuation_outcome",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_both_types",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_repeat_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_stale_revision_unchanged",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_trigger_mismatch_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_budget_insufficient_keeps_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_scenario_transition_requires_explicit_source",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_followup_plan_reference_must_be_product",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_followup_budget_zero_all_deferred_with_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_child_path_id_deterministic",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_e01_preferred_downstream_no_candidate_alternatives_continue",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_e02_two_deferred_types_activation_and_idempotence",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_e02_budget_insufficient_keeps_unexpanded_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_c06_h04_unknown_bounded_exploration_and_initial_supply",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_h04_supported_initial_supply_not_blocked",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_essential_conflict_blocks_current_scenario_hypothesis_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_branch_isolation_two_contexts",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_scenario_transition_explicit_only_effect_future",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_crash_recovery_subprocess_hard_kill[after_claim]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_crash_recovery_subprocess_hard_kill[after_request_registered]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_crash_recovery_subprocess_hard_kill[after_bundle_written]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_crash_recovery_subprocess_hard_kill[after_event_submitted]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_b2_pending_request_disclosed_not_resent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_ppv1_independent_storage_and_no_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_duplicate_start_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_resume_identity_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_resume_legacy_profile_run_refused_by_ppv1_path",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_model_object_does_not_derive_real_request_budget",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_stop_report_deferred_blocks_exhausted_search_claim",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_concurrent_barrier_start_single_winner",
+      "state": "passed"
+    }
+  ],
+  "exit_code": 0
+}

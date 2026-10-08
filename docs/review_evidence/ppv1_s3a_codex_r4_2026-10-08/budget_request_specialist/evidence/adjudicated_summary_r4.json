@@ -1,0 +1,107 @@
+{
+  "actual_HEAD": "b7f2bba02ca49edd0a45a13bc9b8434909d99175",
+  "old_raw115": {
+    "passed": 109,
+    "failed": 6
+  },
+  "effective_inherited_matrix": {
+    "cases": 114,
+    "conform": 114,
+    "groups": {
+      "S3A-03": 40,
+      "S3A-04": 60,
+      "S3A-05": 14
+    }
+  },
+  "corrected_priority": {
+    "cases": 63,
+    "passed": 63
+  },
+  "frozen_read_recover": {
+    "cases": 10,
+    "rejected_zero_write": 10
+  },
+  "original_R3_extra_completed": {
+    "cases": 31,
+    "bad_policy_state_consumers": 18,
+    "legal_state_controls": 3,
+    "unknown_status_entries": 5,
+    "foreign_request_run": 5,
+    "all_contract_conform": 31
+  },
+  "extra_prep_error": "Historical script drops required limits.version at last two assembly cases. Neither executes. Preserved exit1 stderr; valid-version legal_assembly controls2 separately once. No failed internal controls relabeled pass.",
+  "legal_partial_assembly": 2,
+  "lawful_sent_to_failed": 1,
+  "additional_full_table_matrix": {
+    "cases": 35,
+    "passed": 35,
+    "table_count": 15,
+    "decide_policy_refusals": 18,
+    "unknown_status_entries": 5,
+    "real_bookkeeping_controls": 3,
+    "known_closed_refusals": 9
+  },
+  "closed_P1_groups": [
+    "S3A-03",
+    "S3A-04"
+  ],
+  "S3A-05": "closed; priority/zero resources/inflight/exhaustion unchanged",
+  "adjustments": [
+    {
+      "case": "references_missing_action_recover",
+      "decision": "Original minimum permits explicit structural reference-integrity disclosure instead of top-level throw.",
+      "kinds": [
+        "request_action_missing"
+      ]
+    },
+    {
+      "case": "references_unclaimed_action_recover",
+      "decision": "Original minimum permits explicit structural reference-integrity disclosure instead of top-level throw.",
+      "kinds": [
+        "request_execution_released"
+      ]
+    },
+    {
+      "case": "references_foreign_action_run_recover",
+      "decision": "Original minimum permits explicit structural reference-integrity disclosure instead of top-level throw.",
+      "kinds": [
+        "request_run_binding_mismatch"
+      ]
+    },
+    {
+      "case": "references_empty_expand_attempt_recover",
+      "decision": "Original minimum permits explicit structural reference-integrity disclosure instead of top-level throw.",
+      "kinds": [
+        "request_attempt_required_for_expand"
+      ]
+    },
+    {
+      "case": "released_recover",
+      "decision": "Original minimum permits explicit structural reference-integrity disclosure instead of top-level throw.",
+      "kinds": [
+        "request_execution_released"
+      ]
+    },
+    {
+      "case": "stop_six_reason_priority",
+      "decision": "Exclude the historical incorrect priority oracle; use corrected63 below."
+    },
+    {
+      "case": "policy_missing_version_recover_frozen_expected",
+      "decision": "Strict frozen block fails before optional expected comparison; old identity-mismatch-only oracle no longer required.",
+      "actual_kind": "search_policy_block_corrupt"
+    },
+    {
+      "case": "policy_null_limits_recover_frozen_expected",
+      "decision": "Strict frozen block fails before optional expected comparison; old identity-mismatch-only oracle no longer required.",
+      "actual_kind": "search_policy_block_corrupt"
+    },
+    {
+      "case": "unknown_status_recover",
+      "decision": "Explicit unknown_status_requests disclosure is the specified repair; top-level accepted report is not successful request execution."
+    }
+  ],
+  "actual_network_requests": 0,
+  "external_model_calls": 0,
+  "counts_not_new_defects_or_scientific_performance": true
+}

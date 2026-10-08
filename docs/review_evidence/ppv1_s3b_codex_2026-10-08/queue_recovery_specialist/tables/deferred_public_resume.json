@@ -1,0 +1,3345 @@
+{
+  "artifacts": {
+    "results/ctx:pc_0757aa71e8cd78057880/path_context.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "name": "path_context",
+        "payload": {
+          "accumulated_requirements": [],
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "assumptions": [],
+          "condition_facts": [],
+          "context_id": "pc_0757aa71e8cd78057880",
+          "dependencies": [],
+          "dependency_refs": [],
+          "parent_context_ref": "",
+          "phase_history": [],
+          "phase_id": "phase-0",
+          "requested_scope": "possible",
+          "scenario_ref": "",
+          "scenario_transition": null,
+          "schema_version": "ppv1-context-8"
+        },
+        "payload_hash": "034cabb10a2f3385d001f9850a55fded0e57289cfa4d943808948305cf27f151",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "ctx:pc_0757aa71e8cd78057880"
+      },
+      "sha256": "f515797bb48a3d09497044994ac269d98bf451e7be8fabfef120b7eceeb5ab97"
+    },
+    "results/soutc_42e23e5584ec90d2aa10/expansion_outcome.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "name": "expansion_outcome",
+        "payload": {
+          "action_id": "sact_5f6b96bc89a29f4941c8",
+          "evidence_refs": [
+            "ppev_e123ad53c63caab23698"
+          ],
+          "outcome": {
+            "detail": {
+              "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+              "source_event_id": "ppev_e123ad53c63caab23698",
+              "substrate_smiles": "CC=O",
+              "unresolved_continuation": true
+            },
+            "kind": "no_local_candidate"
+          },
+          "outcome_version": "ppv1-runflow-outcome-1"
+        },
+        "payload_hash": "f5b438925b05a93e33d1af0c5cb10e62bc0471b9975e974f06456626ce877c7d",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "soutc_42e23e5584ec90d2aa10"
+      },
+      "sha256": "3ff6be0fae1c80e1355a7833dd37721026d4150734d7bce64f71eb300159debe"
+    },
+    "results/soutc_4d083f6d1c643f009505/expansion_outcome.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "name": "expansion_outcome",
+        "payload": {
+          "action_id": "sact_63eb9fb9d34d0e0470f4",
+          "evidence_refs": [],
+          "outcome": {
+            "detail": {
+              "blocked": 0,
+              "deferred": 2,
+              "model": {},
+              "pool_digest": "fa72386f9e098490094fbd1becb96facef6d8ce7fbe404f8078687d3b2be73a3",
+              "selected": 1
+            },
+            "kind": "scheduled"
+          },
+          "outcome_version": "ppv1-runflow-outcome-1"
+        },
+        "payload_hash": "0baa3e2eb198612a86f019f2bd3406de486f89944f1440acf5e73284409295e3",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "soutc_4d083f6d1c643f009505"
+      },
+      "sha256": "b50d39a61e58d0dc5de972fd88b47b1dcc6c4c1e9cf1d1fc5bc4ba5683c46982"
+    },
+    "results/soutc_50e0d37303a115ab5d69/expansion_outcome.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "name": "expansion_outcome",
+        "payload": {
+          "action_id": "sact_352d91a31a10d0949dd4",
+          "evidence_refs": [
+            "ppev_f2a84da67b53f1d21b9a"
+          ],
+          "outcome": {
+            "detail": {
+              "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+              "source_event_id": "ppev_f2a84da67b53f1d21b9a",
+              "substrate_smiles": "CC=O",
+              "unresolved_continuation": true
+            },
+            "kind": "no_local_candidate"
+          },
+          "outcome_version": "ppv1-runflow-outcome-1"
+        },
+        "payload_hash": "fddbf299a3ef4b76be0f50474a05c10b451e29e0385677c8e1b6043097fa7300",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "soutc_50e0d37303a115ab5d69"
+      },
+      "sha256": "13c8ecb7cf8dbb26dcb4087c8eda1cdef9025fe374a200f2c135b77b98f92281"
+    },
+    "results/soutc_89275c977983ed217483/expansion_outcome.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "name": "expansion_outcome",
+        "payload": {
+          "action_id": "sact_2755549ff5b9f4b1b47e",
+          "evidence_refs": [],
+          "outcome": {
+            "detail": {
+              "pool_digest": "a8640c7e64a4500f1ca07ed306b7fc38391500d7335f5b4d319bb6eae1074d18",
+              "pool_size": 3,
+              "substrate_smiles": "CCO"
+            },
+            "kind": "pool_digest"
+          },
+          "outcome_version": "ppv1-runflow-outcome-1"
+        },
+        "payload_hash": "e6114f1d5b0894ca8897538077da4fe2e8d926030ce1d1e1db282c7c281514e0",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "soutc_89275c977983ed217483"
+      },
+      "sha256": "b05f0c283bbb581829790e2aa42e6c29a1b1400eae6f4e884ca91180dccf16f7"
+    },
+    "results/soutc_af1add86cfe1a1ea947b/expansion_outcome.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "name": "expansion_outcome",
+        "payload": {
+          "action_id": "sact_c1f0e56c20a69de89092",
+          "evidence_refs": [
+            "ppev_c055942051228170a816"
+          ],
+          "outcome": {
+            "detail": {
+              "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+              "source_event_id": "ppev_c055942051228170a816",
+              "substrate_smiles": "CC=O",
+              "unresolved_continuation": true
+            },
+            "kind": "no_local_candidate"
+          },
+          "outcome_version": "ppv1-runflow-outcome-1"
+        },
+        "payload_hash": "22a06e4fbbc34e8ec3944db0588b3c03ec4fc6ea021282c3e57fa5db721aa6a0",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "soutc_af1add86cfe1a1ea947b"
+      },
+      "sha256": "83cf67c58a1a3c70511e847fc0f0ecc30e850794feed47e7cfb967b37cdacf28"
+    },
+    "results/soutc_dbaa81b26f5d12b011fa/expansion_outcome.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "name": "expansion_outcome",
+        "payload": {
+          "action_id": "sact_cd3bcb52dbe2506ae9d6",
+          "evidence_refs": [
+            "ppev_c055942051228170a816"
+          ],
+          "outcome": {
+            "detail": {
+              "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+              "source_event_id": "ppev_c055942051228170a816",
+              "substrate_smiles": "[H][H]",
+              "unresolved_continuation": true
+            },
+            "kind": "no_local_candidate"
+          },
+          "outcome_version": "ppv1-runflow-outcome-1"
+        },
+        "payload_hash": "a649ef26917e35f351e405cc605dfe6190a643a338ef444fdd592d384030a80e",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "soutc_dbaa81b26f5d12b011fa"
+      },
+      "sha256": "033a8f52f5cb5d9920e3aa4c8a9af17af2b61768b2052a6b8f956bf24df41b36"
+    },
+    "results/stask-exp_7503f5b85a0a13f04bd7/production_report.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "name": "production_report",
+        "payload": {
+          "action_id": "sact_acbe191df35b2045705c",
+          "admission": {
+            "disposition": "retain_conditional",
+            "reasons": [
+              "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):participant_completeness,element_accounting,formal_charge_accounting,condition_check"
+            ]
+          },
+          "attempt_id": "sattempt_7b21b0f6bc83a5a6f6ff",
+          "audit": {
+            "admission_disposition": "",
+            "admission_policy_ref": "ppv1-admission-8",
+            "admission_reasons": [],
+            "audit_id": "audit_fc4979b3747228d1cf4b",
+            "biological_support_status": "unknown",
+            "checker_versions": {
+              "audit": "ppv1-audit-8",
+              "chemstate": "ppv1-chemstate-8",
+              "condition_assessment": "ppv1-condition-assessment-8",
+              "donor_diagnostic": "ppv1-donor-diagnostic-8",
+              "hypothesis": "ppv1-hypothesis-8",
+              "legacy_g2_family": "v43-cons-2"
+            },
+            "checks": [
+              {
+                "coverage": "participants_with_state",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "structure_parse_valence",
+                "reason_code": "all_participants_parse",
+                "status": "verified"
+              },
+              {
+                "coverage": "state_ledger_references",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "participant_state_refs",
+                "reason_code": "all_participant_states_resolved",
+                "status": "verified"
+              },
+              {
+                "coverage": "state_ids",
+                "detail": {
+                  "fidelity_axis_notes": []
+                },
+                "evidence_refs": [],
+                "name": "identity_fidelity",
+                "reason_code": "identity_states_consistent",
+                "status": "verified"
+              },
+              {
+                "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+                "detail": {},
+                "evidence_refs": [
+                  "v43-cons-2"
+                ],
+                "name": "finite_rule_diagnostic",
+                "reason_code": "not_provided",
+                "status": "not_applicable"
+              },
+              {
+                "coverage": "participant_list",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "participant_completeness",
+                "reason_code": "participant_list_status:partial",
+                "status": "unknown"
+              },
+              {
+                "coverage": "full_balance",
+                "detail": {
+                  "accounting_scope": "not_run_incomplete_list"
+                },
+                "evidence_refs": [],
+                "name": "element_accounting",
+                "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                "status": "unknown"
+              },
+              {
+                "coverage": "full_balance",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "formal_charge_accounting",
+                "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                "status": "unknown"
+              },
+              {
+                "coverage": "mapping_dependent",
+                "detail": {
+                  "atom_delta": {
+                    "H": "2"
+                  },
+                  "center_match": true,
+                  "center_match_basis": "direct",
+                  "checker_scope": "region_net_change",
+                  "checker_version": "ppv1-donor-diagnostic-8",
+                  "completion_license": "composition_only_hydrogen_equivalents",
+                  "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                  "coverage_mode": "whole_molecule",
+                  "coverage_rule": "atom_delta_stoichiometric_completion",
+                  "coverage_violations": [],
+                  "covered_product_identities": [
+                    "CC=O"
+                  ],
+                  "declared_signature_status": "unknown",
+                  "product_coverage": "full",
+                  "proof_scope": "self_contained_recompute",
+                  "strict_target_match": true,
+                  "substrate_scale": "1",
+                  "uncovered_product_elements": {},
+                  "uncovered_product_refs": [],
+                  "uncovered_reactant_elements": {},
+                  "uncovered_reactant_refs": [],
+                  "unlicensed_uncovered_identities": []
+                },
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "name": "transformation_center",
+                "reason_code": "center_evidence_verified:ppv1-donor-diagnostic-8(scope=region_net_change;basis=direct)",
+                "status": "verified"
+              },
+              {
+                "coverage": "step_scope",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "step_scope_check",
+                "reason_code": "step_scope:net_reaction",
+                "status": "verified"
+              },
+              {
+                "coverage": "declared_dimensions",
+                "detail": {
+                  "assessment_scope": [],
+                  "unassessed_dimensions": [
+                    "biotic_abiotic",
+                    "inoculum_source",
+                    "light_regime",
+                    "phase_bioavailability",
+                    "redox_regime_eh",
+                    "required_trace_elements_cofactors",
+                    "salinity_ionic_strength",
+                    "substrate_concentration"
+                  ]
+                },
+                "evidence_refs": [],
+                "name": "condition_check",
+                "reason_code": "environment_fit:unknown;coverage:",
+                "status": "unknown"
+              },
+              {
+                "coverage": "dependency_set",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "provenance_dependency",
+                "reason_code": "no_unresolved_dependencies",
+                "status": "verified"
+              }
+            ],
+            "input_hash": "ain_a64f1ec3b8c1dc0fb147",
+            "legacy_gate_result_ref": "",
+            "participant_accounting_status": "partial",
+            "schema_version": "ppv1-audit-8",
+            "scope": "hypothesis_admission"
+          },
+          "child_depth": 2,
+          "completed": {
+            "action_id": "sact_acbe191df35b2045705c",
+            "completed": true,
+            "event_id": "ppev_f2a84da67b53f1d21b9a",
+            "outcome_ref": ""
+          },
+          "event": null,
+          "event_id": "ppev_f2a84da67b53f1d21b9a",
+          "execution": {
+            "center_evidence": {
+              "bound_inputs": {
+                "alignment_ref": "align-A",
+                "donor_centers": [
+                  "S_C_2",
+                  "S_O_1"
+                ],
+                "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                "product_identity": "CC=O",
+                "substrate_identity": "CCO"
+              },
+              "center_match": true,
+              "center_match_basis": "direct",
+              "checker_scope": "region_net_change",
+              "checker_version": "ppv1-donor-diagnostic-8",
+              "declaration_mismatch": false,
+              "evidence_refs": [
+                "align-A"
+              ],
+              "proof_record": {
+                "alignment": {
+                  "donor_to_current": {
+                    "S_C_2": "S_C_2",
+                    "S_O_1": "S_O_1"
+                  },
+                  "equivalence_classes": [],
+                  "ref": "align-A",
+                  "status": "resolved"
+                },
+                "current": {
+                  "atom_id_map": {
+                    "S_C_1": 0,
+                    "S_C_2": 1,
+                    "S_O_1": 2
+                  },
+                  "smiles": "CCO"
+                },
+                "donor": {
+                  "center_atom_ids": [
+                    "S_C_2",
+                    "S_O_1"
+                  ]
+                },
+                "edits": [
+                  {
+                    "atom1": "S_C_2",
+                    "atom2": "S_O_1",
+                    "from_order": "single",
+                    "op": "change_bond_order",
+                    "to_order": "double"
+                  }
+                ],
+                "expectation": {
+                  "target_smiles": "CC=O"
+                },
+                "result": {
+                  "atom_id_map": {
+                    "S_C_1": 0,
+                    "S_C_2": 1,
+                    "S_O_1": 2
+                  },
+                  "n_edits": 1,
+                  "ok": true,
+                  "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                  "product_smiles": "CC=O",
+                  "protocol_version": "v43-editproto-2",
+                  "reasons": []
+                }
+              },
+              "proof_scope": "self_contained_recompute",
+              "strict_target_match": true
+            },
+            "diagnostic": {
+              "alignment_ref": "align-A",
+              "center_evidence": {
+                "bound_inputs": {
+                  "alignment_ref": "align-A",
+                  "donor_centers": [
+                    "S_C_2",
+                    "S_O_1"
+                  ],
+                  "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                  "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                  "product_identity": "CC=O",
+                  "substrate_identity": "CCO"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-8",
+                "declaration_mismatch": false,
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "proof_record": {
+                  "alignment": {
+                    "donor_to_current": {
+                      "S_C_2": "S_C_2",
+                      "S_O_1": "S_O_1"
+                    },
+                    "equivalence_classes": [],
+                    "ref": "align-A",
+                    "status": "resolved"
+                  },
+                  "current": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "smiles": "CCO"
+                  },
+                  "donor": {
+                    "center_atom_ids": [
+                      "S_C_2",
+                      "S_O_1"
+                    ]
+                  },
+                  "edits": [
+                    {
+                      "atom1": "S_C_2",
+                      "atom2": "S_O_1",
+                      "from_order": "single",
+                      "op": "change_bond_order",
+                      "to_order": "double"
+                    }
+                  ],
+                  "expectation": {
+                    "target_smiles": "CC=O"
+                  },
+                  "result": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "n_edits": 1,
+                    "ok": true,
+                    "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                    "product_smiles": "CC=O",
+                    "protocol_version": "v43-editproto-2",
+                    "reasons": []
+                  }
+                },
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true
+              },
+              "center_match_basis": "direct",
+              "center_property_deltas": [
+                {
+                  "atom_id": "S_C_2",
+                  "cip_labels": [
+                    "",
+                    ""
+                  ],
+                  "element": "C",
+                  "formal_charge": [
+                    0,
+                    0
+                  ],
+                  "h_count": [
+                    2,
+                    1
+                  ],
+                  "property_delta": "h_count"
+                },
+                {
+                  "atom_id": "S_O_1",
+                  "cip_labels": [
+                    "",
+                    ""
+                  ],
+                  "element": "O",
+                  "formal_charge": [
+                    0,
+                    0
+                  ],
+                  "h_count": [
+                    1,
+                    0
+                  ],
+                  "property_delta": "h_count"
+                }
+              ],
+              "declaration_mismatches": [],
+              "declaration_only": [],
+              "equivalence_basis": "",
+              "executed_bond_changes": [
+                {
+                  "atom1_id": "S_C_2",
+                  "atom2_id": "S_O_1",
+                  "from_order": "single",
+                  "kind": "order_change",
+                  "to_order": "double"
+                }
+              ],
+              "extra_changes": [],
+              "joint_mapping": {},
+              "legacy_cn_match": true,
+              "missing_info_reasons": [],
+              "net_change_empty": false,
+              "reaction_center_match": true,
+              "schema_version": "ppv1-donor-diagnostic-8",
+              "stereo_comparison_unsupported_atoms": [],
+              "strict_target_match": true
+            },
+            "execution_ok": true,
+            "production_version": "ppv1-search-production-1",
+            "render": {
+              "atom_id_map": {
+                "S_C_1": 0,
+                "S_C_2": 1,
+                "S_O_1": 2
+              },
+              "canonical_smiles": "CCO",
+              "input_smiles": "CCO"
+            },
+            "result": {
+              "atom_id_map": {
+                "S_C_1": 0,
+                "S_C_2": 1,
+                "S_O_1": 2
+              },
+              "n_edits": 1,
+              "ok": true,
+              "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+              "product_smiles": "CC=O",
+              "protocol_version": "v43-editproto-2",
+              "reasons": []
+            },
+            "substrate_smiles": "CCO",
+            "tool_inputs": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              }
+            }
+          },
+          "expansion_plan": {
+            "entries": [
+              {
+                "reason": "",
+                "state_ref": "cs_540cc0181e112b383323",
+                "status": "expanded"
+              }
+            ],
+            "policy_version": "ppv1-expansion-1"
+          },
+          "parent_search_revision": 0,
+          "production_version": "ppv1-search-production-1",
+          "report_projection": {
+            "dedup_notes": [],
+            "max_reportable": 1,
+            "product_ranks": [
+              {
+                "basis": "declared_rank_order",
+                "note": "",
+                "report_rank": 1,
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "projection_version": "ppv1-report-projection-1",
+            "reasons": []
+          },
+          "status": "submitted",
+          "submitted": {
+            "action_id": "sact_acbe191df35b2045705c",
+            "created": true,
+            "event_id": "ppev_f2a84da67b53f1d21b9a"
+          }
+        },
+        "payload_hash": "af25988ed94f879047a38896d524caf23353ad1a3052cbc4af6ab3ea429f16fe",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "stask-exp_7503f5b85a0a13f04bd7"
+      },
+      "sha256": "beda1e4b5c4586c50fca4df6f3b948ed8241de21bf3c296491ddaaf4934593f2"
+    },
+    "results/stask-exp_8f0997b52acdf78f9634/production_report.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "name": "production_report",
+        "payload": {
+          "action_id": "sact_ad29a09785bf48ed1379",
+          "admission": {
+            "disposition": "retain_conditional",
+            "reasons": [
+              "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):participant_completeness,element_accounting,formal_charge_accounting,transformation_center,condition_check"
+            ]
+          },
+          "attempt_id": "sattempt_51d6807798f7225286da",
+          "audit": {
+            "admission_disposition": "",
+            "admission_policy_ref": "ppv1-admission-8",
+            "admission_reasons": [],
+            "audit_id": "audit_6022f6641ab234d7c2ad",
+            "biological_support_status": "unknown",
+            "checker_versions": {
+              "audit": "ppv1-audit-8",
+              "chemstate": "ppv1-chemstate-8",
+              "condition_assessment": "ppv1-condition-assessment-8",
+              "donor_diagnostic": "ppv1-donor-diagnostic-8",
+              "hypothesis": "ppv1-hypothesis-8",
+              "legacy_g2_family": "v43-cons-2"
+            },
+            "checks": [
+              {
+                "coverage": "participants_with_state",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "structure_parse_valence",
+                "reason_code": "all_participants_parse",
+                "status": "verified"
+              },
+              {
+                "coverage": "state_ledger_references",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "participant_state_refs",
+                "reason_code": "all_participant_states_resolved",
+                "status": "verified"
+              },
+              {
+                "coverage": "state_ids",
+                "detail": {
+                  "fidelity_axis_notes": []
+                },
+                "evidence_refs": [],
+                "name": "identity_fidelity",
+                "reason_code": "identity_states_consistent",
+                "status": "verified"
+              },
+              {
+                "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+                "detail": {},
+                "evidence_refs": [
+                  "v43-cons-2"
+                ],
+                "name": "finite_rule_diagnostic",
+                "reason_code": "not_provided",
+                "status": "not_applicable"
+              },
+              {
+                "coverage": "participant_list",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "participant_completeness",
+                "reason_code": "participant_list_status:partial",
+                "status": "unknown"
+              },
+              {
+                "coverage": "full_balance",
+                "detail": {
+                  "accounting_scope": "not_run_incomplete_list"
+                },
+                "evidence_refs": [],
+                "name": "element_accounting",
+                "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                "status": "unknown"
+              },
+              {
+                "coverage": "full_balance",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "formal_charge_accounting",
+                "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                "status": "unknown"
+              },
+              {
+                "coverage": "mapping_dependent",
+                "detail": {
+                  "center_match": true,
+                  "center_match_basis": "direct",
+                  "checker_scope": "region_net_change",
+                  "checker_version": "ppv1-donor-diagnostic-8",
+                  "coverage_mode": "whole_molecule",
+                  "coverage_rule": "atom_delta_stoichiometric_completion",
+                  "covered_product_identities": [
+                    "CC=O"
+                  ],
+                  "declared_signature_status": "unknown",
+                  "product_coverage": "unknown_coefficients",
+                  "proof_scope": "self_contained_recompute",
+                  "strict_target_match": true,
+                  "uncovered_product_refs": [
+                    "cs_ea7e44a64c7461517e4f"
+                  ],
+                  "uncovered_reactant_refs": []
+                },
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "name": "transformation_center",
+                "reason_code": "center_evidence_coverage_unknown_coefficients(参与物系数未知:覆盖与贡献规模不可算,不得计入全部核实;系数须已知或另行补全,不冒充已覆盖)",
+                "status": "unknown"
+              },
+              {
+                "coverage": "step_scope",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "step_scope_check",
+                "reason_code": "step_scope:net_reaction",
+                "status": "verified"
+              },
+              {
+                "coverage": "declared_dimensions",
+                "detail": {
+                  "assessment_scope": [],
+                  "unassessed_dimensions": [
+                    "biotic_abiotic",
+                    "inoculum_source",
+                    "light_regime",
+                    "phase_bioavailability",
+                    "redox_regime_eh",
+                    "required_trace_elements_cofactors",
+                    "salinity_ionic_strength",
+                    "substrate_concentration"
+                  ]
+                },
+                "evidence_refs": [],
+                "name": "condition_check",
+                "reason_code": "environment_fit:unknown;coverage:",
+                "status": "unknown"
+              },
+              {
+                "coverage": "dependency_set",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "provenance_dependency",
+                "reason_code": "no_unresolved_dependencies",
+                "status": "verified"
+              }
+            ],
+            "input_hash": "ain_0fdc6022294d9bb61dcd",
+            "legacy_gate_result_ref": "",
+            "participant_accounting_status": "partial",
+            "schema_version": "ppv1-audit-8",
+            "scope": "hypothesis_admission"
+          },
+          "child_depth": 2,
+          "completed": {
+            "action_id": "sact_ad29a09785bf48ed1379",
+            "completed": true,
+            "event_id": "ppev_c055942051228170a816",
+            "outcome_ref": ""
+          },
+          "event": null,
+          "event_id": "ppev_c055942051228170a816",
+          "execution": {
+            "center_evidence": {
+              "bound_inputs": {
+                "alignment_ref": "align-A",
+                "donor_centers": [
+                  "S_C_2",
+                  "S_O_1"
+                ],
+                "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                "product_identity": "CC=O",
+                "substrate_identity": "CCO"
+              },
+              "center_match": true,
+              "center_match_basis": "direct",
+              "checker_scope": "region_net_change",
+              "checker_version": "ppv1-donor-diagnostic-8",
+              "declaration_mismatch": false,
+              "evidence_refs": [
+                "align-A"
+              ],
+              "proof_record": {
+                "alignment": {
+                  "donor_to_current": {
+                    "S_C_2": "S_C_2",
+                    "S_O_1": "S_O_1"
+                  },
+                  "equivalence_classes": [],
+                  "ref": "align-A",
+                  "status": "resolved"
+                },
+                "current": {
+                  "atom_id_map": {
+                    "S_C_1": 0,
+                    "S_C_2": 1,
+                    "S_O_1": 2
+                  },
+                  "smiles": "CCO"
+                },
+                "donor": {
+                  "center_atom_ids": [
+                    "S_C_2",
+                    "S_O_1"
+                  ]
+                },
+                "edits": [
+                  {
+                    "atom1": "S_C_2",
+                    "atom2": "S_O_1",
+                    "from_order": "single",
+                    "op": "change_bond_order",
+                    "to_order": "double"
+                  }
+                ],
+                "expectation": {
+                  "target_smiles": "CC=O"
+                },
+                "result": {
+                  "atom_id_map": {
+                    "S_C_1": 0,
+                    "S_C_2": 1,
+                    "S_O_1": 2
+                  },
+                  "n_edits": 1,
+                  "ok": true,
+                  "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                  "product_smiles": "CC=O",
+                  "protocol_version": "v43-editproto-2",
+                  "reasons": []
+                }
+              },
+              "proof_scope": "self_contained_recompute",
+              "strict_target_match": true
+            },
+            "diagnostic": {
+              "alignment_ref": "align-A",
+              "center_evidence": {
+                "bound_inputs": {
+                  "alignment_ref": "align-A",
+                  "donor_centers": [
+                    "S_C_2",
+                    "S_O_1"
+                  ],
+                  "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                  "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                  "product_identity": "CC=O",
+                  "substrate_identity": "CCO"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-8",
+                "declaration_mismatch": false,
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "proof_record": {
+                  "alignment": {
+                    "donor_to_current": {
+                      "S_C_2": "S_C_2",
+                      "S_O_1": "S_O_1"
+                    },
+                    "equivalence_classes": [],
+                    "ref": "align-A",
+                    "status": "resolved"
+                  },
+                  "current": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "smiles": "CCO"
+                  },
+                  "donor": {
+                    "center_atom_ids": [
+                      "S_C_2",
+                      "S_O_1"
+                    ]
+                  },
+                  "edits": [
+                    {
+                      "atom1": "S_C_2",
+                      "atom2": "S_O_1",
+                      "from_order": "single",
+                      "op": "change_bond_order",
+                      "to_order": "double"
+                    }
+                  ],
+                  "expectation": {
+                    "target_smiles": "CC=O"
+                  },
+                  "result": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "n_edits": 1,
+                    "ok": true,
+                    "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                    "product_smiles": "CC=O",
+                    "protocol_version": "v43-editproto-2",
+                    "reasons": []
+                  }
+                },
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true
+              },
+              "center_match_basis": "direct",
+              "center_property_deltas": [
+                {
+                  "atom_id": "S_C_2",
+                  "cip_labels": [
+                    "",
+                    ""
+                  ],
+                  "element": "C",
+                  "formal_charge": [
+                    0,
+                    0
+                  ],
+                  "h_count": [
+                    2,
+                    1
+                  ],
+                  "property_delta": "h_count"
+                },
+                {
+                  "atom_id": "S_O_1",
+                  "cip_labels": [
+                    "",
+                    ""
+                  ],
+                  "element": "O",
+                  "formal_charge": [
+                    0,
+                    0
+                  ],
+                  "h_count": [
+                    1,
+                    0
+                  ],
+                  "property_delta": "h_count"
+                }
+              ],
+              "declaration_mismatches": [],
+              "declaration_only": [],
+              "equivalence_basis": "",
+              "executed_bond_changes": [
+                {
+                  "atom1_id": "S_C_2",
+                  "atom2_id": "S_O_1",
+                  "from_order": "single",
+                  "kind": "order_change",
+                  "to_order": "double"
+                }
+              ],
+              "extra_changes": [],
+              "joint_mapping": {},
+              "legacy_cn_match": true,
+              "missing_info_reasons": [],
+              "net_change_empty": false,
+              "reaction_center_match": true,
+              "schema_version": "ppv1-donor-diagnostic-8",
+              "stereo_comparison_unsupported_atoms": [],
+              "strict_target_match": true
+            },
+            "execution_ok": true,
+            "production_version": "ppv1-search-production-1",
+            "render": {
+              "atom_id_map": {
+                "S_C_1": 0,
+                "S_C_2": 1,
+                "S_O_1": 2
+              },
+              "canonical_smiles": "CCO",
+              "input_smiles": "CCO"
+            },
+            "result": {
+              "atom_id_map": {
+                "S_C_1": 0,
+                "S_C_2": 1,
+                "S_O_1": 2
+              },
+              "n_edits": 1,
+              "ok": true,
+              "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+              "product_smiles": "CC=O",
+              "protocol_version": "v43-editproto-2",
+              "reasons": []
+            },
+            "substrate_smiles": "CCO",
+            "tool_inputs": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              }
+            }
+          },
+          "expansion_plan": {
+            "entries": [
+              {
+                "reason": "",
+                "state_ref": "cs_540cc0181e112b383323",
+                "status": "expanded"
+              },
+              {
+                "reason": "product_width_limit",
+                "state_ref": "cs_ea7e44a64c7461517e4f",
+                "status": "deferred"
+              }
+            ],
+            "policy_version": "ppv1-expansion-1"
+          },
+          "parent_search_revision": 0,
+          "production_version": "ppv1-search-production-1",
+          "report_projection": {
+            "dedup_notes": [],
+            "max_reportable": 1,
+            "product_ranks": [
+              {
+                "basis": "declared_rank_order",
+                "note": "",
+                "report_rank": 1,
+                "state_ref": "cs_540cc0181e112b383323"
+              },
+              {
+                "basis": "report_width_cap",
+                "note": "report_width_cap:1",
+                "report_rank": null,
+                "state_ref": "cs_ea7e44a64c7461517e4f"
+              }
+            ],
+            "projection_version": "ppv1-report-projection-1",
+            "reasons": []
+          },
+          "status": "submitted",
+          "submitted": {
+            "action_id": "sact_ad29a09785bf48ed1379",
+            "created": true,
+            "event_id": "ppev_c055942051228170a816"
+          }
+        },
+        "payload_hash": "1130e16e939fefb7d032aca9e4021b8119d4a5f0809db9613b26309ab48b566c",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "stask-exp_8f0997b52acdf78f9634"
+      },
+      "sha256": "35776901955516241fc91a5b2d855ceb16b4ce963776fe86c8e5fb5a582c196c"
+    },
+    "results/stask-exp_f9047037b25bbcebb2af/production_report.json": {
+      "content": {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "name": "production_report",
+        "payload": {
+          "action_id": "sact_c56685fa544a0a01706a",
+          "admission": {
+            "disposition": "retain_conditional",
+            "reasons": [
+              "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):participant_completeness,element_accounting,formal_charge_accounting,condition_check"
+            ]
+          },
+          "attempt_id": "sattempt_c2f2461fcfc87a562b7c",
+          "audit": {
+            "admission_disposition": "",
+            "admission_policy_ref": "ppv1-admission-8",
+            "admission_reasons": [],
+            "audit_id": "audit_f02eedde0b38031a2019",
+            "biological_support_status": "unknown",
+            "checker_versions": {
+              "audit": "ppv1-audit-8",
+              "chemstate": "ppv1-chemstate-8",
+              "condition_assessment": "ppv1-condition-assessment-8",
+              "donor_diagnostic": "ppv1-donor-diagnostic-8",
+              "hypothesis": "ppv1-hypothesis-8",
+              "legacy_g2_family": "v43-cons-2"
+            },
+            "checks": [
+              {
+                "coverage": "participants_with_state",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "structure_parse_valence",
+                "reason_code": "all_participants_parse",
+                "status": "verified"
+              },
+              {
+                "coverage": "state_ledger_references",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "participant_state_refs",
+                "reason_code": "all_participant_states_resolved",
+                "status": "verified"
+              },
+              {
+                "coverage": "state_ids",
+                "detail": {
+                  "fidelity_axis_notes": []
+                },
+                "evidence_refs": [],
+                "name": "identity_fidelity",
+                "reason_code": "identity_states_consistent",
+                "status": "verified"
+              },
+              {
+                "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+                "detail": {},
+                "evidence_refs": [
+                  "v43-cons-2"
+                ],
+                "name": "finite_rule_diagnostic",
+                "reason_code": "not_provided",
+                "status": "not_applicable"
+              },
+              {
+                "coverage": "participant_list",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "participant_completeness",
+                "reason_code": "participant_list_status:partial",
+                "status": "unknown"
+              },
+              {
+                "coverage": "full_balance",
+                "detail": {
+                  "accounting_scope": "not_run_incomplete_list"
+                },
+                "evidence_refs": [],
+                "name": "element_accounting",
+                "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                "status": "unknown"
+              },
+              {
+                "coverage": "full_balance",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "formal_charge_accounting",
+                "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                "status": "unknown"
+              },
+              {
+                "coverage": "mapping_dependent",
+                "detail": {
+                  "atom_delta": {
+                    "H": "2"
+                  },
+                  "center_match": true,
+                  "center_match_basis": "direct",
+                  "checker_scope": "region_net_change",
+                  "checker_version": "ppv1-donor-diagnostic-8",
+                  "completion_license": "composition_only_hydrogen_equivalents",
+                  "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                  "coverage_mode": "whole_molecule",
+                  "coverage_rule": "atom_delta_stoichiometric_completion",
+                  "coverage_violations": [],
+                  "covered_product_identities": [
+                    "CC=O"
+                  ],
+                  "declared_signature_status": "unknown",
+                  "product_coverage": "full",
+                  "proof_scope": "self_contained_recompute",
+                  "strict_target_match": true,
+                  "substrate_scale": "1",
+                  "uncovered_product_elements": {},
+                  "uncovered_product_refs": [],
+                  "uncovered_reactant_elements": {},
+                  "uncovered_reactant_refs": [],
+                  "unlicensed_uncovered_identities": []
+                },
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "name": "transformation_center",
+                "reason_code": "center_evidence_verified:ppv1-donor-diagnostic-8(scope=region_net_change;basis=direct)",
+                "status": "verified"
+              },
+              {
+                "coverage": "step_scope",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "step_scope_check",
+                "reason_code": "step_scope:net_reaction",
+                "status": "verified"
+              },
+              {
+                "coverage": "declared_dimensions",
+                "detail": {
+                  "assessment_scope": [],
+                  "unassessed_dimensions": [
+                    "biotic_abiotic",
+                    "inoculum_source",
+                    "light_regime",
+                    "phase_bioavailability",
+                    "redox_regime_eh",
+                    "required_trace_elements_cofactors",
+                    "salinity_ionic_strength",
+                    "substrate_concentration"
+                  ]
+                },
+                "evidence_refs": [],
+                "name": "condition_check",
+                "reason_code": "environment_fit:unknown;coverage:",
+                "status": "unknown"
+              },
+              {
+                "coverage": "dependency_set",
+                "detail": {},
+                "evidence_refs": [],
+                "name": "provenance_dependency",
+                "reason_code": "no_unresolved_dependencies",
+                "status": "verified"
+              }
+            ],
+            "input_hash": "ain_6229e042db9ea26b4b2c",
+            "legacy_gate_result_ref": "",
+            "participant_accounting_status": "partial",
+            "schema_version": "ppv1-audit-8",
+            "scope": "hypothesis_admission"
+          },
+          "child_depth": 2,
+          "completed": {
+            "action_id": "sact_c56685fa544a0a01706a",
+            "completed": true,
+            "event_id": "ppev_e123ad53c63caab23698",
+            "outcome_ref": ""
+          },
+          "event": null,
+          "event_id": "ppev_e123ad53c63caab23698",
+          "execution": {
+            "center_evidence": {
+              "bound_inputs": {
+                "alignment_ref": "align-A",
+                "donor_centers": [
+                  "S_C_2",
+                  "S_O_1"
+                ],
+                "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                "product_identity": "CC=O",
+                "substrate_identity": "CCO"
+              },
+              "center_match": true,
+              "center_match_basis": "direct",
+              "checker_scope": "region_net_change",
+              "checker_version": "ppv1-donor-diagnostic-8",
+              "declaration_mismatch": false,
+              "evidence_refs": [
+                "align-A"
+              ],
+              "proof_record": {
+                "alignment": {
+                  "donor_to_current": {
+                    "S_C_2": "S_C_2",
+                    "S_O_1": "S_O_1"
+                  },
+                  "equivalence_classes": [],
+                  "ref": "align-A",
+                  "status": "resolved"
+                },
+                "current": {
+                  "atom_id_map": {
+                    "S_C_1": 0,
+                    "S_C_2": 1,
+                    "S_O_1": 2
+                  },
+                  "smiles": "CCO"
+                },
+                "donor": {
+                  "center_atom_ids": [
+                    "S_C_2",
+                    "S_O_1"
+                  ]
+                },
+                "edits": [
+                  {
+                    "atom1": "S_C_2",
+                    "atom2": "S_O_1",
+                    "from_order": "single",
+                    "op": "change_bond_order",
+                    "to_order": "double"
+                  }
+                ],
+                "expectation": {
+                  "target_smiles": "CC=O"
+                },
+                "result": {
+                  "atom_id_map": {
+                    "S_C_1": 0,
+                    "S_C_2": 1,
+                    "S_O_1": 2
+                  },
+                  "n_edits": 1,
+                  "ok": true,
+                  "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                  "product_smiles": "CC=O",
+                  "protocol_version": "v43-editproto-2",
+                  "reasons": []
+                }
+              },
+              "proof_scope": "self_contained_recompute",
+              "strict_target_match": true
+            },
+            "diagnostic": {
+              "alignment_ref": "align-A",
+              "center_evidence": {
+                "bound_inputs": {
+                  "alignment_ref": "align-A",
+                  "donor_centers": [
+                    "S_C_2",
+                    "S_O_1"
+                  ],
+                  "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                  "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                  "product_identity": "CC=O",
+                  "substrate_identity": "CCO"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-8",
+                "declaration_mismatch": false,
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "proof_record": {
+                  "alignment": {
+                    "donor_to_current": {
+                      "S_C_2": "S_C_2",
+                      "S_O_1": "S_O_1"
+                    },
+                    "equivalence_classes": [],
+                    "ref": "align-A",
+                    "status": "resolved"
+                  },
+                  "current": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "smiles": "CCO"
+                  },
+                  "donor": {
+                    "center_atom_ids": [
+                      "S_C_2",
+                      "S_O_1"
+                    ]
+                  },
+                  "edits": [
+                    {
+                      "atom1": "S_C_2",
+                      "atom2": "S_O_1",
+                      "from_order": "single",
+                      "op": "change_bond_order",
+                      "to_order": "double"
+                    }
+                  ],
+                  "expectation": {
+                    "target_smiles": "CC=O"
+                  },
+                  "result": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "n_edits": 1,
+                    "ok": true,
+                    "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                    "product_smiles": "CC=O",
+                    "protocol_version": "v43-editproto-2",
+                    "reasons": []
+                  }
+                },
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true
+              },
+              "center_match_basis": "direct",
+              "center_property_deltas": [
+                {
+                  "atom_id": "S_C_2",
+                  "cip_labels": [
+                    "",
+                    ""
+                  ],
+                  "element": "C",
+                  "formal_charge": [
+                    0,
+                    0
+                  ],
+                  "h_count": [
+                    2,
+                    1
+                  ],
+                  "property_delta": "h_count"
+                },
+                {
+                  "atom_id": "S_O_1",
+                  "cip_labels": [
+                    "",
+                    ""
+                  ],
+                  "element": "O",
+                  "formal_charge": [
+                    0,
+                    0
+                  ],
+                  "h_count": [
+                    1,
+                    0
+                  ],
+                  "property_delta": "h_count"
+                }
+              ],
+              "declaration_mismatches": [],
+              "declaration_only": [],
+              "equivalence_basis": "",
+              "executed_bond_changes": [
+                {
+                  "atom1_id": "S_C_2",
+                  "atom2_id": "S_O_1",
+                  "from_order": "single",
+                  "kind": "order_change",
+                  "to_order": "double"
+                }
+              ],
+              "extra_changes": [],
+              "joint_mapping": {},
+              "legacy_cn_match": true,
+              "missing_info_reasons": [],
+              "net_change_empty": false,
+              "reaction_center_match": true,
+              "schema_version": "ppv1-donor-diagnostic-8",
+              "stereo_comparison_unsupported_atoms": [],
+              "strict_target_match": true
+            },
+            "execution_ok": true,
+            "production_version": "ppv1-search-production-1",
+            "render": {
+              "atom_id_map": {
+                "S_C_1": 0,
+                "S_C_2": 1,
+                "S_O_1": 2
+              },
+              "canonical_smiles": "CCO",
+              "input_smiles": "CCO"
+            },
+            "result": {
+              "atom_id_map": {
+                "S_C_1": 0,
+                "S_C_2": 1,
+                "S_O_1": 2
+              },
+              "n_edits": 1,
+              "ok": true,
+              "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+              "product_smiles": "CC=O",
+              "protocol_version": "v43-editproto-2",
+              "reasons": []
+            },
+            "substrate_smiles": "CCO",
+            "tool_inputs": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              }
+            }
+          },
+          "expansion_plan": {
+            "entries": [
+              {
+                "reason": "",
+                "state_ref": "cs_540cc0181e112b383323",
+                "status": "expanded"
+              }
+            ],
+            "policy_version": "ppv1-expansion-1"
+          },
+          "parent_search_revision": 0,
+          "production_version": "ppv1-search-production-1",
+          "report_projection": {
+            "dedup_notes": [],
+            "max_reportable": 1,
+            "product_ranks": [
+              {
+                "basis": "declared_rank_order",
+                "note": "",
+                "report_rank": 1,
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "projection_version": "ppv1-report-projection-1",
+            "reasons": []
+          },
+          "status": "submitted",
+          "submitted": {
+            "action_id": "sact_c56685fa544a0a01706a",
+            "created": true,
+            "event_id": "ppev_e123ad53c63caab23698"
+          }
+        },
+        "payload_hash": "b69898ed2b2f5ef89159a6709fe2aa601f1a698898e4131a0d2ea8f884dfdd31",
+        "run_id": "deferred_public",
+        "schema_version": "v43-artifact-1",
+        "task_id": "stask-exp_f9047037b25bbcebb2af"
+      },
+      "sha256": "160fab6486c5390e1bfc269fd2e525e721c8087f93f8ab07dfe2350e36e9f879"
+    }
+  },
+  "identity": {
+    "adjudication": {
+      "policy_version": "v43-repadj-1",
+      "schema_version": "v43-report-adjudication-2"
+    },
+    "asset_identity": {
+      "manifest_sha256": "scripted-fixture",
+      "mode": "scripted_fixture",
+      "source_file": "fixtures://scripted",
+      "source_file_sha256": "scripted-fixture"
+    },
+    "code_identity": {
+      "aggregate_sha256": "28009a4cc83d6bd0351131b1a706f081814e82fe23c071348c0b0a1ecf66b47a",
+      "files": {
+        "pathway_v43/__init__.py": "b7f8e2defbc83993bbda4646fb00c1f5d6827e5d60b2969aec66c7197d74e902",
+        "pathway_v43/__main__.py": "ff1785110aceb696ad16d05ca1392122a24fd00278a88ba9d0f75add3abfdbc4",
+        "pathway_v43/adapters/__init__.py": "58c8d9b6a5fc2541c900fb8f77a289b69313badd7ee38985d601411bbf4c85cd",
+        "pathway_v43/adapters/analog_index.py": "816f170d241bd97f6e28688f7ed99d684b2e327b83d9b8057ff758af98ec986f",
+        "pathway_v43/adapters/asset_manifest.py": "64741d9b715e3de3d68f90d98bd07edf86511f0be59b025b35d772f9fc2fb85f",
+        "pathway_v43/adapters/llm_client.py": "fa02e29efb976b949b2055a1509fbbdfbc52e67af1490e7f543f3bba07c94d24",
+        "pathway_v43/adapters/rate_gate.py": "55765ac7b35ad5cf6f9f76004f34594b54d943febca58a67705797d1cedcfa58",
+        "pathway_v43/adapters/v3_engine.py": "0bd077aa0710bd6b539cce16c8e23498eeb642136fee50269e71ce5164ce6580",
+        "pathway_v43/batch.py": "210cca2b3e3836afcf09dff767c6c6b5dea73bc725901ff8b4162b079e81c24a",
+        "pathway_v43/config.py": "1bc848ce2b2610917cfdbcf5cfc75d00ef47b74f2ec2aa397e891bde87c1ecc7",
+        "pathway_v43/domain/__init__.py": "861b86b86334790ad1f4fc31ac2825c3e675e78d91176f485c02d02aac078739",
+        "pathway_v43/domain/identity.py": "9868fe8fb7daf6dd602abce053a84f35e1512155269e2b9d9e1d9bd89125f1dd",
+        "pathway_v43/domain/models.py": "031c45a919f6f454acd4927d231294275f726b2ade9a9d32c0b66c3dd6cc5fc7",
+        "pathway_v43/domain/pathway.py": "1dd252c2e52808a62b874a4151a83ebe0600054981574c46144b9490c621579c",
+        "pathway_v43/domain/policy.py": "de206eac69f3c799a36068b1e919f62502379fbfa61725d654b11f8f1c0d055b",
+        "pathway_v43/exam.py": "1fb73303cdc277c85bed4ca53b635981d1f00fcc619211ecbf0fa37ae91d37d8",
+        "pathway_v43/exam_v2.py": "058a51df67fc28df5acc4f5db29d17e50c9721f14c92b68ecd865bbffab868dc",
+        "pathway_v43/gold_health.py": "041c48a1bb28a1734b0d6c69f7358c7547969a716d33c9bbf6d972bf02fac7df",
+        "pathway_v43/output/__init__.py": "8f4f727e21ba4614501f66485c82c075373293112757e41a02f907a0e6890b43",
+        "pathway_v43/output/export_v3.py": "7684e04beaaf5a825c95523d075dba7e2229e3ba66ee3e511fb99aabb6e38f4b",
+        "pathway_v43/output/pairing_gate.py": "c03bda976ce68ed6cd6b4a5859a222f37567a9e1164ede537e2b8dff780b7222",
+        "pathway_v43/output/report.py": "103a228bc09b866845500cb650e056994d9550878aff16d242051cc983e14e4e",
+        "pathway_v43/output/score_report.py": "c960914a1aa53d7ce6c5ec5869a6e12b1b2fd0347c7e0bac2f88a044398616f9",
+        "pathway_v43/phase_a_attribution.py": "52fa59f4c01a4328b8ff7f0e599b65178a598020c7a8853392729677c7744dcd",
+        "pathway_v43/pollutant/__init__.py": "f430bd6cc5bc7053da244a7d1c30ac755f6fd89c2563693bc1838ffe3a4e01c9",
+        "pathway_v43/pollutant/audit.py": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+        "pathway_v43/pollutant/chemstate.py": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+        "pathway_v43/pollutant/events.py": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+        "pathway_v43/pollutant/hypothesis.py": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6",
+        "pathway_v43/pollutant/legacy_reader.py": "045a6e366af3e61b5dd12d7dd68eef31ffcc605f67de1b3a36b714e29b829e01",
+        "pathway_v43/pollutant/model_protocol.py": "a3d0bea011a66156d862580a7cf921524b71cdb92e6ab50c69630191b526a104",
+        "pathway_v43/pollutant/path_context.py": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+        "pathway_v43/pollutant/pool_audit.py": "bec664cf25eca5b16426755d991e669d2403b41ef87d2e1340fb8c7a6cb77877",
+        "pathway_v43/pollutant/production.py": "3b1a66ea2bc3aa37f7caaa2ed1a7f5395cda5901ef2a03d765b932ee5b082262",
+        "pathway_v43/pollutant/profile.py": "affda88bb25aa6cef2d02887f7ff44a2688a333738398a34f837dba1aedb5b39",
+        "pathway_v43/pollutant/provenance.py": "d8668c3fadd1b37e2eb131479ff0b5778f86eed8c9e49c458fb30d7561f3afbf",
+        "pathway_v43/pollutant/queue.py": "b8cc71767890734d59a95300046996e2458345fc2fdc016a3f8b134ed608743d",
+        "pathway_v43/pollutant/runflow.py": "a5f9f321e3ec9c60a12aebac8f5f11c2e715e881df7bcff6ad2e3fb935420fb6",
+        "pathway_v43/pollutant/search.py": "ea138271fa12b324c13c025f3d473cbf68c92d9ac60db5e4f50ce7ad835961f1",
+        "pathway_v43/pollutant/store.py": "5adb06466bd78e82d8f975b29bbee7958ec5e6b6e165cf52402f11f9893480a0",
+        "pathway_v43/pollutant/substrate_profile.py": "718fb34b8fbc34919272cf64c7c740ce6dda00f18b014d2c90be7873506cce32",
+        "pathway_v43/services/__init__.py": "66caf2f040dd63a235bb18c034d5853aa966b1a5fd31d8695849e9a21fb4ad2d",
+        "pathway_v43/services/analog_source.py": "300037e8afa6c022b8b61b82adba1ca9cb21d3c846574caea2d2b0b89733b121",
+        "pathway_v43/services/atom_tool.py": "b20092dcf4d651a59a644ab7a8ba90aa83036958877918d3bd131901ec996f27",
+        "pathway_v43/services/donor_applicability.py": "ccfb99f808aeb7ffd6d338a9945023df2c1271e461695cbee535c00fff1fa835",
+        "pathway_v43/services/prediction.py": "2ed8bc76de29e64f8539935bccb9013d3a3cf7c44e75f89b6b97a30ba6029efd",
+        "pathway_v43/services/reaction_finder.py": "3ecdf25bdc52c44920558006383f8b51514c479300c44d0405aaa1b9ad68e3f4",
+        "pathway_v43/services/report_adjudication.py": "a278277b5875607339ab1edc623cf26596ea2b2db88ce038dea2e404dc978eee",
+        "pathway_v43/storage/__init__.py": "c3ad494e115157afc23c250efff4c8a86c34f69aec730528efb7adfe2f73d07e",
+        "pathway_v43/storage/artifact_store.py": "871684914abe25d4093fa0a46f7c64a094be75830da8b1c1a7c8eadb49a68a9b",
+        "pathway_v43/storage/pathway_store.py": "0adce856a19f75a5be0763ca17d0002694fa572b90c86bbaccd1fb581c6cb49b",
+        "pathway_v43/storage/run_identity.py": "c2e54b9486bd4bce496d15aed5d1a12d7b29d853aaa9d8a460288e61b14408cf",
+        "pathway_v43/validation/__init__.py": "a09a4721918824c12b067752500f8bd813372f7b1b2ccfc72faf19206672897a",
+        "pathway_v43/validation/conservation.py": "dc612dbb1b352aa491a02da978115976994478d6747d4bbd4215043a1056da4e",
+        "pathway_v43/validation/gates.py": "55dfd238ad2758fae19efc81c5fea468ea5e0cb723af37a6fa5a7edb86ab0399",
+        "pathway_v43/vendor/__init__.py": "4374fc2389d52ec91d1e27e8ab4ca06d58401bb7b498993d3150840213b3a657",
+        "pathway_v43/vendor/molecode/__init__.py": "8d5e997056579acf46314f0efe1e15b3b44e900ca75477a61455cd864710aeb9",
+        "pathway_v43/vendor/molecode/molecule/__init__.py": "0dd0d21d18bd181117fbf4418dbcaf09336303ba350d1ea235266aefc4ee223a",
+        "pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py": "561ce966ba1195ed750ed66fc4023d9f501a9e580a509f4723506a270789b12c",
+        "pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py": "195a65e84fd77bb20f0aae61b256620b2489a68d146aa0b9f0909e1e94f37299",
+        "pathway_v43/vendor/molecode/prompts/__init__.py": "f8160966acc0126d36121a02a0d3d0a2375c4d1010e9177fed32039e5b3bcf5d",
+        "pathway_v43/vendor/molecode/prompts/markush_system_prompt.py": "1377960f68d86ce7f3d946a9304aebd705887795593da184da6ce527b2617d58",
+        "pathway_v43/vendor/molecode/prompts/molecule_system_prompt.py": "ed4c654143c1802153377ec6de6f77c3d2d4845b4e107d1d0cf239cd34322e8e",
+        "pathway_v43/workflow/__init__.py": "b1309d6413d825e47c60d2d2200cd1970937da93c80fcc268ffaa12882433afd",
+        "pathway_v43/workflow/graph.py": "ef0d3c39a32aa1a88e1ad3a15d74a7992ba53f8fda56c590b062182291164678",
+        "pathway_v43/workflow/nodes.py": "646b3d89e9cab0cb320f4dfa684a1089c8dac924577260e61dc8298a5bb8f894",
+        "pathway_v43/workflow/routing.py": "f9aaef0399002b8ff96ed2d77ee21ca5049496e1525a33cd5a7c26b015deff3a",
+        "pathway_v43/workflow/runner.py": "3540decaf1d3741f357e83ac702c67eb6ee767332a9471e3a4d52407523e5429",
+        "pathway_v43/workflow/state.py": "c297eef994af62fc57ba4a06f25e9a7dea1f348ec7d20d54370bbf3413a3e815"
+      },
+      "profile": "pollutant_pathway_v1"
+    },
+    "created_at": "2026-10-07T21:05:06+00:00",
+    "dependency_versions": {
+      "langgraph": null,
+      "langgraph.checkpoint": null,
+      "langgraph.checkpoint.sqlite": null,
+      "lightgbm": "4.7.0",
+      "python": "3.11.16",
+      "rdkit": "2026.03.6"
+    },
+    "domain_schema_version": "v43-domain-1",
+    "inputs": {
+      "root_identity": "CCO",
+      "root_smiles": "CCO"
+    },
+    "molecode": {
+      "files": {
+        "LICENSE": "d768cb92822c0e97bb6c0f9efab6a5f0a093f58a439959b02db687abfedc980e",
+        "molecule/__init__.py": "0dd0d21d18bd181117fbf4418dbcaf09336303ba350d1ea235266aefc4ee223a",
+        "molecule/mermaid_to_rdkit.py": "561ce966ba1195ed750ed66fc4023d9f501a9e580a509f4723506a270789b12c",
+        "molecule/rdkit_to_mermaid.py": "195a65e84fd77bb20f0aae61b256620b2489a68d146aa0b9f0909e1e94f37299",
+        "prompts/__init__.py": "f8160966acc0126d36121a02a0d3d0a2375c4d1010e9177fed32039e5b3bcf5d",
+        "prompts/markush_system_prompt.py": "1377960f68d86ce7f3d946a9304aebd705887795593da184da6ce527b2617d58",
+        "prompts/molecule_system_prompt.py": "ed4c654143c1802153377ec6de6f77c3d2d4845b4e107d1d0cf239cd34322e8e"
+      },
+      "implementation": "molecode",
+      "manifest_sha256": "5ab5505bb7b5e0828609477f19e4b08a88e7dd219b200863f21a2753ca4afdef",
+      "upstream_commit": "a4df3b04552b829ff816467b9620757a5dad765b",
+      "vendor_root": "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/vendor/molecode"
+    },
+    "prediction": {
+      "enabled": false,
+      "model_id": "",
+      "policy": {},
+      "policy_version": "v43-predpol-3",
+      "prompt_versions": {},
+      "provider": "off"
+    },
+    "profile": {
+      "chemical_reproposal": "off",
+      "contracts": {
+        "admission_policy": "ppv1-admission-8",
+        "audit": "ppv1-audit-8",
+        "chemstate": "ppv1-chemstate-8",
+        "condition_assessment": "ppv1-condition-assessment-8",
+        "context": "ppv1-context-8",
+        "dependency": "ppv1-dependency-8",
+        "donor_diagnostic": "ppv1-donor-diagnostic-8",
+        "event": "ppv1-event-8",
+        "format_feedback": "ppv1-format-feedback-1",
+        "gate_mapper": "ppv1-gate-mapper-3",
+        "hypothesis": "ppv1-hypothesis-8",
+        "input_preview": "ppv1-input-preview-8",
+        "legacy_g2_family_ref": "v43-cons-2",
+        "legacy_gate_ref": "frozen_hit60_gate",
+        "pool_audit": "ppv1-pool-audit-8",
+        "pool_order": "ppv1-pool-order-8",
+        "profile": "ppv1-profile-13",
+        "provenance": "ppv1-provenance-8",
+        "search": "ppv1-search-5",
+        "store": "ppv1-store-9",
+        "substrate_profile": "ppv1-substrate-profile-8"
+      },
+      "delivered_stages": "S0-S2,S3a-base,S3b",
+      "format_feedback_policy": {
+        "max_format_feedback_rounds": 0,
+        "version": "ppv1-format-feedback-1"
+      },
+      "input_preview_policy": "off",
+      "input_preview_version": "ppv1-input-preview-8",
+      "name": "pollutant_pathway_v1",
+      "schema_version": "ppv1-profile-13",
+      "search_intent": "exploration",
+      "search_limits": {
+        "max_alternative_hypotheses_per_parent": 3,
+        "max_attempts_per_hypothesis": 2,
+        "max_product_expansion_width": 1,
+        "max_real_model_requests": 0,
+        "max_reopens_per_hypothesis": 1,
+        "max_retrievals_per_parent": 1,
+        "max_retrievals_total": 64,
+        "max_scenario_transitions": 2,
+        "max_search_depth": 3,
+        "max_total_search_actions": 20,
+        "version": "ppv1-search-limits-3"
+      }
+    },
+    "run_id": "deferred_public",
+    "schema_version": "v43-identity-2",
+    "strategy": {
+      "max_depth": 3,
+      "max_expansions": 20,
+      "max_frontier_width": 1,
+      "max_llm_calls": 0,
+      "max_proposals": 0,
+      "version": "v43-policy-5"
+    },
+    "v3_engine_code": {
+      "git_available": false,
+      "git_commit": null,
+      "v3_code_root": "/private/tmp/ppv1_s3b_queue_vd18_t4h/absent_v3"
+    }
+  },
+  "tables": {
+    "budget_reservations": [
+      {
+        "action_id": "sact_2755549ff5b9f4b1b47e",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_7d2341c753da90b201d4",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:06+00:00",
+        "status": "consumed",
+        "subject": "sact_2755549ff5b9f4b1b47e",
+        "units": 1
+      },
+      {
+        "action_id": "sact_2755549ff5b9f4b1b47e",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "limit_key": "max_retrievals_per_parent",
+        "reservation_id": "sres_073f5ed97666333afbe9",
+        "run_id": "deferred_public",
+        "scope": "spath_5f14c366e488fd485c61",
+        "settled_at": "2026-10-07T21:05:06+00:00",
+        "status": "consumed",
+        "subject": "sact_2755549ff5b9f4b1b47e",
+        "units": 1
+      },
+      {
+        "action_id": "sact_2755549ff5b9f4b1b47e",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "limit_key": "max_retrievals_total",
+        "reservation_id": "sres_25152479bc54fbdd7fdd",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:06+00:00",
+        "status": "consumed",
+        "subject": "sact_2755549ff5b9f4b1b47e",
+        "units": 1
+      },
+      {
+        "action_id": "sact_63eb9fb9d34d0e0470f4",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_ec283f697ebd26f2609a",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:06+00:00",
+        "status": "consumed",
+        "subject": "sact_63eb9fb9d34d0e0470f4",
+        "units": 1
+      },
+      {
+        "action_id": "sact_ad29a09785bf48ed1379",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_3e31a46feb830eb0f553",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_ad29a09785bf48ed1379",
+        "units": 1
+      },
+      {
+        "action_id": "sact_ad29a09785bf48ed1379",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "limit_key": "max_alternative_hypotheses_per_parent",
+        "reservation_id": "sres_12fbacbbe70d840542ea",
+        "run_id": "deferred_public",
+        "scope": "spath_5f14c366e488fd485c61",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "hyp_402a228ad04b9eb419d6",
+        "units": 1
+      },
+      {
+        "action_id": "sact_ad29a09785bf48ed1379",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "limit_key": "max_attempts_per_hypothesis",
+        "reservation_id": "sres_e90cbc82f7d6ae90562f",
+        "run_id": "deferred_public",
+        "scope": "hyp_402a228ad04b9eb419d6",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sattempt_51d6807798f7225286da",
+        "units": 1
+      },
+      {
+        "action_id": "sact_c1f0e56c20a69de89092",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_e9cc49b0ab1d08fbc5e8",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_c1f0e56c20a69de89092",
+        "units": 1
+      },
+      {
+        "action_id": "sact_c1f0e56c20a69de89092",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_retrievals_per_parent",
+        "reservation_id": "sres_3a82b6bac4a7a11ba058",
+        "run_id": "deferred_public",
+        "scope": "spath_e2f18ccbd65cf62f4165",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_c1f0e56c20a69de89092",
+        "units": 1
+      },
+      {
+        "action_id": "sact_c1f0e56c20a69de89092",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_retrievals_total",
+        "reservation_id": "sres_ea702b9006011f97f79c",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_c1f0e56c20a69de89092",
+        "units": 1
+      },
+      {
+        "action_id": "sact_acbe191df35b2045705c",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_e82e0028286c6f75506f",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_acbe191df35b2045705c",
+        "units": 1
+      },
+      {
+        "action_id": "sact_acbe191df35b2045705c",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_alternative_hypotheses_per_parent",
+        "reservation_id": "sres_88a4c0b29c47eb0b4b34",
+        "run_id": "deferred_public",
+        "scope": "spath_5f14c366e488fd485c61",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "hyp_6097354564d96e9c34ef",
+        "units": 1
+      },
+      {
+        "action_id": "sact_acbe191df35b2045705c",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_attempts_per_hypothesis",
+        "reservation_id": "sres_22b12d0efec21996302a",
+        "run_id": "deferred_public",
+        "scope": "hyp_6097354564d96e9c34ef",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sattempt_7b21b0f6bc83a5a6f6ff",
+        "units": 1
+      },
+      {
+        "action_id": "sact_c56685fa544a0a01706a",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_1a5e496d14e3ff7c752c",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_c56685fa544a0a01706a",
+        "units": 1
+      },
+      {
+        "action_id": "sact_c56685fa544a0a01706a",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_alternative_hypotheses_per_parent",
+        "reservation_id": "sres_70d3743cf7257c275546",
+        "run_id": "deferred_public",
+        "scope": "spath_5f14c366e488fd485c61",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "hyp_93a91f2f10df49585b65",
+        "units": 1
+      },
+      {
+        "action_id": "sact_c56685fa544a0a01706a",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_attempts_per_hypothesis",
+        "reservation_id": "sres_4782b00f791871d1896a",
+        "run_id": "deferred_public",
+        "scope": "hyp_93a91f2f10df49585b65",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sattempt_c2f2461fcfc87a562b7c",
+        "units": 1
+      },
+      {
+        "action_id": "sact_352d91a31a10d0949dd4",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_657b50d6cab84696cc3d",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_352d91a31a10d0949dd4",
+        "units": 1
+      },
+      {
+        "action_id": "sact_352d91a31a10d0949dd4",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_retrievals_per_parent",
+        "reservation_id": "sres_c9a95fc779f06aec19e6",
+        "run_id": "deferred_public",
+        "scope": "spath_683f376a965de29ba5e3",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_352d91a31a10d0949dd4",
+        "units": 1
+      },
+      {
+        "action_id": "sact_352d91a31a10d0949dd4",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_retrievals_total",
+        "reservation_id": "sres_94b6ef567154d9b72699",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_352d91a31a10d0949dd4",
+        "units": 1
+      },
+      {
+        "action_id": "sact_5f6b96bc89a29f4941c8",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_bf706822718ff5695579",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_5f6b96bc89a29f4941c8",
+        "units": 1
+      },
+      {
+        "action_id": "sact_5f6b96bc89a29f4941c8",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_retrievals_per_parent",
+        "reservation_id": "sres_ade67d7a2797a1dd6834",
+        "run_id": "deferred_public",
+        "scope": "spath_63ba087bc2adcc3e8274",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_5f6b96bc89a29f4941c8",
+        "units": 1
+      },
+      {
+        "action_id": "sact_5f6b96bc89a29f4941c8",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_retrievals_total",
+        "reservation_id": "sres_22150cd8788eacbd308c",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_5f6b96bc89a29f4941c8",
+        "units": 1
+      },
+      {
+        "action_id": "sact_cd3bcb52dbe2506ae9d6",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_fa9449507243d2137091",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_cd3bcb52dbe2506ae9d6",
+        "units": 1
+      },
+      {
+        "action_id": "sact_cd3bcb52dbe2506ae9d6",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_retrievals_per_parent",
+        "reservation_id": "sres_52b1a2db1a4940b258de",
+        "run_id": "deferred_public",
+        "scope": "spath_d3a8fcef6ec40f5b0c56",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_cd3bcb52dbe2506ae9d6",
+        "units": 1
+      },
+      {
+        "action_id": "sact_cd3bcb52dbe2506ae9d6",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "limit_key": "max_retrievals_total",
+        "reservation_id": "sres_dbd96ee731922e695f5a",
+        "run_id": "deferred_public",
+        "scope": "",
+        "settled_at": "2026-10-07T21:05:07+00:00",
+        "status": "consumed",
+        "subject": "sact_cd3bcb52dbe2506ae9d6",
+        "units": 1
+      }
+    ],
+    "event_appearance_links": [
+      {
+        "appearance_hash": "170de58936b9791af5bab5b21d57861d50e6cf5b4296d29f4a8fecf6e973987a",
+        "event_id": "ppev_c055942051228170a816",
+        "state_id": "cs_ab1de819ede91df490e6"
+      },
+      {
+        "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+        "event_id": "ppev_c055942051228170a816",
+        "state_id": "cs_540cc0181e112b383323"
+      },
+      {
+        "appearance_hash": "02544db7c9f48000f2872a3a3921d0bfdc3cc763fe14191aba0e92c431a89291",
+        "event_id": "ppev_c055942051228170a816",
+        "state_id": "cs_ea7e44a64c7461517e4f"
+      },
+      {
+        "appearance_hash": "170de58936b9791af5bab5b21d57861d50e6cf5b4296d29f4a8fecf6e973987a",
+        "event_id": "ppev_f2a84da67b53f1d21b9a",
+        "state_id": "cs_ab1de819ede91df490e6"
+      },
+      {
+        "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+        "event_id": "ppev_f2a84da67b53f1d21b9a",
+        "state_id": "cs_540cc0181e112b383323"
+      },
+      {
+        "appearance_hash": "170de58936b9791af5bab5b21d57861d50e6cf5b4296d29f4a8fecf6e973987a",
+        "event_id": "ppev_e123ad53c63caab23698",
+        "state_id": "cs_ab1de819ede91df490e6"
+      },
+      {
+        "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+        "event_id": "ppev_e123ad53c63caab23698",
+        "state_id": "cs_540cc0181e112b383323"
+      }
+    ],
+    "events": [
+      {
+        "context_hash": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_c055942051228170a816",
+        "event_semantics_hash": "f8745972d7c944787b4046af145dc6095f650f7fd18c9c375482cfc9f4edddea",
+        "hypothesis_id": "hyp_402a228ad04b9eb419d6",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "payload": {
+          "catalytic_support": [],
+          "event_appearance_manifest": [
+            {
+              "appearance_hash": "170de58936b9791af5bab5b21d57861d50e6cf5b4296d29f4a8fecf6e973987a",
+              "state_id": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+              "state_id": "cs_540cc0181e112b383323"
+            },
+            {
+              "appearance_hash": "02544db7c9f48000f2872a3a3921d0bfdc3cc763fe14191aba0e92c431a89291",
+              "state_id": "cs_ea7e44a64c7461517e4f"
+            }
+          ],
+          "participant_state_refs": [
+            "cs_ab1de819ede91df490e6",
+            "cs_540cc0181e112b383323",
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "participants": [
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "primary_substrate",
+              "side": "reactant",
+              "state_ref": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_909c48a69d106f085a2f",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "principal_product",
+              "side": "product",
+              "state_ref": "cs_540cc0181e112b383323"
+            },
+            {
+              "coefficient": null,
+              "coefficient_status": "unknown",
+              "entry_id": "pentry_d00faee0c5fa3bba5a49",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "coproduct",
+              "side": "product",
+              "state_ref": "cs_ea7e44a64c7461517e4f"
+            }
+          ],
+          "schema_version": "ppv1-event-8"
+        },
+        "run_id": "deferred_public"
+      },
+      {
+        "context_hash": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_f2a84da67b53f1d21b9a",
+        "event_semantics_hash": "14c64db1c6b73e16454e139eff632dae3ad1e9a294a8b0543ad9cc891887fc9c",
+        "hypothesis_id": "hyp_6097354564d96e9c34ef",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "payload": {
+          "catalytic_support": [],
+          "event_appearance_manifest": [
+            {
+              "appearance_hash": "170de58936b9791af5bab5b21d57861d50e6cf5b4296d29f4a8fecf6e973987a",
+              "state_id": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+              "state_id": "cs_540cc0181e112b383323"
+            }
+          ],
+          "participant_state_refs": [
+            "cs_ab1de819ede91df490e6",
+            "cs_540cc0181e112b383323"
+          ],
+          "participants": [
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "primary_substrate",
+              "side": "reactant",
+              "state_ref": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_909c48a69d106f085a2f",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "principal_product",
+              "side": "product",
+              "state_ref": "cs_540cc0181e112b383323"
+            }
+          ],
+          "schema_version": "ppv1-event-8"
+        },
+        "run_id": "deferred_public"
+      },
+      {
+        "context_hash": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_e123ad53c63caab23698",
+        "event_semantics_hash": "29e7b3f0b4aea9c0b1f0f300b439fcc0650445365279ec26f7f4d9b0c51a53e4",
+        "hypothesis_id": "hyp_93a91f2f10df49585b65",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "payload": {
+          "catalytic_support": [],
+          "event_appearance_manifest": [
+            {
+              "appearance_hash": "170de58936b9791af5bab5b21d57861d50e6cf5b4296d29f4a8fecf6e973987a",
+              "state_id": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+              "state_id": "cs_540cc0181e112b383323"
+            }
+          ],
+          "participant_state_refs": [
+            "cs_ab1de819ede91df490e6",
+            "cs_540cc0181e112b383323"
+          ],
+          "participants": [
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "primary_substrate",
+              "side": "reactant",
+              "state_ref": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_909c48a69d106f085a2f",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "principal_product",
+              "side": "product",
+              "state_ref": "cs_540cc0181e112b383323"
+            }
+          ],
+          "schema_version": "ppv1-event-8"
+        },
+        "run_id": "deferred_public"
+      }
+    ],
+    "expansion_plans": [
+      {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_c055942051228170a816",
+        "payload": {
+          "entries": [
+            {
+              "reason": "",
+              "state_ref": "cs_540cc0181e112b383323",
+              "status": "expanded"
+            },
+            {
+              "reason": "product_width_limit",
+              "state_ref": "cs_ea7e44a64c7461517e4f",
+              "status": "deferred"
+            }
+          ],
+          "policy_version": "ppv1-expansion-1"
+        }
+      },
+      {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_f2a84da67b53f1d21b9a",
+        "payload": {
+          "entries": [
+            {
+              "reason": "",
+              "state_ref": "cs_540cc0181e112b383323",
+              "status": "expanded"
+            }
+          ],
+          "policy_version": "ppv1-expansion-1"
+        }
+      },
+      {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_e123ad53c63caab23698",
+        "payload": {
+          "entries": [
+            {
+              "reason": "",
+              "state_ref": "cs_540cc0181e112b383323",
+              "status": "expanded"
+            }
+          ],
+          "policy_version": "ppv1-expansion-1"
+        }
+      }
+    ],
+    "hypotheses": [
+      {
+        "context_hash": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "hypothesis_id": "hyp_402a228ad04b9eb419d6",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "payload": {
+          "ambiguous_participants": false,
+          "assumptions": [],
+          "audit_ref": "",
+          "dependency_refs": [],
+          "hypothesis_id": "hyp_402a228ad04b9eb419d6",
+          "legacy_relationship_status": "",
+          "model_decision_ref": "",
+          "origin_group_key": "donor-B",
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "participant_list_status": "partial",
+          "participants": [
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "primary_substrate",
+              "side": "reactant",
+              "state_ref": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_909c48a69d106f085a2f",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "principal_product",
+              "side": "product",
+              "state_ref": "cs_540cc0181e112b383323"
+            },
+            {
+              "coefficient": null,
+              "coefficient_status": "unknown",
+              "entry_id": "pentry_d00faee0c5fa3bba5a49",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "coproduct",
+              "side": "product",
+              "state_ref": "cs_ea7e44a64c7461517e4f"
+            }
+          ],
+          "provenance_refs": [],
+          "requirements": [],
+          "schema_version": "ppv1-hypothesis-8",
+          "step_scope": "net_reaction",
+          "step_scope_evidence_refs": [],
+          "substrate_state_ref": "cs_ab1de819ede91df490e6",
+          "support_group_refs": [],
+          "transformation_ref": "donor-B",
+          "transformation_signature_status": "unknown"
+        }
+      },
+      {
+        "context_hash": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "hypothesis_id": "hyp_6097354564d96e9c34ef",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "payload": {
+          "ambiguous_participants": false,
+          "assumptions": [],
+          "audit_ref": "",
+          "dependency_refs": [],
+          "hypothesis_id": "hyp_6097354564d96e9c34ef",
+          "legacy_relationship_status": "",
+          "model_decision_ref": "",
+          "origin_group_key": "donor-C",
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "participant_list_status": "partial",
+          "participants": [
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "primary_substrate",
+              "side": "reactant",
+              "state_ref": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_909c48a69d106f085a2f",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "principal_product",
+              "side": "product",
+              "state_ref": "cs_540cc0181e112b383323"
+            }
+          ],
+          "provenance_refs": [],
+          "requirements": [],
+          "schema_version": "ppv1-hypothesis-8",
+          "step_scope": "net_reaction",
+          "step_scope_evidence_refs": [],
+          "substrate_state_ref": "cs_ab1de819ede91df490e6",
+          "support_group_refs": [],
+          "transformation_ref": "donor-C",
+          "transformation_signature_status": "unknown"
+        }
+      },
+      {
+        "context_hash": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "hypothesis_id": "hyp_93a91f2f10df49585b65",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "payload": {
+          "ambiguous_participants": false,
+          "assumptions": [],
+          "audit_ref": "",
+          "dependency_refs": [],
+          "hypothesis_id": "hyp_93a91f2f10df49585b65",
+          "legacy_relationship_status": "",
+          "model_decision_ref": "",
+          "origin_group_key": "donor-D",
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "participant_list_status": "partial",
+          "participants": [
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "primary_substrate",
+              "side": "reactant",
+              "state_ref": "cs_ab1de819ede91df490e6"
+            },
+            {
+              "coefficient": "1",
+              "coefficient_status": "known",
+              "entry_id": "pentry_909c48a69d106f085a2f",
+              "merged_from": [],
+              "parallel_contribution": false,
+              "role": "principal_product",
+              "side": "product",
+              "state_ref": "cs_540cc0181e112b383323"
+            }
+          ],
+          "provenance_refs": [],
+          "requirements": [],
+          "schema_version": "ppv1-hypothesis-8",
+          "step_scope": "net_reaction",
+          "step_scope_evidence_refs": [],
+          "substrate_state_ref": "cs_ab1de819ede91df490e6",
+          "support_group_refs": [],
+          "transformation_ref": "donor-D",
+          "transformation_signature_status": "unknown"
+        }
+      }
+    ],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [
+      {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_c055942051228170a816",
+        "payload": {
+          "dedup_notes": [],
+          "max_reportable": 1,
+          "product_ranks": [
+            {
+              "basis": "declared_rank_order",
+              "note": "",
+              "report_rank": 1,
+              "state_ref": "cs_540cc0181e112b383323"
+            },
+            {
+              "basis": "report_width_cap",
+              "note": "report_width_cap:1",
+              "report_rank": null,
+              "state_ref": "cs_ea7e44a64c7461517e4f"
+            }
+          ],
+          "projection_version": "ppv1-report-projection-1",
+          "reasons": []
+        }
+      },
+      {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_f2a84da67b53f1d21b9a",
+        "payload": {
+          "dedup_notes": [],
+          "max_reportable": 1,
+          "product_ranks": [
+            {
+              "basis": "declared_rank_order",
+              "note": "",
+              "report_rank": 1,
+              "state_ref": "cs_540cc0181e112b383323"
+            }
+          ],
+          "projection_version": "ppv1-report-projection-1",
+          "reasons": []
+        }
+      },
+      {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_e123ad53c63caab23698",
+        "payload": {
+          "dedup_notes": [],
+          "max_reportable": 1,
+          "product_ranks": [
+            {
+              "basis": "declared_rank_order",
+              "note": "",
+              "report_rank": 1,
+              "state_ref": "cs_540cc0181e112b383323"
+            }
+          ],
+          "projection_version": "ppv1-report-projection-1",
+          "reasons": []
+        }
+      }
+    ],
+    "search_actions": [
+      {
+        "action_id": "sact_2755549ff5b9f4b1b47e",
+        "action_kind": "retrieve",
+        "attempt_refs": [],
+        "budget_reservation_ref": [
+          "sres_073f5ed97666333afbe9",
+          "sres_25152479bc54fbdd7fdd",
+          "sres_7d2341c753da90b201d4"
+        ],
+        "claimed_at": "2026-10-07T21:05:06+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "defer_reason": "",
+        "outcome_ref": "e6114f1d5b0894ca8897538077da4fe2e8d926030ce1d1e1db282c7c281514e0",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "parent_search_revision": 0,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "depth": 0,
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "source_event_id": "",
+          "substrate_smiles": "CCO",
+          "task_key": "stask-dec_3fbd6be226289d572b12"
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "cs_ab1de819ede91df490e6",
+        "task_key": "stask-dec_3fbd6be226289d572b12",
+        "updated_at": "2026-10-07T21:05:06+00:00"
+      },
+      {
+        "action_id": "sact_63eb9fb9d34d0e0470f4",
+        "action_kind": "decide",
+        "attempt_refs": [],
+        "budget_reservation_ref": [
+          "sres_ec283f697ebd26f2609a"
+        ],
+        "claimed_at": "2026-10-07T21:05:06+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "defer_reason": "",
+        "outcome_ref": "0baa3e2eb198612a86f019f2bd3406de486f89944f1440acf5e73284409295e3",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "parent_search_revision": 0,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "depth": 0,
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "pool_digest": "a8640c7e64a4500f1ca07ed306b7fc38391500d7335f5b4d319bb6eae1074d18",
+          "source_event_id": "",
+          "substrate_smiles": "CCO",
+          "task_key": "stask-dec_fcfa970df6d2aa566c3b"
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "pool:a8640c7e64a4500f",
+        "task_key": "stask-dec_fcfa970df6d2aa566c3b",
+        "updated_at": "2026-10-07T21:05:06+00:00"
+      },
+      {
+        "action_id": "sact_ad29a09785bf48ed1379",
+        "action_kind": "expand_hypothesis",
+        "attempt_refs": [
+          "sattempt_51d6807798f7225286da"
+        ],
+        "budget_reservation_ref": [
+          "sres_12fbacbbe70d840542ea",
+          "sres_3e31a46feb830eb0f553",
+          "sres_e90cbc82f7d6ae90562f"
+        ],
+        "claimed_at": "2026-10-07T21:05:06+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "defer_reason": "",
+        "outcome_ref": "c54ee1ad9ee965274e75",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "parent_search_revision": 0,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "depth": 1,
+          "frozen_pool_digest": "fa72386f9e098490094fbd1becb96facef6d8ce7fbe404f8078687d3b2be73a3",
+          "hypothesis_key": "B",
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "source_event_id": "",
+          "spec": {
+            "alignment": {
+              "donor_to_current": {
+                "S_C_2": "S_C_2",
+                "S_O_1": "S_O_1"
+              },
+              "ref": "align-A",
+              "status": "resolved"
+            },
+            "coefficient": 1,
+            "coproducts": [
+              "[H][H]"
+            ],
+            "donor": {
+              "center_atom_ids": [
+                "S_C_2",
+                "S_O_1"
+              ]
+            },
+            "edits": [
+              {
+                "atom1": "S_C_2",
+                "atom2": "S_O_1",
+                "from_order": "single",
+                "op": "change_bond_order",
+                "to_order": "double"
+              }
+            ],
+            "expectation": {
+              "target_smiles": "CC=O"
+            },
+            "key": "B",
+            "origin_group_key": "donor-B",
+            "product_smiles": "CC=O",
+            "transformation_ref": "donor-B"
+          },
+          "substrate_smiles": "CCO",
+          "substrate_state_ref": "cs_ab1de819ede91df490e6",
+          "task_key": "stask-exp_8f0997b52acdf78f9634"
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "hyp_402a228ad04b9eb419d6",
+        "task_key": "stask-exp_8f0997b52acdf78f9634",
+        "updated_at": "2026-10-07T21:05:07+00:00"
+      },
+      {
+        "action_id": "sact_acbe191df35b2045705c",
+        "action_kind": "expand_hypothesis",
+        "attempt_refs": [
+          "sattempt_7b21b0f6bc83a5a6f6ff"
+        ],
+        "budget_reservation_ref": [
+          "sres_22b12d0efec21996302a",
+          "sres_88a4c0b29c47eb0b4b34",
+          "sres_e82e0028286c6f75506f"
+        ],
+        "claimed_at": "2026-10-07T21:05:07+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "defer_reason": "selection_cap",
+        "outcome_ref": "9410dfc1c125a009d9ef",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "parent_search_revision": 0,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "defer_reason": "selection_cap",
+          "defer_trigger": "explicit_user",
+          "deferred_type": "alternative_reaction_deferred",
+          "depth": 1,
+          "frozen_pool_digest": "fa72386f9e098490094fbd1becb96facef6d8ce7fbe404f8078687d3b2be73a3",
+          "hypothesis_key": "C",
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "source_event_id": "",
+          "spec": {
+            "alignment": {
+              "donor_to_current": {
+                "S_C_2": "S_C_2",
+                "S_O_1": "S_O_1"
+              },
+              "ref": "align-A",
+              "status": "resolved"
+            },
+            "coefficient": 1,
+            "donor": {
+              "center_atom_ids": [
+                "S_C_2",
+                "S_O_1"
+              ]
+            },
+            "edits": [
+              {
+                "atom1": "S_C_2",
+                "atom2": "S_O_1",
+                "from_order": "single",
+                "op": "change_bond_order",
+                "to_order": "double"
+              }
+            ],
+            "expectation": {
+              "target_smiles": "CC=O"
+            },
+            "key": "C",
+            "origin_group_key": "donor-C",
+            "product_smiles": "CC=O",
+            "transformation_ref": "donor-C"
+          },
+          "substrate_smiles": "CCO",
+          "substrate_state_ref": "cs_ab1de819ede91df490e6",
+          "task_key": "stask-exp_7503f5b85a0a13f04bd7"
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "hyp_6097354564d96e9c34ef",
+        "task_key": "stask-exp_7503f5b85a0a13f04bd7",
+        "updated_at": "2026-10-07T21:05:07+00:00"
+      },
+      {
+        "action_id": "sact_c56685fa544a0a01706a",
+        "action_kind": "expand_hypothesis",
+        "attempt_refs": [
+          "sattempt_c2f2461fcfc87a562b7c"
+        ],
+        "budget_reservation_ref": [
+          "sres_1a5e496d14e3ff7c752c",
+          "sres_4782b00f791871d1896a",
+          "sres_70d3743cf7257c275546"
+        ],
+        "claimed_at": "2026-10-07T21:05:07+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "defer_reason": "selection_cap",
+        "outcome_ref": "787f008c78f0c8edafb3",
+        "parent_path_id": "spath_5f14c366e488fd485c61",
+        "parent_search_revision": 0,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "defer_reason": "selection_cap",
+          "defer_trigger": "explicit_user",
+          "deferred_type": "alternative_reaction_deferred",
+          "depth": 1,
+          "frozen_pool_digest": "fa72386f9e098490094fbd1becb96facef6d8ce7fbe404f8078687d3b2be73a3",
+          "hypothesis_key": "D",
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "source_event_id": "",
+          "spec": {
+            "alignment": {
+              "donor_to_current": {
+                "S_C_2": "S_C_2",
+                "S_O_1": "S_O_1"
+              },
+              "ref": "align-A",
+              "status": "resolved"
+            },
+            "coefficient": 1,
+            "donor": {
+              "center_atom_ids": [
+                "S_C_2",
+                "S_O_1"
+              ]
+            },
+            "edits": [
+              {
+                "atom1": "S_C_2",
+                "atom2": "S_O_1",
+                "from_order": "single",
+                "op": "change_bond_order",
+                "to_order": "double"
+              }
+            ],
+            "expectation": {
+              "target_smiles": "CC=O"
+            },
+            "key": "D",
+            "origin_group_key": "donor-D",
+            "product_smiles": "CC=O",
+            "transformation_ref": "donor-D"
+          },
+          "substrate_smiles": "CCO",
+          "substrate_state_ref": "cs_ab1de819ede91df490e6",
+          "task_key": "stask-exp_f9047037b25bbcebb2af"
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "hyp_93a91f2f10df49585b65",
+        "task_key": "stask-exp_f9047037b25bbcebb2af",
+        "updated_at": "2026-10-07T21:05:07+00:00"
+      },
+      {
+        "action_id": "sact_c1f0e56c20a69de89092",
+        "action_kind": "retrieve",
+        "attempt_refs": [],
+        "budget_reservation_ref": [
+          "sres_3a82b6bac4a7a11ba058",
+          "sres_e9cc49b0ab1d08fbc5e8",
+          "sres_ea702b9006011f97f79c"
+        ],
+        "claimed_at": "2026-10-07T21:05:07+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "defer_reason": "",
+        "outcome_ref": "22a06e4fbbc34e8ec3944db0588b3c03ec4fc6ea021282c3e57fa5db721aa6a0",
+        "parent_path_id": "spath_e2f18ccbd65cf62f4165",
+        "parent_search_revision": 1,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "depth": 1,
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "product_state_ref": "cs_540cc0181e112b383323",
+          "source_event_id": "ppev_c055942051228170a816",
+          "substrate_smiles": "CC=O",
+          "task_key": ""
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "cs_540cc0181e112b383323",
+        "task_key": "",
+        "updated_at": "2026-10-07T21:05:07+00:00"
+      },
+      {
+        "action_id": "sact_cd3bcb52dbe2506ae9d6",
+        "action_kind": "retrieve",
+        "attempt_refs": [],
+        "budget_reservation_ref": [
+          "sres_52b1a2db1a4940b258de",
+          "sres_dbd96ee731922e695f5a",
+          "sres_fa9449507243d2137091"
+        ],
+        "claimed_at": "2026-10-07T21:05:07+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "defer_reason": "product_width_limit",
+        "outcome_ref": "a649ef26917e35f351e405cc605dfe6190a643a338ef444fdd592d384030a80e",
+        "parent_path_id": "spath_d3a8fcef6ec40f5b0c56",
+        "parent_search_revision": 1,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "defer_reason": "product_width_limit",
+          "defer_trigger": "explicit_user",
+          "deferred_type": "coproduct_deferred",
+          "depth": 1,
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "product_state_ref": "cs_ea7e44a64c7461517e4f",
+          "source_event_id": "ppev_c055942051228170a816",
+          "substrate_smiles": "[H][H]",
+          "task_key": ""
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "cs_ea7e44a64c7461517e4f",
+        "task_key": "",
+        "updated_at": "2026-10-07T21:05:07+00:00"
+      },
+      {
+        "action_id": "sact_352d91a31a10d0949dd4",
+        "action_kind": "retrieve",
+        "attempt_refs": [],
+        "budget_reservation_ref": [
+          "sres_657b50d6cab84696cc3d",
+          "sres_94b6ef567154d9b72699",
+          "sres_c9a95fc779f06aec19e6"
+        ],
+        "claimed_at": "2026-10-07T21:05:07+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "defer_reason": "",
+        "outcome_ref": "fddbf299a3ef4b76be0f50474a05c10b451e29e0385677c8e1b6043097fa7300",
+        "parent_path_id": "spath_683f376a965de29ba5e3",
+        "parent_search_revision": 1,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "depth": 1,
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "product_state_ref": "cs_540cc0181e112b383323",
+          "source_event_id": "ppev_f2a84da67b53f1d21b9a",
+          "substrate_smiles": "CC=O",
+          "task_key": ""
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "cs_540cc0181e112b383323",
+        "task_key": "",
+        "updated_at": "2026-10-07T21:05:07+00:00"
+      },
+      {
+        "action_id": "sact_5f6b96bc89a29f4941c8",
+        "action_kind": "retrieve",
+        "attempt_refs": [],
+        "budget_reservation_ref": [
+          "sres_22150cd8788eacbd308c",
+          "sres_ade67d7a2797a1dd6834",
+          "sres_bf706822718ff5695579"
+        ],
+        "claimed_at": "2026-10-07T21:05:07+00:00",
+        "claimed_by": "ppv1-driver:deferred_public",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "defer_reason": "",
+        "outcome_ref": "f5b438925b05a93e33d1af0c5cb10e62bc0471b9975e974f06456626ce877c7d",
+        "parent_path_id": "spath_63ba087bc2adcc3e8274",
+        "parent_search_revision": 1,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "depth": 1,
+          "parent_path_id": "spath_5f14c366e488fd485c61",
+          "product_state_ref": "cs_540cc0181e112b383323",
+          "source_event_id": "ppev_e123ad53c63caab23698",
+          "substrate_smiles": "CC=O",
+          "task_key": ""
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "deferred_public",
+        "status": "done",
+        "subject_ref": "cs_540cc0181e112b383323",
+        "task_key": "",
+        "updated_at": "2026-10-07T21:05:07+00:00"
+      }
+    ],
+    "search_attempts": [
+      {
+        "action_id": "sact_ad29a09785bf48ed1379",
+        "attempt_index": 1,
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "expansion_attempt_id": "sattempt_51d6807798f7225286da",
+        "hypothesis_id": "hyp_402a228ad04b9eb419d6",
+        "outcome_ref": "",
+        "payload_hash": "",
+        "recorded_at": "2026-10-07T21:05:07+00:00",
+        "reopen_of": "",
+        "run_id": "deferred_public",
+        "status": "recorded",
+        "task_key": "stask-exp_8f0997b52acdf78f9634"
+      },
+      {
+        "action_id": "sact_acbe191df35b2045705c",
+        "attempt_index": 1,
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "expansion_attempt_id": "sattempt_7b21b0f6bc83a5a6f6ff",
+        "hypothesis_id": "hyp_6097354564d96e9c34ef",
+        "outcome_ref": "",
+        "payload_hash": "",
+        "recorded_at": "2026-10-07T21:05:07+00:00",
+        "reopen_of": "",
+        "run_id": "deferred_public",
+        "status": "recorded",
+        "task_key": "stask-exp_7503f5b85a0a13f04bd7"
+      },
+      {
+        "action_id": "sact_c56685fa544a0a01706a",
+        "attempt_index": 1,
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "expansion_attempt_id": "sattempt_c2f2461fcfc87a562b7c",
+        "hypothesis_id": "hyp_93a91f2f10df49585b65",
+        "outcome_ref": "",
+        "payload_hash": "",
+        "recorded_at": "2026-10-07T21:05:07+00:00",
+        "reopen_of": "",
+        "run_id": "deferred_public",
+        "status": "recorded",
+        "task_key": "stask-exp_f9047037b25bbcebb2af"
+      }
+    ],
+    "search_commit_records": [
+      {
+        "action_id": "sact_2755549ff5b9f4b1b47e",
+        "attempt_id": "",
+        "commit_id": "scommit_89275c977983ed217483",
+        "commit_kind": "outcome_recorded",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "event_id": "",
+        "payload_hash": "a2f38460e0bb496479de8d2ecca3a5ac6a9d98df28e884bac40c2bb031fa724f",
+        "run_id": "deferred_public"
+      },
+      {
+        "action_id": "sact_63eb9fb9d34d0e0470f4",
+        "attempt_id": "",
+        "commit_id": "scommit_4d083f6d1c643f009505",
+        "commit_kind": "outcome_recorded",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "event_id": "",
+        "payload_hash": "15e1968be68ca2e55ff736215a011555f144e39228c7d62088fcf5423bd4daa4",
+        "run_id": "deferred_public"
+      },
+      {
+        "action_id": "sact_ad29a09785bf48ed1379",
+        "attempt_id": "sattempt_51d6807798f7225286da",
+        "commit_id": "scommit_87f3e94ea31e86b2f44c",
+        "commit_kind": "event_committed",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_c055942051228170a816",
+        "payload_hash": "c54ee1ad9ee965274e753e6c6ef0731789e981fc651db51e01fce9fe730ebcf2",
+        "run_id": "deferred_public"
+      },
+      {
+        "action_id": "sact_c1f0e56c20a69de89092",
+        "attempt_id": "",
+        "commit_id": "scommit_af1add86cfe1a1ea947b",
+        "commit_kind": "outcome_recorded",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "",
+        "payload_hash": "9dcba938d9fb44228891a10a96e8866098630bcccf519b80024379fdc6c29770",
+        "run_id": "deferred_public"
+      },
+      {
+        "action_id": "sact_acbe191df35b2045705c",
+        "attempt_id": "sattempt_7b21b0f6bc83a5a6f6ff",
+        "commit_id": "scommit_116dc2b7291aa4b7a205",
+        "commit_kind": "event_committed",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_f2a84da67b53f1d21b9a",
+        "payload_hash": "9410dfc1c125a009d9efb62b5b274383fb4efafd00d701296b9a3a694a6c7073",
+        "run_id": "deferred_public"
+      },
+      {
+        "action_id": "sact_c56685fa544a0a01706a",
+        "attempt_id": "sattempt_c2f2461fcfc87a562b7c",
+        "commit_id": "scommit_50b41c1c57da3dacd7b7",
+        "commit_kind": "event_committed",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "ppev_e123ad53c63caab23698",
+        "payload_hash": "787f008c78f0c8edafb3e2745323ebb468e2031a1dc5d5350ff48463f9fe648d",
+        "run_id": "deferred_public"
+      },
+      {
+        "action_id": "sact_352d91a31a10d0949dd4",
+        "attempt_id": "",
+        "commit_id": "scommit_50e0d37303a115ab5d69",
+        "commit_kind": "outcome_recorded",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "",
+        "payload_hash": "8c818e4ac0ad21f1cec0b0ff297a0c4a956f9d87353916ad3bfbb1dd98cd40f9",
+        "run_id": "deferred_public"
+      },
+      {
+        "action_id": "sact_5f6b96bc89a29f4941c8",
+        "attempt_id": "",
+        "commit_id": "scommit_42e23e5584ec90d2aa10",
+        "commit_kind": "outcome_recorded",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "",
+        "payload_hash": "dc9c0ea2b901b0ad375e90315cf7ffb34f954782165115eaa517a16cd8ebf2dd",
+        "run_id": "deferred_public"
+      },
+      {
+        "action_id": "sact_cd3bcb52dbe2506ae9d6",
+        "attempt_id": "",
+        "commit_id": "scommit_dbaa81b26f5d12b011fa",
+        "commit_kind": "outcome_recorded",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "event_id": "",
+        "payload_hash": "6d394ec255872b42a19f09efd541b3fa6ed04278d96f7c99bbef527023628a99",
+        "run_id": "deferred_public"
+      }
+    ],
+    "search_runs": [
+      {
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "policy_block": {
+          "chemical_reproposal": "off",
+          "contracts": {
+            "admission_policy": "ppv1-admission-8",
+            "audit": "ppv1-audit-8",
+            "chemstate": "ppv1-chemstate-8",
+            "condition_assessment": "ppv1-condition-assessment-8",
+            "context": "ppv1-context-8",
+            "dependency": "ppv1-dependency-8",
+            "donor_diagnostic": "ppv1-donor-diagnostic-8",
+            "event": "ppv1-event-8",
+            "format_feedback": "ppv1-format-feedback-1",
+            "gate_mapper": "ppv1-gate-mapper-3",
+            "hypothesis": "ppv1-hypothesis-8",
+            "input_preview": "ppv1-input-preview-8",
+            "legacy_g2_family_ref": "v43-cons-2",
+            "legacy_gate_ref": "frozen_hit60_gate",
+            "pool_audit": "ppv1-pool-audit-8",
+            "pool_order": "ppv1-pool-order-8",
+            "profile": "ppv1-profile-13",
+            "provenance": "ppv1-provenance-8",
+            "search": "ppv1-search-5",
+            "store": "ppv1-store-9",
+            "substrate_profile": "ppv1-substrate-profile-8"
+          },
+          "delivered_stages": "S0-S2,S3a-base,S3b",
+          "format_feedback_policy": {
+            "max_format_feedback_rounds": 0,
+            "version": "ppv1-format-feedback-1"
+          },
+          "input_preview_policy": "off",
+          "input_preview_version": "ppv1-input-preview-8",
+          "name": "pollutant_pathway_v1",
+          "schema_version": "ppv1-profile-13",
+          "search_intent": "exploration",
+          "search_limits": {
+            "max_alternative_hypotheses_per_parent": 3,
+            "max_attempts_per_hypothesis": 2,
+            "max_product_expansion_width": 1,
+            "max_real_model_requests": 0,
+            "max_reopens_per_hypothesis": 1,
+            "max_retrievals_per_parent": 1,
+            "max_retrievals_total": 64,
+            "max_scenario_transitions": 2,
+            "max_search_depth": 3,
+            "max_total_search_actions": 20,
+            "version": "ppv1-search-limits-3"
+          }
+        },
+        "run_id": "deferred_public"
+      }
+    ],
+    "state_appearances": [
+      {
+        "appearance_hash": "7c510820c283849127e05284dbf94176808144f7ad8b022ea57c47c356ccbf9e",
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "payload": {
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "source_refs": [
+            {
+              "record": "ppv1-root-input"
+            }
+          ],
+          "state_id": "cs_ab1de819ede91df490e6",
+          "structure_origin": "raw_input",
+          "structure_smiles_raw": "CCO"
+        },
+        "state_id": "cs_ab1de819ede91df490e6"
+      },
+      {
+        "appearance_hash": "170de58936b9791af5bab5b21d57861d50e6cf5b4296d29f4a8fecf6e973987a",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "payload": {
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "source_refs": [
+            {
+              "record": "ppv1-substrate:deferred_public"
+            }
+          ],
+          "state_id": "cs_ab1de819ede91df490e6",
+          "structure_origin": "raw_input",
+          "structure_smiles_raw": "CCO"
+        },
+        "state_id": "cs_ab1de819ede91df490e6"
+      },
+      {
+        "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "payload": {
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "source_refs": [
+            {
+              "record": "synthetic-pool-spec"
+            }
+          ],
+          "state_id": "cs_540cc0181e112b383323",
+          "structure_origin": "source_product",
+          "structure_smiles_raw": "CC=O"
+        },
+        "state_id": "cs_540cc0181e112b383323"
+      },
+      {
+        "appearance_hash": "02544db7c9f48000f2872a3a3921d0bfdc3cc763fe14191aba0e92c431a89291",
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "payload": {
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "source_refs": [
+            {
+              "record": "synthetic-pool-spec"
+            }
+          ],
+          "state_id": "cs_ea7e44a64c7461517e4f",
+          "structure_origin": "source_product",
+          "structure_smiles_raw": "[H][H]"
+        },
+        "state_id": "cs_ea7e44a64c7461517e4f"
+      }
+    ],
+    "states": [
+      {
+        "created_at": "2026-10-07T21:05:06+00:00",
+        "payload": {
+          "cn_identity": "CCO",
+          "formal_charge": 0,
+          "isotope_information_status": "not_applicable",
+          "schema_version": "ppv1-chemstate-8",
+          "smiles_isomeric": "CCO",
+          "state_id": "cs_ab1de819ede91df490e6",
+          "stereo_information_status": "not_applicable"
+        },
+        "state_id": "cs_ab1de819ede91df490e6"
+      },
+      {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "payload": {
+          "cn_identity": "CC=O",
+          "formal_charge": 0,
+          "isotope_information_status": "not_applicable",
+          "schema_version": "ppv1-chemstate-8",
+          "smiles_isomeric": "CC=O",
+          "state_id": "cs_540cc0181e112b383323",
+          "stereo_information_status": "not_applicable"
+        },
+        "state_id": "cs_540cc0181e112b383323"
+      },
+      {
+        "created_at": "2026-10-07T21:05:07+00:00",
+        "payload": {
+          "cn_identity": "[H][H]",
+          "formal_charge": 0,
+          "isotope_information_status": "not_applicable",
+          "schema_version": "ppv1-chemstate-8",
+          "smiles_isomeric": "[H][H]",
+          "state_id": "cs_ea7e44a64c7461517e4f",
+          "stereo_information_status": "not_applicable"
+        },
+        "state_id": "cs_ea7e44a64c7461517e4f"
+      }
+    ]
+  }
+}

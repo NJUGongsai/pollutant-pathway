@@ -1,0 +1,23 @@
+{
+  "event": "ChatGPT_account_usage_limit",
+  "failure_kind": "quota_not_implementation_error",
+  "initial_review_start_utc": "2026-10-07 13:57:46 UTC",
+  "resume_utc": "2026-10-07T15:13:00.138414+00:00",
+  "prior_agent_starts": [
+    "r2_execution",
+    "r2_authority",
+    "r2_budget_requests"
+  ],
+  "prior_agent_results": "all three returned usage-limit before any successful execution result",
+  "reused": "previous initial repository/docs reads and confirmed full commit hashes; no pre-interruption PPV1/G01/probe results available",
+  "resumed_tasks": [
+    "r2_execution_resumed",
+    "r2_authority_resumed",
+    "r2_budget_resumed"
+  ],
+  "user_explicit_resume": true,
+  "git_head_on_resume": "dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03",
+  "no_completed_validation_rerun": true,
+  "first_resume_clock_utc": "2026-10-07 15:11:05 UTC",
+  "resume_utc_field_is_snapshot_capture_time": true
+}

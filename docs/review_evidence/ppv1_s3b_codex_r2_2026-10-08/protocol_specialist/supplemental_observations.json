@@ -1,0 +1,1478 @@
+[
+  {
+    "case": "novel_state_first_consumer_reject",
+    "check": true,
+    "detail": {
+      "actions": [
+        {
+          "action_id": "sact_3ebc4353720f275652d0",
+          "action_kind": "retrieve",
+          "attempt_refs": [],
+          "budget_reservation_ref": [
+            "sres_1afa456ad399482674d2",
+            "sres_8ee649e3ec4405ebdafc",
+            "sres_a042809b4d1cab3a3474"
+          ],
+          "claimed_at": "2026-10-08T00:21:10+00:00",
+          "claimed_by": "ppv1-driver:novel_prepared_bad_raw",
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T00:21:10+00:00",
+          "defer_reason": "",
+          "outcome_ref": "4b7569a2433376ad27aa110dab353c4a729cae1a030c11154f43b9232a9efc34",
+          "parent_path_id": "spath_7f90d2801bce3cfe9ba5",
+          "parent_search_revision": 0,
+          "payload": {
+            "context_ref": "pc_0757aa71e8cd78057880",
+            "depth": 0,
+            "parent_path_id": "spath_7f90d2801bce3cfe9ba5",
+            "plan_digest": "2490a2d356dc26b0a3cdc1d6a9eb2ddb6acb6ea2fc4ce4cf4d58b350667c4fdb",
+            "source_event_id": "",
+            "substrate_smiles": "CCO",
+            "task_key": "stask-dec_6eb63c301538c3824f81"
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "novel_prepared_bad_raw",
+          "status": "done",
+          "subject_ref": "cs_ab1de819ede91df490e6",
+          "task_key": "stask-dec_6eb63c301538c3824f81",
+          "updated_at": "2026-10-08T00:21:10+00:00"
+        },
+        {
+          "action_id": "sact_2649c07032e801a87a00",
+          "action_kind": "decide",
+          "attempt_refs": [],
+          "budget_reservation_ref": [
+            "sres_94470e8ff5b2efbfecc4"
+          ],
+          "claimed_at": "2026-10-08T00:21:10+00:00",
+          "claimed_by": "ppv1-driver:novel_prepared_bad_raw",
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T00:21:10+00:00",
+          "defer_reason": "",
+          "outcome_ref": "0818af201216dc7c65c4022f40f14bbffea23dc987ecca33d2775aa74827648b",
+          "parent_path_id": "spath_7f90d2801bce3cfe9ba5",
+          "parent_search_revision": 0,
+          "payload": {
+            "context_ref": "pc_0757aa71e8cd78057880",
+            "depth": 0,
+            "parent_path_id": "spath_7f90d2801bce3cfe9ba5",
+            "pool_digest": "a9d7c3590d4bbe519890a21da873699ff7b9dbc5f165ab75cd7c0d3c2972dcb2",
+            "source_event_id": "",
+            "substrate_smiles": "CCO",
+            "task_key": "stask-dec_f38dcf85d7e05e2a8a35"
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "novel_prepared_bad_raw",
+          "status": "done",
+          "subject_ref": "pool:a9d7c3590d4bbe51",
+          "task_key": "stask-dec_f38dcf85d7e05e2a8a35",
+          "updated_at": "2026-10-08T00:21:10+00:00"
+        },
+        {
+          "action_id": "sact_2dbfb9abb087d712c924",
+          "action_kind": "expand_hypothesis",
+          "attempt_refs": [
+            "sattempt_734134388b7bee320898"
+          ],
+          "budget_reservation_ref": [
+            "sres_05025ff9ec220cbee76b",
+            "sres_9e7887e5a45c8cbfe52b",
+            "sres_cb329613982bfd36bf91"
+          ],
+          "claimed_at": "2026-10-08T00:21:10+00:00",
+          "claimed_by": "ppv1-driver:novel_prepared_bad_raw",
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T00:21:10+00:00",
+          "defer_reason": "",
+          "outcome_ref": "",
+          "parent_path_id": "spath_7f90d2801bce3cfe9ba5",
+          "parent_search_revision": 0,
+          "payload": {
+            "context_ref": "pc_0757aa71e8cd78057880",
+            "depth": 1,
+            "frozen_pool_digest": "bff6037b26bc80eb3c723572ed4f98a71302f61b75e4797ffc2f197c2b8be824",
+            "hypothesis_key": "novel:1",
+            "parent_path_id": "spath_7f90d2801bce3cfe9ba5",
+            "proposal_context": {
+              "output_origin": "novel_outside_pool",
+              "reference_hypothesis_ids": []
+            },
+            "source_event_id": "",
+            "spec": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "Novel",
+              "origin_group_key": "donor-Novel",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-Novel"
+            },
+            "substrate_smiles": "CCO",
+            "substrate_state_ref": "cs_ab1de819ede91df490e6",
+            "task_key": "stask-exp_c3ba179aceeea6db1de2"
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "novel_prepared_bad_raw",
+          "status": "claimed",
+          "subject_ref": "hyp_9709790f8eaed8a9c465",
+          "task_key": "stask-exp_c3ba179aceeea6db1de2",
+          "updated_at": null
+        }
+      ],
+      "attempts": [
+        {
+          "action_id": "sact_2dbfb9abb087d712c924",
+          "attempt_index": 1,
+          "created_at": "2026-10-08T00:21:10+00:00",
+          "expansion_attempt_id": "sattempt_734134388b7bee320898",
+          "hypothesis_id": "hyp_9709790f8eaed8a9c465",
+          "outcome_ref": "",
+          "payload_hash": "",
+          "recorded_at": null,
+          "reopen_of": "",
+          "run_id": "novel_prepared_bad_raw",
+          "status": "open",
+          "task_key": "stask-exp_c3ba179aceeea6db1de2"
+        }
+      ],
+      "counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 1,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "events": [],
+      "out": {
+        "detail": {
+          "kind": "raw_structure_rejected",
+          "reason": {
+            "item": "r",
+            "item_offset": 0,
+            "kind": "unregistered_cx_class",
+            "registered_head": "",
+            "segment": "r"
+          },
+          "state_id": "cs_540cc0181e112b383323",
+          "structure_smiles_raw": "CC=O |r|"
+        },
+        "exception": "ChemicalStateError",
+        "message": "state:cs_540cc0181e112b383323 的 structure_smiles_raw 未通过输入守卫或无法解析(R7-01/R8:原始串含未登记 CX 项即拒 —— 静默丢弃后不得称 as_written/verified;首次消费零授信)",
+        "pid": 34983
+      },
+      "reports": [],
+      "returncode": 3,
+      "trace": {
+        "network_attempts": [],
+        "trace": [
+          {
+            "call": "prepare_hypothesis",
+            "hypothesis_id": "hyp_9709790f8eaed8a9c465",
+            "product_states": [
+              {
+                "cn_identity": "CC=O",
+                "formal_charge": 0,
+                "isotope_information_status": "not_applicable",
+                "original_structure_available": true,
+                "representation_fidelity": {
+                  "formal_charge": "as_written",
+                  "isotope": "as_written",
+                  "protonation_basis": "as_written",
+                  "stereo": "as_written"
+                },
+                "schema_version": "ppv1-chemstate-8",
+                "smiles_isomeric": "CC=O",
+                "source_refs": [
+                  {
+                    "record": "novel-model-proposal:novel_outside_pool"
+                  }
+                ],
+                "state_id": "cs_540cc0181e112b383323",
+                "stereo_information_status": "not_applicable",
+                "structure_origin": "source_product",
+                "structure_smiles_raw": "CC=O"
+              }
+            ],
+            "source_refs_argument": [
+              {
+                "record": "novel-model-proposal:novel_outside_pool"
+              }
+            ],
+            "spec": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "Novel",
+              "origin_group_key": "donor-Novel",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-Novel"
+            }
+          },
+          {
+            "call": "prepare_hypothesis",
+            "hypothesis_id": "hyp_9709790f8eaed8a9c465",
+            "product_states": [
+              {
+                "cn_identity": "CC=O",
+                "formal_charge": 0,
+                "isotope_information_status": "not_applicable",
+                "original_structure_available": true,
+                "representation_fidelity": {
+                  "formal_charge": "as_written",
+                  "isotope": "as_written",
+                  "protonation_basis": "as_written",
+                  "stereo": "as_written"
+                },
+                "schema_version": "ppv1-chemstate-8",
+                "smiles_isomeric": "CC=O",
+                "source_refs": [
+                  {
+                    "record": "synthetic-pool-spec"
+                  }
+                ],
+                "state_id": "cs_540cc0181e112b383323",
+                "stereo_information_status": "not_applicable",
+                "structure_origin": "source_product",
+                "structure_smiles_raw": "CC=O"
+              }
+            ],
+            "source_refs_argument": null,
+            "spec": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "Novel",
+              "origin_group_key": "donor-Novel",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-Novel"
+            }
+          },
+          {
+            "call": "inject_prepared_bad_raw",
+            "old_state": {
+              "cn_identity": "CC=O",
+              "formal_charge": 0,
+              "isotope_information_status": "not_applicable",
+              "original_structure_available": true,
+              "representation_fidelity": {
+                "formal_charge": "as_written",
+                "isotope": "as_written",
+                "protonation_basis": "as_written",
+                "stereo": "as_written"
+              },
+              "schema_version": "ppv1-chemstate-8",
+              "smiles_isomeric": "CC=O",
+              "source_refs": [
+                {
+                  "record": "synthetic-pool-spec"
+                }
+              ],
+              "state_id": "cs_540cc0181e112b383323",
+              "stereo_information_status": "not_applicable",
+              "structure_origin": "source_product",
+              "structure_smiles_raw": "CC=O"
+            }
+          },
+          {
+            "call": "execute_atomtool_expansion",
+            "execution": {
+              "center_evidence": {
+                "bound_inputs": {
+                  "alignment_ref": "align-A",
+                  "donor_centers": [
+                    "S_C_2",
+                    "S_O_1"
+                  ],
+                  "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                  "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                  "product_identity": "CC=O",
+                  "substrate_identity": "CCO"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-8",
+                "declaration_mismatch": false,
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "proof_record": {
+                  "alignment": {
+                    "donor_to_current": {
+                      "S_C_2": "S_C_2",
+                      "S_O_1": "S_O_1"
+                    },
+                    "equivalence_classes": [],
+                    "ref": "align-A",
+                    "status": "resolved"
+                  },
+                  "current": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "smiles": "CCO"
+                  },
+                  "donor": {
+                    "center_atom_ids": [
+                      "S_C_2",
+                      "S_O_1"
+                    ]
+                  },
+                  "edits": [
+                    {
+                      "atom1": "S_C_2",
+                      "atom2": "S_O_1",
+                      "from_order": "single",
+                      "op": "change_bond_order",
+                      "to_order": "double"
+                    }
+                  ],
+                  "expectation": {
+                    "target_smiles": "CC=O"
+                  },
+                  "result": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "n_edits": 1,
+                    "ok": true,
+                    "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                    "product_smiles": "CC=O",
+                    "protocol_version": "v43-editproto-2",
+                    "reasons": []
+                  }
+                },
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true
+              },
+              "diagnostic": {
+                "alignment_ref": "align-A",
+                "center_evidence": {
+                  "bound_inputs": {
+                    "alignment_ref": "align-A",
+                    "donor_centers": [
+                      "S_C_2",
+                      "S_O_1"
+                    ],
+                    "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                    "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                    "product_identity": "CC=O",
+                    "substrate_identity": "CCO"
+                  },
+                  "center_match": true,
+                  "center_match_basis": "direct",
+                  "checker_scope": "region_net_change",
+                  "checker_version": "ppv1-donor-diagnostic-8",
+                  "declaration_mismatch": false,
+                  "evidence_refs": [
+                    "align-A"
+                  ],
+                  "proof_record": {
+                    "alignment": {
+                      "donor_to_current": {
+                        "S_C_2": "S_C_2",
+                        "S_O_1": "S_O_1"
+                      },
+                      "equivalence_classes": [],
+                      "ref": "align-A",
+                      "status": "resolved"
+                    },
+                    "current": {
+                      "atom_id_map": {
+                        "S_C_1": 0,
+                        "S_C_2": 1,
+                        "S_O_1": 2
+                      },
+                      "smiles": "CCO"
+                    },
+                    "donor": {
+                      "center_atom_ids": [
+                        "S_C_2",
+                        "S_O_1"
+                      ]
+                    },
+                    "edits": [
+                      {
+                        "atom1": "S_C_2",
+                        "atom2": "S_O_1",
+                        "from_order": "single",
+                        "op": "change_bond_order",
+                        "to_order": "double"
+                      }
+                    ],
+                    "expectation": {
+                      "target_smiles": "CC=O"
+                    },
+                    "result": {
+                      "atom_id_map": {
+                        "S_C_1": 0,
+                        "S_C_2": 1,
+                        "S_O_1": 2
+                      },
+                      "n_edits": 1,
+                      "ok": true,
+                      "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                      "product_smiles": "CC=O",
+                      "protocol_version": "v43-editproto-2",
+                      "reasons": []
+                    }
+                  },
+                  "proof_scope": "self_contained_recompute",
+                  "strict_target_match": true
+                },
+                "center_match_basis": "direct",
+                "center_property_deltas": [
+                  {
+                    "atom_id": "S_C_2",
+                    "cip_labels": [
+                      "",
+                      ""
+                    ],
+                    "element": "C",
+                    "formal_charge": [
+                      0,
+                      0
+                    ],
+                    "h_count": [
+                      2,
+                      1
+                    ],
+                    "property_delta": "h_count"
+                  },
+                  {
+                    "atom_id": "S_O_1",
+                    "cip_labels": [
+                      "",
+                      ""
+                    ],
+                    "element": "O",
+                    "formal_charge": [
+                      0,
+                      0
+                    ],
+                    "h_count": [
+                      1,
+                      0
+                    ],
+                    "property_delta": "h_count"
+                  }
+                ],
+                "declaration_mismatches": [],
+                "declaration_only": [],
+                "equivalence_basis": "",
+                "executed_bond_changes": [
+                  {
+                    "atom1_id": "S_C_2",
+                    "atom2_id": "S_O_1",
+                    "from_order": "single",
+                    "kind": "order_change",
+                    "to_order": "double"
+                  }
+                ],
+                "extra_changes": [],
+                "joint_mapping": {},
+                "legacy_cn_match": true,
+                "missing_info_reasons": [],
+                "net_change_empty": false,
+                "reaction_center_match": true,
+                "schema_version": "ppv1-donor-diagnostic-8",
+                "stereo_comparison_unsupported_atoms": [],
+                "strict_target_match": true
+              },
+              "execution_ok": true,
+              "production_version": "ppv1-search-production-1",
+              "render": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "canonical_smiles": "CCO",
+                "input_smiles": "CCO"
+              },
+              "result": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "n_edits": 1,
+                "ok": true,
+                "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                "product_smiles": "CC=O",
+                "protocol_version": "v43-editproto-2",
+                "reasons": []
+              },
+              "substrate_smiles": "CCO",
+              "tool_inputs": {
+                "alignment": {
+                  "donor_to_current": {
+                    "S_C_2": "S_C_2",
+                    "S_O_1": "S_O_1"
+                  },
+                  "ref": "align-A",
+                  "status": "resolved"
+                },
+                "donor": {
+                  "center_atom_ids": [
+                    "S_C_2",
+                    "S_O_1"
+                  ]
+                },
+                "edits": [
+                  {
+                    "atom1": "S_C_2",
+                    "atom2": "S_O_1",
+                    "from_order": "single",
+                    "op": "change_bond_order",
+                    "to_order": "double"
+                  }
+                ],
+                "expectation": {
+                  "target_smiles": "CC=O"
+                }
+              }
+            }
+          },
+          {
+            "call": "audit_hypothesis",
+            "exception": {
+              "detail": {
+                "kind": "raw_structure_rejected",
+                "reason": {
+                  "item": "r",
+                  "item_offset": 0,
+                  "kind": "unregistered_cx_class",
+                  "registered_head": "",
+                  "segment": "r"
+                },
+                "state_id": "cs_540cc0181e112b383323",
+                "structure_smiles_raw": "CC=O |r|"
+              },
+              "type": "ChemicalStateError"
+            },
+            "hypothesis": {
+              "ambiguous_participants": false,
+              "assumptions": [],
+              "audit_ref": "",
+              "dependency_refs": [],
+              "hypothesis_id": "hyp_9709790f8eaed8a9c465",
+              "legacy_relationship_status": "",
+              "model_decision_ref": "",
+              "origin_group_key": "donor-Novel",
+              "parent_path_id": "spath_7f90d2801bce3cfe9ba5",
+              "participant_list_status": "partial",
+              "participants": [
+                {
+                  "coefficient": "1",
+                  "coefficient_status": "known",
+                  "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                  "merged_from": [],
+                  "parallel_contribution": false,
+                  "role": "primary_substrate",
+                  "side": "reactant",
+                  "state_ref": "cs_ab1de819ede91df490e6"
+                },
+                {
+                  "coefficient": "1",
+                  "coefficient_status": "known",
+                  "entry_id": "pentry_909c48a69d106f085a2f",
+                  "merged_from": [],
+                  "parallel_contribution": false,
+                  "role": "principal_product",
+                  "side": "product",
+                  "state_ref": "cs_540cc0181e112b383323"
+                }
+              ],
+              "provenance_refs": [],
+              "requirements": [],
+              "schema_version": "ppv1-hypothesis-8",
+              "step_scope": "net_reaction",
+              "step_scope_evidence_refs": [],
+              "substrate_state_ref": "cs_ab1de819ede91df490e6",
+              "support_group_refs": [],
+              "transformation_ref": "donor-Novel",
+              "transformation_signature_status": "unknown"
+            },
+            "states": {
+              "cs_540cc0181e112b383323": {
+                "cn_identity": "CC=O",
+                "formal_charge": 0,
+                "isotope_information_status": "not_applicable",
+                "original_structure_available": true,
+                "representation_fidelity": {
+                  "formal_charge": "as_written",
+                  "isotope": "as_written",
+                  "protonation_basis": "as_written",
+                  "stereo": "as_written"
+                },
+                "schema_version": "ppv1-chemstate-8",
+                "smiles_isomeric": "CC=O",
+                "source_refs": [
+                  {
+                    "record": "synthetic-pool-spec"
+                  }
+                ],
+                "state_id": "cs_540cc0181e112b383323",
+                "stereo_information_status": "not_applicable",
+                "structure_origin": "source_product",
+                "structure_smiles_raw": "CC=O |r|"
+              },
+              "cs_ab1de819ede91df490e6": {
+                "cn_identity": "CCO",
+                "formal_charge": 0,
+                "isotope_information_status": "not_applicable",
+                "original_structure_available": true,
+                "representation_fidelity": {
+                  "formal_charge": "as_written",
+                  "isotope": "as_written",
+                  "protonation_basis": "as_written",
+                  "stereo": "as_written"
+                },
+                "schema_version": "ppv1-chemstate-8",
+                "smiles_isomeric": "CCO",
+                "source_refs": [
+                  {
+                    "record": "ppv1-substrate:novel_prepared_bad_raw"
+                  }
+                ],
+                "state_id": "cs_ab1de819ede91df490e6",
+                "stereo_information_status": "not_applicable",
+                "structure_origin": "raw_input",
+                "structure_smiles_raw": "CCO"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "novel_tool_failed",
+    "check": true,
+    "detail": {
+      "controller_failure": "old field name edit_center_consistent_with_donor does not exist; correct three fields reaction_center_match,strict_target_match,legacy_cn_match",
+      "counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 1,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 3,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "diagnostic": {
+        "alignment_ref": "align-A",
+        "center_evidence": {},
+        "center_match_basis": "",
+        "center_property_deltas": [],
+        "declaration_mismatches": [],
+        "declaration_only": [],
+        "equivalence_basis": "",
+        "executed_bond_changes": [],
+        "extra_changes": [],
+        "joint_mapping": {},
+        "legacy_cn_match": null,
+        "missing_info_reasons": [
+          "execution_failed:edit_execution_failed:bond_not_present:S_DOES_NOT_EXIST~S_O_1:edit[0]"
+        ],
+        "net_change_empty": false,
+        "reaction_center_match": null,
+        "schema_version": "ppv1-donor-diagnostic-8",
+        "stereo_comparison_unsupported_atoms": [],
+        "strict_target_match": null
+      },
+      "execution": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/novel_tool_failed.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+        },
+        "parsed": {
+          "pid": 34991,
+          "result": {
+            "counts": {
+              "event_appearance_links": 0,
+              "events": 0,
+              "expansion_plans": 0,
+              "hypotheses": 0,
+              "provenance_records": 0,
+              "report_projections": 0,
+              "state_appearances": 1,
+              "states": 1
+            },
+            "driver_session": {
+              "acquired_at": "2026-10-08T00:21:10+00:00",
+              "note": "flock 是执行权权威;崩溃 OS 自动释放",
+              "pid": 34991
+            },
+            "profile": "pollutant_pathway_v1",
+            "resumed": false,
+            "run_id": "novel_tool_failed",
+            "runflow_version": "ppv1-runflow-2",
+            "stop": {
+              "budget": {
+                "run_level": {
+                  "max_real_model_requests": {
+                    "max": 0,
+                    "remaining": 0,
+                    "used": 0
+                  },
+                  "max_retrievals_total": {
+                    "max": 64,
+                    "remaining": 63,
+                    "used": 1
+                  },
+                  "max_scenario_transitions": {
+                    "max": 2,
+                    "remaining": 2,
+                    "used": 0
+                  },
+                  "max_total_search_actions": {
+                    "max": 10,
+                    "remaining": 7,
+                    "used": 3
+                  }
+                },
+                "scoped": {
+                  "max_alternative_hypotheses_per_parent": {
+                    "spath_ea885024e1eadb40e4c4": {
+                      "max": 2,
+                      "remaining": 1,
+                      "used": 1
+                    }
+                  },
+                  "max_attempts_per_hypothesis": {
+                    "hyp_e5c967fc0cf0580a8850": {
+                      "max": 2,
+                      "remaining": 1,
+                      "used": 1
+                    }
+                  },
+                  "max_reopens_per_hypothesis": {},
+                  "max_retrievals_per_parent": {
+                    "spath_ea885024e1eadb40e4c4": {
+                      "max": 1,
+                      "remaining": 0,
+                      "used": 1
+                    }
+                  }
+                },
+                "version": "ppv1-search-limits-3"
+              },
+              "budget_exhausted_keys": [
+                "max_retrievals_per_parent@spath_ea885024e1eadb40e4c4"
+              ],
+              "events_submitted_session": [],
+              "other_reasons": [
+                "awaiting_prediction"
+              ],
+              "primary": "budget_limit",
+              "runflow_version": "ppv1-runflow-2",
+              "unexplored": {
+                "blocked": 0,
+                "blocked_objects": [],
+                "claimed_actions": 0,
+                "deferred": 0,
+                "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                "open_attempts": 0,
+                "pending_actions": 0,
+                "pending_requests": 1
+              }
+            },
+            "stop_reason": "budget_limit"
+          }
+        },
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"result\": {\"run_id\": \"novel_tool_failed\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-2\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"awaiting_prediction\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 1, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 3, \"remaining\": 7}, \"max_retrievals_total\": {\"max\": 64, \"used\": 1, \"remaining\": 63}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_ea885024e1eadb40e4c4\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {\"spath_ea885024e1eadb40e4c4\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_attempts_per_hypothesis\": {\"hyp_e5c967fc0cf0580a8850\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_ea885024e1eadb40e4c4\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-2\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 1, \"state_appearances\": 1, \"hypotheses\": 0, \"events\": 0, \"report_projections\": 0, \"expansion_plans\": 0, \"event_appearance_links\": 0, \"provenance_records\": 0}, \"driver_session\": {\"pid\": 34991, \"acquired_at\": \"2026-10-08T00:21:10+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 34991}\n"
+      },
+      "read_only_adjudication": true,
+      "trace": {
+        "network_attempts": [],
+        "trace": [
+          {
+            "call": "prepare_hypothesis",
+            "hypothesis_id": "hyp_e5c967fc0cf0580a8850",
+            "product_states": [
+              {
+                "cn_identity": "CC=O",
+                "formal_charge": 0,
+                "isotope_information_status": "not_applicable",
+                "original_structure_available": true,
+                "representation_fidelity": {
+                  "formal_charge": "as_written",
+                  "isotope": "as_written",
+                  "protonation_basis": "as_written",
+                  "stereo": "as_written"
+                },
+                "schema_version": "ppv1-chemstate-8",
+                "smiles_isomeric": "CC=O",
+                "source_refs": [
+                  {
+                    "record": "novel-model-proposal:novel_outside_pool"
+                  }
+                ],
+                "state_id": "cs_540cc0181e112b383323",
+                "stereo_information_status": "not_applicable",
+                "structure_origin": "source_product",
+                "structure_smiles_raw": "CC=O"
+              }
+            ],
+            "source_refs_argument": [
+              {
+                "record": "novel-model-proposal:novel_outside_pool"
+              }
+            ],
+            "spec": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_DOES_NOT_EXIST",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "Novel",
+              "origin_group_key": "donor-Novel",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-Novel"
+            }
+          },
+          {
+            "call": "prepare_hypothesis",
+            "hypothesis_id": "hyp_e5c967fc0cf0580a8850",
+            "product_states": [
+              {
+                "cn_identity": "CC=O",
+                "formal_charge": 0,
+                "isotope_information_status": "not_applicable",
+                "original_structure_available": true,
+                "representation_fidelity": {
+                  "formal_charge": "as_written",
+                  "isotope": "as_written",
+                  "protonation_basis": "as_written",
+                  "stereo": "as_written"
+                },
+                "schema_version": "ppv1-chemstate-8",
+                "smiles_isomeric": "CC=O",
+                "source_refs": [
+                  {
+                    "record": "synthetic-pool-spec"
+                  }
+                ],
+                "state_id": "cs_540cc0181e112b383323",
+                "stereo_information_status": "not_applicable",
+                "structure_origin": "source_product",
+                "structure_smiles_raw": "CC=O"
+              }
+            ],
+            "source_refs_argument": null,
+            "spec": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_DOES_NOT_EXIST",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "Novel",
+              "origin_group_key": "donor-Novel",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-Novel"
+            }
+          },
+          {
+            "call": "execute_atomtool_expansion",
+            "execution": {
+              "center_evidence": {
+                "center_match": null,
+                "center_match_basis": "",
+                "checker_version": "ppv1-donor-diagnostic-8",
+                "declaration_mismatch": false,
+                "evidence_refs": [
+                  "align-A"
+                ]
+              },
+              "diagnostic": {
+                "alignment_ref": "align-A",
+                "center_evidence": {},
+                "center_match_basis": "",
+                "center_property_deltas": [],
+                "declaration_mismatches": [],
+                "declaration_only": [],
+                "equivalence_basis": "",
+                "executed_bond_changes": [],
+                "extra_changes": [],
+                "joint_mapping": {},
+                "legacy_cn_match": null,
+                "missing_info_reasons": [
+                  "execution_failed:edit_execution_failed:bond_not_present:S_DOES_NOT_EXIST~S_O_1:edit[0]"
+                ],
+                "net_change_empty": false,
+                "reaction_center_match": null,
+                "schema_version": "ppv1-donor-diagnostic-8",
+                "stereo_comparison_unsupported_atoms": [],
+                "strict_target_match": null
+              },
+              "execution_ok": false,
+              "production_version": "ppv1-search-production-1",
+              "render": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "canonical_smiles": "CCO",
+                "input_smiles": "CCO"
+              },
+              "result": {
+                "atom_id_map": {},
+                "n_edits": 1,
+                "ok": false,
+                "product_smiles": "",
+                "protocol_version": "v43-editproto-2",
+                "reasons": [
+                  "edit_execution_failed:bond_not_present:S_DOES_NOT_EXIST~S_O_1:edit[0]"
+                ]
+              },
+              "substrate_smiles": "CCO",
+              "tool_inputs": {
+                "alignment": {
+                  "donor_to_current": {
+                    "S_C_2": "S_C_2",
+                    "S_O_1": "S_O_1"
+                  },
+                  "ref": "align-A",
+                  "status": "resolved"
+                },
+                "donor": {
+                  "center_atom_ids": [
+                    "S_C_2",
+                    "S_O_1"
+                  ]
+                },
+                "edits": [
+                  {
+                    "atom1": "S_DOES_NOT_EXIST",
+                    "atom2": "S_O_1",
+                    "from_order": "single",
+                    "op": "change_bond_order",
+                    "to_order": "double"
+                  }
+                ],
+                "expectation": {
+                  "target_smiles": "CC=O"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "novel_alignment_unknown",
+    "check": false,
+    "detail": {
+      "center_checks": [],
+      "counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 1,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 3,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "out": {
+        "pid": 35212,
+        "result": {
+          "counts": {
+            "event_appearance_links": 0,
+            "events": 0,
+            "expansion_plans": 0,
+            "hypotheses": 0,
+            "provenance_records": 0,
+            "report_projections": 0,
+            "state_appearances": 1,
+            "states": 1
+          },
+          "driver_session": {
+            "acquired_at": "2026-10-08T00:21:55+00:00",
+            "note": "flock 是执行权权威;崩溃 OS 自动释放",
+            "pid": 35212
+          },
+          "profile": "pollutant_pathway_v1",
+          "resumed": false,
+          "run_id": "novel_alignment_unknown",
+          "runflow_version": "ppv1-runflow-2",
+          "stop": {
+            "budget": {
+              "run_level": {
+                "max_real_model_requests": {
+                  "max": 0,
+                  "remaining": 0,
+                  "used": 0
+                },
+                "max_retrievals_total": {
+                  "max": 64,
+                  "remaining": 63,
+                  "used": 1
+                },
+                "max_scenario_transitions": {
+                  "max": 2,
+                  "remaining": 2,
+                  "used": 0
+                },
+                "max_total_search_actions": {
+                  "max": 10,
+                  "remaining": 7,
+                  "used": 3
+                }
+              },
+              "scoped": {
+                "max_alternative_hypotheses_per_parent": {
+                  "spath_c51fa95e3bae3cc8ecbd": {
+                    "max": 2,
+                    "remaining": 1,
+                    "used": 1
+                  }
+                },
+                "max_attempts_per_hypothesis": {
+                  "hyp_448165f447f78a3022c0": {
+                    "max": 2,
+                    "remaining": 1,
+                    "used": 1
+                  }
+                },
+                "max_reopens_per_hypothesis": {},
+                "max_retrievals_per_parent": {
+                  "spath_c51fa95e3bae3cc8ecbd": {
+                    "max": 1,
+                    "remaining": 0,
+                    "used": 1
+                  }
+                }
+              },
+              "version": "ppv1-search-limits-3"
+            },
+            "budget_exhausted_keys": [
+              "max_retrievals_per_parent@spath_c51fa95e3bae3cc8ecbd"
+            ],
+            "events_submitted_session": [],
+            "other_reasons": [
+              "awaiting_prediction"
+            ],
+            "primary": "budget_limit",
+            "runflow_version": "ppv1-runflow-2",
+            "unexplored": {
+              "blocked": 0,
+              "blocked_objects": [],
+              "claimed_actions": 0,
+              "deferred": 0,
+              "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+              "open_attempts": 0,
+              "pending_actions": 0,
+              "pending_requests": 1
+            }
+          },
+          "stop_reason": "budget_limit"
+        }
+      },
+      "reports": [],
+      "trace": {
+        "network_attempts": [],
+        "trace": [
+          {
+            "call": "prepare_hypothesis",
+            "hypothesis_id": "hyp_448165f447f78a3022c0",
+            "product_states": [
+              {
+                "cn_identity": "CC=O",
+                "formal_charge": 0,
+                "isotope_information_status": "not_applicable",
+                "original_structure_available": true,
+                "representation_fidelity": {
+                  "formal_charge": "as_written",
+                  "isotope": "as_written",
+                  "protonation_basis": "as_written",
+                  "stereo": "as_written"
+                },
+                "schema_version": "ppv1-chemstate-8",
+                "smiles_isomeric": "CC=O",
+                "source_refs": [
+                  {
+                    "record": "novel-model-proposal:novel_outside_pool"
+                  }
+                ],
+                "state_id": "cs_540cc0181e112b383323",
+                "stereo_information_status": "not_applicable",
+                "structure_origin": "source_product",
+                "structure_smiles_raw": "CC=O"
+              }
+            ],
+            "source_refs_argument": [
+              {
+                "record": "novel-model-proposal:novel_outside_pool"
+              }
+            ],
+            "spec": {
+              "alignment": {
+                "donor_to_current": {},
+                "status": "unresolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "Novel",
+              "origin_group_key": "donor-Novel",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-Novel"
+            }
+          },
+          {
+            "call": "prepare_hypothesis",
+            "hypothesis_id": "hyp_448165f447f78a3022c0",
+            "product_states": [
+              {
+                "cn_identity": "CC=O",
+                "formal_charge": 0,
+                "isotope_information_status": "not_applicable",
+                "original_structure_available": true,
+                "representation_fidelity": {
+                  "formal_charge": "as_written",
+                  "isotope": "as_written",
+                  "protonation_basis": "as_written",
+                  "stereo": "as_written"
+                },
+                "schema_version": "ppv1-chemstate-8",
+                "smiles_isomeric": "CC=O",
+                "source_refs": [
+                  {
+                    "record": "synthetic-pool-spec"
+                  }
+                ],
+                "state_id": "cs_540cc0181e112b383323",
+                "stereo_information_status": "not_applicable",
+                "structure_origin": "source_product",
+                "structure_smiles_raw": "CC=O"
+              }
+            ],
+            "source_refs_argument": null,
+            "spec": {
+              "alignment": {
+                "donor_to_current": {},
+                "status": "unresolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "Novel",
+              "origin_group_key": "donor-Novel",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-Novel"
+            }
+          },
+          {
+            "call": "execute_atomtool_expansion",
+            "exception": {
+              "detail": {
+                "status": "unresolved"
+              },
+              "type": "AuditContractError"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "empty_abstain_no_local",
+    "check": true,
+    "detail": {
+      "counts": {
+        "budget_reservations": 4,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 1,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 2,
+        "search_attempts": 0,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "out": {
+        "pid": 35220,
+        "result": {
+          "counts": {
+            "event_appearance_links": 0,
+            "events": 0,
+            "expansion_plans": 0,
+            "hypotheses": 0,
+            "provenance_records": 0,
+            "report_projections": 0,
+            "state_appearances": 1,
+            "states": 1
+          },
+          "driver_session": {
+            "acquired_at": "2026-10-08T00:21:56+00:00",
+            "note": "flock 是执行权权威;崩溃 OS 自动释放",
+            "pid": 35220
+          },
+          "profile": "pollutant_pathway_v1",
+          "resumed": false,
+          "run_id": "empty_abstain",
+          "runflow_version": "ppv1-runflow-2",
+          "stop": {
+            "budget": {
+              "run_level": {
+                "max_real_model_requests": {
+                  "max": 0,
+                  "remaining": 0,
+                  "used": 0
+                },
+                "max_retrievals_total": {
+                  "max": 64,
+                  "remaining": 63,
+                  "used": 1
+                },
+                "max_scenario_transitions": {
+                  "max": 2,
+                  "remaining": 2,
+                  "used": 0
+                },
+                "max_total_search_actions": {
+                  "max": 10,
+                  "remaining": 8,
+                  "used": 2
+                }
+              },
+              "scoped": {
+                "max_alternative_hypotheses_per_parent": {},
+                "max_attempts_per_hypothesis": {},
+                "max_reopens_per_hypothesis": {},
+                "max_retrievals_per_parent": {
+                  "spath_ea74acb29e58799de3ef": {
+                    "max": 2,
+                    "remaining": 1,
+                    "used": 1
+                  }
+                }
+              },
+              "version": "ppv1-search-limits-3"
+            },
+            "budget_exhausted_keys": [],
+            "events_submitted_session": [],
+            "other_reasons": [
+              "awaiting_prediction"
+            ],
+            "primary": "no_local_candidate",
+            "runflow_version": "ppv1-runflow-2",
+            "unexplored": {
+              "blocked": 0,
+              "blocked_objects": [],
+              "claimed_actions": 0,
+              "deferred": 0,
+              "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+              "open_attempts": 0,
+              "pending_actions": 0,
+              "pending_requests": 1
+            }
+          },
+          "stop_reason": "no_local_candidate"
+        }
+      },
+      "trace": {
+        "network_attempts": [],
+        "trace": []
+      }
+    }
+  }
+]

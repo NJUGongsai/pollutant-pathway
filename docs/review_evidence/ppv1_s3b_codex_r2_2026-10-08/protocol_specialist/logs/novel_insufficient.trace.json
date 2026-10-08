@@ -1,0 +1,23 @@
+{
+  "network_attempts": [],
+  "trace": [
+    {
+      "call": "prepare_hypothesis",
+      "exception": {
+        "detail": {
+          "kind": "spec_missing_product"
+        },
+        "type": "ProductionContractError"
+      },
+      "source_refs_argument": [
+        {
+          "record": "novel-model-proposal:novel_outside_pool"
+        }
+      ],
+      "spec": {
+        "coefficient": 1,
+        "key": "bad"
+      }
+    }
+  ]
+}

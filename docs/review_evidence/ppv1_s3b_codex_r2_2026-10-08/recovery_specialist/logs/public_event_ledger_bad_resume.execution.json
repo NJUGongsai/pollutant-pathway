@@ -1,0 +1,34 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/inputs/public_event_ledger_bad_resume.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src"
+  },
+  "label": "public_event_ledger_bad_resume",
+  "parsed": {
+    "detail": {
+      "event_id": "ppev_bf14c68d34975c073752",
+      "kind": "event_columns_corrupt",
+      "rederived_event_id": "ppev_582a95701dc6bcc267da",
+      "stored": {
+        "context_hash": "ctx-forged",
+        "parent_path_id": "spath_450da9bf82f5dace6af0",
+        "run_id": "public_event_ledger_bad"
+      },
+      "table": "events"
+    },
+    "exception": "Ppv1LedgerCorrupt",
+    "message": "重放 ppev_bf14c68d34975c073752 发现已存事件身份列与 event_id 不一致(损坏)",
+    "pid": 34424
+  },
+  "returncode": 3,
+  "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py\", line 1386, in resume_ppv1_run\n    report = driver.drive()\n             ^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py\", line 540, in drive\n    self._run_expand(receipt)\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py\", line 942, in _run_expand\n    production = expand_hypothesis_production(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/production.py\", line 456, in expand_hypothesis_production\n    submitted = ledger.submit_action_event(\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/search.py\", line 1986, in submit_action_event\n    out = self.store.submit_event(\n          ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/store.py\", line 1627, in submit_event\n    self._verify_stored_event_row(eid, existing, stored_hyp)\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/store.py\", line 1201, in _verify_stored_event_row\n    raise Ppv1LedgerCorrupt(\npathway_v43.pollutant.store.Ppv1LedgerCorrupt: 重放 ppev_bf14c68d34975c073752 发现已存事件身份列与 event_id 不一致(损坏)\n",
+  "stdout": "{\"exception\": \"Ppv1LedgerCorrupt\", \"detail\": {\"event_id\": \"ppev_bf14c68d34975c073752\", \"table\": \"events\", \"kind\": \"event_columns_corrupt\", \"rederived_event_id\": \"ppev_582a95701dc6bcc267da\", \"stored\": {\"run_id\": \"public_event_ledger_bad\", \"parent_path_id\": \"spath_450da9bf82f5dace6af0\", \"context_hash\": \"ctx-forged\"}}, \"message\": \"重放 ppev_bf14c68d34975c073752 发现已存事件身份列与 event_id 不一致(损坏)\", \"pid\": 34424}\n"
+}

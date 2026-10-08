@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/inputs/self_consistent_replaced_plan_after_bundle_written_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src"
+  },
+  "label": "self_consistent_replaced_plan_after_bundle_written_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_95cf0a4d457e0082ec1f",
+      "task_key": "stask-exp_186987e1897d16bb473b"
+    },
+    "hard_kill": "after_bundle_written",
+    "pid": 34477
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_95cf0a4d457e0082ec1f\", \"task_key\": \"stask-exp_186987e1897d16bb473b\"}, \"pid\": 34477}\n"
+}

@@ -1,0 +1,460 @@
+{
+  "source": {
+    "path": "ppv1_pytest_tmp/test_alternatives_per_parent_c0/r-alt.sqlite",
+    "bytes": 163840,
+    "sha256": "03380ee12cf09284283cb8cf25cfcab8a21c81dde7f29e12e89f3b30f79e973c"
+  },
+  "open_mode": "ro",
+  "tables": {
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_25af7bd1f3b7d5f30a85",
+        "run_id": "r-alt",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_cb4c8ff1db97fb935bfb",
+        "units": 1,
+        "action_id": "sact_cb4c8ff1db97fb935bfb",
+        "status": "consumed",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "reservation_id": "sres_e363e5c3595410725f0d",
+        "run_id": "r-alt",
+        "limit_key": "max_alternative_hypotheses_per_parent",
+        "scope": "p1",
+        "subject": "hyp_c05a8c0a125d866ad156",
+        "units": 1,
+        "action_id": "sact_cb4c8ff1db97fb935bfb",
+        "status": "consumed",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "reservation_id": "sres_ff841a0b210d5e8b2267",
+        "run_id": "r-alt",
+        "limit_key": "max_attempts_per_hypothesis",
+        "scope": "hyp_c05a8c0a125d866ad156",
+        "subject": "sattempt_8c688602acce6833f0e0",
+        "units": 1,
+        "action_id": "sact_cb4c8ff1db97fb935bfb",
+        "status": "consumed",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "reservation_id": "sres_4f51fe2e7c59a15fe88f",
+        "run_id": "r-alt",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_67e561bf7ab9bc67f45f",
+        "units": 1,
+        "action_id": "sact_67e561bf7ab9bc67f45f",
+        "status": "consumed",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "reservation_id": "sres_28add59b06b959943d51",
+        "run_id": "r-alt",
+        "limit_key": "max_alternative_hypotheses_per_parent",
+        "scope": "p1",
+        "subject": "hyp_ee1fa1447db6a966fda3",
+        "units": 1,
+        "action_id": "sact_67e561bf7ab9bc67f45f",
+        "status": "consumed",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "reservation_id": "sres_91110a2d062830b50d9d",
+        "run_id": "r-alt",
+        "limit_key": "max_attempts_per_hypothesis",
+        "scope": "hyp_ee1fa1447db6a966fda3",
+        "subject": "sattempt_305733458ca5601255a1",
+        "units": 1,
+        "action_id": "sact_67e561bf7ab9bc67f45f",
+        "status": "consumed",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "reservation_id": "sres_87400ee2f72d8404e2d2",
+        "run_id": "r-alt",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_45d16f68d2ab2fe04652",
+        "units": 1,
+        "action_id": "sact_45d16f68d2ab2fe04652",
+        "status": "reserved",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_765f285e8ac6485fa259",
+        "run_id": "r-alt",
+        "limit_key": "max_alternative_hypotheses_per_parent",
+        "scope": "p2",
+        "subject": "hyp_f7201ac3debe0a50267c",
+        "units": 1,
+        "action_id": "sact_45d16f68d2ab2fe04652",
+        "status": "reserved",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_54bda9f8fdddefabd9e8",
+        "run_id": "r-alt",
+        "limit_key": "max_attempts_per_hypothesis",
+        "scope": "hyp_f7201ac3debe0a50267c",
+        "subject": "sattempt_41afa134e3052c773b77",
+        "units": 1,
+        "action_id": "sact_45d16f68d2ab2fe04652",
+        "status": "reserved",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "settled_at": null
+      }
+    ],
+    "event_appearance_links": [
+      {
+        "event_id": "ppev_7023b2877e8d88aba6bc",
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f"
+      },
+      {
+        "event_id": "ppev_7023b2877e8d88aba6bc",
+        "state_id": "cs_540cc0181e112b383323",
+        "appearance_hash": "cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6"
+      },
+      {
+        "event_id": "ppev_6c6822e7700953ffe37b",
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f"
+      },
+      {
+        "event_id": "ppev_6c6822e7700953ffe37b",
+        "state_id": "cs_540cc0181e112b383323",
+        "appearance_hash": "cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "ppev_7023b2877e8d88aba6bc",
+        "run_id": "r-alt",
+        "parent_path_id": "p1",
+        "hypothesis_id": "hyp_c05a8c0a125d866ad156",
+        "context_hash": "ctx1",
+        "event_semantics_hash": "6a0dc01ae4a0f3ed901c36caf6d58f85ca557651ce7734e1f0faca922b9be697",
+        "payload": "{\"catalytic_support\": [], \"event_appearance_manifest\": [{\"appearance_hash\": \"d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f\", \"state_id\": \"cs_ab1de819ede91df490e6\"}, {\"appearance_hash\": \"cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6\", \"state_id\": \"cs_540cc0181e112b383323\"}], \"participant_state_refs\": [\"cs_ab1de819ede91df490e6\", \"cs_540cc0181e112b383323\"], \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"schema_version\": \"ppv1-event-8\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "event_id": "ppev_6c6822e7700953ffe37b",
+        "run_id": "r-alt",
+        "parent_path_id": "p1",
+        "hypothesis_id": "hyp_ee1fa1447db6a966fda3",
+        "context_hash": "ctx1",
+        "event_semantics_hash": "82a0480b14e38782f9e521d2d3079eee10faa114e2bf1003c2406102b320b45f",
+        "payload": "{\"catalytic_support\": [], \"event_appearance_manifest\": [{\"appearance_hash\": \"d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f\", \"state_id\": \"cs_ab1de819ede91df490e6\"}, {\"appearance_hash\": \"cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6\", \"state_id\": \"cs_540cc0181e112b383323\"}], \"participant_state_refs\": [\"cs_ab1de819ede91df490e6\", \"cs_540cc0181e112b383323\"], \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"schema_version\": \"ppv1-event-8\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      }
+    ],
+    "expansion_plans": [
+      {
+        "event_id": "ppev_7023b2877e8d88aba6bc",
+        "payload": "{\"entries\": [{\"reason\": \"\", \"state_ref\": \"cs_540cc0181e112b383323\", \"status\": \"expanded\"}], \"policy_version\": \"ppv1-expansion-1\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "event_id": "ppev_6c6822e7700953ffe37b",
+        "payload": "{\"entries\": [{\"reason\": \"\", \"state_ref\": \"cs_540cc0181e112b383323\", \"status\": \"expanded\"}], \"policy_version\": \"ppv1-expansion-1\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      }
+    ],
+    "hypotheses": [
+      {
+        "hypothesis_id": "hyp_c05a8c0a125d866ad156",
+        "parent_path_id": "p1",
+        "context_hash": "ctx1",
+        "payload": "{\"ambiguous_participants\": false, \"assumptions\": [], \"audit_ref\": \"\", \"dependency_refs\": [], \"hypothesis_id\": \"hyp_c05a8c0a125d866ad156\", \"legacy_relationship_status\": \"\", \"model_decision_ref\": \"\", \"origin_group_key\": \"k1\", \"parent_path_id\": \"p1\", \"participant_list_status\": \"partial\", \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"provenance_refs\": [], \"requirements\": [], \"schema_version\": \"ppv1-hypothesis-8\", \"step_scope\": \"net_reaction\", \"step_scope_evidence_refs\": [], \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"support_group_refs\": [], \"transformation_ref\": \"\", \"transformation_signature_status\": \"unknown\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "hypothesis_id": "hyp_ee1fa1447db6a966fda3",
+        "parent_path_id": "p1",
+        "context_hash": "ctx1",
+        "payload": "{\"ambiguous_participants\": false, \"assumptions\": [], \"audit_ref\": \"\", \"dependency_refs\": [], \"hypothesis_id\": \"hyp_ee1fa1447db6a966fda3\", \"legacy_relationship_status\": \"\", \"model_decision_ref\": \"\", \"origin_group_key\": \"k2\", \"parent_path_id\": \"p1\", \"participant_list_status\": \"partial\", \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"provenance_refs\": [], \"requirements\": [], \"schema_version\": \"ppv1-hypothesis-8\", \"step_scope\": \"net_reaction\", \"step_scope_evidence_refs\": [], \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"support_group_refs\": [], \"transformation_ref\": \"\", \"transformation_signature_status\": \"unknown\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      }
+    ],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [
+      {
+        "event_id": "ppev_7023b2877e8d88aba6bc",
+        "payload": "{\"dedup_notes\": [], \"max_reportable\": 1, \"product_ranks\": [{\"basis\": \"declared_rank_order\", \"note\": \"\", \"report_rank\": 1, \"state_ref\": \"cs_540cc0181e112b383323\"}], \"projection_version\": \"ppv1-report-projection-1\", \"reasons\": []}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "event_id": "ppev_6c6822e7700953ffe37b",
+        "payload": "{\"dedup_notes\": [], \"max_reportable\": 1, \"product_ranks\": [{\"basis\": \"declared_rank_order\", \"note\": \"\", \"report_rank\": 1, \"state_ref\": \"cs_540cc0181e112b383323\"}], \"projection_version\": \"ppv1-report-projection-1\", \"reasons\": []}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      }
+    ],
+    "search_actions": [
+      {
+        "action_id": "sact_cb4c8ff1db97fb935bfb",
+        "run_id": "r-alt",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "hyp_c05a8c0a125d866ad156",
+        "action_kind": "expand_hypothesis",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "done",
+        "payload": "{\"feedback_policy_version\": \"fb1\", \"frozen_pool_digest\": \"pool-A\", \"prompt_version\": \"p1\", \"source_event_id\": \"\", \"strict_state_digest\": \"sd\", \"task_key\": \"tk0\", \"tool_id\": \"atom-tool\"}",
+        "task_key": "tk0",
+        "outcome_ref": "6697a690779fff1565c4",
+        "budget_reservation_ref": "[\"sres_25af7bd1f3b7d5f30a85\", \"sres_e363e5c3595410725f0d\", \"sres_ff841a0b210d5e8b2267\"]",
+        "attempt_refs": "[\"sattempt_8c688602acce6833f0e0\"]",
+        "defer_reason": "",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "claimed_at": "2026-10-08T00:18:26+00:00",
+        "claimed_by": "w1",
+        "updated_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "action_id": "sact_67e561bf7ab9bc67f45f",
+        "run_id": "r-alt",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "hyp_ee1fa1447db6a966fda3",
+        "action_kind": "expand_hypothesis",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "done",
+        "payload": "{\"feedback_policy_version\": \"fb1\", \"frozen_pool_digest\": \"pool-A\", \"prompt_version\": \"p1\", \"source_event_id\": \"\", \"strict_state_digest\": \"sd\", \"task_key\": \"tk1\", \"tool_id\": \"atom-tool\"}",
+        "task_key": "tk1",
+        "outcome_ref": "b8c2aa02a2be1b41af11",
+        "budget_reservation_ref": "[\"sres_28add59b06b959943d51\", \"sres_4f51fe2e7c59a15fe88f\", \"sres_91110a2d062830b50d9d\"]",
+        "attempt_refs": "[\"sattempt_305733458ca5601255a1\"]",
+        "defer_reason": "",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "claimed_at": "2026-10-08T00:18:26+00:00",
+        "claimed_by": "w1",
+        "updated_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "action_id": "sact_4493d9ce4ff88026694a",
+        "run_id": "r-alt",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "hyp_aef863d9e5005e0d4f13",
+        "action_kind": "expand_hypothesis",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "pending",
+        "payload": "{\"feedback_policy_version\": \"fb1\", \"frozen_pool_digest\": \"pool-A\", \"prompt_version\": \"p1\", \"source_event_id\": \"\", \"strict_state_digest\": \"sd\", \"task_key\": \"tk2\", \"tool_id\": \"atom-tool\"}",
+        "task_key": "tk2",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "claimed_at": null,
+        "claimed_by": null,
+        "updated_at": null
+      },
+      {
+        "action_id": "sact_45d16f68d2ab2fe04652",
+        "run_id": "r-alt",
+        "parent_path_id": "p2",
+        "context_ref": "ctx1",
+        "subject_ref": "hyp_f7201ac3debe0a50267c",
+        "action_kind": "expand_hypothesis",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"feedback_policy_version\": \"fb1\", \"frozen_pool_digest\": \"pool-A\", \"prompt_version\": \"p1\", \"source_event_id\": \"\", \"strict_state_digest\": \"sd\", \"task_key\": \"tkp2\", \"tool_id\": \"atom-tool\"}",
+        "task_key": "tkp2",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_54bda9f8fdddefabd9e8\", \"sres_765f285e8ac6485fa259\", \"sres_87400ee2f72d8404e2d2\"]",
+        "attempt_refs": "[\"sattempt_41afa134e3052c773b77\"]",
+        "defer_reason": "",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "claimed_at": "2026-10-08T00:18:26+00:00",
+        "claimed_by": "w1",
+        "updated_at": null
+      }
+    ],
+    "search_attempts": [
+      {
+        "expansion_attempt_id": "sattempt_8c688602acce6833f0e0",
+        "run_id": "r-alt",
+        "action_id": "sact_cb4c8ff1db97fb935bfb",
+        "hypothesis_id": "hyp_c05a8c0a125d866ad156",
+        "attempt_index": 1,
+        "reopen_of": "",
+        "status": "recorded",
+        "task_key": "tk0",
+        "payload_hash": "",
+        "outcome_ref": "",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "recorded_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "expansion_attempt_id": "sattempt_305733458ca5601255a1",
+        "run_id": "r-alt",
+        "action_id": "sact_67e561bf7ab9bc67f45f",
+        "hypothesis_id": "hyp_ee1fa1447db6a966fda3",
+        "attempt_index": 1,
+        "reopen_of": "",
+        "status": "recorded",
+        "task_key": "tk1",
+        "payload_hash": "",
+        "outcome_ref": "",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "recorded_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "expansion_attempt_id": "sattempt_41afa134e3052c773b77",
+        "run_id": "r-alt",
+        "action_id": "sact_45d16f68d2ab2fe04652",
+        "hypothesis_id": "hyp_f7201ac3debe0a50267c",
+        "attempt_index": 1,
+        "reopen_of": "",
+        "status": "open",
+        "task_key": "tkp2",
+        "payload_hash": "",
+        "outcome_ref": "",
+        "created_at": "2026-10-08T00:18:26+00:00",
+        "recorded_at": null
+      }
+    ],
+    "search_commit_records": [
+      {
+        "commit_id": "scommit_53d598f17ade53119a96",
+        "run_id": "r-alt",
+        "action_id": "sact_cb4c8ff1db97fb935bfb",
+        "attempt_id": "sattempt_8c688602acce6833f0e0",
+        "event_id": "ppev_7023b2877e8d88aba6bc",
+        "commit_kind": "event_committed",
+        "payload_hash": "6697a690779fff1565c4b968ef0e2700dfc3c69e1de7b7fa09662ea6fb253bb6",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "commit_id": "scommit_61149868f4ad37a242ce",
+        "run_id": "r-alt",
+        "action_id": "sact_67e561bf7ab9bc67f45f",
+        "attempt_id": "sattempt_305733458ca5601255a1",
+        "event_id": "ppev_6c6822e7700953ffe37b",
+        "commit_kind": "event_committed",
+        "payload_hash": "b8c2aa02a2be1b41af11b7ded5b74fb1db78aeab3a21f645bfff0fcb82c0b596",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      }
+    ],
+    "search_runs": [
+      {
+        "run_id": "r-alt",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-8\", \"event\": \"ppv1-event-8\", \"format_feedback\": \"ppv1-format-feedback-1\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"profile\": \"ppv1-profile-14\", \"provenance\": \"ppv1-provenance-8\", \"search\": \"ppv1-search-6\", \"store\": \"ppv1-store-9\", \"substrate_profile\": \"ppv1-substrate-profile-8\"}, \"delivered_stages\": \"S0-S2,S3a-base,S3b\", \"format_feedback_policy\": {\"max_format_feedback_rounds\": 0, \"version\": \"ppv1-format-feedback-1\"}, \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-14\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 64, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      }
+    ],
+    "state_appearances": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"sub-A\"}], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"raw_input\", \"structure_smiles_raw\": \"CCO\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "state_id": "cs_540cc0181e112b383323",
+        "appearance_hash": "cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"prod-A\"}], \"state_id\": \"cs_540cc0181e112b383323\", \"structure_origin\": \"source_product\", \"structure_smiles_raw\": \"CC=O\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      }
+    ],
+    "states": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "payload": "{\"cn_identity\": \"CCO\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CCO\", \"state_id\": \"cs_ab1de819ede91df490e6\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      },
+      {
+        "state_id": "cs_540cc0181e112b383323",
+        "payload": "{\"cn_identity\": \"CC=O\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CC=O\", \"state_id\": \"cs_540cc0181e112b383323\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-08T00:18:26+00:00"
+      }
+    ]
+  },
+  "schema": [
+    {
+      "name": "budget_reservations",
+      "sql": "CREATE TABLE budget_reservations (\n    reservation_id TEXT PRIMARY KEY,\n    run_id        TEXT NOT NULL,\n    limit_key     TEXT NOT NULL,\n    scope         TEXT NOT NULL DEFAULT '',\n    subject       TEXT NOT NULL DEFAULT '',\n    units         INTEGER NOT NULL,\n    action_id     TEXT NOT NULL DEFAULT '',\n    status        TEXT NOT NULL,\n    created_at    TEXT NOT NULL,\n    settled_at    TEXT\n)"
+    },
+    {
+      "name": "event_appearance_links",
+      "sql": "CREATE TABLE event_appearance_links (\n    event_id        TEXT NOT NULL,\n    state_id        TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    PRIMARY KEY (event_id, state_id, appearance_hash)\n)"
+    },
+    {
+      "name": "events",
+      "sql": "CREATE TABLE events (\n    event_id           TEXT PRIMARY KEY,\n    run_id             TEXT NOT NULL,\n    parent_path_id     TEXT NOT NULL,\n    hypothesis_id      TEXT NOT NULL,\n    context_hash       TEXT NOT NULL,\n    event_semantics_hash TEXT NOT NULL,\n    payload            TEXT NOT NULL,\n    created_at         TEXT NOT NULL,\n    UNIQUE (run_id, parent_path_id, hypothesis_id, context_hash,\n            event_semantics_hash)\n)"
+    },
+    {
+      "name": "expansion_plans",
+      "sql": "CREATE TABLE expansion_plans (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "hypotheses",
+      "sql": "CREATE TABLE hypotheses (\n    hypothesis_id  TEXT PRIMARY KEY,\n    parent_path_id TEXT NOT NULL,\n    context_hash   TEXT NOT NULL DEFAULT '',\n    payload        TEXT NOT NULL,\n    created_at     TEXT NOT NULL\n)"
+    },
+    {
+      "name": "meta",
+      "sql": "CREATE TABLE meta (\n    key   TEXT PRIMARY KEY,\n    value TEXT NOT NULL\n)"
+    },
+    {
+      "name": "model_requests",
+      "sql": "CREATE TABLE model_requests (\n    request_id   TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    provider_kind TEXT NOT NULL,\n    purpose      TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    network_request_count INTEGER NOT NULL DEFAULT 0,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    response_ref TEXT NOT NULL DEFAULT '',\n    retry_of     TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    updated_at   TEXT\n)"
+    },
+    {
+      "name": "provenance_records",
+      "sql": "CREATE TABLE provenance_records (\n    record_id TEXT PRIMARY KEY,\n    run_id    TEXT NOT NULL,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "report_projections",
+      "sql": "CREATE TABLE report_projections (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "search_actions",
+      "sql": "CREATE TABLE search_actions (\n    action_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    parent_path_id TEXT NOT NULL DEFAULT '',\n    context_ref  TEXT NOT NULL DEFAULT '',\n    subject_ref  TEXT NOT NULL DEFAULT '',\n    action_kind  TEXT NOT NULL,\n    parent_search_revision INTEGER NOT NULL DEFAULT 0,\n    policy_version TEXT NOT NULL,\n    status       TEXT NOT NULL,\n    payload      TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    budget_reservation_ref TEXT NOT NULL DEFAULT '[]',\n    attempt_refs TEXT NOT NULL DEFAULT '[]',\n    defer_reason TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    claimed_at   TEXT,\n    claimed_by   TEXT,\n    updated_at   TEXT\n)"
+    },
+    {
+      "name": "search_attempts",
+      "sql": "CREATE TABLE search_attempts (\n    expansion_attempt_id TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    hypothesis_id TEXT NOT NULL DEFAULT '',\n    attempt_index INTEGER NOT NULL,\n    reopen_of    TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    payload_hash TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    recorded_at  TEXT\n)"
+    },
+    {
+      "name": "search_commit_records",
+      "sql": "CREATE TABLE search_commit_records (\n    commit_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    event_id     TEXT NOT NULL DEFAULT '',\n    commit_kind  TEXT NOT NULL,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL\n)"
+    },
+    {
+      "name": "search_runs",
+      "sql": "CREATE TABLE search_runs (\n    run_id       TEXT PRIMARY KEY,\n    policy_block TEXT NOT NULL,\n    created_at   TEXT NOT NULL\n)"
+    },
+    {
+      "name": "state_appearances",
+      "sql": "CREATE TABLE state_appearances (\n    state_id    TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    payload     TEXT NOT NULL,\n    created_at  TEXT NOT NULL,\n    PRIMARY KEY (state_id, appearance_hash)\n)"
+    },
+    {
+      "name": "states",
+      "sql": "CREATE TABLE states (\n    state_id   TEXT PRIMARY KEY,\n    payload    TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    }
+  ],
+  "read_succeeded": true
+}

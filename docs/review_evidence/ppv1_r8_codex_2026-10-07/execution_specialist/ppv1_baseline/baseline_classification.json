@@ -1,0 +1,198 @@
+[
+  {
+    "name": "test_r7_01_from_dict_raw_unregistered_cx_rejected[CCO]",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_from_dict_raw_unregistered_cx_rejected[CC=O]",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_from_dict_raw_unregistered_cx_rejected[[H][H]]",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_from_dict_raw_different_molecule_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_from_dict_structured_fact_mismatch_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_from_dict_unknown_origin_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_restored_tainted_states_recovery_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_restored_h2_different_molecule_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_direct_dataclass_raw_tampered_audit_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_direct_dataclass_h2_raw_swap_audit_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_direct_dataclass_fact_tampered_audit_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_chiral_substrate_raw_tamper_rejected",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "Failed: DID NOT RAISE ChemicalStateError"
+  },
+  {
+    "name": "test_r7_01_clean_restore_and_audit_control",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_01_same_graph_alternate_raw_spelling_accepted",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_01_registered_atomprop_with_spaces_raw_accepted",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_01_chiral_clean_chain_control",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_01_cn_only_honest_unknown_control",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_01_archive_fidelity_boundary_control",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_01_validation_source_discloses_not_writer_only",
+    "classname": "tests.test_ppv1_r8_chem",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_02_prod_only_resupply_corrupt_first_submit_rejected",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "AssertionError: assert {'created': True} == {'error': 'Pp...hash_corrupt'}\n  \n  Left contains 1 more item:\n  {'created': True}\n  Right contains 2 more items:\n  {'error': 'Ppv1LedgerCorrupt', 'kind': 'appearance_hash_corrupt'}\n  Use -v to get more diff"
+  },
+  {
+    "name": "test_r7_02_all_states_resupply_corrupt_first_submit_rejected",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": false,
+    "category": "behavior_flip",
+    "failure_message": "AssertionError: assert {'created': True} == {'error': 'Pp...hash_corrupt'}\n  \n  Left contains 1 more item:\n  {'created': True}\n  Right contains 2 more items:\n  {'error': 'Ppv1LedgerCorrupt', 'kind': 'appearance_hash_corrupt'}\n  Use -v to get more diff"
+  },
+  {
+    "name": "test_r7_02_replay_with_supplied_states_shared_rule",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_02_none_supply_corrupt_first_submit_still_rejected",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_02_valid_existing_supply_first_and_replay_control[none]",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_02_valid_existing_supply_first_and_replay_control[prod_only]",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_02_valid_existing_supply_first_and_replay_control[all]",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_02_fresh_first_submit_with_states_control",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  },
+  {
+    "name": "test_r7_02_state_semantic_conflict_zero_write_kept",
+    "classname": "tests.test_ppv1_r8_storage",
+    "passed": true,
+    "category": "baseline_positive_or_already_rejected",
+    "failure_message": ""
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_supplemental.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/inputs/public_concurrent_resume_first.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_queue_vd18_t4h/src"
+  },
+  "parsed": [
+    {
+      "entered_expansion": {
+        "action_id": "sact_2bd9e95396a8184dba52",
+        "attempt_refs": [
+          "sattempt_ea6eaa197af10e2b5c7f"
+        ],
+        "claimed_by": "ppv1-driver:public_concurrent_resume",
+        "pid": 21506
+      }
+    },
+    {
+      "detail": {
+        "existing_hash": "5f0732e419232c8fb7678b76330783e35a1ccae50273c3f4022c5e69d1565018",
+        "new_hash": "01a30c185b6566f9805a8b8aad982188afb89eb2c3f208b878eb4a6ead7b8a01",
+        "path": "/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs/public_concurrent_resume/results/stask-exp_2ccae2ec6ab9fa8aba8c/production_report.json"
+      },
+      "exception": "ArtifactConflict",
+      "message": "产物冲突:/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs/public_concurrent_resume/results/stask-exp_2ccae2ec6ab9fa8aba8c/production_report.json 已存在但内容不同(existing=5f0732e41923, new=01a30c185b65);不可覆盖不可变产物",
+      "pid": 21506
+    }
+  ],
+  "returncode": 3,
+  "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/runflow.py\", line 1066, in resume_ppv1_run\n    report = driver.drive()\n             ^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/runflow.py\", line 314, in drive\n    self._run_expand(receipt)\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_supplemental.py\", line 42, in expansion\n    return orig(self,receipt)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/runflow.py\", line 632, in _run_expand\n    production = expand_hypothesis_production(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/production.py\", line 468, in expand_hypothesis_production\n    return _report(\n           ^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/production.py\", line 392, in _report\n    ledger.artifact_store.write(\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/storage/artifact_store.py\", line 81, in write\n    return self._compare_existing(path, envelope)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/storage/artifact_store.py\", line 112, in _compare_existing\n    raise ArtifactConflict(\npathway_v43.storage.artifact_store.ArtifactConflict: 产物冲突:/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs/public_concurrent_resume/results/stask-exp_2ccae2ec6ab9fa8aba8c/production_report.json 已存在但内容不同(existing=5f0732e41923, new=01a30c185b65);不可覆盖不可变产物\n",
+  "stdout": "{\"entered_expansion\": {\"action_id\": \"sact_2bd9e95396a8184dba52\", \"attempt_refs\": [\"sattempt_ea6eaa197af10e2b5c7f\"], \"claimed_by\": \"ppv1-driver:public_concurrent_resume\", \"pid\": 21506}}\n{\"exception\": \"ArtifactConflict\", \"detail\": {\"path\": \"/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs/public_concurrent_resume/results/stask-exp_2ccae2ec6ab9fa8aba8c/production_report.json\", \"existing_hash\": \"5f0732e419232c8fb7678b76330783e35a1ccae50273c3f4022c5e69d1565018\", \"new_hash\": \"01a30c185b6566f9805a8b8aad982188afb89eb2c3f208b878eb4a6ead7b8a01\"}, \"message\": \"产物冲突:/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs/public_concurrent_resume/results/stask-exp_2ccae2ec6ab9fa8aba8c/production_report.json 已存在但内容不同(existing=5f0732e41923, new=01a30c185b65);不可覆盖不可变产物\", \"pid\": 21506}\n"
+}

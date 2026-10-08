@@ -1,0 +1,2505 @@
+{
+  "assembly_script": "/private/tmp/ppv1_s3a_r2_root_q6v074q8/assemble_evidence.py",
+  "stage": "/private/tmp/ppv1_s3a_r2_root_q6v074q8/evidence_stage",
+  "probe_execution_count": 0,
+  "database_open_count": 0,
+  "source_packages_modified": false,
+  "copy_scope": "original manifest payload files plus root manifest/SHA control files only",
+  "packages": [
+    {
+      "source": "/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/package",
+      "destination": "/private/tmp/ppv1_s3a_r2_root_q6v074q8/evidence_stage/execution_specialist",
+      "manifest_payload_count": 264,
+      "root_control_files": [
+        "manifest.json",
+        "SHA256SUMS"
+      ],
+      "selected_file_count": 266,
+      "selected_bytes": 37200251,
+      "manifest_sha256": "b64f9df7043191e8753fa662c2fb239924e5c86f91b449dcdd594a1e88beb6ef",
+      "SHA256SUMS_sha256": "dbf343a466053e728c64900befe9cfe28154d8e58a2977337ba7807f40409b74",
+      "sha_entry_count": 264,
+      "precopy_hash_issues": [],
+      "selected_symlinks": [],
+      "listed_db_files": [],
+      "listed_cache_files": [],
+      "unlisted_cache_names": [],
+      "unlisted_symlink_names": [],
+      "unlisted_files_not_copied_count": 0,
+      "db_policy": "none listed",
+      "copied": true,
+      "postcopy_issues": [],
+      "postcopy_all_original_manifest_and_SHA_verified": true,
+      "copied_file_count": 266,
+      "copied_bytes": 37200251,
+      "elapsed_s": 0.13778712499999998
+    },
+    {
+      "source": "/private/tmp/ppv1_s3a_r2_authority_0561kdd4",
+      "destination": "/private/tmp/ppv1_s3a_r2_root_q6v074q8/evidence_stage/authority_specialist",
+      "manifest_payload_count": 495,
+      "root_control_files": [
+        "manifest.json",
+        "SHA256SUMS",
+        "manifest.sha256"
+      ],
+      "selected_file_count": 498,
+      "selected_bytes": 42329924,
+      "manifest_sha256": "8db89dc00888f9ab9c61b5042b81273ad23efa02b57825f8b0d3564fbce0e31c",
+      "SHA256SUMS_sha256": "17f7a423c5fe9d154354b8bc4398f2814cf755f5f7d0053b85727c24c7e84eb9",
+      "sha_entry_count": 497,
+      "precopy_hash_issues": [],
+      "selected_symlinks": [],
+      "listed_db_files": [
+        "authority_cases/B4_before_bookkeeping__appearance_delete/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__appearance_raw/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__appearance_source/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__clean/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__event_manifest/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__hypothesis_delete/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__hypothesis_origin/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__links_delete/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__plan_delete/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__projection_delete/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__state_charge/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__state_delete/synthetic.sqlite",
+        "authority_cases/B4_before_bookkeeping__state_schema/synthetic.sqlite",
+        "authority_cases/done_before_recover__appearance_delete/synthetic.sqlite",
+        "authority_cases/done_before_recover__appearance_raw/synthetic.sqlite",
+        "authority_cases/done_before_recover__appearance_source/synthetic.sqlite",
+        "authority_cases/done_before_recover__clean/synthetic.sqlite",
+        "authority_cases/done_before_recover__event_manifest/synthetic.sqlite",
+        "authority_cases/done_before_recover__hypothesis_delete/synthetic.sqlite",
+        "authority_cases/done_before_recover__hypothesis_origin/synthetic.sqlite",
+        "authority_cases/done_before_recover__links_delete/synthetic.sqlite",
+        "authority_cases/done_before_recover__plan_delete/synthetic.sqlite",
+        "authority_cases/done_before_recover__projection_delete/synthetic.sqlite",
+        "authority_cases/done_before_recover__state_charge/synthetic.sqlite",
+        "authority_cases/done_before_recover__state_delete/synthetic.sqlite",
+        "authority_cases/done_before_recover__state_schema/synthetic.sqlite",
+        "authority_cases/first_submit_raw_guard/synthetic.sqlite",
+        "crash_generated/barrier_process/run.sqlite",
+        "crash_generated/hard_B1/run.sqlite",
+        "crash_generated/hard_B2/run.sqlite",
+        "crash_generated/hard_B3/run.sqlite",
+        "crash_generated/hard_B4/run.sqlite",
+        "done_result_reuse_cases/done_result_foreign_parent/run.sqlite",
+        "done_result_reuse_cases/done_result_foreign_parent/separate_foreign_validity.sqlite",
+        "done_result_reuse_cases/done_result_same_event/run.sqlite",
+        "generated_run2/bundle_positive/run.sqlite",
+        "generated_run2/bundle_run/run.sqlite",
+        "segmented_cases/B1_recover__attempt_abandoned/run.sqlite",
+        "segmented_cases/B1_recover__attempt_delete/run.sqlite",
+        "segmented_cases/B1_recover__attempt_hypothesis_wrong/run.sqlite",
+        "segmented_cases/B1_recover__attempt_task_wrong/run.sqlite",
+        "segmented_cases/B1_recover__clean/run.sqlite",
+        "segmented_cases/B1_recover__reservation_delete/run.sqlite",
+        "segmented_cases/B1_recover__reservation_scope_wrong/run.sqlite",
+        "segmented_cases/B1_recover__reservation_status_unknown/run.sqlite",
+        "segmented_cases/B1_recover__reservation_units_zero/run.sqlite",
+        "segmented_cases/B3_recover__attempt_abandoned/run.sqlite",
+        "segmented_cases/B3_recover__attempt_delete/run.sqlite",
+        "segmented_cases/B3_recover__attempt_hypothesis_wrong/run.sqlite",
+        "segmented_cases/B3_recover__attempt_task_wrong/run.sqlite",
+        "segmented_cases/B3_recover__clean/run.sqlite",
+        "segmented_cases/B3_recover__reservation_delete/run.sqlite",
+        "segmented_cases/B3_recover__reservation_scope_wrong/run.sqlite",
+        "segmented_cases/B3_recover__reservation_status_unknown/run.sqlite",
+        "segmented_cases/B3_recover__reservation_units_zero/run.sqlite",
+        "segmented_cases/B4_recover__attempt_abandoned/run.sqlite",
+        "segmented_cases/B4_recover__attempt_delete/run.sqlite",
+        "segmented_cases/B4_recover__attempt_hypothesis_wrong/run.sqlite",
+        "segmented_cases/B4_recover__attempt_task_wrong/run.sqlite",
+        "segmented_cases/B4_recover__clean/run.sqlite",
+        "segmented_cases/B4_recover__event_payload/run.sqlite",
+        "segmented_cases/B4_recover__plan_foreign_product/run.sqlite",
+        "segmented_cases/B4_recover__plan_invalid_status/run.sqlite",
+        "segmented_cases/B4_recover__projection_foreign_product/run.sqlite",
+        "segmented_cases/B4_recover__reservation_delete/run.sqlite",
+        "segmented_cases/B4_recover__reservation_scope_wrong/run.sqlite",
+        "segmented_cases/B4_recover__reservation_status_unknown/run.sqlite",
+        "segmented_cases/B4_recover__reservation_units_zero/run.sqlite",
+        "segmented_cases/H07H08_bundle_attempt/run.sqlite",
+        "segmented_cases/H07H08_bundle_task/run.sqlite",
+        "segmented_cases/H07H08_bundle_version/run.sqlite",
+        "segmented_cases/H07H08_commit_delete/run.sqlite",
+        "segmented_cases/H07H08_commit_event_tamper/run.sqlite",
+        "segmented_cases/H07H08_event_delete/run.sqlite",
+        "segmented_cases/H07H08_hash_bytes/run.sqlite",
+        "segmented_cases/H07H08_invalid_json/run.sqlite",
+        "segmented_cases/done_claim__attempt_abandoned/run.sqlite",
+        "segmented_cases/done_claim__attempt_delete/run.sqlite",
+        "segmented_cases/done_claim__attempt_hypothesis_wrong/run.sqlite",
+        "segmented_cases/done_claim__attempt_task_wrong/run.sqlite",
+        "segmented_cases/done_claim__clean/run.sqlite",
+        "segmented_cases/done_claim__commit_attempt_wrong/run.sqlite",
+        "segmented_cases/done_claim__commit_run_wrong/run.sqlite",
+        "segmented_cases/done_claim__event_payload/run.sqlite",
+        "segmented_cases/done_claim__plan_foreign_product/run.sqlite",
+        "segmented_cases/done_claim__plan_invalid_status/run.sqlite",
+        "segmented_cases/done_claim__projection_foreign_product/run.sqlite",
+        "segmented_cases/done_claim__reservation_delete/run.sqlite",
+        "segmented_cases/done_claim__reservation_scope_wrong/run.sqlite",
+        "segmented_cases/done_claim__reservation_status_unknown/run.sqlite",
+        "segmented_cases/done_claim__reservation_units_zero/run.sqlite",
+        "segmented_cases/done_complete__attempt_abandoned/run.sqlite",
+        "segmented_cases/done_complete__attempt_delete/run.sqlite",
+        "segmented_cases/done_complete__attempt_hypothesis_wrong/run.sqlite",
+        "segmented_cases/done_complete__attempt_task_wrong/run.sqlite",
+        "segmented_cases/done_complete__clean/run.sqlite",
+        "segmented_cases/done_complete__commit_attempt_wrong/run.sqlite",
+        "segmented_cases/done_complete__commit_run_wrong/run.sqlite",
+        "segmented_cases/done_complete__event_payload/run.sqlite",
+        "segmented_cases/done_complete__plan_foreign_product/run.sqlite",
+        "segmented_cases/done_complete__plan_invalid_status/run.sqlite",
+        "segmented_cases/done_complete__projection_foreign_product/run.sqlite",
+        "segmented_cases/done_complete__reservation_delete/run.sqlite",
+        "segmented_cases/done_complete__reservation_scope_wrong/run.sqlite",
+        "segmented_cases/done_complete__reservation_status_unknown/run.sqlite",
+        "segmented_cases/done_complete__reservation_units_zero/run.sqlite",
+        "segmented_cases/done_recover__attempt_abandoned/run.sqlite",
+        "segmented_cases/done_recover__attempt_delete/run.sqlite",
+        "segmented_cases/done_recover__attempt_hypothesis_wrong/run.sqlite",
+        "segmented_cases/done_recover__attempt_task_wrong/run.sqlite",
+        "segmented_cases/done_recover__clean/run.sqlite",
+        "segmented_cases/done_recover__commit_attempt_wrong/run.sqlite",
+        "segmented_cases/done_recover__commit_run_wrong/run.sqlite",
+        "segmented_cases/done_recover__event_payload/run.sqlite",
+        "segmented_cases/done_recover__plan_foreign_product/run.sqlite",
+        "segmented_cases/done_recover__plan_invalid_status/run.sqlite",
+        "segmented_cases/done_recover__projection_foreign_product/run.sqlite",
+        "segmented_cases/done_recover__reservation_delete/run.sqlite",
+        "segmented_cases/done_recover__reservation_scope_wrong/run.sqlite",
+        "segmented_cases/done_recover__reservation_status_unknown/run.sqlite",
+        "segmented_cases/done_recover__reservation_units_zero/run.sqlite",
+        "segmented_cases/done_submit__attempt_abandoned/run.sqlite",
+        "segmented_cases/done_submit__attempt_delete/run.sqlite",
+        "segmented_cases/done_submit__attempt_hypothesis_wrong/run.sqlite",
+        "segmented_cases/done_submit__attempt_task_wrong/run.sqlite",
+        "segmented_cases/done_submit__clean/run.sqlite",
+        "segmented_cases/done_submit__commit_attempt_wrong/run.sqlite",
+        "segmented_cases/done_submit__commit_run_wrong/run.sqlite",
+        "segmented_cases/done_submit__event_payload/run.sqlite",
+        "segmented_cases/done_submit__plan_foreign_product/run.sqlite",
+        "segmented_cases/done_submit__plan_invalid_status/run.sqlite",
+        "segmented_cases/done_submit__projection_foreign_product/run.sqlite",
+        "segmented_cases/done_submit__reservation_delete/run.sqlite",
+        "segmented_cases/done_submit__reservation_scope_wrong/run.sqlite",
+        "segmented_cases/done_submit__reservation_status_unknown/run.sqlite",
+        "segmented_cases/done_submit__reservation_units_zero/run.sqlite",
+        "segmented_cases/first_complete__attempt_abandoned/run.sqlite",
+        "segmented_cases/first_complete__attempt_delete/run.sqlite",
+        "segmented_cases/first_complete__attempt_hypothesis_wrong/run.sqlite",
+        "segmented_cases/first_complete__attempt_task_wrong/run.sqlite",
+        "segmented_cases/first_complete__clean/run.sqlite",
+        "segmented_cases/first_complete__event_payload/run.sqlite",
+        "segmented_cases/first_complete__plan_foreign_product/run.sqlite",
+        "segmented_cases/first_complete__plan_invalid_status/run.sqlite",
+        "segmented_cases/first_complete__projection_foreign_product/run.sqlite",
+        "segmented_cases/first_complete__reservation_delete/run.sqlite",
+        "segmented_cases/first_complete__reservation_scope_wrong/run.sqlite",
+        "segmented_cases/first_complete__reservation_status_unknown/run.sqlite",
+        "segmented_cases/first_complete__reservation_units_zero/run.sqlite",
+        "segmented_cases/first_complete_clean/run.sqlite",
+        "segmented_cases/first_complete_empty/run.sqlite",
+        "segmented_cases/first_complete_foreign_parent/run.sqlite",
+        "segmented_cases/first_complete_missing/run.sqlite",
+        "segmented_cases/identity_context/run.sqlite",
+        "segmented_cases/identity_hypothesis/run.sqlite",
+        "segmented_cases/identity_parent/run.sqlite",
+        "segmented_cases/identity_run/run.sqlite",
+        "supplementary_cases/TOCTOU_clean/run.sqlite",
+        "supplementary_cases/TOCTOU_corrupt/run.sqlite",
+        "supplementary_cases/normal_first_submit_plan_foreign_product/run.sqlite",
+        "supplementary_cases/normal_first_submit_plan_invalid_status/run.sqlite",
+        "supplementary_cases/normal_first_submit_projection_foreign_product/run.sqlite"
+      ],
+      "listed_cache_files": [],
+      "unlisted_cache_names": [],
+      "unlisted_symlink_names": [],
+      "unlisted_files_not_copied_count": 0,
+      "db_policy": "listed synthetic databases preserved by parent instruction",
+      "copied": true,
+      "postcopy_issues": [],
+      "postcopy_all_original_manifest_and_SHA_verified": true,
+      "copied_file_count": 498,
+      "copied_bytes": 42329924,
+      "elapsed_s": 0.21624900000000002
+    },
+    {
+      "source": "/private/tmp/ppv1_s3a_r2_budget_resumed_0rxegzu0/package",
+      "destination": "/private/tmp/ppv1_s3a_r2_root_q6v074q8/evidence_stage/budget_request_specialist",
+      "manifest_payload_count": 132,
+      "root_control_files": [
+        "manifest.json",
+        "SHA256SUMS",
+        "manifest.sha256"
+      ],
+      "selected_file_count": 135,
+      "selected_bytes": 4774970,
+      "manifest_sha256": "a10d899ca2e7209ed04911fc0b1b207b7bcc1e91e6b9980ac26e35ae962ec3bb",
+      "SHA256SUMS_sha256": "f36a92201a0bf8247262893f5159c0584b413359658bf1c529291922fa9cd349",
+      "sha_entry_count": 134,
+      "precopy_hash_issues": [],
+      "selected_symlinks": [],
+      "listed_db_files": [],
+      "listed_cache_files": [],
+      "unlisted_cache_names": [],
+      "unlisted_symlink_names": [],
+      "unlisted_files_not_copied_count": 0,
+      "db_policy": "none listed",
+      "copied": true,
+      "postcopy_issues": [],
+      "postcopy_all_original_manifest_and_SHA_verified": true,
+      "copied_file_count": 135,
+      "copied_bytes": 4774970,
+      "elapsed_s": 0.04123579100000002
+    }
+  ],
+  "all_copied": true,
+  "no_hash_or_symlink_or_cache_issues": true,
+  "nested_manifest_verification": {
+    "execution_specialist": {
+      "nested_input_manifest": "input_hashes.json",
+      "entries": 167,
+      "verified": 167,
+      "unresolved": [],
+      "hash_mismatches": [],
+      "all_package_relative_input_hashes_verified": true,
+      "G01_archive": {
+        "archive": "g01_inputs.tar.gz",
+        "archive_sha256": "02d2dde1799520b54b2d79df6fd9f3beb54d855a6d3e261429ec9f13df4a6a6e",
+        "inner_manifest": "g01/input_sha256.json",
+        "expected_input_count": 275,
+        "regular_member_count": 275,
+        "nonfile_members": [],
+        "symlink_or_hardlink_members": [],
+        "database_named_members": [],
+        "cache_named_members": [],
+        "issues": [
+          {
+            "member": "g01_inputs/dependingv3/assets/.DS_Store",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/MANIFEST.extensions.sha256",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/MANIFEST.files",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/MANIFEST.sha256",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/README.md",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/calibrators/calibrator_v34.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/calibrators/calibrator_v35.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/corpus_env/corpus_v1.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/corpus_env/donor_index.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/eawag/donor_product.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/eawag/rules_new_clean.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/envipath/templates.tsv.gz",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/envipath/templates_implicitH.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/library/library_full.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/rankers/envipath_ranker.txt",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/rankers/retrieval_ranker.txt",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/rankers/uspto_ranker.txt",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/assets/templates/uspto_templates.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/bbd_cofactor_filter.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/bbd_data_root.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/bbd_v2_scoring.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/bbd_v31_ranker.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/bbd_v32_ion_filter.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/bbd_v33_fusion.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/bbd_v34_fusion.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/bbd_v3_features.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/dp_paths.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/eawag_lookup.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/eawag_rules_engine.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/env_asset_root.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/eval_rhea_holdout300.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/expand_bbd_routes.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/gnn_phase6_apply.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/io_retry.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/predict_bbd_products_v2.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/predict_env_batch_v35.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/aam.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/bbd_parse.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/bbd_reconstruct.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/chem.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/config.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/corpus.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/envipath.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/envipath_rules.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/gnn_labels.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/io.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/lineage.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/pool.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/rank_gen.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/rank_relevance.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/ranker_a1.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/ranking.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/retrieval.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/rhea_sources.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/rhea_transfer.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/site_compat.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/ra/specificity.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/single_smiles_hybrid.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/dependingv3/src/depending/single_smiles_v32.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/.DS_Store",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/MANIFEST.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/MANIFEST.sha256",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/analog/MANIFEST.sha256",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/analog/corpus_templates_v1.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/analog/corpus_templates_v2.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/analog/uspto_relaxed_index_v1.build_report.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/analog/uspto_relaxed_index_v1.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/.DS_Store",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/MANIFEST.extensions.sha256",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/MANIFEST.files",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/MANIFEST.sha256",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/README.md",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/calibrators/calibrator_v34.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/calibrators/calibrator_v35.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/corpus_env/corpus_v1.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/corpus_env/donor_index.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/eawag/donor_product.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/eawag/rules_new_clean.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/envipath/templates.tsv.gz",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/envipath/templates_implicitH.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/library/library_full.jsonl",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/rankers/envipath_ranker.txt",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/rankers/retrieval_ranker.txt",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/rankers/uspto_ranker.txt",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/assets/v3_reactions/templates/uspto_templates.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/dev_batch.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/phase_b_dev_off.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/phase_d_C0.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/phase_d_D10.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/phase_d_D3.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/phase_d_D5.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/prompts/analogy_editor.md",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/prompts/novel_proposal.md",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/prompts/ranker.md",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/prompts/ranker_v2.md",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/s1_dev_C0.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/s1_dev_E1.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/s1_dev_E2.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/configs/s1_dev_E3.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/pyproject.toml",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/.DS_Store",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/build_analog_v2.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/build_dev_report.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/compare_asset_roots.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/dashscope_smoke.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/ec298_hit1_attribution.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/ec298_hit60_boundary.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/ec298_pd_retest_deepdiff.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/ec298_pd_retest_inflight.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/ec298_pd_retest_loss_audit.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/ec298_pd_retest_pairing.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/ec298_pd_retest_seal.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/ec298_phase_a.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/phase_b_offline_diagnostics.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/phase_c_offline_audit.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/phase_d_asset_stats.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/phase_d_offline_ablation.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/phase_d_paired_scoring.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/phase_d_v2_review.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/scripts/render_export_dev_report.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/.DS_Store",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/.DS_Store",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/__main__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/adapters/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/adapters/analog_index.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/adapters/asset_manifest.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/adapters/llm_client.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/adapters/rate_gate.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/adapters/v3_engine.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/batch.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/config.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/domain/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/domain/identity.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/domain/models.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/domain/pathway.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/domain/policy.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/exam.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/exam_v2.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/gold_health.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/output/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/output/export_v3.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/output/pairing_gate.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/output/report.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/output/score_report.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/phase_a_attribution.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/audit.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/chemstate.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/events.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/hypothesis.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/legacy_reader.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/path_context.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/pool_audit.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/profile.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/provenance.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/search.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/store.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/pollutant/substrate_profile.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/services/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/services/analog_source.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/services/atom_tool.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/services/donor_applicability.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/services/prediction.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/services/reaction_finder.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/services/report_adjudication.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/storage/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/storage/artifact_store.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/storage/pathway_store.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/storage/run_identity.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/validation/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/validation/conservation.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/validation/gates.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/LICENSE",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/MANIFEST.sha256",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/PROVENANCE.md",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/molecule/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/prompts/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/prompts/markush_system_prompt.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/vendor/molecode/prompts/molecule_system_prompt.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/workflow/__init__.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/workflow/graph.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/workflow/nodes.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/workflow/routing.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/workflow/runner.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/src/pathway_v43/workflow/state.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/conftest.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/fixtures/applicability/donor_applicability_fixtures.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/fixtures/asset_wiring_parents.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/fixtures/phase_d_r1/pb0117_d3_similarity_selected.json",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/recovery_driver.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/s3a_worker.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_analog_assets.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_analog_source.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_analog_v2_corpus.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_api_account_r1d.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_artifact_fingerprint_r1a.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_asset_manifest.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_asset_root_isolation.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_atom_tool.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_batch_dev.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_batch_runner.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_cli.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_cli_workflow.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_conservation_filter.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_domain_identity.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_domain_pathway.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_domain_policy.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_donor_applicability.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ec298_hit1_attribution.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ec298_phase_a_script.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_edit_protocol.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_engine_asset_parity.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_exam.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_exam_v2.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_exam_v3_caliber.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_export_v2.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_export_v3.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_finder_real.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_gold_health_rules.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_pairing_gate.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_pathway_store.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_phase_a_attribution.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_phase_b_workflow.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_phase_c_audit_guards.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_phase_c_workflow.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_phase_d_r1_repair.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_domain.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_profile.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r2_chem.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r2_conditions.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r2_storage.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r4_chem.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r4_conditions.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r4_storage.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r5_chem.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r5_conditions.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r5_storage.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r6_chem.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r6_conditions.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r6_storage.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r7_chem.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r7_conditions.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r7_storage.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r8_chem.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_r8_storage.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_rework.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_s2.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_s3a_recover.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_s3a_rework_r2.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_ppv1_s3a_search.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_prediction_real.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_prediction_recovery.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_prediction_task.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_prediction_workflow.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_r1_end_to_end.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_r1a_resume_consistency.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_rate_gate.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_reactant_similar.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_report_adjudication.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_retrieval_schema_version.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_s1_arm_switches.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_s1_e1_rank_v2.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_score_report.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_state_isolation.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_storage_contracts.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_validation_gates.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_workflow_recovery.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/test_workflow_scenarios.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "g01_inputs/repo/tests/wf_helpers.py",
+            "issue": "not in explicit 275-input manifest"
+          },
+          {
+            "member": "repo/assets/.DS_Store",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/MANIFEST.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/MANIFEST.sha256",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/analog/MANIFEST.sha256",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/analog/corpus_templates_v1.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/analog/corpus_templates_v2.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/analog/uspto_relaxed_index_v1.build_report.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/analog/uspto_relaxed_index_v1.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/.DS_Store",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/MANIFEST.extensions.sha256",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/MANIFEST.files",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/MANIFEST.sha256",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/README.md",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/calibrators/calibrator_v34.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/calibrators/calibrator_v35.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/corpus_env/corpus_v1.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/corpus_env/donor_index.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/eawag/donor_product.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/eawag/rules_new_clean.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/envipath/templates.tsv.gz",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/envipath/templates_implicitH.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/library/library_full.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/rankers/envipath_ranker.txt",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/rankers/retrieval_ranker.txt",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/rankers/uspto_ranker.txt",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/assets/v3_reactions/templates/uspto_templates.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/dev_batch.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/phase_b_dev_off.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/phase_d_C0.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/phase_d_D10.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/phase_d_D3.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/phase_d_D5.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/prompts/analogy_editor.md",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/prompts/novel_proposal.md",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/prompts/ranker.md",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/prompts/ranker_v2.md",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/s1_dev_C0.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/s1_dev_E1.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/s1_dev_E2.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/configs/s1_dev_E3.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/pyproject.toml",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/.DS_Store",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/build_analog_v2.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/build_dev_report.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/compare_asset_roots.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/dashscope_smoke.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/ec298_hit1_attribution.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/ec298_hit60_boundary.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/ec298_pd_retest_deepdiff.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/ec298_pd_retest_inflight.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/ec298_pd_retest_loss_audit.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/ec298_pd_retest_pairing.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/ec298_pd_retest_seal.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/ec298_phase_a.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/phase_b_offline_diagnostics.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/phase_c_offline_audit.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/phase_d_asset_stats.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/phase_d_offline_ablation.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/phase_d_paired_scoring.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/phase_d_v2_review.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/scripts/render_export_dev_report.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/.DS_Store",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/.DS_Store",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/__main__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/adapters/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/adapters/analog_index.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/adapters/asset_manifest.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/adapters/llm_client.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/adapters/rate_gate.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/adapters/v3_engine.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/batch.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/config.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/domain/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/domain/identity.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/domain/models.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/domain/pathway.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/domain/policy.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/exam.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/exam_v2.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/gold_health.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/output/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/output/export_v3.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/output/pairing_gate.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/output/report.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/output/score_report.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/phase_a_attribution.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/audit.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/chemstate.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/events.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/hypothesis.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/legacy_reader.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/path_context.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/pool_audit.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/profile.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/provenance.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/store.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/substrate_profile.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/services/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/services/analog_source.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/services/atom_tool.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/services/donor_applicability.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/services/prediction.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/services/reaction_finder.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/services/report_adjudication.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/storage/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/storage/artifact_store.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/storage/pathway_store.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/storage/run_identity.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/validation/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/validation/conservation.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/validation/gates.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/LICENSE",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/MANIFEST.sha256",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/PROVENANCE.md",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/molecule/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/prompts/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/prompts/markush_system_prompt.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/vendor/molecode/prompts/molecule_system_prompt.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/workflow/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/workflow/graph.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/workflow/nodes.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/workflow/routing.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/workflow/runner.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/workflow/state.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/conftest.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/fixtures/applicability/donor_applicability_fixtures.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/fixtures/asset_wiring_parents.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/fixtures/phase_d_r1/pb0117_d3_similarity_selected.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/recovery_driver.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_analog_assets.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_analog_source.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_analog_v2_corpus.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_api_account_r1d.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_artifact_fingerprint_r1a.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_asset_manifest.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_asset_root_isolation.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_atom_tool.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_batch_dev.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_batch_runner.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_cli.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_cli_workflow.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_conservation_filter.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_domain_identity.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_domain_pathway.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_domain_policy.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_donor_applicability.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ec298_hit1_attribution.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ec298_phase_a_script.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_edit_protocol.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_engine_asset_parity.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_exam.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_exam_v2.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_exam_v3_caliber.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_export_v2.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_export_v3.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_finder_real.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_gold_health_rules.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_pairing_gate.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_pathway_store.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_phase_a_attribution.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_phase_b_workflow.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_phase_c_audit_guards.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_phase_c_workflow.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_phase_d_r1_repair.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_domain.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_profile.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r2_chem.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r2_conditions.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r2_storage.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r4_chem.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r4_conditions.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r4_storage.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r5_chem.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r5_conditions.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r5_storage.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r6_chem.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r6_conditions.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r6_storage.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r7_chem.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r7_conditions.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r7_storage.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_rework.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_s2.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_prediction_real.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_prediction_recovery.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_prediction_task.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_prediction_workflow.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_r1_end_to_end.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_r1a_resume_consistency.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_rate_gate.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_reactant_similar.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_report_adjudication.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_retrieval_schema_version.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_s1_arm_switches.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_s1_e1_rank_v2.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_score_report.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_state_isolation.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_storage_contracts.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_validation_gates.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_workflow_recovery.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_workflow_scenarios.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/wf_helpers.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r8_chem.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_r8_storage.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/src/pathway_v43/pollutant/search.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_s3a_search.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_s3a_recover.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/s3a_worker.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "repo/tests/test_ppv1_s3a_rework_r2.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/.DS_Store",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/MANIFEST.extensions.sha256",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/MANIFEST.files",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/MANIFEST.sha256",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/README.md",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/calibrators/calibrator_v34.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/calibrators/calibrator_v35.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/corpus_env/corpus_v1.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/corpus_env/donor_index.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/eawag/donor_product.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/eawag/rules_new_clean.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/envipath/templates.tsv.gz",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/envipath/templates_implicitH.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/library/library_full.jsonl",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/rankers/envipath_ranker.txt",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/rankers/retrieval_ranker.txt",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/rankers/uspto_ranker.txt",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/assets/templates/uspto_templates.json",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/bbd_cofactor_filter.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/bbd_data_root.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/bbd_v2_scoring.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/bbd_v31_ranker.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/bbd_v32_ion_filter.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/bbd_v33_fusion.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/bbd_v34_fusion.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/bbd_v3_features.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/dp_paths.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/eawag_lookup.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/eawag_rules_engine.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/env_asset_root.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/eval_rhea_holdout300.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/expand_bbd_routes.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/gnn_phase6_apply.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/io_retry.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/predict_bbd_products_v2.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/predict_env_batch_v35.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/__init__.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/aam.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/bbd_parse.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/bbd_reconstruct.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/chem.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/config.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/corpus.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/envipath.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/envipath_rules.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/gnn_labels.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/io.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/lineage.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/pool.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/rank_gen.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/rank_relevance.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/ranker_a1.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/ranking.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/retrieval.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/rhea_sources.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/rhea_transfer.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/site_compat.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/ra/specificity.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/single_smiles_hybrid.py",
+            "issue": "missing archive input"
+          },
+          {
+            "member": "dependingv3/src/depending/single_smiles_v32.py",
+            "issue": "missing archive input"
+          }
+        ],
+        "all_275_explicit_allowlist_inputs_verified": false,
+        "archive_extracted": false,
+        "original_sensitive_directories_accessed": false
+      }
+    },
+    "authority_specialist": {
+      "nested_input_manifest": "input_hashes.json",
+      "entries": 104,
+      "verified": 104,
+      "unresolved": [],
+      "hash_mismatches": [],
+      "all_package_relative_input_hashes_verified": true
+    },
+    "budget_request_specialist": {
+      "nested_input_manifest": "evidence/input_snapshot.json",
+      "entries": 80,
+      "verified": 80,
+      "unresolved": [],
+      "hash_mismatches": [],
+      "all_package_relative_input_hashes_verified": true
+    }
+  },
+  "authority_listed_synthetic_db_parent_authorization": "Parent explicitly authorized preservation of 162 manifest-listed synthetic SQLite input/output snapshots; only raw byte hashing/copying, no SQLite open or in-place execution; unlisted DB/wal/shm/cache/links excluded.",
+  "all_nested_input_manifests_verified": false
+}

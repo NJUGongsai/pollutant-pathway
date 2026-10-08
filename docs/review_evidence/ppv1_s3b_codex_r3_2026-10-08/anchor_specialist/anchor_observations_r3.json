@@ -1,0 +1,3162 @@
+[
+  {
+    "case": "anchor_missing_anchor_after_bundle_written",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_missing",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_missing",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_missing_anchor_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "kind": "frozen_plan_anchor_missing",
+              "note": "根 retrieve 在 start 时落账 plan_digest/task_key;锚缺失意味着权威记录被移除或从未落账",
+              "run_id": "anchor_missing_anchor_after_bundle_written"
+            },
+            "exception": "PPV1RunError",
+            "message": "run anchor_missing_anchor_after_bundle_written 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)",
+            "pid": 46763
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 360, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: run anchor_missing_anchor_after_bundle_written 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_missing\", \"run_id\": \"anchor_missing_anchor_after_bundle_written\", \"note\": \"根 retrieve 在 start 时落账 plan_digest/task_key;锚缺失意味着权威记录被移除或从未落账\"}, \"message\": \"run anchor_missing_anchor_after_bundle_written 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)\", \"pid\": 46763}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_missing_anchor_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46761
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46761
+          },
+          {
+            "detail": {
+              "action_id": "sact_ac824ad3491d0b128eb4",
+              "task_key": "stask-exp_633b1605475b35e32057"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46761
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46761}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46761}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_ac824ad3491d0b128eb4\", \"task_key\": \"stask-exp_633b1605475b35e32057\"}, \"pid\": 46761}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_corrupt_anchor_digest_after_bundle_written",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_corrupt",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_corrupt",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_anchor_digest_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "action_id": "sact_31b4e41058372cfe0a99",
+              "anchor_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+              "expected_task_key": "stask-dec_8b34ee7321313934516d",
+              "kind": "frozen_plan_anchor_corrupt",
+              "run_id": "anchor_corrupt_anchor_digest_after_bundle_written",
+              "stored_task_keys": [
+                "stask-dec_8f4b42e6146c3caaef20"
+              ]
+            },
+            "exception": "PPV1RunError",
+            "message": "冻结计划锚行 sact_31b4e41058372cfe0a99 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)",
+            "pid": 46767
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 346, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划锚行 sact_31b4e41058372cfe0a99 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_corrupt\", \"action_id\": \"sact_31b4e41058372cfe0a99\", \"run_id\": \"anchor_corrupt_anchor_digest_after_bundle_written\", \"anchor_plan_digest\": \"7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04\", \"expected_task_key\": \"stask-dec_8b34ee7321313934516d\", \"stored_task_keys\": [\"stask-dec_8f4b42e6146c3caaef20\"]}, \"message\": \"冻结计划锚行 sact_31b4e41058372cfe0a99 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)\", \"pid\": 46767}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_anchor_digest_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46765
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46765
+          },
+          {
+            "detail": {
+              "action_id": "sact_5b14f6801456696b2f0e",
+              "task_key": "stask-exp_f25bd7cafc61a9abc8ed"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46765
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46765}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46765}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_5b14f6801456696b2f0e\", \"task_key\": \"stask-exp_f25bd7cafc61a9abc8ed\"}, \"pid\": 46765}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_missing_anchor_after_event_submitted",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_missing",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_missing",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_missing_anchor_after_event_submitted_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "kind": "frozen_plan_anchor_missing",
+              "note": "根 retrieve 在 start 时落账 plan_digest/task_key;锚缺失意味着权威记录被移除或从未落账",
+              "run_id": "anchor_missing_anchor_after_event_submitted"
+            },
+            "exception": "PPV1RunError",
+            "message": "run anchor_missing_anchor_after_event_submitted 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)",
+            "pid": 46773
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 360, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: run anchor_missing_anchor_after_event_submitted 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_missing\", \"run_id\": \"anchor_missing_anchor_after_event_submitted\", \"note\": \"根 retrieve 在 start 时落账 plan_digest/task_key;锚缺失意味着权威记录被移除或从未落账\"}, \"message\": \"run anchor_missing_anchor_after_event_submitted 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)\", \"pid\": 46773}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_missing_anchor_after_event_submitted_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46769
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46769
+          },
+          {
+            "detail": {
+              "action_id": "sact_ecd7a62f6a9a6f712365",
+              "event_id": "ppev_9598557b259f7d23835b",
+              "submitted": {
+                "action_id": "sact_ecd7a62f6a9a6f712365",
+                "created": true,
+                "event_id": "ppev_9598557b259f7d23835b"
+              }
+            },
+            "hard_kill": "after_event_submitted",
+            "pid": 46769
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46769}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46769}\n{\"hard_kill\": \"after_event_submitted\", \"detail\": {\"action_id\": \"sact_ecd7a62f6a9a6f712365\", \"event_id\": \"ppev_9598557b259f7d23835b\", \"submitted\": {\"created\": true, \"event_id\": \"ppev_9598557b259f7d23835b\", \"action_id\": \"sact_ecd7a62f6a9a6f712365\"}}, \"pid\": 46769}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_corrupt_anchor_digest_after_event_submitted",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_corrupt",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_corrupt",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_anchor_digest_after_event_submitted_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "action_id": "sact_72124e8160e82dd4d412",
+              "anchor_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+              "expected_task_key": "stask-dec_25b214c69039af5a95db",
+              "kind": "frozen_plan_anchor_corrupt",
+              "run_id": "anchor_corrupt_anchor_digest_after_event_submitted",
+              "stored_task_keys": [
+                "stask-dec_85a4032dcc37db1f9d91"
+              ]
+            },
+            "exception": "PPV1RunError",
+            "message": "冻结计划锚行 sact_72124e8160e82dd4d412 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)",
+            "pid": 46800
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 346, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划锚行 sact_72124e8160e82dd4d412 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_corrupt\", \"action_id\": \"sact_72124e8160e82dd4d412\", \"run_id\": \"anchor_corrupt_anchor_digest_after_event_submitted\", \"anchor_plan_digest\": \"7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04\", \"expected_task_key\": \"stask-dec_25b214c69039af5a95db\", \"stored_task_keys\": [\"stask-dec_85a4032dcc37db1f9d91\"]}, \"message\": \"冻结计划锚行 sact_72124e8160e82dd4d412 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)\", \"pid\": 46800}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_anchor_digest_after_event_submitted_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46788
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46788
+          },
+          {
+            "detail": {
+              "action_id": "sact_e74c23749eb1c75b4a52",
+              "event_id": "ppev_00c66ca42e4a78909cdd",
+              "submitted": {
+                "action_id": "sact_e74c23749eb1c75b4a52",
+                "created": true,
+                "event_id": "ppev_00c66ca42e4a78909cdd"
+              }
+            },
+            "hard_kill": "after_event_submitted",
+            "pid": 46788
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46788}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46788}\n{\"hard_kill\": \"after_event_submitted\", \"detail\": {\"action_id\": \"sact_e74c23749eb1c75b4a52\", \"event_id\": \"ppev_00c66ca42e4a78909cdd\", \"submitted\": {\"created\": true, \"event_id\": \"ppev_00c66ca42e4a78909cdd\", \"action_id\": \"sact_e74c23749eb1c75b4a52\"}}, \"pid\": 46788}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_corrupt_task_key_column_after_bundle_written",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_corrupt",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_corrupt",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_task_key_column_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "action_id": "sact_a5ef935a5a2cf1b7566d",
+              "anchor_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+              "expected_task_key": "stask-dec_e04f9d56823d139404df",
+              "kind": "frozen_plan_anchor_corrupt",
+              "run_id": "anchor_corrupt_task_key_column_after_bundle_written",
+              "stored_task_keys": [
+                "forged-task",
+                "stask-dec_e04f9d56823d139404df"
+              ]
+            },
+            "exception": "PPV1RunError",
+            "message": "冻结计划锚行 sact_a5ef935a5a2cf1b7566d 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)",
+            "pid": 46822
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 346, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划锚行 sact_a5ef935a5a2cf1b7566d 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_corrupt\", \"action_id\": \"sact_a5ef935a5a2cf1b7566d\", \"run_id\": \"anchor_corrupt_task_key_column_after_bundle_written\", \"anchor_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"expected_task_key\": \"stask-dec_e04f9d56823d139404df\", \"stored_task_keys\": [\"forged-task\", \"stask-dec_e04f9d56823d139404df\"]}, \"message\": \"冻结计划锚行 sact_a5ef935a5a2cf1b7566d 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)\", \"pid\": 46822}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_task_key_column_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46817
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46817
+          },
+          {
+            "detail": {
+              "action_id": "sact_35f81d7cdc6e3146ccc3",
+              "task_key": "stask-exp_2e068bfc7e8d81c362c4"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46817
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46817}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46817}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_35f81d7cdc6e3146ccc3\", \"task_key\": \"stask-exp_2e068bfc7e8d81c362c4\"}, \"pid\": 46817}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_corrupt_task_key_payload_after_bundle_written",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_corrupt",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_corrupt",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_task_key_payload_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "action_id": "sact_a6d32c0c37ec56b89cd0",
+              "anchor_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+              "expected_task_key": "stask-dec_2245db633fd465baa27e",
+              "kind": "frozen_plan_anchor_corrupt",
+              "run_id": "anchor_corrupt_task_key_payload_after_bundle_written",
+              "stored_task_keys": [
+                "forged-task",
+                "stask-dec_2245db633fd465baa27e"
+              ]
+            },
+            "exception": "PPV1RunError",
+            "message": "冻结计划锚行 sact_a6d32c0c37ec56b89cd0 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)",
+            "pid": 46832
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 346, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划锚行 sact_a6d32c0c37ec56b89cd0 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_corrupt\", \"action_id\": \"sact_a6d32c0c37ec56b89cd0\", \"run_id\": \"anchor_corrupt_task_key_payload_after_bundle_written\", \"anchor_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"expected_task_key\": \"stask-dec_2245db633fd465baa27e\", \"stored_task_keys\": [\"forged-task\", \"stask-dec_2245db633fd465baa27e\"]}, \"message\": \"冻结计划锚行 sact_a6d32c0c37ec56b89cd0 坏锚(行内 task_key 与按单一来源 decision_task_key 重算不一致 —— 锚行自身不再同源;先结构化拒,零补账,原行保全)\", \"pid\": 46832}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_task_key_payload_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46830
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46830
+          },
+          {
+            "detail": {
+              "action_id": "sact_60e855e05a7eea44971c",
+              "task_key": "stask-exp_c5df2b756c5de3a184ba"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46830
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46830}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46830}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_60e855e05a7eea44971c\", \"task_key\": \"stask-exp_c5df2b756c5de3a184ba\"}, \"pid\": 46830}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_unparseable_anchor_payload_after_bundle_written",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_corrupt",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_corrupt",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_unparseable_anchor_payload_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "action_id": "sact_2aa21a22bacd728e5e29",
+              "kind": "frozen_plan_anchor_corrupt",
+              "reason": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+              "run_id": "anchor_unparseable_anchor_payload_after_bundle_written"
+            },
+            "exception": "PPV1RunError",
+            "message": "冻结计划锚行 sact_2aa21a22bacd728e5e29 载荷不可解析(坏锚先拒;无法证明其未携带原绑定;不猜修)",
+            "pid": 46868
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 314, in _verify_frozen_plan_binding\n    payload = json.loads(row[\"payload\"] or \"{}\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/decoder.py\", line 337, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/decoder.py\", line 353, in raw_decode\n    obj, end = self.scan_once(s, idx)\n               ^^^^^^^^^^^^^^^^^^^^^^\njson.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 316, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划锚行 sact_2aa21a22bacd728e5e29 载荷不可解析(坏锚先拒;无法证明其未携带原绑定;不猜修)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_corrupt\", \"action_id\": \"sact_2aa21a22bacd728e5e29\", \"run_id\": \"anchor_unparseable_anchor_payload_after_bundle_written\", \"reason\": \"Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\"}, \"message\": \"冻结计划锚行 sact_2aa21a22bacd728e5e29 载荷不可解析(坏锚先拒;无法证明其未携带原绑定;不猜修)\", \"pid\": 46868}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_unparseable_anchor_payload_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46836
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46836
+          },
+          {
+            "detail": {
+              "action_id": "sact_b985d6142b9672c100cc",
+              "task_key": "stask-exp_f520e329b74ece39e384"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46836
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46836}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46836}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_b985d6142b9672c100cc\", \"task_key\": \"stask-exp_f520e329b74ece39e384\"}, \"pid\": 46836}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_non_mapping_anchor_payload_after_bundle_written",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_corrupt",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_corrupt",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_non_mapping_anchor_payload_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "action_id": "sact_1cf39eb1b3782cdd471a",
+              "kind": "frozen_plan_anchor_corrupt",
+              "run_id": "anchor_non_mapping_anchor_payload_after_bundle_written"
+            },
+            "exception": "PPV1RunError",
+            "message": "冻结计划锚行 sact_1cf39eb1b3782cdd471a 载荷非 dict(坏锚先拒;不猜修)",
+            "pid": 46872
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 323, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划锚行 sact_1cf39eb1b3782cdd471a 载荷非 dict(坏锚先拒;不猜修)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_corrupt\", \"action_id\": \"sact_1cf39eb1b3782cdd471a\", \"run_id\": \"anchor_non_mapping_anchor_payload_after_bundle_written\"}, \"message\": \"冻结计划锚行 sact_1cf39eb1b3782cdd471a 载荷非 dict(坏锚先拒;不猜修)\", \"pid\": 46872}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_non_mapping_anchor_payload_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46870
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46870
+          },
+          {
+            "detail": {
+              "action_id": "sact_4ed61ed283e10e686911",
+              "task_key": "stask-exp_83530e577c32f04295e5"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46870
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46870}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46870}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_4ed61ed283e10e686911\", \"task_key\": \"stask-exp_83530e577c32f04295e5\"}, \"pid\": 46870}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_deleted_root_anchor_after_bundle_written",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_anchor_missing",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 2,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 2,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_anchor_missing",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_deleted_root_anchor_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "kind": "frozen_plan_anchor_missing",
+              "note": "根 retrieve 在 start 时落账 plan_digest/task_key;锚缺失意味着权威记录被移除或从未落账",
+              "run_id": "anchor_deleted_root_anchor_after_bundle_written"
+            },
+            "exception": "PPV1RunError",
+            "message": "run anchor_deleted_root_anchor_after_bundle_written 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)",
+            "pid": 46876
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 360, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: run anchor_deleted_root_anchor_after_bundle_written 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_missing\", \"run_id\": \"anchor_deleted_root_anchor_after_bundle_written\", \"note\": \"根 retrieve 在 start 时落账 plan_digest/task_key;锚缺失意味着权威记录被移除或从未落账\"}, \"message\": \"run anchor_deleted_root_anchor_after_bundle_written 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)\", \"pid\": 46876}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_deleted_root_anchor_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46874
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46874
+          },
+          {
+            "detail": {
+              "action_id": "sact_34a039b286ca7b2bf7e1",
+              "task_key": "stask-exp_fc413e7fde49ff7a3764"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46874
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46874}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46874}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_34a039b286ca7b2bf7e1\", \"task_key\": \"stask-exp_fc413e7fde49ff7a3764\"}, \"pid\": 46874}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_replaced_with_matching_argument_after_bundle_written",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_binding_mismatch",
+      "after_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_binding_mismatch",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_replaced_with_matching_argument_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "anchor_action_id": "sact_981413dc896a2dac8c3c",
+              "anchor_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+              "anchor_status": "done",
+              "frozen_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+              "kind": "frozen_plan_binding_mismatch",
+              "run_id": "anchor_replaced_with_matching_argument_after_bundle_written"
+            },
+            "exception": "PPV1RunError",
+            "message": "冻结计划与既存 run/root/task 原绑定不符(读取的计划摘要 ≠ start 落账的根任务锚摘要 —— 自洽重封装不是原输入证书;旧任务不消费新输入,差异须显式新 revision/新任务登记;先结构化拒,零 event/补账/新调度/consume,原资料保全)",
+            "pid": 46880
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 371, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划与既存 run/root/task 原绑定不符(读取的计划摘要 ≠ start 落账的根任务锚摘要 —— 自洽重封装不是原输入证书;旧任务不消费新输入,差异须显式新 revision/新任务登记;先结构化拒,零 event/补账/新调度/consume,原资料保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_binding_mismatch\", \"run_id\": \"anchor_replaced_with_matching_argument_after_bundle_written\", \"anchor_action_id\": \"sact_981413dc896a2dac8c3c\", \"anchor_status\": \"done\", \"anchor_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"frozen_plan_digest\": \"7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04\"}, \"message\": \"冻结计划与既存 run/root/task 原绑定不符(读取的计划摘要 ≠ start 落账的根任务锚摘要 —— 自洽重封装不是原输入证书;旧任务不消费新输入,差异须显式新 revision/新任务登记;先结构化拒,零 event/补账/新调度/consume,原资料保全)\", \"pid\": 46880}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_replaced_with_matching_argument_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46878
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46878
+          },
+          {
+            "detail": {
+              "action_id": "sact_57ae4f300c790e82a5ad",
+              "task_key": "stask-exp_7cb2925c644ff0434081"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46878
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46878}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46878}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_57ae4f300c790e82a5ad\", \"task_key\": \"stask-exp_7cb2925c644ff0434081\"}, \"pid\": 46878}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_unknown_plan_version_after_bundle_written",
+    "current_contract_observed": false,
+    "detail": {
+      "actual_kind": null,
+      "after_counts": {
+        "budget_reservations": 10,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 4,
+        "search_attempts": 1,
+        "search_commit_records": 4,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "all_15_tables_identical": false,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [
+        "recover_run",
+        "drive"
+      ],
+      "expected_kind": "version_refusal",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_unknown_plan_version_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "recover_run",
+            "pid": 46884
+          },
+          {
+            "consumer_entered": "drive",
+            "pid": 46884
+          },
+          {
+            "pid": 46884,
+            "result": {
+              "counts": {
+                "event_appearance_links": 2,
+                "events": 1,
+                "expansion_plans": 1,
+                "hypotheses": 1,
+                "provenance_records": 0,
+                "report_projections": 1,
+                "state_appearances": 3,
+                "states": 2
+              },
+              "driver_session": {
+                "acquired_at": "2026-10-08T01:40:10+00:00",
+                "note": "flock 是执行权权威;崩溃 OS 自动释放",
+                "pid": 46884
+              },
+              "frozen_plan_binding": {
+                "anchor_action_ids": [
+                  "sact_5e95756590f3d2de9993"
+                ],
+                "anchor_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+                "anchor_statuses": [
+                  "done"
+                ],
+                "frozen_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+                "note": "后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合",
+                "task_key_verified": true
+              },
+              "profile": "pollutant_pathway_v1",
+              "recovery": {
+                "actions": [
+                  {
+                    "action_id": "sact_5e95756590f3d2de9993",
+                    "action_kind": "retrieve",
+                    "boundary": "B4_verified",
+                    "disposition": "done_commit_verified",
+                    "status": "done"
+                  },
+                  {
+                    "action_id": "sact_cab9cd707fcaff066169",
+                    "action_kind": "decide",
+                    "boundary": "B4_verified",
+                    "disposition": "done_commit_verified",
+                    "status": "done"
+                  },
+                  {
+                    "action_id": "sact_edac32d6f3fd1e36d1fe",
+                    "action_kind": "expand_hypothesis",
+                    "boundary": "B3_artifact_written_event_uncommitted",
+                    "disposition": "consumed_same_output_attempt;请求不重发,事件仅一次",
+                    "status": "claimed"
+                  }
+                ],
+                "isolated_actions": [],
+                "pending_requests": [],
+                "unknown_status_requests": []
+              },
+              "resumed": true,
+              "run_id": "anchor_unknown_plan_version_after_bundle_written",
+              "runflow_version": "ppv1-runflow-3",
+              "stop": {
+                "budget": {
+                  "run_level": {
+                    "max_real_model_requests": {
+                      "max": 0,
+                      "remaining": 0,
+                      "used": 0
+                    },
+                    "max_retrievals_total": {
+                      "max": 64,
+                      "remaining": 62,
+                      "used": 2
+                    },
+                    "max_scenario_transitions": {
+                      "max": 2,
+                      "remaining": 2,
+                      "used": 0
+                    },
+                    "max_total_search_actions": {
+                      "max": 10,
+                      "remaining": 6,
+                      "used": 4
+                    }
+                  },
+                  "scoped": {
+                    "max_alternative_hypotheses_per_parent": {
+                      "spath_ca94eef6c549e57f77e8": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_attempts_per_hypothesis": {
+                      "hyp_905a3765c7889eddb75f": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_reopens_per_hypothesis": {},
+                    "max_retrievals_per_parent": {
+                      "spath_0ba36013518e3ebad6ad": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      },
+                      "spath_ca94eef6c549e57f77e8": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      }
+                    }
+                  },
+                  "version": "ppv1-search-limits-3"
+                },
+                "budget_exhausted_keys": [
+                  "max_retrievals_per_parent@spath_0ba36013518e3ebad6ad",
+                  "max_retrievals_per_parent@spath_ca94eef6c549e57f77e8"
+                ],
+                "events_submitted_session": [],
+                "other_reasons": [
+                  "no_local_candidate"
+                ],
+                "primary": "budget_limit",
+                "runflow_version": "ppv1-runflow-3",
+                "unexplored": {
+                  "blocked": 0,
+                  "blocked_objects": [],
+                  "claimed_actions": 0,
+                  "deferred": 0,
+                  "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                  "open_attempts": 0,
+                  "pending_actions": 0,
+                  "pending_requests": 0
+                }
+              },
+              "stop_reason": "budget_limit"
+            }
+          }
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"recover_run\", \"pid\": 46884}\n{\"consumer_entered\": \"drive\", \"pid\": 46884}\n{\"result\": {\"run_id\": \"anchor_unknown_plan_version_after_bundle_written\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": true, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"no_local_candidate\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 4, \"remaining\": 6}, \"max_retrievals_total\": {\"max\": 64, \"used\": 2, \"remaining\": 62}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_0ba36013518e3ebad6ad\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_ca94eef6c549e57f77e8\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {\"spath_ca94eef6c549e57f77e8\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_attempts_per_hypothesis\": {\"hyp_905a3765c7889eddb75f\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_0ba36013518e3ebad6ad\", \"max_retrievals_per_parent@spath_ca94eef6c549e57f77e8\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 2, \"state_appearances\": 3, \"hypotheses\": 1, \"events\": 1, \"report_projections\": 1, \"expansion_plans\": 1, \"event_appearance_links\": 2, \"provenance_records\": 0}, \"recovery\": {\"actions\": [{\"action_id\": \"sact_5e95756590f3d2de9993\", \"action_kind\": \"retrieve\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}, {\"action_id\": \"sact_cab9cd707fcaff066169\", \"action_kind\": \"decide\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}, {\"action_id\": \"sact_edac32d6f3fd1e36d1fe\", \"action_kind\": \"expand_hypothesis\", \"status\": \"claimed\", \"boundary\": \"B3_artifact_written_event_uncommitted\", \"disposition\": \"consumed_same_output_attempt;请求不重发,事件仅一次\"}], \"pending_requests\": [], \"unknown_status_requests\": [], \"isolated_actions\": []}, \"frozen_plan_binding\": {\"anchor_action_ids\": [\"sact_5e95756590f3d2de9993\"], \"anchor_statuses\": [\"done\"], \"anchor_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"frozen_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"task_key_verified\": true, \"note\": \"后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合\"}, \"driver_session\": {\"pid\": 46884, \"acquired_at\": \"2026-10-08T01:40:10+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46884}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_unknown_plan_version_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46882
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46882
+          },
+          {
+            "detail": {
+              "action_id": "sact_edac32d6f3fd1e36d1fe",
+              "task_key": "stask-exp_9aa3eadab91bcb8bb7e1"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46882
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46882}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46882}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_edac32d6f3fd1e36d1fe\", \"task_key\": \"stask-exp_9aa3eadab91bcb8bb7e1\"}, \"pid\": 46882}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_missing_plan_version_after_bundle_written",
+    "current_contract_observed": false,
+    "detail": {
+      "actual_kind": null,
+      "after_counts": {
+        "budget_reservations": 10,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 4,
+        "search_attempts": 1,
+        "search_commit_records": 4,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "all_15_tables_identical": false,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 7,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 1,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [
+        "recover_run",
+        "drive"
+      ],
+      "expected_kind": "version_refusal",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_missing_plan_version_after_bundle_written_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "recover_run",
+            "pid": 46888
+          },
+          {
+            "consumer_entered": "drive",
+            "pid": 46888
+          },
+          {
+            "pid": 46888,
+            "result": {
+              "counts": {
+                "event_appearance_links": 2,
+                "events": 1,
+                "expansion_plans": 1,
+                "hypotheses": 1,
+                "provenance_records": 0,
+                "report_projections": 1,
+                "state_appearances": 3,
+                "states": 2
+              },
+              "driver_session": {
+                "acquired_at": "2026-10-08T01:40:11+00:00",
+                "note": "flock 是执行权权威;崩溃 OS 自动释放",
+                "pid": 46888
+              },
+              "frozen_plan_binding": {
+                "anchor_action_ids": [
+                  "sact_5e71679b21be1fa69eb4"
+                ],
+                "anchor_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+                "anchor_statuses": [
+                  "done"
+                ],
+                "frozen_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+                "note": "后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合",
+                "task_key_verified": true
+              },
+              "profile": "pollutant_pathway_v1",
+              "recovery": {
+                "actions": [
+                  {
+                    "action_id": "sact_5e71679b21be1fa69eb4",
+                    "action_kind": "retrieve",
+                    "boundary": "B4_verified",
+                    "disposition": "done_commit_verified",
+                    "status": "done"
+                  },
+                  {
+                    "action_id": "sact_dc2a72a2a1e8802d9473",
+                    "action_kind": "expand_hypothesis",
+                    "boundary": "B3_artifact_written_event_uncommitted",
+                    "disposition": "consumed_same_output_attempt;请求不重发,事件仅一次",
+                    "status": "claimed"
+                  },
+                  {
+                    "action_id": "sact_dd17f449e93a97308c02",
+                    "action_kind": "decide",
+                    "boundary": "B4_verified",
+                    "disposition": "done_commit_verified",
+                    "status": "done"
+                  }
+                ],
+                "isolated_actions": [],
+                "pending_requests": [],
+                "unknown_status_requests": []
+              },
+              "resumed": true,
+              "run_id": "anchor_missing_plan_version_after_bundle_written",
+              "runflow_version": "ppv1-runflow-3",
+              "stop": {
+                "budget": {
+                  "run_level": {
+                    "max_real_model_requests": {
+                      "max": 0,
+                      "remaining": 0,
+                      "used": 0
+                    },
+                    "max_retrievals_total": {
+                      "max": 64,
+                      "remaining": 62,
+                      "used": 2
+                    },
+                    "max_scenario_transitions": {
+                      "max": 2,
+                      "remaining": 2,
+                      "used": 0
+                    },
+                    "max_total_search_actions": {
+                      "max": 10,
+                      "remaining": 6,
+                      "used": 4
+                    }
+                  },
+                  "scoped": {
+                    "max_alternative_hypotheses_per_parent": {
+                      "spath_8b85debb28b9b92c0d74": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_attempts_per_hypothesis": {
+                      "hyp_dc0ee9c08991c43b475b": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_reopens_per_hypothesis": {},
+                    "max_retrievals_per_parent": {
+                      "spath_7f45e5d751fa61772120": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      },
+                      "spath_8b85debb28b9b92c0d74": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      }
+                    }
+                  },
+                  "version": "ppv1-search-limits-3"
+                },
+                "budget_exhausted_keys": [
+                  "max_retrievals_per_parent@spath_7f45e5d751fa61772120",
+                  "max_retrievals_per_parent@spath_8b85debb28b9b92c0d74"
+                ],
+                "events_submitted_session": [],
+                "other_reasons": [
+                  "no_local_candidate"
+                ],
+                "primary": "budget_limit",
+                "runflow_version": "ppv1-runflow-3",
+                "unexplored": {
+                  "blocked": 0,
+                  "blocked_objects": [],
+                  "claimed_actions": 0,
+                  "deferred": 0,
+                  "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                  "open_attempts": 0,
+                  "pending_actions": 0,
+                  "pending_requests": 0
+                }
+              },
+              "stop_reason": "budget_limit"
+            }
+          }
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"recover_run\", \"pid\": 46888}\n{\"consumer_entered\": \"drive\", \"pid\": 46888}\n{\"result\": {\"run_id\": \"anchor_missing_plan_version_after_bundle_written\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": true, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"no_local_candidate\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 4, \"remaining\": 6}, \"max_retrievals_total\": {\"max\": 64, \"used\": 2, \"remaining\": 62}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_7f45e5d751fa61772120\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_8b85debb28b9b92c0d74\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {\"spath_8b85debb28b9b92c0d74\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_attempts_per_hypothesis\": {\"hyp_dc0ee9c08991c43b475b\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_7f45e5d751fa61772120\", \"max_retrievals_per_parent@spath_8b85debb28b9b92c0d74\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 2, \"state_appearances\": 3, \"hypotheses\": 1, \"events\": 1, \"report_projections\": 1, \"expansion_plans\": 1, \"event_appearance_links\": 2, \"provenance_records\": 0}, \"recovery\": {\"actions\": [{\"action_id\": \"sact_5e71679b21be1fa69eb4\", \"action_kind\": \"retrieve\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}, {\"action_id\": \"sact_dc2a72a2a1e8802d9473\", \"action_kind\": \"expand_hypothesis\", \"status\": \"claimed\", \"boundary\": \"B3_artifact_written_event_uncommitted\", \"disposition\": \"consumed_same_output_attempt;请求不重发,事件仅一次\"}, {\"action_id\": \"sact_dd17f449e93a97308c02\", \"action_kind\": \"decide\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}], \"pending_requests\": [], \"unknown_status_requests\": [], \"isolated_actions\": []}, \"frozen_plan_binding\": {\"anchor_action_ids\": [\"sact_5e71679b21be1fa69eb4\"], \"anchor_statuses\": [\"done\"], \"anchor_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"frozen_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"task_key_verified\": true, \"note\": \"后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合\"}, \"driver_session\": {\"pid\": 46888, \"acquired_at\": \"2026-10-08T01:40:11+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46888}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_missing_plan_version_after_bundle_written_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46886
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46886
+          },
+          {
+            "detail": {
+              "action_id": "sact_dc2a72a2a1e8802d9473",
+              "task_key": "stask-exp_5e806ab14dc5cf4e527e"
+            },
+            "hard_kill": "after_bundle_written",
+            "pid": 46886
+          }
+        ],
+        "returncode": 77,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46886}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46886}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_dc2a72a2a1e8802d9473\", \"task_key\": \"stask-exp_5e806ab14dc5cf4e527e\"}, \"pid\": 46886}\n"
+      }
+    }
+  },
+  {
+    "case": "anchor_self_consistent_replaced_plan_done",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_kind": "frozen_plan_binding_mismatch",
+      "after_counts": {
+        "budget_reservations": 10,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 4,
+        "search_attempts": 1,
+        "search_commit_records": 4,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "all_15_tables_identical": true,
+      "anchor_status": "done",
+      "before_counts": {
+        "budget_reservations": 10,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 4,
+        "search_attempts": 1,
+        "search_commit_records": 4,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "business_table_count": 15,
+      "consumer_entries_resume": [],
+      "expected_kind": "frozen_plan_binding_mismatch",
+      "mutated_artifact_preserved": true,
+      "new_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+      "old_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_self_consistent_replaced_plan_done_resume.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "detail": {
+              "anchor_action_id": "sact_2bbec2fc18d9f1332825",
+              "anchor_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+              "anchor_status": "done",
+              "frozen_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+              "kind": "frozen_plan_binding_mismatch",
+              "run_id": "anchor_self_consistent_replaced_plan_done"
+            },
+            "exception": "PPV1RunError",
+            "message": "冻结计划与既存 run/root/task 原绑定不符(读取的计划摘要 ≠ start 落账的根任务锚摘要 —— 自洽重封装不是原输入证书;旧任务不消费新输入,差异须显式新 revision/新任务登记;先结构化拒,零 event/补账/新调度/consume,原资料保全)",
+            "pid": 46907
+          }
+        ],
+        "returncode": 3,
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 371, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划与既存 run/root/task 原绑定不符(读取的计划摘要 ≠ start 落账的根任务锚摘要 —— 自洽重封装不是原输入证书;旧任务不消费新输入,差异须显式新 revision/新任务登记;先结构化拒,零 event/补账/新调度/consume,原资料保全)\n",
+        "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_binding_mismatch\", \"run_id\": \"anchor_self_consistent_replaced_plan_done\", \"anchor_action_id\": \"sact_2bbec2fc18d9f1332825\", \"anchor_status\": \"done\", \"anchor_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"frozen_plan_digest\": \"7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04\"}, \"message\": \"冻结计划与既存 run/root/task 原绑定不符(读取的计划摘要 ≠ start 落账的根任务锚摘要 —— 自洽重封装不是原输入证书;旧任务不消费新输入,差异须显式新 revision/新任务登记;先结构化拒,零 event/补账/新调度/consume,原资料保全)\", \"pid\": 46907}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_self_consistent_replaced_plan_done_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46890
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46890
+          },
+          {
+            "pid": 46890,
+            "result": {
+              "counts": {
+                "event_appearance_links": 2,
+                "events": 1,
+                "expansion_plans": 1,
+                "hypotheses": 1,
+                "provenance_records": 0,
+                "report_projections": 1,
+                "state_appearances": 3,
+                "states": 2
+              },
+              "driver_session": {
+                "acquired_at": "2026-10-08T01:40:12+00:00",
+                "note": "flock 是执行权权威;崩溃 OS 自动释放",
+                "pid": 46890
+              },
+              "profile": "pollutant_pathway_v1",
+              "resumed": false,
+              "run_id": "anchor_self_consistent_replaced_plan_done",
+              "runflow_version": "ppv1-runflow-3",
+              "stop": {
+                "budget": {
+                  "run_level": {
+                    "max_real_model_requests": {
+                      "max": 0,
+                      "remaining": 0,
+                      "used": 0
+                    },
+                    "max_retrievals_total": {
+                      "max": 64,
+                      "remaining": 62,
+                      "used": 2
+                    },
+                    "max_scenario_transitions": {
+                      "max": 2,
+                      "remaining": 2,
+                      "used": 0
+                    },
+                    "max_total_search_actions": {
+                      "max": 10,
+                      "remaining": 6,
+                      "used": 4
+                    }
+                  },
+                  "scoped": {
+                    "max_alternative_hypotheses_per_parent": {
+                      "spath_0dbf0daaecf3966529e3": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_attempts_per_hypothesis": {
+                      "hyp_7eddf22dd3b70d809850": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_reopens_per_hypothesis": {},
+                    "max_retrievals_per_parent": {
+                      "spath_0dbf0daaecf3966529e3": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      },
+                      "spath_149c98cc43ba8569bfe7": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      }
+                    }
+                  },
+                  "version": "ppv1-search-limits-3"
+                },
+                "budget_exhausted_keys": [
+                  "max_retrievals_per_parent@spath_0dbf0daaecf3966529e3",
+                  "max_retrievals_per_parent@spath_149c98cc43ba8569bfe7"
+                ],
+                "events_submitted_session": [
+                  "ppev_17fd22bd7e7c2476f9fb"
+                ],
+                "other_reasons": [],
+                "primary": "budget_limit",
+                "runflow_version": "ppv1-runflow-3",
+                "unexplored": {
+                  "blocked": 0,
+                  "blocked_objects": [],
+                  "claimed_actions": 0,
+                  "deferred": 0,
+                  "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                  "open_attempts": 0,
+                  "pending_actions": 0,
+                  "pending_requests": 0
+                }
+              },
+              "stop_reason": "budget_limit"
+            }
+          }
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46890}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46890}\n{\"result\": {\"run_id\": \"anchor_self_consistent_replaced_plan_done\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 4, \"remaining\": 6}, \"max_retrievals_total\": {\"max\": 64, \"used\": 2, \"remaining\": 62}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_0dbf0daaecf3966529e3\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_149c98cc43ba8569bfe7\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {\"spath_0dbf0daaecf3966529e3\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_attempts_per_hypothesis\": {\"hyp_7eddf22dd3b70d809850\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_0dbf0daaecf3966529e3\", \"max_retrievals_per_parent@spath_149c98cc43ba8569bfe7\"], \"events_submitted_session\": [\"ppev_17fd22bd7e7c2476f9fb\"], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 2, \"state_appearances\": 3, \"hypotheses\": 1, \"events\": 1, \"report_projections\": 1, \"expansion_plans\": 1, \"event_appearance_links\": 2, \"provenance_records\": 0}, \"driver_session\": {\"pid\": 46890, \"acquired_at\": \"2026-10-08T01:40:12+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46890}\n"
+      }
+    }
+  },
+  {
+    "case": "protocol_novel_nonempty",
+    "current_contract_observed": false,
+    "detail": {
+      "actual_tool_count": 2,
+      "counts": {
+        "budget_reservations": 18,
+        "event_appearance_links": 4,
+        "events": 2,
+        "expansion_plans": 2,
+        "hypotheses": 2,
+        "meta": 1,
+        "model_requests": 3,
+        "provenance_records": 0,
+        "report_projections": 2,
+        "search_actions": 8,
+        "search_attempts": 2,
+        "search_commit_records": 8,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "events": [
+        {
+          "context_hash": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "event_id": "ppev_fa601e39e4f15a63b1fd",
+          "event_semantics_hash": "6b3fe3bd3285b7dc2e7a430bed2caccee860402ea67d55f8e8df005b9dacdf69",
+          "hypothesis_id": "hyp_ea7c3f46388d163552c2",
+          "parent_path_id": "spath_3503b2acfeb6f369298e",
+          "payload": {
+            "catalytic_support": [],
+            "event_appearance_manifest": [
+              {
+                "appearance_hash": "a708821c3ab10b2ee86c6c8ab4be401e5997cedb147e0f708c0da04e34ecaa59",
+                "state_id": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+                "state_id": "cs_540cc0181e112b383323"
+              }
+            ],
+            "participant_state_refs": [
+              "cs_ab1de819ede91df490e6",
+              "cs_540cc0181e112b383323"
+            ],
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "schema_version": "ppv1-event-8"
+          },
+          "run_id": "protocol_novel_nonempty"
+        },
+        {
+          "context_hash": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "event_id": "ppev_3efcf98639d5578c197a",
+          "event_semantics_hash": "c8332a8e726d8525937a54368add91208072e88c43cbb30fea4ba85d0b14063f",
+          "hypothesis_id": "hyp_8cf82bd8a6855420b5ff",
+          "parent_path_id": "spath_3503b2acfeb6f369298e",
+          "payload": {
+            "catalytic_support": [],
+            "event_appearance_manifest": [
+              {
+                "appearance_hash": "a708821c3ab10b2ee86c6c8ab4be401e5997cedb147e0f708c0da04e34ecaa59",
+                "state_id": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+                "state_id": "cs_540cc0181e112b383323"
+              }
+            ],
+            "participant_state_refs": [
+              "cs_ab1de819ede91df490e6",
+              "cs_540cc0181e112b383323"
+            ],
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "schema_version": "ppv1-event-8"
+          },
+          "run_id": "protocol_novel_nonempty"
+        }
+      ],
+      "execution": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/protocol_novel_nonempty_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46923
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46923
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46923
+          },
+          {
+            "pid": 46923,
+            "result": {
+              "counts": {
+                "event_appearance_links": 4,
+                "events": 2,
+                "expansion_plans": 2,
+                "hypotheses": 2,
+                "provenance_records": 0,
+                "report_projections": 2,
+                "state_appearances": 3,
+                "states": 2
+              },
+              "driver_session": {
+                "acquired_at": "2026-10-08T01:40:13+00:00",
+                "note": "flock 是执行权权威;崩溃 OS 自动释放",
+                "pid": 46923
+              },
+              "profile": "pollutant_pathway_v1",
+              "resumed": false,
+              "run_id": "protocol_novel_nonempty",
+              "runflow_version": "ppv1-runflow-3",
+              "stop": {
+                "budget": {
+                  "run_level": {
+                    "max_real_model_requests": {
+                      "max": 0,
+                      "remaining": 0,
+                      "used": 0
+                    },
+                    "max_retrievals_total": {
+                      "max": 64,
+                      "remaining": 61,
+                      "used": 3
+                    },
+                    "max_scenario_transitions": {
+                      "max": 2,
+                      "remaining": 2,
+                      "used": 0
+                    },
+                    "max_total_search_actions": {
+                      "max": 10,
+                      "remaining": 2,
+                      "used": 8
+                    }
+                  },
+                  "scoped": {
+                    "max_alternative_hypotheses_per_parent": {
+                      "spath_3503b2acfeb6f369298e": {
+                        "max": 2,
+                        "remaining": 0,
+                        "used": 2
+                      }
+                    },
+                    "max_attempts_per_hypothesis": {
+                      "hyp_8cf82bd8a6855420b5ff": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      },
+                      "hyp_ea7c3f46388d163552c2": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_reopens_per_hypothesis": {},
+                    "max_retrievals_per_parent": {
+                      "spath_1c6c503b4139a96c7d9c": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      },
+                      "spath_3503b2acfeb6f369298e": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      },
+                      "spath_dda84c8370c3addc9fe7": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      }
+                    }
+                  },
+                  "version": "ppv1-search-limits-3"
+                },
+                "budget_exhausted_keys": [
+                  "max_alternative_hypotheses_per_parent@spath_3503b2acfeb6f369298e",
+                  "max_retrievals_per_parent@spath_1c6c503b4139a96c7d9c",
+                  "max_retrievals_per_parent@spath_3503b2acfeb6f369298e",
+                  "max_retrievals_per_parent@spath_dda84c8370c3addc9fe7"
+                ],
+                "events_submitted_session": [
+                  "ppev_fa601e39e4f15a63b1fd",
+                  "ppev_3efcf98639d5578c197a"
+                ],
+                "other_reasons": [
+                  "awaiting_prediction"
+                ],
+                "primary": "budget_limit",
+                "runflow_version": "ppv1-runflow-3",
+                "unexplored": {
+                  "blocked": 0,
+                  "blocked_objects": [],
+                  "claimed_actions": 0,
+                  "deferred": 0,
+                  "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                  "open_attempts": 0,
+                  "pending_actions": 0,
+                  "pending_requests": 3
+                }
+              },
+              "stop_reason": "budget_limit"
+            }
+          }
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46923}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46923}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46923}\n{\"result\": {\"run_id\": \"protocol_novel_nonempty\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"awaiting_prediction\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 3, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 8, \"remaining\": 2}, \"max_retrievals_total\": {\"max\": 64, \"used\": 3, \"remaining\": 61}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_1c6c503b4139a96c7d9c\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_3503b2acfeb6f369298e\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_dda84c8370c3addc9fe7\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {\"spath_3503b2acfeb6f369298e\": {\"max\": 2, \"used\": 2, \"remaining\": 0}}, \"max_attempts_per_hypothesis\": {\"hyp_8cf82bd8a6855420b5ff\": {\"max\": 2, \"used\": 1, \"remaining\": 1}, \"hyp_ea7c3f46388d163552c2\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_alternative_hypotheses_per_parent@spath_3503b2acfeb6f369298e\", \"max_retrievals_per_parent@spath_1c6c503b4139a96c7d9c\", \"max_retrievals_per_parent@spath_3503b2acfeb6f369298e\", \"max_retrievals_per_parent@spath_dda84c8370c3addc9fe7\"], \"events_submitted_session\": [\"ppev_fa601e39e4f15a63b1fd\", \"ppev_3efcf98639d5578c197a\"], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 2, \"state_appearances\": 3, \"hypotheses\": 2, \"events\": 2, \"report_projections\": 2, \"expansion_plans\": 2, \"event_appearance_links\": 4, \"provenance_records\": 0}, \"driver_session\": {\"pid\": 46923, \"acquired_at\": \"2026-10-08T01:40:13+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46923}\n"
+      },
+      "hypotheses": [
+        {
+          "context_hash": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "hypothesis_id": "hyp_ea7c3f46388d163552c2",
+          "parent_path_id": "spath_3503b2acfeb6f369298e",
+          "payload": {
+            "ambiguous_participants": false,
+            "assumptions": [],
+            "audit_ref": "",
+            "dependency_refs": [],
+            "hypothesis_id": "hyp_ea7c3f46388d163552c2",
+            "legacy_relationship_status": "",
+            "model_decision_ref": "",
+            "origin_group_key": "donor-B",
+            "parent_path_id": "spath_3503b2acfeb6f369298e",
+            "participant_list_status": "partial",
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "provenance_refs": [],
+            "requirements": [],
+            "schema_version": "ppv1-hypothesis-8",
+            "step_scope": "net_reaction",
+            "step_scope_evidence_refs": [],
+            "substrate_state_ref": "cs_ab1de819ede91df490e6",
+            "support_group_refs": [],
+            "transformation_ref": "donor-B",
+            "transformation_signature_status": "unknown"
+          }
+        },
+        {
+          "context_hash": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "hypothesis_id": "hyp_8cf82bd8a6855420b5ff",
+          "parent_path_id": "spath_3503b2acfeb6f369298e",
+          "payload": {
+            "ambiguous_participants": false,
+            "assumptions": [],
+            "audit_ref": "",
+            "dependency_refs": [],
+            "hypothesis_id": "hyp_8cf82bd8a6855420b5ff",
+            "legacy_relationship_status": "",
+            "model_decision_ref": "",
+            "origin_group_key": "donor-Novel",
+            "parent_path_id": "spath_3503b2acfeb6f369298e",
+            "participant_list_status": "partial",
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "provenance_refs": [],
+            "requirements": [],
+            "schema_version": "ppv1-hypothesis-8",
+            "step_scope": "net_reaction",
+            "step_scope_evidence_refs": [],
+            "substrate_state_ref": "cs_ab1de819ede91df490e6",
+            "support_group_refs": [],
+            "transformation_ref": "donor-Novel",
+            "transformation_signature_status": "unknown"
+          }
+        }
+      ],
+      "requests": [
+        {
+          "action_id": "sact_649011041cca2925e2cc",
+          "attempt_id": "",
+          "created_at": "2026-10-08T01:40:13+00:00",
+          "network_request_count": 0,
+          "payload_hash": "a2e7998611863583e5f95d1e21abb75c3dc0d0fca29ccc1c7e4aac69a1338882",
+          "provider_kind": "scripted",
+          "purpose": "proposals",
+          "request_id": "sreq_7ba429ddd2ae3a012409",
+          "response_ref": "",
+          "retry_of": "",
+          "run_id": "protocol_novel_nonempty",
+          "status": "registered",
+          "updated_at": null
+        },
+        {
+          "action_id": "sact_62e150d2b27eac3ff208",
+          "attempt_id": "",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "network_request_count": 0,
+          "payload_hash": "05595c333f5bfdfdea3dd519e4e3daffbabe3b274388b4b03c75978daf95e5e9",
+          "provider_kind": "scripted",
+          "purpose": "proposals",
+          "request_id": "sreq_decd838ed9b1ebdf2408",
+          "response_ref": "",
+          "retry_of": "",
+          "run_id": "protocol_novel_nonempty",
+          "status": "registered",
+          "updated_at": null
+        },
+        {
+          "action_id": "sact_a6250211c8eb0544cfbc",
+          "attempt_id": "",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "network_request_count": 0,
+          "payload_hash": "05595c333f5bfdfdea3dd519e4e3daffbabe3b274388b4b03c75978daf95e5e9",
+          "provider_kind": "scripted",
+          "purpose": "proposals",
+          "request_id": "sreq_d8bb914e96c04c6e6c5f",
+          "response_ref": "",
+          "retry_of": "",
+          "run_id": "protocol_novel_nonempty",
+          "status": "registered",
+          "updated_at": null
+        }
+      ]
+    }
+  },
+  {
+    "case": "protocol_novel_empty",
+    "current_contract_observed": false,
+    "detail": {
+      "actual_tool_count": 1,
+      "counts": {
+        "budget_reservations": 11,
+        "event_appearance_links": 2,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "meta": 1,
+        "model_requests": 2,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "search_actions": 5,
+        "search_attempts": 1,
+        "search_commit_records": 5,
+        "search_runs": 1,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "events": [
+        {
+          "context_hash": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "event_id": "ppev_0bff429e745e48eb700f",
+          "event_semantics_hash": "af5b021f95783c8b1cef3c94d3222223fe3dc5f181257f18e5b7c8e7a61196bd",
+          "hypothesis_id": "hyp_70938de566243220879b",
+          "parent_path_id": "spath_8572b66f6c1d2d93e457",
+          "payload": {
+            "catalytic_support": [],
+            "event_appearance_manifest": [
+              {
+                "appearance_hash": "2bf3aecf7359a08be8140b6a793fa7208fb29ab376dc863766265598c6eb0c8d",
+                "state_id": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+                "state_id": "cs_540cc0181e112b383323"
+              }
+            ],
+            "participant_state_refs": [
+              "cs_ab1de819ede91df490e6",
+              "cs_540cc0181e112b383323"
+            ],
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "schema_version": "ppv1-event-8"
+          },
+          "run_id": "protocol_novel_empty"
+        }
+      ],
+      "execution": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/protocol_novel_empty_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46936
+          },
+          {
+            "consumer_entered": "execute_atomtool_expansion",
+            "pid": 46936
+          },
+          {
+            "pid": 46936,
+            "result": {
+              "counts": {
+                "event_appearance_links": 2,
+                "events": 1,
+                "expansion_plans": 1,
+                "hypotheses": 1,
+                "provenance_records": 0,
+                "report_projections": 1,
+                "state_appearances": 3,
+                "states": 2
+              },
+              "driver_session": {
+                "acquired_at": "2026-10-08T01:40:14+00:00",
+                "note": "flock 是执行权权威;崩溃 OS 自动释放",
+                "pid": 46936
+              },
+              "profile": "pollutant_pathway_v1",
+              "resumed": false,
+              "run_id": "protocol_novel_empty",
+              "runflow_version": "ppv1-runflow-3",
+              "stop": {
+                "budget": {
+                  "run_level": {
+                    "max_real_model_requests": {
+                      "max": 0,
+                      "remaining": 0,
+                      "used": 0
+                    },
+                    "max_retrievals_total": {
+                      "max": 64,
+                      "remaining": 62,
+                      "used": 2
+                    },
+                    "max_scenario_transitions": {
+                      "max": 2,
+                      "remaining": 2,
+                      "used": 0
+                    },
+                    "max_total_search_actions": {
+                      "max": 10,
+                      "remaining": 5,
+                      "used": 5
+                    }
+                  },
+                  "scoped": {
+                    "max_alternative_hypotheses_per_parent": {
+                      "spath_8572b66f6c1d2d93e457": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_attempts_per_hypothesis": {
+                      "hyp_70938de566243220879b": {
+                        "max": 2,
+                        "remaining": 1,
+                        "used": 1
+                      }
+                    },
+                    "max_reopens_per_hypothesis": {},
+                    "max_retrievals_per_parent": {
+                      "spath_8572b66f6c1d2d93e457": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      },
+                      "spath_b4da13c5c06a05dfe51d": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      }
+                    }
+                  },
+                  "version": "ppv1-search-limits-3"
+                },
+                "budget_exhausted_keys": [
+                  "max_retrievals_per_parent@spath_8572b66f6c1d2d93e457",
+                  "max_retrievals_per_parent@spath_b4da13c5c06a05dfe51d"
+                ],
+                "events_submitted_session": [
+                  "ppev_0bff429e745e48eb700f"
+                ],
+                "other_reasons": [
+                  "awaiting_prediction"
+                ],
+                "primary": "budget_limit",
+                "runflow_version": "ppv1-runflow-3",
+                "unexplored": {
+                  "blocked": 0,
+                  "blocked_objects": [],
+                  "claimed_actions": 0,
+                  "deferred": 0,
+                  "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                  "open_attempts": 0,
+                  "pending_actions": 0,
+                  "pending_requests": 2
+                }
+              },
+              "stop_reason": "budget_limit"
+            }
+          }
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46936}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46936}\n{\"result\": {\"run_id\": \"protocol_novel_empty\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"awaiting_prediction\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 2, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 5, \"remaining\": 5}, \"max_retrievals_total\": {\"max\": 64, \"used\": 2, \"remaining\": 62}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_8572b66f6c1d2d93e457\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_b4da13c5c06a05dfe51d\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {\"spath_8572b66f6c1d2d93e457\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_attempts_per_hypothesis\": {\"hyp_70938de566243220879b\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_8572b66f6c1d2d93e457\", \"max_retrievals_per_parent@spath_b4da13c5c06a05dfe51d\"], \"events_submitted_session\": [\"ppev_0bff429e745e48eb700f\"], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 2, \"state_appearances\": 3, \"hypotheses\": 1, \"events\": 1, \"report_projections\": 1, \"expansion_plans\": 1, \"event_appearance_links\": 2, \"provenance_records\": 0}, \"driver_session\": {\"pid\": 46936, \"acquired_at\": \"2026-10-08T01:40:14+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46936}\n"
+      },
+      "hypotheses": [
+        {
+          "context_hash": "pc_0757aa71e8cd78057880",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "hypothesis_id": "hyp_70938de566243220879b",
+          "parent_path_id": "spath_8572b66f6c1d2d93e457",
+          "payload": {
+            "ambiguous_participants": false,
+            "assumptions": [],
+            "audit_ref": "",
+            "dependency_refs": [],
+            "hypothesis_id": "hyp_70938de566243220879b",
+            "legacy_relationship_status": "",
+            "model_decision_ref": "",
+            "origin_group_key": "donor-Novel",
+            "parent_path_id": "spath_8572b66f6c1d2d93e457",
+            "participant_list_status": "partial",
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "provenance_refs": [],
+            "requirements": [],
+            "schema_version": "ppv1-hypothesis-8",
+            "step_scope": "net_reaction",
+            "step_scope_evidence_refs": [],
+            "substrate_state_ref": "cs_ab1de819ede91df490e6",
+            "support_group_refs": [],
+            "transformation_ref": "donor-Novel",
+            "transformation_signature_status": "unknown"
+          }
+        }
+      ],
+      "requests": [
+        {
+          "action_id": "sact_020e2d20a5cf9b2c3d0b",
+          "attempt_id": "",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "network_request_count": 0,
+          "payload_hash": "a2e7998611863583e5f95d1e21abb75c3dc0d0fca29ccc1c7e4aac69a1338882",
+          "provider_kind": "scripted",
+          "purpose": "proposals",
+          "request_id": "sreq_16f1496c775501de11bb",
+          "response_ref": "",
+          "retry_of": "",
+          "run_id": "protocol_novel_empty",
+          "status": "registered",
+          "updated_at": null
+        },
+        {
+          "action_id": "sact_bae4243e102f9c554aed",
+          "attempt_id": "",
+          "created_at": "2026-10-08T01:40:14+00:00",
+          "network_request_count": 0,
+          "payload_hash": "05595c333f5bfdfdea3dd519e4e3daffbabe3b274388b4b03c75978daf95e5e9",
+          "provider_kind": "scripted",
+          "purpose": "proposals",
+          "request_id": "sreq_b83e362477fc280c0335",
+          "response_ref": "",
+          "retry_of": "",
+          "run_id": "protocol_novel_empty",
+          "status": "registered",
+          "updated_at": null
+        }
+      ]
+    }
+  },
+  {
+    "case": "protocol_abstain_empty",
+    "current_contract_observed": true,
+    "detail": {
+      "actual_tool_count": 0,
+      "counts": {
+        "budget_reservations": 4,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 1,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 2,
+        "search_attempts": 0,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "events": [],
+      "execution": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/protocol_abstain_empty_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46953
+          },
+          {
+            "pid": 46953,
+            "result": {
+              "counts": {
+                "event_appearance_links": 0,
+                "events": 0,
+                "expansion_plans": 0,
+                "hypotheses": 0,
+                "provenance_records": 0,
+                "report_projections": 0,
+                "state_appearances": 1,
+                "states": 1
+              },
+              "driver_session": {
+                "acquired_at": "2026-10-08T01:40:15+00:00",
+                "note": "flock 是执行权权威;崩溃 OS 自动释放",
+                "pid": 46953
+              },
+              "profile": "pollutant_pathway_v1",
+              "resumed": false,
+              "run_id": "protocol_abstain_empty",
+              "runflow_version": "ppv1-runflow-3",
+              "stop": {
+                "budget": {
+                  "run_level": {
+                    "max_real_model_requests": {
+                      "max": 0,
+                      "remaining": 0,
+                      "used": 0
+                    },
+                    "max_retrievals_total": {
+                      "max": 64,
+                      "remaining": 63,
+                      "used": 1
+                    },
+                    "max_scenario_transitions": {
+                      "max": 2,
+                      "remaining": 2,
+                      "used": 0
+                    },
+                    "max_total_search_actions": {
+                      "max": 10,
+                      "remaining": 8,
+                      "used": 2
+                    }
+                  },
+                  "scoped": {
+                    "max_alternative_hypotheses_per_parent": {},
+                    "max_attempts_per_hypothesis": {},
+                    "max_reopens_per_hypothesis": {},
+                    "max_retrievals_per_parent": {
+                      "spath_e73eea25f048334c0c53": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      }
+                    }
+                  },
+                  "version": "ppv1-search-limits-3"
+                },
+                "budget_exhausted_keys": [
+                  "max_retrievals_per_parent@spath_e73eea25f048334c0c53"
+                ],
+                "events_submitted_session": [],
+                "other_reasons": [
+                  "awaiting_prediction",
+                  "no_local_candidate"
+                ],
+                "primary": "budget_limit",
+                "runflow_version": "ppv1-runflow-3",
+                "unexplored": {
+                  "blocked": 0,
+                  "blocked_objects": [],
+                  "claimed_actions": 0,
+                  "deferred": 0,
+                  "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                  "open_attempts": 0,
+                  "pending_actions": 0,
+                  "pending_requests": 1
+                }
+              },
+              "stop_reason": "budget_limit"
+            }
+          }
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46953}\n{\"result\": {\"run_id\": \"protocol_abstain_empty\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"awaiting_prediction\", \"no_local_candidate\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 1, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 2, \"remaining\": 8}, \"max_retrievals_total\": {\"max\": 64, \"used\": 1, \"remaining\": 63}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_e73eea25f048334c0c53\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {}, \"max_attempts_per_hypothesis\": {}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_e73eea25f048334c0c53\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 1, \"state_appearances\": 1, \"hypotheses\": 0, \"events\": 0, \"report_projections\": 0, \"expansion_plans\": 0, \"event_appearance_links\": 0, \"provenance_records\": 0}, \"driver_session\": {\"pid\": 46953, \"acquired_at\": \"2026-10-08T01:40:15+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46953}\n"
+      },
+      "hypotheses": [],
+      "requests": [
+        {
+          "action_id": "sact_3f1c441d1e1aca712ae1",
+          "attempt_id": "",
+          "created_at": "2026-10-08T01:40:15+00:00",
+          "network_request_count": 0,
+          "payload_hash": "43355889ab9d3b20ce8486ec8ecfeb351b013cbbcaef3e25a4870f4eaad37cb9",
+          "provider_kind": "scripted",
+          "purpose": "proposals",
+          "request_id": "sreq_5c1b85914c0d3a56fb23",
+          "response_ref": "",
+          "retry_of": "",
+          "run_id": "protocol_abstain_empty",
+          "status": "registered",
+          "updated_at": null
+        }
+      ]
+    }
+  },
+  {
+    "case": "zero_depth_persisted",
+    "current_contract_observed": true,
+    "detail": {
+      "counts": {
+        "budget_reservations": 4,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 0,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "repeat_stop": {
+        "budget": {
+          "run_level": {
+            "max_real_model_requests": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "remaining": 63,
+              "used": 1
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "remaining": 2,
+              "used": 0
+            },
+            "max_total_search_actions": {
+              "max": 10,
+              "remaining": 8,
+              "used": 2
+            }
+          },
+          "scoped": {
+            "max_alternative_hypotheses_per_parent": {},
+            "max_attempts_per_hypothesis": {},
+            "max_reopens_per_hypothesis": {},
+            "max_retrievals_per_parent": {
+              "spath_b35ed7c5295aea9a1e44": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              }
+            }
+          },
+          "version": "ppv1-search-limits-3"
+        },
+        "budget_exhausted_keys": [
+          "max_retrievals_per_parent@spath_b35ed7c5295aea9a1e44"
+        ],
+        "events_submitted_session": [],
+        "other_reasons": [
+          "depth_limit"
+        ],
+        "primary": "budget_limit",
+        "runflow_version": "ppv1-runflow-3",
+        "unexplored": {
+          "blocked": 1,
+          "blocked_objects": [
+            {
+              "action_id": "sact_59cfa39c21fd3b1b5ecc",
+              "hypothesis_id": "hyp_33a0e684e75d63dc6f95",
+              "reason": "depth_limit"
+            }
+          ],
+          "claimed_actions": 0,
+          "deferred": 0,
+          "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+          "open_attempts": 0,
+          "pending_actions": 0,
+          "pending_requests": 0
+        }
+      },
+      "resume": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/zero_depth_persisted_again.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "recover_run",
+            "pid": 46957
+          },
+          {
+            "consumer_entered": "drive",
+            "pid": 46957
+          },
+          {
+            "pid": 46957,
+            "result": {
+              "counts": {
+                "event_appearance_links": 0,
+                "events": 0,
+                "expansion_plans": 0,
+                "hypotheses": 0,
+                "provenance_records": 0,
+                "report_projections": 0,
+                "state_appearances": 1,
+                "states": 1
+              },
+              "driver_session": {
+                "acquired_at": "2026-10-08T01:40:16+00:00",
+                "note": "flock 是执行权权威;崩溃 OS 自动释放",
+                "pid": 46957
+              },
+              "frozen_plan_binding": {
+                "anchor_action_ids": [
+                  "sact_0cf2782bfe6e0e472ccd"
+                ],
+                "anchor_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+                "anchor_statuses": [
+                  "done"
+                ],
+                "frozen_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+                "note": "后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合",
+                "task_key_verified": true
+              },
+              "profile": "pollutant_pathway_v1",
+              "recovery": {
+                "actions": [
+                  {
+                    "action_id": "sact_0cf2782bfe6e0e472ccd",
+                    "action_kind": "retrieve",
+                    "boundary": "B4_verified",
+                    "disposition": "done_commit_verified",
+                    "status": "done"
+                  },
+                  {
+                    "action_id": "sact_59cfa39c21fd3b1b5ecc",
+                    "action_kind": "expand_hypothesis",
+                    "boundary": null,
+                    "disposition": "not_claimed_no_recovery_needed",
+                    "status": "blocked"
+                  },
+                  {
+                    "action_id": "sact_f450097bbdc715c2fb61",
+                    "action_kind": "decide",
+                    "boundary": "B4_verified",
+                    "disposition": "done_commit_verified",
+                    "status": "done"
+                  }
+                ],
+                "isolated_actions": [],
+                "pending_requests": [],
+                "unknown_status_requests": []
+              },
+              "resumed": true,
+              "run_id": "zero_depth_persisted",
+              "runflow_version": "ppv1-runflow-3",
+              "stop": {
+                "budget": {
+                  "run_level": {
+                    "max_real_model_requests": {
+                      "max": 0,
+                      "remaining": 0,
+                      "used": 0
+                    },
+                    "max_retrievals_total": {
+                      "max": 64,
+                      "remaining": 63,
+                      "used": 1
+                    },
+                    "max_scenario_transitions": {
+                      "max": 2,
+                      "remaining": 2,
+                      "used": 0
+                    },
+                    "max_total_search_actions": {
+                      "max": 10,
+                      "remaining": 8,
+                      "used": 2
+                    }
+                  },
+                  "scoped": {
+                    "max_alternative_hypotheses_per_parent": {},
+                    "max_attempts_per_hypothesis": {},
+                    "max_reopens_per_hypothesis": {},
+                    "max_retrievals_per_parent": {
+                      "spath_b35ed7c5295aea9a1e44": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      }
+                    }
+                  },
+                  "version": "ppv1-search-limits-3"
+                },
+                "budget_exhausted_keys": [
+                  "max_retrievals_per_parent@spath_b35ed7c5295aea9a1e44"
+                ],
+                "events_submitted_session": [],
+                "other_reasons": [
+                  "depth_limit"
+                ],
+                "primary": "budget_limit",
+                "runflow_version": "ppv1-runflow-3",
+                "unexplored": {
+                  "blocked": 1,
+                  "blocked_objects": [
+                    {
+                      "action_id": "sact_59cfa39c21fd3b1b5ecc",
+                      "hypothesis_id": "hyp_33a0e684e75d63dc6f95",
+                      "reason": "depth_limit"
+                    }
+                  ],
+                  "claimed_actions": 0,
+                  "deferred": 0,
+                  "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                  "open_attempts": 0,
+                  "pending_actions": 0,
+                  "pending_requests": 0
+                }
+              },
+              "stop_reason": "budget_limit"
+            }
+          }
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"recover_run\", \"pid\": 46957}\n{\"consumer_entered\": \"drive\", \"pid\": 46957}\n{\"result\": {\"run_id\": \"zero_depth_persisted\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": true, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"depth_limit\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 1, \"blocked_objects\": [{\"action_id\": \"sact_59cfa39c21fd3b1b5ecc\", \"hypothesis_id\": \"hyp_33a0e684e75d63dc6f95\", \"reason\": \"depth_limit\"}], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 2, \"remaining\": 8}, \"max_retrievals_total\": {\"max\": 64, \"used\": 1, \"remaining\": 63}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_b35ed7c5295aea9a1e44\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {}, \"max_attempts_per_hypothesis\": {}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_b35ed7c5295aea9a1e44\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 1, \"state_appearances\": 1, \"hypotheses\": 0, \"events\": 0, \"report_projections\": 0, \"expansion_plans\": 0, \"event_appearance_links\": 0, \"provenance_records\": 0}, \"recovery\": {\"actions\": [{\"action_id\": \"sact_0cf2782bfe6e0e472ccd\", \"action_kind\": \"retrieve\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}, {\"action_id\": \"sact_59cfa39c21fd3b1b5ecc\", \"action_kind\": \"expand_hypothesis\", \"status\": \"blocked\", \"boundary\": null, \"disposition\": \"not_claimed_no_recovery_needed\"}, {\"action_id\": \"sact_f450097bbdc715c2fb61\", \"action_kind\": \"decide\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}], \"pending_requests\": [], \"unknown_status_requests\": [], \"isolated_actions\": []}, \"frozen_plan_binding\": {\"anchor_action_ids\": [\"sact_0cf2782bfe6e0e472ccd\"], \"anchor_statuses\": [\"done\"], \"anchor_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"frozen_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"task_key_verified\": true, \"note\": \"后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合\"}, \"driver_session\": {\"pid\": 46957, \"acquired_at\": \"2026-10-08T01:40:16+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46957}\n"
+      },
+      "start": {
+        "command": [
+          "/Users/cc/miniconda3/envs/depending43/bin/python",
+          "-B",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+          "worker",
+          "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/zero_depth_persisted_start.json"
+        ],
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+        },
+        "parsed": [
+          {
+            "consumer_entered": "drive",
+            "pid": 46955
+          },
+          {
+            "pid": 46955,
+            "result": {
+              "counts": {
+                "event_appearance_links": 0,
+                "events": 0,
+                "expansion_plans": 0,
+                "hypotheses": 0,
+                "provenance_records": 0,
+                "report_projections": 0,
+                "state_appearances": 1,
+                "states": 1
+              },
+              "driver_session": {
+                "acquired_at": "2026-10-08T01:40:16+00:00",
+                "note": "flock 是执行权权威;崩溃 OS 自动释放",
+                "pid": 46955
+              },
+              "profile": "pollutant_pathway_v1",
+              "resumed": false,
+              "run_id": "zero_depth_persisted",
+              "runflow_version": "ppv1-runflow-3",
+              "stop": {
+                "budget": {
+                  "run_level": {
+                    "max_real_model_requests": {
+                      "max": 0,
+                      "remaining": 0,
+                      "used": 0
+                    },
+                    "max_retrievals_total": {
+                      "max": 64,
+                      "remaining": 63,
+                      "used": 1
+                    },
+                    "max_scenario_transitions": {
+                      "max": 2,
+                      "remaining": 2,
+                      "used": 0
+                    },
+                    "max_total_search_actions": {
+                      "max": 10,
+                      "remaining": 8,
+                      "used": 2
+                    }
+                  },
+                  "scoped": {
+                    "max_alternative_hypotheses_per_parent": {},
+                    "max_attempts_per_hypothesis": {},
+                    "max_reopens_per_hypothesis": {},
+                    "max_retrievals_per_parent": {
+                      "spath_b35ed7c5295aea9a1e44": {
+                        "max": 1,
+                        "remaining": 0,
+                        "used": 1
+                      }
+                    }
+                  },
+                  "version": "ppv1-search-limits-3"
+                },
+                "budget_exhausted_keys": [
+                  "max_retrievals_per_parent@spath_b35ed7c5295aea9a1e44"
+                ],
+                "events_submitted_session": [],
+                "other_reasons": [
+                  "depth_limit"
+                ],
+                "primary": "budget_limit",
+                "runflow_version": "ppv1-runflow-3",
+                "unexplored": {
+                  "blocked": 1,
+                  "blocked_objects": [
+                    {
+                      "action_id": "sact_59cfa39c21fd3b1b5ecc",
+                      "hypothesis_id": "hyp_33a0e684e75d63dc6f95",
+                      "reason": "depth_limit"
+                    }
+                  ],
+                  "claimed_actions": 0,
+                  "deferred": 0,
+                  "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+                  "open_attempts": 0,
+                  "pending_actions": 0,
+                  "pending_requests": 0
+                }
+              },
+              "stop_reason": "budget_limit"
+            }
+          }
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46955}\n{\"result\": {\"run_id\": \"zero_depth_persisted\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"depth_limit\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 1, \"blocked_objects\": [{\"action_id\": \"sact_59cfa39c21fd3b1b5ecc\", \"hypothesis_id\": \"hyp_33a0e684e75d63dc6f95\", \"reason\": \"depth_limit\"}], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 2, \"remaining\": 8}, \"max_retrievals_total\": {\"max\": 64, \"used\": 1, \"remaining\": 63}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_b35ed7c5295aea9a1e44\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {}, \"max_attempts_per_hypothesis\": {}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_b35ed7c5295aea9a1e44\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 1, \"state_appearances\": 1, \"hypotheses\": 0, \"events\": 0, \"report_projections\": 0, \"expansion_plans\": 0, \"event_appearance_links\": 0, \"provenance_records\": 0}, \"driver_session\": {\"pid\": 46955, \"acquired_at\": \"2026-10-08T01:40:16+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46955}\n"
+      },
+      "stop": {
+        "budget": {
+          "run_level": {
+            "max_real_model_requests": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "remaining": 63,
+              "used": 1
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "remaining": 2,
+              "used": 0
+            },
+            "max_total_search_actions": {
+              "max": 10,
+              "remaining": 8,
+              "used": 2
+            }
+          },
+          "scoped": {
+            "max_alternative_hypotheses_per_parent": {},
+            "max_attempts_per_hypothesis": {},
+            "max_reopens_per_hypothesis": {},
+            "max_retrievals_per_parent": {
+              "spath_b35ed7c5295aea9a1e44": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              }
+            }
+          },
+          "version": "ppv1-search-limits-3"
+        },
+        "budget_exhausted_keys": [
+          "max_retrievals_per_parent@spath_b35ed7c5295aea9a1e44"
+        ],
+        "events_submitted_session": [],
+        "other_reasons": [
+          "depth_limit"
+        ],
+        "primary": "budget_limit",
+        "runflow_version": "ppv1-runflow-3",
+        "unexplored": {
+          "blocked": 1,
+          "blocked_objects": [
+            {
+              "action_id": "sact_59cfa39c21fd3b1b5ecc",
+              "hypothesis_id": "hyp_33a0e684e75d63dc6f95",
+              "reason": "depth_limit"
+            }
+          ],
+          "claimed_actions": 0,
+          "deferred": 0,
+          "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+          "open_attempts": 0,
+          "pending_actions": 0,
+          "pending_requests": 0
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,112 @@
+[
+  {
+    "name": "inheritance",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/inheritance_as_executed.py",
+      "--out",
+      "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/authority_cases"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/src:/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 0,
+    "elapsed": 0.6020182080101222,
+    "timestamp_utc": "2026-10-07T16:44:10.797300+00:00",
+    "stdout": "inheritance.stdout.jsonl",
+    "stderr": "inheritance.stderr.txt"
+  },
+  {
+    "name": "segmented",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/segmented_authority_probe.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/src:/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 0,
+    "elapsed": 1.8396775409928523,
+    "timestamp_utc": "2026-10-07T16:44:12.637382+00:00",
+    "stdout": "segmented.stdout.jsonl",
+    "stderr": "segmented.stderr.txt"
+  },
+  {
+    "name": "done_result",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/done_result_reuse_probe.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/src:/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 1,
+    "elapsed": 0.2602542079985142,
+    "timestamp_utc": "2026-10-07T16:44:12.897959+00:00",
+    "stdout": "done_result.stdout.jsonl",
+    "stderr": "done_result.stderr.txt"
+  },
+  {
+    "name": "supplementary",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/supplementary_probe.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/src:/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 0,
+    "elapsed": 0.23557020799489692,
+    "timestamp_utc": "2026-10-07T16:44:13.134012+00:00",
+    "stdout": "supplementary.stdout.jsonl",
+    "stderr": "supplementary.stderr.txt"
+  },
+  {
+    "name": "crash",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/crash_concurrency_as_executed.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/src:/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 0,
+    "elapsed": 1.2580134579911828,
+    "timestamp_utc": "2026-10-07T16:44:14.392377+00:00",
+    "stdout": "crash.stdout.jsonl",
+    "stderr": "crash.stderr.txt"
+  },
+  {
+    "name": "old_observed",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/probe_original.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/src:/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 1,
+    "elapsed": 0.21893504197942093,
+    "timestamp_utc": "2026-10-07T16:44:14.611627+00:00",
+    "stdout": "old_observed.stdout.jsonl",
+    "stderr": "old_observed.stderr.txt"
+  }
+]

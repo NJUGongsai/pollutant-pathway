@@ -1,0 +1,36 @@
+
+==================================== ERRORS ====================================
+________________ ERROR collecting tests/test_ppv1_s3a_search.py ________________
+ImportError while importing test module '/private/tmp/ppv1_s3a_execution_9b78f42_AUFcUE/run/baseline_source/tests/test_ppv1_s3a_search.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ppv1_s3a_search.py:34: in <module>
+    from s3a_worker import make_fixture  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/s3a_worker.py:42: in <module>
+    from pathway_v43.pollutant.search import (  # noqa: E402
+E   ModuleNotFoundError: No module named 'pathway_v43.pollutant.search'
+_______________ ERROR collecting tests/test_ppv1_s3a_recover.py ________________
+ImportError while importing test module '/private/tmp/ppv1_s3a_execution_9b78f42_AUFcUE/run/baseline_source/tests/test_ppv1_s3a_recover.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ppv1_s3a_recover.py:32: in <module>
+    from s3a_worker import make_fixture  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/s3a_worker.py:42: in <module>
+    from pathway_v43.pollutant.search import (  # noqa: E402
+E   ModuleNotFoundError: No module named 'pathway_v43.pollutant.search'
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s3a_execution_9b78f42_AUFcUE/run/baseline_source/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 2 errors in 0.24s

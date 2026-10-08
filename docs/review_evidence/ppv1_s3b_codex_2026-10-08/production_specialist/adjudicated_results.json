@@ -1,0 +1,132 @@
+{
+  "source_sha256": "d4dcafcbcfa33f2fbf4c1b307d54bce185cb1ed1276e1ff6d8321b69a643dbf9",
+  "probe_reexecuted": false,
+  "case_count": 17,
+  "cases": [
+    {
+      "case": "legal",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "missing_alignment",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "missing_proof",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "execution_failed",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "target_deviation",
+      "raw_assertion": "failed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Our original unknown expectation was wrong. Actual bound/full-coverage proof with strict=False gives center violated. Conditional event remains allowed by R5v; no verified/R6."
+    },
+    {
+      "case": "declared_product_differs",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "ambiguous_alignment",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "full_balanced_extra_participant",
+      "raw_assertion": "failed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Our original unknown expectation was wrong: H2 is already registered composition-only completion. Fully balanced H2 control correctly remains verified; this does not prove mechanism or extend license to unregistered multi-atom cosubstrates. Original checks after the early center assertion were not executed; these checks inspect captured output only."
+    },
+    {
+      "case": "audit_contract_driver",
+      "raw_assertion": "failed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Our original last assertion read hypothesis_id from event.payload, but it is an SQL identity column. Captured actual driver narrow catch fails B attempt and records outcome settlement; only already-scheduled C submits an event. Broad caller production control is a separate actual function case with zero ledger change."
+    },
+    {
+      "case": "broad_caller_production",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "cross_hypothesis",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "raw_cx_factory_refused",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "hypothesis_constructor_refused",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "context_envelope_tamper",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "context_content_tamper",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    },
+    {
+      "case": "state_appearance_hash_tamper",
+      "raw_assertion": "failed",
+      "adjudication": "P2_unused_historical_occurrence_boundary",
+      "method": "read captured input/output only",
+      "note": "Bad original root appearance is NOT reused by this event: driver supplies distinct lawful substrate occurrence (different source_refs/hash), manifest and links contain the new occurrence. New event first saves; complete's all-SID historical appearance replay then refuses. No successful event commit or event budget consumption. Do not call this a same-hash R8 regression; do not call put_state(None) a certificate or all old rows validated.",
+      "before_events": 0,
+      "after_events": 1,
+      "bad_appearance_in_event_manifest": false,
+      "successful_event_commit": false
+    },
+    {
+      "case": "state_semantic_fact_tamper",
+      "raw_assertion": "passed",
+      "adjudication": "contract_conforms",
+      "method": "read captured input/output only",
+      "note": "Original assertion passed; no revision."
+    }
+  ],
+  "blocking_P1": [],
+  "nonblocking_P2_case_count": 1
+}

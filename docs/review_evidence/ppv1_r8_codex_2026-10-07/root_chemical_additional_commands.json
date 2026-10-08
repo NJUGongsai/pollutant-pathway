@@ -1,0 +1,48 @@
+[
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix/state_first_consumer_probe.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix",
+    "exit_code": 0,
+    "stdout": "chemical_matrix/state_first_consumer_output.jsonl",
+    "stderr": "chemical_matrix/state_first_consumer_stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix/static_contract_inventory.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix",
+    "exit_code": 0,
+    "stdout": "chemical_matrix/static_contract_inventory.json",
+    "stderr": "chemical_matrix/static_contract_inventory.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix/assert_r8_chemical_observed.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix",
+    "exit_code": 1,
+    "stdout": "chemical_matrix/initial_assert_fixture_metadata_error.stdout.txt",
+    "stderr": "chemical_matrix/initial_assert_fixture_metadata_error.stderr.txt",
+    "note": "Initial harness omitted required prior-run metadata; this was a fixture assembly error, not source behavior. Matrix/static already completed."
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix/assert_r8_chemical_observed.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix",
+    "exit_code": 0,
+    "stdout": "chemical_matrix/assert_r8_chemical_observed.stdout.txt",
+    "stderr": "chemical_matrix/assert_r8_chemical_observed.stderr.txt",
+    "note": "After supplying exact recorded root prior-run metadata and stderr; production/script assertions unchanged."
+  }
+]

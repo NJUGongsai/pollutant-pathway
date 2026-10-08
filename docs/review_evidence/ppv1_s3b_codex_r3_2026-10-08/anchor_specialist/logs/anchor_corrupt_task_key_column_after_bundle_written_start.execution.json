@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_corrupt_task_key_column_after_bundle_written_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+  },
+  "parsed": [
+    {
+      "consumer_entered": "drive",
+      "pid": 46817
+    },
+    {
+      "consumer_entered": "execute_atomtool_expansion",
+      "pid": 46817
+    },
+    {
+      "detail": {
+        "action_id": "sact_35f81d7cdc6e3146ccc3",
+        "task_key": "stask-exp_2e068bfc7e8d81c362c4"
+      },
+      "hard_kill": "after_bundle_written",
+      "pid": 46817
+    }
+  ],
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46817}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46817}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_35f81d7cdc6e3146ccc3\", \"task_key\": \"stask-exp_2e068bfc7e8d81c362c4\"}, \"pid\": 46817}\n"
+}

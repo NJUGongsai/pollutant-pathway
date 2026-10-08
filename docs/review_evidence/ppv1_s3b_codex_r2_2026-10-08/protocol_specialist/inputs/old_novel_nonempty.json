@@ -1,0 +1,51 @@
+{
+  "_label": "old_novel_nonempty",
+  "mode": "start",
+  "plan": {
+    "model": {
+      "provider_kind": "scripted",
+      "responses": [
+        "{\"proposals\": [{\"hypothesis_id\": \"novel:1\", \"proposal_context\": {\"reference_hypothesis_ids\": [], \"output_origin\": \"novel_outside_pool\"}, \"reaction_spec\": {\"key\": \"Novel\", \"product_smiles\": \"CC=O\", \"coefficient\": 1, \"transformation_ref\": \"donor-Novel\", \"origin_group_key\": \"donor-Novel\", \"edits\": [{\"op\": \"change_bond_order\", \"atom1\": \"S_C_2\", \"atom2\": \"S_O_1\", \"from_order\": \"single\", \"to_order\": \"double\"}], \"donor\": {\"center_atom_ids\": [\"S_C_2\", \"S_O_1\"]}, \"alignment\": {\"status\": \"resolved\", \"donor_to_current\": {\"S_C_2\": \"S_C_2\", \"S_O_1\": \"S_O_1\"}, \"ref\": \"align-A\"}, \"expectation\": {\"target_smiles\": \"CC=O\"}}}]}"
+      ]
+    },
+    "pools": {
+      "CCO": [
+        {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "coefficient": 1,
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          },
+          "key": "B",
+          "origin_group_key": "donor-B",
+          "product_smiles": "CC=O",
+          "transformation_ref": "donor-B"
+        }
+      ]
+    }
+  },
+  "run_id": "old_novel_nonempty",
+  "runs_root": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/synthetic_runs/runs"
+}

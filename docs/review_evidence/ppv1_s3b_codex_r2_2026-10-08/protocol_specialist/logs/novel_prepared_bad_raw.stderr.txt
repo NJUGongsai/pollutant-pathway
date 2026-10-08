@@ -1,0 +1,41 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/chemstate.py", line 890, in validate_state_object
+    raw_identity = strict_identity_of(raw)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/chemstate.py", line 923, in strict_identity_of
+    _guard_input_cx_classes(structure)
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/chemstate.py", line 456, in _guard_input_cx_classes
+    raise _cx_unregistered_item_error(segment, i, "")
+pathway_v43.pollutant.chemstate.ChemicalStateError: CX 输入扩展段含未登记并列/未知项:'r'(输入侧注册感知校验按真实 CX 类边界逐项检查:解析器会静默丢弃该项,丢弃后不得称 as_written;登记类:atomProp/SgD/Sg/a/oN/&N/^N/$(…)$/(…);未知项显式拒绝)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/probe_public.py", line 102, in worker
+    out=start_run(config=cfg,runs_root=runs_root,run_id=run_id,smiles=inp.get('smiles','CCO'),max_depth=3,max_expansions=10,max_frontier_width=2,finder=object(),scripted=True,profile=PROFILE_POLLUTANT_PATHWAY_V1,ppv1_plan=inp.get('plan'),profile_policy=inp.get('policy'),crash_after=inp.get('crash_after'))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/workflow/runner.py", line 219, in start_run
+    return start_ppv1_run(
+           ^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/runflow.py", line 1281, in start_ppv1_run
+    report = driver.drive()
+             ^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/runflow.py", line 540, in drive
+    self._run_expand(receipt)
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/runflow.py", line 942, in _run_expand
+    production = expand_hypothesis_production(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_supplemental_worker.py", line 40, in corrupted_prepared
+    return orig_expand(*a,**k)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/production.py", line 406, in expand_hypothesis_production
+    audit = audit_hypothesis(
+            ^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_supplemental_worker.py", line 24, in fn
+    result=original(*a,**k)
+           ^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/audit.py", line 475, in audit_hypothesis
+    validate_state_object(states[ref])
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/chemstate.py", line 892, in validate_state_object
+    raise ChemicalStateError(
+pathway_v43.pollutant.chemstate.ChemicalStateError: state:cs_540cc0181e112b383323 的 structure_smiles_raw 未通过输入守卫或无法解析(R7-01/R8:原始串含未登记 CX 项即拒 —— 静默丢弃后不得称 as_written/verified;首次消费零授信)

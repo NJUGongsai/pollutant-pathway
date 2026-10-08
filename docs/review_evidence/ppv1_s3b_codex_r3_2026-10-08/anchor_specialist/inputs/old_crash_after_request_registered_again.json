@@ -1,0 +1,50 @@
+{
+  "mode": "resume",
+  "plan": {
+    "model": {
+      "provider_kind": "scripted",
+      "responses": [
+        "{\"proposals\": \"not-a-list\"}"
+      ]
+    },
+    "pools": {
+      "CCO": [
+        {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "coefficient": 1,
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          },
+          "key": "B",
+          "origin_group_key": "donor-B",
+          "product_smiles": "CC=O",
+          "transformation_ref": "donor-B"
+        }
+      ]
+    }
+  },
+  "run_id": "old_crash_after_request_registered",
+  "runs_root": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/synthetic_runs/runs"
+}

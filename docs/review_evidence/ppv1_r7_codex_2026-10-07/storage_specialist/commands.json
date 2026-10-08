@@ -1,0 +1,56 @@
+[
+  {
+    "label": "PPV1 full isolated",
+    "cwd": "/private/tmp/ppv1_r7_storage_e5U2uF/repo",
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/private/tmp/ppv1_r7_storage_e5U2uF/repo/src /Users/cc/miniconda3/envs/depending43/bin/python -B -m pytest -p no:cacheprovider -q -rs tests/test_ppv1_*.py",
+    "exit_code": 0,
+    "stdout": "ppv1_full.stdout.txt",
+    "stderr": "ppv1_full.stderr.txt",
+    "result": "508 passed, 0 skipped, 1 docstring warning, 3.97s"
+  },
+  {
+    "label": "G01 safe isolated initial",
+    "cwd": "/private/tmp/ppv1_r7_storage_e5U2uF/repo",
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/private/tmp/ppv1_r7_storage_e5U2uF/repo/src /Users/cc/miniconda3/envs/depending43/bin/python -B -m pytest -p no:cacheprovider -q -rs -m \"not slow\" tests/",
+    "exit_code": 1,
+    "stdout": "g01_safe_isolated.stdout.txt",
+    "stderr": "g01_safe_isolated.stderr.txt",
+    "result": "2 failed, 1099 passed, 18 skipped, 16 deselected, 1 docstring warning, 87.34s"
+  },
+  {
+    "label": "Storage public chain R7",
+    "cwd": "/private/tmp/ppv1_r7_storage_e5U2uF",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/cc/miniconda3/envs/depending43/bin/python -B /private/tmp/ppv1_r7_storage_e5U2uF/storage_contract_probe.py /private/tmp/ppv1_r7_storage_e5U2uF/repo",
+    "exit_code": 0,
+    "stdout": "storage_contract_probe.output.jsonl",
+    "stderr": "storage_contract_probe.stderr.txt",
+    "result": "15 cases + 1 metadata"
+  },
+  {
+    "label": "Storage public chain R6 baseline",
+    "cwd": "/private/tmp/ppv1_r7_storage_e5U2uF",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/cc/miniconda3/envs/depending43/bin/python -B /private/tmp/ppv1_r7_storage_e5U2uF/storage_contract_probe.py /private/tmp/ppv1_r7_storage_e5U2uF/baseline",
+    "exit_code": 0,
+    "stdout": "storage_contract_probe.baseline.output.jsonl",
+    "stderr": "storage_contract_probe.baseline.stderr.txt",
+    "result": "9 first-submit cases + 2 metadata; link cases unavailable at store-6"
+  },
+  {
+    "label": "Observed assertions R7",
+    "cwd": "/private/tmp/ppv1_r7_storage_e5U2uF",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/cc/miniconda3/envs/depending43/bin/python -B /private/tmp/ppv1_r7_storage_e5U2uF/storage_assert_observed.py /private/tmp/ppv1_r7_storage_e5U2uF/storage_contract_probe.output.jsonl",
+    "exit_code": 0,
+    "stdout": "storage_assert_observed.stdout.txt",
+    "stderr": "storage_assert_observed.stderr.txt",
+    "result": "15 current observations agree, includes 2 known defect positives"
+  },
+  {
+    "label": "G01 safe isolated with ordinary v3 source",
+    "cwd": "/private/tmp/ppv1_r7_storage_e5U2uF/repo",
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/private/tmp/ppv1_r7_storage_e5U2uF/repo/src BBD_DATA_ROOT=/private/tmp/ppv1_r7_storage_e5U2uF/empty_external_data /Users/cc/miniconda3/envs/depending43/bin/python -B -m pytest -p no:cacheprovider -q -rs -m \"not slow\" --deselect tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden tests/",
+    "exit_code": 0,
+    "stdout": "g01_safe_with_v3_source.stdout.txt",
+    "stderr": "g01_safe_with_v3_source.stderr.txt",
+    "result": "1110 passed, 8 skipped, 17 deselected, 1 docstring warning, 222.45s"
+  }
+]

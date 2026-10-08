@@ -1,0 +1,33 @@
+{
+  "pid": 82781,
+  "argv": [
+    "/private/tmp/ppv1_s3a_r2_authority_0561kdd4/supplementary_probe.py",
+    "--mutator",
+    "/private/tmp/ppv1_s3a_r2_authority_0561kdd4/supplementary_cases/TOCTOU_clean/run.sqlite",
+    "cs_540cc0181e112b383323",
+    "/private/tmp/ppv1_s3a_r2_authority_0561kdd4/supplementary_cases/TOCTOU_clean/barrier",
+    "clean"
+  ],
+  "cwd": "/private/tmp/ppv1_s3a_r2_authority_0561kdd4/repo",
+  "kind": "clean",
+  "original": {
+    "state_id": "cs_540cc0181e112b383323",
+    "payload": "{\"cn_identity\": \"CC=O\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CC=O\", \"state_id\": \"cs_540cc0181e112b383323\", \"stereo_information_status\": \"not_applicable\"}",
+    "created_at": "2026-10-07T15:19:30+00:00"
+  },
+  "sql": [
+    {
+      "sql": "SELECT payload FROM states WHERE state_id=?",
+      "params": [
+        "cs_540cc0181e112b383323"
+      ]
+    }
+  ],
+  "returned": true,
+  "elapsed_seconds": 9.250000584870577e-05,
+  "after": {
+    "state_id": "cs_540cc0181e112b383323",
+    "payload": "{\"cn_identity\": \"CC=O\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CC=O\", \"state_id\": \"cs_540cc0181e112b383323\", \"stereo_information_status\": \"not_applicable\"}",
+    "created_at": "2026-10-07T15:19:30+00:00"
+  }
+}

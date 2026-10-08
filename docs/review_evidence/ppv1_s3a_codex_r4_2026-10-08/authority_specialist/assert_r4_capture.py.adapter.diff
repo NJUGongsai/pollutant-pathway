@@ -1,0 +1,35 @@
+--- R3 original assert_r3_capture.py
++++ R4 current only-read assert_r4_capture.py
+@@ -32,16 +32,25 @@
+ nec=json.loads((P/'necessary_reference_observations.json').read_text());assert len(nec)==63
+ bad=[];nc=[]
+ for r in nec:
+- assert r['result']['returned'] and r['artifact_preserved']
+- if r['inputs']['mutation']=='clean':nc.append(r['case']);continue
++ assert r['artifact_preserved']
++ if r['inputs']['mutation']=='clean':assert r['result']['returned'];nc.append(r['case']);continue
+  bad.append(r['case'])
+- if r['inputs']['phase']=='B3_recover':assert len(r['before']['events'])==0 and len(r['after']['events'])==1 and len(r['after']['search_commit_records'])==1
+- if r['inputs']['removed_limit_key']=='max_total_search_actions' and r['inputs']['mutation']=='remove_ref_and_row':assert r['budget_after']['returned']['run_level']['max_total_search_actions']['used']==0
+- assert not any(isinstance(x.get('disposition'),dict) and x['disposition'].get('error') for x in r['result']['returned'].get('actions',[]))
++ assert r['result']['error']=='SearchIntegrityError' and r['before']==r['after']
++ expected='necessary_reservation_ref_missing' if r['inputs']['mutation']=='remove_ref_only' else 'reservation_row_missing'
++ assert r['result']['detail']['kind']==expected
++ if r['inputs']['phase']=='B3_recover':assert len(r['before']['events'])==len(r['after']['events'])==0 and len(r['before']['search_commit_records'])==len(r['after']['search_commit_records'])==0
+ assert len(bad)==54 and len(nc)==9
++chain=[json.loads(x.read_text()) for x in sorted((P/'one_action_chain_cases').glob('*/input_output.json'))];assert len(chain)==2
++for r in chain:
++ assert r['budget']['run_level']['max_total_search_actions']['used']==1 and len(r['final']['search_commit_records'])==1
++ if r['case']=='upper1_clean':assert r['steps'][1]['claim']['error']=='SearchBudgetExhausted' and len(r['final']['events'])==1
++ else:
++  assert r['steps'][0]['complete']['error']=='SearchIntegrityError' and r['steps'][0]['complete']['detail']['kind']=='reservation_row_missing'
++  assert r['steps'][0]['before_complete']==r['steps'][0]['after_complete'] and r['steps'][1]['complete']['returned']['completed'] and len(r['final']['events'])==2
++cache=json.loads((P/'cache_boundary_observations.json').read_text());assert cache['summary']['assertions_passed'] and len(cache['rows'])==7
+ extra=json.loads((P/'defer_control_observations.json').read_text());assert len(extra)==13
+ for r in extra:
+  if r['case'].startswith('defer_row__') and r['case']!='defer_row__clean':assert r['result']['error']=='SearchIntegrityError' and r['before']==r['after']
+  else:assert r['result']['returned']
+-out={'capture_readonly_assertions':'passed','old_27':{'bad_authority_rejected':24,'legal_controls':2,'raw_guard':1},'old_segmented120':{'rejected_bad':111,'legal_controls':9},'done2':{'legal_actual_reference':1,'foreign_explicit_conflict':1},'normal_first_submit_controls':3,'hard_kill_barrier_controls':5,'additional_defer_controls':{'bad_rows_rejected':9,'legal_controls':4},'necessary_reference_subset':{'bad_cases_wrongly_accepted':54,'legal_controls':9,'residual_group':'S3A-02','bad_case_names':bad},'no_test_count_sum_or_science_performance':True}
+-(P/'contract_results.json').write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n');print(json.dumps({k:v for k,v in out.items() if k!='necessary_reference_subset'},ensure_ascii=False));print(json.dumps({'residual_P1':'S3A-02','necessary_reference_subset_accepted':len(bad),'legal_controls':len(nc)}))
++out={'capture_readonly_assertions':'passed','old_27':{'bad_authority_rejected':24,'legal_controls':2,'raw_guard':1},'old_segmented120':{'rejected_bad':111,'legal_controls':9},'done2':{'legal_actual_reference':1,'foreign_explicit_conflict':1},'normal_first_submit_controls':3,'hard_kill_barrier_controls':5,'upper1_chain_cases':2,'cache_boundary_cases':7,'cache_hit_boundary_classification':'P2 fixed-range disclosed limitation','additional_defer_controls':{'bad_rows_rejected':9,'legal_controls':4},'necessary_reference_subset':{'bad_cases_rejected_zero_write':54,'legal_controls':9,'closed_group':'S3A-02','bad_case_names':bad},'no_test_count_sum_or_science_performance':True}
++(P/'contract_results.json').write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n');print(json.dumps({k:v for k,v in out.items() if k!='necessary_reference_subset'},ensure_ascii=False));print(json.dumps({'authority_P1_closed':'S3A-02','necessary_reference_subset_rejected':len(bad),'legal_controls':len(nc)}))

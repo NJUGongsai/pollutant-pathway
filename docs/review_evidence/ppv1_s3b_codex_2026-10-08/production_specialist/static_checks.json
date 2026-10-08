@@ -1,0 +1,207 @@
+{
+  "mode": "read_only_static_primary_source",
+  "checks": [
+    {
+      "title": "mimo A malformed atomProp",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/chemstate.py",
+      "relative_source": "src/pathway_v43/pollutant/chemstate.py",
+      "source_sha256": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+      "start": 310,
+      "end": 335,
+      "snippet": "310:def _cx_scan_atom_prop_item(segment: str, i: int) -> int | None:\n311:    \"\"\"atomProp 项(已匹配头):``atomProp:`` 后 (int.name.value 三元组)。\n312:\n313:    三元组之间由 ':' 连接(写出器的多 prop 冒号形态);value 到\n314:    ':'/'|'/',' 止;项在 value 止于 ',' 或段末时结束。三元组畸形 ⇒\n315:    返回 None(交给未知头/解析失败路径,不静默放行)。\n316:    \"\"\"\n317:    n = len(segment)\n318:    j = i + len(\"atomProp:\")\n319:    while j < n:\n320:        k = j\n321:        while k < n and segment[k].isdigit():\n322:            k += 1\n323:        if k == j or k >= n or segment[k] != \".\":\n324:            return None\n325:        j = _cx_scan_field(segment, k + 1, \".\")\n326:        if j >= n or segment[j] != \".\":\n327:            return None\n328:        j = _cx_scan_field(segment, j + 1, \":|,\")\n329:        if j >= n or segment[j] == \"|\":\n330:            return j  # 段末(或终止 '|')\n331:        if segment[j] == \":\":\n332:            j += 1  # 多 prop 冒号形态:继续下一三元组\n333:            continue\n334:        return j  # ',':项结束(主分派循环跳过逗号)\n335:    return j",
+      "judgment": "consistent: malformed item not independent unknown r head"
+    },
+    {
+      "title": "mimo E early execution failure",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/production.py",
+      "relative_source": "src/pathway_v43/pollutant/production.py",
+      "source_sha256": "3b1a66ea2bc3aa37f7caaa2ed1a7f5395cda5901ef2a03d765b932ee5b082262",
+      "start": 396,
+      "end": 409,
+      "snippet": "396:    execution = execute_atomtool_expansion(\n397:        substrate_smiles=substrate_state.smiles_isomeric,\n398:        tool_inputs=tool_inputs)\n399:    if not execution[\"execution_ok\"]:\n400:        # 执行失败:方法失败(不是契约异常;不伪装成功工具结果)。\n401:        # 诊断三判定字段 None、center_evidence 空 —— converter 元数据\n402:        # 已在 execution 内(None = 未评估,不是通过)。\n403:        return _report(\"method_failed\", execution=execution, admission=None,\n404:                       event=None)\n405:    # ---- audit(AuditContractError 原样上抛;首消费守卫在 audit 内) ----\n406:    audit = audit_hypothesis(\n407:        hypothesis, run_id=ledger.run_id or \"\", states=states,\n408:        context=context, center_evidence=execution[\"center_evidence\"])\n409:    disposition, reasons = decide_admission(audit, policy=admission_policy)",
+      "judgment": "consistent: execution failure returns method_failed before audit"
+    },
+    {
+      "title": "mimo 0d2 narrow AuditContractError",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/runflow.py",
+      "relative_source": "src/pathway_v43/pollutant/runflow.py",
+      "source_sha256": "a5f9f321e3ec9c60a12aebac8f5f11c2e715e881df7bcff6ad2e3fb935420fb6",
+      "start": 615,
+      "end": 656,
+      "snippet": "615:    def _run_expand(self, receipt: dict) -> None:\n616:        payload = receipt[\"payload\"]\n617:        action_id = receipt[\"action_id\"]\n618:        attempt_id = (receipt.get(\"attempt_refs\") or [\"\"])[0]\n619:        substrate = _substrate_state(\n620:            str(payload.get(\"substrate_smiles\") or \"\"),\n621:            f\"ppv1-substrate:{self.run_id}\")\n622:        spec = dict(payload.get(\"spec\") or {})\n623:        prepared = prepare_hypothesis(\n624:            spec, parent_path_id=receipt[\"parent_path_id\"],\n625:            substrate_state=substrate,\n626:            transformation_ref=str(spec.get(\"transformation_ref\") or \"\"))\n627:        context = load_context(self.ledger.artifact_store,\n628:                               receipt[\"context_ref\"])\n629:        limits = self.ledger._limits(self.run_id)\n630:        write_bundle = self.crash_after == \"after_bundle_written\"\n631:        try:\n632:            production = expand_hypothesis_production(\n633:                self.ledger, action_id, prepared=prepared, context=context,\n634:                worker_id=self.worker_id, attempt_id=attempt_id,\n635:                task_key=str(payload.get(\"task_key\") or \"\"),\n636:                substrate_state=substrate, limits=limits,\n637:                depth=int(payload.get(\"depth\") or 1),\n638:                parent_search_revision=int(\n639:                    receipt[\"parent_search_revision\"]),\n640:                write_bundle=write_bundle,\n641:                crash_after=(\"bundle_written\" if write_bundle else\n642:                             (\"event_submitted\"\n643:                              if self.crash_after == \"after_event_submitted\"\n644:                              else None)))\n645:        except AuditContractError as exc:\n646:            # **窄捕获(R8 P2 ⑧ 义务)**:契约异常中止本次\n647:            # admission/提交 —— 生产链在提交前上抛 ⇒ 零事件/零提交;\n648:            # 此处只记方法失败并调度独立备选,**不吞成成功**(无事件/\n649:            # 无提交/无 verified 可言;attempt 落 failed)。\n650:            record_expansion_outcome(\n651:                self.ledger, attempt_id,\n652:                outcome={\"kind\": OUTCOME_KIND_CONTRACT_ABORTED,\n653:                         \"detail\": {\"error\": \"AuditContractError\",\n654:                                    \"reason\": str(exc)[:300]}},\n655:                evidence_refs=[action_id], worker_id=self.worker_id)\n656:            return",
+      "judgment": "consistent: try excludes preparation and context load; narrow catch writes failure settlement"
+    },
+    {
+      "title": "mimo E/0d2 other RuntimeError escape",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/runflow.py",
+      "relative_source": "src/pathway_v43/pollutant/runflow.py",
+      "source_sha256": "a5f9f321e3ec9c60a12aebac8f5f11c2e715e881df7bcff6ad2e3fb935420fb6",
+      "start": 321,
+      "end": 340,
+      "snippet": "321:                        f\"未知 action_kind:{kind!r}(驱动分发缺实现)\",\n322:                        {\"kind\": \"unknown_action_kind\",\n323:                         \"action_kind\": kind})\n324:            except SearchCrashInjection:\n325:                raise  # 崩溃注入点不是 run 错误:原样上抛(测试边界)\n326:            except (PPV1RunError, ModelProtocolError,\n327:                    SearchContractError) as exc:\n328:                # 模型结构失败/调度契约失败(如转换缺 source_ref)等\n329:                # run 级错误:如实停止(不吞、不猜;claimed action 保持\n330:                # 认领态计入未完成,不称 exhausted_search;错误进报告)\n331:                self.run_error = {\n332:                    \"error\": type(exc).__name__,\n333:                    \"kind\": exc.detail.get(\"kind\"),\n334:                    \"message\": str(exc)[:300]}\n335:                break\n336:        return self._stop_report()\n337:\n338:    # ------------------------------------------------------------ retrieve\n339:\n340:    def _run_retrieve(self, receipt: dict) -> None:",
+      "judgment": "consistent: drive catch lacks ChemicalStateError/HypothesisContractError/ConditionContractError"
+    },
+    {
+      "title": "mimo C proof branch order",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/audit.py",
+      "relative_source": "src/pathway_v43/pollutant/audit.py",
+      "source_sha256": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "start": 1128,
+      "end": 1227,
+      "snippet": "1128:                    binding_ok, binding_reason, coverage_detail = \\\n1129:                        _center_evidence_binding(\n1130:                            recomputed.get(\"bound_inputs\") or {})\n1131:                    if not binding_ok and not (\n1132:                            binding_reason.startswith(\n1133:                                _COVERAGE_PARTIAL_PREFIX)\n1134:                            or binding_reason.startswith(\n1135:                                _COVERAGE_UNKNOWN_COEFF_PREFIX)):\n1136:                        # 跨反应复用/改产物/未申报碎片 ⇒ 不得认证\n1137:                        checks.append(AuditCheck(\n1138:                            name=CHECK_TRANSFORMATION_CENTER,\n1139:                            status=CHECK_UNKNOWN,\n1140:                            reason_code=binding_reason\n1141:                            + \"(证据未绑定本假设的底物/产物集合;复算\"\n1142:                            \"证明链对不上,注册名+True 不构成核实)\",\n1143:                            evidence_refs=refs,\n1144:                            coverage=\"mapping_dependent\",\n1145:                            detail={**base_detail,\n1146:                                    **_evidence_binding_detail(\n1147:                                        center_evidence, binding_reason),\n1148:                                    **coverage_detail}))\n1149:                    else:\n1150:                        mismatch = bool(recomputed.get(\n1151:                            \"declaration_mismatch\"))\n1152:                        center_match = recomputed.get(\"center_match\")\n1153:                        strict_axis = recomputed.get(\"strict_target_match\")\n1154:                        # P2(R5 §4-1):basis 从复算读(diagnostic 载荷\n1155:                        # v6 起携带;direct | symmetric_equivalent,仅\n1156:                        # center_match=True 时非空)—— 不再空串伪装依据\n1157:                        basis_str = str(recomputed.get(\n1158:                            \"center_match_basis\", \"\"))\n1159:                        axis_detail = {**base_detail,\n1160:                                       \"center_match\": center_match,\n1161:                                       \"center_match_basis\": basis_str,\n1162:                                       \"strict_target_match\": strict_axis,\n1163:                                       **coverage_detail}\n1164:                        if not binding_ok:\n1165:                            # 部分覆盖(额外未核实转化/未核实贡献)或\n1166:                            # 覆盖不可算(未知系数)⇒ 不可 verified\n1167:                            # (可明确部分覆盖而 retain,R4-01/R5-01 验收)\n1168:                            checks.append(AuditCheck(\n1169:                                name=CHECK_TRANSFORMATION_CENTER,\n1170:                                status=CHECK_UNKNOWN,\n1171:                                reason_code=binding_reason,\n1172:                                evidence_refs=refs,\n1173:                                coverage=\"mapping_dependent\",\n1174:                                detail=axis_detail))\n1175:                        elif mismatch or center_match is None:\n1176:                            checks.append(AuditCheck(\n1177:                                name=CHECK_TRANSFORMATION_CENTER,\n1178:                                status=CHECK_UNKNOWN,\n1179:                                reason_code=(\n1180:                                    \"center_evidence_inconclusive\"\n1181:                                    + (\"_declaration_mismatch\" if mismatch\n1182:                                       else \"\")\n1183:                                    + (\"_center_unknown\"\n1184:                                       if center_match is None else \"\")),\n1185:                                evidence_refs=refs,\n1186:                                coverage=\"mapping_dependent\",\n1187:                                detail=axis_detail))\n1188:                        elif strict_axis is False:\n1189:                            # R3-01/mimo 3.3(3):确定性 checker 发现产物\n1190:                            # 偏离预期(strict=False)——适用失败轴不得在\n1191:                            # all_verified 语义下消失;区域 True 与 strict\n1192:                            # False 分别保留在 detail,各轴不互相覆盖\n1193:                            checks.append(AuditCheck(\n1194:                                name=CHECK_TRANSFORMATION_CENTER,\n1195:                                status=CHECK_VIOLATED,\n1196:                                reason_code=(\n1197:                                    \"center_evidence_strict_target_mismatch\"\n1198:                                    \"(产物与声明位点预期不同:区域轴与\"\n1199:                                    \"strict 轴分别报告,完整核实不忽略\"\n1200:                                    \"适用失败)\"),\n1201:                                evidence_refs=refs,\n1202:                                coverage=\"mapping_dependent\",\n1203:                                detail=axis_detail))\n1204:                        elif strict_axis is None:\n1205:                            # 适用的未核实轴同样阻断 all_verified\n1206:                            checks.append(AuditCheck(\n1207:                                name=CHECK_TRANSFORMATION_CENTER,\n1208:                                status=CHECK_UNKNOWN,\n1209:                                reason_code=\"center_evidence_strict_unknown\"\n1210:                                \"(产物比对轴未核实:不得计入全部核实)\",\n1211:                                evidence_refs=refs,\n1212:                                coverage=\"mapping_dependent\",\n1213:                                detail=axis_detail))\n1214:                        elif center_match is True:\n1215:                            checks.append(AuditCheck(\n1216:                                name=CHECK_TRANSFORMATION_CENTER,\n1217:                                status=CHECK_VERIFIED,\n1218:                                reason_code=(\n1219:                                    \"center_evidence_verified\"\n1220:                                    f\":{checker}(scope={ev_scope};basis=\"\n1221:                                    f\"{basis_str})\"),\n1222:                                evidence_refs=refs,\n1223:                                coverage=\"mapping_dependent\",\n1224:                                detail=axis_detail))\n1225:                        else:  # center_match is False:声明中心与实际偏离\n1226:                            checks.append(AuditCheck(\n1227:                                name=CHECK_TRANSFORMATION_CENTER,",
+      "judgment": "scope correction: strict=False violated only after prior binding/coverage/inconclusive branches"
+    },
+    {
+      "title": "mimo B/G4 lambda_s times delta",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/audit.py",
+      "relative_source": "src/pathway_v43/pollutant/audit.py",
+      "source_sha256": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "start": 913,
+      "end": 995,
+      "snippet": "913:        delta: dict[str, Fraction] = {}\n914:        for element in set(elem_s) | set(elem_p):\n915:            d = elem_s.get(element, Fraction(0)) \\\n916:                - elem_p.get(element, Fraction(0))\n917:            if d != 0:\n918:                delta[element] = d\n919:        delta_pos = {el: v for el, v in delta.items() if v > 0}\n920:        delta_neg = {el: -v for el, v in delta.items() if v < 0}\n921:        violations: list[dict] = []\n922:        # 4. 系数绑定:产物侧声明贡献 == λ_s × 重数\n923:        for identity, multiplicity in sorted(covered_multiplicity.items()):\n924:            declared = sum((pp.coefficient for pp in product_parts\n925:                            if _identity_of(pp) == identity), Fraction(0))\n926:            required = lambda_s * multiplicity\n927:            if declared != required:\n928:                violations.append({\n929:                    \"kind\": \"coefficient_binding_mismatch\",\n930:                    \"identity\": identity,\n931:                    \"declared_total\": str(declared),\n932:                    \"required\": str(required),\n933:                    \"multiplicity_in_bound_product\": multiplicity})\n934:        # 5. 注册补全规则:两侧各自精确相等\n935:        uncovered_reactant_elements: dict[str, Fraction] = {}\n936:        uncovered_product_elements: dict[str, Fraction] = {}\n937:        composition_unverifiable = False\n938:        for pp, bucket in ([(pp, uncovered_reactant_elements)\n939:                            for pp in uncovered_reactants]\n940:                           + [(pp, uncovered_product_elements)\n941:                              for pp in uncovered_products]):\n942:            elements = _elements_of(_identity_of(pp))\n943:            if elements is None:\n944:                composition_unverifiable = True\n945:                continue\n946:            for element, count in elements.items():\n947:                bucket[element] = bucket.get(element, Fraction(0)) \\\n948:                    + count * pp.coefficient\n949:        if composition_unverifiable:\n950:            return False, (\n951:                \"center_evidence_binding_unverifiable:element_\"\n952:                \"composition\"), dict(base_coverage_detail)\n953:\n954:        def _completion_violations(actual, required, side):\n955:            out = []\n956:            for element in sorted(set(actual) | set(required)):\n957:                have = actual.get(element, Fraction(0))\n958:                need = required.get(element, Fraction(0))\n959:                if have == need:\n960:                    continue\n961:                out.append({\n962:                    \"kind\": (\"completion_surplus\" if have > need\n963:                             else \"completion_deficit\"),\n964:                    \"side\": side,\n965:                    \"element\": element,\n966:                    \"declared_total\": str(have),\n967:                    \"required\": str(need)})\n968:            return out\n969:\n970:        if uncovered_reactants or uncovered_products:\n971:            # 无未覆盖参与物 ⇒ full(补全规则不重复元素账独立轴);\n972:            # 有未覆盖参与物 ⇒ 两侧各自与注册规则精确对账\n973:            violations += _completion_violations(\n974:                uncovered_product_elements,\n975:                {el: lambda_s * v for el, v in delta_pos.items()},\n976:                \"product\")\n977:            violations += _completion_violations(\n978:                uncovered_reactant_elements,\n979:                {el: lambda_s * v for el, v in delta_neg.items()},\n980:                \"reactant\")\n981:            # R6-01(R7):补全许可范围 —— 未覆盖参与物的严格结构身份\n982:            # 须在注册许可集(组合型氢当量)内;未登记身份即使数值\n983:            # 全配平,其初始分子图的键变化/连接贡献仍未核实(元素配平\n984:            # ≠ 结构贡献已核实),不得据此 full/R6\n985:            unlicensed_identities = sorted({\n986:                identity for identity in\n987:                (_identity_of(pp) for pp in\n988:                 uncovered_reactants + uncovered_products)\n989:                if identity and identity\n990:                not in COMPLETION_LICENSED_IDENTITIES})\n991:            if unlicensed_identities:\n992:                violations.append({\n993:                    \"kind\": \"completion_license_unregistered_identity\",\n994:                    \"identities\": unlicensed_identities,\n995:                    \"completion_license\": COMPLETION_LICENSE,",
+      "judgment": "verified source: coefficient binding separate, exact completion equations at973-979"
+    },
+    {
+      "title": "mimo D audit context strong guard",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/audit.py",
+      "relative_source": "src/pathway_v43/pollutant/audit.py",
+      "source_sha256": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "start": 455,
+      "end": 478,
+      "snippet": "455:    if context is not None:\n456:        # R3-08:直接对象的缺/未来 context 版本 ⇒ 结构化拒绝\n457:        # (from_dict 门早已存在;此处覆盖\"直接对象到 R6\"的绕过)\n458:        validate_context_object(context)\n459:    states = dict(states or {})\n460:    for ref, structure in (raw_structures or {}).items():\n461:        if ref not in states:\n462:            built = build_chemical_state(structure, \"source_product\")\n463:            if built.state_id != ref:\n464:                raise AuditContractError(\n465:                    \"raw_structures 的 state_ref 与结构实际身份不一致\"\n466:                    \"(不得以其他分子冒充)\",\n467:                    {\"state_ref\": ref, \"actual_state_id\": built.state_id})\n468:            states[ref] = built\n469:    # R7-01/R8:直接 dataclass 对象与恢复对象共用与公共 writer 同源的\n470:    # 纯状态验证(与 from_dict 同一验证源)—— 工厂入口的输入守卫不因\n471:    # \"对象已构造\"而豁免;篡改 raw(未登记 CX 项/跨分子)的对象在首次\n472:    # 消费即结构化拒绝(ChemicalStateError),不再进入 verified/R6;\n473:    # 不静默清洗信息再授 full。CN-only 合法未知保持诚实 unknown。\n474:    for ref in sorted(states):\n475:        validate_state_object(states[ref])\n476:    requested = set(audit_scope or REQUIRED_CHECK_NAMES)\n477:\n478:    checks: list[AuditCheck] = []",
+      "judgment": "consistent: context and state strong guards in audit"
+    },
+    {
+      "title": "mimo D derive parent guard",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/path_context.py",
+      "relative_source": "src/pathway_v43/pollutant/path_context.py",
+      "source_sha256": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+      "start": 2322,
+      "end": 2333,
+      "snippet": "2322:    # 签名↔评估行对应] + 内容身份重算)。就地篡改的父快照(删\n2323:    # per_requirement/清 coverage/降 has_gate 而保留原 context_id,\n2324:    # 直接 audit 已拒)不得经公开派生 API 不加新事实重算合法子 ID、\n2325:    # 再借子对象把旧必要未知洗成 verified/R6;合法父(build/from_\n2326:    # dict/derive 产物)幂等通过。\n2327:    validate_context_object(parent)\n2328:    if scenario_transition is not None:\n2329:        if not scenario_transition.get(\"source_ref\"):\n2330:            raise ConditionContractError(\n2331:                \"阶段转换必须有来源(用户/来源提供;不自行换场景)\",\n2332:                {\"scenario_transition\": scenario_transition})\n2333:    phase_id = parent.phase_id",
+      "judgment": "consistent: parent validate then source_ref"
+    },
+    {
+      "title": "mimo 0d8 claimed file wrong",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/runflow.py",
+      "relative_source": "src/pathway_v43/pollutant/runflow.py",
+      "source_sha256": "a5f9f321e3ec9c60a12aebac8f5f11c2e715e881df7bcff6ad2e3fb935420fb6",
+      "start": 214,
+      "end": 223,
+      "snippet": "214:            \" c.event_id FROM search_actions a JOIN search_commit_records\"\n215:            \" c ON c.action_id = a.action_id WHERE a.run_id = ? AND\"\n216:            \" a.action_kind = ? AND a.status = ? AND c.event_id != ''\",\n217:            (self.run_id, ACTION_KIND_EXPAND_HYPOTHESIS,\n218:             \"done\")).fetchall()\n219:        for row in rows:\n220:            event_id = row[\"event_id\"]\n221:            existing = self.ledger.conn.execute(\n222:                \"SELECT COUNT(*) FROM search_actions WHERE run_id = ? AND\"\n223:                \" payload LIKE ?\",",
+      "judgment": "WRONG FILE: these are reconcile_followups, not start_run profile split"
+    },
+    {
+      "title": "mimo 0d8 actual start file",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/workflow/runner.py",
+      "relative_source": "src/pathway_v43/workflow/runner.py",
+      "source_sha256": "3540decaf1d3741f357e83ac702c67eb6ee767332a9471e3a4d52407523e5429",
+      "start": 214,
+      "end": 228,
+      "snippet": "214:    if profile == PROFILE_POLLUTANT_PATHWAY_V1:\n215:        # ---- S3b 分流:PPV1 独立执行/存储(不落 legacy 图/CN/\n216:        # PathwayStore/预算派生;策略身份走 profile_policy,不因传\n217:        # model 派生真实请求预算;ppv1_plan 为合成/规则级计划输入) ----\n218:        from ..pollutant.runflow import start_ppv1_run\n219:        return start_ppv1_run(\n220:            config=config, runs_root=runs_root, run_id=run_id,\n221:            smiles=smiles, plan=ppv1_plan, model=model,\n222:            profile_policy=profile_policy, scripted=scripted,\n223:            crash_after=crash_after)\n224:    _refuse_undelivered_profile(profile)\n225:    if (run_dir / \"run_identity.json\").is_file():\n226:        raise RunAlreadyExists(run_id, run_dir)\n227:\n228:    migrated_block = None",
+      "judgment": "correction: start_run split here"
+    },
+    {
+      "title": "mimo 0d8 actual resume file",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/workflow/runner.py",
+      "relative_source": "src/pathway_v43/workflow/runner.py",
+      "source_sha256": "3540decaf1d3741f357e83ac702c67eb6ee767332a9471e3a4d52407523e5429",
+      "start": 305,
+      "end": 320,
+      "snippet": "305:    ppv1_plan: dict | None = None,\n306:) -> dict:\n307:    runs_root = Path(runs_root)\n308:    saved = load_run_identity(runs_root, run_id)\n309:    if saved is None:\n310:        raise RunNotFound(run_id, runs_root)\n311:    # ---- S3b 分流:PPV1 独立恢复(身份核对 → 四崩溃边界恢复 →\n312:    # 继续驱动;不重建/不覆盖既有搜索/attempt/request/提交记录) ----\n313:    saved_profile_dispatch = (saved.get(\"profile\") or {}).get(\n314:        \"name\", PROFILE_LEGACY_V43)\n315:    if saved_profile_dispatch == PROFILE_POLLUTANT_PATHWAY_V1:\n316:        from ..pollutant.runflow import resume_ppv1_run\n317:        return resume_ppv1_run(\n318:            config=config, runs_root=runs_root, run_id=run_id,\n319:            plan=ppv1_plan, model=model, crash_after=crash_after)\n320:    # v43-identity-1 旧身份无 profile 块 → 按 legacy_v43 读取;",
+      "judgment": "correction: resume_run split here"
+    },
+    {
+      "title": "R8 same-hash occurrence guard",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/store.py",
+      "relative_source": "src/pathway_v43/pollutant/store.py",
+      "source_sha256": "5adb06466bd78e82d8f975b29bbee7958ec5e6b6e165cf52402f11f9893480a0",
+      "start": 1085,
+      "end": 1154,
+      "snippet": "1085:                    {\"event_id\": eid,\n1086:                     \"kind\": \"expansion_plan_product_uncovered\",\n1087:                     \"uncovered_state_refs\": uncovered,\n1088:                     \"n_product_refs\": len(product_refs)})\n1089:\n1090:    def _collect_state_writes(\n1091:            self, eid: str, states: list[dict]) -> tuple[dict, list]:\n1092:        \"\"\"随事务 states → (待插语义表, 待插出现记录)。\n1093:\n1094:        - **R3-09**:每个 state dict 过公共 writer 身份/事实重推导\n1095:          (`_verify_state_payload_facts`;不一致 ⇒ 结构化拒绝、回滚);\n1096:        - 已存在/待插语义相同 ⇒ 幂等;不同 ⇒ 语义冲突(回滚)。\n1097:          同一 state_id 多次出现(先保留全部 occurrence 再归并身份,\n1098:        R2-08)语义必然一致(由结构派生),不一致即冲突;\n1099:        - **R7-02/R8**:每个提供 state 的既存同 (state_id,\n1100:          appearance_hash) 出现行是 INSERT OR IGNORE 的**实际复用\n1101:          对象**(首提与重放共用本收集阶段)—— 立即复算其内容 hash,\n1102:          与 hash 列不一致 ⇒ Ppv1LedgerCorrupt(损坏,不延后到重放、\n1103:          不自动覆盖修库);显式重给有效载荷不能证明被复用行有效。\n1104:        \"\"\"\n1105:        pending_semantics: dict[str, dict] = {}\n1106:        appearance_writes: list[tuple[str, str, str]] = []\n1107:        for state_dict in states:\n1108:            _check_object_version(\"chemstate\",\n1109:                                  state_dict.get(\"schema_version\"),\n1110:                                  (PPV1_CHEMSTATE_SCHEMA_VERSION,))\n1111:            _verify_state_payload_facts(state_dict)\n1112:            semantic, appearance = _split_state_payload(state_dict)\n1113:            sid = state_dict[\"state_id\"]\n1114:            known = pending_semantics.get(sid)\n1115:            if known is None:\n1116:                row = self.conn.execute(\n1117:                    \"SELECT payload FROM states WHERE state_id = ?\",\n1118:                    (sid,)).fetchone()\n1119:                if row is not None:\n1120:                    known = json.loads(row[\"payload\"])\n1121:            if known is not None and known != semantic:\n1122:                raise Ppv1EventConflict(\n1123:                    eid, {\"kind\": \"state_semantic_conflict\",\n1124:                          \"state_id\": sid,\n1125:                          \"differing_fields\": _semantic_conflict_detail(\n1126:                              known, semantic)})\n1127:            pending_semantics[sid] = semantic\n1128:            appearance_hash = content_hash(appearance)\n1129:            # R7-02/R8:supplied SID 的既存同 hash 出现行立即核内容\n1130:            # (首提/重放共用;行不存在 ⇒ 新增,合法)\n1131:            existing_row = self.conn.execute(\n1132:                \"SELECT payload FROM state_appearances WHERE state_id = ?\"\n1133:                \" AND appearance_hash = ?\", (sid, appearance_hash)\n1134:            ).fetchone()\n1135:            if existing_row is not None and content_hash(\n1136:                    json.loads(existing_row[\"payload\"])) != \\\n1137:                    appearance_hash:\n1138:                raise Ppv1LedgerCorrupt(\n1139:                    f\"{eid} 复用既存出现行(状态 {sid} 的同 hash 出现)\"\n1140:                    \"内容与哈希不一致(损坏;显式重给有效载荷不能证明\"\n1141:                    \"被复用行有效,不自动覆盖修库,零写入)\",\n1142:                    {\"event_id\": eid, \"table\": \"state_appearances\",\n1143:                     \"kind\": \"appearance_hash_corrupt\",\n1144:                     \"state_id\": sid,\n1145:                     \"appearance_hash\": appearance_hash})\n1146:            appearance_writes.append((\n1147:                sid, appearance_hash,\n1148:                json.dumps(appearance, ensure_ascii=False, sort_keys=True)))\n1149:        return pending_semantics, appearance_writes\n1150:\n1151:    # ------------------------------------------------------------ 重放内容校验(R3-10)\n1152:\n1153:    def _verify_stored_event_row(self, eid: str, existing,\n1154:                                 stored_hyp: dict) -> None:",
+      "judgment": "actual same-hash reused row guard, unchanged source"
+    },
+    {
+      "title": "first event unused old occurrence bound",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/store.py",
+      "relative_source": "src/pathway_v43/pollutant/store.py",
+      "source_sha256": "5adb06466bd78e82d8f975b29bbee7958ec5e6b6e165cf52402f11f9893480a0",
+      "start": 1719,
+      "end": 1785,
+      "snippet": "1719:                if ref not in pending_semantics\n1720:                and self.conn.execute(\n1721:                    \"SELECT 1 FROM states WHERE state_id = ?\",\n1722:                    (ref,)).fetchone() is None]\n1723:            if missing_refs:\n1724:                raise Ppv1LedgerCorrupt(\n1725:                    f\"事件引用的状态缺失:{sorted(missing_refs)[:5]}\"\n1726:                    \"(事务回滚;不产生悬空引用)\",\n1727:                    {\"event_id\": eid, \"missing_state_refs\":\n1728:                        sorted(missing_refs)})\n1729:            # ---- R6-04(R7):首提复用既存行立即共用重放同源校验 ----\n1730:            # 首提此前只核本次载荷的 states(R3-09),不在本次载荷中的\n1731:            # derived_ref 只查存在性 —— 复用损坏行(CN/schema/内 ID 被\n1732:            # SQL 改写、appearance 内容改而 hash 不变)的校验被拖到第\n1733:            # 二次调用(重放)。首次消费即闭合:与重放共用同一\n1734:            # _verify_stored_state_rows / _verify_stored_appearances,\n1735:            # 损坏 ⇒ 首提即 Ppv1LedgerCorrupt、零写入,不以\"重放能\n1736:            # 发现\"代替。合法先存行(全量/部分先存、显式绑定路径)\n1737:            # 幂等通过。R7-02/R8:supplied SID 的既存同 (SID,hash)\n1738:            # 出现行的复用校验在 _collect_state_writes(收集阶段)同源\n1739:            # 执行,不再把\"本次提供\"从复用校验中豁免。\n1740:            supplied_sids = {sid for sid, _, _ in appearance_writes}\n1741:            reuse_refs = derived_refs - supplied_sids\n1742:            if reuse_refs:\n1743:                self._verify_stored_state_rows(eid, sorted(reuse_refs))\n1744:                self._verify_stored_appearances(eid, sorted(reuse_refs),\n1745:                                                [])\n1746:            # ---- R5-05:首提绑定本事件全部出现引用(先存/部分先存)----\n1747:            # 事务提供的出现(appearance_writes)只覆盖随事务给的 state;\n1748:            # 其余 derived_ref 的出现来源必须**显式绑定**:恰 1 行既存\n1749:            # 出现 ⇒ 绑定该 (sid, hash);0 行 ⇒ 账本不完整(损坏,\n1750:            # 不补账);≥2 行 ⇒ 多个既存出现不能替调用方猜出处(结构化\n1751:            # 拒绝、零写入;须随事务显式提供该 state 载荷——幂等重放\n1752:            # 同图出现合法——或先在唯一出现下提交)。\n1753:            appearance_manifest = [\n1754:                {\"state_id\": sid, \"appearance_hash\": appearance_hash}\n1755:                for sid, appearance_hash, _ in appearance_writes\n1756:                if sid in derived_refs]\n1757:            for ref in sorted(derived_refs - supplied_sids):\n1758:                rows = self.conn.execute(\n1759:                    \"SELECT appearance_hash FROM state_appearances\"\n1760:                    \" WHERE state_id = ?\", (ref,)).fetchall()\n1761:                if not rows:\n1762:                    raise Ppv1LedgerCorrupt(\n1763:                        f\"首提 {eid} 的参与物状态 {ref} 在账本中无任何\"\n1764:                        \"出现记录(账本不完整;出现绑定无依据,不默默\"\n1765:                        \"成功)\",\n1766:                        {\"event_id\": eid, \"table\": \"state_appearances\",\n1767:                         \"kind\": \"appearance_row_missing_for_binding\",\n1768:                         \"state_id\": ref})\n1769:                if len(rows) > 1:\n1770:                    raise Ppv1SubmitContractError(\n1771:                        f\"首提 {eid} 的参与物状态 {ref} 在账本中有\"\n1772:                        f\" {len(rows)} 条既存出现,不能替调用方猜出处\"\n1773:                        \"(须随事务显式提供该 state 载荷,或先在唯一\"\n1774:                        \"出现下提交;零写入)\",\n1775:                        {\"event_id\": eid,\n1776:                         \"kind\": \"appearance_source_ambiguous\",\n1777:                         \"state_id\": ref,\n1778:                         \"candidate_appearance_hashes\": sorted(\n1779:                             r[\"appearance_hash\"] for r in rows)})\n1780:                appearance_manifest.append(\n1781:                    {\"state_id\": ref,\n1782:                     \"appearance_hash\": rows[0][\"appearance_hash\"]})\n1783:            # 去重(同 (sid, hash) 只留一条;同图不同来源出现各自保留)\n1784:            _seen_appearances: set = set()\n1785:            _deduped_manifest = []",
+      "judgment": "provided occurrences versus reuse_refs; unused distinct old appearance not current manifest"
+    },
+    {
+      "title": "all-SID old occurrences replay",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/store.py",
+      "relative_source": "src/pathway_v43/pollutant/store.py",
+      "source_sha256": "5adb06466bd78e82d8f975b29bbee7958ec5e6b6e165cf52402f11f9893480a0",
+      "start": 1330,
+      "end": 1382,
+      "snippet": "1330:                \" WHERE state_id = ?\", (ref,)).fetchall()\n1331:            for r in rows:\n1332:                if content_hash(json.loads(r[\"payload\"])) != \\\n1333:                        r[\"appearance_hash\"]:\n1334:                    raise Ppv1LedgerCorrupt(\n1335:                        f\"重放 {eid} 发现状态 {ref} 的出现记录内容与哈希\"\n1336:                        \"不一致(损坏)\",\n1337:                        {\"event_id\": eid, \"table\": \"state_appearances\",\n1338:                         \"kind\": \"appearance_hash_corrupt\",\n1339:                         \"state_id\": ref,\n1340:                         \"appearance_hash\": r[\"appearance_hash\"]})\n1341:        for state_dict in states:\n1342:            _, appearance = _split_state_payload(state_dict)\n1343:            sid = state_dict[\"state_id\"]\n1344:            expected_hash = content_hash(appearance)\n1345:            found = self.conn.execute(\n1346:                \"SELECT 1 FROM state_appearances WHERE state_id = ? AND\"\n1347:                \" appearance_hash = ?\", (sid, expected_hash)).fetchone()\n1348:            if found is None:\n1349:                raise Ppv1LedgerCorrupt(\n1350:                    f\"重放 {eid} 缺少本事件的期望出现记录(状态 {sid} 的\"\n1351:                    \"该来源出现不在账本;损坏,不默默成功)\",\n1352:                    {\"event_id\": eid, \"table\": \"state_appearances\",\n1353:                     \"kind\": \"expected_appearance_missing\",\n1354:                     \"state_id\": sid,\n1355:                     \"expected_appearance_hash\": expected_hash})\n1356:\n1357:    def _verify_event_appearance_manifest(self, eid: str, payload: dict,\n1358:                                          derived_refs) -> None:\n1359:        \"\"\"事件出现清单校验(R4-10:重放不依赖 caller 重复提供 dict;\n1360:        R5-05:覆盖完整性)。\n1361:\n1362:        首次提交把**本事件断言的出现集合**(state_id + appearance_hash\n1363:        列表)持久进事件 payload(event_appearance_manifest);重放从\n1364:        账本校验:\n1365:        - 每个清单项的 (state_id, appearance_hash) 行仍存在且内容\n1366:          hash 复算一致、清单项不引用事件外状态——\"有一条同物种\n1367:          出现\"不能代替本事件集合(删本事件 prod-A 只留无关 prod-B ⇒\n1368:          损坏,不静默 created=False);\n1369:        - **覆盖完整性(R5-05)**:清单的 state_id 集合必须 == 本事件\n1370:          derived_refs(清单是本事件出现集合的权威断言;SQL 缩成\n1371:          非空子集 ⇒ event_appearance_manifest_coverage_corrupt\n1372:          损坏,不补账)。\n1373:        \"\"\"\n1374:        manifest = payload.get(\"event_appearance_manifest\")\n1375:        if not isinstance(manifest, list) or not manifest:\n1376:            raise Ppv1LedgerCorrupt(\n1377:                f\"重放 {eid} 发现已存事件载荷缺出现清单\"\n1378:                \"(event_appearance_manifest;本事件断言的出现集合是重放\"\n1379:                \"校验的依据,缺失即损坏)\",\n1380:                {\"event_id\": eid, \"table\": \"events\",\n1381:                 \"kind\": \"event_appearance_manifest_missing\"})\n1382:        for entry in manifest:",
+      "judgment": "replay checks every old occurrence for participating SID"
+    },
+    {
+      "title": "readonly state helper bound",
+      "source": "/private/tmp/ppv1_s3b_production_84agv6jv/src/pathway_v43/pollutant/runflow.py",
+      "relative_source": "src/pathway_v43/pollutant/runflow.py",
+      "source_sha256": "a5f9f321e3ec9c60a12aebac8f5f11c2e715e881df7bcff6ad2e3fb935420fb6",
+      "start": 870,
+      "end": 883,
+      "snippet": "870:            evidence_refs=[str(transition.get(\"source_ref\") or \"\")])\n871:\n872:    def _state_smiles(self, state_ref: str) -> str:\n873:        state = self.store.get_state(state_ref)\n874:        if state is None:\n875:            raise PPV1RunError(\n876:                f\"产物状态 {state_ref} 不在账本(followup 调度需要产物\"\n877:                \"结构;不猜)\", {\"kind\": \"product_state_missing\",\n878:                              \"state_ref\": state_ref})\n879:        return str(state.get(\"smiles_isomeric\") or \"\")\n880:\n881:    # ------------------------------------------------------------ 停止\n882:\n883:    def _stop_report(self) -> dict:",
+      "judgment": "get_state by itself not certificate; event-based recover verified upstream, no global certification"
+    }
+  ],
+  "AuditContractError_specific_catches": [
+    {
+      "path": "src/pathway_v43/pollutant/runflow.py",
+      "line": 645,
+      "types": [
+        "AuditContractError"
+      ]
+    }
+  ],
+  "AuditContractError_direct_raise_sites": [
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 2547
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 739
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 1589
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 1596
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 1603
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 1607
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 464
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 2584
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 1076
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "line": 1110
+    }
+  ],
+  "mimo_G1_test_function_vs_case_warning": "A function count cannot identify parametrized parent-green cases. Retain R4 independent JUnit 11+1 historical evidence; no rerun performed here."
+}

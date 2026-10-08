@@ -1,0 +1,770 @@
+{
+  "case": "legal_non_cache",
+  "inputs": {
+    "policy": {
+      "name": "pollutant_pathway_v1",
+      "schema_version": "ppv1-profile-12",
+      "contracts": {
+        "profile": "ppv1-profile-12",
+        "chemstate": "ppv1-chemstate-8",
+        "hypothesis": "ppv1-hypothesis-8",
+        "event": "ppv1-event-8",
+        "store": "ppv1-store-9",
+        "context": "ppv1-context-8",
+        "dependency": "ppv1-dependency-8",
+        "provenance": "ppv1-provenance-8",
+        "substrate_profile": "ppv1-substrate-profile-8",
+        "audit": "ppv1-audit-8",
+        "admission_policy": "ppv1-admission-8",
+        "donor_diagnostic": "ppv1-donor-diagnostic-8",
+        "pool_audit": "ppv1-pool-audit-8",
+        "pool_order": "ppv1-pool-order-8",
+        "input_preview": "ppv1-input-preview-8",
+        "condition_assessment": "ppv1-condition-assessment-8",
+        "gate_mapper": "ppv1-gate-mapper-3",
+        "search": "ppv1-search-4",
+        "legacy_gate_ref": "frozen_hit60_gate",
+        "legacy_g2_family_ref": "v43-cons-2"
+      },
+      "input_preview_policy": "off",
+      "input_preview_version": "ppv1-input-preview-8",
+      "chemical_reproposal": "off",
+      "search_intent": "exploration",
+      "search_limits": {
+        "version": "ppv1-search-limits-3",
+        "max_alternative_hypotheses_per_parent": 2,
+        "max_attempts_per_hypothesis": 2,
+        "max_product_expansion_width": 2,
+        "max_search_depth": 3,
+        "max_total_search_actions": 10,
+        "max_scenario_transitions": 2,
+        "max_reopens_per_hypothesis": 1,
+        "max_real_model_requests": 0,
+        "max_retrievals_per_parent": 1,
+        "max_retrievals_total": 1
+      },
+      "delivered_stages": "S0-S2,S3a-base"
+    },
+    "claim_cache_hit": false,
+    "claim_receipt": {
+      "action_id": "sact_544dd65177ad12843cd0",
+      "run_id": "same-retrieve-identity",
+      "parent_path_id": "p1",
+      "context_ref": "ctx1",
+      "subject_ref": "retrieve-query",
+      "action_kind": "retrieve",
+      "parent_search_revision": 0,
+      "policy_version": "ppv1-search-4/ppv1-search-limits-3",
+      "status": "claimed",
+      "task_key": "retrieve-task",
+      "claimed_by": "w1",
+      "attempt_refs": [],
+      "budget_reservation_ref": [
+        "sres_9fe084511ad113ef96c3",
+        "sres_bf6fdbc5b3c6bbcd4929",
+        "sres_d13f3cc6452417382ea5"
+      ],
+      "payload": {
+        "frozen_pool_digest": "same-pool",
+        "source_event_id": "",
+        "task_key": "retrieve-task"
+      },
+      "claimed": true
+    },
+    "action_id": "sact_544dd65177ad12843cd0",
+    "mutation": "clean",
+    "removed_reservation_ids": [
+      "sres_9fe084511ad113ef96c3",
+      "sres_bf6fdbc5b3c6bbcd4929"
+    ],
+    "public_completion": {
+      "outcome_kind": "outcome_recorded",
+      "outcome_ref": "retrieval-local-outcome"
+    },
+    "network_calls": 0
+  },
+  "original": {
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "states": [],
+    "state_appearances": [],
+    "hypotheses": [],
+    "events": [],
+    "report_projections": [],
+    "expansion_plans": [],
+    "event_appearance_links": [],
+    "search_runs": [
+      {
+        "run_id": "same-retrieve-identity",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-8\", \"event\": \"ppv1-event-8\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"profile\": \"ppv1-profile-12\", \"provenance\": \"ppv1-provenance-8\", \"search\": \"ppv1-search-4\", \"store\": \"ppv1-store-9\", \"substrate_profile\": \"ppv1-substrate-profile-8\"}, \"delivered_stages\": \"S0-S2,S3a-base\", \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-12\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 1, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "search_actions": [
+      {
+        "action_id": "sact_544dd65177ad12843cd0",
+        "run_id": "same-retrieve-identity",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "retrieve-query",
+        "action_kind": "retrieve",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-4/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"frozen_pool_digest\": \"same-pool\", \"source_event_id\": \"\", \"task_key\": \"retrieve-task\"}",
+        "task_key": "retrieve-task",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_9fe084511ad113ef96c3\", \"sres_bf6fdbc5b3c6bbcd4929\", \"sres_d13f3cc6452417382ea5\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "claimed_at": "2026-10-07T19:14:50+00:00",
+        "claimed_by": "w1",
+        "updated_at": null
+      }
+    ],
+    "search_attempts": [],
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_d13f3cc6452417382ea5",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_9fe084511ad113ef96c3",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_per_parent",
+        "scope": "p1",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_bf6fdbc5b3c6bbcd4929",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_total",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      }
+    ],
+    "model_requests": [],
+    "search_commit_records": []
+  },
+  "before": {
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "states": [],
+    "state_appearances": [],
+    "hypotheses": [],
+    "events": [],
+    "report_projections": [],
+    "expansion_plans": [],
+    "event_appearance_links": [],
+    "search_runs": [
+      {
+        "run_id": "same-retrieve-identity",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-8\", \"event\": \"ppv1-event-8\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"profile\": \"ppv1-profile-12\", \"provenance\": \"ppv1-provenance-8\", \"search\": \"ppv1-search-4\", \"store\": \"ppv1-store-9\", \"substrate_profile\": \"ppv1-substrate-profile-8\"}, \"delivered_stages\": \"S0-S2,S3a-base\", \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-12\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 1, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "search_actions": [
+      {
+        "action_id": "sact_544dd65177ad12843cd0",
+        "run_id": "same-retrieve-identity",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "retrieve-query",
+        "action_kind": "retrieve",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-4/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"frozen_pool_digest\": \"same-pool\", \"source_event_id\": \"\", \"task_key\": \"retrieve-task\"}",
+        "task_key": "retrieve-task",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_9fe084511ad113ef96c3\", \"sres_bf6fdbc5b3c6bbcd4929\", \"sres_d13f3cc6452417382ea5\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "claimed_at": "2026-10-07T19:14:50+00:00",
+        "claimed_by": "w1",
+        "updated_at": null
+      }
+    ],
+    "search_attempts": [],
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_d13f3cc6452417382ea5",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_9fe084511ad113ef96c3",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_per_parent",
+        "scope": "p1",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_bf6fdbc5b3c6bbcd4929",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_total",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      }
+    ],
+    "model_requests": [],
+    "search_commit_records": []
+  },
+  "before_normalized_excluding_timestamps": {
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "states": [],
+    "state_appearances": [],
+    "hypotheses": [],
+    "events": [],
+    "report_projections": [],
+    "expansion_plans": [],
+    "event_appearance_links": [],
+    "search_runs": [
+      {
+        "run_id": "same-retrieve-identity",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-8\", \"event\": \"ppv1-event-8\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"profile\": \"ppv1-profile-12\", \"provenance\": \"ppv1-provenance-8\", \"search\": \"ppv1-search-4\", \"store\": \"ppv1-store-9\", \"substrate_profile\": \"ppv1-substrate-profile-8\"}, \"delivered_stages\": \"S0-S2,S3a-base\", \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-12\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 1, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}"
+      }
+    ],
+    "search_actions": [
+      {
+        "action_id": "sact_544dd65177ad12843cd0",
+        "run_id": "same-retrieve-identity",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "retrieve-query",
+        "action_kind": "retrieve",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-4/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"frozen_pool_digest\": \"same-pool\", \"source_event_id\": \"\", \"task_key\": \"retrieve-task\"}",
+        "task_key": "retrieve-task",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_9fe084511ad113ef96c3\", \"sres_bf6fdbc5b3c6bbcd4929\", \"sres_d13f3cc6452417382ea5\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "claimed_by": "w1"
+      }
+    ],
+    "search_attempts": [],
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_d13f3cc6452417382ea5",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_9fe084511ad113ef96c3",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_per_parent",
+        "scope": "p1",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_bf6fdbc5b3c6bbcd4929",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_total",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "settled_at": null
+      }
+    ],
+    "model_requests": [],
+    "search_commit_records": []
+  },
+  "recovery": {
+    "returned": {
+      "run_id": "same-retrieve-identity",
+      "policy_version": "ppv1-search-limits-3",
+      "actions": [
+        {
+          "action_id": "sact_544dd65177ad12843cd0",
+          "action_kind": "retrieve",
+          "status": "claimed",
+          "boundary": "B1_claimed_pending_completion",
+          "disposition": "frozen_attempt_reservation_intact;预算未重复扣,等待执行方续跑(不按当前 revision 重算任务身份)"
+        }
+      ],
+      "pending_requests": [],
+      "unknown_status_requests": [],
+      "budget": {
+        "version": "ppv1-search-limits-3",
+        "run_level": {
+          "max_total_search_actions": {
+            "max": 10,
+            "used": 1,
+            "remaining": 9
+          },
+          "max_retrievals_total": {
+            "max": 1,
+            "used": 1,
+            "remaining": 0
+          },
+          "max_scenario_transitions": {
+            "max": 2,
+            "used": 0,
+            "remaining": 2
+          },
+          "max_real_model_requests": {
+            "max": 0,
+            "used": 0,
+            "remaining": 0
+          }
+        },
+        "scoped": {
+          "max_retrievals_per_parent": {
+            "p1": {
+              "max": 1,
+              "used": 1,
+              "remaining": 0
+            }
+          },
+          "max_alternative_hypotheses_per_parent": {},
+          "max_attempts_per_hypothesis": {},
+          "max_reopens_per_hypothesis": {}
+        }
+      }
+    }
+  },
+  "after_recovery": {
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "states": [],
+    "state_appearances": [],
+    "hypotheses": [],
+    "events": [],
+    "report_projections": [],
+    "expansion_plans": [],
+    "event_appearance_links": [],
+    "search_runs": [
+      {
+        "run_id": "same-retrieve-identity",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-8\", \"event\": \"ppv1-event-8\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"profile\": \"ppv1-profile-12\", \"provenance\": \"ppv1-provenance-8\", \"search\": \"ppv1-search-4\", \"store\": \"ppv1-store-9\", \"substrate_profile\": \"ppv1-substrate-profile-8\"}, \"delivered_stages\": \"S0-S2,S3a-base\", \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-12\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 1, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "search_actions": [
+      {
+        "action_id": "sact_544dd65177ad12843cd0",
+        "run_id": "same-retrieve-identity",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "retrieve-query",
+        "action_kind": "retrieve",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-4/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"frozen_pool_digest\": \"same-pool\", \"source_event_id\": \"\", \"task_key\": \"retrieve-task\"}",
+        "task_key": "retrieve-task",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_9fe084511ad113ef96c3\", \"sres_bf6fdbc5b3c6bbcd4929\", \"sres_d13f3cc6452417382ea5\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "claimed_at": "2026-10-07T19:14:50+00:00",
+        "claimed_by": "w1",
+        "updated_at": null
+      }
+    ],
+    "search_attempts": [],
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_d13f3cc6452417382ea5",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_9fe084511ad113ef96c3",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_per_parent",
+        "scope": "p1",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_bf6fdbc5b3c6bbcd4929",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_total",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "reserved",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": null
+      }
+    ],
+    "model_requests": [],
+    "search_commit_records": []
+  },
+  "completion": {
+    "returned": {
+      "completed": true,
+      "action_id": "sact_544dd65177ad12843cd0",
+      "outcome_ref": "retrieval-local-outcome",
+      "event_id": ""
+    }
+  },
+  "after": {
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "states": [],
+    "state_appearances": [],
+    "hypotheses": [],
+    "events": [],
+    "report_projections": [],
+    "expansion_plans": [],
+    "event_appearance_links": [],
+    "search_runs": [
+      {
+        "run_id": "same-retrieve-identity",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-8\", \"event\": \"ppv1-event-8\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"profile\": \"ppv1-profile-12\", \"provenance\": \"ppv1-provenance-8\", \"search\": \"ppv1-search-4\", \"store\": \"ppv1-store-9\", \"substrate_profile\": \"ppv1-substrate-profile-8\"}, \"delivered_stages\": \"S0-S2,S3a-base\", \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-12\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 1, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "search_actions": [
+      {
+        "action_id": "sact_544dd65177ad12843cd0",
+        "run_id": "same-retrieve-identity",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "retrieve-query",
+        "action_kind": "retrieve",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-4/ppv1-search-limits-3",
+        "status": "done",
+        "payload": "{\"frozen_pool_digest\": \"same-pool\", \"source_event_id\": \"\", \"task_key\": \"retrieve-task\"}",
+        "task_key": "retrieve-task",
+        "outcome_ref": "retrieval-local-outcome",
+        "budget_reservation_ref": "[\"sres_9fe084511ad113ef96c3\", \"sres_bf6fdbc5b3c6bbcd4929\", \"sres_d13f3cc6452417382ea5\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "claimed_at": "2026-10-07T19:14:50+00:00",
+        "claimed_by": "w1",
+        "updated_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "search_attempts": [],
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_d13f3cc6452417382ea5",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "consumed",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": "2026-10-07T19:14:50+00:00"
+      },
+      {
+        "reservation_id": "sres_9fe084511ad113ef96c3",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_per_parent",
+        "scope": "p1",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "consumed",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": "2026-10-07T19:14:50+00:00"
+      },
+      {
+        "reservation_id": "sres_bf6fdbc5b3c6bbcd4929",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_total",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "consumed",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "model_requests": [],
+    "search_commit_records": [
+      {
+        "commit_id": "scommit_4ac1c164b7f1506446d2",
+        "run_id": "same-retrieve-identity",
+        "action_id": "sact_544dd65177ad12843cd0",
+        "attempt_id": "",
+        "event_id": "",
+        "commit_kind": "outcome_recorded",
+        "payload_hash": "f3f852a4fdf05dc2ceb9ef164c6f6a9060b30558512e4e212c4fb1baf0f3013d",
+        "created_at": "2026-10-07T19:14:50+00:00"
+      }
+    ]
+  },
+  "done_reuse": {
+    "returned": {
+      "run_id": "same-retrieve-identity",
+      "policy_version": "ppv1-search-limits-3",
+      "actions": [
+        {
+          "action_id": "sact_544dd65177ad12843cd0",
+          "action_kind": "retrieve",
+          "status": "done",
+          "boundary": "B4_verified",
+          "disposition": "done_commit_verified"
+        }
+      ],
+      "pending_requests": [],
+      "unknown_status_requests": [],
+      "budget": {
+        "version": "ppv1-search-limits-3",
+        "run_level": {
+          "max_total_search_actions": {
+            "max": 10,
+            "used": 1,
+            "remaining": 9
+          },
+          "max_retrievals_total": {
+            "max": 1,
+            "used": 1,
+            "remaining": 0
+          },
+          "max_scenario_transitions": {
+            "max": 2,
+            "used": 0,
+            "remaining": 2
+          },
+          "max_real_model_requests": {
+            "max": 0,
+            "used": 0,
+            "remaining": 0
+          }
+        },
+        "scoped": {
+          "max_retrievals_per_parent": {
+            "p1": {
+              "max": 1,
+              "used": 1,
+              "remaining": 0
+            }
+          },
+          "max_alternative_hypotheses_per_parent": {},
+          "max_attempts_per_hypothesis": {},
+          "max_reopens_per_hypothesis": {}
+        }
+      }
+    }
+  },
+  "after_done_reuse": {
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "states": [],
+    "state_appearances": [],
+    "hypotheses": [],
+    "events": [],
+    "report_projections": [],
+    "expansion_plans": [],
+    "event_appearance_links": [],
+    "search_runs": [
+      {
+        "run_id": "same-retrieve-identity",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-8\", \"event\": \"ppv1-event-8\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"profile\": \"ppv1-profile-12\", \"provenance\": \"ppv1-provenance-8\", \"search\": \"ppv1-search-4\", \"store\": \"ppv1-store-9\", \"substrate_profile\": \"ppv1-substrate-profile-8\"}, \"delivered_stages\": \"S0-S2,S3a-base\", \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-12\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 1, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "search_actions": [
+      {
+        "action_id": "sact_544dd65177ad12843cd0",
+        "run_id": "same-retrieve-identity",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "retrieve-query",
+        "action_kind": "retrieve",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-4/ppv1-search-limits-3",
+        "status": "done",
+        "payload": "{\"frozen_pool_digest\": \"same-pool\", \"source_event_id\": \"\", \"task_key\": \"retrieve-task\"}",
+        "task_key": "retrieve-task",
+        "outcome_ref": "retrieval-local-outcome",
+        "budget_reservation_ref": "[\"sres_9fe084511ad113ef96c3\", \"sres_bf6fdbc5b3c6bbcd4929\", \"sres_d13f3cc6452417382ea5\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "claimed_at": "2026-10-07T19:14:50+00:00",
+        "claimed_by": "w1",
+        "updated_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "search_attempts": [],
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_d13f3cc6452417382ea5",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "consumed",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": "2026-10-07T19:14:50+00:00"
+      },
+      {
+        "reservation_id": "sres_9fe084511ad113ef96c3",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_per_parent",
+        "scope": "p1",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "consumed",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": "2026-10-07T19:14:50+00:00"
+      },
+      {
+        "reservation_id": "sres_bf6fdbc5b3c6bbcd4929",
+        "run_id": "same-retrieve-identity",
+        "limit_key": "max_retrievals_total",
+        "scope": "",
+        "subject": "sact_544dd65177ad12843cd0",
+        "units": 1,
+        "action_id": "sact_544dd65177ad12843cd0",
+        "status": "consumed",
+        "created_at": "2026-10-07T19:14:50+00:00",
+        "settled_at": "2026-10-07T19:14:50+00:00"
+      }
+    ],
+    "model_requests": [],
+    "search_commit_records": [
+      {
+        "commit_id": "scommit_4ac1c164b7f1506446d2",
+        "run_id": "same-retrieve-identity",
+        "action_id": "sact_544dd65177ad12843cd0",
+        "attempt_id": "",
+        "event_id": "",
+        "commit_kind": "outcome_recorded",
+        "payload_hash": "f3f852a4fdf05dc2ceb9ef164c6f6a9060b30558512e4e212c4fb1baf0f3013d",
+        "created_at": "2026-10-07T19:14:50+00:00"
+      }
+    ]
+  },
+  "budget": {
+    "version": "ppv1-search-limits-3",
+    "run_level": {
+      "max_total_search_actions": {
+        "max": 10,
+        "used": 1,
+        "remaining": 9
+      },
+      "max_retrievals_total": {
+        "max": 1,
+        "used": 1,
+        "remaining": 0
+      },
+      "max_scenario_transitions": {
+        "max": 2,
+        "used": 0,
+        "remaining": 2
+      },
+      "max_real_model_requests": {
+        "max": 0,
+        "used": 0,
+        "remaining": 0
+      }
+    },
+    "scoped": {
+      "max_retrievals_per_parent": {
+        "p1": {
+          "max": 1,
+          "used": 1,
+          "remaining": 0
+        }
+      },
+      "max_alternative_hypotheses_per_parent": {},
+      "max_attempts_per_hypothesis": {},
+      "max_reopens_per_hypothesis": {}
+    }
+  }
+}

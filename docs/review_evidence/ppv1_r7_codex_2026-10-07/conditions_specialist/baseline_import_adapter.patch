@@ -1,0 +1,19 @@
+--- /private/tmp/ppv1_r7_conditions_858dd94_ZZFwTe/original_tests/test_ppv1_r7_chem.py	2026-10-07 11:40:13
++++ /private/tmp/ppv1_r7_conditions_858dd94_ZZFwTe/baseline_tests/test_ppv1_r7_chem.py	2026-10-07 13:00:20
+@@ -33,7 +33,6 @@
+     CHECK_TRANSFORMATION_CENTER,
+     CHECK_UNKNOWN,
+     CHECK_VERIFIED,
+-    COMPLETION_LICENSE,
+     COVERAGE_COMPLETION_RULE,
+     audit_hypothesis,
+     center_evidence_from_donor_diagnostic,
+@@ -78,6 +77,8 @@
+ ATOMIC_H = "[H]"
+ EPOXIDE = "C1CO1"
+ VINYL_ALCOHOL = "C=CO"
++COMPLETION_LICENSE = "composition_only_hydrogen_equivalents"
++
+ SRC = ["src:rule-r7"]
+ 
+ 

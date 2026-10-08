@@ -1,0 +1,17 @@
+completed admission_completion_probe.py
+completed chem/cx_boundary_probe.py
+completed chem/r5_focused_replay.py
+completed chem/r4_boundary_replay.py
+completed chem/r3_probe_replay.py
+completed conditions/probe.py
+completed conditions/r5_replay/probe.py
+completed conditions/r4_replay/probe.py
+completed storage/r6_storage_boundary_probe.py
+completed storage/storage_boundary_probe.py
+completed storage/r4_storage_probe.py
+completed storage/r3_storage_probe.py
+{"purpose": "R6 observed behavior evidence check, NOT post-repair expectations", "head": "6d9020130a481866ce2f3b79933907a33d8cfc9e", "records": 9, "result": "all observed assertions passed"}
+R6 previous controls, all captured rejection blocks, and one residual API false green confirmed.
+R6 OBSERVED behavior verified: 17 cases + 1 metadata; this is not a post-repair acceptance test.
+R6 repaired controls and all five grouped residual observations confirmed.
+completed synthetic reproduction: /private/tmp/ppv1_r6_root_9nZE5H/final_reproduce

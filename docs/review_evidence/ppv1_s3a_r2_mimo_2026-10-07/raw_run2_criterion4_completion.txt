@@ -1,0 +1,53 @@
+[0m
+> build · mimo-v2.6-flash-free
+[0m✱ [0mGrep "def assess_conditions|def assess_candidate_conditions|def route_assessment|orphan|孤儿" [90min src/pathway_v43/pollutant/path_context.py · 15 matches[0m
+[0m✱ [0mGrep "context_snapshot_inconsistent|_validate_reference_context|validate_context_object|_assess_context_compatibility" [90min src/pathway_v43/pollutant · 13 matches[0m
+> build · mimo-v2.6-flash-free
+[0m→ [0mRead src/pathway_v43/pollutant/audit.py [90m[offset=430, limit=50][0m
+[0m→ [0mRead src/pathway_v43/pollutant/path_context.py [90m[offset=1330, limit=180][0m
+> build · mimo-v2.6-flash-free
+[0m✱ [0mGrep "context_id" [90min src/pathway_v43/pollutant/path_context.py · 37 matches[0m
+[0m✱ [0mGrep "context_id|重建" [90min docs/mimo_ppv1_chem_review_response_r9.md · 3 matches[0m
+> build · mimo-v2.6-flash-free
+[0m✱ [0mGrep "context_id|重建|孤儿|validate" [90min docs/mimo_ppv1_chem_review_request.md · 8 matches[0m
+> build · mimo-v2.6-flash-free
+[0m→ [0mRead docs/mimo_ppv1_chem_review_request.md [90m[offset=262, limit=40][0m
+> build · mimo-v2.6-flash-free
+[0m→ [0mRead src/pathway_v43/pollutant/path_context.py [90m[limit=20, offset=1117][0m
+[0m→ [0mRead src/pathway_v43/pollutant/path_context.py [90m[limit=30, offset=2112][0m
+> build · mimo-v2.6-flash-free
+**判据四（接续，从"文献观察环境不构造当前事实"那条之后开始）**
+
+- （清单收尾）文献观察口径的实现对应：`REQUESTED_SCOPE`/`ASSESSED_SCOPE` 分离（`path_context.py:198`/`:203`）+ 文献观察只进请求作用域、不进当前事实集（`path_context.py:211`/`:755`）；`transformation_class` 标签在 src 内**零命中**（不参与条件评估，仅作元数据），与 v10"不能构造当前条件事实"一致。
+- 空要求/空覆盖不自动 compatible：`path_context.py:1277-1278`（`not fits ⇒ UNKNOWN`，注释"空要求列表不自动相容"）、`route_assessment` 空阶段不贡献未知也不产生相容声明（`path_context.py:2116`、`:2120-2126`）——与 v10 第 289-290 行一致。
+- 双向签名对应与单向矛盾：`covered_requirement_signatures`↔`per_requirement` 行集合**双向**同源（`path_context.py:1470-1499`，`signature_not_in_requirements` 与 `signature_row_correspondence` 双向拒）；`environment_fit` 单向矛盾判定不误拒合法历史（`path_context.py:1455-1467`、`:1468-1469`）——与 v10 第 274-276、284-286 行一致。
+- frozen vs 非 frozen 分写：`Requirement`/`ConditionFact` frozen+嵌套冻结，`PathContext` 本体非 frozen、靠内容身份同源重算兜底（`path_context.py:1540-1548` 直接对象、`:2079-2091` from_dict）——与 v10 第 277-283 行一致。
+
+**结论：判据四大方向与实现一致，但有三处必须更正/补全才可冻结。**
+
+**更正④（必改）：孤儿引用的定义与处置方向都反了。**
+v10 第 286 行写"孤儿引用（评估行无对应要求）按 unknown 处理不崩溃"。实现是两个相反的方向：
+
+1. 实现里的**孤儿**是"必要要求绑定旧作用域但无快照**按签名**承载"⇒ 显式 **UNKNOWN**（fail-closed，不崩溃）：`path_context.py:1245-1268`（`orphan_rows`、`route_edge_source="orphan_binding"`），计入 `fit=UNKNOWN`（`path_context.py:1277-1278`、`:1296`）。
+2. 反方向——**评估行/签名无对应要求**（签名不在累积要求集合、或签名与行集合不等）⇒ **硬拒**，抛 `ConditionContractError(kind=context_snapshot_inconsistent)`：`path_context.py:1471-1478`（`signature_not_in_requirements`）、`:1489-1499`（`signature_row_correspondence`，删行留签名或删签名留行都拒）。
+
+即：v10 把"硬拒"写成了"按 unknown 处理"，且把孤儿的方向指反。**落字建议改为**："孤儿必要要求（要求无快照按签名承载）⇒ 显式 unknown 不崩溃；评估行/签名无对应要求 ⇒ `context_snapshot_inconsistent` 结构化拒绝（fail-closed，不消费），二者方向相反，不得混写。"
+
+**更正⑤（必改）：'任何…入口消费前必须先 validate'需限定为已强制的入口。**
+实现中 validate 已闭合的是三类入口：恢复 `from_dict` 同款版本门+身份重算（`path_context.py:2061-2091`）、派生先 validate 父对象（`path_context.py:2321-2327`）、审核入口 `audit_hypothesis` 对直接对象 validate（`audit.py:455-458`）。但三个**纯评估函数本身不自验**：`assess_conditions`（`path_context.py:1117`）、`assess_candidate_conditions`（`:1172`）、`route_assessment`（`:2112`）直接读字段、体内无 `validate_context_object` 调用；其安全性依赖调用方已在上游 validate（当前唯一生产链 audit 先验后评）。**落字建议改为**："恢复/派生/审核入口已由代码强制 validate；评估纯函数自身不自验，依赖调用纪律——绕过上游 validate 直读字段属违约（该纪律的强制性待执行验证：构造未 validate 的篡改对象直调 `assess_candidate_conditions`，应由上游 audit 路径拒，标**待执行验证**）。"
+
+**补全 r9⑦（落字缺失）：v10 只写了兜底的半边。**
+v10 第 280-281 行只有"就地改语义字段保留原 `context_id` ⇒ 拒"；r9 条件⑦（`docs/mimo_ppv1_chem_review_response_r9.md:107`、`:182`）要求补的**重建半边**未见落字——"内容身份可重算，兜底只能拒'改了内容还用旧 ID'，不能拒'改了内容后重算新 ID'；因此因内容变化而重建的 context 必须产生新 `context_id` 并保留 `parent_context_ref` 链，禁止改语义字段后重算 ID 复用旧引用"。实现侧派生确实产出新 ID（`path_context.py:2403` 初始化空、`:2417-2418` 以 parent 链重算），代码支持该句落字。
+
+**可直接落进规则文字的修改建议（汇总）：**
+
+1. 按更正④改写孤儿句（方向与处置都要改）。
+2. 按更正⑤把"任何入口"限定为"恢复/派生/审核入口（代码强制）+ 评估函数（纪律约束）"。
+3. 补 r9⑦ 重建半句（新 `context_id` + parent 链 + 禁复用旧引用）。
+4. 可选补一句边界语义："快照通过一致性校验只证明**记录同源**，不认证记录事实为真"——代码注释原话如此（`path_context.py:1391-1392`"不拿当前事实重评旧边，也不认证用户事实真实性"）。
+
+**风险点（程序上诚实但化学上误导）：**
+
+1. **历史 compatible 快照 ≠ 当前已证实**：`route_assessment` 合取的是冻结记录值（`path_context.py:2113-2115`），旧边 compatible 只说明当时记录如此；若产物把路线级 compatible 汇总为"全程条件已核验通过"，会把结构同源校验误读成事实认证。
+2. **兜底依赖调用纪律**：`PathContext` 非 frozen，绕过 audit 入口直调评估函数可读到未验字段——这在代码上是"违约但可能可执行"的状态，与"无静默 catch"条款同性质，须以**待执行验证**的绕过探针确认实际行为，不能凭读码断言必拒。
+3. **合取的空档**：空阶段不贡献未知（`path_context.py:2120-2126`）是诚实设计，但"全空"路线会直接返回 live 结果；若消费端把"无 conflict/unknown 进入合取"读成"已相容"，与 v10"空要求不自动 compatible"冲突——建议在风险句中点名 `route_edge_source="orphan_binding"` 与空阶段两类不得被汇总为正向相容证据。

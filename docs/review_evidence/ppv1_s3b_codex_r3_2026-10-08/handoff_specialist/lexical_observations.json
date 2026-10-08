@@ -1,0 +1,256 @@
+{
+  "rdkit": "2026.03.6",
+  "python": "3.11.16",
+  "positive_count": 5,
+  "negative_entry_count": 6,
+  "observations": [
+    {
+      "case": "plain",
+      "input": "CO",
+      "rdkit_written": "CO",
+      "identity": "CO",
+      "state": {
+        "state_id": "cs_fc8842c641d9150647f9",
+        "structure_smiles_raw": "CO",
+        "smiles_isomeric": "CO",
+        "cn_identity": "CO",
+        "structure_origin": "raw_input",
+        "original_structure_available": true,
+        "formal_charge": 0,
+        "stereo_information_status": "not_applicable",
+        "isotope_information_status": "not_applicable",
+        "source_refs": [],
+        "representation_fidelity": {
+          "stereo": "as_written",
+          "isotope": "as_written",
+          "formal_charge": "as_written",
+          "protonation_basis": "as_written"
+        },
+        "schema_version": "ppv1-chemstate-8"
+      },
+      "assertions": {
+        "writer_token": true,
+        "id_smiles": true,
+        "id_roundtrip": true,
+        "state_dict_roundtrip": true,
+        "writer_identity": true
+      }
+    },
+    {
+      "case": "ABS",
+      "input": "F[C@H](Cl)Br |a:1|",
+      "rdkit_written": "F[C@H](Cl)Br |a:1|",
+      "identity": "F[C@H](Cl)Br",
+      "state": {
+        "state_id": "cs_bfc4ac69054e81d064fd",
+        "structure_smiles_raw": "F[C@H](Cl)Br |a:1|",
+        "smiles_isomeric": "F[C@H](Cl)Br",
+        "cn_identity": "FC(Cl)Br",
+        "structure_origin": "raw_input",
+        "original_structure_available": true,
+        "formal_charge": 0,
+        "stereo_information_status": "specified",
+        "isotope_information_status": "not_applicable",
+        "source_refs": [],
+        "representation_fidelity": {
+          "stereo": "as_written",
+          "isotope": "as_written",
+          "formal_charge": "as_written",
+          "protonation_basis": "as_written"
+        },
+        "schema_version": "ppv1-chemstate-8"
+      },
+      "assertions": {
+        "writer_token": true,
+        "id_smiles": true,
+        "id_roundtrip": true,
+        "state_dict_roundtrip": true,
+        "writer_identity": true,
+        "ABS_plain_normalized": true
+      }
+    },
+    {
+      "case": "AND",
+      "input": "C[C@H](O)CC |&1:1|",
+      "rdkit_written": "CC[C@H](C)O |&1:2|",
+      "identity": "CC[C@H](C)O |&1:2|",
+      "state": {
+        "state_id": "cs_c196be44f99d7c2a88b6",
+        "structure_smiles_raw": "C[C@H](O)CC |&1:1|",
+        "smiles_isomeric": "CC[C@H](C)O |&1:2|",
+        "cn_identity": "CCC(C)O",
+        "structure_origin": "raw_input",
+        "original_structure_available": true,
+        "formal_charge": 0,
+        "stereo_information_status": "specified",
+        "isotope_information_status": "not_applicable",
+        "source_refs": [],
+        "representation_fidelity": {
+          "stereo": "as_written",
+          "isotope": "as_written",
+          "formal_charge": "as_written",
+          "protonation_basis": "as_written"
+        },
+        "schema_version": "ppv1-chemstate-8"
+      },
+      "assertions": {
+        "writer_token": true,
+        "id_smiles": true,
+        "id_roundtrip": true,
+        "state_dict_roundtrip": true,
+        "writer_identity": true
+      }
+    },
+    {
+      "case": "OR",
+      "input": "C[C@H](O)CC |o1:1|",
+      "rdkit_written": "CC[C@H](C)O |o1:2|",
+      "identity": "CC[C@H](C)O |o1:2|",
+      "state": {
+        "state_id": "cs_6176b595eb082b533a6d",
+        "structure_smiles_raw": "C[C@H](O)CC |o1:1|",
+        "smiles_isomeric": "CC[C@H](C)O |o1:2|",
+        "cn_identity": "CCC(C)O",
+        "structure_origin": "raw_input",
+        "original_structure_available": true,
+        "formal_charge": 0,
+        "stereo_information_status": "specified",
+        "isotope_information_status": "not_applicable",
+        "source_refs": [],
+        "representation_fidelity": {
+          "stereo": "as_written",
+          "isotope": "as_written",
+          "formal_charge": "as_written",
+          "protonation_basis": "as_written"
+        },
+        "schema_version": "ppv1-chemstate-8"
+      },
+      "assertions": {
+        "writer_token": true,
+        "id_smiles": true,
+        "id_roundtrip": true,
+        "state_dict_roundtrip": true,
+        "writer_identity": true
+      }
+    },
+    {
+      "case": "radical",
+      "input": "[CH3] |^1:0|",
+      "rdkit_written": "[CH3] |^1:0|",
+      "identity": "[CH3] |^1:0|",
+      "state": {
+        "state_id": "cs_2a0e720991ed136739f1",
+        "structure_smiles_raw": "[CH3] |^1:0|",
+        "smiles_isomeric": "[CH3] |^1:0|",
+        "cn_identity": "[CH3]",
+        "structure_origin": "raw_input",
+        "original_structure_available": true,
+        "formal_charge": 0,
+        "stereo_information_status": "not_applicable",
+        "isotope_information_status": "not_applicable",
+        "source_refs": [],
+        "representation_fidelity": {
+          "stereo": "as_written",
+          "isotope": "as_written",
+          "formal_charge": "as_written",
+          "protonation_basis": "as_written"
+        },
+        "schema_version": "ppv1-chemstate-8"
+      },
+      "assertions": {
+        "writer_token": true,
+        "id_smiles": true,
+        "id_roundtrip": true,
+        "state_dict_roundtrip": true,
+        "writer_identity": true,
+        "radical_distinct_plain": true
+      }
+    },
+    {
+      "case": "and",
+      "entry": "factory",
+      "input": "C[C@H](O)CC |and:1|",
+      "exception_type": "ChemicalStateError",
+      "detail": {
+        "kind": "unregistered_cx_class",
+        "item": "and:1",
+        "segment": "and:1",
+        "item_offset": 0,
+        "registered_head": ""
+      },
+      "check": true
+    },
+    {
+      "case": "and",
+      "entry": "strict",
+      "input": "C[C@H](O)CC |and:1|",
+      "exception_type": "ChemicalStateError",
+      "detail": {
+        "kind": "unregistered_cx_class",
+        "item": "and:1",
+        "segment": "and:1",
+        "item_offset": 0,
+        "registered_head": ""
+      },
+      "check": true
+    },
+    {
+      "case": "or",
+      "entry": "factory",
+      "input": "C[C@H](O)CC |or:1|",
+      "exception_type": "ChemicalStateError",
+      "detail": {
+        "kind": "unregistered_cx_class",
+        "item": "or:1",
+        "segment": "or:1",
+        "item_offset": 0,
+        "registered_head": ""
+      },
+      "check": true
+    },
+    {
+      "case": "or",
+      "entry": "strict",
+      "input": "C[C@H](O)CC |or:1|",
+      "exception_type": "ChemicalStateError",
+      "detail": {
+        "kind": "unregistered_cx_class",
+        "item": "or:1",
+        "segment": "or:1",
+        "item_offset": 0,
+        "registered_head": ""
+      },
+      "check": true
+    },
+    {
+      "case": "rad",
+      "entry": "factory",
+      "input": "[CH3] |rad:0|",
+      "exception_type": "ChemicalStateError",
+      "detail": {
+        "kind": "unregistered_cx_class",
+        "item": "rad:0",
+        "segment": "rad:0",
+        "item_offset": 0,
+        "registered_head": ""
+      },
+      "check": true
+    },
+    {
+      "case": "rad",
+      "entry": "strict",
+      "input": "[CH3] |rad:0|",
+      "exception_type": "ChemicalStateError",
+      "detail": {
+        "kind": "unregistered_cx_class",
+        "item": "rad:0",
+        "segment": "rad:0",
+        "item_offset": 0,
+        "registered_head": ""
+      },
+      "check": true
+    }
+  ],
+  "all_checks": true,
+  "scientific_scope": "representation/identity contract only; no sample/stereochemistry identification certificate"
+}

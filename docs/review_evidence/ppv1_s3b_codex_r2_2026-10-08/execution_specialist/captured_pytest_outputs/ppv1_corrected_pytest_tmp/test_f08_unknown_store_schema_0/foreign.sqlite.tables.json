@@ -1,0 +1,28 @@
+{
+  "source": {
+    "path": "ppv1_corrected_pytest_tmp/test_f08_unknown_store_schema_0/foreign.sqlite",
+    "bytes": 20480,
+    "sha256": "35ba6574cba7a5b2abc458678ab8b44ca28fcaaed90fe1d2c3547bc19513c29a"
+  },
+  "open_mode": "ro",
+  "tables": {
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "future-store-999"
+      }
+    ],
+    "states": []
+  },
+  "schema": [
+    {
+      "name": "meta",
+      "sql": "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)"
+    },
+    {
+      "name": "states",
+      "sql": "CREATE TABLE states (state_id TEXT PRIMARY KEY, payload TEXT)"
+    }
+  ],
+  "read_succeeded": true
+}

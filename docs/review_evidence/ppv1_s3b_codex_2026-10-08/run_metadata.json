@@ -1,0 +1,131 @@
+{
+  "review": "S3b / full S3 final independent review",
+  "date_Asia_Shanghai": "2026-10-08",
+  "actual_head": "c1211183c0874b12c5b5461845d3c61f0a84719c",
+  "parent_head": "b7f2bba02ca49edd0a45a13bc9b8434909d99175",
+  "provenance": "normal Codex review chain with three local independent specialist executions; not external review provider",
+  "runtime": {
+    "python": "3.11.16",
+    "rdkit": "2026.03.6",
+    "sqlite": "3.53.4",
+    "python_executable": "/Users/cc/miniconda3/envs/depending43/bin/python"
+  },
+  "contracts": {
+    "profile": "ppv1-profile-13",
+    "search": "ppv1-search-5",
+    "store": "ppv1-store-9",
+    "limits": "ppv1-search-limits-3",
+    "format_feedback": "ppv1-format-feedback-1"
+  },
+  "independent_execution": {
+    "PPV1": {
+      "files": 30,
+      "passed": 851,
+      "skipped": 0,
+      "failed": 0,
+      "runs": 1,
+      "exit": 0,
+      "pytest_seconds": 14.63,
+      "outer_seconds": 14.968675
+    },
+    "parent_updated_two_existing_files": {
+      "passed": 64,
+      "failed": 4,
+      "behavior_red": 3,
+      "version_behavior_red": 1,
+      "runner_start_behavior_red": 2,
+      "missing_format_feedback_policy_red": 1,
+      "runs": 1,
+      "exit": 1,
+      "start_failure_prevents_resume_internal_section": true
+    },
+    "parent_four_new_files": {
+      "collection_errors": 4,
+      "new64_test_bodies_executed": 0,
+      "runs": 1
+    },
+    "safe_G01": {
+      "passed": 1453,
+      "skipped": 8,
+      "deselected": 17,
+      "whitelisted_inputs": 286,
+      "repo": 226,
+      "ordinary_v3_src": 42,
+      "mirrored_assets": 18,
+      "original_and_copy_SHA_before_after_equal": true,
+      "runs": 1,
+      "exit": 0,
+      "pytest_seconds": 203.54,
+      "outer_seconds": 205.542929
+    },
+    "current_new64_extracted_from_full851": true,
+    "legacy_code_identity_before": "4ea99b698a05ab8685bbd5687835043a2bf07f0c7f219591beccbff2507c29ae",
+    "legacy_code_identity_after": "18007e6a7cc239606eb30921f91045540446a7d7298108be30d47fce2f1374d6",
+    "legacy_code_set_only_changed_file": "src/pathway_v43/workflow/runner.py",
+    "production_probe": {
+      "cases": 17,
+      "raw_pass": 13,
+      "raw_assertion_fail": 4,
+      "oracle_or_field_corrections_read_only": 3,
+      "unused_old_appearance_P2": 1,
+      "probe_runs": 1,
+      "probe_reruns": 0,
+      "correct_adjudication_read_only": true
+    },
+    "queue_probe": {
+      "first_top_level_observations": 34,
+      "supplement_top_level_observations": 6,
+      "observations_are_not_passed_test_count": true,
+      "public_runner_hard_kill_and_new_process_resume": true,
+      "H05_read_only_extraction_no_new_run": true,
+      "two_real_tool_entries_concurrent_resume": 2,
+      "full_event_and_plan_products": 3,
+      "after_partial_followup_recovery_products_scheduled": 2,
+      "H07_bad_output_before": {
+        "events": 0,
+        "commits": 2,
+        "reservation_rows": 7
+      },
+      "H07_bad_output_after": {
+        "events": 1,
+        "commits": 4,
+        "reservation_rows": 10
+      }
+    }
+  },
+  "decision": {
+    "S3": "not_pass",
+    "S3a": "prior_pass_kept",
+    "P1": [
+      "S3B-01",
+      "S3B-02",
+      "S3B-03",
+      "S3B-04",
+      "S3B-05",
+      "S3B-06"
+    ],
+    "AuditContractError_no_success_obligation": "closed",
+    "science": "pending",
+    "criteria": "not_frozen",
+    "S4_S5": "not_started"
+  },
+  "archive": {
+    "existing_files_protected": 1006,
+    "nested_payload_count": 1687,
+    "nested_sidecars": 9,
+    "nested_payload_bytes": 54043005,
+    "packages_manifest_sha256": {
+      "execution_specialist": "60148066e68da6e373c8875df24242883c2395f40dd9500fe8c5f576ff5156f4",
+      "production_specialist": "8f98d841111f3a2e7153b03a3d3caa2cf89079cee190831df24b5d615e0ebaf2",
+      "queue_recovery_specialist": "1d794854f66f834ef78d4d7530cf4f3ce83bb965e8012de472e41da86ca199d7"
+    },
+    "tests_rerun_during_archive_and_resume": 0,
+    "behavior_probes_rerun_during_archive_and_resume": 0,
+    "database_binary_count": 0,
+    "safe_tar_members": 286
+  },
+  "interruption_record": "INTERRUPTION_RESUME.json",
+  "external_model_or_real_network_calls": 0,
+  "real_gold_questions_sealed_runs_access": false,
+  "git_commit_push": false
+}

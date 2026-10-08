@@ -1,0 +1,62 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/review_additional.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/inputs/frozen_artifact_missing_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src"
+  },
+  "parsed": [
+    {
+      "actual_tool_entered": {
+        "action_id": "sact_7e8b804dbd8cc7dabe98",
+        "hypothesis_id": "hyp_de62078b2d37959ee271",
+        "pid": 35276,
+        "tool_inputs": {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          }
+        }
+      }
+    },
+    {
+      "detail": {
+        "action_id": "sact_7e8b804dbd8cc7dabe98",
+        "task_key": "stask-exp_c56ee832583f5c891b93"
+      },
+      "hard_kill": "after_bundle_written",
+      "pid": 35276
+    }
+  ],
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"actual_tool_entered\": {\"action_id\": \"sact_7e8b804dbd8cc7dabe98\", \"hypothesis_id\": \"hyp_de62078b2d37959ee271\", \"pid\": 35276, \"tool_inputs\": {\"edits\": [{\"atom1\": \"S_C_2\", \"atom2\": \"S_O_1\", \"from_order\": \"single\", \"op\": \"change_bond_order\", \"to_order\": \"double\"}], \"donor\": {\"center_atom_ids\": [\"S_C_2\", \"S_O_1\"]}, \"alignment\": {\"donor_to_current\": {\"S_C_2\": \"S_C_2\", \"S_O_1\": \"S_O_1\"}, \"ref\": \"align-A\", \"status\": \"resolved\"}, \"expectation\": {\"target_smiles\": \"CC=O\"}}}}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_7e8b804dbd8cc7dabe98\", \"task_key\": \"stask-exp_c56ee832583f5c891b93\"}, \"pid\": 35276}\n"
+}

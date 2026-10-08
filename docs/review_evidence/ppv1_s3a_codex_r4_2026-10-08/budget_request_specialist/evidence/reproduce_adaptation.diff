@@ -1,0 +1,20 @@
+--- R3/reproduce.py
++++ R4/reproduce.py
+@@ -1,11 +1,9 @@
+ #!/usr/bin/env python3
+-"""Faithful packaged replay in NEW tmp, static-checked only for this review."""
++"""Copy fixed evidence into NEW temp; static syntax checked only this review."""
+ from pathlib import Path
+ import json,os,shutil,subprocess,tempfile
+-P=Path(__file__).resolve().parents[1];T=Path(tempfile.mkdtemp(prefix='ppv1_s3a_r3_budget_replay_',dir='/private/tmp'));PY='/Users/cc/miniconda3/envs/depending43/bin/python'
+-for name in ['source','scripts','old_root','old_search','old_stop_input']:shutil.copytree(P/name,T/name,ignore=shutil.ignore_patterns('__pycache__','*.pyc','*.sqlite','generated*','runs','policy_runs','src','tests') if name=='old_root' else shutil.ignore_patterns('__pycache__','*.pyc','*.sqlite','generated*','repo','defer_bypass_generated'))
+-(T/'old_root/src').symlink_to(T/'source/src',target_is_directory=True);(T/'old_root/tests').symlink_to(T/'source/tests',target_is_directory=True)
+-for name in ['old_search','old_stop_input']:(T/name/'repo').symlink_to(T/'source',target_is_directory=True)
+-(T/'evidence').mkdir();snapshot=json.loads((P/'evidence/input_snapshot.json').read_text());snapshot['metadata']['scratch']=str(T);snapshot['metadata']['execution_source']='pinned packaged r3 source; no live repo reads';(T/'evidence/input_snapshot.json').write_text(json.dumps(snapshot,ensure_ascii=False,indent=2)+'\n');env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+-for name,script in [('old_request','old_root/request_probe.py'),('old_policy','old_root/policy_probe.py'),('old_defer','old_search/defer_budget_bypass.py'),('old_root_observed','old_root/assert_root_observed.py'),('old_search_observed','old_search/probe.py'),('old_stop_observed','old_stop_input/old_stop_observed.py'),('contract','scripts/contract_probe.py'),('supplement','scripts/supplement.py'),('extra','scripts/extra_probe.py'),('legal_assembly','scripts/legal_assembly.py'),('sent_failed_control','scripts/sent_failed_control.py'),('runtime','scripts/runtime.py'),('adjudicate','scripts/adjudicate.py')]:subprocess.run([PY,'-B',str(T/'scripts/run_recorded.py'),name,script],cwd=T,env=env,check=True)
+-print(json.dumps({'scratch':str(T),'note':'recorded subprocess returns preserve raw expected failures/prep error; adjudicate is read-only, original probes not rewritten'},sort_keys=True))
++P=Path(__file__).resolve().parents[1];T=Path(tempfile.mkdtemp(prefix='ppv1_s3a_r4_budget_replay_',dir='/private/tmp'));PY='/Users/cc/miniconda3/envs/depending43/bin/python'
++for name in ['source','scripts']:shutil.copytree(P/name,T/name,ignore=shutil.ignore_patterns('__pycache__','*.pyc','*.sqlite'))
++(T/'evidence').mkdir();snapshot=json.loads((P/'evidence/input_snapshot.json').read_text());snapshot['metadata']['scratch']=str(T);snapshot['metadata']['execution_source']='frozen packaged r4 source; no live repo reads';(T/'evidence/input_snapshot.json').write_text(json.dumps(snapshot,ensure_ascii=False,indent=2)+'\n');env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
++for name,script in [('contract','scripts/contract_probe.py'),('supplement','scripts/supplement.py'),('extra','scripts/extra_probe.py'),('legal_assembly','scripts/legal_assembly.py'),('sent_failed_control','scripts/sent_failed_control.py'),('full_status','scripts/full_table_status_probe.py'),('runtime','scripts/runtime.py'),('adjudicate_r4','scripts/adjudicate_r4.py')]:subprocess.run([PY,'-B',str(T/'scripts/run_recorded.py'),name,script],cwd=T,env=env,check=True)
++print(json.dumps({'scratch':str(T),'note':'raw extra prep failure and history oracle preserved; adjudication only reads logs; actual_HEAD denotes frozen source version'},sort_keys=True))

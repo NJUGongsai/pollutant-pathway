@@ -1,0 +1,27 @@
+{
+  "actual_head": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+  "python": "3.11.16 (main, Aug 27 2026, 14:37:43) [Clang 20.1.8 ]",
+  "rdkit": "2026.03.6",
+  "schema": {
+    "search": "ppv1-search-1",
+    "store": "ppv1-store-9",
+    "search_limits": "ppv1-search-limits-3"
+  },
+  "completed_case_counts": {
+    "matrix": 16,
+    "hard_crash_and_concurrency": 5,
+    "defer_budget_bypass": 1
+  },
+  "synthetic_only": true,
+  "network_request_count": 0,
+  "full_suites_not_run_by_this_specialist": true,
+  "preparation_errors_preserved": {
+    "first_probe_wrong_exception_name": "LedgerCorrupt expected vs Ppv1LedgerCorrupt actual; 9 complete rows before assertion failure",
+    "barrier_controller_missing_GO": "actual external parent step after both ready; original and corrected bodies differentiated"
+  },
+  "actual_barrier_release_command": "python -B - <<'PY'\nfrom pathlib import Path\nimport json,time\np=Path('/private/tmp/ppv1_s3a_search_codex_bhzxquz2');b=p/'crash_generated/barrier_process/barrier';ready=[x.name for x in b.glob('*.ready')];assert len(ready)==2;(b/'GO').write_text('go\\n');(p/'barrier_external_release.json').write_text(json.dumps({'ready_observed':ready,'release':'parent-side continuation writes GO once after both ready; original controller omitted GO until this continuation','epoch':time.time()},indent=2)+'\\n');print('released after both ready')\nPY",
+  "reproduction_controllers_syntax_checked_not_executed": [
+    "reproduce.py",
+    "crash_concurrency.py"
+  ]
+}

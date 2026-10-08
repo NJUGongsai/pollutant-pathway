@@ -1,0 +1,45 @@
+{
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "python_flag": "-B"
+  },
+  "executed": [
+    {
+      "script": "probe_attempt1.py",
+      "exit": 1,
+      "stdout": "probe_attempt1.stdout.jsonl",
+      "stderr": "probe_attempt1.stderr.txt",
+      "reached_complete_rows": 9,
+      "preparation_failure": "wrong exception class name in observed assertion"
+    },
+    {
+      "script": "probe.py",
+      "exit": 0,
+      "cases": 16,
+      "stdout": "probe.stdout.jsonl",
+      "stderr": "probe.stderr.txt"
+    },
+    {
+      "script": "crash_concurrency_as_executed.py",
+      "exit": 0,
+      "cases": 5,
+      "stdout": "crash.stdout.jsonl",
+      "stderr": "crash.stderr.txt",
+      "parent_continuation": "barrier_external_release.json"
+    },
+    {
+      "script": "defer_budget_bypass.py",
+      "exit": 0,
+      "cases": 1,
+      "stdout": "defer_bypass.stdout.jsonl",
+      "stderr": "defer_bypass.stderr.txt"
+    }
+  ],
+  "reproduction_only_unexecuted": [
+    "crash_concurrency.py",
+    "reproduce.py"
+  ],
+  "network_request_count": 0
+}

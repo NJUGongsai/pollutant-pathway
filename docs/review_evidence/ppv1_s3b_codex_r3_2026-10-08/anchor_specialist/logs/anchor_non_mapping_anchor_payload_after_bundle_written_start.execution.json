@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_non_mapping_anchor_payload_after_bundle_written_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+  },
+  "parsed": [
+    {
+      "consumer_entered": "drive",
+      "pid": 46870
+    },
+    {
+      "consumer_entered": "execute_atomtool_expansion",
+      "pid": 46870
+    },
+    {
+      "detail": {
+        "action_id": "sact_4ed61ed283e10e686911",
+        "task_key": "stask-exp_83530e577c32f04295e5"
+      },
+      "hard_kill": "after_bundle_written",
+      "pid": 46870
+    }
+  ],
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46870}\n{\"consumer_entered\": \"execute_atomtool_expansion\", \"pid\": 46870}\n{\"hard_kill\": \"after_bundle_written\", \"detail\": {\"action_id\": \"sact_4ed61ed283e10e686911\", \"task_key\": \"stask-exp_83530e577c32f04295e5\"}, \"pid\": 46870}\n"
+}

@@ -1,0 +1,220 @@
+{
+  "network_attempts": [],
+  "trace": [
+    {
+      "call": "prepare_hypothesis",
+      "hypothesis_id": "hyp_e5c967fc0cf0580a8850",
+      "product_states": [
+        {
+          "cn_identity": "CC=O",
+          "formal_charge": 0,
+          "isotope_information_status": "not_applicable",
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "schema_version": "ppv1-chemstate-8",
+          "smiles_isomeric": "CC=O",
+          "source_refs": [
+            {
+              "record": "novel-model-proposal:novel_outside_pool"
+            }
+          ],
+          "state_id": "cs_540cc0181e112b383323",
+          "stereo_information_status": "not_applicable",
+          "structure_origin": "source_product",
+          "structure_smiles_raw": "CC=O"
+        }
+      ],
+      "source_refs_argument": [
+        {
+          "record": "novel-model-proposal:novel_outside_pool"
+        }
+      ],
+      "spec": {
+        "alignment": {
+          "donor_to_current": {
+            "S_C_2": "S_C_2",
+            "S_O_1": "S_O_1"
+          },
+          "ref": "align-A",
+          "status": "resolved"
+        },
+        "coefficient": 1,
+        "donor": {
+          "center_atom_ids": [
+            "S_C_2",
+            "S_O_1"
+          ]
+        },
+        "edits": [
+          {
+            "atom1": "S_DOES_NOT_EXIST",
+            "atom2": "S_O_1",
+            "from_order": "single",
+            "op": "change_bond_order",
+            "to_order": "double"
+          }
+        ],
+        "expectation": {
+          "target_smiles": "CC=O"
+        },
+        "key": "Novel",
+        "origin_group_key": "donor-Novel",
+        "product_smiles": "CC=O",
+        "transformation_ref": "donor-Novel"
+      }
+    },
+    {
+      "call": "prepare_hypothesis",
+      "hypothesis_id": "hyp_e5c967fc0cf0580a8850",
+      "product_states": [
+        {
+          "cn_identity": "CC=O",
+          "formal_charge": 0,
+          "isotope_information_status": "not_applicable",
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "schema_version": "ppv1-chemstate-8",
+          "smiles_isomeric": "CC=O",
+          "source_refs": [
+            {
+              "record": "synthetic-pool-spec"
+            }
+          ],
+          "state_id": "cs_540cc0181e112b383323",
+          "stereo_information_status": "not_applicable",
+          "structure_origin": "source_product",
+          "structure_smiles_raw": "CC=O"
+        }
+      ],
+      "source_refs_argument": null,
+      "spec": {
+        "alignment": {
+          "donor_to_current": {
+            "S_C_2": "S_C_2",
+            "S_O_1": "S_O_1"
+          },
+          "ref": "align-A",
+          "status": "resolved"
+        },
+        "coefficient": 1,
+        "donor": {
+          "center_atom_ids": [
+            "S_C_2",
+            "S_O_1"
+          ]
+        },
+        "edits": [
+          {
+            "atom1": "S_DOES_NOT_EXIST",
+            "atom2": "S_O_1",
+            "from_order": "single",
+            "op": "change_bond_order",
+            "to_order": "double"
+          }
+        ],
+        "expectation": {
+          "target_smiles": "CC=O"
+        },
+        "key": "Novel",
+        "origin_group_key": "donor-Novel",
+        "product_smiles": "CC=O",
+        "transformation_ref": "donor-Novel"
+      }
+    },
+    {
+      "call": "execute_atomtool_expansion",
+      "execution": {
+        "center_evidence": {
+          "center_match": null,
+          "center_match_basis": "",
+          "checker_version": "ppv1-donor-diagnostic-8",
+          "declaration_mismatch": false,
+          "evidence_refs": [
+            "align-A"
+          ]
+        },
+        "diagnostic": {
+          "alignment_ref": "align-A",
+          "center_evidence": {},
+          "center_match_basis": "",
+          "center_property_deltas": [],
+          "declaration_mismatches": [],
+          "declaration_only": [],
+          "equivalence_basis": "",
+          "executed_bond_changes": [],
+          "extra_changes": [],
+          "joint_mapping": {},
+          "legacy_cn_match": null,
+          "missing_info_reasons": [
+            "execution_failed:edit_execution_failed:bond_not_present:S_DOES_NOT_EXIST~S_O_1:edit[0]"
+          ],
+          "net_change_empty": false,
+          "reaction_center_match": null,
+          "schema_version": "ppv1-donor-diagnostic-8",
+          "stereo_comparison_unsupported_atoms": [],
+          "strict_target_match": null
+        },
+        "execution_ok": false,
+        "production_version": "ppv1-search-production-1",
+        "render": {
+          "atom_id_map": {
+            "S_C_1": 0,
+            "S_C_2": 1,
+            "S_O_1": 2
+          },
+          "canonical_smiles": "CCO",
+          "input_smiles": "CCO"
+        },
+        "result": {
+          "atom_id_map": {},
+          "n_edits": 1,
+          "ok": false,
+          "product_smiles": "",
+          "protocol_version": "v43-editproto-2",
+          "reasons": [
+            "edit_execution_failed:bond_not_present:S_DOES_NOT_EXIST~S_O_1:edit[0]"
+          ]
+        },
+        "substrate_smiles": "CCO",
+        "tool_inputs": {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_DOES_NOT_EXIST",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          }
+        }
+      }
+    }
+  ]
+}

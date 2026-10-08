@@ -1,0 +1,149 @@
+{
+  "source": {
+    "path": "ppv1_pytest_tmp/test_r4_11_wrong_archive_point0/legacy_wrong_ptr/pathway.sqlite",
+    "bytes": 57344,
+    "sha256": "f826944a9cffdac1197e1bbef219a81b644eb2ebed8920e1c304f0831d6a253b"
+  },
+  "open_mode": "ro",
+  "tables": {
+    "compounds": [
+      {
+        "cn": "CCO",
+        "example_smiles": "CCO",
+        "first_path_id": "p_acc5194bf572a3313102"
+      },
+      {
+        "cn": "CC=O",
+        "example_smiles": "CC=O",
+        "first_path_id": "p_237215d85d9269d014bb"
+      },
+      {
+        "cn": "CC(=O)O",
+        "example_smiles": "CC(=O)O",
+        "first_path_id": "p_a27299161895711e81b6"
+      }
+    ],
+    "event_products": [
+      {
+        "event_id": "ev_ac97fe61232795affb49",
+        "position": 0,
+        "product_identity": "CC=O",
+        "product_smiles": "CC=O",
+        "product_smiles_full": "CC=O"
+      },
+      {
+        "event_id": "ev_038de90a98c33287e1b1",
+        "position": 0,
+        "product_identity": "CC(=O)O",
+        "product_smiles": "CC(=O)O",
+        "product_smiles_full": "CC(=O)O"
+      }
+    ],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "v43-store-2"
+      },
+      {
+        "key": "current_run",
+        "value": "legacy_wrong_ptr"
+      },
+      {
+        "key": "graph_revision",
+        "value": "2"
+      }
+    ],
+    "path_instances": [
+      {
+        "path_id": "p_acc5194bf572a3313102",
+        "run_id": "legacy_wrong_ptr",
+        "parent_path_id": null,
+        "event_id": null,
+        "product_position": null,
+        "substrate_identity": "CCO",
+        "status": "expanded",
+        "depth": 0,
+        "status_reason": "committed_event",
+        "seq": 0,
+        "created_at": "2026-10-08 01:37:49"
+      },
+      {
+        "path_id": "p_237215d85d9269d014bb",
+        "run_id": "legacy_wrong_ptr",
+        "parent_path_id": "p_acc5194bf572a3313102",
+        "event_id": "ev_038de90a98c33287e1b1",
+        "product_position": 0,
+        "substrate_identity": "CC=O",
+        "status": "expanded",
+        "depth": 1,
+        "status_reason": "committed_event",
+        "seq": 1,
+        "created_at": "2026-10-08 01:37:49"
+      },
+      {
+        "path_id": "p_a27299161895711e81b6",
+        "run_id": "legacy_wrong_ptr",
+        "parent_path_id": "p_237215d85d9269d014bb",
+        "event_id": "ev_038de90a98c33287e1b1",
+        "product_position": 0,
+        "substrate_identity": "CC(=O)O",
+        "status": "rejected",
+        "depth": 2,
+        "status_reason": "",
+        "seq": 2,
+        "created_at": "2026-10-08 01:37:49"
+      }
+    ],
+    "reaction_events": [
+      {
+        "event_id": "ev_ac97fe61232795affb49",
+        "run_id": "legacy_wrong_ptr",
+        "parent_path_id": "p_acc5194bf572a3313102",
+        "substrate_identity": "CCO",
+        "evidence_id": "legacy_wrong_ptr-e0",
+        "evidence_hash": "1152d761cc8d3efad9810be0092a22f7275024e7a79367f4004cb8fe2db0ffcd",
+        "source_id": "legacy_wrong_ptr-e0",
+        "kind": "recorded_reaction",
+        "condition_fit": "unknown",
+        "created_at": "2026-10-08 01:37:49",
+        "model_ref": ""
+      },
+      {
+        "event_id": "ev_038de90a98c33287e1b1",
+        "run_id": "legacy_wrong_ptr",
+        "parent_path_id": "p_237215d85d9269d014bb",
+        "substrate_identity": "CC=O",
+        "evidence_id": "legacy_wrong_ptr-e1",
+        "evidence_hash": "7a518b0655663e2a29b976f7070ebb575ad0202f7e1a3e333c968bc877de283b",
+        "source_id": "legacy_wrong_ptr-e1",
+        "kind": "recorded_reaction",
+        "condition_fit": "unknown",
+        "created_at": "2026-10-08 01:37:49",
+        "model_ref": ""
+      }
+    ]
+  },
+  "schema": [
+    {
+      "name": "compounds",
+      "sql": "CREATE TABLE compounds (\n    cn             TEXT PRIMARY KEY,\n    example_smiles TEXT NOT NULL,\n    first_path_id  TEXT NOT NULL\n)"
+    },
+    {
+      "name": "event_products",
+      "sql": "CREATE TABLE event_products (\n    event_id       TEXT NOT NULL,\n    position       INTEGER NOT NULL,\n    product_identity TEXT NOT NULL,\n    product_smiles TEXT NOT NULL,\n    product_smiles_full TEXT NOT NULL,\n    PRIMARY KEY (event_id, position)\n)"
+    },
+    {
+      "name": "meta",
+      "sql": "CREATE TABLE meta (\n    key   TEXT PRIMARY KEY,\n    value TEXT NOT NULL\n)"
+    },
+    {
+      "name": "path_instances",
+      "sql": "CREATE TABLE path_instances (\n    path_id           TEXT PRIMARY KEY,\n    run_id            TEXT NOT NULL,\n    parent_path_id    TEXT,\n    event_id          TEXT,\n    product_position  INTEGER,\n    substrate_identity TEXT NOT NULL,\n    status            TEXT NOT NULL,\n    depth             INTEGER NOT NULL,\n    status_reason     TEXT NOT NULL DEFAULT '',\n    seq               INTEGER NOT NULL,\n    created_at        TEXT NOT NULL\n)"
+    },
+    {
+      "name": "reaction_events",
+      "sql": "CREATE TABLE reaction_events (\n    event_id           TEXT PRIMARY KEY,\n    run_id             TEXT NOT NULL,\n    parent_path_id     TEXT NOT NULL,\n    substrate_identity TEXT NOT NULL,\n    evidence_id        TEXT NOT NULL,\n    evidence_hash      TEXT NOT NULL,\n    source_id          TEXT NOT NULL,\n    kind               TEXT NOT NULL,\n    condition_fit      TEXT NOT NULL,\n    created_at         TEXT NOT NULL, model_ref TEXT NOT NULL DEFAULT '',\n    UNIQUE (run_id, parent_path_id, substrate_identity, evidence_id)\n)"
+    }
+  ],
+  "read_succeeded": true
+}

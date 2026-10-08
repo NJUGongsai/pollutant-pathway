@@ -1,0 +1,50 @@
+{
+  "ppv1": {
+    "tests": 871,
+    "errors": 0,
+    "failures": 10,
+    "skipped": 0,
+    "passed": 861
+  },
+  "baseline_updated_existing": {
+    "tests": 55,
+    "errors": 0,
+    "failures": 3,
+    "skipped": 0,
+    "passed": 52
+  },
+  "baseline_new_regressions": {
+    "tests": 20,
+    "errors": 0,
+    "failures": 17,
+    "skipped": 0,
+    "passed": 3
+  },
+  "g01": {
+    "tests": 1481,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 8,
+    "passed": 1473
+  },
+  "exact_G01_deselections": [
+    "tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden",
+    "tests/test_asset_root_isolation.py::test_engine_load_isolation_and_reinit",
+    "tests/test_cli_workflow.py::test_real_run_inspect_resume_smoke",
+    "tests/test_domain_identity.py::test_identity_parity_with_frozen_engine",
+    "tests/test_engine_asset_parity.py::test_all_fixtures_parity",
+    "tests/test_engine_asset_parity.py::test_parity_covers_required_categories",
+    "tests/test_engine_asset_parity.py::test_arms_ran_on_expected_roots",
+    "tests/test_engine_asset_parity.py::test_same_runtime_failure_on_valid_fixture_fails",
+    "tests/test_engine_asset_parity.py::test_runtime_failure_in_one_arm_only_fails",
+    "tests/test_engine_asset_parity.py::test_unparseable_passes_only_with_expected_error",
+    "tests/test_engine_asset_parity.py::test_category_and_count_expectations_enforced_against_actual_candidates",
+    "tests/test_engine_asset_parity.py::test_missing_fixtures_in_both_arms_fail",
+    "tests/test_engine_asset_parity.py::test_duplicate_and_unexpected_result_names_fail",
+    "tests/test_engine_asset_parity.py::test_real_comparison_reports_found_categories",
+    "tests/test_finder_real.py::test_real_engine_catechol_recorded_evidences",
+    "tests/test_prediction_real.py::test_real_catechol_rank_candidates_smoke",
+    "tests/test_prediction_real.py::test_real_donor_recovery_attempt_recorded"
+  ],
+  "no_existing_implementation_run_results_reused": true
+}

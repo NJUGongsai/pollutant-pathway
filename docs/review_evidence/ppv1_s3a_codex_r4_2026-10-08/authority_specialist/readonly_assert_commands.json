@@ -1,0 +1,58 @@
+[
+  {
+    "name": "r4_capture_assert",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/assert_r4_capture.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/src:/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 0,
+    "elapsed_seconds": 0.05658262502402067,
+    "timestamp_utc": "2026-10-07T19:16:10.960137+00:00",
+    "stdout": "r4_capture_assert.stdout.jsonl",
+    "stderr": "r4_capture_assert.stderr.txt"
+  },
+  {
+    "name": "old_capture_observed",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/assert_observed_as_executed.py",
+      "--root",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/src:/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 1,
+    "elapsed_seconds": 0.017266041017137468,
+    "timestamp_utc": "2026-10-07T19:16:10.977567+00:00",
+    "stdout": "old_capture_observed.stdout.jsonl",
+    "stderr": "old_capture_observed.stderr.txt"
+  },
+  {
+    "name": "r3_capture_observed",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/assert_r3_capture.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "env": {
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/src:/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 1,
+    "elapsed_seconds": 0.04547824995825067,
+    "timestamp_utc": "2026-10-07T19:16:11.023079+00:00",
+    "stdout": "r3_capture_observed.stdout.jsonl",
+    "stderr": "r3_capture_observed.stderr.txt"
+  }
+]

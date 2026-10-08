@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/self_consistent_replaced_plan_after_event_submitted_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+  },
+  "label": "self_consistent_replaced_plan_after_event_submitted_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_4ef578a6f767e92e4be7",
+      "event_id": "ppev_1625423659f988a0c0b7",
+      "submitted": {
+        "action_id": "sact_4ef578a6f767e92e4be7",
+        "created": true,
+        "event_id": "ppev_1625423659f988a0c0b7"
+      }
+    },
+    "hard_kill": "after_event_submitted",
+    "pid": 46285
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_event_submitted\", \"detail\": {\"action_id\": \"sact_4ef578a6f767e92e4be7\", \"event_id\": \"ppev_1625423659f988a0c0b7\", \"submitted\": {\"created\": true, \"event_id\": \"ppev_1625423659f988a0c0b7\", \"action_id\": \"sact_4ef578a6f767e92e4be7\"}}, \"pid\": 46285}\n"
+}

@@ -1,0 +1,26 @@
+{
+  "totals": {
+    "tests": 2,
+    "errors": 2,
+    "failures": 0,
+    "skipped": 0,
+    "passed": 0
+  },
+  "cases": [
+    {
+      "classname": "",
+      "name": "tests.test_ppv1_s3a_search",
+      "state": "error",
+      "message": "collection failure",
+      "body": "ImportError while importing test module '/private/tmp/ppv1_s3a_execution_9b78f42_AUFcUE/run/baseline_source/tests/test_ppv1_s3a_search.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_ppv1_s3a_search.py:34: in <module>\n    from s3a_worker import make_fixture  # noqa: E402\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/s3a_worker.py:42: in <module>\n    from pathway_v43.pollutant.search import (  # noqa: E402\nE   ModuleNotFoundError: No module named 'pathway_v43.pollutant.search'"
+    },
+    {
+      "classname": "",
+      "name": "tests.test_ppv1_s3a_recover",
+      "state": "error",
+      "message": "collection failure",
+      "body": "ImportError while importing test module '/private/tmp/ppv1_s3a_execution_9b78f42_AUFcUE/run/baseline_source/tests/test_ppv1_s3a_recover.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_ppv1_s3a_recover.py:32: in <module>\n    from s3a_worker import make_fixture  # noqa: E402\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/s3a_worker.py:42: in <module>\n    from pathway_v43.pollutant.search import (  # noqa: E402\nE   ModuleNotFoundError: No module named 'pathway_v43.pollutant.search'"
+    }
+  ],
+  "exit_code": 2
+}

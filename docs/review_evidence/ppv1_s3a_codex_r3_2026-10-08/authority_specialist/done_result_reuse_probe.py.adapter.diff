@@ -1,0 +1,28 @@
+--- r2/done_result_reuse_probe.py
++++ r3capture/done_result_reuse_probe.py
+@@ -23,16 +23,19 @@
+     if change=='foreign_parent':
+         _,_,_,fe,fa=make_fixture(name,'different-parent','k1','ctx1')
+         other=PollutantPathwayStore(d/'separate_foreign_validity.sqlite');foreign_validated=other.submit_event(fe,**fa);other.close()
+-    before=snap(l);result=l.submit_action_event(aid,fe,worker_id='w1',**fa);after=snap(l)
++    before=snap(l)
++    try:result=l.submit_action_event(aid,fe,worker_id='w1',**fa)
++    except Exception as exc:result={'error':type(exc).__name__,'detail':getattr(exc,'detail',{}),'text':str(exc)}
++    after=snap(l)
+     committed=l.conn.execute('SELECT event_id FROM search_commit_records WHERE action_id=?',(aid,)).fetchone()[0]
+     row={'case':name,'inputs':{'policy':policy,'claimed_action':rec,'original_event':asdict(e),'original_args':args,'supplied_event':asdict(fe),'supplied_args':fa},
+         'foreign_event_validated_separate_public_store':foreign_validated,'before':before,'result':result,'after':after,
+-        'recorded_completed_event_id':committed,'returned_event_exists_in_current_store':l.store.get_event(result['event_id']) is not None,
+-        'returned_completed_reference_correct':result['event_id']==committed,'changed':before!=after}
++        'recorded_completed_event_id':committed,'returned_event_exists_in_current_store':l.store.get_event(result.get('event_id','')) is not None,
++        'returned_completed_reference_correct':result.get('event_id')==committed,'changed':before!=after}
+     (d/'input_output.json').write_text(json.dumps(row,indent=2,ensure_ascii=False)+'\n')
+     print(json.dumps({k:v for k,v in row.items() if k not in ['inputs','before','after']},ensure_ascii=False),flush=True)
+-    assert before==after and result['reason']=='already_completed' and not result['created']
+-    if change=='same_event':assert result['event_id']==committed
+-    else:assert result['event_id']!=committed and not row['returned_event_exists_in_current_store'] and foreign_validated['created']
++    assert before==after
++    if change=='same_event':assert result['reason']=='already_completed' and not result['created'] and result['event_id']==committed
++    else:assert result.get('error')=='SearchIdentityConflict' and foreign_validated['created']
+     l.store.close()
+ print(json.dumps({'summary':{'cases':2,'capture_completed':True,'network_calls':0}}))

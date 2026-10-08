@@ -1,0 +1,208 @@
+> **通道与 provenance（主会话 ZCode 记录，非 mimo 回应正文）**
+>
+> - 2026-10-08 上午（S3b 回修 r2 轮，按 AGENTS.md「评审-回修自动循环」轮内第③步自动送审）：请求经 **opencode 免费模型 `opencode/mimo-v2.6-flash-free`** 只读评审；opencode 会话 `ses_ee72abd56ffeVZE17hOP3yAN5Z`（标题 "mimo ppv1 v14 chem review"）。与手机 mimo 应用是否同一实例未经证实，采信按本通道口径区分。
+> - 本轮一次运行完整输出（无断流、无续跑）。
+> - 评审为**只读**：模型自述未执行任何测试、未修改任何文件、不含金标/题面数据；执行类声明与未逐行读的分支均自标"待执行验证/部分未确认"。其中 PPV1 871 passed 已由主会话本机独立复跑证实（2026-10-08）；G01 安全隔离 1473/8/17 为交付方隔离证据，留 Codex 复核。
+> - 请求原文：`docs/mimo_ppv1_chem_review_request.md`（v14，S3b r2 版，自包含、无金标）。运行证据与原始输出：`docs/review_evidence/ppv1_s3b_r2_mimo_2026-10-08/`。
+> - 以下为 mimo 回应原文（仅清理终端控制字符，未做任何内容改动）。
+
+---
+# mimo 化学评审回应:pollutant_pathway_v1 判据草案 v14(S3b 回修 r2 后,未冻结)
+
+**评审方式声明**:本轮只用读取类工具(glob/grep/read)浏览仓库,未执行任何测试、探针或 git 命令,未修改任何文件。下文所有行号均为我在源码中**实际读到**的行号;凡我未读到或只凭请求文本的部分,一律标"未确认"。所有执行类数字(871/1473/基线红绿/父绿 11+1/RDKit 往返)**一律待执行验证**,我不为它们背书也不否定。实读文件:`src/pathway_v43/pollutant/{chemstate,audit,runflow,production,search,queue,model_protocol,profile,path_context,store,hypothesis,substrate_profile,pool_audit}.py`、`src/pathway_v43/workflow/runner.py`、`tests/test_ppv1_s3b_r2.py`、`tests/test_ppv1_s3b_model.py`(均为片段读取与检索)。
+
+---
+
+## 1. 判据一:分子身份(含请求 a/b/c)
+
+**1) 结论:同意(有条件)。** 条件:RDKit 2026.03.6 "实际写出 ABS/AND/OR/自由基并保持严格身份往返"及三字面别名的实测行为属外部/执行取证,待执行验证;读码层面该句与实现自洽。
+
+读码依据:
+- 输入侧登记表:`chemstate.py:259-266`(`_CX_INPUT_REMOVED_HEADS={atomProp,SgD}`、`_CX_INPUT_RETAINED_HEADS={Sg}`、注解头正则 `^(?:a|o\d+|&\d+|\^\d+)$` 与 `(a|o\d+|&\d+|\^\d+):`)——与"真实 CX token:a:/o<N>:/&<N>:/^<N>:、Sg 保留、atomProp/SgD/坐标/标签移除"一致。
+- 分派与兜底:`chemstate.py:416-456`(未登记首头含 r/Ln/c/wU 等,见 409-411 注释,落 `_cx_unregistered_item_error`,kind=`unregistered_cx_class` 于 473);整体不可解析落 `unparseable_smiles`(414、692)。**"and/or/rad 三字面别名被拒"读码成立**:三者不命中 266 的注解头正则,落 456 兜底显式拒(推理性核对,非执行)。
+- ABS 令牌级剥离:`chemstate.py:513-521`(`_strip_abs_tokens`,注释含 `a:1,&1:3`、`^1:0,a:1` 形态)⇒ "段级正则分裂"修复与 plain≡ABS 同键的机制存在。
+- 2b/0c-v13.2 的异常层次**逐条读码一致**:恢复入口外层 `ChemicalStateError`,`detail.kind` ∈ `state_structure_unparseable`(846,内因在 `detail["reason"]` 849)/ `raw_structure_rejected`(896,内因 899);工厂/strict 外层 kind ∈ `unregistered_cx_class`(473)/`unparseable_smiles`(692、927);公共 writer 外层 `Ppv1StateContractError`(`store.py:398` 定义,499-635 抛点)。跨入口才不同、同入口按 `detail.kind`/`reason.kind` 分——v12 两维更正**准确**。
+- 首消费同源:`chemstate.py:648`(from_dict → validate_state_object)、`audit.py:475`(直接 states 对象);重推导六项比对 851-873 → `state_fact_rederivation_mismatch`(879)。"同源复算非独立双算"与代码形态相符。
+- (b) 入口划界:preview 侧读到 `pool_audit.py:262/295-302`(`pool_unchanged`、`diagnostic_only`)与 `audit.py:590-591`(input_preview 的 diagnostic_only 不进 verified 覆盖)⇒ C2 划界**读码成立**;"冻结执行器内部解析"入口我未逐一读,**未确认**。
+- v9"completion_license_scope 字面不含键断裂句"复核成立:`audit.py:1010-1013` 字面只有"组合型氢当量/数值配平不证明…结构贡献",无该句。
+
+**2) 可落字的修改建议:**
+- 在判据一第 2 条补一句机读码定位:"不命中注解头正则的任何 `xxx:` 项(含 and:/or:/rad:)按项边界兜底拒,kind=unregistered_cx_class(源:`chemstate.py:416-456/473`)"。
+- 第 4 条补半句:"`a:` 剥离只移除身份键中的绝对立体注解子集,**不表示两来源样品立体纯度等同**;同 state_id 是表示层身份相等。"
+- (b) 入口清单建议把"preview/执行器内部解析"的 C2 划界直接引到已读到的两处源位置(`pool_audit.py:295-302`、`audit.py:590-591`),冻结时可复核。
+
+**3) "程序诚实但化学误导"风险点:**
+- `plain ≡ |a:…|` 同键 + a: 剥离 ⇒ 摘要若只说"同 state_id = 同分子身份(含立体)",会掩盖"绝对立体注解在某些来源里只活在 a: 块中、被剥后同键"的可能;该分歧已在文字里登记为与 RegistrationHash 的差异,**对外引用时不得删括注**。
+- `atomProp` 是移除类:携带真实同位素/标记信息的 atomProp 注解不进身份——"同键"不等于"同标记样品"。建议在 4 的 appearance 段落明示这是设计选择,而非该类信息不存在。
+
+---
+
+## 2. 判据二(含两处 v12 落字确认)
+
+**1) 结论:同意。** 两处 v12 落字与实现一致;known_absent 逐分支只读到数值分支,**部分未确认**(见下)。
+
+读码依据:
+- 全氢/D-T/自由基盲区:`audit.py:138-140`、`1417-1419`、`1439`(`isotopes_D_T_counted_as_H; radical_electrons_not_counted`)。
+- **系数句**:`coefficient_binding_mismatch` 是 `coverage_violations` 的 kind(`audit.py:923-933`),partial ⇒ 中心 CHECK_UNKNOWN(`1164-1174`);决策行首中次序为 R5d→R5v→R5c→R5(`1769-1803`)⇒ "不能固定写 R2b、也不能固定写 R5"**与代码一致**;非法系数的构造/提交边界拒绝在 hypothesis 构造侧(`hypothesis.py:159` catch 形态可见系数校验存在,细节未逐行读,标未确认)。
+- **known_absent 轴归属**:元素账只消费 `full_known`(`audit.py:628-632`,要求 `all_known_coeffs`),未含 known_absent 语义;数值缺席分支在 `path_context.py:822`(`numeric_absence_semantics_undefined`)、注释 24。**"实体缺席/非物种同值 ⇒ conflict;异值/未列出 ⇒ unknown"的逐分支代码我未读到,未确认**。
+- R5d 触发集合:`audit.py:227-228` = `{element_accounting, formal_charge_accounting}` ✓。
+- 0c-v13.3(未知系数 ⇒ 元素/电荷两轴亦 unknown):`audit.py:641-651`、`673-681`(else 分支两轴均 CHECK_UNKNOWN,reason `not_run_incomplete_list`)✓,"verified 只覆盖调用方声明清单"由 `full_known` 的 list_status 前提支持 ✓。
+
+**2) 修改建议:**
+- 把 known_absent 句写成跨轴引用:"known_absent 缺席语义的唯一规范定义在**判据四(条件评估轴)**;元素账不消费该语义,只消费系数已知性(full_known)。两处禁止互引扩散。"
+- 系数句建议在 `coefficient_binding_mismatch` 定义处直接补 "(该 kind ⇒ 中心轴 unknown;整体处置按决策表首中,R5d/R5v 可先于 R5 命中)"——把首中规则写进定义,防下游摘句。
+
+**3) 风险点:** "数值账平"一旦脱离"自由基电子不入账 + D/T 并 H"两个盲区单独出现在摘要/对外报告,会被读成质量或电子守恒已核。凡引用"账平"处建议强制携带盲区括注(现文字已有,缺的是"引用处强制")。
+
+---
+
+## 3. 决策表与中心证据契约(判据三)
+
+**1) 结论:同意(a/b/c 全部)。**
+
+读码依据:
+- 决策表**逐行落实**:`audit.py:1514-1548`(表文)、`1555-1571`(rules)、实现 `1672-1818`(R1 1672-1677、R1b 1679-1687、R2 1689-1698、R2p 1700-1746 含 off 只披露不阻断、R2b 1748-1755、R3 1757-1761、R4 1763-1767、R5d 1769-1777、R5v 1779-1786、R5c 1788-1794、R5 1796-1803、R6 1805-1813、R7 1815-1818)。评估次序与表行序一致,"首中即决"成立。
+- R2b caller 依赖:`1664-1667` docstring 明写"不传则 R2b 不可达";`contract_violation is None ⇒ 分支不达`(1749)✓。
+- 中心无"裸 partial":未满足核按 CHECK_UNKNOWN + 映射理由码表达(`1131-1148`,含"注册名+True 不构成核实"于 1142;`1164-1174`),与覆盖枚举分开 ✓;四原始串守卫限定执行成功路径解析之前(见判据五 2554/2572/2596 时序)✓。
+- 覆盖核算两根据:`970-1036`(无未覆盖 ⇒ full;有未覆盖 ⇒ 补全对账 973-980 + 许可判定 981-999;有 violations ⇒ partial 1027-1036);`unknown_coefficients` 早退在 891-897 且**早退 detail 不含 license 字段** ⇒ "恒入≠已适用、早退不携带"读码成立;三条件判定字段 `uncovered_product_refs/uncovered_reactant_refs` 在 `880-885`,`unlicensed_uncovered_identities` 在 1014 ✓。
+- v10 (a)-(d):与 891-897(早退在许可之前)、929(kind 是系数绑定)、985-999(许可未登记身份的正文)一致;"不能一律称许可本身判负"成立 ✓。
+- 跨假设未绑定 proof ⇒ 中心 unknown(`1131-1148`)/篡改复算不一致 ⇒ AuditContractError(抛点 1076、1110)⇒ 两种情形分写 ✓。
+
+**2) 修改建议:**
+- 决策表下方加一行实现锚点:"评估次序与实现一致(源:`audit.py:1672-1818`);R5c 先于 R5、R5d/R5v 先于 R5。"
+- 入口划界⑤建议直接写明我**未能核对**的那一条:`store.verify_event_attachment_content` 函数本体本轮未读,冻结前请在规则文字附其行号与"只核附随、不证明 state 身份"的源码锚点——否则该句目前是请求单方声明。
+
+**3) 风险点:** `product_coverage=full` 是最容易被摘出来误读的字段——"full"字面像"反应完整核实",实际只解除覆盖轴。建议在枚举定义行尾加硬否决句:"full ≠ 转化已核实/机理已核;身份归 strict 轴、账归判据二、转化归证据门。"
+
+---
+
+## 4. 判据四:条件相容聚合
+
+**1) 结论:同意(a/b),其中孤儿方向与重建半边的分支级代码**未逐行读,标部分未确认**;文本与我读到的机制自洽。**
+
+读码依据:
+- 入口强制清单:`assess_conditions` 起于 `path_context.py:1117`,函数体内直接合并评估、**无 validate 调用**(1117-1166 实读)⇒ "自身没有该调用、需上游纪律"成立;`validate_context_object` 定义于 1502;`derive_child_context` 于 2298;from_dict 于 2033。
+- 两种不可变分写与 `context_content_identity_mismatch` 抛点:39、1546、2089 ✓(2033 与 2089 的包含关系未逐行确认)。
+- known_absent 数值分支:822 + 注释 24 ✓;"不跨值域泛化"与该分支形态一致。
+- 旧边冻结:1126-1131 注释明写 assess_candidate_conditions 消费 phase_history、本函数会用当前事实重评旧边(R3-06 根源)⇒ "旧边评估冻结于 phase_history"有源。
+- 场景构造限制:转换须显式 source_ref(`queue.py:19` 载荷契约、513-559 pending_followup/非空校验)✓;"不从观察/标签/工具隐式条件造事实"的实现入口未逐行核,**未确认**。
+
+**2) 修改建议:**
+- 入口清单落字时附行号:"已强制 = from_dict(2033)/derive 父/audit 直接对象(audit.py:475);未强制 = assess_conditions(1117)/assess_candidate_conditions/route_assessment,需上游纪律,S3b 恢复入口接守卫。"
+- 孤儿方向两句(绑定旧作用域无快照 ⇒ unknown;行/签名无对应 ⇒ `context_snapshot_inconsistent` 拒)建议冻结前指认实现行号——本轮我未读到该分支,**未确认**。
+
+**3) 风险点:** "给定事实集相容、不核事实真实性"(0c-v13.6)是本判据最易被误引的一句:条件 `satisfied` 被摘要成"环境已被证实支持该反应"即属程序诚实、化学误导。建议所有 satisfied/conflict 输出在规则层强制带前缀"就给定事实集而言"。
+
+---
+
+## 5. 判据五:供体一致性诊断
+
+**1) 结论:有条件同意。** 条件与关键发现(见修改建议第 1 条):v12 (a)"失败 diagnostic 与下游 audit 各轴分开"**必须限定为 audit 函数语义**,否则与生产链短路事实冲突。
+
+读码依据:
+- 净变化判定与不采信自报:`audit.py:2530-2543`(零净变化 ⇒ center unknown 永不 True;声明–执行对账;中心外变化 False;缺映射 ⇒ unknown)。
+- 8b:`2553-2562`(execution_ok=False ⇒ 三 None);四原始串守卫 `2572-2592` 位于早退之后、结构解析(`2596`)之前 ⇒ "失败早退未解析、成功路径解析之前"**时序成立**;converter 兜底返回 checker_version/center_match=None 等元数据(`2983-2993`),`production.py:290` 恒调用 ⇒ 0d.3 读码一致。
+- **关键边界(实读)**:`production.py:396-404` —— execution_ok=False 在 `audit_hypothesis`(406)**之前**短路为 method_failed,零 audit、零事件。故 v12 (a)"同一次 audit 仍可给其他轴 verified"只能是 **audit 函数被调用时的语义**,不是生产链可达路径。
+- v11 落字:图等价非酶识别/不核供体模板(1886-1887 docstring)、legacy_cn_match 仅旁证(1898 字段注释)、strict 同源(1889-1890)✓;parity(2043、2064、2116)、非四面体 unsupported⇒unknown(2082-2086、2467)✓;跨假设绑定 unknown(1131-1148)✓。
+- 8d:10 个 AuditContractError 抛点全在 audit.py(464、739、1076、1110、1589、1596、1603、1607、2547、2584,全 src 检索无他处);runflow 驱动只类型化捕获(512、519、550、552)且 `_run_expand` 仅捕 AuditContractError(955-966);`start/resume` 的 `driver.drive()` 无外层 try(1281、1386)⇒ **三类 RuntimeError(ChemicalStateError 172 / ConditionContractError 248 / HypothesisContractError 117,均为 RuntimeError 子类)原样逃逸,0d.2 披露读码成立**。audit.py 内首个 `except Exception` 在 1956,2491 的宽捕获只包 GetSubstructMatches(2487-2492,`check_edit_against_donor` 自 2504 另起函数)⇒ 静态面与披露一致;**完整包围关系未做形式化核对,动态证明待执行验证**——这一点 8d 文字自己也已声明"静态不是动态安全的通用证明",我认可该诚实度。
+
+**2) 修改建议:**
+- **判据五 (a) 落字改为两句**:"(i) audit 函数语义上,失败 diagnostic 的三 None/空 center_evidence 只使中心轴 unknown,其他轴可独立判 verified 并按决策表合成处置;(ii) 但在固定生产链中,execution_ok=False 在 `production.py:399-404` 于 audit 之前短路为 method_failed,**零 audit、零事件**——(i) 不得读成生产链行为。"
+- `audit.py:2980-2981` docstring 仍写"strict_target_match=False ⇒ …(至少 unknown,mimo 3.3(3))",与 0c-v14.1 的 violated 落字并存;建议冻结时同步更正该注释或标注"历史措辞,现行实现 1188-1203 为 violated→R5v",否则下一轮读码会再引旧行话。
+
+**3) 风险点:** "三 None 不是通过"若被摘要成"执行失败仍能出其他轴 verified 并推进",即跨过 399-404 的短路事实——这是本轮最值得防的一处"程序诚实、化学误导"。
+
+---
+
+## 6. 0c-v13 七条(逐条)
+
+1. **11+1 父绿精度**:**有条件同意,待执行验证**(测试级事实,我无执行权限)。可落字:注明该数字的证据形态是"父基线跑测输出",不在规则文本里当读码事实引用。
+2. **各入口 kind/reason 层次**:**同意**——全部读码复核一致(见判据一);and/or/rad 落兜底(456)读码推理成立,RDKit 实测写出行为待执行验证。
+3. **未知系数 ⇒ 元素/电荷账亦 unknown**:**同意**(628-681)。风险点:把"两轴 unknown"读成"反应被否"——unknown 不 reject,仍按 R5 retain。
+4. **omission 及声明清单边界**:**同意(completion 侧),omission 侧部分确认**。completion_surplus/deficit(954-968)与 coefficient_binding_mismatch(923-933)确为两套对账、分写不互冒 ✓;omission 结构化披露见 `audit.py:1441-1454`(我读到的 1443 行片段为"仅表示缺口向量与该常见模式逐元素…"),**"不证明实际缺该物质、不含电子/质子计量"的完整限定句未读全,标未确认**。
+5. **R2b/R1 对象范围**:**同意**。R2b 不传不可达(1664-1667)、R1 在首消费守卫之后属防御行(与 2b 的 chemstate 拒绝路径一致)、AuditContractError 中止本次 admission/提交(runflow 955-966)均读码成立。
+6. **条件事实真实性**:**同意**(assess_conditions docstring 1119-1131 = 给定事实集评估;转换须显式 source_ref 见 queue.py:19);S3b caller 接 context 守卫的接线**未逐行确认**(from_dict/2089 包含关系),标未确认。
+7. **异常不当 R 行**:**同意**;复合探针"首处拒绝后未执行段不报通过"属测试行为,待执行验证。
+
+---
+
+## 7. 0c-v14 五条(逐条)
+
+1. **strict False ⇒ violated/R5v**:**同意,读码精确**。`audit.py:1188-1203`(strict False → CHECK_VIOLATED)、`1204-1209`(None → unknown)、R5v 于 1779-1786;弱读成 unknown 确会错走 R5。附带发现:`audit.py:2980-2981` 旧注释仍写"至少 unknown"(见判据五建议)。
+2. **λ_s×Δ 源式位置**:**同意**。实读 `audit.py:911-920`(lambda_s/delta 定义)与 `973-980`(两侧 `_completion_violations`,lambda_s×delta_pos 进 product、lambda_s×delta_neg 进 reactant)——请求写"973-779 一带"与实读相符。
+3. **行号更正**:**同意,附精度说明**。实读 `workflow/runner.py:214-223`(PPV1 start 分流,224 为 refuse)与 `311-319`(resume 分流),均落在所写 214-228/305-320 区间内(区间略宽但文件与内容正确);窄捕获实读 `runflow.py:955-966`(所写 955-972 含 method_failed 分支开头,不矛盾);失败短路 `production.py:399-404` ✓;恢复隔离 `search.py:1155-1221` ✓(所写 1155-1224 覆盖);冻结计划 persist/load 实读 `runflow.py:211-253`,而 255 之后至 314 是 driver.lock 段(284 行 `LOCK_EX|LOCK_NB` 等为检索实读)——**建议把"冻结计划 runflow.py:211-321"拆成"冻结计划 211-253 / 执行会话锁 255-321",否则行号标签会把锁段误标为计划段**。
+4. **测试集合与数字**:**全部待执行验证**。读码仅能确认:六组分节测试文件存在(`tests/test_ppv1_s3b_r2.py` 分节于 140/215/297/433/496/618,novel 负控于 `tests/test_ppv1_s3b_model.py:108-125`)。"数 test 函数不证明参数化绿 case"——认同,请保持该口径。
+5. **四条披露落字**:**同意**(0d.1 见下条 1;0d.2 见判据五/下条 2;0d.5、0d.7 见下)。
+
+---
+
+## 8. 0d 八条(逐条)
+
+**0d.1 固定调用链与产品来源:同意。** 读码:链前三段 `production.py:263-309`、audit/admission `406-415`、结算 `runflow.py:941-985`;产物身份自 spec 派生(`173-196` `build_product_state`),工具输出只进诊断不改产物 ✓;`ADMISSION_SUBMITTABLE={expand,retain_conditional}`(`production.py:80`)⇒"中心 violated/unknown 时事件仍带声明结构提交"成立(R5v/R5 均 retain → 提交)。
+*修改建议*:括注例句"声明酸/实际醛"后强制接"该事件带声明结构提交但**中心不可 verified、不可按 verified 展开**",两句必须同框出现。
+*风险点*:只引前半句会让人以为错产品被正常推进。
+
+**0d.2 生产 caller 异常义务(收窄后):同意。** 读码:窄捕获 `runflow.py:955-966`(仅 AuditContractError → contract_aborted 结算后 return);驱动循环其余捕获为类型化(512/519/550/552),**全 runflow 检索无 `except Exception`**;`drive()` 调用无外层 try(1281/1386)⇒ 三类 RuntimeError 逃逸面、"已排队其余独立条目继续、deferred 不自动激活"(505-507 与 966 return 形态)读码自洽。
+*修改建议*:把源锚点写进规则:"窄捕获 = runflow.py:955-966;逃逸面 = drive 循环 catch 清单(512/519/550/552)不含 ChemicalStateError/HypothesisContractError/ConditionContractError。"
+*风险点*:"宽捕获仅负控测试语境"若被读成"生产链所有异常都有失败结算"就是误导——文字已明写相反,请保持并在摘要保留"三类异常 = 进程级终止、action 保持 claimed"。
+
+**0d.3 三个 None 与缺 proof 语义:同意(按判据五的两句区分条件)。** 读码:`2553-2562`、`production.py:274-276/290-302`、converter 兜底 `audit.py:2983-2993`。
+*风险点*:同判据五——"None=未评估"必须与"生产链根本不进 audit"同框。
+
+**0d.4 中心分段负控(v14 措辞):同意。** 读码:strict False→violated(1188-1203)、strict None→unknown(1204-1209)、缺/歧义映射→unknown(1175-1187、2541)、proof 更改→AuditContractError(1076、1110)、跨假设复用→绑定 unknown(1131-1148)、补全许可只在 audit(981-999)而 production 无许可逻辑 ✓。
+*风险点*:"violated 强于 unknown"若被简化成"中心 violated = 反应被证伪"则越权——R5v 是 retain_conditional,账面/中心不一致只证明声明矛盾(决策表 1784-1786 原文已写,摘要须保留)。
+
+**0d.5 队列与两类 deferred:同意。** 读码:`queue.py:150-256`(selected/deferred/blocked + 池 digest 216;depth 整池 blocked 持久行 222-246;already_expanded 幂等 175-177)、两类常量 `queue.py:60-61`、激活契约 `430-498`(trigger/revision/预算 → unchanged stale 441)、持久上限 `search.py:1280/1431-1432`(max_reopens 与总 attempts 双约束、预约同 ID 复用)、profile 默认与范围 `profile.py:397/411`。
+*修改建议*:"blocked 计数不是防循环证书"建议补一句人话:"防循环靠已落账的预约行与 done 幂等键;计数只是披露。"
+*风险点*:"blocked/deferred 行存在"被读成"这些方向已化学排除"——必须带"调度决定,非化学结论"。
+
+**0d.6 条件依赖与场景转换进调度:同意(两处未逐行确认)。** 读码:`derive_child_context`(path_context.py:2298)、R3 defer+假设保留(audit.py:1757-1761)、`unresolved_initial_supply`(production.py:34/100-136、path_context.py:1868/1929,措辞"不称化学不可能"在 100/136)、转换 source_ref 必需与 pending_followup 一次冻结(queue.py:19、513-559)、旧边冻结(path_context 1126-1131)。**未确认**:essential conflict 的"留痕不称化学不可能"实现分支、"不从观察/标签造事实"的负控点。
+*风险点*:`unresolved_initial_supply` 被摘成"缺供给=化学不可行"即违背本条自身,摘要须带"按显式版本化策略处理"。
+
+**0d.7 模型协议与格式反馈:同意。** 读码:解析契约 `model_protocol.py:29`(novel 须 proposal_context **与** reaction_spec、缺 ⇒ json_field、空列表/弃权合法、"解析结果只是提案不是 recorded")、`200-212`(reaction_spec 缺失结构化拒 detail `novel_reaction_spec_missing`);格式反馈 `profile.py:305-315`(默认 0、范围 0-4、单位=同任务 JSON 修复轮、非 attempt);默认 0 ⇒ 首次即结构失败 `runflow.py:883/897`(`model_structure_failure`);chemical_reposal off(audit.py:1548/1553);`max_real_model_requests` 默认 0(profile.py:398)、scripted 恒 network 0(search.py:1500、model_protocol.py:289)。
+*风险点*:"默认 0 轮"对外应说明是 fail-closed 设计选择,不是模型/协议缺陷;"反馈 1-4 轮"不得被读成可重试到通过(0-4 上限与"不能改分子再试"须同框)。
+
+**0d.8 PPV1 runner 分流:同意(一处未逐行确认)。** 读码:分流 `workflow/runner.py:214-223/311-319`(v14 行号更正**成立**,mimo v13 的 runflow.py 文件名确为错)、"四崩溃边界恢复"注释(runner.py:311-312、search.py:3069-3074)、B4 转换窗口 `runflow.py:373/428-479`。
+**未确认**:"事件已提交而 followup 未调度的 B4 残余由事件+展开计划附件**逐对象**幂等补调度"——我读到的补齐入口(373、444)主要写转换 action,一般 followup 的事件侧补齐未指认到函数。**建议在 0d.8 落字时给出该函数名与行号,否则该句属未复核声明。**
+*风险点*:"停止报告不称所有路线探索完"已是老条款,风险低;新风险在 B4 补齐若被读成"任何丢失调度都能自动补"——须限定"从已核权威记录派生,0/部分/全部,不重发事件"。
+
+---
+
+## 9. 0e 六条(S3b-r2 消费契约)
+
+**0e.1 冻结输入身份:同意(建议补全拒因清单)。** 读码:`runflow.py:211-253`(`_persist_frozen_plan`/`_load_frozen_plan`,四类拒因 `frozen_plan_integrity_failure`/`frozen_plan_missing`/`frozen_plan_corrupt`/`frozen_plan_digest_mismatch`,缺输入不落空池 ✓);传入不符 → `frozen_plan_mismatch`(`runflow.py:1366`,1309 亦提及);第二层 plan_digest 与 pool_digest 同源核验(572-580);恢复消费冻结来源(1384)。
+*修改建议*:把两类拒因分栏写清——**读取侧** = integrity/missing/corrupt/digest_mismatch(211-253),**传入比对侧** = frozen_plan_mismatch(1366);否则实现/测试容易只覆盖其中一个。
+
+**0e.2 恢复裁定接执行门:同意(H08 前置未确认)。** 读码:`search.py:1155-1221`(`isolate_recovered_failure`:claimed→blocked、`recovery_failure:<kind>`、幂等同因 unchanged/异因冲突/非 claimed 拒、证据保全);接线 `runflow.py:1373-1383`。H08 提交事实与 ledger 不一致整 resume 拒——**未读到,未确认**。
+*风险点*:"隔离 blocked"必须在报告中写明是**执行隔离**,不是"该工件代表的路径已化学判死"。
+
+**0e.3 后续/转换集合完整性:同意(行为类待执行验证)。** 读码:`queue.py:19/513-559`(pending_followup 创建时一次冻结、非空校验)、`runflow.py:428/460/1008/1111-1114`(单一构建源与消费);"逐对象幂等补齐 0/部分/全部""不以引用计数>1 当证书"属行为声明,存在对应测试分节(test_ppv1_s3b_r2.py:297),**待执行验证**。
+
+**0e.4 执行会话互斥:同意。** 读码:`runflow.py:284`(`fcntl.LOCK_EX|LOCK_NB`)、298(`driver_session_active`)、266(崩溃 OS 释放)、文字已限定"同机文件锁,不宣称分布式锁/exactly-once";并发测试断言见 tests/test_ppv1_s3b_r2.py:476(存在性;**待执行验证**)。
+*风险点*:对外若说"并发安全已保证",在 NFS/跨机场景是误导——保持"同机 flock"限定,摘要不得删。
+
+**0e.5 novel 独立假设消费者:同意。** 读码:`model_protocol.py:200-212`(reaction_spec 完整内容必需,缺 ⇒ json_field);`runflow.py:716-727`(`prepare_hypothesis` 单一构建源构造独立假设)、933(expand 走同一 prepare);空池仍组装底物档案(599、671,档案独立于候选见 substrate_profile.py:3);负控+正控测试存在(test_ppv1_s3b_model.py:108-125,待执行验证)。
+*风险点*:"空池仍消费模型响应"须始终与"合法弃权不猜内容、不发真实 provider"同框,否则像"空池也要编候选"。
+
+**0e.6 blocked 持久披露:同意。** 读码:`queue.py:222-246`(depth 整池持久 blocked 行 + 原因)、`search.py:3037-3041`(存在 blocked ⇒ 不报 exhausted_search)、`3044-3059`(`blocked_objects` 逐对象、`blocked_rows[:100]` 有界、"停止不是化学终点"注记)、优先级 `profile.py:294-296`(user_stop > budget_limit > depth_limit > …)。
+*修改建议*:主因优先级建议在 stop 报告模板层面强制"主因 + 其他原因(含 depth_limit)"两行同时出现,防"零深度+预算复合"时深度事实被主因掩盖(文字已写"入其他原因",缺的是模板强制)。
+
+---
+
+## 10. 程序证据与状态(§6)
+
+- **全部数字(871/1473/15+5/版本翻转红/287 输入/哈希)→ 待执行验证**;我无执行权限,不做任何采信性表述。读码仅支持:契约版本 `ppv1-profile-14`(profile.py:151)、`ppv1-store-9`(155)、`ppv1-search-6`(227)、`ppv1-search-limits-3`(297)、`ppv1-format-feedback-1`(310)、`ppv1-model-proposals-2`(model_protocol.py:58)、`ppv1-runflow-2`(runflow.py:139)——与请求**逐字一致**。
+- "production.py 本批零改动""legacy 聚合哈希不变"属 git/diff 事实,未执行,**待执行验证**。
+- "r2 不新增化学判据"与我读到的形态相符:r2 增量集中在恢复隔离(1155-1221)、冻结计划(211-253)、flock(261-314)、blocked 持久行(queue 222-246)、novel reaction_spec(model_protocol 200-212)——均为消费/调度契约;判据一至五的判定逻辑在 audit/chemstate 中与 v12 描述一致,**未发现化学口径改动**。
+
+---
+
+## 11. 冻结前建议处理的三件事(条件清单)
+
+1. **audit.py:2980-2981 旧注释**("strict False ⇒ 至少 unknown")与 0c-v14.1 的 violated 落字统一——否则下轮读码必然再引旧行话。
+2. **判据五 (a)/0d.3 双句落字**:audit 函数语义与生产链 `production.py:399-404` 短路分开表述,禁止摘句。
+3. **两处行号/锚点补全**:0d.8 一般 followup 的 B4 补齐函数指认;"冻结计划 runflow.py:211-321" 拆为 211-253(计划)与 255-321(锁);`store.verify_event_attachment_content` 补行号(判据三⑤)。
+
+**执行类待验证清单**(冻结前须跑,本轮一律未验证):RDKit 2026.03.6 词法取证与放行正控往返无损;ppv1 871、G01 1473;基线红绿分类;父绿 11+1;双进程并发/四硬杀子进程;复合探针首拒后未执行段;AuditContractError 动态逃逸(宽捕获负控 + 合法正控)。
+
+**总评形式说明(按要求不给总体评价,仅给逐条结论索引)**:判据一~五 = 同意(判据一有条件、判据五有条件);0c-v13 七条 = 1 待执行验证、4 部分确认、其余同意;0c-v14 五条 = 全部同意(附 2 处行号精度建议);0d 八条 = 全部同意(0d.8 含一处未确认);0e 六条 = 全部同意(0e.1 建议补拒因分栏、0e.2 H08 未确认、0e.3 待执行验证)。**判据未冻结;本回应不含任何金标/题面数据;未执行任何测试,未修改任何文件。**

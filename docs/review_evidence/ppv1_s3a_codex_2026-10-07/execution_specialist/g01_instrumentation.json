@@ -1,0 +1,8 @@
+{
+  "original_path": "/Volumes/CC/Enzyme_Agent/dependingv43/docs/review_evidence/ppv1_s3a_impl_2026-10-07/s3a_r1/safe_g01_s3a.py",
+  "original_sha256": "d62f0a7c6a5a6284304f270aab398d786e73bbff3e91d736eead07e0fb4c721e",
+  "instrumented_sha256": "3ce78f89c297c35f9afd5ec0d2fbaf5dc8dc5dd152470e4fb7833d4ed17671d8",
+  "change": "only append --junitxml in fresh output; preparation, allowlist, selection, expectations unchanged",
+  "old_text": "'-m', 'not slow', '--deselect', EXCLUDED_CASE, 'tests/']",
+  "new_text": "'-m', 'not slow', '--deselect', EXCLUDED_CASE, '--junitxml', str(out / 'g01_junit.xml'), 'tests/']"
+}

@@ -1,0 +1,138 @@
+{
+  "anchor_before": {
+    "action_id": "sact_31b4e41058372cfe0a99",
+    "action_kind": "retrieve",
+    "attempt_refs": "[]",
+    "budget_reservation_ref": "[\"sres_53be9330d2133f3307da\", \"sres_6f4c68230a9087d09490\", \"sres_d49ab28303597d372588\"]",
+    "claimed_at": "2026-10-08T01:39:56+00:00",
+    "claimed_by": "ppv1-driver:anchor_corrupt_anchor_digest_after_bundle_written",
+    "context_ref": "pc_0757aa71e8cd78057880",
+    "created_at": "2026-10-08T01:39:56+00:00",
+    "defer_reason": "",
+    "outcome_ref": "76b04ff63c3059260bcaaec0bc53d30d4e02819bd8c9e467be30a3d9e0e8414d",
+    "parent_path_id": "spath_b144c39764f20c782c9a",
+    "parent_search_revision": 0,
+    "payload": "{\"context_ref\": \"pc_0757aa71e8cd78057880\", \"depth\": 0, \"parent_path_id\": \"spath_b144c39764f20c782c9a\", \"plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"source_event_id\": \"\", \"substrate_smiles\": \"CCO\", \"task_key\": \"stask-dec_8f4b42e6146c3caaef20\"}",
+    "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+    "run_id": "anchor_corrupt_anchor_digest_after_bundle_written",
+    "status": "done",
+    "subject_ref": "cs_ab1de819ede91df490e6",
+    "task_key": "stask-dec_8f4b42e6146c3caaef20",
+    "updated_at": "2026-10-08T01:39:56+00:00"
+  },
+  "mutated_sha256": "b66e75aa13b8f672ec98484594d88c6d91b4b6e6e1374712fe555844c688f312",
+  "new_plan_envelope": {
+    "created_at": "2026-10-08T01:39:56+00:00",
+    "name": "frozen_plan",
+    "payload": {
+      "plan": {
+        "pools": {
+          "CCO": [
+            {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "B",
+              "origin_group_key": "donor-B",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-B"
+            }
+          ]
+        },
+        "scenario_transitions": [
+          {
+            "after_hypothesis_key": "B",
+            "transition": {
+              "new_phase_id": "phase-injected",
+              "new_scenario_ref": "scenario-injected",
+              "source_ref": "injected:changed-plan"
+            }
+          }
+        ]
+      },
+      "plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+      "plan_version": "ppv1-frozen-plan-1"
+    },
+    "payload_hash": "945503c4715258f150c1600f76e397d2694bc6fec300e96a4f08a35c9a6b8729",
+    "run_id": "anchor_corrupt_anchor_digest_after_bundle_written",
+    "schema_version": "v43-artifact-1",
+    "task_id": "run-plan"
+  },
+  "old_plan_envelope": {
+    "created_at": "2026-10-08T01:39:56+00:00",
+    "name": "frozen_plan",
+    "payload": {
+      "plan": {
+        "pools": {
+          "CCO": [
+            {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "B",
+              "origin_group_key": "donor-B",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-B"
+            }
+          ]
+        }
+      },
+      "plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "plan_version": "ppv1-frozen-plan-1"
+    },
+    "payload_hash": "cdb5a04dc4c9417972984df5de290d0c63579f393708ec73de65e2c350b6d137",
+    "run_id": "anchor_corrupt_anchor_digest_after_bundle_written",
+    "schema_version": "v43-artifact-1",
+    "task_id": "run-plan"
+  },
+  "old_sha256": "d7e311796cb8233991ef786f0f688b7e7919ccda26d2e0f1d74fd9f9ae340ff4",
+  "variant": "corrupt_anchor_digest"
+}

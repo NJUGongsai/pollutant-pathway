@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py", line 104, in worker
+    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/workflow/runner.py", line 317, in resume_run
+    return resume_ppv1_run(
+           ^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py", line 1386, in resume_ppv1_run
+    report = driver.drive()
+             ^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py", line 540, in drive
+    self._run_expand(receipt)
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py", line 942, in _run_expand
+    production = expand_hypothesis_production(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/production.py", line 456, in expand_hypothesis_production
+    submitted = ledger.submit_action_event(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/search.py", line 1986, in submit_action_event
+    out = self.store.submit_event(
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/store.py", line 1627, in submit_event
+    self._verify_stored_event_row(eid, existing, stored_hyp)
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/store.py", line 1201, in _verify_stored_event_row
+    raise Ppv1LedgerCorrupt(
+pathway_v43.pollutant.store.Ppv1LedgerCorrupt: 重放 ppev_bf14c68d34975c073752 发现已存事件身份列与 event_id 不一致(损坏)

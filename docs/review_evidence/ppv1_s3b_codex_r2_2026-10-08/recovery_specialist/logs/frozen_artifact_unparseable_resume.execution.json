@@ -1,0 +1,28 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/review_additional.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/inputs/frozen_artifact_unparseable_resume.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src"
+  },
+  "parsed": [
+    {
+      "detail": {
+        "artifact_kind": "artifact_unparseable",
+        "kind": "frozen_plan_integrity_failure"
+      },
+      "exception": "PPV1RunError",
+      "message": "冻结计划输入完整性失败(保全原文件;不静默跳过、不覆盖):搜索 artifact 不可反序列化:run-plan/frozen_plan(保全原文件,不静默跳过、不覆盖重跑)",
+      "pid": 35285
+    }
+  ],
+  "returncode": 3,
+  "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/search.py\", line 565, in read_search_artifact\n    return artifact_store.read(task_key, name)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/storage/artifact_store.py\", line 60, in read\n    envelope = json.loads(path.read_text(encoding=\"utf-8\"))\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/decoder.py\", line 337, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/decoder.py\", line 353, in raw_decode\n    obj, end = self.scan_once(s, idx)\n               ^^^^^^^^^^^^^^^^^^^^^^\njson.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py\", line 231, in _load_frozen_plan\n    envelope = read_search_artifact(\n               ^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/search.py\", line 576, in read_search_artifact\n    raise SearchArtifactIntegrityError(\npathway_v43.pollutant.search.SearchArtifactIntegrityError: 搜索 artifact 不可反序列化:run-plan/frozen_plan(保全原文件,不静默跳过、不覆盖重跑)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py\", line 1358, in resume_ppv1_run\n    frozen_plan = _load_frozen_plan(artifacts)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py\", line 234, in _load_frozen_plan\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划输入完整性失败(保全原文件;不静默跳过、不覆盖):搜索 artifact 不可反序列化:run-plan/frozen_plan(保全原文件,不静默跳过、不覆盖重跑)\n",
+  "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_integrity_failure\", \"artifact_kind\": \"artifact_unparseable\"}, \"message\": \"冻结计划输入完整性失败(保全原文件;不静默跳过、不覆盖):搜索 artifact 不可反序列化:run-plan/frozen_plan(保全原文件,不静默跳过、不覆盖重跑)\", \"pid\": 35285}\n"
+}

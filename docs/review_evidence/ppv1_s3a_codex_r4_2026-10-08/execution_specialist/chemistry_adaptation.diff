@@ -1,0 +1,11 @@
+--- r3_probe
++++ r4_probe
+@@ -117,7 +117,7 @@
+     olddefaults.pop('version');newdefaults.pop('version')
+     static={'actual_rdkit':rdBase.rdkitVersion,'audit_raises':raises,'caller_inventory':calls,'except_AuditContractError':specific,'search_calls':search_calls,
+       'runner_AST_except_refuse_function_equal':ast.dump(oldtree)==ast.dump(newtree),'legacy_aggregate_current':identity['aggregate_sha256'],
+-      'legacy_aggregate_baseline_runner_only':oldagg,'legacy_aggregate_changed':oldagg!=identity['aggregate_sha256'],'legacy_included_changed_files':(['workflow/runner.py'] if hashlib.sha256(oldrunner.encode()).hexdigest()!=hashlib.sha256(newrunner.encode()).hexdigest() else []), 'actual_HEAD':'41d0cd55f3def050a62325f00235cf22da302d2e', 'actual_baseline_HEAD':'dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03',
++      'legacy_aggregate_baseline_runner_only':oldagg,'legacy_aggregate_changed':oldagg!=identity['aggregate_sha256'],'legacy_included_changed_files':(['workflow/runner.py'] if hashlib.sha256(oldrunner.encode()).hexdigest()!=hashlib.sha256(newrunner.encode()).hexdigest() else []), 'actual_HEAD':'b7f2bba02ca49edd0a45a13bc9b8434909d99175', 'actual_baseline_HEAD':'41d0cd55f3def050a62325f00235cf22da302d2e',
+       'limits_defaults_except_version_equal':olddefaults==newdefaults,'limits_ranges_equal':value(oldprofile,'SEARCH_LIMITS_RANGES')==value(newprofile,'SEARCH_LIMITS_RANGES')}
+     (out/'static_inventory.json').write_text(json.dumps(static,indent=2,ensure_ascii=False))
+     emit({'case':'static_inventory','result':static})

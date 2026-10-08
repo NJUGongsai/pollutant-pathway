@@ -1,0 +1,351 @@
+{
+  "actions": [
+    {
+      "action_id": "sact_ef5cc5bed2a34fb4599d",
+      "action_kind": "retrieve",
+      "attempt_refs": [],
+      "budget_reservation_ref": [
+        "sres_2696c33d299e84224149",
+        "sres_6e3fab80db80534bd8b1",
+        "sres_94c34fb15dbeae8a8568"
+      ],
+      "claimed_at": "2026-10-07T21:01:31+00:00",
+      "claimed_by": "ppv1-driver:zero_depth",
+      "context_ref": "pc_0757aa71e8cd78057880",
+      "created_at": "2026-10-07T21:01:31+00:00",
+      "defer_reason": "",
+      "outcome_ref": "54d0705bc81b3f4870e9bc32d2e61c029962cf48692229492f22843a56e10659",
+      "parent_path_id": "spath_0e14ab87d2a8c5bdbefe",
+      "parent_search_revision": 0,
+      "payload": {
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "depth": 0,
+        "parent_path_id": "spath_0e14ab87d2a8c5bdbefe",
+        "source_event_id": "",
+        "substrate_smiles": "CCO",
+        "task_key": "stask-dec_2937f71764acf1423e34"
+      },
+      "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+      "run_id": "zero_depth",
+      "status": "done",
+      "subject_ref": "cs_ab1de819ede91df490e6",
+      "task_key": "stask-dec_2937f71764acf1423e34",
+      "updated_at": "2026-10-07T21:01:31+00:00"
+    },
+    {
+      "action_id": "sact_91717b3503d038c5e850",
+      "action_kind": "decide",
+      "attempt_refs": [],
+      "budget_reservation_ref": [
+        "sres_f627d54905053eb91081"
+      ],
+      "claimed_at": "2026-10-07T21:01:31+00:00",
+      "claimed_by": "ppv1-driver:zero_depth",
+      "context_ref": "pc_0757aa71e8cd78057880",
+      "created_at": "2026-10-07T21:01:31+00:00",
+      "defer_reason": "",
+      "outcome_ref": "694f6b8833f86c9207530d78a1ef7c5223281c38f7f93b115141f1b7b993df37",
+      "parent_path_id": "spath_0e14ab87d2a8c5bdbefe",
+      "parent_search_revision": 0,
+      "payload": {
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "depth": 0,
+        "parent_path_id": "spath_0e14ab87d2a8c5bdbefe",
+        "pool_digest": "44a3e656dce99126c446530b22ba1a3a8b630bf3b3a04bc30f58c9fbf6144bcc",
+        "source_event_id": "",
+        "substrate_smiles": "CCO",
+        "task_key": "stask-dec_b86b33a0316bfe7cbd43"
+      },
+      "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+      "run_id": "zero_depth",
+      "status": "done",
+      "subject_ref": "pool:44a3e656dce99126",
+      "task_key": "stask-dec_b86b33a0316bfe7cbd43",
+      "updated_at": "2026-10-07T21:01:31+00:00"
+    }
+  ],
+  "execution_input": {
+    "mode": "start",
+    "plan": {
+      "pools": {
+        "CCO": [
+          {
+            "alignment": {
+              "donor_to_current": {
+                "S_C_2": "S_C_2",
+                "S_O_1": "S_O_1"
+              },
+              "ref": "align-A",
+              "status": "resolved"
+            },
+            "coefficient": 1,
+            "donor": {
+              "center_atom_ids": [
+                "S_C_2",
+                "S_O_1"
+              ]
+            },
+            "edits": [
+              {
+                "atom1": "S_C_2",
+                "atom2": "S_O_1",
+                "from_order": "single",
+                "op": "change_bond_order",
+                "to_order": "double"
+              }
+            ],
+            "expectation": {
+              "target_smiles": "CC=O"
+            },
+            "key": "B",
+            "origin_group_key": "donor-B",
+            "product_smiles": "CC=O",
+            "transformation_ref": "donor-B"
+          }
+        ]
+      }
+    },
+    "policy": {
+      "search_limits": {
+        "max_search_depth": 0
+      }
+    },
+    "run_id": "zero_depth",
+    "runs_root": "/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs"
+  },
+  "outcomes": [
+    {
+      "action_id": "sact_91717b3503d038c5e850",
+      "evidence_refs": [],
+      "outcome": {
+        "detail": {
+          "blocked": 1,
+          "deferred": 0,
+          "model": {},
+          "pool_digest": "33ef303cfaea5f37c20e8ca46e9fa73481fbe9a3a5f6b2d25f243c18bd267364",
+          "selected": 0
+        },
+        "kind": "scheduled"
+      },
+      "outcome_version": "ppv1-runflow-outcome-1"
+    },
+    {
+      "action_id": "sact_ef5cc5bed2a34fb4599d",
+      "evidence_refs": [],
+      "outcome": {
+        "detail": {
+          "pool_digest": "44a3e656dce99126c446530b22ba1a3a8b630bf3b3a04bc30f58c9fbf6144bcc",
+          "pool_size": 1,
+          "substrate_smiles": "CCO"
+        },
+        "kind": "pool_digest"
+      },
+      "outcome_version": "ppv1-runflow-outcome-1"
+    }
+  ],
+  "profile_policy": {
+    "chemical_reproposal": "off",
+    "contracts": {
+      "admission_policy": "ppv1-admission-8",
+      "audit": "ppv1-audit-8",
+      "chemstate": "ppv1-chemstate-8",
+      "condition_assessment": "ppv1-condition-assessment-8",
+      "context": "ppv1-context-8",
+      "dependency": "ppv1-dependency-8",
+      "donor_diagnostic": "ppv1-donor-diagnostic-8",
+      "event": "ppv1-event-8",
+      "format_feedback": "ppv1-format-feedback-1",
+      "gate_mapper": "ppv1-gate-mapper-3",
+      "hypothesis": "ppv1-hypothesis-8",
+      "input_preview": "ppv1-input-preview-8",
+      "legacy_g2_family_ref": "v43-cons-2",
+      "legacy_gate_ref": "frozen_hit60_gate",
+      "pool_audit": "ppv1-pool-audit-8",
+      "pool_order": "ppv1-pool-order-8",
+      "profile": "ppv1-profile-13",
+      "provenance": "ppv1-provenance-8",
+      "search": "ppv1-search-5",
+      "store": "ppv1-store-9",
+      "substrate_profile": "ppv1-substrate-profile-8"
+    },
+    "delivered_stages": "S0-S2,S3a-base,S3b",
+    "format_feedback_policy": {
+      "max_format_feedback_rounds": 0,
+      "version": "ppv1-format-feedback-1"
+    },
+    "input_preview_policy": "off",
+    "input_preview_version": "ppv1-input-preview-8",
+    "name": "pollutant_pathway_v1",
+    "schema_version": "ppv1-profile-13",
+    "search_intent": "exploration",
+    "search_limits": {
+      "max_alternative_hypotheses_per_parent": 2,
+      "max_attempts_per_hypothesis": 2,
+      "max_product_expansion_width": 2,
+      "max_real_model_requests": 0,
+      "max_reopens_per_hypothesis": 1,
+      "max_retrievals_per_parent": 1,
+      "max_retrievals_total": 64,
+      "max_scenario_transitions": 2,
+      "max_search_depth": 0,
+      "max_total_search_actions": 10,
+      "version": "ppv1-search-limits-3"
+    }
+  },
+  "refusals_visible_in_result": "no explicit refusals field; no run_error; current driver stops after queue empty; no refusal for depth mapped from schedule result",
+  "reservations": [
+    {
+      "action_id": "sact_ef5cc5bed2a34fb4599d",
+      "created_at": "2026-10-07T21:01:31+00:00",
+      "limit_key": "max_total_search_actions",
+      "reservation_id": "sres_2696c33d299e84224149",
+      "run_id": "zero_depth",
+      "scope": "",
+      "settled_at": "2026-10-07T21:01:31+00:00",
+      "status": "consumed",
+      "subject": "sact_ef5cc5bed2a34fb4599d",
+      "units": 1
+    },
+    {
+      "action_id": "sact_ef5cc5bed2a34fb4599d",
+      "created_at": "2026-10-07T21:01:31+00:00",
+      "limit_key": "max_retrievals_per_parent",
+      "reservation_id": "sres_94c34fb15dbeae8a8568",
+      "run_id": "zero_depth",
+      "scope": "spath_0e14ab87d2a8c5bdbefe",
+      "settled_at": "2026-10-07T21:01:31+00:00",
+      "status": "consumed",
+      "subject": "sact_ef5cc5bed2a34fb4599d",
+      "units": 1
+    },
+    {
+      "action_id": "sact_ef5cc5bed2a34fb4599d",
+      "created_at": "2026-10-07T21:01:31+00:00",
+      "limit_key": "max_retrievals_total",
+      "reservation_id": "sres_6e3fab80db80534bd8b1",
+      "run_id": "zero_depth",
+      "scope": "",
+      "settled_at": "2026-10-07T21:01:31+00:00",
+      "status": "consumed",
+      "subject": "sact_ef5cc5bed2a34fb4599d",
+      "units": 1
+    },
+    {
+      "action_id": "sact_91717b3503d038c5e850",
+      "created_at": "2026-10-07T21:01:31+00:00",
+      "limit_key": "max_total_search_actions",
+      "reservation_id": "sres_f627d54905053eb91081",
+      "run_id": "zero_depth",
+      "scope": "",
+      "settled_at": "2026-10-07T21:01:31+00:00",
+      "status": "consumed",
+      "subject": "sact_91717b3503d038c5e850",
+      "units": 1
+    }
+  ],
+  "scope": "Readonly extraction of completed original public zero_depth, no new execution",
+  "search_run_policy": {
+    "chemical_reproposal": "off",
+    "contracts": {
+      "admission_policy": "ppv1-admission-8",
+      "audit": "ppv1-audit-8",
+      "chemstate": "ppv1-chemstate-8",
+      "condition_assessment": "ppv1-condition-assessment-8",
+      "context": "ppv1-context-8",
+      "dependency": "ppv1-dependency-8",
+      "donor_diagnostic": "ppv1-donor-diagnostic-8",
+      "event": "ppv1-event-8",
+      "format_feedback": "ppv1-format-feedback-1",
+      "gate_mapper": "ppv1-gate-mapper-3",
+      "hypothesis": "ppv1-hypothesis-8",
+      "input_preview": "ppv1-input-preview-8",
+      "legacy_g2_family_ref": "v43-cons-2",
+      "legacy_gate_ref": "frozen_hit60_gate",
+      "pool_audit": "ppv1-pool-audit-8",
+      "pool_order": "ppv1-pool-order-8",
+      "profile": "ppv1-profile-13",
+      "provenance": "ppv1-provenance-8",
+      "search": "ppv1-search-5",
+      "store": "ppv1-store-9",
+      "substrate_profile": "ppv1-substrate-profile-8"
+    },
+    "delivered_stages": "S0-S2,S3a-base,S3b",
+    "format_feedback_policy": {
+      "max_format_feedback_rounds": 0,
+      "version": "ppv1-format-feedback-1"
+    },
+    "input_preview_policy": "off",
+    "input_preview_version": "ppv1-input-preview-8",
+    "name": "pollutant_pathway_v1",
+    "schema_version": "ppv1-profile-13",
+    "search_intent": "exploration",
+    "search_limits": {
+      "max_alternative_hypotheses_per_parent": 2,
+      "max_attempts_per_hypothesis": 2,
+      "max_product_expansion_width": 2,
+      "max_real_model_requests": 0,
+      "max_reopens_per_hypothesis": 1,
+      "max_retrievals_per_parent": 1,
+      "max_retrievals_total": 64,
+      "max_scenario_transitions": 2,
+      "max_search_depth": 0,
+      "max_total_search_actions": 10,
+      "version": "ppv1-search-limits-3"
+    }
+  },
+  "stop": {
+    "budget": {
+      "run_level": {
+        "max_real_model_requests": {
+          "max": 0,
+          "remaining": 0,
+          "used": 0
+        },
+        "max_retrievals_total": {
+          "max": 64,
+          "remaining": 63,
+          "used": 1
+        },
+        "max_scenario_transitions": {
+          "max": 2,
+          "remaining": 2,
+          "used": 0
+        },
+        "max_total_search_actions": {
+          "max": 10,
+          "remaining": 8,
+          "used": 2
+        }
+      },
+      "scoped": {
+        "max_alternative_hypotheses_per_parent": {},
+        "max_attempts_per_hypothesis": {},
+        "max_reopens_per_hypothesis": {},
+        "max_retrievals_per_parent": {
+          "spath_0e14ab87d2a8c5bdbefe": {
+            "max": 1,
+            "remaining": 0,
+            "used": 1
+          }
+        }
+      },
+      "version": "ppv1-search-limits-3"
+    },
+    "budget_exhausted_keys": [
+      "max_retrievals_per_parent@spath_0e14ab87d2a8c5bdbefe"
+    ],
+    "events_submitted_session": [],
+    "other_reasons": [],
+    "primary": "budget_limit",
+    "runflow_version": "ppv1-runflow-1",
+    "unexplored": {
+      "blocked": 0,
+      "claimed_actions": 0,
+      "deferred": 0,
+      "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+      "open_attempts": 0,
+      "pending_actions": 0,
+      "pending_requests": 0
+    }
+  }
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="23" time="0.374" timestamp="2026-10-07T20:12:18.800316+08:00" hostname="bogon"><testcase classname="tests.test_ppv1_profile" name="test_profile_names_registry" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_identity_schema_version_bumped" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_contract_versions" time="0.000"><failure message="AssertionError: assert 'ppv1-profile-8' == 'ppv1-profile-9'&#10;  &#10;  - ppv1-profile-9&#10;  ?              ^&#10;  + ppv1-profile-8&#10;  ?              ^">def test_ppv1_identity_block_contract_versions() -&gt; None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+&gt;       assert block["schema_version"] == "ppv1-profile-9"
+E       AssertionError: assert 'ppv1-profile-8' == 'ppv1-profile-9'
+E         
+E         - ppv1-profile-9
+E         ?              ^
+E         + ppv1-profile-8
+E         ?              ^
+
+tests/test_ppv1_profile.py:46: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_default_switches" time="0.000"><failure message="AssertionError: assert 'ppv1-search-...ts-2-proposed' == 'ppv1-search-limits-3'&#10;  &#10;  - ppv1-search-limits-3&#10;  ?                    ^&#10;  + ppv1-search-limits-2-proposed&#10;  ?                    ^^^^^^^^^^">def test_ppv1_identity_block_default_switches() -&gt; None:
+        block = ppv1_profile.build_profile_identity_block()
+        assert block["input_preview_policy"] == "off"
+        assert block["chemical_reproposal"] == "off"
+        assert block["search_intent"] == "exploration"
+        # S3a:search-limits 由 -2-proposed 草案升为实际可执行版本 v3
+&gt;       assert block["search_limits"]["version"] == "ppv1-search-limits-3"
+E       AssertionError: assert 'ppv1-search-...ts-2-proposed' == 'ppv1-search-limits-3'
+E         
+E         - ppv1-search-limits-3
+E         ?                    ^
+E         + ppv1-search-limits-2-proposed
+E         ?                    ^^^^^^^^^^
+
+tests/test_ppv1_profile.py:76: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-filter]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-None]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[search_intent-anything_goes]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_search_limits_validation" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_excludes_pollutant_for_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_pollutant_includes_full_tree" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_legacy_stable_under_pollutant_changes" time="0.006" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_default_is_legacy" time="0.135" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_legacy_rejects_profile_policy" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_pollutant_block" time="0.003" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_profile_mismatch_rejected" time="0.006" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_v1_missing_profile_read_as_legacy" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_identity_fingerprint_includes_profile" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_pollutant_refused_no_dir_created" time="0.062" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_cli_profile_flag_choices" time="0.003" /></testsuite></testsuites>

@@ -1,0 +1,3430 @@
+{
+  "axis_controls_and_cross_axis_diagnostic": {
+    "completed": true,
+    "result": {
+      "initial_contradicted_later_regen": {
+        "audit": {
+          "admission": [
+            "retain_conditional",
+            [
+              "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):provenance_dependency"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "oxygen_regime"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:compatible;coverage:oxygen_regime",
+              "status": "verified"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {
+                "context_only": [
+                  "dep_8edf2db853e34b56a442"
+                ]
+              },
+              "reason": "unresolved_dependencies_inherited(含 context 继承依赖;下游命中不自动解决上游)",
+              "status": "unknown"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_87d1f279071fdac8b8bb"
+        },
+        "axis_states": {
+          "dep_8edf2db853e34b56a442": {
+            "axis_status": {
+              "initial_supply": "contradicted",
+              "regeneration": "supported"
+            },
+            "statement": "supplies:A:B",
+            "status": "contradicted",
+            "support_axes": [
+              "regeneration"
+            ]
+          },
+          "dep_fc1384b3a08efe9b0dea": {
+            "axis_status": {
+              "regeneration": "supported"
+            },
+            "statement": "supplies:B:A",
+            "status": "supported",
+            "support_axes": [
+              "regeneration"
+            ]
+          }
+        },
+        "circular": {
+          "cycles": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/关系支持不解决初始供给,未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;启动/关系两种语义按对应有效轴分立消费(不以总体 status 污染);支持轴按轴累积不回退;下游命中不自动解决上游依赖",
+          "unresolved_initial_supply": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "unsupported_relation_cycles": []
+        },
+        "dependency": {
+          "dependency_id": "dep_8edf2db853e34b56a442",
+          "introduced_at_hypothesis_id": "",
+          "kind": "cosubstrate_supply",
+          "resolution_log": [
+            {
+              "evidence": [
+                "src:regen"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "regeneration"
+            },
+            {
+              "evidence": [
+                "src:initial"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "initial_supply"
+            },
+            {
+              "evidence": [
+                "src:initial_no"
+              ],
+              "note": "",
+              "resolution": "contradicted",
+              "support_axis": "initial_supply"
+            },
+            {
+              "evidence": [
+                "src:later_regen"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "regeneration"
+            }
+          ],
+          "schema_version": "ppv1-dependency-7",
+          "source_refs": [],
+          "statement": "supplies:A:B",
+          "status": "contradicted",
+          "support_axes": [
+            "regeneration"
+          ],
+          "support_axis": "regeneration"
+        }
+      },
+      "initial_restored": {
+        "audit": {
+          "admission": [
+            "expand",
+            [
+              "R6:all_verified_no_conflict"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "oxygen_regime"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:compatible;coverage:oxygen_regime",
+              "status": "verified"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "all_dependency_refs_reported_resolved",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_c4cba9c036192a8b21bd"
+        },
+        "axis_states": {
+          "dep_8edf2db853e34b56a442": {
+            "axis_status": {
+              "initial_supply": "supported",
+              "regeneration": "supported"
+            },
+            "statement": "supplies:A:B",
+            "status": "supported",
+            "support_axes": [
+              "initial_supply",
+              "regeneration"
+            ]
+          },
+          "dep_fc1384b3a08efe9b0dea": {
+            "axis_status": {
+              "regeneration": "supported"
+            },
+            "statement": "supplies:B:A",
+            "status": "supported",
+            "support_axes": [
+              "regeneration"
+            ]
+          }
+        },
+        "circular": {
+          "cycles": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/关系支持不解决初始供给,未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;启动/关系两种语义按对应有效轴分立消费(不以总体 status 污染);支持轴按轴累积不回退;下游命中不自动解决上游依赖",
+          "unresolved_initial_supply": [],
+          "unsupported_relation_cycles": []
+        },
+        "dependency": {
+          "dependency_id": "dep_8edf2db853e34b56a442",
+          "introduced_at_hypothesis_id": "",
+          "kind": "cosubstrate_supply",
+          "resolution_log": [
+            {
+              "evidence": [
+                "src:regen"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "regeneration"
+            },
+            {
+              "evidence": [
+                "src:initial"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "initial_supply"
+            },
+            {
+              "evidence": [
+                "src:initial_no"
+              ],
+              "note": "",
+              "resolution": "contradicted",
+              "support_axis": "initial_supply"
+            },
+            {
+              "evidence": [
+                "src:later_regen"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "regeneration"
+            },
+            {
+              "evidence": [
+                "src:new_initial"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "initial_supply"
+            }
+          ],
+          "schema_version": "ppv1-dependency-7",
+          "source_refs": [],
+          "statement": "supplies:A:B",
+          "status": "supported",
+          "support_axes": [
+            "initial_supply",
+            "regeneration"
+          ],
+          "support_axis": "initial_supply"
+        }
+      },
+      "initial_supported": {
+        "audit": {
+          "admission": [
+            "expand",
+            [
+              "R6:all_verified_no_conflict"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "oxygen_regime"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:compatible;coverage:oxygen_regime",
+              "status": "verified"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "all_dependency_refs_reported_resolved",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_06b4125bbdecb3bae403"
+        },
+        "axis_states": {
+          "dep_8edf2db853e34b56a442": {
+            "axis_status": {
+              "initial_supply": "supported",
+              "regeneration": "supported"
+            },
+            "statement": "supplies:A:B",
+            "status": "supported",
+            "support_axes": [
+              "initial_supply",
+              "regeneration"
+            ]
+          },
+          "dep_fc1384b3a08efe9b0dea": {
+            "axis_status": {
+              "regeneration": "supported"
+            },
+            "statement": "supplies:B:A",
+            "status": "supported",
+            "support_axes": [
+              "regeneration"
+            ]
+          }
+        },
+        "circular": {
+          "cycles": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/关系支持不解决初始供给,未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;启动/关系两种语义按对应有效轴分立消费(不以总体 status 污染);支持轴按轴累积不回退;下游命中不自动解决上游依赖",
+          "unresolved_initial_supply": [],
+          "unsupported_relation_cycles": []
+        },
+        "dependency": {
+          "dependency_id": "dep_8edf2db853e34b56a442",
+          "introduced_at_hypothesis_id": "",
+          "kind": "cosubstrate_supply",
+          "resolution_log": [
+            {
+              "evidence": [
+                "src:regen"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "regeneration"
+            },
+            {
+              "evidence": [
+                "src:initial"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "initial_supply"
+            }
+          ],
+          "schema_version": "ppv1-dependency-7",
+          "source_refs": [],
+          "statement": "supplies:A:B",
+          "status": "supported",
+          "support_axes": [
+            "initial_supply",
+            "regeneration"
+          ],
+          "support_axis": "initial_supply"
+        }
+      },
+      "initial_supported_reaction_contradicted": {
+        "audit": {
+          "admission": [
+            "retain_conditional",
+            [
+              "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):provenance_dependency"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "oxygen_regime"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:compatible;coverage:oxygen_regime",
+              "status": "verified"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {
+                "context_only": [
+                  "dep_8edf2db853e34b56a442"
+                ]
+              },
+              "reason": "unresolved_dependencies_inherited(含 context 继承依赖;下游命中不自动解决上游)",
+              "status": "unknown"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_938a687d3d5bb9ad0d12"
+        },
+        "axis_states": {
+          "dep_8edf2db853e34b56a442": {
+            "axis_status": {
+              "initial_supply": "supported",
+              "reaction": "contradicted",
+              "regeneration": "supported"
+            },
+            "statement": "supplies:A:B",
+            "status": "contradicted",
+            "support_axes": [
+              "initial_supply",
+              "regeneration"
+            ]
+          },
+          "dep_fc1384b3a08efe9b0dea": {
+            "axis_status": {
+              "regeneration": "supported"
+            },
+            "statement": "supplies:B:A",
+            "status": "supported",
+            "support_axes": [
+              "regeneration"
+            ]
+          }
+        },
+        "circular": {
+          "cycles": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/关系支持不解决初始供给,未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;启动/关系两种语义按对应有效轴分立消费(不以总体 status 污染);支持轴按轴累积不回退;下游命中不自动解决上游依赖",
+          "unresolved_initial_supply": [],
+          "unsupported_relation_cycles": [
+            [
+              "A",
+              "B"
+            ]
+          ]
+        },
+        "dependency": {
+          "dependency_id": "dep_8edf2db853e34b56a442",
+          "introduced_at_hypothesis_id": "",
+          "kind": "cosubstrate_supply",
+          "resolution_log": [
+            {
+              "evidence": [
+                "src:regen"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "regeneration"
+            },
+            {
+              "evidence": [
+                "src:initial"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "initial_supply"
+            },
+            {
+              "evidence": [
+                "src:reaction_no"
+              ],
+              "note": "",
+              "resolution": "contradicted",
+              "support_axis": "reaction"
+            }
+          ],
+          "schema_version": "ppv1-dependency-7",
+          "source_refs": [],
+          "statement": "supplies:A:B",
+          "status": "contradicted",
+          "support_axes": [
+            "initial_supply",
+            "regeneration"
+          ],
+          "support_axis": "reaction"
+        }
+      },
+      "regen_only": {
+        "audit": {
+          "admission": [
+            "expand",
+            [
+              "R6:all_verified_no_conflict"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "oxygen_regime"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:compatible;coverage:oxygen_regime",
+              "status": "verified"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "all_dependency_refs_reported_resolved",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_345660d3fd6549a7ea56"
+        },
+        "axis_states": {
+          "dep_8edf2db853e34b56a442": {
+            "axis_status": {
+              "regeneration": "supported"
+            },
+            "statement": "supplies:A:B",
+            "status": "supported",
+            "support_axes": [
+              "regeneration"
+            ]
+          },
+          "dep_fc1384b3a08efe9b0dea": {
+            "axis_status": {
+              "regeneration": "supported"
+            },
+            "statement": "supplies:B:A",
+            "status": "supported",
+            "support_axes": [
+              "regeneration"
+            ]
+          }
+        },
+        "circular": {
+          "cycles": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "note": "cosubstrate_cycle:有启动/再生支持不自动阻断;仅再生/关系支持不解决初始供给,未知标 unresolved_initial_supply,依显式策略处理,不称化学不可能;启动/关系两种语义按对应有效轴分立消费(不以总体 status 污染);支持轴按轴累积不回退;下游命中不自动解决上游依赖",
+          "unresolved_initial_supply": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "unsupported_relation_cycles": []
+        },
+        "dependency": {
+          "dependency_id": "dep_8edf2db853e34b56a442",
+          "introduced_at_hypothesis_id": "",
+          "kind": "cosubstrate_supply",
+          "resolution_log": [
+            {
+              "evidence": [
+                "src:regen"
+              ],
+              "note": "",
+              "resolution": "supported",
+              "support_axis": "regeneration"
+            }
+          ],
+          "schema_version": "ppv1-dependency-7",
+          "source_refs": [],
+          "statement": "supplies:A:B",
+          "status": "supported",
+          "support_axes": [
+            "regeneration"
+          ],
+          "support_axis": "regeneration"
+        }
+      }
+    }
+  },
+  "baseline_R6": {
+    "completed": true,
+    "result": {
+      "audit": {
+        "admission": [
+          "expand",
+          [
+            "R6:all_verified_no_conflict"
+          ]
+        ],
+        "checks": {
+          "condition_check": {
+            "detail": {
+              "assessment_scope": [
+                "oxygen_regime"
+              ],
+              "unassessed_dimensions": [
+                "biotic_abiotic",
+                "inoculum_source",
+                "light_regime",
+                "phase_bioavailability",
+                "redox_regime_eh",
+                "required_trace_elements_cofactors",
+                "salinity_ionic_strength",
+                "substrate_concentration"
+              ]
+            },
+            "reason": "environment_fit:compatible;coverage:oxygen_regime",
+            "status": "verified"
+          },
+          "element_accounting": {
+            "detail": {
+              "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+              "accounting_scope": "full_balance_all_hydrogen",
+              "element_delta": {},
+              "omission_pattern_matches": [],
+              "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+            },
+            "reason": "elements_balanced_all_hydrogen",
+            "status": "verified"
+          },
+          "finite_rule_diagnostic": {
+            "detail": {},
+            "reason": "not_provided",
+            "status": "not_applicable"
+          },
+          "formal_charge_accounting": {
+            "detail": {
+              "accounting_scope": "full_balance_original_formal_charge",
+              "charge_delta": "0"
+            },
+            "reason": "formal_charge_balanced",
+            "status": "verified"
+          },
+          "identity_fidelity": {
+            "detail": {
+              "fidelity_axis_notes": []
+            },
+            "reason": "identity_states_consistent",
+            "status": "verified"
+          },
+          "participant_completeness": {
+            "detail": {},
+            "reason": "declared_complete_with_known_coefficients",
+            "status": "verified"
+          },
+          "participant_state_refs": {
+            "detail": {},
+            "reason": "all_participant_states_resolved",
+            "status": "verified"
+          },
+          "provenance_dependency": {
+            "detail": {},
+            "reason": "no_unresolved_dependencies",
+            "status": "verified"
+          },
+          "step_scope_check": {
+            "detail": {},
+            "reason": "step_scope:net_reaction",
+            "status": "verified"
+          },
+          "structure_parse_valence": {
+            "detail": {},
+            "reason": "all_participants_parse",
+            "status": "verified"
+          },
+          "transformation_center": {
+            "detail": {
+              "atom_delta": {
+                "H": "2"
+              },
+              "center_match": true,
+              "center_match_basis": "direct",
+              "checker_scope": "region_net_change",
+              "checker_version": "ppv1-donor-diagnostic-7",
+              "completion_license": "composition_only_hydrogen_equivalents",
+              "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+              "coverage_mode": "whole_molecule",
+              "coverage_rule": "atom_delta_stoichiometric_completion",
+              "coverage_violations": [],
+              "covered_product_identities": [
+                "CC=O"
+              ],
+              "declared_signature_status": "unknown",
+              "product_coverage": "full",
+              "proof_scope": "self_contained_recompute",
+              "strict_target_match": true,
+              "substrate_scale": "1",
+              "uncovered_product_elements": {
+                "H": "2"
+              },
+              "uncovered_product_refs": [
+                "cs_ea7e44a64c7461517e4f"
+              ],
+              "uncovered_reactant_elements": {},
+              "uncovered_reactant_refs": [],
+              "unlicensed_uncovered_identities": []
+            },
+            "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+            "status": "verified"
+          }
+        },
+        "input_hash": "ain_d710218e8d2bbc5f53d3"
+      },
+      "candidate": {
+        "assessed_scope": "condition_compatible",
+        "assessment_scope": [
+          "oxygen_regime"
+        ],
+        "declared_scope": [
+          "oxygen_regime"
+        ],
+        "detail": {
+          "current_step_environment_fit": "compatible",
+          "route_edge_fits": [
+            {
+              "environment_fit": "compatible",
+              "phase_id": "phase-0",
+              "scenario_ref": "",
+              "source": "current_step_candidate"
+            }
+          ],
+          "route_environment_fit": "compatible",
+          "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+        },
+        "environment_fit": "compatible",
+        "per_requirement": [
+          {
+            "basis": "essential_claimed_by_source",
+            "fact_sources": [],
+            "introduced_edge": "hyp_3d443b84f95e464b8373",
+            "introduced_phase_id": "phase-0",
+            "key": "oxygen_regime",
+            "level": "essential",
+            "reason": "value_match:oxygen_regime",
+            "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_3d443b84f95e464b8373\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+            "route_edge_source": "current_step",
+            "sourced": true,
+            "status": "satisfied",
+            "value_basis": "entity"
+          }
+        ],
+        "preference_notes": [],
+        "requirement_coverage": {
+          "assessed_keys": [
+            "oxygen_regime"
+          ],
+          "conflict_keys": [],
+          "covered_keys": [
+            "oxygen_regime"
+          ],
+          "essential_keys": [
+            "oxygen_regime"
+          ],
+          "satisfied_keys": [
+            "oxygen_regime"
+          ],
+          "unknown_keys": []
+        },
+        "schema_version": "ppv1-condition-assessment-7",
+        "scope_narrowed": false,
+        "scope_narrowed_by": [],
+        "unassessed_dimensions": [
+          "biotic_abiotic",
+          "inoculum_source",
+          "light_regime",
+          "phase_bioavailability",
+          "redox_regime_eh",
+          "required_trace_elements_cofactors",
+          "salinity_ionic_strength",
+          "substrate_concentration"
+        ]
+      },
+      "context_id": "pc_0d14a855ecedffd4c5b6",
+      "current": {
+        "assessed_scope": "possible",
+        "assessment_scope": [],
+        "declared_scope": [
+          "oxygen_regime"
+        ],
+        "detail": {},
+        "environment_fit": "unknown",
+        "per_requirement": [],
+        "preference_notes": [],
+        "requirement_coverage": {
+          "assessed_keys": [],
+          "conflict_keys": [],
+          "covered_keys": [],
+          "essential_keys": [],
+          "satisfied_keys": [],
+          "unknown_keys": []
+        },
+        "schema_version": "ppv1-condition-assessment-7",
+        "scope_narrowed": false,
+        "scope_narrowed_by": [],
+        "unassessed_dimensions": [
+          "biotic_abiotic",
+          "inoculum_source",
+          "light_regime",
+          "phase_bioavailability",
+          "redox_regime_eh",
+          "required_trace_elements_cofactors",
+          "salinity_ionic_strength",
+          "substrate_concentration"
+        ]
+      },
+      "route": {
+        "assessed_scope": "possible",
+        "assessment_scope": [],
+        "declared_scope": [
+          "oxygen_regime"
+        ],
+        "detail": {},
+        "environment_fit": "unknown",
+        "per_requirement": [],
+        "preference_notes": [],
+        "requirement_coverage": {
+          "assessed_keys": [],
+          "conflict_keys": [],
+          "covered_keys": [],
+          "essential_keys": [],
+          "satisfied_keys": [],
+          "unknown_keys": []
+        },
+        "schema_version": "ppv1-condition-assessment-7",
+        "scope_narrowed": false,
+        "scope_narrowed_by": [],
+        "unassessed_dimensions": [
+          "biotic_abiotic",
+          "inoculum_source",
+          "light_regime",
+          "phase_bioavailability",
+          "redox_regime_eh",
+          "required_trace_elements_cofactors",
+          "salinity_ionic_strength",
+          "substrate_concentration"
+        ]
+      }
+    }
+  },
+  "frozen_normal_mutations_fixed": {
+    "completed": true,
+    "result": {
+      "hyp_update_error": "TypeError",
+      "ior_error": "TypeError",
+      "unchanged_context": true,
+      "unchanged_hypothesis": true
+    }
+  },
+  "known_absent_non_species_false_satisfied": {
+    "completed": true,
+    "result": {
+      "matrix": {
+        "audit": {
+          "admission": [
+            "defer",
+            [
+              "R3:current_scenario_conflict(当前环境相容路线不展开;假设保留,留原因,可展示为需不同条件的备选)"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "matrix"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:conflict;coverage:matrix",
+              "status": "violated"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "no_unresolved_dependencies",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_024cbcc8f9ee0f5a8c70"
+        },
+        "candidate": {
+          "assessed_scope": "conflicted",
+          "assessment_scope": [
+            "matrix"
+          ],
+          "declared_scope": [
+            "matrix"
+          ],
+          "detail": {
+            "current_step_environment_fit": "conflict",
+            "route_edge_fits": [
+              {
+                "environment_fit": "conflict",
+                "phase_id": "phase-0",
+                "scenario_ref": "",
+                "source": "current_step_candidate"
+              }
+            ],
+            "route_environment_fit": "conflict",
+            "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+          },
+          "environment_fit": "conflict",
+          "per_requirement": [
+            {
+              "basis": "essential_claimed_by_source",
+              "fact_sources": [
+                "src:synthetic_absence"
+              ],
+              "introduced_edge": "hyp_4221256016d1b7f057ad",
+              "introduced_phase_id": "phase-0",
+              "key": "matrix",
+              "level": "essential",
+              "reason": "required_value_known_absent:matrix(必需值被同值 known_absent 事实明确否定;明确缺失不提供正支持)",
+              "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_4221256016d1b7f057ad\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"matrix\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":\"soil\",\"value_basis\":\"entity\"}",
+              "route_edge_source": "current_step",
+              "sourced": true,
+              "status": "conflict",
+              "value_basis": "entity"
+            }
+          ],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [
+              "matrix"
+            ],
+            "conflict_keys": [
+              "matrix"
+            ],
+            "covered_keys": [],
+            "essential_keys": [
+              "matrix"
+            ],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "context_id": "pc_9026aa4d7c002b760536",
+        "current": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "matrix"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "route": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "matrix"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        }
+      },
+      "oxygen_regime": {
+        "audit": {
+          "admission": [
+            "defer",
+            [
+              "R3:current_scenario_conflict(当前环境相容路线不展开;假设保留,留原因,可展示为需不同条件的备选)"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "oxygen_regime"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:conflict;coverage:oxygen_regime",
+              "status": "violated"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "no_unresolved_dependencies",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_cc5395eb40f764951d30"
+        },
+        "candidate": {
+          "assessed_scope": "conflicted",
+          "assessment_scope": [
+            "oxygen_regime"
+          ],
+          "declared_scope": [
+            "oxygen_regime"
+          ],
+          "detail": {
+            "current_step_environment_fit": "conflict",
+            "route_edge_fits": [
+              {
+                "environment_fit": "conflict",
+                "phase_id": "phase-0",
+                "scenario_ref": "",
+                "source": "current_step_candidate"
+              }
+            ],
+            "route_environment_fit": "conflict",
+            "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+          },
+          "environment_fit": "conflict",
+          "per_requirement": [
+            {
+              "basis": "essential_claimed_by_source",
+              "fact_sources": [
+                "src:synthetic_absence"
+              ],
+              "introduced_edge": "hyp_3d443b84f95e464b8373",
+              "introduced_phase_id": "phase-0",
+              "key": "oxygen_regime",
+              "level": "essential",
+              "reason": "required_value_known_absent:oxygen_regime(必需值被同值 known_absent 事实明确否定;明确缺失不提供正支持)",
+              "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_3d443b84f95e464b8373\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+              "route_edge_source": "current_step",
+              "sourced": true,
+              "status": "conflict",
+              "value_basis": "entity"
+            }
+          ],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [
+              "oxygen_regime"
+            ],
+            "conflict_keys": [
+              "oxygen_regime"
+            ],
+            "covered_keys": [],
+            "essential_keys": [
+              "oxygen_regime"
+            ],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "context_id": "pc_89a0a0075c75911d2fe4",
+        "current": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "oxygen_regime"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "route": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "oxygen_regime"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        }
+      },
+      "temperature_C": {
+        "audit": {
+          "admission": [
+            "retain_conditional",
+            [
+              "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):condition_check"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "temperature_C"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:unknown;coverage:temperature_C",
+              "status": "unknown"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "no_unresolved_dependencies",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_d88b21e12a9dac88fc0b"
+        },
+        "candidate": {
+          "assessed_scope": "possible",
+          "assessment_scope": [
+            "temperature_C"
+          ],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {
+            "current_step_environment_fit": "unknown",
+            "route_edge_fits": [
+              {
+                "environment_fit": "unknown",
+                "phase_id": "phase-0",
+                "scenario_ref": "",
+                "source": "current_step_candidate"
+              }
+            ],
+            "route_environment_fit": "unknown",
+            "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+          },
+          "environment_fit": "unknown",
+          "per_requirement": [
+            {
+              "basis": "essential_claimed_by_source",
+              "fact_sources": [
+                "src:synthetic_absence"
+              ],
+              "introduced_edge": "hyp_e42238640f47986c9618",
+              "introduced_phase_id": "phase-0",
+              "key": "temperature_C",
+              "level": "essential",
+              "reason": "numeric_absence_semantics_undefined:temperature_C(数值/区间值事实被明确否定;首版未定义数值否定语义,单点缺席不推出整个必需区间缺席;不按正值直比)",
+              "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_e42238640f47986c9618\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+              "route_edge_source": "current_step",
+              "sourced": true,
+              "status": "unknown",
+              "unit_basis": "canonical",
+              "value_basis": "range"
+            }
+          ],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [
+              "temperature_C"
+            ],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [
+              "temperature_C"
+            ],
+            "satisfied_keys": [],
+            "unknown_keys": [
+              "temperature_C"
+            ]
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "context_id": "pc_e5f680f32f38ec0a5c51",
+        "current": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "route": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        }
+      }
+    }
+  },
+  "known_absent_species_negative_control": {
+    "completed": true,
+    "result": {
+      "assessed_scope": "conflicted",
+      "assessment_scope": [
+        "electron_donor"
+      ],
+      "declared_scope": [
+        "electron_donor"
+      ],
+      "detail": {},
+      "environment_fit": "conflict",
+      "per_requirement": [
+        {
+          "basis": "essential_claimed_by_source",
+          "fact_sources": [],
+          "introduced_edge": "",
+          "introduced_phase_id": "",
+          "key": "electron_donor",
+          "level": "essential",
+          "reason": "required_entity_known_absent:electron_donor",
+          "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"\",\"introduced_phase_id\":\"\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_donor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":\"NADH\",\"value_basis\":\"entity\"}",
+          "sourced": true,
+          "status": "conflict",
+          "value_basis": "entity"
+        }
+      ],
+      "preference_notes": [],
+      "requirement_coverage": {
+        "assessed_keys": [
+          "electron_donor"
+        ],
+        "conflict_keys": [
+          "electron_donor"
+        ],
+        "covered_keys": [],
+        "essential_keys": [
+          "electron_donor"
+        ],
+        "satisfied_keys": [],
+        "unknown_keys": []
+      },
+      "schema_version": "ppv1-condition-assessment-7",
+      "scope_narrowed": false,
+      "scope_narrowed_by": [],
+      "unassessed_dimensions": [
+        "biotic_abiotic",
+        "inoculum_source",
+        "light_regime",
+        "phase_bioavailability",
+        "redox_regime_eh",
+        "required_trace_elements_cofactors",
+        "salinity_ionic_strength",
+        "substrate_concentration"
+      ]
+    }
+  },
+  "snapshot_from_dict_conflict_summary_and_flag_tamper": {
+    "completed": false,
+    "detail": {
+      "check": "fit_conflict_mismatch",
+      "environment_fit": "compatible",
+      "kind": "context_snapshot_inconsistent",
+      "phase_id": "p0",
+      "scenario_ref": "sA",
+      "snapshot_index": 0
+    },
+    "error_type": "ConditionContractError",
+    "message": "快照逐条评估含必要 conflict 行,记录的 environment_fit 却不是 conflict(摘要不得洗绿已记录的冲突)"
+  },
+  "units_positive_negative": {
+    "completed": true,
+    "result": {
+      "C": {
+        "audit": {
+          "admission": [
+            "expand",
+            [
+              "R6:all_verified_no_conflict"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "temperature_C"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:compatible;coverage:temperature_C",
+              "status": "verified"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "no_unresolved_dependencies",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_030cad456b398dc072b0"
+        },
+        "candidate": {
+          "assessed_scope": "condition_compatible",
+          "assessment_scope": [
+            "temperature_C"
+          ],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {
+            "current_step_environment_fit": "compatible",
+            "route_edge_fits": [
+              {
+                "environment_fit": "compatible",
+                "phase_id": "phase-0",
+                "scenario_ref": "s",
+                "source": "current_step_candidate"
+              }
+            ],
+            "route_environment_fit": "compatible",
+            "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+          },
+          "environment_fit": "compatible",
+          "per_requirement": [
+            {
+              "basis": "essential_claimed_by_source",
+              "fact_sources": [
+                "src:synthetic_source"
+              ],
+              "introduced_edge": "hyp_e42238640f47986c9618",
+              "introduced_phase_id": "phase-0",
+              "key": "temperature_C",
+              "level": "essential",
+              "reason": "within_range:temperature_C",
+              "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_e42238640f47986c9618\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"s\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+              "route_edge_source": "current_step",
+              "sourced": true,
+              "status": "satisfied",
+              "unit_basis": "canonical",
+              "value_basis": "range"
+            }
+          ],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [
+              "temperature_C"
+            ],
+            "conflict_keys": [],
+            "covered_keys": [
+              "temperature_C"
+            ],
+            "essential_keys": [
+              "temperature_C"
+            ],
+            "satisfied_keys": [
+              "temperature_C"
+            ],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "context_id": "pc_c47556e0a541f41d512e",
+        "current": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "route": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        }
+      },
+      "K": {
+        "audit": {
+          "admission": [
+            "retain_conditional",
+            [
+              "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):condition_check"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "temperature_C"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:unknown;coverage:temperature_C",
+              "status": "unknown"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "no_unresolved_dependencies",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_ae033da8ad2e9078a685"
+        },
+        "candidate": {
+          "assessed_scope": "possible",
+          "assessment_scope": [
+            "temperature_C"
+          ],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {
+            "current_step_environment_fit": "unknown",
+            "route_edge_fits": [
+              {
+                "environment_fit": "unknown",
+                "phase_id": "phase-0",
+                "scenario_ref": "s",
+                "source": "current_step_candidate"
+              }
+            ],
+            "route_environment_fit": "unknown",
+            "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+          },
+          "environment_fit": "unknown",
+          "per_requirement": [
+            {
+              "basis": "essential_claimed_by_source",
+              "fact_sources": [
+                "src:synthetic_source"
+              ],
+              "introduced_edge": "hyp_e42238640f47986c9618",
+              "introduced_phase_id": "phase-0",
+              "key": "temperature_C",
+              "level": "essential",
+              "reason": "unit_mismatch:temperature_C:'K'(首版无换算,不按数值直比)",
+              "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_e42238640f47986c9618\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"s\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+              "route_edge_source": "current_step",
+              "sourced": true,
+              "status": "unknown",
+              "value_basis": "range"
+            }
+          ],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [
+              "temperature_C"
+            ],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [
+              "temperature_C"
+            ],
+            "satisfied_keys": [],
+            "unknown_keys": [
+              "temperature_C"
+            ]
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "context_id": "pc_59ed14c17121f56ec303",
+        "current": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "route": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        }
+      },
+      "dimensionless_pH": {
+        "audit": {
+          "admission": [
+            "expand",
+            [
+              "R6:all_verified_no_conflict"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "pH"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:compatible;coverage:pH",
+              "status": "verified"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "no_unresolved_dependencies",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_6f590e68e8a9eb499717"
+        },
+        "candidate": {
+          "assessed_scope": "condition_compatible",
+          "assessment_scope": [
+            "pH"
+          ],
+          "declared_scope": [
+            "pH"
+          ],
+          "detail": {
+            "current_step_environment_fit": "compatible",
+            "route_edge_fits": [
+              {
+                "environment_fit": "compatible",
+                "phase_id": "phase-0",
+                "scenario_ref": "",
+                "source": "current_step_candidate"
+              }
+            ],
+            "route_environment_fit": "compatible",
+            "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+          },
+          "environment_fit": "compatible",
+          "per_requirement": [
+            {
+              "basis": "essential_claimed_by_source",
+              "fact_sources": [],
+              "introduced_edge": "hyp_646c3802ebf2de354764",
+              "introduced_phase_id": "phase-0",
+              "key": "pH",
+              "level": "essential",
+              "reason": "within_range:pH",
+              "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_646c3802ebf2de354764\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"pH\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":{\"hi\":8,\"lo\":6},\"value_basis\":\"range\"}",
+              "route_edge_source": "current_step",
+              "sourced": true,
+              "status": "satisfied",
+              "unit_basis": "canonical",
+              "value_basis": "range"
+            }
+          ],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [
+              "pH"
+            ],
+            "conflict_keys": [],
+            "covered_keys": [
+              "pH"
+            ],
+            "essential_keys": [
+              "pH"
+            ],
+            "satisfied_keys": [
+              "pH"
+            ],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "context_id": "pc_363d0502c72a2212cd9e",
+        "current": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "pH"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "route": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "pH"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        }
+      },
+      "missing": {
+        "audit": {
+          "admission": [
+            "retain_conditional",
+            [
+              "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):condition_check"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "temperature_C"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:unknown;coverage:temperature_C",
+              "status": "unknown"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "no_unresolved_dependencies",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_6e35edc7d938ce5bcae4"
+        },
+        "candidate": {
+          "assessed_scope": "possible",
+          "assessment_scope": [
+            "temperature_C"
+          ],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {
+            "current_step_environment_fit": "unknown",
+            "route_edge_fits": [
+              {
+                "environment_fit": "unknown",
+                "phase_id": "phase-0",
+                "scenario_ref": "s",
+                "source": "current_step_candidate"
+              }
+            ],
+            "route_environment_fit": "unknown",
+            "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+          },
+          "environment_fit": "unknown",
+          "per_requirement": [
+            {
+              "basis": "essential_claimed_by_source",
+              "fact_sources": [
+                "src:synthetic_source"
+              ],
+              "introduced_edge": "hyp_e42238640f47986c9618",
+              "introduced_phase_id": "phase-0",
+              "key": "temperature_C",
+              "level": "essential",
+              "reason": "source_unit_unknown:temperature_C(带量纲键的事实未声明单位=原来源单位未知;不按数值直比,不以注记升级为已归一;单位归一由事实来源/适配器承担)",
+              "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_e42238640f47986c9618\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"s\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+              "route_edge_source": "current_step",
+              "sourced": true,
+              "status": "unknown",
+              "unit_basis": "source_unit_unknown",
+              "value_basis": "range"
+            }
+          ],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [
+              "temperature_C"
+            ],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [
+              "temperature_C"
+            ],
+            "satisfied_keys": [],
+            "unknown_keys": [
+              "temperature_C"
+            ]
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "context_id": "pc_4189daa2b324cb054d28",
+        "current": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "route": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        }
+      },
+      "°C": {
+        "audit": {
+          "admission": [
+            "expand",
+            [
+              "R6:all_verified_no_conflict"
+            ]
+          ],
+          "checks": {
+            "condition_check": {
+              "detail": {
+                "assessment_scope": [
+                  "temperature_C"
+                ],
+                "unassessed_dimensions": [
+                  "biotic_abiotic",
+                  "inoculum_source",
+                  "light_regime",
+                  "phase_bioavailability",
+                  "redox_regime_eh",
+                  "required_trace_elements_cofactors",
+                  "salinity_ionic_strength",
+                  "substrate_concentration"
+                ]
+              },
+              "reason": "environment_fit:compatible;coverage:temperature_C",
+              "status": "verified"
+            },
+            "element_accounting": {
+              "detail": {
+                "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+                "accounting_scope": "full_balance_all_hydrogen",
+                "element_delta": {},
+                "omission_pattern_matches": [],
+                "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+              },
+              "reason": "elements_balanced_all_hydrogen",
+              "status": "verified"
+            },
+            "finite_rule_diagnostic": {
+              "detail": {},
+              "reason": "not_provided",
+              "status": "not_applicable"
+            },
+            "formal_charge_accounting": {
+              "detail": {
+                "accounting_scope": "full_balance_original_formal_charge",
+                "charge_delta": "0"
+              },
+              "reason": "formal_charge_balanced",
+              "status": "verified"
+            },
+            "identity_fidelity": {
+              "detail": {
+                "fidelity_axis_notes": []
+              },
+              "reason": "identity_states_consistent",
+              "status": "verified"
+            },
+            "participant_completeness": {
+              "detail": {},
+              "reason": "declared_complete_with_known_coefficients",
+              "status": "verified"
+            },
+            "participant_state_refs": {
+              "detail": {},
+              "reason": "all_participant_states_resolved",
+              "status": "verified"
+            },
+            "provenance_dependency": {
+              "detail": {},
+              "reason": "no_unresolved_dependencies",
+              "status": "verified"
+            },
+            "step_scope_check": {
+              "detail": {},
+              "reason": "step_scope:net_reaction",
+              "status": "verified"
+            },
+            "structure_parse_valence": {
+              "detail": {},
+              "reason": "all_participants_parse",
+              "status": "verified"
+            },
+            "transformation_center": {
+              "detail": {
+                "atom_delta": {
+                  "H": "2"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-7",
+                "completion_license": "composition_only_hydrogen_equivalents",
+                "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                "coverage_mode": "whole_molecule",
+                "coverage_rule": "atom_delta_stoichiometric_completion",
+                "coverage_violations": [],
+                "covered_product_identities": [
+                  "CC=O"
+                ],
+                "declared_signature_status": "unknown",
+                "product_coverage": "full",
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true,
+                "substrate_scale": "1",
+                "uncovered_product_elements": {
+                  "H": "2"
+                },
+                "uncovered_product_refs": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "uncovered_reactant_elements": {},
+                "uncovered_reactant_refs": [],
+                "unlicensed_uncovered_identities": []
+              },
+              "reason": "center_evidence_verified:ppv1-donor-diagnostic-7(scope=region_net_change;basis=direct)",
+              "status": "verified"
+            }
+          },
+          "input_hash": "ain_6ad04be2d40dc03156fb"
+        },
+        "candidate": {
+          "assessed_scope": "condition_compatible",
+          "assessment_scope": [
+            "temperature_C"
+          ],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {
+            "current_step_environment_fit": "compatible",
+            "route_edge_fits": [
+              {
+                "environment_fit": "compatible",
+                "phase_id": "phase-0",
+                "scenario_ref": "s",
+                "source": "current_step_candidate"
+              }
+            ],
+            "route_environment_fit": "compatible",
+            "semantics": "route_snapshot_edges(recorded_values)+candidate_requirements(current_scope)"
+          },
+          "environment_fit": "compatible",
+          "per_requirement": [
+            {
+              "basis": "essential_claimed_by_source",
+              "fact_sources": [
+                "src:synthetic_source"
+              ],
+              "introduced_edge": "hyp_e42238640f47986c9618",
+              "introduced_phase_id": "phase-0",
+              "key": "temperature_C",
+              "level": "essential",
+              "reason": "within_range:temperature_C",
+              "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"hyp_e42238640f47986c9618\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"s\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic_rule\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+              "route_edge_source": "current_step",
+              "sourced": true,
+              "status": "satisfied",
+              "unit_basis": "canonical",
+              "value_basis": "range"
+            }
+          ],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [
+              "temperature_C"
+            ],
+            "conflict_keys": [],
+            "covered_keys": [
+              "temperature_C"
+            ],
+            "essential_keys": [
+              "temperature_C"
+            ],
+            "satisfied_keys": [
+              "temperature_C"
+            ],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "context_id": "pc_841bfcf83388e4e8a707",
+        "current": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        },
+        "route": {
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "declared_scope": [
+            "temperature_C"
+          ],
+          "detail": {},
+          "environment_fit": "unknown",
+          "per_requirement": [],
+          "preference_notes": [],
+          "requirement_coverage": {
+            "assessed_keys": [],
+            "conflict_keys": [],
+            "covered_keys": [],
+            "essential_keys": [],
+            "satisfied_keys": [],
+            "unknown_keys": []
+          },
+          "schema_version": "ppv1-condition-assessment-7",
+          "scope_narrowed": false,
+          "scope_narrowed_by": [],
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ]
+        }
+      }
+    }
+  }
+}

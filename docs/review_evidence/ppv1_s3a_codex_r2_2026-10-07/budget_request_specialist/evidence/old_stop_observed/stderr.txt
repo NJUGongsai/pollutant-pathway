@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3a_r2_budget_resumed_0rxegzu0/old_stop_input/old_stop_observed.py", line 29, in <module>
+    r='stop_claimed_only';s,l,a,policy,d=mk(r);_,_,h,ev,args=make_fixture(r,'p1','k1','ctx1');aid=enqueue(l,r,h);rec=l.claim_action(aid,worker_id='w1');stop=l.stop_report(r);assert stop['primary']=='exhausted_search'
+                                                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

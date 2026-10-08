@@ -1,0 +1,128 @@
+{
+  "anchor_before": {
+    "action_id": "sact_1cf39eb1b3782cdd471a",
+    "action_kind": "retrieve",
+    "attempt_refs": "[]",
+    "budget_reservation_ref": "[\"sres_1ff95ba96f0213fe806b\", \"sres_2f1e9ea6e5762187c21c\", \"sres_c34c8c07d6fea14c2c57\"]",
+    "claimed_at": "2026-10-08T01:40:05+00:00",
+    "claimed_by": "ppv1-driver:anchor_non_mapping_anchor_payload_after_bundle_written",
+    "context_ref": "pc_0757aa71e8cd78057880",
+    "created_at": "2026-10-08T01:40:05+00:00",
+    "defer_reason": "",
+    "outcome_ref": "9368f6947db220a91faddd9290d5553bd0b15946e3f4f963145d613d961ecd5e",
+    "parent_path_id": "spath_68685b746e38e6ecde0a",
+    "parent_search_revision": 0,
+    "payload": "{\"context_ref\": \"pc_0757aa71e8cd78057880\", \"depth\": 0, \"parent_path_id\": \"spath_68685b746e38e6ecde0a\", \"plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"source_event_id\": \"\", \"substrate_smiles\": \"CCO\", \"task_key\": \"stask-dec_19e3be520a4d46e5e35f\"}",
+    "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+    "run_id": "anchor_non_mapping_anchor_payload_after_bundle_written",
+    "status": "done",
+    "subject_ref": "cs_ab1de819ede91df490e6",
+    "task_key": "stask-dec_19e3be520a4d46e5e35f",
+    "updated_at": "2026-10-08T01:40:05+00:00"
+  },
+  "mutated_sha256": "c07d0eafb07dcac0aa17b566ed1dfecc4ec04540db08836e340155dda3fcff4e",
+  "new_plan_envelope": {
+    "created_at": "2026-10-08T01:40:05+00:00",
+    "name": "frozen_plan",
+    "payload": {
+      "plan": {
+        "pools": {
+          "CCO": [
+            {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "B",
+              "origin_group_key": "donor-B",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-B"
+            }
+          ]
+        }
+      },
+      "plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "plan_version": "ppv1-frozen-plan-1"
+    },
+    "payload_hash": "cdb5a04dc4c9417972984df5de290d0c63579f393708ec73de65e2c350b6d137",
+    "run_id": "anchor_non_mapping_anchor_payload_after_bundle_written",
+    "schema_version": "v43-artifact-1",
+    "task_id": "run-plan"
+  },
+  "old_plan_envelope": {
+    "created_at": "2026-10-08T01:40:05+00:00",
+    "name": "frozen_plan",
+    "payload": {
+      "plan": {
+        "pools": {
+          "CCO": [
+            {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "B",
+              "origin_group_key": "donor-B",
+              "product_smiles": "CC=O",
+              "transformation_ref": "donor-B"
+            }
+          ]
+        }
+      },
+      "plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "plan_version": "ppv1-frozen-plan-1"
+    },
+    "payload_hash": "cdb5a04dc4c9417972984df5de290d0c63579f393708ec73de65e2c350b6d137",
+    "run_id": "anchor_non_mapping_anchor_payload_after_bundle_written",
+    "schema_version": "v43-artifact-1",
+    "task_id": "run-plan"
+  },
+  "old_sha256": "c07d0eafb07dcac0aa17b566ed1dfecc4ec04540db08836e340155dda3fcff4e",
+  "variant": "non_mapping_anchor_payload"
+}

@@ -1,0 +1,1675 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="52" skipped="0" tests="54" time="1.012" timestamp="2026-10-07T23:15:22.970568+08:00" hostname="bogon"><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_b3_wrong_identity_event_rejected_before_consume[run]" time="0.018"><failure message="TypeError: string indices must be integers, not 'str'">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_b3_wrong_identity_event_r0')
+mutate = 'run'
+
+    @pytest.mark.parametrize("mutate", ["run", "parent", "context",
+                                        "hypothesis"])
+    def test_b3_wrong_identity_event_rejected_before_consume(
+            tmp_path: Path, mutate: str) -&gt; None:
+        """S3A-01 四分案:合法 claimed A + 独立有效事件 B(仅 run/parent/
+        context/hypothesis 之一不同),bundle 绑定 A 的 action/attempt、
+        字节/hash 合法 —— 恢复必须在写 event/commit/consume 前拒,原
+        artifact 保全,B 不入账;同一 B 经正常提交也拒(同判据)。"""
+        name = f"r2a-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp_a.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        attempt = receipt["attempt_refs"][0]
+        # 独立有效事件 B:按 mutation 改单一身份维度(内容/hash 全合法)
+        b_run = "other-run" if mutate == "run" else name
+        b_parent = "p2" if mutate == "parent" else "p1"
+        b_origin = "k2" if mutate == "hypothesis" else "k1"
+        b_ctx = "ctx2" if mutate == "context" else "ctx1"
+        _, _, _, event_b, ev_b = make_fixture(b_run, b_parent, b_origin, b_ctx)
+        payload = {
+            "bundle_version": "ppv1-search-commit-bundle-1",
+            "action_id": out["action_id"], "attempt_id": attempt,
+            "event": {
+                "schema_version": event_b.schema_version,
+                "event_id": event_b.event_id, "run_id": event_b.run_id,
+                "parent_path_id": event_b.parent_path_id,
+                "hypothesis_id": event_b.hypothesis_id,
+                "context_hash": event_b.context_hash,
+                "participants": list(event_b.participants),
+                "participant_state_refs": list(event_b.participant_state_refs),
+                "catalytic_support": list(event_b.catalytic_support),
+            },
+            "report_projection": ev_b["report_projection"],
+            "expansion_plan": ev_b["expansion_plan"],
+            "states": ev_b["states"],
+            "hypothesis_dict": ev_b["hypothesis_dict"],
+            "task_key": "tk1",
+        }
+        art.write("tk1", "search_commit_bundle", payload)
+        path = bundle_path(runs_root, name, "tk1")
+        before = path.read_bytes()
+    
+        # 同一 B 经正常搜索提交:身份未冻结到 A ⇒ 拒(同源判据)
+        with pytest.raises(SearchContractError) as e_sub:
+            ledger.submit_action_event(out["action_id"], event_b,
+                                       worker_id="w1", **ev_b)
+        assert e_sub.value.detail["kind"] == "event_identity_not_frozen_to_action"
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+        report = ledger2.recover_run(name)
+        entry = [a for a in report["actions"]
+                 if a["action_id"] == out["action_id"]][0]
+        assert entry["boundary"] == "B3_artifact_written_event_uncommitted"
+&gt;       assert entry["disposition"]["error"] == "SearchArtifactIntegrityError"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_ppv1_s3a_rework_r2.py:169: TypeError</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_b3_wrong_identity_event_rejected_before_consume[parent]" time="0.012"><failure message="TypeError: string indices must be integers, not 'str'">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_b3_wrong_identity_event_r1')
+mutate = 'parent'
+
+    @pytest.mark.parametrize("mutate", ["run", "parent", "context",
+                                        "hypothesis"])
+    def test_b3_wrong_identity_event_rejected_before_consume(
+            tmp_path: Path, mutate: str) -&gt; None:
+        """S3A-01 四分案:合法 claimed A + 独立有效事件 B(仅 run/parent/
+        context/hypothesis 之一不同),bundle 绑定 A 的 action/attempt、
+        字节/hash 合法 —— 恢复必须在写 event/commit/consume 前拒,原
+        artifact 保全,B 不入账;同一 B 经正常提交也拒(同判据)。"""
+        name = f"r2a-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp_a.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        attempt = receipt["attempt_refs"][0]
+        # 独立有效事件 B:按 mutation 改单一身份维度(内容/hash 全合法)
+        b_run = "other-run" if mutate == "run" else name
+        b_parent = "p2" if mutate == "parent" else "p1"
+        b_origin = "k2" if mutate == "hypothesis" else "k1"
+        b_ctx = "ctx2" if mutate == "context" else "ctx1"
+        _, _, _, event_b, ev_b = make_fixture(b_run, b_parent, b_origin, b_ctx)
+        payload = {
+            "bundle_version": "ppv1-search-commit-bundle-1",
+            "action_id": out["action_id"], "attempt_id": attempt,
+            "event": {
+                "schema_version": event_b.schema_version,
+                "event_id": event_b.event_id, "run_id": event_b.run_id,
+                "parent_path_id": event_b.parent_path_id,
+                "hypothesis_id": event_b.hypothesis_id,
+                "context_hash": event_b.context_hash,
+                "participants": list(event_b.participants),
+                "participant_state_refs": list(event_b.participant_state_refs),
+                "catalytic_support": list(event_b.catalytic_support),
+            },
+            "report_projection": ev_b["report_projection"],
+            "expansion_plan": ev_b["expansion_plan"],
+            "states": ev_b["states"],
+            "hypothesis_dict": ev_b["hypothesis_dict"],
+            "task_key": "tk1",
+        }
+        art.write("tk1", "search_commit_bundle", payload)
+        path = bundle_path(runs_root, name, "tk1")
+        before = path.read_bytes()
+    
+        # 同一 B 经正常搜索提交:身份未冻结到 A ⇒ 拒(同源判据)
+        with pytest.raises(SearchContractError) as e_sub:
+            ledger.submit_action_event(out["action_id"], event_b,
+                                       worker_id="w1", **ev_b)
+        assert e_sub.value.detail["kind"] == "event_identity_not_frozen_to_action"
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+        report = ledger2.recover_run(name)
+        entry = [a for a in report["actions"]
+                 if a["action_id"] == out["action_id"]][0]
+        assert entry["boundary"] == "B3_artifact_written_event_uncommitted"
+&gt;       assert entry["disposition"]["error"] == "SearchArtifactIntegrityError"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_ppv1_s3a_rework_r2.py:169: TypeError</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_b3_wrong_identity_event_rejected_before_consume[context]" time="0.012"><failure message="TypeError: string indices must be integers, not 'str'">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_b3_wrong_identity_event_r2')
+mutate = 'context'
+
+    @pytest.mark.parametrize("mutate", ["run", "parent", "context",
+                                        "hypothesis"])
+    def test_b3_wrong_identity_event_rejected_before_consume(
+            tmp_path: Path, mutate: str) -&gt; None:
+        """S3A-01 四分案:合法 claimed A + 独立有效事件 B(仅 run/parent/
+        context/hypothesis 之一不同),bundle 绑定 A 的 action/attempt、
+        字节/hash 合法 —— 恢复必须在写 event/commit/consume 前拒,原
+        artifact 保全,B 不入账;同一 B 经正常提交也拒(同判据)。"""
+        name = f"r2a-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp_a.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        attempt = receipt["attempt_refs"][0]
+        # 独立有效事件 B:按 mutation 改单一身份维度(内容/hash 全合法)
+        b_run = "other-run" if mutate == "run" else name
+        b_parent = "p2" if mutate == "parent" else "p1"
+        b_origin = "k2" if mutate == "hypothesis" else "k1"
+        b_ctx = "ctx2" if mutate == "context" else "ctx1"
+        _, _, _, event_b, ev_b = make_fixture(b_run, b_parent, b_origin, b_ctx)
+        payload = {
+            "bundle_version": "ppv1-search-commit-bundle-1",
+            "action_id": out["action_id"], "attempt_id": attempt,
+            "event": {
+                "schema_version": event_b.schema_version,
+                "event_id": event_b.event_id, "run_id": event_b.run_id,
+                "parent_path_id": event_b.parent_path_id,
+                "hypothesis_id": event_b.hypothesis_id,
+                "context_hash": event_b.context_hash,
+                "participants": list(event_b.participants),
+                "participant_state_refs": list(event_b.participant_state_refs),
+                "catalytic_support": list(event_b.catalytic_support),
+            },
+            "report_projection": ev_b["report_projection"],
+            "expansion_plan": ev_b["expansion_plan"],
+            "states": ev_b["states"],
+            "hypothesis_dict": ev_b["hypothesis_dict"],
+            "task_key": "tk1",
+        }
+        art.write("tk1", "search_commit_bundle", payload)
+        path = bundle_path(runs_root, name, "tk1")
+        before = path.read_bytes()
+    
+        # 同一 B 经正常搜索提交:身份未冻结到 A ⇒ 拒(同源判据)
+        with pytest.raises(SearchContractError) as e_sub:
+            ledger.submit_action_event(out["action_id"], event_b,
+                                       worker_id="w1", **ev_b)
+        assert e_sub.value.detail["kind"] == "event_identity_not_frozen_to_action"
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+        report = ledger2.recover_run(name)
+        entry = [a for a in report["actions"]
+                 if a["action_id"] == out["action_id"]][0]
+        assert entry["boundary"] == "B3_artifact_written_event_uncommitted"
+&gt;       assert entry["disposition"]["error"] == "SearchArtifactIntegrityError"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_ppv1_s3a_rework_r2.py:169: TypeError</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_b3_wrong_identity_event_rejected_before_consume[hypothesis]" time="0.009"><failure message="AssertionError: assert 'event_hypothesis_not_frozen' == 'event_identi...zen_to_action'&#10;  &#10;  - event_identity_not_frozen_to_action&#10;  + event_hypothesis_not_frozen">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_b3_wrong_identity_event_r3')
+mutate = 'hypothesis'
+
+    @pytest.mark.parametrize("mutate", ["run", "parent", "context",
+                                        "hypothesis"])
+    def test_b3_wrong_identity_event_rejected_before_consume(
+            tmp_path: Path, mutate: str) -&gt; None:
+        """S3A-01 四分案:合法 claimed A + 独立有效事件 B(仅 run/parent/
+        context/hypothesis 之一不同),bundle 绑定 A 的 action/attempt、
+        字节/hash 合法 —— 恢复必须在写 event/commit/consume 前拒,原
+        artifact 保全,B 不入账;同一 B 经正常提交也拒(同判据)。"""
+        name = f"r2a-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp_a.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        attempt = receipt["attempt_refs"][0]
+        # 独立有效事件 B:按 mutation 改单一身份维度(内容/hash 全合法)
+        b_run = "other-run" if mutate == "run" else name
+        b_parent = "p2" if mutate == "parent" else "p1"
+        b_origin = "k2" if mutate == "hypothesis" else "k1"
+        b_ctx = "ctx2" if mutate == "context" else "ctx1"
+        _, _, _, event_b, ev_b = make_fixture(b_run, b_parent, b_origin, b_ctx)
+        payload = {
+            "bundle_version": "ppv1-search-commit-bundle-1",
+            "action_id": out["action_id"], "attempt_id": attempt,
+            "event": {
+                "schema_version": event_b.schema_version,
+                "event_id": event_b.event_id, "run_id": event_b.run_id,
+                "parent_path_id": event_b.parent_path_id,
+                "hypothesis_id": event_b.hypothesis_id,
+                "context_hash": event_b.context_hash,
+                "participants": list(event_b.participants),
+                "participant_state_refs": list(event_b.participant_state_refs),
+                "catalytic_support": list(event_b.catalytic_support),
+            },
+            "report_projection": ev_b["report_projection"],
+            "expansion_plan": ev_b["expansion_plan"],
+            "states": ev_b["states"],
+            "hypothesis_dict": ev_b["hypothesis_dict"],
+            "task_key": "tk1",
+        }
+        art.write("tk1", "search_commit_bundle", payload)
+        path = bundle_path(runs_root, name, "tk1")
+        before = path.read_bytes()
+    
+        # 同一 B 经正常搜索提交:身份未冻结到 A ⇒ 拒(同源判据)
+        with pytest.raises(SearchContractError) as e_sub:
+            ledger.submit_action_event(out["action_id"], event_b,
+                                       worker_id="w1", **ev_b)
+&gt;       assert e_sub.value.detail["kind"] == "event_identity_not_frozen_to_action"
+E       AssertionError: assert 'event_hypothesis_not_frozen' == 'event_identi...zen_to_action'
+E         
+E         - event_identity_not_frozen_to_action
+E         + event_hypothesis_not_frozen
+
+tests/test_ppv1_s3a_rework_r2.py:162: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_write_bundle_rejects_wrong_identity_event" time="0.009"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_write_bundle_rejects_wron0')
+
+    def test_write_bundle_rejects_wrong_identity_event(tmp_path: Path) -&gt; None:
+        """S3A-01 写侧:write_commit_bundle 对异身份事件同源拒,artifact
+        不落盘(不把"消费口会拒"当写侧免检);task_key 错绑同拒。"""
+        name = "r2a-write"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp_a.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        attempt = receipt["attempt_refs"][0]
+        _, _, _, event_b, ev_b = make_fixture(name, "p2", "k1", "ctx1")
+&gt;       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:197: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_first_complete_event_outcome_requires_real_event" time="0.011"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_first_complete_event_outc0')
+
+    def test_first_complete_event_outcome_requires_real_event(
+            tmp_path: Path) -&gt; None:
+        """S3A-02:事件类 outcome 不能空/不存在/异父 —— 三案在写 done/
+        commit/consume 之前拒,零写账。"""
+        name = "r2c-empty"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        # 1) 空 event_id
+&gt;       with pytest.raises(SearchContractError) as e1:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:227: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_b4_recovery_missing_reference_rows_refused[reservation]" time="0.016"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_b4_recovery_missing_refer0')
+drop = 'reservation'
+
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_b4_recovery_missing_reference_rows_refused(
+            tmp_path: Path, drop: str) -&gt; None:
+        """S3A-02:合法事件提交后删本 action 必需的预约/attempt 行 ⇒
+        B4 恢复按缺权威失败(UPDATE 0 行不是成功),零补账。"""
+        name = f"r2b-{drop}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)  # B4 状态
+        if drop == "reservation":
+            rid = ledger.action(out["action_id"])["budget_reservation_ref"][0]
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (rid,))
+        else:
+            aid = ledger.action(out["action_id"])["attempt_refs"][0]
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (aid,))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:284: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_b4_recovery_missing_reference_rows_refused[attempt]" time="0.015"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_b4_recovery_missing_refer1')
+drop = 'attempt'
+
+    @pytest.mark.parametrize("drop", ["reservation", "attempt"])
+    def test_b4_recovery_missing_reference_rows_refused(
+            tmp_path: Path, drop: str) -&gt; None:
+        """S3A-02:合法事件提交后删本 action 必需的预约/attempt 行 ⇒
+        B4 恢复按缺权威失败(UPDATE 0 行不是成功),零补账。"""
+        name = f"r2b-{drop}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)  # B4 状态
+        if drop == "reservation":
+            rid = ledger.action(out["action_id"])["budget_reservation_ref"][0]
+            ledger.conn.execute(
+                "DELETE FROM budget_reservations WHERE reservation_id = ?",
+                (rid,))
+        else:
+            aid = ledger.action(out["action_id"])["attempt_refs"][0]
+            ledger.conn.execute(
+                "DELETE FROM search_attempts WHERE expansion_attempt_id = ?",
+                (aid,))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:284: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-state_charge]" time="0.017"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit0')
+mode = 'b4', kind = 'state_charge'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-state_schema]" time="0.017"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit1')
+mode = 'b4', kind = 'state_schema'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-appearance_source]" time="0.016"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit2')
+mode = 'b4', kind = 'appearance_source'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-appearance_raw]" time="0.012"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit3')
+mode = 'b4', kind = 'appearance_raw'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-hypothesis_origin]" time="0.012"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit4')
+mode = 'b4', kind = 'hypothesis_origin'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-event_manifest]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit5')
+mode = 'b4', kind = 'event_manifest'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-projection_delete]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit6')
+mode = 'b4', kind = 'projection_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-plan_delete]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit7')
+mode = 'b4', kind = 'plan_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-links_delete]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit8')
+mode = 'b4', kind = 'links_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-state_delete]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit9')
+mode = 'b4', kind = 'state_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-appearance_delete]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit10')
+mode = 'b4', kind = 'appearance_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[b4-hypothesis_delete]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit11')
+mode = 'b4', kind = 'hypothesis_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-state_charge]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit12')
+mode = 'done', kind = 'state_charge'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-state_schema]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit13')
+mode = 'done', kind = 'state_schema'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-appearance_source]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit14')
+mode = 'done', kind = 'appearance_source'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-appearance_raw]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit15')
+mode = 'done', kind = 'appearance_raw'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-hypothesis_origin]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit16')
+mode = 'done', kind = 'hypothesis_origin'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-event_manifest]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit17')
+mode = 'done', kind = 'event_manifest'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-projection_delete]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit18')
+mode = 'done', kind = 'projection_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-plan_delete]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit19')
+mode = 'done', kind = 'plan_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-links_delete]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit20')
+mode = 'done', kind = 'links_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-state_delete]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit21')
+mode = 'done', kind = 'state_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-appearance_delete]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit22')
+mode = 'done', kind = 'appearance_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_bad_event_ledger_authority_refused_before_consume[done-hypothesis_delete]" time="0.011"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_bad_event_ledger_authorit23')
+mode = 'done', kind = 'hypothesis_delete'
+
+    @pytest.mark.parametrize("kind", BAD_LEDGER_KINDS)
+    @pytest.mark.parametrize("mode", ["b4", "done"])
+    def test_bad_event_ledger_authority_refused_before_consume(
+            tmp_path: Path, mode: str, kind: str) -&gt; None:
+        """S3A-02 12×2:坏事件账在 B4 补账/done 复用**首次消费之前**结构化
+        失败(完整权威核验 = 公共 writer 重放同源),零补账、保全;同库
+        原有效输入经公共 writer 重放同样拒(已有 S0–S2 契约,不重验)。"""
+        name = f"r2d-{mode}-{kind}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+        if mode == "done":
+            ledger.complete_action(out["action_id"], worker_id="w1",
+                                   event_id=event.event_id)
+            assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, kind)
+        commits_before = one(ledger, "SELECT COUNT(*) FROM"
+                              " search_commit_records WHERE run_id = ?", (name,))
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:395: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_done_reuse_entries_verify_full_authority" time="0.012"><failure message="Failed: DID NOT RAISE SearchIntegrityError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_done_reuse_entries_verify0')
+
+    def test_done_reuse_entries_verify_full_authority(tmp_path: Path) -&gt; None:
+        """S3A-02 复用入口:claim 的 done 复用分支与 complete 的幂等复用
+        分支同样经完整权威核验(不能 get 索引即成功);坏账 ⇒ 结构化失败。"""
+        name = "r2e"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        commit_search_event(ledger, out["action_id"], event, worker_id="w1",
+                            attempt_id="", task_key="tk1", **ev_args)
+        assert action_status(ledger, out["action_id"]) == "done"
+        corrupt_event_ledger(ledger.conn, event.event_id, "state_delete")
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+&gt;       with pytest.raises(SearchIntegrityError):
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r2.py:426: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_defer_cannot_refund_submitted_event_budget" time="0.010"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_defer_cannot_refund_submi0')
+
+    def test_defer_cannot_refund_submitted_event_budget(tmp_path: Path) -&gt; None:
+        """S3A-03 上限 1 连用反例:先提交事件再 defer 退额度被拒 ——
+        完整公开链无法留下多个已执行 event 而预算 used=0;实际执行次数
+        与预算源记录可逐步复算(used 恒 ≥ 已提交事件归属的执行数)。"""
+        limits = {"max_total_search_actions": 1,
+                  "max_alternative_hypotheses_per_parent": 1}
+        name = "r2f"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, limits)
+        _, _, hyp, event, ev_args = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        ledger.submit_action_event(out["action_id"], event,
+                                   worker_id="w1", **ev_args)
+&gt;       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:454: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_defer_after_sent_request_refused" time="0.009"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_defer_after_sent_request_0')
+
+    def test_defer_after_sent_request_refused(tmp_path: Path) -&gt; None:
+        """S3A-03:已发送请求是已执行操作,defer 不可退额度。"""
+        name = "r2g"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        req = ledger.register_model_request(
+            run_id=name, action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0],
+            provider_kind=PROVIDER_KIND_SCRIPTED, request_key="k1")
+        ledger.record_request_sent(req["request_id"])
+&gt;       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:483: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_defer_unexecuted_releases_legal_control" time="0.007" /><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_defer_abandons_registered_request_real_quota_kept" time="0.009"><failure message="AssertionError: assert 'registered' == 'abandoned'&#10;  &#10;  - abandoned&#10;  + registered">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_defer_abandons_registered0')
+
+    def test_defer_abandons_registered_request_real_quota_kept(
+            tmp_path: Path) -&gt; None:
+        """S3A-03/04:registered(未发送)请求不阻止合法 defer;defer 把
+        该请求转 abandoned(生命周期闭合),真实请求登记额度继续占额
+        (悬空/失败真实请求占额,永不释放)。"""
+        name = "r2i"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_real_model_requests": 2})
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        req = ledger.register_model_request(
+            run_id=name, action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0],
+            provider_kind=PROVIDER_KIND_REAL, request_key="rk")
+        result = ledger.defer_action(out["action_id"], worker_id="w1",
+                                     reason="await")
+        assert result["deferred"]
+&gt;       assert ledger.request(req["request_id"])["status"] == \
+            REQUEST_STATUS_ABANDONED
+E       AssertionError: assert 'registered' == 'abandoned'
+E         
+E         - abandoned
+E         + registered
+
+tests/test_ppv1_s3a_rework_r2.py:537: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_register_rejects_illegal_policy_blocks[bad_limits0-\u8d8a\u754c]" time="0.005"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_register_rejects_illegal_0')
+bad_limits = {'max_total_search_actions': 1001}, why = '越界'
+
+    @pytest.mark.parametrize("bad_limits,why", [
+        ({"max_total_search_actions": 1001}, "越界"),
+        ({"max_total_search_actions": True}, "bool 不是整数"),
+        ({"nope_unknown_key": 1}, "未知键"),
+        ({"max_total_search_actions": -1}, "负数"),
+    ])
+    def test_register_rejects_illegal_policy_blocks(tmp_path: Path,
+                                                    bad_limits: dict,
+                                                    why: str) -&gt; None:
+        """S3A-03:四非法策略块在注册写入前拒(现成十键类型/范围同源
+        校验),search_runs 零写入;合法修改块通过。"""
+        name = f"r2j-{why}"
+        store = PollutantPathwayStore(tmp_path / f"{name}.sqlite")
+        ledger = SearchLedger(store, None, name)
+        policy = build_profile_identity_block()
+        policy["search_limits"].update(bad_limits)
+&gt;       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:564: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_register_rejects_illegal_policy_blocks[bad_limits1-bool \u4e0d\u662f\u6574\u6570]" time="0.006"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_register_rejects_illegal_1')
+bad_limits = {'max_total_search_actions': True}, why = 'bool 不是整数'
+
+    @pytest.mark.parametrize("bad_limits,why", [
+        ({"max_total_search_actions": 1001}, "越界"),
+        ({"max_total_search_actions": True}, "bool 不是整数"),
+        ({"nope_unknown_key": 1}, "未知键"),
+        ({"max_total_search_actions": -1}, "负数"),
+    ])
+    def test_register_rejects_illegal_policy_blocks(tmp_path: Path,
+                                                    bad_limits: dict,
+                                                    why: str) -&gt; None:
+        """S3A-03:四非法策略块在注册写入前拒(现成十键类型/范围同源
+        校验),search_runs 零写入;合法修改块通过。"""
+        name = f"r2j-{why}"
+        store = PollutantPathwayStore(tmp_path / f"{name}.sqlite")
+        ledger = SearchLedger(store, None, name)
+        policy = build_profile_identity_block()
+        policy["search_limits"].update(bad_limits)
+&gt;       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:564: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_register_rejects_illegal_policy_blocks[bad_limits2-\u672a\u77e5\u952e]" time="0.005"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_register_rejects_illegal_2')
+bad_limits = {'nope_unknown_key': 1}, why = '未知键'
+
+    @pytest.mark.parametrize("bad_limits,why", [
+        ({"max_total_search_actions": 1001}, "越界"),
+        ({"max_total_search_actions": True}, "bool 不是整数"),
+        ({"nope_unknown_key": 1}, "未知键"),
+        ({"max_total_search_actions": -1}, "负数"),
+    ])
+    def test_register_rejects_illegal_policy_blocks(tmp_path: Path,
+                                                    bad_limits: dict,
+                                                    why: str) -&gt; None:
+        """S3A-03:四非法策略块在注册写入前拒(现成十键类型/范围同源
+        校验),search_runs 零写入;合法修改块通过。"""
+        name = f"r2j-{why}"
+        store = PollutantPathwayStore(tmp_path / f"{name}.sqlite")
+        ledger = SearchLedger(store, None, name)
+        policy = build_profile_identity_block()
+        policy["search_limits"].update(bad_limits)
+&gt;       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:564: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_register_rejects_illegal_policy_blocks[bad_limits3-\u8d1f\u6570]" time="0.005"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_register_rejects_illegal_3')
+bad_limits = {'max_total_search_actions': -1}, why = '负数'
+
+    @pytest.mark.parametrize("bad_limits,why", [
+        ({"max_total_search_actions": 1001}, "越界"),
+        ({"max_total_search_actions": True}, "bool 不是整数"),
+        ({"nope_unknown_key": 1}, "未知键"),
+        ({"max_total_search_actions": -1}, "负数"),
+    ])
+    def test_register_rejects_illegal_policy_blocks(tmp_path: Path,
+                                                    bad_limits: dict,
+                                                    why: str) -&gt; None:
+        """S3A-03:四非法策略块在注册写入前拒(现成十键类型/范围同源
+        校验),search_runs 零写入;合法修改块通过。"""
+        name = f"r2j-{why}"
+        store = PollutantPathwayStore(tmp_path / f"{name}.sqlite")
+        ledger = SearchLedger(store, None, name)
+        policy = build_profile_identity_block()
+        policy["search_limits"].update(bad_limits)
+&gt;       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:564: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_stored_policy_block_corrupt_rejected_on_read" time="0.005"><failure message="Failed: DID NOT RAISE SearchRecoveryError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_stored_policy_block_corru0')
+
+    def test_stored_policy_block_corrupt_rejected_on_read(tmp_path) -&gt; None:
+        """S3A-03:存储策略块被改坏 ⇒ 读取消费(enqueue/claim 恢复路径
+        的 _limits)结构化拒绝,不猜数据。"""
+        name = "r2k"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        corrupt = json.loads(json.dumps(policy))
+        corrupt["search_limits"]["max_total_search_actions"] = 1001
+        ledger.conn.execute(
+            "UPDATE search_runs SET policy_block = ? WHERE run_id = ?",
+            (json.dumps(corrupt, ensure_ascii=False, sort_keys=True), name))
+        ledger.conn.commit()
+&gt;       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r2.py:590: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_same_key_conflicts[payload]" time="0.007"><failure message="Failed: DID NOT RAISE SearchIdentityConflict">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_same_key_conflict0')
+mutate = 'payload'
+
+    @pytest.mark.parametrize("mutate", ["payload", "purpose", "action",
+                                        "tampered_hash"])
+    def test_request_same_key_conflicts(tmp_path: Path, mutate: str) -&gt; None:
+        """S3A-04:同键异 payload/purpose/action(空 attempt 的非 expand
+        请求)/损坏 hash 的同载荷重用均结构化冲突,零写入。"""
+        name = f"r2l-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        # 两个合法 claimed decide action(空 attempt:非 expand 合法路径)
+        ids = []
+        for i in range(2):
+            out = ledger.enqueue_action(
+                run_id=name, parent_path_id="p1", context_ref="ctx1",
+                subject_ref=f"pool-{i}", action_kind="decide",
+                policy_version=PV, payload={"task_key": f"tk{i}"})
+            ledger.claim_action(out["action_id"], worker_id="w1")
+            ids.append(out["action_id"])
+        base = dict(run_id=name, action_id=ids[0], attempt_id="",
+                    provider_kind=PROVIDER_KIND_SCRIPTED, request_key="same-k",
+                    purpose="rank", payload={"a": 1})
+        ledger.register_model_request(**base)
+        if mutate == "tampered_hash":
+            ledger.conn.execute(
+                "UPDATE model_requests SET payload_hash = ? WHERE run_id = ?",
+                ("0" * 64, name))
+            ledger.conn.commit()
+            again = dict(base)
+        elif mutate == "payload":
+            again = {**base, "payload": {"a": 2}}
+        elif mutate == "purpose":
+            again = {**base, "purpose": "propose"}
+        else:  # action:同键(同 attempt=空、同 provider、同 key)换 action
+            again = {**base, "action_id": ids[1]}
+&gt;       with pytest.raises(SearchIdentityConflict) as ei:
+E       Failed: DID NOT RAISE SearchIdentityConflict
+
+tests/test_ppv1_s3a_rework_r2.py:631: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_same_key_conflicts[purpose]" time="0.007"><failure message="Failed: DID NOT RAISE SearchIdentityConflict">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_same_key_conflict1')
+mutate = 'purpose'
+
+    @pytest.mark.parametrize("mutate", ["payload", "purpose", "action",
+                                        "tampered_hash"])
+    def test_request_same_key_conflicts(tmp_path: Path, mutate: str) -&gt; None:
+        """S3A-04:同键异 payload/purpose/action(空 attempt 的非 expand
+        请求)/损坏 hash 的同载荷重用均结构化冲突,零写入。"""
+        name = f"r2l-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        # 两个合法 claimed decide action(空 attempt:非 expand 合法路径)
+        ids = []
+        for i in range(2):
+            out = ledger.enqueue_action(
+                run_id=name, parent_path_id="p1", context_ref="ctx1",
+                subject_ref=f"pool-{i}", action_kind="decide",
+                policy_version=PV, payload={"task_key": f"tk{i}"})
+            ledger.claim_action(out["action_id"], worker_id="w1")
+            ids.append(out["action_id"])
+        base = dict(run_id=name, action_id=ids[0], attempt_id="",
+                    provider_kind=PROVIDER_KIND_SCRIPTED, request_key="same-k",
+                    purpose="rank", payload={"a": 1})
+        ledger.register_model_request(**base)
+        if mutate == "tampered_hash":
+            ledger.conn.execute(
+                "UPDATE model_requests SET payload_hash = ? WHERE run_id = ?",
+                ("0" * 64, name))
+            ledger.conn.commit()
+            again = dict(base)
+        elif mutate == "payload":
+            again = {**base, "payload": {"a": 2}}
+        elif mutate == "purpose":
+            again = {**base, "purpose": "propose"}
+        else:  # action:同键(同 attempt=空、同 provider、同 key)换 action
+            again = {**base, "action_id": ids[1]}
+&gt;       with pytest.raises(SearchIdentityConflict) as ei:
+E       Failed: DID NOT RAISE SearchIdentityConflict
+
+tests/test_ppv1_s3a_rework_r2.py:631: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_same_key_conflicts[action]" time="0.009"><failure message="Failed: DID NOT RAISE SearchIdentityConflict">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_same_key_conflict2')
+mutate = 'action'
+
+    @pytest.mark.parametrize("mutate", ["payload", "purpose", "action",
+                                        "tampered_hash"])
+    def test_request_same_key_conflicts(tmp_path: Path, mutate: str) -&gt; None:
+        """S3A-04:同键异 payload/purpose/action(空 attempt 的非 expand
+        请求)/损坏 hash 的同载荷重用均结构化冲突,零写入。"""
+        name = f"r2l-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        # 两个合法 claimed decide action(空 attempt:非 expand 合法路径)
+        ids = []
+        for i in range(2):
+            out = ledger.enqueue_action(
+                run_id=name, parent_path_id="p1", context_ref="ctx1",
+                subject_ref=f"pool-{i}", action_kind="decide",
+                policy_version=PV, payload={"task_key": f"tk{i}"})
+            ledger.claim_action(out["action_id"], worker_id="w1")
+            ids.append(out["action_id"])
+        base = dict(run_id=name, action_id=ids[0], attempt_id="",
+                    provider_kind=PROVIDER_KIND_SCRIPTED, request_key="same-k",
+                    purpose="rank", payload={"a": 1})
+        ledger.register_model_request(**base)
+        if mutate == "tampered_hash":
+            ledger.conn.execute(
+                "UPDATE model_requests SET payload_hash = ? WHERE run_id = ?",
+                ("0" * 64, name))
+            ledger.conn.commit()
+            again = dict(base)
+        elif mutate == "payload":
+            again = {**base, "payload": {"a": 2}}
+        elif mutate == "purpose":
+            again = {**base, "purpose": "propose"}
+        else:  # action:同键(同 attempt=空、同 provider、同 key)换 action
+            again = {**base, "action_id": ids[1]}
+&gt;       with pytest.raises(SearchIdentityConflict) as ei:
+E       Failed: DID NOT RAISE SearchIdentityConflict
+
+tests/test_ppv1_s3a_rework_r2.py:631: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_same_key_conflicts[tampered_hash]" time="0.010"><failure message="Failed: DID NOT RAISE SearchIdentityConflict">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_same_key_conflict3')
+mutate = 'tampered_hash'
+
+    @pytest.mark.parametrize("mutate", ["payload", "purpose", "action",
+                                        "tampered_hash"])
+    def test_request_same_key_conflicts(tmp_path: Path, mutate: str) -&gt; None:
+        """S3A-04:同键异 payload/purpose/action(空 attempt 的非 expand
+        请求)/损坏 hash 的同载荷重用均结构化冲突,零写入。"""
+        name = f"r2l-{mutate}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        # 两个合法 claimed decide action(空 attempt:非 expand 合法路径)
+        ids = []
+        for i in range(2):
+            out = ledger.enqueue_action(
+                run_id=name, parent_path_id="p1", context_ref="ctx1",
+                subject_ref=f"pool-{i}", action_kind="decide",
+                policy_version=PV, payload={"task_key": f"tk{i}"})
+            ledger.claim_action(out["action_id"], worker_id="w1")
+            ids.append(out["action_id"])
+        base = dict(run_id=name, action_id=ids[0], attempt_id="",
+                    provider_kind=PROVIDER_KIND_SCRIPTED, request_key="same-k",
+                    purpose="rank", payload={"a": 1})
+        ledger.register_model_request(**base)
+        if mutate == "tampered_hash":
+            ledger.conn.execute(
+                "UPDATE model_requests SET payload_hash = ? WHERE run_id = ?",
+                ("0" * 64, name))
+            ledger.conn.commit()
+            again = dict(base)
+        elif mutate == "payload":
+            again = {**base, "payload": {"a": 2}}
+        elif mutate == "purpose":
+            again = {**base, "purpose": "propose"}
+        else:  # action:同键(同 attempt=空、同 provider、同 key)换 action
+            again = {**base, "action_id": ids[1]}
+&gt;       with pytest.raises(SearchIdentityConflict) as ei:
+E       Failed: DID NOT RAISE SearchIdentityConflict
+
+tests/test_ppv1_s3a_rework_r2.py:631: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_registration_execution_reference_closed[unclaimed]" time="0.013"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_registration_exec0')
+case = 'unclaimed'
+
+    @pytest.mark.parametrize("case", ["unclaimed", "missing_action",
+                                      "foreign_attempt", "missing_attempt",
+                                      "expand_empty_attempt"])
+    def test_request_registration_execution_reference_closed(
+            tmp_path: Path, case: str) -&gt; None:
+        """S3A-04:登记核合法 run/action/适用 attempt/执行权/生命周期 ——
+        未认领/不存在 action、异属/缺失 attempt、expand 空 attempt 均拒,
+        请求与真实额度预约零写入。"""
+        name = f"r2m-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_real_model_requests": 2})
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out_a = enqueue(ledger, name, hyp_a.hypothesis_id, task_key="tkA")
+        receipt_a = ledger.claim_action(out_a["action_id"], worker_id="w1")
+        attempt_a = receipt_a["attempt_refs"][0]
+        # 第二个 action:claimed(decide)与 pending(expand)各备一个
+        out_dec = ledger.enqueue_action(
+            run_id=name, parent_path_id="p1", context_ref="ctx1",
+            subject_ref="pool-1", action_kind="decide", policy_version=PV,
+            payload={"task_key": "tkD"})
+        ledger.claim_action(out_dec["action_id"], worker_id="w1")
+        out_pend = enqueue(ledger, name, "hyp-pend", task_key="tkP")
+        _, _, hyp_pend, _, _ = make_fixture(name, "p1", "k2", "ctx1")
+        out_pend2 = enqueue(ledger, name, hyp_pend.hypothesis_id,
+                            task_key="tkP2")
+    
+        kwargs = dict(run_id=name, action_id=out_a["action_id"],
+                      attempt_id=attempt_a,
+                      provider_kind=PROVIDER_KIND_REAL, request_key="rk")
+        if case == "unclaimed":
+            # pending action:状态闸先于 attempt 检查拒
+            kwargs.update(action_id=out_pend2["action_id"], attempt_id="")
+&gt;           with pytest.raises(SearchContractError) as ei:
+E           Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:673: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_registration_execution_reference_closed[missing_action]" time="0.010"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_registration_exec1')
+case = 'missing_action'
+
+    @pytest.mark.parametrize("case", ["unclaimed", "missing_action",
+                                      "foreign_attempt", "missing_attempt",
+                                      "expand_empty_attempt"])
+    def test_request_registration_execution_reference_closed(
+            tmp_path: Path, case: str) -&gt; None:
+        """S3A-04:登记核合法 run/action/适用 attempt/执行权/生命周期 ——
+        未认领/不存在 action、异属/缺失 attempt、expand 空 attempt 均拒,
+        请求与真实额度预约零写入。"""
+        name = f"r2m-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_real_model_requests": 2})
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out_a = enqueue(ledger, name, hyp_a.hypothesis_id, task_key="tkA")
+        receipt_a = ledger.claim_action(out_a["action_id"], worker_id="w1")
+        attempt_a = receipt_a["attempt_refs"][0]
+        # 第二个 action:claimed(decide)与 pending(expand)各备一个
+        out_dec = ledger.enqueue_action(
+            run_id=name, parent_path_id="p1", context_ref="ctx1",
+            subject_ref="pool-1", action_kind="decide", policy_version=PV,
+            payload={"task_key": "tkD"})
+        ledger.claim_action(out_dec["action_id"], worker_id="w1")
+        out_pend = enqueue(ledger, name, "hyp-pend", task_key="tkP")
+        _, _, hyp_pend, _, _ = make_fixture(name, "p1", "k2", "ctx1")
+        out_pend2 = enqueue(ledger, name, hyp_pend.hypothesis_id,
+                            task_key="tkP2")
+    
+        kwargs = dict(run_id=name, action_id=out_a["action_id"],
+                      attempt_id=attempt_a,
+                      provider_kind=PROVIDER_KIND_REAL, request_key="rk")
+        if case == "unclaimed":
+            # pending action:状态闸先于 attempt 检查拒
+            kwargs.update(action_id=out_pend2["action_id"], attempt_id="")
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_action_not_claimed"
+        elif case == "missing_action":
+            kwargs.update(action_id="sact-missing")
+&gt;           with pytest.raises(SearchContractError) as ei:
+E           Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:678: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_registration_execution_reference_closed[foreign_attempt]" time="0.009"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_registration_exec2')
+case = 'foreign_attempt'
+
+    @pytest.mark.parametrize("case", ["unclaimed", "missing_action",
+                                      "foreign_attempt", "missing_attempt",
+                                      "expand_empty_attempt"])
+    def test_request_registration_execution_reference_closed(
+            tmp_path: Path, case: str) -&gt; None:
+        """S3A-04:登记核合法 run/action/适用 attempt/执行权/生命周期 ——
+        未认领/不存在 action、异属/缺失 attempt、expand 空 attempt 均拒,
+        请求与真实额度预约零写入。"""
+        name = f"r2m-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_real_model_requests": 2})
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out_a = enqueue(ledger, name, hyp_a.hypothesis_id, task_key="tkA")
+        receipt_a = ledger.claim_action(out_a["action_id"], worker_id="w1")
+        attempt_a = receipt_a["attempt_refs"][0]
+        # 第二个 action:claimed(decide)与 pending(expand)各备一个
+        out_dec = ledger.enqueue_action(
+            run_id=name, parent_path_id="p1", context_ref="ctx1",
+            subject_ref="pool-1", action_kind="decide", policy_version=PV,
+            payload={"task_key": "tkD"})
+        ledger.claim_action(out_dec["action_id"], worker_id="w1")
+        out_pend = enqueue(ledger, name, "hyp-pend", task_key="tkP")
+        _, _, hyp_pend, _, _ = make_fixture(name, "p1", "k2", "ctx1")
+        out_pend2 = enqueue(ledger, name, hyp_pend.hypothesis_id,
+                            task_key="tkP2")
+    
+        kwargs = dict(run_id=name, action_id=out_a["action_id"],
+                      attempt_id=attempt_a,
+                      provider_kind=PROVIDER_KIND_REAL, request_key="rk")
+        if case == "unclaimed":
+            # pending action:状态闸先于 attempt 检查拒
+            kwargs.update(action_id=out_pend2["action_id"], attempt_id="")
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_action_not_claimed"
+        elif case == "missing_action":
+            kwargs.update(action_id="sact-missing")
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_action_missing"
+        elif case == "foreign_attempt":
+            # 合法 claimed action + 属于别的 action 的 attempt
+            kwargs.update(action_id=out_dec["action_id"], attempt_id=attempt_a)
+&gt;           with pytest.raises(SearchContractError) as ei:
+E           Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:684: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_registration_execution_reference_closed[missing_attempt]" time="0.009"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_registration_exec3')
+case = 'missing_attempt'
+
+    @pytest.mark.parametrize("case", ["unclaimed", "missing_action",
+                                      "foreign_attempt", "missing_attempt",
+                                      "expand_empty_attempt"])
+    def test_request_registration_execution_reference_closed(
+            tmp_path: Path, case: str) -&gt; None:
+        """S3A-04:登记核合法 run/action/适用 attempt/执行权/生命周期 ——
+        未认领/不存在 action、异属/缺失 attempt、expand 空 attempt 均拒,
+        请求与真实额度预约零写入。"""
+        name = f"r2m-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_real_model_requests": 2})
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out_a = enqueue(ledger, name, hyp_a.hypothesis_id, task_key="tkA")
+        receipt_a = ledger.claim_action(out_a["action_id"], worker_id="w1")
+        attempt_a = receipt_a["attempt_refs"][0]
+        # 第二个 action:claimed(decide)与 pending(expand)各备一个
+        out_dec = ledger.enqueue_action(
+            run_id=name, parent_path_id="p1", context_ref="ctx1",
+            subject_ref="pool-1", action_kind="decide", policy_version=PV,
+            payload={"task_key": "tkD"})
+        ledger.claim_action(out_dec["action_id"], worker_id="w1")
+        out_pend = enqueue(ledger, name, "hyp-pend", task_key="tkP")
+        _, _, hyp_pend, _, _ = make_fixture(name, "p1", "k2", "ctx1")
+        out_pend2 = enqueue(ledger, name, hyp_pend.hypothesis_id,
+                            task_key="tkP2")
+    
+        kwargs = dict(run_id=name, action_id=out_a["action_id"],
+                      attempt_id=attempt_a,
+                      provider_kind=PROVIDER_KIND_REAL, request_key="rk")
+        if case == "unclaimed":
+            # pending action:状态闸先于 attempt 检查拒
+            kwargs.update(action_id=out_pend2["action_id"], attempt_id="")
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_action_not_claimed"
+        elif case == "missing_action":
+            kwargs.update(action_id="sact-missing")
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_action_missing"
+        elif case == "foreign_attempt":
+            # 合法 claimed action + 属于别的 action 的 attempt
+            kwargs.update(action_id=out_dec["action_id"], attempt_id=attempt_a)
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_attempt_binding_mismatch"
+        elif case == "missing_attempt":
+            kwargs.update(attempt_id="sattempt-missing")
+&gt;           with pytest.raises(SearchContractError) as ei:
+E           Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:689: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_registration_execution_reference_closed[expand_empty_attempt]" time="0.009"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_registration_exec4')
+case = 'expand_empty_attempt'
+
+    @pytest.mark.parametrize("case", ["unclaimed", "missing_action",
+                                      "foreign_attempt", "missing_attempt",
+                                      "expand_empty_attempt"])
+    def test_request_registration_execution_reference_closed(
+            tmp_path: Path, case: str) -&gt; None:
+        """S3A-04:登记核合法 run/action/适用 attempt/执行权/生命周期 ——
+        未认领/不存在 action、异属/缺失 attempt、expand 空 attempt 均拒,
+        请求与真实额度预约零写入。"""
+        name = f"r2m-{case}"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_real_model_requests": 2})
+        _, _, hyp_a, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out_a = enqueue(ledger, name, hyp_a.hypothesis_id, task_key="tkA")
+        receipt_a = ledger.claim_action(out_a["action_id"], worker_id="w1")
+        attempt_a = receipt_a["attempt_refs"][0]
+        # 第二个 action:claimed(decide)与 pending(expand)各备一个
+        out_dec = ledger.enqueue_action(
+            run_id=name, parent_path_id="p1", context_ref="ctx1",
+            subject_ref="pool-1", action_kind="decide", policy_version=PV,
+            payload={"task_key": "tkD"})
+        ledger.claim_action(out_dec["action_id"], worker_id="w1")
+        out_pend = enqueue(ledger, name, "hyp-pend", task_key="tkP")
+        _, _, hyp_pend, _, _ = make_fixture(name, "p1", "k2", "ctx1")
+        out_pend2 = enqueue(ledger, name, hyp_pend.hypothesis_id,
+                            task_key="tkP2")
+    
+        kwargs = dict(run_id=name, action_id=out_a["action_id"],
+                      attempt_id=attempt_a,
+                      provider_kind=PROVIDER_KIND_REAL, request_key="rk")
+        if case == "unclaimed":
+            # pending action:状态闸先于 attempt 检查拒
+            kwargs.update(action_id=out_pend2["action_id"], attempt_id="")
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_action_not_claimed"
+        elif case == "missing_action":
+            kwargs.update(action_id="sact-missing")
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_action_missing"
+        elif case == "foreign_attempt":
+            # 合法 claimed action + 属于别的 action 的 attempt
+            kwargs.update(action_id=out_dec["action_id"], attempt_id=attempt_a)
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_attempt_binding_mismatch"
+        elif case == "missing_attempt":
+            kwargs.update(attempt_id="sattempt-missing")
+            with pytest.raises(SearchContractError) as ei:
+                ledger.register_model_request(**kwargs)
+            assert ei.value.detail["kind"] == "request_attempt_missing"
+        else:  # expand_empty_attempt
+            kwargs.update(action_id=out_a["action_id"], attempt_id="")
+&gt;           with pytest.raises(SearchContractError) as ei:
+E           Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:694: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_state_consumption_after_execution_released" time="0.007"><failure message="Failed: DID NOT RAISE SearchContractError">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_request_state_consumption0')
+
+    def test_request_state_consumption_after_execution_released(
+            tmp_path: Path) -&gt; None:
+        """S3A-04:已释放执行权不可继续发送/记响应/记失败 —— 状态机
+        (defer ⇒ abandoned)+ 执行引用双闸;直改状态绕过 abandoned 时
+        执行引用闸仍拒(request_execution_released)。"""
+        name = "r2n"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        req = ledger.register_model_request(
+            run_id=name, action_id=out["action_id"],
+            attempt_id=receipt["attempt_refs"][0],
+            provider_kind=PROVIDER_KIND_SCRIPTED, request_key="k")
+        ledger.defer_action(out["action_id"], worker_id="w1", reason="await")
+        # 第一闸:请求已被 defer 置 abandoned ⇒ 状态机拒
+&gt;       with pytest.raises(SearchContractError) as e1:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r2.py:723: Failed</failure></testcase><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_request_empty_attempt_on_decide_positive_control" time="0.007" /><testcase classname="tests.test_ppv1_s3a_rework_r2" name="test_stop_report_claimed_actions_not_exhausted" time="0.008"><failure message="AssertionError: assert 'exhausted_search' != 'exhausted_search'">tmp_path = PosixPath('/private/tmp/ppv1_s3a_r2_execution_review_MxKd0B/baseline_pytest_tmp/test_stop_report_claimed_actio0')
+
+    def test_stop_report_claimed_actions_not_exhausted(tmp_path: Path) -&gt; None:
+        """S3A-05:预算有余、仅 claim 一个有效 action、无请求 ⇒ 不得
+        exhausted_search;机器披露 claimed/open attempt 数量;完成后合法
+        exhaustion;空 run 正控。"""
+        name = "r2p"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        # 空 run 对照:合法 exhaustion
+        empty = ledger.stop_report(name)
+        assert empty["primary"] == "exhausted_search"
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        report = ledger.stop_report(name)
+&gt;       assert report["primary"] != "exhausted_search"
+E       AssertionError: assert 'exhausted_search' != 'exhausted_search'
+
+tests/test_ppv1_s3a_rework_r2.py:790: AssertionError</failure></testcase></testsuite></testsuites>

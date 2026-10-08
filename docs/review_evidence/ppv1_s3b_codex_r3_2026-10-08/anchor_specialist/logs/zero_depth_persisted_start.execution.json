@@ -1,0 +1,112 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/zero_depth_persisted_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+  },
+  "parsed": [
+    {
+      "consumer_entered": "drive",
+      "pid": 46955
+    },
+    {
+      "pid": 46955,
+      "result": {
+        "counts": {
+          "event_appearance_links": 0,
+          "events": 0,
+          "expansion_plans": 0,
+          "hypotheses": 0,
+          "provenance_records": 0,
+          "report_projections": 0,
+          "state_appearances": 1,
+          "states": 1
+        },
+        "driver_session": {
+          "acquired_at": "2026-10-08T01:40:16+00:00",
+          "note": "flock 是执行权权威;崩溃 OS 自动释放",
+          "pid": 46955
+        },
+        "profile": "pollutant_pathway_v1",
+        "resumed": false,
+        "run_id": "zero_depth_persisted",
+        "runflow_version": "ppv1-runflow-3",
+        "stop": {
+          "budget": {
+            "run_level": {
+              "max_real_model_requests": {
+                "max": 0,
+                "remaining": 0,
+                "used": 0
+              },
+              "max_retrievals_total": {
+                "max": 64,
+                "remaining": 63,
+                "used": 1
+              },
+              "max_scenario_transitions": {
+                "max": 2,
+                "remaining": 2,
+                "used": 0
+              },
+              "max_total_search_actions": {
+                "max": 10,
+                "remaining": 8,
+                "used": 2
+              }
+            },
+            "scoped": {
+              "max_alternative_hypotheses_per_parent": {},
+              "max_attempts_per_hypothesis": {},
+              "max_reopens_per_hypothesis": {},
+              "max_retrievals_per_parent": {
+                "spath_b35ed7c5295aea9a1e44": {
+                  "max": 1,
+                  "remaining": 0,
+                  "used": 1
+                }
+              }
+            },
+            "version": "ppv1-search-limits-3"
+          },
+          "budget_exhausted_keys": [
+            "max_retrievals_per_parent@spath_b35ed7c5295aea9a1e44"
+          ],
+          "events_submitted_session": [],
+          "other_reasons": [
+            "depth_limit"
+          ],
+          "primary": "budget_limit",
+          "runflow_version": "ppv1-runflow-3",
+          "unexplored": {
+            "blocked": 1,
+            "blocked_objects": [
+              {
+                "action_id": "sact_59cfa39c21fd3b1b5ecc",
+                "hypothesis_id": "hyp_33a0e684e75d63dc6f95",
+                "reason": "depth_limit"
+              }
+            ],
+            "claimed_actions": 0,
+            "deferred": 0,
+            "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+            "open_attempts": 0,
+            "pending_actions": 0,
+            "pending_requests": 0
+          }
+        },
+        "stop_reason": "budget_limit"
+      }
+    }
+  ],
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"consumer_entered\": \"drive\", \"pid\": 46955}\n{\"result\": {\"run_id\": \"zero_depth_persisted\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"depth_limit\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 1, \"blocked_objects\": [{\"action_id\": \"sact_59cfa39c21fd3b1b5ecc\", \"hypothesis_id\": \"hyp_33a0e684e75d63dc6f95\", \"reason\": \"depth_limit\"}], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 2, \"remaining\": 8}, \"max_retrievals_total\": {\"max\": 64, \"used\": 1, \"remaining\": 63}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_b35ed7c5295aea9a1e44\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {}, \"max_attempts_per_hypothesis\": {}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_b35ed7c5295aea9a1e44\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 1, \"state_appearances\": 1, \"hypotheses\": 0, \"events\": 0, \"report_projections\": 0, \"expansion_plans\": 0, \"event_appearance_links\": 0, \"provenance_records\": 0}, \"driver_session\": {\"pid\": 46955, \"acquired_at\": \"2026-10-08T01:40:16+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46955}\n"
+}

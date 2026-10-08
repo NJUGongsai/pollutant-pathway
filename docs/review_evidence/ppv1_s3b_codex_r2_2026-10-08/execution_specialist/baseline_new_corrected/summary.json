@@ -1,0 +1,142 @@
+{
+  "totals": {
+    "tests": 20,
+    "errors": 0,
+    "failures": 15,
+    "skipped": 0,
+    "passed": 5
+  },
+  "cases": [
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_resume_without_plan_uses_frozen_input",
+      "state": "failure",
+      "message": "assert 0 == 1",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b01_resume_without_plan0')\n\n    def test_s3b01_resume_without_plan_uses_frozen_input(tmp_path) -> None:\n        \"\"\"B1 崩溃后 resume 不传 plan:沿冻结输入完成旧任务(缺输入不变\n        空池;旧任务不消费\"空\"新输入)。父基线:空池 no_local_candidate\n        (行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        proc = start_crash(runs_root, \"fpo\", crash_after=\"after_claim\")\n        assert json.loads(proc.stdout.strip().splitlines()[-1])[\"crashed\"]\n        out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,\n                              run_id=\"fpo\", plan=None)\n>       assert out[\"counts\"][\"events\"] == 1  # 沿冻结计划完成 B\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       assert 0 == 1\n\ntests/test_ppv1_s3b_r2.py:152: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_resume_changed_plan_rejected",
+      "state": "failure",
+      "message": "Failed: DID NOT RAISE PPV1RunError",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b01_resume_changed_plan0')\n\n    def test_s3b01_resume_changed_plan_rejected(tmp_path) -> None:\n        \"\"\"B1 崩溃后 resume 传入变更 plan(B→X)⇒ 结构化拒\n        frozen_plan_mismatch(差异须显式新 revision/新任务);零新写入。\n        父基线:接受并提交 donor-X(行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        proc = start_crash(runs_root, \"fpx\", crash_after=\"after_claim\")\n        assert json.loads(proc.stdout.strip().splitlines()[-1])[\"crashed\"]\n        changed = {\"pools\": {\"CCO\": [spec(\"X\", \"CC=O\", \"donor-X\")]}}\n>       with pytest.raises(PPV1RunError) as ei:\nE       Failed: DID NOT RAISE PPV1RunError\n\ntests/test_ppv1_s3b_r2.py:167: Failed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_frozen_plan_tamper_integrity_failure",
+      "state": "failure",
+      "message": "AssertionError: assert False\n +  where False = is_file()\n +    where is_file = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b01_frozen_plan_tamper_0/runs/fpt/results/run-plan/frozen_plan.json').is_file",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b01_frozen_plan_tamper_0')\n\n    def test_s3b01_frozen_plan_tamper_integrity_failure(tmp_path) -> None:\n        \"\"\"冻结计划 artifact 被篡改(载荷改字节)⇒ H07 完整性失败,结构化\n        拒(保全原文件;不猜)。父基线:无冻结计划绑定,篡改不被发现\n        (行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        proc = start_crash(runs_root, \"fpt\", crash_after=\"after_claim\")\n        assert json.loads(proc.stdout.strip().splitlines()[-1])[\"crashed\"]\n        plan_file = runs_root / \"fpt\" / \"results\" / \"run-plan\" / \\\n            \"frozen_plan.json\"\n>       assert plan_file.is_file()\nE       AssertionError: assert False\nE        +  where False = is_file()\nE        +    where is_file = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b01_frozen_plan_tamper_0/runs/fpt/results/run-plan/frozen_plan.json').is_file\n\ntests/test_ppv1_s3b_r2.py:184: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_same_plan_resume_positive_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b02_bad_bundle_hash_isolated_not_reexecuted",
+      "state": "failure",
+      "message": "assert 1 == 0",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b02_bad_bundle_hash_iso0')\n\n    def test_s3b02_bad_bundle_hash_isolated_not_reexecuted(tmp_path) -> None:\n        \"\"\"B3 bundle 载荷被改(hash 不符)⇒ recover 认坏,resume 隔离该\n        action(claimed→blocked):零重执行/零坏任务 event/commit;原坏\n        文件逐字保全;合法已完成任务不受影响。父基线:重跑真工具并写\n        1 event(行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        proc = start_crash(runs_root, \"h07a\", crash_after=\"after_bundle_written\")\n        assert json.loads(proc.stdout.strip().splitlines()[-1])[\"crashed\"]\n        bundle = _bundle_file(runs_root, \"h07a\")\n        envelope = json.loads(bundle.read_text(encoding=\"utf-8\"))\n        bad_bytes = bundle.read_bytes()\n        envelope[\"payload\"][\"event\"][\"event_id\"] = \"ppev_tampered\"\n        bundle.write_text(json.dumps(envelope, ensure_ascii=False),\n                          encoding=\"utf-8\")\n        conn = db(runs_root, \"h07a\")\n        events_before = conn.execute(\n            \"SELECT COUNT(*) FROM events\").fetchone()[0]\n        commits_before = conn.execute(\n            \"SELECT COUNT(*) FROM search_commit_records\").fetchone()[0]\n        assert events_before == 0 and commits_before == 2\n        out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,\n                              run_id=\"h07a\", plan=None)\n>       assert out[\"counts\"][\"events\"] == 0  # 不重执行、零坏任务事件\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       assert 1 == 0\n\ntests/test_ppv1_s3b_r2.py:246: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b02_bad_bundle_json_isolated_independent_tasks_continue",
+      "state": "failure",
+      "message": "assert 2 == 1",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b02_bad_bundle_json_iso0')\n\n    def test_s3b02_bad_bundle_json_isolated_independent_tasks_continue(\n            tmp_path) -> None:\n        \"\"\"B3 bundle 不可反序列化 + 池内独立备选:坏任务隔离,合法独立\n        任务(B/C 中的 C)继续执行。父基线:坏任务也被重执行(2 events,\n        行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        plan = {\"pools\": {\"CCO\": [spec(\"B\", \"CC=O\", \"donor-B\"),\n                                  spec(\"C\", \"CC=O\", \"donor-C\")]}}\n        with pytest.raises(Exception):  # SearchCrashInjection:B 的 bundle 已写\n            start_ppv1_run(config=resolve_config(), runs_root=runs_root,\n                           run_id=\"h07b\", smiles=\"CCO\", plan=plan,\n                           scripted=True, crash_after=\"after_bundle_written\")\n        bundle = _bundle_file(runs_root, \"h07b\")\n        bundle.write_text(\"{not-json\", encoding=\"utf-8\")\n        out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,\n                              run_id=\"h07b\", plan=None)\n>       assert out[\"counts\"][\"events\"] == 1  # 仅 C(合法独立任务)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       assert 2 == 1\n\ntests/test_ppv1_s3b_r2.py:281: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_partial_followup_hard_kill_completed",
+      "state": "failure",
+      "message": "assert 2 == 3\n +  where 2 = len([<sqlite3.Row object at 0x114fc8130>, <sqlite3.Row object at 0x114fc88b0>])",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b03_partial_followup_ha0')\n\n    def test_s3b03_partial_followup_hard_kill_completed(tmp_path) -> None:\n        \"\"\"注入:第二条 followup retrieve 入队后硬杀(真实进程崩溃)⇒\n        新进程 resume 从权威事件/计划逐对象补齐 3/3(不以已有引用计数当\n        完整性证书;事件/预算不重复)。父基线:仅 2/3(行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        proc = start_crash(runs_root, \"t3k\", crash_after=\"none\",\n                           coproducts=[\"[H][H]\", \"O\"],\n                           injection=\"after_two_followups\")\n        assert proc.returncode == 77  # 队列级注入硬杀(os._exit(77))\n        out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,\n                              run_id=\"t3k\", plan=None)\n        assert out[\"counts\"][\"events\"] == 1  # 事件不重放\n        conn = db(runs_root, \"t3k\")\n        products = _event_products(conn)\n        assert len(products) == 3\n        followups = _followup_retrieves(conn)\n>       assert len(followups) == 3  # 2/3 → 恢复后 3/3 逐对象闭合\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       assert 2 == 3\nE        +  where 2 = len([<sqlite3.Row object at 0x114fc8130>, <sqlite3.Row object at 0x114fc88b0>])\n\ntests/test_ppv1_s3b_r2.py:330: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_b4_event_submitted_no_followup_completed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_transition_after_event_submitted_new_context",
+      "state": "failure",
+      "message": "assert 0 == 1\n +  where 0 = len([])",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b03_transition_after_ev0')\n\n    def test_s3b03_transition_after_event_submitted_new_context(\n            tmp_path) -> None:\n        \"\"\"B4:事件已提交、转换未入队 ⇒ 恢复补齐显式转换并按新上下文\n        调度 followup(旧边冻结)。父基线:转换意图丢失、followup 用旧\n        上下文(行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        proc = start_crash(runs_root, \"trb4\", crash_after=\"after_event_submitted\",\n                           transitions=True)\n        assert json.loads(proc.stdout.strip().splitlines()[-1])[\"crashed\"]\n        out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,\n                              run_id=\"trb4\", plan=None)\n        assert out[\"counts\"][\"events\"] == 1\n        conn = db(runs_root, \"trb4\")\n        transitions = conn.execute(\n            \"SELECT * FROM search_actions WHERE action_kind =\"\n            \" 'scenario_transition'\").fetchall()\n>       assert len(transitions) == 1\nE       assert 0 == 1\nE        +  where 0 = len([])\n\ntests/test_ppv1_s3b_r2.py:367: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_transition_enqueued_crash_window_closed",
+      "state": "failure",
+      "message": "assert None\n +  where None = <built-in method get of dict object at 0x116b41e80>('pending_followup')\n +    where <built-in method get of dict object at 0x116b41e80> = {'context_ref': 'pc_0757aa71e8cd78057880', 'source_event_id': '', 'task_key': 'stkey_a6a6faae0c70580838ca', 'transition': {'new_phase_id': 'phase-1', 'new_scenario_ref': 'scenario-anaerobic', 'source_ref': 'user:switch-anaerobic'}}.get\n +      where {'context_ref': 'pc_0757aa71e8cd78057880', 'source_event_id': '', 'task_key': 'stkey_a6a6faae0c70580838ca', 'transition': {'new_phase_id': 'phase-1', 'new_scenario_ref': 'scenario-anaerobic', 'source_ref': 'user:switch-anaerobic'}} = <function loads at 0x101fb8860>('{\"context_ref\": \"pc_0757aa71e8cd78057880\", \"source_event_id\": \"\", \"task_key\": \"stkey_a6a6faae0c70580838ca\", \"transition\": {\"new_phase_id\": \"phase-1\", \"new_scenario_ref\": \"scenario-anaerobic\", \"source_ref\": \"user:switch-anaerobic\"}}')\n +        where <function loads at 0x101fb8860> = json.loads",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b03_transition_enqueued0')\n\n    def test_s3b03_transition_enqueued_crash_window_closed(tmp_path) -> None:\n        \"\"\"转换 action 入队后立刻硬杀(入队与附随之间)⇒ 恢复后转换执行\n        且 followup 用新上下文(pending_followup 创建时一次冻结,无两写\n        窗口)。父基线:转换载荷无附随,恢复丢后效(行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        proc = start_crash(runs_root, \"trw\",\n                           crash_after=\"none\",\n                           transitions=True,\n                           injection=\"after_transition_enqueued\")\n        assert proc.returncode == 77\n        out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,\n                              run_id=\"trw\", plan=None)\n        assert out[\"counts\"][\"events\"] == 1\n        conn = db(runs_root, \"trw\")\n        transitions = conn.execute(\n            \"SELECT * FROM search_actions WHERE action_kind =\"\n            \" 'scenario_transition'\").fetchall()\n        assert len(transitions) == 1\n        assert transitions[0][\"status\"] == \"done\"\n>       assert json.loads(transitions[0][\"payload\"]).get(\"pending_followup\")\nE       assert None\nE        +  where None = <built-in method get of dict object at 0x116b41e80>('pending_followup')\nE        +    where <built-in method get of dict object at 0x116b41e80> = {'context_ref': 'pc_0757aa71e8cd78057880', 'source_event_id': '', 'task_key': 'stkey_a6a6faae0c70580838ca', 'transition': {'new_phase_id': 'phase-1', 'new_scenario_ref': 'scenario-anaerobic', 'source_ref': 'user:switch-anaerobic'}}.get\nE        +      where {'context_ref': 'pc_0757aa71e8cd78057880', 'source_event_id': '', 'task_key': 'stkey_a6a6faae0c70580838ca', 'transition': {'new_phase_id': 'phase-1', 'new_scenario_ref': 'scenario-anaerobic', 'source_ref': 'user:switch-anaerobic'}} = <function loads at 0x101fb8860>('{\"context_ref\": \"pc_0757aa71e8cd78057880\", \"source_event_id\": \"\", \"task_key\": \"stkey_a6a6faae0c70580838ca\", \"transition\": {\"new_phase_id\": \"phase-1\", \"new_scenario_ref\": \"scenario-anaerobic\", \"source_ref\": \"user:switch-anaerobic\"}}')\nE        +        where <function loads at 0x101fb8860> = json.loads\n\ntests/test_ppv1_s3b_r2.py:403: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_three_products_normal_positive_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b04_concurrent_public_resume_single_executor",
+      "state": "failure",
+      "message": "assert True is False",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b04_concurrent_public_r0')\n\n    def test_s3b04_concurrent_public_resume_single_executor(tmp_path) -> None:\n        \"\"\"两个真实公开 resume 进程(工具入口计数 + barrier):只一方进入\n        真实工具;竞争方在任何执行前结构化拒(driver_session_active);\n        最终幂等(事件 1/commit 4);胜者完成后再次 resume 幂等复用。\n        父基线:两方都实际执行(行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        proc = start_crash(runs_root, \"conc\", crash_after=\"after_claim\")\n        assert json.loads(proc.stdout.strip().splitlines()[-1])[\"crashed\"]\n        barrier = tmp_path / \"barrier\"\n        receipts = tmp_path / \"tool_receipts\"\n        first = subprocess.Popen(\n            [PY, \"-B\", WORKER, \"concurrent-resume\",\n             \"--runs-root\", str(runs_root), \"--run-id\", \"conc\",\n             \"--barrier-dir\", str(barrier), \"--worker\", \"first\",\n             \"--tool-receipt-dir\", str(receipts)],\n            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=ENV)\n        # 等 first 就绪(它等 GO),再放行\n        deadline = time.monotonic() + 30\n        barrier.mkdir(parents=True, exist_ok=True)\n        while time.monotonic() < deadline and not \\\n                (receipts / \"first.tool_entered.json\").exists() and \\\n                first.poll() is None:\n            if not (barrier / \"GO\").exists():\n                (barrier / \"GO\").write_text(\"go\\n\", encoding=\"utf-8\")\n            time.sleep(0.05)\n        (barrier / \"GO\").write_text(\"go\\n\", encoding=\"utf-8\")\n        second = subprocess.Popen(\n            [PY, \"-B\", WORKER, \"concurrent-resume\",\n             \"--runs-root\", str(runs_root), \"--run-id\", \"conc\",\n             \"--barrier-dir\", str(barrier), \"--worker\", \"second\",\n             \"--tool-receipt-dir\", str(receipts)],\n            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=ENV)\n        out_first, _ = first.communicate(timeout=180)\n        out_second, _ = second.communicate(timeout=180)\n        result_first = json.loads(out_first.strip().splitlines()[-1])\n        result_second = json.loads(out_second.strip().splitlines()[-1])\n        # 只一方取得执行权:second 在任何执行前被拒\n        assert result_first[\"resumed\"] is True\n>       assert result_second[\"resumed\"] is False\nE       assert True is False\n\ntests/test_ppv1_s3b_r2.py:474: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b05_novel_nonempty_independent_hypothesis_chain",
+      "state": "failure",
+      "message": "assert 1 == 2",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b05_novel_nonempty_inde0')\n\n    def test_s3b05_novel_nonempty_independent_hypothesis_chain(tmp_path) -> None:\n        \"\"\"池内 B + novel 池外提案(内容+来源)⇒ novel 成为独立假设走固定\n        工具→audit→admission→submit(2 events/2 hypotheses/真实生产链);\n        网络恒 0。父基线:novel 只计数不消费(1 event,行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        plan = {\"pools\": {\"CCO\": [spec(\"B\", \"CC=O\", \"donor-B\")]},\n                \"model\": {\"provider_kind\": \"scripted\",\n                          \"responses\": [novel_response()]}}\n        out = start_run(config=resolve_config(), runs_root=runs_root,\n                        run_id=\"nv1\", smiles=\"CCO\", max_depth=3,\n                        max_expansions=10, max_frontier_width=2,\n                        finder=object(), scripted=True,\n                        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan)\n>       assert out[\"counts\"][\"events\"] == 2  # B + novel 各自事件\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       assert 1 == 2\n\ntests/test_ppv1_s3b_r2.py:512: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b05_novel_empty_pool_profile_and_consumption",
+      "state": "failure",
+      "message": "assert 0 == 1",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b05_novel_empty_pool_pr0')\n\n    def test_s3b05_novel_empty_pool_profile_and_consumption(tmp_path) -> None:\n        \"\"\"空池 + 模型 novel 响应:仍组装底物档案并消费(独立假设/事件/\n        模型请求;网络 0)。父基线:retrieve 直接 no_local_candidate、\n        模型请求 0(行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        plan = {\"pools\": {},\n                \"model\": {\"provider_kind\": \"scripted\",\n                          \"responses\": [novel_response()]}}\n        out = start_run(config=resolve_config(), runs_root=runs_root,\n                        run_id=\"nv2\", smiles=\"CCO\", max_depth=3,\n                        max_expansions=10, max_frontier_width=2,\n                        finder=object(), scripted=True,\n                        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan)\n>       assert out[\"counts\"][\"events\"] == 1  # novel 独立假设的事件\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       assert 0 == 1\n\ntests/test_ppv1_s3b_r2.py:554: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b05_model_abstain_empty_pool_legal",
+      "state": "failure",
+      "message": "assert 0 == 1",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b05_model_abstain_empty0')\n\n    def test_s3b05_model_abstain_empty_pool_legal(tmp_path) -> None:\n        \"\"\"空池 + 合法弃权(proposals=[]):模型被消费(1 请求),有效\n        候选集为空 ⇒ no_local_candidate 如实停止(不强制停止规则池)。\n        父基线:模型不被咨询(0 请求;行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        plan = {\"pools\": {},\n                \"model\": {\"provider_kind\": \"scripted\",\n                          \"responses\": ['{\"proposals\": []}']}}\n        out = start_run(config=resolve_config(), runs_root=runs_root,\n                        run_id=\"nv3\", smiles=\"CCO\", max_depth=3,\n                        max_expansions=10, max_frontier_width=2,\n                        finder=object(), scripted=True,\n                        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan,\n                        profile_policy={\"search_limits\": {\n                            \"max_retrievals_per_parent\": 2}})\n        assert out[\"counts\"][\"events\"] == 0\n        assert out[\"stop\"][\"primary\"] == \"no_local_candidate\"\n        conn = db(runs_root, \"nv3\")\n>       assert conn.execute(\n            \"SELECT COUNT(*) FROM model_requests\").fetchone()[0] == 1\nE       assert 0 == 1\n\ntests/test_ppv1_s3b_r2.py:589: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b05_novel_insufficient_content_structured_reject",
+      "state": "failure",
+      "message": "AssertionError: assert None == 'spec_missing_product'\n +  where None = <built-in method get of dict object at 0x116b47c40>('kind')\n +    where <built-in method get of dict object at 0x116b47c40> = {}.get\n +      where {} = <built-in method get of dict object at 0x116b6ed80>('run_error', {})\n +        where <built-in method get of dict object at 0x116b6ed80> = {'primary': 'budget_limit', 'other_reasons': ['awaiting_prediction'], 'unexplored': {'pending_actions': 0, 'deferred':...othesis': {'hyp_4cfd9e338dae69c5d645': {'max': 2, 'used': 1, 'remaining': 1}}, 'max_reopens_per_hypothesis': {}}}, ...}.get",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b05_novel_insufficient_0')\n\n    def test_s3b05_novel_insufficient_content_structured_reject(\n            tmp_path) -> None:\n        \"\"\"novel reaction_spec 无反应内容(缺 product_smiles)⇒ 构造侧\n        结构化拒(run_error 如实停止;不伪造内容、不进格式反馈)。\n        父基线:提案被忽略、池内 B 照常完成(无 run_error,行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        bad_spec = {\"key\": \"Novel\", \"coefficient\": 1}\n        response = json.dumps({\"proposals\": [{\n            \"hypothesis_id\": \"novel:bad\",\n            \"proposal_context\": {\"reference_hypothesis_ids\": [],\n                                  \"output_origin\": \"novel_outside_pool\"},\n            \"reaction_spec\": bad_spec}]})\n        plan = {\"pools\": {\"CCO\": [spec(\"B\", \"CC=O\", \"donor-B\")]},\n                \"model\": {\"provider_kind\": \"scripted\",\n                          \"responses\": [response]}}\n        out = start_run(config=resolve_config(), runs_root=runs_root,\n                        run_id=\"nv4\", smiles=\"CCO\", max_depth=3,\n                        max_expansions=10, max_frontier_width=2,\n                        finder=object(), scripted=True,\n                        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan)\n>       assert out[\"stop\"].get(\"run_error\", {}).get(\"kind\") == \\\n            \"spec_missing_product\"\nE       AssertionError: assert None == 'spec_missing_product'\nE        +  where None = <built-in method get of dict object at 0x116b47c40>('kind')\nE        +    where <built-in method get of dict object at 0x116b47c40> = {}.get\nE        +      where {} = <built-in method get of dict object at 0x116b6ed80>('run_error', {})\nE        +        where <built-in method get of dict object at 0x116b6ed80> = {'primary': 'budget_limit', 'other_reasons': ['awaiting_prediction'], 'unexplored': {'pending_actions': 0, 'deferred':...othesis': {'hyp_4cfd9e338dae69c5d645': {'max': 2, 'used': 1, 'remaining': 1}}, 'max_reopens_per_hypothesis': {}}}, ...}.get\n\ntests/test_ppv1_s3b_r2.py:613: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b06_zero_depth_budget_composite_stop_disclosure",
+      "state": "failure",
+      "message": "AssertionError: assert 'depth_limit' in []",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b06_zero_depth_budget_c0')\n\n    def test_s3b06_zero_depth_budget_composite_stop_disclosure(\n            tmp_path) -> None:\n        \"\"\"零深度+预算复合:主因 budget_limit(既定优先级不动);\n        depth_limit 入其他原因;blocked 对象(假设/原因)入 unexplored;\n        scheduled outcome blocked=1。父基线:other_reasons 空、blocked 0\n        (行为红)。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        plan = {\"pools\": {\"CCO\": [spec(\"B\", \"CC=O\", \"donor-B\")]}}\n        out = start_run(config=resolve_config(), runs_root=runs_root,\n                        run_id=\"zd\", smiles=\"CCO\", max_depth=0,\n                        max_expansions=10, max_frontier_width=2,\n                        finder=object(), scripted=True,\n                        profile=PROFILE_POLLUTANT_PATHWAY_V1,\n                        profile_policy={\"search_limits\": {\n                            \"max_search_depth\": 0}}, ppv1_plan=plan)\n        assert out[\"counts\"][\"events\"] == 0\n        stop = out[\"stop\"]\n        # 主因按冻结优先级:budget(检索预算耗尽)优先于 depth\n        assert stop[\"primary\"] == \"budget_limit\"\n>       assert \"depth_limit\" in stop[\"other_reasons\"]\nE       AssertionError: assert 'depth_limit' in []\n\ntests/test_ppv1_s3b_r2.py:640: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b06_zero_depth_repeat_resume_not_recounted",
+      "state": "failure",
+      "message": "assert 0 == 1",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b06_zero_depth_repeat_r0')\n\n    def test_s3b06_zero_depth_repeat_resume_not_recounted(tmp_path) -> None:\n        \"\"\"重复 resume:blocked 对象/原因同源复算,不丢、不重数。\"\"\"\n        runs_root = tmp_path / \"runs\"\n        plan = {\"pools\": {\"CCO\": [spec(\"B\", \"CC=O\", \"donor-B\")]}}\n        start_run(config=resolve_config(), runs_root=runs_root, run_id=\"zdr\",\n                  smiles=\"CCO\", max_depth=0, max_expansions=10,\n                  max_frontier_width=2, finder=object(), scripted=True,\n                  profile=PROFILE_POLLUTANT_PATHWAY_V1,\n                  profile_policy={\"search_limits\": {\n                      \"max_search_depth\": 0}}, ppv1_plan=plan)\n        resumed = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,\n                                  run_id=\"zdr\", plan=None)\n        stop = resumed[\"stop\"]\n>       assert stop[\"unexplored\"][\"blocked\"] == 1\nE       assert 0 == 1\n\ntests/test_ppv1_s3b_r2.py:676: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b06_legal_nonzero_no_blocked_positive_control",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b06_empty_pool_no_local_candidate_positive_control",
+      "state": "passed"
+    }
+  ],
+  "exit_code": 1
+}

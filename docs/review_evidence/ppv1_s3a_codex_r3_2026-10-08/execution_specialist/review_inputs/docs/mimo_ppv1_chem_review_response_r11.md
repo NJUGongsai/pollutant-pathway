@@ -1,0 +1,213 @@
+> **通道与 provenance（主会话 ZCode 记录，非 mimo 回应正文）**
+>
+> - 2026-10-08 凌晨（S3a 回修 r3 轮，按 AGENTS.md「评审-回修自动循环」轮内第③步自动送审）：请求经 **opencode 免费模型 `opencode/mimo-v2.6-flash-free`** 只读评审。与手机 mimo 应用是否同一实例未经证实，采信按本通道口径区分。
+> - 本轮一次运行完整输出（无断流、无续跑）；opencode 会话标题 "mimo ppv1 v11 chem review"。
+> - 评审为**只读**：模型自述未执行任何测试/探针，执行类声明一律标注"待执行验证"。其中 PPV1 697 passed 已由主会话本机独立复跑证实（2026-10-08 凌晨）；G01 安全隔离 1299/8/17 为交付方隔离证据，留 Codex 复核。
+> - 本轮提示词含读码事实纠错警示（因 v10 回应经 Codex 交叉核对发现多处虚构分支名/错误版本号）；v11 回应中模型自标"读码结论非执行结论"，其引用行号与源码一致性留 Codex 互证。
+> - 请求原文：`docs/mimo_ppv1_chem_review_request.md`（v11，S3a r3 版，自包含、无金标）。运行证据与原始输出：`docs/review_evidence/ppv1_s3a_r3_mimo_2026-10-08/`。
+> - 以下为 mimo 回应原文（仅清理终端控制字符，未做任何内容改动）。
+
+---
+# mimo 化学评审回应:pollutant_pathway_v1 判据草案 v11(S3a r3 后,未冻结)
+
+**评审身份与执行边界声明**:本轮我只使用读取类工具(read/grep/glob)浏览了 `src/pathway_v43/pollutant/`、`tests/test_ppv1_s2.py`、`tests/test_ppv1_s3a_rework_r3.py` 及 `docs/` 下与 0c 相关的文本;**没有执行任何测试、探针或 git 命令**,所有执行类数字标"待执行验证"。下文每个代码引用都是我本轮实际读到的行号与名称;读不到或定位不到的,标"未确认"。金标/题面/封存 run 未访问,不修改任何文件。
+
+---
+
+## 1. 判据一:分子身份
+
+### 1) 结论:**有条件同意**
+
+**已读码核实、同意的部分**:
+
+- 身份键定义与 CX 元数据移除/保留:chemstate.py:180–226(`_identity_key`,清原子 prop/分子 prop/conformer/映射号、DAT 分子级剥离、`_guard_registered_cx_classes`、`_strip_abs_tokens`),模块注释 chemstate.py:10–23 与实现一致(RegistrationHash 一致性限定、plain≡`|a:…|` 已登记分歧、自由基 `|^n:…|` 例外)。
+- 混合并列 ABS 令牌级归一:chemstate.py:513–547(`_strip_abs_tokens` 按"注解头 token + 裸数字延续"解析),与 v4 落字描述一致。
+- 输入侧守卫:chemstate.py:395–456(`_guard_input_cx_classes`,解析前调用、按真实类边界逐项、并列位置未知项 :456 显式拒)、:459–476(kind=`unregistered_cx_class`)、:687(工厂)与 :923(strict)接线;登记含空格放行与 DAT 逗号保护见注释 :400–405。
+- **2b 三处同源验证**:恢复入口 chemstate.py:629–649(`from_dict` 调 `validate_state_object`)、audit 直接对象 audit.py:475、`validate_state_object` 本体 chemstate.py:754–910((i)版本/fidelity/origin :777–790;(ii)raw 非空+守卫 :883–899;(iii)raw 重推身份一致 :900–910,同图异拼写接受;(iv)规范形+state_id/电荷/CN/立体/同位素重推导 :839–880;(v)CN-only 专用契约 :791–821)。"同源确定性重推导、非第二套独立证明"的定性与代码事实相符(工厂同一 `build_chemical_state`)。
+- **v11 落字(上层名读内因)**:chemstate.py:842–849 的 `state_structure_unparseable` 外包装确按 `detail["reason"]["kind"]` 透传内因,内因取值为 `unregistered_cx_class`(:473)与 `unparseable_smiles`(:692)。**但注意条件 1 下方的措辞问题**。
+- 语义/出现拆分:store.py:132–135、:351–361、:430–433(`representation_fidelity` 移出语义块)、:837–839(保真度须按 `appearances[i]` 取)——判据一第 4 条如实。
+
+**条件(必须满足方可冻结)**:
+
+- **C1(阻塞级文字事实错误):判据一第 2 条括注 "`a/o/and/or/rad` 立体注解=保留类" 与当前源码登记表不一致。** 我实际读到的保留注记头只有:`_CX_STEREO_ITEM_HEAD_RE = (a|o\d+|&\d+|\^\d+):`(chemstate.py:266)、`_CX_REGISTERED_HEAD_RE = ^(Sg|SgD|a|o\d+|&\d+|\^\d+)!?:`(chemstate.py:237–238)、注释枚举 "a/oN/&N/^N"(chemstate.py:61–62、406–407)。字面 `and:`/`or:`/`rad:` 头会落到 :456 的显式拒绝。v11 自己的落字要求恰恰是"保留类按**实际保留的 CX token** 写(不按传闻类名)"——但受审正文括注仍写传闻形态,属自相矛盾。**二选一**:① 正文改为实际 token(`a:`/`oN:`/`&N:`/`^N:`,移除类与拒绝类按 chemstate.py:400–411 的实际枚举内联);② 若坚持 `and/or/rad` 为 RDKit 2026.03.6 真实写出形态,须给出该版本 `MolToCXSmiles` 的执行取证与往返正控(**待执行验证**:跑 RDKit 2026.03.6 对 AND/OR/ABS 组与自由基分子写出 CX 块、逐 token 对照登记表、再过 `_guard_input_cx_classes` 往返)——当前源码证据反对该写法。
+- **C2(措辞更正):"两处 `state_structure_unparseable` 外包装对应不同异常类"不准确。** 两种内因是**同一个异常类** `ChemicalStateError` 的两种 `detail.kind`(chemstate.py:842–849 统一 catch `ChemicalStateError`),靠 `detail.reason.kind` 区分而非异常类。建议改写为"外包装对应**同一异常类的两种内因 kind**,按 `detail.reason.kind` 区分"。落字的读内因指令本身正确,保留。
+
+### 2) 可直接落进规则文字的修改建议
+
+1. 判据一第 2 条登记类括注替换为:`移除类 = atomProp、SgD、$…$/$ _AV:…$ 标签值块、(...) 坐标块;保留类 = Sg:、a:、oN:、&N:、^N:(以 chemstate.py 登记表字面为准);其余首头(含登记头后并列位置)一律 unregistered_cx_class 拒绝`。
+2. 2b 上层名句改为:"上层 `state_structure_unparseable` 为同一异常类的包装,内因经 `detail.reason.kind` 读取(`unregistered_cx_class` = 守卫拒;`unparseable_smiles` = 真解析失败);外层名不作全称化学判断。"
+3. 请评审 (b) 的入口清单补两处,使枚举闭合:
+   - **公共 writer 同源核验**应显式列入:`store._verify_state_payload_facts`(store.py:595–643,重推导 + `strict_identity_of` :627)——目前 2b 只写"与公共 writer 同源"而清单未列 writer 本身;
+   - **搜索层按无解析入口划界**:`search.py` 中无任何 `MolFromSmiles`/`strict_identity_of`/`validate_state_object` 调用(我 grep 证实为 0),建议落字为"搜索层不解析结构、不产生身份证据,其状态消费经 store 已验证行与只读权威核验(store.py:1988 `verify_event_attachment_content`),不再过 CX 守卫(无解析即无静默丢弃面)"。
+   - 另请处理或划界 **`substrate_profile.build_substrate_profile`**(substrate_profile.py:71–107,:91 直接 `MolFromSmiles(state.smiles_isomeric)` 且**不调 `validate_state_object`**;src 内无生产调用方):要么首消费补 `validate_state_object`,要么明确落字"档案/诊断输出,非身份或核实证据,调用方须传已过首消费验证的状态"。
+4. 判据五四个原始串字段的守卫句加限定:"在**执行成功路径上、解析前**"(audit.py:2553–2562 的 `execution_ok=False` 早退发生在 :2572 守卫之前;该路径不解析任何结构、不产生身份证据,故无泄漏面,但正文不应暗示无条件拒绝)。
+
+### 3) "程序上诚实但化学上误导"风险点
+
+- **R-1a**:"登记类放行"读成"样品含这些标注且已认证"。v11 已加"接受/拒绝只是表示层契约,不构成样品认证",同意保留;建议再补一句"`|r|` 等被拒 ⇒ 拒的是**表示**,不是判定该分子对映纯/消旋"。
+- **R-1b**(由 C1 引出):若规则文字登记 `and/or/rad` 而实现只认 `a/oN/&N/^N`,下游会把"实现拒绝了合法增强立体/自由基输入"误读成"结构非法(unparseable)"。两者 kind 不同,须在文字上分开(kind 列表见 chemstate.py:473 vs :692)。
+- **R-1c**:2b 的"同源确定性重推导"被读成"双独立算例互证"。文字已声明非独立算法,同意;建议补"复算拒绝只证明对象与算法自洽,不证明来源真实/历史执行"(`validate_state_object` docstring chemstate.py:774–775 已有此句,可直接引用)。
+
+---
+
+## 2. 判据二:参与物计量与元素/电荷核算
+
+### 1) 结论:**有条件同意**
+
+**已读码核实、同意的部分**:
+
+- 全氢账、D/T 并 H、自由基电子不入账:audit.py:1410–1420(docstring)与 :1439–1440(`accounting_notes`)如实;"仅指元素与形式电荷数值闭合"的限定在 :1418–1419。
+- **系数句的后半(coefficient_binding_mismatch)**:audit.py:927–933(coverage_violations kind)→ 覆盖判定 partial(:1004–1005)→ 中心检查 CHECK_UNKNOWN(:1164–1174),**最终处置按 decide_admission 首中即决**(R5d/R5v 在 R5 之前,audit.py:1769–1803)——"不能固定写成自动 reject/R2b、也不能固定写成 R5"与代码一致 ✓。
+- **非法系数构造/提交边界拒**:hypothesis.py:136–173(`parse_coefficient`:bool :142、非有限 :149、known+null :138、`frac <= 0` 即零/负 :168–172,且明写"该拒绝是输入表示层契约,不宣称反应本身化学不可能")。
+- **known_absent 更正(核心)**:全部命中实际实现——实体缺席 ⇒ conflict(path_context.py:706–733);非物种同值缺席 ⇒ conflict(:826–831);异值 ⇒ unknown(:832–837);数值/区间缺席 ⇒ unknown(`numeric_absence_semantics_undefined`,:819–825,dict 区间值 :820 覆盖);未列出 ⇒ unknown(:764–766)。`registered_missing/documented_absent/unrecorded` 在 src 中 **0 命中**(我 grep 证实)——0c/落字更正准确 ✓。
+- **未知系数的覆盖轴**:audit.py:888–897 ⇒ `product_coverage: unknown_coefficients`、中心 unknown ✓。
+- 电荷轴分立与前提:audit.py:1476–1502(独立检查、`formal_charge is None ⇒ unknown`),电荷账前置还有 fidelity 门(:658–669 `original_charge_unavailable`);states 在 audit 入口经 `validate_state_object`(audit.py:475)⇒ "2b 后不可被直传对象伪造"成立 ✓。
+- R5d 触发集合:`R5D_TRIGGER_CHECKS = {element_accounting, formal_charge_accounting}`(audit.py:211–212、:227),其他 violated 走 R5v(:1780–1786)✓;`omission_pattern_matches` 结构化、不静默(:1441–1462)✓。
+- 恒等 ≠ 落点:零净变化 `center` 永不 True(audit.py:2634–2639 `no_executed_change`;注释 :126),支持该条规则表述 ✓。
+
+**条件**:
+
+- **C1(未确认,须给源位置或改写)**:"系数与结构重推导的可确定不一致分两类:表示层契约违反(构造/提交边界结构化拒)"——我在 src 中**没有定位到**任何在构造/提交边界把**系数与结构重推导值**对比并结构化拒绝的检查:定位到的边界拒绝是①非法系数值(hypothesis.py:136–173)、②state 事实与结构重推导不一致(store.py:610–643,对象是 state 非系数)、③coverage 侧的 `coefficient_binding_mismatch`(audit.py:927–933,属检查非边界拒)。若确有该边界检查,请给可复核源位置(函数名+行号);**否则建议按下文改写**,把两类改为"非法系数值 ⇒ 边界拒;系数-声明绑定不一致 ⇒ 覆盖违例",R2b 通道单独注明由调用方映射构造异常 detail(audit.py:1664–1667,"不传则 R2b 不可达")。
+- **C2(结构建议)**:known_absent 段落是**条件评估语义**(path_context.py,决定 R3 conflict),放在"参与物计量与元素/电荷核算"下易被读成元素账的一部分。建议移入判据四或加交叉引用:"(本段属条件评估轴,决定判据三 R3;不参与元素/电荷账)"。
+
+### 2) 可直接落进规则文字的修改建议
+
+1. 系数句改写:"非法表示系数(零/负/非有限/bool/known+null)在构造/提交边界结构化拒(理由码 `non_positive_coefficient`/`non_finite_coefficient`/`invalid_coefficient_type`/`known_coefficient_null`);系数与被审声明的计量绑定不一致 ⇒ `coefficient_binding_mismatch`(覆盖轴,partial + 中心 unknown),处置依决策表顺序;表示契约违反经调用方映射进 R2b,不冒称化学不可能。"
+2. 未知系数段补一句(防误读):"未知系数同时使 `participant_completeness`、`element_accounting`、`formal_charge_accounting` 走 **unknown**(`coefficients_unknown_declared_complete` / `partial_or_unknown_participants_full_balance_unknown`,audit.py:615–620、:646–651、:676–681),三轴都不落 verified/violated ——不存在'按 0 计仍配平'的路径。"
+3. known_absent 段首加归属句:"(条件评估语义;元素/电荷账不消费 fact.status。)"
+
+### 3) "程序上诚实但化学上误导"风险点
+
+- **R-2a**:"账平"被读成质量/电子守恒。v11 已写"两类系统盲区,不得读成质量/电子守恒已核"——同意;建议把 audit.py:1418–1419 的机器注记原文("verified_only_element_and_formal_charge_closure")一并抄入规则,使文案与 detail 字面同源。
+- **R-2b**:若 C1 的"边界拒"句不改,读者可能以为"系数与结构不符会被入口拦下",从而低估 `coefficient_binding_mismatch` 走 retain(R5d/R5v/R5 之一)的实际频率——即把"未拦"读成"已核"。
+- **R-2c**:R5d 的 retain_conditional 被读成"反应存疑"而非"声明内部矛盾"。规则已写"账不平只证明声明内部矛盾",同意保留;建议补"且**不反向**表示声明内账已核(R5d 通过与否与 verified 无关)"。
+
+---
+
+## 3. 判据三:admission 决策表与中心证据契约
+
+### 1) 结论:**有条件同意**(条件为文字精度,无实质分歧)
+
+**已读码核实**:
+
+- **决策表逐行一致**:表定义 audit.py:1513–1548、`rules` 元组 :1555–1571、执行顺序 :1672–1818(R1 :1676 → R1b :1683 → R2 :1697 → R2p :1700–1746 → R2b :1749 → R3 :1758 → R4 :1764 → R5d :1770 → R5v :1780 → R5c :1789 → R5 :1797 → R6 :1805 → R7 :1816),全部早退即首中即决;`chemical_reproposal` 默认 off(:1553);"新增诊断转拒绝须扩表升版本"(:1547)。R2p 部分被拒 ⇒ retain 且"不删除被拒共同产物凑合法事件"(:1725–1729)✓。
+- **类型契约/内部重算**:类型违约 ⇒ raise audit.py:1073–1083;自报 vs 复算不一致 ⇒ raise :1107–1116(异常逃逸,无 audit 返回 ⇒ 不落任何 R 行)✓;缺 proof ⇒ center unknown :1084–1102;`center_match_basis` 双向比对 :764–770 并入 detail :1159–1163 ✓;proof_record 入 input_hash(=audit_id 身份):audit.py:1382–1389;"改前提不换 ID ⇒ 拒"对应 store 的 `recompute_hypothesis_id` 复算(store.py:685–704、:876–878)✓。
+- **覆盖核算**:`product_coverage ∈ {full, partial_unchecked_transformation, unknown_coefficients}`(audit.py:896、:1004–1005);violations kinds `coefficient_binding_mismatch` :929 / `completion_surplus|deficit` :962–963 / `completion_license_unregistered_identity` :993;**full 两根据**:①无未覆盖参与物(:970 分支直通 :1000–1001)②补全数值两侧精确相等(:954–980)且未覆盖身份全部登记(:985–999)✓;两者都只解除覆盖轴 ✓(注释 :818–820、:256–258)。
+- **v10 精度更正 (a)–(d)**:(a) 枚举确为 `partial_unchecked_transformation` 非裸 partial ✓;(b) uncovered+partial 下 violations 可来自 `coefficient_binding_mismatch`(:923–933,先于许可检查)与补全数值不符,与许可登记无关 ✓;(c) `unknown_coefficients` 早退于 :889–897,发生在覆盖判定(:970+)之前、未用许可 ✓;(d) `completion_license_unregistered_identity` 的 note 字面(:996–999)正是"数值配平不证明其初始图的键变化/连接贡献" ✓。
+- **v9 scope 归属**:`completion_license_scope` 字面(audit.py:1010–1013)确**不含**"不区分键断裂方式与电子去向"句;该语义在许可定义注释(:260–268)✓——"归属规则正文、不改字段字面"如实。
+- **恒入≠已适用**:full/partial 分支 detail 必带 license/scope(:1009–1013);`unknown_coefficients` 早退 detail 不带(:893–897);`binding_unverifiable` 族早退只回 `base_coverage_detail`(:831–839、:907–910、:949–952)✓;三条件(`product_coverage=full` + uncovered 非空 + `unlicensed_uncovered_identities` 空)可由 :883–886/:1004/:1014 机器判定 ✓。
+- **v11 复用分写**:跨假设未绑定 ⇒ 中心 unknown(:1131–1148);篡改复算不一致 ⇒ `AuditContractError`(:1110–1116)——两情形分写与代码一致 ✓。scope 未登记 ⇒ `center_checker_scope_unknown` 中心 UNKNOWN(:1064–1071),`CENTER_CHECKER_SCOPES = {"region_net_change"}`(:244–248),空 scope 不会落 verified ✓。
+
+**条件(文字精度)**:
+
+- **C1**:"`completion_license`/`completion_license_scope` **恒入** center detail"与同一句的"早退例外不携带"自相矛盾。改为:"**凡进入覆盖判定完成分支(full/partial)的 center detail 必带 license/scope**;`unknown_coefficients` 与 `unverifiable` 早退不带(早退发生在覆盖判定之前)——字段存在不等于本结论使用了许可。"
+- **C2**:R2b 行补调用方依赖:"R2b 依赖调用方把构造期异常 detail 映射传入,**不传则 R2b 不可达**(audit.py:1664–1667);该依赖是接口契约,不得因未传而把表示违约改记为 R5/R6。"
+
+### 2) 可直接落进规则文字的修改建议
+
+1. 按 C1、C2 改写。
+2. 复用分写句补异常名:"篡改自报与复算不一致 ⇒ `AuditContractError(kind=center_evidence_integrity_mismatch)`(audit.py:1114),本次无成功 admission;类型违约 ⇒ `kind=center_evidence_type_violation`(:1081)。"
+3. R6 行建议补机器前提:`audit.checks` 非空且无覆盖缺口(audit.py:1811–1812),空检查集走 R7(:1816)——防止"零检查=全过"读法。
+
+### 3) "程序上诚实但化学上误导"风险点
+
+- **R-3a**:把 `partial_unchecked_transformation` 缩写成 "partial" 再与"许可判负"绑定。v10 更正 (a)(b)(c) 已封此口,同意并建议把"裸 partial 不是本仓枚举字面"写进正文。
+- **R-3b**:R2p retain 被读成"共同产物已通过"——正文已有"被拒产物保留拒因、不可展开",建议再加"事件内被拒产物**不计**为已核实产物"。
+- **R-3c**:`completion_license` 字段出现在 detail 被渲染成"已用许可达成 full"。三条件判定句是关键防线,建议按 r9 原话保留"uncovered 非空且 partial = 补全规则被调用且判负"的准确引用(我在 docs/mimo_ppv1_chem_review_response_r9.md:88 核到原话,0c 第 7 条引用准确)。
+
+---
+
+## 4. 判据四:条件相容聚合
+
+### 1) 结论:**同意**(两处小建议,无条件级分歧)
+
+**已读码核实**:
+
+- **孤儿方向更正(v11 核心)**:① 绑定旧作用域且无按签名快照 ⇒ **unknown**:path_context.py:1245–1269(`orphan_rows`,status=UNKNOWN,reason `requirement_binding_not_in_route_snapshot`)、:1277–1278(并入 fit=UNKNOWN);② 签名↔行不一致 ⇒ **`context_snapshot_inconsistent` 拒**:`_validate_phase_history_snapshot` :1386–1399(集合双向)与 :1479–1499(`row_sigs != set(sigs)` ⇒ `ConditionContractError`),校验接线在 from_dict :2060 与 `validate_context_object` :1537。**与 v10 方向相反的更正属实**;Codex R2 §6 表(docs/…R2…md:127)与本请求表述一致。
+- **入口限定**:src 内 `validate_context_object(` 的调用点仅 path_context.py:2327(`derive_child_context` 先验父)与 audit.py:458(audit 直接对象);`assess_conditions`(:1117)、`assess_candidate_conditions`(:1172)、`route_assessment`(:2112)体内**均无**该调用(grep 证实)✓;from_dict 自带快照+内容身份(:2060、:2082–2091)✓。
+- **两种不可变机制分写**:`ConditionFact`/`Requirement` 为 `@dataclass(frozen=True)`(path_context.py:333–334、:438–439),`PathContext` 为普通 `@dataclass`(:1942–1943),不可变性靠消费前 `_context_hash` 重算(:2082–2091、:1540–1548)✓。
+- **重建半边**:`build_path_context` 对新内容算新 `context_id`(:2265–2274);`derive_child_context` 保留 `parent_context_ref=parent.context_id`(:2404、:2418)⇒ "新内容=新 ID、篡改=旧 ID+新内容"在结构上成立 ✓。
+- 其余口径:空要求不自动相容(:1002–1003)、观测参考不进门禁(:756–758)、无源必要性 ⇒ unknown 不产生 conflict(:761–762)、旧边不拿当前事实重评(docstring :1391–1392)——均与文本一致。
+
+**建议(非阻塞)**:
+
+1. 孤儿方向句补机器面:"孤儿 unknown 以逐行 `orphan_rows` 落入 `per_requirement`(route_edge_source=`orphan_binding`,path_context.py:1257–1269),不是口头未知。"
+2. 快照拒句补异常类型:`ConditionContractError(kind=context_snapshot_inconsistent, check=signature_row_correspondence)`(path_context.py:1490–1499)——"拒"须写成结构化拒绝、fail-closed 不消费,与实现字面对齐。
+
+### 2) 可直接落进规则文字的修改建议
+
+- 入口清单句维持 v11 落字(已与源码一致),建议补一句:**"audit 侧条件检查消费的是经 :458 验证的 context;assess_* 的未强制验证对象不得作为 R6 条件轴的直接输入。"**(当前 audit 已验证,此句是给 S3b 的红线,不是本批缺口。)
+
+### 3) "程序上诚实但化学上误导"风险点
+
+- **R-4a**:把"快照↔行双向对应"读成"评估结论已被重评/认证"。校验只做结构同源,不认事实真实性(docstring :1391–1392)——建议正文照抄该句。
+- **R-4b**:把孤儿 unknown 读成"该条件已判不相容"。unknown 只阻断 compatible 升级,不反证冲突——与"单向矛盾"句互锁,保留。
+- **R-4c**:上游纪律缺口(assess_* 无强制 validate)被读成"入口已封"。v11 已明列"需上游纪律、S3b 必须接真实守卫",同意;这是本判据最需要如实披露的一条,勿在冻结稿弱化。
+
+---
+
+## 5. 判据五:供体一致性诊断
+
+### 1) 结论:**有条件同意**(条件为两处措辞)
+
+**已读码核实**:
+
+- **8b 表述准确**:`execution_ok=False` 早退 audit.py:2553–2562 → `strict_target_match=None, legacy_cn_match=None, reaction_center_match=None`,`center_evidence` 走 dataclass 默认 `field(default_factory=dict)`(:1919)⇒ `{}`;converter `center_evidence_from_donor_diagnostic` :2983–2993 在空证据时返回**兼容路径**:`checker_version` + `center_match=None` + `declaration_mismatch` + `center_match_basis` + `evidence_refs`——"仍返回版本/来源元数据与 center_match=None、不是四轴 None、不是整个 evidence 为空"逐项属实 ✓。该证据进 audit 后:checker 注册(:241)但 `checker_scope` 缺失 ⇒ 空 scope 不在 `{region_net_change}` ⇒ 中心 **UNKNOWN** + `center_checker_scope_unknown`(:1064–1071)——0c 第 6 条的更正路径(三个 None → converter 无 scope/proof → 中心 unknown,不是 R1)我沿源码逐环核过,成立(读码结论,**非执行结论**)。
+- **8d 如实**:src 内 `audit_hypothesis(`/`center_evidence_from_donor_diagnostic(` 只有定义、**无生产调用方**(grep 证实);`check_edit_against_donor` 源内唯一调用在 audit.py:746(`_rerun_proof_record`,:727–751 无 try),其上调用点 :1105 落在 audit.py 的 try 间隙(全文件 try 位于 857/1952/2046/2212/2314/2326/2487/2581/2675,均不包覆 10 个抛点);10 个 `raise AuditContractError` 全在 audit.py(:464、:739、:1076、:1110、:1589、:1596、:1603、:1607、:2547、:2584);`except AuditContractError` 在 src 与 tests **0 命中**——0c 第 3 条四项声明我静态核实一致(广捕获包覆一项系静态结论,**非动态安全证明**,与请求自评一致)。
+- **v11 落字**:区域净变化不认证供体模板/机制、图等价非酶识别(audit.py:1885–1887)、`legacy_cn_match` 仅旁证(:1890、:1898 注释)——均在源码注释字面中 ✓。
+- 其余:净变化判定基础(:2530–2542、:2634–2648)、`bond_stereo_change` 入 diff(:1960–1976)、四原始串守卫(:2572–2592,kind=`raw_input_cx_class_unregistered`)、strict 与 `strict_identity_of` 同源(:2676–2677 → chemstate.py:913–929 同 `_identity_key`)、缺/歧义映射 ⇒ center None(:2705–2707、:2742–2746)、自同构截断 ⇒ None(:2772–2777)、unsupported 立体公开列项(:1926–1930)、声明–执行对账与镜像终态归一(:2344 起、:2318–2322)——均读到。
+- 0c 第 4 条:`donor_present`/`donor_consistency`/`_walk_conversions`/`same_cid`/`conversion_warnings` 在 src **0 命中**(grep 证实)✓,相关推论不采信的处理正确。
+
+**条件**:
+
+- **C1**:"缺/歧义映射 ⇒ 中心 unknown**(partial)**"中的 `(partial)` 与覆盖枚举 `partial_unchecked_transformation` 同形不同义,是跨轴枚举混淆点。实际理由码是 `donor_centers_partially_unmapped`(:2746)与 `alignment_{resolved|ambiguous|unavailable}_center_unknown`(:2707)。删去裸 `(partial)`,改写理由码字面。
+- **C2**:四原始串守卫加"执行成功路径、解析前"限定(见判据一建议 4;audit.py:2553 早退先于 :2572 守卫)。
+
+### 2) 可直接落进规则文字的修改建议
+
+1. "缺/歧义映射 ⇒ 中心 unknown(理由码 `donor_centers_partially_unmapped` / `alignment_ambiguous_center_unknown` / `alignment_unavailable_center_unknown`;与覆盖轴枚举无关)"。
+2. 8b 补一句机器面:"失败诊断经 converter 走**兼容路径**(无 `checker_scope`/`proof_record`),在 audit 落 `center_checker_scope_unknown` 中心 unknown——失败不产生任何轴结论,也不产生 R 行。"
+3. 8d 保持现文;建议加"静态证据四件套已由本轮读码复核(抛点分布/无 specific except/唯一源内调用无 try 祖先/无生产 caller),仍不构成动态安全证明"。
+
+### 3) "程序上诚实但化学上误导"风险点
+
+- **R-5a**:`legacy_cn_match=True` 单独被引用为"CN 一致 ⇒ 反应成立"(tests/test_ppv1_s2.py:1192、:1296 正是单 True 断言场景)。正文已封("仅旁证、不是任何 R 行通过依据"),同意保留。
+- **R-5b**:三个 None 被渲染成"诊断已执行、四轴核过"。8b 已写"None=未评估,不等于通过",并禁止调用方吞异常按 retain/verified 记录——同意;建议补"异常 ≠ 处置行,调用方记录必须含 `AuditContractError` 原文 kind"。
+- **R-5c**:净变化"区域命中"被读成供体模板/机理验证或酶识别。v11 落字已覆盖,且源码注释 :1886–1887 同源——同意,请勿在冻结稿删句。
+
+---
+
+## 6. 0b/0c 与 §6 程序证据
+
+### 1) 结论
+
+- **0c 七条**:**第 1、3、4、5、6、7 条同意(读码/文档一致,可作事实输入)**——RDKit 2026.03.6 在仓内文档一致(README.md:18、docs/…R2…md:139);10 抛点分布/无 specific except 我静态复核一致;虚构 donor 系列名称 0 命中;audit.py:1064–1071 确为 UNKNOWN 而非 raise;test_f11 现行断言(tests/test_ppv1_s2.py:1177–1321)与"三个 None→中心 unknown"路径相符;r9 原话"补全规则被调用且判负"核到原文(response_r9.md:88)。**第 2 条(655c7e8 非父基线及其红绿数)需 git 执行,待执行验证,我不作背书亦不反对。**
+- **0b**:抽查项与源码一致——`validate_frozen_search_limits` 严格消费不补默认(profile.py:337–371,含"非 dict/缺 version/缺必需键 ⇒ 拒")、装配走 `validate_search_limits` 补默认(:297–330)、`verify_event_attachment_content` 纯只读复用首提判据(store.py:1988–2021)、契约版本 `ppv1-profile-11/-store-9/-search-3/-search-limits-3`(profile.py:99/103/138/208)、`budget 0 不被坏恢复变默认 10` 在 search.py:60 注册。**r3 变更不含化学判定**的自我定性,与我读到的实现相符(类型/键/版本/范围/引用核验)。S3A-02/03/04 的逐入口闭合属工程审定范围,本轮**未做逐行审计**(超出化学评审边界),以 Codex R2/R3 程序证据为准。
+- **§6 全部数字**(697 绿、40 红+9 绿、G01 1299/8/17、49 项构成、基线 dcb7ed6):**全部待执行验证**。我仅能静态核到 `tests/test_ppv1_s3a_rework_r3.py` 存在 21 个顶层 `def test_`(含 parametrize,项数 49 无法静态证实),以及三组反例/正控的测试名与 0b 声称的三组 P1 对应(:141–:879)。
+
+### 2) 可直接落进规则文字的修改建议
+
+- §6 首行加前缀:"以下数字为实施方声明,评审方无执行权限,未复核;冻结前须由独立执行复跑(ppv1 全量、基线红绿、G01 隔离)。"
+- 0b 第 3 条(并发边界)保持现文——"不持锁、不提供跨并发外部 SQL 改库保证、无微秒级承诺"是诚实边界,同意其为登记接受项,不构成化学结论。
+
+### 3) "程序上诚实但化学上误导"风险点
+
+- **R-6a**:697/1299 等工程数字被引用为"判据经受了化学检验"。请在 §6 保留"工程数字是合成规则级契约结果,不代表 dev/298 科学性能"原句。
+- **R-6b**:"40 行为红 + 9 正控绿"被读成"9 项证明了化学正控覆盖"。它们是契约行为对照,不是化学性质正控;RDKit 往返无损正控的执行复核仍单列(请求 §6 末已写,同意作为冻结前必办)。
+
+---
+
+## 7. 冻结前条件汇总(按优先级)
+
+| # | 判据 | 条件 | 依据 |
+|---|---|---|---|
+| 1 | 一 | 更正 `a/o/and/or/rad` 保留类括注为实际 token,或补 RDKit 2026.03.6 执行取证(**待执行验证**) | chemstate.py:61–62、237–238、266、456 |
+| 2 | 二 | "系数与结构重推导不一致…构造/提交边界拒"给源位置,否则按建议改写(**未确认**) | src 无定位到该检查 |
+| 3 | 三 | "恒入"句改"完成分支必带、早退不带";R2b 补调用方映射依赖 | audit.py:1009–1013、893–897、1664–1667 |
+| 4 | 五 | 删裸 `(partial)`、按理由码落字;四字段守卫加"执行成功路径"限定 | audit.py:2707、2746、2553–2562 |
+| 5 | 一 | 入口清单补公共 writer、搜索层划界、substrate_profile 处置 | store.py:595–643;search.py grep=0;substrate_profile.py:91 |
+| 6 | 二 | known_absent 段加归属(条件评估轴,非元素账) | path_context.py:706–837 |
+| 7 | 一 | "不同异常类"→"同一异常类两种 detail.kind" | chemstate.py:842–849 |
+| 8 | 全部 | §6 数字、0c 第 2 条、RDKit 往返正控:冻结前执行复核(**待执行验证**) | 本轮无执行权限 |
+
+**总评(仅作上述条件的概括,不替代逐条结论)**:v11 各判据的实质口径与我读到的源码一致,0c 纠错清单经我独立读码复核成立,r3 未见新增或改变任何化学判定。条件 1、2 属"引码与文字不一致"必须在冻结前解决;3–7 为措辞与枚举精度;8 为程序证据执行复核。满足后我**同意进入冻结评审的下一轮**;在此之前为**有条件同意,不同意按现文冻结**。

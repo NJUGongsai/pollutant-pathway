@@ -1,0 +1,792 @@
+{
+  "behavior_child_count": 21,
+  "evidence_database_policy": "all tables in snapshots; read-only schema; runtime DB omitted with hashes",
+  "execution_receipts": [
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/empty_abstain.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/empty_abstain.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/novel_alignment_unknown.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/novel_alignment_unknown.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/novel_audit_bad_raw.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/novel_audit_bad_raw.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/novel_insufficient.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/novel_insufficient.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/novel_legal_alignment_unavailable.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/novel_legal_alignment_unavailable.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_supplemental_worker.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/novel_prepared_bad_raw.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/novel_prepared_bad_raw.execution.json",
+      "returncode": 3
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/novel_tool_failed.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/novel_tool_failed.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_abstain.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_abstain.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_branch_isolation.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_branch_isolation.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_e01.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_e01.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_empty_pool.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_empty_pool.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_essential_conflict.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_essential_conflict.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_h04_missing.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_h04_missing.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_h04_supported.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_h04_supported.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_nonzero.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_nonzero.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_novel_empty.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_novel_empty.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_novel_nonempty.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_novel_nonempty.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_real_off_zero.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_real_off_zero.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_zero_actions.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_zero_actions.execution.json",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_probe.py",
+        "worker",
+        "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/old_zero_depth.json"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+      },
+      "path": "logs/old_zero_depth.execution.json",
+      "returncode": 0
+    }
+  ],
+  "finished_utc": "2026-10-08T00:25:18.037726+00:00",
+  "forbidden_actions": "no external model/gold/question/sealed run/source edits/pytest/push",
+  "head": "2bedfc060a9b19019ba44aa2a56dcacb88450c3b",
+  "network": "socket connect/create_connection blocked in worker; all captured traces network_attempts=[]",
+  "observations_raw": {
+    "legal_unknown": 2,
+    "main": 18,
+    "main_true": 16,
+    "supplemental": 4,
+    "supplemental_raw_false": 1
+  },
+  "observer_issues": [
+    "supplemental field oracle KeyError after second child; read-only correction, no completed child rerun",
+    "unresolved alignment is outside enum; no unknown-path claim, separate unavailable legal fixture executed",
+    "zero_depth resume reused receipt label; initial detail in extraction and controller stdout"
+  ],
+  "parent": "c1211183c0874b12c5b5461845d3c61f0a84719c",
+  "python": "3.11.16 (main, Aug 27 2026, 14:37:43) [Clang 20.1.8 ]",
+  "source_unchanged": [
+    {
+      "after_sha256": "b556325722ed88800cb60338c2e4b2cd7cc363b51008c56d80a583c0299916b7",
+      "before_sha256": "b556325722ed88800cb60338c2e4b2cd7cc363b51008c56d80a583c0299916b7",
+      "path": ".DS_Store",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "d280be12afa7d827b111c9619e5abcf1aa293843f914793cb26cad67f60ccb71",
+      "before_sha256": "d280be12afa7d827b111c9619e5abcf1aa293843f914793cb26cad67f60ccb71",
+      "path": "pathway_v43/.DS_Store",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "b7f8e2defbc83993bbda4646fb00c1f5d6827e5d60b2969aec66c7197d74e902",
+      "before_sha256": "b7f8e2defbc83993bbda4646fb00c1f5d6827e5d60b2969aec66c7197d74e902",
+      "path": "pathway_v43/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "ff1785110aceb696ad16d05ca1392122a24fd00278a88ba9d0f75add3abfdbc4",
+      "before_sha256": "ff1785110aceb696ad16d05ca1392122a24fd00278a88ba9d0f75add3abfdbc4",
+      "path": "pathway_v43/__main__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "58c8d9b6a5fc2541c900fb8f77a289b69313badd7ee38985d601411bbf4c85cd",
+      "before_sha256": "58c8d9b6a5fc2541c900fb8f77a289b69313badd7ee38985d601411bbf4c85cd",
+      "path": "pathway_v43/adapters/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "816f170d241bd97f6e28688f7ed99d684b2e327b83d9b8057ff758af98ec986f",
+      "before_sha256": "816f170d241bd97f6e28688f7ed99d684b2e327b83d9b8057ff758af98ec986f",
+      "path": "pathway_v43/adapters/analog_index.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "64741d9b715e3de3d68f90d98bd07edf86511f0be59b025b35d772f9fc2fb85f",
+      "before_sha256": "64741d9b715e3de3d68f90d98bd07edf86511f0be59b025b35d772f9fc2fb85f",
+      "path": "pathway_v43/adapters/asset_manifest.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "fa02e29efb976b949b2055a1509fbbdfbc52e67af1490e7f543f3bba07c94d24",
+      "before_sha256": "fa02e29efb976b949b2055a1509fbbdfbc52e67af1490e7f543f3bba07c94d24",
+      "path": "pathway_v43/adapters/llm_client.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "55765ac7b35ad5cf6f9f76004f34594b54d943febca58a67705797d1cedcfa58",
+      "before_sha256": "55765ac7b35ad5cf6f9f76004f34594b54d943febca58a67705797d1cedcfa58",
+      "path": "pathway_v43/adapters/rate_gate.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "0bd077aa0710bd6b539cce16c8e23498eeb642136fee50269e71ce5164ce6580",
+      "before_sha256": "0bd077aa0710bd6b539cce16c8e23498eeb642136fee50269e71ce5164ce6580",
+      "path": "pathway_v43/adapters/v3_engine.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "210cca2b3e3836afcf09dff767c6c6b5dea73bc725901ff8b4162b079e81c24a",
+      "before_sha256": "210cca2b3e3836afcf09dff767c6c6b5dea73bc725901ff8b4162b079e81c24a",
+      "path": "pathway_v43/batch.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "1bc848ce2b2610917cfdbcf5cfc75d00ef47b74f2ec2aa397e891bde87c1ecc7",
+      "before_sha256": "1bc848ce2b2610917cfdbcf5cfc75d00ef47b74f2ec2aa397e891bde87c1ecc7",
+      "path": "pathway_v43/config.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "861b86b86334790ad1f4fc31ac2825c3e675e78d91176f485c02d02aac078739",
+      "before_sha256": "861b86b86334790ad1f4fc31ac2825c3e675e78d91176f485c02d02aac078739",
+      "path": "pathway_v43/domain/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "9868fe8fb7daf6dd602abce053a84f35e1512155269e2b9d9e1d9bd89125f1dd",
+      "before_sha256": "9868fe8fb7daf6dd602abce053a84f35e1512155269e2b9d9e1d9bd89125f1dd",
+      "path": "pathway_v43/domain/identity.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "031c45a919f6f454acd4927d231294275f726b2ade9a9d32c0b66c3dd6cc5fc7",
+      "before_sha256": "031c45a919f6f454acd4927d231294275f726b2ade9a9d32c0b66c3dd6cc5fc7",
+      "path": "pathway_v43/domain/models.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "1dd252c2e52808a62b874a4151a83ebe0600054981574c46144b9490c621579c",
+      "before_sha256": "1dd252c2e52808a62b874a4151a83ebe0600054981574c46144b9490c621579c",
+      "path": "pathway_v43/domain/pathway.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "de206eac69f3c799a36068b1e919f62502379fbfa61725d654b11f8f1c0d055b",
+      "before_sha256": "de206eac69f3c799a36068b1e919f62502379fbfa61725d654b11f8f1c0d055b",
+      "path": "pathway_v43/domain/policy.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "1fb73303cdc277c85bed4ca53b635981d1f00fcc619211ecbf0fa37ae91d37d8",
+      "before_sha256": "1fb73303cdc277c85bed4ca53b635981d1f00fcc619211ecbf0fa37ae91d37d8",
+      "path": "pathway_v43/exam.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "058a51df67fc28df5acc4f5db29d17e50c9721f14c92b68ecd865bbffab868dc",
+      "before_sha256": "058a51df67fc28df5acc4f5db29d17e50c9721f14c92b68ecd865bbffab868dc",
+      "path": "pathway_v43/exam_v2.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "041c48a1bb28a1734b0d6c69f7358c7547969a716d33c9bbf6d972bf02fac7df",
+      "before_sha256": "041c48a1bb28a1734b0d6c69f7358c7547969a716d33c9bbf6d972bf02fac7df",
+      "path": "pathway_v43/gold_health.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "8f4f727e21ba4614501f66485c82c075373293112757e41a02f907a0e6890b43",
+      "before_sha256": "8f4f727e21ba4614501f66485c82c075373293112757e41a02f907a0e6890b43",
+      "path": "pathway_v43/output/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "7684e04beaaf5a825c95523d075dba7e2229e3ba66ee3e511fb99aabb6e38f4b",
+      "before_sha256": "7684e04beaaf5a825c95523d075dba7e2229e3ba66ee3e511fb99aabb6e38f4b",
+      "path": "pathway_v43/output/export_v3.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "c03bda976ce68ed6cd6b4a5859a222f37567a9e1164ede537e2b8dff780b7222",
+      "before_sha256": "c03bda976ce68ed6cd6b4a5859a222f37567a9e1164ede537e2b8dff780b7222",
+      "path": "pathway_v43/output/pairing_gate.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "103a228bc09b866845500cb650e056994d9550878aff16d242051cc983e14e4e",
+      "before_sha256": "103a228bc09b866845500cb650e056994d9550878aff16d242051cc983e14e4e",
+      "path": "pathway_v43/output/report.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "c960914a1aa53d7ce6c5ec5869a6e12b1b2fd0347c7e0bac2f88a044398616f9",
+      "before_sha256": "c960914a1aa53d7ce6c5ec5869a6e12b1b2fd0347c7e0bac2f88a044398616f9",
+      "path": "pathway_v43/output/score_report.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "52fa59f4c01a4328b8ff7f0e599b65178a598020c7a8853392729677c7744dcd",
+      "before_sha256": "52fa59f4c01a4328b8ff7f0e599b65178a598020c7a8853392729677c7744dcd",
+      "path": "pathway_v43/phase_a_attribution.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "f430bd6cc5bc7053da244a7d1c30ac755f6fd89c2563693bc1838ffe3a4e01c9",
+      "before_sha256": "f430bd6cc5bc7053da244a7d1c30ac755f6fd89c2563693bc1838ffe3a4e01c9",
+      "path": "pathway_v43/pollutant/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "before_sha256": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "path": "pathway_v43/pollutant/audit.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+      "before_sha256": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+      "path": "pathway_v43/pollutant/chemstate.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+      "before_sha256": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+      "path": "pathway_v43/pollutant/events.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6",
+      "before_sha256": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6",
+      "path": "pathway_v43/pollutant/hypothesis.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "045a6e366af3e61b5dd12d7dd68eef31ffcc605f67de1b3a36b714e29b829e01",
+      "before_sha256": "045a6e366af3e61b5dd12d7dd68eef31ffcc605f67de1b3a36b714e29b829e01",
+      "path": "pathway_v43/pollutant/legacy_reader.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "18e7c4226c364b9a1b98a30127844343ba09ece58998e81bee364267eabd7a83",
+      "before_sha256": "18e7c4226c364b9a1b98a30127844343ba09ece58998e81bee364267eabd7a83",
+      "path": "pathway_v43/pollutant/model_protocol.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+      "before_sha256": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+      "path": "pathway_v43/pollutant/path_context.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "bec664cf25eca5b16426755d991e669d2403b41ef87d2e1340fb8c7a6cb77877",
+      "before_sha256": "bec664cf25eca5b16426755d991e669d2403b41ef87d2e1340fb8c7a6cb77877",
+      "path": "pathway_v43/pollutant/pool_audit.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "3b1a66ea2bc3aa37f7caaa2ed1a7f5395cda5901ef2a03d765b932ee5b082262",
+      "before_sha256": "3b1a66ea2bc3aa37f7caaa2ed1a7f5395cda5901ef2a03d765b932ee5b082262",
+      "path": "pathway_v43/pollutant/production.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "f8054771929cc3a768439fb40aefbbaf68030baaba3d0686601ed8b12b4d70ad",
+      "before_sha256": "f8054771929cc3a768439fb40aefbbaf68030baaba3d0686601ed8b12b4d70ad",
+      "path": "pathway_v43/pollutant/profile.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "d8668c3fadd1b37e2eb131479ff0b5778f86eed8c9e49c458fb30d7561f3afbf",
+      "before_sha256": "d8668c3fadd1b37e2eb131479ff0b5778f86eed8c9e49c458fb30d7561f3afbf",
+      "path": "pathway_v43/pollutant/provenance.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "6327f214ae4e9e1e7db2f336ce00f71f171d82a85cc2a2feab8457f2116dd2ed",
+      "before_sha256": "6327f214ae4e9e1e7db2f336ce00f71f171d82a85cc2a2feab8457f2116dd2ed",
+      "path": "pathway_v43/pollutant/queue.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "550f9c6123be150787a389d198b427977e2d3def85f1a1dd87d72a768c85f3a2",
+      "before_sha256": "550f9c6123be150787a389d198b427977e2d3def85f1a1dd87d72a768c85f3a2",
+      "path": "pathway_v43/pollutant/runflow.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "c38556d523d9f732c0c82d4a914b8404007c68bafbdb972f12eb0107b6392f9d",
+      "before_sha256": "c38556d523d9f732c0c82d4a914b8404007c68bafbdb972f12eb0107b6392f9d",
+      "path": "pathway_v43/pollutant/search.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "5adb06466bd78e82d8f975b29bbee7958ec5e6b6e165cf52402f11f9893480a0",
+      "before_sha256": "5adb06466bd78e82d8f975b29bbee7958ec5e6b6e165cf52402f11f9893480a0",
+      "path": "pathway_v43/pollutant/store.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "718fb34b8fbc34919272cf64c7c740ce6dda00f18b014d2c90be7873506cce32",
+      "before_sha256": "718fb34b8fbc34919272cf64c7c740ce6dda00f18b014d2c90be7873506cce32",
+      "path": "pathway_v43/pollutant/substrate_profile.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "66caf2f040dd63a235bb18c034d5853aa966b1a5fd31d8695849e9a21fb4ad2d",
+      "before_sha256": "66caf2f040dd63a235bb18c034d5853aa966b1a5fd31d8695849e9a21fb4ad2d",
+      "path": "pathway_v43/services/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "300037e8afa6c022b8b61b82adba1ca9cb21d3c846574caea2d2b0b89733b121",
+      "before_sha256": "300037e8afa6c022b8b61b82adba1ca9cb21d3c846574caea2d2b0b89733b121",
+      "path": "pathway_v43/services/analog_source.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "b20092dcf4d651a59a644ab7a8ba90aa83036958877918d3bd131901ec996f27",
+      "before_sha256": "b20092dcf4d651a59a644ab7a8ba90aa83036958877918d3bd131901ec996f27",
+      "path": "pathway_v43/services/atom_tool.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "ccfb99f808aeb7ffd6d338a9945023df2c1271e461695cbee535c00fff1fa835",
+      "before_sha256": "ccfb99f808aeb7ffd6d338a9945023df2c1271e461695cbee535c00fff1fa835",
+      "path": "pathway_v43/services/donor_applicability.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "2ed8bc76de29e64f8539935bccb9013d3a3cf7c44e75f89b6b97a30ba6029efd",
+      "before_sha256": "2ed8bc76de29e64f8539935bccb9013d3a3cf7c44e75f89b6b97a30ba6029efd",
+      "path": "pathway_v43/services/prediction.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "3ecdf25bdc52c44920558006383f8b51514c479300c44d0405aaa1b9ad68e3f4",
+      "before_sha256": "3ecdf25bdc52c44920558006383f8b51514c479300c44d0405aaa1b9ad68e3f4",
+      "path": "pathway_v43/services/reaction_finder.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "a278277b5875607339ab1edc623cf26596ea2b2db88ce038dea2e404dc978eee",
+      "before_sha256": "a278277b5875607339ab1edc623cf26596ea2b2db88ce038dea2e404dc978eee",
+      "path": "pathway_v43/services/report_adjudication.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "c3ad494e115157afc23c250efff4c8a86c34f69aec730528efb7adfe2f73d07e",
+      "before_sha256": "c3ad494e115157afc23c250efff4c8a86c34f69aec730528efb7adfe2f73d07e",
+      "path": "pathway_v43/storage/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "871684914abe25d4093fa0a46f7c64a094be75830da8b1c1a7c8eadb49a68a9b",
+      "before_sha256": "871684914abe25d4093fa0a46f7c64a094be75830da8b1c1a7c8eadb49a68a9b",
+      "path": "pathway_v43/storage/artifact_store.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "0adce856a19f75a5be0763ca17d0002694fa572b90c86bbaccd1fb581c6cb49b",
+      "before_sha256": "0adce856a19f75a5be0763ca17d0002694fa572b90c86bbaccd1fb581c6cb49b",
+      "path": "pathway_v43/storage/pathway_store.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "c2e54b9486bd4bce496d15aed5d1a12d7b29d853aaa9d8a460288e61b14408cf",
+      "before_sha256": "c2e54b9486bd4bce496d15aed5d1a12d7b29d853aaa9d8a460288e61b14408cf",
+      "path": "pathway_v43/storage/run_identity.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "a09a4721918824c12b067752500f8bd813372f7b1b2ccfc72faf19206672897a",
+      "before_sha256": "a09a4721918824c12b067752500f8bd813372f7b1b2ccfc72faf19206672897a",
+      "path": "pathway_v43/validation/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "dc612dbb1b352aa491a02da978115976994478d6747d4bbd4215043a1056da4e",
+      "before_sha256": "dc612dbb1b352aa491a02da978115976994478d6747d4bbd4215043a1056da4e",
+      "path": "pathway_v43/validation/conservation.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "55dfd238ad2758fae19efc81c5fea468ea5e0cb723af37a6fa5a7edb86ab0399",
+      "before_sha256": "55dfd238ad2758fae19efc81c5fea468ea5e0cb723af37a6fa5a7edb86ab0399",
+      "path": "pathway_v43/validation/gates.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "4374fc2389d52ec91d1e27e8ab4ca06d58401bb7b498993d3150840213b3a657",
+      "before_sha256": "4374fc2389d52ec91d1e27e8ab4ca06d58401bb7b498993d3150840213b3a657",
+      "path": "pathway_v43/vendor/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "d768cb92822c0e97bb6c0f9efab6a5f0a093f58a439959b02db687abfedc980e",
+      "before_sha256": "d768cb92822c0e97bb6c0f9efab6a5f0a093f58a439959b02db687abfedc980e",
+      "path": "pathway_v43/vendor/molecode/LICENSE",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "a6952e057d5bd09797e3e8dcf2b11f64b6cd6039f2e9a2a0cc6a65f41197c011",
+      "before_sha256": "a6952e057d5bd09797e3e8dcf2b11f64b6cd6039f2e9a2a0cc6a65f41197c011",
+      "path": "pathway_v43/vendor/molecode/MANIFEST.sha256",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "4c460efec44876d42fde3c81afea10e1f89ef779b22dc625337fb04ebdaf1663",
+      "before_sha256": "4c460efec44876d42fde3c81afea10e1f89ef779b22dc625337fb04ebdaf1663",
+      "path": "pathway_v43/vendor/molecode/PROVENANCE.md",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "8d5e997056579acf46314f0efe1e15b3b44e900ca75477a61455cd864710aeb9",
+      "before_sha256": "8d5e997056579acf46314f0efe1e15b3b44e900ca75477a61455cd864710aeb9",
+      "path": "pathway_v43/vendor/molecode/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "0dd0d21d18bd181117fbf4418dbcaf09336303ba350d1ea235266aefc4ee223a",
+      "before_sha256": "0dd0d21d18bd181117fbf4418dbcaf09336303ba350d1ea235266aefc4ee223a",
+      "path": "pathway_v43/vendor/molecode/molecule/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "561ce966ba1195ed750ed66fc4023d9f501a9e580a509f4723506a270789b12c",
+      "before_sha256": "561ce966ba1195ed750ed66fc4023d9f501a9e580a509f4723506a270789b12c",
+      "path": "pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "195a65e84fd77bb20f0aae61b256620b2489a68d146aa0b9f0909e1e94f37299",
+      "before_sha256": "195a65e84fd77bb20f0aae61b256620b2489a68d146aa0b9f0909e1e94f37299",
+      "path": "pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "f8160966acc0126d36121a02a0d3d0a2375c4d1010e9177fed32039e5b3bcf5d",
+      "before_sha256": "f8160966acc0126d36121a02a0d3d0a2375c4d1010e9177fed32039e5b3bcf5d",
+      "path": "pathway_v43/vendor/molecode/prompts/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "1377960f68d86ce7f3d946a9304aebd705887795593da184da6ce527b2617d58",
+      "before_sha256": "1377960f68d86ce7f3d946a9304aebd705887795593da184da6ce527b2617d58",
+      "path": "pathway_v43/vendor/molecode/prompts/markush_system_prompt.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "ed4c654143c1802153377ec6de6f77c3d2d4845b4e107d1d0cf239cd34322e8e",
+      "before_sha256": "ed4c654143c1802153377ec6de6f77c3d2d4845b4e107d1d0cf239cd34322e8e",
+      "path": "pathway_v43/vendor/molecode/prompts/molecule_system_prompt.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "b1309d6413d825e47c60d2d2200cd1970937da93c80fcc268ffaa12882433afd",
+      "before_sha256": "b1309d6413d825e47c60d2d2200cd1970937da93c80fcc268ffaa12882433afd",
+      "path": "pathway_v43/workflow/__init__.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "ef0d3c39a32aa1a88e1ad3a15d74a7992ba53f8fda56c590b062182291164678",
+      "before_sha256": "ef0d3c39a32aa1a88e1ad3a15d74a7992ba53f8fda56c590b062182291164678",
+      "path": "pathway_v43/workflow/graph.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "646b3d89e9cab0cb320f4dfa684a1089c8dac924577260e61dc8298a5bb8f894",
+      "before_sha256": "646b3d89e9cab0cb320f4dfa684a1089c8dac924577260e61dc8298a5bb8f894",
+      "path": "pathway_v43/workflow/nodes.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "f9aaef0399002b8ff96ed2d77ee21ca5049496e1525a33cd5a7c26b015deff3a",
+      "before_sha256": "f9aaef0399002b8ff96ed2d77ee21ca5049496e1525a33cd5a7c26b015deff3a",
+      "path": "pathway_v43/workflow/routing.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "3540decaf1d3741f357e83ac702c67eb6ee767332a9471e3a4d52407523e5429",
+      "before_sha256": "3540decaf1d3741f357e83ac702c67eb6ee767332a9471e3a4d52407523e5429",
+      "path": "pathway_v43/workflow/runner.py",
+      "unchanged": true
+    },
+    {
+      "after_sha256": "c297eef994af62fc57ba4a06f25e9a7dea1f348ec7d20d54370bbf3413a3e815",
+      "before_sha256": "c297eef994af62fc57ba4a06f25e9a7dea1f348ec7d20d54370bbf3413a3e815",
+      "path": "pathway_v43/workflow/state.py",
+      "unchanged": true
+    }
+  ],
+  "sqlite": "3.53.4",
+  "started_utc": "2026-10-08T00:18:18.527689+00:00"
+}

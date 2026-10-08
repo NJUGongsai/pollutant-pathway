@@ -1,0 +1,128 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/inputs/crash_after_request_registered_resume.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_queue_vd18_t4h/src"
+  },
+  "label": "crash_after_request_registered_resume",
+  "parsed": {
+    "pid": 20497,
+    "result": {
+      "counts": {
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "profile": "pollutant_pathway_v1",
+      "recovery": {
+        "actions": [
+          {
+            "action_id": "sact_65dcec2a8fc99a37e031",
+            "action_kind": "retrieve",
+            "boundary": "B4_verified",
+            "disposition": "done_commit_verified",
+            "status": "done"
+          },
+          {
+            "action_id": "sact_683a9f8d1b5356a0b463",
+            "action_kind": "decide",
+            "boundary": "B1_claimed_pending_completion",
+            "disposition": "frozen_attempt_reservation_intact;预算未重复扣,等待执行方续跑(不按当前 revision 重算任务身份)",
+            "status": "claimed"
+          }
+        ],
+        "pending_requests": [
+          {
+            "network_request_count": 0,
+            "note": "pending/unknown;不默发第二请求,显式重试须新 request 及剩余额度",
+            "provider_kind": "scripted",
+            "request_id": "sreq_4f0305ef355a4fb81807",
+            "status": "registered"
+          }
+        ],
+        "unknown_status_requests": []
+      },
+      "resumed": true,
+      "run_id": "crash_after_request_registered",
+      "runflow_version": "ppv1-runflow-1",
+      "stop": {
+        "budget": {
+          "run_level": {
+            "max_real_model_requests": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "remaining": 63,
+              "used": 1
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "remaining": 2,
+              "used": 0
+            },
+            "max_total_search_actions": {
+              "max": 10,
+              "remaining": 8,
+              "used": 2
+            }
+          },
+          "scoped": {
+            "max_alternative_hypotheses_per_parent": {},
+            "max_attempts_per_hypothesis": {},
+            "max_reopens_per_hypothesis": {},
+            "max_retrievals_per_parent": {
+              "spath_4b2ad9ba2305a7b2c758": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              }
+            }
+          },
+          "version": "ppv1-search-limits-3"
+        },
+        "budget_exhausted_keys": [
+          "max_retrievals_per_parent@spath_4b2ad9ba2305a7b2c758"
+        ],
+        "events_submitted_session": [],
+        "other_reasons": [
+          "awaiting_prediction"
+        ],
+        "primary": "budget_limit",
+        "run_error": {
+          "error": "PPV1RunError",
+          "kind": "model_structure_failure",
+          "message": "模型响应结构失败(格式反馈耗尽或策略 0 轮;结构失败保持,不以反馈改分子再试到通过)"
+        },
+        "runflow_version": "ppv1-runflow-1",
+        "unexplored": {
+          "blocked": 0,
+          "claimed_actions": 1,
+          "deferred": 0,
+          "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+          "open_attempts": 0,
+          "pending_actions": 0,
+          "pending_requests": 1
+        }
+      },
+      "stop_reason": "budget_limit"
+    }
+  },
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"result\": {\"run_id\": \"crash_after_request_registered\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-1\", \"resumed\": true, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"awaiting_prediction\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"claimed_actions\": 1, \"open_attempts\": 0, \"pending_requests\": 1, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 2, \"remaining\": 8}, \"max_retrievals_total\": {\"max\": 64, \"used\": 1, \"remaining\": 63}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_4b2ad9ba2305a7b2c758\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {}, \"max_attempts_per_hypothesis\": {}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_4b2ad9ba2305a7b2c758\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-1\", \"run_error\": {\"error\": \"PPV1RunError\", \"kind\": \"model_structure_failure\", \"message\": \"模型响应结构失败(格式反馈耗尽或策略 0 轮;结构失败保持,不以反馈改分子再试到通过)\"}}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 1, \"state_appearances\": 1, \"hypotheses\": 0, \"events\": 0, \"report_projections\": 0, \"expansion_plans\": 0, \"event_appearance_links\": 0, \"provenance_records\": 0}, \"recovery\": {\"actions\": [{\"action_id\": \"sact_65dcec2a8fc99a37e031\", \"action_kind\": \"retrieve\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}, {\"action_id\": \"sact_683a9f8d1b5356a0b463\", \"action_kind\": \"decide\", \"status\": \"claimed\", \"boundary\": \"B1_claimed_pending_completion\", \"disposition\": \"frozen_attempt_reservation_intact;预算未重复扣,等待执行方续跑(不按当前 revision 重算任务身份)\"}], \"pending_requests\": [{\"request_id\": \"sreq_4f0305ef355a4fb81807\", \"provider_kind\": \"scripted\", \"status\": \"registered\", \"network_request_count\": 0, \"note\": \"pending/unknown;不默发第二请求,显式重试须新 request 及剩余额度\"}], \"unknown_status_requests\": []}}, \"pid\": 20497}\n"
+}

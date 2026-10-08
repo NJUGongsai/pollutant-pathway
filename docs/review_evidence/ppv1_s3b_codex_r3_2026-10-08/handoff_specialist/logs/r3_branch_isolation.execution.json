@@ -1,0 +1,131 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_handoff_6bh5dixp/scripts/protocol_probe.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r3_handoff_6bh5dixp/inputs/r3_branch_isolation.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_handoff_6bh5dixp/src"
+  },
+  "parsed": {
+    "pid": 46617,
+    "result": {
+      "counts": {
+        "event_appearance_links": 4,
+        "events": 2,
+        "expansion_plans": 2,
+        "hypotheses": 2,
+        "provenance_records": 0,
+        "report_projections": 2,
+        "state_appearances": 3,
+        "states": 2
+      },
+      "driver_session": {
+        "acquired_at": "2026-10-08T01:39:35+00:00",
+        "note": "flock 是执行权权威;崩溃 OS 自动释放",
+        "pid": 46617
+      },
+      "profile": "pollutant_pathway_v1",
+      "resumed": false,
+      "run_id": "r3_branch_isolation",
+      "runflow_version": "ppv1-runflow-3",
+      "stop": {
+        "budget": {
+          "run_level": {
+            "max_real_model_requests": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "remaining": 61,
+              "used": 3
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "remaining": 2,
+              "used": 0
+            },
+            "max_total_search_actions": {
+              "max": 10,
+              "remaining": 4,
+              "used": 6
+            }
+          },
+          "scoped": {
+            "max_alternative_hypotheses_per_parent": {
+              "spath_28b7c276d15f7cf7b5c7": {
+                "max": 2,
+                "remaining": 0,
+                "used": 2
+              }
+            },
+            "max_attempts_per_hypothesis": {
+              "hyp_784cf9f7916207538bc8": {
+                "max": 2,
+                "remaining": 1,
+                "used": 1
+              },
+              "hyp_952b357ae699828a9a47": {
+                "max": 2,
+                "remaining": 1,
+                "used": 1
+              }
+            },
+            "max_reopens_per_hypothesis": {},
+            "max_retrievals_per_parent": {
+              "spath_28b7c276d15f7cf7b5c7": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              },
+              "spath_4b0fd415c433b6e338bb": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              },
+              "spath_926cf607964c04f0c8c8": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              }
+            }
+          },
+          "version": "ppv1-search-limits-3"
+        },
+        "budget_exhausted_keys": [
+          "max_alternative_hypotheses_per_parent@spath_28b7c276d15f7cf7b5c7",
+          "max_retrievals_per_parent@spath_28b7c276d15f7cf7b5c7",
+          "max_retrievals_per_parent@spath_4b0fd415c433b6e338bb",
+          "max_retrievals_per_parent@spath_926cf607964c04f0c8c8"
+        ],
+        "events_submitted_session": [
+          "ppev_1e9654296132f727e347",
+          "ppev_f1f8bd8edbe57e7870fc"
+        ],
+        "other_reasons": [],
+        "primary": "budget_limit",
+        "runflow_version": "ppv1-runflow-3",
+        "unexplored": {
+          "blocked": 0,
+          "blocked_objects": [],
+          "claimed_actions": 0,
+          "deferred": 0,
+          "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+          "open_attempts": 0,
+          "pending_actions": 0,
+          "pending_requests": 0
+        }
+      },
+      "stop_reason": "budget_limit"
+    }
+  },
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"result\": {\"run_id\": \"r3_branch_isolation\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-3\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 10, \"used\": 6, \"remaining\": 4}, \"max_retrievals_total\": {\"max\": 64, \"used\": 3, \"remaining\": 61}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_28b7c276d15f7cf7b5c7\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_4b0fd415c433b6e338bb\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_926cf607964c04f0c8c8\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {\"spath_28b7c276d15f7cf7b5c7\": {\"max\": 2, \"used\": 2, \"remaining\": 0}}, \"max_attempts_per_hypothesis\": {\"hyp_784cf9f7916207538bc8\": {\"max\": 2, \"used\": 1, \"remaining\": 1}, \"hyp_952b357ae699828a9a47\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_alternative_hypotheses_per_parent@spath_28b7c276d15f7cf7b5c7\", \"max_retrievals_per_parent@spath_28b7c276d15f7cf7b5c7\", \"max_retrievals_per_parent@spath_4b0fd415c433b6e338bb\", \"max_retrievals_per_parent@spath_926cf607964c04f0c8c8\"], \"events_submitted_session\": [\"ppev_1e9654296132f727e347\", \"ppev_f1f8bd8edbe57e7870fc\"], \"runflow_version\": \"ppv1-runflow-3\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 2, \"state_appearances\": 3, \"hypotheses\": 2, \"events\": 2, \"report_projections\": 2, \"expansion_plans\": 2, \"event_appearance_links\": 4, \"provenance_records\": 0}, \"driver_session\": {\"pid\": 46617, \"acquired_at\": \"2026-10-08T01:39:35+00:00\", \"note\": \"flock 是执行权权威;崩溃 OS 自动释放\"}}, \"pid\": 46617}\n"
+}

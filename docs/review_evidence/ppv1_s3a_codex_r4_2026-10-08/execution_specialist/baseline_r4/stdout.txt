@@ -1,0 +1,1990 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF.........FFFFFFFFF [ 80%]
+FFFFFFFFFFFF.F.FF.                                                       [100%]
+=================================== FAILURES ===================================
+_ test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set0')
+phase = 'first_complete', mode = 'remove_ref_only'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set1')
+phase = 'first_complete', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[first_complete-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set2')
+phase = 'first_complete', mode = 'remove_ref_only'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set3')
+phase = 'first_complete', mode = 'remove_ref_and_row'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set4')
+phase = 'first_complete', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[first_complete-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set5')
+phase = 'first_complete', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set6')
+phase = 'B4_recover', mode = 'remove_ref_only', key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set7')
+phase = 'B4_recover', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set8')
+phase = 'B4_recover', mode = 'remove_ref_only'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set9')
+phase = 'B4_recover', mode = 'remove_ref_and_row'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set10')
+phase = 'B4_recover', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B4_recover-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set11')
+phase = 'B4_recover', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set12')
+phase = 'B1_recover', mode = 'remove_ref_only', key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set13')
+phase = 'B1_recover', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set14')
+phase = 'B1_recover', mode = 'remove_ref_only'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set15')
+phase = 'B1_recover', mode = 'remove_ref_and_row'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set16')
+phase = 'B1_recover', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B1_recover-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set17')
+phase = 'B1_recover', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set18')
+phase = 'B3_recover', mode = 'remove_ref_only', key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set19')
+phase = 'B3_recover', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set20')
+phase = 'B3_recover', mode = 'remove_ref_only'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set21')
+phase = 'B3_recover', mode = 'remove_ref_and_row'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set22')
+phase = 'B3_recover', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[B3_recover-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set23')
+phase = 'B3_recover', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set24')
+phase = 'done_recover', mode = 'remove_ref_only'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set25')
+phase = 'done_recover', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_recover-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set26')
+phase = 'done_recover', mode = 'remove_ref_only'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set27')
+phase = 'done_recover', mode = 'remove_ref_and_row'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set28')
+phase = 'done_recover', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_recover-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set29')
+phase = 'done_recover', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set30')
+phase = 'done_claim', mode = 'remove_ref_only', key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set31')
+phase = 'done_claim', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_claim-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set32')
+phase = 'done_claim', mode = 'remove_ref_only'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set33')
+phase = 'done_claim', mode = 'remove_ref_and_row'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set34')
+phase = 'done_claim', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_claim-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set35')
+phase = 'done_claim', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set36')
+phase = 'done_complete', mode = 'remove_ref_only'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set37')
+phase = 'done_complete', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_complete-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set38')
+phase = 'done_complete', mode = 'remove_ref_only'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set39')
+phase = 'done_complete', mode = 'remove_ref_and_row'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set40')
+phase = 'done_complete', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_complete-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set41')
+phase = 'done_complete', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set42')
+phase = 'done_submit', mode = 'remove_ref_only'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set43')
+phase = 'done_submit', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_submit-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set44')
+phase = 'done_submit', mode = 'remove_ref_only'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set45')
+phase = 'done_submit', mode = 'remove_ref_and_row'
+key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set46')
+phase = 'done_submit', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[done_submit-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set47')
+phase = 'done_submit', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set48')
+phase = 'defer', mode = 'remove_ref_only', key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set49')
+phase = 'defer', mode = 'remove_ref_only'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[defer-remove_ref_only-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set50')
+phase = 'defer', mode = 'remove_ref_only', key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_total_search_actions] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set51')
+phase = 'defer', mode = 'remove_ref_and_row', key = 'max_total_search_actions'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_alternative_hypotheses_per_parent] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set52')
+phase = 'defer', mode = 'remove_ref_and_row'
+key = 'max_alternative_hypotheses_per_parent'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+_ test_necessary_reservation_set_missing_refused[defer-remove_ref_and_row-max_attempts_per_hypothesis] _
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_necessary_reservation_set53')
+phase = 'defer', mode = 'remove_ref_and_row'
+key = 'max_attempts_per_hypothesis'
+
+    @pytest.mark.parametrize("key", NECESSARY_KEYS)
+    @pytest.mark.parametrize("mode", MUTATIONS)
+    @pytest.mark.parametrize("phase", PHASES)
+    def test_necessary_reservation_set_missing_refused(
+            tmp_path: Path, phase: str, mode: str, key: str) -> None:
+        """S3A-02 r4:合法 expand claim 本有总 action/alternatives/attempts
+        三类必要预约;仅从冻结引用清单删其中一项(或再删该行)⇒ 9 入口
+        全部结构化拒 —— 剩余清单非空/剩余行合法不能代替必要集合齐全;
+        坏 action 零新 commit/consume/成功确认,B3 零 event 新增、artifact
+        保全,done 不漏结算/不伪称 verified。"""
+        case = PhaseCase(tmp_path, phase)
+        mutate_necessary(case.ledger, case.action_id, key, mode)
+        case.store.close()
+    
+        ledger2 = fresh_ledger(case.db, case.runs_root, case.run)
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:225: Failed
+______________ test_one_action_budget_chain_total_removal_refused ______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_one_action_budget_chain_t0')
+
+    def test_one_action_budget_chain_total_removal_refused(
+            tmp_path: Path) -> None:
+        """S3A-02 r4 上限 1 完整链(复审 §4.1 独立钉子):干净链第一次完成
+        后第二 claim 按预算不足拒;仅第一次 claim 后删总额度 ref+row ⇒
+        第一次 complete 被必要集合判据拒(不再 used0/commits2 骗过
+        max_total=1);后续不同 hypothesis 的干净链仍可正常完成(损坏
+        只钉死被删证据的 action,不扩大为全面拒绝)。"""
+        name = "r4-chain"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_total_search_actions": 1})
+        _, _, hyp_a, event_a, ev_a = make_fixture(name, "p1", "k1", "ctx1")
+        out1 = enqueue(ledger, name, hyp_a.hypothesis_id, task_key="tk1")
+        ledger.claim_action(out1["action_id"], worker_id="w1")
+        ledger.submit_action_event(out1["action_id"], event_a,
+                                   worker_id="w1", **ev_a)
+        # 删总额度 ref+row(第一次 claim 后)
+        mutate_necessary(ledger, out1["action_id"],
+                         "max_total_search_actions", "remove_ref_and_row")
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:296: Failed
+_________________ test_cache_hit_retrieve_not_forced_necessary _________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_cache_hit_retrieve_not_fo0')
+
+    def test_cache_hit_retrieve_not_forced_necessary(tmp_path: Path) -> None:
+        """S3A-02 r4 正控:cache_hit 认领不落检索预约(创建规则的条件参数),
+        必要集合判据不强加未消费的资源预约 —— cache_hit retrieve 可完成;
+        非 cache_hit retrieve(预约行在)删 ref 同样拒。"""
+        name = "r4-cache"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        out = enqueue(ledger, name, "pool-1", kind=ACTION_KIND_RETRIEVE,
+                      depth=None, task_key="tk1")
+        ledger.claim_action(out["action_id"], worker_id="w1", cache_hit=True)
+        refs, _ = refs_of(ledger, out["action_id"])
+        assert refs  # 只有总 action 预约,无检索预约
+        limit_keys = {one(ledger, "SELECT limit_key FROM budget_reservations"
+                          " WHERE reservation_id = ?", (r,)) for r in refs}
+        assert "max_retrievals_per_parent" not in limit_keys
+        ledger.complete_action(out["action_id"], worker_id="w1",
+                               outcome_kind=COMMIT_KIND_OUTCOME)
+        assert action_status(ledger, out["action_id"]) == "done"
+    
+        # 非 cache_hit retrieve:删其中一条检索 ref ⇒ 完成前拒
+        out2 = enqueue(ledger, name, "pool-1", kind=ACTION_KIND_RETRIEVE,
+                       depth=None, revision=1, task_key="tk2")
+        ledger.claim_action(out2["action_id"], worker_id="w1")
+        mutate_necessary(ledger, out2["action_id"],
+                         "max_retrievals_per_parent", "remove_ref_only")
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:360: Failed
+________________ test_scenario_transition_necessary_reservation ________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_scenario_transition_neces0')
+
+    def test_scenario_transition_necessary_reservation(tmp_path: Path) -> None:
+        """S3A-02 r4:scenario_transition 的必要 transitions 预约同规则
+        (行存在 ⇒ 必须被引用);合法 transition 完成不受影响。"""
+        name = "r4-trans"
+        store, ledger, art, policy, db, runs_root = make_run(
+            tmp_path, name, {"max_scenario_transitions": 1})
+        out = enqueue(ledger, name, "scenario-x",
+                      kind=ACTION_KIND_SCENARIO_TRANSITION, depth=None,
+                      task_key="tk1")
+        ledger.claim_action(out["action_id"], worker_id="w1")
+        mutate_necessary(ledger, out["action_id"],
+                         "max_scenario_transitions", "remove_ref_only")
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:381: Failed
+__________ test_request_status_entries_policy_guard[null_limits-sent] __________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po0')
+damage = 'null_limits', entry = 'sent'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+________ test_request_status_entries_policy_guard[null_limits-response] ________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po1')
+damage = 'null_limits', entry = 'response'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+_________ test_request_status_entries_policy_guard[null_limits-failed] _________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po2')
+damage = 'null_limits', entry = 'failed'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+________ test_request_status_entries_policy_guard[missing_version-sent] ________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po3')
+damage = 'missing_version', entry = 'sent'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+______ test_request_status_entries_policy_guard[missing_version-response] ______
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po4')
+damage = 'missing_version', entry = 'response'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+_______ test_request_status_entries_policy_guard[missing_version-failed] _______
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po5')
+damage = 'missing_version', entry = 'failed'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+_____________ test_request_status_entries_policy_guard[bool-sent] ______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po6')
+damage = 'bool', entry = 'sent'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+___________ test_request_status_entries_policy_guard[bool-response] ____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po7')
+damage = 'bool', entry = 'response'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+____________ test_request_status_entries_policy_guard[bool-failed] _____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po8')
+damage = 'bool', entry = 'failed'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+_________ test_request_status_entries_policy_guard[out_of_range-sent] __________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po9')
+damage = 'out_of_range', entry = 'sent'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+_______ test_request_status_entries_policy_guard[out_of_range-response] ________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po10')
+damage = 'out_of_range', entry = 'response'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+________ test_request_status_entries_policy_guard[out_of_range-failed] _________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po11')
+damage = 'out_of_range', entry = 'failed'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+__________ test_request_status_entries_policy_guard[unknown_key-sent] __________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po12')
+damage = 'unknown_key', entry = 'sent'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+________ test_request_status_entries_policy_guard[unknown_key-response] ________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po13')
+damage = 'unknown_key', entry = 'response'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+_________ test_request_status_entries_policy_guard[unknown_key-failed] _________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po14')
+damage = 'unknown_key', entry = 'failed'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+___________ test_request_status_entries_policy_guard[negative-sent] ____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po15')
+damage = 'negative', entry = 'sent'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+_________ test_request_status_entries_policy_guard[negative-response] __________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po16')
+damage = 'negative', entry = 'response'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+__________ test_request_status_entries_policy_guard[negative-failed] ___________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_request_status_entries_po17')
+damage = 'negative', entry = 'failed'
+
+    @pytest.mark.parametrize("entry", STATUS_ENTRIES)
+    @pytest.mark.parametrize("damage", POLICY_DAMAGES)
+    def test_request_status_entries_policy_guard(
+            tmp_path: Path, damage: str, entry: str) -> None:
+        """S3A-03 r4:合法先登记的请求,存储 search_limits 被改成 null/缺
+        version/bool/越界/未知键/负数 ⇒ sent/response/failed 状态口在新
+        status 写入之前结构化拒(search_policy_block_corrupt),无成功状态
+        变化(与预算/claim/recover 同一守卫来源;不补默认、不依赖调用方
+        预验)。"""
+        name = f"r4-policy-{damage}-{entry}"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        status_before = REQUEST_STATUS_REGISTERED
+        if entry == "response":  # 合法策略下先到 sent
+            ledger.record_request_sent(req["request_id"])
+            status_before = REQUEST_STATUS_SENT
+        _damage_stored_policy(ledger, name, damage)
+    
+>       with pytest.raises(SearchRecoveryError) as ei:
+E       Failed: DID NOT RAISE SearchRecoveryError
+
+tests/test_ppv1_s3a_rework_r4.py:469: Failed
+________ test_mark_request_failed_unknown_status_refused_and_preserved _________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_mark_request_failed_unkno0')
+
+    def test_mark_request_failed_unknown_status_refused_and_preserved(
+            tmp_path: Path) -> None:
+        """S3A-04 r4:合法登记行仅改 status 为枚举外值后,mark_request_
+        failed 结构化拒(request_status_unknown)并保全 —— 未知生命周期
+        不能被正常化成合法终态 failed(原状态保留、零状态写入)。"""
+        name = "r4-unknown-failed"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        ledger.conn.execute(
+            "UPDATE model_requests SET status = 'corrupt-status' WHERE"
+            " request_id = ?", (req["request_id"],))
+        ledger.conn.commit()
+>       with pytest.raises(SearchContractError) as ei:
+E       Failed: DID NOT RAISE SearchContractError
+
+tests/test_ppv1_s3a_rework_r4.py:540: Failed
+_____________ test_register_same_key_unknown_stored_status_refused _____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_register_same_key_unknown0')
+
+    def test_register_same_key_unknown_stored_status_refused(
+            tmp_path: Path) -> None:
+        """S3A-04 r4:同键既有坏 status 的语义按完整性失败明确 —— 原参数
+        重登记不把坏状态当合法幂等 unchanged 返回,结构化拒、零写入、
+        坏行保全。"""
+        name = "r4-unknown-reuse"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        _, _, hyp, _, _ = make_fixture(name, "p1", "k1", "ctx1")
+        out = enqueue(ledger, name, hyp.hypothesis_id)
+        receipt = ledger.claim_action(out["action_id"], worker_id="w1")
+        base = dict(run_id=name, action_id=out["action_id"],
+                    attempt_id=receipt["attempt_refs"][0],
+                    provider_kind=PROVIDER_KIND_SCRIPTED, request_key="rk",
+                    purpose="rank", payload={"a": 1})
+        req = ledger.register_model_request(**base)
+        ledger.conn.execute(
+            "UPDATE model_requests SET status = 'corrupt-status' WHERE"
+            " request_id = ?", (req["request_id"],))
+        ledger.conn.commit()
+>       with pytest.raises(SearchIntegrityError) as ei:
+E       Failed: DID NOT RAISE SearchIntegrityError
+
+tests/test_ppv1_s3a_rework_r4.py:588: Failed
+________________ test_recover_discloses_unknown_status_requests ________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp/test_recover_discloses_unknown0')
+
+    def test_recover_discloses_unknown_status_requests(tmp_path: Path) -> None:
+        """S3A-04 r4:恢复对 run 范围状态枚举外的请求行结构化披露
+        (unknown_status_requests)—— 不伪装合法 pending、不改状态、不
+        猜补(跨 run 行不在本 run 扫描内是已登记作用域边界)。"""
+        name = "r4-unknown-recover"
+        store, ledger, art, policy, db, runs_root = make_run(tmp_path, name)
+        req = _claimed_expand_with_request(ledger, name)
+        ledger.conn.execute(
+            "UPDATE model_requests SET status = 'corrupt-status' WHERE"
+            " request_id = ?", (req["request_id"],))
+        ledger.conn.commit()
+        store.close()
+    
+        ledger2 = fresh_ledger(db, runs_root, name)
+        report = ledger2.recover_run(name)
+        assert all(p["request_id"] != req["request_id"]
+                   for p in report["pending_requests"])  # 不伪装合法 pending
+>       disclosed = report["unknown_status_requests"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'unknown_status_requests'
+
+tests/test_ppv1_s3a_rework_r4.py:614: KeyError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_source/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+78 failed, 12 passed, 1 warning in 1.57s

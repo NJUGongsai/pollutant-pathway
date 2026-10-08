@@ -1,0 +1,17 @@
+{"case": "clean_repeat", "classification": "legal_control", "kind": "request", "observed_assertion_passed": true}
+{"case": "payload_changed", "classification": "observed_identity_gap", "kind": "request", "observed_assertion_passed": true}
+{"case": "purpose_changed", "classification": "observed_identity_gap", "kind": "request", "observed_assertion_passed": true}
+{"case": "same_request_different_action", "classification": "observed_identity_gap", "kind": "request", "observed_assertion_passed": true}
+{"case": "unclaimed_action", "classification": "observed_request_authority_gap", "kind": "request", "network_calls": 0, "observed_assertion_passed": true}
+{"case": "nonexistent_action", "classification": "observed_request_authority_gap", "kind": "request", "network_calls": 0, "observed_assertion_passed": true}
+{"case": "foreign_attempt", "classification": "observed_request_authority_gap", "kind": "request", "network_calls": 0, "observed_assertion_passed": true}
+{"case": "request_hash_corrupt", "classification": "observed_existing_request_integrity_gap", "kind": "request", "observed_assertion_passed": true}
+{"case": "request_sent_after_defer", "classification": "observed_request_lifecycle_gap", "kind": "request", "network_calls": 0, "observed_assertion_passed": true}
+{"case": "legal_lifecycle", "classification": "legal_control", "kind": "request", "observed_assertion_passed": true}
+{"case": "real_zero_control", "classification": "legal_zero_guard", "kind": "request", "observed_assertion_passed": true}
+{"case": "clean", "classification": "legal_control", "kind": "policy", "observed_assertion_passed": true}
+{"case": "out_of_range", "classification": "observed_policy_first_consumer_gap", "kind": "policy", "observed_assertion_passed": true}
+{"case": "bool_limit", "classification": "observed_policy_first_consumer_gap", "kind": "policy", "observed_assertion_passed": true}
+{"case": "unknown_key", "classification": "observed_policy_first_consumer_gap", "kind": "policy", "observed_assertion_passed": true}
+{"case": "negative", "classification": "observed_policy_first_consumer_gap", "kind": "policy", "observed_assertion_passed": true}
+{"all_observed_assertions_passed": true, "external_model_calls_observed": 0, "footer_records": 0, "gaps_still_present": true, "legal_controls_preserved": true, "metadata_records": 1, "policy_cases": 5, "probe_or_pytest_bodies_executed_by_assertion": false, "request_cases": 11}

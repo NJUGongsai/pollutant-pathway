@@ -1,0 +1,177 @@
+{
+  "failed": 33,
+  "passed": 24,
+  "behavior_red": 26,
+  "new_field_or_table_red": 7,
+  "failures": [
+    {
+      "name": "test_r6_01_complex_cosubstrate_completion_not_full[CC=O]",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert 'verified' == 'unknown'\nE         - unknown\n+ verified"
+    },
+    {
+      "name": "test_r6_01_complex_cosubstrate_completion_not_full[C1CO1]",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert 'verified' == 'unknown'\nE         - unknown\n+ verified"
+    },
+    {
+      "name": "test_r6_01_complex_cosubstrate_completion_not_full[C=CO]",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert 'verified' == 'unknown'\nE         - unknown\n+ verified"
+    },
+    {
+      "name": "test_r6_01_license_scope_machine_disclosed",
+      "classification": "new_field_or_table_missing",
+      "errors": "KeyError: 'completion_license'"
+    },
+    {
+      "name": "test_r6_01_hydrogen_equivalent_controls_stay_full",
+      "classification": "new_field_or_table_missing",
+      "errors": "KeyError: 'unlicensed_uncovered_identities'"
+    },
+    {
+      "name": "test_r6_01_license_binds_strict_identity_not_class_name",
+      "classification": "new_disclosure_kind_missing",
+      "errors": "AssertionError: assert 'completion_license_unregistered_identity' in {'completion_deficit', 'completion_surplus'}",
+      "note": "Core unknown and non-full assertions already pass at baseline; error is missing new license violation kind, not direct KeyError."
+    },
+    {
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE ChemicalStateError"
+    },
+    {
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:hello::::,r|]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE ChemicalStateError"
+    },
+    {
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:a,b::::,r|]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE ChemicalStateError"
+    },
+    {
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CCCCCC |Sg:n:1,2,3:3:ht:::,r|]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE ChemicalStateError"
+    },
+    {
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[C1CCCCC1 |atomProp:0.note.hello,Ln:1|]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE ChemicalStateError"
+    },
+    {
+      "name": "test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:hello::::,r,a:1|]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE ChemicalStateError"
+    },
+    {
+      "name": "test_r6_02a_registered_content_passes[CC |atomProp:0.note.hello world|]",
+      "classification": "behavior_red",
+      "errors": "pathway_v43.pollutant.chemstate.ChemicalStateError: CX 输入扩展段含未登记旗标块:'world'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;未知旗标类显式拒绝)\nFailed: 登记内容被误拒:{'kind': 'unregistered_cx_class', 'block': 'world'}"
+    },
+    {
+      "name": "test_r6_02a_registered_content_passes[CO |SgD:0:note:hello world::::|]",
+      "classification": "behavior_red",
+      "errors": "pathway_v43.pollutant.chemstate.ChemicalStateError: CX 输入扩展段含未登记注记类:'world'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;登记类:atomProp/SgD/$(…)$/(…)/Sg/a/oN/&N/^N;未知类显式拒绝)\nFailed: 登记内容被误拒:{'kind': 'unregistered_cx_class', 'block': 'world::::', 'head': 'world'}"
+    },
+    {
+      "name": "test_r6_02a_registered_content_passes[C |$foo bar;$|]",
+      "classification": "behavior_red",
+      "errors": "pathway_v43.pollutant.chemstate.ChemicalStateError: CX 输入扩展段含未登记旗标块:'$foo'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;未知旗标类显式拒绝)\nFailed: 登记内容被误拒:{'kind': 'unregistered_cx_class', 'block': '$foo'}"
+    },
+    {
+      "name": "test_r6_02b_donor_raw_r_rejected_all_four_entries[current]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE AuditContractError"
+    },
+    {
+      "name": "test_r6_02b_donor_raw_r_rejected_all_four_entries[mapped]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE AuditContractError"
+    },
+    {
+      "name": "test_r6_02b_donor_raw_r_rejected_all_four_entries[plain]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE AuditContractError"
+    },
+    {
+      "name": "test_r6_02b_donor_raw_r_rejected_all_four_entries[target]",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE AuditContractError"
+    },
+    {
+      "name": "test_r6_02b_audit_rerun_rejects_tainted_proof_record",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE AuditContractError"
+    },
+    {
+      "name": "test_r6_02b_chiral_substrate_remote_edit_r_rejected",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE AuditContractError"
+    },
+    {
+      "name": "test_r6_03_untempered_child_keeps_honest_unknown",
+      "classification": "new_field_or_table_missing",
+      "errors": "KeyError: 'requirement_signature'"
+    },
+    {
+      "name": "test_r6_03_derive_rejects_tampered_parent",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE ConditionContractError"
+    },
+    {
+      "name": "test_r6_03_signature_row_correspondence_error_is_specific",
+      "classification": "behavior_red",
+      "errors": "Failed: DID NOT RAISE ConditionContractError"
+    },
+    {
+      "name": "test_r6_04_existing_state_corrupt_first_submit_rejected[cn_identity-state_row_corrupt]",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert {'created': True} == {'error': 'Pp..._row_corrupt'}\nE         Left contains 1 more item:\n{'created': True}\nRight contains 2 more items:\n{'error': 'Ppv1LedgerCorrupt', 'kind': 'state_row_corrupt'}\nUse -v to get more diff"
+    },
+    {
+      "name": "test_r6_04_existing_state_corrupt_first_submit_rejected[schema_version-state_schema_corrupt]",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert {'created': True} == {'error': 'Pp...hema_corrupt'}\nE         Left contains 1 more item:\n{'created': True}\nRight contains 2 more items:\n{'error': 'Ppv1LedgerCorrupt', 'kind': 'state_schema_corrupt'}\nUse -v to get more diff"
+    },
+    {
+      "name": "test_r6_04_existing_state_corrupt_first_submit_rejected[state_id-state_inner_id_corrupt]",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert {'created': True} == {'error': 'Pp...r_id_corrupt'}\nE         Left contains 1 more item:\n{'created': True}\nRight contains 2 more items:\n{'error': 'Ppv1LedgerCorrupt', 'kind': 'state_inner_id_corrupt'}\nUse -v to get more diff"
+    },
+    {
+      "name": "test_r6_04_existing_appearance_corrupt_first_submit_rejected",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert {'created': True} == {'error': 'Pp...hash_corrupt'}\nE         Left contains 1 more item:\n{'created': True}\nRight contains 2 more items:\n{'error': 'Ppv1LedgerCorrupt', 'kind': 'appearance_hash_corrupt'}\nUse -v to get more diff"
+    },
+    {
+      "name": "test_r6_05_multi_source_manifest_and_links_control",
+      "classification": "new_field_or_table_missing",
+      "errors": "sqlite3.OperationalError: no such table: event_appearance_links"
+    },
+    {
+      "name": "test_r6_05_delete_manifest_entry_leaving_other_corrupt",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert {'created': False} == {'error': 'Pp...link_corrupt'}\nE         Left contains 1 more item:\n{'created': False}\nRight contains 2 more items:\n{'error': 'Ppv1LedgerCorrupt', 'kind': 'event_appearance_manifest_link_corrupt'}\nUse -v to get more diff"
+    },
+    {
+      "name": "test_r6_05_delete_manifest_entry_and_row_corrupt",
+      "classification": "behavior_red",
+      "errors": "AssertionError: assert {'created': False} == {'error': 'Pp...link_corrupt'}\nE         Left contains 1 more item:\n{'created': False}\nRight contains 2 more items:\n{'error': 'Ppv1LedgerCorrupt', 'kind': 'event_appearance_manifest_link_corrupt'}\nUse -v to get more diff"
+    },
+    {
+      "name": "test_r6_05_delete_link_rows_only_corrupt",
+      "classification": "new_field_or_table_missing",
+      "errors": "sqlite3.OperationalError: no such table: event_appearance_links"
+    },
+    {
+      "name": "test_r6_05_order_idempotence_links_set_control",
+      "classification": "new_field_or_table_missing",
+      "errors": "sqlite3.OperationalError: no such table: event_appearance_links"
+    }
+  ],
+  "new_field_or_table_direct_failure": 6,
+  "new_disclosure_kind_failure": 1,
+  "delivery_classification_note": "33/24 and broad 26 behavior +7 disclosure/schema grouping corroborated; narrow claim all 7 are KeyError/new table failures is inaccurate."
+}

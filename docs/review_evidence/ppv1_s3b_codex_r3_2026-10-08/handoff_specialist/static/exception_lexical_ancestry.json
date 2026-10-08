@@ -1,0 +1,159 @@
+{
+  "src/pathway_v43/pollutant/audit.py": {
+    "AuditContractError_raise": [
+      {
+        "line": 2547,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 739,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 1589,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 1596,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 1603,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 1607,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 464,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 2584,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 1076,
+        "lexical_try_ancestry": []
+      },
+      {
+        "line": 1110,
+        "lexical_try_ancestry": []
+      }
+    ],
+    "except_handlers": [
+      {
+        "line": 1956,
+        "type": "Exception"
+      },
+      {
+        "line": 2054,
+        "type": "Exception"
+      },
+      {
+        "line": 2214,
+        "type": "Exception"
+      },
+      {
+        "line": 2316,
+        "type": "Exception"
+      },
+      {
+        "line": 2331,
+        "type": "Exception"
+      },
+      {
+        "line": 2491,
+        "type": "Exception"
+      },
+      {
+        "line": 2583,
+        "type": "ChemicalStateError"
+      },
+      {
+        "line": 860,
+        "type": "ChemicalStateError"
+      },
+      {
+        "line": 2678,
+        "type": "ChemicalStateError"
+      }
+    ],
+    "wide_Exception_count": 6,
+    "AuditContractError_catch_count": 0
+  },
+  "src/pathway_v43/pollutant/runflow.py": {
+    "AuditContractError_raise": [],
+    "except_handlers": [
+      {
+        "line": 251,
+        "type": "SearchArtifactIntegrityError"
+      },
+      {
+        "line": 1365,
+        "type": "FileExistsError"
+      },
+      {
+        "line": 315,
+        "type": "(ValueError, TypeError)"
+      },
+      {
+        "line": 421,
+        "type": "OSError"
+      },
+      {
+        "line": 443,
+        "type": "OSError"
+      },
+      {
+        "line": 999,
+        "type": "ModelProtocolError"
+      },
+      {
+        "line": 1091,
+        "type": "AuditContractError"
+      },
+      {
+        "line": 451,
+        "type": "OSError"
+      },
+      {
+        "line": 648,
+        "type": "SearchBudgetExhausted"
+      },
+      {
+        "line": 655,
+        "type": "(SearchClaimError, SearchConcurrencyError)"
+      },
+      {
+        "line": 686,
+        "type": "SearchCrashInjection"
+      },
+      {
+        "line": 688,
+        "type": "(PPV1RunError, ModelProtocolError, SearchContractError)"
+      },
+      {
+        "line": 828,
+        "type": "SearchBudgetExhausted"
+      },
+      {
+        "line": 426,
+        "type": "(ValueError, OSError)"
+      },
+      {
+        "line": 1010,
+        "type": "SearchBudgetExhausted"
+      }
+    ],
+    "wide_Exception_count": 0,
+    "AuditContractError_catch_count": 1
+  },
+  "src/pathway_v43/pollutant/production.py": {
+    "AuditContractError_raise": [],
+    "except_handlers": [],
+    "wide_Exception_count": 0,
+    "AuditContractError_catch_count": 0
+  }
+}

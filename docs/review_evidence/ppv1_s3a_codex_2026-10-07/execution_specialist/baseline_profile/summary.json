@@ -1,0 +1,131 @@
+{
+  "totals": {
+    "tests": 23,
+    "errors": 0,
+    "failures": 2,
+    "skipped": 0,
+    "passed": 21
+  },
+  "cases": [
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_profile_names_registry",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_identity_schema_version_bumped",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_contract_versions",
+      "state": "failure",
+      "message": "AssertionError: assert 'ppv1-profile-8' == 'ppv1-profile-9'\n  \n  - ppv1-profile-9\n  ?              ^\n  + ppv1-profile-8\n  ?              ^",
+      "body": "def test_ppv1_identity_block_contract_versions() -> None:\n        block = ri and ppv1_profile.build_profile_identity_block()\n        assert block[\"name\"] == \"pollutant_pathway_v1\"\n>       assert block[\"schema_version\"] == \"ppv1-profile-9\"\nE       AssertionError: assert 'ppv1-profile-8' == 'ppv1-profile-9'\nE         \nE         - ppv1-profile-9\nE         ?              ^\nE         + ppv1-profile-8\nE         ?              ^\n\ntests/test_ppv1_profile.py:46: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_default_switches",
+      "state": "failure",
+      "message": "AssertionError: assert 'ppv1-search-...ts-2-proposed' == 'ppv1-search-limits-3'\n  \n  - ppv1-search-limits-3\n  ?                    ^\n  + ppv1-search-limits-2-proposed\n  ?                    ^^^^^^^^^^",
+      "body": "def test_ppv1_identity_block_default_switches() -> None:\n        block = ppv1_profile.build_profile_identity_block()\n        assert block[\"input_preview_policy\"] == \"off\"\n        assert block[\"chemical_reproposal\"] == \"off\"\n        assert block[\"search_intent\"] == \"exploration\"\n        # S3a:search-limits 由 -2-proposed 草案升为实际可执行版本 v3\n>       assert block[\"search_limits\"][\"version\"] == \"ppv1-search-limits-3\"\nE       AssertionError: assert 'ppv1-search-...ts-2-proposed' == 'ppv1-search-limits-3'\nE         \nE         - ppv1-search-limits-3\nE         ?                    ^\nE         + ppv1-search-limits-2-proposed\nE         ?                    ^^^^^^^^^^\n\ntests/test_ppv1_profile.py:76: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[input_preview_policy-filter]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[input_preview_policy-None]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[search_intent-anything_goes]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_search_limits_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_excludes_pollutant_for_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_pollutant_includes_full_tree",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_legacy_stable_under_pollutant_changes",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_default_is_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_legacy_rejects_profile_policy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_pollutant_block",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_check_resume_identity_profile_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_check_resume_identity_v1_missing_profile_read_as_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_identity_fingerprint_includes_profile",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_start_run_pollutant_refused_no_dir_created",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_start_run_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_cli_profile_flag_choices",
+      "state": "passed"
+    }
+  ],
+  "exit_code": 1
+}

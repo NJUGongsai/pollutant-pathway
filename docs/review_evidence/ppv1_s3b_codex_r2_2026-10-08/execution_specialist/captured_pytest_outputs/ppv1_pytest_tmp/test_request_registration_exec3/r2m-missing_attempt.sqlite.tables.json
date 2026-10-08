@@ -1,0 +1,248 @@
+{
+  "source": {
+    "path": "ppv1_pytest_tmp/test_request_registration_exec3/r2m-missing_attempt.sqlite",
+    "bytes": 163840,
+    "sha256": "982b4e21c4e0badb87470b0b3d1e8de179a0ad812a8072f58beb050817f80614"
+  },
+  "open_mode": "ro",
+  "tables": {
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_801e2d876b7086dd2660",
+        "run_id": "r2m-missing_attempt",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_9df17c8bcc16a1f9cb33",
+        "units": 1,
+        "action_id": "sact_9df17c8bcc16a1f9cb33",
+        "status": "reserved",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_21023e7f364e429c026f",
+        "run_id": "r2m-missing_attempt",
+        "limit_key": "max_alternative_hypotheses_per_parent",
+        "scope": "p1",
+        "subject": "hyp_c05a8c0a125d866ad156",
+        "units": 1,
+        "action_id": "sact_9df17c8bcc16a1f9cb33",
+        "status": "reserved",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_8aaf80ae7c2fdf3f731c",
+        "run_id": "r2m-missing_attempt",
+        "limit_key": "max_attempts_per_hypothesis",
+        "scope": "hyp_c05a8c0a125d866ad156",
+        "subject": "sattempt_deac216c9f930b4be2b0",
+        "units": 1,
+        "action_id": "sact_9df17c8bcc16a1f9cb33",
+        "status": "reserved",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_ee96479fff4a31f59b45",
+        "run_id": "r2m-missing_attempt",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_05184b4a01171cb11ac4",
+        "units": 1,
+        "action_id": "sact_05184b4a01171cb11ac4",
+        "status": "reserved",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "settled_at": null
+      }
+    ],
+    "event_appearance_links": [],
+    "events": [],
+    "expansion_plans": [],
+    "hypotheses": [],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [],
+    "search_actions": [
+      {
+        "action_id": "sact_9df17c8bcc16a1f9cb33",
+        "run_id": "r2m-missing_attempt",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "hyp_c05a8c0a125d866ad156",
+        "action_kind": "expand_hypothesis",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"frozen_pool_digest\": \"pool-A\", \"source_event_id\": \"\", \"task_key\": \"tkA\"}",
+        "task_key": "tkA",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_21023e7f364e429c026f\", \"sres_801e2d876b7086dd2660\", \"sres_8aaf80ae7c2fdf3f731c\"]",
+        "attempt_refs": "[\"sattempt_deac216c9f930b4be2b0\"]",
+        "defer_reason": "",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "claimed_at": "2026-10-08T00:18:24+00:00",
+        "claimed_by": "w1",
+        "updated_at": null
+      },
+      {
+        "action_id": "sact_05184b4a01171cb11ac4",
+        "run_id": "r2m-missing_attempt",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "pool-1",
+        "action_kind": "decide",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"source_event_id\": \"\", \"task_key\": \"tkD\"}",
+        "task_key": "tkD",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_ee96479fff4a31f59b45\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "claimed_at": "2026-10-08T00:18:24+00:00",
+        "claimed_by": "w1",
+        "updated_at": null
+      },
+      {
+        "action_id": "sact_dc7e59ae1b7b9ef81f52",
+        "run_id": "r2m-missing_attempt",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "hyp-pend",
+        "action_kind": "expand_hypothesis",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "pending",
+        "payload": "{\"frozen_pool_digest\": \"pool-A\", \"source_event_id\": \"\", \"task_key\": \"tkP\"}",
+        "task_key": "tkP",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "claimed_at": null,
+        "claimed_by": null,
+        "updated_at": null
+      },
+      {
+        "action_id": "sact_9d1e31f5c93f4ac9a140",
+        "run_id": "r2m-missing_attempt",
+        "parent_path_id": "p1",
+        "context_ref": "ctx1",
+        "subject_ref": "hyp_ee1fa1447db6a966fda3",
+        "action_kind": "expand_hypothesis",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "pending",
+        "payload": "{\"frozen_pool_digest\": \"pool-A\", \"source_event_id\": \"\", \"task_key\": \"tkP2\"}",
+        "task_key": "tkP2",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "claimed_at": null,
+        "claimed_by": null,
+        "updated_at": null
+      }
+    ],
+    "search_attempts": [
+      {
+        "expansion_attempt_id": "sattempt_deac216c9f930b4be2b0",
+        "run_id": "r2m-missing_attempt",
+        "action_id": "sact_9df17c8bcc16a1f9cb33",
+        "hypothesis_id": "hyp_c05a8c0a125d866ad156",
+        "attempt_index": 1,
+        "reopen_of": "",
+        "status": "open",
+        "task_key": "tkA",
+        "payload_hash": "",
+        "outcome_ref": "",
+        "created_at": "2026-10-08T00:18:24+00:00",
+        "recorded_at": null
+      }
+    ],
+    "search_commit_records": [],
+    "search_runs": [
+      {
+        "run_id": "r2m-missing_attempt",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-8\", \"event\": \"ppv1-event-8\", \"format_feedback\": \"ppv1-format-feedback-1\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"profile\": \"ppv1-profile-14\", \"provenance\": \"ppv1-provenance-8\", \"search\": \"ppv1-search-6\", \"store\": \"ppv1-store-9\", \"substrate_profile\": \"ppv1-substrate-profile-8\"}, \"delivered_stages\": \"S0-S2,S3a-base,S3b\", \"format_feedback_policy\": {\"max_format_feedback_rounds\": 0, \"version\": \"ppv1-format-feedback-1\"}, \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-14\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 2, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 64, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-08T00:18:24+00:00"
+      }
+    ],
+    "state_appearances": [],
+    "states": []
+  },
+  "schema": [
+    {
+      "name": "budget_reservations",
+      "sql": "CREATE TABLE budget_reservations (\n    reservation_id TEXT PRIMARY KEY,\n    run_id        TEXT NOT NULL,\n    limit_key     TEXT NOT NULL,\n    scope         TEXT NOT NULL DEFAULT '',\n    subject       TEXT NOT NULL DEFAULT '',\n    units         INTEGER NOT NULL,\n    action_id     TEXT NOT NULL DEFAULT '',\n    status        TEXT NOT NULL,\n    created_at    TEXT NOT NULL,\n    settled_at    TEXT\n)"
+    },
+    {
+      "name": "event_appearance_links",
+      "sql": "CREATE TABLE event_appearance_links (\n    event_id        TEXT NOT NULL,\n    state_id        TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    PRIMARY KEY (event_id, state_id, appearance_hash)\n)"
+    },
+    {
+      "name": "events",
+      "sql": "CREATE TABLE events (\n    event_id           TEXT PRIMARY KEY,\n    run_id             TEXT NOT NULL,\n    parent_path_id     TEXT NOT NULL,\n    hypothesis_id      TEXT NOT NULL,\n    context_hash       TEXT NOT NULL,\n    event_semantics_hash TEXT NOT NULL,\n    payload            TEXT NOT NULL,\n    created_at         TEXT NOT NULL,\n    UNIQUE (run_id, parent_path_id, hypothesis_id, context_hash,\n            event_semantics_hash)\n)"
+    },
+    {
+      "name": "expansion_plans",
+      "sql": "CREATE TABLE expansion_plans (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "hypotheses",
+      "sql": "CREATE TABLE hypotheses (\n    hypothesis_id  TEXT PRIMARY KEY,\n    parent_path_id TEXT NOT NULL,\n    context_hash   TEXT NOT NULL DEFAULT '',\n    payload        TEXT NOT NULL,\n    created_at     TEXT NOT NULL\n)"
+    },
+    {
+      "name": "meta",
+      "sql": "CREATE TABLE meta (\n    key   TEXT PRIMARY KEY,\n    value TEXT NOT NULL\n)"
+    },
+    {
+      "name": "model_requests",
+      "sql": "CREATE TABLE model_requests (\n    request_id   TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    provider_kind TEXT NOT NULL,\n    purpose      TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    network_request_count INTEGER NOT NULL DEFAULT 0,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    response_ref TEXT NOT NULL DEFAULT '',\n    retry_of     TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    updated_at   TEXT\n)"
+    },
+    {
+      "name": "provenance_records",
+      "sql": "CREATE TABLE provenance_records (\n    record_id TEXT PRIMARY KEY,\n    run_id    TEXT NOT NULL,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "report_projections",
+      "sql": "CREATE TABLE report_projections (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "search_actions",
+      "sql": "CREATE TABLE search_actions (\n    action_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    parent_path_id TEXT NOT NULL DEFAULT '',\n    context_ref  TEXT NOT NULL DEFAULT '',\n    subject_ref  TEXT NOT NULL DEFAULT '',\n    action_kind  TEXT NOT NULL,\n    parent_search_revision INTEGER NOT NULL DEFAULT 0,\n    policy_version TEXT NOT NULL,\n    status       TEXT NOT NULL,\n    payload      TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    budget_reservation_ref TEXT NOT NULL DEFAULT '[]',\n    attempt_refs TEXT NOT NULL DEFAULT '[]',\n    defer_reason TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    claimed_at   TEXT,\n    claimed_by   TEXT,\n    updated_at   TEXT\n)"
+    },
+    {
+      "name": "search_attempts",
+      "sql": "CREATE TABLE search_attempts (\n    expansion_attempt_id TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    hypothesis_id TEXT NOT NULL DEFAULT '',\n    attempt_index INTEGER NOT NULL,\n    reopen_of    TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    payload_hash TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    recorded_at  TEXT\n)"
+    },
+    {
+      "name": "search_commit_records",
+      "sql": "CREATE TABLE search_commit_records (\n    commit_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    event_id     TEXT NOT NULL DEFAULT '',\n    commit_kind  TEXT NOT NULL,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL\n)"
+    },
+    {
+      "name": "search_runs",
+      "sql": "CREATE TABLE search_runs (\n    run_id       TEXT PRIMARY KEY,\n    policy_block TEXT NOT NULL,\n    created_at   TEXT NOT NULL\n)"
+    },
+    {
+      "name": "state_appearances",
+      "sql": "CREATE TABLE state_appearances (\n    state_id    TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    payload     TEXT NOT NULL,\n    created_at  TEXT NOT NULL,\n    PRIMARY KEY (state_id, appearance_hash)\n)"
+    },
+    {
+      "name": "states",
+      "sql": "CREATE TABLE states (\n    state_id   TEXT PRIMARY KEY,\n    payload    TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    }
+  ],
+  "read_succeeded": true
+}

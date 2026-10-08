@@ -1,0 +1,44 @@
+{
+  "review": "pollutant_pathway_v1 S3a-r3 independent review",
+  "event": "ChatGPT account usage-limit interruption followed by user-authorized resume",
+  "interruption_cause": "Account usage limit; not a code error or a validation failure",
+  "exact_interruption_start_utc": null,
+  "exact_interruption_end_utc": null,
+  "timing_note": "Exact interruption start and end are unknown. The recorded clock below is the observed resume clock, not a claim about when the account limit cleared.",
+  "observed_resume_clock_utc": "2026-10-07 18:04:51 UTC",
+  "observed_resume_clock_local": "2026-10-08 02:04:51 Asia/Shanghai",
+  "actual_head": "41d0cd55f3def050a62325f00235cf22da302d2e",
+  "actual_parent": "dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03",
+  "head_parent_note": "HEAD and parent remain unchanged across the interruption, as supplied by the parent reviewer.",
+  "completed_results_reused": {
+    "ppv1_full": {
+      "passed": 697,
+      "skipped": 0
+    },
+    "direct_parent_r3_new_regressions": {
+      "failed": 40,
+      "passed": 9
+    },
+    "safe_isolated_g01": {
+      "passed": 1299,
+      "skipped": 8,
+      "deselected": 17
+    },
+    "specialist_evidence_packages": 3,
+    "staged_evidence_files": 833,
+    "cross_checks": "Previously completed cross-checks retained"
+  },
+  "results_provenance_note": "This record preserves completed review results supplied by the parent reviewer; this recording subagent did not execute, repeat, or independently recount those validations.",
+  "user_output_volume_statement": {
+    "statement": "About 5800 lines of output completed before interruption",
+    "status": "User description only; not an exact independently counted output total"
+  },
+  "publication_status_at_resume": "Review report and permanent evidence directory not yet published; completed packages and staging retained",
+  "remaining_work_at_resume": [
+    "Documentation synchronization",
+    "Evidence archive publication",
+    "SHA-256 manifest and final archive verification"
+  ],
+  "no_completed_validation_rerun": true,
+  "scope_of_this_recording_action": "Only create this new JSON record; no tests, probes, models, repository changes, staging changes, or existing evidence changes"
+}

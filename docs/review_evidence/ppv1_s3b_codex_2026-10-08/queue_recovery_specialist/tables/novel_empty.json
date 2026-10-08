@@ -1,0 +1,439 @@
+{
+  "artifacts": {
+    "results/ctx:pc_0757aa71e8cd78057880/path_context.json": {
+      "content": {
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "name": "path_context",
+        "payload": {
+          "accumulated_requirements": [],
+          "assessed_scope": "possible",
+          "assessment_scope": [],
+          "assumptions": [],
+          "condition_facts": [],
+          "context_id": "pc_0757aa71e8cd78057880",
+          "dependencies": [],
+          "dependency_refs": [],
+          "parent_context_ref": "",
+          "phase_history": [],
+          "phase_id": "phase-0",
+          "requested_scope": "possible",
+          "scenario_ref": "",
+          "scenario_transition": null,
+          "schema_version": "ppv1-context-8"
+        },
+        "payload_hash": "034cabb10a2f3385d001f9850a55fded0e57289cfa4d943808948305cf27f151",
+        "run_id": "novel_empty",
+        "schema_version": "v43-artifact-1",
+        "task_id": "ctx:pc_0757aa71e8cd78057880"
+      },
+      "sha256": "19feed9366ca196c3f9dd39a99e05b1bc974403ae41726f22584c15a70dc7354"
+    },
+    "results/soutc_4e4f4119b9d5bccc5132/expansion_outcome.json": {
+      "content": {
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "name": "expansion_outcome",
+        "payload": {
+          "action_id": "sact_7e56813cccb629120c60",
+          "evidence_refs": [],
+          "outcome": {
+            "detail": {
+              "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+              "source_event_id": "",
+              "substrate_smiles": "CCO",
+              "unresolved_continuation": false
+            },
+            "kind": "no_local_candidate"
+          },
+          "outcome_version": "ppv1-runflow-outcome-1"
+        },
+        "payload_hash": "b855986babfccd6404ef1595578477ab2b3f466223d4681877cf198a1923eaca",
+        "run_id": "novel_empty",
+        "schema_version": "v43-artifact-1",
+        "task_id": "soutc_4e4f4119b9d5bccc5132"
+      },
+      "sha256": "56f0b7e89012d914663e89f41b2a4082e19f47f977a9e6ad3408cb7a4be39411"
+    }
+  },
+  "identity": {
+    "adjudication": {
+      "policy_version": "v43-repadj-1",
+      "schema_version": "v43-report-adjudication-2"
+    },
+    "asset_identity": {
+      "manifest_sha256": "scripted-fixture",
+      "mode": "scripted_fixture",
+      "source_file": "fixtures://scripted",
+      "source_file_sha256": "scripted-fixture"
+    },
+    "code_identity": {
+      "aggregate_sha256": "28009a4cc83d6bd0351131b1a706f081814e82fe23c071348c0b0a1ecf66b47a",
+      "files": {
+        "pathway_v43/__init__.py": "b7f8e2defbc83993bbda4646fb00c1f5d6827e5d60b2969aec66c7197d74e902",
+        "pathway_v43/__main__.py": "ff1785110aceb696ad16d05ca1392122a24fd00278a88ba9d0f75add3abfdbc4",
+        "pathway_v43/adapters/__init__.py": "58c8d9b6a5fc2541c900fb8f77a289b69313badd7ee38985d601411bbf4c85cd",
+        "pathway_v43/adapters/analog_index.py": "816f170d241bd97f6e28688f7ed99d684b2e327b83d9b8057ff758af98ec986f",
+        "pathway_v43/adapters/asset_manifest.py": "64741d9b715e3de3d68f90d98bd07edf86511f0be59b025b35d772f9fc2fb85f",
+        "pathway_v43/adapters/llm_client.py": "fa02e29efb976b949b2055a1509fbbdfbc52e67af1490e7f543f3bba07c94d24",
+        "pathway_v43/adapters/rate_gate.py": "55765ac7b35ad5cf6f9f76004f34594b54d943febca58a67705797d1cedcfa58",
+        "pathway_v43/adapters/v3_engine.py": "0bd077aa0710bd6b539cce16c8e23498eeb642136fee50269e71ce5164ce6580",
+        "pathway_v43/batch.py": "210cca2b3e3836afcf09dff767c6c6b5dea73bc725901ff8b4162b079e81c24a",
+        "pathway_v43/config.py": "1bc848ce2b2610917cfdbcf5cfc75d00ef47b74f2ec2aa397e891bde87c1ecc7",
+        "pathway_v43/domain/__init__.py": "861b86b86334790ad1f4fc31ac2825c3e675e78d91176f485c02d02aac078739",
+        "pathway_v43/domain/identity.py": "9868fe8fb7daf6dd602abce053a84f35e1512155269e2b9d9e1d9bd89125f1dd",
+        "pathway_v43/domain/models.py": "031c45a919f6f454acd4927d231294275f726b2ade9a9d32c0b66c3dd6cc5fc7",
+        "pathway_v43/domain/pathway.py": "1dd252c2e52808a62b874a4151a83ebe0600054981574c46144b9490c621579c",
+        "pathway_v43/domain/policy.py": "de206eac69f3c799a36068b1e919f62502379fbfa61725d654b11f8f1c0d055b",
+        "pathway_v43/exam.py": "1fb73303cdc277c85bed4ca53b635981d1f00fcc619211ecbf0fa37ae91d37d8",
+        "pathway_v43/exam_v2.py": "058a51df67fc28df5acc4f5db29d17e50c9721f14c92b68ecd865bbffab868dc",
+        "pathway_v43/gold_health.py": "041c48a1bb28a1734b0d6c69f7358c7547969a716d33c9bbf6d972bf02fac7df",
+        "pathway_v43/output/__init__.py": "8f4f727e21ba4614501f66485c82c075373293112757e41a02f907a0e6890b43",
+        "pathway_v43/output/export_v3.py": "7684e04beaaf5a825c95523d075dba7e2229e3ba66ee3e511fb99aabb6e38f4b",
+        "pathway_v43/output/pairing_gate.py": "c03bda976ce68ed6cd6b4a5859a222f37567a9e1164ede537e2b8dff780b7222",
+        "pathway_v43/output/report.py": "103a228bc09b866845500cb650e056994d9550878aff16d242051cc983e14e4e",
+        "pathway_v43/output/score_report.py": "c960914a1aa53d7ce6c5ec5869a6e12b1b2fd0347c7e0bac2f88a044398616f9",
+        "pathway_v43/phase_a_attribution.py": "52fa59f4c01a4328b8ff7f0e599b65178a598020c7a8853392729677c7744dcd",
+        "pathway_v43/pollutant/__init__.py": "f430bd6cc5bc7053da244a7d1c30ac755f6fd89c2563693bc1838ffe3a4e01c9",
+        "pathway_v43/pollutant/audit.py": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+        "pathway_v43/pollutant/chemstate.py": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+        "pathway_v43/pollutant/events.py": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+        "pathway_v43/pollutant/hypothesis.py": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6",
+        "pathway_v43/pollutant/legacy_reader.py": "045a6e366af3e61b5dd12d7dd68eef31ffcc605f67de1b3a36b714e29b829e01",
+        "pathway_v43/pollutant/model_protocol.py": "a3d0bea011a66156d862580a7cf921524b71cdb92e6ab50c69630191b526a104",
+        "pathway_v43/pollutant/path_context.py": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+        "pathway_v43/pollutant/pool_audit.py": "bec664cf25eca5b16426755d991e669d2403b41ef87d2e1340fb8c7a6cb77877",
+        "pathway_v43/pollutant/production.py": "3b1a66ea2bc3aa37f7caaa2ed1a7f5395cda5901ef2a03d765b932ee5b082262",
+        "pathway_v43/pollutant/profile.py": "affda88bb25aa6cef2d02887f7ff44a2688a333738398a34f837dba1aedb5b39",
+        "pathway_v43/pollutant/provenance.py": "d8668c3fadd1b37e2eb131479ff0b5778f86eed8c9e49c458fb30d7561f3afbf",
+        "pathway_v43/pollutant/queue.py": "b8cc71767890734d59a95300046996e2458345fc2fdc016a3f8b134ed608743d",
+        "pathway_v43/pollutant/runflow.py": "a5f9f321e3ec9c60a12aebac8f5f11c2e715e881df7bcff6ad2e3fb935420fb6",
+        "pathway_v43/pollutant/search.py": "ea138271fa12b324c13c025f3d473cbf68c92d9ac60db5e4f50ce7ad835961f1",
+        "pathway_v43/pollutant/store.py": "5adb06466bd78e82d8f975b29bbee7958ec5e6b6e165cf52402f11f9893480a0",
+        "pathway_v43/pollutant/substrate_profile.py": "718fb34b8fbc34919272cf64c7c740ce6dda00f18b014d2c90be7873506cce32",
+        "pathway_v43/services/__init__.py": "66caf2f040dd63a235bb18c034d5853aa966b1a5fd31d8695849e9a21fb4ad2d",
+        "pathway_v43/services/analog_source.py": "300037e8afa6c022b8b61b82adba1ca9cb21d3c846574caea2d2b0b89733b121",
+        "pathway_v43/services/atom_tool.py": "b20092dcf4d651a59a644ab7a8ba90aa83036958877918d3bd131901ec996f27",
+        "pathway_v43/services/donor_applicability.py": "ccfb99f808aeb7ffd6d338a9945023df2c1271e461695cbee535c00fff1fa835",
+        "pathway_v43/services/prediction.py": "2ed8bc76de29e64f8539935bccb9013d3a3cf7c44e75f89b6b97a30ba6029efd",
+        "pathway_v43/services/reaction_finder.py": "3ecdf25bdc52c44920558006383f8b51514c479300c44d0405aaa1b9ad68e3f4",
+        "pathway_v43/services/report_adjudication.py": "a278277b5875607339ab1edc623cf26596ea2b2db88ce038dea2e404dc978eee",
+        "pathway_v43/storage/__init__.py": "c3ad494e115157afc23c250efff4c8a86c34f69aec730528efb7adfe2f73d07e",
+        "pathway_v43/storage/artifact_store.py": "871684914abe25d4093fa0a46f7c64a094be75830da8b1c1a7c8eadb49a68a9b",
+        "pathway_v43/storage/pathway_store.py": "0adce856a19f75a5be0763ca17d0002694fa572b90c86bbaccd1fb581c6cb49b",
+        "pathway_v43/storage/run_identity.py": "c2e54b9486bd4bce496d15aed5d1a12d7b29d853aaa9d8a460288e61b14408cf",
+        "pathway_v43/validation/__init__.py": "a09a4721918824c12b067752500f8bd813372f7b1b2ccfc72faf19206672897a",
+        "pathway_v43/validation/conservation.py": "dc612dbb1b352aa491a02da978115976994478d6747d4bbd4215043a1056da4e",
+        "pathway_v43/validation/gates.py": "55dfd238ad2758fae19efc81c5fea468ea5e0cb723af37a6fa5a7edb86ab0399",
+        "pathway_v43/vendor/__init__.py": "4374fc2389d52ec91d1e27e8ab4ca06d58401bb7b498993d3150840213b3a657",
+        "pathway_v43/vendor/molecode/__init__.py": "8d5e997056579acf46314f0efe1e15b3b44e900ca75477a61455cd864710aeb9",
+        "pathway_v43/vendor/molecode/molecule/__init__.py": "0dd0d21d18bd181117fbf4418dbcaf09336303ba350d1ea235266aefc4ee223a",
+        "pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py": "561ce966ba1195ed750ed66fc4023d9f501a9e580a509f4723506a270789b12c",
+        "pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py": "195a65e84fd77bb20f0aae61b256620b2489a68d146aa0b9f0909e1e94f37299",
+        "pathway_v43/vendor/molecode/prompts/__init__.py": "f8160966acc0126d36121a02a0d3d0a2375c4d1010e9177fed32039e5b3bcf5d",
+        "pathway_v43/vendor/molecode/prompts/markush_system_prompt.py": "1377960f68d86ce7f3d946a9304aebd705887795593da184da6ce527b2617d58",
+        "pathway_v43/vendor/molecode/prompts/molecule_system_prompt.py": "ed4c654143c1802153377ec6de6f77c3d2d4845b4e107d1d0cf239cd34322e8e",
+        "pathway_v43/workflow/__init__.py": "b1309d6413d825e47c60d2d2200cd1970937da93c80fcc268ffaa12882433afd",
+        "pathway_v43/workflow/graph.py": "ef0d3c39a32aa1a88e1ad3a15d74a7992ba53f8fda56c590b062182291164678",
+        "pathway_v43/workflow/nodes.py": "646b3d89e9cab0cb320f4dfa684a1089c8dac924577260e61dc8298a5bb8f894",
+        "pathway_v43/workflow/routing.py": "f9aaef0399002b8ff96ed2d77ee21ca5049496e1525a33cd5a7c26b015deff3a",
+        "pathway_v43/workflow/runner.py": "3540decaf1d3741f357e83ac702c67eb6ee767332a9471e3a4d52407523e5429",
+        "pathway_v43/workflow/state.py": "c297eef994af62fc57ba4a06f25e9a7dea1f348ec7d20d54370bbf3413a3e815"
+      },
+      "profile": "pollutant_pathway_v1"
+    },
+    "created_at": "2026-10-07T21:01:47+00:00",
+    "dependency_versions": {
+      "langgraph": null,
+      "langgraph.checkpoint": null,
+      "langgraph.checkpoint.sqlite": null,
+      "lightgbm": "4.7.0",
+      "python": "3.11.16",
+      "rdkit": "2026.03.6"
+    },
+    "domain_schema_version": "v43-domain-1",
+    "inputs": {
+      "root_identity": "CCO",
+      "root_smiles": "CCO"
+    },
+    "molecode": {
+      "files": {
+        "LICENSE": "d768cb92822c0e97bb6c0f9efab6a5f0a093f58a439959b02db687abfedc980e",
+        "molecule/__init__.py": "0dd0d21d18bd181117fbf4418dbcaf09336303ba350d1ea235266aefc4ee223a",
+        "molecule/mermaid_to_rdkit.py": "561ce966ba1195ed750ed66fc4023d9f501a9e580a509f4723506a270789b12c",
+        "molecule/rdkit_to_mermaid.py": "195a65e84fd77bb20f0aae61b256620b2489a68d146aa0b9f0909e1e94f37299",
+        "prompts/__init__.py": "f8160966acc0126d36121a02a0d3d0a2375c4d1010e9177fed32039e5b3bcf5d",
+        "prompts/markush_system_prompt.py": "1377960f68d86ce7f3d946a9304aebd705887795593da184da6ce527b2617d58",
+        "prompts/molecule_system_prompt.py": "ed4c654143c1802153377ec6de6f77c3d2d4845b4e107d1d0cf239cd34322e8e"
+      },
+      "implementation": "molecode",
+      "manifest_sha256": "5ab5505bb7b5e0828609477f19e4b08a88e7dd219b200863f21a2753ca4afdef",
+      "upstream_commit": "a4df3b04552b829ff816467b9620757a5dad765b",
+      "vendor_root": "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/vendor/molecode"
+    },
+    "prediction": {
+      "enabled": false,
+      "model_id": "",
+      "policy": {},
+      "policy_version": "v43-predpol-3",
+      "prompt_versions": {},
+      "provider": "off"
+    },
+    "profile": {
+      "chemical_reproposal": "off",
+      "contracts": {
+        "admission_policy": "ppv1-admission-8",
+        "audit": "ppv1-audit-8",
+        "chemstate": "ppv1-chemstate-8",
+        "condition_assessment": "ppv1-condition-assessment-8",
+        "context": "ppv1-context-8",
+        "dependency": "ppv1-dependency-8",
+        "donor_diagnostic": "ppv1-donor-diagnostic-8",
+        "event": "ppv1-event-8",
+        "format_feedback": "ppv1-format-feedback-1",
+        "gate_mapper": "ppv1-gate-mapper-3",
+        "hypothesis": "ppv1-hypothesis-8",
+        "input_preview": "ppv1-input-preview-8",
+        "legacy_g2_family_ref": "v43-cons-2",
+        "legacy_gate_ref": "frozen_hit60_gate",
+        "pool_audit": "ppv1-pool-audit-8",
+        "pool_order": "ppv1-pool-order-8",
+        "profile": "ppv1-profile-13",
+        "provenance": "ppv1-provenance-8",
+        "search": "ppv1-search-5",
+        "store": "ppv1-store-9",
+        "substrate_profile": "ppv1-substrate-profile-8"
+      },
+      "delivered_stages": "S0-S2,S3a-base,S3b",
+      "format_feedback_policy": {
+        "max_format_feedback_rounds": 0,
+        "version": "ppv1-format-feedback-1"
+      },
+      "input_preview_policy": "off",
+      "input_preview_version": "ppv1-input-preview-8",
+      "name": "pollutant_pathway_v1",
+      "schema_version": "ppv1-profile-13",
+      "search_intent": "exploration",
+      "search_limits": {
+        "max_alternative_hypotheses_per_parent": 2,
+        "max_attempts_per_hypothesis": 2,
+        "max_product_expansion_width": 2,
+        "max_real_model_requests": 0,
+        "max_reopens_per_hypothesis": 1,
+        "max_retrievals_per_parent": 1,
+        "max_retrievals_total": 64,
+        "max_scenario_transitions": 2,
+        "max_search_depth": 3,
+        "max_total_search_actions": 10,
+        "version": "ppv1-search-limits-3"
+      }
+    },
+    "run_id": "novel_empty",
+    "schema_version": "v43-identity-2",
+    "strategy": {
+      "max_depth": 3,
+      "max_expansions": 10,
+      "max_frontier_width": 2,
+      "max_llm_calls": 0,
+      "max_proposals": 0,
+      "version": "v43-policy-5"
+    },
+    "v3_engine_code": {
+      "git_available": false,
+      "git_commit": null,
+      "v3_code_root": "/private/tmp/ppv1_s3b_queue_vd18_t4h/absent_v3"
+    }
+  },
+  "tables": {
+    "budget_reservations": [
+      {
+        "action_id": "sact_7e56813cccb629120c60",
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "limit_key": "max_total_search_actions",
+        "reservation_id": "sres_0f629c2b83606cf97e22",
+        "run_id": "novel_empty",
+        "scope": "",
+        "settled_at": "2026-10-07T21:01:47+00:00",
+        "status": "consumed",
+        "subject": "sact_7e56813cccb629120c60",
+        "units": 1
+      },
+      {
+        "action_id": "sact_7e56813cccb629120c60",
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "limit_key": "max_retrievals_per_parent",
+        "reservation_id": "sres_39194490b72fd7875811",
+        "run_id": "novel_empty",
+        "scope": "spath_cda35ca3c723d7eecf9c",
+        "settled_at": "2026-10-07T21:01:47+00:00",
+        "status": "consumed",
+        "subject": "sact_7e56813cccb629120c60",
+        "units": 1
+      },
+      {
+        "action_id": "sact_7e56813cccb629120c60",
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "limit_key": "max_retrievals_total",
+        "reservation_id": "sres_782d560d275b614e10fa",
+        "run_id": "novel_empty",
+        "scope": "",
+        "settled_at": "2026-10-07T21:01:47+00:00",
+        "status": "consumed",
+        "subject": "sact_7e56813cccb629120c60",
+        "units": 1
+      }
+    ],
+    "event_appearance_links": [],
+    "events": [],
+    "expansion_plans": [],
+    "hypotheses": [],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [],
+    "search_actions": [
+      {
+        "action_id": "sact_7e56813cccb629120c60",
+        "action_kind": "retrieve",
+        "attempt_refs": [],
+        "budget_reservation_ref": [
+          "sres_0f629c2b83606cf97e22",
+          "sres_39194490b72fd7875811",
+          "sres_782d560d275b614e10fa"
+        ],
+        "claimed_at": "2026-10-07T21:01:47+00:00",
+        "claimed_by": "ppv1-driver:novel_empty",
+        "context_ref": "pc_0757aa71e8cd78057880",
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "defer_reason": "",
+        "outcome_ref": "b855986babfccd6404ef1595578477ab2b3f466223d4681877cf198a1923eaca",
+        "parent_path_id": "spath_cda35ca3c723d7eecf9c",
+        "parent_search_revision": 0,
+        "payload": {
+          "context_ref": "pc_0757aa71e8cd78057880",
+          "depth": 0,
+          "parent_path_id": "spath_cda35ca3c723d7eecf9c",
+          "source_event_id": "",
+          "substrate_smiles": "CCO",
+          "task_key": "stask-dec_c0ed8435f943c1b7d40f"
+        },
+        "policy_version": "ppv1-search-5/ppv1-search-limits-3",
+        "run_id": "novel_empty",
+        "status": "done",
+        "subject_ref": "cs_ab1de819ede91df490e6",
+        "task_key": "stask-dec_c0ed8435f943c1b7d40f",
+        "updated_at": "2026-10-07T21:01:47+00:00"
+      }
+    ],
+    "search_attempts": [],
+    "search_commit_records": [
+      {
+        "action_id": "sact_7e56813cccb629120c60",
+        "attempt_id": "",
+        "commit_id": "scommit_4e4f4119b9d5bccc5132",
+        "commit_kind": "outcome_recorded",
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "event_id": "",
+        "payload_hash": "bc70c2767fc63417f0328a7740f4f6b657d99aef9250fbca361a5410d8943628",
+        "run_id": "novel_empty"
+      }
+    ],
+    "search_runs": [
+      {
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "policy_block": {
+          "chemical_reproposal": "off",
+          "contracts": {
+            "admission_policy": "ppv1-admission-8",
+            "audit": "ppv1-audit-8",
+            "chemstate": "ppv1-chemstate-8",
+            "condition_assessment": "ppv1-condition-assessment-8",
+            "context": "ppv1-context-8",
+            "dependency": "ppv1-dependency-8",
+            "donor_diagnostic": "ppv1-donor-diagnostic-8",
+            "event": "ppv1-event-8",
+            "format_feedback": "ppv1-format-feedback-1",
+            "gate_mapper": "ppv1-gate-mapper-3",
+            "hypothesis": "ppv1-hypothesis-8",
+            "input_preview": "ppv1-input-preview-8",
+            "legacy_g2_family_ref": "v43-cons-2",
+            "legacy_gate_ref": "frozen_hit60_gate",
+            "pool_audit": "ppv1-pool-audit-8",
+            "pool_order": "ppv1-pool-order-8",
+            "profile": "ppv1-profile-13",
+            "provenance": "ppv1-provenance-8",
+            "search": "ppv1-search-5",
+            "store": "ppv1-store-9",
+            "substrate_profile": "ppv1-substrate-profile-8"
+          },
+          "delivered_stages": "S0-S2,S3a-base,S3b",
+          "format_feedback_policy": {
+            "max_format_feedback_rounds": 0,
+            "version": "ppv1-format-feedback-1"
+          },
+          "input_preview_policy": "off",
+          "input_preview_version": "ppv1-input-preview-8",
+          "name": "pollutant_pathway_v1",
+          "schema_version": "ppv1-profile-13",
+          "search_intent": "exploration",
+          "search_limits": {
+            "max_alternative_hypotheses_per_parent": 2,
+            "max_attempts_per_hypothesis": 2,
+            "max_product_expansion_width": 2,
+            "max_real_model_requests": 0,
+            "max_reopens_per_hypothesis": 1,
+            "max_retrievals_per_parent": 1,
+            "max_retrievals_total": 64,
+            "max_scenario_transitions": 2,
+            "max_search_depth": 3,
+            "max_total_search_actions": 10,
+            "version": "ppv1-search-limits-3"
+          }
+        },
+        "run_id": "novel_empty"
+      }
+    ],
+    "state_appearances": [
+      {
+        "appearance_hash": "7c510820c283849127e05284dbf94176808144f7ad8b022ea57c47c356ccbf9e",
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "payload": {
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "source_refs": [
+            {
+              "record": "ppv1-root-input"
+            }
+          ],
+          "state_id": "cs_ab1de819ede91df490e6",
+          "structure_origin": "raw_input",
+          "structure_smiles_raw": "CCO"
+        },
+        "state_id": "cs_ab1de819ede91df490e6"
+      }
+    ],
+    "states": [
+      {
+        "created_at": "2026-10-07T21:01:47+00:00",
+        "payload": {
+          "cn_identity": "CCO",
+          "formal_charge": 0,
+          "isotope_information_status": "not_applicable",
+          "schema_version": "ppv1-chemstate-8",
+          "smiles_isomeric": "CCO",
+          "state_id": "cs_ab1de819ede91df490e6",
+          "stereo_information_status": "not_applicable"
+        },
+        "state_id": "cs_ab1de819ede91df490e6"
+      }
+    ]
+  }
+}

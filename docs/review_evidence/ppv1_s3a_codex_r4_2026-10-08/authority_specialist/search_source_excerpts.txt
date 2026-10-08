@@ -1,0 +1,96 @@
+570: # ---- 预算可用性核算(纯派生;事实源是 budget_reservations 行) ----
+571: 
+572: 
+573: def _reservation_id(run_id: str, limit_key: str, scope: str,
+574:                     id_basis: str) -> str:
+575:     """预约 ID 的确定性派生(**单一来源**:claim/_create_attempt 的
+576:     _reserve 创建与 S3A-02 r4 的必要集合完整性核验共用同一函数 ——
+577:     消费侧期望的预约 ID 与创建侧写入的 ID 恒同源,不在核验处另写
+578:     第二套派生规则)。"""
+579:     return stable_id("sres", run_id, limit_key, scope, id_basis)
+580: 
+581: 
+582: def _reservation_units(conn, run_id: str, limit_key: str, scope: str,
+583:                        *, statuses=(RESERVATION_STATUS_RESERVED,
+584:                                     RESERVATION_STATUS_CONSUMED)) -> int:
+973:                     "扣额度)",
+974:                     {"action_id": action_id, "kind": "already_claimed",
+975:                      "claimed_by": row["claimed_by"],
+976:                      "requested_by": worker_id})
+977:             if status != ACTION_STATUS_PENDING:
+978:                 self.conn.rollback()
+979:                 raise SearchClaimError(
+980:                     f"action {action_id} 状态为 {status}(不可认领;"
+981:                     "deferred 须经 activate_deferred[S3b],blocked 保留"
+982:                     "原因不强行执行)",
+983:                     {"action_id": action_id, "kind": "not_pending",
+984:                      "status": status})
+985:             run_id = row["run_id"]
+986:             parent_path_id = row["parent_path_id"]
+987:             kind = row["action_kind"]
+2018:                          "reservation_run": rrow["run_id"],
+2019:                          "reservation_action": rrow["action_id"],
+2020:                          "kind": "reservation_binding_mismatch"})
+2021:         # ---- S3A-02 r4:必要预约集合完整性(逐行守卫保留之后;按
+2022:         # claim/_create_attempt 现有创建规则同源派生本 action 应有的
+2023:         # 必要预约 —— 剩余清单非空不能代替必要集合齐全,缺项即使剩余
+2024:         # 行全部合法也先结构化拒、保全、零新成功消费、不猜补缺行) ----
+2025:         expected_reservations: dict[str, str] = {}
+2026: 
+2027:         def _expect(limit_key: str, scope: str, id_basis: str) -> None:
+2028:             rid = _reservation_id(run_id, limit_key, scope, id_basis)
+2029:             expected_reservations[rid] = limit_key
+2030: 
+2031:         # max_total_search_actions:每次认领恒创建(创建规则无条件)
+2032:         _expect("max_total_search_actions", "", action_id)
+2033:         if kind == ACTION_KIND_SCENARIO_TRANSITION:
+2034:             _expect("max_scenario_transitions", "", action_id)
+2035:         if kind == ACTION_KIND_EXPAND_HYPOTHESIS:
+2036:             # 认领建 attempt 时同事务预约 alternatives/attempts;
+2037:             # reopen 认领另预约 reopens(attempt 行的 reopen_of 同源)
+2038:             for aid, hyp_id in attempt_hypothesis.items():
+2039:                 _expect("max_alternative_hypotheses_per_parent",
+2040:                         parent_path_id, f"alt:{hyp_id}")
+2041:                 _expect("max_attempts_per_hypothesis", hyp_id,
+2042:                         f"att:{aid}")
+2043:                 if attempt_reopens.get(aid):
+2044:                     _expect("max_reopens_per_hypothesis", hyp_id,
+2045:                             f"re:{aid}")
+2046:         if kind == ACTION_KIND_RETRIEVE:
+2047:             # 检索预约仅在**非 cache_hit** 认领时创建(创建规则的条件
+2048:             # 参数不落独立列):行存在 ⇒ claim 非 cache_hit ⇒ 必须被
+2049:             # 引用;行不存在 ⇒ cache_hit 合法不强制(合法缓存复用不
+2050:             # 强加未消费的资源预约,正控保持)
+2051:             for limit_key, scope in (
+2052:                     ("max_retrievals_per_parent", parent_path_id),
+2053:                     ("max_retrievals_total", "")):
+2054:                 rid = _reservation_id(run_id, limit_key, scope, action_id)
+2055:                 exists = self.conn.execute(
+2056:                     "SELECT 1 FROM budget_reservations WHERE"
+2057:                     " reservation_id = ?", (rid,)).fetchone()
+2058:                 if exists is not None:
+2059:                     expected_reservations[rid] = limit_key
+2060:         for rid, limit_key in expected_reservations.items():
+2061:             erow = self.conn.execute(
+2062:                 "SELECT 1 FROM budget_reservations WHERE"
+2063:                 " reservation_id = ?", (rid,)).fetchone()
+2064:             if erow is None:
+2065:                 raise SearchIntegrityError(
+2066:                     f"action {action_id} 的必要预约行缺失:{limit_key}"
+2067:                     f"(预约 {rid};创建规则同源派生 —— 剩余清单非空不能"
+2068:                     "证明必要额度齐全;保全、零新成功消费、不猜补缺行)",
+2069:                     {"action_id": action_id, "run_id": run_id,
+2070:                      "where": where, "reservation_id": rid,
+2071:                      "limit_key": limit_key,
+2072:                      "kind": "reservation_row_missing"})
+2073:             if rid not in reservation_refs:
+2074:                 raise SearchIntegrityError(
+2075:                     f"action {action_id} 的必要预约未被冻结引用清单收录:"
+2076:                     f"{limit_key}(预约 {rid} 行存在但 budget_reservation_"
+2077:                     "ref 缺项 —— 必要结算证据不完整,不能据此完成/复用/"
+2078:                     "挂起;保全、不猜补)",
+2079:                     {"action_id": action_id, "run_id": run_id,
+2080:                      "where": where, "reservation_id": rid,
+2081:                      "limit_key": limit_key,
+2082:                      "kind": "necessary_reservation_ref_missing"})
+2083: 

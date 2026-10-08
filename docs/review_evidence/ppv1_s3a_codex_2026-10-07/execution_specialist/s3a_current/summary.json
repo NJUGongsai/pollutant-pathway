@@ -1,0 +1,302 @@
+{
+  "totals": {
+    "tests": 58,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "passed": 58
+  },
+  "cases": [
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_s3a_schema_enums_registered",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_register_run_idempotent_and_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_unregistered_run_fail_closed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_policy_identity_mismatch_recovery_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_config_roundtrip_registered_block",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_enqueue_idempotent_and_payload_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_enqueue_depth_guard",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_enqueue_product_width_guard",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_decision_task_key_varies_with_all_identity_inputs",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_expansion_task_key_binds_hypothesis_and_attempt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_substrate_feature_cache_key_excludes_search_revision",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_two_hypotheses_distinct_tasks_attempts_events",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_context_change_yields_new_action_both_legal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_event_replay_no_duplicate_across_retry_attempt",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_recovery_follows_frozen_task_key",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_budget_ledger_stepwise_recompute",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_budget_memory_reset_recompute",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_attempts_per_hypothesis_cap",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_reopen_cap_and_double_constraint",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_alternatives_per_parent_cap",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_loop_stable_stop_on_small_limits",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_cache_retrieval_not_double_counted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_real_requests_blocks_registration_not_scripted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_real_request_dangling_occupies_budget",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_retrieval_only_blocks_retrieve",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_transitions_only_blocks_transition",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_total_actions_blocks_all",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_zero_depth_only_blocks_expansion",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_zero_action_budget_independent_fixture",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_zero_depth_independent_fixture",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_empty_pool_independent_fixture",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_user_stop_dominates_composite",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_budget_beats_depth_priority",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_awaiting_prediction",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_positive_control_mid_run",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h05_deferred_present_not_exhausted_search",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h06_two_connections_barrier_single_winner",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h06_claim_done_reuses_outcome_no_new_rows",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h06_stale_worker_cannot_submit_or_overwrite",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h06_sqlite_busy_visible_concurrency",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_request_lifecycle_state_machine",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_crash_injection_point_b4",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_search_layer_composes_with_frozen_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_runner_start_and_resume_still_refuse_ppv1",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_search",
+      "name": "test_h07_wrapper_preserves_files",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b1_claimed_reservation_frozen_then_resume",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b2_registered_request_pending_unknown_no_resend",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b3_artifact_written_consumed_same_output_after_crash",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b3_corrupt_artifact_preserved_fail_closed[garbage]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b3_corrupt_artifact_preserved_fail_closed[hash_mismatch]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b3_bundle_identity_verification",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_b4_event_committed_bookkeeping_completed_idempotently",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_h08_commit_record_event_missing_preserved",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_h08_commit_record_tampered_event_id",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_h08_event_identity_columns_tampered",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_h06_two_processes_barrier_single_winner",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_worker_full_commit_end_to_end",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3a_recover",
+      "name": "test_recover_unregistered_run_fail_closed",
+      "state": "passed"
+    }
+  ],
+  "exit_code": 0
+}

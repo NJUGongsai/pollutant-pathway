@@ -1,0 +1,317 @@
+{
+  "actual_head": "2bedfc060a9b19019ba44aa2a56dcacb88450c3b",
+  "parent_head": "c1211183c0874b12c5b5461845d3c61f0a84719c",
+  "date_Asia_Shanghai": "2026-10-08",
+  "conclusion": "S3_not_pass",
+  "P1": [
+    "S3B-01"
+  ],
+  "closed_this_round": [
+    "S3B-02",
+    "S3B-03",
+    "S3B-04",
+    "S3B-05",
+    "S3B-06"
+  ],
+  "engineering_results": {
+    "actual_HEAD": "2bedfc060a9b19019ba44aa2a56dcacb88450c3b",
+    "parent": "c1211183c0874b12c5b5461845d3c61f0a84719c",
+    "final_ppv1": {
+      "tests": 871,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 871
+    },
+    "ppv1_file_count": 31,
+    "current_new20_extracted_from_full_suite": [
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b01_resume_without_plan_uses_frozen_input",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b01_resume_changed_plan_rejected",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b01_frozen_plan_tamper_integrity_failure",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b01_same_plan_resume_positive_control",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b02_bad_bundle_hash_isolated_not_reexecuted",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b02_bad_bundle_json_isolated_independent_tasks_continue",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b03_partial_followup_hard_kill_completed",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b03_b4_event_submitted_no_followup_completed",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b03_transition_after_event_submitted_new_context",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b03_transition_enqueued_crash_window_closed",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b03_three_products_normal_positive_control",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b04_concurrent_public_resume_single_executor",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b05_novel_nonempty_independent_hypothesis_chain",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b05_novel_empty_pool_profile_and_consumption",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b05_model_abstain_empty_pool_legal",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b05_novel_insufficient_content_structured_reject",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b06_zero_depth_budget_composite_stop_disclosure",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b06_zero_depth_repeat_resume_not_recounted",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b06_legal_nonzero_no_blocked_positive_control",
+        "state": "passed"
+      },
+      {
+        "classname": "tests.test_ppv1_s3b_r2",
+        "name": "test_s3b06_empty_pool_no_local_candidate_positive_control",
+        "state": "passed"
+      }
+    ],
+    "current_new20_passed": 20,
+    "parent_new20": {
+      "tests": 20,
+      "errors": 0,
+      "failures": 15,
+      "skipped": 0,
+      "passed": 5
+    },
+    "parent_updated3": {
+      "tests": 55,
+      "errors": 0,
+      "failures": 3,
+      "skipped": 0,
+      "passed": 52
+    },
+    "parent_combined": {
+      "failed": 18,
+      "passed": 57
+    },
+    "g01": {
+      "tests": 1481,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 8,
+      "passed": 1473
+    },
+    "g01_independent_once": true,
+    "new20_in_current_not_separately_rerun": true,
+    "first_reviewer_environment_error_retained": {
+      "initial_ppv1_result": "861 passed, 10 failed; every failure stopped early at v3_engine_code IdentityMismatch",
+      "cause": "reviewer parent pinned absent_v3 vs subprocess worker clears environment and resolves sibling dependingv3",
+      "correction": "parent V3_CODE_ROOT/DEPENDING_V3_ROOT aligned to the same isolated default sibling path; production inputs/tests/source bytes unchanged",
+      "only_repeated": "PPV1 full to meet full-suite requirement and affected parent new20 set",
+      "unrepeated": "parent updated3 file set, G01 once",
+      "initial_logs_retained": true,
+      "not_account_quota": true
+    },
+    "legacy_and_production": {
+      "legacy_all_bytes_equal": true,
+      "legacy_aggregate": "18007e6a7cc239606eb30921f91045540446a7d7298108be30d47fce2f1374d6",
+      "production": {
+        "current_sha256": "3b1a66ea2bc3aa37f7caaa2ed1a7f5395cda5901ef2a03d765b932ee5b082262",
+        "parent_sha256": "3b1a66ea2bc3aa37f7caaa2ed1a7f5395cda5901ef2a03d765b932ee5b082262",
+        "unchanged": true
+      }
+    }
+  },
+  "parent_new20_red_classification": {
+    "behavior_red": 13,
+    "shape_red": 2,
+    "positive_green": 5,
+    "collection_red": 0
+  },
+  "recovery_observations": {
+    "cases": [
+      {
+        "case": "old_crash_after_claim",
+        "current_contract_observed": true
+      },
+      {
+        "case": "old_crash_after_request_registered",
+        "current_contract_observed": true
+      },
+      {
+        "case": "old_crash_after_bundle_written",
+        "current_contract_observed": true
+      },
+      {
+        "case": "old_crash_after_event_submitted",
+        "current_contract_observed": true
+      },
+      {
+        "case": "frozen_plan_same",
+        "current_contract_observed": true
+      },
+      {
+        "case": "frozen_plan_omitted",
+        "current_contract_observed": true
+      },
+      {
+        "case": "frozen_plan_changed",
+        "current_contract_observed": true
+      },
+      {
+        "case": "frozen_plan_decide_changed",
+        "current_contract_observed": true
+      },
+      {
+        "case": "public_artifact_hash_bad",
+        "current_contract_observed": true
+      },
+      {
+        "case": "public_artifact_json_bad",
+        "current_contract_observed": true
+      },
+      {
+        "case": "public_event_ledger_bad",
+        "current_contract_observed": true
+      },
+      {
+        "case": "public_reservation_missing",
+        "current_contract_observed": true
+      },
+      {
+        "artifact_only_mutation_kept_db_tables": true,
+        "case": "self_consistent_replaced_plan_after_bundle_written",
+        "classification": "same_S3B01_residual",
+        "current_contract_observed": false,
+        "db_logical_hash_after_artifact_mutation": "8ab6f68d189da22614dac48f92286dd430e46561fc941b1a5625aa034bdf35f5",
+        "db_logical_hash_after_resume": "c963806faebd8d8f2d580c2ab69b044133c52c906427ee3b690f44dce3941cbd",
+        "db_logical_hash_before_artifact_mutation": "8ab6f68d189da22614dac48f92286dd430e46561fc941b1a5625aa034bdf35f5",
+        "new_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+        "plan_version": "ppv1-frozen-plan-1",
+        "root_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+        "transition_count": 1
+      },
+      {
+        "artifact_only_mutation_kept_db_tables": true,
+        "case": "self_consistent_replaced_plan_after_event_submitted",
+        "classification": "same_S3B01_residual",
+        "current_contract_observed": false,
+        "db_logical_hash_after_artifact_mutation": "f1e7a20f803faf25e575e4bf7a9d3f2769019f4034c7f282b91ffbcc381edbb5",
+        "db_logical_hash_after_resume": "287b7e4dcc946b26d316907c4c4a9a3d929f97354401998ad0a04487aaed6831",
+        "db_logical_hash_before_artifact_mutation": "f1e7a20f803faf25e575e4bf7a9d3f2769019f4034c7f282b91ffbcc381edbb5",
+        "new_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+        "plan_version": "ppv1-frozen-plan-1",
+        "root_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+        "transition_count": 1
+      },
+      {
+        "case": "transition_normal",
+        "current_contract_observed": true
+      },
+      {
+        "case": "transition_after_transition_enqueued_before_attach",
+        "current_contract_observed": true
+      },
+      {
+        "case": "transition_after_event_submitted",
+        "current_contract_observed": true
+      },
+      {
+        "case": "transition_after_transition_followups_before_complete",
+        "current_contract_observed": true
+      },
+      {
+        "case": "three_products_normal",
+        "current_contract_observed": true
+      },
+      {
+        "case": "three_products_after_two_corrected",
+        "current_contract_observed": true
+      },
+      {
+        "case": "public_concurrent_resume",
+        "current_contract_observed": true
+      },
+      {
+        "case": "bad_bundle_independent_task",
+        "current_contract_observed": true
+      },
+      {
+        "case": "frozen_artifact_missing",
+        "current_contract_observed": true
+      },
+      {
+        "case": "frozen_artifact_unparseable",
+        "current_contract_observed": true
+      },
+      {
+        "case": "frozen_artifact_payload_changed",
+        "current_contract_observed": true
+      }
+    ],
+    "contract_satisfied_observations": 23,
+    "residual_groups": [
+      "S3B-01"
+    ],
+    "top_level_observations": 25
+  },
+  "protocol_actual_behavior_children": 21,
+  "protocol_individual_worker_receipts": 20,
+  "source_identity_preserved": true,
+  "science_performance": "pending",
+  "criteria_frozen": false,
+  "stages_S4_S5_started": false,
+  "externally_called_models": [],
+  "archiving_behavior_execution": 0
+}

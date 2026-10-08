@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/inputs/public_event_ledger_bad_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src"
+  },
+  "label": "public_event_ledger_bad_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_0ae039cc2e9e8e2149c9",
+      "event_id": "ppev_bf14c68d34975c073752",
+      "submitted": {
+        "action_id": "sact_0ae039cc2e9e8e2149c9",
+        "created": true,
+        "event_id": "ppev_bf14c68d34975c073752"
+      }
+    },
+    "hard_kill": "after_event_submitted",
+    "pid": 34419
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_event_submitted\", \"detail\": {\"action_id\": \"sact_0ae039cc2e9e8e2149c9\", \"event_id\": \"ppev_bf14c68d34975c073752\", \"submitted\": {\"created\": true, \"event_id\": \"ppev_bf14c68d34975c073752\", \"action_id\": \"sact_0ae039cc2e9e8e2149c9\"}}, \"pid\": 34419}\n"
+}

@@ -1,0 +1,569 @@
+{
+ "H_3b_mirror_terminal": {
+  "product": "C.C=CC",
+  "actual_reparsed_double_stereo": [
+   "STEREONONE"
+  ],
+  "mirror_terminal_double_stereo": [
+   "STEREONONE"
+  ],
+  "mirror_failures": [],
+  "declaration_mismatches": [],
+  "center": true,
+  "strict": true
+ },
+ "A1_codex_one_sided_half": {
+  "center": "unknown",
+  "reason": "center_evidence_partial_coverage_unchecked_transformation(证据覆盖须绑定被审参与物及贡献/系数:系数绑定或注册补全规则 atom_delta_stoichiometric_completion 数值不符 = 存在额外未核实转化/未核实贡献,不得计入全部核实;可明",
+  "coverage": "partial_unchecked_transformation",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "H": "2"
+  },
+  "uncovered_reactant_elements": {},
+  "uncovered_product_elements": {
+   "C": "1",
+   "H": "4",
+   "O": "1/2"
+  },
+  "violations": [
+   {
+    "kind": "coefficient_binding_mismatch",
+    "identity": "CC=O",
+    "declared_total": "1/2",
+    "required": "1",
+    "multiplicity_in_bound_product": 1
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "product",
+    "element": "C",
+    "declared_total": "1",
+    "required": "0"
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "product",
+    "element": "H",
+    "declared_total": "4",
+    "required": "2"
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "product",
+    "element": "O",
+    "declared_total": "1/2",
+    "required": "0"
+   }
+  ],
+  "elements": "verified",
+  "charge": "verified",
+  "admission": "retain_conditional",
+  "expand": false
+ },
+ "A2_codex_cosubstrate_scaled": {
+  "center": "unknown",
+  "reason": "center_evidence_partial_coverage_unchecked_transformation(证据覆盖须绑定被审参与物及贡献/系数:系数绑定或注册补全规则 atom_delta_stoichiometric_completion 数值不符 = 存在额外未核实转化/未核实贡献,不得计入全部核实;可明",
+  "coverage": "partial_unchecked_transformation",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "H": "-2"
+  },
+  "uncovered_reactant_elements": {
+   "C": "2",
+   "H": "8",
+   "O": "1"
+  },
+  "uncovered_product_elements": {},
+  "violations": [
+   {
+    "kind": "coefficient_binding_mismatch",
+    "identity": "CCO",
+    "declared_total": "2",
+    "required": "1",
+    "multiplicity_in_bound_product": 1
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "reactant",
+    "element": "C",
+    "declared_total": "2",
+    "required": "0"
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "reactant",
+    "element": "H",
+    "declared_total": "8",
+    "required": "2"
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "reactant",
+    "element": "O",
+    "declared_total": "1",
+    "required": "0"
+   }
+  ],
+  "elements": "verified",
+  "charge": "verified",
+  "admission": "retain_conditional",
+  "expand": false
+ },
+ "A3_control_oxidation": {
+  "center": "verified",
+  "reason": "center_evidence_verified:ppv1-donor-diagnostic-6(scope=region_net_change;basis=direct)",
+  "coverage": "full",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "H": "2"
+  },
+  "uncovered_reactant_elements": {},
+  "uncovered_product_elements": {
+   "H": "2"
+  },
+  "violations": [],
+  "elements": "verified",
+  "charge": "verified",
+  "admission": "expand",
+  "expand": true
+ },
+ "A4_control_hydrogenation": {
+  "center": "verified",
+  "reason": "center_evidence_verified:ppv1-donor-diagnostic-6(scope=region_net_change;basis=direct)",
+  "coverage": "full",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "H": "-2"
+  },
+  "uncovered_reactant_elements": {
+   "H": "2"
+  },
+  "uncovered_product_elements": {},
+  "violations": [],
+  "elements": "verified",
+  "charge": "verified",
+  "admission": "expand",
+  "expand": true
+ },
+ "A5_missing_H2_coverage_full_element_violated": {
+  "center": "verified",
+  "reason": "center_evidence_verified:ppv1-donor-diagnostic-6(scope=region_net_change;basis=direct)",
+  "coverage": "full",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "H": "2"
+  },
+  "uncovered_reactant_elements": {},
+  "uncovered_product_elements": {},
+  "violations": [],
+  "elements": "violated",
+  "charge": "verified",
+  "admission": "retain_conditional",
+  "expand": false
+ },
+ "A6a_completion_half_O2": {
+  "center": "verified",
+  "reason": "center_evidence_verified:ppv1-donor-diagnostic-6(scope=region_net_change;basis=direct)",
+  "coverage": "full",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "O": "-1"
+  },
+  "uncovered_reactant_elements": {
+   "O": "1"
+  },
+  "uncovered_product_elements": {},
+  "violations": [],
+  "elements": "verified",
+  "charge": "verified",
+  "admission": "expand",
+  "expand": true
+ },
+ "A6b_completion_atomic_O_identity_freedom": {
+  "center": "verified",
+  "reason": "center_evidence_verified:ppv1-donor-diagnostic-6(scope=region_net_change;basis=direct)",
+  "coverage": "full",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "O": "-1"
+  },
+  "uncovered_reactant_elements": {
+   "O": "1"
+  },
+  "uncovered_product_elements": {},
+  "violations": [],
+  "elements": "verified",
+  "charge": "verified",
+  "admission": "expand",
+  "expand": true
+ },
+ "A6c_no_cosubstrate_element_axis_only": {
+  "center": "verified",
+  "reason": "center_evidence_verified:ppv1-donor-diagnostic-6(scope=region_net_change;basis=direct)",
+  "coverage": "full",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "O": "-1"
+  },
+  "uncovered_reactant_elements": {},
+  "uncovered_product_elements": {},
+  "violations": [],
+  "elements": "violated",
+  "charge": "verified",
+  "admission": "retain_conditional",
+  "expand": false
+ },
+ "A7_spectator_water_conservative_partial": {
+  "center": "unknown",
+  "reason": "center_evidence_partial_coverage_unchecked_transformation(证据覆盖须绑定被审参与物及贡献/系数:系数绑定或注册补全规则 atom_delta_stoichiometric_completion 数值不符 = 存在额外未核实转化/未核实贡献,不得计入全部核实;可明",
+  "coverage": "partial_unchecked_transformation",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": "1",
+  "atom_delta": {
+   "H": "2"
+  },
+  "uncovered_reactant_elements": {
+   "H": "2",
+   "O": "1"
+  },
+  "uncovered_product_elements": {
+   "H": "4",
+   "O": "1"
+  },
+  "violations": [
+   {
+    "kind": "completion_surplus",
+    "side": "product",
+    "element": "H",
+    "declared_total": "4",
+    "required": "2"
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "product",
+    "element": "O",
+    "declared_total": "1",
+    "required": "0"
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "reactant",
+    "element": "H",
+    "declared_total": "2",
+    "required": "0"
+   },
+   {
+    "kind": "completion_surplus",
+    "side": "reactant",
+    "element": "O",
+    "declared_total": "1",
+    "required": "0"
+   }
+  ],
+  "elements": "verified",
+  "charge": "verified",
+  "admission": "retain_conditional",
+  "expand": false
+ },
+ "A8_unknown_coefficients": {
+  "center": "unknown",
+  "reason": "center_evidence_coverage_unknown_coefficients(参与物系数未知:覆盖与贡献规模不可算,不得计入全部核实;系数须已知或另行补全,不冒充已覆盖)",
+  "coverage": "unknown_coefficients",
+  "coverage_rule": "atom_delta_stoichiometric_completion",
+  "substrate_scale": null,
+  "atom_delta": null,
+  "uncovered_reactant_elements": null,
+  "uncovered_product_elements": null,
+  "violations": null,
+  "elements": "unknown",
+  "charge": "unknown",
+  "admission": "retain_conditional",
+  "expand": false
+ },
+ "B1_r_flag_build": {
+  "accept": false,
+  "kind": "unregistered_cx_class",
+  "msg": "CX 输入扩展段含未登记旗标块:'r'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;未知旗标类显式拒绝)"
+ },
+ "B1b_r_flag_strict": {
+  "accept": false,
+  "kind": "unregistered_cx_class"
+ },
+ "B2_Ln": {
+  "accept": false,
+  "kind": "unregistered_cx_class",
+  "msg": "CX 输入扩展段含未登记注记类:'Ln'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;登记类:atomProp/SgD/$(…)$/(…)/Sg/a/oN/&N/^N"
+ },
+ "B3_atomProp_dots_same_id": {
+  "bare": {
+   "accept": true,
+   "state_id": "cs_ab1de819ede91",
+   "identity": "CCO"
+  },
+  "x": {
+   "accept": true,
+   "state_id": "cs_fc8842c641d91",
+   "identity": "CO"
+  }
+ },
+ "B4_label_same_id": {
+  "x": {
+   "accept": true,
+   "state_id": "cs_fc8842c641d91",
+   "identity": "CO"
+  }
+ },
+ "B5_coords_same_id": {
+  "x": {
+   "accept": true,
+   "state_id": "cs_fc8842c641d91",
+   "identity": "CO"
+  }
+ },
+ "B6_sgD_comma_same_id": {
+  "x": {
+   "accept": true,
+   "state_id": "cs_fc8842c641d91",
+   "identity": "CO"
+  }
+ },
+ "B7_Sg_retained_roundtrip": {
+  "first": {
+   "accept": true,
+   "state_id": "cs_1cd806a0d9250",
+   "identity": "CCCCCC |Sg:n:1,2,3:3:ht:::|"
+  },
+  "roundtrip": {
+   "accept": true,
+   "state_id": "cs_1cd806a0d9250",
+   "identity": "CCCCCC |Sg:n:1,2,3:3:ht:::|"
+  }
+ },
+ "B8_enhanced_group": {
+  "accept": true,
+  "state_id": "cs_b677c64109b35",
+  "identity": "C[C@H](Cl)[C@H](F)Cl |&1:3|"
+ },
+ "B9a_label_with_space": {
+  "accept": false,
+  "kind": "unregistered_cx_class",
+  "msg": "CX 输入扩展段含未登记旗标块:'$_foo'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;未知旗标类显式拒绝)"
+ },
+ "B9b_coords_with_space": {
+  "accept": false,
+  "kind": "unregistered_cx_class",
+  "msg": "CX 输入扩展段含未登记旗标块:'(0.5,'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;未知旗标类显式拒绝)"
+ },
+ "B9c_atomProp_with_space": {
+  "accept": false,
+  "kind": "unregistered_cx_class",
+  "msg": "CX 输入扩展段含未登记旗标块:'world'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;未知旗标类显式拒绝)"
+ },
+ "B10_plain_ok": {
+  "accept": true,
+  "state_id": "cs_ab1de819ede91",
+  "identity": "CCO"
+ },
+ "C1_numeric_absence_interval_req": {
+  "key": "pH",
+  "level": "essential",
+  "status": "unknown",
+  "reason": "numeric_absence_semantics_undefined:pH(数值/区间值事实被明确否定;首版未定义数值否定语义,单点缺席不推出整个必需区间缺席;不按正值直比)",
+  "basis": "essential_claimed_by_source",
+  "value_basis": "range",
+  "sourced": true,
+  "introduced_phase_id": "",
+  "introduced_edge": "",
+  "fact_sources": [
+   "src:x"
+  ],
+  "unit_basis": "canonical"
+ },
+ "C2_numeric_absence_point_req": {
+  "key": "temperature_C",
+  "level": "essential",
+  "status": "unknown",
+  "reason": "numeric_absence_semantics_undefined:temperature_C(数值/区间值事实被明确否定;首版未定义数值否定语义,单点缺席不推出整个必需区间缺席;不按正值直比)",
+  "basis": "essential_claimed_by_source",
+  "value_basis": "unspecified",
+  "sourced": true,
+  "introduced_phase_id": "",
+  "introduced_edge": "",
+  "fact_sources": [
+   "src:x"
+  ],
+  "unit_basis": "canonical"
+ },
+ "C3_other_string_absent": {
+  "key": "matrix",
+  "level": "essential",
+  "status": "unknown",
+  "reason": "other_value_known_absent_not_determining:matrix(不同字符串值的缺席不判定必需值状态:oxygen 封闭枚举下'anaerobic 缺席'不证明 aerobic 在场;matrix 文本不等只证明标签未解析)",
+  "basis": "essential_claimed_by_source",
+  "value_basis": "entity",
+  "sourced": true,
+  "introduced_phase_id": "",
+  "introduced_edge": "",
+  "fact_sources": [
+   "src:x"
+  ]
+ },
+ "C4_same_word_absent": {
+  "key": "matrix",
+  "level": "essential",
+  "status": "conflict",
+  "reason": "required_value_known_absent:matrix(必需值被同值 known_absent 事实明确否定;明确缺失不提供正支持)",
+  "basis": "essential_claimed_by_source",
+  "value_basis": "entity",
+  "sourced": true,
+  "introduced_phase_id": "",
+  "introduced_edge": "",
+  "fact_sources": [
+   "src:x"
+  ]
+ },
+ "C5_present_plus_absent_same_value": {
+  "key": "oxygen_regime",
+  "level": "essential",
+  "status": "unknown",
+  "reason": "conflicting_applicable_facts:oxygen_regime",
+  "basis": "essential_claimed_by_source",
+  "value_basis": "entity",
+  "sourced": true,
+  "introduced_phase_id": "",
+  "introduced_edge": "",
+  "fact_sources": [
+   "src:p",
+   "src:a"
+  ]
+ },
+ "C6_species_absent_control": {
+  "key": "electron_donor",
+  "level": "essential",
+  "status": "conflict",
+  "reason": "required_entity_known_absent:electron_donor",
+  "basis": "essential_claimed_by_source",
+  "value_basis": "entity",
+  "sourced": true,
+  "introduced_phase_id": "",
+  "introduced_edge": "",
+  "fact_sources": [
+   "src:x"
+  ]
+ },
+ "D1_adjacent_sigma_break": {
+  "product": "C.C=CC",
+  "mismatches": [],
+  "center": true,
+  "strict": true
+ },
+ "D2_distal_break_control": {
+  "product": "C.C/C=C/CC",
+  "mismatches": [],
+  "center": true
+ },
+ "D3_trisubstituted_adjacent_break": {
+  "product": "C.C=C(C)C",
+  "mismatches": [],
+  "center": true
+ },
+ "D4_undeclared_vs_declared_detected": {
+  "mismatches": [
+   "declared_change_not_executed:['S_C_2', 'S_O_1'](净效应:该键变化未实际发生)",
+   "undeclared_bond_change:['S_C_1', 'S_C_2'](净效应:实际发生了未声明的键变化)"
+  ],
+  "center": null,
+  "strict": null
+ },
+ "D5_true_EZ_change_still_detected": {
+  "stereo_changes": [
+   {
+    "atom1_id": "E_C_2",
+    "atom2_id": "E_C_3",
+    "kind": "bond_stereo_change",
+    "from_order": "STEREOE",
+    "to_order": "STEREOZ"
+   }
+  ],
+  "mismatch_count": 1,
+  "center": null
+ },
+ "E1_legal_roundtrip": {
+  "same_id": true,
+  "idempotent": true,
+  "route_fit": "conflict"
+ },
+ "E2_summary_tamper": {
+  "rejected": true,
+  "kind": "context_snapshot_inconsistent",
+  "check": "fit_conflict_mismatch"
+ },
+ "E3_flag_tamper": {
+  "rejected": true,
+  "kind": "context_snapshot_inconsistent"
+ },
+ "E4_fact_tamper": {
+  "rejected": true,
+  "kind": "context_content_identity_mismatch"
+ },
+ "E5_scopeless_unknown_snapshot_legal": {
+  "fit": "unknown",
+  "roundtrip_ok": true
+ },
+ "F1_disclosure": {
+  "payload_proof_scope": "self_contained_recompute",
+  "payload_basis": "direct",
+  "detail_proof_scope": "self_contained_recompute",
+  "detail_basis": "direct",
+  "basis_in_reason": true,
+  "empty_basis_tail": false,
+  "coverage_keys": [
+   "atom_delta",
+   "coverage_rule",
+   "coverage_violations",
+   "substrate_scale",
+   "uncovered_product_elements",
+   "uncovered_reactant_elements"
+  ]
+ },
+ "G1_initial_ok_reaction_contradicted": {
+  "unresolved": [],
+  "unsupported": [
+   [
+    "A",
+    "B"
+   ]
+  ]
+ },
+ "G2_initial_contradicted_regen_supported": {
+  "unresolved": [
+   [
+    "A",
+    "B"
+   ]
+  ],
+  "unsupported": []
+ },
+ "G3_double_supported_control": {
+  "unresolved": [],
+  "unsupported": []
+ },
+ "G4_regen_contradicted_conservative_gate": {
+  "unresolved": [],
+  "unsupported": [
+   [
+    "A",
+    "B"
+   ]
+  ]
+ }
+}

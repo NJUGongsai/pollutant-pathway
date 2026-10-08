@@ -1,0 +1,73 @@
+{
+  "skips": [
+    {
+      "nodeid": "tests/test_analog_assets.py::test_row_counts_match_v4_parser",
+      "when": "setup",
+      "reason": "('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/repo/tests/test_analog_assets.py', 95, 'Skipped: v4 对照代码根不可用:/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/dependingv4')"
+    },
+    {
+      "nodeid": "tests/test_analog_v2_corpus.py::test_v2_selected_and_remapped_rows_decidable",
+      "when": "call",
+      "reason": "('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/repo/tests/test_analog_v2_corpus.py', 62, 'Skipped: v2 provenance 未生成')"
+    },
+    {
+      "nodeid": "tests/test_analog_v2_corpus.py::test_v2_line_level_one_to_one_and_duplicate_ids_recorded",
+      "when": "call",
+      "reason": "('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/repo/tests/test_analog_v2_corpus.py', 153, 'Skipped: v2 summary 未生成')"
+    },
+    {
+      "nodeid": "tests/test_batch_runner.py::test_input_manifest_whitelist_from_frozen_v3",
+      "when": "setup",
+      "reason": "('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/repo/tests/test_batch_runner.py', 52, 'Skipped: v3 冻结基准不可用')"
+    },
+    {
+      "nodeid": "tests/test_score_report.py::test_frozen_evaluator_cli_really_runs_dev",
+      "when": "setup",
+      "reason": "('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/repo/tests/test_score_report.py', 110, 'Skipped: v3 冻结基准不可用')"
+    },
+    {
+      "nodeid": "tests/test_score_report.py::test_evaluator_refusal_on_wrong_split",
+      "when": "setup",
+      "reason": "('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/repo/tests/test_score_report.py', 163, 'Skipped: v3 冻结基准不可用')"
+    },
+    {
+      "nodeid": "tests/test_score_report.py::test_evaluator_refusal_on_missing_lines",
+      "when": "setup",
+      "reason": "('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/repo/tests/test_score_report.py', 172, 'Skipped: v3 冻结基准不可用')"
+    },
+    {
+      "nodeid": "tests/test_score_report.py::test_diagnose_route_buckets",
+      "when": "setup",
+      "reason": "('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/g01/repo/tests/test_score_report.py', 184, 'Skipped: v3 冻结基准不可用')"
+    }
+  ],
+  "deselected_nodeids": [
+    "tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden",
+    "tests/test_asset_root_isolation.py::test_engine_load_isolation_and_reinit",
+    "tests/test_cli_workflow.py::test_real_run_inspect_resume_smoke",
+    "tests/test_domain_identity.py::test_identity_parity_with_frozen_engine",
+    "tests/test_engine_asset_parity.py::test_all_fixtures_parity",
+    "tests/test_engine_asset_parity.py::test_parity_covers_required_categories",
+    "tests/test_engine_asset_parity.py::test_arms_ran_on_expected_roots",
+    "tests/test_engine_asset_parity.py::test_same_runtime_failure_on_valid_fixture_fails",
+    "tests/test_engine_asset_parity.py::test_runtime_failure_in_one_arm_only_fails",
+    "tests/test_engine_asset_parity.py::test_unparseable_passes_only_with_expected_error",
+    "tests/test_engine_asset_parity.py::test_category_and_count_expectations_enforced_against_actual_candidates",
+    "tests/test_engine_asset_parity.py::test_missing_fixtures_in_both_arms_fail",
+    "tests/test_engine_asset_parity.py::test_duplicate_and_unexpected_result_names_fail",
+    "tests/test_engine_asset_parity.py::test_real_comparison_reports_found_categories",
+    "tests/test_finder_real.py::test_real_engine_catechol_recorded_evidences",
+    "tests/test_prediction_real.py::test_real_catechol_rank_candidates_smoke",
+    "tests/test_prediction_real.py::test_real_donor_recovery_attempt_recorded"
+  ],
+  "skipped_count": 8,
+  "deselected_count": 17,
+  "category_counts": {
+    "real_evaluation_missing": 5,
+    "v4_missing": 1,
+    "phase_d_derived_metadata_missing": 2,
+    "slow_deselected": 16,
+    "explicit_export_deselected": 1
+  },
+  "selected_nodeids_is_collection_observation_not_completed_execution": true
+}

@@ -1,0 +1,410 @@
+{
+  "actual_head": "adf0287abef0c4803962fee0df0065d8e6f3793d",
+  "assembled_utc": "2026-10-08T01:43:45.219513+00:00",
+  "command_anchor": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py"
+  ],
+  "command_recovery": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_recovery.py"
+  ],
+  "controllers_exit_codes": [
+    0,
+    0
+  ],
+  "date_local": "2026-10-08",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+  },
+  "external_model_calls": 0,
+  "extra_readonly_crosscheck_mistake": {
+    "actual_request_reference_field": "action_id",
+    "behavior_rerun": false,
+    "error": "KeyError: task_key",
+    "original_behavior_logs_unchanged": true
+  },
+  "interruption": null,
+  "main_repo_existing_files_modified": false,
+  "network_calls": 0,
+  "oracle_corrections_from_existing_output_only": 2,
+  "parent": "2bedfc060a9b19019ba44aa2a56dcacb88450c3b",
+  "probe_reexecutions": 0,
+  "public_wrappers": "workflow.runner.start_run/resume_run",
+  "pytest_runs": 0,
+  "python": "3.11.16 (main, Aug 27 2026, 14:37:43) [Clang 20.1.8 ]",
+  "rdkit": "2026.3.6",
+  "source_checks": [
+    {
+      "path": "src/pathway_v43/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/__main__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/adapters/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/adapters/analog_index.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/adapters/asset_manifest.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/adapters/llm_client.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/adapters/rate_gate.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/adapters/v3_engine.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/batch.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/config.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/domain/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/domain/identity.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/domain/models.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/domain/pathway.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/domain/policy.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/exam.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/exam_v2.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/gold_health.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/output/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/output/export_v3.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/output/pairing_gate.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/output/report.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/output/score_report.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/phase_a_attribution.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/audit.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/chemstate.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/events.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/hypothesis.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/legacy_reader.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/model_protocol.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/path_context.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/pool_audit.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/production.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/profile.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/provenance.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/queue.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/runflow.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/search.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/store.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/pollutant/substrate_profile.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/services/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/services/analog_source.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/services/atom_tool.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/services/donor_applicability.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/services/prediction.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/services/reaction_finder.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/services/report_adjudication.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/storage/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/storage/artifact_store.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/storage/pathway_store.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/storage/run_identity.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/validation/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/validation/conservation.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/validation/gates.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/LICENSE",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/MANIFEST.sha256",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/PROVENANCE.md",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/molecule/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/prompts/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/prompts/markush_system_prompt.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/vendor/molecode/prompts/molecule_system_prompt.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/workflow/__init__.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/workflow/graph.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/workflow/nodes.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/workflow/routing.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/workflow/runner.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "src/pathway_v43/workflow/state.py",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    },
+    {
+      "path": "pyproject.toml",
+      "same_as_current_repo": true,
+      "same_as_input": true
+    }
+  ],
+  "sqlite": "3.53.4",
+  "worker_config_assets": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/absent_assets",
+  "worker_config_v3": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/absent_v3"
+}

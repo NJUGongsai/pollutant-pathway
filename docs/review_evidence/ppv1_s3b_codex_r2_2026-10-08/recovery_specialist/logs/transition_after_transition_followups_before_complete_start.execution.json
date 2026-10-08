@@ -1,0 +1,38 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/inputs/transition_after_transition_followups_before_complete_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src"
+  },
+  "label": "transition_after_transition_followups_before_complete_start",
+  "parsed": {
+    "detail": {
+      "deferred": [],
+      "event_id": "ppev_49111ca025965509c6c7",
+      "not_tracked": [],
+      "note": "完整事件事实不截断;deferred/知识缺口存在时不称所有路线都探索完",
+      "parent_path_id": "spath_97178abb839bcc8a4c56",
+      "run_id": "transition_after_transition_followups_before_complete",
+      "scheduled": [
+        {
+          "action_id": "sact_16cd196c74453829e6a0",
+          "child_path_id": "spath_95bc72fd914a1a2a358e",
+          "product_state_ref": "cs_540cc0181e112b383323",
+          "status": "pending"
+        }
+      ]
+    },
+    "hard_kill": "after_transition_followups_before_complete",
+    "pid": 34600
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_transition_followups_before_complete\", \"detail\": {\"run_id\": \"transition_after_transition_followups_before_complete\", \"parent_path_id\": \"spath_97178abb839bcc8a4c56\", \"event_id\": \"ppev_49111ca025965509c6c7\", \"scheduled\": [{\"product_state_ref\": \"cs_540cc0181e112b383323\", \"action_id\": \"sact_16cd196c74453829e6a0\", \"status\": \"pending\", \"child_path_id\": \"spath_95bc72fd914a1a2a358e\"}], \"deferred\": [], \"not_tracked\": [], \"note\": \"完整事件事实不截断;deferred/知识缺口存在时不称所有路线都探索完\"}, \"pid\": 34600}\n"
+}

@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/inputs/public_reservation_missing_resume.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src"
+  },
+  "label": "public_reservation_missing_resume",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_010d111ec6cc4645dfb8",
+      "kind": "reservation_row_missing",
+      "reservation_id": "sres_8003dcd751f225be9538",
+      "run_id": "public_reservation_missing",
+      "where": "b3_precheck"
+    },
+    "exception": "SearchIntegrityError",
+    "message": "action sact_010d111ec6cc4645dfb8 的预算预约行缺失:sres_8003dcd751f225be9538(引用完整性失败;保全,不补账/不重建新 ID 洗损坏)",
+    "pid": 34449
+  },
+  "returncode": 3,
+  "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py\", line 1370, in resume_ppv1_run\n    recovery = ledger.recover_run(\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/search.py\", line 3262, in recover_run\n    self._verify_action_references(\n  File \"/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/search.py\", line 2215, in _verify_action_references\n    raise SearchIntegrityError(\npathway_v43.pollutant.search.SearchIntegrityError: action sact_010d111ec6cc4645dfb8 的预算预约行缺失:sres_8003dcd751f225be9538(引用完整性失败;保全,不补账/不重建新 ID 洗损坏)\n",
+  "stdout": "{\"exception\": \"SearchIntegrityError\", \"detail\": {\"action_id\": \"sact_010d111ec6cc4645dfb8\", \"run_id\": \"public_reservation_missing\", \"where\": \"b3_precheck\", \"reservation_id\": \"sres_8003dcd751f225be9538\", \"kind\": \"reservation_row_missing\"}, \"message\": \"action sact_010d111ec6cc4645dfb8 的预算预约行缺失:sres_8003dcd751f225be9538(引用完整性失败;保全,不补账/不重建新 ID 洗损坏)\", \"pid\": 34449}\n"
+}

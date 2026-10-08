@@ -1,0 +1,35 @@
+{
+  "start_error": {
+    "type": "RunError",
+    "message": "profile=pollutant_pathway_v1 已注册,但公共执行流未交付:S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座(pollutant.search,底座测试入口);队列集成/生产链与 PPV1独立分流按实施书 §11 属 S3b,交付前拒绝运行",
+    "detail": {
+      "profile": "pollutant_pathway_v1",
+      "delivered_stages": "S0-S2,S3a-base",
+      "missing_stages": "S3b-S5"
+    }
+  },
+  "start_no_directory": true,
+  "resume_input": {
+    "profile": {
+      "name": "pollutant_pathway_v1"
+    },
+    "synthetic_review_fixture": true
+  },
+  "resume_error": {
+    "type": "RunError",
+    "message": "profile=pollutant_pathway_v1 已注册,但公共执行流未交付:S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座(pollutant.search,底座测试入口);队列集成/生产链与 PPV1独立分流按实施书 §11 属 S3b,交付前拒绝运行",
+    "detail": {
+      "profile": "pollutant_pathway_v1",
+      "delivered_stages": "S0-S2,S3a-base",
+      "missing_stages": "S3b-S5"
+    }
+  },
+  "resume_before": {
+    "resume/run_identity.json": "e18b9c52320a1c3edb1b00b6fb9211203b9fb5c7016364aae1ba8585e9ee8ac1"
+  },
+  "resume_after": {
+    "resume/run_identity.json": "e18b9c52320a1c3edb1b00b6fb9211203b9fb5c7016364aae1ba8585e9ee8ac1"
+  },
+  "all_assertions_passed": true,
+  "scope": "synthetic PPV1 identity only; no historical actual run loaded"
+}

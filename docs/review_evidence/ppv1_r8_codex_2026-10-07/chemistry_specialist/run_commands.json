@@ -1,0 +1,69 @@
+[
+  {
+    "command": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_/chemical_boundary_probe.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_",
+    "returncode": 1,
+    "jsonl_records": 55,
+    "note": "copied original R7 probe retains historical expected_source_HEAD; metadata.json pins actual R8 HEAD; expected first unwrapped chiral from_dict rejects and stops original remainder"
+  },
+  {
+    "command": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_/state_first_consumer_probe.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "returncode": 0,
+    "stdout": "state_first_consumer_output.jsonl",
+    "stderr": "state_first_consumer_stderr.txt"
+  },
+  {
+    "command": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_/static_contract_inventory.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "returncode": 0,
+    "stdout": "static_contract_inventory.json",
+    "stderr": "static_contract_inventory.stderr.txt"
+  },
+  {
+    "command": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_/assert_r8_chemical_observed.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "returncode": 0,
+    "stdout": "assert_r8_chemical_observed.stdout.txt",
+    "stderr": "assert_r8_chemical_observed.stderr.txt"
+  },
+  {
+    "command": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_/assert_chemical_observed.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "returncode": 1,
+    "stdout": "assert_r7_chemical_expected_failure.stdout.txt",
+    "stderr": "assert_r7_chemical_expected_failure.stderr.txt"
+  }
+]

@@ -1,0 +1,293 @@
+{
+  "totals": {
+    "tests": 55,
+    "errors": 0,
+    "failures": 3,
+    "skipped": 0,
+    "passed": 52
+  },
+  "cases": [
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_profile_names_registry",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_identity_schema_version_bumped",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_contract_versions",
+      "state": "failure",
+      "message": "AssertionError: assert 'ppv1-profile-13' == 'ppv1-profile-14'\n  \n  - ppv1-profile-14\n  ?               ^\n  + ppv1-profile-13\n  ?               ^",
+      "body": "def test_ppv1_identity_block_contract_versions() -> None:\n        block = ri and ppv1_profile.build_profile_identity_block()\n        assert block[\"name\"] == \"pollutant_pathway_v1\"\n        # v14(S3b r2):冻结输入恢复/坏 artifact 隔离/后续集合/执行会话\n        # 互斥/novel 消费者/blocked 持久(search -5 → -6)\n>       assert block[\"schema_version\"] == \"ppv1-profile-14\"\nE       AssertionError: assert 'ppv1-profile-13' == 'ppv1-profile-14'\nE         \nE         - ppv1-profile-14\nE         ?               ^\nE         + ppv1-profile-13\nE         ?               ^\n\ntests/test_ppv1_profile.py:48: AssertionError"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_default_switches",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[input_preview_policy-filter]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[input_preview_policy-None]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_ppv1_identity_block_fail_closed[search_intent-anything_goes]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_search_limits_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_excludes_pollutant_for_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_pollutant_includes_full_tree",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_code_identity_legacy_stable_under_pollutant_changes",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_default_is_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_legacy_rejects_profile_policy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_pollutant_block",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_build_run_identity_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_check_resume_identity_profile_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_check_resume_identity_v1_missing_profile_read_as_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_identity_fingerprint_includes_profile",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_start_run_pollutant_dispatches_to_runflow",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_start_run_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_profile",
+      "name": "test_cli_profile_flag_choices",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_selected_within_alternatives_budget",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_beyond_budget_defers_alternatives",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_max_select_cap_leaves_selection_cap_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_depth_blocked_whole_pool",
+      "state": "failure",
+      "message": "KeyError: 'action_id'",
+      "body": "tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_updated_existing_pytest_tmp/test_schedule_depth_blocked_wh0')\n\n    def test_schedule_depth_blocked_whole_pool(tmp_path) -> None:\n        # max_search_depth 1:depth 2 整池 blocked —— **S3b r2(S3B-06):\n        # blocked 对象持久化为 search_actions 行(status=blocked +\n        # defer_reason=depth_limit),stop_report 同源消费;不入可执行\n        # 队列(reactivate/claim 均拒)**\n        _, ledger, _, _ = make_run(tmp_path, \"sch-4\", {\"max_search_depth\": 1})\n        sub, prod = make_substrate_states()\n        h1 = make_hypothesis(\"p1\", sub, prod)\n        out = schedule_hypotheses(\n            ledger, run_id=\"sch-4\", parent_path_id=\"p1\", context_ref=\"ctx\",\n            parent_search_revision=0, pool=[make_pool_entry(h1.hypothesis_id)],\n            policy_version=PV, depth=2)\n        assert out[\"blocked\"][0][\"reason\"] == \"depth_limit\"\n        assert out[\"selected\"] == [] and out[\"deferred\"] == []\n        # blocked 行持久化(幂等:重排 unchanged,不重数)\n>       row = ledger.action(out[\"blocked\"][0][\"action_id\"])\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'action_id'\n\ntests/test_ppv1_s3b_queue.py:185: KeyError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_idempotent_reschedule_and_done_blocked",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_pool_entry_contract",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_pool_digest_deterministic_and_order_sensitive",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_record_expansion_outcome_method_failed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_record_outcome_requires_claimed_owner",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_unresolved_continuation_outcome",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_both_types",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_repeat_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_stale_revision_unchanged",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_trigger_mismatch_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_budget_insufficient_keeps_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_scenario_transition_requires_explicit_source",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_followup_plan_reference_must_be_product",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_followup_budget_zero_all_deferred_with_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_child_path_id_deterministic",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_valid_pool_proposals_with_rank",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_empty_proposals_abstain_legal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_unknown_pool_id_requires_novel_context",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_novel_requires_proposal_context_and_reaction_spec",
+      "state": "failure",
+      "message": "Failed: DID NOT RAISE ModelProtocolError",
+      "body": "def test_parse_novel_requires_proposal_context_and_reaction_spec() -> None:\n        # S3b r2(S3B-05):novel 池外提案须带 proposal_context(来源)与\n        # reaction_spec(完整反应内容)—— 无足够内容不能授有效 hypothesis\n        with pytest.raises(ModelProtocolError) as ei:\n            parse_model_proposals(\n                _resp({\"proposals\": [{\"hypothesis_id\": \"hyp_new\"}]}),\n                allowed_hypothesis_ids=ALLOWED)\n        assert ei.value.detail[\"kind\"] == FORMAT_ERROR_JSON_FIELD\n        # 有 context 但缺 reaction_spec ⇒ json_field(可进有界反馈)\n>       with pytest.raises(ModelProtocolError) as ei3:\nE       Failed: DID NOT RAISE ModelProtocolError\n\ntests/test_ppv1_s3b_model.py:116: Failed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_coproduct_not_a_proposal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_duplicate_and_rank_unknown_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_shape_errors_classified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_policy_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_round_registered_and_counted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_round_exhaustion_structured",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_structure_failure_not_feedback_eligible",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_feedback_policy_from_ledger_strict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_real_provider_feedback_registration_refused",
+      "state": "passed"
+    }
+  ],
+  "exit_code": 1
+}

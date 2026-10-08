@@ -1,0 +1,9 @@
+{
+  "initial_ppv1_result": "861 passed, 10 failed; every failure stopped early at v3_engine_code IdentityMismatch",
+  "cause": "reviewer parent pinned absent_v3 vs subprocess worker clears environment and resolves sibling dependingv3",
+  "correction": "parent V3_CODE_ROOT/DEPENDING_V3_ROOT aligned to the same isolated default sibling path; production inputs/tests/source bytes unchanged",
+  "only_repeated": "PPV1 full to meet full-suite requirement and affected parent new20 set",
+  "unrepeated": "parent updated3 file set, G01 once",
+  "initial_logs_retained": true,
+  "not_account_quota": true
+}

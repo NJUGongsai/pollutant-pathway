@@ -1,0 +1,111 @@
+{
+  "source": {
+    "path": "ppv1_pytest_tmp/test_r2_11_true_root_still_use0/legacy_root_ok/pathway.sqlite",
+    "bytes": 57344,
+    "sha256": "cb148febc3e76c6c10b099334ad13faad1e01cdfa5a7bb9ce25d0dc7eec5201e"
+  },
+  "open_mode": "ro",
+  "tables": {
+    "compounds": [
+      {
+        "cn": "CCO",
+        "example_smiles": "CCO",
+        "first_path_id": "p_0999172f0bc1dfc26f05"
+      },
+      {
+        "cn": "CC=O",
+        "example_smiles": "CC=O",
+        "first_path_id": "p_efad09f4dccc45a8d94b"
+      }
+    ],
+    "event_products": [
+      {
+        "event_id": "ev_db8c95d4de45cb10457b",
+        "position": 0,
+        "product_identity": "CC=O",
+        "product_smiles": "CC=O",
+        "product_smiles_full": "CC=O"
+      }
+    ],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "v43-store-2"
+      },
+      {
+        "key": "current_run",
+        "value": "legacy_root_ok"
+      },
+      {
+        "key": "graph_revision",
+        "value": "1"
+      }
+    ],
+    "path_instances": [
+      {
+        "path_id": "p_0999172f0bc1dfc26f05",
+        "run_id": "legacy_root_ok",
+        "parent_path_id": null,
+        "event_id": null,
+        "product_position": null,
+        "substrate_identity": "CCO",
+        "status": "expanded",
+        "depth": 0,
+        "status_reason": "committed_event",
+        "seq": 0,
+        "created_at": "2026-10-08 00:18:19"
+      },
+      {
+        "path_id": "p_efad09f4dccc45a8d94b",
+        "run_id": "legacy_root_ok",
+        "parent_path_id": "p_0999172f0bc1dfc26f05",
+        "event_id": "ev_db8c95d4de45cb10457b",
+        "product_position": 0,
+        "substrate_identity": "CC=O",
+        "status": "rejected",
+        "depth": 1,
+        "status_reason": "",
+        "seq": 1,
+        "created_at": "2026-10-08 00:18:19"
+      }
+    ],
+    "reaction_events": [
+      {
+        "event_id": "ev_db8c95d4de45cb10457b",
+        "run_id": "legacy_root_ok",
+        "parent_path_id": "p_0999172f0bc1dfc26f05",
+        "substrate_identity": "CCO",
+        "evidence_id": "legacy_root_ok-e0",
+        "evidence_hash": "fed5598667e5543a62695382baac1b6f6eb84270e8ed24aee8c7aa932b9e995b",
+        "source_id": "legacy_root_ok-e0",
+        "kind": "recorded_reaction",
+        "condition_fit": "unknown",
+        "created_at": "2026-10-08 00:18:19",
+        "model_ref": ""
+      }
+    ]
+  },
+  "schema": [
+    {
+      "name": "compounds",
+      "sql": "CREATE TABLE compounds (\n    cn             TEXT PRIMARY KEY,\n    example_smiles TEXT NOT NULL,\n    first_path_id  TEXT NOT NULL\n)"
+    },
+    {
+      "name": "event_products",
+      "sql": "CREATE TABLE event_products (\n    event_id       TEXT NOT NULL,\n    position       INTEGER NOT NULL,\n    product_identity TEXT NOT NULL,\n    product_smiles TEXT NOT NULL,\n    product_smiles_full TEXT NOT NULL,\n    PRIMARY KEY (event_id, position)\n)"
+    },
+    {
+      "name": "meta",
+      "sql": "CREATE TABLE meta (\n    key   TEXT PRIMARY KEY,\n    value TEXT NOT NULL\n)"
+    },
+    {
+      "name": "path_instances",
+      "sql": "CREATE TABLE path_instances (\n    path_id           TEXT PRIMARY KEY,\n    run_id            TEXT NOT NULL,\n    parent_path_id    TEXT,\n    event_id          TEXT,\n    product_position  INTEGER,\n    substrate_identity TEXT NOT NULL,\n    status            TEXT NOT NULL,\n    depth             INTEGER NOT NULL,\n    status_reason     TEXT NOT NULL DEFAULT '',\n    seq               INTEGER NOT NULL,\n    created_at        TEXT NOT NULL\n)"
+    },
+    {
+      "name": "reaction_events",
+      "sql": "CREATE TABLE reaction_events (\n    event_id           TEXT PRIMARY KEY,\n    run_id             TEXT NOT NULL,\n    parent_path_id     TEXT NOT NULL,\n    substrate_identity TEXT NOT NULL,\n    evidence_id        TEXT NOT NULL,\n    evidence_hash      TEXT NOT NULL,\n    source_id          TEXT NOT NULL,\n    kind               TEXT NOT NULL,\n    condition_fit      TEXT NOT NULL,\n    created_at         TEXT NOT NULL, model_ref TEXT NOT NULL DEFAULT '',\n    UNIQUE (run_id, parent_path_id, substrate_identity, evidence_id)\n)"
+    }
+  ],
+  "read_succeeded": true
+}

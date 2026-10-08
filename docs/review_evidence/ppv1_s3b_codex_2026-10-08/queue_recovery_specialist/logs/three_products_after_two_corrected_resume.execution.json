@@ -1,0 +1,159 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_supplemental.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/inputs/three_products_after_two_corrected_resume.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_queue_vd18_t4h/src"
+  },
+  "parsed": {
+    "pid": 21502,
+    "result": {
+      "counts": {
+        "event_appearance_links": 4,
+        "events": 1,
+        "expansion_plans": 1,
+        "hypotheses": 1,
+        "provenance_records": 0,
+        "report_projections": 1,
+        "state_appearances": 5,
+        "states": 4
+      },
+      "profile": "pollutant_pathway_v1",
+      "recovery": {
+        "actions": [
+          {
+            "action_id": "sact_030f63d624e9ea049c57",
+            "action_kind": "retrieve",
+            "boundary": null,
+            "disposition": "not_claimed_no_recovery_needed",
+            "status": "pending"
+          },
+          {
+            "action_id": "sact_07d24e93cc08c7b46001",
+            "action_kind": "retrieve",
+            "boundary": "B4_verified",
+            "disposition": "done_commit_verified",
+            "status": "done"
+          },
+          {
+            "action_id": "sact_333bab95efbc12163c1e",
+            "action_kind": "expand_hypothesis",
+            "boundary": "B4_verified",
+            "disposition": "done_commit_verified",
+            "status": "done"
+          },
+          {
+            "action_id": "sact_bc579529c8bf7d9cef72",
+            "action_kind": "decide",
+            "boundary": "B4_verified",
+            "disposition": "done_commit_verified",
+            "status": "done"
+          },
+          {
+            "action_id": "sact_c20bf9c3bbb85fb0a6f1",
+            "action_kind": "retrieve",
+            "boundary": null,
+            "disposition": "not_claimed_no_recovery_needed",
+            "status": "pending"
+          }
+        ],
+        "pending_requests": [],
+        "unknown_status_requests": []
+      },
+      "resumed": true,
+      "run_id": "three_products_after_two_corrected",
+      "runflow_version": "ppv1-runflow-1",
+      "stop": {
+        "budget": {
+          "run_level": {
+            "max_real_model_requests": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "remaining": 61,
+              "used": 3
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "remaining": 2,
+              "used": 0
+            },
+            "max_total_search_actions": {
+              "max": 20,
+              "remaining": 15,
+              "used": 5
+            }
+          },
+          "scoped": {
+            "max_alternative_hypotheses_per_parent": {
+              "spath_544a04d38945111c21d4": {
+                "max": 2,
+                "remaining": 1,
+                "used": 1
+              }
+            },
+            "max_attempts_per_hypothesis": {
+              "hyp_4e722062881f314eea09": {
+                "max": 2,
+                "remaining": 1,
+                "used": 1
+              }
+            },
+            "max_reopens_per_hypothesis": {},
+            "max_retrievals_per_parent": {
+              "spath_3e504e7caee9a25a9bbd": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              },
+              "spath_544a04d38945111c21d4": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              },
+              "spath_f2a4ff884b414c88324d": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              }
+            }
+          },
+          "version": "ppv1-search-limits-3"
+        },
+        "budget_exhausted_keys": [
+          "max_retrievals_per_parent@spath_3e504e7caee9a25a9bbd",
+          "max_retrievals_per_parent@spath_544a04d38945111c21d4",
+          "max_retrievals_per_parent@spath_f2a4ff884b414c88324d"
+        ],
+        "events_submitted_session": [],
+        "other_reasons": [
+          "no_local_candidate"
+        ],
+        "primary": "budget_limit",
+        "runflow_version": "ppv1-runflow-1",
+        "unexplored": {
+          "blocked": 0,
+          "claimed_actions": 0,
+          "deferred": 0,
+          "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+          "open_attempts": 0,
+          "pending_actions": 0,
+          "pending_requests": 0
+        }
+      },
+      "stop_reason": "budget_limit"
+    }
+  },
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"result\": {\"run_id\": \"three_products_after_two_corrected\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-1\", \"resumed\": true, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [\"no_local_candidate\"], \"unexplored\": {\"pending_actions\": 0, \"deferred\": 0, \"blocked\": 0, \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 20, \"used\": 5, \"remaining\": 15}, \"max_retrievals_total\": {\"max\": 64, \"used\": 3, \"remaining\": 61}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {\"spath_3e504e7caee9a25a9bbd\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_544a04d38945111c21d4\": {\"max\": 1, \"used\": 1, \"remaining\": 0}, \"spath_f2a4ff884b414c88324d\": {\"max\": 1, \"used\": 1, \"remaining\": 0}}, \"max_alternative_hypotheses_per_parent\": {\"spath_544a04d38945111c21d4\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_attempts_per_hypothesis\": {\"hyp_4e722062881f314eea09\": {\"max\": 2, \"used\": 1, \"remaining\": 1}}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_retrievals_per_parent@spath_3e504e7caee9a25a9bbd\", \"max_retrievals_per_parent@spath_544a04d38945111c21d4\", \"max_retrievals_per_parent@spath_f2a4ff884b414c88324d\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-1\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 4, \"state_appearances\": 5, \"hypotheses\": 1, \"events\": 1, \"report_projections\": 1, \"expansion_plans\": 1, \"event_appearance_links\": 4, \"provenance_records\": 0}, \"recovery\": {\"actions\": [{\"action_id\": \"sact_030f63d624e9ea049c57\", \"action_kind\": \"retrieve\", \"status\": \"pending\", \"boundary\": null, \"disposition\": \"not_claimed_no_recovery_needed\"}, {\"action_id\": \"sact_07d24e93cc08c7b46001\", \"action_kind\": \"retrieve\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}, {\"action_id\": \"sact_333bab95efbc12163c1e\", \"action_kind\": \"expand_hypothesis\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}, {\"action_id\": \"sact_bc579529c8bf7d9cef72\", \"action_kind\": \"decide\", \"status\": \"done\", \"boundary\": \"B4_verified\", \"disposition\": \"done_commit_verified\"}, {\"action_id\": \"sact_c20bf9c3bbb85fb0a6f1\", \"action_kind\": \"retrieve\", \"status\": \"pending\", \"boundary\": null, \"disposition\": \"not_claimed_no_recovery_needed\"}], \"pending_requests\": [], \"unknown_status_requests\": []}}, \"pid\": 21502}\n"
+}

@@ -1,0 +1,64 @@
+..F.......................F..................F.........                  [100%]
+=================================== FAILURES ===================================
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v14(S3b r2):冻结输入恢复/坏 artifact 隔离/后续集合/执行会话
+        # 互斥/novel 消费者/blocked 持久(search -5 → -6)
+>       assert block["schema_version"] == "ppv1-profile-14"
+E       AssertionError: assert 'ppv1-profile-13' == 'ppv1-profile-14'
+E         
+E         - ppv1-profile-14
+E         ?               ^
+E         + ppv1-profile-13
+E         ?               ^
+
+tests/test_ppv1_profile.py:48: AssertionError
+____________________ test_schedule_depth_blocked_whole_pool ____________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_updated_existing_pytest_tmp/test_schedule_depth_blocked_wh0')
+
+    def test_schedule_depth_blocked_whole_pool(tmp_path) -> None:
+        # max_search_depth 1:depth 2 整池 blocked —— **S3b r2(S3B-06):
+        # blocked 对象持久化为 search_actions 行(status=blocked +
+        # defer_reason=depth_limit),stop_report 同源消费;不入可执行
+        # 队列(reactivate/claim 均拒)**
+        _, ledger, _, _ = make_run(tmp_path, "sch-4", {"max_search_depth": 1})
+        sub, prod = make_substrate_states()
+        h1 = make_hypothesis("p1", sub, prod)
+        out = schedule_hypotheses(
+            ledger, run_id="sch-4", parent_path_id="p1", context_ref="ctx",
+            parent_search_revision=0, pool=[make_pool_entry(h1.hypothesis_id)],
+            policy_version=PV, depth=2)
+        assert out["blocked"][0]["reason"] == "depth_limit"
+        assert out["selected"] == [] and out["deferred"] == []
+        # blocked 行持久化(幂等:重排 unchanged,不重数)
+>       row = ledger.action(out["blocked"][0]["action_id"])
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'action_id'
+
+tests/test_ppv1_s3b_queue.py:185: KeyError
+_________ test_parse_novel_requires_proposal_context_and_reaction_spec _________
+
+    def test_parse_novel_requires_proposal_context_and_reaction_spec() -> None:
+        # S3b r2(S3B-05):novel 池外提案须带 proposal_context(来源)与
+        # reaction_spec(完整反应内容)—— 无足够内容不能授有效 hypothesis
+        with pytest.raises(ModelProtocolError) as ei:
+            parse_model_proposals(
+                _resp({"proposals": [{"hypothesis_id": "hyp_new"}]}),
+                allowed_hypothesis_ids=ALLOWED)
+        assert ei.value.detail["kind"] == FORMAT_ERROR_JSON_FIELD
+        # 有 context 但缺 reaction_spec ⇒ json_field(可进有界反馈)
+>       with pytest.raises(ModelProtocolError) as ei3:
+E       Failed: DID NOT RAISE ModelProtocolError
+
+tests/test_ppv1_s3b_model.py:116: Failed
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_source/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 failed, 52 passed, 1 warning in 0.64s

@@ -1,0 +1,107 @@
+{
+  "actual_head": "41d0cd55f3def050a62325f00235cf22da302d2e",
+  "parent_head": "dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03",
+  "date_Asia_Shanghai": "2026-10-08",
+  "prepared_at_utc": "2026-10-07T16:54:33.241933+00:00",
+  "decision": "S3a_NOT_PASS_S3b_NOT_RELEASED",
+  "P1_retained": [
+    "S3A-02",
+    "S3A-03",
+    "S3A-04"
+  ],
+  "P1_specific_residuals": [
+    "necessary_reservation_reference_set_incomplete",
+    "request_status_consumption_missing_frozen_policy_guard",
+    "unknown_request_status_written_as_failed"
+  ],
+  "prior_row_level_counterexamples_closed": true,
+  "S3A01_and05_remain_closed": true,
+  "independent_results": {
+    "PPV1": {
+      "passed": 697,
+      "skipped": 0,
+      "failed": 0,
+      "new_subcount_included": 49,
+      "pytest_seconds": 7.93,
+      "command_wall_seconds": 8.255
+    },
+    "parent_same_byte_new49": {
+      "failed": 40,
+      "passed": 9,
+      "collection_error": 0,
+      "behavior_reds": 40,
+      "failure_classification": {
+        "did_not_raise_SearchIntegrityError": 28,
+        "did_not_raise_SearchContractError": 3,
+        "did_not_raise_SearchRecoveryError": 2,
+        "did_not_raise_SearchIdentityConflict": 2,
+        "value_assertions": 5
+      },
+      "green_classification": {
+        "legal_behavior": 4,
+        "preexisting_bad_input_refusals": 5
+      }
+    },
+    "safe_G01": {
+      "passed": 1299,
+      "skipped": 8,
+      "deselected": 17,
+      "whitelist_inputs": 276,
+      "repo": 216,
+      "ordinary_v3_source": 42,
+      "approved_ordinary_asset_mirrors": 18,
+      "pytest_seconds": 196.91,
+      "controller_command_wall_seconds": 198.929
+    },
+    "narrow_chemistry": {
+      "cases": 15,
+      "actual_RDKit_token_extra_cases": 7
+    },
+    "authority": {
+      "old_cases": 27,
+      "old_segmented_cases": 120,
+      "old_segmented_bad_refused": 111,
+      "old_segmented_legal": 9,
+      "hard_kills": 4,
+      "double_process_barrier": 1,
+      "necessary_set_bad_accepted": 54,
+      "necessary_set_legal_controls": 9,
+      "cap_one_comparison": "clean_second_claim_refused; corrupted_missing_total_ref_and_row_two_events_and_commits_used1_max1"
+    },
+    "budget_request_stop": {
+      "old_effective_matrix": 114,
+      "old_conform": 114,
+      "stop_priority_combinations": 63,
+      "bad_frozen_policy_request_status_cases_accepted": 18
+    }
+  },
+  "runtime": {
+    "python": "3.11.16",
+    "RDKit": "2026.03.6",
+    "SQLite": "3.53.4",
+    "profile": 11,
+    "search": 3,
+    "store": 9,
+    "limits": 3
+  },
+  "legacy_code_identity": "4ea99b698a05ab8685bbd5687835043a2bf07f0c7f219591beccbff2507c29ae",
+  "source_guard_existing_file_count": 1072,
+  "account_interruption_this_round": true,
+  "reused_implementation_runtime_outputs_as_independent": false,
+  "already_completed_suite_reruns": 0,
+  "actual_network_requests": 0,
+  "external_model_calls": 0,
+  "real_provider_calls": 0,
+  "judging_LLM_calls": 0,
+  "synthetic_engineering_only": true,
+  "science_performance_or_criteria_freeze_claim": false,
+  "repo_new_write_allowlist": [
+    "docs/POLLUTANT_PATHWAY_S3A_CODEX_REVIEW_R3_2026-10-08.md",
+    "docs/review_evidence/ppv1_s3a_codex_r3_2026-10-08/"
+  ],
+  "resume_record": "INTERRUPTION_RESUME.json",
+  "resume_clock_utc": "2026-10-07 18:04:51 UTC",
+  "completed_validation_outputs_reused": true,
+  "validation_reruns_on_resume": 0,
+  "quota_failure_not_code_error": true
+}

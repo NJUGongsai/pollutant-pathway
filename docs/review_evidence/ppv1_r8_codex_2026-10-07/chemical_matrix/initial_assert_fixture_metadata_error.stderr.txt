@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix/assert_r8_chemical_observed.py", line 8, in <module>
+    run=json.loads((ROOT/'chemical_probe_run.json').read_text())
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/pathlib.py", line 1058, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/pathlib.py", line 1044, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/ppv1_r8_root_2iv4qo_s/chemical_matrix/chemical_probe_run.json'

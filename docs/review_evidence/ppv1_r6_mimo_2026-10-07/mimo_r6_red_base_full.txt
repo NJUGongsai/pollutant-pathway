@@ -1,0 +1,880 @@
+FFFFF.FFFFFFFFFFFFFF........FF.F...FFFFFF.FF.FF.FF...FFFFF...F.FFF.F..   [100%]
+=================================== FAILURES ===================================
+__________________ test_r5_01_half_declared_products_partial ___________________
+
+    def test_r5_01_half_declared_products_partial() -> None:
+        """R5 复审反例,基线 293bc62 红:真实 CCO→CC=O 证据用于
+        CCO → 1/2 CC=O + 1/2 C1CO1 + H2 —— 数值完全配平(元素/电荷账
+        verified),但额外环氧乙烷产物从未核验、乙醛只申报半份(声明
+        1/2 ≠ λ_s=1)⇒ 覆盖 partial、中心 unknown、不 R6(基线曾
+        full/verified/expand)。"""
+        evidence = _oxidation_evidence()
+        states = _states(ETHANOL, ACETALDEHYDE, EPOXIDE, HYDROGEN)
+        hyp = _hyp(states, [(ETHANOL, 1)],
+                   [(ACETALDEHYDE, Fraction(1, 2)),
+                    (EPOXIDE, Fraction(1, 2)),
+                    (HYDROGEN, 1)], group="r6-half")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+>       assert center.status == CHECK_UNKNOWN
+E       AssertionError: assert 'verified' == 'unknown'
+E         
+E         - unknown
+E         + verified
+
+tests/test_ppv1_r6_chem.py:222: AssertionError
+_______________ test_r5_01_cosubstrate_to_scaled_product_partial _______________
+
+    def test_r5_01_cosubstrate_to_scaled_product_partial() -> None:
+        """R5 复审反例,基线 293bc62 红:真实 CC=O→CCO 证据用于
+        CC=O + C1CO1 + 2H2 → 2CCO —— 数值配平,但额外环氧乙烷开环/还原
+        未进入编辑证据,且覆盖产物 CCO 声明 2 ≠ λ_s×1=1 ⇒ partial/
+        unknown、不 R6(基线曾 full/verified/expand)。"""
+        evidence = _reduction_evidence()
+        states = _states(ACETALDEHYDE, EPOXIDE, HYDROGEN, ETHANOL)
+        hyp = _hyp(states, [(ACETALDEHYDE, 1), (EPOXIDE, 1), (HYDROGEN, 2)],
+                   [(ETHANOL, 2)], group="r6-scale2")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+>       assert center.status == CHECK_UNKNOWN
+E       AssertionError: assert 'verified' == 'unknown'
+E         
+E         - unknown
+E         + verified
+
+tests/test_ppv1_r6_chem.py:259: AssertionError
+__________________ test_r5_01_genuine_oxidation_control_full ___________________
+
+    def test_r5_01_genuine_oxidation_control_full() -> None:
+        """正控制(基线 293bc62 绿,须保持):真实乙醇氧化证据绑定
+        CCO→CC=O+H2(λ_s=1;未覆盖产物 H2 == λ_s×Δ⁺=2H)⇒ full、
+        verified、expand。"""
+        evidence = _oxidation_evidence()
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN)
+        hyp = _hyp(states, [(ETHANOL, 1)],
+                   [(ACETALDEHYDE, 1), (HYDROGEN, 1)])
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+        assert center.status == CHECK_VERIFIED
+        assert center.detail["product_coverage"] == "full"
+>       assert center.detail["substrate_scale"] == "1"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'substrate_scale'
+
+tests/test_ppv1_r6_chem.py:291: KeyError
+________________ test_r5_01_genuine_hydrogenation_control_full _________________
+
+    def test_r5_01_genuine_hydrogenation_control_full() -> None:
+        """正控制(基线绿,须保持):真实乙醛氢化证据绑定
+        CC=O+H2→CCO(Δ=H:−2;未覆盖反应物 H2 == λ_s×(−Δ)⁺=2H)
+        ⇒ full、verified、expand。"""
+        evidence = _reduction_evidence()
+        states = _states(ACETALDEHYDE, HYDROGEN, ETHANOL)
+        hyp = _hyp(states, [(ACETALDEHYDE, 1), (HYDROGEN, 1)],
+                   [(ETHANOL, 1)])
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+        assert center.status == CHECK_VERIFIED
+        assert center.detail["product_coverage"] == "full"
+>       assert center.detail["atom_delta"] == {"H": "-2"}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'atom_delta'
+
+tests/test_ppv1_r6_chem.py:312: KeyError
+____________________ test_r5_01_fragment_split_control_full ____________________
+
+    def test_r5_01_fragment_split_control_full() -> None:
+        """正控制(基线绿,须保持):真实断裂分列产物(执行器产物
+        C.CO;假设产物 C、CO 各为参与物)⇒ fragments 两级映射 + 注册
+        补全规则(Δ=H:−2;未覆盖反应物 H2 == (−Δ)⁺=2H)⇒ full、
+        verified、expand。"""
+        render_result = roundtrip(ETHANOL, name="S")
+        edits = [{"op": "break_bond", "atom1": "S_C_1", "atom2": "S_C_2"}]
+        execution = execute_edits(render_result, edits)
+        assert execution["ok"] is True
+        assert execution["product_smiles"] == "C.CO"
+        diag = check_edit_against_donor(
+            current={"smiles": render_result.smiles,
+                     "atom_id_map": dict(render_result.atom_id_map)},
+            donor={"center_atom_ids": ["d1", "d2"]},
+            alignment={"status": "resolved",
+                       "donor_to_current": {"d1": "S_C_1", "d2": "S_C_2"},
+                       "equivalence_classes": [], "ref": "r6-frag"},
+            expectation={"target_smiles": execution["product_smiles"]},
+            result=execution, edits=edits)
+        assert diag.reaction_center_match is True
+        evidence = center_evidence_from_donor_diagnostic(diag)
+        states = _states(ETHANOL, HYDROGEN, "C", "CO")
+        hyp = _hyp(states, [(ETHANOL, 1), (HYDROGEN, 1)], [("C", 1), ("CO", 1)],
+                   group="r6-frag")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+        assert center.status == CHECK_VERIFIED
+        assert center.detail["coverage_mode"] == "fragments"
+        assert center.detail["product_coverage"] == "full"
+>       assert center.detail["substrate_scale"] == "1"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'substrate_scale'
+
+tests/test_ppv1_r6_chem.py:348: KeyError
+_________________ test_r5_01_two_sided_isomer_no_cancellation __________________
+
+    def test_r5_01_two_sided_isomer_no_cancellation() -> None:
+        """R5-01 关断点(复审双侧反例,基线曾借'单侧空'误 full;
+        v5 已拦双侧并存,v6 补数值语义):CCO+C1CC1→CC=O+H2+CC=C ——
+        环丙烷→丙烯为同式量异构(C3H6→C3H6,净差可抵消),但两侧各自
+        超出 Δ⁺/(−Δ)⁺(补全盈余)⇒ partial、unknown、不 R6。"""
+        evidence = _oxidation_evidence()
+        states = _states(ETHANOL, "C1CC1", ACETALDEHYDE, HYDROGEN, "CC=C")
+        hyp = _hyp(states, [(ETHANOL, 1), ("C1CC1", 1)],
+                   [(ACETALDEHYDE, 1), (HYDROGEN, 1), ("CC=C", 1)],
+                   group="r6-iso")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+        assert center.status == CHECK_UNKNOWN
+        assert "partial_coverage_unchecked_transformation" in center.reason_code
+        assert center.detail["product_coverage"] == \
+            "partial_unchecked_transformation"
+        # 两侧各自的补全盈余(不许互相抵消)
+>       sides = {v["side"] for v in center.detail["coverage_violations"]
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 if v["kind"] == "completion_surplus"}
+E       KeyError: 'coverage_violations'
+
+tests/test_ppv1_r6_chem.py:398: KeyError
+_____________________ test_r5_01_legal_ratio_scaling_full ______________________
+
+    def test_r5_01_legal_ratio_scaling_full() -> None:
+        """正控制(v6 新增建议):合法比例缩放 2CCO→2CC=O+2H2(真实
+        1×CCO→CC=O 证据;λ_s=2;覆盖产物声明 2 == λ_s×1;未覆盖 H2×2
+        == λ_s×Δ⁺=4H)⇒ full、verified、expand。"""
+        evidence = _oxidation_evidence()
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN)
+        hyp = _hyp(states, [(ETHANOL, 2)],
+                   [(ACETALDEHYDE, 2), (HYDROGEN, 2)], group="r6-scale-ok")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+        assert center.status == CHECK_VERIFIED
+        assert center.detail["product_coverage"] == "full"
+>       assert center.detail["substrate_scale"] == "2"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'substrate_scale'
+
+tests/test_ppv1_r6_chem.py:418: KeyError
+_______________________ test_r5_01_h2_not_exempt_by_name _______________________
+
+    def test_r5_01_h2_not_exempt_by_name() -> None:
+        """R5-01 验收:整类 H2/水/共底物不按名称免审 ——
+        CCO→CC=O+2H2 的未覆盖产物元素(H:4)超出 λ_s×Δ⁺(H:2)=>
+        补全盈余 ⇒ partial、中心 unknown(元素账另轴 violated,不在此
+        重复,但覆盖轴按注册规则如实关断)。"""
+        evidence = _oxidation_evidence()
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN)
+        hyp = _hyp(states, [(ETHANOL, 1)],
+                   [(ACETALDEHYDE, 1), (HYDROGEN, 2)], group="r6-h2x2")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+>       assert center.status == CHECK_UNKNOWN
+E       AssertionError: assert 'verified' == 'unknown'
+E         
+E         - unknown
+E         + verified
+
+tests/test_ppv1_r6_chem.py:437: AssertionError
+_______________ test_r5_01_unknown_coefficient_coverage_unknown ________________
+
+    def test_r5_01_unknown_coefficient_coverage_unknown() -> None:
+        """R5-01 语义 6:参与物系数未知 ⇒ 覆盖结果 unknown_coefficients
+        (λ_s/贡献规模不可算,不冒充已覆盖;中心 unknown、不 R6)。"""
+        evidence = _oxidation_evidence()
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN)
+        hyp = _hyp_with_unknown(
+            states,
+            [(ETHANOL, 1, True)],
+            [(ACETALDEHYDE, 1, True), (HYDROGEN, None, False)],
+            group="r6-unkcoeff")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+>       assert center.status == CHECK_UNKNOWN
+E       AssertionError: assert 'verified' == 'unknown'
+E         
+E         - unknown
+E         + verified
+
+tests/test_ppv1_r6_chem.py:460: AssertionError
+_____________ test_r5_01_completion_rule_registered_and_disclosed ______________
+
+    def test_r5_01_completion_rule_registered_and_disclosed() -> None:
+        """R5-01 披露:补全规则以注册常量名入 detail(coverage_rule);
+        substrate_scale/atom_delta/两侧未覆盖元素/逐条 violations 全部
+        机器可读。"""
+        evidence = _oxidation_evidence()
+        states = _states(ETHANOL, ACETALDEHYDE, EPOXIDE, HYDROGEN)
+        hyp = _hyp(states, [(ETHANOL, 1)],
+                   [(ACETALDEHYDE, Fraction(1, 2)),
+                    (EPOXIDE, Fraction(1, 2)), (HYDROGEN, 1)],
+                   group="r6-disc")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+        detail = center.detail
+>       assert detail["coverage_rule"] == COVERAGE_COMPLETION_RULE
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'coverage_rule'
+
+tests/test_ppv1_r6_chem.py:480: KeyError
+__________________ test_r5_02_raw_r_flag_rejected_not_same_id __________________
+
+    def test_r5_02_raw_r_flag_rejected_not_same_id() -> None:
+        """R5 复审反例,基线 293bc62 红:build_chemical_state(
+        'C[C@@H](N)C(=O)O |r|') —— |r| 被 RDKit MolFromSmiles 静默丢弃后
+        与裸串同 state_id/as_written;v6 输入侧注册感知校验 ⇒ 构造即拒
+        (unregistered_cx_class);strict_identity_of 同拒(公共入口一致)。"""
+        bare = build_chemical_state("C[C@@H](N)C(=O)O",
+                                    STRUCTURE_ORIGIN_RAW_INPUT)
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:506: Failed
+_______________________ test_r5_02_raw_ln_block_rejected _______________________
+
+    def test_r5_02_raw_ln_block_rejected() -> None:
+        """R5 复审反例,基线 293bc62 红:'C1CCCCC1 |Ln:1|' 被解析器丢弃
+        后与裸环己烷同 ID ⇒ 构造即拒;strict_identity_of 同拒。"""
+        bare = build_chemical_state("C1CCCCC1", STRUCTURE_ORIGIN_RAW_INPUT)
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:520: Failed
+_____________ test_r5_02_other_dropped_classes_rejected[CO |c:1|] ______________
+
+structure = 'CO |c:1|'
+
+    @pytest.mark.parametrize("structure", [
+        "CO |c:1|", "CO |wU:1.5|", "CO |o:1|", "CO |O:1|",
+        "CO |d:1|", "CO |n:1|", "CO |F:1|", "C[C@H](F)Cl |w:1.0|",
+    ])
+    def test_r5_02_other_dropped_classes_rejected(structure) -> None:
+        """R5-02 拒绝表:其余被解析器静默丢弃的未登记类(c/wU/o/O/d/
+        n/F/Ln 等)⇒ 输入侧构造即拒,不默认丢弃后称 as_written。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:536: Failed
+____________ test_r5_02_other_dropped_classes_rejected[CO |wU:1.5|] ____________
+
+structure = 'CO |wU:1.5|'
+
+    @pytest.mark.parametrize("structure", [
+        "CO |c:1|", "CO |wU:1.5|", "CO |o:1|", "CO |O:1|",
+        "CO |d:1|", "CO |n:1|", "CO |F:1|", "C[C@H](F)Cl |w:1.0|",
+    ])
+    def test_r5_02_other_dropped_classes_rejected(structure) -> None:
+        """R5-02 拒绝表:其余被解析器静默丢弃的未登记类(c/wU/o/O/d/
+        n/F/Ln 等)⇒ 输入侧构造即拒,不默认丢弃后称 as_written。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:536: Failed
+_____________ test_r5_02_other_dropped_classes_rejected[CO |o:1|] ______________
+
+structure = 'CO |o:1|'
+
+    @pytest.mark.parametrize("structure", [
+        "CO |c:1|", "CO |wU:1.5|", "CO |o:1|", "CO |O:1|",
+        "CO |d:1|", "CO |n:1|", "CO |F:1|", "C[C@H](F)Cl |w:1.0|",
+    ])
+    def test_r5_02_other_dropped_classes_rejected(structure) -> None:
+        """R5-02 拒绝表:其余被解析器静默丢弃的未登记类(c/wU/o/O/d/
+        n/F/Ln 等)⇒ 输入侧构造即拒,不默认丢弃后称 as_written。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:536: Failed
+_____________ test_r5_02_other_dropped_classes_rejected[CO |O:1|] ______________
+
+structure = 'CO |O:1|'
+
+    @pytest.mark.parametrize("structure", [
+        "CO |c:1|", "CO |wU:1.5|", "CO |o:1|", "CO |O:1|",
+        "CO |d:1|", "CO |n:1|", "CO |F:1|", "C[C@H](F)Cl |w:1.0|",
+    ])
+    def test_r5_02_other_dropped_classes_rejected(structure) -> None:
+        """R5-02 拒绝表:其余被解析器静默丢弃的未登记类(c/wU/o/O/d/
+        n/F/Ln 等)⇒ 输入侧构造即拒,不默认丢弃后称 as_written。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:536: Failed
+_____________ test_r5_02_other_dropped_classes_rejected[CO |d:1|] ______________
+
+structure = 'CO |d:1|'
+
+    @pytest.mark.parametrize("structure", [
+        "CO |c:1|", "CO |wU:1.5|", "CO |o:1|", "CO |O:1|",
+        "CO |d:1|", "CO |n:1|", "CO |F:1|", "C[C@H](F)Cl |w:1.0|",
+    ])
+    def test_r5_02_other_dropped_classes_rejected(structure) -> None:
+        """R5-02 拒绝表:其余被解析器静默丢弃的未登记类(c/wU/o/O/d/
+        n/F/Ln 等)⇒ 输入侧构造即拒,不默认丢弃后称 as_written。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:536: Failed
+_____________ test_r5_02_other_dropped_classes_rejected[CO |n:1|] ______________
+
+structure = 'CO |n:1|'
+
+    @pytest.mark.parametrize("structure", [
+        "CO |c:1|", "CO |wU:1.5|", "CO |o:1|", "CO |O:1|",
+        "CO |d:1|", "CO |n:1|", "CO |F:1|", "C[C@H](F)Cl |w:1.0|",
+    ])
+    def test_r5_02_other_dropped_classes_rejected(structure) -> None:
+        """R5-02 拒绝表:其余被解析器静默丢弃的未登记类(c/wU/o/O/d/
+        n/F/Ln 等)⇒ 输入侧构造即拒,不默认丢弃后称 as_written。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:536: Failed
+_____________ test_r5_02_other_dropped_classes_rejected[CO |F:1|] ______________
+
+structure = 'CO |F:1|'
+
+    @pytest.mark.parametrize("structure", [
+        "CO |c:1|", "CO |wU:1.5|", "CO |o:1|", "CO |O:1|",
+        "CO |d:1|", "CO |n:1|", "CO |F:1|", "C[C@H](F)Cl |w:1.0|",
+    ])
+    def test_r5_02_other_dropped_classes_rejected(structure) -> None:
+        """R5-02 拒绝表:其余被解析器静默丢弃的未登记类(c/wU/o/O/d/
+        n/F/Ln 等)⇒ 输入侧构造即拒,不默认丢弃后称 as_written。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:536: Failed
+___________________ test_r5_02_double_pipe_segment_rejected ____________________
+
+    def test_r5_02_double_pipe_segment_rejected() -> None:
+        """R5-02 双管道段:串中全部 |...| 段都被提取校验 —— 合法段 +
+        非法段(如 'CC |a:1| |r|')同样拒绝(解析器只静默丢 r)。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:596: Failed
+___________________ test_r5_02_annotation_token_level_guard ____________________
+
+    def test_r5_02_annotation_token_level_guard() -> None:
+        """R5-02 注记类 token 级校验:a/oN/&N/^N 块内 token 须为注记头
+        或裸数字原子列表延续;混合未登记头(如 a:1,x:2)⇒ 拒绝。"""
+        st = build_chemical_state("C[C@H](Cl)[C@H](F)Cl |a:1,&1:3|",
+                                  STRUCTURE_ORIGIN_RAW_INPUT)
+        assert st.state_id
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r6_chem.py:610: Failed
+________________ test_r5_08_adjacent_sigma_break_zero_mismatch _________________
+
+    def test_r5_08_adjacent_sigma_break_zero_mismatch() -> None:
+        """R5 复审反例,基线 293bc62 红:真实 C/C=C/C 断邻位 σ 键
+        (render 后 0–1 号原子键)—— 执行器产物 C.C=CC 被序列化后消费,
+        双键端烯化 E/Z 自然消失;内存镜像残留陈旧 STEREOE 曾误报
+        undeclared_bond_change U_C_2–U_C_3。v6 镜像同走写出/重解析 ⇒
+        零失配,center/strict 可 True。"""
+        execution, diag = _sigma_break_diag("C/C=C/C", (0, 1))
+        assert execution["product_smiles"] == "C.C=CC"
+>       assert diag.declaration_mismatches == []
+E       assert ['undeclared_...际发生了未声明的键变化)'] == []
+E         
+E         Left contains one more item: "undeclared_bond_change:['U_C_2', 'U_C_3'](净效应:实际发生了未声明的键变化)"
+E         Use -v to get more diff
+
+tests/test_ppv1_r6_chem.py:655: AssertionError
+___________________ test_p2_basis_and_proof_scope_disclosed ____________________
+
+    def test_p2_basis_and_proof_scope_disclosed() -> None:
+        """P2(§4 披露项 1,基线 293bc62 红:reason 码 basis= 空串、
+        detail 无 proof_scope):真实诊断载荷披露 center_match_basis=
+        direct 与 proof_scope=self_contained_recompute;audit 复算分支
+        同源披露,verified 理由码 basis= 非空。"""
+        evidence = _oxidation_evidence()
+>       assert evidence["center_match_basis"] == "direct"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'center_match_basis'
+
+tests/test_ppv1_r6_chem.py:705: KeyError
+___________________ test_p2_tampered_basis_integrity_reject ____________________
+
+    def test_p2_tampered_basis_integrity_reject() -> None:
+        """P2:篡改 basis(声称 symmetric_equivalent,复算为 direct)
+        ⇒ center_evidence_integrity_mismatch 结构化拒绝(自报 basis ≠
+        复算 basis)。"""
+        evidence = _oxidation_evidence()
+        tampered = dict(evidence)
+        tampered["center_match_basis"] = "symmetric_equivalent"
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN)
+        hyp = _hyp(states, [(ETHANOL, 1)],
+                   [(ACETALDEHYDE, 1), (HYDROGEN, 1)], group="r6-p2t")
+>       with pytest.raises(AuditContractError) as ei:
+E       Failed: DID NOT RAISE AuditContractError
+
+tests/test_ppv1_r6_chem.py:729: Failed
+_______________ test_r5_03_oxygen_required_value_absent_conflict _______________
+
+    def test_r5_03_oxygen_required_value_absent_conflict() -> None:
+        """复审反例:oxygen_regime='aerobic' known_absent + 必需 aerobic ⇒
+        conflict(required_value_known_absent;明确否定必需值),audit 条件
+       检查 violated ⇒ admission defer(v5 satisfied/value_match →
+        verified → R6)。"""
+        ctx = build_path_context(
+            condition_facts=[build_condition_fact(
+                key=CONDITION_KEY_OXYGEN, value="aerobic",
+                status="known_absent", source_ref="src:synthetic_absence")],
+            phase_id="p0", scenario_ref="s",
+            assessment_scope=[CONDITION_KEY_OXYGEN])
+        result = aggregate_environment_fit(
+            facts=ctx.condition_facts,
+            requirements=[r(CONDITION_KEY_OXYGEN, "aerobic")],
+            declared_scope=[CONDITION_KEY_OXYGEN])
+        row = per_key(result)[CONDITION_KEY_OXYGEN]
+>       assert row["status"] == "conflict"
+E       AssertionError: assert 'satisfied' == 'conflict'
+E         
+E         - conflict
+E         + satisfied
+
+tests/test_ppv1_r6_conditions.py:162: AssertionError
+_______________ test_r5_03_matrix_required_value_absent_conflict _______________
+
+    def test_r5_03_matrix_required_value_absent_conflict() -> None:
+        """复审反例:matrix='soil' known_absent + 必需 soil ⇒ conflict
+        (同词标签被明确否定);audit violated ⇒ defer(v5 satisfied → R6)。"""
+        ctx = build_path_context(
+            condition_facts=[build_condition_fact(
+                key=CONDITION_KEY_MATRIX, value="soil",
+                status="known_absent", source_ref="src:synthetic_absence")],
+            phase_id="p0", scenario_ref="s",
+            assessment_scope=[CONDITION_KEY_MATRIX])
+        cond, disposition = _audit(ctx, [r(CONDITION_KEY_MATRIX, "soil")])
+>       assert cond.status == "violated"
+E       AssertionError: assert 'verified' == 'violated'
+E         
+E         - violated
+E         + verified
+
+tests/test_ppv1_r6_conditions.py:181: AssertionError
+_______________ test_r5_03_numeric_absence_unknown_not_satisfied _______________
+
+    def test_r5_03_numeric_absence_unknown_not_satisfied() -> None:
+        """复审反例:温度 25°C known_absent + 必需区间 20–30 ⇒ unknown
+        (numeric_absence_semantics_undefined:"25 不存在"推不出整个区间
+        不存在;首版未定义数值否定语义,不按正值直比),audit unknown ⇒
+        不可 expand(v5 within_range satisfied → R6)。"""
+        ctx = build_path_context(
+            condition_facts=[build_condition_fact(
+                key=CONDITION_KEY_TEMPERATURE, value=25, unit="C",
+                status="known_absent", source_ref="src:synthetic_absence")],
+            phase_id="p0", scenario_ref="s",
+            assessment_scope=[CONDITION_KEY_TEMPERATURE])
+        result = aggregate_environment_fit(
+            facts=ctx.condition_facts,
+            requirements=[r(CONDITION_KEY_TEMPERATURE, {"lo": 20, "hi": 30})],
+            declared_scope=[CONDITION_KEY_TEMPERATURE])
+        row = per_key(result)[CONDITION_KEY_TEMPERATURE]
+>       assert row["status"] == "unknown"
+E       AssertionError: assert 'satisfied' == 'unknown'
+E         
+E         - unknown
+E         + satisfied
+
+tests/test_ppv1_r6_conditions.py:201: AssertionError
+_____________ test_r5_03_other_string_value_absent_not_determining _____________
+
+    def test_r5_03_other_string_value_absent_not_determining() -> None:
+        """不同字符串值的缺席不判定必需值状态(不明判 unknown 也不冒充
+        conflict):oxygen 封闭枚举下"anaerobic 缺席"不证明 aerobic 在场;
+        matrix 文本不等只证明标签未解析。"""
+        oxygen = aggregate_environment_fit(
+            facts=[build_condition_fact(
+                key=CONDITION_KEY_OXYGEN, value="anaerobic",
+                status="known_absent", source_ref="src:synthetic_absence")],
+            requirements=[r(CONDITION_KEY_OXYGEN, "aerobic")],
+            declared_scope=[CONDITION_KEY_OXYGEN])
+        row = per_key(oxygen)[CONDITION_KEY_OXYGEN]
+>       assert row["status"] == "unknown"
+E       AssertionError: assert 'conflict' == 'unknown'
+E         
+E         - unknown
+E         + conflict
+
+tests/test_ppv1_r6_conditions.py:221: AssertionError
+_________________ test_r5_04_snapshot_summary_tamper_rejected __________________
+
+    def test_r5_04_snapshot_summary_tamper_rejected() -> None:
+        """复审反例:合法载荷 to_dict 后仅改 phase_history[0].
+        environment_fit='compatible'(旧逐行 conflict 仍在)⇒ from_dict
+        结构化拒绝(v5 回读后路线洗绿 compatible → verified → R6)。"""
+        child = _historical_child("anaerobic")
+        assert child.route_assessment().environment_fit == "conflict"
+        raw = child.to_dict()
+        raw["phase_history"][0]["environment_fit"] = "compatible"
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_r6_conditions.py:317: Failed
+_____________________ test_r5_04_gate_flag_tamper_rejected _____________________
+
+    def test_r5_04_gate_flag_tamper_rejected() -> None:
+        """复审反例:仅改 has_gate_requirements=False ⇒ 拒(旗标须与必要
+        行集合同源;篡改不能跳过必要评估把旧冲突从消费中洗掉)。"""
+        child = _historical_child("anaerobic")
+        raw = child.to_dict()
+        raw["phase_history"][0]["has_gate_requirements"] = False
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_r6_conditions.py:329: Failed
+_________ test_r5_04_inplace_tampered_phase_history_rejected_at_audit __________
+
+    def test_r5_04_inplace_tampered_phase_history_rejected_at_audit() -> None:
+        """复审反例:audit_hypothesis 传入就地篡改过 phase_history 的直接
+        context 对象 ⇒ validate_context_object 拒(内存对象摘要被改,
+        消费入口不再信任)。"""
+        hyp = _hyp([r(CONDITION_KEY_OXYGEN, "anaerobic")])
+        child = _historical_child("anaerobic")
+        child.phase_history[0]["environment_fit"] = "compatible"
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_r6_conditions.py:393: Failed
+_______________ test_r5_04_fact_tamper_kept_context_id_rejected ________________
+
+    def test_r5_04_fact_tamper_kept_context_id_rejected() -> None:
+        """内容身份:改事实(载荷或就地)而不改 context_id ⇒ 拒
+        (context_content_identity_mismatch;篡改任何语义字段保留原身份,
+        不是同 hash 漏项问题)。"""
+        child = _historical_child("anaerobic")
+        raw = child.to_dict()
+        raw["condition_facts"][0]["value"] = "anaerobic"  # 原 aerobic
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_r6_conditions.py:414: Failed
+____________ test_p2_initial_supported_reaction_contradicted_split _____________
+
+    def test_p2_initial_supported_reaction_contradicted_split() -> None:
+        """交叉轴案例 1:初始轴 supported + reaction 轴 contradicted(总体
+        contradicted)⇒ 环 NOT in unresolved_initial_supply(启动轴仍在,
+        不误报启动未知)、IS in unsupported_relation_cycles(reaction 轴
+        被反驳,关系不成立)。v5 以总体 status 同时判两种语义 ⇒ 误报
+        启动未知。"""
+        d = _probe_axis_dependencies()
+        result = detect_circular_dependencies(
+            [d["reaction_no"], d["regen_b"]])
+>       assert result["unresolved_initial_supply"] == []
+E       AssertionError: assert [['A', 'B']] == []
+E         
+E         Left contains one more item: ['A', 'B']
+E         Use -v to get more diff
+
+tests/test_ppv1_r6_conditions.py:497: AssertionError
+________________ test_p2_initial_contradicted_later_regen_split ________________
+
+    def test_p2_initial_contradicted_later_regen_split() -> None:
+        """交叉轴案例 2:initial 轴 contradicted + regeneration 轴
+        supported(总体 contradicted)⇒ IS in unresolved_initial_supply
+        (启动轴当前无支持,不被再生洗掉)、NOT in unsupported_relation_
+        cycles(关系轴成立,不混入关系不支持)。v5 混入关系不支持。"""
+        d = _probe_axis_dependencies()
+        result = detect_circular_dependencies([d["later"], d["regen_b"]])
+        assert result["unresolved_initial_supply"] == [["A", "B"]]
+>       assert result["unsupported_relation_cycles"] == []
+E       AssertionError: assert [['A', 'B']] == []
+E         
+E         Left contains one more item: ['A', 'B']
+E         Use -v to get more diff
+
+tests/test_ppv1_r6_conditions.py:509: AssertionError
+__________ test_r5_05_pre_stored_all_binds_manifest_replay_idempotent __________
+
+    def test_r5_05_pre_stored_all_binds_manifest_replay_idempotent() -> None:
+        """R5 复审反例,基线 293bc62 红:全先存(put 两 state 后
+        states=[] 首提)⇒ 首提 created=True 且清单覆盖两 ref,正常重放
+        created=False 幂等(基线:首提 manifest=[] ⇒ 重放报
+        event_appearance_manifest_missing)。"""
+        store, sub, prod, hyp, event, args = fixture("r6_pre_all")
+        store.put_state(args["states"][0])
+        store.put_state(args["states"][1])
+        result = store.submit_event(event, **dict(args, states=[]))
+        assert result["created"] is True
+        payload = json.loads(store.get_event(event.event_id)["payload"])
+        manifest = payload["event_appearance_manifest"]
+>       assert manifest, "全先存首提不得产出空出现清单"
+E       AssertionError: 全先存首提不得产出空出现清单
+E       assert []
+
+tests/test_ppv1_r6_storage.py:105: AssertionError
+_________ test_r5_05_pre_stored_partial_actual_source_deleted_corrupt __________
+
+    def test_r5_05_pre_stored_partial_actual_source_deleted_corrupt() -> None:
+        """R5 复审反例,基线 293bc62 红:部分先存(事务只供底物、产物
+        先存绑定)后删实际产物出现、留同物种无关出现 ⇒ 重放
+        Ppv1LedgerCorrupt(基线:created=False 静默成功)。"""
+        store, sub, prod, hyp, event, args = fixture("r6_pre_partial")
+        store.put_state(prod.to_dict())
+        actual_hash = store.conn.execute(
+            "SELECT appearance_hash FROM state_appearances WHERE state_id=?",
+            (prod.state_id,)).fetchone()["appearance_hash"]
+        result = store.submit_event(event, **dict(args, states=[sub.to_dict()]))
+        assert result["created"] is True
+        payload = json.loads(store.get_event(event.event_id)["payload"])
+        manifest = payload["event_appearance_manifest"]
+>       assert {e["state_id"] for e in manifest} == {sub.state_id, prod.state_id}
+E       AssertionError: assert {'cs_ab1de819ede91df490e6'} == {'cs_540cc018...ede91df490e6'}
+E         
+E         Extra items in the right set:
+E         'cs_540cc0181e112b383323'
+E         Use -v to get more diff
+
+tests/test_ppv1_r6_storage.py:134: AssertionError
+____________ test_r5_05_manifest_shrunk_to_nonempty_subset_corrupt _____________
+
+    def test_r5_05_manifest_shrunk_to_nonempty_subset_corrupt() -> None:
+        """R5 复审反例,基线 293bc62 红:完整清单 SQL 缩成非空子集 ⇒
+        重放损坏(基线:清单子集仍逐项合法 ⇒ created=False 成功)。"""
+        store, sub, prod, hyp, event, args = fixture("r6_subset")
+        store.submit_event(event, **args)
+        payload = json.loads(store.get_event(event.event_id)["payload"])
+        manifest = payload["event_appearance_manifest"]
+        payload["event_appearance_manifest"] = [
+            e for e in manifest if e["state_id"] != prod.state_id]
+        assert payload["event_appearance_manifest"]  # 非空子集
+        store.conn.execute(
+            "UPDATE events SET payload=? WHERE event_id=?",
+            (json.dumps(payload), event.event_id))
+        store.conn.commit()
+>       with pytest.raises(Ppv1LedgerCorrupt) as ei:
+E       Failed: DID NOT RAISE Ppv1LedgerCorrupt
+
+tests/test_ppv1_r6_storage.py:164: Failed
+_______ test_r5_05_ambiguous_existing_appearances_first_submit_rejected ________
+
+    def test_r5_05_ambiguous_existing_appearances_first_submit_rejected() \
+            -> None:
+        """R5 反例(歧义拒绝):同 state 两条既存出现 + states=[] 首提 ⇒
+        appearance_source_ambiguous 结构化拒绝零写入(多个既存出现不能
+        替调用方猜出处;须随事务显式提供载荷或先在唯一出现下提交)。"""
+        store, sub, prod, hyp, event, args = fixture("r6_ambiguous")
+        store.put_state(sub.to_dict())
+        store.put_state(state("CCO", "raw_input",
+                              [{"record": "sub-A-OTHER-SOURCE"}]).to_dict())
+        store.put_state(prod.to_dict())
+        before = store.counts()
+>       with pytest.raises(Ppv1SubmitContractError) as ei:
+E       Failed: DID NOT RAISE Ppv1SubmitContractError
+
+tests/test_ppv1_r6_storage.py:184: Failed
+____________ test_r5_05_binding_without_any_appearance_row_corrupt _____________
+
+    def test_r5_05_binding_without_any_appearance_row_corrupt() -> None:
+        """R5 边界:参与物状态行存在但出现记录全缺(模拟损坏)⇒ 首提
+        绑定无依据 ⇒ Ppv1LedgerCorrupt(账本不完整,不补账)。"""
+        store, sub, prod, hyp, event, args = fixture("r6_no_appearance")
+        store.put_state(sub.to_dict())
+        store.put_state(prod.to_dict())
+        store.conn.execute(
+            "DELETE FROM state_appearances WHERE state_id=?", (prod.state_id,))
+        store.conn.commit()
+>       with pytest.raises(Ppv1LedgerCorrupt) as ei:
+E       Failed: DID NOT RAISE Ppv1LedgerCorrupt
+
+tests/test_ppv1_r6_storage.py:201: Failed
+________ test_r5_06_existing_hypothesis_tampered_first_submit_rejected _________
+
+    def test_r5_06_existing_hypothesis_tampered_first_submit_rejected() -> None:
+        """R5 复审反例,基线 293bc62 红:put 合法行 → SQL 改 assumptions
+        保留 ID → submit hypothesis_dict=None ⇒ 首提即
+        Ppv1LedgerCorrupt(hypothesis_payload_id_corrupt)、counts 不变零
+        写入(基线:created=True,下次重放才拒绝)。"""
+        store, sub, prod, hyp, event, args = fixture("r6_hyp_tamper")
+        store.put_hypothesis(hyp.to_dict())
+        mutated = json.loads(json.dumps(args["hypothesis_dict"]))
+        mutated["assumptions"] = ["changed premise after initial put"]
+        assert recompute_hypothesis_id(mutated) != hyp.hypothesis_id
+        store.conn.execute(
+            "UPDATE hypotheses SET payload=? WHERE hypothesis_id=?",
+            (json.dumps(mutated), hyp.hypothesis_id))
+        store.conn.commit()
+        before = store.counts()
+>       with pytest.raises(Ppv1LedgerCorrupt) as ei:
+E       Failed: DID NOT RAISE Ppv1LedgerCorrupt
+
+tests/test_ppv1_r6_storage.py:272: Failed
+_ test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_payload_id_corrupt] _
+
+mutate = <function <lambda> at 0x1088344a0>
+kind = 'hypothesis_payload_id_corrupt'
+
+    @pytest.mark.parametrize(
+        "mutate,kind",
+        [(lambda d: d.update(
+            {"assumptions": ["changed premise after initial put"]}),
+          "hypothesis_payload_id_corrupt"),
+         (lambda d: d.update({"hypothesis_id": "fake:inner-id"}),
+          "hypothesis_id_corrupt"),
+         (lambda d: d.update({"schema_version": "ppv1-hypothesis-99"}),
+          "hypothesis_schema_corrupt")])
+    def test_r5_06_existing_hypothesis_row_first_use_full_same_source(
+            mutate, kind) -> None:
+        """R5-06 验收补齐(同源契约三项):首提复用既存行与重放同一验证
+        源——SQL 只篡改载荷内 hypothesis_id 字段或 schema 版本(内容重推
+        恰好仍可得行键 ID 的形状)也在首提即拒,零写入,不等下次重放。"""
+        store, sub, prod, hyp, event, args = fixture("r6_hyp_" + kind)
+        store.put_hypothesis(hyp.to_dict())
+        mutated = json.loads(json.dumps(args["hypothesis_dict"]))
+        mutate(mutated)
+        store.conn.execute(
+            "UPDATE hypotheses SET payload=? WHERE hypothesis_id=?",
+            (json.dumps(mutated), hyp.hypothesis_id))
+        store.conn.commit()
+        before = store.counts()
+>       with pytest.raises(Ppv1LedgerCorrupt) as ei:
+E       Failed: DID NOT RAISE Ppv1LedgerCorrupt
+
+tests/test_ppv1_r6_storage.py:314: Failed
+_ test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_id_corrupt] _
+
+mutate = <function <lambda> at 0x108834540>, kind = 'hypothesis_id_corrupt'
+
+    @pytest.mark.parametrize(
+        "mutate,kind",
+        [(lambda d: d.update(
+            {"assumptions": ["changed premise after initial put"]}),
+          "hypothesis_payload_id_corrupt"),
+         (lambda d: d.update({"hypothesis_id": "fake:inner-id"}),
+          "hypothesis_id_corrupt"),
+         (lambda d: d.update({"schema_version": "ppv1-hypothesis-99"}),
+          "hypothesis_schema_corrupt")])
+    def test_r5_06_existing_hypothesis_row_first_use_full_same_source(
+            mutate, kind) -> None:
+        """R5-06 验收补齐(同源契约三项):首提复用既存行与重放同一验证
+        源——SQL 只篡改载荷内 hypothesis_id 字段或 schema 版本(内容重推
+        恰好仍可得行键 ID 的形状)也在首提即拒,零写入,不等下次重放。"""
+        store, sub, prod, hyp, event, args = fixture("r6_hyp_" + kind)
+        store.put_hypothesis(hyp.to_dict())
+        mutated = json.loads(json.dumps(args["hypothesis_dict"]))
+        mutate(mutated)
+        store.conn.execute(
+            "UPDATE hypotheses SET payload=? WHERE hypothesis_id=?",
+            (json.dumps(mutated), hyp.hypothesis_id))
+        store.conn.commit()
+        before = store.counts()
+>       with pytest.raises(Ppv1LedgerCorrupt) as ei:
+E       Failed: DID NOT RAISE Ppv1LedgerCorrupt
+
+tests/test_ppv1_r6_storage.py:314: Failed
+_ test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_schema_corrupt] _
+
+mutate = <function <lambda> at 0x1088345e0>, kind = 'hypothesis_schema_corrupt'
+
+    @pytest.mark.parametrize(
+        "mutate,kind",
+        [(lambda d: d.update(
+            {"assumptions": ["changed premise after initial put"]}),
+          "hypothesis_payload_id_corrupt"),
+         (lambda d: d.update({"hypothesis_id": "fake:inner-id"}),
+          "hypothesis_id_corrupt"),
+         (lambda d: d.update({"schema_version": "ppv1-hypothesis-99"}),
+          "hypothesis_schema_corrupt")])
+    def test_r5_06_existing_hypothesis_row_first_use_full_same_source(
+            mutate, kind) -> None:
+        """R5-06 验收补齐(同源契约三项):首提复用既存行与重放同一验证
+        源——SQL 只篡改载荷内 hypothesis_id 字段或 schema 版本(内容重推
+        恰好仍可得行键 ID 的形状)也在首提即拒,零写入,不等下次重放。"""
+        store, sub, prod, hyp, event, args = fixture("r6_hyp_" + kind)
+        store.put_hypothesis(hyp.to_dict())
+        mutated = json.loads(json.dumps(args["hypothesis_dict"]))
+        mutate(mutated)
+        store.conn.execute(
+            "UPDATE hypotheses SET payload=? WHERE hypothesis_id=?",
+            (json.dumps(mutated), hyp.hypothesis_id))
+        store.conn.commit()
+        before = store.counts()
+>       with pytest.raises(Ppv1LedgerCorrupt) as ei:
+E       Failed: DID NOT RAISE Ppv1LedgerCorrupt
+
+tests/test_ppv1_r6_storage.py:314: Failed
+_____________ test_r5_07_same_parent_wrong_sibling_source_degraded _____________
+
+    def test_r5_07_same_parent_wrong_sibling_source_degraded() -> None:
+        """R5 复审反例,基线 293bc62 红:A 路径来源指针 SQL 改指同父 B
+        事件(产物同 CN 相反立体)⇒ 导入底物降 CN-only、uncertainty 含
+        substrate_source_event_relation_mismatch、不导入 B 的相反立体
+        raw(基线:child_paths 循环自证 ⇒ 接受 B 的 raw 无注记);旧库
+        字节不变。"""
+        rd, branch_a, branch_b, consumer, left, right = make_sibling_legacy(
+            "legacy_r6_wrong_sibling")
+        # 同 CN、不同严格身份(立体相反):错误来源不可用 CN 顶替
+        assert state(left).cn_identity == state(right).cn_identity
+        assert state(left).state_id != state(right).state_id
+        conn = sqlite3.connect(rd / "pathway.sqlite")
+        conn.execute("UPDATE path_instances SET event_id=? WHERE path_id=?",
+                     (branch_b["event_id"], branch_a["path_ids"][0]))
+        conn.commit()
+        conn.close()
+        events = read_legacy_events(rd)
+        ev = next(e for e in events if e["event_id"] == consumer["event_id"])
+        before = (rd / "pathway.sqlite").read_bytes()
+        imported = import_legacy_event(rd, ev, new_run_id="r6-wrong-sibling")
+        sub = next(s for s in imported["states"]
+                   if s["state_id"] == imported["hypothesis"].substrate_state_ref)
+>       assert any("substrate_source_event_relation_mismatch" in note
+                   for note in imported["uncertainty_notes"])
+E       assert False
+E        +  where False = any(<generator object test_r5_07_same_parent_wrong_sibling_source_degraded.<locals>.<genexpr> at 0x108813780>)
+
+tests/test_ppv1_r6_storage.py:425: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_half_declared_products_partial
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_cosubstrate_to_scaled_product_partial
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_genuine_oxidation_control_full
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_genuine_hydrogenation_control_full
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_fragment_split_control_full - K...
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_two_sided_isomer_no_cancellation
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_legal_ratio_scaling_full - KeyE...
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_h2_not_exempt_by_name - Asserti...
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_unknown_coefficient_coverage_unknown
+FAILED tests/test_ppv1_r6_chem.py::test_r5_01_completion_rule_registered_and_disclosed
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_raw_r_flag_rejected_not_same_id
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_raw_ln_block_rejected - Failed:...
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_other_dropped_classes_rejected[CO |c:1|]
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_other_dropped_classes_rejected[CO |wU:1.5|]
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_other_dropped_classes_rejected[CO |o:1|]
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_other_dropped_classes_rejected[CO |O:1|]
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_other_dropped_classes_rejected[CO |d:1|]
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_other_dropped_classes_rejected[CO |n:1|]
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_other_dropped_classes_rejected[CO |F:1|]
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_double_pipe_segment_rejected - ...
+FAILED tests/test_ppv1_r6_chem.py::test_r5_02_annotation_token_level_guard - ...
+FAILED tests/test_ppv1_r6_chem.py::test_r5_08_adjacent_sigma_break_zero_mismatch
+FAILED tests/test_ppv1_r6_chem.py::test_p2_basis_and_proof_scope_disclosed - ...
+FAILED tests/test_ppv1_r6_chem.py::test_p2_tampered_basis_integrity_reject - ...
+FAILED tests/test_ppv1_r6_conditions.py::test_r5_03_oxygen_required_value_absent_conflict
+FAILED tests/test_ppv1_r6_conditions.py::test_r5_03_matrix_required_value_absent_conflict
+FAILED tests/test_ppv1_r6_conditions.py::test_r5_03_numeric_absence_unknown_not_satisfied
+FAILED tests/test_ppv1_r6_conditions.py::test_r5_03_other_string_value_absent_not_determining
+FAILED tests/test_ppv1_r6_conditions.py::test_r5_04_snapshot_summary_tamper_rejected
+FAILED tests/test_ppv1_r6_conditions.py::test_r5_04_gate_flag_tamper_rejected
+FAILED tests/test_ppv1_r6_conditions.py::test_r5_04_inplace_tampered_phase_history_rejected_at_audit
+FAILED tests/test_ppv1_r6_conditions.py::test_r5_04_fact_tamper_kept_context_id_rejected
+FAILED tests/test_ppv1_r6_conditions.py::test_p2_initial_supported_reaction_contradicted_split
+FAILED tests/test_ppv1_r6_conditions.py::test_p2_initial_contradicted_later_regen_split
+FAILED tests/test_ppv1_r6_storage.py::test_r5_05_pre_stored_all_binds_manifest_replay_idempotent
+FAILED tests/test_ppv1_r6_storage.py::test_r5_05_pre_stored_partial_actual_source_deleted_corrupt
+FAILED tests/test_ppv1_r6_storage.py::test_r5_05_manifest_shrunk_to_nonempty_subset_corrupt
+FAILED tests/test_ppv1_r6_storage.py::test_r5_05_ambiguous_existing_appearances_first_submit_rejected
+FAILED tests/test_ppv1_r6_storage.py::test_r5_05_binding_without_any_appearance_row_corrupt
+FAILED tests/test_ppv1_r6_storage.py::test_r5_06_existing_hypothesis_tampered_first_submit_rejected
+FAILED tests/test_ppv1_r6_storage.py::test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_payload_id_corrupt]
+FAILED tests/test_ppv1_r6_storage.py::test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_id_corrupt]
+FAILED tests/test_ppv1_r6_storage.py::test_r5_06_existing_hypothesis_row_first_use_full_same_source[<lambda>-hypothesis_schema_corrupt]
+FAILED tests/test_ppv1_r6_storage.py::test_r5_07_same_parent_wrong_sibling_source_degraded
+44 failed, 26 passed in 1.14s

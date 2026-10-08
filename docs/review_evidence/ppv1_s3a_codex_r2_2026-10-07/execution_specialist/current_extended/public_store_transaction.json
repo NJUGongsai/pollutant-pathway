@@ -1,0 +1,347 @@
+{
+  "bad_missing_product_state": {
+    "error": {
+      "type": "Ppv1LedgerCorrupt",
+      "message": "事件引用的状态缺失:['cs_540cc0181e112b383323'](事务回滚;不产生悬空引用)",
+      "detail": {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "missing_state_refs": [
+          "cs_540cc0181e112b383323"
+        ]
+      }
+    },
+    "before": {
+      "budget_reservations": [],
+      "event_appearance_links": [],
+      "events": [],
+      "expansion_plans": [],
+      "hypotheses": [],
+      "meta": [
+        {
+          "key": "schema_version",
+          "value": "ppv1-store-9"
+        }
+      ],
+      "model_requests": [],
+      "provenance_records": [],
+      "report_projections": [],
+      "search_actions": [],
+      "search_attempts": [],
+      "search_commit_records": [],
+      "search_runs": [],
+      "state_appearances": [],
+      "states": []
+    },
+    "after": {
+      "budget_reservations": [],
+      "event_appearance_links": [],
+      "events": [],
+      "expansion_plans": [],
+      "hypotheses": [],
+      "meta": [
+        {
+          "key": "schema_version",
+          "value": "ppv1-store-9"
+        }
+      ],
+      "model_requests": [],
+      "provenance_records": [],
+      "report_projections": [],
+      "search_actions": [],
+      "search_attempts": [],
+      "search_commit_records": [],
+      "search_runs": [],
+      "state_appearances": [],
+      "states": []
+    },
+    "all_tables_equal": true,
+    "trace": [
+      "BEGIN IMMEDIATE",
+      "SELECT * FROM events WHERE event_id = 'ppev_49141b92477c4f0707d7'",
+      "SELECT event_id FROM events WHERE run_id = 'transaction-current' AND parent_path_id = 'p1' AND hypothesis_id = 'hyp_c05a8c0a125d866ad156' AND context_hash = 'ctx1' AND event_semantics_hash = '6a0dc01ae4a0f3ed901c36caf6d58f85ca557651ce7734e1f0faca922b9be697'",
+      "SELECT payload FROM states WHERE state_id = 'cs_ab1de819ede91df490e6'",
+      "SELECT payload FROM state_appearances WHERE state_id = 'cs_ab1de819ede91df490e6' AND appearance_hash = 'd72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f'",
+      "SELECT 1 FROM states WHERE state_id = 'cs_540cc0181e112b383323'",
+      "ROLLBACK",
+      "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
+      "SELECT * FROM \"budget_reservations\" ORDER BY rowid",
+      "SELECT * FROM \"event_appearance_links\" ORDER BY rowid",
+      "SELECT * FROM \"events\" ORDER BY rowid",
+      "SELECT * FROM \"expansion_plans\" ORDER BY rowid",
+      "SELECT * FROM \"hypotheses\" ORDER BY rowid",
+      "SELECT * FROM \"meta\" ORDER BY rowid",
+      "SELECT * FROM \"model_requests\" ORDER BY rowid",
+      "SELECT * FROM \"provenance_records\" ORDER BY rowid",
+      "SELECT * FROM \"report_projections\" ORDER BY rowid",
+      "SELECT * FROM \"search_actions\" ORDER BY rowid",
+      "SELECT * FROM \"search_attempts\" ORDER BY rowid",
+      "SELECT * FROM \"search_commit_records\" ORDER BY rowid",
+      "SELECT * FROM \"search_runs\" ORDER BY rowid",
+      "SELECT * FROM \"state_appearances\" ORDER BY rowid",
+      "SELECT * FROM \"states\" ORDER BY rowid"
+    ]
+  },
+  "first_result": {
+    "created": true,
+    "event_id": "ppev_49141b92477c4f0707d7"
+  },
+  "first_rows": {
+    "budget_reservations": [],
+    "event_appearance_links": [
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f"
+      },
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "state_id": "cs_540cc0181e112b383323",
+        "appearance_hash": "cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "run_id": "transaction-current",
+        "parent_path_id": "p1",
+        "hypothesis_id": "hyp_c05a8c0a125d866ad156",
+        "context_hash": "ctx1",
+        "event_semantics_hash": "6a0dc01ae4a0f3ed901c36caf6d58f85ca557651ce7734e1f0faca922b9be697",
+        "payload": "{\"catalytic_support\": [], \"event_appearance_manifest\": [{\"appearance_hash\": \"d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f\", \"state_id\": \"cs_ab1de819ede91df490e6\"}, {\"appearance_hash\": \"cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6\", \"state_id\": \"cs_540cc0181e112b383323\"}], \"participant_state_refs\": [\"cs_ab1de819ede91df490e6\", \"cs_540cc0181e112b383323\"], \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"schema_version\": \"ppv1-event-8\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "expansion_plans": [
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "payload": "{\"entries\": [{\"reason\": \"\", \"state_ref\": \"cs_540cc0181e112b383323\", \"status\": \"expanded\"}], \"policy_version\": \"ppv1-expansion-1\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "hypotheses": [
+      {
+        "hypothesis_id": "hyp_c05a8c0a125d866ad156",
+        "parent_path_id": "p1",
+        "context_hash": "ctx1",
+        "payload": "{\"ambiguous_participants\": false, \"assumptions\": [], \"audit_ref\": \"\", \"dependency_refs\": [], \"hypothesis_id\": \"hyp_c05a8c0a125d866ad156\", \"legacy_relationship_status\": \"\", \"model_decision_ref\": \"\", \"origin_group_key\": \"k1\", \"parent_path_id\": \"p1\", \"participant_list_status\": \"partial\", \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"provenance_refs\": [], \"requirements\": [], \"schema_version\": \"ppv1-hypothesis-8\", \"step_scope\": \"net_reaction\", \"step_scope_evidence_refs\": [], \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"support_group_refs\": [], \"transformation_ref\": \"\", \"transformation_signature_status\": \"unknown\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "payload": "{\"dedup_notes\": [], \"max_reportable\": 1, \"product_ranks\": [{\"basis\": \"declared_rank_order\", \"note\": \"\", \"report_rank\": 1, \"state_ref\": \"cs_540cc0181e112b383323\"}], \"projection_version\": \"ppv1-report-projection-1\", \"reasons\": []}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "search_actions": [],
+    "search_attempts": [],
+    "search_commit_records": [],
+    "search_runs": [],
+    "state_appearances": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"sub-A\"}], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"raw_input\", \"structure_smiles_raw\": \"CCO\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      },
+      {
+        "state_id": "cs_540cc0181e112b383323",
+        "appearance_hash": "cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"prod-A\"}], \"state_id\": \"cs_540cc0181e112b383323\", \"structure_origin\": \"source_product\", \"structure_smiles_raw\": \"CC=O\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "states": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "payload": "{\"cn_identity\": \"CCO\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CCO\", \"state_id\": \"cs_ab1de819ede91df490e6\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      },
+      {
+        "state_id": "cs_540cc0181e112b383323",
+        "payload": "{\"cn_identity\": \"CC=O\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CC=O\", \"state_id\": \"cs_540cc0181e112b383323\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ]
+  },
+  "first_trace": [
+    "BEGIN IMMEDIATE",
+    "SELECT * FROM events WHERE event_id = 'ppev_49141b92477c4f0707d7'",
+    "SELECT event_id FROM events WHERE run_id = 'transaction-current' AND parent_path_id = 'p1' AND hypothesis_id = 'hyp_c05a8c0a125d866ad156' AND context_hash = 'ctx1' AND event_semantics_hash = '6a0dc01ae4a0f3ed901c36caf6d58f85ca557651ce7734e1f0faca922b9be697'",
+    "SELECT payload FROM states WHERE state_id = 'cs_ab1de819ede91df490e6'",
+    "SELECT payload FROM state_appearances WHERE state_id = 'cs_ab1de819ede91df490e6' AND appearance_hash = 'd72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f'",
+    "SELECT payload FROM states WHERE state_id = 'cs_540cc0181e112b383323'",
+    "SELECT payload FROM state_appearances WHERE state_id = 'cs_540cc0181e112b383323' AND appearance_hash = 'cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6'",
+    "SELECT payload FROM hypotheses WHERE hypothesis_id = 'hyp_c05a8c0a125d866ad156'",
+    "INSERT OR IGNORE INTO states (state_id, payload, created_at) VALUES ('cs_ab1de819ede91df490e6', '{\"cn_identity\": \"CCO\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CCO\", \"state_id\": \"cs_ab1de819ede91df490e6\", \"stereo_information_status\": \"not_applicable\"}', '2026-10-07T15:17:40+00:00')",
+    "INSERT OR IGNORE INTO states (state_id, payload, created_at) VALUES ('cs_540cc0181e112b383323', '{\"cn_identity\": \"CC=O\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CC=O\", \"state_id\": \"cs_540cc0181e112b383323\", \"stereo_information_status\": \"not_applicable\"}', '2026-10-07T15:17:40+00:00')",
+    "INSERT OR IGNORE INTO state_appearances (state_id, appearance_hash, payload, created_at) VALUES ('cs_ab1de819ede91df490e6', 'd72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f', '{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"sub-A\"}], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"raw_input\", \"structure_smiles_raw\": \"CCO\"}', '2026-10-07T15:17:40+00:00')",
+    "INSERT OR IGNORE INTO state_appearances (state_id, appearance_hash, payload, created_at) VALUES ('cs_540cc0181e112b383323', 'cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6', '{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"prod-A\"}], \"state_id\": \"cs_540cc0181e112b383323\", \"structure_origin\": \"source_product\", \"structure_smiles_raw\": \"CC=O\"}', '2026-10-07T15:17:40+00:00')",
+    "INSERT INTO hypotheses (hypothesis_id, parent_path_id, context_hash, payload, created_at) VALUES ('hyp_c05a8c0a125d866ad156', 'p1', 'ctx1', '{\"ambiguous_participants\": false, \"assumptions\": [], \"audit_ref\": \"\", \"dependency_refs\": [], \"hypothesis_id\": \"hyp_c05a8c0a125d866ad156\", \"legacy_relationship_status\": \"\", \"model_decision_ref\": \"\", \"origin_group_key\": \"k1\", \"parent_path_id\": \"p1\", \"participant_list_status\": \"partial\", \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"provenance_refs\": [], \"requirements\": [], \"schema_version\": \"ppv1-hypothesis-8\", \"step_scope\": \"net_reaction\", \"step_scope_evidence_refs\": [], \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"support_group_refs\": [], \"transformation_ref\": \"\", \"transformation_signature_status\": \"unknown\"}', '2026-10-07T15:17:40+00:00')",
+    "INSERT INTO events (event_id, run_id, parent_path_id, hypothesis_id, context_hash, event_semantics_hash, payload, created_at) VALUES ('ppev_49141b92477c4f0707d7', 'transaction-current', 'p1', 'hyp_c05a8c0a125d866ad156', 'ctx1', '6a0dc01ae4a0f3ed901c36caf6d58f85ca557651ce7734e1f0faca922b9be697', '{\"catalytic_support\": [], \"event_appearance_manifest\": [{\"appearance_hash\": \"d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f\", \"state_id\": \"cs_ab1de819ede91df490e6\"}, {\"appearance_hash\": \"cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6\", \"state_id\": \"cs_540cc0181e112b383323\"}], \"participant_state_refs\": [\"cs_ab1de819ede91df490e6\", \"cs_540cc0181e112b383323\"], \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"schema_version\": \"ppv1-event-8\"}', '2026-10-07T15:17:40+00:00')",
+    "INSERT OR IGNORE INTO event_appearance_links (event_id, state_id, appearance_hash) VALUES ('ppev_49141b92477c4f0707d7', 'cs_ab1de819ede91df490e6', 'd72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f')",
+    "INSERT OR IGNORE INTO event_appearance_links (event_id, state_id, appearance_hash) VALUES ('ppev_49141b92477c4f0707d7', 'cs_540cc0181e112b383323', 'cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6')",
+    "INSERT INTO report_projections (event_id, payload, created_at) VALUES ('ppev_49141b92477c4f0707d7', '{\"dedup_notes\": [], \"max_reportable\": 1, \"product_ranks\": [{\"basis\": \"declared_rank_order\", \"note\": \"\", \"report_rank\": 1, \"state_ref\": \"cs_540cc0181e112b383323\"}], \"projection_version\": \"ppv1-report-projection-1\", \"reasons\": []}', '2026-10-07T15:17:40+00:00')",
+    "INSERT INTO expansion_plans (event_id, payload, created_at) VALUES ('ppev_49141b92477c4f0707d7', '{\"entries\": [{\"reason\": \"\", \"state_ref\": \"cs_540cc0181e112b383323\", \"status\": \"expanded\"}], \"policy_version\": \"ppv1-expansion-1\"}', '2026-10-07T15:17:40+00:00')",
+    "COMMIT",
+    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
+    "SELECT * FROM \"budget_reservations\" ORDER BY rowid",
+    "SELECT * FROM \"event_appearance_links\" ORDER BY rowid",
+    "SELECT * FROM \"events\" ORDER BY rowid",
+    "SELECT * FROM \"expansion_plans\" ORDER BY rowid",
+    "SELECT * FROM \"hypotheses\" ORDER BY rowid",
+    "SELECT * FROM \"meta\" ORDER BY rowid",
+    "SELECT * FROM \"model_requests\" ORDER BY rowid",
+    "SELECT * FROM \"provenance_records\" ORDER BY rowid",
+    "SELECT * FROM \"report_projections\" ORDER BY rowid",
+    "SELECT * FROM \"search_actions\" ORDER BY rowid",
+    "SELECT * FROM \"search_attempts\" ORDER BY rowid",
+    "SELECT * FROM \"search_commit_records\" ORDER BY rowid",
+    "SELECT * FROM \"search_runs\" ORDER BY rowid",
+    "SELECT * FROM \"state_appearances\" ORDER BY rowid",
+    "SELECT * FROM \"states\" ORDER BY rowid"
+  ],
+  "replay_result": {
+    "created": false,
+    "event_id": "ppev_49141b92477c4f0707d7"
+  },
+  "replay_rows": {
+    "budget_reservations": [],
+    "event_appearance_links": [
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f"
+      },
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "state_id": "cs_540cc0181e112b383323",
+        "appearance_hash": "cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "run_id": "transaction-current",
+        "parent_path_id": "p1",
+        "hypothesis_id": "hyp_c05a8c0a125d866ad156",
+        "context_hash": "ctx1",
+        "event_semantics_hash": "6a0dc01ae4a0f3ed901c36caf6d58f85ca557651ce7734e1f0faca922b9be697",
+        "payload": "{\"catalytic_support\": [], \"event_appearance_manifest\": [{\"appearance_hash\": \"d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f\", \"state_id\": \"cs_ab1de819ede91df490e6\"}, {\"appearance_hash\": \"cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6\", \"state_id\": \"cs_540cc0181e112b383323\"}], \"participant_state_refs\": [\"cs_ab1de819ede91df490e6\", \"cs_540cc0181e112b383323\"], \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"schema_version\": \"ppv1-event-8\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "expansion_plans": [
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "payload": "{\"entries\": [{\"reason\": \"\", \"state_ref\": \"cs_540cc0181e112b383323\", \"status\": \"expanded\"}], \"policy_version\": \"ppv1-expansion-1\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "hypotheses": [
+      {
+        "hypothesis_id": "hyp_c05a8c0a125d866ad156",
+        "parent_path_id": "p1",
+        "context_hash": "ctx1",
+        "payload": "{\"ambiguous_participants\": false, \"assumptions\": [], \"audit_ref\": \"\", \"dependency_refs\": [], \"hypothesis_id\": \"hyp_c05a8c0a125d866ad156\", \"legacy_relationship_status\": \"\", \"model_decision_ref\": \"\", \"origin_group_key\": \"k1\", \"parent_path_id\": \"p1\", \"participant_list_status\": \"partial\", \"participants\": [{\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_c9662599680c7e5addff\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_e972893a0ea72033c270\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"provenance_refs\": [], \"requirements\": [], \"schema_version\": \"ppv1-hypothesis-8\", \"step_scope\": \"net_reaction\", \"step_scope_evidence_refs\": [], \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"support_group_refs\": [], \"transformation_ref\": \"\", \"transformation_signature_status\": \"unknown\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [
+      {
+        "event_id": "ppev_49141b92477c4f0707d7",
+        "payload": "{\"dedup_notes\": [], \"max_reportable\": 1, \"product_ranks\": [{\"basis\": \"declared_rank_order\", \"note\": \"\", \"report_rank\": 1, \"state_ref\": \"cs_540cc0181e112b383323\"}], \"projection_version\": \"ppv1-report-projection-1\", \"reasons\": []}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "search_actions": [],
+    "search_attempts": [],
+    "search_commit_records": [],
+    "search_runs": [],
+    "state_appearances": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "d72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"sub-A\"}], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"raw_input\", \"structure_smiles_raw\": \"CCO\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      },
+      {
+        "state_id": "cs_540cc0181e112b383323",
+        "appearance_hash": "cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"prod-A\"}], \"state_id\": \"cs_540cc0181e112b383323\", \"structure_origin\": \"source_product\", \"structure_smiles_raw\": \"CC=O\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ],
+    "states": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "payload": "{\"cn_identity\": \"CCO\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CCO\", \"state_id\": \"cs_ab1de819ede91df490e6\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      },
+      {
+        "state_id": "cs_540cc0181e112b383323",
+        "payload": "{\"cn_identity\": \"CC=O\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CC=O\", \"state_id\": \"cs_540cc0181e112b383323\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-07T15:17:40+00:00"
+      }
+    ]
+  },
+  "replay_trace": [
+    "BEGIN IMMEDIATE",
+    "SELECT * FROM events WHERE event_id = 'ppev_49141b92477c4f0707d7'",
+    "SELECT payload FROM states WHERE state_id = 'cs_ab1de819ede91df490e6'",
+    "SELECT payload FROM state_appearances WHERE state_id = 'cs_ab1de819ede91df490e6' AND appearance_hash = 'd72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f'",
+    "SELECT payload FROM states WHERE state_id = 'cs_540cc0181e112b383323'",
+    "SELECT payload FROM state_appearances WHERE state_id = 'cs_540cc0181e112b383323' AND appearance_hash = 'cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6'",
+    "SELECT 1 FROM states WHERE state_id = 'cs_540cc0181e112b383323'",
+    "SELECT 1 FROM states WHERE state_id = 'cs_ab1de819ede91df490e6'",
+    "SELECT 1 FROM state_appearances WHERE state_id = 'cs_540cc0181e112b383323' LIMIT 1",
+    "SELECT 1 FROM state_appearances WHERE state_id = 'cs_ab1de819ede91df490e6' LIMIT 1",
+    "SELECT payload FROM hypotheses WHERE hypothesis_id = 'hyp_c05a8c0a125d866ad156'",
+    "SELECT payload FROM states WHERE state_id = 'cs_540cc0181e112b383323'",
+    "SELECT payload FROM states WHERE state_id = 'cs_ab1de819ede91df490e6'",
+    "SELECT appearance_hash, payload FROM state_appearances WHERE state_id = 'cs_540cc0181e112b383323'",
+    "SELECT appearance_hash, payload FROM state_appearances WHERE state_id = 'cs_ab1de819ede91df490e6'",
+    "SELECT 1 FROM state_appearances WHERE state_id = 'cs_ab1de819ede91df490e6' AND appearance_hash = 'd72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f'",
+    "SELECT 1 FROM state_appearances WHERE state_id = 'cs_540cc0181e112b383323' AND appearance_hash = 'cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6'",
+    "SELECT payload FROM state_appearances WHERE state_id = 'cs_ab1de819ede91df490e6' AND appearance_hash = 'd72d2da61003f415730b6288758ca446d8152eb3278c72c813e71b59c64b681f'",
+    "SELECT payload FROM state_appearances WHERE state_id = 'cs_540cc0181e112b383323' AND appearance_hash = 'cbc19a0fcbc1f23a6d47e06332cd52adef1295dd6af8382930f35021e06805b6'",
+    "SELECT state_id, appearance_hash FROM event_appearance_links WHERE event_id = 'ppev_49141b92477c4f0707d7'",
+    "SELECT payload FROM report_projections WHERE event_id = 'ppev_49141b92477c4f0707d7'",
+    "SELECT payload FROM expansion_plans WHERE event_id = 'ppev_49141b92477c4f0707d7'",
+    "ROLLBACK",
+    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
+    "SELECT * FROM \"budget_reservations\" ORDER BY rowid",
+    "SELECT * FROM \"event_appearance_links\" ORDER BY rowid",
+    "SELECT * FROM \"events\" ORDER BY rowid",
+    "SELECT * FROM \"expansion_plans\" ORDER BY rowid",
+    "SELECT * FROM \"hypotheses\" ORDER BY rowid",
+    "SELECT * FROM \"meta\" ORDER BY rowid",
+    "SELECT * FROM \"model_requests\" ORDER BY rowid",
+    "SELECT * FROM \"provenance_records\" ORDER BY rowid",
+    "SELECT * FROM \"report_projections\" ORDER BY rowid",
+    "SELECT * FROM \"search_actions\" ORDER BY rowid",
+    "SELECT * FROM \"search_attempts\" ORDER BY rowid",
+    "SELECT * FROM \"search_commit_records\" ORDER BY rowid",
+    "SELECT * FROM \"search_runs\" ORDER BY rowid",
+    "SELECT * FROM \"state_appearances\" ORDER BY rowid",
+    "SELECT * FROM \"states\" ORDER BY rowid"
+  ],
+  "all_assertions_passed": true
+}

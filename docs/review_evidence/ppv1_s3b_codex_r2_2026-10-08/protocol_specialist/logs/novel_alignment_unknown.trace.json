@@ -1,0 +1,136 @@
+{
+  "network_attempts": [],
+  "trace": [
+    {
+      "call": "prepare_hypothesis",
+      "hypothesis_id": "hyp_448165f447f78a3022c0",
+      "product_states": [
+        {
+          "cn_identity": "CC=O",
+          "formal_charge": 0,
+          "isotope_information_status": "not_applicable",
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "schema_version": "ppv1-chemstate-8",
+          "smiles_isomeric": "CC=O",
+          "source_refs": [
+            {
+              "record": "novel-model-proposal:novel_outside_pool"
+            }
+          ],
+          "state_id": "cs_540cc0181e112b383323",
+          "stereo_information_status": "not_applicable",
+          "structure_origin": "source_product",
+          "structure_smiles_raw": "CC=O"
+        }
+      ],
+      "source_refs_argument": [
+        {
+          "record": "novel-model-proposal:novel_outside_pool"
+        }
+      ],
+      "spec": {
+        "alignment": {
+          "donor_to_current": {},
+          "status": "unresolved"
+        },
+        "coefficient": 1,
+        "donor": {
+          "center_atom_ids": [
+            "S_C_2",
+            "S_O_1"
+          ]
+        },
+        "edits": [
+          {
+            "atom1": "S_C_2",
+            "atom2": "S_O_1",
+            "from_order": "single",
+            "op": "change_bond_order",
+            "to_order": "double"
+          }
+        ],
+        "expectation": {
+          "target_smiles": "CC=O"
+        },
+        "key": "Novel",
+        "origin_group_key": "donor-Novel",
+        "product_smiles": "CC=O",
+        "transformation_ref": "donor-Novel"
+      }
+    },
+    {
+      "call": "prepare_hypothesis",
+      "hypothesis_id": "hyp_448165f447f78a3022c0",
+      "product_states": [
+        {
+          "cn_identity": "CC=O",
+          "formal_charge": 0,
+          "isotope_information_status": "not_applicable",
+          "original_structure_available": true,
+          "representation_fidelity": {
+            "formal_charge": "as_written",
+            "isotope": "as_written",
+            "protonation_basis": "as_written",
+            "stereo": "as_written"
+          },
+          "schema_version": "ppv1-chemstate-8",
+          "smiles_isomeric": "CC=O",
+          "source_refs": [
+            {
+              "record": "synthetic-pool-spec"
+            }
+          ],
+          "state_id": "cs_540cc0181e112b383323",
+          "stereo_information_status": "not_applicable",
+          "structure_origin": "source_product",
+          "structure_smiles_raw": "CC=O"
+        }
+      ],
+      "source_refs_argument": null,
+      "spec": {
+        "alignment": {
+          "donor_to_current": {},
+          "status": "unresolved"
+        },
+        "coefficient": 1,
+        "donor": {
+          "center_atom_ids": [
+            "S_C_2",
+            "S_O_1"
+          ]
+        },
+        "edits": [
+          {
+            "atom1": "S_C_2",
+            "atom2": "S_O_1",
+            "from_order": "single",
+            "op": "change_bond_order",
+            "to_order": "double"
+          }
+        ],
+        "expectation": {
+          "target_smiles": "CC=O"
+        },
+        "key": "Novel",
+        "origin_group_key": "donor-Novel",
+        "product_smiles": "CC=O",
+        "transformation_ref": "donor-Novel"
+      }
+    },
+    {
+      "call": "execute_atomtool_expansion",
+      "exception": {
+        "detail": {
+          "status": "unresolved"
+        },
+        "type": "AuditContractError"
+      }
+    }
+  ]
+}

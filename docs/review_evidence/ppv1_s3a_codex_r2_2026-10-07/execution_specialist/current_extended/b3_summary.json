@@ -1,0 +1,410 @@
+[
+  {
+    "mutate": "run",
+    "normal_submit": {
+      "error": {
+        "type": "SearchContractError",
+        "message": "事件身份与 action sact_448fb655b9ace870ffa6 冻结身份不一致(run/parent/context/hypothesis 任一变化须开新 action,不得沿用旧认领)",
+        "detail": {
+          "action_id": "sact_448fb655b9ace870ffa6",
+          "kind": "event_identity_not_frozen_to_action",
+          "mismatch": {
+            "run_id": {
+              "frozen": "b3-current-run",
+              "submitted": "other-run"
+            }
+          }
+        }
+      }
+    },
+    "recover": {
+      "return": {
+        "run_id": "b3-current-run",
+        "policy_version": "ppv1-search-limits-3",
+        "actions": [
+          {
+            "action_id": "sact_448fb655b9ace870ffa6",
+            "action_kind": "expand_hypothesis",
+            "status": "claimed",
+            "boundary": "B3_artifact_written_event_uncommitted",
+            "disposition": {
+              "error": "SearchArtifactIntegrityError",
+              "kind": "bundle_event_identity_not_frozen",
+              "note": "原文件保全,不静默跳过/不重跑覆盖;身份错绑事件不消费"
+            }
+          }
+        ],
+        "pending_requests": [],
+        "budget": {
+          "version": "ppv1-search-limits-3",
+          "run_level": {
+            "max_total_search_actions": {
+              "max": 10,
+              "used": 1,
+              "remaining": 9
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "used": 0,
+              "remaining": 64
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "used": 0,
+              "remaining": 2
+            },
+            "max_real_model_requests": {
+              "max": 0,
+              "used": 0,
+              "remaining": 0
+            }
+          },
+          "scoped": {
+            "max_retrievals_per_parent": {},
+            "max_alternative_hypotheses_per_parent": {
+              "p1": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_attempts_per_hypothesis": {
+              "hyp_c05a8c0a125d866ad156": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_reopens_per_hypothesis": {}
+          }
+        }
+      }
+    },
+    "after_counts": {
+      "budget_reservations": 3,
+      "event_appearance_links": 0,
+      "events": 0,
+      "expansion_plans": 0,
+      "hypotheses": 0,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 0,
+      "search_actions": 1,
+      "search_attempts": 1,
+      "search_commit_records": 0,
+      "search_runs": 1,
+      "state_appearances": 0,
+      "states": 0
+    },
+    "artifact_preserved": true,
+    "all_internal_segments_executed": true
+  },
+  {
+    "mutate": "parent",
+    "normal_submit": {
+      "error": {
+        "type": "SearchContractError",
+        "message": "事件身份与 action sact_1cdad0c319d63acae773 冻结身份不一致(run/parent/context/hypothesis 任一变化须开新 action,不得沿用旧认领)",
+        "detail": {
+          "action_id": "sact_1cdad0c319d63acae773",
+          "kind": "event_identity_not_frozen_to_action",
+          "mismatch": {
+            "parent_path_id": {
+              "frozen": "p1",
+              "submitted": "p2"
+            },
+            "hypothesis_id": {
+              "frozen": "hyp_c05a8c0a125d866ad156",
+              "submitted": "hyp_520251748a766bb8a928"
+            }
+          }
+        }
+      }
+    },
+    "recover": {
+      "return": {
+        "run_id": "b3-current-parent",
+        "policy_version": "ppv1-search-limits-3",
+        "actions": [
+          {
+            "action_id": "sact_1cdad0c319d63acae773",
+            "action_kind": "expand_hypothesis",
+            "status": "claimed",
+            "boundary": "B3_artifact_written_event_uncommitted",
+            "disposition": {
+              "error": "SearchArtifactIntegrityError",
+              "kind": "bundle_event_identity_not_frozen",
+              "note": "原文件保全,不静默跳过/不重跑覆盖;身份错绑事件不消费"
+            }
+          }
+        ],
+        "pending_requests": [],
+        "budget": {
+          "version": "ppv1-search-limits-3",
+          "run_level": {
+            "max_total_search_actions": {
+              "max": 10,
+              "used": 1,
+              "remaining": 9
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "used": 0,
+              "remaining": 64
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "used": 0,
+              "remaining": 2
+            },
+            "max_real_model_requests": {
+              "max": 0,
+              "used": 0,
+              "remaining": 0
+            }
+          },
+          "scoped": {
+            "max_retrievals_per_parent": {},
+            "max_alternative_hypotheses_per_parent": {
+              "p1": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_attempts_per_hypothesis": {
+              "hyp_c05a8c0a125d866ad156": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_reopens_per_hypothesis": {}
+          }
+        }
+      }
+    },
+    "after_counts": {
+      "budget_reservations": 3,
+      "event_appearance_links": 0,
+      "events": 0,
+      "expansion_plans": 0,
+      "hypotheses": 0,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 0,
+      "search_actions": 1,
+      "search_attempts": 1,
+      "search_commit_records": 0,
+      "search_runs": 1,
+      "state_appearances": 0,
+      "states": 0
+    },
+    "artifact_preserved": true,
+    "all_internal_segments_executed": true
+  },
+  {
+    "mutate": "context",
+    "normal_submit": {
+      "error": {
+        "type": "SearchContractError",
+        "message": "事件身份与 action sact_515e7aa63f0bf9fdffa3 冻结身份不一致(run/parent/context/hypothesis 任一变化须开新 action,不得沿用旧认领)",
+        "detail": {
+          "action_id": "sact_515e7aa63f0bf9fdffa3",
+          "kind": "event_identity_not_frozen_to_action",
+          "mismatch": {
+            "context_hash": {
+              "frozen": "ctx1",
+              "submitted": "ctx2"
+            }
+          }
+        }
+      }
+    },
+    "recover": {
+      "return": {
+        "run_id": "b3-current-context",
+        "policy_version": "ppv1-search-limits-3",
+        "actions": [
+          {
+            "action_id": "sact_515e7aa63f0bf9fdffa3",
+            "action_kind": "expand_hypothesis",
+            "status": "claimed",
+            "boundary": "B3_artifact_written_event_uncommitted",
+            "disposition": {
+              "error": "SearchArtifactIntegrityError",
+              "kind": "bundle_event_identity_not_frozen",
+              "note": "原文件保全,不静默跳过/不重跑覆盖;身份错绑事件不消费"
+            }
+          }
+        ],
+        "pending_requests": [],
+        "budget": {
+          "version": "ppv1-search-limits-3",
+          "run_level": {
+            "max_total_search_actions": {
+              "max": 10,
+              "used": 1,
+              "remaining": 9
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "used": 0,
+              "remaining": 64
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "used": 0,
+              "remaining": 2
+            },
+            "max_real_model_requests": {
+              "max": 0,
+              "used": 0,
+              "remaining": 0
+            }
+          },
+          "scoped": {
+            "max_retrievals_per_parent": {},
+            "max_alternative_hypotheses_per_parent": {
+              "p1": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_attempts_per_hypothesis": {
+              "hyp_c05a8c0a125d866ad156": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_reopens_per_hypothesis": {}
+          }
+        }
+      }
+    },
+    "after_counts": {
+      "budget_reservations": 3,
+      "event_appearance_links": 0,
+      "events": 0,
+      "expansion_plans": 0,
+      "hypotheses": 0,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 0,
+      "search_actions": 1,
+      "search_attempts": 1,
+      "search_commit_records": 0,
+      "search_runs": 1,
+      "state_appearances": 0,
+      "states": 0
+    },
+    "artifact_preserved": true,
+    "all_internal_segments_executed": true
+  },
+  {
+    "mutate": "hypothesis",
+    "normal_submit": {
+      "error": {
+        "type": "SearchContractError",
+        "message": "事件身份与 action sact_3e595eaddf60ead92762 冻结身份不一致(run/parent/context/hypothesis 任一变化须开新 action,不得沿用旧认领)",
+        "detail": {
+          "action_id": "sact_3e595eaddf60ead92762",
+          "kind": "event_identity_not_frozen_to_action",
+          "mismatch": {
+            "hypothesis_id": {
+              "frozen": "hyp_c05a8c0a125d866ad156",
+              "submitted": "hyp_ee1fa1447db6a966fda3"
+            }
+          }
+        }
+      }
+    },
+    "recover": {
+      "return": {
+        "run_id": "b3-current-hypothesis",
+        "policy_version": "ppv1-search-limits-3",
+        "actions": [
+          {
+            "action_id": "sact_3e595eaddf60ead92762",
+            "action_kind": "expand_hypothesis",
+            "status": "claimed",
+            "boundary": "B3_artifact_written_event_uncommitted",
+            "disposition": {
+              "error": "SearchArtifactIntegrityError",
+              "kind": "bundle_event_identity_not_frozen",
+              "note": "原文件保全,不静默跳过/不重跑覆盖;身份错绑事件不消费"
+            }
+          }
+        ],
+        "pending_requests": [],
+        "budget": {
+          "version": "ppv1-search-limits-3",
+          "run_level": {
+            "max_total_search_actions": {
+              "max": 10,
+              "used": 1,
+              "remaining": 9
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "used": 0,
+              "remaining": 64
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "used": 0,
+              "remaining": 2
+            },
+            "max_real_model_requests": {
+              "max": 0,
+              "used": 0,
+              "remaining": 0
+            }
+          },
+          "scoped": {
+            "max_retrievals_per_parent": {},
+            "max_alternative_hypotheses_per_parent": {
+              "p1": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_attempts_per_hypothesis": {
+              "hyp_c05a8c0a125d866ad156": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_reopens_per_hypothesis": {}
+          }
+        }
+      }
+    },
+    "after_counts": {
+      "budget_reservations": 3,
+      "event_appearance_links": 0,
+      "events": 0,
+      "expansion_plans": 0,
+      "hypotheses": 0,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 0,
+      "search_actions": 1,
+      "search_attempts": 1,
+      "search_commit_records": 0,
+      "search_runs": 1,
+      "state_appearances": 0,
+      "states": 0
+    },
+    "artifact_preserved": true,
+    "all_internal_segments_executed": true
+  }
+]

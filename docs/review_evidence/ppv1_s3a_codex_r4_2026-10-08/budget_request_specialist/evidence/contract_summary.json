@@ -1,0 +1,28 @@
+{
+  "cases": 115,
+  "pass": 109,
+  "failed_cases": [
+    "references_missing_action_recover",
+    "references_unclaimed_action_recover",
+    "references_foreign_action_run_recover",
+    "references_empty_expand_attempt_recover",
+    "released_recover",
+    "stop_six_reason_priority"
+  ],
+  "groups": {
+    "S3A-03": {
+      "cases": 40,
+      "pass": 40
+    },
+    "S3A-04": {
+      "cases": 60,
+      "pass": 55
+    },
+    "S3A-05": {
+      "cases": 15,
+      "pass": 14
+    }
+  },
+  "network_requests": 0,
+  "external_model_calls": 0
+}

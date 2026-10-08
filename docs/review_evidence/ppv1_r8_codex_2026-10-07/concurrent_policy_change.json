@@ -1,0 +1,19 @@
+{
+  "observed_clock_UTC": "2026-10-07 10:17:43 UTC",
+  "observed_clock_Asia_Shanghai": "2026-10-07 18:17:43 +08:00",
+  "path": "/Volumes/CC/Enzyme_Agent/dependingv43/AGENTS.md",
+  "initial_and_resume_SHA256": "4a32a76ec5646df594544c48e23b4287eff39ce4449b94c4ff5ccc6de7b142ef",
+  "observed_current_SHA256": "534233261bedd70fd06afee2c785be2518daa87fc46cd01fb55ed8f47c9f80d8",
+  "actual_HEAD": "00e509a974b40a7c9779fcd35e53b16637a13d60",
+  "HEAD_unchanged": true,
+  "other_462_inputs_unchanged": true,
+  "tracked_worktree_diff_paths": [
+    "AGENTS.md"
+  ],
+  "tracked_index_diff_paths": [],
+  "write_actor": "not independently identified; not modified by this reviewer",
+  "change_scope": "Uncommitted repository workflow text about automatic continuation and stop at P1 clear/S3 handoff; no src/tests changes.",
+  "review_disposition": "Preserve concurrent edit, pin its observed hash for publication, do not alter it. Original snapshot remains unchanged; review evidence and verdict remain for source HEAD 00e509a.",
+  "first_publication_attempt": "Stopped by pre-write input hash check; no report/evidence target was created.",
+  "diff": "diff --git a/AGENTS.md b/AGENTS.md\nindex 4c5aef8..cee0ae9 100644\n--- a/AGENTS.md\n+++ b/AGENTS.md\n@@ -83,13 +83,21 @@\n \n 1. 触发：Codex 评审报告 Rn 落盘 → 主会话大白话汇报（结论/P1 清单/下一步选项）→\n    **轮间停**，用户拍板后进入轮内自动；\n+   **2026-10-07 傍晚用户追加常设指令\"你自动循环吧 直到完成 P5\"**：轮间停默认改为\n+   **自动续轮**——汇报照发、不再等拍板，回修轮连续推进；\n 2. 轮内四段自动接力：①派**单个**实施子代理修复（串行，任务书=报告的有限范围提示词\n    +仓库操作约定）→ ②主会话核对（提交构成、工作树干净、本机复跑 PPV1+G01、\n    关键改动抽查、基线红绿对照）→ ③自动送 mimo 化学评审 → ④自动交 Codex 复审\n    （链式 fork，附交付书+mimo 回应）；\n 3. 失败处理：任一段超时/断流/红不翻绿，**同任务自动重试 1 次**，仍败停下报告；\n    范围外要求、金标相关、费用异常随时停，不自动处置；\n-4. 评审独立性不做背书的既有原则不变：Codex/mimo 结论采信到与程序证据互证的程度。\n+4. 评审独立性不做背书的既有原则不变：Codex/mimo 结论采信到与程序证据互证的程度；\n+5. **常设自动循环的终点与急停**（对应\"P5/S5\"指令）：\n+   - 自动推进至 **P1 清零且 Codex 放行 S3（阶段交接点）**为止——S3–S5 属新阶段\n+     工程与真实评测（含金标/teacher 裁定/费用），不由本循环自动完成；到交接点\n+     停并交回用户裁定（判据冻结同属用户裁定，不自动宣布）；\n+   - 急停条件：金标/题面/封存 run 触碰风险、费用异常、范围外要求、连续两轮无\n+     实质进展、账号用量限额（跨日定时续跑视为那一次自动重试）。\n \n **通道 A：mimo 化学评审（opencode 免费模型，固定）**。mimo 只评化学判据部分\n （按请求 §7 逐条格式）；程序/存储事实归 Codex 复核，mimo 回应中的执行类声明\n"
+}

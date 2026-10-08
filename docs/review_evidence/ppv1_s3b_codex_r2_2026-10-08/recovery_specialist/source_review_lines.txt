@@ -1,0 +1,378 @@
+  211: def _persist_frozen_plan(artifact_store, plan: dict) -> dict:
+  212:     """S3B-01:start 时把计划持久化为**冻结输入来源**(artifact 内容
+  213:     身份绑定;plan_digest 全量哈希)。驱动循环此后只消费冻结来源。"""
+  214:     if artifact_store is None:
+  215:         raise PPV1RunError(
+  216:             "持久化冻结计划需要 artifact_store", {"kind": "artifact_store_missing"})
+  217:     payload = {"plan_version": FROZEN_PLAN_VERSION,
+  218:                "plan": plan or {},
+  219:                "plan_digest": _plan_digest(plan)}
+  220:     artifact_store.write(FROZEN_PLAN_TASK_KEY, FROZEN_PLAN_ARTIFACT, payload)
+  221:     return payload
+  222: 
+  223: 
+  224: def _load_frozen_plan(artifact_store) -> dict:
+  225:     """S3B-01:resume 加载冻结计划输入(H07 完整性包装 + 内容身份
+  226:     核验;缺/坏 ⇒ 结构化拒绝 —— 缺输入不能当空池合法完成,不猜)。"""
+  227:     if artifact_store is None:
+  228:         raise PPV1RunError(
+  229:             "读取冻结计划需要 artifact_store", {"kind": "artifact_store_missing"})
+  230:     try:
+  231:         envelope = read_search_artifact(
+  232:             artifact_store, FROZEN_PLAN_TASK_KEY, FROZEN_PLAN_ARTIFACT)
+  233:     except SearchArtifactIntegrityError as exc:
+  234:         raise PPV1RunError(
+  235:             "冻结计划输入完整性失败(保全原文件;不静默跳过、不覆盖)"
+  236:             f":{exc}", {"kind": "frozen_plan_integrity_failure",
+  237:                         "artifact_kind": exc.detail.get("kind")}) from exc
+  238:     if envelope is None:
+  239:         raise PPV1RunError(
+  240:             "冻结计划输入缺失(计划在 start 时持久化;缺输入不能当空池"
+  241:             "合法完成,不猜)", {"kind": "frozen_plan_missing"})
+  242:     payload = envelope.get("payload") or {}
+  243:     plan = payload.get("plan")
+  244:     digest = str(payload.get("plan_digest") or "")
+  245:     if not isinstance(plan, dict) or not digest:
+  246:         raise PPV1RunError(
+  247:             "冻结计划载荷损坏(缺 plan/plan_digest;fail-closed,不猜)",
+  248:             {"kind": "frozen_plan_corrupt"})
+  249:     if content_hash(plan) != digest:
+  250:         raise PPV1RunError(
+  251:             "冻结计划内容与摘要不符(内容身份核验失败;保全失败)",
+  252:             {"kind": "frozen_plan_digest_mismatch"})
+  253:     return plan
+
+  364:     def reconcile_followups(self) -> None:
+  365:         """B4 补调度(S3b r2/S3B-03):事件已提交、后续调度未完成 ⇒
+  366:         从**权威记录**(提交记录的 event_id → 事件行 + 展开计划附件)
+  367:         与**冻结计划的显式转换意图**(scenario_transitions 按该 expand
+  368:         的 hypothesis_key 匹配)派生期望后续集合,逐对象幂等补齐。
+  369: 
+  370:         - 不再以"payload LIKE 引用计数 > 1"当完整性证书:期望集合 =
+  371:           事件参与物产物 state_ref 全集 × 展开计划(expanded ⇒ pending
+  372:           retrieve / deferred ⇒ deferred retrieve / not_tracked ⇒ 无);
+  373:         - 计划带转换 ⇒ 补齐/复用携带 pending_followup 的转换 action
+  374:           (转换执行后以新上下文调度 followup —— 只后效;旧边评估不动);
+  375:           覆盖事件提交后转换未入队(B4)、转换已入队(载荷一次冻结)
+  376:           两窗口;
+  377:         - 无转换 ⇒ enqueue_coproduct_followups 幂等补齐全部产物
+  378:           (0/部分/全部 followup 逐对象闭合;同键同内容 unchanged,
+  379:           不重发事件、不重复扣额);
+  380:         - 事件权威不重放(submit 幂等键);损坏权威由 store/recover
+  381:         侧先行拒绝,本层不猜补。
+  382:         """
+  383:         rows = self.ledger.conn.execute(
+  384:             "SELECT a.action_id, a.parent_path_id, a.context_ref,"
+  385:             " a.parent_search_revision, a.policy_version, a.payload,"
+  386:             " c.event_id FROM search_actions a JOIN search_commit_records"
+  387:             " c ON c.action_id = a.action_id WHERE a.run_id = ? AND"
+  388:             " a.action_kind = ? AND a.status = ? AND c.event_id != ''",
+  389:             (self.run_id, ACTION_KIND_EXPAND_HYPOTHESIS,
+  390:              "done")).fetchall()
+  391:         for row in rows:
+  392:             event_id = row["event_id"]
+  393:             payload = json.loads(row["payload"]) or {}
+  394:             plan_transition = self._match_transition(payload)
+  395:             if plan_transition is not None:
+  396:                 self._ensure_transition_followup(row, event_id, payload,
+  397:                                                  plan_transition)
+  398:                 continue
+  399:             plan_doc = self.store.expansion_plan(event_id)
+  400:             ev = self.store.get_event(event_id)
+  401:             if not plan_doc or not ev:
+  402:                 continue
+  403:             ev_payload = ev.get("payload")
+  404:             participants = (json.loads(ev_payload).get("participants")
+  405:                             if isinstance(ev_payload, str) and ev_payload
+  406:                             else ev.get("participants")) or []
+  407:             product_refs = [
+  408:                 str(p.get("state_ref")) for p in participants
+  409:                 if isinstance(p, dict) and p.get("side") == "product"]
+  410:             smiles_by_ref = {ref: self._state_smiles(ref)
+  411:                              for ref in product_refs}
+  412:             enqueue_coproduct_followups(
+  413:                 self.ledger, run_id=self.run_id,
+  414:                 parent_path_id=row["parent_path_id"],
+  415:                 context_ref=row["context_ref"], event_id=event_id,
+  416:                 product_state_refs=product_refs,
+  417:                 expansion_plan=dict(plan_doc),
+  418:                 policy_version=row["policy_version"],
+  419:                 parent_search_revision=int(
+  420:                     row["parent_search_revision"]) + 1,
+  421:                 substrate_smiles_by_ref=smiles_by_ref,
+  422:                 depth=int(payload.get("depth") or 1))
+  423: 
+  424:     def _transition_followup_payload(
+  425:             self, *, event_id: str, expansion_plan: dict,
+  426:             product_state_refs: list[str], parent_path_id: str,
+  427:             context_ref: str, revision: int, depth: int) -> dict:
+  428:         """转换 action 的 pending_followup 冻结载荷(**单一构建源**:
+  429:         _run_expand 的事件后入队与 B4 reconcile 的补齐共用 —— 同输入
+  430:         同字节,幂等闭环)。"""
+  431:         return {
+  432:             "event_id": event_id,
+  433:             "expansion_plan": dict(expansion_plan),
+  434:             "product_state_refs": list(product_state_refs),
+  435:             "parent_path_id": parent_path_id,
+  436:             "context_ref": context_ref,
+  437:             "parent_search_revision": int(revision),
+  438:             "depth": int(depth),
+  439:         }
+  440: 
+  441:     def _ensure_transition_followup(self, row, event_id: str,
+  442:                                      payload: dict,
+  443:                                      plan_transition: dict) -> None:
+  444:         """B4/转换窗口:确保携带 pending_followup 的转换 action 存在
+  445:         (幂等 enqueue;同键同内容 unchanged)。转换执行后按新上下文
+  446:         调度 followup;不重写旧边评估。"""
+  447:         parent_path_id = row["parent_path_id"]
+  448:         revision = int(row["parent_search_revision"]) + 1
+  449:         ev = self.store.get_event(event_id)
+  450:         if not ev:
+  451:             return
+  452:         ev_payload = ev.get("payload")
+  453:         participants = (json.loads(ev_payload).get("participants")
+  454:                         if isinstance(ev_payload, str) and ev_payload
+  455:                         else ev.get("participants")) or []
+  456:         product_refs = [
+  457:             str(p.get("state_ref")) for p in participants
+  458:             if isinstance(p, dict) and p.get("side") == "product"]
+  459:         plan_doc = dict(self.store.expansion_plan(event_id) or {})
+  460:         pending_followup = self._transition_followup_payload(
+  461:             event_id=event_id, expansion_plan=plan_doc,
+  462:             product_state_refs=product_refs,
+  463:             parent_path_id=parent_path_id,
+  464:             context_ref=row["context_ref"], revision=revision,
+  465:             depth=int(payload.get("depth") or 1))
+  466:         enqueue_scenario_transition(
+  467:             self.ledger, run_id=self.run_id,
+  468:             parent_path_id=parent_path_id,
+  469:             context_ref=row["context_ref"],
+  470:             transition=dict(plan_transition),
+  471:             policy_version=row["policy_version"],
+  472:             parent_search_revision=revision,
+  473:             task_key=_task_key_for(
+  474:                 run_id=self.run_id, parent_path_id=parent_path_id,
+  475:                 context_ref=row["context_ref"], subject_ref=event_id,
+  476:                 kind="scenario_transition", revision=revision,
+  477:                 policy_version=row["policy_version"],
+  478:                 extra=content_hash(plan_transition)),
+  479:             pending_followup=pending_followup)
+  480: 
+  481:     def _inflight_action_ids(self) -> list[str]:
+  482:         """在途 action(pending + 本 worker 已认领未完成 —— B1 续跑:
+  483:         同 worker 幂等 reclaim 后继续执行;其他 worker 认领的 action
+  484:         不在驱动清单内,由其执行方续跑;blocked(含恢复隔离)不执行)。
+  485:         稳定次序:created_at, action_id。"""
+  486:         rows = self.ledger.conn.execute(
+  487:             "SELECT action_id FROM search_actions WHERE run_id = ? AND"
+  488:             " (status = ? OR (status = ? AND claimed_by = ?))"
+  489:             " ORDER BY created_at, action_id",
+  490:             (self.run_id, "pending", "claimed", self.worker_id)).fetchall()
+  491:         return [str(r["action_id"]) for r in rows]
+  492: 
+  493:     def drive(self) -> dict:
+  494:         self.reconcile_followups()
+
+  566:     def _run_retrieve(self, receipt: dict) -> None:
+  567:         payload = receipt["payload"]
+  568:         substrate_smiles = str(payload.get("substrate_smiles") or "")
+  569:         source_event_id = str(payload.get("source_event_id") or "")
+  570:         substrate_depth = int(payload.get("depth") or 0)
+  571:         # ---- S3B-01:任务输入绑定的计划摘要与当前冻结输入同源核验 ----
+  572:         frozen_plan_digest = str(payload.get("plan_digest") or "")
+  573:         if frozen_plan_digest and \
+  574:                 frozen_plan_digest != _plan_digest(self.plan):
+  575:             raise PPV1RunError(
+  576:                 "retrieve 任务输入绑定的计划摘要与当前冻结输入不一致"
+  577:                 "(旧任务不消费新输入;差异须显式新 revision/新任务)",
+  578:                 {"kind": "plan_digest_mismatch",
+  579:                  "task_plan_digest": frozen_plan_digest,
+  580:                  "frozen_plan_digest": _plan_digest(self.plan),
+  581:                  "action_id": receipt["action_id"]})
+
+ 1000:         self.events_submitted.append(production["event_id"])
+ 1001:         parent_path_id = receipt["parent_path_id"]
+ 1002:         revision = int(receipt["parent_search_revision"]) + 1
+ 1003:         plan_transition = self._match_transition(payload)
+ 1004:         product_refs = [s.state_id for s in prepared["product_states"]]
+ 1005:         if plan_transition is not None:
+ 1006:             # 转换动作携带 pending followup(**创建时一次冻结入载荷**,
+ 1007:             # S3B-03:无两写窗口;转换执行后由新上下文调度)
+ 1008:             pending_followup = self._transition_followup_payload(
+ 1009:                 event_id=production["event_id"],
+ 1010:                 expansion_plan=production["expansion_plan"],
+ 1011:                 product_state_refs=product_refs,
+ 1012:                 parent_path_id=parent_path_id,
+ 1013:                 context_ref=receipt["context_ref"],
+ 1014:                 revision=revision,
+ 1015:                 depth=int(payload.get("depth") or 1))
+ 1016:             enqueue_scenario_transition(
+ 1017:                 self.ledger, run_id=self.run_id,
+ 1018:                 parent_path_id=parent_path_id,
+ 1019:                 context_ref=receipt["context_ref"],
+ 1020:                 transition=dict(plan_transition),
+ 1021:                 policy_version=receipt["policy_version"],
+ 1022:                 parent_search_revision=revision,
+ 1023:                 task_key=_task_key_for(
+ 1024:                     run_id=self.run_id, parent_path_id=parent_path_id,
+ 1025:                     context_ref=receipt["context_ref"],
+ 1026:                     subject_ref=production["event_id"],
+ 1027:                     kind="scenario_transition", revision=revision,
+ 1028:                     policy_version=receipt["policy_version"],
+ 1029:                     extra=content_hash(plan_transition)),
+ 1030:                 pending_followup=pending_followup)
+ 1031:         else:
+ 1032:             substrate_smiles_by_ref = {
+ 1033:                 s.state_id: s.smiles_isomeric
+ 1034:                 for s in prepared["product_states"]}
+ 1035:             enqueue_coproduct_followups(
+
+ 1093:             outcome={"kind": OUTCOME_KIND_ACTIVATED,
+ 1094:                      "detail": {"activated": result["activated_ids"],
+ 1095:                                 "unchanged": len(result["unchanged"]),
+ 1096:                                 "conflicts": len(result["conflicts"]),
+ 1097:                                 "deferred_type": deferred_type,
+ 1098:                                 "trigger": trigger}})
+ 1099: 
+ 1100:     # ------------------------------------------------------------ transition
+ 1101: 
+ 1102:     def _run_transition(self, receipt: dict) -> None:
+ 1103:         payload = receipt["payload"]
+ 1104:         transition = dict(payload.get("transition") or {})
+ 1105:         parent_ctx = load_context(self.ledger.artifact_store,
+ 1106:                                   receipt["context_ref"])
+ 1107:         child_ctx = derive_child_context(
+ 1108:             parent_ctx, scenario_transition=transition,
+ 1109:             step_edge_ref=receipt["action_id"])
+ 1110:         context_ref = persist_context(self.ledger.artifact_store, child_ctx)
+ 1111:         pending_followup = payload.get("pending_followup")
+ 1112:         if isinstance(pending_followup, dict) and pending_followup:
+ 1113:             # 转换已执行:followup 用新上下文调度(仅改变后续阶段)
+ 1114:             followup = dict(pending_followup)
+ 1115:             product_refs = list(followup.get("product_state_refs") or [])
+ 1116:             smiles_by_ref = {
+ 1117:                 ref: self._state_smiles(ref) for ref in product_refs}
+ 1118:             enqueue_coproduct_followups(
+ 1119:                 self.ledger, run_id=self.run_id,
+ 1120:                 parent_path_id=str(followup.get("parent_path_id")
+ 1121:                                    or receipt["parent_path_id"]),
+ 1122:                 context_ref=context_ref,
+ 1123:                 event_id=str(followup.get("event_id") or ""),
+ 1124:                 product_state_refs=product_refs,
+ 1125:                 expansion_plan=dict(followup.get("expansion_plan") or {}),
+ 1126:                 policy_version=receipt["policy_version"],
+ 1127:                 parent_search_revision=int(
+ 1128:                     followup.get("parent_search_revision")
+ 1129:                     or receipt["parent_search_revision"]),
+ 1130:                 substrate_smiles_by_ref=smiles_by_ref,
+ 1131:                 depth=int(followup.get("depth") or 1))
+ 1132:         _complete_action(
+ 1133:             self.ledger, receipt["action_id"], worker_id=self.worker_id,
+ 1134:             outcome={"kind": OUTCOME_KIND_TRANSITION_APPLIED,
+ 1135:                      "detail": {"new_context_ref": context_ref,
+ 1136:                                 "new_phase_id": child_ctx.phase_id,
+ 1137:                                 "new_scenario_ref": child_ctx.scenario_ref,
+ 1138:                                 "source_ref": transition.get("source_ref"),
+ 1139:                                 "note": ("仅改变后续阶段;旧边评估冻结"
+ 1140:                                          "于 phase_history,不重写")}},
+ 1141:             evidence_refs=[str(transition.get("source_ref") or "")])
+ 1142: 
+ 1143:     def _state_smiles(self, state_ref: str) -> str:
+
+ 1250:         store.put_state(root_state.to_dict())
+ 1251:         root_ctx = build_path_context(
+ 1252:             condition_facts=_fact_list((plan or {}).get("condition_facts")),
+ 1253:             scenario_ref=str((plan or {}).get("scenario_ref") or ""),
+ 1254:             dependencies=[
+ 1255:                 build_cyclic_dependency(dict(d))
+ 1256:                 for d in ((plan or {}).get("dependencies") or [])])
+ 1257:         context_ref = persist_context(artifacts, root_ctx)
+ 1258:         # ---- S3B-01:计划持久化为冻结输入来源(此后驱动只消费冻结) ----
+ 1259:         _persist_frozen_plan(artifacts, plan or {})
+ 1260:         driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
+ 1261:                          crash_after=crash_after)
+ 1262:         root_path = driver.root_path_id
+ 1263:         task_key = decision_task_key(
+ 1264:             run_id=run_id, parent_path_id=root_path,
+ 1265:             context_ref=context_ref,
+ 1266:             frozen_pool_digest=_plan_digest(plan or {}),
+ 1267:             parent_search_revision=0, policy_version=search_policy_version(),
+ 1268:             strict_state_digest=root_state.state_id,
+ 1269:             tool_id="atom-tool-vendored",
+ 1270:             prompt_version=_plan_digest(plan or {})[:16],
+ 1271:             feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
+ 1272:         ledger.enqueue_action(
+ 1273:             run_id=run_id, parent_path_id=root_path,
+ 1274:             context_ref=context_ref, subject_ref=root_state.state_id,
+ 1275:             action_kind=ACTION_KIND_RETRIEVE,
+ 1276:             parent_search_revision=0, policy_version=search_policy_version(),
+ 1277:             payload={"task_key": task_key, "substrate_smiles": smiles,
+ 1278:                      "context_ref": context_ref, "parent_path_id": root_path,
+ 1279:                      "depth": 0, "source_event_id": "",
+ 1280:                      "plan_digest": _plan_digest(plan or {})})
+ 1281:         report = driver.drive()
+ 1282:         summary = _summary(store, run_id, report, resumed=False)
+ 1283:         summary["driver_session"] = dict(session.info)
+ 1284:         return summary
+ 1285: 
+ 1286: 
+ 1287: def resume_ppv1_run(
+ 1288:     *,
+ 1289:     config: V43Config,
+ 1290:     runs_root: str | Path,
+
+ 1350:         profile_policy=profile_kwargs or None)
+ 1351:     check_resume_identity(saved, current)
+ 1352:     run_dir = runs_root / run_id
+ 1353:     with _DriverSession(run_dir) as session:
+ 1354:         store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
+ 1355:         artifacts = ArtifactStore(runs_root, run_id)
+ 1356:         ledger = SearchLedger(store, artifacts, run_id)
+ 1357:         # ---- S3B-01:冻结计划输入核对(先于任何恢复消费) ----
+ 1358:         frozen_plan = _load_frozen_plan(artifacts)
+ 1359:         if plan is not None:
+ 1360:             submitted_digest = _plan_digest(plan)
+ 1361:             frozen_digest = _plan_digest(frozen_plan)
+ 1362:             if submitted_digest != frozen_digest:
+ 1363:                 raise PPV1RunError(
+ 1364:                     "resume 传入计划与冻结输入不符(旧任务不消费新输入;"
+ 1365:                     "差异须显式新 revision/新任务登记,不能复用旧裁决键)",
+ 1366:                     {"kind": "frozen_plan_mismatch",
+ 1367:                      "frozen_plan_digest": frozen_digest,
+ 1368:                      "submitted_plan_digest": submitted_digest,
+ 1369:                      "run_id": run_id})
+ 1370:         recovery = ledger.recover_run(
+ 1371:             run_id, policy_block=(saved.get("profile") or None),
+ 1372:             worker_id=_worker_id(run_id))
+ 1373:         # ---- S3B-02:恢复裁定接 driver 执行门(坏 artifact/缺权威
+ 1374:         # 隔离;合法 B1–B4 不受影响;证据保全) ----
+ 1375:         isolated: list[dict] = []
+ 1376:         for failure in _isolated_recovery_actions(recovery):
+ 1377:             out = ledger.isolate_recovered_failure(
+ 1378:                 str(failure["action_id"]),
+ 1379:                 kind=str((failure.get("failure") or {}).get("kind")
+ 1380:                          or "unknown"),
+ 1381:                 note="恢复裁定的坏 artifact/缺权威:隔离不重执行,"
+ 1382:                      "证据保全;合法独立任务继续")
+ 1383:             isolated.append({**failure, "isolation": out})
+ 1384:         driver = _Driver(ledger, frozen_plan, run_id, _worker_id(run_id),
+ 1385:                          crash_after=crash_after)
+ 1386:         report = driver.drive()
+ 1387:         summary = _summary(store, run_id, report, resumed=True)
+ 1388:         summary["recovery"] = {
+ 1389:             "actions": recovery.get("actions"),
+ 1390:             "pending_requests": recovery.get("pending_requests"),
+ 1391:             "unknown_status_requests": recovery.get(
+ 1392:                 "unknown_status_requests"),
+ 1393:             "isolated_actions": isolated,
+ 1394:         }
+ 1395:         summary["driver_session"] = dict(session.info)
+ 1396:         return summary
+ 1397: 
+ 1398: 
+ 1399: def _cn_of(smiles: str) -> str:
+ 1400:     from ..domain.identity import cn_identity
+ 1401:     return cn_identity(smiles)
+ 1402: 
+ 1403: 

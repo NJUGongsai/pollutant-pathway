@@ -1,0 +1,34 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_supplemental_worker.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/inputs/novel_prepared_bad_raw.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src"
+  },
+  "parsed": {
+    "detail": {
+      "kind": "raw_structure_rejected",
+      "reason": {
+        "item": "r",
+        "item_offset": 0,
+        "kind": "unregistered_cx_class",
+        "registered_head": "",
+        "segment": "r"
+      },
+      "state_id": "cs_540cc0181e112b383323",
+      "structure_smiles_raw": "CC=O |r|"
+    },
+    "exception": "ChemicalStateError",
+    "message": "state:cs_540cc0181e112b383323 的 structure_smiles_raw 未通过输入守卫或无法解析(R7-01/R8:原始串含未登记 CX 项即拒 —— 静默丢弃后不得称 as_written/verified;首次消费零授信)",
+    "pid": 34983
+  },
+  "returncode": 3,
+  "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/chemstate.py\", line 890, in validate_state_object\n    raw_identity = strict_identity_of(raw)\n                   ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/chemstate.py\", line 923, in strict_identity_of\n    _guard_input_cx_classes(structure)\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/chemstate.py\", line 456, in _guard_input_cx_classes\n    raise _cx_unregistered_item_error(segment, i, \"\")\npathway_v43.pollutant.chemstate.ChemicalStateError: CX 输入扩展段含未登记并列/未知项:'r'(输入侧注册感知校验按真实 CX 类边界逐项检查:解析器会静默丢弃该项,丢弃后不得称 as_written;登记类:atomProp/SgD/Sg/a/oN/&N/^N/$(…)$/(…);未知项显式拒绝)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/probe_public.py\", line 102, in worker\n    out=start_run(config=cfg,runs_root=runs_root,run_id=run_id,smiles=inp.get('smiles','CCO'),max_depth=3,max_expansions=10,max_frontier_width=2,finder=object(),scripted=True,profile=PROFILE_POLLUTANT_PATHWAY_V1,ppv1_plan=inp.get('plan'),profile_policy=inp.get('policy'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/workflow/runner.py\", line 219, in start_run\n    return start_ppv1_run(\n           ^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/runflow.py\", line 1281, in start_ppv1_run\n    report = driver.drive()\n             ^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/runflow.py\", line 540, in drive\n    self._run_expand(receipt)\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/runflow.py\", line 942, in _run_expand\n    production = expand_hypothesis_production(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_supplemental_worker.py\", line 40, in corrupted_prepared\n    return orig_expand(*a,**k)\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/production.py\", line 406, in expand_hypothesis_production\n    audit = audit_hypothesis(\n            ^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_supplemental_worker.py\", line 24, in fn\n    result=original(*a,**k)\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/audit.py\", line 475, in audit_hypothesis\n    validate_state_object(states[ref])\n  File \"/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/src/pathway_v43/pollutant/chemstate.py\", line 892, in validate_state_object\n    raise ChemicalStateError(\npathway_v43.pollutant.chemstate.ChemicalStateError: state:cs_540cc0181e112b383323 的 structure_smiles_raw 未通过输入守卫或无法解析(R7-01/R8:原始串含未登记 CX 项即拒 —— 静默丢弃后不得称 as_written/verified;首次消费零授信)\n",
+  "stdout": "{\"exception\": \"ChemicalStateError\", \"detail\": {\"kind\": \"raw_structure_rejected\", \"state_id\": \"cs_540cc0181e112b383323\", \"structure_smiles_raw\": \"CC=O |r|\", \"reason\": {\"kind\": \"unregistered_cx_class\", \"item\": \"r\", \"segment\": \"r\", \"item_offset\": 0, \"registered_head\": \"\"}}, \"message\": \"state:cs_540cc0181e112b383323 的 structure_smiles_raw 未通过输入守卫或无法解析(R7-01/R8:原始串含未登记 CX 项即拒 —— 静默丢弃后不得称 as_written/verified;首次消费零授信)\", \"pid\": 34983}\n"
+}

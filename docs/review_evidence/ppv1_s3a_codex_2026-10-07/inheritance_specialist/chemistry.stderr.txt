@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3a_inheritance_d7l95c51/chemistry_static_probe.py", line 129, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/private/tmp/ppv1_s3a_inheritance_d7l95c51/chemistry_static_probe.py", line 111, in main
+    olddefaults=value(oldprofile,'SEARCH_LIMITS_DEFAULTS');newdefaults=value(newprofile,'SEARCH_LIMITS_DEFAULTS')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3a_inheritance_d7l95c51/chemistry_static_probe.py", line 109, in value
+    if isinstance(n,ast.AnnAssign) and getattr(n.target,'id',None)==name:return ast.literal_eval(n.value)
+                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/ast.py", line 110, in literal_eval
+    return _convert(node_or_string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/ast.py", line 99, in _convert
+    return dict(zip(map(_convert, node.keys),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/ast.py", line 109, in _convert
+    return _convert_signed_num(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/ast.py", line 83, in _convert_signed_num
+    return _convert_num(node)
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/ast.py", line 74, in _convert_num
+    _raise_malformed_node(node)
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/ast.py", line 71, in _raise_malformed_node
+    raise ValueError(msg + f': {node!r}')
+ValueError: malformed node or string on line 126: <ast.Name object at 0x109878d90>

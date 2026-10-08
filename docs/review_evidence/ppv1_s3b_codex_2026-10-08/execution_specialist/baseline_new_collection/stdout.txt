@@ -1,0 +1,50 @@
+
+==================================== ERRORS ====================================
+________________ ERROR collecting tests/test_ppv1_s3b_queue.py _________________
+ImportError while importing test module '/private/tmp/ppv1_s3b_execution_elmxhbxz/baseline_source/tests/test_ppv1_s3b_queue.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ppv1_s3b_queue.py:36: in <module>
+    from pathway_v43.pollutant.queue import (  # noqa: E402
+E   ModuleNotFoundError: No module named 'pathway_v43.pollutant.queue'
+________________ ERROR collecting tests/test_ppv1_s3b_model.py _________________
+ImportError while importing test module '/private/tmp/ppv1_s3b_execution_elmxhbxz/baseline_source/tests/test_ppv1_s3b_model.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ppv1_s3b_model.py:25: in <module>
+    from pathway_v43.pollutant.model_protocol import (  # noqa: E402
+E   ModuleNotFoundError: No module named 'pathway_v43.pollutant.model_protocol'
+______________ ERROR collecting tests/test_ppv1_s3b_production.py ______________
+ImportError while importing test module '/private/tmp/ppv1_s3b_execution_elmxhbxz/baseline_source/tests/test_ppv1_s3b_production.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ppv1_s3b_production.py:33: in <module>
+    from pathway_v43.pollutant.production import (  # noqa: E402
+E   ModuleNotFoundError: No module named 'pathway_v43.pollutant.production'
+________________ ERROR collecting tests/test_ppv1_s3b_runner.py ________________
+ImportError while importing test module '/private/tmp/ppv1_s3b_execution_elmxhbxz/baseline_source/tests/test_ppv1_s3b_runner.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ppv1_s3b_runner.py:37: in <module>
+    from pathway_v43.pollutant.runflow import (  # noqa: E402
+E   ModuleNotFoundError: No module named 'pathway_v43.pollutant.runflow'
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s3b_execution_elmxhbxz/baseline_source/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 4 errors in 0.23s

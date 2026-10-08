@@ -1,0 +1,145 @@
+{
+  "not_new_execution": true,
+  "source": "read-only JSON materialization of completed PPV1 suite basetemp",
+  "cases": [
+    {
+      "input_dir": "test_crash_recovery_subprocess2",
+      "file": "captured_pytest_outputs/ppv1_pytest_tmp/test_crash_recovery_subprocess2/runs/crash-after_bundle_written/pollutant.sqlite.tables.json",
+      "counts": {
+        "events": 1,
+        "search_commit_records": 4,
+        "search_actions": 4,
+        "search_attempts": 1,
+        "model_requests": 0,
+        "budget_reservations": 10
+      },
+      "requests": [],
+      "actions": [
+        {
+          "action_id": "sact_162ef62b18a0a3ebb2da",
+          "action_kind": "retrieve",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_6fb4b45a59fbffd1496c",
+          "action_kind": "decide",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_4fe0cc7117462e3017db",
+          "action_kind": "expand_hypothesis",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_4dbf761802c646bd52ab",
+          "action_kind": "retrieve",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "input_dir": "test_crash_recovery_subprocess3",
+      "file": "captured_pytest_outputs/ppv1_pytest_tmp/test_crash_recovery_subprocess3/runs/crash-after_event_submitted/pollutant.sqlite.tables.json",
+      "counts": {
+        "events": 1,
+        "search_commit_records": 4,
+        "search_actions": 4,
+        "search_attempts": 1,
+        "model_requests": 0,
+        "budget_reservations": 10
+      },
+      "requests": [],
+      "actions": [
+        {
+          "action_id": "sact_4612eb93ba432e30b80c",
+          "action_kind": "retrieve",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_9b18f279628d49bcde91",
+          "action_kind": "decide",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_e90168dd4f0518f219b2",
+          "action_kind": "expand_hypothesis",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_cd70691d30d045f1b6cb",
+          "action_kind": "retrieve",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "input_dir": "test_crash_recovery_subprocess1",
+      "file": "captured_pytest_outputs/ppv1_pytest_tmp/test_crash_recovery_subprocess1/runs/crash-after_request_registered/pollutant.sqlite.tables.json",
+      "counts": {
+        "events": 0,
+        "search_commit_records": 1,
+        "search_actions": 2,
+        "search_attempts": 0,
+        "model_requests": 1,
+        "budget_reservations": 4
+      },
+      "requests": [
+        {
+          "request_id": "sreq_aba439cbf1530dba2a7e",
+          "status": "registered",
+          "purpose": "proposals",
+          "network_request_count": 0,
+          "attempt_id": "",
+          "action_id": "sact_879c07b563423f70c5a5"
+        }
+      ],
+      "actions": [
+        {
+          "action_id": "sact_675feff14aaf93f2d62b",
+          "action_kind": "retrieve",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_879c07b563423f70c5a5",
+          "action_kind": "decide",
+          "status": "claimed"
+        }
+      ]
+    },
+    {
+      "input_dir": "test_crash_recovery_subprocess0",
+      "file": "captured_pytest_outputs/ppv1_pytest_tmp/test_crash_recovery_subprocess0/runs/crash-after_claim/pollutant.sqlite.tables.json",
+      "counts": {
+        "events": 1,
+        "search_commit_records": 4,
+        "search_actions": 4,
+        "search_attempts": 1,
+        "model_requests": 0,
+        "budget_reservations": 10
+      },
+      "requests": [],
+      "actions": [
+        {
+          "action_id": "sact_74918e3e5d3da8f1ae42",
+          "action_kind": "retrieve",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_ef58964c91795d9be74f",
+          "action_kind": "decide",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_1c88b98ef0bdb15b6f30",
+          "action_kind": "expand_hypothesis",
+          "status": "done"
+        },
+        {
+          "action_id": "sact_8bf87236db13f9cc0046",
+          "action_kind": "retrieve",
+          "status": "done"
+        }
+      ]
+    }
+  ]
+}

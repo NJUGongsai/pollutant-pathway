@@ -1,0 +1,2396 @@
+{
+  "src/pathway_v43/pollutant/search.py": [
+    {
+      "start": 1331,
+      "end": 1376,
+      "lines": [
+        {
+          "line": 1331,
+          "text": "    def submit_action_event("
+        },
+        {
+          "line": 1332,
+          "text": "        self, action_id: str, event: PathwayEvent, *,"
+        },
+        {
+          "line": 1333,
+          "text": "        report_projection: dict, expansion_plan: dict, states: list[dict],"
+        },
+        {
+          "line": 1334,
+          "text": "        hypothesis_dict: dict | None, worker_id: str,"
+        },
+        {
+          "line": 1335,
+          "text": "    ) -> dict:"
+        },
+        {
+          "line": 1336,
+          "text": "        \"\"\"经公共 store.submit_event 提交事件(沿 action 冻结身份)。"
+        },
+        {
+          "line": 1337,
+          "text": ""
+        },
+        {
+          "line": 1338,
+          "text": "        - 事件提交走既有冻结事务(全部首消费验证照常,本模块不复制"
+        },
+        {
+          "line": 1339,
+          "text": "          校验、不绕过 chemstate/store 契约);"
+        },
+        {
+          "line": 1340,
+          "text": "        - 提交前核认领所有权与冻结身份一致性(陈旧 worker 拒绝;"
+        },
+        {
+          "line": 1341,
+          "text": "          done ⇒ 幂等复用,不覆盖;**S3A-02**:done 复用同样经完整"
+        },
+        {
+          "line": 1342,
+          "text": "          提交权威核验,不能 get 索引即成功);"
+        },
+        {
+          "line": 1343,
+          "text": "        - 提交后记账未闭合 ⇒ B4,由 complete_action / recover_run 补;"
+        },
+        {
+          "line": 1344,
+          "text": "        - 同事件重放幂等(store 既有行为):retry/owner/attempt 变化"
+        },
+        {
+          "line": 1345,
+          "text": "          不新增事件。"
+        },
+        {
+          "line": 1346,
+          "text": "        \"\"\""
+        },
+        {
+          "line": 1347,
+          "text": "        row = self.conn.execute("
+        },
+        {
+          "line": 1348,
+          "text": "            \"SELECT * FROM search_actions WHERE action_id = ?\","
+        },
+        {
+          "line": 1349,
+          "text": "            (action_id,)).fetchone()"
+        },
+        {
+          "line": 1350,
+          "text": "        if row is None:"
+        },
+        {
+          "line": 1351,
+          "text": "            raise SearchContractError("
+        },
+        {
+          "line": 1352,
+          "text": "                f\"action 不存在:{action_id}\","
+        },
+        {
+          "line": 1353,
+          "text": "                {\"action_id\": action_id, \"kind\": \"action_missing\"})"
+        },
+        {
+          "line": 1354,
+          "text": "        if row[\"status\"] == ACTION_STATUS_DONE:"
+        },
+        {
+          "line": 1355,
+          "text": "            self._verify_done_action_authority(row)"
+        },
+        {
+          "line": 1356,
+          "text": "            return {\"created\": False, \"event_id\": event.event_id,"
+        },
+        {
+          "line": 1357,
+          "text": "                    \"reason\": \"already_completed\"}"
+        },
+        {
+          "line": 1358,
+          "text": "        if row[\"status\"] != ACTION_STATUS_CLAIMED:"
+        },
+        {
+          "line": 1359,
+          "text": "            raise SearchClaimError("
+        },
+        {
+          "line": 1360,
+          "text": "                f\"action {action_id} 状态为 {row['status']}(未处于认领\""
+        },
+        {
+          "line": 1361,
+          "text": "                \"执行权下,不可提交事件)\","
+        },
+        {
+          "line": 1362,
+          "text": "                {\"action_id\": action_id, \"kind\": \"not_claimed\","
+        },
+        {
+          "line": 1363,
+          "text": "                 \"status\": row[\"status\"]})"
+        },
+        {
+          "line": 1364,
+          "text": "        if row[\"claimed_by\"] != worker_id:"
+        },
+        {
+          "line": 1365,
+          "text": "            raise SearchClaimError("
+        },
+        {
+          "line": 1366,
+          "text": "                f\"action {action_id} 由 {row['claimed_by']!r} 认领,\""
+        },
+        {
+          "line": 1367,
+          "text": "                f\"{worker_id!r} 是陈旧 worker(不得越权提交)\","
+        },
+        {
+          "line": 1368,
+          "text": "                {\"action_id\": action_id, \"kind\": \"owner_mismatch\","
+        },
+        {
+          "line": 1369,
+          "text": "                 \"claimed_by\": row[\"claimed_by\"],"
+        },
+        {
+          "line": 1370,
+          "text": "                 \"worker_id\": worker_id})"
+        },
+        {
+          "line": 1371,
+          "text": "        self._verify_event_frozen_to_action(row, event)"
+        },
+        {
+          "line": 1372,
+          "text": "        out = self.store.submit_event("
+        },
+        {
+          "line": 1373,
+          "text": "            event, report_projection=report_projection,"
+        },
+        {
+          "line": 1374,
+          "text": "            expansion_plan=expansion_plan, states=states,"
+        },
+        {
+          "line": 1375,
+          "text": "            hypothesis_dict=hypothesis_dict)"
+        },
+        {
+          "line": 1376,
+          "text": "        out[\"action_id\"] = action_id"
+        }
+      ]
+    },
+    {
+      "start": 1461,
+      "end": 1556,
+      "lines": [
+        {
+          "line": 1461,
+          "text": "    def _verify_action_references(self, action_row) -> None:"
+        },
+        {
+          "line": 1462,
+          "text": "        \"\"\"S3A-02/03:action 冻结引用的行级核验(写账/挂起/恢复前)。"
+        },
+        {
+          "line": 1463,
+          "text": ""
+        },
+        {
+          "line": 1464,
+          "text": "        - claim 必留 ≥1 预约引用、expand 必留 ≥1 attempt 引用"
+        },
+        {
+          "line": 1465,
+          "text": "          (空引用集合 = 记账不变量破坏,缺权威失败);"
+        },
+        {
+          "line": 1466,
+          "text": "        - 每个预约/attempt 行必须存在且归属本 run/本 action(引用行被"
+        },
+        {
+          "line": 1467,
+          "text": "          删/被挪 ⇒ UPDATE 0 行不是成功,是缺权威失败,不猜补坏行);"
+        },
+        {
+          "line": 1468,
+          "text": "        - claimed 状态下出现已释放预约 ⇒ 不变量破坏。"
+        },
+        {
+          "line": 1469,
+          "text": "        \"\"\""
+        },
+        {
+          "line": 1470,
+          "text": "        action_id = action_row[\"action_id\"]"
+        },
+        {
+          "line": 1471,
+          "text": "        run_id = action_row[\"run_id\"]"
+        },
+        {
+          "line": 1472,
+          "text": "        reservation_refs = json.loads("
+        },
+        {
+          "line": 1473,
+          "text": "            _row_get(action_row, \"budget_reservation_ref\", \"[]\") or \"[]\")"
+        },
+        {
+          "line": 1474,
+          "text": "        attempt_refs = json.loads("
+        },
+        {
+          "line": 1475,
+          "text": "            _row_get(action_row, \"attempt_refs\", \"[]\") or \"[]\")"
+        },
+        {
+          "line": 1476,
+          "text": "        if not reservation_refs:"
+        },
+        {
+          "line": 1477,
+          "text": "            raise SearchIntegrityError("
+        },
+        {
+          "line": 1478,
+          "text": "                f\"action {action_id} 处于认领状态但无预算预约引用(记账\""
+        },
+        {
+          "line": 1479,
+          "text": "                \"不变量破坏;缺权威,不补账)\","
+        },
+        {
+          "line": 1480,
+          "text": "                {\"action_id\": action_id, \"run_id\": run_id,"
+        },
+        {
+          "line": 1481,
+          "text": "                 \"kind\": \"claimed_action_reservation_missing\"})"
+        },
+        {
+          "line": 1482,
+          "text": "        if action_row[\"action_kind\"] == ACTION_KIND_EXPAND_HYPOTHESIS \\"
+        },
+        {
+          "line": 1483,
+          "text": "                and not attempt_refs:"
+        },
+        {
+          "line": 1484,
+          "text": "            raise SearchIntegrityError("
+        },
+        {
+          "line": 1485,
+          "text": "                f\"expand action {action_id} 认领后无 attempt 引用(记账\""
+        },
+        {
+          "line": 1486,
+          "text": "                \"不变量破坏;缺权威,不补账)\","
+        },
+        {
+          "line": 1487,
+          "text": "                {\"action_id\": action_id, \"run_id\": run_id,"
+        },
+        {
+          "line": 1488,
+          "text": "                 \"kind\": \"claimed_action_attempt_missing\"})"
+        },
+        {
+          "line": 1489,
+          "text": "        for rid in reservation_refs:"
+        },
+        {
+          "line": 1490,
+          "text": "            rrow = self.conn.execute("
+        },
+        {
+          "line": 1491,
+          "text": "                \"SELECT run_id, limit_key, scope, subject, action_id,\""
+        },
+        {
+          "line": 1492,
+          "text": "                \" status FROM budget_reservations\""
+        },
+        {
+          "line": 1493,
+          "text": "                \" WHERE reservation_id = ?\", (rid,)).fetchone()"
+        },
+        {
+          "line": 1494,
+          "text": "            if rrow is None:"
+        },
+        {
+          "line": 1495,
+          "text": "                raise SearchIntegrityError("
+        },
+        {
+          "line": 1496,
+          "text": "                    f\"action {action_id} 的预算预约行缺失:{rid}(引用\""
+        },
+        {
+          "line": 1497,
+          "text": "                    \"完整性失败;保全,不补账/不重建新 ID 洗损坏)\","
+        },
+        {
+          "line": 1498,
+          "text": "                    {\"action_id\": action_id, \"run_id\": run_id,"
+        },
+        {
+          "line": 1499,
+          "text": "                     \"reservation_id\": rid,"
+        },
+        {
+          "line": 1500,
+          "text": "                     \"kind\": \"reservation_row_missing\"})"
+        },
+        {
+          "line": 1501,
+          "text": "            if rrow[\"run_id\"] != run_id:"
+        },
+        {
+          "line": 1502,
+          "text": "                raise SearchIntegrityError("
+        },
+        {
+          "line": 1503,
+          "text": "                    f\"action {action_id} 的预算预约 {rid} 归属不一致\""
+        },
+        {
+          "line": 1504,
+          "text": "                    \"(run 绑定破坏;保全失败)\","
+        },
+        {
+          "line": 1505,
+          "text": "                    {\"action_id\": action_id, \"run_id\": run_id,"
+        },
+        {
+          "line": 1506,
+          "text": "                     \"reservation_id\": rid,"
+        },
+        {
+          "line": 1507,
+          "text": "                     \"reservation_run\": rrow[\"run_id\"],"
+        },
+        {
+          "line": 1508,
+          "text": "                     \"reservation_action\": rrow[\"action_id\"],"
+        },
+        {
+          "line": 1509,
+          "text": "                     \"kind\": \"reservation_binding_mismatch\"})"
+        },
+        {
+          "line": 1510,
+          "text": "            if rrow[\"action_id\"] != action_id:"
+        },
+        {
+          "line": 1511,
+          "text": "                # 主体作用域预约(同父同假设的 alternatives)按设计跨"
+        },
+        {
+          "line": 1512,
+          "text": "                # action 共享(id_basis=主体,非 action);此时核"
+        },
+        {
+          "line": 1513,
+          "text": "                # scope=本 action 父路径与 subject=本 action 主体,"
+        },
+        {
+          "line": 1514,
+          "text": "                # 其余 limit 的预约行必须由本 action 创建"
+        },
+        {
+          "line": 1515,
+          "text": "                shared_ok = ("
+        },
+        {
+          "line": 1516,
+          "text": "                    rrow[\"limit_key\"] =="
+        },
+        {
+          "line": 1517,
+          "text": "                    \"max_alternative_hypotheses_per_parent\""
+        },
+        {
+          "line": 1518,
+          "text": "                    and rrow[\"scope\"] == action_row[\"parent_path_id\"]"
+        },
+        {
+          "line": 1519,
+          "text": "                    and rrow[\"subject\"] == action_row[\"subject_ref\"])"
+        },
+        {
+          "line": 1520,
+          "text": "                if not shared_ok:"
+        },
+        {
+          "line": 1521,
+          "text": "                    raise SearchIntegrityError("
+        },
+        {
+          "line": 1522,
+          "text": "                        f\"action {action_id} 的预算预约 {rid} 归属不一致\""
+        },
+        {
+          "line": 1523,
+          "text": "                        \"(action 绑定破坏;保全失败)\","
+        },
+        {
+          "line": 1524,
+          "text": "                        {\"action_id\": action_id, \"run_id\": run_id,"
+        },
+        {
+          "line": 1525,
+          "text": "                         \"reservation_id\": rid,"
+        },
+        {
+          "line": 1526,
+          "text": "                         \"reservation_run\": rrow[\"run_id\"],"
+        },
+        {
+          "line": 1527,
+          "text": "                         \"reservation_action\": rrow[\"action_id\"],"
+        },
+        {
+          "line": 1528,
+          "text": "                         \"kind\": \"reservation_binding_mismatch\"})"
+        },
+        {
+          "line": 1529,
+          "text": "            if rrow[\"status\"] == RESERVATION_STATUS_RELEASED:"
+        },
+        {
+          "line": 1530,
+          "text": "                raise SearchIntegrityError("
+        },
+        {
+          "line": 1531,
+          "text": "                    f\"action {action_id} 的预算预约 {rid} 已被释放却仍处\""
+        },
+        {
+          "line": 1532,
+          "text": "                    \"认领链(记账不变量破坏)\","
+        },
+        {
+          "line": 1533,
+          "text": "                    {\"action_id\": action_id, \"run_id\": run_id,"
+        },
+        {
+          "line": 1534,
+          "text": "                     \"reservation_id\": rid,"
+        },
+        {
+          "line": 1535,
+          "text": "                     \"kind\": \"reservation_released_under_claim\"})"
+        },
+        {
+          "line": 1536,
+          "text": "        for aid in attempt_refs:"
+        },
+        {
+          "line": 1537,
+          "text": "            arow = self.conn.execute("
+        },
+        {
+          "line": 1538,
+          "text": "                \"SELECT run_id, action_id FROM search_attempts WHERE\""
+        },
+        {
+          "line": 1539,
+          "text": "                \" expansion_attempt_id = ?\", (aid,)).fetchone()"
+        },
+        {
+          "line": 1540,
+          "text": "            if arow is None:"
+        },
+        {
+          "line": 1541,
+          "text": "                raise SearchIntegrityError("
+        },
+        {
+          "line": 1542,
+          "text": "                    f\"action {action_id} 的 attempt 行缺失:{aid}(引用\""
+        },
+        {
+          "line": 1543,
+          "text": "                    \"完整性失败;保全,不补账)\","
+        },
+        {
+          "line": 1544,
+          "text": "                    {\"action_id\": action_id, \"run_id\": run_id,"
+        },
+        {
+          "line": 1545,
+          "text": "                     \"attempt_id\": aid,"
+        },
+        {
+          "line": 1546,
+          "text": "                     \"kind\": \"attempt_row_missing\"})"
+        },
+        {
+          "line": 1547,
+          "text": "            if arow[\"run_id\"] != run_id or arow[\"action_id\"] != action_id:"
+        },
+        {
+          "line": 1548,
+          "text": "                raise SearchIntegrityError("
+        },
+        {
+          "line": 1549,
+          "text": "                    f\"action {action_id} 的 attempt {aid} 归属不一致\""
+        },
+        {
+          "line": 1550,
+          "text": "                    \"(保全失败)\","
+        },
+        {
+          "line": 1551,
+          "text": "                    {\"action_id\": action_id, \"run_id\": run_id,"
+        },
+        {
+          "line": 1552,
+          "text": "                     \"attempt_id\": aid,"
+        },
+        {
+          "line": 1553,
+          "text": "                     \"attempt_run\": arow[\"run_id\"],"
+        },
+        {
+          "line": 1554,
+          "text": "                     \"attempt_action\": arow[\"action_id\"],"
+        },
+        {
+          "line": 1555,
+          "text": "                     \"kind\": \"attempt_binding_mismatch\"})"
+        },
+        {
+          "line": 1556,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "start": 1557,
+      "end": 1622,
+      "lines": [
+        {
+          "line": 1557,
+          "text": "    def _verify_event_ledger_authority(self, event_id: str, *,"
+        },
+        {
+          "line": 1558,
+          "text": "                                       action_id: str,"
+        },
+        {
+          "line": 1559,
+          "text": "                                       where: str) -> None:"
+        },
+        {
+          "line": 1560,
+          "text": "        \"\"\"S3A-02:已提交事件的**完整账权威**核验(只读、零写入)。"
+        },
+        {
+          "line": 1561,
+          "text": ""
+        },
+        {
+          "line": 1562,
+          "text": "        复用公共 `store.submit_event` 的**重放分支**(同源校验:事件行"
+        },
+        {
+          "line": 1563,
+          "text": "        语义 hash/payload 复算、参与物 states 行内容重推导、appearance"
+        },
+        {
+          "line": 1564,
+          "text": "        内容 hash、假设行 ID 重推导、事件出现清单 + 独立 links 表双向"
+        },
+        {
+          "line": 1565,
+          "text": "        核验、投影/计划行齐全)—— get_event/find_event 是读视图,其"
+        },
+        {
+          "line": 1566,
+          "text": "        四个身份列相等不是完整性证书。坏事件账(12 类:state 载荷/"
+        },
+        {
+          "line": 1567,
+          "text": "        schema、出现来源/raw、假设前提、事件清单、投影/计划/links/"
+        },
+        {
+          "line": 1568,
+          "text": "        state/出现/假设行删除)在本入口**消费/补账之前**结构化失败、"
+        },
+        {
+          "line": 1569,
+          "text": "        保全证据、零写入;正常 writer 同一输入重放仍拒(复审继承专项"
+        },
+        {
+          "line": 1570,
+          "text": "        24/24 反例即此路径)。附带记录的哈希复算见 _verify_commit_"
+        },
+        {
+          "line": 1571,
+          "text": "        event。核验失败包装为 SearchIntegrityError(带源异常 detail)。"
+        },
+        {
+          "line": 1572,
+          "text": "        \"\"\""
+        },
+        {
+          "line": 1573,
+          "text": "        try:"
+        },
+        {
+          "line": 1574,
+          "text": "            ev = self.store.get_event(event_id)"
+        },
+        {
+          "line": 1575,
+          "text": "            if ev is None:"
+        },
+        {
+          "line": 1576,
+          "text": "                raise SearchIntegrityError("
+        },
+        {
+          "line": 1577,
+          "text": "                    f\"{where}:事件 {event_id} 不在账本(提交事实缺失;\""
+        },
+        {
+          "line": 1578,
+          "text": "                    \"保全失败,不补事件/不猜修)\","
+        },
+        {
+          "line": 1579,
+          "text": "                    {\"event_id\": event_id, \"action_id\": action_id,"
+        },
+        {
+          "line": 1580,
+          "text": "                     \"where\": where, \"kind\": \"commit_event_missing\"})"
+        },
+        {
+          "line": 1581,
+          "text": "            event = _event_from_row(ev)"
+        },
+        {
+          "line": 1582,
+          "text": "            proj = self.store.report_projection(event_id)"
+        },
+        {
+          "line": 1583,
+          "text": "            plan = self.store.expansion_plan(event_id)"
+        },
+        {
+          "line": 1584,
+          "text": "            if proj is None or plan is None:"
+        },
+        {
+          "line": 1585,
+          "text": "                raise SearchIntegrityError("
+        },
+        {
+          "line": 1586,
+          "text": "                    f\"{where}:事件 {event_id} 缺附随记录(投影/展开计划\""
+        },
+        {
+          "line": 1587,
+          "text": "                    \"行缺失;账本不完整,保全失败不补账)\","
+        },
+        {
+          "line": 1588,
+          "text": "                    {\"event_id\": event_id, \"action_id\": action_id,"
+        },
+        {
+          "line": 1589,
+          "text": "                     \"where\": where,"
+        },
+        {
+          "line": 1590,
+          "text": "                     \"kind\": \"commit_attached_record_missing\","
+        },
+        {
+          "line": 1591,
+          "text": "                     \"missing_table\": (\"report_projections\" if proj is None"
+        },
+        {
+          "line": 1592,
+          "text": "                                       else \"expansion_plans\")})"
+        },
+        {
+          "line": 1593,
+          "text": "            out = self.store.submit_event("
+        },
+        {
+          "line": 1594,
+          "text": "                event, report_projection=proj, expansion_plan=plan,"
+        },
+        {
+          "line": 1595,
+          "text": "                states=[], hypothesis_dict=None)"
+        },
+        {
+          "line": 1596,
+          "text": "        except SearchIntegrityError:"
+        },
+        {
+          "line": 1597,
+          "text": "            raise"
+        },
+        {
+          "line": 1598,
+          "text": "        except sqlite3.OperationalError as exc:"
+        },
+        {
+          "line": 1599,
+          "text": "            raise SearchConcurrencyError("
+        },
+        {
+          "line": 1600,
+          "text": "                f\"{where}:权威核验取锁失败(SQLite busy;可见并发结果,\""
+        },
+        {
+          "line": 1601,
+          "text": "                f\"不当化学拒绝):{exc}\","
+        },
+        {
+          "line": 1602,
+          "text": "                {\"event_id\": event_id, \"where\": where,"
+        },
+        {
+          "line": 1603,
+          "text": "                 \"kind\": \"sqlite_busy\"}) from exc"
+        },
+        {
+          "line": 1604,
+          "text": "        except Exception as exc:"
+        },
+        {
+          "line": 1605,
+          "text": "            raise SearchIntegrityError("
+        },
+        {
+          "line": 1606,
+          "text": "                f\"{where}:事件 {event_id} 的完整事件账权威核验失败\""
+        },
+        {
+          "line": 1607,
+          "text": "                \"(公共 writer 重放同源校验拒绝;保全证据、零写入、\""
+        },
+        {
+          "line": 1608,
+          "text": "                \"不消费/不补账/不猜修库)\","
+        },
+        {
+          "line": 1609,
+          "text": "                {\"event_id\": event_id, \"action_id\": action_id,"
+        },
+        {
+          "line": 1610,
+          "text": "                 \"where\": where,"
+        },
+        {
+          "line": 1611,
+          "text": "                 \"kind\": \"event_ledger_authority_failed\","
+        },
+        {
+          "line": 1612,
+          "text": "                 \"source_error\": type(exc).__name__,"
+        },
+        {
+          "line": 1613,
+          "text": "                 \"source_detail\": getattr(exc, \"detail\", None) or {},"
+        },
+        {
+          "line": 1614,
+          "text": "                 \"reason\": str(exc)[:200]}) from exc"
+        },
+        {
+          "line": 1615,
+          "text": "        if out.get(\"created\"):"
+        },
+        {
+          "line": 1616,
+          "text": "            raise SearchIntegrityError("
+        },
+        {
+          "line": 1617,
+          "text": "                f\"{where}:事件 {event_id} 在权威核验中意外走首次提交\""
+        },
+        {
+          "line": 1618,
+          "text": "                \"路径(核验时行缺失后重现;权威记录不一致,保全失败)\","
+        },
+        {
+          "line": 1619,
+          "text": "                {\"event_id\": event_id, \"action_id\": action_id,"
+        },
+        {
+          "line": 1620,
+          "text": "                 \"where\": where,"
+        },
+        {
+          "line": 1621,
+          "text": "                 \"kind\": \"event_ledger_authority_unexpected_write\"})"
+        },
+        {
+          "line": 1622,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "start": 1670,
+      "end": 1746,
+      "lines": [
+        {
+          "line": 1670,
+          "text": "    def _verify_commit_record_hash(self, action_row, commit_row,"
+        },
+        {
+          "line": 1671,
+          "text": "                                   *, where: str) -> None:"
+        },
+        {
+          "line": 1672,
+          "text": "        \"\"\"S3A-02:提交记录的 payload_hash 复算(记录被改 ⇒ 损坏,"
+        },
+        {
+          "line": 1673,
+          "text": "        不以其自身哈希当证书;空 outcome_ref 落账时写的是哈希前缀,"
+        },
+        {
+          "line": 1674,
+          "text": "        两种候选都复算)。\"\"\""
+        },
+        {
+          "line": 1675,
+          "text": "        base = {\"action_id\": action_row[\"action_id\"],"
+        },
+        {
+          "line": 1676,
+          "text": "                \"outcome_kind\": commit_row[\"commit_kind\"],"
+        },
+        {
+          "line": 1677,
+          "text": "                \"event_id\": commit_row[\"event_id\"]}"
+        },
+        {
+          "line": 1678,
+          "text": "        candidates = {content_hash({**base, \"outcome_ref\": oref})"
+        },
+        {
+          "line": 1679,
+          "text": "                      for oref in (action_row[\"outcome_ref\"], \"\")}"
+        },
+        {
+          "line": 1680,
+          "text": "        if commit_row[\"payload_hash\"] not in candidates:"
+        },
+        {
+          "line": 1681,
+          "text": "            raise SearchIntegrityError("
+        },
+        {
+          "line": 1682,
+          "text": "                f\"{where}:action {action_row['action_id']} 的提交记录\""
+        },
+        {
+          "line": 1683,
+          "text": "                \"哈希与记录/action 内容复算不一致(记录被改;保全失败,\""
+        },
+        {
+          "line": 1684,
+          "text": "                \"不猜修)\","
+        },
+        {
+          "line": 1685,
+          "text": "                {\"action_id\": action_row[\"action_id\"],"
+        },
+        {
+          "line": 1686,
+          "text": "                 \"commit_id\": commit_row[\"commit_id\"],"
+        },
+        {
+          "line": 1687,
+          "text": "                 \"where\": where,"
+        },
+        {
+          "line": 1688,
+          "text": "                 \"kind\": \"commit_record_hash_mismatch\","
+        },
+        {
+          "line": 1689,
+          "text": "                 \"stored_hash\": commit_row[\"payload_hash\"]})"
+        },
+        {
+          "line": 1690,
+          "text": ""
+        },
+        {
+          "line": 1691,
+          "text": "    def _preverify_completion(self, action_id: str, *,"
+        },
+        {
+          "line": 1692,
+          "text": "                              outcome_kind: str,"
+        },
+        {
+          "line": 1693,
+          "text": "                              event_id: str) -> None:"
+        },
+        {
+          "line": 1694,
+          "text": "        \"\"\"S3A-02:complete_action 写事务**之前**的只读权威核验。"
+        },
+        {
+          "line": 1695,
+          "text": ""
+        },
+        {
+          "line": 1696,
+          "text": "        - 已有提交记录 ⇒ 幂等复用路径同样核验(记录引用的事件完整"
+        },
+        {
+          "line": 1697,
+          "text": "          权威 + 记录哈希复算);"
+        },
+        {
+          "line": 1698,
+          "text": "        - 事件类 outcome ⇒ event_id 非空/事件存在/身份冻结/完整账"
+        },
+        {
+          "line": 1699,
+          "text": "          权威(公共 writer 重放同源,12×2 坏事件账在首次消费前拒);"
+        },
+        {
+          "line": 1700,
+          "text": "        - 非事件 outcome 不强制 event(合法 decide/retrieve/transition"
+        },
+        {
+          "line": 1701,
+          "text": "          的适用契约保留),但显式带了 event 引用则同样核验。"
+        },
+        {
+          "line": 1702,
+          "text": "        本方法零写入(公共 writer 重放路径自带事务并在结尾回滚);写"
+        },
+        {
+          "line": 1703,
+          "text": "        事务内的引用行核验由 _verify_action_references 再执行。"
+        },
+        {
+          "line": 1704,
+          "text": "        \"\"\""
+        },
+        {
+          "line": 1705,
+          "text": "        row = self.conn.execute("
+        },
+        {
+          "line": 1706,
+          "text": "            \"SELECT * FROM search_actions WHERE action_id = ?\","
+        },
+        {
+          "line": 1707,
+          "text": "            (action_id,)).fetchone()"
+        },
+        {
+          "line": 1708,
+          "text": "        if row is None:"
+        },
+        {
+          "line": 1709,
+          "text": "            raise SearchContractError("
+        },
+        {
+          "line": 1710,
+          "text": "                f\"action 不存在:{action_id}\","
+        },
+        {
+          "line": 1711,
+          "text": "                {\"action_id\": action_id, \"kind\": \"action_missing\"})"
+        },
+        {
+          "line": 1712,
+          "text": "        commit_row = self.conn.execute("
+        },
+        {
+          "line": 1713,
+          "text": "            \"SELECT * FROM search_commit_records WHERE action_id = ?\","
+        },
+        {
+          "line": 1714,
+          "text": "            (action_id,)).fetchone()"
+        },
+        {
+          "line": 1715,
+          "text": "        if commit_row is not None:"
+        },
+        {
+          "line": 1716,
+          "text": "            record_event_id = commit_row[\"event_id\"]"
+        },
+        {
+          "line": 1717,
+          "text": "            if record_event_id:"
+        },
+        {
+          "line": 1718,
+          "text": "                self._verify_event_outcome("
+        },
+        {
+          "line": 1719,
+          "text": "                    row, record_event_id, where=\"commit_reuse\")"
+        },
+        {
+          "line": 1720,
+          "text": "            self._verify_commit_record_hash("
+        },
+        {
+          "line": 1721,
+          "text": "                row, commit_row, where=\"commit_reuse\")"
+        },
+        {
+          "line": 1722,
+          "text": "            return"
+        },
+        {
+          "line": 1723,
+          "text": "        if outcome_kind == COMMIT_KIND_EVENT:"
+        },
+        {
+          "line": 1724,
+          "text": "            self._verify_event_outcome("
+        },
+        {
+          "line": 1725,
+          "text": "                row, event_id, where=\"first_complete\")"
+        },
+        {
+          "line": 1726,
+          "text": "        elif event_id:"
+        },
+        {
+          "line": 1727,
+          "text": "            self._verify_event_outcome("
+        },
+        {
+          "line": 1728,
+          "text": "                row, event_id, where=\"first_complete\")"
+        },
+        {
+          "line": 1729,
+          "text": ""
+        },
+        {
+          "line": 1730,
+          "text": "    def _verify_done_action_authority(self, action_row) -> None:"
+        },
+        {
+          "line": 1731,
+          "text": "        \"\"\"S3A-02:done/已有完成结果的**复用核验**(claim 复用/submit"
+        },
+        {
+          "line": 1732,
+          "text": "        复用/恢复 done 分支同源):提交记录存在、记录哈希可复算、"
+        },
+        {
+          "line": 1733,
+          "text": "        记录引用的事件完整权威。不能 get 索引即成功。\"\"\""
+        },
+        {
+          "line": 1734,
+          "text": "        commit_row = self.conn.execute("
+        },
+        {
+          "line": 1735,
+          "text": "            \"SELECT * FROM search_commit_records WHERE action_id = ?\","
+        },
+        {
+          "line": 1736,
+          "text": "            (action_row[\"action_id\"],)).fetchone()"
+        },
+        {
+          "line": 1737,
+          "text": "        if commit_row is None:"
+        },
+        {
+          "line": 1738,
+          "text": "            raise SearchIntegrityError("
+        },
+        {
+          "line": 1739,
+          "text": "                f\"action {action_row['action_id']} 状态 done 但缺提交\""
+        },
+        {
+          "line": 1740,
+          "text": "                \"记录(记账不变量破坏;保全失败,不补写)\","
+        },
+        {
+          "line": 1741,
+          "text": "                {\"action_id\": action_row[\"action_id\"],"
+        },
+        {
+          "line": 1742,
+          "text": "                 \"run_id\": action_row[\"run_id\"],"
+        },
+        {
+          "line": 1743,
+          "text": "                 \"kind\": \"done_without_commit_record\"})"
+        },
+        {
+          "line": 1744,
+          "text": "        self._verify_commit_event("
+        },
+        {
+          "line": 1745,
+          "text": "            action_row[\"run_id\"], action_row, commit_row)"
+        },
+        {
+          "line": 1746,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "start": 1747,
+      "end": 1883,
+      "lines": [
+        {
+          "line": 1747,
+          "text": "    def complete_action("
+        },
+        {
+          "line": 1748,
+          "text": "        self, action_id: str, *, worker_id: str,"
+        },
+        {
+          "line": 1749,
+          "text": "        outcome_kind: str = COMMIT_KIND_EVENT,"
+        },
+        {
+          "line": 1750,
+          "text": "        outcome_ref: str = \"\", event_id: str = \"\","
+        },
+        {
+          "line": 1751,
+          "text": "        attempt_status: str = ATTEMPT_STATUS_RECORDED,"
+        },
+        {
+          "line": 1752,
+          "text": "    ) -> dict:"
+        },
+        {
+          "line": 1753,
+          "text": "        \"\"\"完成 action(搜索记账事务:consume 预约、attempt 落账、"
+        },
+        {
+          "line": 1754,
+          "text": "        action→done、写提交记录;B4 的后半段)。"
+        },
+        {
+          "line": 1755,
+          "text": ""
+        },
+        {
+          "line": 1756,
+          "text": "        - **S3A-02 写账前完整权威核验**(见 _preverify_completion):"
+        },
+        {
+          "line": 1757,
+          "text": "          事件类 outcome 不能空/不存在/错绑,已有提交记录的幂等复用"
+        },
+        {
+          "line": 1758,
+          "text": "          同样经完整事件账权威(公共 writer 重放同源)+ 记录哈希复算;"
+        },
+        {
+          "line": 1759,
+          "text": "        - **S3A-02 引用核验**(写事务内,_verify_action_references):"
+        },
+        {
+          "line": 1760,
+          "text": "          本 action 必需的 attempt/预约行存在且归属正确,UPDATE 0 行"
+        },
+        {
+          "line": 1761,
+          "text": "          按缺权威失败处理,不猜补坏行;"
+        },
+        {
+          "line": 1762,
+          "text": "        - 认领所有权核验(陈旧 worker 不可越权;已有提交记录 ⇒ 幂等"
+        },
+        {
+          "line": 1763,
+          "text": "          复用,不覆盖既有 outcome;记录与提交不一致 ⇒ 保全失败);"
+        },
+        {
+          "line": 1764,
+          "text": "        - 提交记录 action 维度唯一(确定性 ID);"
+        },
+        {
+          "line": 1765,
+          "text": "        - 事件已提交而记账未闭合(B4)⇒ 本方法幂等补账:预约恰好"
+        },
+        {
+          "line": 1766,
+          "text": "          consume 一次(确定性 ID),不重复扣、不重开事件;"
+        },
+        {
+          "line": 1767,
+          "text": "        - 合法非事件 outcome(COMMIT_KIND_OUTCOME)按其适用契约保留,"
+        },
+        {
+          "line": 1768,
+          "text": "          不给无关 decide/retrieve 强加 event。"
+        },
+        {
+          "line": 1769,
+          "text": "        \"\"\""
+        },
+        {
+          "line": 1770,
+          "text": "        if outcome_kind not in COMMIT_KINDS:"
+        },
+        {
+          "line": 1771,
+          "text": "            raise SearchContractError("
+        },
+        {
+          "line": 1772,
+          "text": "                f\"commit_kind 非法:{outcome_kind!r}\","
+        },
+        {
+          "line": 1773,
+          "text": "                {\"kind\": \"invalid_commit_kind\"})"
+        },
+        {
+          "line": 1774,
+          "text": "        if attempt_status not in (ATTEMPT_STATUS_RECORDED,"
+        },
+        {
+          "line": 1775,
+          "text": "                                  ATTEMPT_STATUS_FAILED):"
+        },
+        {
+          "line": 1776,
+          "text": "            raise SearchContractError("
+        },
+        {
+          "line": 1777,
+          "text": "                f\"attempt 完成状态非法:{attempt_status!r}(recorded/\""
+        },
+        {
+          "line": 1778,
+          "text": "                \"failed;abandoned 走 defer)\","
+        },
+        {
+          "line": 1779,
+          "text": "                {\"kind\": \"invalid_attempt_status\"})"
+        },
+        {
+          "line": 1780,
+          "text": "        # ---- S3A-02 阶段 1:写事务之前的只读权威核验(零写入) ----"
+        },
+        {
+          "line": 1781,
+          "text": "        self._preverify_completion("
+        },
+        {
+          "line": 1782,
+          "text": "            action_id, outcome_kind=outcome_kind, event_id=event_id)"
+        },
+        {
+          "line": 1783,
+          "text": "        self._begin()"
+        },
+        {
+          "line": 1784,
+          "text": "        try:"
+        },
+        {
+          "line": 1785,
+          "text": "            row = self.conn.execute("
+        },
+        {
+          "line": 1786,
+          "text": "                \"SELECT * FROM search_actions WHERE action_id = ?\","
+        },
+        {
+          "line": 1787,
+          "text": "                (action_id,)).fetchone()"
+        },
+        {
+          "line": 1788,
+          "text": "            if row is None:"
+        },
+        {
+          "line": 1789,
+          "text": "                raise SearchContractError("
+        },
+        {
+          "line": 1790,
+          "text": "                    f\"action 不存在:{action_id}\","
+        },
+        {
+          "line": 1791,
+          "text": "                    {\"action_id\": action_id, \"kind\": \"action_missing\"})"
+        },
+        {
+          "line": 1792,
+          "text": "            commit_row = self.conn.execute("
+        },
+        {
+          "line": 1793,
+          "text": "                \"SELECT * FROM search_commit_records WHERE action_id = ?\","
+        },
+        {
+          "line": 1794,
+          "text": "                (action_id,)).fetchone()"
+        },
+        {
+          "line": 1795,
+          "text": "            if commit_row is not None:"
+        },
+        {
+          "line": 1796,
+          "text": "                if commit_row[\"event_id\"] and event_id and \\"
+        },
+        {
+          "line": 1797,
+          "text": "                        commit_row[\"event_id\"] != event_id:"
+        },
+        {
+          "line": 1798,
+          "text": "                    raise SearchIntegrityError("
+        },
+        {
+          "line": 1799,
+          "text": "                        f\"action {action_id} 已有提交记录且 event_id 不同\""
+        },
+        {
+          "line": 1800,
+          "text": "                        \"(不覆盖、不猜数据;保全证据)\","
+        },
+        {
+          "line": 1801,
+          "text": "                        {\"action_id\": action_id,"
+        },
+        {
+          "line": 1802,
+          "text": "                         \"kind\": \"commit_record_conflict\","
+        },
+        {
+          "line": 1803,
+          "text": "                         \"recorded_event\": commit_row[\"event_id\"],"
+        },
+        {
+          "line": 1804,
+          "text": "                         \"submitted_event\": event_id})"
+        },
+        {
+          "line": 1805,
+          "text": "                if row[\"status\"] != ACTION_STATUS_DONE:"
+        },
+        {
+          "line": 1806,
+          "text": "                    raise SearchIntegrityError("
+        },
+        {
+          "line": 1807,
+          "text": "                        f\"action {action_id} 已有提交记录但状态为 \""
+        },
+        {
+          "line": 1808,
+          "text": "                        f\"{row['status']}(提交记录与 action 状态同事务\""
+        },
+        {
+          "line": 1809,
+          "text": "                        \"写入,不一致即记账不变量破坏;保全失败)\","
+        },
+        {
+          "line": 1810,
+          "text": "                        {\"action_id\": action_id,"
+        },
+        {
+          "line": 1811,
+          "text": "                         \"kind\": \"commit_record_status_mismatch\","
+        },
+        {
+          "line": 1812,
+          "text": "                         \"status\": row[\"status\"]})"
+        },
+        {
+          "line": 1813,
+          "text": "                # 幂等复用(权威核验已在阶段 1 执行)"
+        },
+        {
+          "line": 1814,
+          "text": "                self.conn.rollback()"
+        },
+        {
+          "line": 1815,
+          "text": "                return {\"completed\": False, \"unchanged\": True,"
+        },
+        {
+          "line": 1816,
+          "text": "                        \"action_id\": action_id,"
+        },
+        {
+          "line": 1817,
+          "text": "                        \"outcome_ref\": row[\"outcome_ref\"],"
+        },
+        {
+          "line": 1818,
+          "text": "                        \"reason\": \"already_committed\"}"
+        },
+        {
+          "line": 1819,
+          "text": "            if row[\"status\"] == ACTION_STATUS_DONE:"
+        },
+        {
+          "line": 1820,
+          "text": "                # done 但无提交记录(同事务写入的不变量被破坏)⇒ H08"
+        },
+        {
+          "line": 1821,
+          "text": "                raise SearchIntegrityError("
+        },
+        {
+          "line": 1822,
+          "text": "                    f\"action {action_id} 状态 done 但缺提交记录(记账\""
+        },
+        {
+          "line": 1823,
+          "text": "                    \"不变量破坏;保全失败,不补写)\","
+        },
+        {
+          "line": 1824,
+          "text": "                    {\"action_id\": action_id,"
+        },
+        {
+          "line": 1825,
+          "text": "                     \"kind\": \"done_without_commit_record\"})"
+        },
+        {
+          "line": 1826,
+          "text": "            if row[\"status\"] != ACTION_STATUS_CLAIMED:"
+        },
+        {
+          "line": 1827,
+          "text": "                raise SearchClaimError("
+        },
+        {
+          "line": 1828,
+          "text": "                    f\"action {action_id} 状态为 {row['status']}(不可完成)\","
+        },
+        {
+          "line": 1829,
+          "text": "                    {\"action_id\": action_id, \"kind\": \"not_claimed\","
+        },
+        {
+          "line": 1830,
+          "text": "                     \"status\": row[\"status\"]})"
+        },
+        {
+          "line": 1831,
+          "text": "            if row[\"claimed_by\"] != worker_id:"
+        },
+        {
+          "line": 1832,
+          "text": "                raise SearchClaimError("
+        },
+        {
+          "line": 1833,
+          "text": "                    f\"action {action_id} 由 {row['claimed_by']!r} 认领,\""
+        },
+        {
+          "line": 1834,
+          "text": "                    f\"{worker_id!r} 不可越权完成(陈旧 worker 不覆盖完成\""
+        },
+        {
+          "line": 1835,
+          "text": "                    \"结果)\","
+        },
+        {
+          "line": 1836,
+          "text": "                    {\"action_id\": action_id, \"kind\": \"owner_mismatch\","
+        },
+        {
+          "line": 1837,
+          "text": "                     \"claimed_by\": row[\"claimed_by\"],"
+        },
+        {
+          "line": 1838,
+          "text": "                     \"worker_id\": worker_id})"
+        },
+        {
+          "line": 1839,
+          "text": "            # ---- S3A-02 阶段 2:写事务内引用核验(存在/归属) ----"
+        },
+        {
+          "line": 1840,
+          "text": "            self._verify_action_references(row)"
+        },
+        {
+          "line": 1841,
+          "text": "            reservation_refs = json.loads("
+        },
+        {
+          "line": 1842,
+          "text": "                row[\"budget_reservation_ref\"] or \"[]\")"
+        },
+        {
+          "line": 1843,
+          "text": "            attempt_refs = json.loads(row[\"attempt_refs\"] or \"[]\")"
+        },
+        {
+          "line": 1844,
+          "text": "            # consume 预约(确定性 ID;reserved ⇒ consumed)"
+        },
+        {
+          "line": 1845,
+          "text": "            for rid in reservation_refs:"
+        },
+        {
+          "line": 1846,
+          "text": "                self.conn.execute("
+        },
+        {
+          "line": 1847,
+          "text": "                    \"UPDATE budget_reservations SET status = ?,\""
+        },
+        {
+          "line": 1848,
+          "text": "                    \" settled_at = ? WHERE reservation_id = ? AND\""
+        },
+        {
+          "line": 1849,
+          "text": "                    \" status = ?\","
+        },
+        {
+          "line": 1850,
+          "text": "                    (RESERVATION_STATUS_CONSUMED, now_iso(), rid,"
+        },
+        {
+          "line": 1851,
+          "text": "                     RESERVATION_STATUS_RESERVED))"
+        },
+        {
+          "line": 1852,
+          "text": "            # attempt 落账(open ⇒ recorded/failed)"
+        },
+        {
+          "line": 1853,
+          "text": "            for aid in attempt_refs:"
+        },
+        {
+          "line": 1854,
+          "text": "                self.conn.execute("
+        },
+        {
+          "line": 1855,
+          "text": "                    \"UPDATE search_attempts SET status = ?, recorded_at = ?,\""
+        },
+        {
+          "line": 1856,
+          "text": "                    \" outcome_ref = ? WHERE expansion_attempt_id = ? AND\""
+        },
+        {
+          "line": 1857,
+          "text": "                    \" status = ?\","
+        },
+        {
+          "line": 1858,
+          "text": "                    (attempt_status, now_iso(), outcome_ref, aid,"
+        },
+        {
+          "line": 1859,
+          "text": "                     ATTEMPT_STATUS_OPEN))"
+        },
+        {
+          "line": 1860,
+          "text": "            commit_id = stable_id(\"scommit\", action_id)"
+        },
+        {
+          "line": 1861,
+          "text": "            record_hash = content_hash({"
+        },
+        {
+          "line": 1862,
+          "text": "                \"action_id\": action_id,"
+        },
+        {
+          "line": 1863,
+          "text": "                \"outcome_kind\": outcome_kind,"
+        },
+        {
+          "line": 1864,
+          "text": "                \"outcome_ref\": outcome_ref, \"event_id\": event_id})"
+        },
+        {
+          "line": 1865,
+          "text": "            self.conn.execute("
+        },
+        {
+          "line": 1866,
+          "text": "                \"INSERT INTO search_commit_records (commit_id, run_id,\""
+        },
+        {
+          "line": 1867,
+          "text": "                \" action_id, attempt_id, event_id, commit_kind,\""
+        },
+        {
+          "line": 1868,
+          "text": "                \" payload_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)\","
+        },
+        {
+          "line": 1869,
+          "text": "                (commit_id, row[\"run_id\"], action_id,"
+        },
+        {
+          "line": 1870,
+          "text": "                 attempt_refs[0] if attempt_refs else \"\", event_id,"
+        },
+        {
+          "line": 1871,
+          "text": "                 outcome_kind, record_hash, now_iso()))"
+        },
+        {
+          "line": 1872,
+          "text": "            self.conn.execute("
+        },
+        {
+          "line": 1873,
+          "text": "                \"UPDATE search_actions SET status = ?, outcome_ref = ?,\""
+        },
+        {
+          "line": 1874,
+          "text": "                \" updated_at = ? WHERE action_id = ?\","
+        },
+        {
+          "line": 1875,
+          "text": "                (ACTION_STATUS_DONE, outcome_ref or record_hash[:20],"
+        },
+        {
+          "line": 1876,
+          "text": "                 now_iso(), action_id))"
+        },
+        {
+          "line": 1877,
+          "text": "            self.conn.commit()"
+        },
+        {
+          "line": 1878,
+          "text": "        except Exception:"
+        },
+        {
+          "line": 1879,
+          "text": "            self.conn.rollback()"
+        },
+        {
+          "line": 1880,
+          "text": "            raise"
+        },
+        {
+          "line": 1881,
+          "text": "        return {\"completed\": True, \"action_id\": action_id,"
+        },
+        {
+          "line": 1882,
+          "text": "                \"outcome_ref\": outcome_ref, \"event_id\": event_id}"
+        },
+        {
+          "line": 1883,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "start": 2296,
+      "end": 2332,
+      "lines": [
+        {
+          "line": 2296,
+          "text": "                    event_id=event_payload[\"event_id\"],"
+        },
+        {
+          "line": 2297,
+          "text": "                    run_id=event_payload[\"run_id\"],"
+        },
+        {
+          "line": 2298,
+          "text": "                    parent_path_id=event_payload[\"parent_path_id\"],"
+        },
+        {
+          "line": 2299,
+          "text": "                    hypothesis_id=event_payload[\"hypothesis_id\"],"
+        },
+        {
+          "line": 2300,
+          "text": "                    context_hash=event_payload[\"context_hash\"],"
+        },
+        {
+          "line": 2301,
+          "text": "                    participants=event_payload[\"participants\"],"
+        },
+        {
+          "line": 2302,
+          "text": "                    participant_state_refs=event_payload["
+        },
+        {
+          "line": 2303,
+          "text": "                        \"participant_state_refs\"],"
+        },
+        {
+          "line": 2304,
+          "text": "                    catalytic_support=event_payload[\"catalytic_support\"],"
+        },
+        {
+          "line": 2305,
+          "text": "                    schema_version=event_payload[\"schema_version\"],"
+        },
+        {
+          "line": 2306,
+          "text": "                )"
+        },
+        {
+          "line": 2307,
+          "text": "                self.store.submit_event("
+        },
+        {
+          "line": 2308,
+          "text": "                    event,"
+        },
+        {
+          "line": 2309,
+          "text": "                    report_projection=bundle[\"payload\"][\"report_projection\"],"
+        },
+        {
+          "line": 2310,
+          "text": "                    expansion_plan=bundle[\"payload\"][\"expansion_plan\"],"
+        },
+        {
+          "line": 2311,
+          "text": "                    states=bundle[\"payload\"][\"states\"],"
+        },
+        {
+          "line": 2312,
+          "text": "                    hypothesis_dict=bundle[\"payload\"][\"hypothesis_dict\"],"
+        },
+        {
+          "line": 2313,
+          "text": "                )"
+        },
+        {
+          "line": 2314,
+          "text": "                self.complete_action("
+        },
+        {
+          "line": 2315,
+          "text": "                    a[\"action_id\"], worker_id=owner,"
+        },
+        {
+          "line": 2316,
+          "text": "                    outcome_kind=COMMIT_KIND_EVENT,"
+        },
+        {
+          "line": 2317,
+          "text": "                    event_id=event.event_id)"
+        },
+        {
+          "line": 2318,
+          "text": "                entry[\"boundary\"] = \"B3_artifact_written_event_uncommitted\""
+        },
+        {
+          "line": 2319,
+          "text": "                entry[\"disposition\"] = (\"consumed_same_output_attempt;\""
+        },
+        {
+          "line": 2320,
+          "text": "                                        \"请求不重发,事件仅一次\")"
+        },
+        {
+          "line": 2321,
+          "text": "                report[\"actions\"].append(entry)"
+        },
+        {
+          "line": 2322,
+          "text": "                continue"
+        },
+        {
+          "line": 2323,
+          "text": "            # ---- B1:读冻结 action/attempt/预约继续(不自动执行); ----"
+        },
+        {
+          "line": 2324,
+          "text": "            # S3A-02:冻结引用行核验(预约/attempt 行缺失或异属 ⇒ 缺"
+        },
+        {
+          "line": 2325,
+          "text": "            # 权威失败,不按\"intact\"披露)"
+        },
+        {
+          "line": 2326,
+          "text": "            self._verify_action_references(a)"
+        },
+        {
+          "line": 2327,
+          "text": "            entry[\"boundary\"] = \"B1_claimed_pending_completion\""
+        },
+        {
+          "line": 2328,
+          "text": "            entry[\"disposition\"] = ("
+        },
+        {
+          "line": 2329,
+          "text": "                \"frozen_attempt_reservation_intact;预算未重复扣,等待\""
+        },
+        {
+          "line": 2330,
+          "text": "                \"执行方续跑(不按当前 revision 重算任务身份)\")"
+        },
+        {
+          "line": 2331,
+          "text": "            report[\"actions\"].append(entry)"
+        },
+        {
+          "line": 2332,
+          "text": "        return report"
+        }
+      ]
+    },
+    {
+      "start": 2334,
+      "end": 2375,
+      "lines": [
+        {
+          "line": 2334,
+          "text": "    def _verify_commit_event(self, run_id: str, action_row,"
+        },
+        {
+          "line": 2335,
+          "text": "                             commit_row) -> None:"
+        },
+        {
+          "line": 2336,
+          "text": "        \"\"\"H08 + S3A-02:提交记录的完整权威核验。"
+        },
+        {
+          "line": 2337,
+          "text": ""
+        },
+        {
+          "line": 2338,
+          "text": "        - 记录哈希复算(记录列/action 内容重推;被改 ⇒ 损坏);"
+        },
+        {
+          "line": 2339,
+          "text": "        - 引用的事件行存在且身份列与 action 冻结身份一致(不一致 ⇒"
+        },
+        {
+          "line": 2340,
+          "text": "          保全证据、明确失败,不补事件/修库);"
+        },
+        {
+          "line": 2341,
+          "text": "        - **完整事件账权威**(公共 writer 重放同源,12×2 坏事件账"
+        },
+        {
+          "line": 2342,
+          "text": "          在恢复消费前拒)—— get_event 的身份列不是完整性证书;"
+        },
+        {
+          "line": 2343,
+          "text": "        - 非事件 outcome(commit_kind 非 event_committed)只核记录"
+        },
+        {
+          "line": 2344,
+          "text": "          哈希,不强加事件。"
+        },
+        {
+          "line": 2345,
+          "text": "        \"\"\""
+        },
+        {
+          "line": 2346,
+          "text": "        # ---- S3A-02:记录哈希复算(先于事件核验;任何记录均核) ----"
+        },
+        {
+          "line": 2347,
+          "text": "        self._verify_commit_record_hash(action_row, commit_row,"
+        },
+        {
+          "line": 2348,
+          "text": "                                         where=\"commit_record_verify\")"
+        },
+        {
+          "line": 2349,
+          "text": "        event_id = commit_row[\"event_id\"]"
+        },
+        {
+          "line": 2350,
+          "text": "        if not event_id:"
+        },
+        {
+          "line": 2351,
+          "text": "            return  # 非事件 outcome:无事件权威可核(记录哈希已核)"
+        },
+        {
+          "line": 2352,
+          "text": "        ev = self.store.get_event(event_id)"
+        },
+        {
+          "line": 2353,
+          "text": "        if ev is None:"
+        },
+        {
+          "line": 2354,
+          "text": "            raise SearchIntegrityError("
+        },
+        {
+          "line": 2355,
+          "text": "                f\"恢复 {run_id}:提交记录引用的事件 {event_id} 在账本\""
+        },
+        {
+          "line": 2356,
+          "text": "                \"缺失(提交事实与 ledger 不一致;保全证据、明确失败,\""
+        },
+        {
+          "line": 2357,
+          "text": "                \"不默认补事件/修库)\","
+        },
+        {
+          "line": 2358,
+          "text": "                {\"run_id\": run_id, \"action_id\": action_row[\"action_id\"],"
+        },
+        {
+          "line": 2359,
+          "text": "                 \"event_id\": event_id,"
+        },
+        {
+          "line": 2360,
+          "text": "                 \"kind\": \"commit_record_event_missing\"})"
+        },
+        {
+          "line": 2361,
+          "text": "        if ev[\"run_id\"] != run_id or \\"
+        },
+        {
+          "line": 2362,
+          "text": "                ev[\"hypothesis_id\"] != action_row[\"subject_ref\"] or \\"
+        },
+        {
+          "line": 2363,
+          "text": "                ev[\"parent_path_id\"] != action_row[\"parent_path_id\"] or \\"
+        },
+        {
+          "line": 2364,
+          "text": "                ev[\"context_hash\"] != action_row[\"context_ref\"]:"
+        },
+        {
+          "line": 2365,
+          "text": "            raise SearchIntegrityError("
+        },
+        {
+          "line": 2366,
+          "text": "                f\"恢复 {run_id}:提交记录引用的事件 {event_id} 身份列与\""
+        },
+        {
+          "line": 2367,
+          "text": "                \"action 冻结身份不一致(H08;保全失败,不猜数据)\","
+        },
+        {
+          "line": 2368,
+          "text": "                {\"run_id\": run_id, \"action_id\": action_row[\"action_id\"],"
+        },
+        {
+          "line": 2369,
+          "text": "                 \"event_id\": event_id,"
+        },
+        {
+          "line": 2370,
+          "text": "                 \"kind\": \"commit_record_event_identity_mismatch\"})"
+        },
+        {
+          "line": 2371,
+          "text": "        # ---- S3A-02:完整事件账权威(重放同源;坏账保全失败) ----"
+        },
+        {
+          "line": 2372,
+          "text": "        self._verify_event_ledger_authority("
+        },
+        {
+          "line": 2373,
+          "text": "            event_id, action_id=action_row[\"action_id\"],"
+        },
+        {
+          "line": 2374,
+          "text": "            where=\"commit_record_verify\")"
+        },
+        {
+          "line": 2375,
+          "text": ""
+        }
+      ]
+    }
+  ],
+  "src/pathway_v43/pollutant/store.py": [
+    {
+      "start": 1014,
+      "end": 1075,
+      "lines": [
+        {
+          "line": 1014,
+          "text": "        if isinstance(max_reportable, bool) \\"
+        },
+        {
+          "line": 1015,
+          "text": "                or not isinstance(max_reportable, int) \\"
+        },
+        {
+          "line": 1016,
+          "text": "                or max_reportable < 1:"
+        },
+        {
+          "line": 1017,
+          "text": "            raise Ppv1SubmitContractError("
+        },
+        {
+          "line": 1018,
+          "text": "                f\"事件 {eid} 报告投影 max_reportable 非法:\""
+        },
+        {
+          "line": 1019,
+          "text": "                f\"{max_reportable!r}\","
+        },
+        {
+          "line": 1020,
+          "text": "                {\"event_id\": eid, \"kind\": \"invalid_max_reportable\","
+        },
+        {
+          "line": 1021,
+          "text": "                 \"max_reportable\": max_reportable})"
+        },
+        {
+          "line": 1022,
+          "text": "        unknown = [r.get(\"state_ref\") for r in"
+        },
+        {
+          "line": 1023,
+          "text": "                   projection.get(\"product_ranks\") or []"
+        },
+        {
+          "line": 1024,
+          "text": "                   if r.get(\"state_ref\") not in product_refs]"
+        },
+        {
+          "line": 1025,
+          "text": "        if unknown:"
+        },
+        {
+          "line": 1026,
+          "text": "            raise Ppv1SubmitContractError("
+        },
+        {
+          "line": 1027,
+          "text": "                f\"事件 {eid} 报告投影引用了非本事件产物的状态:\""
+        },
+        {
+          "line": 1028,
+          "text": "                f\"{sorted(set(unknown))[:5]}\","
+        },
+        {
+          "line": 1029,
+          "text": "                {\"event_id\": eid, \"kind\": \"projection_ref_out_of_products\","
+        },
+        {
+          "line": 1030,
+          "text": "                 \"unknown_refs\": sorted(set(unknown))})"
+        },
+        {
+          "line": 1031,
+          "text": ""
+        },
+        {
+          "line": 1032,
+          "text": "    def _check_expansion_plan(self, eid: str, plan: dict,"
+        },
+        {
+          "line": 1033,
+          "text": "                              product_refs: set[str]) -> None:"
+        },
+        {
+          "line": 1034,
+          "text": "        \"\"\"展开计划:产物范围合法、状态互斥、无悬空引用(R2-09);"
+        },
+        {
+          "line": 1035,
+          "text": "        **全产物覆盖或显式 incomplete 声明(§4 行 4,R4)**。"
+        },
+        {
+          "line": 1036,
+          "text": ""
+        },
+        {
+          "line": 1037,
+          "text": "        事件有产物时,计划必须对每个产品给 expanded/deferred/not_tracked,"
+        },
+        {
+          "line": 1038,
+          "text": "        或载荷显式 `plan_status: \"incomplete\"` + `incomplete_reason`"
+        },
+        {
+          "line": 1039,
+          "text": "        (带原因);两者都没有 ⇒ 契约拒绝。只补载荷契约,不实施 S3 队列。"
+        },
+        {
+          "line": 1040,
+          "text": "        \"\"\""
+        },
+        {
+          "line": 1041,
+          "text": "        from .events import EXPANSION_STATUSES"
+        },
+        {
+          "line": 1042,
+          "text": "        entries = plan.get(\"entries\") or []"
+        },
+        {
+          "line": 1043,
+          "text": "        incomplete = plan.get(\"plan_status\") == \"incomplete\""
+        },
+        {
+          "line": 1044,
+          "text": "        if incomplete and not (plan.get(\"incomplete_reason\") or \"\").strip():"
+        },
+        {
+          "line": 1045,
+          "text": "            raise Ppv1SubmitContractError("
+        },
+        {
+          "line": 1046,
+          "text": "                f\"事件 {eid} 展开计划声明 plan_status=incomplete 但缺\""
+        },
+        {
+          "line": 1047,
+          "text": "                \" incomplete_reason(计划不完整必须带原因)\","
+        },
+        {
+          "line": 1048,
+          "text": "                {\"event_id\": eid, \"kind\": \"incomplete_plan_without_reason\"})"
+        },
+        {
+          "line": 1049,
+          "text": "        covered: set[str] = set()"
+        },
+        {
+          "line": 1050,
+          "text": "        seen_refs: set[str] = set()"
+        },
+        {
+          "line": 1051,
+          "text": "        for entry in entries:"
+        },
+        {
+          "line": 1052,
+          "text": "            ref = entry.get(\"state_ref\")"
+        },
+        {
+          "line": 1053,
+          "text": "            if ref not in product_refs:"
+        },
+        {
+          "line": 1054,
+          "text": "                raise Ppv1SubmitContractError("
+        },
+        {
+          "line": 1055,
+          "text": "                    f\"事件 {eid} 展开计划引用了非本事件产物的状态:\""
+        },
+        {
+          "line": 1056,
+          "text": "                    f\"{ref!r}\","
+        },
+        {
+          "line": 1057,
+          "text": "                    {\"event_id\": eid,"
+        },
+        {
+          "line": 1058,
+          "text": "                     \"kind\": \"expansion_ref_out_of_products\","
+        },
+        {
+          "line": 1059,
+          "text": "                     \"state_ref\": ref})"
+        },
+        {
+          "line": 1060,
+          "text": "            if ref in seen_refs:"
+        },
+        {
+          "line": 1061,
+          "text": "                raise Ppv1SubmitContractError("
+        },
+        {
+          "line": 1062,
+          "text": "                    f\"事件 {eid} 展开计划对同一产物 {ref} 给出多个状态\""
+        },
+        {
+          "line": 1063,
+          "text": "                    \"(expanded/deferred/not_tracked 互斥)\","
+        },
+        {
+          "line": 1064,
+          "text": "                    {\"event_id\": eid, \"kind\": \"expansion_status_conflict\","
+        },
+        {
+          "line": 1065,
+          "text": "                     \"state_ref\": ref})"
+        },
+        {
+          "line": 1066,
+          "text": "            seen_refs.add(ref)"
+        },
+        {
+          "line": 1067,
+          "text": "            covered.add(ref)"
+        },
+        {
+          "line": 1068,
+          "text": "            if entry.get(\"status\") not in EXPANSION_STATUSES:"
+        },
+        {
+          "line": 1069,
+          "text": "                raise Ppv1SubmitContractError("
+        },
+        {
+          "line": 1070,
+          "text": "                    f\"事件 {eid} 展开计划状态非法:{entry.get('status')!r}\","
+        },
+        {
+          "line": 1071,
+          "text": "                    {\"event_id\": eid, \"kind\": \"invalid_expansion_status\","
+        },
+        {
+          "line": 1072,
+          "text": "                     \"state_ref\": ref,"
+        },
+        {
+          "line": 1073,
+          "text": "                     \"status\": entry.get(\"status\")})"
+        },
+        {
+          "line": 1074,
+          "text": "        if product_refs and not incomplete:"
+        },
+        {
+          "line": 1075,
+          "text": "            uncovered = sorted(product_refs - covered)"
+        }
+      ]
+    },
+    {
+      "start": 1690,
+      "end": 1710,
+      "lines": [
+        {
+          "line": 1690,
+          "text": "                                  \"note\": \"排序归一后比较\"})"
+        },
+        {
+          "line": 1691,
+          "text": "                self._check_hypothesis_event_relation(eid, stored_hyp,"
+        },
+        {
+          "line": 1692,
+          "text": "                                                      event)"
+        },
+        {
+          "line": 1693,
+          "text": "                for table, payload in ("
+        },
+        {
+          "line": 1694,
+          "text": "                        (\"report_projections\", report_projection),"
+        },
+        {
+          "line": 1695,
+          "text": "                        (\"expansion_plans\", expansion_plan)):"
+        },
+        {
+          "line": 1696,
+          "text": "                    row = self.conn.execute("
+        },
+        {
+          "line": 1697,
+          "text": "                        f\"SELECT payload FROM {table} WHERE event_id = ?\","
+        },
+        {
+          "line": 1698,
+          "text": "                        (eid,)).fetchone()"
+        },
+        {
+          "line": 1699,
+          "text": "                    if row is None:"
+        },
+        {
+          "line": 1700,
+          "text": "                        raise Ppv1LedgerCorrupt("
+        },
+        {
+          "line": 1701,
+          "text": "                            f\"重放 {eid} 缺少附随记录 {table}(账本不完整;\""
+        },
+        {
+          "line": 1702,
+          "text": "                            \"不默默成功)\", {\"event_id\": eid, \"table\": table})"
+        },
+        {
+          "line": 1703,
+          "text": "                    if content_hash(json.loads(row[\"payload\"])) != \\"
+        },
+        {
+          "line": 1704,
+          "text": "                            content_hash(payload):"
+        },
+        {
+          "line": 1705,
+          "text": "                        raise Ppv1EventConflict("
+        },
+        {
+          "line": 1706,
+          "text": "                            eid, {\"table\": table,"
+        },
+        {
+          "line": 1707,
+          "text": "                                  \"kind\": \"attached_payload_mismatch\"})"
+        },
+        {
+          "line": 1708,
+          "text": "                self.conn.rollback()"
+        },
+        {
+          "line": 1709,
+          "text": "                return {\"created\": False, \"event_id\": eid}"
+        },
+        {
+          "line": 1710,
+          "text": "            # ---- 首次提交:先全部校验,后写入(失败零写入)----"
+        }
+      ]
+    }
+  ]
+}

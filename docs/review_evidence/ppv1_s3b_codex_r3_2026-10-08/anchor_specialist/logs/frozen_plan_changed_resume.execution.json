@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/frozen_plan_changed_resume.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+  },
+  "label": "frozen_plan_changed_resume",
+  "parsed": {
+    "detail": {
+      "frozen_plan_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "kind": "frozen_plan_mismatch",
+      "run_id": "frozen_plan_changed",
+      "submitted_plan_digest": "c429ad52bf4fa230bd944721a5aad5f0bda67e6fa1c960eb111f0cf5e5916414"
+    },
+    "exception": "PPV1RunError",
+    "message": "resume 传入计划与冻结输入不符(旧任务不消费新输入;差异须显式新 revision/新任务登记,不能复用旧裁决键)",
+    "pid": 46181
+  },
+  "returncode": 3,
+  "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1508, in resume_ppv1_run\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: resume 传入计划与冻结输入不符(旧任务不消费新输入;差异须显式新 revision/新任务登记,不能复用旧裁决键)\n",
+  "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_mismatch\", \"frozen_plan_digest\": \"880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94\", \"submitted_plan_digest\": \"c429ad52bf4fa230bd944721a5aad5f0bda67e6fa1c960eb111f0cf5e5916414\", \"run_id\": \"frozen_plan_changed\"}, \"message\": \"resume 传入计划与冻结输入不符(旧任务不消费新输入;差异须显式新 revision/新任务登记,不能复用旧裁决键)\", \"pid\": 46181}\n"
+}

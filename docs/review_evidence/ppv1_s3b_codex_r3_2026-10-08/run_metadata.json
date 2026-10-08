@@ -1,0 +1,420 @@
+{
+  "actual_head": "adf0287abef0c4803962fee0df0065d8e6f3793d",
+  "parent_head": "2bedfc060a9b19019ba44aa2a56dcacb88450c3b",
+  "date_Asia_Shanghai": "2026-10-08",
+  "conclusion": "S3_engineering_pass",
+  "P1": [],
+  "S3B01_closed": true,
+  "prior_closed_groups_held": [
+    "S3B-02",
+    "S3B-03",
+    "S3B-04",
+    "S3B-05",
+    "S3B-06",
+    "S3a"
+  ],
+  "independent_engineering_results": {
+    "actual_HEAD": "adf0287abef0c4803962fee0df0065d8e6f3793d",
+    "actual_parent": "2bedfc060a9b19019ba44aa2a56dcacb88450c3b",
+    "finalized_UTC": "2026-10-08T01:43:33.771407+00:00",
+    "ppv1": {
+      "tests": 879,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 879,
+      "file_count": 32,
+      "pytest_seconds": 26.19,
+      "outer_seconds": 26.520921,
+      "exit_code": 0
+    },
+    "parent_new_regressions": {
+      "tests": 8,
+      "errors": 0,
+      "failures": 5,
+      "skipped": 0,
+      "passed": 3,
+      "pytest_seconds": 4.89,
+      "outer_seconds": 5.183765,
+      "exit_code": 1,
+      "behavior_red": 5,
+      "legal_parent_green": 3,
+      "collection_red": 0,
+      "version_literal_red": 0,
+      "field_shape_red": 0
+    },
+    "g01": {
+      "tests": 1489,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 8,
+      "passed": 1481,
+      "deselected": 17,
+      "pytest_seconds": 217.95,
+      "controller_outer_seconds": 219.866072,
+      "exit_code": 0,
+      "input_count": 288,
+      "repository_inputs": 228,
+      "ordinary_v3_source_inputs": 42,
+      "mirrored_ordinary_assets": 18,
+      "copied_and_source_bytes_unchanged": true
+    },
+    "single_suite_execution_counts": {
+      "ppv1_full": 1,
+      "parent_same_byte_new8": 1,
+      "safe_G01": 1,
+      "current_new8_separate_run": 0
+    },
+    "no_environment_correction_needed": true,
+    "no_quota_interruption_during_this_execution_specialist_snapshot": true,
+    "legacy_byte_equal": true,
+    "legacy_file_count": 52,
+    "legacy_aggregate_sha256": "18007e6a7cc239606eb30921f91045540446a7d7298108be30d47fce2f1374d6",
+    "production_sha256": "3b1a66ea2bc3aa37f7caaa2ed1a7f5395cda5901ef2a03d765b932ee5b082262",
+    "all_selected_12_cores_equal": true,
+    "main_source_files_unchanged_by_review": true,
+    "engineering_only_not_dev_or_298_science": true,
+    "no_real_question_gold_sealed_run_v4_access": true,
+    "no_external_model_provider_or_network_call": true
+  },
+  "anchor_adjudication": {
+    "P2_header_metadata_boundaries": 2,
+    "adjudicated_existing_contract_controls": 36,
+    "cases": [
+      {
+        "adjudicated_contract_observed": true,
+        "case": "old_crash_after_claim",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "old_crash_after_request_registered",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "old_crash_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "old_crash_after_event_submitted",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "frozen_plan_same",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "frozen_plan_omitted",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "frozen_plan_changed",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "frozen_plan_decide_changed",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "public_artifact_hash_bad",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "public_artifact_json_bad",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "public_event_ledger_bad",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "public_reservation_missing",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "all_tables_identical": true,
+        "case": "self_consistent_replaced_plan_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "mutated_artifact_sha256_before_after": [
+          "fa6e5875a24c1b3ff43318027658cb058378b532d3158ebc2dc6c2a51b5fe71d",
+          "fa6e5875a24c1b3ff43318027658cb058378b532d3158ebc2dc6c2a51b5fe71d"
+        ],
+        "original_R2_plan_recipe_identical": true,
+        "raw_observed": true,
+        "replacement_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+        "root_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94"
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "all_tables_identical": true,
+        "case": "self_consistent_replaced_plan_after_event_submitted",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "mutated_artifact_sha256_before_after": [
+          "d5e4131f8ec82f0d3de8538af9a92a9c26a32c4ef210e63ef826ff4a911924f9",
+          "d5e4131f8ec82f0d3de8538af9a92a9c26a32c4ef210e63ef826ff4a911924f9"
+        ],
+        "original_R2_plan_recipe_identical": true,
+        "raw_observed": true,
+        "replacement_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+        "root_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94"
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "transition_normal",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "transition_after_transition_enqueued_before_attach",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "transition_after_event_submitted",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "transition_after_transition_followups_before_complete",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "three_products_normal",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "three_products_after_two_corrected",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "public_concurrent_resume",
+        "classification": "existing_contract_control",
+        "detail_file": "observations_r2.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_missing_anchor_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_corrupt_anchor_digest_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_missing_anchor_after_event_submitted",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_corrupt_anchor_digest_after_event_submitted",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_corrupt_task_key_column_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_corrupt_task_key_payload_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_unparseable_anchor_payload_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_non_mapping_anchor_payload_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_deleted_root_anchor_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_replaced_with_matching_argument_after_bundle_written",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": null,
+        "case": "anchor_unknown_plan_version_after_bundle_written",
+        "classification": "P2_header_only_metadata_boundary_scope_for_root_adjudication",
+        "detail_file": "anchor_observations_r3.json",
+        "facts": {
+          "actual_public_resume_returncode": 0,
+          "actual_tool_entries_resume": 0,
+          "consumer_entries": [
+            "recover_run",
+            "drive"
+          ],
+          "no_new_transformation_plan_content": true,
+          "note": "loader does not interpret plan_version header; valid original bundle under original task/hypothesis succeeds; not evidence of changed plan content admission",
+          "same_plan_digest": true
+        },
+        "raw_observed": false
+      },
+      {
+        "adjudicated_contract_observed": null,
+        "case": "anchor_missing_plan_version_after_bundle_written",
+        "classification": "P2_header_only_metadata_boundary_scope_for_root_adjudication",
+        "detail_file": "anchor_observations_r3.json",
+        "facts": {
+          "actual_public_resume_returncode": 0,
+          "actual_tool_entries_resume": 0,
+          "consumer_entries": [
+            "recover_run",
+            "drive"
+          ],
+          "no_new_transformation_plan_content": true,
+          "note": "loader does not interpret plan_version header; valid original bundle under original task/hypothesis succeeds; not evidence of changed plan content admission",
+          "same_plan_digest": true
+        },
+        "raw_observed": false
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "anchor_self_consistent_replaced_plan_done",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "actual_event_tool_request_counts": [
+          2,
+          2,
+          3
+        ],
+        "adjudicated_contract_observed": true,
+        "case": "protocol_novel_nonempty",
+        "classification": "raw_oracle_request_count_corrected_from_existing_output",
+        "correction": "one initial decide plus legal product-followup decides creates 3/2 requests; original exactly1 assertion is not contracted",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": false
+      },
+      {
+        "actual_event_tool_request_counts": [
+          1,
+          1,
+          2
+        ],
+        "adjudicated_contract_observed": true,
+        "case": "protocol_novel_empty",
+        "classification": "raw_oracle_request_count_corrected_from_existing_output",
+        "correction": "one initial decide plus legal product-followup decides creates 3/2 requests; original exactly1 assertion is not contracted",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": false
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "protocol_abstain_empty",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      },
+      {
+        "adjudicated_contract_observed": true,
+        "case": "zero_depth_persisted",
+        "classification": "existing_contract_control",
+        "detail_file": "anchor_observations_r3.json",
+        "raw_observed": true
+      }
+    ],
+    "raw_false": 4,
+    "raw_true": 34,
+    "root_must_adjudicate_scope": true,
+    "specialist_recommendation": "S3B-01 plan-content anchor closes; metadata header only boundary P2 (not a new plan-consumer counterexample); root owns final verdict",
+    "top_level_observations": 38
+  },
+  "anchor_observation_count": 38,
+  "anchor_contract_conforming": 36,
+  "header_only_P2": 2,
+  "additional_no_consumer_rejection_controls": 11,
+  "current_RDKit_positive_roundtrips": 5,
+  "English_alias_factory_and_strict_refusals": 6,
+  "handoff_public_controls": 9,
+  "handoff_read_only_semantic_assertions": 6,
+  "science_performance": "pending",
+  "criteria_frozen": false,
+  "S4_S5_started": false,
+  "archiving_behavior_executions": 0,
+  "archive_database_open_count": 0
+}

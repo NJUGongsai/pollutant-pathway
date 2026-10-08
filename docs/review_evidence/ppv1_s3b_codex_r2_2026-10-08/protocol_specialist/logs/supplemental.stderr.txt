@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/scripts/protocol_supplemental.py", line 42, in <module>
+    if n=='tool_failed':ok=rc==0 and not p.tables(s,'events') and not audit_calls and toolcalls[0]['execution']['diagnostic']['edit_center_consistent_with_donor'] is None
+                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'edit_center_consistent_with_donor'

@@ -1,0 +1,713 @@
+FFFFFFFFFF.FFFFFFF..                                                     [100%]
+=================================== FAILURES ===================================
+_______________ test_s3b01_resume_without_plan_uses_frozen_input _______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b01_resume_without_plan0')
+
+    def test_s3b01_resume_without_plan_uses_frozen_input(tmp_path) -> None:
+        """B1 崩溃后 resume 不传 plan:沿冻结输入完成旧任务(缺输入不变
+        空池;旧任务不消费"空"新输入)。父基线:空池 no_local_candidate
+        (行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "fpo", crash_after="after_claim")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+>       out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                              run_id="fpo", plan=None)
+
+tests/test_ppv1_s3b_r2.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/runflow.py:1056: in resume_ppv1_run
+    check_resume_identity(saved, current)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+saved = {'adjudication': {'policy_version': 'v43-repadj-1', 'schema_version': 'v43-report-adjudication-2'}, 'asset_identity': ...27b83d9b8057ff758af98ec986f', ...}, 'profile': 'pollutant_pathway_v1'}, 'created_at': '2026-10-08T00:18:41+00:00', ...}
+current = {'schema_version': 'v43-identity-2', 'domain_schema_version': 'v43-domain-1', 'run_id': 'fpo', 'created_at': '2026-10-08T00:18:41+00:00', ...}
+
+    def check_resume_identity(saved: dict, current: dict) -> None:
+        # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+        # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+        # 版本失败,由后续逐字段差异如实核对
+        saved_schema = saved.get("schema_version")
+        if saved_schema is not None and \
+                saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+            raise IdentityMismatch({
+                "schema_version": {
+                    "saved_fingerprint": _fp(saved_schema),
+                    "current_fingerprint": _fp(
+                        SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+            )
+        diffs: dict = {}
+        for key in ("domain_schema_version", "inputs", "profile", "strategy",
+                    "asset_identity", "v3_engine_code", "prediction",
+                    "adjudication", "molecode", "code_identity",
+                    "dependency_versions"):
+            # v43-identity-1 旧身份无 profile 块:按 legacy_v43 兼容读取
+            # (缺字段不单独拒;code_identity 差异仍会如实拒绝)
+            saved_val = saved.get(key)
+            current_val = current.get(key)
+            if key == "profile" and saved_val is None:
+                saved_val = {"name": PROFILE_LEGACY_V43}
+            if saved_val != current_val:
+                diffs[key] = {"saved_fingerprint": _fp(saved_val),
+                              "current_fingerprint": _fp(current_val)}
+        if diffs:
+>           raise IdentityMismatch(diffs)
+E           pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run
+
+src/pathway_v43/storage/run_identity.py:257: IdentityMismatch
+___________________ test_s3b01_resume_changed_plan_rejected ____________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b01_resume_changed_plan0')
+
+    def test_s3b01_resume_changed_plan_rejected(tmp_path) -> None:
+        """B1 崩溃后 resume 传入变更 plan(B→X)⇒ 结构化拒
+        frozen_plan_mismatch(差异须显式新 revision/新任务);零新写入。
+        父基线:接受并提交 donor-X(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "fpx", crash_after="after_claim")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        changed = {"pools": {"CCO": [spec("X", "CC=O", "donor-X")]}}
+        with pytest.raises(PPV1RunError) as ei:
+>           resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                            run_id="fpx", plan=changed)
+
+tests/test_ppv1_s3b_r2.py:168: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/runflow.py:1056: in resume_ppv1_run
+    check_resume_identity(saved, current)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+saved = {'adjudication': {'policy_version': 'v43-repadj-1', 'schema_version': 'v43-report-adjudication-2'}, 'asset_identity': ...27b83d9b8057ff758af98ec986f', ...}, 'profile': 'pollutant_pathway_v1'}, 'created_at': '2026-10-08T00:18:41+00:00', ...}
+current = {'schema_version': 'v43-identity-2', 'domain_schema_version': 'v43-domain-1', 'run_id': 'fpx', 'created_at': '2026-10-08T00:18:42+00:00', ...}
+
+    def check_resume_identity(saved: dict, current: dict) -> None:
+        # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+        # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+        # 版本失败,由后续逐字段差异如实核对
+        saved_schema = saved.get("schema_version")
+        if saved_schema is not None and \
+                saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+            raise IdentityMismatch({
+                "schema_version": {
+                    "saved_fingerprint": _fp(saved_schema),
+                    "current_fingerprint": _fp(
+                        SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+            )
+        diffs: dict = {}
+        for key in ("domain_schema_version", "inputs", "profile", "strategy",
+                    "asset_identity", "v3_engine_code", "prediction",
+                    "adjudication", "molecode", "code_identity",
+                    "dependency_versions"):
+            # v43-identity-1 旧身份无 profile 块:按 legacy_v43 兼容读取
+            # (缺字段不单独拒;code_identity 差异仍会如实拒绝)
+            saved_val = saved.get(key)
+            current_val = current.get(key)
+            if key == "profile" and saved_val is None:
+                saved_val = {"name": PROFILE_LEGACY_V43}
+            if saved_val != current_val:
+                diffs[key] = {"saved_fingerprint": _fp(saved_val),
+                              "current_fingerprint": _fp(current_val)}
+        if diffs:
+>           raise IdentityMismatch(diffs)
+E           pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run
+
+src/pathway_v43/storage/run_identity.py:257: IdentityMismatch
+_______________ test_s3b01_frozen_plan_tamper_integrity_failure ________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b01_frozen_plan_tamper_0')
+
+    def test_s3b01_frozen_plan_tamper_integrity_failure(tmp_path) -> None:
+        """冻结计划 artifact 被篡改(载荷改字节)⇒ H07 完整性失败,结构化
+        拒(保全原文件;不猜)。父基线:无冻结计划绑定,篡改不被发现
+        (行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "fpt", crash_after="after_claim")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        plan_file = runs_root / "fpt" / "results" / "run-plan" / \
+            "frozen_plan.json"
+>       assert plan_file.is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b01_frozen_plan_tamper_0/runs/fpt/results/run-plan/frozen_plan.json').is_file
+
+tests/test_ppv1_s3b_r2.py:184: AssertionError
+_________________ test_s3b01_same_plan_resume_positive_control _________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b01_same_plan_resume_po0')
+
+    def test_s3b01_same_plan_resume_positive_control(tmp_path) -> None:
+        """同计划正控(合法恢复保持):B3 同 output 恢复事件仅一次。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "fps", crash_after="after_bundle_written")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        same = {"pools": {"CCO": [spec("B", "CC=O", "donor-B")]}}
+>       out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                              run_id="fps", plan=same)
+
+tests/test_ppv1_s3b_r2.py:201: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/runflow.py:1056: in resume_ppv1_run
+    check_resume_identity(saved, current)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+saved = {'adjudication': {'policy_version': 'v43-repadj-1', 'schema_version': 'v43-report-adjudication-2'}, 'asset_identity': ...27b83d9b8057ff758af98ec986f', ...}, 'profile': 'pollutant_pathway_v1'}, 'created_at': '2026-10-08T00:18:42+00:00', ...}
+current = {'schema_version': 'v43-identity-2', 'domain_schema_version': 'v43-domain-1', 'run_id': 'fps', 'created_at': '2026-10-08T00:18:43+00:00', ...}
+
+    def check_resume_identity(saved: dict, current: dict) -> None:
+        # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+        # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+        # 版本失败,由后续逐字段差异如实核对
+        saved_schema = saved.get("schema_version")
+        if saved_schema is not None and \
+                saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+            raise IdentityMismatch({
+                "schema_version": {
+                    "saved_fingerprint": _fp(saved_schema),
+                    "current_fingerprint": _fp(
+                        SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+            )
+        diffs: dict = {}
+        for key in ("domain_schema_version", "inputs", "profile", "strategy",
+                    "asset_identity", "v3_engine_code", "prediction",
+                    "adjudication", "molecode", "code_identity",
+                    "dependency_versions"):
+            # v43-identity-1 旧身份无 profile 块:按 legacy_v43 兼容读取
+            # (缺字段不单独拒;code_identity 差异仍会如实拒绝)
+            saved_val = saved.get(key)
+            current_val = current.get(key)
+            if key == "profile" and saved_val is None:
+                saved_val = {"name": PROFILE_LEGACY_V43}
+            if saved_val != current_val:
+                diffs[key] = {"saved_fingerprint": _fp(saved_val),
+                              "current_fingerprint": _fp(current_val)}
+        if diffs:
+>           raise IdentityMismatch(diffs)
+E           pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run
+
+src/pathway_v43/storage/run_identity.py:257: IdentityMismatch
+______________ test_s3b02_bad_bundle_hash_isolated_not_reexecuted ______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b02_bad_bundle_hash_iso0')
+
+    def test_s3b02_bad_bundle_hash_isolated_not_reexecuted(tmp_path) -> None:
+        """B3 bundle 载荷被改(hash 不符)⇒ recover 认坏,resume 隔离该
+        action(claimed→blocked):零重执行/零坏任务 event/commit;原坏
+        文件逐字保全;合法已完成任务不受影响。父基线:重跑真工具并写
+        1 event(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "h07a", crash_after="after_bundle_written")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        bundle = _bundle_file(runs_root, "h07a")
+        envelope = json.loads(bundle.read_text(encoding="utf-8"))
+        bad_bytes = bundle.read_bytes()
+        envelope["payload"]["event"]["event_id"] = "ppev_tampered"
+        bundle.write_text(json.dumps(envelope, ensure_ascii=False),
+                          encoding="utf-8")
+        conn = db(runs_root, "h07a")
+        events_before = conn.execute(
+            "SELECT COUNT(*) FROM events").fetchone()[0]
+        commits_before = conn.execute(
+            "SELECT COUNT(*) FROM search_commit_records").fetchone()[0]
+        assert events_before == 0 and commits_before == 2
+>       out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                              run_id="h07a", plan=None)
+
+tests/test_ppv1_s3b_r2.py:244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/runflow.py:1056: in resume_ppv1_run
+    check_resume_identity(saved, current)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+saved = {'adjudication': {'policy_version': 'v43-repadj-1', 'schema_version': 'v43-report-adjudication-2'}, 'asset_identity': ...27b83d9b8057ff758af98ec986f', ...}, 'profile': 'pollutant_pathway_v1'}, 'created_at': '2026-10-08T00:18:43+00:00', ...}
+current = {'schema_version': 'v43-identity-2', 'domain_schema_version': 'v43-domain-1', 'run_id': 'h07a', 'created_at': '2026-10-08T00:18:43+00:00', ...}
+
+    def check_resume_identity(saved: dict, current: dict) -> None:
+        # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+        # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+        # 版本失败,由后续逐字段差异如实核对
+        saved_schema = saved.get("schema_version")
+        if saved_schema is not None and \
+                saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+            raise IdentityMismatch({
+                "schema_version": {
+                    "saved_fingerprint": _fp(saved_schema),
+                    "current_fingerprint": _fp(
+                        SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+            )
+        diffs: dict = {}
+        for key in ("domain_schema_version", "inputs", "profile", "strategy",
+                    "asset_identity", "v3_engine_code", "prediction",
+                    "adjudication", "molecode", "code_identity",
+                    "dependency_versions"):
+            # v43-identity-1 旧身份无 profile 块:按 legacy_v43 兼容读取
+            # (缺字段不单独拒;code_identity 差异仍会如实拒绝)
+            saved_val = saved.get(key)
+            current_val = current.get(key)
+            if key == "profile" and saved_val is None:
+                saved_val = {"name": PROFILE_LEGACY_V43}
+            if saved_val != current_val:
+                diffs[key] = {"saved_fingerprint": _fp(saved_val),
+                              "current_fingerprint": _fp(current_val)}
+        if diffs:
+>           raise IdentityMismatch(diffs)
+E           pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run
+
+src/pathway_v43/storage/run_identity.py:257: IdentityMismatch
+________ test_s3b02_bad_bundle_json_isolated_independent_tasks_continue ________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b02_bad_bundle_json_iso0')
+
+    def test_s3b02_bad_bundle_json_isolated_independent_tasks_continue(
+            tmp_path) -> None:
+        """B3 bundle 不可反序列化 + 池内独立备选:坏任务隔离,合法独立
+        任务(B/C 中的 C)继续执行。父基线:坏任务也被重执行(2 events,
+        行为红)。"""
+        runs_root = tmp_path / "runs"
+        plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B"),
+                                  spec("C", "CC=O", "donor-C")]}}
+        with pytest.raises(Exception):  # SearchCrashInjection:B 的 bundle 已写
+            start_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                           run_id="h07b", smiles="CCO", plan=plan,
+                           scripted=True, crash_after="after_bundle_written")
+        bundle = _bundle_file(runs_root, "h07b")
+        bundle.write_text("{not-json", encoding="utf-8")
+        out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                              run_id="h07b", plan=None)
+>       assert out["counts"]["events"] == 1  # 仅 C(合法独立任务)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 2 == 1
+
+tests/test_ppv1_s3b_r2.py:281: AssertionError
+_______________ test_s3b03_partial_followup_hard_kill_completed ________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b03_partial_followup_ha0')
+
+    def test_s3b03_partial_followup_hard_kill_completed(tmp_path) -> None:
+        """注入:第二条 followup retrieve 入队后硬杀(真实进程崩溃)⇒
+        新进程 resume 从权威事件/计划逐对象补齐 3/3(不以已有引用计数当
+        完整性证书;事件/预算不重复)。父基线:仅 2/3(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "t3k", crash_after="none",
+                           coproducts=["[H][H]", "O"],
+                           injection="after_two_followups")
+        assert proc.returncode == 77  # 队列级注入硬杀(os._exit(77))
+>       out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                              run_id="t3k", plan=None)
+
+tests/test_ppv1_s3b_r2.py:323: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/runflow.py:1056: in resume_ppv1_run
+    check_resume_identity(saved, current)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+saved = {'adjudication': {'policy_version': 'v43-repadj-1', 'schema_version': 'v43-report-adjudication-2'}, 'asset_identity': ...27b83d9b8057ff758af98ec986f', ...}, 'profile': 'pollutant_pathway_v1'}, 'created_at': '2026-10-08T00:18:44+00:00', ...}
+current = {'schema_version': 'v43-identity-2', 'domain_schema_version': 'v43-domain-1', 'run_id': 't3k', 'created_at': '2026-10-08T00:18:44+00:00', ...}
+
+    def check_resume_identity(saved: dict, current: dict) -> None:
+        # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+        # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+        # 版本失败,由后续逐字段差异如实核对
+        saved_schema = saved.get("schema_version")
+        if saved_schema is not None and \
+                saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+            raise IdentityMismatch({
+                "schema_version": {
+                    "saved_fingerprint": _fp(saved_schema),
+                    "current_fingerprint": _fp(
+                        SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+            )
+        diffs: dict = {}
+        for key in ("domain_schema_version", "inputs", "profile", "strategy",
+                    "asset_identity", "v3_engine_code", "prediction",
+                    "adjudication", "molecode", "code_identity",
+                    "dependency_versions"):
+            # v43-identity-1 旧身份无 profile 块:按 legacy_v43 兼容读取
+            # (缺字段不单独拒;code_identity 差异仍会如实拒绝)
+            saved_val = saved.get(key)
+            current_val = current.get(key)
+            if key == "profile" and saved_val is None:
+                saved_val = {"name": PROFILE_LEGACY_V43}
+            if saved_val != current_val:
+                diffs[key] = {"saved_fingerprint": _fp(saved_val),
+                              "current_fingerprint": _fp(current_val)}
+        if diffs:
+>           raise IdentityMismatch(diffs)
+E           pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run
+
+src/pathway_v43/storage/run_identity.py:257: IdentityMismatch
+_____________ test_s3b03_b4_event_submitted_no_followup_completed ______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b03_b4_event_submitted_0')
+
+    def test_s3b03_b4_event_submitted_no_followup_completed(tmp_path) -> None:
+        """B4(0 followup,正控分层):事件已提交、任何 followup 未入队 ⇒
+        恢复补齐全部产物 followup(该 0/全部窗口旧 LIKE 计数恰好不误跳;
+        r2 与父均应闭合 —— 幂等双保险)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "t3b", crash_after="after_event_submitted",
+                           coproducts=["[H][H]", "O"])
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+>       out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                              run_id="t3b", plan=None)
+
+tests/test_ppv1_s3b_r2.py:342: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/runflow.py:1056: in resume_ppv1_run
+    check_resume_identity(saved, current)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+saved = {'adjudication': {'policy_version': 'v43-repadj-1', 'schema_version': 'v43-report-adjudication-2'}, 'asset_identity': ...27b83d9b8057ff758af98ec986f', ...}, 'profile': 'pollutant_pathway_v1'}, 'created_at': '2026-10-08T00:18:44+00:00', ...}
+current = {'schema_version': 'v43-identity-2', 'domain_schema_version': 'v43-domain-1', 'run_id': 't3b', 'created_at': '2026-10-08T00:18:44+00:00', ...}
+
+    def check_resume_identity(saved: dict, current: dict) -> None:
+        # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+        # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+        # 版本失败,由后续逐字段差异如实核对
+        saved_schema = saved.get("schema_version")
+        if saved_schema is not None and \
+                saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+            raise IdentityMismatch({
+                "schema_version": {
+                    "saved_fingerprint": _fp(saved_schema),
+                    "current_fingerprint": _fp(
+                        SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+            )
+        diffs: dict = {}
+        for key in ("domain_schema_version", "inputs", "profile", "strategy",
+                    "asset_identity", "v3_engine_code", "prediction",
+                    "adjudication", "molecode", "code_identity",
+                    "dependency_versions"):
+            # v43-identity-1 旧身份无 profile 块:按 legacy_v43 兼容读取
+            # (缺字段不单独拒;code_identity 差异仍会如实拒绝)
+            saved_val = saved.get(key)
+            current_val = current.get(key)
+            if key == "profile" and saved_val is None:
+                saved_val = {"name": PROFILE_LEGACY_V43}
+            if saved_val != current_val:
+                diffs[key] = {"saved_fingerprint": _fp(saved_val),
+                              "current_fingerprint": _fp(current_val)}
+        if diffs:
+>           raise IdentityMismatch(diffs)
+E           pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run
+
+src/pathway_v43/storage/run_identity.py:257: IdentityMismatch
+___________ test_s3b03_transition_after_event_submitted_new_context ____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b03_transition_after_ev0')
+
+    def test_s3b03_transition_after_event_submitted_new_context(
+            tmp_path) -> None:
+        """B4:事件已提交、转换未入队 ⇒ 恢复补齐显式转换并按新上下文
+        调度 followup(旧边冻结)。父基线:转换意图丢失、followup 用旧
+        上下文(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "trb4", crash_after="after_event_submitted",
+                           transitions=True)
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+>       out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                              run_id="trb4", plan=None)
+
+tests/test_ppv1_s3b_r2.py:360: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/runflow.py:1056: in resume_ppv1_run
+    check_resume_identity(saved, current)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+saved = {'adjudication': {'policy_version': 'v43-repadj-1', 'schema_version': 'v43-report-adjudication-2'}, 'asset_identity': ...27b83d9b8057ff758af98ec986f', ...}, 'profile': 'pollutant_pathway_v1'}, 'created_at': '2026-10-08T00:18:45+00:00', ...}
+current = {'schema_version': 'v43-identity-2', 'domain_schema_version': 'v43-domain-1', 'run_id': 'trb4', 'created_at': '2026-10-08T00:18:45+00:00', ...}
+
+    def check_resume_identity(saved: dict, current: dict) -> None:
+        # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+        # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+        # 版本失败,由后续逐字段差异如实核对
+        saved_schema = saved.get("schema_version")
+        if saved_schema is not None and \
+                saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+            raise IdentityMismatch({
+                "schema_version": {
+                    "saved_fingerprint": _fp(saved_schema),
+                    "current_fingerprint": _fp(
+                        SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+            )
+        diffs: dict = {}
+        for key in ("domain_schema_version", "inputs", "profile", "strategy",
+                    "asset_identity", "v3_engine_code", "prediction",
+                    "adjudication", "molecode", "code_identity",
+                    "dependency_versions"):
+            # v43-identity-1 旧身份无 profile 块:按 legacy_v43 兼容读取
+            # (缺字段不单独拒;code_identity 差异仍会如实拒绝)
+            saved_val = saved.get(key)
+            current_val = current.get(key)
+            if key == "profile" and saved_val is None:
+                saved_val = {"name": PROFILE_LEGACY_V43}
+            if saved_val != current_val:
+                diffs[key] = {"saved_fingerprint": _fp(saved_val),
+                              "current_fingerprint": _fp(current_val)}
+        if diffs:
+>           raise IdentityMismatch(diffs)
+E           pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run
+
+src/pathway_v43/storage/run_identity.py:257: IdentityMismatch
+______________ test_s3b03_transition_enqueued_crash_window_closed ______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b03_transition_enqueued0')
+
+    def test_s3b03_transition_enqueued_crash_window_closed(tmp_path) -> None:
+        """转换 action 入队后立刻硬杀(入队与附随之间)⇒ 恢复后转换执行
+        且 followup 用新上下文(pending_followup 创建时一次冻结,无两写
+        窗口)。父基线:转换载荷无附随,恢复丢后效(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "trw",
+                           crash_after="none",
+                           transitions=True,
+                           injection="after_transition_enqueued")
+        assert proc.returncode == 77
+>       out = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                              run_id="trw", plan=None)
+
+tests/test_ppv1_s3b_r2.py:394: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/runflow.py:1056: in resume_ppv1_run
+    check_resume_identity(saved, current)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+saved = {'adjudication': {'policy_version': 'v43-repadj-1', 'schema_version': 'v43-report-adjudication-2'}, 'asset_identity': ...27b83d9b8057ff758af98ec986f', ...}, 'profile': 'pollutant_pathway_v1'}, 'created_at': '2026-10-08T00:18:45+00:00', ...}
+current = {'schema_version': 'v43-identity-2', 'domain_schema_version': 'v43-domain-1', 'run_id': 'trw', 'created_at': '2026-10-08T00:18:46+00:00', ...}
+
+    def check_resume_identity(saved: dict, current: dict) -> None:
+        # F08:schema 版本门 —— 显式未知版本(future-identity-999 之类)
+        # 一律拒绝;字段缺失(v1 兼容读取/测试夹具的最小 dict)不伪造
+        # 版本失败,由后续逐字段差异如实核对
+        saved_schema = saved.get("schema_version")
+        if saved_schema is not None and \
+                saved_schema not in SUPPORTED_IDENTITY_SCHEMA_VERSIONS:
+            raise IdentityMismatch({
+                "schema_version": {
+                    "saved_fingerprint": _fp(saved_schema),
+                    "current_fingerprint": _fp(
+                        SUPPORTED_IDENTITY_SCHEMA_VERSIONS)}}
+            )
+        diffs: dict = {}
+        for key in ("domain_schema_version", "inputs", "profile", "strategy",
+                    "asset_identity", "v3_engine_code", "prediction",
+                    "adjudication", "molecode", "code_identity",
+                    "dependency_versions"):
+            # v43-identity-1 旧身份无 profile 块:按 legacy_v43 兼容读取
+            # (缺字段不单独拒;code_identity 差异仍会如实拒绝)
+            saved_val = saved.get(key)
+            current_val = current.get(key)
+            if key == "profile" and saved_val is None:
+                saved_val = {"name": PROFILE_LEGACY_V43}
+            if saved_val != current_val:
+                diffs[key] = {"saved_fingerprint": _fp(saved_val),
+                              "current_fingerprint": _fp(current_val)}
+        if diffs:
+>           raise IdentityMismatch(diffs)
+E           pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run
+
+src/pathway_v43/storage/run_identity.py:257: IdentityMismatch
+_____________ test_s3b04_concurrent_public_resume_single_executor ______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b04_concurrent_public_r0')
+
+    def test_s3b04_concurrent_public_resume_single_executor(tmp_path) -> None:
+        """两个真实公开 resume 进程(工具入口计数 + barrier):只一方进入
+        真实工具;竞争方在任何执行前结构化拒(driver_session_active);
+        最终幂等(事件 1/commit 4);胜者完成后再次 resume 幂等复用。
+        父基线:两方都实际执行(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "conc", crash_after="after_claim")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        barrier = tmp_path / "barrier"
+        receipts = tmp_path / "tool_receipts"
+        first = subprocess.Popen(
+            [PY, "-B", WORKER, "concurrent-resume",
+             "--runs-root", str(runs_root), "--run-id", "conc",
+             "--barrier-dir", str(barrier), "--worker", "first",
+             "--tool-receipt-dir", str(receipts)],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=ENV)
+        # 等 first 就绪(它等 GO),再放行
+        deadline = time.monotonic() + 30
+        barrier.mkdir(parents=True, exist_ok=True)
+        while time.monotonic() < deadline and not \
+                (receipts / "first.tool_entered.json").exists() and \
+                first.poll() is None:
+            if not (barrier / "GO").exists():
+                (barrier / "GO").write_text("go\n", encoding="utf-8")
+            time.sleep(0.05)
+        (barrier / "GO").write_text("go\n", encoding="utf-8")
+        second = subprocess.Popen(
+            [PY, "-B", WORKER, "concurrent-resume",
+             "--runs-root", str(runs_root), "--run-id", "conc",
+             "--barrier-dir", str(barrier), "--worker", "second",
+             "--tool-receipt-dir", str(receipts)],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=ENV)
+        out_first, _ = first.communicate(timeout=180)
+        out_second, _ = second.communicate(timeout=180)
+        result_first = json.loads(out_first.strip().splitlines()[-1])
+        result_second = json.loads(out_second.strip().splitlines()[-1])
+        # 只一方取得执行权:second 在任何执行前被拒
+        assert result_first["resumed"] is True
+>       assert result_second["resumed"] is False
+E       assert True is False
+
+tests/test_ppv1_s3b_r2.py:474: AssertionError
+____________ test_s3b05_novel_nonempty_independent_hypothesis_chain ____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b05_novel_nonempty_inde0')
+
+    def test_s3b05_novel_nonempty_independent_hypothesis_chain(tmp_path) -> None:
+        """池内 B + novel 池外提案(内容+来源)⇒ novel 成为独立假设走固定
+        工具→audit→admission→submit(2 events/2 hypotheses/真实生产链);
+        网络恒 0。父基线:novel 只计数不消费(1 event,行为红)。"""
+        runs_root = tmp_path / "runs"
+        plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B")]},
+                "model": {"provider_kind": "scripted",
+                          "responses": [novel_response()]}}
+        out = start_run(config=resolve_config(), runs_root=runs_root,
+                        run_id="nv1", smiles="CCO", max_depth=3,
+                        max_expansions=10, max_frontier_width=2,
+                        finder=object(), scripted=True,
+                        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan)
+>       assert out["counts"]["events"] == 2  # B + novel 各自事件
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 1 == 2
+
+tests/test_ppv1_s3b_r2.py:512: AssertionError
+_____________ test_s3b05_novel_empty_pool_profile_and_consumption ______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b05_novel_empty_pool_pr0')
+
+    def test_s3b05_novel_empty_pool_profile_and_consumption(tmp_path) -> None:
+        """空池 + 模型 novel 响应:仍组装底物档案并消费(独立假设/事件/
+        模型请求;网络 0)。父基线:retrieve 直接 no_local_candidate、
+        模型请求 0(行为红)。"""
+        runs_root = tmp_path / "runs"
+        plan = {"pools": {},
+                "model": {"provider_kind": "scripted",
+                          "responses": [novel_response()]}}
+        out = start_run(config=resolve_config(), runs_root=runs_root,
+                        run_id="nv2", smiles="CCO", max_depth=3,
+                        max_expansions=10, max_frontier_width=2,
+                        finder=object(), scripted=True,
+                        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan)
+>       assert out["counts"]["events"] == 1  # novel 独立假设的事件
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 0 == 1
+
+tests/test_ppv1_s3b_r2.py:554: AssertionError
+__________________ test_s3b05_model_abstain_empty_pool_legal ___________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b05_model_abstain_empty0')
+
+    def test_s3b05_model_abstain_empty_pool_legal(tmp_path) -> None:
+        """空池 + 合法弃权(proposals=[]):模型被消费(1 请求),有效
+        候选集为空 ⇒ no_local_candidate 如实停止(不强制停止规则池)。
+        父基线:模型不被咨询(0 请求;行为红)。"""
+        runs_root = tmp_path / "runs"
+        plan = {"pools": {},
+                "model": {"provider_kind": "scripted",
+                          "responses": ['{"proposals": []}']}}
+        out = start_run(config=resolve_config(), runs_root=runs_root,
+                        run_id="nv3", smiles="CCO", max_depth=3,
+                        max_expansions=10, max_frontier_width=2,
+                        finder=object(), scripted=True,
+                        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan,
+                        profile_policy={"search_limits": {
+                            "max_retrievals_per_parent": 2}})
+        assert out["counts"]["events"] == 0
+        assert out["stop"]["primary"] == "no_local_candidate"
+        conn = db(runs_root, "nv3")
+>       assert conn.execute(
+            "SELECT COUNT(*) FROM model_requests").fetchone()[0] == 1
+E       assert 0 == 1
+
+tests/test_ppv1_s3b_r2.py:589: AssertionError
+___________ test_s3b05_novel_insufficient_content_structured_reject ____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b05_novel_insufficient_0')
+
+    def test_s3b05_novel_insufficient_content_structured_reject(
+            tmp_path) -> None:
+        """novel reaction_spec 无反应内容(缺 product_smiles)⇒ 构造侧
+        结构化拒(run_error 如实停止;不伪造内容、不进格式反馈)。
+        父基线:提案被忽略、池内 B 照常完成(无 run_error,行为红)。"""
+        runs_root = tmp_path / "runs"
+        bad_spec = {"key": "Novel", "coefficient": 1}
+        response = json.dumps({"proposals": [{
+            "hypothesis_id": "novel:bad",
+            "proposal_context": {"reference_hypothesis_ids": [],
+                                  "output_origin": "novel_outside_pool"},
+            "reaction_spec": bad_spec}]})
+        plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B")]},
+                "model": {"provider_kind": "scripted",
+                          "responses": [response]}}
+        out = start_run(config=resolve_config(), runs_root=runs_root,
+                        run_id="nv4", smiles="CCO", max_depth=3,
+                        max_expansions=10, max_frontier_width=2,
+                        finder=object(), scripted=True,
+                        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan)
+>       assert out["stop"].get("run_error", {}).get("kind") == \
+            "spec_missing_product"
+E       AssertionError: assert None == 'spec_missing_product'
+E        +  where None = <built-in method get of dict object at 0x112795f00>('kind')
+E        +    where <built-in method get of dict object at 0x112795f00> = {}.get
+E        +      where {} = <built-in method get of dict object at 0x1136f9f40>('run_error', {})
+E        +        where <built-in method get of dict object at 0x1136f9f40> = {'primary': 'budget_limit', 'other_reasons': ['awaiting_prediction'], 'unexplored': {'pending_actions': 0, 'deferred':...othesis': {'hyp_4cfd9e338dae69c5d645': {'max': 2, 'used': 1, 'remaining': 1}}, 'max_reopens_per_hypothesis': {}}}, ...}.get
+
+tests/test_ppv1_s3b_r2.py:613: AssertionError
+____________ test_s3b06_zero_depth_budget_composite_stop_disclosure ____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b06_zero_depth_budget_c0')
+
+    def test_s3b06_zero_depth_budget_composite_stop_disclosure(
+            tmp_path) -> None:
+        """零深度+预算复合:主因 budget_limit(既定优先级不动);
+        depth_limit 入其他原因;blocked 对象(假设/原因)入 unexplored;
+        scheduled outcome blocked=1。父基线:other_reasons 空、blocked 0
+        (行为红)。"""
+        runs_root = tmp_path / "runs"
+        plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B")]}}
+        out = start_run(config=resolve_config(), runs_root=runs_root,
+                        run_id="zd", smiles="CCO", max_depth=0,
+                        max_expansions=10, max_frontier_width=2,
+                        finder=object(), scripted=True,
+                        profile=PROFILE_POLLUTANT_PATHWAY_V1,
+                        profile_policy={"search_limits": {
+                            "max_search_depth": 0}}, ppv1_plan=plan)
+        assert out["counts"]["events"] == 0
+        stop = out["stop"]
+        # 主因按冻结优先级:budget(检索预算耗尽)优先于 depth
+        assert stop["primary"] == "budget_limit"
+>       assert "depth_limit" in stop["other_reasons"]
+E       AssertionError: assert 'depth_limit' in []
+
+tests/test_ppv1_s3b_r2.py:640: AssertionError
+______________ test_s3b06_zero_depth_repeat_resume_not_recounted _______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_regressions_pytest_tmp/test_s3b06_zero_depth_repeat_r0')
+
+    def test_s3b06_zero_depth_repeat_resume_not_recounted(tmp_path) -> None:
+        """重复 resume:blocked 对象/原因同源复算,不丢、不重数。"""
+        runs_root = tmp_path / "runs"
+        plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B")]}}
+        start_run(config=resolve_config(), runs_root=runs_root, run_id="zdr",
+                  smiles="CCO", max_depth=0, max_expansions=10,
+                  max_frontier_width=2, finder=object(), scripted=True,
+                  profile=PROFILE_POLLUTANT_PATHWAY_V1,
+                  profile_policy={"search_limits": {
+                      "max_search_depth": 0}}, ppv1_plan=plan)
+        resumed = resume_ppv1_run(config=resolve_config(), runs_root=runs_root,
+                                  run_id="zdr", plan=None)
+        stop = resumed["stop"]
+>       assert stop["unexplored"]["blocked"] == 1
+E       assert 0 == 1
+
+tests/test_ppv1_s3b_r2.py:676: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_source/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+17 failed, 3 passed, 1 warning in 67.07s (0:01:07)

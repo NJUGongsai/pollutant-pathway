@@ -1,0 +1,1433 @@
+{
+  "actual_HEAD": "dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03",
+  "actual_baseline_HEAD": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+  "AuditContractError_raises": [
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 2547,
+      "inside_function": "check_edit_against_donor",
+      "source": "raise AuditContractError(f'alignment.status 非法:{alignment_status!r}', {'status': alignment_status})",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 739,
+      "inside_function": "_rerun_proof_record",
+      "source": "raise AuditContractError('center_evidence 的 proof_record 形状不完整(须携带current/donor/alignment/expectation/result 全部 dict与 edits list —— 诊断完整输入集)', {'kind': 'center_evidence_proof_record_invalid', 'missing': missing_keys, 'edits_type': type(proof.get('edits')).__name__})",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 1589,
+      "inside_function": "from_dict",
+      "source": "raise AuditContractError(f'admission policy 版本未知:{version!r}(支持 {PPV1_ADMISSION_POLICY_VERSION})', {'policy_version': version})",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 1596,
+      "inside_function": "from_dict",
+      "source": "raise AuditContractError('reject_gates 含未知门禁(新增门禁须独立列项评审,不暗改;mapper 的 gate_atom_mapping_declared 为只读旁证,启用为拒绝门禁须扩 DEFAULT_REJECT_GATES 并升策略版本)', {'unknown_gates': sorted(unknown_gates)})",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 1603,
+      "inside_function": "from_dict",
+      "source": "raise AuditContractError(f'chemical_reproposal 非法:{repro!r}', {'value': repro})",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 1607,
+      "inside_function": "from_dict",
+      "source": "raise AuditContractError(f'per_product_gate_consumption 非法:{per_product!r}', {'value': per_product})",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 464,
+      "inside_function": "audit_hypothesis",
+      "source": "raise AuditContractError('raw_structures 的 state_ref 与结构实际身份不一致(不得以其他分子冒充)', {'state_ref': ref, 'actual_state_id': built.state_id})",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 2584,
+      "inside_function": "check_edit_against_donor",
+      "source": "raise AuditContractError(f'供体诊断原始输入字段 {_field} 含未登记 CX 项:{exc}(与工厂/strict 同源的输入侧注册感知校验:解析器会静默丢弃该项,丢弃后不得以剥标记身份参与 verified证据;拒绝该诊断输入,不改冻结执行器)', {'kind': 'raw_input_cx_class_unregistered', 'field': _field, **{k: v for k, v in (exc.detail or {}).items() if k != 'kind'}}) from exc",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 1076,
+      "inside_function": "audit_hypothesis",
+      "source": "raise AuditContractError(f\"center_evidence 载荷类型违约:{type_violation}(轴字段须为 bool|None;字符串'false'/整数0/空容器不得绕过类型契约直达 R6)\", {'kind': 'center_evidence_type_violation', 'violation': type_violation, 'checker_version': checker})",
+      "enclosing_broad_handlers": []
+    },
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 1110,
+      "inside_function": "audit_hypothesis",
+      "source": "raise AuditContractError('center_evidence 自报字段与证明记录复算值不一致(证据被改写/拼接;结构化拒绝,不改输入即不改结论):' + ';'.join(integrity[:6]), {'kind': 'center_evidence_integrity_mismatch', 'mismatches': integrity[:20], 'checker_version': checker})",
+      "enclosing_broad_handlers": []
+    }
+  ],
+  "source_raise_distribution": {
+    "src/pathway_v43/pollutant/audit.py": 10
+  },
+  "except_AuditContractError_handlers": [],
+  "calls": [
+    {
+      "file": "src/pathway_v43/pollutant/audit.py",
+      "line": 458,
+      "call": "validate_context_object"
+    },
+    {
+      "file": "src/pathway_v43/pollutant/path_context.py",
+      "line": 2327,
+      "call": "validate_context_object"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 297,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 322,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 337,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 366,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 401,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 421,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 442,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 462,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 488,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 510,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 522,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 523,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 525,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 546,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 861,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 961,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 978,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 1003,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r2_chem.py",
+      "line": 527,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 510,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 550,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 567,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 644,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 659,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 681,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 706,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 722,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 725,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 730,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 753,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 761,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 771,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 791,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 803,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 833,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_chem.py",
+      "line": 816,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r4_conditions.py",
+      "line": 599,
+      "call": "validate_context_object"
+    },
+    {
+      "file": "tests/test_ppv1_r4_conditions.py",
+      "line": 603,
+      "call": "validate_context_object"
+    },
+    {
+      "file": "tests/test_ppv1_r4_conditions.py",
+      "line": 608,
+      "call": "validate_context_object"
+    },
+    {
+      "file": "tests/test_ppv1_r4_conditions.py",
+      "line": 611,
+      "call": "validate_context_object"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 159,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 183,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 210,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 276,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 303,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 326,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 345,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 369,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 370,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 385,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 237,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_chem.py",
+      "line": 255,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_conditions.py",
+      "line": 108,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_conditions.py",
+      "line": 222,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_conditions.py",
+      "line": 332,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r5_conditions.py",
+      "line": 252,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r6_chem.py",
+      "line": 195,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r6_chem.py",
+      "line": 737,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r6_conditions.py",
+      "line": 134,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r6_conditions.py",
+      "line": 437,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r6_conditions.py",
+      "line": 394,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r6_conditions.py",
+      "line": 401,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r6_conditions.py",
+      "line": 426,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r7_chem.py",
+      "line": 211,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r7_chem.py",
+      "line": 495,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r7_conditions.py",
+      "line": 106,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_r8_chem.py",
+      "line": 164,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 165,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 190,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 221,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 242,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 267,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 300,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 330,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 555,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 868,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 890,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 919,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 926,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 941,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 961,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 1010,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 1028,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 1074,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 1088,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 1101,
+      "call": "audit_hypothesis"
+    },
+    {
+      "file": "tests/test_ppv1_s2.py",
+      "line": 1151,
+      "call": "audit_hypothesis"
+    }
+  ],
+  "context_function_validation": [
+    {
+      "name": "assess_conditions",
+      "line": 1117,
+      "end_lineno": 1169,
+      "validate_context_calls": [],
+      "validation_related_calls": []
+    },
+    {
+      "name": "assess_candidate_conditions",
+      "line": 1172,
+      "end_lineno": 1354,
+      "validate_context_calls": [],
+      "validation_related_calls": []
+    },
+    {
+      "name": "validate_context_object",
+      "line": 1502,
+      "end_lineno": 1548,
+      "validate_context_calls": [],
+      "validation_related_calls": [
+        {
+          "name": "_validate_phase_history_snapshot",
+          "line": 1537
+        },
+        {
+          "name": "_recompute_context_hash",
+          "line": 1540
+        }
+      ]
+    },
+    {
+      "name": "derive_child_context",
+      "line": 2298,
+      "end_lineno": 2428,
+      "validate_context_calls": [
+        {
+          "name": "validate_context_object",
+          "line": 2327
+        }
+      ],
+      "validation_related_calls": [
+        {
+          "name": "_context_hash",
+          "line": 2417
+        }
+      ]
+    },
+    {
+      "name": "from_dict",
+      "line": 2033,
+      "end_lineno": 2092,
+      "validate_context_calls": [],
+      "validation_related_calls": [
+        {
+          "name": "_validate_phase_history_snapshot",
+          "line": 2060
+        },
+        {
+          "name": "_recompute_context_hash",
+          "line": 2082
+        }
+      ]
+    },
+    {
+      "name": "route_assessment",
+      "line": 2112,
+      "end_lineno": 2177,
+      "validate_context_calls": [],
+      "validation_related_calls": []
+    }
+  ],
+  "mimo_named_symbols_actual_source": {
+    "donor_present": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "donor_element": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "donor_charge": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "donor_consistency": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "_walk_conversions": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "same_cid": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "graph_simple_iso": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "formal_iso": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "conversion_warnings": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "donor_structure_charge_conflict": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "unknown_charge": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "missing_donor_structure": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "donor_ligand_context": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "conversion_not_exhausted": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "donor_transition_not_found": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "donor_legacy_cn_match": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "unsupported_donor_detail": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "donor_profile_resolution_failed": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "nn_transition_center": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "coverage_diagnostics": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "registered_missing": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "documented_absent": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "unrecorded": {
+      "source_whole_token_count": 0,
+      "matches": []
+    },
+    "transformation_class": {
+      "source_whole_token_count": 0,
+      "matches": []
+    }
+  },
+  "mimo_cited_audit_ranges_actual_content": [
+    {
+      "mimo_cited_range": [
+        1866,
+        1899
+      ],
+      "actual_lines": [
+        {
+          "line": 1866,
+          "text": "         \"reasons\": list(v.get(\"reasons\", []))}"
+        },
+        {
+          "line": 1867,
+          "text": "        for v in validation_payload.get(\"verdicts\", [])]"
+        },
+        {
+          "line": 1868,
+          "text": "    out[\"gate_ref\"] = {"
+        },
+        {
+          "line": 1869,
+          "text": "        \"evidence_id\": validation_payload.get(\"evidence_id\", \"\"),"
+        },
+        {
+          "line": 1870,
+          "text": "        \"mapper_version\": LEGACY_GATE_MAPPER_VERSION,"
+        },
+        {
+          "line": 1871,
+          "text": "    }"
+        },
+        {
+          "line": 1872,
+          "text": "    return out"
+        },
+        {
+          "line": 1873,
+          "text": ""
+        },
+        {
+          "line": 1874,
+          "text": ""
+        },
+        {
+          "line": 1875,
+          "text": "# ---------------------------------------------------------------- 供体诊断"
+        },
+        {
+          "line": 1876,
+          "text": ""
+        },
+        {
+          "line": 1877,
+          "text": ""
+        },
+        {
+          "line": 1878,
+          "text": "@dataclass"
+        },
+        {
+          "line": 1879,
+          "text": "class DonorConsistencyDiagnostic:"
+        },
+        {
+          "line": 1880,
+          "text": "    \"\"\"§8 供体诊断(v3:实际净变化判定 + 声明–执行对账 + 联合中心映射)。"
+        },
+        {
+          "line": 1881,
+          "text": ""
+        },
+        {
+          "line": 1882,
+          "text": "    本诊断的**命名与范围**:供体迁移的**实际净变化区域诊断** —— 核验"
+        },
+        {
+          "line": 1883,
+          "text": "    (i)执行前后结构的真实净变化集合(键 diff ∪ 原子增删 ∪ 逐原子"
+        },
+        {
+          "line": 1884,
+          "text": "    形式电荷/氢数/立体 diff),(ii)声明编辑与实际执行是否对账,"
+        },
+        {
+          "line": 1885,
+          "text": "    (iii)实际变化是否局限于对齐后的供体中心区域(**或其联合对称像**)。"
+        },
+        {
+          "line": 1886,
+          "text": "    **不**核验供体反应自身的变换模板(供体侧预期键变化对比,S3 接线);"
+        },
+        {
+          "line": 1887,
+          "text": "    图等价 ≠ 酶识别/机制等价(symmetric_equivalent 只是拓扑对称证据)。"
+        },
+        {
+          "line": 1888,
+          "text": ""
+        },
+        {
+          "line": 1889,
+          "text": "    strict 轴使用与 ChemicalState 同一事实源的严格表示(含增强立体与"
+        },
+        {
+          "line": 1890,
+          "text": "    v3 规范化:ABS/整组反转归一);legacy_cn_match 仅旁证,不进计数。"
+        },
+        {
+          "line": 1891,
+          "text": "    center_match_basis ∈ {direct, symmetric_equivalent},仅 True 时"
+        },
+        {
+          "line": 1892,
+          "text": "    非空;symmetric_equivalent 由**联合图映射**证明(存在单一自同构把"
+        },
+        {
+          "line": 1893,
+          "text": "    整个中心集合映到实际变化集合),单原子对称轨道不冒充联合等价"
+        },
+        {
+          "line": 1894,
+          "text": "    (R2-03)。"
+        },
+        {
+          "line": 1895,
+          "text": "    \"\"\""
+        },
+        {
+          "line": 1896,
+          "text": ""
+        },
+        {
+          "line": 1897,
+          "text": "    strict_target_match: bool | None"
+        },
+        {
+          "line": 1898,
+          "text": "    legacy_cn_match: bool | None       # 旁证(corroborating),不进计数"
+        },
+        {
+          "line": 1899,
+          "text": "    reaction_center_match: bool | None"
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        1911,
+        1930
+      ],
+      "actual_lines": [
+        {
+          "line": 1911,
+          "text": "    joint_mapping: dict = field(default_factory=dict)"
+        },
+        {
+          "line": 1912,
+          "text": "        # symmetric_equivalent 的联合映射证据(中心像/自同构数)"
+        },
+        {
+          "line": 1913,
+          "text": "    net_change_empty: bool = False     # 执行前后结构身份一致(零净变化)"
+        },
+        {
+          "line": 1914,
+          "text": "    # v4(R3-01/03/05):"
+        },
+        {
+          "line": 1915,
+          "text": "    center_property_deltas: list[dict] = field(default_factory=list)"
+        },
+        {
+          "line": 1916,
+          "text": "        # **中心原子**的属性 Δ(电荷/ΔH/构型/准确 CIP 标签)披露 ——"
+        },
+        {
+          "line": 1917,
+          "text": "        # ops 对账不覆盖属性,未声明的中心属性变化经此可见(E-iii);"
+        },
+        {
+          "line": 1918,
+          "text": "        # 只披露不判 center(区域归属由 changed 集合判定)"
+        },
+        {
+          "line": 1919,
+          "text": "    center_evidence: dict = field(default_factory=dict)"
+        },
+        {
+          "line": 1920,
+          "text": "        # 绑定本诊断全部输入的证据载荷(checker scope/各轴结论/"
+        },
+        {
+          "line": 1921,
+          "text": "        # bound_inputs/**proof_record 完整输入集**),供 audit 的"
+        },
+        {
+          "line": 1922,
+          "text": "        # transformation_center 证据门消费(R3-01/R4-01:跨反应复用/"
+        },
+        {
+          "line": 1923,
+          "text": "        # 改产物/无依据 True/自报字段拼接均不得认证 —— audit 内部"
+        },
+        {
+          "line": 1924,
+          "text": "        # 复跑本确定性 checker 复核)"
+        },
+        {
+          "line": 1925,
+          "text": "    # v5(R4-07):"
+        },
+        {
+          "line": 1926,
+          "text": "    stereo_comparison_unsupported_atoms: list[str] = field("
+        },
+        {
+          "line": 1927,
+          "text": "        default_factory=list)"
+        },
+        {
+          "line": 1928,
+          "text": "        # 立体轴**比较支持范围外**的原子清单(非四面体手性标签/"
+        },
+        {
+          "line": 1929,
+          "text": "        # 配体集合改变后不可比)—— 公开列项,不静默缺席;中心外"
+        },
+        {
+          "line": 1930,
+          "text": "        # 存在此类原子 ⇒ center 不可判 True(区域约束对该轴不可核)"
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        1988,
+        1992
+      ],
+      "actual_lines": [
+        {
+          "line": 1988,
+          "text": "        b = bond.GetEndAtom().GetAtomMapNum() - 1"
+        },
+        {
+          "line": 1989,
+          "text": "        after_bonds[frozenset((a, b))] = ("
+        },
+        {
+          "line": 1990,
+          "text": "            _bond_order_name(bond.GetBondType()), str(bond.GetStereo()))"
+        },
+        {
+          "line": 1991,
+          "text": ""
+        },
+        {
+          "line": 1992,
+          "text": "    def idx_to_id(idx: int) -> str:"
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        2430,
+        2430
+      ],
+      "actual_lines": [
+        {
+          "line": 2430,
+          "text": "    \"\"\""
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        2553,
+        2608
+      ],
+      "actual_lines": [
+        {
+          "line": 2553,
+          "text": "    execution_ok = bool(result.get(\"ok\"))"
+        },
+        {
+          "line": 2554,
+          "text": "    if not execution_ok:"
+        },
+        {
+          "line": 2555,
+          "text": "        return DonorConsistencyDiagnostic("
+        },
+        {
+          "line": 2556,
+          "text": "            strict_target_match=None, legacy_cn_match=None,"
+        },
+        {
+          "line": 2557,
+          "text": "            reaction_center_match=None, center_match_basis=\"\","
+        },
+        {
+          "line": 2558,
+          "text": "            alignment_ref=alignment_ref,"
+        },
+        {
+          "line": 2559,
+          "text": "            missing_info_reasons=["
+        },
+        {
+          "line": 2560,
+          "text": "                \"execution_failed:\" +"
+        },
+        {
+          "line": 2561,
+          "text": "                \";\".join(result.get(\"reasons\", []) or [])[:200]],"
+        },
+        {
+          "line": 2562,
+          "text": "            executed_bond_changes=[])"
+        },
+        {
+          "line": 2563,
+          "text": ""
+        },
+        {
+          "line": 2564,
+          "text": "    # ---- R6-02(R7):供体诊断全部原始字符串入口与工厂/strict 同源守卫 ----"
+        },
+        {
+          "line": 2565,
+          "text": "    # current/mapped/plain/target 的原始串此前直接 MolFromSmiles 解析,"
+        },
+        {
+          "line": 2566,
+          "text": "    # 绕过工厂/strict 的输入侧注册感知校验:RDKit 静默丢弃 |r| 等未"
+        },
+        {
+          "line": 2567,
+          "text": "    # 登记项后,绑定身份来自剥标记的解析串而 proof 保留原串 —— 原始"
+        },
+        {
+          "line": 2568,
+          "text": "    # 标记事实静默丢失仍 True/True/verified/R6。四个入口统一在解析前"
+        },
+        {
+          "line": 2569,
+          "text": "    # 过同一 _guard_input_cx_classes(build_chemical_state /"
+        },
+        {
+          "line": 2570,
+          "text": "    # strict_identity_of 同一守卫);未登记/并列未知项 ⇒ 结构化拒绝"
+        },
+        {
+          "line": 2571,
+          "text": "    # (不剥身份后当 verified 证据;clean 输入不受影响)。"
+        },
+        {
+          "line": 2572,
+          "text": "    for _field, _raw in ("
+        },
+        {
+          "line": 2573,
+          "text": "            (\"current.smiles\", current.get(\"smiles\")),"
+        },
+        {
+          "line": 2574,
+          "text": "            (\"result.product_mapped_smiles\","
+        },
+        {
+          "line": 2575,
+          "text": "             result.get(\"product_mapped_smiles\")),"
+        },
+        {
+          "line": 2576,
+          "text": "            (\"result.product_smiles\", result.get(\"product_smiles\")),"
+        },
+        {
+          "line": 2577,
+          "text": "            (\"expectation.target_smiles\","
+        },
+        {
+          "line": 2578,
+          "text": "             expectation.get(\"target_smiles\"))):"
+        },
+        {
+          "line": 2579,
+          "text": "        if _raw is None or str(_raw) == \"\":"
+        },
+        {
+          "line": 2580,
+          "text": "            continue"
+        },
+        {
+          "line": 2581,
+          "text": "        try:"
+        },
+        {
+          "line": 2582,
+          "text": "            _guard_input_cx_classes(str(_raw))"
+        },
+        {
+          "line": 2583,
+          "text": "        except ChemicalStateError as exc:"
+        },
+        {
+          "line": 2584,
+          "text": "            raise AuditContractError("
+        },
+        {
+          "line": 2585,
+          "text": "                f\"供体诊断原始输入字段 {_field} 含未登记 CX 项:\""
+        },
+        {
+          "line": 2586,
+          "text": "                f\"{exc}(与工厂/strict 同源的输入侧注册感知校验:解析器\""
+        },
+        {
+          "line": 2587,
+          "text": "                \"会静默丢弃该项,丢弃后不得以剥标记身份参与 verified\""
+        },
+        {
+          "line": 2588,
+          "text": "                \"证据;拒绝该诊断输入,不改冻结执行器)\","
+        },
+        {
+          "line": 2589,
+          "text": "                {\"kind\": \"raw_input_cx_class_unregistered\","
+        },
+        {
+          "line": 2590,
+          "text": "                 \"field\": _field,"
+        },
+        {
+          "line": 2591,
+          "text": "                 **{k: v for k, v in (exc.detail or {}).items()"
+        },
+        {
+          "line": 2592,
+          "text": "                    if k != \"kind\"}}) from exc"
+        },
+        {
+          "line": 2593,
+          "text": ""
+        },
+        {
+          "line": 2594,
+          "text": "    # ---- 执行图事实 ----"
+        },
+        {
+          "line": 2595,
+          "text": "    current_smiles = current.get(\"smiles\", \"\")"
+        },
+        {
+          "line": 2596,
+          "text": "    mol_before = Chem.MolFromSmiles(str(current_smiles)) \\"
+        },
+        {
+          "line": 2597,
+          "text": "        if current_smiles else None"
+        },
+        {
+          "line": 2598,
+          "text": "    product_mapped = result.get(\"product_mapped_smiles\", \"\")"
+        },
+        {
+          "line": 2599,
+          "text": "    mol_after = Chem.MolFromSmiles(str(product_mapped)) \\"
+        },
+        {
+          "line": 2600,
+          "text": "        if product_mapped else None"
+        },
+        {
+          "line": 2601,
+          "text": "    id_to_idx_after = {"
+        },
+        {
+          "line": 2602,
+          "text": "        str(k): int(v) for k, v in (result.get(\"atom_id_map\") or {}).items()}"
+        },
+        {
+          "line": 2603,
+          "text": "    if mol_before is None or mol_after is None:"
+        },
+        {
+          "line": 2604,
+          "text": "        return DonorConsistencyDiagnostic("
+        },
+        {
+          "line": 2605,
+          "text": "            strict_target_match=None, legacy_cn_match=None,"
+        },
+        {
+          "line": 2606,
+          "text": "            reaction_center_match=None, alignment_ref=alignment_ref,"
+        },
+        {
+          "line": 2607,
+          "text": "            missing_info_reasons=[\"before_or_after_structure_unparseable\"],"
+        },
+        {
+          "line": 2608,
+          "text": "            executed_bond_changes=[])"
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        2576,
+        2599
+      ],
+      "actual_lines": [
+        {
+          "line": 2576,
+          "text": "            (\"result.product_smiles\", result.get(\"product_smiles\")),"
+        },
+        {
+          "line": 2577,
+          "text": "            (\"expectation.target_smiles\","
+        },
+        {
+          "line": 2578,
+          "text": "             expectation.get(\"target_smiles\"))):"
+        },
+        {
+          "line": 2579,
+          "text": "        if _raw is None or str(_raw) == \"\":"
+        },
+        {
+          "line": 2580,
+          "text": "            continue"
+        },
+        {
+          "line": 2581,
+          "text": "        try:"
+        },
+        {
+          "line": 2582,
+          "text": "            _guard_input_cx_classes(str(_raw))"
+        },
+        {
+          "line": 2583,
+          "text": "        except ChemicalStateError as exc:"
+        },
+        {
+          "line": 2584,
+          "text": "            raise AuditContractError("
+        },
+        {
+          "line": 2585,
+          "text": "                f\"供体诊断原始输入字段 {_field} 含未登记 CX 项:\""
+        },
+        {
+          "line": 2586,
+          "text": "                f\"{exc}(与工厂/strict 同源的输入侧注册感知校验:解析器\""
+        },
+        {
+          "line": 2587,
+          "text": "                \"会静默丢弃该项,丢弃后不得以剥标记身份参与 verified\""
+        },
+        {
+          "line": 2588,
+          "text": "                \"证据;拒绝该诊断输入,不改冻结执行器)\","
+        },
+        {
+          "line": 2589,
+          "text": "                {\"kind\": \"raw_input_cx_class_unregistered\","
+        },
+        {
+          "line": 2590,
+          "text": "                 \"field\": _field,"
+        },
+        {
+          "line": 2591,
+          "text": "                 **{k: v for k, v in (exc.detail or {}).items()"
+        },
+        {
+          "line": 2592,
+          "text": "                    if k != \"kind\"}}) from exc"
+        },
+        {
+          "line": 2593,
+          "text": ""
+        },
+        {
+          "line": 2594,
+          "text": "    # ---- 执行图事实 ----"
+        },
+        {
+          "line": 2595,
+          "text": "    current_smiles = current.get(\"smiles\", \"\")"
+        },
+        {
+          "line": 2596,
+          "text": "    mol_before = Chem.MolFromSmiles(str(current_smiles)) \\"
+        },
+        {
+          "line": 2597,
+          "text": "        if current_smiles else None"
+        },
+        {
+          "line": 2598,
+          "text": "    product_mapped = result.get(\"product_mapped_smiles\", \"\")"
+        },
+        {
+          "line": 2599,
+          "text": "    mol_after = Chem.MolFromSmiles(str(product_mapped)) \\"
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        2906,
+        2906
+      ],
+      "actual_lines": [
+        {
+          "line": 2906,
+          "text": "        net_change_empty=net_change_empty,"
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        2968,
+        2968
+      ],
+      "actual_lines": [
+        {
+          "line": 2968,
+          "text": "        out.append(entry)"
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        2983,
+        2993
+      ],
+      "actual_lines": [
+        {
+          "line": 2983,
+          "text": "    if diagnostic.center_evidence:"
+        },
+        {
+          "line": 2984,
+          "text": "        return dict(diagnostic.center_evidence)"
+        },
+        {
+          "line": 2985,
+          "text": "    # 兼容路径:旧形状(无绑定)——audit 侧将按 binding 缺失记"
+        },
+        {
+          "line": 2986,
+          "text": "    # unknown,不授予 verified(诚实降级)"
+        },
+        {
+          "line": 2987,
+          "text": "    return {"
+        },
+        {
+          "line": 2988,
+          "text": "        \"checker_version\": PPV1_DONOR_DIAGNOSTIC_VERSION,"
+        },
+        {
+          "line": 2989,
+          "text": "        \"center_match\": diagnostic.reaction_center_match,"
+        },
+        {
+          "line": 2990,
+          "text": "        \"declaration_mismatch\": bool(diagnostic.declaration_mismatches),"
+        },
+        {
+          "line": 2991,
+          "text": "        \"center_match_basis\": diagnostic.center_match_basis,"
+        },
+        {
+          "line": 2992,
+          "text": "        \"evidence_refs\": [diagnostic.alignment_ref],"
+        },
+        {
+          "line": 2993,
+          "text": "    }"
+        }
+      ]
+    },
+    {
+      "mimo_cited_range": [
+        1064,
+        1066
+      ],
+      "actual_lines": [
+        {
+          "line": 1064,
+          "text": "            elif ev_scope not in CENTER_CHECKER_SCOPES:"
+        },
+        {
+          "line": 1065,
+          "text": "                checks.append(AuditCheck("
+        },
+        {
+          "line": 1066,
+          "text": "                    name=CHECK_TRANSFORMATION_CENTER, status=CHECK_UNKNOWN,"
+        }
+      ]
+    }
+  ],
+  "chemical_five_byte_parity": {
+    "src/pathway_v43/pollutant/chemstate.py": {
+      "current_sha256": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+      "baseline_sha256": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+      "equal": true
+    },
+    "src/pathway_v43/pollutant/audit.py": {
+      "current_sha256": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "baseline_sha256": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "equal": true
+    },
+    "src/pathway_v43/pollutant/path_context.py": {
+      "current_sha256": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+      "baseline_sha256": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+      "equal": true
+    },
+    "src/pathway_v43/pollutant/hypothesis.py": {
+      "current_sha256": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6",
+      "baseline_sha256": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6",
+      "equal": true
+    },
+    "src/pathway_v43/pollutant/events.py": {
+      "current_sha256": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+      "baseline_sha256": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+      "equal": true
+    }
+  },
+  "source_files_scanned": 65,
+  "test_files_scanned": 81,
+  "scope": "copied src and allowlisted tests only; no assertion about uncopied scripts/tools"
+}

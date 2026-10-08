@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3a_inheritance_d7l95c51/inheritance_probe.py", line 104, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/private/tmp/ppv1_s3a_inheritance_d7l95c51/inheritance_probe.py", line 78, in main
+    'inputs':{'policy':policy,'action':enq,'claim':claim,'event':event.to_dict(),**evargs},
+                                                                 ^^^^^^^^^^^^^
+AttributeError: 'PathwayEvent' object has no attribute 'to_dict'

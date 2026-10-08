@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/review_anchor_r3.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/anchor_unparseable_anchor_payload_after_bundle_written_resume.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+  },
+  "parsed": [
+    {
+      "detail": {
+        "action_id": "sact_2aa21a22bacd728e5e29",
+        "kind": "frozen_plan_anchor_corrupt",
+        "reason": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+        "run_id": "anchor_unparseable_anchor_payload_after_bundle_written"
+      },
+      "exception": "PPV1RunError",
+      "message": "冻结计划锚行 sact_2aa21a22bacd728e5e29 载荷不可解析(坏锚先拒;无法证明其未携带原绑定;不猜修)",
+      "pid": 46868
+    }
+  ],
+  "returncode": 3,
+  "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 314, in _verify_frozen_plan_binding\n    payload = json.loads(row[\"payload\"] or \"{}\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/decoder.py\", line 337, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/decoder.py\", line 353, in raw_decode\n    obj, end = self.scan_once(s, idx)\n               ^^^^^^^^^^^^^^^^^^^^^^\njson.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py\", line 104, in worker\n    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py\", line 317, in resume_run\n    return resume_ppv1_run(\n           ^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 1521, in resume_ppv1_run\n    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py\", line 316, in _verify_frozen_plan_binding\n    raise PPV1RunError(\npathway_v43.pollutant.runflow.PPV1RunError: 冻结计划锚行 sact_2aa21a22bacd728e5e29 载荷不可解析(坏锚先拒;无法证明其未携带原绑定;不猜修)\n",
+  "stdout": "{\"exception\": \"PPV1RunError\", \"detail\": {\"kind\": \"frozen_plan_anchor_corrupt\", \"action_id\": \"sact_2aa21a22bacd728e5e29\", \"run_id\": \"anchor_unparseable_anchor_payload_after_bundle_written\", \"reason\": \"Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\"}, \"message\": \"冻结计划锚行 sact_2aa21a22bacd728e5e29 载荷不可解析(坏锚先拒;无法证明其未携带原绑定;不猜修)\", \"pid\": 46868}\n"
+}

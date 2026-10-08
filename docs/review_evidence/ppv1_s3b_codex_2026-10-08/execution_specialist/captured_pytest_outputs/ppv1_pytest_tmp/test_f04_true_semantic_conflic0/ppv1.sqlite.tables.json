@@ -1,0 +1,106 @@
+{
+  "source": {
+    "path": "ppv1_pytest_tmp/test_f04_true_semantic_conflic0/ppv1.sqlite",
+    "bytes": 163840,
+    "sha256": "c62bac8dfbc6c5755ee27a269f3493b36a285827034d9df4a286ae0a1edd6f40"
+  },
+  "open_mode": "ro",
+  "tables": {
+    "budget_reservations": [],
+    "event_appearance_links": [],
+    "events": [],
+    "expansion_plans": [],
+    "hypotheses": [],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [],
+    "search_actions": [],
+    "search_attempts": [],
+    "search_commit_records": [],
+    "search_runs": [],
+    "state_appearances": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "1aa19d0b2c5f62473b9e5265610276ec1d807352ceecf4bf9fa962bb6220bf64",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"source_product\", \"structure_smiles_raw\": \"CCO\"}",
+        "created_at": "2026-10-07T20:58:11+00:00"
+      }
+    ],
+    "states": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "payload": "{\"cn_identity\": \"CCO\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CCO\", \"state_id\": \"cs_ab1de819ede91df490e6\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-07T20:58:11+00:00"
+      }
+    ]
+  },
+  "schema": [
+    {
+      "name": "budget_reservations",
+      "sql": "CREATE TABLE budget_reservations (\n    reservation_id TEXT PRIMARY KEY,\n    run_id        TEXT NOT NULL,\n    limit_key     TEXT NOT NULL,\n    scope         TEXT NOT NULL DEFAULT '',\n    subject       TEXT NOT NULL DEFAULT '',\n    units         INTEGER NOT NULL,\n    action_id     TEXT NOT NULL DEFAULT '',\n    status        TEXT NOT NULL,\n    created_at    TEXT NOT NULL,\n    settled_at    TEXT\n)"
+    },
+    {
+      "name": "event_appearance_links",
+      "sql": "CREATE TABLE event_appearance_links (\n    event_id        TEXT NOT NULL,\n    state_id        TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    PRIMARY KEY (event_id, state_id, appearance_hash)\n)"
+    },
+    {
+      "name": "events",
+      "sql": "CREATE TABLE events (\n    event_id           TEXT PRIMARY KEY,\n    run_id             TEXT NOT NULL,\n    parent_path_id     TEXT NOT NULL,\n    hypothesis_id      TEXT NOT NULL,\n    context_hash       TEXT NOT NULL,\n    event_semantics_hash TEXT NOT NULL,\n    payload            TEXT NOT NULL,\n    created_at         TEXT NOT NULL,\n    UNIQUE (run_id, parent_path_id, hypothesis_id, context_hash,\n            event_semantics_hash)\n)"
+    },
+    {
+      "name": "expansion_plans",
+      "sql": "CREATE TABLE expansion_plans (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "hypotheses",
+      "sql": "CREATE TABLE hypotheses (\n    hypothesis_id  TEXT PRIMARY KEY,\n    parent_path_id TEXT NOT NULL,\n    context_hash   TEXT NOT NULL DEFAULT '',\n    payload        TEXT NOT NULL,\n    created_at     TEXT NOT NULL\n)"
+    },
+    {
+      "name": "meta",
+      "sql": "CREATE TABLE meta (\n    key   TEXT PRIMARY KEY,\n    value TEXT NOT NULL\n)"
+    },
+    {
+      "name": "model_requests",
+      "sql": "CREATE TABLE model_requests (\n    request_id   TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    provider_kind TEXT NOT NULL,\n    purpose      TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    network_request_count INTEGER NOT NULL DEFAULT 0,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    response_ref TEXT NOT NULL DEFAULT '',\n    retry_of     TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    updated_at   TEXT\n)"
+    },
+    {
+      "name": "provenance_records",
+      "sql": "CREATE TABLE provenance_records (\n    record_id TEXT PRIMARY KEY,\n    run_id    TEXT NOT NULL,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "report_projections",
+      "sql": "CREATE TABLE report_projections (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    },
+    {
+      "name": "search_actions",
+      "sql": "CREATE TABLE search_actions (\n    action_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    parent_path_id TEXT NOT NULL DEFAULT '',\n    context_ref  TEXT NOT NULL DEFAULT '',\n    subject_ref  TEXT NOT NULL DEFAULT '',\n    action_kind  TEXT NOT NULL,\n    parent_search_revision INTEGER NOT NULL DEFAULT 0,\n    policy_version TEXT NOT NULL,\n    status       TEXT NOT NULL,\n    payload      TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    budget_reservation_ref TEXT NOT NULL DEFAULT '[]',\n    attempt_refs TEXT NOT NULL DEFAULT '[]',\n    defer_reason TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    claimed_at   TEXT,\n    claimed_by   TEXT,\n    updated_at   TEXT\n)"
+    },
+    {
+      "name": "search_attempts",
+      "sql": "CREATE TABLE search_attempts (\n    expansion_attempt_id TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    hypothesis_id TEXT NOT NULL DEFAULT '',\n    attempt_index INTEGER NOT NULL,\n    reopen_of    TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    payload_hash TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    recorded_at  TEXT\n)"
+    },
+    {
+      "name": "search_commit_records",
+      "sql": "CREATE TABLE search_commit_records (\n    commit_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    event_id     TEXT NOT NULL DEFAULT '',\n    commit_kind  TEXT NOT NULL,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL\n)"
+    },
+    {
+      "name": "search_runs",
+      "sql": "CREATE TABLE search_runs (\n    run_id       TEXT PRIMARY KEY,\n    policy_block TEXT NOT NULL,\n    created_at   TEXT NOT NULL\n)"
+    },
+    {
+      "name": "state_appearances",
+      "sql": "CREATE TABLE state_appearances (\n    state_id    TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    payload     TEXT NOT NULL,\n    created_at  TEXT NOT NULL,\n    PRIMARY KEY (state_id, appearance_hash)\n)"
+    },
+    {
+      "name": "states",
+      "sql": "CREATE TABLE states (\n    state_id   TEXT PRIMARY KEY,\n    payload    TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+    }
+  ],
+  "read_succeeded": true
+}

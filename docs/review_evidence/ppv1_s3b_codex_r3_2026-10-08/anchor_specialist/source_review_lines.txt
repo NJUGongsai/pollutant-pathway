@@ -1,0 +1,397 @@
+src/pathway_v43/pollutant/runflow.py:125-166
+  125:     OUTCOME_KIND_SCHEDULED,
+  126:     OUTCOME_KIND_TRANSITION_APPLIED,
+  127:     activate_deferred,
+  128:     enqueue_coproduct_followups,
+  129:     enqueue_scenario_transition,
+  130:     record_expansion_outcome,
+  131:     schedule_hypotheses,
+  132: )
+  133: from .search import (
+  134:     ACTION_KIND_ACTIVATE_DEFERRED,
+  135:     ACTION_KIND_DECIDE,
+  136:     ACTION_KIND_EXPAND_HYPOTHESIS,
+  137:     ACTION_KIND_RETRIEVE,
+  138:     ACTION_KIND_SCENARIO_TRANSITION,
+  139:     COMMIT_KIND_OUTCOME,
+  140:     PROVIDER_KIND_REAL,
+  141:     PROVIDER_KIND_SCRIPTED,
+  142:     SearchArtifactIntegrityError,
+  143:     SearchBudgetExhausted,
+  144:     SearchClaimError,
+  145:     SearchConcurrencyError,
+  146:     SearchContractError,
+  147:     SearchCrashInjection,
+  148:     SearchLedger,
+  149:     decision_task_key,
+  150:     expansion_task_key,
+  151:     read_search_artifact,
+  152:     search_policy_version,
+  153: )
+  154: from .store import PollutantPathwayStore
+  155: from .substrate_profile import build_substrate_profile
+  156: 
+  157: RUNFLOW_VERSION = "ppv1-runflow-3"
+  158: FROZEN_PLAN_VERSION = "ppv1-frozen-plan-1"
+  159: FROZEN_PLAN_TASK_KEY = "run-plan"
+  160: FROZEN_PLAN_ARTIFACT = "frozen_plan"
+  161: 
+  162: 
+  163: class PPV1RunError(RuntimeError):
+  164:     """PPV1 run 入口契约违反(结构化)。"""
+  165: 
+  166:     def __init__(self, message: str, detail: dict | None = None):
+
+src/pathway_v43/pollutant/runflow.py:229-390
+  229: def _persist_frozen_plan(artifact_store, plan: dict) -> dict:
+  230:     """S3B-01:start 时把计划持久化为**冻结输入来源**(artifact 内容
+  231:     身份绑定;plan_digest 全量哈希)。驱动循环此后只消费冻结来源。"""
+  232:     if artifact_store is None:
+  233:         raise PPV1RunError(
+  234:             "持久化冻结计划需要 artifact_store", {"kind": "artifact_store_missing"})
+  235:     payload = {"plan_version": FROZEN_PLAN_VERSION,
+  236:                "plan": plan or {},
+  237:                "plan_digest": _plan_digest(plan)}
+  238:     artifact_store.write(FROZEN_PLAN_TASK_KEY, FROZEN_PLAN_ARTIFACT, payload)
+  239:     return payload
+  240: 
+  241: 
+  242: def _load_frozen_plan(artifact_store) -> dict:
+  243:     """S3B-01:resume 加载冻结计划输入(H07 完整性包装 + 内容身份
+  244:     核验;缺/坏 ⇒ 结构化拒绝 —— 缺输入不能当空池合法完成,不猜)。"""
+  245:     if artifact_store is None:
+  246:         raise PPV1RunError(
+  247:             "读取冻结计划需要 artifact_store", {"kind": "artifact_store_missing"})
+  248:     try:
+  249:         envelope = read_search_artifact(
+  250:             artifact_store, FROZEN_PLAN_TASK_KEY, FROZEN_PLAN_ARTIFACT)
+  251:     except SearchArtifactIntegrityError as exc:
+  252:         raise PPV1RunError(
+  253:             "冻结计划输入完整性失败(保全原文件;不静默跳过、不覆盖)"
+  254:             f":{exc}", {"kind": "frozen_plan_integrity_failure",
+  255:                         "artifact_kind": exc.detail.get("kind")}) from exc
+  256:     if envelope is None:
+  257:         raise PPV1RunError(
+  258:             "冻结计划输入缺失(计划在 start 时持久化;缺输入不能当空池"
+  259:             "合法完成,不猜)", {"kind": "frozen_plan_missing"})
+  260:     payload = envelope.get("payload") or {}
+  261:     plan = payload.get("plan")
+  262:     digest = str(payload.get("plan_digest") or "")
+  263:     if not isinstance(plan, dict) or not digest:
+  264:         raise PPV1RunError(
+  265:             "冻结计划载荷损坏(缺 plan/plan_digest;fail-closed,不猜)",
+  266:             {"kind": "frozen_plan_corrupt"})
+  267:     if content_hash(plan) != digest:
+  268:         raise PPV1RunError(
+  269:             "冻结计划内容与摘要不符(内容身份核验失败;保全失败)",
+  270:             {"kind": "frozen_plan_digest_mismatch"})
+  271:     return plan
+  272: 
+  273: 
+  274: def _verify_frozen_plan_binding(ledger: SearchLedger, run_id: str,
+  275:                                 frozen_plan: dict) -> dict:
+  276:     """S3B-01 后段锚定(S3b r3):resume 首消费前,把读取的冻结计划
+  277:     与**独立既存权威**核对 —— start 时落账的根 retrieve 行。
+  278: 
+  279:     - 独立权威是 DB 通道的 search_actions 行(payload.plan_digest;
+  280:       task_key 由 start 侧同一 `decision_task_key` 单一来源派生并冻结
+  281:       落账),与 artifact 文件相互独立 —— **artifact 内自算的
+  282:       payload_hash/plan_digest 是自洽证书,不能单独证明"仍是该
+  283:       run/root/task 的原输入"**;
+  284:     - 覆盖 root retrieve 已 done 的 B3/B4:retrieve 执行层的
+  285:       plan_digest 同源核验(`_run_retrieve`)只在 retrieve 实际执行
+  286:       时到达,后段不可达 —— 本核对在入口闭合,不依赖旧 retrieve
+  287:       是否还会执行;
+  288:     - 逐锚两查(单一来源派生,不另造第二套规则):
+  289:       ① 锚行自身同源:按行内冻结字段 + 行内 plan_digest 重算
+  290:       decision_task_key,与行内冻结 task_key(列与载荷)比对 ——
+  291:       不符 ⇒ 坏锚(frozen_plan_anchor_corrupt)先拒;
+  292:       ② 锚摘要与当前读取的冻结计划摘要比对 —— 不符 ⇒
+  293:       frozen_plan_binding_mismatch(旧任务不消费新输入;差异须显式
+  294:       新 revision/新任务登记);
+  295:     - 无任何携带 plan_digest 的 retrieve 行(载荷不可解析视同坏锚,
+  296:       因无法证明其未携带锚)⇒ frozen_plan_anchor_missing 先拒;
+  297:     - 本核对发生在 recover_run(B4 补账/B3 bundle 消费)/驱动调度/
+  298:       事件提交/预算 consume **之前**:任何锚缺失/损坏/不符 ⇒ 结构
+  299:       化拒,业务表/event/commit/consume 零新增,原资料(artifact/
+  300:       DB 行)保全;
+  301:     - 不提供密码学签名服务、不抵抗全库协同改写(复审 §4 明示超出
+  302:       范围);为符合既有身份规范的最小实现。
+  303:     """
+  304:     rows = ledger.conn.execute(
+  305:         "SELECT action_id, status, parent_path_id, context_ref,"
+  306:         " subject_ref, parent_search_revision, policy_version, payload,"
+  307:         " task_key FROM search_actions WHERE run_id = ? AND"
+  308:         " action_kind = ? ORDER BY created_at, action_id",
+  309:         (run_id, ACTION_KIND_RETRIEVE)).fetchall()
+  310:     anchors: list[dict] = []
+  311:     for row in rows:
+  312:         action_id = str(row["action_id"])
+  313:         try:
+  314:             payload = json.loads(row["payload"] or "{}")
+  315:         except (ValueError, TypeError) as exc:
+  316:             raise PPV1RunError(
+  317:                 f"冻结计划锚行 {action_id} 载荷不可解析(坏锚先拒;"
+  318:                 "无法证明其未携带原绑定;不猜修)",
+  319:                 {"kind": "frozen_plan_anchor_corrupt",
+  320:                  "action_id": action_id, "run_id": run_id,
+  321:                  "reason": str(exc)[:200]}) from exc
+  322:         if not isinstance(payload, dict):
+  323:             raise PPV1RunError(
+  324:                 f"冻结计划锚行 {action_id} 载荷非 dict(坏锚先拒;"
+  325:                 "不猜修)",
+  326:                 {"kind": "frozen_plan_anchor_corrupt",
+  327:                  "action_id": action_id, "run_id": run_id})
+  328:         anchor_digest = str(payload.get("plan_digest") or "")
+  329:         if not anchor_digest:
+  330:             continue  # 非锚行(followup retrieve 不绑定计划摘要)
+  331:         # ① 锚行自身同源:行内 plan_digest + 行内冻结身份字段 →
+  332:         # 单一来源 decision_task_key 重算,与落账 task_key 比对
+  333:         expected_task_key = decision_task_key(
+  334:             run_id=run_id, parent_path_id=str(row["parent_path_id"]),
+  335:             context_ref=str(row["context_ref"]),
+  336:             frozen_pool_digest=anchor_digest,
+  337:             parent_search_revision=int(row["parent_search_revision"]),
+  338:             policy_version=str(row["policy_version"]),
+  339:             strict_state_digest=str(row["subject_ref"]),
+  340:             tool_id="atom-tool-vendored",
+  341:             prompt_version=anchor_digest[:16],
+  342:             feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
+  343:         stored_task_keys = {str(row["task_key"] or ""),
+  344:                             str(payload.get("task_key") or "")}
+  345:         if stored_task_keys != {expected_task_key}:
+  346:             raise PPV1RunError(
+  347:                 f"冻结计划锚行 {action_id} 坏锚(行内 task_key 与按"
+  348:                 "单一来源 decision_task_key 重算不一致 —— 锚行自身"
+  349:                 "不再同源;先结构化拒,零补账,原行保全)",
+  350:                 {"kind": "frozen_plan_anchor_corrupt",
+  351:                  "action_id": action_id, "run_id": run_id,
+  352:                  "anchor_plan_digest": anchor_digest,
+  353:                  "expected_task_key": expected_task_key,
+  354:                  "stored_task_keys": sorted(stored_task_keys)})
+  355:         anchors.append({"action_id": action_id,
+  356:                         "status": str(row["status"]),
+  357:                         "plan_digest": anchor_digest,
+  358:                         "task_key": expected_task_key})
+  359:     if not anchors:
+  360:         raise PPV1RunError(
+  361:             f"run {run_id} 缺冻结计划锚(无携带 plan_digest 的"
+  362:             " retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何"
+  363:             "冻结输入;零补账,原资料保全)",
+  364:             {"kind": "frozen_plan_anchor_missing", "run_id": run_id,
+  365:              "note": "根 retrieve 在 start 时落账 plan_digest/task_key;"
+  366:                      "锚缺失意味着权威记录被移除或从未落账"})
+  367:     frozen_digest = _plan_digest(frozen_plan)
+  368:     # ② 锚摘要与当前读取的冻结计划摘要比对(每锚都核,任一不符即拒)
+  369:     for anchor in anchors:
+  370:         if anchor["plan_digest"] != frozen_digest:
+  371:             raise PPV1RunError(
+  372:                 "冻结计划与既存 run/root/task 原绑定不符(读取的计划"
+  373:                 "摘要 ≠ start 落账的根任务锚摘要 —— 自洽重封装不是"
+  374:                 "原输入证书;旧任务不消费新输入,差异须显式新 revision/"
+  375:                 "新任务登记;先结构化拒,零 event/补账/新调度/consume,"
+  376:                 "原资料保全)",
+  377:                 {"kind": "frozen_plan_binding_mismatch",
+  378:                  "run_id": run_id,
+  379:                  "anchor_action_id": anchor["action_id"],
+  380:                  "anchor_status": anchor["status"],
+  381:                  "anchor_plan_digest": anchor["plan_digest"],
+  382:                  "frozen_plan_digest": frozen_digest})
+  383:     return {"anchor_action_ids": [a["action_id"] for a in anchors],
+  384:             "anchor_statuses": [a["status"] for a in anchors],
+  385:             "anchor_plan_digest": anchors[0]["plan_digest"],
+  386:             "frozen_plan_digest": frozen_digest,
+  387:             "task_key_verified": True,
+  388:             "note": ("后段锚定:root retrieve 已 done(B3/B4)时执行层"
+  389:                      "核验不可达,本核对在 resume 首消费前闭合")}
+  390: 
+
+src/pathway_v43/pollutant/runflow.py:1328-1427
+ 1328: def start_ppv1_run(
+ 1329:     *,
+ 1330:     config: V43Config,
+ 1331:     runs_root: str | Path,
+ 1332:     run_id: str,
+ 1333:     smiles: str,
+ 1334:     plan: dict | None = None,
+ 1335:     model=None,
+ 1336:     profile_policy: dict | None = None,
+ 1337:     scripted: bool = False,
+ 1338:     crash_after: str | None = None,
+ 1339: ) -> dict:
+ 1340:     """PPV1 独立 start(分流目标;不落 legacy 图/存储)。
+ 1341: 
+ 1342:     - profile 策略装配(build_profile_identity_block:十上限 +
+ 1343:       format_feedback_policy;未知取值 fail-closed);
+ 1344:     - run identity(代码/资产/策略/模型/MoleCode;PPV1 哈希全树)落盘
+ 1345:       后进驱动;重复 run 拒绝;
+ 1346:     - **执行会话互斥(S3B-04)**:run 目录 flock(并发 start 单胜者
+ 1347:       由原子目录创建保证;此后驱动全程持锁,并发 resume 在执行前拒);
+ 1348:     - 严格 root state(工厂守卫)+ 根 context(artifact 持久化)+
+ 1349:       **冻结计划输入持久化(S3B-01:plan_digest 内容绑定)** +
+ 1350:       搜索 run 注册(policy block = profile 块;恢复按同一身份);
+ 1351:     - 根 retrieve 入队(任务输入绑定计划摘要;空池 ⇒ no_local_
+ 1352:       candidate 诚实停止 —— 计划带模型时空池仍进 decide,S3B-05);
+ 1353:     - 驱动循环 + stop_report(停止不是化学终点)。
+ 1354:     """
+ 1355:     runs_root = Path(runs_root)
+ 1356:     run_dir = runs_root / run_id
+ 1357:     if (run_dir / "run_identity.json").is_file():
+ 1358:         from ..workflow.runner import RunAlreadyExists
+ 1359:         raise RunAlreadyExists(run_id, run_dir)
+ 1360:     # 原子独占目录创建:并发 start 同一 run 只有胜者(败者
+ 1361:     # FileExistsError → RunAlreadyExists;不进 store/identity 写入)
+ 1362:     runs_root.mkdir(parents=True, exist_ok=True)
+ 1363:     try:
+ 1364:         run_dir.mkdir()
+ 1365:     except FileExistsError:
+ 1366:         from ..workflow.runner import RunAlreadyExists
+ 1367:         raise RunAlreadyExists(run_id, run_dir) from None
+ 1368:     with _DriverSession(run_dir) as session:
+ 1369:         policy_block = build_profile_identity_block(**(profile_policy or {}))
+ 1370:         limits = policy_block["search_limits"]
+ 1371:         asset_identity = (scripted_asset_identity() if scripted
+ 1372:                           else retrieval_asset_identity(config))
+ 1373:         identity = build_run_identity(
+ 1374:             run_id=run_id, root_smiles=smiles, root_cn=_cn_of(smiles),
+ 1375:             strategy=_strategy_block(limits), asset_identity=asset_identity,
+ 1376:             v3_code_identity=v3_code_identity(config.v3_code_root),
+ 1377:             prediction=_prediction_block(model),
+ 1378:             profile=PROFILE_POLLUTANT_PATHWAY_V1,
+ 1379:             profile_policy=profile_policy or None)
+ 1380:         write_run_identity(runs_root, identity)
+ 1381:         store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
+ 1382:         artifacts = ArtifactStore(runs_root, run_id)
+ 1383:         ledger = SearchLedger(store, artifacts, run_id)
+ 1384:         ledger.register_search_run(run_id, policy_block)
+ 1385:         root_state = _substrate_state(smiles, "ppv1-root-input")
+ 1386:         store.put_state(root_state.to_dict())
+ 1387:         root_ctx = build_path_context(
+ 1388:             condition_facts=_fact_list((plan or {}).get("condition_facts")),
+ 1389:             scenario_ref=str((plan or {}).get("scenario_ref") or ""),
+ 1390:             dependencies=[
+ 1391:                 build_cyclic_dependency(dict(d))
+ 1392:                 for d in ((plan or {}).get("dependencies") or [])])
+ 1393:         context_ref = persist_context(artifacts, root_ctx)
+ 1394:         # ---- S3B-01:计划持久化为冻结输入来源(此后驱动只消费冻结) ----
+ 1395:         _persist_frozen_plan(artifacts, plan or {})
+ 1396:         driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
+ 1397:                          crash_after=crash_after)
+ 1398:         root_path = driver.root_path_id
+ 1399:         task_key = decision_task_key(
+ 1400:             run_id=run_id, parent_path_id=root_path,
+ 1401:             context_ref=context_ref,
+ 1402:             frozen_pool_digest=_plan_digest(plan or {}),
+ 1403:             parent_search_revision=0, policy_version=search_policy_version(),
+ 1404:             strict_state_digest=root_state.state_id,
+ 1405:             tool_id="atom-tool-vendored",
+ 1406:             prompt_version=_plan_digest(plan or {})[:16],
+ 1407:             feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
+ 1408:         ledger.enqueue_action(
+ 1409:             run_id=run_id, parent_path_id=root_path,
+ 1410:             context_ref=context_ref, subject_ref=root_state.state_id,
+ 1411:             action_kind=ACTION_KIND_RETRIEVE,
+ 1412:             parent_search_revision=0, policy_version=search_policy_version(),
+ 1413:             payload={"task_key": task_key, "substrate_smiles": smiles,
+ 1414:                      "context_ref": context_ref, "parent_path_id": root_path,
+ 1415:                      "depth": 0, "source_event_id": "",
+ 1416:                      "plan_digest": _plan_digest(plan or {})})
+ 1417:         report = driver.drive()
+ 1418:         summary = _summary(store, run_id, report, resumed=False)
+ 1419:         summary["driver_session"] = dict(session.info)
+ 1420:         return summary
+ 1421: 
+ 1422: 
+ 1423: def resume_ppv1_run(
+ 1424:     *,
+ 1425:     config: V43Config,
+ 1426:     runs_root: str | Path,
+ 1427:     run_id: str,
+
+src/pathway_v43/pollutant/runflow.py:1490-1552
+ 1490:         root_cn=saved["inputs"].get("root_identity"),
+ 1491:         strategy=saved["strategy"], asset_identity=current_asset,
+ 1492:         v3_code_identity=v3_code_identity(config.v3_code_root),
+ 1493:         prediction=_prediction_block(model),
+ 1494:         profile=PROFILE_POLLUTANT_PATHWAY_V1,
+ 1495:         profile_policy=profile_kwargs or None)
+ 1496:     check_resume_identity(saved, current)
+ 1497:     run_dir = runs_root / run_id
+ 1498:     with _DriverSession(run_dir) as session:
+ 1499:         store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
+ 1500:         artifacts = ArtifactStore(runs_root, run_id)
+ 1501:         ledger = SearchLedger(store, artifacts, run_id)
+ 1502:         # ---- S3B-01:冻结计划输入核对(先于任何恢复消费) ----
+ 1503:         frozen_plan = _load_frozen_plan(artifacts)
+ 1504:         if plan is not None:
+ 1505:             submitted_digest = _plan_digest(plan)
+ 1506:             frozen_digest = _plan_digest(frozen_plan)
+ 1507:             if submitted_digest != frozen_digest:
+ 1508:                 raise PPV1RunError(
+ 1509:                     "resume 传入计划与冻结输入不符(旧任务不消费新输入;"
+ 1510:                     "差异须显式新 revision/新任务登记,不能复用旧裁决键)",
+ 1511:                     {"kind": "frozen_plan_mismatch",
+ 1512:                      "frozen_plan_digest": frozen_digest,
+ 1513:                      "submitted_plan_digest": submitted_digest,
+ 1514:                      "run_id": run_id})
+ 1515:         # ---- S3b r3(S3B-01 后段锚定):读取的冻结计划与独立既存
+ 1516:         # run/root/task 原绑定核对(根 retrieve 行 plan_digest/
+ 1517:         # task_key);先于 recover_run 的 B4 补账/B3 bundle 消费与
+ 1518:         # 任何新调度/事件/预算 consume。自洽 artifact 内自 hash 不是
+ 1519:         # 独立证书;root retrieve 已 done 的 B3/B4 同样闭合(retrieve
+ 1520:         # 执行层核验后段不可达)。缺/坏锚或不符先结构化拒,零新增。 ----
+ 1521:         binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)
+ 1522:         recovery = ledger.recover_run(
+ 1523:             run_id, policy_block=(saved.get("profile") or None),
+ 1524:             worker_id=_worker_id(run_id))
+ 1525:         # ---- S3B-02:恢复裁定接 driver 执行门(坏 artifact/缺权威
+ 1526:         # 隔离;合法 B1–B4 不受影响;证据保全) ----
+ 1527:         isolated: list[dict] = []
+ 1528:         for failure in _isolated_recovery_actions(recovery):
+ 1529:             out = ledger.isolate_recovered_failure(
+ 1530:                 str(failure["action_id"]),
+ 1531:                 kind=str((failure.get("failure") or {}).get("kind")
+ 1532:                          or "unknown"),
+ 1533:                 note="恢复裁定的坏 artifact/缺权威:隔离不重执行,"
+ 1534:                      "证据保全;合法独立任务继续")
+ 1535:             isolated.append({**failure, "isolation": out})
+ 1536:         driver = _Driver(ledger, frozen_plan, run_id, _worker_id(run_id),
+ 1537:                          crash_after=crash_after)
+ 1538:         report = driver.drive()
+ 1539:         summary = _summary(store, run_id, report, resumed=True)
+ 1540:         summary["recovery"] = {
+ 1541:             "actions": recovery.get("actions"),
+ 1542:             "pending_requests": recovery.get("pending_requests"),
+ 1543:             "unknown_status_requests": recovery.get(
+ 1544:                 "unknown_status_requests"),
+ 1545:             "isolated_actions": isolated,
+ 1546:         }
+ 1547:         summary["frozen_plan_binding"] = dict(binding)
+ 1548:         summary["driver_session"] = dict(session.info)
+ 1549:         return summary
+ 1550: 
+ 1551: 
+ 1552: def _cn_of(smiles: str) -> str:
+
+src/pathway_v43/pollutant/search.py:379-399
+  379: def decision_task_key(
+  380:     *,
+  381:     run_id: str,
+  382:     parent_path_id: str,
+  383:     context_ref: str,
+  384:     frozen_pool_digest: str,
+  385:     parent_search_revision: int,
+  386:     policy_version: str,
+  387:     strict_state_digest: str = "",
+  388:     tool_id: str = "",
+  389:     prompt_version: str = "",
+  390:     feedback_policy_version: str = "",
+  391: ) -> str:
+  392:     """决策类任务键(检索后选假设/排序):绑定冻结池摘要、父 context、
+  393:     所需局部搜索快照(revision)与全部相关版本(严格原始化学状态、
+  394:     工具、提示词、反馈策略)。"""
+  395:     return stable_id(
+  396:         "stask-dec", run_id, parent_path_id, context_ref,
+  397:         frozen_pool_digest, str(int(parent_search_revision)),
+  398:         policy_version, strict_state_digest, tool_id, prompt_version,
+  399:         feedback_policy_version)

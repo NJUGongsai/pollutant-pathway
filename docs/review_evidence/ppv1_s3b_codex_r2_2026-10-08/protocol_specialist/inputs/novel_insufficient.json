@@ -1,0 +1,15 @@
+{
+  "_label": "novel_insufficient",
+  "mode": "start",
+  "plan": {
+    "model": {
+      "provider_kind": "scripted",
+      "responses": [
+        "{\"proposals\": [{\"hypothesis_id\": \"novel:1\", \"proposal_context\": {\"reference_hypothesis_ids\": [], \"output_origin\": \"novel_outside_pool\"}, \"reaction_spec\": {\"key\": \"bad\", \"coefficient\": 1}}]}"
+      ]
+    },
+    "pools": {}
+  },
+  "run_id": "novel_insufficient",
+  "runs_root": "/private/tmp/ppv1_s3b_r2_protocol_1ex8j4tb/synthetic_runs/runs"
+}

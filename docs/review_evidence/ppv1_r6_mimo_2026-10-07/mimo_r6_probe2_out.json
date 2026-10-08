@@ -1,0 +1,99 @@
+{
+ "X1_current_r_flag_absorbed": {
+  "flagged_current_accepted": true,
+  "center_flagged": true,
+  "center_clean": true,
+  "substrate_identity_clean": "CCO",
+  "substrate_identity_flagged": "CCO",
+  "identities_equal": true,
+  "proof_record_keeps_raw": "CCO |r|",
+  "raw_in_proof": true
+ },
+ "X1b_end_to_end_flagged_current": {
+  "center": "verified",
+  "coverage": "full",
+  "admission": "expand",
+  "expand": true,
+  "no_warning_for_stripped_cx": true
+ },
+ "X2_result_r_flag_asymmetric": {
+  "strict": null,
+  "missing": [
+   "target_or_result_unparseable"
+  ],
+  "product_identity_absorbed": "CC=O",
+  "expected_clean": "CC=O",
+  "absorbed_equals_clean": true,
+  "proof_record_keeps_raw_result": true
+ },
+ "X3_signature_subset_rule": {
+  "legal_roundtrip_ok": true,
+  "bogus_rejected": true,
+  "kind": "context_snapshot_inconsistent",
+  "check": "signature_not_in_requirements"
+ },
+ "Y1_label_space_legal_overreject": {
+  "input": "CO |$_foo bar$|",
+  "guard": {
+   "accept": false,
+   "kind": "unregistered_cx_class"
+  },
+  "rdkit": {
+   "parse": "CO",
+   "cx": "CO |$_foo bar;$|"
+  }
+ },
+ "Y2_atomProp_space_legal_overreject": {
+  "input": "CO |atomProp:0.note.hello world|",
+  "guard": {
+   "accept": false,
+   "kind": "unregistered_cx_class"
+  },
+  "rdkit": {
+   "parse": "CO",
+   "cx": "CO |atomProp:0.note.hello world|"
+  }
+ },
+ "Y3_atomProp_no_space_control": {
+  "input": "CO |atomProp:0.note.hello|",
+  "guard": {
+   "accept": true,
+   "state_id": "cs_fc8842c641d91",
+   "identity": "CO"
+  },
+  "rdkit": {
+   "parse": "CO",
+   "cx": "CO |atomProp:0.note.hello|"
+  }
+ },
+ "Y4_atomProp_colon_syntax_both_fail": {
+  "input": "CO |atomProp:0.note:hello world|",
+  "guard": {
+   "accept": false,
+   "kind": "unregistered_cx_class"
+  },
+  "rdkit": {
+   "parse": null
+  }
+ },
+ "Y5_sgD_space_rdkit_unparsable": {
+  "input": "CO |SgD:0:note:hello world|",
+  "guard": {
+   "accept": false,
+   "kind": "unregistered_cx_class"
+  },
+  "rdkit": {
+   "parse": null
+  }
+ },
+ "Y6_coords_space_rdkit_unparsable": {
+  "input": "CO |(0.5, 0.8,)|",
+  "guard": {
+   "accept": false,
+   "kind": "unregistered_cx_class"
+  },
+  "rdkit": {
+   "parse": null
+  }
+ }
+}

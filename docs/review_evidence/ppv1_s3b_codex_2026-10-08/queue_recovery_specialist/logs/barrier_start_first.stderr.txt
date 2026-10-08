@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py", line 102, in worker
+    out=start_run(config=cfg,runs_root=runs_root,run_id=run_id,smiles=inp.get('smiles','CCO'),max_depth=3,max_expansions=10,max_frontier_width=2,finder=object(),scripted=True,profile=PROFILE_POLLUTANT_PATHWAY_V1,ppv1_plan=inp.get('plan'),profile_policy=inp.get('policy'),crash_after=inp.get('crash_after'))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/workflow/runner.py", line 219, in start_run
+    return start_ppv1_run(
+           ^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/runflow.py", line 956, in start_ppv1_run
+    raise RunAlreadyExists(run_id, run_dir) from None
+pathway_v43.workflow.runner.RunAlreadyExists: run 已存在:barrier_start(重复执行请用 resume --run-id barrier_start)

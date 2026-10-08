@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/inputs/transition_after_transition_enqueued_before_attach_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src"
+  },
+  "label": "transition_after_transition_enqueued_before_attach_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_373fff340acceaf62f77",
+      "created": true,
+      "status": "pending"
+    },
+    "hard_kill": "after_transition_enqueued_before_attach",
+    "pid": 46293
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_transition_enqueued_before_attach\", \"detail\": {\"created\": true, \"action_id\": \"sact_373fff340acceaf62f77\", \"status\": \"pending\"}, \"pid\": 46293}\n"
+}

@@ -1,0 +1,79 @@
+{
+  "operation": "pure byte copy; no execution or repository writes",
+  "stage": "/private/tmp/ppv1_s3a_r3_root_qhdaq4jl/evidence_stage",
+  "packages": {
+    "execution_specialist": {
+      "specialist": "execution_specialist",
+      "original_package": "/private/tmp/ppv1_s3a_r3_execution_hypuljsk/package",
+      "destination": "/private/tmp/ppv1_s3a_r3_root_qhdaq4jl/evidence_stage/execution_specialist",
+      "manifest_sha256": "d19e7ae481ab740c1ebb696f2787913df6cd1509ba12667b5a0f2ae6f06047b1",
+      "manifest_format": "dict",
+      "payload_files": 266,
+      "payload_bytes": 35975525,
+      "root_sidecars": [
+        "manifest.json",
+        "SHA256SUMS"
+      ],
+      "total_copied_files": 268,
+      "total_copied_bytes": 36049079,
+      "sha256_before_after_all_match": true,
+      "no_links_or_cache": true,
+      "unlisted_files_copied": 0,
+      "listed_database_files": [],
+      "archive_checks": [
+        {
+          "archive": "g01_inputs.tar.gz",
+          "members": 276,
+          "all_white_list_hashes_match": true,
+          "safe_file_members_only": true,
+          "no_archive_extraction": true
+        }
+      ]
+    },
+    "budget_request_specialist": {
+      "specialist": "budget_request_specialist",
+      "original_package": "/private/tmp/ppv1_s3a_r3_budget_1rhko3wp/package",
+      "destination": "/private/tmp/ppv1_s3a_r3_root_qhdaq4jl/evidence_stage/budget_request_specialist",
+      "manifest_sha256": "7a4ccb6932fc2d1817531a6392d15ae439eb27d529acc32c82c7604f59510e90",
+      "manifest_format": "dict",
+      "payload_files": 150,
+      "payload_bytes": 5761341,
+      "root_sidecars": [
+        "manifest.json",
+        "manifest.sha256",
+        "SHA256SUMS"
+      ],
+      "total_copied_files": 153,
+      "total_copied_bytes": 5801065,
+      "sha256_before_after_all_match": true,
+      "no_links_or_cache": true,
+      "unlisted_files_copied": 0,
+      "listed_database_files": [],
+      "archive_checks": []
+    },
+    "authority_specialist": {
+      "specialist": "authority_specialist",
+      "original_package": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/package",
+      "destination": "/private/tmp/ppv1_s3a_r3_root_qhdaq4jl/evidence_stage/authority_specialist",
+      "manifest_sha256": "d38b9a155b4926e2cac9ca89513f21ec55fa5d0765958659bc8ff57b45d10fad",
+      "manifest_format": "list",
+      "payload_files": 409,
+      "payload_bytes": 20100032,
+      "root_sidecars": [
+        "manifest.json",
+        "manifest.sha256",
+        "SHA256SUMS"
+      ],
+      "total_copied_files": 412,
+      "total_copied_bytes": 20236185,
+      "sha256_before_after_all_match": true,
+      "no_links_or_cache": true,
+      "unlisted_files_copied": 0,
+      "listed_database_files": [],
+      "archive_checks": []
+    }
+  },
+  "updated_UTC": "2026-10-07T16:55:51.596224+00:00",
+  "all_copied": true,
+  "no_hash_or_symlink_or_cache_issues": true
+}

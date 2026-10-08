@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_r7_storage_e5U2uF/storage_contract_probe.py", line 47, in <module>
+    dump(name,mutation=mutation,first=first,replay=replay,input_states=provided,input_event=event.to_dict(),input_hypothesis=hyp.to_dict())
+                                                                                            ^^^^^^^^^^^^^
+AttributeError: 'PathwayEvent' object has no attribute 'to_dict'

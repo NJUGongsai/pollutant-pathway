@@ -1,0 +1,71 @@
+{
+  "source": "/private/tmp/ppv1_s3b_r2_execution_gvh309hu/ppv1_pytest_tmp/test_s3b01_resume_without_plan0/runs/fpo/run_identity.json",
+  "stored_worker_v3_engine_code": {
+    "git_available": false,
+    "git_commit": null,
+    "v3_code_root": "/private/tmp/ppv1_s3b_r2_execution_gvh309hu/dependingv3"
+  },
+  "parent_expected_v3_engine_code": {
+    "v3_code_root": "/private/tmp/ppv1_s3b_r2_execution_gvh309hu/absent_v3",
+    "git_commit": null,
+    "git_available": false
+  },
+  "bad_parent_environment": {
+    "V3_CODE_ROOT": "/private/tmp/ppv1_s3b_r2_execution_gvh309hu/absent_v3"
+  },
+  "corrected_parent_environment": {
+    "V3_CODE_ROOT": "/private/tmp/ppv1_s3b_r2_execution_gvh309hu/dependingv3"
+  },
+  "failed_cases": [
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_resume_without_plan_uses_frozen_input",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_resume_changed_plan_rejected",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_frozen_plan_tamper_integrity_failure",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_same_plan_resume_positive_control",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b02_bad_bundle_hash_isolated_not_reexecuted",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_partial_followup_hard_kill_completed",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_b4_event_submitted_no_followup_completed",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_transition_after_event_submitted_new_context",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_transition_enqueued_crash_window_closed",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b04_concurrent_public_resume_single_executor",
+      "message": "pathway_v43.storage.run_identity.IdentityMismatch: resume 拒绝:run 身份与当前代码/资产/策略不一致,差异字段:['v3_engine_code'];不得静默继续旧 run"
+    }
+  ]
+}

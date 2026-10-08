@@ -1,0 +1,147 @@
+......s...........s..s...........................ssssssss..............F [  6%]
+Fs............s......................................................... [ 12%]
+........................................................................ [ 19%]
+........................................................................ [ 25%]
+.........s.............................................................. [ 32%]
+........................................................................ [ 38%]
+........................................................................ [ 45%]
+........................................................................ [ 51%]
+........................................................................ [ 57%]
+........................................................................ [ 64%]
+........................................................................ [ 70%]
+........................................................................ [ 77%]
+........................................................................ [ 83%]
+........................................................................ [ 90%]
+.....................................................................sss [ 96%]
+s......................................                                  [100%]
+=================================== FAILURES ===================================
+_________ test_workers_run_simultaneously_isolated_and_merge_in_order __________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-185/test_workers_run_simultaneousl0')
+
+    def test_workers_run_simultaneously_isolated_and_merge_in_order(tmp_path):
+        n = int(os.environ.get("V43_BATCH_TEST_WORKERS", "4"))
+        ids = _route_ids(n)
+        manifest = _make_manifest(ids)
+        barrier_dir = tmp_path / "barrier"
+        barrier_dir.mkdir()
+        (tmp_path / "batch" / "gate").mkdir(parents=True)
+        config = _tiny_config()
+        coordinator = BatchCoordinator(
+            batch_root=tmp_path / "batch", runs_root=tmp_path / "runs",
+            manifest=manifest, identity={"short": "btest", "sha256": "fixture"},
+            config=config, provider="off", model_id="", request_params={},
+            timeout_s=0.0, export_policy=load_export_policy(),
+            max_parallel=n, poll_interval_s=0.2, worker_wall_clock_cap_s=900,
+            max_worker_respawns=1,
+        )
+        os.environ["PATHWAY_V43_RUN_BARRIER_DIR"] = str(barrier_dir)
+        os.environ["PATHWAY_V43_BATCH_BARRIER"] = str(n)
+        try:
+            terminal = coordinator.run_to_completion()
+        finally:
+            os.environ.pop("PATHWAY_V43_RUN_BARRIER_DIR", None)
+            os.environ.pop("PATHWAY_V43_BATCH_BARRIER", None)
+    
+        # 屏障证据:GO 放行前全部 n 个 worker 已 ready(同处运行态)
+        evidence = json.loads(
+>           (barrier_dir / "barrier_evidence.json").read_text(encoding="utf-8"))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_batch_dev.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/pathlib.py:1058: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-185/test_workers_run_simultaneousl0/barrier/barrier_evidence.json')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-185/test_workers_run_simultaneousl0/barrier/barrier_evidence.json'
+
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/pathlib.py:1044: FileNotFoundError
+_____________ test_worker_crash_after_commit_recovers_no_duplicate _____________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-185/test_worker_crash_after_commit0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11f8c9a90>
+
+    def test_worker_crash_after_commit_recovers_no_duplicate(tmp_path,
+                                                             monkeypatch):
+        n = 3
+        ids = _route_ids(n)
+        doomed = ids[0]
+        # 根分子必须有库精确命中(recorded 证据)→ 模型 off 也会确定性 commit,
+        # 保证崩溃注入点 commit_pathway 真实到达
+        manifest = _make_manifest(ids)
+        for row in manifest["routes"]:
+            row["root_smiles"] = "BrCC(Br)CBr"
+            row["root_smiles_sha256"] = f"fixture-{row['route_id']}"
+        (tmp_path / "batch" / "gate").mkdir(parents=True)
+        config = _tiny_config()
+        marker = tmp_path / "crash_injected.marker"
+    
+        def builder(plan_path: Path) -> list[str]:
+            plan = json.loads(Path(plan_path).read_text(encoding="utf-8"))
+            cmd = [sys.executable, "-m", "pathway_v43", "batch-worker",
+                   "--plan", str(plan_path)]
+            if plan["route_id"] == doomed and not marker.exists():
+                marker.write_text("1", encoding="utf-8")
+                # 硬杀注入:副作用落盘后 os._exit(70),checkpoint 未写
+                return ["/usr/bin/env", "PATHWAY_V43_CRASH_AFTER=commit_pathway",
+                        *cmd]
+            return cmd
+    
+        coordinator = BatchCoordinator(
+            batch_root=tmp_path / "batch", runs_root=tmp_path / "runs",
+            manifest=manifest, identity={"short": "btest2", "sha256": "fixture"},
+            config=config, provider="off", model_id="", request_params={},
+            timeout_s=0.0, export_policy=load_export_policy(),
+            max_parallel=n, poll_interval_s=0.2, worker_wall_clock_cap_s=900,
+            max_worker_respawns=2, worker_cmd_builder=builder,
+        )
+        terminal = coordinator.run_to_completion()
+    
+        assert marker.exists(), "崩溃注入必须真实发生"
+        assert all(terminal.get(r, {}).get("finished_at") for r in ids), terminal
+>       assert not any(terminal.get(r, {}).get("failed") for r in ids)
+E       assert not True
+E        +  where True = any(<generator object test_worker_crash_after_commit_recovers_no_duplicate.<locals>.<genexpr> at 0x11d80ff10>)
+
+tests/test_batch_dev.py:182: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_r7_storage_e5U2uF/repo/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_analog_assets.py:95: v4 对照代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv4
+SKIPPED [1] tests/test_analog_v2_corpus.py:62: v2 provenance 未生成
+SKIPPED [1] tests/test_analog_v2_corpus.py:153: v2 summary 未生成
+SKIPPED [1] tests/test_asset_manifest.py:138: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_asset_root_isolation.py:38: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_asset_root_isolation.py:46: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_asset_root_isolation.py:63: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_asset_root_isolation.py:72: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_asset_root_isolation.py:84: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_asset_root_isolation.py:92: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_asset_root_isolation.py:119: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_batch_runner.py:52: v3 冻结基准不可用
+SKIPPED [1] tests/test_cli.py:63: v3 代码根不可用:/private/tmp/ppv1_r7_storage_e5U2uF/dependingv3
+SKIPPED [1] tests/test_export_v3.py:435: v3 代码根不可用
+SKIPPED [1] tests/test_score_report.py:110: v3 冻结基准不可用
+SKIPPED [1] tests/test_score_report.py:163: v3 冻结基准不可用
+SKIPPED [1] tests/test_score_report.py:172: v3 冻结基准不可用
+SKIPPED [1] tests/test_score_report.py:184: v3 冻结基准不可用
+2 failed, 1099 passed, 18 skipped, 16 deselected, 1 warning in 87.34s (0:01:27)

@@ -1,0 +1,54 @@
+--- r2
++++ r3
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Independent S3a-r2 execution. External fresh scratch only; no model/network."""
++"""Independent S3a-r3 execution. External fresh scratch only; no model/network."""
+ from __future__ import annotations
+ import hashlib, json, os, shutil, subprocess, time, xml.etree.ElementTree as ET
+ from pathlib import Path
+@@ -7,9 +7,9 @@
+ REPO=Path('/Volumes/CC/Enzyme_Agent/dependingv43')
+ OUT=Path(__file__).resolve().parents[1]
+ PY=Path('/Users/cc/miniconda3/envs/depending43/bin/python')
+-HEAD='dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03'
+-BASE='9b78f4279cc6fa50b3b51c31a5c8e07abbeda207'
+-NEW='tests/test_ppv1_s3a_rework_r2.py'
++HEAD='41d0cd55f3def050a62325f00235cf22da302d2e'
++BASE='dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03'
++NEW='tests/test_ppv1_s3a_rework_r3.py'
+ META=['pyproject.toml','LICENSE','LICENSE.md','MANIFEST.in']
+ commands=[]; hashes={}; source_origins={}
+ 
+@@ -74,7 +74,7 @@
+     current=OUT/'current_source';source(REPO,current,'current')
+     pp=sorted(str(p.relative_to(REPO)) for p in (REPO/'tests').glob('test_ppv1*.py'))
+     for rel in pp+['tests/s3a_worker.py']:copied(REPO/rel,current/rel,'current/'+rel)
+-    dump(OUT/'test_inputs.json',{'PPV1_exact_files':pp,'worker':'tests/s3a_worker.py','r2_test_file':NEW})
++    dump(OUT/'test_inputs.json',{'PPV1_exact_files':pp,'worker':'tests/s3a_worker.py','r3_test_file':NEW})
+     cenv=env|{'PYTHONPATH':str(current/'src')}
+     folder=OUT/'ppv1_full';folder.mkdir()
+     cmd=[PY,'-B','-m','pytest','-p','no:cacheprovider','-q','-rs','--junitxml',folder/'junit.xml',
+@@ -95,8 +95,8 @@
+         for rel in [NEW,'tests/s3a_worker.py']:copied(REPO/rel,base/rel,'baseline/'+rel)
+         dump(OUT/'same_byte_test_inputs.json',{rel:{'repository':sha(REPO/rel),'current':sha(current/rel),'baseline':sha(base/rel)}
+              for rel in [NEW,'tests/s3a_worker.py']})
+-        benv=env|{'PYTHONPATH':str(base/'src')};bf=OUT/'baseline_r2';bf.mkdir()
+-        rc=run('baseline_r2',[PY,'-B','-m','pytest','-p','no:cacheprovider','-q','-rs','--junitxml',bf/'junit.xml',
++        benv=env|{'PYTHONPATH':str(base/'src')};bf=OUT/'baseline_r3';bf.mkdir()
++        rc=run('baseline_r3',[PY,'-B','-m','pytest','-p','no:cacheprovider','-q','-rs','--junitxml',bf/'junit.xml',
+                '--basetemp',OUT/'baseline_pytest_tmp',NEW],base,benv)
+         bresult=junit(bf/'junit.xml');bresult['exit_code']=rc;dump(bf/'summary.json',bresult)
+         # Identity uses exact copied source and ordinary code only; actual version/schema separately recorded.
+@@ -141,9 +141,9 @@
+     after={key:sha(path) for key,path in source_origins.items()}
+     dump(OUT/'input_hashes.json',hashes);dump(OUT/'input_integrity_after.json',{'original_hashes_after':after,'all_originals_unchanged':all(hashes[k]==v for k,v in after.items())})
+     dump(OUT/'final_repo_metadata.json',{'HEAD':git('rev-parse','HEAD'),'status':git('status','--short')})
+-    dump(OUT/'execution_summary.json',{'ppv1':result['totals'],'baseline_r2':bresult['totals'],'g01':gr['totals'],
++    dump(OUT/'execution_summary.json',{'ppv1':result['totals'],'baseline_r3':bresult['totals'],'g01':gr['totals'],
+          'exact_G01_deselections':json.loads((OUT/'g01/pytest_observations.json').read_text())['deselected_nodeids'],
+          'no_existing_implementation_run_results_reused':True})
+-    print(json.dumps({'ppv1':result['totals'],'baseline_r2':bresult['totals'],'g01':gr['totals']}),flush=True)
++    print(json.dumps({'ppv1':result['totals'],'baseline_r3':bresult['totals'],'g01':gr['totals']}),flush=True)
+ 
+ if __name__=='__main__':main()

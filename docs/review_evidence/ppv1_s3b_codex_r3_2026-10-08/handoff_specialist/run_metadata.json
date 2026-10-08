@@ -1,0 +1,60 @@
+{
+  "actual_head": "adf0287abef0c4803962fee0df0065d8e6f3793d",
+  "parent": "2bedfc060a9b19019ba44aa2a56dcacb88450c3b",
+  "start_source_snapshot_utc": "2026-10-08T01:38:29.337083+00:00",
+  "finish_utc": "2026-10-08T01:44:40.979024+00:00",
+  "python": "3.11.16",
+  "commands": [
+    {
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "scripts/lexical_probe.py"
+      ],
+      "cwd": "/private/tmp/ppv1_s3b_r3_handoff_6bh5dixp",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "stdout": "logs/lexical.stdout.txt",
+      "stderr": "logs/lexical.stderr.txt",
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "scripts/inheritance_probe.py"
+      ],
+      "cwd": "/private/tmp/ppv1_s3b_r3_handoff_6bh5dixp",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "stdout": "logs/inheritance.stdout.txt",
+      "stderr": "logs/inheritance.stderr.txt",
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "scripts/read_captured_semantics.py"
+      ],
+      "cwd": "/private/tmp/ppv1_s3b_r3_handoff_6bh5dixp",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "stdout": "logs/semantics.stdout.txt",
+      "stderr": "logs/semantics.stderr.txt",
+      "returncode": 0
+    }
+  ],
+  "network_provider_calls": 0,
+  "new_lexical_positive": 5,
+  "new_lexical_negative_entries": 6,
+  "public_observations": 9,
+  "captured_readback_assertions": 6,
+  "readonly_archive_no_probe_reruns": true,
+  "execution_suites_this_specialist": 0,
+  "source_files_unchanged": 74,
+  "scientific_scope": "synthetic representation and public consumer engineering; science pending; no dev/298 extrapolation"
+}

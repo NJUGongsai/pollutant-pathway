@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/inputs/barrier_start_first.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_queue_vd18_t4h/src"
+  },
+  "parsed": {
+    "detail": {
+      "run_dir": "/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs/barrier_start",
+      "run_id": "barrier_start"
+    },
+    "exception": "RunAlreadyExists",
+    "message": "run 已存在:barrier_start(重复执行请用 resume --run-id barrier_start)",
+    "pid": 20860
+  },
+  "returncode": 3,
+  "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py\", line 102, in worker\n    out=start_run(config=cfg,runs_root=runs_root,run_id=run_id,smiles=inp.get('smiles','CCO'),max_depth=3,max_expansions=10,max_frontier_width=2,finder=object(),scripted=True,profile=PROFILE_POLLUTANT_PATHWAY_V1,ppv1_plan=inp.get('plan'),profile_policy=inp.get('policy'),crash_after=inp.get('crash_after'))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/workflow/runner.py\", line 219, in start_run\n    return start_ppv1_run(\n           ^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/runflow.py\", line 956, in start_ppv1_run\n    raise RunAlreadyExists(run_id, run_dir) from None\npathway_v43.workflow.runner.RunAlreadyExists: run 已存在:barrier_start(重复执行请用 resume --run-id barrier_start)\n",
+  "stdout": "{\"exception\": \"RunAlreadyExists\", \"detail\": {\"run_id\": \"barrier_start\", \"run_dir\": \"/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs/barrier_start\"}, \"message\": \"run 已存在:barrier_start(重复执行请用 resume --run-id barrier_start)\", \"pid\": 20860}\n"
+}

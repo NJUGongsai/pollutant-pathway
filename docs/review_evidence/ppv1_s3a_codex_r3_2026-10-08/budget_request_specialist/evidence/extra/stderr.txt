@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3a_r3_budget_1rhko3wp/scripts/extra_probe.py", line 53, in <module>
+    d=D/name;d.mkdir();s=PollutantPathwayStore(d/'run.sqlite');l=SearchLedger(s,None,name);p=build_profile_identity_block();p['search_limits']=partial;b=rows(l);first=cap(lambda:l.register_search_run(name,p));stored=l.search_policy_block(name);same=copy.deepcopy(p);same['search_limits']=copy.deepcopy(stored['search_limits']);repeat=cap(lambda:l.register_search_run(name,same));rec=cap(lambda:l.recover_run(name,policy_block=p));budget=cap(lambda:l.budget_snapshot(name));af=rows(l);ck={'first_accepted':first['accepted'],'complete_11_keys':len(stored['search_limits'])==11,'version_present':bool(stored['search_limits'].get('version')),'same_effective_unchanged':repeat['accepted'] and repeat['result'].get('unchanged')==True,'recover_partial_accepted':rec['accepted'],'budget_accepted':budget['accepted']}
+                                                                                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3a_r3_budget_1rhko3wp/source/src/pathway_v43/pollutant/search.py", line 716, in search_policy_block
+    raise SearchRecoveryError(
+pathway_v43.pollutant.search.SearchRecoveryError: run legal_override 未注册搜索策略

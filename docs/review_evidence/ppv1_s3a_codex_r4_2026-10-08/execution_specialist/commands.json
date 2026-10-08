@@ -1,0 +1,299 @@
+[
+  {
+    "name": "ppv1_full",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "-rs",
+      "--junitxml",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/ppv1_full/junit.xml",
+      "--basetemp",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/ppv1_pytest_tmp",
+      "tests/test_ppv1_domain.py",
+      "tests/test_ppv1_profile.py",
+      "tests/test_ppv1_r2_chem.py",
+      "tests/test_ppv1_r2_conditions.py",
+      "tests/test_ppv1_r2_storage.py",
+      "tests/test_ppv1_r4_chem.py",
+      "tests/test_ppv1_r4_conditions.py",
+      "tests/test_ppv1_r4_storage.py",
+      "tests/test_ppv1_r5_chem.py",
+      "tests/test_ppv1_r5_conditions.py",
+      "tests/test_ppv1_r5_storage.py",
+      "tests/test_ppv1_r6_chem.py",
+      "tests/test_ppv1_r6_conditions.py",
+      "tests/test_ppv1_r6_storage.py",
+      "tests/test_ppv1_r7_chem.py",
+      "tests/test_ppv1_r7_conditions.py",
+      "tests/test_ppv1_r7_storage.py",
+      "tests/test_ppv1_r8_chem.py",
+      "tests/test_ppv1_r8_storage.py",
+      "tests/test_ppv1_rework.py",
+      "tests/test_ppv1_s2.py",
+      "tests/test_ppv1_s3a_recover.py",
+      "tests/test_ppv1_s3a_rework_r2.py",
+      "tests/test_ppv1_s3a_rework_r3.py",
+      "tests/test_ppv1_s3a_rework_r4.py",
+      "tests/test_ppv1_s3a_search.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/current_source",
+    "exit_code": 0,
+    "elapsed_seconds": 9.447456,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/current_source/src",
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "ppv1_full/stdout.txt",
+    "stderr": "ppv1_full/stderr.txt",
+    "stdout_sha256": "c23bd44604c0a8a8e38b330eded841adcc8bf79a94d5389ef40f27a6c3343e98",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "worktree_create",
+    "argv": [
+      "git",
+      "worktree",
+      "add",
+      "--detach",
+      "--no-checkout",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_worktree",
+      "41d0cd55f3def050a62325f00235cf22da302d2e"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "exit_code": 0,
+    "elapsed_seconds": 0.019117,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": null,
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "worktree_create/stdout.txt",
+    "stderr": "worktree_create/stderr.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "74a612833b8d8c5a3fabddc68de81dd697e877072d959e1b3c93cc82562f289a"
+  },
+  {
+    "name": "worktree_sparse_init",
+    "argv": [
+      "git",
+      "sparse-checkout",
+      "init",
+      "--cone"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_worktree",
+    "exit_code": 0,
+    "elapsed_seconds": 0.007985,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": null,
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "worktree_sparse_init/stdout.txt",
+    "stderr": "worktree_sparse_init/stderr.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "worktree_sparse_set",
+    "argv": [
+      "git",
+      "sparse-checkout",
+      "set",
+      "src",
+      "vendor"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_worktree",
+    "exit_code": 0,
+    "elapsed_seconds": 0.006885,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": null,
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "worktree_sparse_set/stdout.txt",
+    "stderr": "worktree_sparse_set/stderr.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "worktree_checkout",
+    "argv": [
+      "git",
+      "checkout",
+      "--detach",
+      "41d0cd55f3def050a62325f00235cf22da302d2e"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_worktree",
+    "exit_code": 0,
+    "elapsed_seconds": 0.027627,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": null,
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "worktree_checkout/stdout.txt",
+    "stderr": "worktree_checkout/stderr.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "7ca5d5803506117ad16b7f3feadd7ff7f4c7071a82e738b2b165fb8dfad7c593"
+  },
+  {
+    "name": "baseline_r4",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "-rs",
+      "--junitxml",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_r4/junit.xml",
+      "--basetemp",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_pytest_tmp",
+      "tests/test_ppv1_s3a_rework_r4.py"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_source",
+    "exit_code": 1,
+    "elapsed_seconds": 1.827328,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_source/src",
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "baseline_r4/stdout.txt",
+    "stderr": "baseline_r4/stderr.txt",
+    "stdout_sha256": "1c62b33d6aad12c1575b526e4797e6565ddd3ddf068b2a4cfa18c6ec8f494e0a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "current_runtime",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "-c",
+      "import json,sys,sqlite3,rdkit;from pathlib import Path;from pathway_v43.pollutant.profile import contract_versions,SEARCH_LIMITS_VERSION;from pathway_v43.pollutant.store import PollutantPathwayStore;from pathway_v43.storage.run_identity import code_identity;s=PollutantPathwayStore(sys.argv[1]);x={'python':sys.version,'rdkit':rdkit.__version__,'sqlite':sqlite3.sqlite_version,'contracts':contract_versions(),'search_limits':SEARCH_LIMITS_VERSION,'actual_db_meta':[dict(r) for r in s.conn.execute('SELECT * FROM meta')],'actual_schema':[dict(r) for r in s.conn.execute(\"SELECT name,sql FROM sqlite_master WHERE type='table' ORDER BY name\")],'legacy_code_identity':code_identity('legacy_v43')};print(json.dumps(x,ensure_ascii=False,sort_keys=True));s.close()",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/current_runtime/synthetic.sqlite"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/current_source",
+    "exit_code": 0,
+    "elapsed_seconds": 0.147476,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/current_source/src",
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "current_runtime/stdout.txt",
+    "stderr": "current_runtime/stderr.txt",
+    "stdout_sha256": "ccf6150ef8acd94fcf67e384e68fba4b9a2c857cff690f2e6892ac6d70bda8c9",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "baseline_runtime",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "-c",
+      "import json,sys,sqlite3,rdkit;from pathlib import Path;from pathway_v43.pollutant.profile import contract_versions,SEARCH_LIMITS_VERSION;from pathway_v43.pollutant.store import PollutantPathwayStore;from pathway_v43.storage.run_identity import code_identity;s=PollutantPathwayStore(sys.argv[1]);x={'python':sys.version,'rdkit':rdkit.__version__,'sqlite':sqlite3.sqlite_version,'contracts':contract_versions(),'search_limits':SEARCH_LIMITS_VERSION,'actual_db_meta':[dict(r) for r in s.conn.execute('SELECT * FROM meta')],'actual_schema':[dict(r) for r in s.conn.execute(\"SELECT name,sql FROM sqlite_master WHERE type='table' ORDER BY name\")],'legacy_code_identity':code_identity('legacy_v43')};print(json.dumps(x,ensure_ascii=False,sort_keys=True));s.close()",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_runtime/synthetic.sqlite"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_source",
+    "exit_code": 0,
+    "elapsed_seconds": 0.157529,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_source/src",
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "baseline_runtime/stdout.txt",
+    "stderr": "baseline_runtime/stderr.txt",
+    "stdout_sha256": "8890706f70799b48ebcd2d08cfd8114e0fb469d4e75c1e9772e8e870e6273a38",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "worktree_remove",
+    "argv": [
+      "git",
+      "worktree",
+      "remove",
+      "--force",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/baseline_worktree"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "exit_code": 0,
+    "elapsed_seconds": 0.012183,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": null,
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "worktree_remove/stdout.txt",
+    "stderr": "worktree_remove/stderr.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "g01_controller",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/scripts/safe_g01_instrumented.py",
+      "--repo",
+      "/Volumes/CC/Enzyme_Agent/dependingv43",
+      "--out",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/g01",
+      "--python",
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "--r7-path-manifests",
+      "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/allowlists"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "exit_code": 0,
+    "elapsed_seconds": 199.841615,
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": null,
+      "BBD_DATA_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/empty_external_data",
+      "V3_CODE_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3",
+      "V43_ASSET_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_assets",
+      "DEPENDING_V3_ROOT": "/private/tmp/ppv1_s3a_r4_execution_oo8np5ce/absent_v3"
+    },
+    "stdout": "g01_controller/stdout.txt",
+    "stderr": "g01_controller/stderr.txt",
+    "stdout_sha256": "4b1f9245f98389e94b390b239b9332e92521f482d80074f9250ea9eccd6339be",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "scripts": [
+    {
+      "path": "scripts/contract_probe.py",
+      "sha256": "a4b74c834305264ae3df5f8a518e77f52eb82e2aeac5f660401d8b7e79d096ca",
+      "ast_parse_ok": true
+    },
+    {
+      "path": "scripts/reproduce.py",
+      "sha256": "028826be677c0fc18cb92dd2d1e3e0b00e7f2495cb1bc47440303b1973601c14",
+      "ast_parse_ok": true
+    },
+    {
+      "path": "scripts/run_recorded.py",
+      "sha256": "20f2ffdae405ebd8c968edf8335271504c22986f260e06cd7c1f2d3ff41dffbd",
+      "ast_parse_ok": true
+    },
+    {
+      "path": "scripts/runtime.py",
+      "sha256": "ecda61678f3f056d1723c873820ab51d1cfcd08496e268f6442acb5cd7491053",
+      "ast_parse_ok": true
+    },
+    {
+      "path": "scripts/supplement.py",
+      "sha256": "aa55403c9cd1c28df8f163427bc17fdc8285d0ef094b90d7c5f7d537c303dc55",
+      "ast_parse_ok": true
+    }
+  ],
+  "reproduce_template_executed": false,
+  "checks": "AST parse and manual review; wrapper copies immutable package files into fresh tmp; all execution local synthetic with -B."
+}

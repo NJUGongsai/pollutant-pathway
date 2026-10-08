@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py", line 104, in worker
+    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/workflow/runner.py", line 317, in resume_run
+    return resume_ppv1_run(
+           ^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/runflow.py", line 1066, in resume_ppv1_run
+    report = driver.drive()
+             ^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/runflow.py", line 314, in drive
+    self._run_expand(receipt)
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_supplemental.py", line 42, in expansion
+    return orig(self,receipt)
+           ^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/runflow.py", line 632, in _run_expand
+    production = expand_hypothesis_production(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/production.py", line 468, in expand_hypothesis_production
+    return _report(
+           ^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/production.py", line 392, in _report
+    ledger.artifact_store.write(
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/storage/artifact_store.py", line 81, in write
+    return self._compare_existing(path, envelope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/storage/artifact_store.py", line 112, in _compare_existing
+    raise ArtifactConflict(
+pathway_v43.storage.artifact_store.ArtifactConflict: 产物冲突:/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs/public_concurrent_resume/results/stask-exp_2ccae2ec6ab9fa8aba8c/production_report.json 已存在但内容不同(existing=5f0732e41923, new=01a30c185b65);不可覆盖不可变产物

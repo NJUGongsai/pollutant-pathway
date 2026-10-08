@@ -1,0 +1,1277 @@
+FFFFFFFFFFF.F....FFF........FFFFFF.F.F.F.....FFFF..FFF.FF                [100%]
+=================================== FAILURES ===================================
+___________ test_r6_01_complex_cosubstrate_completion_not_full[CC=O] ___________
+
+cosubstrate = 'CC=O'
+
+    @pytest.mark.parametrize("cosubstrate", ["CC=O", "C1CO1", "C=CO"])
+    def test_r6_01_complex_cosubstrate_completion_not_full(
+            cosubstrate) -> None:
+        """R6 复审反例,基线 6d90201 红:真实 AtomTool C→CCCO 证据用于
+        C + C2H4O 异构体 → CCCO —— 数值全配平(Δ=C2H4O 恰为共底物
+        组成),但乙醛 C=O/环氧环键/乙烯醇 C=C 的初始图贡献从未进入
+        证明 ⇒ 补全许可未登记 ⇒ partial、中心 unknown、retain(基线曾
+        元素/电荷/center 全 verified、full、R6 expand)。"""
+        evidence = _methane_to_propanol_evidence()
+        states = _states(METHANE, PROPANOL, cosubstrate)
+        hyp = _hyp(states, [(METHANE, 1), (cosubstrate, 1)],
+                   [(PROPANOL, 1)], group=f"r7-license-{cosubstrate}")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+>       assert center.status == CHECK_UNKNOWN
+E       AssertionError: assert 'verified' == 'unknown'
+E         
+E         - unknown
+E         + verified
+
+tests/test_ppv1_r7_chem.py:238: AssertionError
+__________ test_r6_01_complex_cosubstrate_completion_not_full[C1CO1] ___________
+
+cosubstrate = 'C1CO1'
+
+    @pytest.mark.parametrize("cosubstrate", ["CC=O", "C1CO1", "C=CO"])
+    def test_r6_01_complex_cosubstrate_completion_not_full(
+            cosubstrate) -> None:
+        """R6 复审反例,基线 6d90201 红:真实 AtomTool C→CCCO 证据用于
+        C + C2H4O 异构体 → CCCO —— 数值全配平(Δ=C2H4O 恰为共底物
+        组成),但乙醛 C=O/环氧环键/乙烯醇 C=C 的初始图贡献从未进入
+        证明 ⇒ 补全许可未登记 ⇒ partial、中心 unknown、retain(基线曾
+        元素/电荷/center 全 verified、full、R6 expand)。"""
+        evidence = _methane_to_propanol_evidence()
+        states = _states(METHANE, PROPANOL, cosubstrate)
+        hyp = _hyp(states, [(METHANE, 1), (cosubstrate, 1)],
+                   [(PROPANOL, 1)], group=f"r7-license-{cosubstrate}")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+>       assert center.status == CHECK_UNKNOWN
+E       AssertionError: assert 'verified' == 'unknown'
+E         
+E         - unknown
+E         + verified
+
+tests/test_ppv1_r7_chem.py:238: AssertionError
+___________ test_r6_01_complex_cosubstrate_completion_not_full[C=CO] ___________
+
+cosubstrate = 'C=CO'
+
+    @pytest.mark.parametrize("cosubstrate", ["CC=O", "C1CO1", "C=CO"])
+    def test_r6_01_complex_cosubstrate_completion_not_full(
+            cosubstrate) -> None:
+        """R6 复审反例,基线 6d90201 红:真实 AtomTool C→CCCO 证据用于
+        C + C2H4O 异构体 → CCCO —— 数值全配平(Δ=C2H4O 恰为共底物
+        组成),但乙醛 C=O/环氧环键/乙烯醇 C=C 的初始图贡献从未进入
+        证明 ⇒ 补全许可未登记 ⇒ partial、中心 unknown、retain(基线曾
+        元素/电荷/center 全 verified、full、R6 expand)。"""
+        evidence = _methane_to_propanol_evidence()
+        states = _states(METHANE, PROPANOL, cosubstrate)
+        hyp = _hyp(states, [(METHANE, 1), (cosubstrate, 1)],
+                   [(PROPANOL, 1)], group=f"r7-license-{cosubstrate}")
+        audit = _audit(states, hyp, evidence)
+        center = _center(audit)
+>       assert center.status == CHECK_UNKNOWN
+E       AssertionError: assert 'verified' == 'unknown'
+E         
+E         - unknown
+E         + verified
+
+tests/test_ppv1_r7_chem.py:238: AssertionError
+__________________ test_r6_01_license_scope_machine_disclosed __________________
+
+    def test_r6_01_license_scope_machine_disclosed() -> None:
+        """R6-01 验收:规则 scope/依据机器披露 —— coverage_rule 与
+        completion_license/作用域说明恒入 detail;数值配平不证明未登记
+        多原子共底物初始图的结构贡献(说明文本明示)。"""
+        evidence = _methane_to_propanol_evidence()
+        states = _states(METHANE, PROPANOL, "CC=O")
+        hyp = _hyp(states, [(METHANE, 1), ("CC=O", 1)], [(PROPANOL, 1)],
+                   group="r7-license-disc")
+        center = _center(_audit(states, hyp, evidence))
+        detail = center.detail
+        assert detail["coverage_rule"] == COVERAGE_COMPLETION_RULE
+>       assert detail["completion_license"] == \
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "composition_only_hydrogen_equivalents"
+E       KeyError: 'completion_license'
+
+tests/test_ppv1_r7_chem.py:267: KeyError
+______________ test_r6_01_hydrogen_equivalent_controls_stay_full _______________
+
+    def test_r6_01_hydrogen_equivalent_controls_stay_full() -> None:
+        """正控(基线亦绿):H2 对 2[H] 的组成型氢当量在登记许可内 ——
+        正常氧化(CCO→CC=O+H2)、氢化(CC=O+H2→CCO)与原子氢当量
+        (CCO→CC=O+2[H])的数值补全保持 full、verified、expand
+        (H2/[H] 只是 composition-only 作用域说明,不新增电子/自由基轴)。"""
+        oxidation = _oxidation_evidence()
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN)
+        hyp = _hyp(states, [(ETHANOL, 1)],
+                   [(ACETALDEHYDE, 1), (HYDROGEN, 1)],
+                   group="r7-h2-ox")
+        center = _center(_audit(states, hyp, oxidation))
+        assert center.status == CHECK_VERIFIED
+        assert center.detail["product_coverage"] == "full"
+        assert decide_admission(_audit(states, hyp, oxidation))[0] == \
+            ADMISSION_EXPAND
+    
+        reduction = _reduction_evidence()
+        states = _states(ACETALDEHYDE, ETHANOL, HYDROGEN)
+        hyp = _hyp(states, [(ACETALDEHYDE, 1), (HYDROGEN, 1)],
+                   [(ETHANOL, 1)], group="r7-h2-red")
+        center = _center(_audit(states, hyp, reduction))
+        assert center.status == CHECK_VERIFIED
+        assert center.detail["product_coverage"] == "full"
+>       assert center.detail["unlicensed_uncovered_identities"] == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'unlicensed_uncovered_identities'
+
+tests/test_ppv1_r7_chem.py:297: KeyError
+___________ test_r6_01_license_binds_strict_identity_not_class_name ____________
+
+    def test_r6_01_license_binds_strict_identity_not_class_name() -> None:
+        """R6-01 边界:许可以**严格结构身份**登记(不按整类名称免审)——
+        同式量异构体 C1CC1(环丙烷)不在氢当量许可集内;数值上它不能
+        配平此 Δ,但即便构造配平场景,非氢当量身份一律 partial。"""
+        evidence = _methane_to_propanol_evidence()
+        # C + C2H4O(环氧乙烷)数值恰配平 ⇒ 许可轴触发;换 C1CC1(C3H6)
+        # 数值不配平 ⇒ 既有数值 violation + 许可 violation 并存
+        states = _states(METHANE, PROPANOL, EPOXIDE, "C1CC1")
+        hyp = _hyp(states, [(METHANE, 1), ("C1CC1", 1)], [(PROPANOL, 1)],
+                   group="r7-license-identity")
+        center = _center(_audit(states, hyp, evidence))
+        assert center.status == CHECK_UNKNOWN
+        violations = {v["kind"] for v in
+                      center.detail["coverage_violations"]}
+>       assert "completion_license_unregistered_identity" in violations
+E       AssertionError: assert 'completion_license_unregistered_identity' in {'completion_deficit', 'completion_surplus'}
+
+tests/test_ppv1_r7_chem.py:324: AssertionError
+_ test_r6_02a_parallel_unknown_after_registered_head_rejected[C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|] _
+
+structure = 'C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|'
+
+    @pytest.mark.parametrize("structure", [
+        # R6 复审原例:alanine atomProp 后并列 r
+        "C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|",
+        # SgD 首头后并列 r(尾冒号后项边界)
+        "CO |SgD:0:note:hello::::,r|",
+        # DAT 值内逗号 + 尾部并列 r(值 'a,b' 受保护,r 是并列未知项)
+        "CO |SgD:0:note:a,b::::,r|",
+        # Sg 首头后并列 r
+        "CCCCCC |Sg:n:1,2,3:3:ht:::,r|",
+        # 登记头后并列其他未知类(Ln / w)
+        "C1CCCCC1 |atomProp:0.note.hello,Ln:1|",
+        "CO |atomProp:0.note.hello,w:1.0|",
+        # 多个并列未知项
+        "CO |SgD:0:note:hello::::,r,a:1|",
+    ])
+    def test_r6_02a_parallel_unknown_after_registered_head_rejected(
+            structure) -> None:
+        """R6 复审反例,基线 6d90201 红:工厂与 strict 入口接受登记头后
+        的并列未知项(RDKit 解析时静默丢弃 r/Ln/w,之后与裸串同
+        state_id/as_written)⇒ v7 按真实 CX 类边界逐项词法,构造即拒
+        (unregistered_cx_class,带并列项原文)。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r7_chem.py:351: Failed
+_ test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:hello::::,r|] _
+
+structure = 'CO |SgD:0:note:hello::::,r|'
+
+    @pytest.mark.parametrize("structure", [
+        # R6 复审原例:alanine atomProp 后并列 r
+        "C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|",
+        # SgD 首头后并列 r(尾冒号后项边界)
+        "CO |SgD:0:note:hello::::,r|",
+        # DAT 值内逗号 + 尾部并列 r(值 'a,b' 受保护,r 是并列未知项)
+        "CO |SgD:0:note:a,b::::,r|",
+        # Sg 首头后并列 r
+        "CCCCCC |Sg:n:1,2,3:3:ht:::,r|",
+        # 登记头后并列其他未知类(Ln / w)
+        "C1CCCCC1 |atomProp:0.note.hello,Ln:1|",
+        "CO |atomProp:0.note.hello,w:1.0|",
+        # 多个并列未知项
+        "CO |SgD:0:note:hello::::,r,a:1|",
+    ])
+    def test_r6_02a_parallel_unknown_after_registered_head_rejected(
+            structure) -> None:
+        """R6 复审反例,基线 6d90201 红:工厂与 strict 入口接受登记头后
+        的并列未知项(RDKit 解析时静默丢弃 r/Ln/w,之后与裸串同
+        state_id/as_written)⇒ v7 按真实 CX 类边界逐项词法,构造即拒
+        (unregistered_cx_class,带并列项原文)。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r7_chem.py:351: Failed
+_ test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:a,b::::,r|] _
+
+structure = 'CO |SgD:0:note:a,b::::,r|'
+
+    @pytest.mark.parametrize("structure", [
+        # R6 复审原例:alanine atomProp 后并列 r
+        "C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|",
+        # SgD 首头后并列 r(尾冒号后项边界)
+        "CO |SgD:0:note:hello::::,r|",
+        # DAT 值内逗号 + 尾部并列 r(值 'a,b' 受保护,r 是并列未知项)
+        "CO |SgD:0:note:a,b::::,r|",
+        # Sg 首头后并列 r
+        "CCCCCC |Sg:n:1,2,3:3:ht:::,r|",
+        # 登记头后并列其他未知类(Ln / w)
+        "C1CCCCC1 |atomProp:0.note.hello,Ln:1|",
+        "CO |atomProp:0.note.hello,w:1.0|",
+        # 多个并列未知项
+        "CO |SgD:0:note:hello::::,r,a:1|",
+    ])
+    def test_r6_02a_parallel_unknown_after_registered_head_rejected(
+            structure) -> None:
+        """R6 复审反例,基线 6d90201 红:工厂与 strict 入口接受登记头后
+        的并列未知项(RDKit 解析时静默丢弃 r/Ln/w,之后与裸串同
+        state_id/as_written)⇒ v7 按真实 CX 类边界逐项词法,构造即拒
+        (unregistered_cx_class,带并列项原文)。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r7_chem.py:351: Failed
+_ test_r6_02a_parallel_unknown_after_registered_head_rejected[CCCCCC |Sg:n:1,2,3:3:ht:::,r|] _
+
+structure = 'CCCCCC |Sg:n:1,2,3:3:ht:::,r|'
+
+    @pytest.mark.parametrize("structure", [
+        # R6 复审原例:alanine atomProp 后并列 r
+        "C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|",
+        # SgD 首头后并列 r(尾冒号后项边界)
+        "CO |SgD:0:note:hello::::,r|",
+        # DAT 值内逗号 + 尾部并列 r(值 'a,b' 受保护,r 是并列未知项)
+        "CO |SgD:0:note:a,b::::,r|",
+        # Sg 首头后并列 r
+        "CCCCCC |Sg:n:1,2,3:3:ht:::,r|",
+        # 登记头后并列其他未知类(Ln / w)
+        "C1CCCCC1 |atomProp:0.note.hello,Ln:1|",
+        "CO |atomProp:0.note.hello,w:1.0|",
+        # 多个并列未知项
+        "CO |SgD:0:note:hello::::,r,a:1|",
+    ])
+    def test_r6_02a_parallel_unknown_after_registered_head_rejected(
+            structure) -> None:
+        """R6 复审反例,基线 6d90201 红:工厂与 strict 入口接受登记头后
+        的并列未知项(RDKit 解析时静默丢弃 r/Ln/w,之后与裸串同
+        state_id/as_written)⇒ v7 按真实 CX 类边界逐项词法,构造即拒
+        (unregistered_cx_class,带并列项原文)。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r7_chem.py:351: Failed
+_ test_r6_02a_parallel_unknown_after_registered_head_rejected[C1CCCCC1 |atomProp:0.note.hello,Ln:1|] _
+
+structure = 'C1CCCCC1 |atomProp:0.note.hello,Ln:1|'
+
+    @pytest.mark.parametrize("structure", [
+        # R6 复审原例:alanine atomProp 后并列 r
+        "C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|",
+        # SgD 首头后并列 r(尾冒号后项边界)
+        "CO |SgD:0:note:hello::::,r|",
+        # DAT 值内逗号 + 尾部并列 r(值 'a,b' 受保护,r 是并列未知项)
+        "CO |SgD:0:note:a,b::::,r|",
+        # Sg 首头后并列 r
+        "CCCCCC |Sg:n:1,2,3:3:ht:::,r|",
+        # 登记头后并列其他未知类(Ln / w)
+        "C1CCCCC1 |atomProp:0.note.hello,Ln:1|",
+        "CO |atomProp:0.note.hello,w:1.0|",
+        # 多个并列未知项
+        "CO |SgD:0:note:hello::::,r,a:1|",
+    ])
+    def test_r6_02a_parallel_unknown_after_registered_head_rejected(
+            structure) -> None:
+        """R6 复审反例,基线 6d90201 红:工厂与 strict 入口接受登记头后
+        的并列未知项(RDKit 解析时静默丢弃 r/Ln/w,之后与裸串同
+        state_id/as_written)⇒ v7 按真实 CX 类边界逐项词法,构造即拒
+        (unregistered_cx_class,带并列项原文)。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r7_chem.py:351: Failed
+_ test_r6_02a_parallel_unknown_after_registered_head_rejected[CO |SgD:0:note:hello::::,r,a:1|] _
+
+structure = 'CO |SgD:0:note:hello::::,r,a:1|'
+
+    @pytest.mark.parametrize("structure", [
+        # R6 复审原例:alanine atomProp 后并列 r
+        "C[C@@H](N)C(=O)O |atomProp:0.note.hello,r|",
+        # SgD 首头后并列 r(尾冒号后项边界)
+        "CO |SgD:0:note:hello::::,r|",
+        # DAT 值内逗号 + 尾部并列 r(值 'a,b' 受保护,r 是并列未知项)
+        "CO |SgD:0:note:a,b::::,r|",
+        # Sg 首头后并列 r
+        "CCCCCC |Sg:n:1,2,3:3:ht:::,r|",
+        # 登记头后并列其他未知类(Ln / w)
+        "C1CCCCC1 |atomProp:0.note.hello,Ln:1|",
+        "CO |atomProp:0.note.hello,w:1.0|",
+        # 多个并列未知项
+        "CO |SgD:0:note:hello::::,r,a:1|",
+    ])
+    def test_r6_02a_parallel_unknown_after_registered_head_rejected(
+            structure) -> None:
+        """R6 复审反例,基线 6d90201 红:工厂与 strict 入口接受登记头后
+        的并列未知项(RDKit 解析时静默丢弃 r/Ln/w,之后与裸串同
+        state_id/as_written)⇒ v7 按真实 CX 类边界逐项词法,构造即拒
+        (unregistered_cx_class,带并列项原文)。"""
+>       with pytest.raises(ChemicalStateError) as ei:
+E       Failed: DID NOT RAISE ChemicalStateError
+
+tests/test_ppv1_r7_chem.py:351: Failed
+___ test_r6_02a_registered_content_passes[CC |atomProp:0.note.hello world|] ____
+
+structure = 'CC |atomProp:0.note.hello world|'
+
+    @pytest.mark.parametrize("structure", [
+        # DAT 值内逗号受保护(R5 既有正控,继续保留)
+        "CO |SgD:0:note:a,b::::|",
+        # SgD 之间逗号并列(真实解析器按项边界分派第二个 SgD)
+        "CO |SgD:0:note:a::::,SgD:0:note:b::::|",
+        # atomProp 重复头并列(解析器逐项分派)
+        "CC |atomProp:0.a.x,atomProp:1.b.y|",
+        # atomProp 写出器冒号形态(一项内多 prop)
+        "CC |atomProp:0.a.x:1.b.y|",
+        # 登记内容含空格(§4-1 P2 同修:值/字段/标签内容到真分隔符)
+        "CC |atomProp:0.note.hello world|",
+        "CO |SgD:0:note:hello world::::|",
+        "C |$foo bar;$|",
+        # 登记类正控:坐标、标签、增强立体、自由基层、SRU
+        "C |(1,0,0;2,0,0)|",
+        "C |$x$|",
+        "C |$_AV:val1;val2$|",
+        "C[C@H](Cl)[C@H](F)Cl |a:1,&1:3|",
+        "CC |^1:0,1|",
+        "CCCCCC |Sg:n:1,2,3:3:ht:::|",
+        "CCCCCC |Sg:n:1,2,3:3:ht|",
+    ])
+    def test_r6_02a_registered_content_passes(structure) -> None:
+        """正控:登记类/受保护内容(DAT 逗号、含空格值、并列重复头、
+        SgD/Sg/注记/标签/坐标)按真实类边界放行,可构造(语法不可解析
+        的裸 CX 形态才走 unparseable_smiles)。"""
+        try:
+>           build_chemical_state(structure, STRUCTURE_ORIGIN_RAW_INPUT)
+
+tests/test_ppv1_r7_chem.py:386: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/chemstate.py:506: in build_chemical_state
+    _guard_input_cx_classes(structure)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+structure = 'CC |atomProp:0.note.hello world|'
+
+    def _guard_input_cx_classes(structure: str) -> None:
+        """原始 CX 输入的注册感知校验(R5-02;解析**之前**对原始串调用)。
+    
+        用正则提取串中全部 ``|...|`` 扩展段;每段按空白拆 block:
+        - ``$...$`` 标签/值块($_AV、$label$)⇒ 登记移除类,放行;
+        - ``(...)`` 坐标块 ⇒ 登记移除类,放行;
+        - head(首个 ``:`` 前)∈ {atomProp, SgD} ⇒ 登记移除类,放行不查
+          内容(SgD 值可含逗号,勿按逗号拆整段);
+        - head == "Sg" ⇒ 登记保留类,放行不查内容;
+        - head 匹配 ^(a|o\\d+|&\\d+|\\^\\d+)$ ⇒ 登记保留注记类:对该
+          block 逗号拆 token,token 须为无冒号裸数字(原子列表延续)或
+          注记头命中 a/o\\d+/&\\d+/\\^\\d+(含 ``!`` 前缀,同
+          _CX_REGISTERED_HEAD_RE 语义),否则拒绝;
+        - 无冒号旗标块(如 r)⇒ 拒绝;
+        - 其余(Ln、c、w、wU、o、O、d、n、F 等)⇒ 拒绝。
+    
+        拒绝 ⇒ ChemicalStateError(kind=unregistered_cx_class,带违规
+        block/token):解析器静默丢弃的未知/畸形类不得丢弃后称 as_written。
+        语法整体不可解析的输入(无违规 CX 块)仍走 unparseable_smiles。
+        """
+        for segment in _CX_ALL_EXTENSION_RE.findall(structure):
+            for block in segment.split(" "):
+                if not block:
+                    continue
+                if block.startswith("$") and block.endswith("$"):
+                    continue  # 标签/值块($_AV、$label$):登记移除类
+                if block.startswith("(") and block.endswith(")"):
+                    continue  # 坐标块:登记移除类
+                head, sep, _ = block.partition(":")
+                # ``!`` 前缀/``!:`` 前形(输出侧 _CX_REGISTERED_HEAD_RE 的
+                # ``!?`` 语义):剥后再对登记表
+                stripped_head = head.lstrip("!").rstrip("!")
+                if not sep:
+>                   raise ChemicalStateError(
+                        f"CX 输入扩展段含未登记旗标块:{block[:80]!r}(输入侧"
+                        "注册感知校验:解析器会静默丢弃该块,丢弃后不得称"
+                        " as_written;未知旗标类显式拒绝)",
+                        {"kind": "unregistered_cx_class",
+                         "block": block[:200]})
+E                   pathway_v43.pollutant.chemstate.ChemicalStateError: CX 输入扩展段含未登记旗标块:'world'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;未知旗标类显式拒绝)
+
+src/pathway_v43/pollutant/chemstate.py:260: ChemicalStateError
+
+During handling of the above exception, another exception occurred:
+
+structure = 'CC |atomProp:0.note.hello world|'
+
+    @pytest.mark.parametrize("structure", [
+        # DAT 值内逗号受保护(R5 既有正控,继续保留)
+        "CO |SgD:0:note:a,b::::|",
+        # SgD 之间逗号并列(真实解析器按项边界分派第二个 SgD)
+        "CO |SgD:0:note:a::::,SgD:0:note:b::::|",
+        # atomProp 重复头并列(解析器逐项分派)
+        "CC |atomProp:0.a.x,atomProp:1.b.y|",
+        # atomProp 写出器冒号形态(一项内多 prop)
+        "CC |atomProp:0.a.x:1.b.y|",
+        # 登记内容含空格(§4-1 P2 同修:值/字段/标签内容到真分隔符)
+        "CC |atomProp:0.note.hello world|",
+        "CO |SgD:0:note:hello world::::|",
+        "C |$foo bar;$|",
+        # 登记类正控:坐标、标签、增强立体、自由基层、SRU
+        "C |(1,0,0;2,0,0)|",
+        "C |$x$|",
+        "C |$_AV:val1;val2$|",
+        "C[C@H](Cl)[C@H](F)Cl |a:1,&1:3|",
+        "CC |^1:0,1|",
+        "CCCCCC |Sg:n:1,2,3:3:ht:::|",
+        "CCCCCC |Sg:n:1,2,3:3:ht|",
+    ])
+    def test_r6_02a_registered_content_passes(structure) -> None:
+        """正控:登记类/受保护内容(DAT 逗号、含空格值、并列重复头、
+        SgD/Sg/注记/标签/坐标)按真实类边界放行,可构造(语法不可解析
+        的裸 CX 形态才走 unparseable_smiles)。"""
+        try:
+            build_chemical_state(structure, STRUCTURE_ORIGIN_RAW_INPUT)
+            strict_identity_of(structure)
+        except ChemicalStateError as exc:
+>           pytest.fail(f"登记内容被误拒:{exc.detail}")
+E           Failed: 登记内容被误拒:{'kind': 'unregistered_cx_class', 'block': 'world'}
+
+tests/test_ppv1_r7_chem.py:389: Failed
+____ test_r6_02a_registered_content_passes[CO |SgD:0:note:hello world::::|] ____
+
+structure = 'CO |SgD:0:note:hello world::::|'
+
+    @pytest.mark.parametrize("structure", [
+        # DAT 值内逗号受保护(R5 既有正控,继续保留)
+        "CO |SgD:0:note:a,b::::|",
+        # SgD 之间逗号并列(真实解析器按项边界分派第二个 SgD)
+        "CO |SgD:0:note:a::::,SgD:0:note:b::::|",
+        # atomProp 重复头并列(解析器逐项分派)
+        "CC |atomProp:0.a.x,atomProp:1.b.y|",
+        # atomProp 写出器冒号形态(一项内多 prop)
+        "CC |atomProp:0.a.x:1.b.y|",
+        # 登记内容含空格(§4-1 P2 同修:值/字段/标签内容到真分隔符)
+        "CC |atomProp:0.note.hello world|",
+        "CO |SgD:0:note:hello world::::|",
+        "C |$foo bar;$|",
+        # 登记类正控:坐标、标签、增强立体、自由基层、SRU
+        "C |(1,0,0;2,0,0)|",
+        "C |$x$|",
+        "C |$_AV:val1;val2$|",
+        "C[C@H](Cl)[C@H](F)Cl |a:1,&1:3|",
+        "CC |^1:0,1|",
+        "CCCCCC |Sg:n:1,2,3:3:ht:::|",
+        "CCCCCC |Sg:n:1,2,3:3:ht|",
+    ])
+    def test_r6_02a_registered_content_passes(structure) -> None:
+        """正控:登记类/受保护内容(DAT 逗号、含空格值、并列重复头、
+        SgD/Sg/注记/标签/坐标)按真实类边界放行,可构造(语法不可解析
+        的裸 CX 形态才走 unparseable_smiles)。"""
+        try:
+>           build_chemical_state(structure, STRUCTURE_ORIGIN_RAW_INPUT)
+
+tests/test_ppv1_r7_chem.py:386: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/chemstate.py:506: in build_chemical_state
+    _guard_input_cx_classes(structure)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+structure = 'CO |SgD:0:note:hello world::::|'
+
+    def _guard_input_cx_classes(structure: str) -> None:
+        """原始 CX 输入的注册感知校验(R5-02;解析**之前**对原始串调用)。
+    
+        用正则提取串中全部 ``|...|`` 扩展段;每段按空白拆 block:
+        - ``$...$`` 标签/值块($_AV、$label$)⇒ 登记移除类,放行;
+        - ``(...)`` 坐标块 ⇒ 登记移除类,放行;
+        - head(首个 ``:`` 前)∈ {atomProp, SgD} ⇒ 登记移除类,放行不查
+          内容(SgD 值可含逗号,勿按逗号拆整段);
+        - head == "Sg" ⇒ 登记保留类,放行不查内容;
+        - head 匹配 ^(a|o\\d+|&\\d+|\\^\\d+)$ ⇒ 登记保留注记类:对该
+          block 逗号拆 token,token 须为无冒号裸数字(原子列表延续)或
+          注记头命中 a/o\\d+/&\\d+/\\^\\d+(含 ``!`` 前缀,同
+          _CX_REGISTERED_HEAD_RE 语义),否则拒绝;
+        - 无冒号旗标块(如 r)⇒ 拒绝;
+        - 其余(Ln、c、w、wU、o、O、d、n、F 等)⇒ 拒绝。
+    
+        拒绝 ⇒ ChemicalStateError(kind=unregistered_cx_class,带违规
+        block/token):解析器静默丢弃的未知/畸形类不得丢弃后称 as_written。
+        语法整体不可解析的输入(无违规 CX 块)仍走 unparseable_smiles。
+        """
+        for segment in _CX_ALL_EXTENSION_RE.findall(structure):
+            for block in segment.split(" "):
+                if not block:
+                    continue
+                if block.startswith("$") and block.endswith("$"):
+                    continue  # 标签/值块($_AV、$label$):登记移除类
+                if block.startswith("(") and block.endswith(")"):
+                    continue  # 坐标块:登记移除类
+                head, sep, _ = block.partition(":")
+                # ``!`` 前缀/``!:`` 前形(输出侧 _CX_REGISTERED_HEAD_RE 的
+                # ``!?`` 语义):剥后再对登记表
+                stripped_head = head.lstrip("!").rstrip("!")
+                if not sep:
+                    raise ChemicalStateError(
+                        f"CX 输入扩展段含未登记旗标块:{block[:80]!r}(输入侧"
+                        "注册感知校验:解析器会静默丢弃该块,丢弃后不得称"
+                        " as_written;未知旗标类显式拒绝)",
+                        {"kind": "unregistered_cx_class",
+                         "block": block[:200]})
+                if stripped_head in _CX_INPUT_REMOVED_HEADS:
+                    continue  # atomProp/SgD:登记移除类,内容不查
+                if stripped_head in _CX_INPUT_RETAINED_HEADS:
+                    continue  # Sg:登记保留类,内容不查
+                if _CX_INPUT_ANNOTATION_HEAD_RE.match(stripped_head):
+                    # 保留注记类:逐 token 复核注记头(裸数字为原子列表
+                    # 延续;头可带 ``!`` 前缀/``!:`` 前形 —— 复用输出侧
+                    # _CX_REGISTERED_HEAD_RE 的 ``!?`` 语义)
+                    for token in block.split(","):
+                        token_head, token_sep, _ = token.partition(":")
+                        stripped = token_head.lstrip("!").rstrip("!")
+                        if not token_sep:
+                            if stripped.isdigit():
+                                continue  # 原子列表延续(裸数字)
+                            raise ChemicalStateError(
+                                f"CX 输入注记块含未登记 token:{token[:80]!r}"
+                                "(输入侧注册感知校验:登记注记类(a/oN/&N/^N)"
+                                "的 token 须为注记头或裸数字原子列表延续)",
+                                {"kind": "unregistered_cx_class",
+                                 "token": token[:200], "block": block[:200]})
+                        if not stripped or not \
+                                _CX_INPUT_ANNOTATION_HEAD_RE.match(stripped):
+                            raise ChemicalStateError(
+                                f"CX 输入注记块含未登记注记头:{token[:80]!r}"
+                                "(输入侧注册感知校验:须命中 a/oN/&N/^N,含 !"
+                                " 前缀;未知注记头显式拒绝)",
+                                {"kind": "unregistered_cx_class",
+                                 "token": token[:200], "block": block[:200]})
+                    continue
+>               raise ChemicalStateError(
+                    f"CX 输入扩展段含未登记注记类:{head[:80]!r}(输入侧注册"
+                    "感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;"
+                    "登记类:atomProp/SgD/$(…)$/(…)/Sg/a/oN/&N/^N;未知类"
+                    "显式拒绝)",
+                    {"kind": "unregistered_cx_class",
+                     "block": block[:200], "head": head[:80]})
+E               pathway_v43.pollutant.chemstate.ChemicalStateError: CX 输入扩展段含未登记注记类:'world'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;登记类:atomProp/SgD/$(…)$/(…)/Sg/a/oN/&N/^N;未知类显式拒绝)
+
+src/pathway_v43/pollutant/chemstate.py:295: ChemicalStateError
+
+During handling of the above exception, another exception occurred:
+
+structure = 'CO |SgD:0:note:hello world::::|'
+
+    @pytest.mark.parametrize("structure", [
+        # DAT 值内逗号受保护(R5 既有正控,继续保留)
+        "CO |SgD:0:note:a,b::::|",
+        # SgD 之间逗号并列(真实解析器按项边界分派第二个 SgD)
+        "CO |SgD:0:note:a::::,SgD:0:note:b::::|",
+        # atomProp 重复头并列(解析器逐项分派)
+        "CC |atomProp:0.a.x,atomProp:1.b.y|",
+        # atomProp 写出器冒号形态(一项内多 prop)
+        "CC |atomProp:0.a.x:1.b.y|",
+        # 登记内容含空格(§4-1 P2 同修:值/字段/标签内容到真分隔符)
+        "CC |atomProp:0.note.hello world|",
+        "CO |SgD:0:note:hello world::::|",
+        "C |$foo bar;$|",
+        # 登记类正控:坐标、标签、增强立体、自由基层、SRU
+        "C |(1,0,0;2,0,0)|",
+        "C |$x$|",
+        "C |$_AV:val1;val2$|",
+        "C[C@H](Cl)[C@H](F)Cl |a:1,&1:3|",
+        "CC |^1:0,1|",
+        "CCCCCC |Sg:n:1,2,3:3:ht:::|",
+        "CCCCCC |Sg:n:1,2,3:3:ht|",
+    ])
+    def test_r6_02a_registered_content_passes(structure) -> None:
+        """正控:登记类/受保护内容(DAT 逗号、含空格值、并列重复头、
+        SgD/Sg/注记/标签/坐标)按真实类边界放行,可构造(语法不可解析
+        的裸 CX 形态才走 unparseable_smiles)。"""
+        try:
+            build_chemical_state(structure, STRUCTURE_ORIGIN_RAW_INPUT)
+            strict_identity_of(structure)
+        except ChemicalStateError as exc:
+>           pytest.fail(f"登记内容被误拒:{exc.detail}")
+E           Failed: 登记内容被误拒:{'kind': 'unregistered_cx_class', 'block': 'world::::', 'head': 'world'}
+
+tests/test_ppv1_r7_chem.py:389: Failed
+____________ test_r6_02a_registered_content_passes[C |$foo bar;$|] _____________
+
+structure = 'C |$foo bar;$|'
+
+    @pytest.mark.parametrize("structure", [
+        # DAT 值内逗号受保护(R5 既有正控,继续保留)
+        "CO |SgD:0:note:a,b::::|",
+        # SgD 之间逗号并列(真实解析器按项边界分派第二个 SgD)
+        "CO |SgD:0:note:a::::,SgD:0:note:b::::|",
+        # atomProp 重复头并列(解析器逐项分派)
+        "CC |atomProp:0.a.x,atomProp:1.b.y|",
+        # atomProp 写出器冒号形态(一项内多 prop)
+        "CC |atomProp:0.a.x:1.b.y|",
+        # 登记内容含空格(§4-1 P2 同修:值/字段/标签内容到真分隔符)
+        "CC |atomProp:0.note.hello world|",
+        "CO |SgD:0:note:hello world::::|",
+        "C |$foo bar;$|",
+        # 登记类正控:坐标、标签、增强立体、自由基层、SRU
+        "C |(1,0,0;2,0,0)|",
+        "C |$x$|",
+        "C |$_AV:val1;val2$|",
+        "C[C@H](Cl)[C@H](F)Cl |a:1,&1:3|",
+        "CC |^1:0,1|",
+        "CCCCCC |Sg:n:1,2,3:3:ht:::|",
+        "CCCCCC |Sg:n:1,2,3:3:ht|",
+    ])
+    def test_r6_02a_registered_content_passes(structure) -> None:
+        """正控:登记类/受保护内容(DAT 逗号、含空格值、并列重复头、
+        SgD/Sg/注记/标签/坐标)按真实类边界放行,可构造(语法不可解析
+        的裸 CX 形态才走 unparseable_smiles)。"""
+        try:
+>           build_chemical_state(structure, STRUCTURE_ORIGIN_RAW_INPUT)
+
+tests/test_ppv1_r7_chem.py:386: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/pollutant/chemstate.py:506: in build_chemical_state
+    _guard_input_cx_classes(structure)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+structure = 'C |$foo bar;$|'
+
+    def _guard_input_cx_classes(structure: str) -> None:
+        """原始 CX 输入的注册感知校验(R5-02;解析**之前**对原始串调用)。
+    
+        用正则提取串中全部 ``|...|`` 扩展段;每段按空白拆 block:
+        - ``$...$`` 标签/值块($_AV、$label$)⇒ 登记移除类,放行;
+        - ``(...)`` 坐标块 ⇒ 登记移除类,放行;
+        - head(首个 ``:`` 前)∈ {atomProp, SgD} ⇒ 登记移除类,放行不查
+          内容(SgD 值可含逗号,勿按逗号拆整段);
+        - head == "Sg" ⇒ 登记保留类,放行不查内容;
+        - head 匹配 ^(a|o\\d+|&\\d+|\\^\\d+)$ ⇒ 登记保留注记类:对该
+          block 逗号拆 token,token 须为无冒号裸数字(原子列表延续)或
+          注记头命中 a/o\\d+/&\\d+/\\^\\d+(含 ``!`` 前缀,同
+          _CX_REGISTERED_HEAD_RE 语义),否则拒绝;
+        - 无冒号旗标块(如 r)⇒ 拒绝;
+        - 其余(Ln、c、w、wU、o、O、d、n、F 等)⇒ 拒绝。
+    
+        拒绝 ⇒ ChemicalStateError(kind=unregistered_cx_class,带违规
+        block/token):解析器静默丢弃的未知/畸形类不得丢弃后称 as_written。
+        语法整体不可解析的输入(无违规 CX 块)仍走 unparseable_smiles。
+        """
+        for segment in _CX_ALL_EXTENSION_RE.findall(structure):
+            for block in segment.split(" "):
+                if not block:
+                    continue
+                if block.startswith("$") and block.endswith("$"):
+                    continue  # 标签/值块($_AV、$label$):登记移除类
+                if block.startswith("(") and block.endswith(")"):
+                    continue  # 坐标块:登记移除类
+                head, sep, _ = block.partition(":")
+                # ``!`` 前缀/``!:`` 前形(输出侧 _CX_REGISTERED_HEAD_RE 的
+                # ``!?`` 语义):剥后再对登记表
+                stripped_head = head.lstrip("!").rstrip("!")
+                if not sep:
+>                   raise ChemicalStateError(
+                        f"CX 输入扩展段含未登记旗标块:{block[:80]!r}(输入侧"
+                        "注册感知校验:解析器会静默丢弃该块,丢弃后不得称"
+                        " as_written;未知旗标类显式拒绝)",
+                        {"kind": "unregistered_cx_class",
+                         "block": block[:200]})
+E                   pathway_v43.pollutant.chemstate.ChemicalStateError: CX 输入扩展段含未登记旗标块:'$foo'(输入侧注册感知校验:解析器会静默丢弃该块,丢弃后不得称 as_written;未知旗标类显式拒绝)
+
+src/pathway_v43/pollutant/chemstate.py:260: ChemicalStateError
+
+During handling of the above exception, another exception occurred:
+
+structure = 'C |$foo bar;$|'
+
+    @pytest.mark.parametrize("structure", [
+        # DAT 值内逗号受保护(R5 既有正控,继续保留)
+        "CO |SgD:0:note:a,b::::|",
+        # SgD 之间逗号并列(真实解析器按项边界分派第二个 SgD)
+        "CO |SgD:0:note:a::::,SgD:0:note:b::::|",
+        # atomProp 重复头并列(解析器逐项分派)
+        "CC |atomProp:0.a.x,atomProp:1.b.y|",
+        # atomProp 写出器冒号形态(一项内多 prop)
+        "CC |atomProp:0.a.x:1.b.y|",
+        # 登记内容含空格(§4-1 P2 同修:值/字段/标签内容到真分隔符)
+        "CC |atomProp:0.note.hello world|",
+        "CO |SgD:0:note:hello world::::|",
+        "C |$foo bar;$|",
+        # 登记类正控:坐标、标签、增强立体、自由基层、SRU
+        "C |(1,0,0;2,0,0)|",
+        "C |$x$|",
+        "C |$_AV:val1;val2$|",
+        "C[C@H](Cl)[C@H](F)Cl |a:1,&1:3|",
+        "CC |^1:0,1|",
+        "CCCCCC |Sg:n:1,2,3:3:ht:::|",
+        "CCCCCC |Sg:n:1,2,3:3:ht|",
+    ])
+    def test_r6_02a_registered_content_passes(structure) -> None:
+        """正控:登记类/受保护内容(DAT 逗号、含空格值、并列重复头、
+        SgD/Sg/注记/标签/坐标)按真实类边界放行,可构造(语法不可解析
+        的裸 CX 形态才走 unparseable_smiles)。"""
+        try:
+            build_chemical_state(structure, STRUCTURE_ORIGIN_RAW_INPUT)
+            strict_identity_of(structure)
+        except ChemicalStateError as exc:
+>           pytest.fail(f"登记内容被误拒:{exc.detail}")
+E           Failed: 登记内容被误拒:{'kind': 'unregistered_cx_class', 'block': '$foo'}
+
+tests/test_ppv1_r7_chem.py:389: Failed
+__________ test_r6_02b_donor_raw_r_rejected_all_four_entries[current] __________
+
+field = 'current'
+
+    @pytest.mark.parametrize("field", ["current", "mapped", "plain", "target"])
+    def test_r6_02b_donor_raw_r_rejected_all_four_entries(field) -> None:
+        """R6 复审反例,基线 6d90201 红(核心两轴):真实干净乙醇→乙醛
+        执行,仅在接口原始字段加 |r| —— current 与 mapped product 基线
+        诊断 True/True、公共 audit→R6(解析器剥标记后绑定身份);
+        plain/target 基线 strict=None/retain(未误放行但不闭合)。
+        v7:四个原始字符串入口统一走工厂同源守卫 ⇒ 结构化拒绝
+        (raw_input_cx_class_unregistered,带字段名),任何轴不得以剥
+        标记身份参与 verified 证据。"""
+        render_result, edits, execution = _oxidation_inputs()
+        current = {"smiles": render_result.smiles,
+                   "atom_id_map": dict(render_result.atom_id_map)}
+        target = execution["product_smiles"]
+        if field == "current":
+            current = dict(current, smiles=current["smiles"] + " |r|")
+        elif field == "mapped":
+            execution = dict(execution,
+                             product_mapped_smiles=(
+                                 execution["product_mapped_smiles"] + " |r|"))
+        elif field == "plain":
+            execution = dict(execution,
+                             product_smiles=(
+                                 execution["product_smiles"] + " |r|"))
+        else:
+            target = target + " |r|"
+>       with pytest.raises(AuditContractError) as ei:
+E       Failed: DID NOT RAISE AuditContractError
+
+tests/test_ppv1_r7_chem.py:448: Failed
+__________ test_r6_02b_donor_raw_r_rejected_all_four_entries[mapped] ___________
+
+field = 'mapped'
+
+    @pytest.mark.parametrize("field", ["current", "mapped", "plain", "target"])
+    def test_r6_02b_donor_raw_r_rejected_all_four_entries(field) -> None:
+        """R6 复审反例,基线 6d90201 红(核心两轴):真实干净乙醇→乙醛
+        执行,仅在接口原始字段加 |r| —— current 与 mapped product 基线
+        诊断 True/True、公共 audit→R6(解析器剥标记后绑定身份);
+        plain/target 基线 strict=None/retain(未误放行但不闭合)。
+        v7:四个原始字符串入口统一走工厂同源守卫 ⇒ 结构化拒绝
+        (raw_input_cx_class_unregistered,带字段名),任何轴不得以剥
+        标记身份参与 verified 证据。"""
+        render_result, edits, execution = _oxidation_inputs()
+        current = {"smiles": render_result.smiles,
+                   "atom_id_map": dict(render_result.atom_id_map)}
+        target = execution["product_smiles"]
+        if field == "current":
+            current = dict(current, smiles=current["smiles"] + " |r|")
+        elif field == "mapped":
+            execution = dict(execution,
+                             product_mapped_smiles=(
+                                 execution["product_mapped_smiles"] + " |r|"))
+        elif field == "plain":
+            execution = dict(execution,
+                             product_smiles=(
+                                 execution["product_smiles"] + " |r|"))
+        else:
+            target = target + " |r|"
+>       with pytest.raises(AuditContractError) as ei:
+E       Failed: DID NOT RAISE AuditContractError
+
+tests/test_ppv1_r7_chem.py:448: Failed
+___________ test_r6_02b_donor_raw_r_rejected_all_four_entries[plain] ___________
+
+field = 'plain'
+
+    @pytest.mark.parametrize("field", ["current", "mapped", "plain", "target"])
+    def test_r6_02b_donor_raw_r_rejected_all_four_entries(field) -> None:
+        """R6 复审反例,基线 6d90201 红(核心两轴):真实干净乙醇→乙醛
+        执行,仅在接口原始字段加 |r| —— current 与 mapped product 基线
+        诊断 True/True、公共 audit→R6(解析器剥标记后绑定身份);
+        plain/target 基线 strict=None/retain(未误放行但不闭合)。
+        v7:四个原始字符串入口统一走工厂同源守卫 ⇒ 结构化拒绝
+        (raw_input_cx_class_unregistered,带字段名),任何轴不得以剥
+        标记身份参与 verified 证据。"""
+        render_result, edits, execution = _oxidation_inputs()
+        current = {"smiles": render_result.smiles,
+                   "atom_id_map": dict(render_result.atom_id_map)}
+        target = execution["product_smiles"]
+        if field == "current":
+            current = dict(current, smiles=current["smiles"] + " |r|")
+        elif field == "mapped":
+            execution = dict(execution,
+                             product_mapped_smiles=(
+                                 execution["product_mapped_smiles"] + " |r|"))
+        elif field == "plain":
+            execution = dict(execution,
+                             product_smiles=(
+                                 execution["product_smiles"] + " |r|"))
+        else:
+            target = target + " |r|"
+>       with pytest.raises(AuditContractError) as ei:
+E       Failed: DID NOT RAISE AuditContractError
+
+tests/test_ppv1_r7_chem.py:448: Failed
+__________ test_r6_02b_donor_raw_r_rejected_all_four_entries[target] ___________
+
+field = 'target'
+
+    @pytest.mark.parametrize("field", ["current", "mapped", "plain", "target"])
+    def test_r6_02b_donor_raw_r_rejected_all_four_entries(field) -> None:
+        """R6 复审反例,基线 6d90201 红(核心两轴):真实干净乙醇→乙醛
+        执行,仅在接口原始字段加 |r| —— current 与 mapped product 基线
+        诊断 True/True、公共 audit→R6(解析器剥标记后绑定身份);
+        plain/target 基线 strict=None/retain(未误放行但不闭合)。
+        v7:四个原始字符串入口统一走工厂同源守卫 ⇒ 结构化拒绝
+        (raw_input_cx_class_unregistered,带字段名),任何轴不得以剥
+        标记身份参与 verified 证据。"""
+        render_result, edits, execution = _oxidation_inputs()
+        current = {"smiles": render_result.smiles,
+                   "atom_id_map": dict(render_result.atom_id_map)}
+        target = execution["product_smiles"]
+        if field == "current":
+            current = dict(current, smiles=current["smiles"] + " |r|")
+        elif field == "mapped":
+            execution = dict(execution,
+                             product_mapped_smiles=(
+                                 execution["product_mapped_smiles"] + " |r|"))
+        elif field == "plain":
+            execution = dict(execution,
+                             product_smiles=(
+                                 execution["product_smiles"] + " |r|"))
+        else:
+            target = target + " |r|"
+>       with pytest.raises(AuditContractError) as ei:
+E       Failed: DID NOT RAISE AuditContractError
+
+tests/test_ppv1_r7_chem.py:448: Failed
+_____________ test_r6_02b_audit_rerun_rejects_tainted_proof_record _____________
+
+    def test_r6_02b_audit_rerun_rejects_tainted_proof_record() -> None:
+        """R6-02B 链条闭合:手工携带含 |r| 原始串的 proof_record 走公开
+        audit 复算 ⇒ 复跑 checker 同守卫拒绝(结构化),不得经审计证据
+        门洗成 verified/R6。"""
+        render_result, edits, execution = _oxidation_inputs()
+        evidence = {
+            "checker_version": "ppv1-donor-diagnostic-7",
+            "checker_scope": "region_net_change",
+            "center_match": True, "center_match_basis": "direct",
+            "declaration_mismatch": False, "strict_target_match": True,
+            "proof_scope": "self_contained_recompute",
+            "evidence_refs": ["r7"],
+            "bound_inputs": {
+                "substrate_identity": "CCO",
+                "product_identity": "CC=O",
+                "edits_signature": "x", "donor_centers": ["dC", "dO"],
+                "alignment_ref": "r7", "execution_fingerprint": "x"},
+            "proof_record": {
+                "current": {"smiles": render_result.smiles + " |r|",
+                            "atom_id_map": dict(
+                                render_result.atom_id_map)},
+                "donor": {"center_atom_ids": ["dC", "dO"]},
+                "alignment": {"status": "resolved",
+                              "donor_to_current": {"dC": "S_C_2",
+                                                   "dO": "S_O_1"},
+                              "equivalence_classes": [], "ref": "r7"},
+                "expectation": {"target_smiles":
+                                execution["product_smiles"]},
+                "result": dict(execution),
+                "edits": list(edits),
+            },
+        }
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN,
+                         origin=STRUCTURE_ORIGIN_RAW_INPUT)
+        hyp = _hyp(states, [(ETHANOL, 1)],
+                   [(ACETALDEHYDE, 1), (HYDROGEN, 1)],
+                   group="r7-rerun-r")
+>       with pytest.raises(AuditContractError) as ei:
+E       Failed: DID NOT RAISE AuditContractError
+
+tests/test_ppv1_r7_chem.py:495: Failed
+_____________ test_r6_02b_chiral_substrate_remote_edit_r_rejected ______________
+
+    def test_r6_02b_chiral_substrate_remote_edit_r_rejected() -> None:
+        """R6 复审反例:指定手性底物 F[C@H](Cl)CCO 的远端氧化,仅在
+        current 加 |r| —— 基线同样 R6(剥标记后远端编辑与手性无关);
+        v7 入口守卫拒绝,不因中心远端而放行原始标记丢失。"""
+        render_result = roundtrip("F[C@H](Cl)CCO", name="S")
+        edits = [{"op": "change_bond_order", "atom1": "S_C_3",
+                  "atom2": "S_O_1", "from_order": "single",
+                  "to_order": "double"}]
+        execution = execute_edits(render_result, edits)
+        assert execution["ok"] is True
+        current = {"smiles": render_result.smiles + " |r|",
+                   "atom_id_map": dict(render_result.atom_id_map)}
+>       with pytest.raises(AuditContractError) as ei:
+E       Failed: DID NOT RAISE AuditContractError
+
+tests/test_ppv1_r7_chem.py:516: Failed
+_______________ test_r6_03_untempered_child_keeps_honest_unknown _______________
+
+    def test_r6_03_untempered_child_keeps_honest_unknown() -> None:
+        """对照(基线亦绿):未篡改的合法子上下文 —— 旧 pH unknown 由
+        快照承载,路线 unknown、条件检查 unknown、retain(不 R6)。"""
+        child = _ph_unknown_child()
+        hyp, states, evidence = _oxygen_hyp()
+        result = _audit(hyp, states, child, evidence)
+        assert result["condition_status"] == "unknown"
+        assert result["admission"][0] == "retain_conditional"
+        # 合法快照:签名与评估行双向同源(行携带 requirement_signature)
+        snap = child.phase_history[0]
+>       row_sigs = {row["requirement_signature"]
+                    for row in snap["per_requirement"]}
+
+tests/test_ppv1_r7_conditions.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <list_iterator object at 0x10f8a6800>
+
+>   row_sigs = {row["requirement_signature"]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                for row in snap["per_requirement"]}
+E   KeyError: 'requirement_signature'
+
+tests/test_ppv1_r7_conditions.py:154: KeyError
+__________________ test_r6_03_derive_rejects_tampered_parent ___________________
+
+    def test_r6_03_derive_rejects_tampered_parent() -> None:
+        """R6 复审反例,基线 6d90201 红:public derive_child_context
+        (parent) 不传新事实/要求/转换,却重算合法新 child ID —— 旧 pH
+        不再参与门禁、audit verified/R6、child→dict→from_dict 后再审也
+        R6。v7:派生入口先走 validate_context_object(父对象内容身份/
+        快照一致性),篡改父 ⇒ 拒,不再产生"合法"子对象。"""
+        child = _tamper_snapshot(_ph_unknown_child())
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_r7_conditions.py:182: Failed
+__________ test_r6_03_signature_row_correspondence_error_is_specific ___________
+
+    def test_r6_03_signature_row_correspondence_error_is_specific() -> None:
+        """R6-03 验收细节:残余形状(签名保留/行删空)在快照一致性层报
+        signature_row_correspondence(区别于内容身份/凭空签名两族),
+        机器披露"签名无评估行"一侧。"""
+        from pathway_v43.pollutant.path_context import (
+            _validate_phase_history_snapshot)
+        child = _ph_unknown_child()
+        snap = child.phase_history[0]
+        kept = list(snap["covered_requirement_signatures"])
+        snap["per_requirement"] = []
+        snap["requirement_coverage"] = {
+            k: [] for k in snap["requirement_coverage"]}
+        snap["has_gate_requirements"] = False
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_r7_conditions.py:213: Failed
+_ test_r6_04_existing_state_corrupt_first_submit_rejected[cn_identity-state_row_corrupt] _
+
+field = 'cn_identity', kind = 'state_row_corrupt'
+
+    @pytest.mark.parametrize("field,kind", [
+        ("cn_identity", "state_row_corrupt"),
+        ("schema_version", "state_schema_corrupt"),
+        ("state_id", "state_inner_id_corrupt"),
+    ])
+    def test_r6_04_existing_state_corrupt_first_submit_rejected(
+            field, kind) -> None:
+        """R6 复审反例,基线 6d90201 红:先 public put 合法 CCO/CC=O,仅
+        在合成库改 prod 单字段(CN→CCN、schema→未来版本、载荷内
+        state_id 与行键不符),再 states=[] 首提 —— 基线 created=True
+        写事件/投影/计划(重放才 state_*_corrupt);v7 首提即
+        Ppv1LedgerCorrupt(kind)、零写入,不以"重放能发现"代替。"""
+        store, sub, prod, hyp, event, args = fixture(
+            "r6_04_state_" + field)
+        for s in args["states"]:
+            store.put_state(s)
+        saved = json.loads(store.conn.execute(
+            "SELECT payload FROM states WHERE state_id=?",
+            (prod.state_id,)).fetchone()[0])
+        saved[field] = {"cn_identity": "CCN",
+                        "schema_version": "ppv1-chemstate-99",
+                        "state_id": "fake:inner-state"}[field]
+        store.conn.execute(
+            "UPDATE states SET payload=? WHERE state_id=?",
+            (json.dumps(saved), prod.state_id))
+        store.conn.commit()
+        outcome, preserved = observed(store, event, dict(args, states=[]))
+>       assert outcome == {"error": "Ppv1LedgerCorrupt", "kind": kind}
+E       AssertionError: assert {'created': True} == {'error': 'Pp..._row_corrupt'}
+E         
+E         Left contains 1 more item:
+E         {'created': True}
+E         Right contains 2 more items:
+E         {'error': 'Ppv1LedgerCorrupt', 'kind': 'state_row_corrupt'}
+E         Use -v to get more diff
+
+tests/test_ppv1_r7_storage.py:129: AssertionError
+_ test_r6_04_existing_state_corrupt_first_submit_rejected[schema_version-state_schema_corrupt] _
+
+field = 'schema_version', kind = 'state_schema_corrupt'
+
+    @pytest.mark.parametrize("field,kind", [
+        ("cn_identity", "state_row_corrupt"),
+        ("schema_version", "state_schema_corrupt"),
+        ("state_id", "state_inner_id_corrupt"),
+    ])
+    def test_r6_04_existing_state_corrupt_first_submit_rejected(
+            field, kind) -> None:
+        """R6 复审反例,基线 6d90201 红:先 public put 合法 CCO/CC=O,仅
+        在合成库改 prod 单字段(CN→CCN、schema→未来版本、载荷内
+        state_id 与行键不符),再 states=[] 首提 —— 基线 created=True
+        写事件/投影/计划(重放才 state_*_corrupt);v7 首提即
+        Ppv1LedgerCorrupt(kind)、零写入,不以"重放能发现"代替。"""
+        store, sub, prod, hyp, event, args = fixture(
+            "r6_04_state_" + field)
+        for s in args["states"]:
+            store.put_state(s)
+        saved = json.loads(store.conn.execute(
+            "SELECT payload FROM states WHERE state_id=?",
+            (prod.state_id,)).fetchone()[0])
+        saved[field] = {"cn_identity": "CCN",
+                        "schema_version": "ppv1-chemstate-99",
+                        "state_id": "fake:inner-state"}[field]
+        store.conn.execute(
+            "UPDATE states SET payload=? WHERE state_id=?",
+            (json.dumps(saved), prod.state_id))
+        store.conn.commit()
+        outcome, preserved = observed(store, event, dict(args, states=[]))
+>       assert outcome == {"error": "Ppv1LedgerCorrupt", "kind": kind}
+E       AssertionError: assert {'created': True} == {'error': 'Pp...hema_corrupt'}
+E         
+E         Left contains 1 more item:
+E         {'created': True}
+E         Right contains 2 more items:
+E         {'error': 'Ppv1LedgerCorrupt', 'kind': 'state_schema_corrupt'}
+E         Use -v to get more diff
+
+tests/test_ppv1_r7_storage.py:129: AssertionError
+_ test_r6_04_existing_state_corrupt_first_submit_rejected[state_id-state_inner_id_corrupt] _
+
+field = 'state_id', kind = 'state_inner_id_corrupt'
+
+    @pytest.mark.parametrize("field,kind", [
+        ("cn_identity", "state_row_corrupt"),
+        ("schema_version", "state_schema_corrupt"),
+        ("state_id", "state_inner_id_corrupt"),
+    ])
+    def test_r6_04_existing_state_corrupt_first_submit_rejected(
+            field, kind) -> None:
+        """R6 复审反例,基线 6d90201 红:先 public put 合法 CCO/CC=O,仅
+        在合成库改 prod 单字段(CN→CCN、schema→未来版本、载荷内
+        state_id 与行键不符),再 states=[] 首提 —— 基线 created=True
+        写事件/投影/计划(重放才 state_*_corrupt);v7 首提即
+        Ppv1LedgerCorrupt(kind)、零写入,不以"重放能发现"代替。"""
+        store, sub, prod, hyp, event, args = fixture(
+            "r6_04_state_" + field)
+        for s in args["states"]:
+            store.put_state(s)
+        saved = json.loads(store.conn.execute(
+            "SELECT payload FROM states WHERE state_id=?",
+            (prod.state_id,)).fetchone()[0])
+        saved[field] = {"cn_identity": "CCN",
+                        "schema_version": "ppv1-chemstate-99",
+                        "state_id": "fake:inner-state"}[field]
+        store.conn.execute(
+            "UPDATE states SET payload=? WHERE state_id=?",
+            (json.dumps(saved), prod.state_id))
+        store.conn.commit()
+        outcome, preserved = observed(store, event, dict(args, states=[]))
+>       assert outcome == {"error": "Ppv1LedgerCorrupt", "kind": kind}
+E       AssertionError: assert {'created': True} == {'error': 'Pp...r_id_corrupt'}
+E         
+E         Left contains 1 more item:
+E         {'created': True}
+E         Right contains 2 more items:
+E         {'error': 'Ppv1LedgerCorrupt', 'kind': 'state_inner_id_corrupt'}
+E         Use -v to get more diff
+
+tests/test_ppv1_r7_storage.py:129: AssertionError
+_________ test_r6_04_existing_appearance_corrupt_first_submit_rejected _________
+
+    def test_r6_04_existing_appearance_corrupt_first_submit_rejected() -> None:
+        """R6 复审反例,基线 6d90201 红:appearance payload 的
+        source_refs 被改而 hash 列不动 —— 基线 states=[] 首提 created=
+        True(重放才 appearance_hash_corrupt);v7 首提即拒、零写入。"""
+        store, sub, prod, hyp, event, args = fixture(
+            "r6_04_appearance")
+        for s in args["states"]:
+            store.put_state(s)
+        row = store.conn.execute(
+            "SELECT appearance_hash, payload FROM state_appearances"
+            " WHERE state_id=?", (prod.state_id,)).fetchone()
+        payload = json.loads(row["payload"])
+        payload["source_refs"] = [{"record": "modified_without_hash"}]
+        store.conn.execute(
+            "UPDATE state_appearances SET payload=? WHERE state_id=? AND"
+            " appearance_hash=?",
+            (json.dumps(payload), prod.state_id, row["appearance_hash"]))
+        store.conn.commit()
+        outcome, preserved = observed(store, event, dict(args, states=[]))
+>       assert outcome == {"error": "Ppv1LedgerCorrupt",
+                           "kind": "appearance_hash_corrupt"}
+E       AssertionError: assert {'created': True} == {'error': 'Pp...hash_corrupt'}
+E         
+E         Left contains 1 more item:
+E         {'created': True}
+E         Right contains 2 more items:
+E         {'error': 'Ppv1LedgerCorrupt', 'kind': 'appearance_hash_corrupt'}
+E         Use -v to get more diff
+
+tests/test_ppv1_r7_storage.py:152: AssertionError
+______________ test_r6_05_multi_source_manifest_and_links_control ______________
+
+    def test_r6_05_multi_source_manifest_and_links_control() -> None:
+        """正控(基线亦绿):同 SID 多来源出现各自保留(不合并);首提
+        manifest 三项;v7 同时把完整 (sid, hash) 集合写入独立完整性表
+        event_appearance_links(3 行);无输入重放 created=False 幂等;
+        states 提供顺序不影响(links/manifest 为集合语义)。"""
+        store, sub, prod, other, hyp, event, args = \
+            _multi_occurrence_fixture("r6_05_control")
+        outcome, _ = observed(store, event, dict(
+            args, states=[sub.to_dict(), prod.to_dict(),
+                          other.to_dict()]))
+        assert outcome == {"created": True}
+        payload = json.loads(store.get_event(event.event_id)["payload"])
+        manifest = payload["event_appearance_manifest"]
+        assert len(manifest) == 3
+        assert len({e["appearance_hash"] for e in manifest
+                    if e["state_id"] == prod.state_id}) == 2
+>       links = store.conn.execute(
+            "SELECT state_id, appearance_hash FROM event_appearance_links"
+            " WHERE event_id=?", (event.event_id,)).fetchall()
+E       sqlite3.OperationalError: no such table: event_appearance_links
+
+tests/test_ppv1_r7_storage.py:216: OperationalError
+____________ test_r6_05_delete_manifest_entry_leaving_other_corrupt ____________
+
+    def test_r6_05_delete_manifest_entry_leaving_other_corrupt() -> None:
+        """R6 复审反例,基线 6d90201 红:删清单 A 项留 B(同 SID 的另一
+        出现继续覆盖 product 状态)—— 基线无输入重放仍 created=False
+        (state_id 集合恰好仍等);v7:清单与独立完整性表双向失配 ⇒
+        Ppv1LedgerCorrupt(event_appearance_manifest_link_corrupt),
+        同 state 另一出现不能冒充完整集合。"""
+        store, sub, prod, other, hyp, event, args = \
+            _multi_occurrence_fixture("r6_05_del_manifest")
+        outcome, _ = observed(store, event, dict(
+            args, states=[sub.to_dict(), prod.to_dict(),
+                          other.to_dict()]))
+        assert outcome == {"created": True}
+        payload = json.loads(store.get_event(event.event_id)["payload"])
+        a_hash = next(
+            e["appearance_hash"] for e in payload["event_appearance_manifest"]
+            if e["state_id"] == prod.state_id
+            and _appearance_refs(store, prod.state_id,
+                                 e["appearance_hash"]) == [{"record":
+                                                            "prod-A"}])
+        payload["event_appearance_manifest"] = [
+            e for e in payload["event_appearance_manifest"]
+            if e["appearance_hash"] != a_hash]
+        store.conn.execute(
+            "UPDATE events SET payload=? WHERE event_id=?",
+            (json.dumps(payload), event.event_id))
+        store.conn.commit()
+        outcome, preserved = replay(store, event, args)
+>       assert outcome == {"error": "Ppv1LedgerCorrupt",
+                           "kind": "event_appearance_manifest_link_corrupt"}
+E       AssertionError: assert {'created': False} == {'error': 'Pp...link_corrupt'}
+E         
+E         Left contains 1 more item:
+E         {'created': False}
+E         Right contains 2 more items:
+E         {'error': 'Ppv1LedgerCorrupt', 'kind': 'event_appearance_manifest_link_corrupt'}
+E         Use -v to get more diff
+
+tests/test_ppv1_r7_storage.py:255: AssertionError
+_______________ test_r6_05_delete_manifest_entry_and_row_corrupt _______________
+
+    def test_r6_05_delete_manifest_entry_and_row_corrupt() -> None:
+        """R6 复审反例,基线 6d90201 红:删清单 A 项**并**删实际 A 出现
+        行 —— 基线无输入重放仍 created=False;v7:与 links 失配 ⇒
+        损坏(完整性依据独立于事件 payload,event_semantics_hash 不含
+        清单,payload 单点编辑+删行不再能洗掉该次出现)。"""
+        store, sub, prod, other, hyp, event, args = \
+            _multi_occurrence_fixture("r6_05_del_both")
+        outcome, _ = observed(store, event, dict(
+            args, states=[sub.to_dict(), prod.to_dict(),
+                          other.to_dict()]))
+        assert outcome == {"created": True}
+        payload = json.loads(store.get_event(event.event_id)["payload"])
+        a_hash = next(
+            e["appearance_hash"] for e in payload["event_appearance_manifest"]
+            if e["state_id"] == prod.state_id
+            and _appearance_refs(store, prod.state_id,
+                                 e["appearance_hash"]) == [{"record":
+                                                            "prod-A"}])
+        payload["event_appearance_manifest"] = [
+            e for e in payload["event_appearance_manifest"]
+            if e["appearance_hash"] != a_hash]
+        store.conn.execute(
+            "UPDATE events SET payload=? WHERE event_id=?",
+            (json.dumps(payload), event.event_id))
+        store.conn.execute(
+            "DELETE FROM state_appearances WHERE state_id=? AND"
+            " appearance_hash=?", (prod.state_id, a_hash))
+        store.conn.commit()
+        outcome, preserved = replay(store, event, args)
+>       assert outcome == {"error": "Ppv1LedgerCorrupt",
+                           "kind": "event_appearance_manifest_link_corrupt"}
+E       AssertionError: assert {'created': False} == {'error': 'Pp...link_corrupt'}
+E         
+E         Left contains 1 more item:
+E         {'created': False}
+E         Right contains 2 more items:
+E         {'error': 'Ppv1LedgerCorrupt', 'kind': 'event_appearance_manifest_link_corrupt'}
+E         Use -v to get more diff
+
+tests/test_ppv1_r7_storage.py:290: AssertionError
+___________________ test_r6_05_delete_link_rows_only_corrupt ___________________
+
+    def test_r6_05_delete_link_rows_only_corrupt() -> None:
+        """v7 新控制:只删独立完整性表行(清单/出现行都保持)⇒ 双向
+        失配同样损坏(两处同源依据须一致,删任一侧都不可)。"""
+        store, sub, prod, other, hyp, event, args = \
+            _multi_occurrence_fixture("r6_05_del_links")
+        outcome, _ = observed(store, event, dict(
+            args, states=[sub.to_dict(), prod.to_dict(),
+                          other.to_dict()]))
+        assert outcome == {"created": True}
+>       store.conn.execute(
+            "DELETE FROM event_appearance_links WHERE event_id=? AND"
+            " state_id=?", (event.event_id, prod.state_id))
+E       sqlite3.OperationalError: no such table: event_appearance_links
+
+tests/test_ppv1_r7_storage.py:333: OperationalError
+________________ test_r6_05_order_idempotence_links_set_control ________________
+
+    def test_r6_05_order_idempotence_links_set_control() -> None:
+        """正控(排序幂等):states 提供顺序不同 ⇒ 同一事件 manifest/
+        links 集合一致(集合语义;重放 created=False)。"""
+        store, sub, prod, other, hyp, event, args = \
+            _multi_occurrence_fixture("r6_05_order_a")
+        outcome, _ = observed(store, event, dict(
+            args, states=[other.to_dict(), prod.to_dict(),
+                          sub.to_dict()]))
+        assert outcome == {"created": True}
+        links_a = {(r["state_id"], r["appearance_hash"])
+>                  for r in store.conn.execute(
+                       "SELECT state_id, appearance_hash FROM"
+                       " event_appearance_links WHERE event_id=?",
+                       (event.event_id,)).fetchall()}
+E       sqlite3.OperationalError: no such table: event_appearance_links
+
+tests/test_ppv1_r7_storage.py:354: OperationalError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_r7_conditions_858dd94_ZZFwTe/baseline_worktree/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+33 failed, 24 passed, 1 warning in 1.20s

@@ -1,0 +1,127 @@
+{
+  "cases": [
+    {
+      "case": "old_crash_after_claim",
+      "current_contract_observed": true
+    },
+    {
+      "case": "old_crash_after_request_registered",
+      "current_contract_observed": true
+    },
+    {
+      "case": "old_crash_after_bundle_written",
+      "current_contract_observed": true
+    },
+    {
+      "case": "old_crash_after_event_submitted",
+      "current_contract_observed": true
+    },
+    {
+      "case": "frozen_plan_same",
+      "current_contract_observed": true
+    },
+    {
+      "case": "frozen_plan_omitted",
+      "current_contract_observed": true
+    },
+    {
+      "case": "frozen_plan_changed",
+      "current_contract_observed": true
+    },
+    {
+      "case": "frozen_plan_decide_changed",
+      "current_contract_observed": true
+    },
+    {
+      "case": "public_artifact_hash_bad",
+      "current_contract_observed": true
+    },
+    {
+      "case": "public_artifact_json_bad",
+      "current_contract_observed": true
+    },
+    {
+      "case": "public_event_ledger_bad",
+      "current_contract_observed": true
+    },
+    {
+      "case": "public_reservation_missing",
+      "current_contract_observed": true
+    },
+    {
+      "artifact_only_mutation_kept_db_tables": true,
+      "case": "self_consistent_replaced_plan_after_bundle_written",
+      "classification": "same_S3B01_residual",
+      "current_contract_observed": false,
+      "db_logical_hash_after_artifact_mutation": "8ab6f68d189da22614dac48f92286dd430e46561fc941b1a5625aa034bdf35f5",
+      "db_logical_hash_after_resume": "c963806faebd8d8f2d580c2ab69b044133c52c906427ee3b690f44dce3941cbd",
+      "db_logical_hash_before_artifact_mutation": "8ab6f68d189da22614dac48f92286dd430e46561fc941b1a5625aa034bdf35f5",
+      "new_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+      "plan_version": "ppv1-frozen-plan-1",
+      "root_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "transition_count": 1
+    },
+    {
+      "artifact_only_mutation_kept_db_tables": true,
+      "case": "self_consistent_replaced_plan_after_event_submitted",
+      "classification": "same_S3B01_residual",
+      "current_contract_observed": false,
+      "db_logical_hash_after_artifact_mutation": "f1e7a20f803faf25e575e4bf7a9d3f2769019f4034c7f282b91ffbcc381edbb5",
+      "db_logical_hash_after_resume": "287b7e4dcc946b26d316907c4c4a9a3d929f97354401998ad0a04487aaed6831",
+      "db_logical_hash_before_artifact_mutation": "f1e7a20f803faf25e575e4bf7a9d3f2769019f4034c7f282b91ffbcc381edbb5",
+      "new_plan_digest": "7164d4f966b107f19544e5e0a0cac7a4a80ce22e7f289f24a5ebc8c7fe3acd04",
+      "plan_version": "ppv1-frozen-plan-1",
+      "root_digest": "880bf6c37d09af15db7a82ad19cfd9aa4b4d1d52eab0efe256e8dd08babdeb94",
+      "transition_count": 1
+    },
+    {
+      "case": "transition_normal",
+      "current_contract_observed": true
+    },
+    {
+      "case": "transition_after_transition_enqueued_before_attach",
+      "current_contract_observed": true
+    },
+    {
+      "case": "transition_after_event_submitted",
+      "current_contract_observed": true
+    },
+    {
+      "case": "transition_after_transition_followups_before_complete",
+      "current_contract_observed": true
+    },
+    {
+      "case": "three_products_normal",
+      "current_contract_observed": true
+    },
+    {
+      "case": "three_products_after_two_corrected",
+      "current_contract_observed": true
+    },
+    {
+      "case": "public_concurrent_resume",
+      "current_contract_observed": true
+    },
+    {
+      "case": "bad_bundle_independent_task",
+      "current_contract_observed": true
+    },
+    {
+      "case": "frozen_artifact_missing",
+      "current_contract_observed": true
+    },
+    {
+      "case": "frozen_artifact_unparseable",
+      "current_contract_observed": true
+    },
+    {
+      "case": "frozen_artifact_payload_changed",
+      "current_contract_observed": true
+    }
+  ],
+  "contract_satisfied_observations": 23,
+  "residual_groups": [
+    "S3B-01"
+  ],
+  "top_level_observations": 25
+}

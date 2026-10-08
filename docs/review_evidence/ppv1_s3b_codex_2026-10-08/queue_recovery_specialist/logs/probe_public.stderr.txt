@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py", line 268, in <module>
+    try:control_run();parallel_controls()
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py", line 258, in parallel_controls
+    parsed=json.loads(so.strip().splitlines()[-1]);v={'command':cmd,'environment':env,'returncode':p.returncode,'stdout':so,'stderr':se,'parsed':parsed};dump(ROOT/'logs'/(label+'.execution.json'),v);results.append(v)
+                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^
+IndexError: list index out of range

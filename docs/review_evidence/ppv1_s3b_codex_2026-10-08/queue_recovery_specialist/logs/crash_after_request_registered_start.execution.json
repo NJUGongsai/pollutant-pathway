@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/inputs/crash_after_request_registered_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_queue_vd18_t4h/src"
+  },
+  "label": "crash_after_request_registered_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_683a9f8d1b5356a0b463",
+      "request_id": "sreq_4f0305ef355a4fb81807"
+    },
+    "hard_kill": "after_request_registered",
+    "pid": 20495
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"after_request_registered\", \"detail\": {\"action_id\": \"sact_683a9f8d1b5356a0b463\", \"request_id\": \"sreq_4f0305ef355a4fb81807\"}, \"pid\": 20495}\n"
+}

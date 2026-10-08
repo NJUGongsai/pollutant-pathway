@@ -1,0 +1,3083 @@
+diff --git a/src/pathway_v43/pollutant/model_protocol.py b/src/pathway_v43/pollutant/model_protocol.py
+new file mode 100644
+index 0000000..1535d6b
+--- /dev/null
++++ b/src/pathway_v43/pollutant/model_protocol.py
+@@ -0,0 +1,303 @@
++"""S3b 模型假设协议 —— proposals[] 解析与有界格式反馈(实施书 §5.3;
++契约随 search-5 / format-feedback-1 登记)。
++
++范围:PPV1 新任务的模型响应协议 `proposals[]`(每项一条独立反应
++假设;内部共同产物集合与 participants/来源/条件/依赖按既有契约)、
++`rank_hypotheses`(引稳定 ID)、novel 有界 proposal_context;**只有
++JSON 字段/类型、允许 ID、语法契约错误可进格式反馈**(独立有界策略
++ppv1-format-feedback-1,默认 0 轮;结构无法解析记结构失败,不能以
++格式反馈改分子再试到通过)。模型不直接写 SQLite/frontier/条件事实/
++策略(本层只解析与登记,消费在调度/生产链)。
++
++入口矩阵:
++
++| # | 入口 | 消费 | 校验/事务 |
++| 1 | parse_model_proposals | 模型响应文本(脚本/恢复) | JSON 解析(失败 ⇒ 结构失败,非格式反馈);proposals[] 形状契约(dict/list/字段);允许 ID 集(池内假设引用须 ∈ 冻结池);novel 必须带 proposal_context(reference_hypothesis_ids/output_origin 明示,不伪造来源);空列表/弃权合法;rank 引稳定 ID 且须在提案集内;解析结果只是提案,不是 recorded 状态 |
++| 2 | classify_format_error | 解析失败的错误分类 | 仅 json_field/json_type/allowed_id/syntax 四类可进格式反馈;not_json ⇒ structure_unparseable(记结构失败,零反馈轮) |
++| 3 | register_format_feedback_round | 反馈轮计数(持久事实源)+ 错误载荷 | model_requests 行(purpose=format_feedback;scripted/fake 网络 0;real 走 register_model_request 即时占额 —— 传入模型对象不自动补预算);轮数 = 同 action 的既有 format_feedback 请求数,超 max_format_feedback_rounds ⇒ 结构化拒(结构失败保持,不以反馈重试到通过);每轮持久记录输入/错误类别/反馈版本/次数 |
++
++计数语义(与 S3a 十上限的关系,任务书 §5.3):格式反馈轮数是**同任务
++JSON 修复轮数**,不是 hypothesis 语义 attempt —— 不占/不改写
++max_attempts_per_hypothesis;反馈轮走 model_requests 持久计数,真实
++provider 的反馈轮额外受 max_real_model_requests 预算(register 侧
++拒绝,网络发送被阻止)。chemical_reproposal 首版 off:SMILES 解析
++失败记结构失败,化学重提案数 0/路径 unsupported 如实披露。
++"""
++
++from __future__ import annotations
++
++import json
++
++from ..domain.models import now_iso
++from .profile import (
++    FORMAT_FEEDBACK_POLICY_VERSION,
++    validate_frozen_format_feedback_policy,
++)
++from .search import (
++    PROVIDER_KINDS,
++    PROVIDER_KIND_SCRIPTED,
++    SearchBudgetExhausted,
++    SearchContractError,
++    SearchLedger,
++)
++
++MODEL_PROTOCOL_VERSION = "ppv1-model-proposals-1"
++PURPOSE_FORMAT_FEEDBACK = "format_feedback"
++
++# ---- 错误分类(只有前四类可进格式反馈;structure_unparseable 不可) ----
++
++FORMAT_ERROR_JSON_FIELD = "json_field_error"
++FORMAT_ERROR_JSON_TYPE = "json_type_error"
++FORMAT_ERROR_ALLOWED_ID = "allowed_id_error"
++FORMAT_ERROR_SYNTAX = "syntax_contract_error"
++FORMAT_ERROR_STRUCTURE_UNPARSEABLE = "structure_unparseable"
++FORMAT_ERROR_KINDS = frozenset({
++    FORMAT_ERROR_JSON_FIELD, FORMAT_ERROR_JSON_TYPE,
++    FORMAT_ERROR_ALLOWED_ID, FORMAT_ERROR_SYNTAX,
++    FORMAT_ERROR_STRUCTURE_UNPARSEABLE,
++})
++FEEDBACK_ELIGIBLE = frozenset({
++    FORMAT_ERROR_JSON_FIELD, FORMAT_ERROR_JSON_TYPE,
++    FORMAT_ERROR_ALLOWED_ID, FORMAT_ERROR_SYNTAX,
++})
++
++
++class ModelProtocolError(SearchContractError):
++    """模型协议契约违反(结构化;解析失败分类携带在 detail)。"""
++
++
++def _format_error(kind: str, reason: str, detail: dict | None = None) -> None:
++    raise ModelProtocolError(
++        f"模型响应协议错误({kind}):{reason}",
++        {"kind": kind, "model_protocol_version": MODEL_PROTOCOL_VERSION,
++         **(detail or {})})
++
++
++def parse_model_proposals(
++    response_text: str,
++    *,
++    allowed_hypothesis_ids: list[str] | set[str] | frozenset[str],
++) -> dict:
++    """解析模型响应的 proposals[](每项一条独立反应假设)。
++
++    - response_text 非 JSON ⇒ structure_unparseable(**结构失败**,
++      不进格式反馈 —— 不能以格式反馈改分子再试到通过);
++    - 顶层必须是 dict 且含 "proposals" list(缺字段/坏类型 ⇒ 格式
++      错误,可进有界反馈);
++    - 每项 proposal 必须是 dict:
++      * 引用冻结池假设:`hypothesis_id` ∈ allowed(备选反应假设引
++        稳定 ID;模型 rank 不把选择升成 recorded —— 解析结果只是
++        提案引用);
++      * novel 池外提案:必须携带 `proposal_context`(dict,含
++        `reference_hypothesis_ids`(可空,池内参考)与 `output_origin`
++        (明示来源,如 "novel_outside_pool"),不伪造来源);
++      * 共同产物与备选不混:proposal 内的 `coproducts`(list)是
++        **该假设内部**的共同产物声明,不作为独立提案出现(发现
++        顶层的 coproduct 形状混淆 ⇒ syntax 契约错误);
++    - `rank_hypotheses`(可选,list)引用的 id 必须在提案集合内
++      (引稳定 ID;排序是建议次序,不是已核实状态);
++    - 空列表/弃权合法:proposals=[] ⇒ abstained=True;
++    - 返回 {proposals, rank_hypotheses, abstained, protocol_version}。
++    """
++    if not isinstance(response_text, str):
++        _format_error(
++            FORMAT_ERROR_JSON_TYPE,
++            f"响应必须是 JSON 文本,得到 {type(response_text).__name__}")
++    try:
++        payload = json.loads(response_text)
++    except (ValueError, TypeError) as exc:
++        _format_error(
++            FORMAT_ERROR_STRUCTURE_UNPARSEABLE,
++            f"响应不可解析为 JSON(结构失败,不进格式反馈;不能以反馈"
++            f"改分子再试到通过):{str(exc)[:160]}")
++    if not isinstance(payload, dict):
++        _format_error(
++            FORMAT_ERROR_JSON_TYPE,
++            f"响应顶层必须是 dict,得到 {type(payload).__name__}")
++    if "proposals" not in payload:
++        _format_error(
++            FORMAT_ERROR_JSON_FIELD,
++            "响应缺 proposals 字段(每项一条独立反应假设;空列表/"
++            "弃权合法)")
++    proposals_raw = payload["proposals"]
++    if not isinstance(proposals_raw, list):
++        _format_error(
++            FORMAT_ERROR_JSON_TYPE,
++            f"proposals 必须是 list,得到 {type(proposals_raw).__name__}")
++    allowed = set(allowed_hypothesis_ids or [])
++    proposals: list[dict] = []
++    seen_ids: set[str] = set()
++    for i, item in enumerate(proposals_raw):
++        if not isinstance(item, dict):
++            _format_error(
++                FORMAT_ERROR_JSON_TYPE,
++                f"proposals[{i}] 必须是 dict,得到 {type(item).__name__}",
++                {"index": i})
++        if "coproducts" in item and "hypothesis_id" not in item:
++            _format_error(
++                FORMAT_ERROR_SYNTAX,
++                f"proposals[{i}] 携带 coproducts 但不是假设提案(共同"
++                "产物是假设内部声明,不作为独立提案;备选与共同产物"
++                "不混队)", {"index": i})
++        hypothesis_id = str(item.get("hypothesis_id") or "")
++        if not hypothesis_id:
++            _format_error(
++                FORMAT_ERROR_JSON_FIELD,
++                f"proposals[{i}] 缺 hypothesis_id(引用冻结池稳定 ID,"
++                "或 novel 时经 proposal_context 声明)", {"index": i})
++        if hypothesis_id in seen_ids:
++            _format_error(
++                FORMAT_ERROR_SYNTAX,
++                f"proposals[{i}] 重复引用 {hypothesis_id}(幂等引用,"
++                "不重复提案)", {"index": i, "hypothesis_id": hypothesis_id})
++        seen_ids.add(hypothesis_id)
++        entry: dict = {"hypothesis_id": hypothesis_id}
++        if hypothesis_id in allowed:
++            entry["origin"] = "frozen_pool"
++        else:
++            context = item.get("proposal_context")
++            if not isinstance(context, dict):
++                _format_error(
++                    FORMAT_ERROR_JSON_FIELD,
++                    f"proposals[{i}] 引用池外假设 {hypothesis_id} 但缺"
++                    " proposal_context(novel 有界:reference_hypothesis_"
++                    "ids/output_origin 明示,不伪造来源)",
++                    {"index": i, "hypothesis_id": hypothesis_id})
++            refs = context.get("reference_hypothesis_ids")
++            if not isinstance(refs, list) or \
++                    any(str(r) not in allowed for r in refs):
++                _format_error(
++                    FORMAT_ERROR_ALLOWED_ID,
++                    f"proposals[{i}] 的 proposal_context.reference_"
++                    "hypothesis_ids 必须是冻结池 ID 子集",
++                    {"index": i, "hypothesis_id": hypothesis_id,
++                     "reference_hypothesis_ids": refs})
++            if not str(context.get("output_origin") or ""):
++                _format_error(
++                    FORMAT_ERROR_JSON_FIELD,
++                    f"proposals[{i}] 的 proposal_context 缺 output_origin"
++                    "(明示来源)",
++                    {"index": i, "hypothesis_id": hypothesis_id})
++            entry["origin"] = "novel"
++            entry["proposal_context"] = dict(context)
++        coproducts = item.get("coproducts")
++        if coproducts is not None and not isinstance(coproducts, list):
++            _format_error(
++                FORMAT_ERROR_JSON_TYPE,
++                f"proposals[{i}] 的 coproducts 必须是 list(假设内部共同"
++                "产物声明)", {"index": i})
++        if coproducts is not None:
++            entry["coproducts"] = [str(c) for c in coproducts]
++        proposals.append(entry)
++    rank_raw = payload.get("rank_hypotheses")
++    if rank_raw is None:
++        rank_raw = [p["hypothesis_id"] for p in proposals]
++    if not isinstance(rank_raw, list):
++        _format_error(
++            FORMAT_ERROR_JSON_TYPE,
++            f"rank_hypotheses 必须是 list,得到 {type(rank_raw).__name__}")
++    rank: list[str] = []
++    for i, rid in enumerate(rank_raw):
++        rid = str(rid)
++        if rid not in seen_ids:
++            _format_error(
++                FORMAT_ERROR_ALLOWED_ID,
++                f"rank_hypotheses[{i}] 引用未在提案集合内的 {rid}"
++                "(rank 引稳定 ID)",
++                {"index": i, "hypothesis_id": rid})
++        rank.append(rid)
++    return {"proposals": proposals, "rank_hypotheses": rank,
++            "abstained": not proposals,
++            "protocol_version": MODEL_PROTOCOL_VERSION}
++
++
++def feedback_policy_from_ledger(ledger: SearchLedger,
++                                run_id: str) -> dict:
++    """从 run 的冻结策略块读取格式反馈策略(严格消费;块缺/坏 ⇒
++    SearchRecoveryError 由 _limits 同源包装,不补默认)。"""
++    block = ledger.search_policy_block(run_id)
++    policy = (block or {}).get("format_feedback_policy") \
++        if isinstance(block, dict) else None
++    try:
++        return validate_frozen_format_feedback_policy(policy)
++    except ValueError as exc:
++        raise ModelProtocolError(
++            f"run {run_id} 的冻结格式反馈策略块非法(严格核验,不补"
++            f"默认、不猜迁移):{exc}",
++            {"run_id": run_id, "kind": "format_feedback_policy_corrupt",
++             "reason": str(exc)[:300]}) from exc
++
++
++def format_feedback_rounds_used(ledger: SearchLedger,
++                                action_id: str) -> int:
++    """同 action 已发生的格式反馈轮数(持久事实源 = model_requests
++    行;不是内存计数,内存重置仍从记录复算)。"""
++    row = ledger.conn.execute(
++        "SELECT COUNT(*) FROM model_requests WHERE action_id = ? AND"
++        " purpose = ?", (action_id, PURPOSE_FORMAT_FEEDBACK)).fetchone()
++    return int(row[0])
++
++
++def register_format_feedback_round(
++    ledger: SearchLedger,
++    *,
++    run_id: str,
++    action_id: str,
++    attempt_id: str,
++    error: ModelProtocolError,
++    response_excerpt: str,
++    provider_kind: str = PROVIDER_KIND_SCRIPTED,
++) -> dict:
++    """登记一轮有界格式反馈(每轮持久记录输入/错误类别/反馈版本/
++    次数;受独立有限策略约束;超限 ⇒ 结构化拒,结构失败保持)。
++
++    - 只有 FEEDBACK_ELIGIBLE 类错误可登记(not_json 的
++      structure_unparseable 在调用侧直接记结构失败,不经本入口);
++    - 轮数 = 同 action 既有 format_feedback 请求数;≥ 策略上限 ⇒
++      SearchBudgetExhausted(reason_category=budget_limit)—— 反馈停,
++      上一次解析失败作为结构失败保持;
++    - scripted/fake 恒 network 0;real 走 register_model_request 的
++      即时占额(真实请求额度 0 ⇒ 登记被拒,网络发送被阻止;传入
++      模型对象不自动补预算);
++    - request_key 派生自 (action, 轮次) —— 幂等;payload 持久记录
++      错误类别/版本/次数/响应摘录。
++    """
++    if provider_kind not in PROVIDER_KINDS:
++        raise ModelProtocolError(
++            f"provider_kind 非法:{provider_kind!r}",
++            {"kind": "invalid_provider_kind",
++             "provider_kind": provider_kind})
++    kind = str(error.detail.get("kind") or "")
++    if kind not in FEEDBACK_ELIGIBLE:
++        eligible = sorted(FEEDBACK_ELIGIBLE)
++        raise ModelProtocolError(
++            f"错误类别 {kind!r} 不可进格式反馈(仅 {eligible};"
++            "structure_unparseable 记结构失败)",
++            {"kind": "feedback_ineligible_error", "error_kind": kind})
++    policy = feedback_policy_from_ledger(ledger, run_id)
++    rounds_used = format_feedback_rounds_used(ledger, action_id)
++    max_rounds = int(policy["max_format_feedback_rounds"])
++    if rounds_used >= max_rounds:
++        raise SearchBudgetExhausted(
++            f"格式反馈轮数超上限(同任务 JSON 修复轮数 {rounds_used} ≥ "
++            f"max_format_feedback_rounds={max_rounds};结构失败保持,"
++            "不以反馈重试到通过;该轮数不是 hypothesis 语义 attempt)",
++            {"kind": "format_feedback_budget_exhausted",
++             "limit_key": "max_format_feedback_rounds",
++             "max": max_rounds, "used": rounds_used,
++             "policy_version": FORMAT_FEEDBACK_POLICY_VERSION})
++    round_index = rounds_used + 1
++    payload = {
++        "feedback_version": FORMAT_FEEDBACK_POLICY_VERSION,
++        "model_protocol_version": MODEL_PROTOCOL_VERSION,
++        "round": round_index,
++        "error_kind": kind,
++        "error_detail": dict(error.detail),
++        "response_excerpt": str(response_excerpt)[:2000],
++        "recorded_at": now_iso(),
++    }
++    return ledger.register_model_request(
++        run_id=run_id, action_id=action_id, attempt_id=attempt_id,
++        provider_kind=provider_kind,
++        request_key=f"format-feedback:{action_id}:{round_index}",
++        purpose=PURPOSE_FORMAT_FEEDBACK, payload=payload)
+diff --git a/src/pathway_v43/pollutant/production.py b/src/pathway_v43/pollutant/production.py
+new file mode 100644
+index 0000000..1e36654
+--- /dev/null
++++ b/src/pathway_v43/pollutant/production.py
+@@ -0,0 +1,475 @@
++"""S3b 生产链 —— 固定 AtomTool → 供体诊断 → center evidence converter →
++audit → admission → 事件提交(实施书 §6.1;契约随 search-5 登记)。
++
++固定调用链(**顺序不可调换**;每段用现成冻结接口,不另造判据):
++
++    AtomTool 真实输出(render + execute_edits)
++      → check_edit_against_donor(供体诊断,含 proof_record)
++      → center_evidence_from_donor_diagnostic(converter,不另手造 verified)
++      → audit_hypothesis(首消费守卫:state/context/hypothesis/ledger)
++      → decide_admission(R1–R7 决策表)
++      → build/submit_event(公共 store writer,全部首消费验证)
++      → complete_action(搜索记账;B4 后半段)
++
++异常义务(R8 P2 ⑧,S3 首个生产 caller):**AuditContractError 不得吞成
++verified/R6/成功提交** —— 本模块任何函数都不捕获 AuditContractError
++(原样上抛,中止本次 admission/提交;写入只发生在 audit+admission
++之后,异常 ⇒ 零事件/零提交/零完成)。调用方(runflow 驱动)只在
++action 分发层窄捕获以记录方法失败并调度独立备选,不以捕获结果
++继续本次 admission/submit。三个 None 与缺 proof 保持 unknown:
++execution_ok=False 的诊断三判定字段全 None、center_evidence 空,
++converter 仍返回版本/来源元数据 + center_match=None —— audit 保留
++中心 unknown,admission 按 R5 有界探索,不授 verified;缺证据/映射
++的 None 或空 payload 不是契约异常也不是执行失败。执行失败
++(execution_ok=False)记方法失败(method_failed),不伪装成功工具
++结果,允许调度独立备选。
++
++入口矩阵:
++
++| # | 入口 | 消费 | 校验/事务 |
++| 1 | prepare_hypothesis | 池条目 spec(产物/共同产物/要求/依赖/工具输入) | build_chemical_state 工厂守卫(对工具已确定的产品只能引用,不暗改结构);build_hypothesis 全部 H02/H03/锚点/要求契约;spec 契约(缺产物/坏编辑形状结构化拒) |
++| 2 | execute_atomtool_expansion | 底物 SMILES + 编辑协议 | 冻结 AtomTool render/execute_edits(真实执行,不伪造);check_edit_against_donor 冻结契约;converter 透传绑定证据载荷;零写账 |
++| 3 | expand_hypothesis_production | 冻结假设/状态/上下文 + action 认领 | audit_hypothesis 首消费守卫(state/context 对象验证;center_evidence 绑定/类型/复算 —— 契约异常上抛);decide_admission 决策表;事件提交走 ledger.submit_action_event(公共 writer,冻结身份);complete_action(S3A-02 完整权威核验) |
++| 4 | persist_context / load_context | PathContext 对象 / 存储载荷 | 写:to_dict 全语义载荷;读:read_search_artifact(H07 包装)+ PathContext.from_dict 内容身份核验(首消费守卫;篡改语义字段保留旧 context_id ⇒ 拒) |
++| 5 | build_cyclic_dependency | 依赖 spec(共底物循环 H04) | Dependency 契约(status 三值;resolution_log 逐轴事实源);缺启动供给 ⇒ unresolved + unresolved_initial_supply(不称化学不可能);有支持 ⇒ supported 不自动阻断 |
++
++分段负控(任务书 §6.1;对应测试逐段断言):合法工具链;工具
++execution_ok=False;缺/歧义映射;strict 目标偏离;proof 更改/跨假设
++复用;复杂共底物不能只凭配平升级(completion_license 由 audit 既有
++判据保留);契约异常中止本次 audit/admission/成功提交。
++"""
++
++from __future__ import annotations
++
++from .audit import (
++    AuditContractError,
++    AdmissionPolicy,
++    audit_hypothesis,
++    center_evidence_from_donor_diagnostic,
++    check_edit_against_donor,
++    decide_admission,
++)
++from .chemstate import build_chemical_state
++from .events import (
++    build_expansion_plan,
++    build_pathway_event,
++    build_report_projection,
++)
++from .hypothesis import Participant, build_hypothesis
++from .path_context import (
++    Dependency,
++    PathContext,
++    SUPPORT_AXIS_INITIAL_SUPPLY,
++)
++from .search import (
++    COMMIT_KIND_EVENT,
++    SearchContractError,
++    SearchCrashInjection,
++    SearchLedger,
++    read_search_artifact,
++)
++from ..domain.models import content_hash
++from ..services.atom_tool import execute_edits, render
++
++SEARCH_PRODUCTION_VERSION = "ppv1-search-production-1"
++CONTEXT_ARTIFACT_NAME = "path_context"
++
++# admission 处置与驱动语义的映射(expand/retain_conditional ⇒ 事件可
++# 提交(后者 unknown 保留有界探索);reject ⇒ 不提交;defer ⇒ 假设
++# 保留不提交当前场景)
++ADMISSION_SUBMITTABLE = frozenset({"expand", "retain_conditional"})
++
++
++class ProductionContractError(SearchContractError):
++    """生产链输入/形状契约违反(结构化,零写入)。"""
++
++
++# ---------------------------------------------------------------- 假设构建
++
++
++def build_product_state(smiles: str, *, source_refs: list[dict] | None,
++                        origin: str = "source_product"):
++    """构建产物状态(工厂守卫;对工具已确定的产品只能引用 —— 状态
++    身份由结构内容派生,调用方不得暗改结构;executed 产物经同一工厂
++    与声明产物同构时同 state_id)。"""
++    return build_chemical_state(smiles, origin, source_refs or [])
++
++
++def build_cyclic_dependency(spec: dict) -> Dependency:
++    """H04 共底物循环依赖构建(§5.2:有启动供应/再生支持不能自动阻断;
++    缺支持标 unresolved_initial_supply,按显式、版本化策略处理,不称
++    化学不可能)。
++
++    spec: {"dependency_id", "kind"=cosubstrate_supply, "statement",
++    "cyclic": bool, "initial_supply": "supported"|"missing",
++    "source_refs": [...]}
++    - initial_supply=missing ⇒ status=unresolved,statement 带
++      unresolved_initial_supply 标记(audit 依赖轴 unknown ⇒ R5
++      retain_conditional,不 reject;不能称化学不可能);
++    - supported ⇒ resolution_log 记 initial_supply 轴 supported
++      (Dependency 从轨迹同源重推导 status;不自动阻断)。
++    """
++    if not isinstance(spec, dict) or not spec.get("dependency_id"):
++        raise ProductionContractError(
++            "依赖 spec 缺 dependency_id", {"kind": "dependency_spec_invalid"})
++    dep_id = str(spec["dependency_id"])
++    kind = str(spec.get("kind") or "cosubstrate_supply")
++    statement = str(spec.get("statement") or "")
++    initial_supply = str(spec.get("initial_supply") or "")
++    if initial_supply not in ("supported", "missing"):
++        raise ProductionContractError(
++            f"依赖 {dep_id} 的 initial_supply 非法:{initial_supply!r}"
++            "(supported|missing;显式声明,不猜)",
++            {"kind": "dependency_initial_supply_invalid",
++             "dependency_id": dep_id})
++    resolution_log: list[dict] = []
++    status = "unresolved"
++    if initial_supply == "supported":
++        resolution_log.append({
++            "support_axis": SUPPORT_AXIS_INITIAL_SUPPLY,
++            "resolution": "supported",
++            "source_ref": str((spec.get("source_refs") or [""])[0]),
++        })
++        status = "supported"
++    else:
++        statement = (statement + ";" if statement else "") + (
++            "unresolved_initial_supply(共底物循环缺启动/再生供给支持;"
++            "按显式、版本化策略处理,不称化学不可能)")
++    return Dependency(
++        dependency_id=dep_id, kind=kind, statement=statement,
++        status=status,
++        source_refs=tuple(str(r) for r in (spec.get("source_refs") or [])),
++        resolution_log=tuple(resolution_log))
++
++
++def prepare_hypothesis(
++    spec: dict,
++    *,
++    parent_path_id: str,
++    substrate_state,
++    source_refs: list[dict] | None = None,
++    transformation_ref: str = "",
++) -> dict:
++    """池条目 spec → 冻结假设 + 状态集 + 工具输入(单一构建源:调度
++    (取 hypothesis_id 进 action 身份)与执行(重建同一对象)共用,
++    同输入同 ID,不各写第二套派生)。
++
++    spec 契约(缺/坏 ⇒ ProductionContractError,零写入):
++    - product_smiles:主产物(工具已确定,引用不改);
++    - coproducts:共同产物 SMILES 列表(假设内部共同产物,不与备选
++      混队);
++    - edits/donor/alignment/expectation:AtomTool 编辑协议输入
++      (check_edit_against_donor 的契约形状);
++    - requirements:必要要求 dict 列表(build_hypothesis 契约);
++    - dependencies:依赖 spec 列表(H04,经 build_cyclic_dependency);
++    - participants:可选显式参与物覆盖(系数/角色;默认底物 1 + 主
++      产物 1 + 共同产物逐条,系数按声明或 unknown)。
++    返回 {hypothesis, states, product_states, tool_inputs, spec_digest}。
++    """
++    if not isinstance(spec, dict):
++        raise ProductionContractError(
++            f"池条目 spec 必须是 dict,得到 {type(spec).__name__}",
++            {"kind": "spec_invalid_type"})
++    product_smiles = str(spec.get("product_smiles") or "")
++    if not product_smiles:
++        raise ProductionContractError(
++            "池条目缺 product_smiles(工具已确定的主产物,只能引用)",
++            {"kind": "spec_missing_product"})
++    coproducts = spec.get("coproducts") or []
++    if not isinstance(coproducts, list):
++        raise ProductionContractError(
++            "coproducts 必须是 list(假设内部共同产物)",
++            {"kind": "spec_coproducts_invalid"})
++    for field in ("edits", "donor", "alignment", "expectation"):
++        value = spec.get(field)
++        if field == "edits" and not isinstance(value, list):
++            raise ProductionContractError(
++                f"spec.edits 必须是 list(冻结 AtomTool 编辑协议),得到 "
++                f"{type(value).__name__}",
++                {"kind": "spec_edits_invalid"})
++        if field != "edits" and not isinstance(value, dict):
++            raise ProductionContractError(
++                f"spec.{field} 必须是 dict(供体诊断输入契约),得到 "
++                f"{type(value).__name__}",
++                {"kind": f"spec_{field}_invalid"})
++    refs = source_refs or [{"record": "synthetic-pool-spec"}]
++    product_state = build_product_state(product_smiles, source_refs=refs)
++    coproduct_states = [
++        build_product_state(str(c), source_refs=refs) for c in coproducts]
++    dependencies = [
++        build_cyclic_dependency(d)
++        for d in (spec.get("dependencies") or [])]
++    participants_spec = spec.get("participants")
++    if participants_spec is not None:
++        participants = [
++            Participant(**dict(p)) for p in participants_spec]
++    else:
++        coefficient = spec.get("coefficient")
++        coefficient_status = ("known" if coefficient is not None
++                              else "unknown")
++        participants = [
++            Participant(
++                state_ref=substrate_state.state_id, side="reactant",
++                role="primary_substrate",
++                coefficient=(coefficient if coefficient is not None else None),
++                coefficient_status=coefficient_status),
++            Participant(
++                state_ref=product_state.state_id, side="product",
++                role="principal_product",
++                coefficient=(coefficient if coefficient is not None else None),
++                coefficient_status=coefficient_status),
++        ]
++        for state in coproduct_states:
++            participants.append(Participant(
++                state_ref=state.state_id, side="product", role="coproduct",
++                coefficient=None, coefficient_status="unknown"))
++    requirements = [
++        dict(r) for r in (spec.get("requirements") or [])]
++    hypothesis = build_hypothesis(
++        parent_path_id=parent_path_id,
++        substrate_state_ref=substrate_state.state_id,
++        participants=participants,
++        participant_list_status=str(spec.get("participant_list_status")
++                                    or "partial"),
++        step_scope=str(spec.get("step_scope") or "net_reaction"),
++        transformation_ref=transformation_ref,
++        requirements=requirements,
++        dependency_refs=[d.dependency_id for d in dependencies],
++        origin_group_key=str(spec.get("origin_group_key") or ""))
++    states = {substrate_state.state_id: substrate_state,
++              product_state.state_id: product_state}
++    for state in coproduct_states:
++        states[state.state_id] = state
++    tool_inputs = {
++        "edits": list(spec["edits"]),
++        "donor": dict(spec["donor"]),
++        "alignment": dict(spec["alignment"]),
++        "expectation": dict(spec["expectation"]),
++    }
++    return {
++        "hypothesis": hypothesis,
++        "states": states,
++        "product_states": [product_state] + coproduct_states,
++        "dependencies": dependencies,
++        "tool_inputs": tool_inputs,
++        "spec_digest": content_hash(spec),
++        "hypothesis_dict": hypothesis.to_dict(),
++    }
++
++
++# ---------------------------------------------------------------- 工具执行
++
++
++def execute_atomtool_expansion(*, substrate_smiles: str, tool_inputs: dict,
++                               render_name: str = "S") -> dict:
++    """固定链第一段:冻结 AtomTool 真实渲染+执行 → 供体诊断 →
++    converter(**零写账**;返回全部真实执行事实)。
++
++    - render/execute_edits 是冻结工具的真实调用(不伪造、不 mock
++      结果;工具内部失败如实返回 ok=False);
++    - check_edit_against_donor 消费真实执行输出(current/donor/
++      alignment/expectation/result/edits 全输入集;诊断自带
++      proof_record 供 audit 内部复算);
++    - converter 不另手造 verified 中心结论(透传诊断绑定证据载荷;
++      execution_ok=False ⇒ 三判定字段 None + center_evidence 空字典
++      ⇒ converter 返回元数据 + center_match=None —— None 是未评估,
++     不是通过);
++    - 保存真实执行前后/atom_id_map/edits/donor/alignment/expectation/
++      result(供审计与恢复消费)。
++    """
++    edits = tool_inputs.get("edits") or []
++    current = render(substrate_smiles, render_name)
++    result = execute_edits(current, edits)
++    diagnostic = check_edit_against_donor(
++        current={"smiles": substrate_smiles,
++                 "atom_id_map": dict(current.atom_id_map)},
++        donor=dict(tool_inputs.get("donor") or {}),
++        alignment=dict(tool_inputs.get("alignment") or {}),
++        expectation=dict(tool_inputs.get("expectation") or {}),
++        result=result, edits=edits)
++    center_evidence = center_evidence_from_donor_diagnostic(diagnostic)
++    return {
++        "production_version": SEARCH_PRODUCTION_VERSION,
++        "substrate_smiles": substrate_smiles,
++        "render": {
++            "input_smiles": current.smiles,
++            "canonical_smiles": current.canonical_smiles,
++            "atom_id_map": dict(current.atom_id_map),
++        },
++        "result": dict(result),
++        "execution_ok": bool(result.get("ok")),
++        "diagnostic": diagnostic.to_dict(),
++        "center_evidence": dict(center_evidence),
++        "tool_inputs": {
++            "edits": list(edits),
++            "donor": dict(tool_inputs.get("donor") or {}),
++            "alignment": dict(tool_inputs.get("alignment") or {}),
++            "expectation": dict(tool_inputs.get("expectation") or {}),
++        },
++    }
++
++
++# ---------------------------------------------------------------- 上下文持久
++
++
++def persist_context(artifact_store, context: PathContext) -> str:
++    """上下文持久化(artifact;载荷 = to_dict 全语义字段;context_id
++    内容身份冻结)。返回 context_id(= 存储键)。"""
++    if artifact_store is None:
++        raise ProductionContractError(
++            "持久化上下文需要 artifact_store", {"kind": "artifact_store_missing"})
++    artifact_store.write(
++        f"ctx:{context.context_id}", CONTEXT_ARTIFACT_NAME,
++        context.to_dict())
++    return context.context_id
++
++
++def load_context(artifact_store, context_ref: str) -> PathContext:
++    """上下文首消费(H07 完整性包装 + from_dict 内容身份核验:篡改
++    任何语义字段而保留旧 context_id ⇒ 结构化拒,不清洗后继续)。"""
++    if artifact_store is None:
++        raise ProductionContractError(
++            "读取上下文需要 artifact_store", {"kind": "artifact_store_missing"})
++    envelope = read_search_artifact(
++        artifact_store, f"ctx:{context_ref}", CONTEXT_ARTIFACT_NAME)
++    return PathContext.from_dict(envelope["payload"])
++
++
++# ---------------------------------------------------------------- 生产链
++
++
++def expand_hypothesis_production(
++    ledger: SearchLedger,
++    action_id: str,
++    *,
++    prepared: dict,
++    context: PathContext,
++    worker_id: str,
++    attempt_id: str,
++    task_key: str,
++    substrate_state,
++    limits: dict,
++    depth: int,
++    parent_search_revision: int = 0,
++    admission_policy: AdmissionPolicy | None = None,
++    write_bundle: bool = False,
++    crash_after: str | None = None,
++) -> dict:
++    """固定生产链的 admission/提交段(§6.1;AuditContractError 原样
++    上抛 —— 本函数不捕获,中止本次 admission/提交,零事件/零提交/
++    零完成写入)。
++
++    返回(结构化,不返回裸 bool):
++    - status=method_failed:工具 execution_ok=False(诊断三 None,
++      converter 元数据 + center_match=None;不伪装成功工具结果;调用
++      方记方法失败并调度独立备选);
++    - status=rejected / deferred:admission R1/R2/R3/R4(不提交事件;
++      deferred 假设保留 —— 调用方按需 put_hypothesis 留痕);
++    - status=submitted:事件经公共 writer 提交 + 搜索记账闭合(附
++      展开计划驱动后续 followup;expand/retain_conditional 均提交,
++      后者 unknown 保留)。
++
++    crash_after 注入点(测试 B3/B4 边界,非生产路径):
++    "bundle_written"(bundle 落盘、事件未提交)、"event_submitted"
++    (事件已提交、记账未闭合)—— 抛 SearchCrashInjection。
++    """
++    hypothesis = prepared["hypothesis"]
++    states: dict = prepared["states"]
++    tool_inputs = prepared["tool_inputs"]
++
++    def _report(status: str, **extra) -> dict:
++        """生产链结论的持久报告 artifact(审查/复核用;派生报告,不是
++        事件权威 —— 事件/假设/状态权威在公共 store,以公共 writer 为
++        准)。写入失败按 artifact 契约上抛(不可覆盖)。"""
++        payload = {
++            "production_version": SEARCH_PRODUCTION_VERSION,
++            "action_id": action_id, "attempt_id": attempt_id,
++            "status": status, **extra}
++        if isinstance(payload.get("event"), object) and                 not isinstance(payload.get("event"), (dict, list, str, int,
++                                                       float, bool, type(None))):
++            payload["event"] = None  # 事件权威在公共 store;报告只带 event_id
++        if ledger.artifact_store is not None and task_key:
++            ledger.artifact_store.write(
++                task_key, "production_report", payload)
++        return payload
++
++    execution = execute_atomtool_expansion(
++        substrate_smiles=substrate_state.smiles_isomeric,
++        tool_inputs=tool_inputs)
++    if not execution["execution_ok"]:
++        # 执行失败:方法失败(不是契约异常;不伪装成功工具结果)。
++        # 诊断三判定字段 None、center_evidence 空 —— converter 元数据
++        # 已在 execution 内(None = 未评估,不是通过)。
++        return _report("method_failed", execution=execution, admission=None,
++                       event=None)
++    # ---- audit(AuditContractError 原样上抛;首消费守卫在 audit 内) ----
++    audit = audit_hypothesis(
++        hypothesis, run_id=ledger.run_id or "", states=states,
++        context=context, center_evidence=execution["center_evidence"])
++    disposition, reasons = decide_admission(audit, policy=admission_policy)
++    admission = {"disposition": disposition, "reasons": list(reasons)}
++    if disposition not in ADMISSION_SUBMITTABLE:
++        return _report(
++            "deferred" if disposition == "defer" else "rejected",
++            execution=execution, admission=admission, event=None,
++            audit=audit.to_dict())
++    # ---- 展开计划(宽度/深度预算不足只影响 followup,不删事件事实) ----
++    product_refs = [s.state_id for s in prepared["product_states"]]
++    width = int(limits["max_product_expansion_width"])
++    max_depth = int(limits["max_search_depth"])
++    child_depth = int(depth) + 1
++    expanded: list[str] = []
++    deferred_products: list[str] = []
++    plan_reasons: dict[str, str] = {}
++    if child_depth > max_depth:
++        deferred_products = list(product_refs)
++        for ref in product_refs:
++            plan_reasons[ref] = "depth_limit"
++    else:
++        expanded = product_refs[:width]
++        deferred_products = product_refs[width:]
++        for ref in deferred_products:
++            plan_reasons[ref] = "product_width_limit"
++    max_reportable = max(1, min(width if width > 0 else 1, 4))
++    event = build_pathway_event(
++        hypothesis, run_id=ledger.run_id or "",
++        context_hash=context.context_id)
++    report_projection = build_report_projection(
++        hypothesis, max_reportable=max_reportable,
++        ranked_state_refs=product_refs)
++    expansion_plan = build_expansion_plan(
++        hypothesis, expanded=expanded, deferred=deferred_products,
++        not_tracked=[], reasons=plan_reasons)
++    states_dicts = [s.to_dict() for s in states.values()]
++    hypothesis_dict = hypothesis.to_dict()
++    if write_bundle:
++        ledger.write_commit_bundle(
++            action_id=action_id, attempt_id=attempt_id, event=event,
++            report_projection=report_projection.to_dict(),
++            expansion_plan=expansion_plan.to_dict(),
++            states=states_dicts, hypothesis_dict=hypothesis_dict,
++            task_key=task_key)
++        if crash_after == "bundle_written":
++            raise SearchCrashInjection(
++                "bundle 已写、事件未提交(B3 注入点)",
++                {"action_id": action_id, "task_key": task_key})
++    submitted = ledger.submit_action_event(
++        action_id, event, report_projection=report_projection.to_dict(),
++        expansion_plan=expansion_plan.to_dict(), states=states_dicts,
++        hypothesis_dict=hypothesis_dict, worker_id=worker_id)
++    if crash_after == "event_submitted":
++        raise SearchCrashInjection(
++            "事件已提交、搜索记账未闭合(B4 注入点)",
++            {"action_id": action_id, "event_id": event.event_id,
++             "submitted": submitted})
++    completed = ledger.complete_action(
++        action_id, worker_id=worker_id, outcome_kind=COMMIT_KIND_EVENT,
++        event_id=event.event_id)
++    return _report(
++        "submitted", execution=execution, admission=admission,
++        audit=audit.to_dict(), event=event, event_id=event.event_id,
++        submitted=submitted, completed=completed,
++        expansion_plan=expansion_plan.to_dict(),
++        report_projection=report_projection.to_dict(),
++        child_depth=child_depth,
++        parent_search_revision=int(parent_search_revision))
+diff --git a/src/pathway_v43/pollutant/profile.py b/src/pathway_v43/pollutant/profile.py
+index 3e29ee9..66bbf79 100644
+--- a/src/pathway_v43/pollutant/profile.py
++++ b/src/pathway_v43/pollutant/profile.py
+@@ -110,8 +110,29 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
+ # 状态口接守卫是消费语义,按 r2/r3 先例随 search 契约登记);store
+ # 保持 -9(表结构与 writer 行为未改,核验全部复用既有函数)。profile
+ # 仍未放行执行流,无历史产物需要迁移;v11 身份载荷按既有门拒绝。
+-
+-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-12"
++# v13(2026-10-08 S3b 批次):S3b 调度与生产链接线升版 —— search 契约
++# ppv1-search-4 → ppv1-search-5(冻结池队列选择 schedule_hypotheses、
++# record_expansion_outcome 持久尝试结论、两类 deferred(共同产物/
++# 备选反应)的分别激活 activate_deferred(幂等/trigger/expected_
++# parent_revision 校验、预算不足留独立未展开原因)、条件依赖/显式
++# 场景转换进调度(转换独立 action/预算/记录、仅后效)、enqueue 支持
++# initial_status=deferred 与 reactivate_deferred_action 状态迁移;
++# 新增独立有界格式反馈策略块 ppv1-format-feedback-1(非 S2 十个
++# 搜索上限的旧草案字段,默认 0 轮、范围 0-4、单位=同任务 JSON 格式
++# 修复轮数,不把格式反馈轮数当 hypothesis 语义 attempt;反馈仅限
++# JSON 字段/类型/允许 ID/语法契约错误,结构无法解析记结构失败,
++# chemical_reproposal 首版保持 off);固定 AtomTool → check_edit_
++# against_donor → center_evidence_from_donor_diagnostic → audit_
++# hypothesis → decide_admission → 事件提交的生产调用链接入 runner
++# PPV1 分流(公开 start_run/resume_run 开放,走独立严格状态/搜索
++# ledger/事件账,不落 legacy CN/PathwayStore/预算派生)。search-
++# limits 保持 -3(十键未动);store 保持 -9(无新表:两类 deferred
++# 复用 search_actions 行 + defer_reason/payload,格式反馈轮次计数
++# 复用 model_requests 行(purpose=format_feedback),context 持久化
++# 走 artifact 存储并经 from_dict 内容身份首消费核验)。profile 仍未
++# 有放行前的历史产物需要迁移;v12 身份载荷按既有门拒绝。
++
++PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-13"
+ PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
+ PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
+ PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
+@@ -160,7 +181,21 @@ PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
+ # 同一严格冻结块校验(不补默认、无成功状态变化);mark_request_
+ # failed 正面限定 registered/sent 来源,未知来源结构化拒并保全,
+ # register 同键复用核存储状态枚举,recover 报告结构化披露枚举外行。
+-PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-4"
++# v5(S3b 批次,2026-10-08):调度与生产链接线 —— 冻结池队列选择
++# (schedule_hypotheses:selected/deferred/blocked+原因,池 digest/
++# 排序/截断可重放)、record_expansion_outcome(非事件 outcome 持久
++# 结论:unresolved_continuation/method_failed 等)、两类 deferred
++# (共同产物 coproduct_deferred / 备选反应 alternative_reaction_
++# deferred)分别激活(activate_deferred:幂等、trigger 与记录一致、
++# expected_parent_revision 匹配、预算不足留独立未展开原因、不重复
++# 安排同 action)、条件依赖/显式场景转换进调度(scenario_transition
++# 独立 action/预算/记录,须显式 source_ref,仅后效不重写旧边评估)、
++# enqueue 支持 initial_status=deferred 与 reactivate_deferred_action
++# 状态迁移(消费语义,search_actions 行复用,无新表)。生产链契约见
++# pollutant/production.py(固定 AtomTool→供体诊断→converter→audit→
++# admission→事件提交,AuditContractError 中止本次 admission/提交,
++# 不吞成 verified/R6/成功提交)。
++PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-5"
+ # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
+ LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)
+ LEGACY_G2_FAMILY_REF = "v43-cons-2"            # 有限规则诊断复用族(conservation.py)
+@@ -231,6 +266,97 @@ SEARCH_INTENTS = frozenset({SEARCH_INTENT_EXPLORATION,
+ #   user_stop > budget_limit > depth_limit > no_local_candidate >
+ #   awaiting_prediction > exhausted_search
+ SEARCH_LIMITS_VERSION = "ppv1-search-limits-3"
++
++# ---- S3b 独立有界格式反馈策略(任务书 §5.3;非 S2 十个搜索上限
++# 的旧草案字段,不并入 SEARCH_LIMITS_VERSION) ----
++# 适用范围:只有 JSON 字段/类型、允许 ID、语法契约错误可进格式反馈
++# (重新请求同一任务的合法格式载荷);结构无法解析记结构失败,不能
++# 以格式反馈改分子再试到通过;chemical_reproposal 首版保持 off(化学
++# 重提案数 0/路径 unsupported 如实披露)。
++# 计数单位:同任务的 JSON 格式修复轮数(**不是** hypothesis 语义
++# attempt —— 不占用/不改写 max_attempts_per_hypothesis 语义);每轮
++# 持久记录输入/错误类别/反馈版本/次数(model_requests 行,
++# purpose=format_feedback,scripted/fake 恒 network 0)。默认 0 = 不
++# 发生格式反馈轮(parse 失败即结构失败),范围 0-4。
++FORMAT_FEEDBACK_POLICY_VERSION = "ppv1-format-feedback-1"
++FORMAT_FEEDBACK_MAX_ROUNDS_RANGE = (0, 4)
++FORMAT_FEEDBACK_DEFAULTS: dict = {
++    "version": FORMAT_FEEDBACK_POLICY_VERSION,
++    "max_format_feedback_rounds": 0,
++}
++
++
++def validate_format_feedback_policy(policy: dict | None) -> dict:
++    """校验/归一格式反馈策略块(装配语义:缺省补默认,输出恒完整)。
++
++    - 仅接受 dict 与已知键(version / max_format_feedback_rounds);
++    - max_format_feedback_rounds 整数(拒 bool)、范围 [0, 4];
++    - version 必须等于当前 FORMAT_FEEDBACK_POLICY_VERSION。
++    与 validate_search_limits 同一装配/严格消费分界:已冻结存储块
++    读取消费时用 validate_frozen_format_feedback_policy 严格核验
++    (不补默认、不猜迁移)。
++    """
++    out = dict(FORMAT_FEEDBACK_DEFAULTS)
++    for k, v in (policy or {}).items():
++        if k == "version":
++            if v != FORMAT_FEEDBACK_POLICY_VERSION:
++                raise ValueError(
++                    f"format_feedback_policy.version 非法:{v!r}(当前 "
++                    f"{FORMAT_FEEDBACK_POLICY_VERSION})")
++            out["version"] = v
++            continue
++        if k != "max_format_feedback_rounds":
++            raise ValueError(
++                f"未知格式反馈策略键:{k!r}(允许 "
++                f"{sorted(FORMAT_FEEDBACK_DEFAULTS)})")
++        if isinstance(v, bool) or not isinstance(v, int):
++            raise ValueError(
++                f"max_format_feedback_rounds 必须是整数,得到 {v!r}")
++        lo, hi = FORMAT_FEEDBACK_MAX_ROUNDS_RANGE
++        if not (lo <= v <= hi):
++            raise ValueError(
++                f"max_format_feedback_rounds={v} 超出允许范围 [{lo},{hi}]")
++        out[k] = v
++    return out
++
++
++def validate_frozen_format_feedback_policy(policy: dict | None) -> dict:
++    """严格校验**已冻结/已序列化**的完整格式反馈策略块(S3b)。
++
++    与 validate_frozen_search_limits 同一边界:存储块必须是完整冻结
++    对象(非 dict/缺 version/缺必需键/未知键/坏类型/越界 ⇒ 拒,不补
++    默认)。返回浅拷贝。"""
++    if not isinstance(policy, dict):
++        raise ValueError(
++            "冻结格式反馈策略块必须是完整对象,得到 "
++            f"{type(policy).__name__}(不补默认、不猜迁移;消费前拒)")
++    if policy.get("version") != FORMAT_FEEDBACK_POLICY_VERSION:
++        raise ValueError(
++            "冻结格式反馈策略块缺 version 或版本不符:"
++            f"{policy.get('version')!r}(当前 {FORMAT_FEEDBACK_POLICY_VERSION};"
++            "消费前拒)")
++    required = [k for k in FORMAT_FEEDBACK_DEFAULTS if k != "version"]
++    missing = sorted(k for k in required if k not in policy)
++    if missing:
++        raise ValueError(
++            f"冻结格式反馈策略块缺必需键:{missing}(不补默认,消费前拒)")
++    unknown = sorted(k for k in policy
++                     if k not in FORMAT_FEEDBACK_DEFAULTS)
++    if unknown:
++        raise ValueError(f"冻结格式反馈策略块含未知键:{unknown}")
++    out: dict = {"version": FORMAT_FEEDBACK_POLICY_VERSION}
++    lo, hi = FORMAT_FEEDBACK_MAX_ROUNDS_RANGE
++    for key in required:
++        value = policy[key]
++        if isinstance(value, bool) or not isinstance(value, int):
++            raise ValueError(
++                f"格式反馈策略 {key} 必须是整数,得到 {value!r}")
++        if not (lo <= value <= hi):
++            raise ValueError(
++                f"格式反馈策略 {key}={value} 超出允许范围 [{lo},{hi}]")
++        out[key] = value
++    return out
++
+ SEARCH_LIMITS_DEFAULTS: dict = {
+     "version": SEARCH_LIMITS_VERSION,
+     "max_alternative_hypotheses_per_parent": 2,
+@@ -281,6 +407,7 @@ def contract_versions() -> dict:
+         "condition_assessment": PPV1_CONDITION_ASSESSMENT_VERSION,
+         "gate_mapper": PPV1_GATE_MAPPER_VERSION,
+         "search": PPV1_SEARCH_SCHEMA_VERSION,
++        "format_feedback": FORMAT_FEEDBACK_POLICY_VERSION,
+         "legacy_gate_ref": LEGACY_GATE_PROFILE_REF,
+         "legacy_g2_family_ref": LEGACY_G2_FAMILY_REF,
+     }
+@@ -413,12 +540,16 @@ def build_profile_identity_block(
+     chemical_reproposal: str = CHEMICAL_REPROPOSAL_DEFAULT,
+     search_intent: str | None = None,
+     search_limits: dict | None = None,
++    format_feedback_policy: dict | None = None,
+ ) -> dict:
+     """pollutant_pathway_v1 的 run 身份 profile 块(全部开关进身份)。
+ 
+     未知取值 fail-closed(ValueError,装配期拒绝),不静默回退默认。
+-    search_limits 为实际可执行版本 v3(S3a 底座计数);S3b 公共链
+-    集成交付前 run 执行入口仍 fail-closed(见 workflow.runner)。
++    search_limits 为实际可执行版本 v3(S3a 底座计数);format_feedback_
++    policy 为 S3b 独立有界格式反馈策略(缺省补默认 0 轮;不并入
++    search_limits 十键、不当旧草案字段)。S3b 起 run 执行入口
++    (workflow.runner start_run/resume_run)按 profile 分流到 PPV1
++    独立执行/存储。
+     """
+     return {
+         "name": PPV1_PROFILE_NAME,
+@@ -430,9 +561,10 @@ def build_profile_identity_block(
+             chemical_reproposal),
+         "search_intent": _validate_search_intent(search_intent),
+         "search_limits": _validate_search_limits(search_limits),
++        "format_feedback_policy": validate_format_feedback_policy(
++            format_feedback_policy),
+         # S0–S2 交付领域契约/上下文/固定诊断;S3a 交付持久搜索底座
+-        # (身份/预算/认领/恢复,测试入口用 pollutant.search 底座 API);
+-        # 公共执行流入口 workflow.runner 对本 profile 继续 fail-closed
+-        # (队列化学集成与生产链属 S3b,交付前拒绝运行)
+-        "delivered_stages": "S0-S2,S3a-base",
++        # (身份/预算/认领/恢复);S3b 交付队列化学集成/生产中心证据链/
++        # PPV1 runner 分流(公开 start_run/resume_run 开放 PPV1 路径)
++        "delivered_stages": "S0-S2,S3a-base,S3b",
+     }
+diff --git a/src/pathway_v43/pollutant/queue.py b/src/pathway_v43/pollutant/queue.py
+new file mode 100644
+index 0000000..8c30f61
+--- /dev/null
++++ b/src/pathway_v43/pollutant/queue.py
+@@ -0,0 +1,649 @@
++"""S3b 队列调度 —— 冻结池选择、deferred 两类分别激活、场景转换进调度
++(实施书 §5.1/§5.2;契约 ppv1-search-5)。
++
++范围(任务书 §2.3 S3b 行):`schedule_hypotheses`(selected/deferred/
++blocked + 原因)、`record_expansion_outcome`(非事件尝试结论持久化)、
++`activate_deferred`(共同产物 deferred 与备选反应 deferred 分别激活:
++幂等/trigger/expected_parent_revision 校验、预算不足留独立未展开原因)、
++`enqueue_scenario_transition`(显式支持的场景转换独立 action/预算)、
++`enqueue_coproduct_followups`(事件后子产物 followup 与共同产物
++deferred)。本模块只做调度事务与身份,不构造化学对象(假设构建在
++pollutant/production.py,本层只冻结其产物)。
++
++入口矩阵(每处消费的对象/身份/版本/权威及校验来源):
++
++| # | 入口 | 消费 | 校验/事务 |
++| 1 | schedule_hypotheses | 池条目(调用方经 production 冻结的 hypothesis/spec)+ 父/上下文/revision/预算视图 | 池条目结构契约(dict/hypothesis_id/payload);_limits 严格冻结块;剩余额度从预约行派生(快照不是事实源);enqueue 幂等/同键异内容冲突;深度结构性拒绝;选中数受剩余 alternatives 与调用方 max_select 双重限制 |
++| 2 | record_expansion_outcome | attempt 行 + 认领所有权 + outcome 载荷 | attempt 存在/归属本 run+本 action 且 open;action 处于 claimed 且 worker 为认领者;outcome kind 枚举;artifact 先写(expansion_outcome,不可覆盖);complete_action 走 S3A-02 完整权威核验 |
++| 3 | activate_deferred | deferred action 行 + trigger + expected_parent_revision | ledger.reactivate_deferred_action 同一判据(状态/trigger/revision/预算预检);按 deferred_type 分类;trigger 不一致逐项结构化冲突;重复触发幂等 unchanged |
++| 4 | enqueue_scenario_transition | 转换载荷(须显式 source_ref)+ 当前上下文 | 转换 dict 契约(source_ref 非空、new_phase_id/new_scenario_ref);enqueue 幂等/冲突;转换预算在 claim 预约(独立计,不是反应边) |
++| 5 | enqueue_coproduct_followups | 事件产物清单 + 展开计划(expanded/deferred/not_tracked) | 计划引用必须是事件产物参与物;宽度/预算不足的产物入 deferred(独立未展开原因);完整事件事实不截断(计划只管 followup) |
++
++deferred 两类(任务书 §5.1):共同产物 deferred(coproduct_deferred,
++对象 = 事件产物 state_ref)与父底物备选反应 deferred(
++alternative_reaction_deferred,对象 = 备选假设 id)分别有类型、对象、
++触发条件/未展开原因 —— 都以 search_actions 行持久化(
++initial_status=deferred + defer_reason 列 + payload 内 deferred_type/
++defer_trigger),激活走 reactivate_deferred_action(不重建任务输入)。
++
++停止与未探索(任务书 §4.2/§5.1):deferred/blocked 计入未探索集合
++(stop_report 已消费);存在 deferred/知识缺口时不称"所有路线都探索
++完";停止不是化学终点。首选下游无候选(E01)由调用方以
++record_expansion_outcome(kind=unresolved_continuation) 落账,本层不
++反推上游真假。
++"""
++
++from __future__ import annotations
++
++import json
++
++from ..domain.models import content_hash, now_iso, stable_id
++from .profile import SEARCH_LIMITS_VERSION
++from .search import (
++    ACTION_KIND_EXPAND_HYPOTHESIS,
++    ACTION_KIND_RETRIEVE,
++    ACTION_KIND_SCENARIO_TRANSITION,
++    ACTION_STATUS_DEFERRED,
++    ACTION_STATUS_DONE,
++    ACTION_STATUS_PENDING,
++    ATTEMPT_STATUS_FAILED,
++    ATTEMPT_STATUS_OPEN,
++    ATTEMPT_STATUS_RECORDED,
++    COMMIT_KIND_OUTCOME,
++    SearchContractError,
++    SearchLedger,
++    read_search_artifact,
++)
++
++# ---- deferred 两类(§5.1:分别有类型、对象、触发条件/未展开原因) ----
++
++DEFERRED_TYPE_COPRODUCT = "coproduct_deferred"
++DEFERRED_TYPE_ALTERNATIVE = "alternative_reaction_deferred"
++DEFERRED_TYPES = frozenset({DEFERRED_TYPE_COPRODUCT,
++                            DEFERRED_TYPE_ALTERNATIVE})
++
++# 默认激活 trigger(显式决策;调用方可按需定义其他 token,激活时与
++# 记录一致即可 —— 可验证 trigger = 与冻结记录一致)
++DEFERRED_TRIGGER_EXPLICIT = "explicit_user"
++
++# record_expansion_outcome 的结论 kind(非事件 outcome;枚举固定)
++OUTCOME_KIND_UNRESOLVED_CONTINUATION = "unresolved_continuation"
++OUTCOME_KIND_METHOD_FAILED = "method_failed"
++OUTCOME_KIND_CONTRACT_ABORTED = "contract_aborted"
++OUTCOME_KIND_NO_LOCAL_CANDIDATE = "no_local_candidate"
++OUTCOME_KIND_POOL_DIGEST = "pool_digest"
++OUTCOME_KIND_SCHEDULED = "scheduled"
++OUTCOME_KIND_TRANSITION_APPLIED = "transition_applied"
++OUTCOME_KIND_ACTIVATED = "activation_dispatched"
++OUTCOME_KIND_ADMISSION_REJECTED = "admission_rejected"
++OUTCOME_KIND_ADMISSION_DEFERRED = "admission_deferred"
++OUTCOME_KINDS = frozenset({
++    OUTCOME_KIND_UNRESOLVED_CONTINUATION, OUTCOME_KIND_METHOD_FAILED,
++    OUTCOME_KIND_CONTRACT_ABORTED, OUTCOME_KIND_NO_LOCAL_CANDIDATE,
++    OUTCOME_KIND_POOL_DIGEST, OUTCOME_KIND_SCHEDULED,
++    OUTCOME_KIND_TRANSITION_APPLIED, OUTCOME_KIND_ACTIVATED,
++    OUTCOME_KIND_ADMISSION_REJECTED, OUTCOME_KIND_ADMISSION_DEFERRED,
++})
++# method 类失败(工具/契约/方法层,不是化学判定)⇒ attempt failed;
++# 其余非事件结论 ⇒ attempt recorded(如实记录结论)
++_OUTCOME_FAILED_KINDS = frozenset({
++    OUTCOME_KIND_METHOD_FAILED, OUTCOME_KIND_CONTRACT_ABORTED})
++
++# 展开计划 deferred 的标准原因(与 build_expansion_plan 的 reasons 对齐)
++DEFER_REASON_PRODUCT_WIDTH = "product_width_limit"
++DEFER_REASON_BUDGET = "budget_limit"
++DEFER_REASON_DEPTH = "depth_limit"
++
++# 持久结论 artifact 的载荷版本
++EXPANSION_OUTCOME_VERSION = "ppv1-search-outcome-1"
++
++
++def child_path_id(parent_path_id: str, source_event_id: str,
++                  product_state_ref: str) -> str:
++    """子路径身份(确定性:父路径 + 事件 + 产物引用;同输入同 ID ⇒
++    幂等,不按 CN 归并、不丢路径来路)。"""
++    return stable_id("spath", parent_path_id, source_event_id,
++                     product_state_ref)
++
++
++def frozen_pool_digest(pool: list[dict]) -> str:
++    """冻结池摘要(可重放:条目身份 + 声明次序 + 截断标记都进摘要;
++    池成员/档位/原顺序不被 preview 或筛选结果改写 —— 本层不消费
++    conservation_filter_and_rank 的任何筛选输出)。"""
++    entries = []
++    for item in pool or []:
++        entries.append({
++            "hypothesis_key": str(item.get("hypothesis_key", "")),
++            "hypothesis_id": str(item.get("hypothesis_id", "")),
++            "rank": item.get("rank"),
++        })
++    return content_hash({"version": SEARCH_LIMITS_VERSION,
++                         "entries": entries})
++
++
++# ---- 结构化异常 ----
++
++
++class ScheduleContractError(SearchContractError):
++    """调度输入/身份契约违反(结构化,零写入)。"""
++
++
++def _validate_pool_entry(entry, index: int) -> dict:
++    if not isinstance(entry, dict):
++        raise ScheduleContractError(
++            f"池条目 #{index} 必须是 dict,得到 {type(entry).__name__}",
++            {"kind": "pool_entry_invalid_type", "index": index})
++    hypothesis_id = str(entry.get("hypothesis_id") or "")
++    if not hypothesis_id:
++        raise ScheduleContractError(
++            f"池条目 #{index} 缺 hypothesis_id(调用方经 production 冻结;"
++            "调度层不构造化学对象)",
++            {"kind": "pool_entry_missing_hypothesis_id", "index": index})
++    payload = entry.get("payload")
++    if not isinstance(payload, dict):
++        raise ScheduleContractError(
++            f"池条目 #{index} 的 payload 必须是 dict(冻结任务输入)",
++            {"kind": "pool_entry_payload_invalid", "index": index})
++    return entry
++
++
++def schedule_hypotheses(
++    ledger: SearchLedger,
++    *,
++    run_id: str,
++    parent_path_id: str,
++    context_ref: str,
++    parent_search_revision: int,
++    pool: list[dict],
++    policy_version: str,
++    depth: int,
++    source_event_id: str = "",
++    budget: dict | None = None,
++    defer_trigger: str = DEFERRED_TRIGGER_EXPLICIT,
++) -> dict:
++    """冻结池 → selected / deferred / blocked(幂等;同键异内容冲突;
++    队列待办不计预算,claim 才预约)。
++
++    - 选中:按池声明次序(rank 升序,同 rank 按 hypothesis_id 稳定
++      tie-break)取至多 `min(剩余 alternatives 额度, 调用方 max_select)`
++      条,以 pending expand action 入队(subject = hypothesis_id,
++      payload = 条目冻结任务输入);
++    - deferred(备选反应):超出选中额度的池条目以
++      initial_status=deferred 入队(deferred_type=
++      alternative_reaction_deferred;独立未展开原因
++      alternatives_budget / selection_cap;激活条件 defer_trigger);
++    - blocked:深度超限(不入队)、同一身份的 action 已 done(无新
++      信息不再安排 ⇒ already_expanded)等结构性格拒;
++    - 池 digest(条目身份+次序)返回给调用方进 decision 任务键
++      (决策身份绑定冻结池;池成员顺序不可被调度结果改写);
++    - 剩余 alternatives 从持久预约行派生(含 reserved/consumed;快照
++      不是事实源);本入口零预算预约。
++    """
++    for i, entry in enumerate(pool or []):
++        _validate_pool_entry(entry, i)
++    limits = ledger._limits(run_id)
++    alternatives_max = int(limits["max_alternative_hypotheses_per_parent"])
++    used = 0
++    for row in ledger.conn.execute(
++            "SELECT scope, status, subject, units FROM budget_reservations"
++            " WHERE run_id = ? AND limit_key = ? AND scope = ? AND status"
++            " IN (?, ?)",
++            (run_id, "max_alternative_hypotheses_per_parent",
++             parent_path_id, "reserved", "consumed")).fetchall():
++        used += int(row["units"])
++    remaining_alternatives = max(0, alternatives_max - used)
++    max_select = None
++    if budget is not None:
++        if not isinstance(budget, dict):
++            raise ScheduleContractError(
++                "budget 视图必须是 dict", {"kind": "budget_view_invalid"})
++        raw = budget.get("max_select")
++        if raw is not None:
++            if isinstance(raw, bool) or not isinstance(raw, int) or raw < 0:
++                raise ScheduleContractError(
++                    f"budget.max_select 非法:{raw!r}(非负整数)",
++                    {"kind": "budget_max_select_invalid"})
++            max_select = raw
++    selectable = remaining_alternatives
++    if max_select is not None:
++        selectable = min(selectable, max_select)
++    ordered = sorted(
++        enumerate(pool or []),
++        key=lambda pair: (
++            (pair[1].get("rank") is None, pair[1].get("rank") or 0,
++             str(pair[1].get("hypothesis_id", "")), pair[0])))
++    digest = frozen_pool_digest(pool or [])
++    selected: list[dict] = []
++    deferred: list[dict] = []
++    blocked: list[dict] = []
++    taken = 0
++    depth = int(depth)
++    if depth > int(limits["max_search_depth"]):
++        # 深度超限:整池 blocked(不入队;0 = 不展开任何产品)
++        for _, entry in ordered:
++            blocked.append({
++                "hypothesis_id": str(entry["hypothesis_id"]),
++                "reason": "depth_limit",
++                "detail": {"depth": depth,
++                           "max_search_depth":
++                               int(limits["max_search_depth"])}})
++        return {
++            "run_id": run_id, "parent_path_id": parent_path_id,
++            "context_ref": context_ref,
++            "parent_search_revision": int(parent_search_revision),
++            "pool_digest": digest, "pool_size": len(pool or []),
++            "selected": selected, "deferred": deferred, "blocked": blocked,
++            "remaining_alternatives": remaining_alternatives,
++            "alternatives_max": alternatives_max,
++        }
++    for _, entry in ordered:
++        hypothesis_id = str(entry["hypothesis_id"])
++        # 每条目的 context_ref(分支隔离:带自身要求/依赖的假设经
++        # derive_child_context 派生专属上下文;缺省用调用的父上下文)
++        entry_context = str(entry.get("payload", {}).get("context_ref")
++                            or context_ref)
++        task_payload = dict(entry["payload"])
++        task_payload.setdefault("context_ref", entry_context)
++        task_payload["frozen_pool_digest"] = digest
++        task_payload.setdefault("source_event_id", source_event_id)
++        will_select = taken < selectable
++        if will_select:
++            enqueue = ledger.enqueue_action(
++                run_id=run_id, parent_path_id=parent_path_id,
++                context_ref=entry_context, subject_ref=hypothesis_id,
++                action_kind=ACTION_KIND_EXPAND_HYPOTHESIS,
++                parent_search_revision=parent_search_revision,
++                policy_version=policy_version, payload=task_payload,
++                depth=depth, source_event_id=source_event_id)
++        else:
++            reason = ("selection_cap" if max_select is not None
++                      and remaining_alternatives > taken
++                      else "alternatives_budget")
++            task_payload["deferred_type"] = DEFERRED_TYPE_ALTERNATIVE
++            task_payload["defer_reason"] = reason
++            enqueue = ledger.enqueue_action(
++                run_id=run_id, parent_path_id=parent_path_id,
++                context_ref=entry_context, subject_ref=hypothesis_id,
++                action_kind=ACTION_KIND_EXPAND_HYPOTHESIS,
++                parent_search_revision=parent_search_revision,
++                policy_version=policy_version, payload=task_payload,
++                depth=depth, source_event_id=source_event_id,
++                initial_status=ACTION_STATUS_DEFERRED,
++                defer_reason=reason, defer_trigger=defer_trigger)
++        if not enqueue.get("created"):
++            status = enqueue.get("status")
++            if enqueue.get("reason") == "depth_limit":
++                blocked.append({"hypothesis_id": hypothesis_id,
++                                "reason": "depth_limit"})
++                continue
++            if status == ACTION_STATUS_DONE:
++                blocked.append({"hypothesis_id": hypothesis_id,
++                                "reason": "already_expanded",
++                                "action_id": enqueue.get("action_id")})
++                continue
++            existing = {"hypothesis_id": hypothesis_id,
++                        "action_id": enqueue.get("action_id"),
++                        "status": status,
++                        "reason": "already_enqueued"}
++            if status == ACTION_STATUS_DEFERRED:
++                deferred.append(existing)
++            else:
++                selected.append(existing)
++            continue
++        if will_select:
++            selected.append({"hypothesis_id": hypothesis_id,
++                             "action_id": enqueue["action_id"],
++                             "status": ACTION_STATUS_PENDING})
++            taken += 1
++        else:
++            deferred.append({
++                "hypothesis_id": hypothesis_id,
++                "action_id": enqueue["action_id"],
++                "status": ACTION_STATUS_DEFERRED,
++                "deferred_type": DEFERRED_TYPE_ALTERNATIVE,
++                "reason": str(task_payload.get("defer_reason")),
++            })
++    return {
++        "run_id": run_id, "parent_path_id": parent_path_id,
++        "context_ref": context_ref,
++        "parent_search_revision": int(parent_search_revision),
++        "pool_digest": digest, "pool_size": len(pool or []),
++        "selected": selected, "deferred": deferred, "blocked": blocked,
++        "remaining_alternatives": remaining_alternatives,
++        "alternatives_max": alternatives_max,
++    }
++
++
++def record_expansion_outcome(
++    ledger: SearchLedger, attempt_id: str, *,
++    outcome: dict, evidence_refs: list[str] | None = None,
++    worker_id: str,
++) -> dict:
++    """持久化一次展开尝试的**非事件结论**(E01 的 unresolved_
++    continuation、工具/契约方法失败等;事件类结算走
++    submit_action_event + complete_action,不经本入口)。
++
++    - attempt 须存在、归属本 run 且 open,且其 action 处于 claimed、
++      认领者为 worker(执行权闭合;陈旧 worker 不可落账);
++    - outcome.kind 枚举(未知 ⇒ 契约拒);method 类失败
++      (method_failed/contract_aborted)⇒ attempt failed(方法失败不是
++      化学判定);其余 ⇒ recorded;
++    - 结论 artifact 先写(task_key 绑定 action 冻结任务键;不可覆盖),
++      结算经 complete_action(outcome 类;S3A-02 完整权威核验);
++    - outcome_ref 返回给调用方(事件/账本关联的持久引用)。
++    """
++    if not isinstance(outcome, dict) or \
++            outcome.get("kind") not in OUTCOME_KINDS:
++        raise ScheduleContractError(
++            f"outcome.kind 非法:{(outcome or {}).get('kind')!r}"
++            f"(允许 {sorted(OUTCOME_KINDS)})",
++            {"kind": "invalid_outcome_kind"})
++    row = ledger.conn.execute(
++        "SELECT * FROM search_attempts WHERE expansion_attempt_id = ?",
++        (attempt_id,)).fetchone()
++    if row is None:
++        raise ScheduleContractError(
++            f"attempt 不存在:{attempt_id}",
++            {"attempt_id": attempt_id, "kind": "attempt_missing"})
++    action_id = row["action_id"]
++    action = ledger.conn.execute(
++        "SELECT * FROM search_actions WHERE action_id = ?",
++        (action_id,)).fetchone()
++    if action is None or action["run_id"] != row["run_id"]:
++        raise ScheduleContractError(
++            f"attempt {attempt_id} 引用的 action 缺失或异属(执行引用"
++            "闭合失败)",
++            {"attempt_id": attempt_id, "action_id": action_id,
++             "kind": "attempt_action_binding_mismatch"})
++    if action["status"] != "claimed":
++        raise ScheduleContractError(
++            f"action {action_id} 状态为 {action['status']}(非事件结论"
++            "只在认领执行权下落账)",
++            {"attempt_id": attempt_id, "action_id": action_id,
++             "kind": "not_claimed", "status": action["status"]})
++    if action["claimed_by"] != worker_id:
++        raise ScheduleContractError(
++            f"action {action_id} 由 {action['claimed_by']!r} 认领,"
++            f"{worker_id!r} 不可越权落账尝试结论",
++            {"attempt_id": attempt_id, "action_id": action_id,
++             "kind": "owner_mismatch"})
++    if row["status"] != ATTEMPT_STATUS_OPEN:
++        raise ScheduleContractError(
++            f"attempt {attempt_id} 状态为 {row['status']}(已落账的尝试"
++            "不可再记非事件结论)",
++            {"attempt_id": attempt_id, "kind": "attempt_not_open",
++             "status": row["status"]})
++    payload = {
++        "outcome_version": EXPANSION_OUTCOME_VERSION,
++        "attempt_id": attempt_id, "action_id": action_id,
++        "run_id": row["run_id"], "hypothesis_id": row["hypothesis_id"],
++        "outcome": dict(outcome),
++        "evidence_refs": [str(r) for r in (evidence_refs or [])],
++        "recorded_at": now_iso(),
++    }
++    task_key = action["task_key"] or stable_id("soutc", action_id)
++    if ledger.artifact_store is not None:
++        ledger.artifact_store.write(task_key, "expansion_outcome", payload)
++    outcome_ref = content_hash(payload)
++    attempt_status = (ATTEMPT_STATUS_FAILED
++                      if outcome["kind"] in _OUTCOME_FAILED_KINDS
++                      else ATTEMPT_STATUS_RECORDED)
++    return ledger.complete_action(
++        action_id, worker_id=worker_id,
++        outcome_kind=COMMIT_KIND_OUTCOME, outcome_ref=outcome_ref,
++        attempt_status=attempt_status)
++
++
++def activate_deferred(
++    ledger: SearchLedger,
++    *,
++    run_id: str,
++    parent_path_id: str,
++    trigger: str,
++    expected_parent_revision: int,
++    deferred_type: str | None = None,
++) -> dict:
++    """激活 deferred(两类分别;幂等;trigger/expected_parent_revision
++    校验;预算不足留独立未展开原因;不重复安排同 action)。
++
++    - deferred_type=None ⇒ 父路径全部 deferred;指定
++      coproduct_deferred / alternative_reaction_deferred ⇒ 只激活该类
++      (两类不混队);
++    - 每项经 ledger.reactivate_deferred_action 同一判据:p ok/
++      claimed/done ⇒ unchanged already_active(重复触发幂等);旧
++      revision ⇒ unchanged stale_parent_revision;预算不足 ⇒
++      unchanged budget_exhausted(独立未展开原因,不改状态);trigger
++      与冻结激活条件不一致 ⇒ 逐项结构化冲突(冲突不是成功激活);
++    - 激活只把 deferred → pending(执行仍走 claim 的权威预算事务);
++     不重建任务输入、不覆盖冻结身份。
++    """
++    if deferred_type is not None and deferred_type not in DEFERRED_TYPES:
++        raise ScheduleContractError(
++            f"deferred_type 非法:{deferred_type!r}(允许 "
++            f"{sorted(DEFERRED_TYPES)};None = 两类全部)",
++            {"kind": "invalid_deferred_type", "deferred_type": deferred_type})
++    rows = ledger.conn.execute(
++        "SELECT * FROM search_actions WHERE run_id = ? AND"
++        " parent_path_id = ? ORDER BY created_at, action_id",
++        (run_id, parent_path_id)).fetchall()
++    items = []
++    for row in rows:
++        payload = json.loads(row["payload"])
++        item = dict(row)
++        item["payload"] = payload
++        if deferred_type is None:
++            if not str(payload.get("deferred_type") or ""):
++                continue  # 非 deferred 载荷的 action 不参与激活
++        elif str(payload.get("deferred_type") or "") != deferred_type:
++            continue
++        items.append(item)
++    activated_ids: list[str] = []
++    unchanged: list[dict] = []
++    conflicts: list[dict] = []
++    for item in items:
++        try:
++            out = ledger.reactivate_deferred_action(
++                item["action_id"], trigger=trigger,
++                expected_parent_revision=expected_parent_revision)
++        except SearchContractError as exc:
++            conflicts.append({"action_id": item["action_id"],
++                              "hypothesis_or_object": item["subject_ref"],
++                              "deferred_type": str(
++                                  item["payload"].get("deferred_type")
++                                  or ""),
++                              "error": type(exc).__name__,
++                              "kind": exc.detail.get("kind"),
++                              "detail": exc.detail})
++            continue
++        entry = {"action_id": item["action_id"],
++                 "hypothesis_or_object": item["subject_ref"],
++                 "deferred_type": str(
++                     item["payload"].get("deferred_type") or ""),
++                 "reason": out.get("reason")}
++        if out.get("detail"):
++            entry["detail"] = out.get("detail")
++        if out.get("activated"):
++            activated_ids.append(item["action_id"])
++        else:
++            unchanged.append(entry)
++    return {"run_id": run_id, "parent_path_id": parent_path_id,
++            "deferred_type": deferred_type, "trigger": str(trigger),
++            "expected_parent_revision": int(expected_parent_revision),
++            "activated_ids": activated_ids, "unchanged": unchanged,
++            "conflicts": conflicts, "matched": len(items)}
++
++
++def enqueue_scenario_transition(
++    ledger: SearchLedger,
++    *,
++    run_id: str,
++    parent_path_id: str,
++    context_ref: str,
++    transition: dict,
++    policy_version: str,
++    parent_search_revision: int,
++    task_key: str = "",
++) -> dict:
++    """场景转换进调度(§5.2:只由用户/来源明确支持;独立 action/预算/
++    记录;仅改变后续阶段,不重写旧边评估)。
++
++    - transition 须为 dict 且携带非空 source_ref(显式支持来源;不能
++      从文献观察/矩阵"污水"/工具隐式 O2/H2O/标签造当前条件 ——
++      source_ref 缺失结构化拒);
++    - new_phase_id/new_scenario_ref 缺省沿用当前(转换仍须显式给);
++    - action kind=scenario_transition(转换预算在 claim 预约;转换
++      次数与反应边深度分账);执行侧(derive_child_context 冻结旧阶段
++      快照、只后效)见 runflow/production;
++    - enqueue 幂等/同键异内容冲突(转换动作身份 = run/父/context/
++      subject/kind/revision/policy)。
++    """
++    if not isinstance(transition, dict):
++        raise ScheduleContractError(
++            "scenario_transition 必须是 dict(须显式支持来源)",
++            {"kind": "transition_invalid_type"})
++    if not str(transition.get("source_ref") or ""):
++        raise ScheduleContractError(
++            "阶段转换必须有来源(用户/来源提供;不自行换场景,不从观察"
++            "/标签/工具隐式条件造当前条件)",
++            {"kind": "transition_source_ref_missing",
++             "transition": transition})
++    for key in ("new_phase_id", "new_scenario_ref"):
++        if not str(transition.get(key) or ""):
++            raise ScheduleContractError(
++                f"阶段转换缺 {key}(显式指定新阶段/新场景;不猜默认)",
++                {"kind": "transition_field_missing", "field": key})
++    payload = {"task_key": task_key, "transition": dict(transition),
++               "context_ref": context_ref}
++    return ledger.enqueue_action(
++        run_id=run_id, parent_path_id=parent_path_id,
++        context_ref=context_ref,
++        subject_ref=stable_id("strans", parent_path_id, context_ref,
++                               content_hash(transition)),
++        action_kind=ACTION_KIND_SCENARIO_TRANSITION,
++        parent_search_revision=parent_search_revision,
++        policy_version=policy_version, payload=payload)
++
++
++def enqueue_coproduct_followups(
++    ledger: SearchLedger,
++    *,
++    run_id: str,
++    parent_path_id: str,
++    context_ref: str,
++    event_id: str,
++    product_state_refs: list[str],
++    expansion_plan: dict,
++    policy_version: str,
++    parent_search_revision: int,
++    trigger: str = DEFERRED_TRIGGER_EXPLICIT,
++    budget_remaining_zero: bool = False,
++    substrate_smiles_by_ref: dict[str, str] | None = None,
++    depth: int = 0,
++) -> dict:
++    """事件提交后的共同产物 followup 调度(§5.1:完整事件保存全部已知
++    参与物/产物,报告 K/展开宽度或预算不足**不得删事件事实**;本入口
++    只调度 followup)。
++
++    - product_state_refs:本事件产物参与物 state_ref 全集(调用方从
++      冻结事件/提交结果取;完整事件事实不经本入口删改);
++    - 展开计划(expanded/deferred/not_tracked)引用必须是本事件产物
++      state_ref(计划引用非产物 ⇒ 契约拒,不猜映射);
++    - expanded 产物 ⇒ pending retrieve followup(子路径 = 父路径 +
++      事件 + 产物;subject = 产物 state_ref);
++    - deferred 产物(宽度/预算不足)⇒ deferred retrieve followup
++      (deferred_type=coproduct_deferred,对象 = 产物 state_ref,独立
++      未展开原因来自计划 reasons;完整事件不截断);
++    - not_tracked 产物 ⇒ 不调度(事件内事实保留);
++    - 预算不足(budget_remaining_zero)时全部产物走 deferred(
++      reason=budget_limit);
++    - retrieve followup 不预约预算(claim 才预约;检索预约按
++      max_retrievals_* 在 claim 发生)。
++    """
++    plan = expansion_plan or {}
++    known = [str(r) for r in (product_state_refs or [])]
++    known_set = set(known)
++    # 展开计划载荷形状 = ExpansionPlan.to_dict():{"entries": [
++    # {state_ref, status, reason}], ...};status ∈ expanded/deferred/
++    # not_tracked(旧形状 expanded/deferred/not_tracked 键也兼容读取)
++    entry_reasons: dict[str, str] = {}
++    expanded: list[str] = []
++    deferred_plan: list[str] = []
++    not_tracked: list[str] = []
++    for entry in (plan.get("entries") or []):
++        if not isinstance(entry, dict):
++            continue
++        ref = str(entry.get("state_ref") or "")
++        status = str(entry.get("status") or "")
++        if status == "expanded":
++            expanded.append(ref)
++        elif status == "deferred":
++            deferred_plan.append(ref)
++        elif status == "not_tracked":
++            not_tracked.append(ref)
++        if entry.get("reason"):
++            entry_reasons[ref] = str(entry["reason"])
++    expanded += [str(r) for r in (plan.get("expanded") or [])
++                 if str(r) not in expanded]
++    deferred_plan += [str(r) for r in (plan.get("deferred") or [])
++                      if str(r) not in deferred_plan
++                      and str(r) not in expanded]
++    not_tracked += [str(r) for r in (plan.get("not_tracked") or [])
++                    if str(r) not in not_tracked]
++    for label, refs in (("expanded", expanded), ("deferred", deferred_plan),
++                        ("not_tracked", not_tracked)):
++        unknown = sorted(set(refs) - known_set)
++        if unknown:
++            raise ScheduleContractError(
++                f"展开计划 {label} 引用了非本事件产物:{unknown[:5]}"
++                "(计划只调度事件产物的 followup,不猜映射)",
++                {"kind": "plan_reference_not_product",
++                 "label": label, "unknown": unknown[:10]})
++    reasons = dict(plan.get("reasons") or {})
++    scheduled: list[dict] = []
++    deferred_out: list[dict] = []
++    for ref in known:
++        if ref in not_tracked:
++            continue
++        child = child_path_id(parent_path_id, event_id, ref)
++        payload = {"task_key": "", "product_state_ref": ref,
++                   "source_event_id": event_id,
++                   "parent_path_id": parent_path_id,
++                   "context_ref": context_ref,
++                   "substrate_smiles": str(
++                       (substrate_smiles_by_ref or {}).get(ref, "")),
++                   "depth": int(depth)}
++        if ref in expanded and not budget_remaining_zero:
++            out = ledger.enqueue_action(
++                run_id=run_id, parent_path_id=child,
++                context_ref=context_ref, subject_ref=ref,
++                action_kind=ACTION_KIND_RETRIEVE,
++                parent_search_revision=parent_search_revision,
++                policy_version=policy_version, payload=payload)
++            scheduled.append({"product_state_ref": ref,
++                              "action_id": out.get("action_id"),
++                              "status": out.get("status"),
++                              "child_path_id": child})
++            continue
++        reason = (DEFER_REASON_BUDGET if budget_remaining_zero
++                  else str(entry_reasons.get(ref)
++                           or reasons.get(ref)
++                           or DEFER_REASON_PRODUCT_WIDTH))
++        payload["deferred_type"] = DEFERRED_TYPE_COPRODUCT
++        out = ledger.enqueue_action(
++            run_id=run_id, parent_path_id=child, context_ref=context_ref,
++            subject_ref=ref, action_kind=ACTION_KIND_RETRIEVE,
++            parent_search_revision=parent_search_revision,
++            policy_version=policy_version, payload=payload,
++            initial_status=ACTION_STATUS_DEFERRED, defer_reason=reason,
++            defer_trigger=trigger)
++        deferred_out.append({"product_state_ref": ref,
++                             "action_id": out.get("action_id"),
++                             "status": out.get("status"),
++                             "reason": reason,
++                             "child_path_id": child})
++    return {"run_id": run_id, "parent_path_id": parent_path_id,
++            "event_id": event_id, "scheduled": scheduled,
++            "deferred": deferred_out,
++            "not_tracked": not_tracked,
++            "note": ("完整事件事实不截断;deferred/知识缺口存在时不称"
++                     "所有路线都探索完")}
+diff --git a/src/pathway_v43/pollutant/runflow.py b/src/pathway_v43/pollutant/runflow.py
+new file mode 100644
+index 0000000..0e44068
+--- /dev/null
++++ b/src/pathway_v43/pollutant/runflow.py
+@@ -0,0 +1,1091 @@
++"""S3b PPV1 独立 runner 执行流 —— start/resume 分流后的确定性驱动
++(实施书 §6.2;契约随 search-5 / profile-13 登记)。
++
++职责:workflow.runner 的 PPV1 分流目标 —— **独立**执行/存储(不落
++legacy CN/PathwayStore/预算派生/LangGraph):
++- start:严格 root state(工厂守卫)→ 根 context(持久化 artifact,
++  消费经 from_dict 内容身份核验)→ 注册搜索 run(profile 策略块:十
++  上限 + format_feedback_policy)→ 根 retrieve 入队 → 确定性驱动循环;
++- resume:身份逐字段核对(code/资产/策略/profile/prediction)→
++  recover_run 四崩溃边界(B4 补账/B3 消费 bundle/B1 续跑/B2 披露)
++  → 继续驱动循环(同 worker 身份幂等 reclaim;不重建/不覆盖既有
++  搜索/attempt/request/提交记录);
++- 驱动循环(scripted/规则级):pending 顺序认领 → 按 action_kind 分发:
++  retrieve(池获取)/ decide(schedule_hypotheses;scripted 模型
++  proposals[] 协议 + 有界格式反馈)/ expand_hypothesis(固定生产链:
++  AtomTool→诊断→converter→audit→admission→提交;**AuditContractError
++  窄捕获记 contract_aborted 方法失败,不吞成成功**)/
++  activate_deferred(两类 deferred 激活)/ scenario_transition
++  (derive_child_context 冻结旧阶段快照,只后效,转换后 followup 用
++  新上下文);
++- 停止:队列耗尽 + stop_report(主因优先级、claimed/open/deferred
++  未探索集合);停止不是化学终点。
++
++**预算纪律**:PPV1 不从 model 对象派生任何真实请求预算(与 legacy
++的 max_llm_calls 随展开派生不同 —— 传入 model 只记录身份,额度仍是
++search_limits 的 max_real_model_requests,默认 0;真实请求登记被
++register_model_request 拒绝 ⇒ 网络发送被阻止)。scripted/fake 恒
++network_request_count=0。
++
++**计划(plan)是合成/规则级输入**(测试与验收用;不是生产数据):
++{condition_facts, scenario_ref, dependencies, pools: {substrate_smiles:
++[spec...]}, model: {provider_kind, responses: [text...]},
++scenario_transitions: [{after_hypothesis_key, transition}],
++activations: [{deferred_type, trigger, expected_parent_revision,
++parent}], schedule_budget: {max_select}}。
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++from ..adapters.v3_engine import v3_code_identity
++from ..config import V43Config
++from ..domain.models import content_hash, stable_id
++from ..storage.artifact_store import ArtifactStore
++from ..storage.run_identity import (
++    PROFILE_POLLUTANT_PATHWAY_V1,
++    build_run_identity,
++    check_resume_identity,
++    load_run_identity,
++    retrieval_asset_identity,
++    scripted_asset_identity,
++    write_run_identity,
++)
++from .audit import AuditContractError
++from .chemstate import build_chemical_state
++from .model_protocol import (
++    FEEDBACK_ELIGIBLE,
++    ModelProtocolError,
++    parse_model_proposals,
++    register_format_feedback_round,
++)
++from .path_context import build_path_context, derive_child_context
++from .production import (
++    build_cyclic_dependency,
++    expand_hypothesis_production,
++    load_context,
++    persist_context,
++    prepare_hypothesis,
++)
++from .profile import (
++    FORMAT_FEEDBACK_POLICY_VERSION,
++    build_profile_identity_block,
++)
++from .queue import (
++    DEFERRED_TRIGGER_EXPLICIT,
++    OUTCOME_KIND_ACTIVATED,
++    OUTCOME_KIND_ADMISSION_DEFERRED,
++    OUTCOME_KIND_ADMISSION_REJECTED,
++    OUTCOME_KIND_CONTRACT_ABORTED,
++    OUTCOME_KIND_METHOD_FAILED,
++    OUTCOME_KIND_NO_LOCAL_CANDIDATE,
++    OUTCOME_KIND_POOL_DIGEST,
++    OUTCOME_KIND_SCHEDULED,
++    OUTCOME_KIND_TRANSITION_APPLIED,
++    activate_deferred,
++    enqueue_coproduct_followups,
++    enqueue_scenario_transition,
++    record_expansion_outcome,
++    schedule_hypotheses,
++)
++from .search import (
++    ACTION_KIND_ACTIVATE_DEFERRED,
++    ACTION_KIND_DECIDE,
++    ACTION_KIND_EXPAND_HYPOTHESIS,
++    ACTION_KIND_RETRIEVE,
++    ACTION_KIND_SCENARIO_TRANSITION,
++    COMMIT_KIND_OUTCOME,
++    PROVIDER_KIND_REAL,
++    PROVIDER_KIND_SCRIPTED,
++    SearchBudgetExhausted,
++    SearchClaimError,
++    SearchConcurrencyError,
++    SearchContractError,
++    SearchCrashInjection,
++    SearchLedger,
++    decision_task_key,
++    expansion_task_key,
++    search_policy_version,
++)
++from .store import PollutantPathwayStore
++
++RUNFLOW_VERSION = "ppv1-runflow-1"
++
++
++class PPV1RunError(RuntimeError):
++    """PPV1 run 入口契约违反(结构化)。"""
++
++    def __init__(self, message: str, detail: dict | None = None):
++        super().__init__(message)
++        self.detail = detail or {}
++
++
++def _plan_digest(plan: dict) -> str:
++    return content_hash(plan or {})
++
++
++def _fact_list(raw: list) -> list:
++    from .path_context import build_condition_fact
++    facts = []
++    for f in (raw or []):
++        if isinstance(f, dict):
++            facts.append(build_condition_fact(**dict(f)))
++        else:
++            raise PPV1RunError(
++                "plan.condition_facts 的条目必须是 dict(build_condition_"
++                "fact 契约)", {"kind": "plan_fact_invalid"})
++    return facts
++
++
++def _substrate_state(smiles: str, label: str):
++    """底物状态重建(工厂同源:同 SMILES 同 state_id;首消费守卫在
++    工厂/公共 writer)。"""
++    return build_chemical_state(smiles, "raw_input",
++                                 [{"record": label}])
++
++
++def _worker_id(run_id: str) -> str:
++    """确定性 worker 身份(同 run 的 resume 以同一逻辑 worker 幂等
++    reclaim —— B1 续跑;跨进程竞争方得到 already_claimed)。"""
++    return f"ppv1-driver:{run_id}"
++
++
++def _task_key_for(*, run_id: str, parent_path_id: str, context_ref: str,
++                  subject_ref: str, kind: str, revision: int,
++                  policy_version: str, extra: str = "") -> str:
++    return stable_id("stkey", run_id, parent_path_id, context_ref,
++                     subject_ref, kind, str(int(revision)),
++                     policy_version, extra)
++
++
++def _complete_action(ledger: SearchLedger, action_id: str, *,
++                     worker_id: str, outcome: dict,
++                     evidence_refs: list[str] | None = None) -> dict:
++    """非事件完成:outcome artifact 先写 + complete_action(outcome 类;
++    S3A-02 完整权威核验)。返回 outcome_ref。"""
++    payload = {"outcome_version": "ppv1-runflow-outcome-1",
++               "action_id": action_id, "outcome": dict(outcome),
++               "evidence_refs": [str(r) for r in (evidence_refs or [])]}
++    task_key = stable_id("soutc", action_id)
++    outcome_ref = content_hash(payload)
++    if ledger.artifact_store is not None:
++        ledger.artifact_store.write(task_key, "expansion_outcome", payload)
++    return ledger.complete_action(
++        action_id, worker_id=worker_id, outcome_kind=COMMIT_KIND_OUTCOME,
++        outcome_ref=outcome_ref)
++
++
++class _Driver:
++    """一次驱动会话(进程内;恢复后新实例从持久记录继续)。"""
++
++    def __init__(self, ledger: SearchLedger, plan: dict, run_id: str,
++                 worker_id: str, crash_after: str | None = None) -> None:
++        self.ledger = ledger
++        self.store = ledger.store
++        self.plan = plan or {}
++        self.run_id = run_id
++        self.worker_id = worker_id
++        self.crash_after = crash_after
++        self.refusals: list[dict] = []
++        self.run_error: dict | None = None
++        self.empty_pool_retrievals = 0
++        self.total_retrievals = 0
++        self.events_submitted: list[str] = []
++        self.root_path_id = stable_id("spath", run_id, "root")
++        self.model_responses = list(
++            (self.plan.get("model") or {}).get("responses") or [])
++        self.model_provider_kind = str(
++            (self.plan.get("model") or {}).get("provider_kind")
++            or PROVIDER_KIND_SCRIPTED)
++
++    # ------------------------------------------------------------ 主循环
++
++    def reconcile_followups(self) -> None:
++        """B4 补救:事件已提交、followup 调度未完成的 action(done 但
++        事件产物无任何 followup)⇒ 从权威记录(事件 + 展开计划附件)
++        幂等补调度(不重发事件、不重复扣额;queue 幂等)。转换分支:
++        存在携带本事件 pending_followup 的转换 action ⇒ 留给转换执行。
++        """
++        rows = self.ledger.conn.execute(
++            "SELECT a.action_id, a.parent_path_id, a.context_ref,"
++            " a.parent_search_revision, a.payload,"
++            " c.event_id FROM search_actions a JOIN search_commit_records"
++            " c ON c.action_id = a.action_id WHERE a.run_id = ? AND"
++            " a.action_kind = ? AND a.status = ? AND c.event_id != ''",
++            (self.run_id, ACTION_KIND_EXPAND_HYPOTHESIS,
++             "done")).fetchall()
++        for row in rows:
++            event_id = row["event_id"]
++            existing = self.ledger.conn.execute(
++                "SELECT COUNT(*) FROM search_actions WHERE run_id = ? AND"
++                " payload LIKE ?",
++                (self.run_id, f"%{event_id}%")).fetchone()[0]
++            if int(existing) > 1:  # 事件引用已出现在 followup/转换载荷
++                continue
++            plan = self.store.expansion_plan(event_id)
++            if not plan:
++                continue
++            ev = self.store.get_event(event_id)
++            if not ev:
++                continue
++            ev_payload = ev.get("payload")
++            participants = (json.loads(ev_payload).get("participants")
++                            if isinstance(ev_payload, str) and ev_payload
++                            else ev.get("participants")) or []
++            product_refs = [
++                str(p.get("state_ref")) for p in participants
++                if isinstance(p, dict) and p.get("side") == "product"]
++            smiles_by_ref = {ref: self._state_smiles(ref)
++                             for ref in product_refs}
++            enqueue_coproduct_followups(
++                self.ledger, run_id=self.run_id,
++                parent_path_id=row["parent_path_id"],
++                context_ref=row["context_ref"], event_id=event_id,
++                product_state_refs=product_refs,
++                expansion_plan=dict(plan),
++                policy_version=search_policy_version(),
++                parent_search_revision=int(
++                    row["parent_search_revision"]) + 1,
++                substrate_smiles_by_ref=smiles_by_ref,
++                depth=int((json.loads(row["payload"]) or {}).get("depth")
++                          or 1))
++
++    def _inflight_action_ids(self) -> list[str]:
++        """在途 action(pending + 本 worker 已认领未完成 —— B1 续跑:
++        同 worker 幂等 reclaim 后继续执行;其他 worker 认领的 action
++        不在驱动清单内,由其执行方续跑)。稳定次序:created_at,
++        action_id。"""
++        rows = self.ledger.conn.execute(
++            "SELECT action_id FROM search_actions WHERE run_id = ? AND"
++            " (status = ? OR (status = ? AND claimed_by = ?))"
++            " ORDER BY created_at, action_id",
++            (self.run_id, "pending", "claimed", self.worker_id)).fetchall()
++        return [str(r["action_id"]) for r in rows]
++
++    def drive(self) -> dict:
++        self.reconcile_followups()
++        activations_applied = False
++        while True:
++            pending = self._inflight_action_ids()
++            if not pending:
++                directives = self.plan.get("activations") or []
++                if not activations_applied and directives:
++                    # 显式激活指令(计划输入):入队 activate_deferred
++                    # action(幂等:done 的指令 action 复用;不重复安排)
++                    activations_applied = True
++                    for directive in directives:
++                        self._enqueue_activation(directive)
++                    continue
++                break
++            action_id = pending[0]
++            try:
++                receipt = self.ledger.claim_action(
++                    action_id, worker_id=self.worker_id)
++            except SearchBudgetExhausted as exc:
++                self.refusals.append({
++                    "reason": "budget_limit",
++                    "limit_key": exc.detail.get("limit_key"),
++                    "action_id": action_id,
++                    "kind": exc.detail.get("kind")})
++                break  # 预算拒:停止驱动(stop_report 报主因)
++            except (SearchClaimError, SearchConcurrencyError) as exc:
++                # already_claimed(并发)/锁:停止,结构化披露(SQLite
++                # busy 是可见并发结果,不当化学拒绝)
++                self.refusals.append({
++                    "reason": "claim_error", "action_id": action_id,
++                    "kind": exc.detail.get("kind")})
++                break
++            if self.crash_after == "after_claim":
++                raise SearchCrashInjection(
++                    "认领已落账、执行未开始(B1 注入点)",
++                    {"action_id": action_id})
++            if not receipt.get("claimed") and \
++                    receipt.get("status") == "done":
++                continue  # done 复用(权威核验已在 claim 内)
++            kind = receipt["action_kind"]
++            try:
++                if kind == ACTION_KIND_RETRIEVE:
++                    self._run_retrieve(receipt)
++                elif kind == ACTION_KIND_DECIDE:
++                    self._run_decide(receipt)
++                elif kind == ACTION_KIND_EXPAND_HYPOTHESIS:
++                    self._run_expand(receipt)
++                elif kind == ACTION_KIND_ACTIVATE_DEFERRED:
++                    self._run_activate(receipt)
++                elif kind == ACTION_KIND_SCENARIO_TRANSITION:
++                    self._run_transition(receipt)
++                else:
++                    raise PPV1RunError(
++                        f"未知 action_kind:{kind!r}(驱动分发缺实现)",
++                        {"kind": "unknown_action_kind",
++                         "action_kind": kind})
++            except SearchCrashInjection:
++                raise  # 崩溃注入点不是 run 错误:原样上抛(测试边界)
++            except (PPV1RunError, ModelProtocolError,
++                    SearchContractError) as exc:
++                # 模型结构失败/调度契约失败(如转换缺 source_ref)等
++                # run 级错误:如实停止(不吞、不猜;claimed action 保持
++                # 认领态计入未完成,不称 exhausted_search;错误进报告)
++                self.run_error = {
++                    "error": type(exc).__name__,
++                    "kind": exc.detail.get("kind"),
++                    "message": str(exc)[:300]}
++                break
++        return self._stop_report()
++
++    # ------------------------------------------------------------ retrieve
++
++    def _run_retrieve(self, receipt: dict) -> None:
++        payload = receipt["payload"]
++        substrate_smiles = str(payload.get("substrate_smiles") or "")
++        source_event_id = str(payload.get("source_event_id") or "")
++        substrate_depth = int(payload.get("depth") or 0)
++        specs = self._pool_for(substrate_smiles)
++        self.total_retrievals += 1
++        if not specs:
++            self.empty_pool_retrievals += 1
++            # E01:首选下游无候选 ⇒ 记 unresolved_continuation(不改
++            # 上游真假;上游事件/attempt 保留)
++            _complete_action(
++                self.ledger, receipt["action_id"], worker_id=self.worker_id,
++                outcome={"kind": OUTCOME_KIND_NO_LOCAL_CANDIDATE,
++                         "detail": {
++                             "substrate_smiles": substrate_smiles,
++                             "source_event_id": source_event_id,
++                             "unresolved_continuation": bool(source_event_id),
++                             "note": ("检索/池无候选;不反证上游;按稳定"
++                                      "次序继续可用备选")}},
++                evidence_refs=[source_event_id] if source_event_id else [])
++            return
++        digest = content_hash({"specs": specs})
++        task_key = decision_task_key(
++            run_id=self.run_id, parent_path_id=receipt["parent_path_id"],
++            context_ref=receipt["context_ref"],
++            frozen_pool_digest=digest,
++            parent_search_revision=int(
++                receipt["parent_search_revision"]),
++            policy_version=receipt["policy_version"],
++            strict_state_digest=stable_id("sfeat", substrate_smiles),
++            tool_id="atom-tool-vendored",
++            prompt_version=_plan_digest(self.plan)[:16],
++            feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
++        self.ledger.enqueue_action(
++            run_id=self.run_id, parent_path_id=receipt["parent_path_id"],
++            context_ref=receipt["context_ref"],
++            subject_ref=f"pool:{digest[:16]}",
++            action_kind=ACTION_KIND_DECIDE,
++            parent_search_revision=receipt["parent_search_revision"],
++            policy_version=receipt["policy_version"],
++            payload={"task_key": task_key, "pool_digest": digest,
++                     "substrate_smiles": substrate_smiles,
++                     "context_ref": receipt["context_ref"],
++                     "parent_path_id": receipt["parent_path_id"],
++                     "depth": substrate_depth,
++                     "source_event_id": source_event_id})
++        _complete_action(
++            self.ledger, receipt["action_id"], worker_id=self.worker_id,
++            outcome={"kind": OUTCOME_KIND_POOL_DIGEST,
++                     "detail": {"substrate_smiles": substrate_smiles,
++                                "pool_digest": digest,
++                                "pool_size": len(specs)}})
++
++    def _pool_for(self, substrate_smiles: str) -> list[dict]:
++        pools = self.plan.get("pools") or {}
++        if not isinstance(pools, dict):
++            raise PPV1RunError("plan.pools 必须是 dict",
++                               {"kind": "plan_pools_invalid"})
++        specs = pools.get(substrate_smiles) or []
++        if not isinstance(specs, list):
++            raise PPV1RunError(
++                f"plan.pools[{substrate_smiles!r}] 必须是 list",
++                {"kind": "plan_pool_specs_invalid"})
++        return specs
++
++    # ------------------------------------------------------------ decide
++
++    def _run_decide(self, receipt: dict) -> None:
++        payload = receipt["payload"]
++        substrate_smiles = str(payload.get("substrate_smiles") or "")
++        substrate_depth = int(payload.get("depth") or 0)
++        specs = self._pool_for(substrate_smiles)
++        substrate = _substrate_state(substrate_smiles,
++                                     f"ppv1-substrate:{self.run_id}")
++        parent_ctx = load_context(self.ledger.artifact_store,
++                                  receipt["context_ref"])
++        prepared_entries = []
++        for index, spec in enumerate(specs):
++            key = str(spec.get("key") or f"spec-{index}")
++            prepared = prepare_hypothesis(
++                spec, parent_path_id=receipt["parent_path_id"],
++                substrate_state=substrate,
++                transformation_ref=str(spec.get("transformation_ref")
++                                        or ""))
++            prepared_entries.append((key, spec, prepared))
++        model_note: dict = {}
++        if self.plan.get("model"):
++            try:
++                model_note = self._model_proposals(receipt, prepared_entries)
++            except SearchBudgetExhausted as exc:
++                # 真实 provider 额度 0(默认):登记被拒 ⇒ 网络发送被
++                # 阻止;decide 记方法失败,搜索按预算原因停止 ——
++                # **不因传 model 对象补/派生真实请求预算**
++                self.refusals.append({
++                    "reason": "budget_limit",
++                    "limit_key": exc.detail.get("limit_key"),
++                    "action_id": receipt["action_id"],
++                    "kind": exc.detail.get("kind")})
++                _complete_action(
++                    self.ledger, receipt["action_id"],
++                    worker_id=self.worker_id,
++                    outcome={"kind": OUTCOME_KIND_METHOD_FAILED,
++                             "detail": {"error": "real_request_refused",
++                                        "note": ("真实模型请求额度不足,"
++                                                 "网络发送被阻止;传入"
++                                                 "模型对象不自动补预算")}})
++                return
++        rank_by_key = model_note.get("rank_by_key") or {}
++        entries: list[dict] = []
++        expand_depth = substrate_depth + 1
++        for index, (key, spec, prepared) in enumerate(prepared_entries):
++            hypothesis = prepared["hypothesis"]
++            context_ref = receipt["context_ref"]
++            # 分支隔离:带自身要求/依赖的假设派生专属子上下文
++            # (derive_child_context 拷贝父事实;分支互不污染)
++            if spec.get("requirements") or spec.get("dependencies") \
++                    or spec.get("assumptions"):
++                child_ctx = self._derive_branch_context(
++                    parent_ctx, prepared, hypothesis.hypothesis_id)
++                context_ref = persist_context(
++                    self.ledger.artifact_store, child_ctx)
++            rank = int(rank_by_key.get(key, index + 1))
++            task_key = expansion_task_key(
++                run_id=self.run_id,
++                parent_path_id=receipt["parent_path_id"],
++                context_ref=context_ref,
++                hypothesis_id=hypothesis.hypothesis_id, attempt_id="",
++                policy_version=receipt["policy_version"],
++                strict_state_digest=substrate.state_id,
++                tool_id="atom-tool-vendored",
++                prompt_version=_plan_digest(self.plan)[:16],
++                feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
++            entries.append({
++                "hypothesis_key": key,
++                "hypothesis_id": hypothesis.hypothesis_id,
++                "rank": rank,
++                "payload": {
++                    "task_key": task_key,
++                    "spec": dict(spec),
++                    "hypothesis_key": key,
++                    "substrate_smiles": substrate_smiles,
++                    "substrate_state_ref": substrate.state_id,
++                    "context_ref": context_ref,
++                    "parent_path_id": receipt["parent_path_id"],
++                    "depth": expand_depth,
++                    "source_event_id": str(
++                        payload.get("source_event_id") or ""),
++                },
++            })
++        schedule = schedule_hypotheses(
++            self.ledger, run_id=self.run_id,
++            parent_path_id=receipt["parent_path_id"],
++            context_ref=receipt["context_ref"],
++            parent_search_revision=int(
++                receipt["parent_search_revision"]),
++            pool=entries, policy_version=receipt["policy_version"],
++            depth=expand_depth,
++            source_event_id=str(payload.get("source_event_id") or ""),
++            budget=self.plan.get("schedule_budget"))
++        _complete_action(
++            self.ledger, receipt["action_id"], worker_id=self.worker_id,
++            outcome={"kind": OUTCOME_KIND_SCHEDULED,
++                     "detail": {"pool_digest": schedule["pool_digest"],
++                                "selected": len(schedule["selected"]),
++                                "deferred": len(schedule["deferred"]),
++                                "blocked": len(schedule["blocked"]),
++                                "model": {
++                                    k: v for k, v in model_note.items()
++                                    if k != "rank_by_key"}}})
++
++    def _derive_branch_context(self, parent_ctx, prepared: dict,
++                               hypothesis_id: str):
++        from .path_context import build_requirement
++        step_requirements = []
++        for raw in (prepared["hypothesis"].requirements or []):
++            if isinstance(raw, dict):
++                fields = {k: v for k, v in dict(raw).items()
++                          if k in ("key", "level", "value", "basis",
++                                   "value_basis", "source_refs",
++                                   "applicable_dimensions",
++                                   "observed_source_conditions", "note")}
++                step_requirements.append(
++                    build_requirement(**fields))
++            else:
++                step_requirements.append(raw)
++        return derive_child_context(
++            parent_ctx,
++            step_requirements=None if not step_requirements
++            else step_requirements,
++            step_dependencies=prepared["dependencies"] or None,
++            step_edge_ref=hypothesis_id)
++
++    def _model_proposals(self, receipt: dict,
++                         prepared_entries: list) -> dict:
++        """scripted 模型 proposals[] 协议(网络 0;真实 provider 默认
++        off —— 登记被预算拒绝,网络发送被阻止)。"""
++        action_id = receipt["action_id"]
++        attempt_id = (receipt.get("attempt_refs") or [""])[0]
++        allowed = {prepared["hypothesis"].hypothesis_id
++                   for _, _, prepared in prepared_entries}
++        response = self._next_model_response()
++        request = self.ledger.register_model_request(
++            run_id=self.run_id, action_id=action_id,
++            attempt_id=attempt_id, provider_kind=self.model_provider_kind,
++            request_key=f"decide:{action_id}", purpose="proposals",
++            payload={"response": str(response)[:2000]})
++        if self.crash_after == "after_request_registered":
++            raise SearchCrashInjection(
++                "请求已登记、无响应(B2 注入点)",
++                {"action_id": action_id,
++                 "request_id": request["request_id"]})
++        note: dict = {"request_id": request["request_id"],
++                      "provider_kind": self.model_provider_kind,
++                      "network_request_count": request.get(
++                          "network_request_count", 0)}
++        try:
++            parsed = parse_model_proposals(
++                response, allowed_hypothesis_ids=allowed)
++        except ModelProtocolError as exc:
++            kind = exc.detail.get("kind")
++            if kind in FEEDBACK_ELIGIBLE:
++                # 有界格式反馈(默认 0 轮 ⇒ 反馈被预算拒 ⇒ 结构失败
++                # 保持;每轮持久记录输入/错误类别/反馈版本/次数)
++                try:
++                    feedback = register_format_feedback_round(
++                        self.ledger, run_id=self.run_id,
++                        action_id=action_id, attempt_id=attempt_id,
++                        error=exc, response_excerpt=str(response),
++                        provider_kind=PROVIDER_KIND_SCRIPTED)
++                except SearchBudgetExhausted as feedback_exhausted:
++                    # 反馈轮超上限(或策略 0):结构失败保持,不以反馈
++                    # 重试到通过 —— 升级为结构失败(不是真实请求预算
++                    # 的资源拒绝路径)
++                    note["format_feedback_exhausted"] = {
++                        "kind": feedback_exhausted.detail.get("kind")}
++                    raise PPV1RunError(
++                        "模型响应结构失败(格式反馈耗尽或策略 0 轮;"
++                        "结构失败保持,不以反馈改分子再试到通过)",
++                        {"kind": "model_structure_failure",
++                         "error_kind": kind,
++                         "feedback_kind":
++                             feedback_exhausted.detail.get("kind")})                         from feedback_exhausted
++                note["format_feedback_round"] = feedback["request_id"]
++                retry = self._next_model_response()
++                parsed = parse_model_proposals(
++                    retry, allowed_hypothesis_ids=allowed)
++            else:
++                # structure_unparseable:结构失败保持(不进格式反馈,
++                # 不能以反馈改分子再试到通过)
++                note["structure_failure"] = {"error_kind": kind}
++                raise PPV1RunError(
++                    "模型响应结构失败(不可解析;结构失败保持,不进格式"
++                    "反馈)", {"kind": "model_structure_failure",
++                              "error_kind": kind}) from exc
++        # rank 提供稳定次序(模型选择不升成 recorded)
++        key_by_id = {prepared["hypothesis"].hypothesis_id: key
++                     for key, _, prepared in prepared_entries}
++        rank_by_key = {}
++        for position, hyp_id in enumerate(parsed["rank_hypotheses"], 1):
++            key = key_by_id.get(hyp_id)
++            if key is not None:
++                rank_by_key[key] = position
++        note["parsed_proposals"] = len(parsed["proposals"])
++        note["abstained"] = parsed["abstained"]
++        note["rank_by_key"] = rank_by_key
++        return note
++
++    def _next_model_response(self) -> str:
++        if self.model_responses:
++            return str(self.model_responses.pop(0))
++        return "{}"
++
++    # ------------------------------------------------------------ expand
++
++    def _run_expand(self, receipt: dict) -> None:
++        payload = receipt["payload"]
++        action_id = receipt["action_id"]
++        attempt_id = (receipt.get("attempt_refs") or [""])[0]
++        substrate = _substrate_state(
++            str(payload.get("substrate_smiles") or ""),
++            f"ppv1-substrate:{self.run_id}")
++        spec = dict(payload.get("spec") or {})
++        prepared = prepare_hypothesis(
++            spec, parent_path_id=receipt["parent_path_id"],
++            substrate_state=substrate,
++            transformation_ref=str(spec.get("transformation_ref") or ""))
++        context = load_context(self.ledger.artifact_store,
++                               receipt["context_ref"])
++        limits = self.ledger._limits(self.run_id)
++        write_bundle = self.crash_after == "after_bundle_written"
++        try:
++            production = expand_hypothesis_production(
++                self.ledger, action_id, prepared=prepared, context=context,
++                worker_id=self.worker_id, attempt_id=attempt_id,
++                task_key=str(payload.get("task_key") or ""),
++                substrate_state=substrate, limits=limits,
++                depth=int(payload.get("depth") or 1),
++                parent_search_revision=int(
++                    receipt["parent_search_revision"]),
++                write_bundle=write_bundle,
++                crash_after=("bundle_written" if write_bundle else
++                             ("event_submitted"
++                              if self.crash_after == "after_event_submitted"
++                              else None)))
++        except AuditContractError as exc:
++            # **窄捕获(R8 P2 ⑧ 义务)**:契约异常中止本次
++            # admission/提交 —— 生产链在提交前上抛 ⇒ 零事件/零提交;
++            # 此处只记方法失败并调度独立备选,**不吞成成功**(无事件/
++            # 无提交/无 verified 可言;attempt 落 failed)。
++            record_expansion_outcome(
++                self.ledger, attempt_id,
++                outcome={"kind": OUTCOME_KIND_CONTRACT_ABORTED,
++                         "detail": {"error": "AuditContractError",
++                                    "reason": str(exc)[:300]}},
++                evidence_refs=[action_id], worker_id=self.worker_id)
++            return
++        status = production.get("status")
++        if status == "method_failed":
++            record_expansion_outcome(
++                self.ledger, attempt_id,
++                outcome={"kind": OUTCOME_KIND_METHOD_FAILED,
++                         "detail": {"execution": {
++                             "ok": production["execution"]["execution_ok"],
++                             "reasons": production["execution"]["result"]
++                             .get("reasons", [])[:5]}}},
++                evidence_refs=[action_id], worker_id=self.worker_id)
++            return
++        if status == "rejected":
++            record_expansion_outcome(
++                self.ledger, attempt_id,
++                outcome={"kind": OUTCOME_KIND_ADMISSION_REJECTED,
++                         "detail": {"admission":
++                                    production["admission"]}},
++                evidence_refs=[action_id], worker_id=self.worker_id)
++            return
++        if status == "deferred":
++            # R3/R4:假设保留(put_hypothesis 留痕;不提交事件;当前
++            # 场景不展开,可展示为需不同条件的备选)
++            self.store.put_hypothesis(
++                prepared["hypothesis"].to_dict())
++            record_expansion_outcome(
++                self.ledger, attempt_id,
++                outcome={"kind": OUTCOME_KIND_ADMISSION_DEFERRED,
++                         "detail": {"admission":
++                                    production["admission"]}},
++                evidence_refs=[action_id], worker_id=self.worker_id)
++            return
++        # submitted:followup 调度(场景转换优先:转换须先执行,followup
++        # 才用新上下文 —— 只改变后续阶段,不重写旧边评估)
++        self.events_submitted.append(production["event_id"])
++        parent_path_id = receipt["parent_path_id"]
++        revision = int(receipt["parent_search_revision"]) + 1
++        plan_transition = self._match_transition(payload)
++        product_refs = [s.state_id for s in prepared["product_states"]]
++        substrate_smiles_by_ref = {
++            s.state_id: s.smiles_isomeric
++            for s in prepared["product_states"]}
++        if plan_transition is not None:
++            # 转换动作携带 pending followup(转换执行后由新上下文调度)
++            transition_payload = {
++                "transition": dict(plan_transition),
++                "pending_followup": {
++                    "event_id": production["event_id"],
++                    "expansion_plan": production["expansion_plan"],
++                    "product_state_refs": product_refs,
++                    "parent_path_id": parent_path_id,
++                    "context_ref": receipt["context_ref"],
++                    "parent_search_revision": revision,
++                    "depth": int(payload.get("depth") or 1)},
++            }
++            enqueue_scenario_transition(
++                self.ledger, run_id=self.run_id,
++                parent_path_id=parent_path_id,
++                context_ref=receipt["context_ref"],
++                transition=dict(plan_transition),
++                policy_version=receipt["policy_version"],
++                parent_search_revision=revision,
++                task_key=_task_key_for(
++                    run_id=self.run_id, parent_path_id=parent_path_id,
++                    context_ref=receipt["context_ref"],
++                    subject_ref=production["event_id"],
++                    kind="scenario_transition", revision=revision,
++                    policy_version=receipt["policy_version"],
++                    extra=content_hash(plan_transition)))
++            # 把 pending_followup 并入转换 action 冻结载荷(幂等)
++            self._attach_followup_to_transition(
++                parent_path_id, receipt["context_ref"], revision,
++                content_hash(plan_transition), transition_payload)
++        else:
++            enqueue_coproduct_followups(
++                self.ledger, run_id=self.run_id,
++                parent_path_id=parent_path_id,
++                context_ref=receipt["context_ref"],
++                event_id=production["event_id"],
++                product_state_refs=product_refs,
++                expansion_plan=production["expansion_plan"],
++                policy_version=receipt["policy_version"],
++                parent_search_revision=revision,
++                substrate_smiles_by_ref=substrate_smiles_by_ref,
++                depth=int(payload.get("depth") or 1))
++
++    def _attach_followup_to_transition(self, parent_path_id: str,
++                                        context_ref: str, revision: int,
++                                        transition_digest: str,
++                                        transition_payload: dict) -> None:
++        """把 pending_followup 并入转换 action 的冻结载荷(同键同内容
++        幂等;转换执行后按新上下文调度 followup)。"""
++        action_id = stable_id(
++            "sact", self.run_id, parent_path_id, context_ref,
++            stable_id("strans", parent_path_id, context_ref,
++                      transition_digest),
++            ACTION_KIND_SCENARIO_TRANSITION, str(int(revision)),
++            search_policy_version())
++        row = self.ledger.conn.execute(
++            "SELECT payload FROM search_actions WHERE action_id = ?",
++            (action_id,)).fetchone()
++        if row is None:
++            raise PPV1RunError(
++                f"转换 action {action_id} 不存在(无法附加 pending_"
++                "followup)", {"kind": "transition_action_missing"})
++        stored = json.loads(row["payload"])
++        if "pending_followup" in stored:
++            return  # 幂等:已携带
++        stored["pending_followup"] = transition_payload["pending_followup"]
++        self.ledger._begin()
++        try:
++            self.ledger.conn.execute(
++                "UPDATE search_actions SET payload = ? WHERE action_id = ?"
++                " AND status = ?",
++                (json.dumps(stored, ensure_ascii=False, sort_keys=True), action_id, "pending"))
++            self.ledger.conn.commit()
++        except Exception:
++            self.ledger.conn.rollback()
++            raise
++
++    def _match_transition(self, payload: dict) -> dict | None:
++        key = str(payload.get("hypothesis_key") or "")
++        for entry in (self.plan.get("scenario_transitions") or []):
++            if str(entry.get("after_hypothesis_key") or "") == key:
++                return dict(entry.get("transition") or {})
++        return None
++
++    # ------------------------------------------------------------ activate
++
++    def _enqueue_activation(self, directive: dict) -> None:
++        payload = {
++            "task_key": _task_key_for(
++                run_id=self.run_id, parent_path_id=self.root_path_id,
++                context_ref="", subject_ref=content_hash(directive),
++                kind="activate", revision=0,
++                policy_version=search_policy_version()),
++            "deferred_type": str(directive.get("deferred_type") or ""),
++            "trigger": str(directive.get("trigger")
++                           or DEFERRED_TRIGGER_EXPLICIT),
++            "expected_parent_revision": int(
++                directive.get("expected_parent_revision") or 0),
++            "parent": str(directive.get("parent") or "root"),
++        }
++        self.ledger.enqueue_action(
++            run_id=self.run_id, parent_path_id=self.root_path_id,
++            context_ref=str(directive.get("context_ref") or ""),
++            subject_ref=stable_id("sactdef", content_hash(directive)),
++            action_kind=ACTION_KIND_ACTIVATE_DEFERRED,
++            parent_search_revision=0,
++            policy_version=search_policy_version(), payload=payload)
++
++    def _run_activate(self, receipt: dict) -> None:
++        payload = receipt["payload"]
++        deferred_type = str(payload.get("deferred_type") or "") or None
++        trigger = str(payload.get("trigger") or DEFERRED_TRIGGER_EXPLICIT)
++        expected_revision = int(payload.get("expected_parent_revision")
++                                or 0)
++        parent = str(payload.get("parent") or "root")
++        parent_path_id = (self.root_path_id if parent == "root"
++                          else parent)
++        result = activate_deferred(
++            self.ledger, run_id=self.run_id, parent_path_id=parent_path_id,
++            trigger=trigger, expected_parent_revision=expected_revision,
++            deferred_type=deferred_type)
++        _complete_action(
++            self.ledger, receipt["action_id"], worker_id=self.worker_id,
++            outcome={"kind": OUTCOME_KIND_ACTIVATED,
++                     "detail": {"activated": result["activated_ids"],
++                                "unchanged": len(result["unchanged"]),
++                                "conflicts": len(result["conflicts"]),
++                                "deferred_type": deferred_type,
++                                "trigger": trigger}})
++
++    # ------------------------------------------------------------ transition
++
++    def _run_transition(self, receipt: dict) -> None:
++        payload = receipt["payload"]
++        transition = dict(payload.get("transition") or {})
++        parent_ctx = load_context(self.ledger.artifact_store,
++                                  receipt["context_ref"])
++        child_ctx = derive_child_context(
++            parent_ctx, scenario_transition=transition,
++            step_edge_ref=receipt["action_id"])
++        context_ref = persist_context(self.ledger.artifact_store, child_ctx)
++        pending_followup = payload.get("pending_followup")
++        if isinstance(pending_followup, dict) and pending_followup:
++            # 转换已执行:followup 用新上下文调度(仅改变后续阶段)
++            followup = dict(pending_followup)
++            product_refs = list(followup.get("product_state_refs") or [])
++            smiles_by_ref = {
++                ref: self._state_smiles(ref) for ref in product_refs}
++            enqueue_coproduct_followups(
++                self.ledger, run_id=self.run_id,
++                parent_path_id=str(followup.get("parent_path_id")
++                                   or receipt["parent_path_id"]),
++                context_ref=context_ref,
++                event_id=str(followup.get("event_id") or ""),
++                product_state_refs=product_refs,
++                expansion_plan=dict(followup.get("expansion_plan") or {}),
++                policy_version=receipt["policy_version"],
++                parent_search_revision=int(
++                    followup.get("parent_search_revision")
++                    or receipt["parent_search_revision"]),
++                substrate_smiles_by_ref=smiles_by_ref,
++                depth=int(followup.get("depth") or 1))
++        _complete_action(
++            self.ledger, receipt["action_id"], worker_id=self.worker_id,
++            outcome={"kind": OUTCOME_KIND_TRANSITION_APPLIED,
++                     "detail": {"new_context_ref": context_ref,
++                                "new_phase_id": child_ctx.phase_id,
++                                "new_scenario_ref": child_ctx.scenario_ref,
++                                "source_ref": transition.get("source_ref"),
++                                "note": ("仅改变后续阶段;旧边评估冻结"
++                                         "于 phase_history,不重写")}},
++            evidence_refs=[str(transition.get("source_ref") or "")])
++
++    def _state_smiles(self, state_ref: str) -> str:
++        state = self.store.get_state(state_ref)
++        if state is None:
++            raise PPV1RunError(
++                f"产物状态 {state_ref} 不在账本(followup 调度需要产物"
++                "结构;不猜)", {"kind": "product_state_missing",
++                              "state_ref": state_ref})
++        return str(state.get("smiles_isomeric") or "")
++
++    # ------------------------------------------------------------ 停止
++
++    def _stop_report(self) -> dict:
++        no_local_candidate = (self.total_retrievals > 0
++                              and self.empty_pool_retrievals ==
++                              self.total_retrievals)
++        report = self.ledger.stop_report(
++            self.run_id, refusals=self.refusals,
++            no_local_candidate=no_local_candidate)
++        report["events_submitted_session"] = list(self.events_submitted)
++        report["runflow_version"] = RUNFLOW_VERSION
++        if self.run_error is not None:
++            report["run_error"] = dict(self.run_error)
++        return report
++
++
++# ---------------------------------------------------------------- 入口
++
++
++def _strategy_block(limits: dict) -> dict:
++    """PPV1 策略块(身份记录用;搜索预算事实源是 search_limits ——
++    **不从 model 派生任何真实请求预算**)。"""
++    return {
++        "max_depth": int(limits["max_search_depth"]),
++        "max_expansions": int(limits["max_total_search_actions"]),
++        "max_frontier_width": int(limits["max_product_expansion_width"]),
++        "max_llm_calls": 0,
++        "max_proposals": 0,
++    }
++
++
++def _prediction_block(model) -> dict:
++    if model is not None:
++        return model.identity_block()
++    from ..domain.policy import PREDICTION_POLICY_VERSION
++    return {"enabled": False, "provider": "off", "model_id": "",
++            "prompt_versions": {}, "policy_version":
++            PREDICTION_POLICY_VERSION, "policy": {}}
++
++
++def start_ppv1_run(
++    *,
++    config: V43Config,
++    runs_root: str | Path,
++    run_id: str,
++    smiles: str,
++    plan: dict | None = None,
++    model=None,
++    profile_policy: dict | None = None,
++    scripted: bool = False,
++    crash_after: str | None = None,
++) -> dict:
++    """PPV1 独立 start(分流目标;不落 legacy 图/存储)。
++
++    - profile 策略装配(build_profile_identity_block:十上限 +
++      format_feedback_policy;未知取值 fail-closed);
++    - run identity(代码/资产/策略/模型/MoleCode;PPV1 哈希全树)落盘
++      后进驱动;重复 run 拒绝;
++    - 严格 root state(工厂守卫)+ 根 context(artifact 持久化)+
++      搜索 run 注册(policy block = profile 块;恢复按同一身份);
++    - 根 retrieve 入队(计划池;空池 ⇒ no_local_candidate 诚实停止);
++    - 驱动循环 + stop_report(停止不是化学终点)。
++    """
++    runs_root = Path(runs_root)
++    run_dir = runs_root / run_id
++    if (run_dir / "run_identity.json").is_file():
++        from ..workflow.runner import RunAlreadyExists
++        raise RunAlreadyExists(run_id, run_dir)
++    # 原子独占目录创建:并发 start 同一 run 只有胜者(败者
++    # FileExistsError → RunAlreadyExists;不进 store/identity 写入)
++    runs_root.mkdir(parents=True, exist_ok=True)
++    try:
++        run_dir.mkdir()
++    except FileExistsError:
++        from ..workflow.runner import RunAlreadyExists
++        raise RunAlreadyExists(run_id, run_dir) from None
++    policy_block = build_profile_identity_block(**(profile_policy or {}))
++    limits = policy_block["search_limits"]
++    asset_identity = (scripted_asset_identity() if scripted
++                      else retrieval_asset_identity(config))
++    identity = build_run_identity(
++        run_id=run_id, root_smiles=smiles, root_cn=_cn_of(smiles),
++        strategy=_strategy_block(limits), asset_identity=asset_identity,
++        v3_code_identity=v3_code_identity(config.v3_code_root),
++        prediction=_prediction_block(model),
++        profile=PROFILE_POLLUTANT_PATHWAY_V1,
++        profile_policy=profile_policy or None)
++    write_run_identity(runs_root, identity)
++    store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
++    artifacts = ArtifactStore(runs_root, run_id)
++    ledger = SearchLedger(store, artifacts, run_id)
++    ledger.register_search_run(run_id, policy_block)
++    root_state = _substrate_state(smiles, "ppv1-root-input")
++    store.put_state(root_state.to_dict())
++    root_ctx = build_path_context(
++        condition_facts=_fact_list((plan or {}).get("condition_facts")),
++        scenario_ref=str((plan or {}).get("scenario_ref") or ""),
++        dependencies=[
++            build_cyclic_dependency(dict(d))
++            for d in ((plan or {}).get("dependencies") or [])])
++    context_ref = persist_context(artifacts, root_ctx)
++    driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
++                     crash_after=crash_after)
++    root_path = driver.root_path_id
++    task_key = decision_task_key(
++        run_id=run_id, parent_path_id=root_path, context_ref=context_ref,
++        frozen_pool_digest=_plan_digest(plan or {}),
++        parent_search_revision=0, policy_version=search_policy_version(),
++        strict_state_digest=root_state.state_id,
++        tool_id="atom-tool-vendored",
++        prompt_version=_plan_digest(plan or {})[:16],
++        feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
++    ledger.enqueue_action(
++        run_id=run_id, parent_path_id=root_path, context_ref=context_ref,
++        subject_ref=root_state.state_id, action_kind=ACTION_KIND_RETRIEVE,
++        parent_search_revision=0, policy_version=search_policy_version(),
++        payload={"task_key": task_key, "substrate_smiles": smiles,
++                 "context_ref": context_ref, "parent_path_id": root_path,
++                 "depth": 0, "source_event_id": ""})
++    report = driver.drive()
++    return _summary(store, run_id, report, resumed=False)
++
++
++def resume_ppv1_run(
++    *,
++    config: V43Config,
++    runs_root: str | Path,
++    run_id: str,
++    plan: dict | None = None,
++    model=None,
++    crash_after: str | None = None,
++) -> dict:
++    """PPV1 独立 resume(身份核对 → 四边界恢复 → 继续驱动)。
++
++    - 保存身份的 profile 必须 PPV1(legacy run 不走本路径;未知
++      profile fail-closed);
++    - 当前身份逐字段核对(check_resume_identity:代码/资产/策略/
++      模型/MoleCode 任一变更拒绝;不原地切换);
++    - recover_run:B4 幂等补账/B3 消费同一 output/B1 读冻结记录续跑/
++      B2 pending 披露(不默发);
++    - 同 worker 身份继续驱动(幂等 reclaim);不重建/不覆盖既有
++      搜索/attempt/request/提交记录。
++    """
++    runs_root = Path(runs_root)
++    saved = load_run_identity(runs_root, run_id)
++    if saved is None:
++        from ..workflow.runner import RunNotFound
++        raise RunNotFound(run_id, runs_root)
++    saved_profile = (saved.get("profile") or {}).get("name", "")
++    if saved_profile != PROFILE_POLLUTANT_PATHWAY_V1:
++        raise PPV1RunError(
++            f"run {run_id} 的 profile 为 {saved_profile!r}(PPV1 resume"
++            " 只服务 pollutant_pathway_v1 run;legacy 旧身份按既有门槛"
++            "拒绝)",
++            {"run_id": run_id, "saved_profile": saved_profile,
++             "kind": "profile_mismatch"})
++    saved_mode = (saved.get("asset_identity") or {}).get(
++        "mode", "repo_assets")
++    current_asset = (scripted_asset_identity()
++                     if saved_mode == "scripted_fixture"
++                     else retrieval_asset_identity(config))
++    saved_profile_block = saved.get("profile") or {}
++    profile_kwargs = {
++        key: saved_profile_block.get(key) for key in (
++            "input_preview_policy", "chemical_reproposal", "search_intent",
++            "search_limits", "format_feedback_policy")
++        if key in saved_profile_block}
++    current = build_run_identity(
++        run_id=run_id, root_smiles=saved["inputs"]["root_smiles"],
++        root_cn=saved["inputs"].get("root_identity"),
++        strategy=saved["strategy"], asset_identity=current_asset,
++        v3_code_identity=v3_code_identity(config.v3_code_root),
++        prediction=_prediction_block(model),
++        profile=PROFILE_POLLUTANT_PATHWAY_V1,
++        profile_policy=profile_kwargs or None)
++    check_resume_identity(saved, current)
++    run_dir = runs_root / run_id
++    store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
++    artifacts = ArtifactStore(runs_root, run_id)
++    ledger = SearchLedger(store, artifacts, run_id)
++    recovery = ledger.recover_run(
++        run_id, policy_block=(saved.get("profile") or None),
++        worker_id=_worker_id(run_id))
++    driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
++                     crash_after=crash_after)
++    report = driver.drive()
++    summary = _summary(store, run_id, report, resumed=True)
++    summary["recovery"] = {
++        "actions": recovery.get("actions"),
++        "pending_requests": recovery.get("pending_requests"),
++        "unknown_status_requests": recovery.get("unknown_status_requests"),
++    }
++    return summary
++
++
++def _cn_of(smiles: str) -> str:
++    from ..domain.identity import cn_identity
++    return cn_identity(smiles)
++
++
++def _summary(store: PollutantPathwayStore, run_id: str,
++             report: dict, *, resumed: bool) -> dict:
++    return {
++        "run_id": run_id,
++        "profile": PROFILE_POLLUTANT_PATHWAY_V1,
++        "runflow_version": RUNFLOW_VERSION,
++        "resumed": resumed,
++        "stop": report,
++        "stop_reason": report.get("primary"),
++        "counts": store.counts(),
++    }
+diff --git a/src/pathway_v43/pollutant/search.py b/src/pathway_v43/pollutant/search.py
+index 713b1c5..d91ccb2 100644
+--- a/src/pathway_v43/pollutant/search.py
++++ b/src/pathway_v43/pollutant/search.py
+@@ -100,6 +100,21 @@ artifact 校验、低层提交恢复协议、停止原因、四崩溃/H05–H08/
+   recover_run 对 run 范围状态枚举外的请求行结构化披露
+   (unknown_status_requests,不改状态、不猜补)。
+ 
++**S3b 批次(2026-10-08;契约 ppv1-search-4 → -5)**:调度与生产链接线
++的底座增量(见各方法 docstring 的"S3b"标注):
++
++- enqueue_action 支持 initial_status=deferred(schedule_hypotheses 的
++  备选反应/共同产物 followup 以独立未展开原因入队,defer_reason 落列
++  + defer_trigger/deferred_type 进冻结任务输入;预约仍只在 claim);
++- reactivate_deferred_action:deferred → pending 激活(trigger 与冻结
++  激活条件一致、expected_parent_revision 与冻结 revision 匹配、
++  pending/claimed/done 幂等 unchanged、旧 revision 明确
++  stale_parent_revision、预算预检不足留独立未展开原因不激活;不重建
++  任务输入、不改冻结身份列;上层语义见 pollutant/queue.py 的
++  activate_deferred(两类 deferred 分别激活);
++- pending_action_ids/actions_with_status:稳定次序只读派生视图
++  (驱动循环消费;不是预算/完成证书)。
++
+ 入口矩阵(每处消费的对象/身份/版本/权威及校验来源;回修 r4 更新):
+ 
+ | # | 入口 | 消费 | 校验/事务 |
+@@ -773,8 +788,12 @@ class SearchLedger:
+         payload: dict,
+         depth: int | None = None,
+         source_event_id: str = "",
++        initial_status: str = ACTION_STATUS_PENDING,
++        defer_reason: str = "",
++        defer_trigger: str = "",
+     ) -> dict:
+-        """创建 pending SearchAction(幂等;同键异内容冲突)。
++        """创建 pending(或 S3b: deferred)SearchAction(幂等;同键异
++        内容冲突)。
+ 
+         - action_id 由身份输入派生(run/父/context/subject/kind/
+           revision/policy_version);payload 全量任务输入冻结落账,
+@@ -785,8 +804,26 @@ class SearchLedger:
+           expand_hypothesis 受深度约束,阶段转换另计);产品宽度(同
+           source_event 的展开数 ≥ max_product_expansion_width ⇒ 拒
+           绝;只限继续探索,不截断完整事件事实);
+-        - 队列待办不计预算(claim 才预约)。
++        - 队列待办不计预算(claim 才预约);
++        - **S3b(注册于 search-5)**:initial_status 允许 pending /
++          deferred —— schedule_hypotheses 的备选反应与共同产物 followup
++          以 deferred 状态入队(defer_reason 必填、defer_trigger 记录
++          激活条件),激活走 reactivate_deferred_action /
++          queue.activate_deferred(不重跑任务输入、不覆盖冻结身份);
++          initial_status 其他取值结构化拒绝。deferred 入队同样零预算
++          预约(预约只在 claim)。
+         """
++        if initial_status not in (ACTION_STATUS_PENDING,
++                                  ACTION_STATUS_DEFERRED):
++            raise SearchContractError(
++                f"initial_status 非法:{initial_status!r}(允许 "
++                f"{ACTION_STATUS_PENDING}/{ACTION_STATUS_DEFERRED})",
++                {"kind": "invalid_initial_status",
++                 "initial_status": initial_status})
++        if initial_status == ACTION_STATUS_DEFERRED and not defer_reason:
++            raise SearchContractError(
++                "deferred 入队必须携带 defer_reason(独立未展开原因)",
++                {"kind": "missing_defer_reason"})
+         if action_kind not in ACTION_KINDS:
+             raise SearchContractError(
+                 f"action_kind 非法:{action_kind!r}"
+@@ -825,6 +862,13 @@ class SearchLedger:
+                                            width}}
+         task_payload = dict(payload)
+         task_payload.setdefault("source_event_id", source_event_id)
++        if initial_status == ACTION_STATUS_DEFERRED:
++            # S3b:deferred 元数据进冻结任务输入(身份同源;defer_reason
++            # 另落列供恢复/激活读取;defer_trigger 记录激活条件)
++            task_payload["deferred_type"] = str(
++                task_payload.get("deferred_type") or "")
++            task_payload["defer_trigger"] = str(defer_trigger)
++            task_payload["defer_reason"] = str(defer_reason)
+         action_id = stable_id(
+             "sact", run_id, parent_path_id, context_ref, subject_ref,
+             action_kind, str(int(parent_search_revision)), policy_version)
+@@ -853,12 +897,13 @@ class SearchLedger:
+                 "INSERT INTO search_actions (action_id, run_id,"
+                 " parent_path_id, context_ref, subject_ref, action_kind,"
+                 " parent_search_revision, policy_version, status, payload,"
+-                " task_key, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,"
+-                " ?, ?, ?)",
++                " task_key, defer_reason, created_at) VALUES"
++                " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                 (action_id, run_id, parent_path_id, context_ref,
+                  subject_ref, action_kind, int(parent_search_revision),
+-                 policy_version, ACTION_STATUS_PENDING, payload_json,
+-                 str(task_payload.get("task_key", "")), now_iso()))
++                 policy_version, initial_status, payload_json,
++                 str(task_payload.get("task_key", "")), defer_reason,
++                 now_iso()))
+             self.conn.commit()
+         except Exception:
+             self.conn.rollback()
+@@ -879,6 +924,155 @@ class SearchLedger:
+             row["budget_reservation_ref"] or "[]")
+         return out
+ 
++    # ------------------------------------------------------------ S3b 队列
++
++    def pending_action_ids(self, run_id: str) -> list[str]:
++        """pending 状态的 action 清单(稳定次序:created_at, action_id;
++        只读派生视图,驱动循环按此顺序消费;不是预算证书)。"""
++        rows = self.conn.execute(
++            "SELECT action_id FROM search_actions WHERE run_id = ? AND"
++            " status = ? ORDER BY created_at, action_id",
++            (run_id, ACTION_STATUS_PENDING)).fetchall()
++        return [str(r["action_id"]) for r in rows]
++
++    def actions_with_status(self, run_id: str, status: str) -> list[dict]:
++        """指定状态的 action 行(只读;deferred 激活/恢复清单用)。"""
++        if status not in ACTION_STATUSES:
++            raise SearchContractError(
++                f"状态非法:{status!r}", {"kind": "invalid_action_status"})
++        rows = self.conn.execute(
++            "SELECT * FROM search_actions WHERE run_id = ? AND status = ?"
++            " ORDER BY created_at, action_id", (run_id, status)).fetchall()
++        out = []
++        for row in rows:
++            item = dict(row)
++            item["payload"] = json.loads(row["payload"])
++            item["attempt_refs"] = json.loads(row["attempt_refs"] or "[]")
++            item["budget_reservation_ref"] = json.loads(
++                row["budget_reservation_ref"] or "[]")
++            out.append(item)
++        return out
++
++    def reactivate_deferred_action(
++        self, action_id: str, *, trigger: str,
++        expected_parent_revision: int,
++    ) -> dict:
++        """**S3b(search-5)**:deferred → pending 激活(幂等;trigger 与
++        expected_parent_revision 双校验;预算预检;零预约 —— 预约仍在
++        claim 的 BEGIN IMMEDIATE 事务内权威发生)。
++
++        - 状态非 deferred:pending/claimed/done ⇒ unchanged(重复触发
++          幂等,不重复安排同 action);blocked ⇒ 结构化拒(保留原因
++          不强行执行);
++        - trigger 必须与入队时冻结的 defer_trigger 一致(可验证 trigger
++          = 与记录一致;不一致 ⇒ 冲突,不猜激活条件);
++        - expected_parent_revision 必须等于 action 冻结的
++          parent_search_revision(旧 revision ⇒ 冲突 unchanged—— 该
++          deferred 项针对更早的局部搜索状态,再调度须经新 revision 的
++          schedule 入口,不在激活口改写冻结身份);
++        - 预算预检(独立性:仅计算剩余,不预约):本 action 适用上限
++          (总 action / transition)剩余 0 ⇒ 保持 deferred,unchanged
++          带独立未展开原因 budget_exhausted;claim 侧的权威预约不受
++          本预检影响;
++        - 事务内状态迁移(deferred → pending);不重建任务输入、不改
++          冻结身份列、不清 defer_reason(历史激活可追溯)。
++        """
++        self._begin()
++        try:
++            row = self.conn.execute(
++                "SELECT * FROM search_actions WHERE action_id = ?",
++                (action_id,)).fetchone()
++            if row is None:
++                raise SearchContractError(
++                    f"action 不存在:{action_id}",
++                    {"action_id": action_id, "kind": "action_missing"})
++            status = row["status"]
++            if status == ACTION_STATUS_PENDING:
++                self.conn.rollback()
++                return {"activated": False, "unchanged": True,
++                        "action_id": action_id, "status": status,
++                        "reason": "already_active"}
++            if status in (ACTION_STATUS_CLAIMED, ACTION_STATUS_DONE):
++                self.conn.rollback()
++                return {"activated": False, "unchanged": True,
++                        "action_id": action_id, "status": status,
++                        "reason": "already_active"}
++            if status == ACTION_STATUS_BLOCKED:
++                self.conn.rollback()
++                raise SearchClaimError(
++                    f"action {action_id} 处于 blocked(保留原因不强行"
++                    "执行;解除须显式策略)",
++                    {"action_id": action_id, "kind": "blocked_not_activatable",
++                     "defer_reason": row["defer_reason"]})
++            if status != ACTION_STATUS_DEFERRED:
++                self.conn.rollback()
++                raise SearchContractError(
++                    f"action {action_id} 状态未知:{status!r}(枚举外 ⇒ "
++                    "记账行损坏;fail-closed 保全)",
++                    {"action_id": action_id, "kind": "action_status_unknown",
++                     "status": status})
++            payload = json.loads(row["payload"])
++            frozen_trigger = str(payload.get("defer_trigger") or "")
++            frozen_revision = int(row["parent_search_revision"])
++            if frozen_trigger and str(trigger) != frozen_trigger:
++                self.conn.rollback()
++                raise SearchContractError(
++                    f"action {action_id} 的激活 trigger 与冻结激活条件不"
++                    f"一致(记录 {frozen_trigger!r},请求 {str(trigger)!r};"
++                    "可验证 trigger = 与记录一致,不猜激活条件)",
++                    {"action_id": action_id, "kind": "defer_trigger_mismatch",
++                     "frozen_trigger": frozen_trigger,
++                     "submitted_trigger": str(trigger)})
++            if int(expected_parent_revision) != frozen_revision:
++                self.conn.rollback()
++                return {"activated": False, "unchanged": True,
++                        "action_id": action_id, "status": status,
++                        "reason": "stale_parent_revision",
++                        "detail": {"frozen_revision": frozen_revision,
++                                   "expected_parent_revision":
++                                       int(expected_parent_revision)}}
++            # ---- 预算预检(只读剩余;不预约,claim 才是权威) ----
++            run_id = row["run_id"]
++            limits = self._limits(run_id)
++            applicable = [("max_total_search_actions", "")]
++            if row["action_kind"] == ACTION_KIND_SCENARIO_TRANSITION:
++                applicable.append(("max_scenario_transitions", ""))
++            if row["action_kind"] == ACTION_KIND_EXPAND_HYPOTHESIS:
++                # 备选反应 deferred:激活预检父路径 alternatives 剩余
++                # (claim 的权威预约不受本预检影响;只读派生)
++                applicable.append((
++                    "max_alternative_hypotheses_per_parent",
++                    row["parent_path_id"]))
++            for limit_key, scope in applicable:
++                remaining = _remaining(
++                    self.conn, run_id, limit_key, scope,
++                    int(limits[limit_key]))
++                if remaining < 1:
++                    self.conn.rollback()
++                    return {
++                        "activated": False, "unchanged": True,
++                        "action_id": action_id, "status": status,
++                        "reason": "budget_exhausted",
++                        "detail": {"limit_key": limit_key,
++                                   "max": int(limits[limit_key]),
++                                   "remaining": remaining,
++                                   "note": ("预算不足留独立未展开原因;"
++                                            "激活不改状态,claim 才是权威"
++                                            "预约口")},
++                    }
++            self.conn.execute(
++                "UPDATE search_actions SET status = ?, updated_at = ? WHERE"
++                " action_id = ? AND status = ?",
++                (ACTION_STATUS_PENDING, now_iso(), action_id,
++                 ACTION_STATUS_DEFERRED))
++            self.conn.commit()
++        except Exception:
++            self.conn.rollback()
++            raise
++        return {"activated": True, "unchanged": False,
++                "action_id": action_id, "status": ACTION_STATUS_PENDING,
++                "reason": "reactivated"}
++
+     # ------------------------------------------------------------ 认领+预算
+ 
+     def _reserve(self, run_id: str, limit_key: str, scope: str,
+diff --git a/src/pathway_v43/workflow/runner.py b/src/pathway_v43/workflow/runner.py
+index c782dc8..7c8eba7 100644
+--- a/src/pathway_v43/workflow/runner.py
++++ b/src/pathway_v43/workflow/runner.py
+@@ -132,24 +132,23 @@ def _build_identity(
+ 
+ 
+ def _refuse_undelivered_profile(profile: str) -> None:
+-    """pollutant_pathway_v1 的执行流入口(实施书 §11 阶段边界)。
++    """阶段边界守卫(S3b 起:pollutant_pathway_v1 已交付,分流到
++    pollutant.runflow;本函数保留给未知/未交付 profile 的统一口径)。
+ 
+     S0–S2 交付 profile 注册/版本、领域契约、上下文与固定诊断;S3a
+-    交付持久搜索底座(pollutant.search,公开底座测试入口);队列化学
+-    集成、生产中心证据链与 PPV1 独立分流属 S3b —— 公共执行流交付前
+-    显式 fail-closed(不建 run 目录、不写 identity、不进图)。
+-    legacy_v43 不受影响。注:本函数所在共享文件的文字更新会使
++    交付持久搜索底座(pollutant.search);**S3b(2026-10-08)交付队列
++    化学集成/生产中心证据链与 PPV1 独立分流** —— start_run/resume_run
++    对 pollutant_pathway_v1 分流到 pollutant.runflow(独立严格状态/
++    搜索 ledger/事件账,不落 legacy CN/PathwayStore/预算派生),不再
++    一律拒绝。legacy_v43 不受影响。注:本共享文件的文字更新会使
+     legacy code_identity 聚合哈希变化(旧 run 的跨版本 resume 按既有
+     身份门槛拒绝,是设计行为);legacy 运行时行为零改变。
+     """
+     if profile == PROFILE_POLLUTANT_PATHWAY_V1:
++        return  # S3b 起分流交付(见 start_run/resume_run 的 PPV1 分支)
++    if profile not in KNOWN_PROFILES:
+         raise RunError(
+-            "profile=pollutant_pathway_v1 已注册,但公共执行流未交付:"
+-            "S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座"
+-            "(pollutant.search,底座测试入口);队列集成/生产链与 PPV1"
+-            "独立分流按实施书 §11 属 S3b,交付前拒绝运行",
+-            {"profile": profile, "delivered_stages": "S0-S2,S3a-base",
+-             "missing_stages": "S3b-S5"})
++            f"未知 profile:{profile!r}", {"profile": profile})
+ 
+ 
+ def open_run(config: V43Config, runs_root: str | Path, run_id: str,
+@@ -204,6 +203,7 @@ def start_run(
+     max_proposals: int = 0,
+     profile: str = PROFILE_LEGACY_V43,
+     profile_policy: dict | None = None,
++    ppv1_plan: dict | None = None,
+ ) -> dict:
+     runs_root = Path(runs_root)
+     run_dir = runs_root / run_id
+@@ -211,6 +211,16 @@ def start_run(
+         raise RunError(
+             f"未知 profile:{profile!r}(允许 {sorted(KNOWN_PROFILES)})",
+             {"profile": profile})
++    if profile == PROFILE_POLLUTANT_PATHWAY_V1:
++        # ---- S3b 分流:PPV1 独立执行/存储(不落 legacy 图/CN/
++        # PathwayStore/预算派生;策略身份走 profile_policy,不因传
++        # model 派生真实请求预算;ppv1_plan 为合成/规则级计划输入) ----
++        from ..pollutant.runflow import start_ppv1_run
++        return start_ppv1_run(
++            config=config, runs_root=runs_root, run_id=run_id,
++            smiles=smiles, plan=ppv1_plan, model=model,
++            profile_policy=profile_policy, scripted=scripted,
++            crash_after=crash_after)
+     _refuse_undelivered_profile(profile)
+     if (run_dir / "run_identity.json").is_file():
+         raise RunAlreadyExists(run_id, run_dir)
+@@ -292,11 +302,21 @@ def resume_run(
+     finder=None,
+     model=None,
+     crash_after: str | None = None,
++    ppv1_plan: dict | None = None,
+ ) -> dict:
+     runs_root = Path(runs_root)
+     saved = load_run_identity(runs_root, run_id)
+     if saved is None:
+         raise RunNotFound(run_id, runs_root)
++    # ---- S3b 分流:PPV1 独立恢复(身份核对 → 四崩溃边界恢复 →
++    # 继续驱动;不重建/不覆盖既有搜索/attempt/request/提交记录) ----
++    saved_profile_dispatch = (saved.get("profile") or {}).get(
++        "name", PROFILE_LEGACY_V43)
++    if saved_profile_dispatch == PROFILE_POLLUTANT_PATHWAY_V1:
++        from ..pollutant.runflow import resume_ppv1_run
++        return resume_ppv1_run(
++            config=config, runs_root=runs_root, run_id=run_id,
++            plan=ppv1_plan, model=model, crash_after=crash_after)
+     # v43-identity-1 旧身份无 profile 块 → 按 legacy_v43 读取;
+     # 旧模式自身的同策略恢复继续可用(代码/资产变更仍由身份门槛拒绝)
+     saved_profile = (saved.get("profile") or {}).get(

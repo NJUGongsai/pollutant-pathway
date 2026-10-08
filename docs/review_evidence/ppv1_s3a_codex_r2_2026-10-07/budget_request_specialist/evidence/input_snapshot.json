@@ -1,0 +1,336 @@
+{
+  "metadata": {
+    "actual_HEAD": "dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03",
+    "parent_HEAD": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+    "source_repo": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "scratch": "/private/tmp/ppv1_s3a_r2_budget_resumed_0rxegzu0",
+    "synthetic_only": true,
+    "network_request_count": 0,
+    "external_model_calls": 0,
+    "old_input_snapshot_metadata_is_historical_only": true,
+    "vendor_path": "source/src/pathway_v43/vendor",
+    "preparation_error": "first scratch copy expected repo/vendor; actual vendor under src/pathway_v43/vendor. First attempt exit1 before execution; new scratch corrected with complete src copy."
+  },
+  "inputs": [
+    {
+      "path": "source/pyproject.toml",
+      "sha256": "fa9e8012ee85d00d5a17d2a310f4853f1c5959e0e3c526e8664774cea6e48b8d"
+    },
+    {
+      "path": "source/src/.DS_Store",
+      "sha256": "b556325722ed88800cb60338c2e4b2cd7cc363b51008c56d80a583c0299916b7"
+    },
+    {
+      "path": "source/src/pathway_v43/.DS_Store",
+      "sha256": "d280be12afa7d827b111c9619e5abcf1aa293843f914793cb26cad67f60ccb71"
+    },
+    {
+      "path": "source/src/pathway_v43/__init__.py",
+      "sha256": "b7f8e2defbc83993bbda4646fb00c1f5d6827e5d60b2969aec66c7197d74e902"
+    },
+    {
+      "path": "source/src/pathway_v43/__main__.py",
+      "sha256": "ff1785110aceb696ad16d05ca1392122a24fd00278a88ba9d0f75add3abfdbc4"
+    },
+    {
+      "path": "source/src/pathway_v43/adapters/__init__.py",
+      "sha256": "58c8d9b6a5fc2541c900fb8f77a289b69313badd7ee38985d601411bbf4c85cd"
+    },
+    {
+      "path": "source/src/pathway_v43/adapters/analog_index.py",
+      "sha256": "816f170d241bd97f6e28688f7ed99d684b2e327b83d9b8057ff758af98ec986f"
+    },
+    {
+      "path": "source/src/pathway_v43/adapters/asset_manifest.py",
+      "sha256": "64741d9b715e3de3d68f90d98bd07edf86511f0be59b025b35d772f9fc2fb85f"
+    },
+    {
+      "path": "source/src/pathway_v43/adapters/llm_client.py",
+      "sha256": "fa02e29efb976b949b2055a1509fbbdfbc52e67af1490e7f543f3bba07c94d24"
+    },
+    {
+      "path": "source/src/pathway_v43/adapters/rate_gate.py",
+      "sha256": "55765ac7b35ad5cf6f9f76004f34594b54d943febca58a67705797d1cedcfa58"
+    },
+    {
+      "path": "source/src/pathway_v43/adapters/v3_engine.py",
+      "sha256": "0bd077aa0710bd6b539cce16c8e23498eeb642136fee50269e71ce5164ce6580"
+    },
+    {
+      "path": "source/src/pathway_v43/batch.py",
+      "sha256": "210cca2b3e3836afcf09dff767c6c6b5dea73bc725901ff8b4162b079e81c24a"
+    },
+    {
+      "path": "source/src/pathway_v43/config.py",
+      "sha256": "1bc848ce2b2610917cfdbcf5cfc75d00ef47b74f2ec2aa397e891bde87c1ecc7"
+    },
+    {
+      "path": "source/src/pathway_v43/domain/__init__.py",
+      "sha256": "861b86b86334790ad1f4fc31ac2825c3e675e78d91176f485c02d02aac078739"
+    },
+    {
+      "path": "source/src/pathway_v43/domain/identity.py",
+      "sha256": "9868fe8fb7daf6dd602abce053a84f35e1512155269e2b9d9e1d9bd89125f1dd"
+    },
+    {
+      "path": "source/src/pathway_v43/domain/models.py",
+      "sha256": "031c45a919f6f454acd4927d231294275f726b2ade9a9d32c0b66c3dd6cc5fc7"
+    },
+    {
+      "path": "source/src/pathway_v43/domain/pathway.py",
+      "sha256": "1dd252c2e52808a62b874a4151a83ebe0600054981574c46144b9490c621579c"
+    },
+    {
+      "path": "source/src/pathway_v43/domain/policy.py",
+      "sha256": "de206eac69f3c799a36068b1e919f62502379fbfa61725d654b11f8f1c0d055b"
+    },
+    {
+      "path": "source/src/pathway_v43/exam.py",
+      "sha256": "1fb73303cdc277c85bed4ca53b635981d1f00fcc619211ecbf0fa37ae91d37d8"
+    },
+    {
+      "path": "source/src/pathway_v43/exam_v2.py",
+      "sha256": "058a51df67fc28df5acc4f5db29d17e50c9721f14c92b68ecd865bbffab868dc"
+    },
+    {
+      "path": "source/src/pathway_v43/gold_health.py",
+      "sha256": "041c48a1bb28a1734b0d6c69f7358c7547969a716d33c9bbf6d972bf02fac7df"
+    },
+    {
+      "path": "source/src/pathway_v43/output/__init__.py",
+      "sha256": "8f4f727e21ba4614501f66485c82c075373293112757e41a02f907a0e6890b43"
+    },
+    {
+      "path": "source/src/pathway_v43/output/export_v3.py",
+      "sha256": "7684e04beaaf5a825c95523d075dba7e2229e3ba66ee3e511fb99aabb6e38f4b"
+    },
+    {
+      "path": "source/src/pathway_v43/output/pairing_gate.py",
+      "sha256": "c03bda976ce68ed6cd6b4a5859a222f37567a9e1164ede537e2b8dff780b7222"
+    },
+    {
+      "path": "source/src/pathway_v43/output/report.py",
+      "sha256": "103a228bc09b866845500cb650e056994d9550878aff16d242051cc983e14e4e"
+    },
+    {
+      "path": "source/src/pathway_v43/output/score_report.py",
+      "sha256": "c960914a1aa53d7ce6c5ec5869a6e12b1b2fd0347c7e0bac2f88a044398616f9"
+    },
+    {
+      "path": "source/src/pathway_v43/phase_a_attribution.py",
+      "sha256": "52fa59f4c01a4328b8ff7f0e599b65178a598020c7a8853392729677c7744dcd"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/__init__.py",
+      "sha256": "f430bd6cc5bc7053da244a7d1c30ac755f6fd89c2563693bc1838ffe3a4e01c9"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/audit.py",
+      "sha256": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/chemstate.py",
+      "sha256": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/events.py",
+      "sha256": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/hypothesis.py",
+      "sha256": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/legacy_reader.py",
+      "sha256": "045a6e366af3e61b5dd12d7dd68eef31ffcc605f67de1b3a36b714e29b829e01"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/path_context.py",
+      "sha256": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/pool_audit.py",
+      "sha256": "bec664cf25eca5b16426755d991e669d2403b41ef87d2e1340fb8c7a6cb77877"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/profile.py",
+      "sha256": "53a19766b7af08445c44596eb5df98b66cd286ae571366c0b512699a2d9ea26e"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/provenance.py",
+      "sha256": "d8668c3fadd1b37e2eb131479ff0b5778f86eed8c9e49c458fb30d7561f3afbf"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/search.py",
+      "sha256": "35abcdf24c7e011bff260229fdebdc044a2fb27b19af74c2324f07cd7b32a6c0"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/store.py",
+      "sha256": "adcc52100ae65e1e67a3c56f339acab30045793db44dc4eb9d5f3e4da53b7a2b"
+    },
+    {
+      "path": "source/src/pathway_v43/pollutant/substrate_profile.py",
+      "sha256": "718fb34b8fbc34919272cf64c7c740ce6dda00f18b014d2c90be7873506cce32"
+    },
+    {
+      "path": "source/src/pathway_v43/services/__init__.py",
+      "sha256": "66caf2f040dd63a235bb18c034d5853aa966b1a5fd31d8695849e9a21fb4ad2d"
+    },
+    {
+      "path": "source/src/pathway_v43/services/analog_source.py",
+      "sha256": "300037e8afa6c022b8b61b82adba1ca9cb21d3c846574caea2d2b0b89733b121"
+    },
+    {
+      "path": "source/src/pathway_v43/services/atom_tool.py",
+      "sha256": "b20092dcf4d651a59a644ab7a8ba90aa83036958877918d3bd131901ec996f27"
+    },
+    {
+      "path": "source/src/pathway_v43/services/donor_applicability.py",
+      "sha256": "ccfb99f808aeb7ffd6d338a9945023df2c1271e461695cbee535c00fff1fa835"
+    },
+    {
+      "path": "source/src/pathway_v43/services/prediction.py",
+      "sha256": "2ed8bc76de29e64f8539935bccb9013d3a3cf7c44e75f89b6b97a30ba6029efd"
+    },
+    {
+      "path": "source/src/pathway_v43/services/reaction_finder.py",
+      "sha256": "3ecdf25bdc52c44920558006383f8b51514c479300c44d0405aaa1b9ad68e3f4"
+    },
+    {
+      "path": "source/src/pathway_v43/services/report_adjudication.py",
+      "sha256": "a278277b5875607339ab1edc623cf26596ea2b2db88ce038dea2e404dc978eee"
+    },
+    {
+      "path": "source/src/pathway_v43/storage/__init__.py",
+      "sha256": "c3ad494e115157afc23c250efff4c8a86c34f69aec730528efb7adfe2f73d07e"
+    },
+    {
+      "path": "source/src/pathway_v43/storage/artifact_store.py",
+      "sha256": "871684914abe25d4093fa0a46f7c64a094be75830da8b1c1a7c8eadb49a68a9b"
+    },
+    {
+      "path": "source/src/pathway_v43/storage/pathway_store.py",
+      "sha256": "0adce856a19f75a5be0763ca17d0002694fa572b90c86bbaccd1fb581c6cb49b"
+    },
+    {
+      "path": "source/src/pathway_v43/storage/run_identity.py",
+      "sha256": "c2e54b9486bd4bce496d15aed5d1a12d7b29d853aaa9d8a460288e61b14408cf"
+    },
+    {
+      "path": "source/src/pathway_v43/validation/__init__.py",
+      "sha256": "a09a4721918824c12b067752500f8bd813372f7b1b2ccfc72faf19206672897a"
+    },
+    {
+      "path": "source/src/pathway_v43/validation/conservation.py",
+      "sha256": "dc612dbb1b352aa491a02da978115976994478d6747d4bbd4215043a1056da4e"
+    },
+    {
+      "path": "source/src/pathway_v43/validation/gates.py",
+      "sha256": "55dfd238ad2758fae19efc81c5fea468ea5e0cb723af37a6fa5a7edb86ab0399"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/__init__.py",
+      "sha256": "4374fc2389d52ec91d1e27e8ab4ca06d58401bb7b498993d3150840213b3a657"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/LICENSE",
+      "sha256": "d768cb92822c0e97bb6c0f9efab6a5f0a093f58a439959b02db687abfedc980e"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/MANIFEST.sha256",
+      "sha256": "a6952e057d5bd09797e3e8dcf2b11f64b6cd6039f2e9a2a0cc6a65f41197c011"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/PROVENANCE.md",
+      "sha256": "4c460efec44876d42fde3c81afea10e1f89ef779b22dc625337fb04ebdaf1663"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/__init__.py",
+      "sha256": "8d5e997056579acf46314f0efe1e15b3b44e900ca75477a61455cd864710aeb9"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/molecule/__init__.py",
+      "sha256": "0dd0d21d18bd181117fbf4418dbcaf09336303ba350d1ea235266aefc4ee223a"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py",
+      "sha256": "561ce966ba1195ed750ed66fc4023d9f501a9e580a509f4723506a270789b12c"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py",
+      "sha256": "195a65e84fd77bb20f0aae61b256620b2489a68d146aa0b9f0909e1e94f37299"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/prompts/__init__.py",
+      "sha256": "f8160966acc0126d36121a02a0d3d0a2375c4d1010e9177fed32039e5b3bcf5d"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/prompts/markush_system_prompt.py",
+      "sha256": "1377960f68d86ce7f3d946a9304aebd705887795593da184da6ce527b2617d58"
+    },
+    {
+      "path": "source/src/pathway_v43/vendor/molecode/prompts/molecule_system_prompt.py",
+      "sha256": "ed4c654143c1802153377ec6de6f77c3d2d4845b4e107d1d0cf239cd34322e8e"
+    },
+    {
+      "path": "source/src/pathway_v43/workflow/__init__.py",
+      "sha256": "b1309d6413d825e47c60d2d2200cd1970937da93c80fcc268ffaa12882433afd"
+    },
+    {
+      "path": "source/src/pathway_v43/workflow/graph.py",
+      "sha256": "ef0d3c39a32aa1a88e1ad3a15d74a7992ba53f8fda56c590b062182291164678"
+    },
+    {
+      "path": "source/src/pathway_v43/workflow/nodes.py",
+      "sha256": "646b3d89e9cab0cb320f4dfa684a1089c8dac924577260e61dc8298a5bb8f894"
+    },
+    {
+      "path": "source/src/pathway_v43/workflow/routing.py",
+      "sha256": "f9aaef0399002b8ff96ed2d77ee21ca5049496e1525a33cd5a7c26b015deff3a"
+    },
+    {
+      "path": "source/src/pathway_v43/workflow/runner.py",
+      "sha256": "64b84ce8074efd5743ccc24284bc940f367fa1a6d109f92a7d698e74f5b1ff73"
+    },
+    {
+      "path": "source/src/pathway_v43/workflow/state.py",
+      "sha256": "c297eef994af62fc57ba4a06f25e9a7dea1f348ec7d20d54370bbf3413a3e815"
+    },
+    {
+      "path": "source/tests/s3a_worker.py",
+      "sha256": "b6734bb2ca0dbaf813ea64e43f0d85287d2600645e9f8f12b11f71fd022ab912"
+    },
+    {
+      "path": "source/tests/test_ppv1_s3a_rework_r2.py",
+      "sha256": "5131d70a9adeba6496418d608ac7fb717d1f7f87eb0b8306165466e9589b280a"
+    },
+    {
+      "path": "source/tests/test_ppv1_s3a_search.py",
+      "sha256": "28df608c67c85448a0e7f95d27d4f08c3e8a1b90695c35c599ba8771f0897a36"
+    },
+    {
+      "path": "old_root/assert_root_observed.py",
+      "sha256": "469ba96177b89b9b0696eb1baed2592ebd4e209cab600c18f183ea4578dd7698"
+    },
+    {
+      "path": "old_root/input_snapshot.json",
+      "sha256": "b813a232acde6299de331040fae73c29eeedd438c69049ae7018e338cbbcab9f"
+    },
+    {
+      "path": "old_root/policy_probe.py",
+      "sha256": "f76681453e0d012099ce333730aaadaffb7335a9db232b69a36c803389c593b7"
+    },
+    {
+      "path": "old_root/request_probe.py",
+      "sha256": "d87ced27fecfe367ad5ee07e36f2d9c67af6f5b9f776cc8e023b7c54046bd4e4"
+    },
+    {
+      "path": "old_search/defer_budget_bypass.py",
+      "sha256": "392138183e973e382114b9c11296be52e0e130c96a2882d6cf8c0b312d2c859e"
+    },
+    {
+      "path": "old_search/probe.py",
+      "sha256": "3f2834afba5ff71540da29598d1e5a07a5809050e81cebe36264a6e264542308"
+    }
+  ]
+}

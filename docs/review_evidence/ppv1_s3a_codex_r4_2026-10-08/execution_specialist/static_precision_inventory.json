@@ -1,0 +1,1350 @@
+{
+  "scanned_src_file_count": 65,
+  "scanned_whitelisted_test_file_count": 83,
+  "five_chemical_files_byte_unchanged": {
+    "chemstate.py": {
+      "current": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+      "baseline": "5bd05f68f1d2183c122361318475db875f5872d78de8cd40624533d6db433639",
+      "equal": true
+    },
+    "audit.py": {
+      "current": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "baseline": "c2ad04a39f60942697fb2ce5047b47dfb2e5aa0d7baadd6cd622b5f46940016e",
+      "equal": true
+    },
+    "path_context.py": {
+      "current": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+      "baseline": "971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d",
+      "equal": true
+    },
+    "hypothesis.py": {
+      "current": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6",
+      "baseline": "f9aeb7cad1a4c693ca078ebb762609a84411325a8e3a594105fbc26006f205c6",
+      "equal": true
+    },
+    "events.py": {
+      "current": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+      "baseline": "5f150d204b0d466062504a2b0b5e0d7863978d653e164c346a289fa4bedc8288",
+      "equal": true
+    }
+  },
+  "runner_byte_equal": true,
+  "legacy_code_identity_equal": true,
+  "raw_token_hits": {
+    "donor_present": [],
+    "donor_consistency": [],
+    "_walk_conversions": [],
+    "same_cid": [],
+    "conversion_warnings": [],
+    "registered_missing": [],
+    "documented_absent": [],
+    "unrecorded": []
+  },
+  "function_definitions": [
+    {
+      "file": "current_source/src/pathway_v43/pollutant/path_context.py",
+      "name": "assess_conditions",
+      "line": 1117,
+      "end_lineno": 1169,
+      "source": "def assess_conditions(context: \"PathContext\",\n                      hypothesis) -> ConditionAssessment:\n    \"\"\"§7.1 固定接口:上下文 × 假设要求 → 条件评估(纯函数)。\n\n    评估范围 = 上下文累积的全部必要要求(父路径继承,含同键多条,\n    **不去重不覆盖**,F02;R2-04:每条按其引入阶段评估)+ 该假设自带\n    requirements(逐条并入,按假设所属 = 当前阶段/边评估)。\n    事实按当前 scenario_ref 与各要求引入阶段的适用性过滤(F03)。\n\n    R3-06 说明:本函数保留为\"累积重评\"语义(逐条按其引入阶段过滤\n    当前事实集合评估);**审计的条件检查应改调\n    assess_candidate_conditions**——后者消费 phase_history 路线快照\n    (旧边用记录值,不拿当前事实重评)并把本候选新增要求放在当前\n    作用域评估,本函数在跨场景转换后会用当前事实集合重评旧边要求\n    (R3-06 两行反例的根源)。\n    \"\"\"\n    hyp_id = \"\"\n    if isinstance(hypothesis, dict):\n        hyp_id = str(hypothesis.get(\"hypothesis_id\", \"\"))\n        hyp_reqs = hypothesis.get(\"requirements\", [])\n    else:\n        hyp_id = str(getattr(hypothesis, \"hypothesis_id\", \"\") or \"\")\n        hyp_reqs = getattr(hypothesis, \"requirements\", None)\n    hyp_reqs = list(hyp_reqs or [])\n    merged: list[Requirement] = list(context.accumulated_requirements)\n    existing = {canonical_json(r.to_dict()) for r in merged}\n    for i, raw in enumerate(hyp_reqs):\n        if isinstance(raw, Requirement):\n            req = _requirement_copy(raw)\n        elif isinstance(raw, dict):\n            validate_requirement_dict(\n                raw, where={\"requirement_index\": i})\n            req = Requirement(**dict(raw))\n        else:\n            raise ConditionContractError(\n                f\"假设要求必须是 dict 或 Requirement:\"\n                f\"{type(raw).__name__}\",\n                {\"kind\": \"requirement_object_not_supported\",\n                 \"requirement_index\": i})\n        req = _bind_requirement(\n            req, phase_id=context.phase_id,\n            scenario_ref=context.scenario_ref,\n            edge=hyp_id)\n        # 仅语义完全相同的要求去重(F02);不同来源/不同区间/不同值\n        # 一律保留(按合取评估,不覆盖)\n        sig = canonical_json(req.to_dict())\n        if sig not in existing:\n            merged.append(req)\n            existing.add(sig)\n    return aggregate_environment_fit(\n        facts=context.condition_facts, requirements=merged,\n        declared_scope=context.assessment_scope,\n        scenario_ref=context.scenario_ref, phase_id=context.phase_id)"
+    },
+    {
+      "file": "current_source/src/pathway_v43/pollutant/path_context.py",
+      "name": "assess_candidate_conditions",
+      "line": 1172,
+      "end_lineno": 1354,
+      "source": "def assess_candidate_conditions(\n        context: PathContext, hypothesis) -> ConditionAssessment:\n    \"\"\"R3-06 契约入口:路线快照消费 + 本候选新增要求当前作用域评估。\n\n    - **旧边路线快照**:context.phase_history 中已记录的各边\n      environment_fit 逐边合取——任何旧边 conflict ⇒ 总 conflict;\n      旧边 unknown ⇒ 计入 unknown;**旧边评估用其记录值,不拿当前\n      事实重评**(不消费跨场景的当前事实集合);\n    - **本候选新增要求** = hypothesis.requirements(调用方传给\n      build_hypothesis 的新要求),一律在**当前 scenario+phase 作用域**\n      用当前适用事实评估(重绑定为当前 phase/scenario/本假设边;\n      外来预填绑定在构造入口已被 foreign_requirement_binding 拒绝,\n      dict 直入路径在此重绑定防绕过);\n    - **context 累积旧要求并入路线语义**:已由 phase_history 快照\n      承载的按快照;仍在当前阶段的按 R3 语义 live 评估;绑定到\n      无快照覆盖旧阶段的 ⇒ 显式 unknown(不静默丢弃,不重评);\n    - 跨阶段事实(空 phase_id)可服务多条边(保持);\n    - 返回对象与 assess_conditions 同形状;detail 带逐边来源\n      route_edge_fits 与当前步/路线两层并列结论(§4 行 8:任一层\n      单独出现不得代表整体)。\n    \"\"\"\n    if isinstance(hypothesis, dict):\n        hyp_id = str(hypothesis.get(\"hypothesis_id\", \"\"))\n        raw_reqs = list(hypothesis.get(\"requirements\") or [])\n    else:\n        hyp_id = str(getattr(hypothesis, \"hypothesis_id\", \"\") or \"\")\n        raw_reqs = list(getattr(hypothesis, \"requirements\", None) or [])\n    # 本候选新增要求:重绑定为当前作用域(R3-06 核心语义)\n    new_reqs: list[Requirement] = []\n    for i, raw in enumerate(raw_reqs):\n        if isinstance(raw, Requirement):\n            req = _requirement_copy(raw)\n        elif isinstance(raw, dict):\n            validate_requirement_dict(\n                raw, where={\"requirement_index\": i})\n            req = Requirement(**dict(raw))\n        else:\n            raise ConditionContractError(\n                f\"假设要求必须是 dict 或 Requirement:\"\n                f\"{type(raw).__name__}\",\n                {\"kind\": \"requirement_object_not_supported\",\n                 \"requirement_index\": i})\n        new_reqs.append(Requirement(\n            key=req.key, level=req.level, value=req.value,\n            basis=req.basis, value_basis=req.value_basis,\n            source_refs=tuple(req.source_refs),\n            applicable_dimensions=tuple(req.applicable_dimensions),\n            observed_source_conditions=tuple(\n                req.observed_source_conditions),\n            note=req.note,\n            introduced_phase_id=context.phase_id,\n            introduced_scenario_ref=context.scenario_ref,\n            introduced_edge=hyp_id))\n    # 当前阶段 live(R4-04:scenario+phase 同时匹配;仍在当前作用域的\n    # 累积旧要求 + 本候选新要求)\n    live_reqs = [r for r in context.accumulated_requirements\n                 if _effective_scope(r, context.scenario_ref,\n                                     context.phase_id)\n                 == (context.scenario_ref, context.phase_id)]\n    merged = list(live_reqs)\n    seen = {canonical_json(r.to_dict()) for r in merged}\n    for req in new_reqs:\n        sig = canonical_json(req.to_dict())\n        if sig not in seen:  # F02:仅语义完全相同去重\n            merged.append(req)\n            seen.add(sig)\n    live = aggregate_environment_fit(\n        facts=context.condition_facts, requirements=merged,\n        declared_scope=context.assessment_scope,\n        scenario_ref=context.scenario_ref, phase_id=context.phase_id)\n    # 旧边:phase_history 记录值(不重评)\n    history = [h for h in context.phase_history\n               if h.get(\"has_gate_requirements\")]\n    # 孤儿绑定:绑定旧作用域且无快照**按签名**承载 ⇒ 显式未知\n    # (fail-closed;R4-04:阶段存在 ≠ 覆盖,空快照不能掩盖孤儿必要要求)\n    orphan_rows: list[dict] = []\n    for r in context.accumulated_requirements:\n        eff_scope = _effective_scope(r, context.scenario_ref,\n                                     context.phase_id)\n        if eff_scope == (context.scenario_ref, context.phase_id):\n            continue\n        if _requirement_covered_by_snapshot(\n                r, context.phase_history, context.scenario_ref,\n                context.phase_id):\n            continue\n        orphan_rows.append({\n            \"key\": r.key, \"level\": r.level, \"status\": UNKNOWN,\n            \"reason\": (f\"requirement_binding_not_in_route_snapshot:\"\n                       f\"{eff_scope[0]}:{eff_scope[1]}\"\n                       \"(绑定旧作用域且无历史快照按签名承载该要求的评估;\"\n                       \"显式未知,不静默丢弃,也不拿当前事实重评)\"),\n            \"basis\": r.basis, \"value_basis\": r.value_basis,\n            \"sourced\": bool(r.source_refs),\n            \"introduced_phase_id\": eff_scope[1],\n            \"introduced_edge\": r.introduced_edge,\n            \"fact_sources\": [],\n            \"route_edge_source\": \"orphan_binding\",\n        })\n    # 路线合取:旧边记录值 + 当前边 live\n    fits = [h[\"environment_fit\"] for h in history]\n    live_has = bool(live.requirement_coverage[\"essential_keys\"])\n    if live_has:\n        fits.append(live.environment_fit)\n    if CONFLICT in fits:\n        fit = CONFLICT\n    elif UNKNOWN in fits or orphan_rows or not fits:\n        fit = UNKNOWN   # 空要求列表不自动相容;孤儿绑定计入未知\n    else:\n        fit = \"compatible\"\n    # 逐条结果:旧边快照行(标记来源) + 当前步行 + 孤儿行\n    per: list[dict] = []\n    notes: list[str] = []\n    for h in history:\n        tag = f\"phase_history:{h.get('phase_id')}/{h.get('scenario_ref')}\"\n        for row in h.get(\"per_requirement\", []):\n            out = dict(row)\n            out[\"route_edge_source\"] = tag\n            per.append(out)\n        notes.extend(h.get(\"preference_notes\", []))\n    for row in live.per_requirement:\n        out = dict(row)\n        out[\"route_edge_source\"] = \"current_step\"\n        per.append(out)\n    notes.extend(live.preference_notes)\n    per.extend(orphan_rows)\n    key_status: dict[str, str] = {}\n    for p in per:\n        if p.get(\"status\") == NOT_APPLICABLE:\n            continue\n        key_status[p[\"key\"]] = _worst_status(\n            [key_status.get(p[\"key\"], SATISFIED), p[\"status\"]])\n    scopes = sorted(\n        {k for h in history for k in h.get(\"assessment_scope\", [])}\n        | set(live.assessment_scope if live_has else []))\n    assessed = {\n        CONFLICT: ASSESSED_SCOPE_CONFLICTED,\n        \"compatible\": ASSESSED_SCOPE_CONDITION_COMPATIBLE,\n        UNKNOWN: ASSESSED_SCOPE_POSSIBLE,\n    }[fit]\n    route_edge_fits: list[dict] = [\n        {\"phase_id\": h.get(\"phase_id\"),\n         \"scenario_ref\": h.get(\"scenario_ref\"),\n         \"environment_fit\": h.get(\"environment_fit\"),\n         \"source\": \"phase_history\",\n         \"snapshot_basis\": h.get(\"snapshot_basis\", \"\"),\n         \"source_ref\": h.get(\"source_ref\", \"\")}\n        for h in history]\n    if live_has:\n        route_edge_fits.append({\n            \"phase_id\": context.phase_id,\n            \"scenario_ref\": context.scenario_ref,\n            \"environment_fit\": live.environment_fit,\n            \"source\": \"current_step_candidate\"})\n    return ConditionAssessment(\n        per_requirement=per, environment_fit=fit, assessed_scope=assessed,\n        assessment_scope=scopes,\n        unassessed_dimensions=sorted(UNASSESSED_DIMENSIONS),\n        requirement_coverage={\n            \"essential_keys\": sorted(key_status),\n            \"assessed_keys\": sorted(key_status),\n            \"satisfied_keys\": sorted(k for k, s in key_status.items()\n                                     if s == SATISFIED),\n            \"covered_keys\": sorted(k for k, s in key_status.items()\n                                   if s == SATISFIED),\n            \"unknown_keys\": sorted(k for k, s in key_status.items()\n                                   if s == UNKNOWN),\n            \"conflict_keys\": sorted(k for k, s in key_status.items()\n                                    if s == CONFLICT),\n        },\n        preference_notes=notes,\n        declared_scope=live.declared_scope,\n        scope_narrowed=live.scope_narrowed,\n        scope_narrowed_by=live.scope_narrowed_by,\n        detail={\n            \"route_edge_fits\": route_edge_fits,\n            # §4 行 8:两层结论并列——当前步(本候选 live)与\n            # 路线(历史快照合取);任一层单独出现不得代表整体\n            \"current_step_environment_fit\": live.environment_fit,\n            \"route_environment_fit\": fit,\n            \"semantics\": (\"route_snapshot_edges(recorded_values)\"\n                          \"+candidate_requirements(current_scope)\"),\n        },\n    )"
+    },
+    {
+      "file": "current_source/src/pathway_v43/pollutant/path_context.py",
+      "name": "route_assessment",
+      "line": 2112,
+      "end_lineno": 2177,
+      "source": "def route_assessment(self) -> ConditionAssessment:\n        \"\"\"全路线评估:历史阶段快照(冻结)逐边合取 + 当前阶段 live。\n\n        任何旧边冲突在路线结果中保持;旧要求不拿新阶段事实重评。\n        空阶段(无可评估必要要求)不贡献未知,也不产生相容声明。\n        \"\"\"\n        live = self.current_step_assessment()\n        history = list(self.phase_history)\n        if not history:\n            return live\n        contributors = [h for h in history\n                        if h.get(\"has_gate_requirements\")]\n        live_has_reqs = bool(live.requirement_coverage[\"essential_keys\"])\n        if not contributors and not live_has_reqs:\n            return live\n        fits = [h[\"environment_fit\"] for h in contributors]\n        if live_has_reqs:\n            fits.append(live.environment_fit)\n        if CONFLICT in fits:\n            fit = CONFLICT\n        elif UNKNOWN in fits:\n            fit = UNKNOWN\n        else:\n            fit = \"compatible\"\n        per = [row for h in contributors\n               for row in h.get(\"per_requirement\", [])] \\\n            + (live.per_requirement if live_has_reqs else [])\n        notes = [n for h in contributors\n                 for n in h.get(\"preference_notes\", [])] \\\n            + live.preference_notes\n        key_status: dict[str, str] = {}\n        for p in per:\n            if p.get(\"status\") == NOT_APPLICABLE:\n                continue\n            key_status[p[\"key\"]] = _worst_status(\n                [key_status.get(p[\"key\"], SATISFIED), p[\"status\"]])\n        scopes = sorted({k for h in contributors\n                         for k in h.get(\"assessment_scope\", [])}\n                        | set(live.assessment_scope if live_has_reqs\n                              else []))\n        assessed = {\n            CONFLICT: ASSESSED_SCOPE_CONFLICTED,\n            \"compatible\": ASSESSED_SCOPE_CONDITION_COMPATIBLE,\n            UNKNOWN: ASSESSED_SCOPE_POSSIBLE,\n        }[fit]\n        return ConditionAssessment(\n            per_requirement=per, environment_fit=fit,\n            assessed_scope=assessed, assessment_scope=scopes,\n            unassessed_dimensions=sorted(UNASSESSED_DIMENSIONS),\n            requirement_coverage={\n                \"essential_keys\": sorted(key_status),\n                \"assessed_keys\": sorted(key_status),\n                \"satisfied_keys\": sorted(k for k, s in key_status.items()\n                                         if s == SATISFIED),\n                \"covered_keys\": sorted(k for k, s in key_status.items()\n                                       if s == SATISFIED),\n                \"unknown_keys\": sorted(k for k, s in key_status.items()\n                                       if s == UNKNOWN),\n                \"conflict_keys\": sorted(k for k, s in key_status.items()\n                                        if s == CONFLICT),\n            },\n            preference_notes=notes,\n            declared_scope=live.declared_scope,\n            scope_narrowed=live.scope_narrowed,\n            scope_narrowed_by=live.scope_narrowed_by,\n        )"
+    },
+    {
+      "file": "current_source/src/pathway_v43/pollutant/profile.py",
+      "name": "validate_frozen_search_limits",
+      "line": 362,
+      "end_lineno": 407,
+      "source": "def validate_frozen_search_limits(limits: dict | None) -> dict:\n    \"\"\"严格校验**已冻结/已序列化**的完整搜索上限块(S3a 回修 r3,\n    S3A-03:区分配置装配与已冻结对象消费)。\n\n    与 validate_search_limits(用户覆盖装配,缺省键合法补默认)的\n    边界:本函数用于**已登记存储块**的读取/恢复/预算/认领/请求消费\n    —— 存储块必须是完整冻结对象:\n\n    - 非 dict(含 None/null)⇒ 拒(不把缺失块装配成默认额度);\n    - 缺 \"version\" 键或版本不符 ⇒ 拒(不做版本迁移猜测);\n    - 缺任一必需预算键(十键)⇒ 拒(不补默认);\n    - 未知键/类型错误(含 bool)/越界 ⇒ 拒(与装配期同一类型/范围\n      判据,单一来源复用 SEARCH_LIMITS_RANGES)。\n\n    消费方把 ValueError 包装为各自入口的结构化失败(零执行/零预约/\n    零补账)。返回浅拷贝(不修改传入块)。合法用户 partial 覆盖本身\n    不是坏输入 —— 它应在装配期(register/装配入口)经 validate_\n    search_limits 补齐为完整块后再落账,本函数不用于该路径。\n    \"\"\"\n    if not isinstance(limits, dict):\n        raise ValueError(\n            f\"冻结搜索上限块必须是完整对象,得到 {type(limits).__name__}\"\n            \"(不补默认、不猜迁移;消费前拒)\")\n    if limits.get(\"version\") != SEARCH_LIMITS_VERSION:\n        raise ValueError(\n            f\"冻结搜索上限块缺 version 或版本不符:{limits.get('version')!r}\"\n            f\"(当前 {SEARCH_LIMITS_VERSION};消费前拒)\")\n    required = [k for k in SEARCH_LIMITS_DEFAULTS if k != \"version\"]\n    missing = sorted(k for k in required if k not in limits)\n    if missing:\n        raise ValueError(\n            f\"冻结搜索上限块缺必需键:{missing}(已冻结对象不补默认,\"\n            \"消费前拒)\")\n    unknown = sorted(k for k in limits if k not in SEARCH_LIMITS_DEFAULTS)\n    if unknown:\n        raise ValueError(f\"冻结搜索上限块含未知键:{unknown}\")\n    out: dict = {\"version\": SEARCH_LIMITS_VERSION}\n    for key, (lo, hi) in SEARCH_LIMITS_RANGES.items():\n        value = limits[key]\n        if isinstance(value, bool) or not isinstance(value, int):\n            raise ValueError(f\"搜索上限 {key} 必须是整数,得到 {value!r}\")\n        if not (lo <= value <= hi):\n            raise ValueError(\n                f\"搜索上限 {key}={value} 超出允许范围 [{lo},{hi}]\")\n        out[key] = value\n    return out"
+    },
+    {
+      "file": "current_source/src/pathway_v43/pollutant/store.py",
+      "name": "verify_event_attachment_content",
+      "line": 1988,
+      "end_lineno": 2021,
+      "source": "def verify_event_attachment_content(self, event: PathwayEvent) -> None:\n        \"\"\"已存事件的附随投影/展开计划**只读内容核验**(S3a 回修 r3,\n        S3A-02:搜索层完整权威核验的共享判据入口)。\n\n        与首次提交**同一判据**(不另造第二套规则):版本门\n        (_check_object_version)+ 投影只指向本事件产物(_check_\n        projection_scope)+ 展开计划产物范围/互斥/状态/覆盖(_check_\n        expansion_plan)。搜索消费层(search._verify_event_ledger_\n        authority)对**已存储**附随载荷调用本方法 —— 存储行存在且\n        与\"从同一行取出的载荷\"自比较相等不是完整性证书;首提会拒的\n        坏内容(悬空 state 引用/非法计划状态/坏版本)在权威核验消费\n        之前同样拒。纯只读、零写入、零事务;不改变首提/重放任何\n        冻结行为。附随记录行缺失由调用方先行判(或本方法按损坏抛)。\n        \"\"\"\n        eid = event.event_id\n        proj = self.report_projection(eid)\n        plan = self.expansion_plan(eid)\n        if proj is None or plan is None:\n            raise Ppv1LedgerCorrupt(\n                f\"事件 {eid} 缺附随记录(投影/展开计划行缺失;账本不\"\n                \"完整,不补账)\",\n                {\"event_id\": eid,\n                 \"kind\": \"attached_record_missing\",\n                 \"missing_table\": (\"report_projections\" if proj is None\n                                   else \"expansion_plans\")})\n        _check_object_version(\n            \"report_projection\", (proj or {}).get(\"projection_version\"),\n            (PPV1_REPORT_PROJECTION_VERSION,))\n        _check_object_version(\n            \"expansion_plan\", (plan or {}).get(\"policy_version\"),\n            (PPV1_EXPANSION_POLICY_VERSION,))\n        product_refs = self._product_state_refs(event)\n        self._check_projection_scope(eid, proj, product_refs)\n        self._check_expansion_plan(eid, plan, product_refs)"
+    },
+    {
+      "file": "current_source/src/pathway_v43/pollutant/substrate_profile.py",
+      "name": "build_substrate_profile",
+      "line": 71,
+      "end_lineno": 134,
+      "source": "def build_substrate_profile(\n    state: ChemicalState,\n    context: PathContext | None = None,\n    feature_policy: dict | None = None,\n) -> SubstrateProfile:\n    \"\"\"§7.1 固定接口:状态 + 上下文 → 底物档案(纯函数)。\n\n    CN-only 状态(结构未知)也可建档:元素组成/分子式留空并如实标注,\n    不从 CN 猜结构。feature_policy 只裁剪特征输出,不影响状态事实。\n    \"\"\"\n    policy = dict(FEATURE_POLICY_DEFAULTS)\n    for k, v in (feature_policy or {}).items():\n        if k not in FEATURE_POLICY_KEYS:\n            raise SubstrateProfileError(\n                f\"未知特征策略键:{k!r}(允许 {sorted(FEATURE_POLICY_KEYS)})\",\n                {\"key\": k})\n        policy[k] = v\n    element_counts: dict[str, int] = {}\n    formula = \"\"\n    if state.smiles_isomeric:\n        mol = Chem.MolFromSmiles(state.smiles_isomeric)\n        if mol is None:\n            raise SubstrateProfileError(\n                \"底物状态的结构无法解析(档案构造失败)\",\n                {\"state_ref\": state.state_id})\n        # 全氢基准(F01:与 audit 元素账同一事实源 —— 重原子 GetTotalNumHs\n        # + 独立氢顶点,不重不漏;formula 由 RDKit 按 same 基准给出)\n        from .audit import element_counts_full\n\n        counts = element_counts_full(mol)\n        element_counts = {k: int(v) for k, v in sorted(counts.items())}\n        try:\n            from rdkit.Chem.rdMolDescriptors import CalcMolFormula\n\n            formula = CalcMolFormula(mol)\n        except Exception:\n            formula = \"\"\n    condition_keys = []\n    context_ref = \"\"\n    if context is not None and policy[\"include_condition_refs\"]:\n        condition_keys = sorted(\n            f.key for f in context.condition_facts\n            if f.status != \"unknown\")\n        context_ref = context.context_id\n    return SubstrateProfile(\n        schema_version=PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION,\n        state_ref=state.state_id,\n        structure_smiles=state.smiles_isomeric,\n        cn_identity=state.cn_identity,\n        formal_charge=state.formal_charge,\n        stereo_information_status=state.stereo_information_status,\n        isotope_information_status=state.isotope_information_status,\n        structure_origin=state.structure_origin,\n        original_structure_available=state.original_structure_available,\n        representation_fidelity=dict(state.representation_fidelity or {}),\n        element_counts=element_counts if policy[\n            \"include_element_counts\"] else {},\n        molecular_formula=formula if policy[\n            \"include_molecular_formula\"] else \"\",\n        source_refs=[dict(r) for r in state.source_refs],\n        condition_keys_known=condition_keys,\n        context_ref=context_ref,\n        feature_policy=policy,\n    )"
+    }
+  ],
+  "calls": [
+    {
+      "file": "current_source/src/pathway_v43/pollutant/audit.py",
+      "line": 458,
+      "name": "validate_context_object",
+      "production_src": true
+    },
+    {
+      "file": "current_source/src/pathway_v43/pollutant/audit.py",
+      "line": 746,
+      "name": "check_edit_against_donor",
+      "production_src": true
+    },
+    {
+      "file": "current_source/src/pathway_v43/pollutant/path_context.py",
+      "line": 2327,
+      "name": "validate_context_object",
+      "production_src": true
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 166,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 274,
+      "name": "build_substrate_profile",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 297,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 322,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 337,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 366,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 390,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 401,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 418,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 421,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 442,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 462,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 488,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 510,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 522,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 523,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 525,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 546,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 564,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 594,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 613,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 637,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 661,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 688,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 704,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 722,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 861,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 961,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 978,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 1003,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 491,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 527,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r2_chem.py",
+      "line": 864,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 133,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 204,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 233,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 254,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 279,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 308,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 338,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 365,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 395,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 416,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 474,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 508,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 510,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 539,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 550,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 567,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 644,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 659,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 681,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 706,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 721,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 722,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 725,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 730,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 742,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 752,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 753,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 761,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 771,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 791,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 803,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 833,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 816,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 553,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_chem.py",
+      "line": 835,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_conditions.py",
+      "line": 599,
+      "name": "validate_context_object",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_conditions.py",
+      "line": 603,
+      "name": "validate_context_object",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_conditions.py",
+      "line": 608,
+      "name": "validate_context_object",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r4_conditions.py",
+      "line": 611,
+      "name": "validate_context_object",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 130,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 155,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 159,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 174,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 183,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 199,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 210,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 228,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 250,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 276,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 299,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 303,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 323,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 326,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 341,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 345,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 364,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 369,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 370,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 382,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 385,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 237,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 255,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_chem.py",
+      "line": 279,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_conditions.py",
+      "line": 108,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_conditions.py",
+      "line": 222,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_conditions.py",
+      "line": 332,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r5_conditions.py",
+      "line": 252,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 168,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 179,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 195,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 328,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 338,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 360,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 369,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 642,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 683,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_chem.py",
+      "line": 737,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_conditions.py",
+      "line": 102,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_conditions.py",
+      "line": 111,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_conditions.py",
+      "line": 134,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_conditions.py",
+      "line": 437,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_conditions.py",
+      "line": 394,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_conditions.py",
+      "line": 401,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r6_conditions.py",
+      "line": 426,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_chem.py",
+      "line": 146,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_chem.py",
+      "line": 157,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_chem.py",
+      "line": 192,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_chem.py",
+      "line": 207,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_chem.py",
+      "line": 211,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_chem.py",
+      "line": 413,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_chem.py",
+      "line": 495,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_conditions.py",
+      "line": 92,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_conditions.py",
+      "line": 106,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r7_conditions.py",
+      "line": 102,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r8_chem.py",
+      "line": 144,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r8_chem.py",
+      "line": 155,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_r8_chem.py",
+      "line": 164,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 165,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 190,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 221,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 242,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 267,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 300,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 330,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 555,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 868,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 890,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 919,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 926,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 941,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 961,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1010,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1028,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1074,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1088,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1101,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1131,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1151,
+      "name": "audit_hypothesis",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1180,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1202,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1219,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1238,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1269,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1287,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1308,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1337,
+      "name": "check_edit_against_donor",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1484,
+      "name": "build_substrate_profile",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1499,
+      "name": "build_substrate_profile",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1515,
+      "name": "build_substrate_profile",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1514,
+      "name": "build_substrate_profile",
+      "production_src": false
+    },
+    {
+      "file": "g01/repo/tests/test_ppv1_s2.py",
+      "line": 1153,
+      "name": "center_evidence_from_donor_diagnostic",
+      "production_src": false
+    }
+  ],
+  "except_AuditContractError": [],
+  "assess_validate_calls": [
+    {
+      "function": "assess_conditions",
+      "line": 1117,
+      "validate_calls": []
+    },
+    {
+      "function": "assess_candidate_conditions",
+      "line": 1172,
+      "validate_calls": []
+    },
+    {
+      "function": "route_assessment",
+      "line": 2112,
+      "validate_calls": []
+    }
+  ],
+  "source_line_excerpts": {
+    "chemstate.py": [
+      {
+        "start": 61,
+        "end": 62,
+        "exists": true,
+        "excerpt": "61:   逗号,不按逗号拆整段),Sg 为登记保留类,a/oN/&N/^N 为登记保留\n62:   注记类(逐 token 复核注记头与裸数字延续);无冒号旗标块与其余"
+      },
+      {
+        "start": 180,
+        "end": 226,
+        "exists": true,
+        "excerpt": "180: def _identity_key(mol: Chem.Mol) -> str:\n181:     \"\"\"分子身份键(v5):**化学 CX 事实子集**的规范化 canonical CXSMILES。\n182: \n183:     - 原子映射号不属于分子身份(生成前去除);\n184:     - **非化学 CX 元数据移除**:二维/三维坐标(conformer)、原子标签\n185:       (atomLabel)、任意 atomProp —— 绘图与注释不改变严格分子图身份\n186:       (R3-04:普通 CO / 原子标签 / 坐标 / atomProp note 五输入同键);\n187:     - **DATA SGroup(SgD)分子级剥离(R4-08)**:RDKit SubstanceGroup 的\n188:       DAT 组携带纯出现/注记元数据(如 review_note),不是化学图事实;\n189:       以分子级 Clear+按类型重加实现(值可含逗号,字符串级剥离不可靠,\n190:       R4 复审 DATA 反例);\n191:     - **保留化学事实**:增强立体组(AND/OR)、自由基层(^n:idx)、\n192:       同位素/电荷/立体(基串)、SRU/聚合物等非 DAT SGroup(承载化学\n193:       事实,不盲目剥掉,R4-08 验收);RDKit canonical 写出器对增强立体\n194:       做规范化(AND/OR 整组翻转同键、部分反转保持不同);\n195:     - **未登记 CX 类拒绝(R4-08/mimo 1.1)**:输出扩展段中出现登记表\n196:       之外的注解类(如 w:/LN:/atomProp/r 等,本仓生成路径不应产出;\n197:       属性/坐标已在生成前清除)⇒ ChemicalStateError\n198:       (kind=unregistered_cx_class,拒绝该表示,不默认原样进身份);\n199:     - ABS 组是冗余注解(与 isomeric SMILES 默认绝对构型同一事实)\n200:       ⇒ **令牌级**剥离(支持混合并列形态:a:1,&1:3 / ^1:0,a:1 /\n201:       a:2,5,&1:2,5;逗号既分隔注解头也分隔组内原子列表,故按\"有\n202:       前缀的注解头 token + 其后裸数字延续\"语法解析,R3-04/mimo\n203:       A2b);\n204:     - Kekulé/芳香表示差异由 RDKit 感知归一;\n205:     - 键值 = 公开表示(smiles_isomeric),同一事实源(往返重建同 id)。\n206:     \"\"\"\n207:     m = Chem.Mol(mol)\n208:     for atom in m.GetAtoms():\n209:         if atom.GetAtomMapNum():\n210:             atom.SetAtomMapNum(0)\n211:         for prop in list(atom.GetPropNames()):\n212:             atom.ClearProp(prop)\n213:     m.RemoveAllConformers()\n214:     for prop in list(m.GetPropNames()):\n215:         m.ClearProp(prop)\n216:     # R4-08:DATA SGroup 分子级剥离(值含逗号时字符串级解析不可靠;\n217:     # 其余 SGroup 类型按登记保留 —— 化学事实)\n218:     sgroups = list(Chem.GetMolSubstanceGroups(m))\n219:     if any(g.GetProp(\"TYPE\") == \"DAT\" for g in sgroups):\n220:         Chem.ClearMolSubstanceGroups(m)\n221:         for group in sgroups:\n222:             if group.GetProp(\"TYPE\") != \"DAT\":\n223:                 Chem.AddMolSubstanceGroup(m, group)\n224:     cx = Chem.MolToCXSmiles(m)\n225:     _guard_registered_cx_classes(cx)\n226:     return _strip_abs_tokens(cx)"
+      },
+      {
+        "start": 237,
+        "end": 238,
+        "exists": true,
+        "excerpt": "237: _CX_REGISTERED_HEAD_RE = re.compile(\n238:     r\"^(?:Sg|SgD|a|o\\d+|&\\d+|\\^\\d+)!?:\")"
+      },
+      {
+        "start": 266,
+        "end": 266,
+        "exists": true,
+        "excerpt": "266: _CX_STEREO_ITEM_HEAD_RE = re.compile(r\"(a|o\\d+|&\\d+|\\^\\d+):\")"
+      },
+      {
+        "start": 395,
+        "end": 476,
+        "exists": true,
+        "excerpt": "395: def _guard_input_cx_classes(structure: str) -> None:\n396:     \"\"\"原始 CX 输入的注册感知校验(R5-02/R6-02;解析**之前**调用)。\n397: \n398:     对串中每个 ``|...|`` 扩展段按 RDKit 解析器的真实类边界逐项词法:\n399: \n400:     - ``(坐标块)`` ⇒ 登记移除类(内容到 ')' 止,内部逗号/分号是内容);\n401:     - ``$…$`` / ``$_AV:…$`` ⇒ 登记移除类(标签/值内容到 '$' 止,\n402:       内部空格/逗号/分号是内容 —— R6 §4-1 含空格合法往返的过拒同修);\n403:     - ``atomProp:`` 三元组 ⇒ 登记移除类(value 到 ':'/'|'/',' 止);\n404:     - ``SgD:`` ⇒ 登记移除类(5 个冒号字段,DAT 值内逗号受保护);\n405:     - ``Sg:`` ⇒ 登记保留类(SRU/聚合物,承载化学事实);\n406:     - ``a:``/``oN:``/``&N:``(增强立体)、``^N:``(自由基层)⇒ 登记\n407:       保留注记类(头 + 逗号数字原子列表,可并列);\n408:     - 项间 ','/空格为分隔符(与主分派循环一致);\n409:     - **其余任何首头(r/Ln/c/wU/o/O/d/n/F/SgH/C/H/Z/rb/u/s/m/w/t\n410:       等,含登记头后并列的未知项)⇒ 拒绝** —— 解析器静默丢弃后与裸\n411:       输入同 state_id/as_written 是谎称完整保真。\n412: \n413:     拒绝 ⇒ ChemicalStateError(kind=unregistered_cx_class,带违规项)。\n414:     语法整体不可解析的输入(无违规 CX 项)仍走 unparseable_smiles。\n415:     \"\"\"\n416:     for segment in _CX_ALL_EXTENSION_RE.findall(structure):\n417:         n = len(segment)\n418:         i = 0\n419:         while i < n:\n420:             ch = segment[i]\n421:             if ch in (\" \", \",\", \":\"):\n422:                 # 项分隔符与字段终止符残留(主分派循环逐字符跳过;\n423:                 # 写出器 ``Sg:n:…:ht:::`` 尾部的 ':' 即此形态)\n424:                 i += 1\n425:                 continue\n426:             if ch == \"(\":\n427:                 close = segment.find(\")\", i)\n428:                 i = n if close == -1 else close + 1\n429:                 continue\n430:             if ch == \"$\":\n431:                 close = segment.find(\"$\", i + 1)\n432:                 i = n if close == -1 else close + 1\n433:                 continue\n434:             if segment.startswith(\"atomProp:\", i):\n435:                 end = _cx_scan_atom_prop_item(segment, i)\n436:                 if end is None:\n437:                     raise _cx_unregistered_item_error(segment, i, \"atomProp\")\n438:                 i = max(end, i + 1)\n439:                 continue\n440:             if segment.startswith(\"SgD:\", i):\n441:                 end = _cx_scan_sgd_item(segment, i)\n442:                 if end is None:\n443:                     raise _cx_unregistered_item_error(segment, i, \"SgD\")\n444:                 i = max(end, i + 1)\n445:                 continue\n446:             if segment.startswith(\"Sg:\", i):\n447:                 end = _cx_scan_sg_item(segment, i)\n448:                 if end is None:\n449:                     raise _cx_unregistered_item_error(segment, i, \"Sg\")\n450:                 i = max(end, i + 1)\n451:                 continue\n452:             m = _CX_STEREO_ITEM_HEAD_RE.match(segment, i)\n453:             if m:\n454:                 i = _cx_scan_int_list(segment, m.end())\n455:                 continue\n456:             raise _cx_unregistered_item_error(segment, i, \"\")\n457: \n458: \n459: def _cx_unregistered_item_error(segment: str, i: int,\n460:                                  registered_head: str) -> ChemicalStateError:\n461:     \"\"\"构造未登记 CX 项的结构化拒绝(带违规项原文与登记头上下文)。\"\"\"\n462:     tail = segment[i:i + 200]\n463:     stop = min((pos for pos in (tail.find(\" \"), tail.find(\"|\"))\n464:                 if pos > 0), default=len(tail))\n465:     item = tail[:stop] if stop else tail\n466:     return ChemicalStateError(\n467:         f\"CX 输入扩展段含未登记并列/未知项:{item[:80]!r}(输入侧注册\"\n468:         \"感知校验按真实 CX 类边界逐项检查:解析器会静默丢弃该项,\"\n469:         \"丢弃后不得称 as_written;登记类:atomProp/SgD/Sg/a/oN/&N/^N/\"\n470:         \"$(…)$/(…);未知项显式拒绝)\"\n471:         + (f\";违规项出现在登记头 {registered_head} 的项边界之后\"\n472:            if registered_head else \"\"),\n473:         {\"kind\": \"unregistered_cx_class\",\n474:          \"item\": item[:200], \"segment\": segment[:200],\n475:          \"item_offset\": i,\n476:          \"registered_head\": registered_head})"
+      },
+      {
+        "start": 629,
+        "end": 649,
+        "exists": true,
+        "excerpt": "629:     @classmethod\n630:     def from_dict(cls, d: dict) -> \"ChemicalState\":\n631:         version = d.get(\"schema_version\")\n632:         if version not in PPV1_CHEMSTATE_SUPPORTED_VERSIONS:\n633:             raise ChemicalStateError(\n634:                 f\"ChemicalState schema 版本未知:{version!r}(支持 \"\n635:                 f\"{list(PPV1_CHEMSTATE_SUPPORTED_VERSIONS)};fail-closed,\"\n636:                 \"不静默按当前版本解析)\",\n637:                 {\"schema_version\": version})\n638:         fidelity = _validate_fidelity(\n639:             d.get(\"representation_fidelity\") or {},\n640:             d.get(\"structure_origin\", \"\"))\n641:         payload = dict(d)\n642:         payload[\"representation_fidelity\"] = fidelity\n643:         state = cls(**payload)\n644:         # R7-01/R8:恢复入口在首次授信前共用与公共 writer 同源的纯状态\n645:         # 验证(版本/fidelity 已核,此处补 raw 登记守卫、raw→strict 身份\n646:         # 一致、规范身份/结构事实重推导、CN-only 契约)—— 序列化载荷\n647:         # raw 改写(如 CCO |r|、H2 挂 CC=O)不再被恢复后送 verified/R6\n648:         validate_state_object(state)\n649:         return state"
+      },
+      {
+        "start": 839,
+        "end": 910,
+        "exists": true,
+        "excerpt": "839:     try:\n840:         derived = build_chemical_state(isomeric,\n841:                                        STRUCTURE_ORIGIN_SOURCE_PRODUCT)\n842:     except ChemicalStateError as exc:\n843:         raise ChemicalStateError(\n844:             f\"state:{state.state_id} 的 smiles_isomeric 无法解析(首次\"\n845:             \"消费重推导失败;不猜结构)\",\n846:             {\"kind\": \"state_structure_unparseable\",\n847:              \"state_id\": state.state_id,\n848:              \"smiles_isomeric\": isomeric[:200],\n849:              \"reason\": getattr(exc, \"detail\", {})}) from exc\n850:     mismatches: dict = {}\n851:     if derived.state_id != state.state_id:\n852:         mismatches[\"state_id\"] = {\"provided\": state.state_id,\n853:                                   \"rederived\": derived.state_id}\n854:     if derived.formal_charge != state.formal_charge:\n855:         mismatches[\"formal_charge\"] = {\n856:             \"provided\": state.formal_charge,\n857:             \"rederived\": derived.formal_charge}\n858:     if derived.cn_identity != state.cn_identity:\n859:         mismatches[\"cn_identity\"] = {\n860:             \"provided\": state.cn_identity,\n861:             \"rederived\": derived.cn_identity}\n862:     if derived.stereo_information_status != state.stereo_information_status:\n863:         mismatches[\"stereo_information_status\"] = {\n864:             \"provided\": state.stereo_information_status,\n865:             \"rederived\": derived.stereo_information_status}\n866:     if derived.isotope_information_status != state.isotope_information_status:\n867:         mismatches[\"isotope_information_status\"] = {\n868:             \"provided\": state.isotope_information_status,\n869:             \"rederived\": derived.isotope_information_status}\n870:     if derived.smiles_isomeric != isomeric:\n871:         mismatches[\"smiles_isomeric_not_canonical\"] = {\n872:             \"provided\": isomeric[:120],\n873:             \"canonical\": derived.smiles_isomeric[:120]}\n874:     if mismatches:\n875:         raise ChemicalStateError(\n876:             f\"state:{state.state_id} 的语义事实与结构重推导不一致\"\n877:             \"(R7-01/R8:恢复/直接对象首次消费共用 writer 同源复核;\"\n878:             \"零授信)\",\n879:             {\"kind\": \"state_fact_rederivation_mismatch\",\n880:              \"state_id\": state.state_id, \"mismatches\": mismatches})\n881:     # raw 登记守卫 + raw→strict 身份一致(原结构可得的来源都核;同图\n882:     # 异拼写接受,跨分子/非法 raw 拒绝;不静默清洗信息再授 full)\n883:     raw = state.structure_smiles_raw\n884:     if not isinstance(raw, str) or not raw.strip():\n885:         raise ChemicalStateError(\n886:             f\"state:{state.state_id} 缺 structure_smiles_raw(原结构\"\n887:             \"可得的来源必须携带原始串)\",\n888:             {\"kind\": \"raw_structure_missing\", \"state_id\": state.state_id})\n889:     try:\n890:         raw_identity = strict_identity_of(raw)\n891:     except ChemicalStateError as exc:\n892:         raise ChemicalStateError(\n893:             f\"state:{state.state_id} 的 structure_smiles_raw 未通过输入\"\n894:             \"守卫或无法解析(R7-01/R8:原始串含未登记 CX 项即拒 —— 静默\"\n895:             \"丢弃后不得称 as_written/verified;首次消费零授信)\",\n896:             {\"kind\": \"raw_structure_rejected\",\n897:              \"state_id\": state.state_id,\n898:              \"structure_smiles_raw\": raw[:200],\n899:              \"reason\": getattr(exc, \"detail\", {})}) from exc\n900:     if raw_identity != derived.smiles_isomeric:\n901:         raise ChemicalStateError(\n902:             f\"state:{state.state_id} 的 structure_smiles_raw 解析到另一\"\n903:             f\"身份(期望 {derived.smiles_isomeric[:80]}…,实际 \"\n904:             f\"{raw_identity[:80]}…;同图异拼写接受,跨分子/表示层身份\"\n905:             \"声明不一致拒绝,R7-01/R8)\",\n906:             {\"kind\": \"raw_identity_mismatch\",\n907:              \"state_id\": state.state_id,\n908:              \"expected_identity\": derived.smiles_isomeric,\n909:              \"structure_smiles_raw\": raw[:200],\n910:              \"raw_identity\": raw_identity})"
+      },
+      {
+        "start": 913,
+        "end": 929,
+        "exists": true,
+        "excerpt": "913: def strict_identity_of(structure: str) -> str:\n914:     \"\"\"与 state_id 同一事实源的严格身份键(供体诊断 strict 轴等复用)。\n915: \n916:     解析失败抛 ChemicalStateError(与 build_chemical_state 同 fail-closed\n917:     语义);不构造完整状态,只取身份键。R5-02:同样在解析前做输入侧\n918:     注册感知校验(公共结构入口一致)。\n919:     \"\"\"\n920:     if not isinstance(structure, str) or not structure.strip():\n921:         raise ChemicalStateError(\n922:             \"结构输入为空或非字符串\", {\"structure\": repr(structure)[:200]})\n923:     _guard_input_cx_classes(structure)\n924:     mol = Chem.MolFromSmiles(structure)\n925:     if mol is None:\n926:         raise ChemicalStateError(\n927:             \"SMILES 无法解析\", {\"kind\": \"unparseable_smiles\",\n928:                              \"structure\": structure[:200]})\n929:     return _identity_key(mol)"
+      }
+    ],
+    "hypothesis.py": [
+      {
+        "start": 136,
+        "end": 173,
+        "exists": true,
+        "excerpt": "136: def parse_coefficient(value) -> Fraction:\n137:     \"\"\"系数 → 正有限 Fraction(H02:零/负/非有限/known+null 拒绝)。\"\"\"\n138:     if value is None:\n139:         raise HypothesisContractError(\n140:             \"系数为 null:未知系数须标 coefficient_status=unknown,不得 \"\n141:             \"以 known+null 表示\", {\"kind\": \"known_coefficient_null\"})\n142:     if isinstance(value, bool):\n143:         raise HypothesisContractError(\n144:             f\"系数非法(bool):{value!r}\", {\"kind\": \"invalid_coefficient_type\",\n145:                                         \"value\": repr(value)})\n146:     if isinstance(value, Fraction):\n147:         frac = value\n148:     elif isinstance(value, float):\n149:         if not math.isfinite(value):\n150:             raise HypothesisContractError(\n151:                 f\"系数非有限数值:{value!r}\", {\"kind\": \"non_finite_coefficient\",\n152:                                              \"value\": repr(value)})\n153:         frac = Fraction(str(value))\n154:     elif isinstance(value, int):\n155:         frac = Fraction(value)\n156:     elif isinstance(value, str):\n157:         try:\n158:             frac = Fraction(value)\n159:         except (ValueError, ZeroDivisionError) as exc:\n160:             raise HypothesisContractError(\n161:                 f\"系数无法解析为有理数:{value!r}\",\n162:                 {\"kind\": \"invalid_coefficient\", \"value\": value,\n163:                  \"error\": str(exc)}) from exc\n164:     else:\n165:         raise HypothesisContractError(\n166:             f\"系数类型非法:{type(value).__name__}\",\n167:             {\"kind\": \"invalid_coefficient_type\", \"value\": repr(value)})\n168:     if frac <= 0:\n169:         raise HypothesisContractError(\n170:             f\"系数必须为正:{value!r}(零/负数拒绝;该拒绝是输入表示层\"\n171:             \"契约,不宣称反应本身化学不可能)\",\n172:             {\"kind\": \"non_positive_coefficient\", \"value\": repr(value)})\n173:     return frac"
+      }
+    ],
+    "audit.py": [
+      {
+        "start": 615,
+        "end": 681,
+        "exists": true,
+        "excerpt": "615:                 status=(CHECK_UNKNOWN if not all_known_coeffs\n616:                         else CHECK_VERIFIED),\n617:                 reason_code=(\"coefficients_unknown_declared_complete\"\n618:                              if not all_known_coeffs\n619:                              else \"declared_complete_with_known_coefficients\"),\n620:                 coverage=\"participant_list\"))\n621:         else:\n622:             checks.append(AuditCheck(\n623:                 name=CHECK_PARTICIPANT_COMPLETENESS, status=CHECK_UNKNOWN,\n624:                 reason_code=f\"participant_list_status:{status_list}\",\n625:                 coverage=\"participant_list\"))\n626: \n627:     # ---- ⑤⑥ 元素/形式电荷核算(全氢 + 电荷轴前提 + 结构化差值) ----\n628:     full_known = (\n629:         hypothesis.participant_list_status in (\"source_complete\",\n630:                                                \"declared_complete\")\n631:         and all_known_coeffs\n632:         and not hypothesis.ambiguous_participants)\n633:     reactant_side = [p for p in hypothesis.participants\n634:                      if p.side == PARTICIPANT_SIDE_REACTANT]\n635:     product_side = [p for p in hypothesis.participants\n636:                     if p.side == PARTICIPANT_SIDE_PRODUCT]\n637:     if CHECK_ELEMENT_ACCOUNTING in requested:\n638:         if prerequisite_failed or structure_unavailable:\n639:             checks.append(_dependent(CHECK_ELEMENT_ACCOUNTING,\n640:                                      \"full_balance\"))\n641:         elif full_known:\n642:             elem_check = _element_accounting(\n643:                 reactant_side, product_side, states)\n644:             checks.append(elem_check)\n645:         else:\n646:             checks.append(AuditCheck(\n647:                 name=CHECK_ELEMENT_ACCOUNTING, status=CHECK_UNKNOWN,\n648:                 reason_code=\"partial_or_unknown_participants_full_balance\"\n649:                             \"_unknown\",\n650:                 coverage=\"full_balance\",\n651:                 detail={\"accounting_scope\": \"not_run_incomplete_list\"}))\n652:     if CHECK_FORMAL_CHARGE_ACCOUNTING in requested:\n653:         # 电荷轴前提(F05/mimo C1)优先:参与物原始电荷不可知(含 CN-only\n654:         # 的中和形)⇒ unknown(original_charge_unavailable),不拿中和后\n655:         # 电荷算假通过 —— 该判定先于\"结构不可用\"笼统归因。\n656:         # R2-01:悬空引用不在此崩溃(states.get 可为 None),账本轴由\n657:         # participant_state_refs 检查承接。\n658:         charge_unavailable = [\n659:             p.state_ref for p in hypothesis.participants\n660:             if (states.get(p.state_ref) is not None\n661:                 and (states[p.state_ref].representation_fidelity or {})\n662:                 .get(\"formal_charge\") != FIDELITY_AS_WRITTEN)]\n663:         if full_known and charge_unavailable:\n664:             checks.append(AuditCheck(\n665:                 name=CHECK_FORMAL_CHARGE_ACCOUNTING, status=CHECK_UNKNOWN,\n666:                 reason_code=\"original_charge_unavailable\"\n667:                 \"(CN/中和形输入的电荷账不可算,不得拿中和后电荷算)\",\n668:                 evidence_refs=charge_unavailable[:10],\n669:                 coverage=\"full_balance\"))\n670:         elif prerequisite_failed or structure_unavailable:\n671:             checks.append(_dependent(\n672:                 CHECK_FORMAL_CHARGE_ACCOUNTING, \"full_balance\"))\n673:         elif full_known:\n674:             checks.append(_charge_accounting(\n675:                 reactant_side, product_side, states))\n676:         else:\n677:             checks.append(AuditCheck(\n678:                 name=CHECK_FORMAL_CHARGE_ACCOUNTING, status=CHECK_UNKNOWN,\n679:                 reason_code=\"partial_or_unknown_participants_full_balance\"\n680:                             \"_unknown\",\n681:                 coverage=\"full_balance\"))"
+      },
+      {
+        "start": 727,
+        "end": 770,
+        "exists": true,
+        "excerpt": "727:     def _rerun_proof_record(proof: dict) -> DonorConsistencyDiagnostic:\n728:         \"\"\"证明记录 → 复跑确定性诊断(R4-01:内部重算建立证明链)。\n729: \n730:         proof_record 是 check_edit_against_donor 的完整输入集\n731:         (current/donor/alignment/expectation/result/edits)——audit\n732:         在此**重跑**同一确定性 checker,得到可核验的轴结论与绑定\n733:         输入;诊断对契约违约的 AuditContractError 原样上抛(结构化)。\n734:         \"\"\"\n735:         missing_keys = [key for key in (\"current\", \"donor\", \"alignment\",\n736:                                         \"expectation\", \"result\")\n737:                         if not isinstance(proof.get(key), dict)]\n738:         if missing_keys or not isinstance(proof.get(\"edits\"), list):\n739:             raise AuditContractError(\n740:                 \"center_evidence 的 proof_record 形状不完整(须携带\"\n741:                 \"current/donor/alignment/expectation/result 全部 dict\"\n742:                 \"与 edits list —— 诊断完整输入集)\",\n743:                 {\"kind\": \"center_evidence_proof_record_invalid\",\n744:                  \"missing\": missing_keys,\n745:                  \"edits_type\": type(proof.get(\"edits\")).__name__})\n746:         return check_edit_against_donor(\n747:             current=dict(proof[\"current\"]), donor=dict(proof[\"donor\"]),\n748:             alignment=dict(proof[\"alignment\"]),\n749:             expectation=dict(proof[\"expectation\"]),\n750:             result=dict(proof[\"result\"]),\n751:             edits=list(proof[\"edits\"]))\n752: \n753:     def _evidence_integrity_mismatches(\n754:             evidence: dict, recomputed: dict) -> list[str]:\n755:         \"\"\"自报轴/绑定字段 vs 复算值(R4-01:改真实诊断的任一绑定\n756:         字段不得仅换 input_hash 后照常 verified;R6/P2:自报 basis ≠\n757:         复算 basis(如声称 direct 实为 symmetric_equivalent)同样拒绝)。\"\"\"\n758:         out: list[str] = []\n759:         for key in (\"center_match\", \"strict_target_match\"):\n760:             if key not in evidence or \\\n761:                     evidence.get(key) is not recomputed.get(key):\n762:                 out.append(f\"{key}:claimed={evidence.get(key)!r}\"\n763:                            f\":recomputed={recomputed.get(key)!r}\")\n764:         claimed_basis = str(evidence.get(\"center_match_basis\", \"\") or \"\")\n765:         recomputed_basis = str(\n766:             recomputed.get(\"center_match_basis\", \"\") or \"\")\n767:         if claimed_basis != recomputed_basis:\n768:             out.append(\"center_match_basis:claimed=\"\n769:                        f\"{claimed_basis!r}:recomputed=\"\n770:                        f\"{recomputed_basis!r}\")"
+      },
+      {
+        "start": 831,
+        "end": 839,
+        "exists": true,
+        "excerpt": "831:             return False, \\\n832:                 \"center_evidence_binding_unverifiable_substrate\", {}\n833:         s = str(recomputed_bound.get(\"substrate_identity\", \"\"))\n834:         if s != substrate_state.smiles_isomeric:\n835:             return False, \"center_evidence_binding_mismatch:substrate\", {}\n836:         p = str(recomputed_bound.get(\"product_identity\", \"\"))\n837:         if not p:\n838:             return False, \\\n839:                 \"center_evidence_binding_unverifiable:product\", {}"
+      },
+      {
+        "start": 888,
+        "end": 1014,
+        "exists": true,
+        "excerpt": "888:         # 6. 未知系数 ⇒ 覆盖规模/贡献不可算(诚实 unknown,不 R6)\n889:         if any(pp.coefficient_status != COEFFICIENT_KNOWN\n890:                for pp in reactant_parts + product_parts):\n891:             return False, (\n892:                 _COVERAGE_UNKNOWN_COEFF_PREFIX + \"coefficients\"\n893:                 \"(参与物系数未知:覆盖与贡献规模不可算,不得计入全部\"\n894:                 \"核实;系数须已知或另行补全,不冒充已覆盖)\"), {\n895:                 **base_coverage_detail,\n896:                 \"product_coverage\": \"unknown_coefficients\",\n897:                 \"coverage_rule\": COVERAGE_COMPLETION_RULE}\n898: \n899:         def _elements_of(identity: str) -> dict[str, Fraction] | None:\n900:             mol = Chem.MolFromSmiles(identity) if identity else None\n901:             if mol is None:\n902:                 return None\n903:             return element_counts_full(mol)\n904: \n905:         elem_s = _elements_of(s)\n906:         elem_p = _elements_of(p)\n907:         if elem_s is None or elem_p is None:\n908:             return False, (\n909:                 \"center_evidence_binding_unverifiable:element_\"\n910:                 \"composition\"), dict(base_coverage_detail)\n911:         lambda_s = sum((pp.coefficient for pp in reactant_parts\n912:                         if _identity_of(pp) == s), Fraction(0))\n913:         delta: dict[str, Fraction] = {}\n914:         for element in set(elem_s) | set(elem_p):\n915:             d = elem_s.get(element, Fraction(0)) \\\n916:                 - elem_p.get(element, Fraction(0))\n917:             if d != 0:\n918:                 delta[element] = d\n919:         delta_pos = {el: v for el, v in delta.items() if v > 0}\n920:         delta_neg = {el: -v for el, v in delta.items() if v < 0}\n921:         violations: list[dict] = []\n922:         # 4. 系数绑定:产物侧声明贡献 == λ_s × 重数\n923:         for identity, multiplicity in sorted(covered_multiplicity.items()):\n924:             declared = sum((pp.coefficient for pp in product_parts\n925:                             if _identity_of(pp) == identity), Fraction(0))\n926:             required = lambda_s * multiplicity\n927:             if declared != required:\n928:                 violations.append({\n929:                     \"kind\": \"coefficient_binding_mismatch\",\n930:                     \"identity\": identity,\n931:                     \"declared_total\": str(declared),\n932:                     \"required\": str(required),\n933:                     \"multiplicity_in_bound_product\": multiplicity})\n934:         # 5. 注册补全规则:两侧各自精确相等\n935:         uncovered_reactant_elements: dict[str, Fraction] = {}\n936:         uncovered_product_elements: dict[str, Fraction] = {}\n937:         composition_unverifiable = False\n938:         for pp, bucket in ([(pp, uncovered_reactant_elements)\n939:                             for pp in uncovered_reactants]\n940:                            + [(pp, uncovered_product_elements)\n941:                               for pp in uncovered_products]):\n942:             elements = _elements_of(_identity_of(pp))\n943:             if elements is None:\n944:                 composition_unverifiable = True\n945:                 continue\n946:             for element, count in elements.items():\n947:                 bucket[element] = bucket.get(element, Fraction(0)) \\\n948:                     + count * pp.coefficient\n949:         if composition_unverifiable:\n950:             return False, (\n951:                 \"center_evidence_binding_unverifiable:element_\"\n952:                 \"composition\"), dict(base_coverage_detail)\n953: \n954:         def _completion_violations(actual, required, side):\n955:             out = []\n956:             for element in sorted(set(actual) | set(required)):\n957:                 have = actual.get(element, Fraction(0))\n958:                 need = required.get(element, Fraction(0))\n959:                 if have == need:\n960:                     continue\n961:                 out.append({\n962:                     \"kind\": (\"completion_surplus\" if have > need\n963:                              else \"completion_deficit\"),\n964:                     \"side\": side,\n965:                     \"element\": element,\n966:                     \"declared_total\": str(have),\n967:                     \"required\": str(need)})\n968:             return out\n969: \n970:         if uncovered_reactants or uncovered_products:\n971:             # 无未覆盖参与物 ⇒ full(补全规则不重复元素账独立轴);\n972:             # 有未覆盖参与物 ⇒ 两侧各自与注册规则精确对账\n973:             violations += _completion_violations(\n974:                 uncovered_product_elements,\n975:                 {el: lambda_s * v for el, v in delta_pos.items()},\n976:                 \"product\")\n977:             violations += _completion_violations(\n978:                 uncovered_reactant_elements,\n979:                 {el: lambda_s * v for el, v in delta_neg.items()},\n980:                 \"reactant\")\n981:             # R6-01(R7):补全许可范围 —— 未覆盖参与物的严格结构身份\n982:             # 须在注册许可集(组合型氢当量)内;未登记身份即使数值\n983:             # 全配平,其初始分子图的键变化/连接贡献仍未核实(元素配平\n984:             # ≠ 结构贡献已核实),不得据此 full/R6\n985:             unlicensed_identities = sorted({\n986:                 identity for identity in\n987:                 (_identity_of(pp) for pp in\n988:                  uncovered_reactants + uncovered_products)\n989:                 if identity and identity\n990:                 not in COMPLETION_LICENSED_IDENTITIES})\n991:             if unlicensed_identities:\n992:                 violations.append({\n993:                     \"kind\": \"completion_license_unregistered_identity\",\n994:                     \"identities\": unlicensed_identities,\n995:                     \"completion_license\": COMPLETION_LICENSE,\n996:                     \"note\": (\"未覆盖参与物的严格结构身份未登记补全许可\"\n997:                              f\"({COMPLETION_LICENSE}=组合型氢当量);\"\n998:                              \"数值配平只证明组成贡献,不证明其初始图\"\n999:                              \"的键变化/连接贡献已核实\")})\n1000:         else:\n1001:             unlicensed_identities = []\n1002:         detail = {\n1003:             **base_coverage_detail,\n1004:             \"product_coverage\": (\"partial_unchecked_transformation\"\n1005:                                  if violations else \"full\"),\n1006:             \"coverage_rule\": COVERAGE_COMPLETION_RULE,\n1007:             # R6-01:许可范围/依据机器披露(登记许可=组成型氢当量;\n1008:             # 未登记身份即使数值配平也 partial,见 coverage_violations)\n1009:             \"completion_license\": COMPLETION_LICENSE,\n1010:             \"completion_license_scope\": (\n1011:                 \"registered:composition_only_hydrogen_equivalents(\"\n1012:                 \"H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子\"\n1013:                 \"共底物初始图的结构贡献)\"),\n1014:             \"unlicensed_uncovered_identities\": list("
+      },
+      {
+        "start": 1064,
+        "end": 1116,
+        "exists": true,
+        "excerpt": "1064:             elif ev_scope not in CENTER_CHECKER_SCOPES:\n1065:                 checks.append(AuditCheck(\n1066:                     name=CHECK_TRANSFORMATION_CENTER, status=CHECK_UNKNOWN,\n1067:                     reason_code=f\"center_checker_scope_unknown:{ev_scope}\"\n1068:                     \"(checker 检查范围未声明/未登记:限定区域证据不得\"\n1069:                     \"冒充完整变换验证)\",\n1070:                     coverage=\"mapping_dependent\",\n1071:                     detail={\"checker_version\": checker}))\n1072:             else:\n1073:                 type_violation = _evidence_type_violation(center_evidence)\n1074:                 if type_violation:\n1075:                     # R4-01:表示违约 ⇒ 结构化拒绝(不是化学\"未知就拒绝\")\n1076:                     raise AuditContractError(\n1077:                         \"center_evidence 载荷类型违约:\"\n1078:                         f\"{type_violation}(轴字段须为 bool|None;\"\n1079:                         \"字符串'false'/整数0/空容器不得绕过类型契约\"\n1080:                         \"直达 R6)\",\n1081:                         {\"kind\": \"center_evidence_type_violation\",\n1082:                          \"violation\": type_violation,\n1083:                          \"checker_version\": checker})\n1084:                 proof = center_evidence.get(\"proof_record\")\n1085:                 if not proof:\n1086:                     # 无可复算证明记录:两条身份字符串或六条自报字段\n1087:                     # 不构成核实(R4-01 反例)⇒ unknown,不授信\n1088:                     checks.append(AuditCheck(\n1089:                         name=CHECK_TRANSFORMATION_CENTER,\n1090:                         status=CHECK_UNKNOWN,\n1091:                         reason_code=(\n1092:                             \"center_evidence_proof_missing\"\n1093:                             \"(证据未携带 proof_record:不可内部复算的\"\n1094:                             \"自报字段/身份字符串不构成 checker 曾对\"\n1095:                             \"本次输入执行的证明;诚实 unknown,不改\"\n1096:                             \"文字收窄)\"),\n1097:                         coverage=\"mapping_dependent\",\n1098:                         detail={**_evidence_binding_detail(\n1099:                             center_evidence, \"proof_record_missing\"),\n1100:                             \"checker_version\": checker,\n1101:                             \"checker_scope\": ev_scope,\n1102:                             \"declared_signature_status\": sig or \"\"}))\n1103:                 else:\n1104:                     # ---- 内部重算(R4-01):复跑诊断,自报字段须一致 ----\n1105:                     rerun = _rerun_proof_record(dict(proof))\n1106:                     recomputed = rerun.center_evidence\n1107:                     integrity = _evidence_integrity_mismatches(\n1108:                         center_evidence, recomputed)\n1109:                     if integrity:\n1110:                         raise AuditContractError(\n1111:                             \"center_evidence 自报字段与证明记录复算值\"\n1112:                             \"不一致(证据被改写/拼接;结构化拒绝,不改\"\n1113:                             \"输入即不改结论):\" + \";\".join(integrity[:6]),\n1114:                             {\"kind\": \"center_evidence_integrity_mismatch\",\n1115:                              \"mismatches\": integrity[:20],\n1116:                              \"checker_version\": checker})"
+      },
+      {
+        "start": 1131,
+        "end": 1174,
+        "exists": true,
+        "excerpt": "1131:                     if not binding_ok and not (\n1132:                             binding_reason.startswith(\n1133:                                 _COVERAGE_PARTIAL_PREFIX)\n1134:                             or binding_reason.startswith(\n1135:                                 _COVERAGE_UNKNOWN_COEFF_PREFIX)):\n1136:                         # 跨反应复用/改产物/未申报碎片 ⇒ 不得认证\n1137:                         checks.append(AuditCheck(\n1138:                             name=CHECK_TRANSFORMATION_CENTER,\n1139:                             status=CHECK_UNKNOWN,\n1140:                             reason_code=binding_reason\n1141:                             + \"(证据未绑定本假设的底物/产物集合;复算\"\n1142:                             \"证明链对不上,注册名+True 不构成核实)\",\n1143:                             evidence_refs=refs,\n1144:                             coverage=\"mapping_dependent\",\n1145:                             detail={**base_detail,\n1146:                                     **_evidence_binding_detail(\n1147:                                         center_evidence, binding_reason),\n1148:                                     **coverage_detail}))\n1149:                     else:\n1150:                         mismatch = bool(recomputed.get(\n1151:                             \"declaration_mismatch\"))\n1152:                         center_match = recomputed.get(\"center_match\")\n1153:                         strict_axis = recomputed.get(\"strict_target_match\")\n1154:                         # P2(R5 §4-1):basis 从复算读(diagnostic 载荷\n1155:                         # v6 起携带;direct | symmetric_equivalent,仅\n1156:                         # center_match=True 时非空)—— 不再空串伪装依据\n1157:                         basis_str = str(recomputed.get(\n1158:                             \"center_match_basis\", \"\"))\n1159:                         axis_detail = {**base_detail,\n1160:                                        \"center_match\": center_match,\n1161:                                        \"center_match_basis\": basis_str,\n1162:                                        \"strict_target_match\": strict_axis,\n1163:                                        **coverage_detail}\n1164:                         if not binding_ok:\n1165:                             # 部分覆盖(额外未核实转化/未核实贡献)或\n1166:                             # 覆盖不可算(未知系数)⇒ 不可 verified\n1167:                             # (可明确部分覆盖而 retain,R4-01/R5-01 验收)\n1168:                             checks.append(AuditCheck(\n1169:                                 name=CHECK_TRANSFORMATION_CENTER,\n1170:                                 status=CHECK_UNKNOWN,\n1171:                                 reason_code=binding_reason,\n1172:                                 evidence_refs=refs,\n1173:                                 coverage=\"mapping_dependent\",\n1174:                                 detail=axis_detail))"
+      },
+      {
+        "start": 1513,
+        "end": 1571,
+        "exists": true,
+        "excerpt": "1513:     规则(评估顺序固定,首中即决):\n1514:     R1  structure_unparseable      → reject  (实际输入语法非法;CN-only\n1515:         等合法缺结构走 unknown,悬空引用走 R1b,不进本行)\n1516:     R1b participant_state_missing  → reject  (参与物 state 引用悬空 =\n1517:         账本/引用完整性问题,理由码保留,不压平成\"结构不可解析\",\n1518:         R2-01/mimo 3.2(2))\n1519:     R2  active_gate_rejected       → reject  (活动门禁显式拒绝;仅\n1520:         reject_gates 名单内 —— 不暗改冻结判据,新门禁须独立评审)\n1521:     R2p per_product_gate_rejected  → reject(全部共同产物被拒)/\n1522:         retain_conditional(部分被拒:被拒产物保留拒因、不可展开,\n1523:         不删除被拒共同产物凑合法事件)(R2-12;消费开关\n1524:         per_product_gate_consumption 由策略显式版本化)\n1525:     R2b contract_violated_       → reject  (表示契约违反:零/负/非有限\n1526:         representation                  系数、酶计入净计量、结构性违约;\n1527:         理由码写死 representation = 非化学,mimo 3.2(1) 采纳)\n1528:     R3  current_scenario_conflict  → defer   (有来源 essential 条件与当前\n1529:         场景已知事实冲突;action=blocked,假设保留不在此场景展开)\n1530:     R4  budget_or_wait             → defer   (独立原因)\n1531:     R5d declared_account_violated  → retain_conditional(触发集合显式限定\n1532:         {element_accounting, formal_charge_accounting},mimo 3.2(4);\n1533:         账不平只证明声明内部矛盾,不证明反应不存在;绝不进入 R6)\n1534:     R5v declared_violated_other    → retain_conditional(其他检查 violated\n1535:         的独立码 —— 如确定性 checker 的中心偏离;不冒称\"声明账不一致\")\n1536:     R5c required_check_coverage_   → retain_conditional(必需适用检查未\n1537:         missing                        被执行/不在审计内:窄 audit_scope 只\n1538:                                        能作诊断,R6 覆盖核算不通过,R2-01)\n1539:     R5  unknown_checks_present     → retain_conditional(检查 unknown/\n1540:         因缺输入未执行;继承未解决依赖)\n1541:     R6  default_all_verified       → expand(全部必需适用检查覆盖且\n1542:         verified,无 unknown/violated/缺输入未执行;语义 NA 白名单\n1543:         除外)\n1544:     R7  no_applicable_checks       → retain_conditional(无适用检查:\n1545:         保守保留,不冒充核实;理由与 R5 分开)\n1546: \n1547:     任何 unknown 不自动 reject;新增\"诊断转拒绝\"必须扩本表并升版本。\n1548:     chemical_reproposal 首版 off。\n1549:     \"\"\"\n1550: \n1551:     policy_version: str = PPV1_ADMISSION_POLICY_VERSION\n1552:     reject_gates: frozenset = frozenset(DEFAULT_REJECT_GATES)\n1553:     chemical_reproposal: str = \"off\"\n1554:     per_product_gate_consumption: str = \"on\"\n1555:     rules: tuple = (\n1556:         (\"R1\", \"structure_unparseable\", ADMISSION_REJECT),\n1557:         (\"R1b\", \"participant_state_missing\", ADMISSION_REJECT),\n1558:         (\"R2\", \"active_gate_rejected\", ADMISSION_REJECT),\n1559:         (\"R2p\", \"per_product_gate_rejected\",\n1560:          ADMISSION_REJECT + \"|\" + ADMISSION_RETAIN_CONDITIONAL),\n1561:         (\"R2b\", \"contract_violated_representation\", ADMISSION_REJECT),\n1562:         (\"R3\", \"current_scenario_conflict\", ADMISSION_DEFER),\n1563:         (\"R4\", \"budget_or_wait\", ADMISSION_DEFER),\n1564:         (\"R5d\", \"declared_account_violated\", ADMISSION_RETAIN_CONDITIONAL),\n1565:         (\"R5v\", \"declared_violated_other\", ADMISSION_RETAIN_CONDITIONAL),\n1566:         (\"R5c\", \"required_check_coverage_missing\",\n1567:          ADMISSION_RETAIN_CONDITIONAL),\n1568:         (\"R5\", \"unknown_checks_present\", ADMISSION_RETAIN_CONDITIONAL),\n1569:         (\"R6\", \"default_all_verified\", ADMISSION_EXPAND),\n1570:         (\"R7\", \"no_applicable_checks\", ADMISSION_RETAIN_CONDITIONAL),\n1571:     )"
+      },
+      {
+        "start": 1660,
+        "end": 1818,
+        "exists": true,
+        "excerpt": "1660:     unknown)。gate_ref 为原产物引用,不参与判定。\n1661:     product_state_refs:共同产物 state_ref 按位次顺序(可选,用于把\n1662:     逐产物拒因落到具体产物引用;缺省用 position 表述)。\n1663:     budget_state:{\"exhausted\": bool, \"waiting\": bool, \"reason\": str}。\n1664:     contract_violation(R2b):表示契约违反的调用方报告(如 Hypothesis-\n1665:     ContractError 的 detail)→ reject + contract_violated_representation\n1666:     —— 不冒称结构不可解析或化学不可能。构造期异常 detail 必须由调用\n1667:     方映射传入(接口契约条款:不传则 R2b 不可达)。\n1668:     \"\"\"\n1669:     pol = policy or DEFAULT_ADMISSION_POLICY\n1670:     reasons: list[str] = []\n1671: \n1672:     # R1:实际输入语法非法 → reject(悬空引用走 R1b,CN-only 是 unknown)\n1673:     parse_check = next(\n1674:         (c for c in audit.checks\n1675:          if c.name == CHECK_STRUCTURE_PARSE_VALENCE), None)\n1676:     if parse_check is not None and parse_check.status == CHECK_VIOLATED:\n1677:         return ADMISSION_REJECT, [\"R1:structure_unparseable\"]\n1678: \n1679:     # R1b:参与物 state 引用悬空(账本/引用完整性,非结构非法,R2-01)\n1680:     refs_check = next(\n1681:         (c for c in audit.checks\n1682:          if c.name == CHECK_PARTICIPANT_STATE_REFS), None)\n1683:     if refs_check is not None and refs_check.status == CHECK_VIOLATED:\n1684:         return ADMISSION_REJECT, [\n1685:             \"R1b:participant_state_missing(账本/引用完整性问题,悬空\"\n1686:             \" state 引用;非结构不可解析):\"\n1687:             + (refs_check.reason_code or \"participant_state_missing\")]\n1688: \n1689:     # R2/R2p:活动门禁拒绝 + 逐产物门禁拒绝真实消费(R2-12)\n1690:     for gate_name, decision in (gate_decisions or {}).items():\n1691:         if not isinstance(decision, dict):\n1692:             continue  # per_product_verdicts(list)/gate_ref(dict 引用块)\n1693:         if gate_name in pol.reject_gates and not decision.get(\"ok\", True):\n1694:             reasons.append(\n1695:                 f\"R2:active_gate_rejected:{gate_name}:\"\n1696:                 f\"{decision.get('reason', '')[:120]}\")\n1697:     if any(r.startswith(\"R2:\") for r in reasons):\n1698:         return ADMISSION_REJECT, reasons\n1699: \n1700:     if pol.per_product_gate_consumption == \"on\":\n1701:         per_product = (gate_decisions or {}).get(\"per_product_verdicts\")\n1702:         per_product = per_product if isinstance(per_product, list) else []\n1703:         if per_product:\n1704:             rejected = [v for v in per_product\n1705:                         if not bool(v.get(\"accepted\", False))]\n1706:             if rejected:\n1707:                 def _product_label(v: dict) -> str:\n1708:                     pos = v.get(\"position\")\n1709:                     if product_state_refs is not None \\\n1710:                             and isinstance(pos, int) \\\n1711:                             and 0 <= pos < len(product_state_refs):\n1712:                         return (f\"position:{pos}:\"\n1713:                                 f\"{product_state_refs[pos]}\")\n1714:                     return f\"position:{pos}\"\n1715: \n1716:                 detail = \";\".join(\n1717:                     f\"{_product_label(v)}:\"\n1718:                     + \",\".join(str(r) for r in v.get(\"reasons\", []))[:120]\n1719:                     for v in rejected)\n1720:                 if len(rejected) == len(per_product):\n1721:                     return ADMISSION_REJECT, [\n1722:                         \"R2p:per_product_gate_rejected:\"\n1723:                         \"all_products_gate_rejected(全部共同产物被活动\"\n1724:                         \"门禁拒绝;不改冻结门禁真假):\" + detail]\n1725:                 return ADMISSION_RETAIN_CONDITIONAL, [\n1726:                     \"R2p:per_product_gate_rejected:some_products_gate_\"\n1727:                     \"rejected(部分共同产物被活动门禁拒绝:被拒产物保留\"\n1728:                     \"在事件中、拒因可追溯、不可展开;不删除被拒共同产物\"\n1729:                     \"凑合法事件):\" + detail]\n1730:     elif pol.per_product_gate_consumption == \"off\":\n1731:         # §4(per-product off 披露):off 是显式版本化的 diagnostic 策略\n1732:         # —— 只关闭消费/阻断,**不关闭披露**;决策可为 expand,但被拒\n1733:         # 产物与未消费范围必须留痕(不得以干净理由码冒充全过)\n1734:         per_product = (gate_decisions or {}).get(\"per_product_verdicts\")\n1735:         if isinstance(per_product, list):\n1736:             rejected = [v for v in per_product\n1737:                         if not bool(v.get(\"accepted\", False))]\n1738:             if rejected:\n1739:                 reasons.append(\n1740:                     \"R2p_disclosure:per_product_gate_rejected:not_consumed\"\n1741:                     \"(策略显式 off:逐产物门禁拒绝未参与阻断,仅披露;\"\n1742:                     \"结果与未消费范围保留):\"\n1743:                     + \";\".join(\n1744:                         f\"position:{v.get('position')}:\"\n1745:                         + \",\".join(str(r) for r in v.get(\"reasons\", []))\n1746:                         [:80] for v in rejected))\n1747: \n1748:     # R2b:表示契约违反(构造层报告;非化学)\n1749:     if contract_violation is not None:\n1750:         detail_code = str(contract_violation.get(\n1751:             \"kind\", contract_violation.get(\"reason_code\", \"\"))[:120])\n1752:         return ADMISSION_REJECT, reasons + [\n1753:             \"R2b:contract_violated_representation:\"\n1754:             f\"{detail_code}(输入表示违反契约,非结构不可解析、\"\n1755:             \"非化学不可能)\"]\n1756: \n1757:     # R3:当前场景有来源必要条件冲突 → defer(blocked)\n1758:     if audit.check_status(CHECK_CONDITION_CHECK) == CHECK_VIOLATED:\n1759:         return ADMISSION_DEFER, reasons + [\n1760:             \"R3:current_scenario_conflict(当前环境相容路线不展开;\"\n1761:             \"假设保留,留原因,可展示为需不同条件的备选)\"]\n1762: \n1763:     # R4:预算/等待 → defer(独立原因)\n1764:     bs = budget_state or {}\n1765:     if bs.get(\"exhausted\") or bs.get(\"waiting\"):\n1766:         return ADMISSION_DEFER, reasons + [\n1767:             f\"R4:budget_or_wait:{bs.get('reason', 'budget_or_waiting')}\"]\n1768: \n1769:     # R5d:声明账 violated(触发集合显式限定 {元素,电荷},mimo 3.2(4))\n1770:     violated = audit.violated_checks()\n1771:     account_violated = [c for c in violated\n1772:                         if c.name in R5D_TRIGGER_CHECKS]\n1773:     if account_violated:\n1774:         return ADMISSION_RETAIN_CONDITIONAL, reasons + [\n1775:             \"R5d:declared_account_violated(声明与结构不一致,有证据的\"\n1776:             \"发现;不 reject —— 账不平不证明反应不存在;绝不计入\"\n1777:             \"'全部核实'):\" + \",\".join(c.name for c in account_violated)]\n1778: \n1779:     # R5v:其他检查 violated(独立码,不冒称声明账不一致)\n1780:     other_violated = [c for c in violated\n1781:                       if c.name not in R5D_TRIGGER_CHECKS]\n1782:     if other_violated:\n1783:         return ADMISSION_RETAIN_CONDITIONAL, reasons + [\n1784:             \"R5v:declared_violated_other(确定性检查发现的不一致,\"\n1785:             \"非元素/电荷声明账;不 reject):\"\n1786:             + \",\".join(c.name for c in other_violated)]\n1787: \n1788:     # R5c:必需适用检查覆盖缺口(窄 audit_scope 只能作诊断,R2-01)\n1789:     coverage_gaps = _required_coverage_gaps(audit)\n1790:     if coverage_gaps:\n1791:         return ADMISSION_RETAIN_CONDITIONAL, reasons + [\n1792:             \"R5c:required_check_coverage_missing(必需适用检查未执行/\"\n1793:             \"不在审计内;窄 scope 只是诊断,不满足 admission 覆盖核算):\"\n1794:             + \",\".join(coverage_gaps)]\n1795: \n1796:     # R5:存在 unknown 检查(含因缺输入未执行)→ retain_conditional\n1797:     unknown_names = [c.name for c in audit.checks\n1798:                      if c.status == CHECK_UNKNOWN]\n1799:     if unknown_names:\n1800:         return ADMISSION_RETAIN_CONDITIONAL, reasons + [\n1801:             \"R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,\"\n1802:             f\"继承未解决依赖;未知步长不进确认单步指标):\"\n1803:             + \",\".join(unknown_names)]\n1804: \n1805:     # R6:全部必需适用检查覆盖且 verified,无 unknown/violated/缺输入未执行\n1806:     # (语义 NA 白名单内的检查不阻塞)→ expand\n1807:     all_verified_or_semantic_na = all(\n1808:         c.status == CHECK_VERIFIED\n1809:         or (c.status == CHECK_NOT_APPLICABLE and _semantic_na_allowed(c))\n1810:         for c in audit.checks)\n1811:     if audit.checks and all_verified_or_semantic_na \\\n1812:             and not coverage_gaps:\n1813:         return ADMISSION_EXPAND, reasons + [\"R6:all_verified_no_conflict\"]\n1814: \n1815:     # R7:无适用检查:保守 retain(理由与 R5 分开,不冒充核实)\n1816:     return ADMISSION_RETAIN_CONDITIONAL, reasons + [\n1817:         \"R7:no_applicable_checks_conservative_retain(无适用检查证据,\"\n1818:         \"不默认 expand,不以无证据冒充核实)\"]"
+      },
+      {
+        "start": 1919,
+        "end": 1930,
+        "exists": true,
+        "excerpt": "1919:     center_evidence: dict = field(default_factory=dict)\n1920:         # 绑定本诊断全部输入的证据载荷(checker scope/各轴结论/\n1921:         # bound_inputs/**proof_record 完整输入集**),供 audit 的\n1922:         # transformation_center 证据门消费(R3-01/R4-01:跨反应复用/\n1923:         # 改产物/无依据 True/自报字段拼接均不得认证 —— audit 内部\n1924:         # 复跑本确定性 checker 复核)\n1925:     # v5(R4-07):\n1926:     stereo_comparison_unsupported_atoms: list[str] = field(\n1927:         default_factory=list)\n1928:         # 立体轴**比较支持范围外**的原子清单(非四面体手性标签/\n1929:         # 配体集合改变后不可比)—— 公开列项,不静默缺席;中心外\n1930:         # 存在此类原子 ⇒ center 不可判 True(区域约束对该轴不可核)"
+      },
+      {
+        "start": 2553,
+        "end": 2592,
+        "exists": true,
+        "excerpt": "2553:     execution_ok = bool(result.get(\"ok\"))\n2554:     if not execution_ok:\n2555:         return DonorConsistencyDiagnostic(\n2556:             strict_target_match=None, legacy_cn_match=None,\n2557:             reaction_center_match=None, center_match_basis=\"\",\n2558:             alignment_ref=alignment_ref,\n2559:             missing_info_reasons=[\n2560:                 \"execution_failed:\" +\n2561:                 \";\".join(result.get(\"reasons\", []) or [])[:200]],\n2562:             executed_bond_changes=[])\n2563: \n2564:     # ---- R6-02(R7):供体诊断全部原始字符串入口与工厂/strict 同源守卫 ----\n2565:     # current/mapped/plain/target 的原始串此前直接 MolFromSmiles 解析,\n2566:     # 绕过工厂/strict 的输入侧注册感知校验:RDKit 静默丢弃 |r| 等未\n2567:     # 登记项后,绑定身份来自剥标记的解析串而 proof 保留原串 —— 原始\n2568:     # 标记事实静默丢失仍 True/True/verified/R6。四个入口统一在解析前\n2569:     # 过同一 _guard_input_cx_classes(build_chemical_state /\n2570:     # strict_identity_of 同一守卫);未登记/并列未知项 ⇒ 结构化拒绝\n2571:     # (不剥身份后当 verified 证据;clean 输入不受影响)。\n2572:     for _field, _raw in (\n2573:             (\"current.smiles\", current.get(\"smiles\")),\n2574:             (\"result.product_mapped_smiles\",\n2575:              result.get(\"product_mapped_smiles\")),\n2576:             (\"result.product_smiles\", result.get(\"product_smiles\")),\n2577:             (\"expectation.target_smiles\",\n2578:              expectation.get(\"target_smiles\"))):\n2579:         if _raw is None or str(_raw) == \"\":\n2580:             continue\n2581:         try:\n2582:             _guard_input_cx_classes(str(_raw))\n2583:         except ChemicalStateError as exc:\n2584:             raise AuditContractError(\n2585:                 f\"供体诊断原始输入字段 {_field} 含未登记 CX 项:\"\n2586:                 f\"{exc}(与工厂/strict 同源的输入侧注册感知校验:解析器\"\n2587:                 \"会静默丢弃该项,丢弃后不得以剥标记身份参与 verified\"\n2588:                 \"证据;拒绝该诊断输入,不改冻结执行器)\",\n2589:                 {\"kind\": \"raw_input_cx_class_unregistered\",\n2590:                  \"field\": _field,\n2591:                  **{k: v for k, v in (exc.detail or {}).items()\n2592:                     if k != \"kind\"}}) from exc"
+      },
+      {
+        "start": 2705,
+        "end": 2707,
+        "exists": true,
+        "excerpt": "2705:     elif alignment_status != \"resolved\":\n2706:         center_match = None\n2707:         missing.append(f\"alignment_{alignment_status}_center_unknown\")"
+      },
+      {
+        "start": 2742,
+        "end": 2746,
+        "exists": true,
+        "excerpt": "2742:         unmapped = [d for d in donor_centers if d not in mapping]\n2743:         if unmapped:\n2744:             center_match = None\n2745:             missing.append(\n2746:                 \"donor_centers_partially_unmapped:\" + \",\".join(unmapped))"
+      },
+      {
+        "start": 2983,
+        "end": 2993,
+        "exists": true,
+        "excerpt": "2983:     if diagnostic.center_evidence:\n2984:         return dict(diagnostic.center_evidence)\n2985:     # 兼容路径:旧形状(无绑定)——audit 侧将按 binding 缺失记\n2986:     # unknown,不授予 verified(诚实降级)\n2987:     return {\n2988:         \"checker_version\": PPV1_DONOR_DIAGNOSTIC_VERSION,\n2989:         \"center_match\": diagnostic.reaction_center_match,\n2990:         \"declaration_mismatch\": bool(diagnostic.declaration_mismatches),\n2991:         \"center_match_basis\": diagnostic.center_match_basis,\n2992:         \"evidence_refs\": [diagnostic.alignment_ref],\n2993:     }"
+      }
+    ],
+    "path_context.py": [
+      {
+        "start": 706,
+        "end": 837,
+        "exists": true,
+        "excerpt": "706:     - 必需实体有自身事实:known_absent ⇒ conflict(实体自身缺席);\n707:       known_present ⇒ satisfied;unknown ⇒ unknown;\n708:     - 无自身事实:他实体在场/缺席不证明本实体状态 ⇒ unknown\n709:       (未列出 ≠ absent;多种已知供体可并存,不按键 last-wins);\n710:     - 同实体同阶段同场景既有 present 又有 absent ⇒ 值真正不一致 ⇒\n711:       保守 unknown。\n712:     \"\"\"\n713:     entity = req.value\n714:     same = [f for f in facts if f.value == entity]\n715:     sources = [f.source_ref for f in facts if f.source_ref]\n716:     if not same:\n717:         others = sorted({str(f.value) for f in facts})\n718:         reason = (f\"entity_not_among_known_facts:{req.key}:\"\n719:                   f\"required={entity!r},known={others}\"\n720:                   if others else\n721:                   f\"no_applicable_fact:{req.key}\")\n722:         return UNKNOWN, reason, sources\n723:     if any(f.status == FACT_STATUS_KNOWN_ABSENT for f in same) and \\\n724:             any(f.status == FACT_STATUS_KNOWN_PRESENT for f in same):\n725:         return (UNKNOWN,\n726:                 f\"conflicting_applicable_facts:{req.key}\", sources)\n727:     first = same[0]\n728:     if first.status == FACT_STATUS_UNKNOWN:\n729:         return UNKNOWN, f\"fact_unknown:{req.key}\", sources\n730:     if first.status == FACT_STATUS_KNOWN_ABSENT:\n731:         return (CONFLICT,\n732:                 f\"required_entity_known_absent:{req.key}\", sources)\n733:     return SATISFIED, f\"entity_present:{req.key}\", sources\n734: \n735: \n736: def _assess_requirement(\n737:     req: Requirement, fact_lists: dict[str, list[ConditionFact]],\n738:     preference_notes: list[str],\n739: ) -> tuple[str, str, list[str], dict]:\n740:     \"\"\"单项评估 → (status, reason, fact_sources, extras)。\n741: \n742:     extras(R4-03):unit_basis —— 带量纲键(在 CONDITION_KEY_UNITS)\n743:     的事实被消费时:显式规范单位 ⇒ \"canonical\"(已归一输入);\n744:     必须显式单位的键(temperature_C)无单位 ⇒ **unknown +\n745:     \"source_unit_unknown\"**(原来源单位未知;注记不把未知来源升级为\n746:     satisfied/conflict,mimo 4.3 案 A);非规范单位 ⇒ unit_mismatch ⇒\n747:     unknown;pH 等无量纲键空单位合法,不因本契约判未知。\n748: \n749:     R5-03:单位三态检查之后、值匹配之前消费 fact.status —— 非物种键\n750:     的 known_absent 不作为正事实参与值比对(数值/区间缺席 ⇒ unknown;\n751:     字符串同值缺席 ⇒ conflict;字符串异值缺席 ⇒ unknown)。物种键的\n752:     实体缺席语义在 _assess_species_requirement 保持(必需实体自身\n753:     缺席 ⇒ conflict)。present / unknown / 单位控制不受影响。\n754:     \"\"\"\n755:     # 文献观察条件不是必需条件:只作参考,不参与门禁\n756:     if req.basis == REQUIREMENT_BASIS_OBSERVED_REFERENCE:\n757:         return NOT_APPLICABLE, \"observed_condition_reference_not_gating\", \\\n758:             [], {}\n759:     # 无来源必要性(F03):未核实假设 —— 不进门禁(不产生 conflict),\n760:     # 也不作为\"来源已证必需\";阻止 compatible 由 unknown 语义承担\n761:     if req.level == REQUIREMENT_ESSENTIAL and not req.source_refs:\n762:         return UNKNOWN, \"necessity_unsourced_not_gating\", [], {}\n763:     facts = fact_lists.get(req.key)\n764:     if not facts:\n765:         # 未列出某共底物 = 未知,不是 absent(C01/F03)\n766:         return UNKNOWN, f\"no_applicable_fact:{req.key}\", [], {}\n767:     sources = [f.source_ref for f in facts if f.source_ref]\n768:     # 物种键:实体身份先匹配(R2-05)\n769:     if req.key in SPECIES_CONDITION_KEYS and isinstance(req.value, str):\n770:         status, reason, src = _assess_species_requirement(req, facts)\n771:         return status, reason, src, {}\n772:     # 单值维度:适用事实值真正不一致 → 保守 unknown(P2:同值不同\n773:     # 来源不是不一致——按语义值签名比较,来源保留)\n774:     known = [f for f in facts if f.status != FACT_STATUS_UNKNOWN]\n775:     if len({_semantic_value_signature(f) for f in known}) > 1:\n776:         return UNKNOWN, f\"conflicting_applicable_facts:{req.key}\", sources, \\\n777:             {}\n778:     if any(f.status == FACT_STATUS_UNKNOWN for f in facts):\n779:         return UNKNOWN, f\"fact_unknown:{req.key}\", sources, {}\n780:     fact = facts[0]\n781:     extras: dict = {}\n782:     # 单位边界(R2-05 + R4-03):带量纲键的单位三态分立 ——\n783:     # ① 必须显式单位的键(temperature_C)空单位 = 原来源单位未知 ⇒\n784:     #   unknown(source_unit_unknown),不做数值比较;注记不能把未知\n785:     #   来源升级为已归一;\n786:     # ② 非规范单位(如温度给 K)⇒ unit_mismatch ⇒ unknown(首版无换算,\n787:     #   不按数值直比);\n788:     # ③ 无量纲键(pH \"\"/显式)与 oxygen/matrix/物种键不受影响,不因\n789:     #   本契约判未知。\n790:     if fact.key in CONDITION_KEY_UNITS:\n791:         if fact.unit == \"\" and fact.key in UNIT_REQUIRED_KEYS:\n792:             return (UNKNOWN,\n793:                     f\"source_unit_unknown:{fact.key}\"\n794:                     \"(带量纲键的事实未声明单位=原来源单位未知;不按数值\"\n795:                     \"直比,不以注记升级为已归一;单位归一由事实来源/适配\"\n796:                     \"器承担)\",\n797:                     sources, {\"unit_basis\": \"source_unit_unknown\"})\n798:         if not _unit_ok(fact.key, fact.unit):\n799:             return (UNKNOWN,\n800:                     f\"unit_mismatch:{fact.key}:{fact.unit!r}\"\n801:                     f\"(首版无换算,不按数值直比)\", sources, {})\n802:         # §4 行 1:显式规范单位 ⇒ 已归一输入(canonical)\n803:         extras[\"unit_basis\"] = \"canonical\"\n804:     if req.value is None:\n805:         return UNKNOWN, f\"requirement_value_unspecified:{req.key}\", \\\n806:             sources, extras\n807:     # R5-03:非物种键先消费事实 status,再值匹配 —— known_absent 不是\n808:     # 正事实(明确缺失不能提供正支持;物种键分支此前已按实体缺席\n809:     # 处理,本检查覆盖枚举/matrix/数值/区间键的通用路径):\n810:     # - 数值/区间值事实:首版未定义数值否定语义(\"25 不存在\"推不出\n811:     #   \"整个 20–30 区间不存在\")⇒ unknown,不按正值直比落\n812:     #   satisfied/conflict;\n813:     # - 字符串值事实 = 必需值同词被明确否定(封闭枚举/标签)⇒\n814:     #   conflict;\n815:     # - 字符串值事实 ≠ 必需值(\"anaerobic 缺席\"不证明 aerobic 在场;\n816:     #   matrix 文本不等只证明标签未解析)⇒ unknown。\n817:     # 多事实 conflicting_applicable_facts / fact_unknown 既有逻辑先于\n818:     # 本检查(先于值匹配的三态一致性门不变)。\n819:     if fact.status == FACT_STATUS_KNOWN_ABSENT:\n820:         if _is_number(fact.value) or isinstance(fact.value, dict):\n821:             return (UNKNOWN,\n822:                     f\"numeric_absence_semantics_undefined:{fact.key}\"\n823:                     \"(数值/区间值事实被明确否定;首版未定义数值否定语义,\"\n824:                     \"单点缺席不推出整个必需区间缺席;不按正值直比)\",\n825:                     sources, extras)\n826:         if req.value == fact.value:\n827:             return (CONFLICT,\n828:                     f\"required_value_known_absent:{req.key}\"\n829:                     \"(必需值被同值 known_absent 事实明确否定;明确缺失\"\n830:                     \"不提供正支持)\",\n831:                     sources, extras)\n832:         return (UNKNOWN,\n833:                 f\"other_value_known_absent_not_determining:{req.key}\"\n834:                 \"(不同字符串值的缺席不判定必需值状态:oxygen 封闭枚举下\"\n835:                 \"'anaerobic 缺席'不证明 aerobic 在场;matrix 文本不等只\"\n836:                 \"证明标签未解析)\",\n837:                 sources, extras)"
+      },
+      {
+        "start": 1117,
+        "end": 1172,
+        "exists": true,
+        "excerpt": "1117: def assess_conditions(context: \"PathContext\",\n1118:                       hypothesis) -> ConditionAssessment:\n1119:     \"\"\"§7.1 固定接口:上下文 × 假设要求 → 条件评估(纯函数)。\n1120: \n1121:     评估范围 = 上下文累积的全部必要要求(父路径继承,含同键多条,\n1122:     **不去重不覆盖**,F02;R2-04:每条按其引入阶段评估)+ 该假设自带\n1123:     requirements(逐条并入,按假设所属 = 当前阶段/边评估)。\n1124:     事实按当前 scenario_ref 与各要求引入阶段的适用性过滤(F03)。\n1125: \n1126:     R3-06 说明:本函数保留为\"累积重评\"语义(逐条按其引入阶段过滤\n1127:     当前事实集合评估);**审计的条件检查应改调\n1128:     assess_candidate_conditions**——后者消费 phase_history 路线快照\n1129:     (旧边用记录值,不拿当前事实重评)并把本候选新增要求放在当前\n1130:     作用域评估,本函数在跨场景转换后会用当前事实集合重评旧边要求\n1131:     (R3-06 两行反例的根源)。\n1132:     \"\"\"\n1133:     hyp_id = \"\"\n1134:     if isinstance(hypothesis, dict):\n1135:         hyp_id = str(hypothesis.get(\"hypothesis_id\", \"\"))\n1136:         hyp_reqs = hypothesis.get(\"requirements\", [])\n1137:     else:\n1138:         hyp_id = str(getattr(hypothesis, \"hypothesis_id\", \"\") or \"\")\n1139:         hyp_reqs = getattr(hypothesis, \"requirements\", None)\n1140:     hyp_reqs = list(hyp_reqs or [])\n1141:     merged: list[Requirement] = list(context.accumulated_requirements)\n1142:     existing = {canonical_json(r.to_dict()) for r in merged}\n1143:     for i, raw in enumerate(hyp_reqs):\n1144:         if isinstance(raw, Requirement):\n1145:             req = _requirement_copy(raw)\n1146:         elif isinstance(raw, dict):\n1147:             validate_requirement_dict(\n1148:                 raw, where={\"requirement_index\": i})\n1149:             req = Requirement(**dict(raw))\n1150:         else:\n1151:             raise ConditionContractError(\n1152:                 f\"假设要求必须是 dict 或 Requirement:\"\n1153:                 f\"{type(raw).__name__}\",\n1154:                 {\"kind\": \"requirement_object_not_supported\",\n1155:                  \"requirement_index\": i})\n1156:         req = _bind_requirement(\n1157:             req, phase_id=context.phase_id,\n1158:             scenario_ref=context.scenario_ref,\n1159:             edge=hyp_id)\n1160:         # 仅语义完全相同的要求去重(F02);不同来源/不同区间/不同值\n1161:         # 一律保留(按合取评估,不覆盖)\n1162:         sig = canonical_json(req.to_dict())\n1163:         if sig not in existing:\n1164:             merged.append(req)\n1165:             existing.add(sig)\n1166:     return aggregate_environment_fit(\n1167:         facts=context.condition_facts, requirements=merged,\n1168:         declared_scope=context.assessment_scope,\n1169:         scenario_ref=context.scenario_ref, phase_id=context.phase_id)\n1170: \n1171: \n1172: def assess_candidate_conditions("
+      },
+      {
+        "start": 1245,
+        "end": 1278,
+        "exists": true,
+        "excerpt": "1245:     # 孤儿绑定:绑定旧作用域且无快照**按签名**承载 ⇒ 显式未知\n1246:     # (fail-closed;R4-04:阶段存在 ≠ 覆盖,空快照不能掩盖孤儿必要要求)\n1247:     orphan_rows: list[dict] = []\n1248:     for r in context.accumulated_requirements:\n1249:         eff_scope = _effective_scope(r, context.scenario_ref,\n1250:                                      context.phase_id)\n1251:         if eff_scope == (context.scenario_ref, context.phase_id):\n1252:             continue\n1253:         if _requirement_covered_by_snapshot(\n1254:                 r, context.phase_history, context.scenario_ref,\n1255:                 context.phase_id):\n1256:             continue\n1257:         orphan_rows.append({\n1258:             \"key\": r.key, \"level\": r.level, \"status\": UNKNOWN,\n1259:             \"reason\": (f\"requirement_binding_not_in_route_snapshot:\"\n1260:                        f\"{eff_scope[0]}:{eff_scope[1]}\"\n1261:                        \"(绑定旧作用域且无历史快照按签名承载该要求的评估;\"\n1262:                        \"显式未知,不静默丢弃,也不拿当前事实重评)\"),\n1263:             \"basis\": r.basis, \"value_basis\": r.value_basis,\n1264:             \"sourced\": bool(r.source_refs),\n1265:             \"introduced_phase_id\": eff_scope[1],\n1266:             \"introduced_edge\": r.introduced_edge,\n1267:             \"fact_sources\": [],\n1268:             \"route_edge_source\": \"orphan_binding\",\n1269:         })\n1270:     # 路线合取:旧边记录值 + 当前边 live\n1271:     fits = [h[\"environment_fit\"] for h in history]\n1272:     live_has = bool(live.requirement_coverage[\"essential_keys\"])\n1273:     if live_has:\n1274:         fits.append(live.environment_fit)\n1275:     if CONFLICT in fits:\n1276:         fit = CONFLICT\n1277:     elif UNKNOWN in fits or orphan_rows or not fits:\n1278:         fit = UNKNOWN   # 空要求列表不自动相容;孤儿绑定计入未知"
+      },
+      {
+        "start": 1386,
+        "end": 1399,
+        "exists": true,
+        "excerpt": "1386:     - **R6-03(R7)**:covered_requirement_signatures 集合必须等于\n1387:       per_requirement 各行 requirement_signature 的集合(双向)——\n1388:       签名须对应**实际记录的评估**,不能只属累积要求集合;行携带\n1389:       requirement_signature(评估行↔要求同源)。\n1390: \n1391:     校验语义仅限结构/派生一致性 —— 不拿当前事实重评旧边,也不认证\n1392:     用户事实真实性(旧边记录值保持,消费方逻辑不变)。\n1393:     \"\"\"\n1394:     for idx, h in enumerate(phase_history):\n1395:         where = {\"kind\": \"context_snapshot_inconsistent\",\n1396:                  \"snapshot_index\": idx}\n1397:         if not isinstance(h, dict):\n1398:             raise ConditionContractError(\n1399:                 \"phase_history 快照必须是 dict\", {**where,"
+      },
+      {
+        "start": 1479,
+        "end": 1548,
+        "exists": true,
+        "excerpt": "1479:         # R6-03(R7):签名须对应**实际记录的评估行**(双向同源)——\n1480:         # covered_requirement_signatures 集合 == per_requirement 各行\n1481:         # requirement_signature 集合。仅证明签名属累积要求集合不再充分:\n1482:         # 现存合法签名而删空评估行/清 coverage/降 has_gate(快照\"覆盖\"\n1483:         # 了一个从未被评估记录的要求)⇒ 拒,不得洗掉旧必要未知后升\n1484:         # verified/R6;行↔签名由同一要求集合同源派生,任一侧单独被改\n1485:         # 即快照内部不一致。行缺 requirement_signature 键同样按不\n1486:         # 一致处理(v7 行恒携带;v6 形状载荷在版本门已拒)。\n1487:         row_sigs = {str(row.get(\"requirement_signature\") or \"\")\n1488:                     for row in per}\n1489:         if row_sigs != set(sigs):\n1490:             raise ConditionContractError(\n1491:                 \"快照 covered_requirement_signatures 与逐条评估行的\"\n1492:                 \"requirement_signature 集合不一致(签名须对应实际记录\"\n1493:                 \"的评估/必要覆盖,不能只属累积要求集合;删评估行留签名\"\n1494:                 \"或删签名留行都使快照不同源)\",\n1495:                 {**where, \"check\": \"signature_row_correspondence\",\n1496:                  \"signatures_without_rows\": [\n1497:                      s[:160] for s in sorted(set(sigs) - row_sigs)[:5]],\n1498:                  \"rows_without_signatures\": [\n1499:                      s[:160] for s in sorted(row_sigs - set(sigs))[:5]]})\n1500: \n1501: \n1502: def validate_context_object(context) -> None:\n1503:     \"\"\"直接 context 对象的版本门 + 快照一致性 + 内容身份(R3-08 +\n1504:     R5-04;audit 入口接线用)。\n1505: \n1506:     缺 schema_version / 未知版本 ⇒ 结构化 ConditionContractError\n1507:     (kind:context_schema_version_missing / context_schema_version_\n1508:     unknown);非 PathContext ⇒ context_object_invalid_type。\n1509:     合法对象返回 None。from_dict 已有同款门;本函数覆盖**直接对象**\n1510:     (绕过 from_dict 的调用路径)。\n1511: \n1512:     R5-04:直接对象(内存 PathContext 的 phase_history 是普通 list,\n1513:     可被就地改)同样执行快照内部一致性校验(context_snapshot_\n1514:     inconsistent)与内容身份校验(与构造期同源的 _context_hash 对\n1515:     当前语义字段重算,须等于对象 context_id,否则 context_content_\n1516:     identity_mismatch —— 就地篡改事实/要求/快照而保留原身份 ⇒ 拒)。\n1517:     校验语义仅结构一致性:不拿当前事实重评旧边。\n1518:     \"\"\"\n1519:     if not isinstance(context, PathContext):\n1520:         raise ConditionContractError(\n1521:             f\"audit 输入必须是 PathContext 对象:\"\n1522:             f\"{type(context).__name__}\",\n1523:             {\"kind\": \"context_object_invalid_type\",\n1524:              \"got\": type(context).__name__})\n1525:     version = getattr(context, \"schema_version\", None)\n1526:     if not version:\n1527:         raise ConditionContractError(\n1528:             \"PathContext 缺 schema_version(直接对象版本门;fail-closed)\",\n1529:             {\"kind\": \"context_schema_version_missing\"})\n1530:     if version not in PPV1_CONTEXT_SUPPORTED_VERSIONS:\n1531:         raise ConditionContractError(\n1532:             f\"PathContext schema 版本未知:{version!r}(支持 \"\n1533:             f\"{list(PPV1_CONTEXT_SUPPORTED_VERSIONS)};fail-closed)\",\n1534:             {\"schema_version\": version,\n1535:              \"kind\": \"context_schema_version_unknown\"})\n1536:     # R5-04(a):快照内部一致性(直接对象可被就地改)\n1537:     _validate_phase_history_snapshot(\n1538:         context.phase_history, context.accumulated_requirements)\n1539:     # R5-04(b):内容身份(与构造期同源重算)\n1540:     recomputed = _recompute_context_hash(context)\n1541:     if recomputed != context.context_id:\n1542:         raise ConditionContractError(\n1543:             \"PathContext 内容身份不一致(直接对象):context_id 与按当前\"\n1544:             \"语义字段(含 phase_history)同源重算的内容身份不符 —— 就地\"\n1545:             \"篡改任何语义字段而保留原 context_id ⇒ 拒\",\n1546:             {\"kind\": \"context_content_identity_mismatch\",\n1547:              \"object_context_id\": context.context_id,\n1548:              \"recomputed_context_id\": recomputed})"
+      },
+      {
+        "start": 1942,
+        "end": 1943,
+        "exists": true,
+        "excerpt": "1942: @dataclass\n1943: class PathContext:"
+      },
+      {
+        "start": 2060,
+        "end": 2091,
+        "exists": true,
+        "excerpt": "2060:         _validate_phase_history_snapshot(phase_history, requirements)\n2061:         payload_context_id = d.get(\"context_id\", \"\")\n2062:         context = cls(\n2063:             context_id=payload_context_id,\n2064:             parent_context_ref=d.get(\"parent_context_ref\", \"\"),\n2065:             phase_id=d.get(\"phase_id\", \"\"),\n2066:             requested_scope=d.get(\"requested_scope\",\n2067:                                   REQUESTED_SCOPE_POSSIBLE),\n2068:             condition_facts=facts,\n2069:             accumulated_requirements=requirements,\n2070:             assumptions=list(d.get(\"assumptions\", [])),\n2071:             dependency_refs=list(d.get(\"dependency_refs\", [])),\n2072:             dependencies=dependencies,\n2073:             assessment_scope=list(d.get(\"assessment_scope\", [])),\n2074:             scenario_ref=d.get(\"scenario_ref\", \"\"),\n2075:             scenario_transition=d.get(\"scenario_transition\"),\n2076:             phase_history=phase_history,\n2077:         )\n2078:         # R5-04(b):内容身份 —— 与构造期同源的 _context_hash 对加载的\n2079:         # 全部语义字段(含 phase_history)重算,必须等于载荷 context_id;\n2080:         # 篡改任何语义字段而保留原 context_id ⇒ 拒(不是同 hash 漏项,\n2081:         # 是内容与派生身份须同源)。合法 to_dict→from_dict 往返幂等通过。\n2082:         recomputed = _recompute_context_hash(context)\n2083:         if not isinstance(payload_context_id, str) \\\n2084:                 or recomputed != payload_context_id:\n2085:             raise ConditionContractError(\n2086:                 \"PathContext 内容身份不一致:载荷 context_id 与按全部\"\n2087:                 \"语义字段(含 phase_history)同源重算的内容身份不符\"\n2088:                 \"(篡改任何语义字段而保留原 context_id ⇒ 拒,不得洗绿)\",\n2089:                 {\"kind\": \"context_content_identity_mismatch\",\n2090:                  \"payload_context_id\": payload_context_id,\n2091:                  \"recomputed_context_id\": recomputed})"
+      },
+      {
+        "start": 2112,
+        "end": 2125,
+        "exists": true,
+        "excerpt": "2112:     def route_assessment(self) -> ConditionAssessment:\n2113:         \"\"\"全路线评估:历史阶段快照(冻结)逐边合取 + 当前阶段 live。\n2114: \n2115:         任何旧边冲突在路线结果中保持;旧要求不拿新阶段事实重评。\n2116:         空阶段(无可评估必要要求)不贡献未知,也不产生相容声明。\n2117:         \"\"\"\n2118:         live = self.current_step_assessment()\n2119:         history = list(self.phase_history)\n2120:         if not history:\n2121:             return live\n2122:         contributors = [h for h in history\n2123:                         if h.get(\"has_gate_requirements\")]\n2124:         live_has_reqs = bool(live.requirement_coverage[\"essential_keys\"])\n2125:         if not contributors and not live_has_reqs:"
+      },
+      {
+        "start": 2265,
+        "end": 2274,
+        "exists": true,
+        "excerpt": "2265:     context_hash = _context_hash(\n2266:         parent_context_ref=parent_context_ref, phase_id=phase_id,\n2267:         requested_scope=requested_scope, facts=facts,\n2268:         requirements=requirements, assumptions=list(assumptions or []),\n2269:         dependency_refs=refs, dependencies=deps,\n2270:         assessment_scope=list(assessment_scope or []),\n2271:         scenario_ref=scenario_ref, scenario_transition=None,\n2272:         phase_history=[])\n2273:     return PathContext(\n2274:         context_id=context_hash, parent_context_ref=parent_context_ref,"
+      },
+      {
+        "start": 2327,
+        "end": 2335,
+        "exists": true,
+        "excerpt": "2327:     validate_context_object(parent)\n2328:     if scenario_transition is not None:\n2329:         if not scenario_transition.get(\"source_ref\"):\n2330:             raise ConditionContractError(\n2331:                 \"阶段转换必须有来源(用户/来源提供;不自行换场景)\",\n2332:                 {\"scenario_transition\": scenario_transition})\n2333:     phase_id = parent.phase_id\n2334:     scenario_ref = parent.scenario_ref\n2335:     if scenario_transition is not None:"
+      },
+      {
+        "start": 2404,
+        "end": 2418,
+        "exists": true,
+        "excerpt": "2404:         parent_context_ref=parent.context_id,\n2405:         phase_id=phase_id,\n2406:         requested_scope=parent.requested_scope,\n2407:         condition_facts=[_fact_copy(f) for f in parent.condition_facts],\n2408:         accumulated_requirements=merged,\n2409:         assumptions=assumptions,\n2410:         dependency_refs=dependency_refs,\n2411:         dependencies=dependencies,\n2412:         assessment_scope=list(parent.assessment_scope),\n2413:         scenario_ref=scenario_ref,\n2414:         scenario_transition=copy.deepcopy(scenario_transition),\n2415:         phase_history=phase_history,\n2416:     )\n2417:     child.context_id = _context_hash(\n2418:         parent_context_ref=parent.context_id, phase_id=phase_id,"
+      }
+    ],
+    "store.py": [
+      {
+        "start": 595,
+        "end": 643,
+        "exists": true,
+        "excerpt": "595:             \"provided\": state_dict.get(\"cn_identity\"),\n596:             \"rederived\": derived.cn_identity}\n597:     if derived.stereo_information_status != \\\n598:             state_dict.get(\"stereo_information_status\"):\n599:         mismatches[\"stereo_information_status\"] = {\n600:             \"provided\": state_dict.get(\"stereo_information_status\"),\n601:             \"rederived\": derived.stereo_information_status}\n602:     if derived.isotope_information_status != \\\n603:             state_dict.get(\"isotope_information_status\"):\n604:         mismatches[\"isotope_information_status\"] = {\n605:             \"provided\": state_dict.get(\"isotope_information_status\"),\n606:             \"rederived\": derived.isotope_information_status}\n607:     if derived.smiles_isomeric != isomeric:\n608:         mismatches[\"smiles_isomeric_not_canonical\"] = {\n609:             \"provided\": isomeric[:120],\n610:             \"canonical\": derived.smiles_isomeric[:120]}\n611:     if mismatches:\n612:         raise Ppv1StateContractError(\n613:             f\"state:{sid} 的语义事实与结构重推导不一致(R3-09/R4-09 \"\n614:             \"公共 writer 复核;零写入)\",\n615:             {\"state_id\": sid,\n616:              \"kind\": \"state_fact_rederivation_mismatch\",\n617:              \"mismatches\": mismatches})\n618:     # R4-09:所有原结构可得的来源核 raw 与 strict 身份(同图异拼写\n619:     # 接受;跨分子/非法 raw 拒绝)\n620:     raw = state_dict.get(\"structure_smiles_raw\")\n621:     if not isinstance(raw, str) or not raw.strip():\n622:         raise Ppv1StateContractError(\n623:             f\"state:{sid} 缺 structure_smiles_raw(原结构可得的来源必须\"\n624:             \"携带原始串)\",\n625:             {\"state_id\": sid, \"kind\": \"raw_structure_missing\"})\n626:     try:\n627:         raw_identity = strict_identity_of(raw)\n628:     except ChemicalStateError as exc:\n629:         raise Ppv1StateContractError(\n630:             f\"state:{sid} 的 structure_smiles_raw 无法解析(公共 writer \"\n631:             \"复核;R4-09:非法 raw 拒绝)\",\n632:             {\"state_id\": sid, \"kind\": \"raw_structure_unparseable\",\n633:              \"structure_smiles_raw\": str(raw)[:200]}) from exc\n634:     if raw_identity != derived.smiles_isomeric:\n635:         raise Ppv1StateContractError(\n636:             f\"state:{sid} 的 structure_smiles_raw 解析到另一身份\"\n637:             f\"(期望 {derived.smiles_isomeric[:80]}…,实际\"\n638:             f\" {raw_identity[:80]}…;同图异拼写接受,跨分子/表示层身份\"\n639:             \"声明不一致拒绝,R4-09)\",\n640:             {\"state_id\": sid, \"kind\": \"raw_identity_mismatch\",\n641:              \"expected_identity\": derived.smiles_isomeric,\n642:              \"raw_structure\": str(raw)[:200],\n643:              \"raw_identity\": raw_identity})"
+      },
+      {
+        "start": 1988,
+        "end": 2021,
+        "exists": true,
+        "excerpt": "1988:     def verify_event_attachment_content(self, event: PathwayEvent) -> None:\n1989:         \"\"\"已存事件的附随投影/展开计划**只读内容核验**(S3a 回修 r3,\n1990:         S3A-02:搜索层完整权威核验的共享判据入口)。\n1991: \n1992:         与首次提交**同一判据**(不另造第二套规则):版本门\n1993:         (_check_object_version)+ 投影只指向本事件产物(_check_\n1994:         projection_scope)+ 展开计划产物范围/互斥/状态/覆盖(_check_\n1995:         expansion_plan)。搜索消费层(search._verify_event_ledger_\n1996:         authority)对**已存储**附随载荷调用本方法 —— 存储行存在且\n1997:         与\"从同一行取出的载荷\"自比较相等不是完整性证书;首提会拒的\n1998:         坏内容(悬空 state 引用/非法计划状态/坏版本)在权威核验消费\n1999:         之前同样拒。纯只读、零写入、零事务;不改变首提/重放任何\n2000:         冻结行为。附随记录行缺失由调用方先行判(或本方法按损坏抛)。\n2001:         \"\"\"\n2002:         eid = event.event_id\n2003:         proj = self.report_projection(eid)\n2004:         plan = self.expansion_plan(eid)\n2005:         if proj is None or plan is None:\n2006:             raise Ppv1LedgerCorrupt(\n2007:                 f\"事件 {eid} 缺附随记录(投影/展开计划行缺失;账本不\"\n2008:                 \"完整,不补账)\",\n2009:                 {\"event_id\": eid,\n2010:                  \"kind\": \"attached_record_missing\",\n2011:                  \"missing_table\": (\"report_projections\" if proj is None\n2012:                                    else \"expansion_plans\")})\n2013:         _check_object_version(\n2014:             \"report_projection\", (proj or {}).get(\"projection_version\"),\n2015:             (PPV1_REPORT_PROJECTION_VERSION,))\n2016:         _check_object_version(\n2017:             \"expansion_plan\", (plan or {}).get(\"policy_version\"),\n2018:             (PPV1_EXPANSION_POLICY_VERSION,))\n2019:         product_refs = self._product_state_refs(event)\n2020:         self._check_projection_scope(eid, proj, product_refs)\n2021:         self._check_expansion_plan(eid, plan, product_refs)"
+      }
+    ],
+    "substrate_profile.py": [
+      {
+        "start": 71,
+        "end": 107,
+        "exists": true,
+        "excerpt": "71: def build_substrate_profile(\n72:     state: ChemicalState,\n73:     context: PathContext | None = None,\n74:     feature_policy: dict | None = None,\n75: ) -> SubstrateProfile:\n76:     \"\"\"§7.1 固定接口:状态 + 上下文 → 底物档案(纯函数)。\n77: \n78:     CN-only 状态(结构未知)也可建档:元素组成/分子式留空并如实标注,\n79:     不从 CN 猜结构。feature_policy 只裁剪特征输出,不影响状态事实。\n80:     \"\"\"\n81:     policy = dict(FEATURE_POLICY_DEFAULTS)\n82:     for k, v in (feature_policy or {}).items():\n83:         if k not in FEATURE_POLICY_KEYS:\n84:             raise SubstrateProfileError(\n85:                 f\"未知特征策略键:{k!r}(允许 {sorted(FEATURE_POLICY_KEYS)})\",\n86:                 {\"key\": k})\n87:         policy[k] = v\n88:     element_counts: dict[str, int] = {}\n89:     formula = \"\"\n90:     if state.smiles_isomeric:\n91:         mol = Chem.MolFromSmiles(state.smiles_isomeric)\n92:         if mol is None:\n93:             raise SubstrateProfileError(\n94:                 \"底物状态的结构无法解析(档案构造失败)\",\n95:                 {\"state_ref\": state.state_id})\n96:         # 全氢基准(F01:与 audit 元素账同一事实源 —— 重原子 GetTotalNumHs\n97:         # + 独立氢顶点,不重不漏;formula 由 RDKit 按 same 基准给出)\n98:         from .audit import element_counts_full\n99: \n100:         counts = element_counts_full(mol)\n101:         element_counts = {k: int(v) for k, v in sorted(counts.items())}\n102:         try:\n103:             from rdkit.Chem.rdMolDescriptors import CalcMolFormula\n104: \n105:             formula = CalcMolFormula(mol)\n106:         except Exception:\n107:             formula = \"\""
+      }
+    ],
+    "profile.py": [
+      {
+        "start": 297,
+        "end": 371,
+        "exists": true,
+        "excerpt": "297: \n298: \n299: def _validate_chemical_reproposal(value) -> str:\n300:     v = \"\" if value is None else str(value)\n301:     if v not in CHEMICAL_REPROPOSAL_VALUES:\n302:         raise ValueError(\n303:             f\"chemical_reproposal 非法取值:{value!r}(允许 \"\n304:             f\"{'/'.join(sorted(CHEMICAL_REPROPOSAL_VALUES))};首版默认 off:\"\n305:             \"SMILES 解析失败记结构失败,不重试到产物通过门禁)\")\n306:     return v\n307: \n308: \n309: def _validate_search_intent(value) -> str:\n310:     if value is None:\n311:         return SEARCH_INTENT_EXPLORATION\n312:     v = str(value)\n313:     if v not in SEARCH_INTENTS:\n314:         raise ValueError(\n315:             f\"search_intent 非法取值:{value!r}(允许 \"\n316:             f\"{'/'.join(sorted(SEARCH_INTENTS))};首版为说明字段,\"\n317:             \"verification/gap_filling 不隐含放宽门禁/排序/预算,\"\n318:             \"对应意图策略未实现即 unsupported)\")\n319:     return v\n320: \n321: \n322: def validate_search_limits(limits: dict | None) -> dict:\n323:     \"\"\"校验/归一搜索上限(实际可执行版本 v3;接受覆盖配置或完整\n324:     序列化配置)。**单一实现**:profile 装配与 pollutant/search 的\n325:     注册/读取/恢复消费同源共用(S3a 回修 r2:SearchLedger 注册、\n326:     _limits 读视图、恢复策略核验都调用本函数,不在 search 层复制\n327:     十键类型/范围/版本校验)。\n328: \n329:     - \"version\" 是版本字符串键(非预算),仅校验值等于当前版本,\n330:       不按整数预算校验(v1 的 KeyError 缺陷修复);\n331:     - 输出恒为**完整**配置(缺省键补默认;可直接原样回灌本函数,\n332:       round-trip 稳定);\n333:     - 未知键/类型错误(含 bool)/越界 fail-closed。\n334:     \"\"\"\n335:     out = dict(SEARCH_LIMITS_DEFAULTS)\n336:     for k, v in (limits or {}).items():\n337:         if k == \"version\":\n338:             if v != SEARCH_LIMITS_VERSION:\n339:                 raise ValueError(\n340:                     f\"search_limits.version 非法:{v!r}(当前 \"\n341:                     f\"{SEARCH_LIMITS_VERSION})\")\n342:             out[\"version\"] = v\n343:             continue\n344:         if k not in SEARCH_LIMITS_RANGES:\n345:             allowed = sorted(SEARCH_LIMITS_RANGES)\n346:             raise ValueError(\n347:                 f\"未知搜索上限键:{k!r}(允许 {allowed})\")\n348:         if isinstance(v, bool) or not isinstance(v, int):\n349:             raise ValueError(f\"搜索上限 {k} 必须是整数,得到 {v!r}\")\n350:         lo, hi = SEARCH_LIMITS_RANGES[k]\n351:         if not (lo <= v <= hi):\n352:             raise ValueError(\n353:                 f\"搜索上限 {k}={v} 超出允许范围 [{lo},{hi}]\")\n354:         out[k] = v\n355:     return out\n356: \n357: \n358: # 内部名保留(装配路径历史引用;与 validate_search_limits 同一实现)\n359: _validate_search_limits = validate_search_limits\n360: \n361: \n362: def validate_frozen_search_limits(limits: dict | None) -> dict:\n363:     \"\"\"严格校验**已冻结/已序列化**的完整搜索上限块(S3a 回修 r3,\n364:     S3A-03:区分配置装配与已冻结对象消费)。\n365: \n366:     与 validate_search_limits(用户覆盖装配,缺省键合法补默认)的\n367:     边界:本函数用于**已登记存储块**的读取/恢复/预算/认领/请求消费\n368:     —— 存储块必须是完整冻结对象:\n369: \n370:     - 非 dict(含 None/null)⇒ 拒(不把缺失块装配成默认额度);\n371:     - 缺 \"version\" 键或版本不符 ⇒ 拒(不做版本迁移猜测);"
+      }
+    ]
+  },
+  "scope": "Full src plus safe G01 white-listed tests only; no unlisted scripts/tools/history/science inputs",
+  "actual_HEAD": "b7f2bba02ca49edd0a45a13bc9b8434909d99175",
+  "actual_parent": "41d0cd55f3def050a62325f00235cf22da302d2e"
+}

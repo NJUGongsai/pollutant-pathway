@@ -1,0 +1,57 @@
+{
+  "review_date_local": "2026-10-08",
+  "recorded_at_UTC": "2026-10-07T21:08:27.912855+00:00",
+  "repo": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "scratch": "/private/tmp/ppv1_s3b_production_84agv6jv",
+  "HEAD": "c1211183c0874b12c5b5461845d3c61f0a84719c",
+  "parent": "b7f2bba02ca49edd0a45a13bc9b8434909d99175",
+  "stage": "S3b production specialist",
+  "probe_started_timestamp": "not separately instrumented; synthetic artifact timestamps preserved in results.json; no fabricated exact command start",
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/private/tmp/ppv1_s3b_production_84agv6jv/src /Users/cc/miniconda3/envs/depending43/bin/python -B probe_production.py > probe.stdout.log 2> probe.stderr.log",
+      "cwd": "/private/tmp/ppv1_s3b_production_84agv6jv",
+      "exit_code": 0,
+      "wall_seconds_from_tool": 1.521415083,
+      "probe_invocations": 1
+    },
+    {
+      "command": "/Users/cc/miniconda3/envs/depending43/bin/python -B adjudicate_capture.py > adjudication.stdout.log 2> adjudication.stderr.log",
+      "cwd": "/private/tmp/ppv1_s3b_production_84agv6jv",
+      "exit_code": 1,
+      "note": "read-only captured output; mistaken commit_kind literal; no probe rerun",
+      "archived_original_script": "adjudicate_capture_v1.py",
+      "archived_original_output": [
+        "adjudication_v1.stdout.log",
+        "adjudication_v1.stderr.log"
+      ]
+    },
+    {
+      "command": "/Users/cc/miniconda3/envs/depending43/bin/python -B adjudicate_capture.py > adjudication.stdout.log 2> adjudication.stderr.log",
+      "cwd": "/private/tmp/ppv1_s3b_production_84agv6jv",
+      "exit_code": 0,
+      "note": "read-only captured output after constant correction; no probe rerun"
+    },
+    {
+      "command": "/Users/cc/miniconda3/envs/depending43/bin/python -B static_review.py > static.stdout.log 2> static.stderr.log",
+      "cwd": "/private/tmp/ppv1_s3b_production_84agv6jv",
+      "exit_code": 0,
+      "note": "static source read only"
+    }
+  ],
+  "raw_main_assertions": {
+    "passed": 13,
+    "failed": 4,
+    "not_17_passed": true
+  },
+  "post_capture_corrections": {
+    "wrong_oracle_or_field": 3,
+    "P2_unused_historical_appearance": 1,
+    "P1": []
+  },
+  "prohibited_actions_performed": [],
+  "no_external_model_provider_network": true,
+  "no_real_questions_gold_sealed_v4": true,
+  "no_full_suites_crash_barrier_rerun": true,
+  "no_main_repo_write_commit_push": true
+}

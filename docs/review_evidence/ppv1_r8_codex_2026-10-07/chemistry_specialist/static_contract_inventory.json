@@ -1,0 +1,1909 @@
+{
+  "actual_HEAD": "00e509a974b40a7c9779fcd35e53b16637a13d60",
+  "assignments": [],
+  "audit_contract_raises": [
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "check_edit_against_donor"
+      ],
+      "line": 2547,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "_rerun_proof_record",
+        "audit_hypothesis"
+      ],
+      "line": 739,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "from_dict"
+      ],
+      "line": 1589,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "from_dict"
+      ],
+      "line": 1596,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "from_dict"
+      ],
+      "line": 1603,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "from_dict"
+      ],
+      "line": 1607,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "audit_hypothesis"
+      ],
+      "line": 464,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "ChemicalStateError"
+          ],
+          "inside_try_body": false,
+          "line": 2581
+        }
+      ],
+      "functions": [
+        "check_edit_against_donor"
+      ],
+      "line": 2584,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "audit_hypothesis"
+      ],
+      "line": 1076,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "functions": [
+        "audit_hypothesis"
+      ],
+      "line": 1110,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    }
+  ],
+  "calls": [
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_sb"
+      ],
+      "line": 77,
+      "path": "src/pathway_v43/adapters/v3_engine.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "expand_raw"
+      ],
+      "line": 361,
+      "path": "src/pathway_v43/adapters/v3_engine.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "normalize_charge_smiles"
+      ],
+      "line": 29,
+      "path": "src/pathway_v43/domain/identity.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "stereo_blind"
+      ],
+      "line": 42,
+      "path": "src/pathway_v43/domain/identity.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "parseable"
+      ],
+      "line": 60,
+      "path": "src/pathway_v43/domain/identity.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_mol"
+      ],
+      "line": 165,
+      "path": "src/pathway_v43/gold_health.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_mol_of"
+      ],
+      "line": 393,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "check_edit_against_donor",
+      "functions": [
+        "_rerun_proof_record",
+        "audit_hypothesis"
+      ],
+      "line": 746,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "check_edit_against_donor"
+      ],
+      "line": 2596,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "check_edit_against_donor"
+      ],
+      "line": 2599,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "check_edit_against_donor"
+      ],
+      "line": 2615,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": true,
+          "line": 2326
+        }
+      ],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_simulate_declared_edits"
+      ],
+      "line": 2328,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_elements_of",
+        "_center_evidence_binding",
+        "audit_hypothesis"
+      ],
+      "line": 900,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "build_chemical_state"
+      ],
+      "line": 688,
+      "path": "src/pathway_v43/pollutant/chemstate.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "ChemicalState",
+      "functions": [
+        "build_chemical_state"
+      ],
+      "line": 704,
+      "path": "src/pathway_v43/pollutant/chemstate.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "ChemicalState",
+      "functions": [
+        "build_chemical_state_from_cn_only"
+      ],
+      "line": 739,
+      "path": "src/pathway_v43/pollutant/chemstate.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "strict_identity_of"
+      ],
+      "line": 924,
+      "path": "src/pathway_v43/pollutant/chemstate.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "build_substrate_profile"
+      ],
+      "line": 91,
+      "path": "src/pathway_v43/pollutant/substrate_profile.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_reactant_fingerprint"
+      ],
+      "line": 107,
+      "path": "src/pathway_v43/services/analog_source.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_mapped_mol"
+      ],
+      "line": 135,
+      "path": "src/pathway_v43/services/analog_source.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_strip_map"
+      ],
+      "line": 139,
+      "path": "src/pathway_v43/services/analog_source.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "align"
+      ],
+      "line": 420,
+      "path": "src/pathway_v43/services/analog_source.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "align"
+      ],
+      "line": 421,
+      "path": "src/pathway_v43/services/analog_source.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "render"
+      ],
+      "line": 177,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "execute_edits"
+      ],
+      "line": 410,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_exec_id_index"
+      ],
+      "line": 599,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_exec_id_index"
+      ],
+      "line": 608,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "check_edit_references"
+      ],
+      "line": 296,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "heavy",
+        "element_delta"
+      ],
+      "line": 796,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "check_edit_references"
+      ],
+      "line": 295,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_mapped_mol"
+      ],
+      "line": 135,
+      "path": "src/pathway_v43/services/donor_applicability.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_aromatic_form"
+      ],
+      "line": 251,
+      "path": "src/pathway_v43/services/donor_applicability.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "_kekulized"
+      ],
+      "line": 255,
+      "path": "src/pathway_v43/services/donor_applicability.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [
+        "analyze_side"
+      ],
+      "line": 491,
+      "path": "src/pathway_v43/validation/conservation.py"
+    },
+    {
+      "ancestor_try_catches": [],
+      "call": "Chem.MolFromSmiles",
+      "functions": [],
+      "line": 361,
+      "path": "src/pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py"
+    }
+  ],
+  "literal_grep": {
+    "command": [
+      "rg",
+      "-n",
+      "except AuditContractError",
+      "/private/tmp/ppv1_r8_chem_00e509a_oblgdx4_/src"
+    ],
+    "returncode": 1,
+    "stderr": "",
+    "stdout": ""
+  },
+  "source_catches": [
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 48
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_versions"
+      ],
+      "line": 52,
+      "path": "src/pathway_v43/__main__.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 54
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_versions"
+      ],
+      "line": 58,
+      "path": "src/pathway_v43/__main__.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 482
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "main"
+      ],
+      "line": 502,
+      "path": "src/pathway_v43/__main__.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 277
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_resp_headers"
+      ],
+      "line": 279,
+      "path": "src/pathway_v43/adapters/llm_client.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 434
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "complete"
+      ],
+      "line": 437,
+      "path": "src/pathway_v43/adapters/llm_client.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "urllib.error.HTTPError",
+            "TimeoutError",
+            "urllib.error.URLError",
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 342
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "complete"
+      ],
+      "line": 419,
+      "path": "src/pathway_v43/adapters/llm_client.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 160
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_load"
+      ],
+      "line": 162,
+      "path": "src/pathway_v43/adapters/rate_gate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 118
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_init_state"
+      ],
+      "line": 120,
+      "path": "src/pathway_v43/adapters/rate_gate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 100
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_git",
+        "v3_code_identity"
+      ],
+      "line": 108,
+      "path": "src/pathway_v43/adapters/v3_engine.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 225
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "__init__"
+      ],
+      "line": 227,
+      "path": "src/pathway_v43/adapters/v3_engine.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 406
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "run_worker"
+      ],
+      "line": 453,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 460
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "run_worker"
+      ],
+      "line": 467,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1040
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_total_memory_gb"
+      ],
+      "line": 1044,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1046
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_total_memory_gb"
+      ],
+      "line": 1051,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1078
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "merge_predictions"
+      ],
+      "line": 1100,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 819
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "terminal_states"
+      ],
+      "line": 821,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1209
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "api_account"
+      ],
+      "line": 1211,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1308
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "api_account"
+      ],
+      "line": 1310,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1324
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "api_account"
+      ],
+      "line": 1329,
+      "path": "src/pathway_v43/batch.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 32
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "normalize_charge_smiles"
+      ],
+      "line": 35,
+      "path": "src/pathway_v43/domain/identity.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 168
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_engine_chunk"
+      ],
+      "line": 191,
+      "path": "src/pathway_v43/exam.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 431
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "inflight_evidence"
+      ],
+      "line": 434,
+      "path": "src/pathway_v43/exam.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 225
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "load_adjudications"
+      ],
+      "line": 227,
+      "path": "src/pathway_v43/output/export_v3.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 944
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "export_run_v3"
+      ],
+      "line": 946,
+      "path": "src/pathway_v43/output/export_v3.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 240
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "load_adjudications"
+      ],
+      "line": 242,
+      "path": "src/pathway_v43/output/export_v3.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 52
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "validate_arm"
+      ],
+      "line": 54,
+      "path": "src/pathway_v43/output/pairing_gate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 78
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "validate_arm"
+      ],
+      "line": 87,
+      "path": "src/pathway_v43/output/pairing_gate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 120
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "validate_arm"
+      ],
+      "line": 122,
+      "path": "src/pathway_v43/output/pairing_gate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 139
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "validate_arm"
+      ],
+      "line": 144,
+      "path": "src/pathway_v43/output/pairing_gate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 176
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "validate_arm"
+      ],
+      "line": 178,
+      "path": "src/pathway_v43/output/pairing_gate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 98
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "validate_arm"
+      ],
+      "line": 100,
+      "path": "src/pathway_v43/output/pairing_gate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 72
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_llm_call_stats"
+      ],
+      "line": 75,
+      "path": "src/pathway_v43/output/report.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 78
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_llm_call_stats"
+      ],
+      "line": 81,
+      "path": "src/pathway_v43/output/report.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 142
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "load_sealed_run_view"
+      ],
+      "line": 144,
+      "path": "src/pathway_v43/phase_a_attribution.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1952
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_kekulized"
+      ],
+      "line": 1956,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 2046
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_cip_labels"
+      ],
+      "line": 2054,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 2212
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_simulate_declared_edits"
+      ],
+      "line": 2214,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 2314
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_simulate_declared_edits"
+      ],
+      "line": 2316,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 2326
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_simulate_declared_edits"
+      ],
+      "line": 2331,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 2487
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_joint_symmetric_image"
+      ],
+      "line": 2491,
+      "path": "src/pathway_v43/pollutant/audit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 564
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_stereo_status"
+      ],
+      "line": 566,
+      "path": "src/pathway_v43/pollutant/chemstate.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 159
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "build_event_states"
+      ],
+      "line": 165,
+      "path": "src/pathway_v43/pollutant/events.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 184
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_legacy_root_identity"
+      ],
+      "line": 186,
+      "path": "src/pathway_v43/pollutant/legacy_reader.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 204
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_legacy_cn_of"
+      ],
+      "line": 206,
+      "path": "src/pathway_v43/pollutant/legacy_reader.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "HypothesisContractError",
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 593
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_verify_hypothesis_id_rederivation"
+      ],
+      "line": 597,
+      "path": "src/pathway_v43/pollutant/store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 698
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "put_state"
+      ],
+      "line": 722,
+      "path": "src/pathway_v43/pollutant/store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 792
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "put_hypothesis"
+      ],
+      "line": 812,
+      "path": "src/pathway_v43/pollutant/store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 830
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "put_provenance"
+      ],
+      "line": 848,
+      "path": "src/pathway_v43/pollutant/store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1470
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "submit_event"
+      ],
+      "line": 1863,
+      "path": "src/pathway_v43/pollutant/store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "HypothesisContractError",
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 1717
+        },
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": true,
+          "line": 1470
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "submit_event"
+      ],
+      "line": 1727,
+      "path": "src/pathway_v43/pollutant/store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 102
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "build_substrate_profile"
+      ],
+      "line": 106,
+      "path": "src/pathway_v43/pollutant/substrate_profile.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 110
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_reactant_fingerprint"
+      ],
+      "line": 116,
+      "path": "src/pathway_v43/services/analog_source.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 97
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_element_known"
+      ],
+      "line": 99,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 195
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "molecode_to_mol"
+      ],
+      "line": 197,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 416
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "execute_edits"
+      ],
+      "line": 418,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 492
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "execute_edits"
+      ],
+      "line": 494,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 539
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_id_graph_from_mol"
+      ],
+      "line": 541,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 476
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "execute_edits"
+      ],
+      "line": 478,
+      "path": "src/pathway_v43/services/atom_tool.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 258
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_kekulized"
+      ],
+      "line": 260,
+      "path": "src/pathway_v43/services/donor_applicability.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 508
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "assess_alignment"
+      ],
+      "line": 510,
+      "path": "src/pathway_v43/services/donor_applicability.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 540
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "assess_alignment"
+      ],
+      "line": 542,
+      "path": "src/pathway_v43/services/donor_applicability.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 667
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "parse_model_response"
+      ],
+      "line": 669,
+      "path": "src/pathway_v43/services/prediction.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 789
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_load",
+        "resolve_adjudication_validation_refs"
+      ],
+      "line": 791,
+      "path": "src/pathway_v43/services/report_adjudication.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "FileExistsError",
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 87
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "write"
+      ],
+      "line": 91,
+      "path": "src/pathway_v43/storage/artifact_store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 103
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_compare_existing"
+      ],
+      "line": 105,
+      "path": "src/pathway_v43/storage/artifact_store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 162
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "ensure_run"
+      ],
+      "line": 185,
+      "path": "src/pathway_v43/storage/pathway_store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 301
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "submit_event"
+      ],
+      "line": 385,
+      "path": "src/pathway_v43/storage/pathway_store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 395
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "set_path_status"
+      ],
+      "line": 405,
+      "path": "src/pathway_v43/storage/pathway_store.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 161
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "build_run_identity"
+      ],
+      "line": 163,
+      "path": "src/pathway_v43/storage/run_identity.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 107
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "dependency_versions"
+      ],
+      "line": 110,
+      "path": "src/pathway_v43/storage/run_identity.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 438
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_patterns_of"
+      ],
+      "line": 442,
+      "path": "src/pathway_v43/validation/conservation.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 495
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "analyze_side"
+      ],
+      "line": 497,
+      "path": "src/pathway_v43/validation/conservation.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 499
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "analyze_side"
+      ],
+      "line": 501,
+      "path": "src/pathway_v43/validation/conservation.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 615
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_split_on_bond"
+      ],
+      "line": 621,
+      "path": "src/pathway_v43/validation/conservation.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 954
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_has_substruct"
+      ],
+      "line": 956,
+      "path": "src/pathway_v43/validation/conservation.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 424
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_dou_of"
+      ],
+      "line": 426,
+      "path": "src/pathway_v43/validation/conservation.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 446
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_patterns_of"
+      ],
+      "line": 449,
+      "path": "src/pathway_v43/validation/conservation.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 256
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_build_mol"
+      ],
+      "line": 261,
+      "path": "src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 305
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_assign_chirality_from_ids"
+      ],
+      "line": 307,
+      "path": "src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 338
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_assign_double_bond_stereo"
+      ],
+      "line": 342,
+      "path": "src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 142
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_parse_atom_label"
+      ],
+      "line": 152,
+      "path": "src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 263
+        },
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 256
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_build_mol"
+      ],
+      "line": 265,
+      "path": "src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 293
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "_assign_chirality_from_ids"
+      ],
+      "line": 295,
+      "path": "src/pathway_v43/vendor/molecode/molecule/mermaid_to_rdkit.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 86
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "convert"
+      ],
+      "line": 88,
+      "path": "src/pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py"
+    },
+    {
+      "ancestor_try_catches": [
+        {
+          "handlers": [
+            "Exception"
+          ],
+          "inside_try_body": false,
+          "line": 94
+        }
+      ],
+      "catch": "Exception",
+      "functions": [
+        "convert"
+      ],
+      "line": 96,
+      "path": "src/pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py"
+    }
+  ],
+  "summary": {
+    "AuditContractError_raises": 10,
+    "ChemicalState_calls": 2,
+    "audit_hypothesis_calls": 0,
+    "check_edit_against_donor_calls": 1,
+    "state_field_attribute_assignments": 0
+  }
+}

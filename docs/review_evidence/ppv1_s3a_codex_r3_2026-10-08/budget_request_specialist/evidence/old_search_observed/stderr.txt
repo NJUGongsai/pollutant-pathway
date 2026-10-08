@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3a_r3_budget_1rhko3wp/old_search/probe.py", line 38, in <module>
+    bundle=l.write_commit_bundle(action_id=aid,attempt_id=att,event=fe,task_key='task1',**fa)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3a_r3_budget_1rhko3wp/source/src/pathway_v43/pollutant/search.py", line 1617, in write_commit_bundle
+    self._verify_event_frozen_to_action(row, event)
+  File "/private/tmp/ppv1_s3a_r3_budget_1rhko3wp/source/src/pathway_v43/pollutant/search.py", line 1576, in _verify_event_frozen_to_action
+    raise SearchContractError(
+pathway_v43.pollutant.search.SearchContractError: 事件身份与 action sact_323df0da90759639340f 冻结身份不一致(run/parent/context/hypothesis 任一变化须开新 action,不得沿用旧认领)

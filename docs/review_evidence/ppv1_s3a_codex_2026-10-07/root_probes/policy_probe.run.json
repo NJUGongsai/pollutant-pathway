@@ -1,0 +1,66 @@
+{
+  "actual_HEAD": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+  "parent_HEAD": "00e509a974b40a7c9779fcd35e53b16637a13d60",
+  "commands": [
+    {
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/ppv1_s3a_root_9b78f42_1h707lr5/policy_probe.py"
+      ],
+      "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "stdout": "policy_probe.stdout.jsonl",
+      "stderr": "policy_probe.stderr.txt"
+    }
+  ],
+  "records": 5,
+  "summary": [
+    {
+      "case": "clean",
+      "profile_guard_accepts": true,
+      "register_accepts": true,
+      "claim_accepts": true,
+      "declared_max": 10
+    },
+    {
+      "case": "out_of_range",
+      "profile_guard_accepts": false,
+      "register_accepts": true,
+      "claim_accepts": true,
+      "declared_max": 1001
+    },
+    {
+      "case": "bool_limit",
+      "profile_guard_accepts": false,
+      "register_accepts": true,
+      "claim_accepts": true,
+      "declared_max": 1
+    },
+    {
+      "case": "unknown_key",
+      "profile_guard_accepts": false,
+      "register_accepts": true,
+      "claim_accepts": true,
+      "declared_max": 10
+    },
+    {
+      "case": "negative",
+      "profile_guard_accepts": false,
+      "register_accepts": true,
+      "claim_accepts": false,
+      "declared_max": -1
+    }
+  ],
+  "synthetic_only": true,
+  "actual_external_model_calls": 0,
+  "source_metadata": "input_snapshot.json",
+  "output_sha256": {
+    "policy_probe.py": "f76681453e0d012099ce333730aaadaffb7335a9db232b69a36c803389c593b7",
+    "policy_probe.stdout.jsonl": "28ee85b18686059b7ae4def7e51314a0ab76fae45382d0128f10961e54ad08e5",
+    "policy_probe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

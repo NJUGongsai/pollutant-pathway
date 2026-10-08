@@ -1,0 +1,189 @@
+{
+  "actual_parent": "c1211183c0874b12c5b5461845d3c61f0a84719c",
+  "new20_totals": {
+    "tests": 20,
+    "errors": 0,
+    "failures": 15,
+    "skipped": 0,
+    "passed": 5
+  },
+  "new20_counts": {
+    "behavior_red": 13,
+    "artifact_or_field_shape_red": 2,
+    "positive_control_green": 5,
+    "collection_errors": 0
+  },
+  "new20": [
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_resume_without_plan_uses_frozen_input",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 0 == 1"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_resume_changed_plan_rejected",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "Failed: DID NOT RAISE PPV1RunError"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_frozen_plan_tamper_integrity_failure",
+      "state": "failure",
+      "classification": "artifact_or_field_shape_red",
+      "actual_failure": "AssertionError: assert False\n +  where False = is_file()\n +    where is_file = PosixPath('/private/tmp/ppv1_s3b_r2_execution_gvh309hu/baseline_new_corrected_pytest_tmp/test_s3b01_frozen_plan_tamper_0/runs/fpt/results/run-plan/frozen_plan.json').is_file",
+      "unexecuted_internal_boundary": "new frozen_plan artifact absent; stops before tamper or recovery"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b01_same_plan_resume_positive_control",
+      "state": "passed",
+      "classification": "positive_control_green"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b02_bad_bundle_hash_isolated_not_reexecuted",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 1 == 0"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b02_bad_bundle_json_isolated_independent_tasks_continue",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 2 == 1"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_partial_followup_hard_kill_completed",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 2 == 3\n +  where 2 = len([<sqlite3.Row object at 0x114fc8130>, <sqlite3.Row object at 0x114fc88b0>])"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_b4_event_submitted_no_followup_completed",
+      "state": "passed",
+      "classification": "positive_control_green"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_transition_after_event_submitted_new_context",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 0 == 1\n +  where 0 = len([])"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_transition_enqueued_crash_window_closed",
+      "state": "failure",
+      "classification": "artifact_or_field_shape_red",
+      "actual_failure": "assert None\n +  where None = <built-in method get of dict object at 0x116b41e80>('pending_followup')\n +    where <built-in method get of dict object at 0x116b41e80> = {'context_ref': 'pc_0757aa71e8cd78057880', 'source_event_id': '', 'task_key': 'stkey_a6a6faae0c70580838ca', 'transition': {'new_phase_id': 'phase-1', 'new_scenario_ref': 'scenario-anaerobic', 'source_ref': 'user:switch-anaerobic'}}.get\n +      where {'context_ref': 'pc_0757aa71e8cd78057880', 'source_event_id': '', 'task_key': 'stkey_a6a6faae0c70580838ca', 'transition': {'new_phase_id': 'phase-1', 'new_scenario_ref': 'scenario-anaerobic', 'source_ref': 'user:switch-anaerobic'}} = <function loads at 0x101fb8860>('{\"context_ref\": \"pc_0757aa71e8cd78057880\", \"source_event_id\": \"\", \"task_key\": \"stkey_a6a6faae0c70580838ca\", \"transition\": {\"new_phase_id\": \"phase-1\", \"new_scenario_ref\": \"scenario-anaerobic\", \"source_ref\": \"user:switch-anaerobic\"}}')\n +        where <function loads at 0x101fb8860> = json.loads",
+      "unexecuted_internal_boundary": "resume already executed and scenario_transition done verified; absent pending_followup assertion stops before following followup/new-context assertions"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b03_three_products_normal_positive_control",
+      "state": "passed",
+      "classification": "positive_control_green"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b04_concurrent_public_resume_single_executor",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert True is False"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b05_novel_nonempty_independent_hypothesis_chain",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 1 == 2"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b05_novel_empty_pool_profile_and_consumption",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 0 == 1"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b05_model_abstain_empty_pool_legal",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 0 == 1"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b05_novel_insufficient_content_structured_reject",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "AssertionError: assert None == 'spec_missing_product'\n +  where None = <built-in method get of dict object at 0x116b47c40>('kind')\n +    where <built-in method get of dict object at 0x116b47c40> = {}.get\n +      where {} = <built-in method get of dict object at 0x116b6ed80>('run_error', {})\n +        where <built-in method get of dict object at 0x116b6ed80> = {'primary': 'budget_limit', 'other_reasons': ['awaiting_prediction'], 'unexplored': {'pending_actions': 0, 'deferred':...othesis': {'hyp_4cfd9e338dae69c5d645': {'max': 2, 'used': 1, 'remaining': 1}}, 'max_reopens_per_hypothesis': {}}}, ...}.get"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b06_zero_depth_budget_composite_stop_disclosure",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "AssertionError: assert 'depth_limit' in []"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b06_zero_depth_repeat_resume_not_recounted",
+      "state": "failure",
+      "classification": "behavior_red",
+      "actual_failure": "assert 0 == 1"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b06_legal_nonzero_no_blocked_positive_control",
+      "state": "passed",
+      "classification": "positive_control_green"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_r2",
+      "name": "test_s3b06_empty_pool_no_local_candidate_positive_control",
+      "state": "passed",
+      "classification": "positive_control_green"
+    }
+  ],
+  "updated3_totals": {
+    "tests": 55,
+    "errors": 0,
+    "failures": 3,
+    "skipped": 0,
+    "passed": 52
+  },
+  "updated3_failures": [
+    {
+      "name": "test_ppv1_identity_block_contract_versions",
+      "message": "AssertionError: assert 'ppv1-profile-13' == 'ppv1-profile-14'\n  \n  - ppv1-profile-14\n  ?               ^\n  + ppv1-profile-13\n  ?               ^",
+      "classification": "version_literal_red"
+    },
+    {
+      "name": "test_schedule_depth_blocked_whole_pool",
+      "message": "KeyError: 'action_id'",
+      "classification": "field_shape_red"
+    },
+    {
+      "name": "test_parse_novel_requires_proposal_context_and_reaction_spec",
+      "message": "Failed: DID NOT RAISE ModelProtocolError",
+      "classification": "behavior_red"
+    }
+  ],
+  "combined_counts": {
+    "failed": 18,
+    "passed": 57
+  },
+  "delivery_precision_corrections": [
+    "new 15 failed are not 15 all-executed behavior failures; two stop at absent artifact/field",
+    "updated3 green count52 not54, combined57 correct",
+    "model_abstain_empty_pool_legal is parent red at request-count0 vs1, not parent green",
+    "current 20 extracted from corrected full871 JUnit, not separately rerun"
+  ]
+}

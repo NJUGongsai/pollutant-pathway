@@ -1,0 +1,228 @@
+{
+  "source": "read-only snapshots of already-completed parent regression pytest outputs, no behavioral reexecution; missing-refusal tests stopped before their trailing zero-write assertions",
+  "cases": [
+    {
+      "relative_db_snapshot": "captured_pytest_outputs/baseline_new_regressions_pytest_tmp/test_s3b01r3_anchor_corrupt_di0/runs/r3ac/pollutant.sqlite.tables.json",
+      "event_count": 1,
+      "commit_count": 5,
+      "transition_rows": [
+        {
+          "action_id": "sact_7884873240686a1a855b",
+          "status": "done",
+          "payload": {
+            "context_ref": "pc_0757aa71e8cd78057880",
+            "pending_followup": {
+              "context_ref": "pc_0757aa71e8cd78057880",
+              "depth": 1,
+              "event_id": "ppev_5b882000eab51bf43490",
+              "expansion_plan": {
+                "entries": [
+                  {
+                    "reason": "",
+                    "state_ref": "cs_540cc0181e112b383323",
+                    "status": "expanded"
+                  }
+                ],
+                "policy_version": "ppv1-expansion-1"
+              },
+              "parent_path_id": "spath_dd70f6fd9bcf0ba28ed9",
+              "parent_search_revision": 1,
+              "product_state_refs": [
+                "cs_540cc0181e112b383323"
+              ]
+            },
+            "source_event_id": "",
+            "task_key": "stkey_7f914faf6f764924c62d",
+            "transition": {
+              "new_phase_id": "phase-injected",
+              "new_scenario_ref": "scenario-injected",
+              "source_ref": "injected:changed-plan"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "relative_db_snapshot": "captured_pytest_outputs/baseline_new_regressions_pytest_tmp/test_s3b01r3_anchor_missing_re0/runs/r3am/pollutant.sqlite.tables.json",
+      "event_count": 1,
+      "commit_count": 4,
+      "transition_rows": []
+    },
+    {
+      "relative_db_snapshot": "captured_pytest_outputs/baseline_new_regressions_pytest_tmp/test_s3b01r3_b3_omitted_plan_l0/runs/r3ok/pollutant.sqlite.tables.json",
+      "event_count": 1,
+      "commit_count": 4,
+      "transition_rows": []
+    },
+    {
+      "relative_db_snapshot": "captured_pytest_outputs/baseline_new_regressions_pytest_tmp/test_s3b01r3_b3_self_consisten0/runs/r3b3/pollutant.sqlite.tables.json",
+      "event_count": 1,
+      "commit_count": 5,
+      "transition_rows": [
+        {
+          "action_id": "sact_ff7a65dbaf89a3a8e49b",
+          "status": "done",
+          "payload": {
+            "context_ref": "pc_0757aa71e8cd78057880",
+            "pending_followup": {
+              "context_ref": "pc_0757aa71e8cd78057880",
+              "depth": 1,
+              "event_id": "ppev_8f63d25588201675d0a9",
+              "expansion_plan": {
+                "entries": [
+                  {
+                    "reason": "",
+                    "state_ref": "cs_540cc0181e112b383323",
+                    "status": "expanded"
+                  }
+                ],
+                "policy_version": "ppv1-expansion-1"
+              },
+              "parent_path_id": "spath_16a20565161b322206bc",
+              "parent_search_revision": 1,
+              "product_state_refs": [
+                "cs_540cc0181e112b383323"
+              ]
+            },
+            "source_event_id": "",
+            "task_key": "stkey_4e305b16ea5016207106",
+            "transition": {
+              "new_phase_id": "phase-injected",
+              "new_scenario_ref": "scenario-injected",
+              "source_ref": "injected:changed-plan"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "relative_db_snapshot": "captured_pytest_outputs/baseline_new_regressions_pytest_tmp/test_s3b01r3_b4_legal_transiti0/runs/r3tr/pollutant.sqlite.tables.json",
+      "event_count": 1,
+      "commit_count": 5,
+      "transition_rows": [
+        {
+          "action_id": "sact_8b5c98ee2583e6e7d62e",
+          "status": "done",
+          "payload": {
+            "context_ref": "pc_0757aa71e8cd78057880",
+            "pending_followup": {
+              "context_ref": "pc_0757aa71e8cd78057880",
+              "depth": 1,
+              "event_id": "ppev_c0a7edff8417377b6b72",
+              "expansion_plan": {
+                "entries": [
+                  {
+                    "reason": "",
+                    "state_ref": "cs_540cc0181e112b383323",
+                    "status": "expanded"
+                  }
+                ],
+                "policy_version": "ppv1-expansion-1"
+              },
+              "parent_path_id": "spath_3082c1874465cf4d0698",
+              "parent_search_revision": 1,
+              "product_state_refs": [
+                "cs_540cc0181e112b383323"
+              ]
+            },
+            "source_event_id": "",
+            "task_key": "stkey_0f19c3dbde7afdca7757",
+            "transition": {
+              "new_phase_id": "phase-1",
+              "new_scenario_ref": "scenario-anaerobic",
+              "source_ref": "user:switch-anaerobic"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "relative_db_snapshot": "captured_pytest_outputs/baseline_new_regressions_pytest_tmp/test_s3b01r3_b4_self_consisten0/runs/r3b4/pollutant.sqlite.tables.json",
+      "event_count": 1,
+      "commit_count": 5,
+      "transition_rows": [
+        {
+          "action_id": "sact_17092f4f2ac05007abda",
+          "status": "done",
+          "payload": {
+            "context_ref": "pc_0757aa71e8cd78057880",
+            "pending_followup": {
+              "context_ref": "pc_0757aa71e8cd78057880",
+              "depth": 1,
+              "event_id": "ppev_d2d2c1e8f3dde88097d8",
+              "expansion_plan": {
+                "entries": [
+                  {
+                    "reason": "",
+                    "state_ref": "cs_540cc0181e112b383323",
+                    "status": "expanded"
+                  }
+                ],
+                "policy_version": "ppv1-expansion-1"
+              },
+              "parent_path_id": "spath_7b7430f8605b1c9e7036",
+              "parent_search_revision": 1,
+              "product_state_refs": [
+                "cs_540cc0181e112b383323"
+              ]
+            },
+            "source_event_id": "",
+            "task_key": "stkey_9226402af336173a9a74",
+            "transition": {
+              "new_phase_id": "phase-injected",
+              "new_scenario_ref": "scenario-injected",
+              "source_ref": "injected:changed-plan"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "relative_db_snapshot": "captured_pytest_outputs/baseline_new_regressions_pytest_tmp/test_s3b01r3_replaced_artifact0/runs/r3np/pollutant.sqlite.tables.json",
+      "event_count": 1,
+      "commit_count": 5,
+      "transition_rows": [
+        {
+          "action_id": "sact_c7246aa03f34dd677851",
+          "status": "done",
+          "payload": {
+            "context_ref": "pc_0757aa71e8cd78057880",
+            "pending_followup": {
+              "context_ref": "pc_0757aa71e8cd78057880",
+              "depth": 1,
+              "event_id": "ppev_05d8a92882f9e396e8d1",
+              "expansion_plan": {
+                "entries": [
+                  {
+                    "reason": "",
+                    "state_ref": "cs_540cc0181e112b383323",
+                    "status": "expanded"
+                  }
+                ],
+                "policy_version": "ppv1-expansion-1"
+              },
+              "parent_path_id": "spath_58a2e997bddc81d89c59",
+              "parent_search_revision": 1,
+              "product_state_refs": [
+                "cs_540cc0181e112b383323"
+              ]
+            },
+            "source_event_id": "",
+            "task_key": "stkey_b6a1304327bc8cf1d172",
+            "transition": {
+              "new_phase_id": "phase-injected",
+              "new_scenario_ref": "scenario-injected",
+              "source_ref": "injected:changed-plan"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "relative_db_snapshot": "captured_pytest_outputs/baseline_new_regressions_pytest_tmp/test_s3b01r3_same_plan_explici0/runs/r3sp/pollutant.sqlite.tables.json",
+      "event_count": 1,
+      "commit_count": 4,
+      "transition_rows": []
+    }
+  ]
+}

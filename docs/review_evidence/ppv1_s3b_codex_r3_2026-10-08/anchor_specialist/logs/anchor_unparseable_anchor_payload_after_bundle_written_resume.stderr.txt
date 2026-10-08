@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py", line 314, in _verify_frozen_plan_binding
+    payload = json.loads(row["payload"] or "{}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/cc/miniconda3/envs/depending43/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py", line 104, in worker
+    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py", line 317, in resume_run
+    return resume_ppv1_run(
+           ^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py", line 1521, in resume_ppv1_run
+    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py", line 316, in _verify_frozen_plan_binding
+    raise PPV1RunError(
+pathway_v43.pollutant.runflow.PPV1RunError: 冻结计划锚行 sact_2aa21a22bacd728e5e29 载荷不可解析(坏锚先拒;无法证明其未携带原绑定;不猜修)

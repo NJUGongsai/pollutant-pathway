@@ -1,0 +1,49 @@
+{
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "python_version": "3.11.16 (main, Aug 27 2026, 14:37:43) [Clang 20.1.8 ]",
+  "rdkit_version": "2026.03.6",
+  "sqlite_version": "3.53.4",
+  "profile_identity_block": {
+    "name": "pollutant_pathway_v1",
+    "schema_version": "ppv1-profile-7",
+    "contracts": {
+      "profile": "ppv1-profile-7",
+      "chemstate": "ppv1-chemstate-7",
+      "hypothesis": "ppv1-hypothesis-7",
+      "event": "ppv1-event-7",
+      "store": "ppv1-store-7",
+      "context": "ppv1-context-7",
+      "dependency": "ppv1-dependency-7",
+      "provenance": "ppv1-provenance-7",
+      "substrate_profile": "ppv1-substrate-profile-7",
+      "audit": "ppv1-audit-7",
+      "admission_policy": "ppv1-admission-7",
+      "donor_diagnostic": "ppv1-donor-diagnostic-7",
+      "pool_audit": "ppv1-pool-audit-7",
+      "pool_order": "ppv1-pool-order-7",
+      "input_preview": "ppv1-input-preview-7",
+      "condition_assessment": "ppv1-condition-assessment-7",
+      "gate_mapper": "ppv1-gate-mapper-3",
+      "legacy_gate_ref": "frozen_hit60_gate",
+      "legacy_g2_family_ref": "v43-cons-2"
+    },
+    "input_preview_policy": "off",
+    "input_preview_version": "ppv1-input-preview-7",
+    "chemical_reproposal": "off",
+    "search_intent": "exploration",
+    "search_limits": {
+      "version": "ppv1-search-limits-2-proposed",
+      "max_alternative_hypotheses_per_parent": 2,
+      "max_attempts_per_hypothesis": 2,
+      "max_product_expansion_width": 2,
+      "max_search_depth": 3,
+      "max_total_search_actions": 10,
+      "max_scenario_transitions": 2,
+      "max_reopens_per_hypothesis": 1,
+      "max_real_model_requests": 0,
+      "max_retrievals_per_parent": 1,
+      "max_retrievals_total": 64
+    },
+    "delivered_stages": "S0-S2"
+  }
+}

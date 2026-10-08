@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/inputs/frozen_plan_decide_changed_start.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src"
+  },
+  "label": "frozen_plan_decide_changed_start",
+  "parsed": {
+    "detail": {
+      "action_id": "sact_4beaf0ac56936e097462"
+    },
+    "hard_kill": "before_decide_claim",
+    "pid": 34365
+  },
+  "returncode": 77,
+  "stderr": "",
+  "stdout": "{\"hard_kill\": \"before_decide_claim\", \"detail\": {\"action_id\": \"sact_4beaf0ac56936e097462\"}, \"pid\": 34365}\n"
+}

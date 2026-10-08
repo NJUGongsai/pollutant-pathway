@@ -1,0 +1,453 @@
+[
+  {
+    "after_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "before_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "input": {
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 1,
+      "parent_path_id": "spath_d3a8fcef6ec40f5b0c56",
+      "trigger": "explicit_user"
+    },
+    "output": {
+      "activated_ids": [],
+      "conflicts": [],
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 1,
+      "matched": 0,
+      "parent_path_id": "spath_d3a8fcef6ec40f5b0c56",
+      "run_id": "deferred_public",
+      "trigger": "explicit_user",
+      "unchanged": []
+    },
+    "tag": "wrong_type"
+  },
+  {
+    "after_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "before_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "input": {
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 5,
+      "parent_path_id": "spath_5f14c366e488fd485c61",
+      "trigger": "explicit_user"
+    },
+    "output": {
+      "activated_ids": [],
+      "conflicts": [],
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 5,
+      "matched": 2,
+      "parent_path_id": "spath_5f14c366e488fd485c61",
+      "run_id": "deferred_public",
+      "trigger": "explicit_user",
+      "unchanged": [
+        {
+          "action_id": "sact_acbe191df35b2045705c",
+          "deferred_type": "alternative_reaction_deferred",
+          "detail": {
+            "expected_parent_revision": 5,
+            "frozen_revision": 0
+          },
+          "hypothesis_or_object": "hyp_6097354564d96e9c34ef",
+          "reason": "stale_parent_revision"
+        },
+        {
+          "action_id": "sact_c56685fa544a0a01706a",
+          "deferred_type": "alternative_reaction_deferred",
+          "detail": {
+            "expected_parent_revision": 5,
+            "frozen_revision": 0
+          },
+          "hypothesis_or_object": "hyp_93a91f2f10df49585b65",
+          "reason": "stale_parent_revision"
+        }
+      ]
+    },
+    "tag": "stale_revision"
+  },
+  {
+    "after_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "before_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "input": {
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 0,
+      "parent_path_id": "spath_5f14c366e488fd485c61",
+      "trigger": "unproven"
+    },
+    "output": {
+      "activated_ids": [],
+      "conflicts": [
+        {
+          "action_id": "sact_acbe191df35b2045705c",
+          "deferred_type": "alternative_reaction_deferred",
+          "detail": {
+            "action_id": "sact_acbe191df35b2045705c",
+            "frozen_trigger": "explicit_user",
+            "kind": "defer_trigger_mismatch",
+            "submitted_trigger": "unproven"
+          },
+          "error": "SearchContractError",
+          "hypothesis_or_object": "hyp_6097354564d96e9c34ef",
+          "kind": "defer_trigger_mismatch"
+        },
+        {
+          "action_id": "sact_c56685fa544a0a01706a",
+          "deferred_type": "alternative_reaction_deferred",
+          "detail": {
+            "action_id": "sact_c56685fa544a0a01706a",
+            "frozen_trigger": "explicit_user",
+            "kind": "defer_trigger_mismatch",
+            "submitted_trigger": "unproven"
+          },
+          "error": "SearchContractError",
+          "hypothesis_or_object": "hyp_93a91f2f10df49585b65",
+          "kind": "defer_trigger_mismatch"
+        }
+      ],
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 0,
+      "matched": 2,
+      "parent_path_id": "spath_5f14c366e488fd485c61",
+      "run_id": "deferred_public",
+      "trigger": "unproven",
+      "unchanged": []
+    },
+    "tag": "wrong_trigger"
+  },
+  {
+    "after_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "before_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "input": {
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 0,
+      "parent_path_id": "spath_5f14c366e488fd485c61",
+      "trigger": "explicit_user"
+    },
+    "output": {
+      "activated_ids": [
+        "sact_acbe191df35b2045705c",
+        "sact_c56685fa544a0a01706a"
+      ],
+      "conflicts": [],
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 0,
+      "matched": 2,
+      "parent_path_id": "spath_5f14c366e488fd485c61",
+      "run_id": "deferred_public",
+      "trigger": "explicit_user",
+      "unchanged": []
+    },
+    "tag": "alternative"
+  },
+  {
+    "after_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "before_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "input": {
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 0,
+      "parent_path_id": "spath_5f14c366e488fd485c61",
+      "trigger": "explicit_user"
+    },
+    "output": {
+      "activated_ids": [],
+      "conflicts": [],
+      "deferred_type": "alternative_reaction_deferred",
+      "expected_parent_revision": 0,
+      "matched": 2,
+      "parent_path_id": "spath_5f14c366e488fd485c61",
+      "run_id": "deferred_public",
+      "trigger": "explicit_user",
+      "unchanged": [
+        {
+          "action_id": "sact_acbe191df35b2045705c",
+          "deferred_type": "alternative_reaction_deferred",
+          "hypothesis_or_object": "hyp_6097354564d96e9c34ef",
+          "reason": "already_active"
+        },
+        {
+          "action_id": "sact_c56685fa544a0a01706a",
+          "deferred_type": "alternative_reaction_deferred",
+          "hypothesis_or_object": "hyp_93a91f2f10df49585b65",
+          "reason": "already_active"
+        }
+      ]
+    },
+    "tag": "alternative_again"
+  },
+  {
+    "after_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "before_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "input": {
+      "deferred_type": "coproduct_deferred",
+      "expected_parent_revision": 1,
+      "parent_path_id": "spath_d3a8fcef6ec40f5b0c56",
+      "trigger": "explicit_user"
+    },
+    "output": {
+      "activated_ids": [
+        "sact_cd3bcb52dbe2506ae9d6"
+      ],
+      "conflicts": [],
+      "deferred_type": "coproduct_deferred",
+      "expected_parent_revision": 1,
+      "matched": 1,
+      "parent_path_id": "spath_d3a8fcef6ec40f5b0c56",
+      "run_id": "deferred_public",
+      "trigger": "explicit_user",
+      "unchanged": []
+    },
+    "tag": "coproduct"
+  },
+  {
+    "after_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "before_counts": {
+      "budget_reservations": 10,
+      "event_appearance_links": 3,
+      "events": 1,
+      "expansion_plans": 1,
+      "hypotheses": 1,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 1,
+      "search_actions": 7,
+      "search_attempts": 1,
+      "search_commit_records": 4,
+      "search_runs": 1,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "input": {
+      "deferred_type": "coproduct_deferred",
+      "expected_parent_revision": 1,
+      "parent_path_id": "spath_d3a8fcef6ec40f5b0c56",
+      "trigger": "explicit_user"
+    },
+    "output": {
+      "activated_ids": [],
+      "conflicts": [],
+      "deferred_type": "coproduct_deferred",
+      "expected_parent_revision": 1,
+      "matched": 1,
+      "parent_path_id": "spath_d3a8fcef6ec40f5b0c56",
+      "run_id": "deferred_public",
+      "trigger": "explicit_user",
+      "unchanged": [
+        {
+          "action_id": "sact_cd3bcb52dbe2506ae9d6",
+          "deferred_type": "coproduct_deferred",
+          "hypothesis_or_object": "cs_ea7e44a64c7461517e4f",
+          "reason": "already_active"
+        }
+      ]
+    },
+    "tag": "coproduct_again"
+  }
+]

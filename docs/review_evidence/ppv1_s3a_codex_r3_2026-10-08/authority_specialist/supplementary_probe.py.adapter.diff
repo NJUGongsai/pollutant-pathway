@@ -1,0 +1,32 @@
+--- r2/supplementary_probe.py
++++ r3capture/supplementary_probe.py
+@@ -66,29 +66,3 @@
+     emit(d,{'case':name,'inputs':{'event':asdict(e),'bad_event_args':bad,'policy':pol,'claim':rec},'before':before,'result':res,'after':after})
+     assert 'error' in res and before==after;l.store.close()
+ 
+-for kind in ['clean','corrupt']:
+-    name='TOCTOU_'+kind;d,l,a,pol,sub,prod,h,e,args,aid,rec=mk(name);l.submit_action_event(aid,e,worker_id='w1',**args)
+-    gate=d/'barrier';gate.mkdir();env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',PYTHONPATH=str(P/'repo/src')+':'+str(P/'repo/tests'))
+-    argv=[sys.executable,'-B',str(Path(__file__).resolve()),'--mutator',str(d/'run.sqlite'),prod.state_id,str(gate),kind]
+-    proc=subprocess.Popen(argv,cwd=P/'repo',env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE);waiting(gate/'READY')
+-    hook=[];original=l._preverify_completion
+-    def pausing_after_original(*args,**kwargs):
+-        item={'pid':os.getpid(),'start_monotonic':time.monotonic(),'original_in_transaction_before':l.conn.in_transaction}
+-        result=original(*args,**kwargs)
+-        item.update(original_return=result,original_in_transaction_after=l.conn.in_transaction,original_finished_monotonic=time.monotonic(),before_pause=snap(l))
+-        (gate/'GO').write_text('go\n');waiting(gate/'DONE')
+-        item.update(resume_monotonic=time.monotonic(),after_pause=snap(l));hook.append(item)
+-        return result
+-    l._preverify_completion=pausing_after_original
+-    before=snap(l);complete=cap(lambda:l.complete_action(aid,worker_id='w1',event_id=e.event_id));after=snap(l)
+-    stdout,stderr=proc.communicate(timeout=15);worker={'argv':argv,'cwd':str(P/'repo'),'env':{k:env[k] for k in ('PYTHONPATH','PYTHONDONTWRITEBYTECODE')},'returncode':proc.returncode,'stdout':stdout,'stderr':stderr,
+-        'decoded':json.loads((gate/'mutator_result.json').read_text())}
+-    replay=cap(lambda:l.store.submit_event(e,**args));replay_after=snap(l)
+-    emit(d,{'case':name,'inputs':{'policy':pol,'event':asdict(e),'event_args':args,'claim':rec,'injection_kind':kind},'before':before,'result':complete,'after':after,'preverify_pause_hook':hook,
+-        'independent_process':worker,'public_writer_original_input':replay,'writer_after':replay_after,
+-        'scope':'Active concurrent bad-store injection, not shown to arise from legal immutable public writers; sequential single-consumer flow not interleaved.'})
+-    assert proc.returncode==0 and worker['decoded'].get('returned') and complete['returned']['completed'] and after==replay_after
+-    if kind=='clean':assert replay['returned']['created'] is False
+-    else:assert replay['error']=='Ppv1LedgerCorrupt'
+-    l.store.close()
+-print(json.dumps({'summary':{'cases':5,'capture_completed':True,'network_calls':0}}),flush=True)

@@ -1,0 +1,249 @@
+{
+  "python": "3.11.16 (main, Aug 27 2026, 14:37:43) [Clang 20.1.8 ]",
+  "executable": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "rdkit": "2026.03.6",
+  "sqlite": "3.53.4",
+  "versions": {
+    "PPV1_PROFILE_SCHEMA_VERSION": "ppv1-profile-11",
+    "PPV1_SEARCH_SCHEMA_VERSION": "ppv1-search-3",
+    "PPV1_STORE_SCHEMA_VERSION": "ppv1-store-9",
+    "SEARCH_LIMITS_VERSION": "ppv1-search-limits-3"
+  },
+  "schema": {
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-9"
+      }
+    ],
+    "sqlite_master": [
+      {
+        "type": "table",
+        "name": "budget_reservations",
+        "tbl_name": "budget_reservations",
+        "sql": "CREATE TABLE budget_reservations (\n    reservation_id TEXT PRIMARY KEY,\n    run_id        TEXT NOT NULL,\n    limit_key     TEXT NOT NULL,\n    scope         TEXT NOT NULL DEFAULT '',\n    subject       TEXT NOT NULL DEFAULT '',\n    units         INTEGER NOT NULL,\n    action_id     TEXT NOT NULL DEFAULT '',\n    status        TEXT NOT NULL,\n    created_at    TEXT NOT NULL,\n    settled_at    TEXT\n)"
+      },
+      {
+        "type": "table",
+        "name": "event_appearance_links",
+        "tbl_name": "event_appearance_links",
+        "sql": "CREATE TABLE event_appearance_links (\n    event_id        TEXT NOT NULL,\n    state_id        TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    PRIMARY KEY (event_id, state_id, appearance_hash)\n)"
+      },
+      {
+        "type": "table",
+        "name": "events",
+        "tbl_name": "events",
+        "sql": "CREATE TABLE events (\n    event_id           TEXT PRIMARY KEY,\n    run_id             TEXT NOT NULL,\n    parent_path_id     TEXT NOT NULL,\n    hypothesis_id      TEXT NOT NULL,\n    context_hash       TEXT NOT NULL,\n    event_semantics_hash TEXT NOT NULL,\n    payload            TEXT NOT NULL,\n    created_at         TEXT NOT NULL,\n    UNIQUE (run_id, parent_path_id, hypothesis_id, context_hash,\n            event_semantics_hash)\n)"
+      },
+      {
+        "type": "table",
+        "name": "expansion_plans",
+        "tbl_name": "expansion_plans",
+        "sql": "CREATE TABLE expansion_plans (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+      },
+      {
+        "type": "table",
+        "name": "hypotheses",
+        "tbl_name": "hypotheses",
+        "sql": "CREATE TABLE hypotheses (\n    hypothesis_id  TEXT PRIMARY KEY,\n    parent_path_id TEXT NOT NULL,\n    context_hash   TEXT NOT NULL DEFAULT '',\n    payload        TEXT NOT NULL,\n    created_at     TEXT NOT NULL\n)"
+      },
+      {
+        "type": "index",
+        "name": "idx_ppv1_budget_run",
+        "tbl_name": "budget_reservations",
+        "sql": "CREATE INDEX idx_ppv1_budget_run\n    ON budget_reservations (run_id, limit_key, scope, status)"
+      },
+      {
+        "type": "index",
+        "name": "idx_ppv1_commit_action",
+        "tbl_name": "search_commit_records",
+        "sql": "CREATE UNIQUE INDEX idx_ppv1_commit_action\n    ON search_commit_records (action_id)"
+      },
+      {
+        "type": "index",
+        "name": "idx_ppv1_events_run",
+        "tbl_name": "events",
+        "sql": "CREATE INDEX idx_ppv1_events_run\n    ON events (run_id, parent_path_id)"
+      },
+      {
+        "type": "index",
+        "name": "idx_ppv1_hyp_parent",
+        "tbl_name": "hypotheses",
+        "sql": "CREATE INDEX idx_ppv1_hyp_parent\n    ON hypotheses (parent_path_id)"
+      },
+      {
+        "type": "index",
+        "name": "idx_ppv1_search_actions_run",
+        "tbl_name": "search_actions",
+        "sql": "CREATE INDEX idx_ppv1_search_actions_run\n    ON search_actions (run_id, status)"
+      },
+      {
+        "type": "index",
+        "name": "idx_ppv1_search_attempts_action",
+        "tbl_name": "search_attempts",
+        "sql": "CREATE INDEX idx_ppv1_search_attempts_action\n    ON search_attempts (action_id)"
+      },
+      {
+        "type": "table",
+        "name": "meta",
+        "tbl_name": "meta",
+        "sql": "CREATE TABLE meta (\n    key   TEXT PRIMARY KEY,\n    value TEXT NOT NULL\n)"
+      },
+      {
+        "type": "table",
+        "name": "model_requests",
+        "tbl_name": "model_requests",
+        "sql": "CREATE TABLE model_requests (\n    request_id   TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    provider_kind TEXT NOT NULL,\n    purpose      TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    network_request_count INTEGER NOT NULL DEFAULT 0,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    response_ref TEXT NOT NULL DEFAULT '',\n    retry_of     TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    updated_at   TEXT\n)"
+      },
+      {
+        "type": "table",
+        "name": "provenance_records",
+        "tbl_name": "provenance_records",
+        "sql": "CREATE TABLE provenance_records (\n    record_id TEXT PRIMARY KEY,\n    run_id    TEXT NOT NULL,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+      },
+      {
+        "type": "table",
+        "name": "report_projections",
+        "tbl_name": "report_projections",
+        "sql": "CREATE TABLE report_projections (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+      },
+      {
+        "type": "table",
+        "name": "search_actions",
+        "tbl_name": "search_actions",
+        "sql": "CREATE TABLE search_actions (\n    action_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    parent_path_id TEXT NOT NULL DEFAULT '',\n    context_ref  TEXT NOT NULL DEFAULT '',\n    subject_ref  TEXT NOT NULL DEFAULT '',\n    action_kind  TEXT NOT NULL,\n    parent_search_revision INTEGER NOT NULL DEFAULT 0,\n    policy_version TEXT NOT NULL,\n    status       TEXT NOT NULL,\n    payload      TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    budget_reservation_ref TEXT NOT NULL DEFAULT '[]',\n    attempt_refs TEXT NOT NULL DEFAULT '[]',\n    defer_reason TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    claimed_at   TEXT,\n    claimed_by   TEXT,\n    updated_at   TEXT\n)"
+      },
+      {
+        "type": "table",
+        "name": "search_attempts",
+        "tbl_name": "search_attempts",
+        "sql": "CREATE TABLE search_attempts (\n    expansion_attempt_id TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    hypothesis_id TEXT NOT NULL DEFAULT '',\n    attempt_index INTEGER NOT NULL,\n    reopen_of    TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    payload_hash TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    recorded_at  TEXT\n)"
+      },
+      {
+        "type": "table",
+        "name": "search_commit_records",
+        "tbl_name": "search_commit_records",
+        "sql": "CREATE TABLE search_commit_records (\n    commit_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    event_id     TEXT NOT NULL DEFAULT '',\n    commit_kind  TEXT NOT NULL,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL\n)"
+      },
+      {
+        "type": "table",
+        "name": "search_runs",
+        "tbl_name": "search_runs",
+        "sql": "CREATE TABLE search_runs (\n    run_id       TEXT PRIMARY KEY,\n    policy_block TEXT NOT NULL,\n    created_at   TEXT NOT NULL\n)"
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_budget_reservations_1",
+        "tbl_name": "budget_reservations",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_event_appearance_links_1",
+        "tbl_name": "event_appearance_links",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_events_1",
+        "tbl_name": "events",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_events_2",
+        "tbl_name": "events",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_expansion_plans_1",
+        "tbl_name": "expansion_plans",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_hypotheses_1",
+        "tbl_name": "hypotheses",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_meta_1",
+        "tbl_name": "meta",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_model_requests_1",
+        "tbl_name": "model_requests",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_provenance_records_1",
+        "tbl_name": "provenance_records",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_report_projections_1",
+        "tbl_name": "report_projections",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_search_actions_1",
+        "tbl_name": "search_actions",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_search_attempts_1",
+        "tbl_name": "search_attempts",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_search_commit_records_1",
+        "tbl_name": "search_commit_records",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_search_runs_1",
+        "tbl_name": "search_runs",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_state_appearances_1",
+        "tbl_name": "state_appearances",
+        "sql": null
+      },
+      {
+        "type": "index",
+        "name": "sqlite_autoindex_states_1",
+        "tbl_name": "states",
+        "sql": null
+      },
+      {
+        "type": "table",
+        "name": "state_appearances",
+        "tbl_name": "state_appearances",
+        "sql": "CREATE TABLE state_appearances (\n    state_id    TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    payload     TEXT NOT NULL,\n    created_at  TEXT NOT NULL,\n    PRIMARY KEY (state_id, appearance_hash)\n)"
+      },
+      {
+        "type": "table",
+        "name": "states",
+        "tbl_name": "states",
+        "sql": "CREATE TABLE states (\n    state_id   TEXT PRIMARY KEY,\n    payload    TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)"
+      }
+    ],
+    "sqlite_user_version": 0
+  },
+  "head": "41d0cd55f3def050a62325f00235cf22da302d2e",
+  "parent": "dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03",
+  "isolated_source_root": "/private/tmp/ppv1_s3a_r3_authority_b5v92wcf/repo",
+  "timestamp_utc": "2026-10-07T16:53:48.146865+00:00"
+}

@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py", line 284, in __enter__
+    fcntl.flock(self.fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+BlockingIOError: [Errno 35] Resource temporarily unavailable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/scripts/probe_public.py", line 104, in worker
+    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/workflow/runner.py", line 317, in resume_run
+    return resume_ppv1_run(
+           ^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py", line 1353, in resume_ppv1_run
+    with _DriverSession(run_dir) as session:
+  File "/private/tmp/ppv1_s3b_r2_recovery_7bipev0i/src/pathway_v43/pollutant/runflow.py", line 294, in __enter__
+    raise PPV1RunError(
+pathway_v43.pollutant.runflow.PPV1RunError: run 已有活动驱动会话(执行会话互斥:竞争方在任何恢复/认领/请求/工具执行前返回;不创建新 attempt/event、不重复扣额;崩溃由 OS 释放,新进程可接管)

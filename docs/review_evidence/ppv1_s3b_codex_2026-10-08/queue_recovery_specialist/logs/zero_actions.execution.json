@@ -1,0 +1,87 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py",
+    "worker",
+    "/private/tmp/ppv1_s3b_queue_vd18_t4h/inputs/zero_actions.json"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3b_queue_vd18_t4h/src"
+  },
+  "label": "zero_actions",
+  "parsed": {
+    "pid": 20429,
+    "result": {
+      "counts": {
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "profile": "pollutant_pathway_v1",
+      "resumed": false,
+      "run_id": "zero_actions",
+      "runflow_version": "ppv1-runflow-1",
+      "stop": {
+        "budget": {
+          "run_level": {
+            "max_real_model_requests": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "remaining": 64,
+              "used": 0
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "remaining": 2,
+              "used": 0
+            },
+            "max_total_search_actions": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            }
+          },
+          "scoped": {
+            "max_alternative_hypotheses_per_parent": {},
+            "max_attempts_per_hypothesis": {},
+            "max_reopens_per_hypothesis": {},
+            "max_retrievals_per_parent": {}
+          },
+          "version": "ppv1-search-limits-3"
+        },
+        "budget_exhausted_keys": [
+          "max_total_search_actions"
+        ],
+        "events_submitted_session": [],
+        "other_reasons": [],
+        "primary": "budget_limit",
+        "runflow_version": "ppv1-runflow-1",
+        "unexplored": {
+          "blocked": 0,
+          "claimed_actions": 0,
+          "deferred": 0,
+          "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+          "open_attempts": 0,
+          "pending_actions": 1,
+          "pending_requests": 0
+        }
+      },
+      "stop_reason": "budget_limit"
+    }
+  },
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"result\": {\"run_id\": \"zero_actions\", \"profile\": \"pollutant_pathway_v1\", \"runflow_version\": \"ppv1-runflow-1\", \"resumed\": false, \"stop\": {\"primary\": \"budget_limit\", \"other_reasons\": [], \"unexplored\": {\"pending_actions\": 1, \"deferred\": 0, \"blocked\": 0, \"claimed_actions\": 0, \"open_attempts\": 0, \"pending_requests\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\"}, \"budget\": {\"version\": \"ppv1-search-limits-3\", \"run_level\": {\"max_total_search_actions\": {\"max\": 0, \"used\": 0, \"remaining\": 0}, \"max_retrievals_total\": {\"max\": 64, \"used\": 0, \"remaining\": 64}, \"max_scenario_transitions\": {\"max\": 2, \"used\": 0, \"remaining\": 2}, \"max_real_model_requests\": {\"max\": 0, \"used\": 0, \"remaining\": 0}}, \"scoped\": {\"max_retrievals_per_parent\": {}, \"max_alternative_hypotheses_per_parent\": {}, \"max_attempts_per_hypothesis\": {}, \"max_reopens_per_hypothesis\": {}}}, \"budget_exhausted_keys\": [\"max_total_search_actions\"], \"events_submitted_session\": [], \"runflow_version\": \"ppv1-runflow-1\"}, \"stop_reason\": \"budget_limit\", \"counts\": {\"states\": 1, \"state_appearances\": 1, \"hypotheses\": 0, \"events\": 0, \"report_projections\": 0, \"expansion_plans\": 0, \"event_appearance_links\": 0, \"provenance_records\": 0}}, \"pid\": 20429}\n"
+}

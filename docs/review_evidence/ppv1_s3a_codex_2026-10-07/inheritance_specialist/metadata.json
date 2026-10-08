@@ -1,0 +1,177 @@
+{
+  "actual_head": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+  "actual_parent": "00e509a974b40a7c9779fcd35e53b16637a13d60",
+  "repo": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "source_root": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated",
+  "input_count": 78,
+  "scope": "S3a inheritance, canonical/RDKit/failure diagnostics, static/doc contracts; synthetic only",
+  "schema": {
+    "store": "ppv1-store-9",
+    "search": "ppv1-search-1",
+    "limits": "ppv1-search-limits-3",
+    "chemstate": "ppv1-chemstate-8",
+    "audit": "ppv1-audit-8",
+    "context": "ppv1-context-8"
+  },
+  "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+  "rdkit": "2026.03.6",
+  "reproduction_controller": "authored after runs; syntax/path checked only, not runtime executed",
+  "runtime_events": [
+    {
+      "script": "inheritance_probe_original.py",
+      "exit": 1,
+      "output": "inheritance.stdout.jsonl",
+      "error": "inheritance.stderr.txt",
+      "reason": "reviewer serializer typo: PathwayEvent has no to_dict; no case JSONL emitted",
+      "original_script_note": "pre-fix bytes reconstructed from applied edit history",
+      "actual_argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/inheritance_probe.py",
+        "--out",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/probe_run"
+      ],
+      "actual_cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated",
+      "tool_wall_time_seconds": 0.099382625,
+      "tool_wall_time_note": "tool result wall time, not claimed exact Python internal duration"
+    },
+    {
+      "script": "inheritance_probe.py",
+      "exit": 0,
+      "output": "inheritance_v2.stdout.jsonl",
+      "error": "inheritance_v2.stderr.txt",
+      "cases": 27,
+      "cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated",
+      "out": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/probe_run_v2",
+      "actual_argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/inheritance_probe.py",
+        "--out",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/probe_run_v2"
+      ],
+      "actual_cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated",
+      "tool_wall_time_seconds": 0.477592833,
+      "tool_wall_time_note": "tool result wall time, not claimed exact Python internal duration"
+    },
+    {
+      "script": "chemistry_static_probe_original.py",
+      "exit": 1,
+      "output": "chemistry.stdout.jsonl",
+      "error": "chemistry.stderr.txt",
+      "completed_runtime_cases": 14,
+      "reason": "reviewer static AST literal_eval cannot resolve version Name; also two reviewer malformed DAT synthetic inputs rejected",
+      "original_script_note": "pre-fix bytes reconstructed from applied edit history",
+      "actual_argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/chemistry_static_probe.py",
+        "--inputs",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51",
+        "--out",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/chemistry_run"
+      ],
+      "actual_cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated",
+      "tool_wall_time_seconds": 0.997685208,
+      "tool_wall_time_note": "tool result wall time, not claimed exact Python internal duration"
+    },
+    {
+      "script": "static_inventory_only.py",
+      "exit": 0,
+      "output": "static.stdout.jsonl",
+      "error": "static.stderr.txt",
+      "scope": "static only; earlier runtime not reused as full controller pass",
+      "actual_argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/static_inventory_only.py",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/static_run"
+      ],
+      "actual_cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated",
+      "tool_wall_time_seconds": 0.522396583,
+      "tool_wall_time_note": "tool result wall time, not claimed exact Python internal duration"
+    },
+    {
+      "script": "chemistry_static_probe.py",
+      "exit": 0,
+      "output": "chemistry_v2.stdout.jsonl",
+      "error": "chemistry_v2.stderr.txt",
+      "cases": 15,
+      "out": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/chemistry_run_v2",
+      "scope": "corrected metadata DAT fixtures + AST resolver; full narrow probe and footer completed",
+      "actual_argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/chemistry_static_probe.py",
+        "--inputs",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51",
+        "--out",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/chemistry_run_v2"
+      ],
+      "actual_cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated",
+      "tool_wall_time_seconds": 0.993073792,
+      "tool_wall_time_note": "tool result wall time, not claimed exact Python internal duration"
+    },
+    {
+      "script": "registered_cx_controls.py",
+      "exit": 0,
+      "output": "cx_controls.stdout.jsonl",
+      "error": "cx_controls.stderr.txt",
+      "cases": 9,
+      "out": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/cx_controls_run",
+      "actual_argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/registered_cx_controls.py",
+        "--out",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/cx_controls_run"
+      ],
+      "actual_cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated",
+      "tool_wall_time_seconds": 0.118218417,
+      "tool_wall_time_note": "tool result wall time, not claimed exact Python internal duration"
+    },
+    {
+      "script": "assert_observed.py",
+      "exit": 0,
+      "output": "assert_observed.stdout.json",
+      "error": "assert_observed.stderr.txt",
+      "actual_argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/assert_observed.py",
+        "--root",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51"
+      ],
+      "actual_cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51",
+      "tool_wall_time_seconds": 5.625e-06,
+      "tool_wall_time_note": "tool result wall time, not claimed exact Python internal duration"
+    },
+    {
+      "script": "assert_contract.py",
+      "exit": 1,
+      "output": "assert_contract.stdout.txt",
+      "error": "assert_contract.stderr.txt",
+      "expected_exit": 1,
+      "first_failure": "B4_before_bookkeeping__state_charge",
+      "scope": "desired old contract intentionally red; later expected assertions not executed",
+      "actual_argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51/assert_contract.py",
+        "--root",
+        "/private/tmp/ppv1_s3a_inheritance_d7l95c51"
+      ],
+      "actual_cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51",
+      "tool_wall_time_seconds": 2.042e-06,
+      "tool_wall_time_note": "tool result wall time, not claimed exact Python internal duration"
+    }
+  ],
+  "execution_environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated/src:/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated/tests",
+    "cwd": "/private/tmp/ppv1_s3a_inheritance_d7l95c51/isolated"
+  },
+  "commands_pattern": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<isolated/src>:<isolated/tests> <python> -B <script> --out <fresh_out>; static/chem scripts also --inputs <scratch>; assertion scripts --root <scratch>",
+  "P1_candidate": "Recovery consumes corrupted complete event authority while only checking index identities, violating fixed task §3.2 / §4.4 H08; distinct root search-source budget/identity probes not duplicated"
+}

@@ -1,0 +1,142 @@
+FFFFF...                                                                 [100%]
+=================================== FAILURES ===================================
+____________ test_s3b01r3_b3_self_consistent_replaced_plan_rejected ____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r3_execution_z7vc5n31/baseline_new_regressions_pytest_tmp/test_s3b01r3_b3_self_consisten0')
+
+    def test_s3b01r3_b3_self_consistent_replaced_plan_rejected(
+            tmp_path) -> None:
+        """B3(bundle 已写)硬杀后只改 frozen_plan artifact(加注入转换、
+        重算该文件摘要/信封;旧身份/root task/数据库不变)⇒ public
+        resume 省略 plan 结构化拒 frozen_plan_binding_mismatch;业务表/
+        event/commit/consume 零变化;原(被改)文件保全。父基线:不拒,
+        沿旧 action/attempt 恢复并消费新转换(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "r3b3", crash_after="after_bundle_written")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        root = root_retrieve_row(runs_root, "r3b3")
+        root_payload = json.loads(root["payload"])
+        root_digest = str(root_payload["plan_digest"])
+        assert root["status"] == "done"  # root retrieve 已 done(后段锚定对象)
+        replaced = replace_frozen_plan_self_consistent(
+            runs_root, "r3b3", injected_plan())
+        # 数据库/root task 未被突变触碰(锚摘要仍是原值)
+        root2 = root_retrieve_row(runs_root, "r3b3")
+        assert json.loads(root2["payload"])["plan_digest"] == root_digest
+        assert root2["task_key"] == root["task_key"]
+        before = snapshot_tables(runs_root, "r3b3")
+        mutated_bytes = plan_file(runs_root, "r3b3").read_bytes()
+>       with pytest.raises(PPV1RunError) as ei:
+E       Failed: DID NOT RAISE PPV1RunError
+
+tests/test_ppv1_s3b_r3.py:193: Failed
+____________ test_s3b01r3_b4_self_consistent_replaced_plan_rejected ____________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r3_execution_z7vc5n31/baseline_new_regressions_pytest_tmp/test_s3b01r3_b4_self_consisten0')
+
+    def test_s3b01r3_b4_self_consistent_replaced_plan_rejected(
+            tmp_path) -> None:
+        """B4(事件已提交)硬杀后同样只改 artifact ⇒ 拒 + 零变化(事件已
+        在,但补账/转换调度/consume 全不发生;原文件保全)。父基线:不拒,
+        沿旧 action/event 恢复并新增原计划没有的转换(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "r3b4",
+                           crash_after="after_event_submitted")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        root = root_retrieve_row(runs_root, "r3b4")
+        root_digest = str(json.loads(root["payload"])["plan_digest"])
+        assert root["status"] == "done"
+        replaced = replace_frozen_plan_self_consistent(
+            runs_root, "r3b4", injected_plan())
+        before = snapshot_tables(runs_root, "r3b4")
+        mutated_bytes = plan_file(runs_root, "r3b4").read_bytes()
+        assert len(before["events"]) == 1  # B4:事件已提交
+>       with pytest.raises(PPV1RunError) as ei:
+E       Failed: DID NOT RAISE PPV1RunError
+
+tests/test_ppv1_s3b_r3.py:228: Failed
+________ test_s3b01r3_replaced_artifact_with_matching_new_plan_rejected ________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r3_execution_z7vc5n31/baseline_new_regressions_pytest_tmp/test_s3b01r3_replaced_artifact0')
+
+    def test_s3b01r3_replaced_artifact_with_matching_new_plan_rejected(
+            tmp_path) -> None:
+        """自洽重封装 artifact + 显式传入**同新计划**:r2 的
+        frozen_plan_mismatch 只与 artifact 比(此处相等、放行),后段锚定
+        与根任务原绑定核对 ⇒ 仍拒(自洽证书+传入计划互证不是原输入)。
+        父基线:接受并完成注入转换(行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "r3np", crash_after="after_bundle_written")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        root = root_retrieve_row(runs_root, "r3np")
+        root_digest = str(json.loads(root["payload"])["plan_digest"])
+        replace_frozen_plan_self_consistent(runs_root, "r3np", injected_plan())
+        before = snapshot_tables(runs_root, "r3np")
+>       with pytest.raises(PPV1RunError) as ei:
+E       Failed: DID NOT RAISE PPV1RunError
+
+tests/test_ppv1_s3b_r3.py:252: Failed
+_____________________ test_s3b01r3_anchor_missing_rejected _____________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r3_execution_z7vc5n31/baseline_new_regressions_pytest_tmp/test_s3b01r3_anchor_missing_re0')
+
+    def test_s3b01r3_anchor_missing_rejected(tmp_path) -> None:
+        """缺锚:根 retrieve 行的 plan_digest 被移除(DB 侧权威被剥)⇒
+        frozen_plan_anchor_missing 先拒(不以无锚状态继续消费冻结输入;
+        零变化、原 artifact 保全)。父基线:不构成拒绝,正常恢复(行为红)。
+        """
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "r3am", crash_after="after_bundle_written")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        root = root_retrieve_row(runs_root, "r3am")
+        payload = json.loads(root["payload"])
+        payload.pop("plan_digest")
+        conn = db(runs_root, "r3am")
+        conn.execute(
+            "UPDATE search_actions SET payload = ? WHERE action_id = ?",
+            (json.dumps(payload, ensure_ascii=False, sort_keys=True),
+             root["action_id"]))
+        conn.commit()
+        conn.close()
+        before = snapshot_tables(runs_root, "r3am")
+>       with pytest.raises(PPV1RunError) as ei:
+E       Failed: DID NOT RAISE PPV1RunError
+
+tests/test_ppv1_s3b_r3.py:283: Failed
+______________ test_s3b01r3_anchor_corrupt_digest_edited_rejected ______________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_r3_execution_z7vc5n31/baseline_new_regressions_pytest_tmp/test_s3b01r3_anchor_corrupt_di0')
+
+    def test_s3b01r3_anchor_corrupt_digest_edited_rejected(tmp_path) -> None:
+        """坏锚:根行 payload 的 plan_digest 被改成(与被换 artifact 一致
+        的)新值、行内落账 task_key 未动 ⇒ 单一来源 decision_task_key 按
+        行内字段重算不同源 ⇒ frozen_plan_anchor_corrupt 先拒(零变化)。
+        父基线:不构成拒绝,artifact 与 DB 载荷互证后完成注入转换
+        (行为红)。"""
+        runs_root = tmp_path / "runs"
+        proc = start_crash(runs_root, "r3ac", crash_after="after_bundle_written")
+        assert json.loads(proc.stdout.strip().splitlines()[-1])["crashed"]
+        root = root_retrieve_row(runs_root, "r3ac")
+        replaced = replace_frozen_plan_self_consistent(
+            runs_root, "r3ac", injected_plan())
+        payload = json.loads(root["payload"])
+        payload["plan_digest"] = replaced["payload"]["plan_digest"]
+        conn = db(runs_root, "r3ac")
+        conn.execute(
+            "UPDATE search_actions SET payload = ? WHERE action_id = ?",
+            (json.dumps(payload, ensure_ascii=False, sort_keys=True),
+             root["action_id"]))
+        conn.commit()
+        conn.close()
+        before = snapshot_tables(runs_root, "r3ac")
+>       with pytest.raises(PPV1RunError) as ei:
+E       Failed: DID NOT RAISE PPV1RunError
+
+tests/test_ppv1_s3b_r3.py:311: Failed
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s3b_r3_execution_z7vc5n31/baseline_source/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+5 failed, 3 passed, 1 warning in 4.89s

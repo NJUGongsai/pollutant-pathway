@@ -1,0 +1,333 @@
+{
+  "source": "ppv1_full/junit.xml",
+  "not_separate_execution": true,
+  "new_counts": {
+    "tests.test_ppv1_s3b_model": 13,
+    "tests.test_ppv1_s3b_production": 11,
+    "tests.test_ppv1_s3b_queue": 19,
+    "tests.test_ppv1_s3b_runner": 21
+  },
+  "new_total": 64,
+  "cases": [
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_valid_pool_proposals_with_rank",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_empty_proposals_abstain_legal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_unknown_pool_id_requires_novel_context",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_novel_requires_proposal_context",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_coproduct_not_a_proposal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_duplicate_and_rank_unknown_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_parse_shape_errors_classified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_policy_validation",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_round_registered_and_counted",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_format_feedback_round_exhaustion_structured",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_structure_failure_not_feedback_eligible",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_feedback_policy_from_ledger_strict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_model",
+      "name": "test_real_provider_feedback_registration_refused",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_execute_atomtool_expansion_legal",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_execute_atomtool_failure_three_none",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_legal_chain_submits_event",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_execution_failure_method_failed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_missing_alignment_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_strict_deviation_not_verified",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_tampered_proof_contract_error_zero_writes",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_expand_production_cross_hypothesis_evidence_unknown",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_context_persist_load_roundtrip_and_tamper",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_cyclic_dependency_initial_supply_variants",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_production",
+      "name": "test_ppv1_run_uses_independent_storage",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_selected_within_alternatives_budget",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_beyond_budget_defers_alternatives",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_max_select_cap_leaves_selection_cap_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_depth_blocked_whole_pool",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_idempotent_reschedule_and_done_blocked",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_schedule_pool_entry_contract",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_pool_digest_deterministic_and_order_sensitive",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_record_expansion_outcome_method_failed",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_record_outcome_requires_claimed_owner",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_unresolved_continuation_outcome",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_both_types",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_repeat_idempotent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_stale_revision_unchanged",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_trigger_mismatch_conflict",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_activate_deferred_budget_insufficient_keeps_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_scenario_transition_requires_explicit_source",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_followup_plan_reference_must_be_product",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_followup_budget_zero_all_deferred_with_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_queue",
+      "name": "test_child_path_id_deterministic",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_e01_preferred_downstream_no_candidate_alternatives_continue",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_e02_two_deferred_types_activation_and_idempotence",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_e02_budget_insufficient_keeps_unexpanded_reason",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_c06_h04_unknown_bounded_exploration_and_initial_supply",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_h04_supported_initial_supply_not_blocked",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_essential_conflict_blocks_current_scenario_hypothesis_kept",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_branch_isolation_two_contexts",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_scenario_transition_explicit_only_effect_future",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_crash_recovery_subprocess_hard_kill[after_claim]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_crash_recovery_subprocess_hard_kill[after_request_registered]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_crash_recovery_subprocess_hard_kill[after_bundle_written]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_crash_recovery_subprocess_hard_kill[after_event_submitted]",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_b2_pending_request_disclosed_not_resent",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_ppv1_independent_storage_and_no_legacy",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_duplicate_start_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_unknown_profile_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_resume_identity_mismatch_rejected",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_resume_legacy_profile_run_refused_by_ppv1_path",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_model_object_does_not_derive_real_request_budget",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_stop_report_deferred_blocks_exhausted_search_claim",
+      "state": "passed"
+    },
+    {
+      "classname": "tests.test_ppv1_s3b_runner",
+      "name": "test_concurrent_barrier_start_single_winner",
+      "state": "passed"
+    }
+  ]
+}

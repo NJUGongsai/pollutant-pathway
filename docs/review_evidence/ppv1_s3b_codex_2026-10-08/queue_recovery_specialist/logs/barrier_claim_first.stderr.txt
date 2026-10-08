@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py", line 266, in <module>
+    if len(sys.argv)>1 and sys.argv[1]=='worker':worker(json.loads(Path(sys.argv[2]).read_text()))
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/scripts/probe_public.py", line 99, in worker
+    result=ledger.claim_action(inp['action_id'],worker_id=inp['worker']);print(json.dumps({'result':result,'pid':os.getpid()},ensure_ascii=False),flush=True);return
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_queue_vd18_t4h/src/pathway_v43/pollutant/search.py", line 1164, in claim_action
+    raise SearchClaimError(
+pathway_v43.pollutant.search.SearchClaimError: action sact_ef87375955b9a014b56a 已由 'second' 认领(already_claimed;不创建新 attempt/request、不重复扣额度)

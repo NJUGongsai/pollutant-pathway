@@ -1,0 +1,100 @@
+{
+  "capture_limit": "initial old_zero_depth child stdout/execution/trace/table filenames reused by repeat-resume; last files represent resume, initial detail preserved here and controller stdout. Do not count those files as two separate receipts.",
+  "initial_observation": {
+    "case": "zero_depth_persisted_disclosure",
+    "check": true,
+    "detail": {
+      "calls": {
+        "audit_hypothesis": 0,
+        "decide_admission": 0,
+        "execute_atomtool_expansion": 0
+      },
+      "counts": {
+        "budget_reservations": 4,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 1,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 3,
+        "search_attempts": 0,
+        "search_commit_records": 2,
+        "search_runs": 1,
+        "state_appearances": 1,
+        "states": 1
+      },
+      "events": [],
+      "hypotheses": [],
+      "network_attempts": 0,
+      "returncode": 0,
+      "stop": {
+        "budget": {
+          "run_level": {
+            "max_real_model_requests": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "remaining": 63,
+              "used": 1
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "remaining": 2,
+              "used": 0
+            },
+            "max_total_search_actions": {
+              "max": 10,
+              "remaining": 8,
+              "used": 2
+            }
+          },
+          "scoped": {
+            "max_alternative_hypotheses_per_parent": {},
+            "max_attempts_per_hypothesis": {},
+            "max_reopens_per_hypothesis": {},
+            "max_retrievals_per_parent": {
+              "spath_64daceea0bcdd18a9c39": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              }
+            }
+          },
+          "version": "ppv1-search-limits-3"
+        },
+        "budget_exhausted_keys": [
+          "max_retrievals_per_parent@spath_64daceea0bcdd18a9c39"
+        ],
+        "events_submitted_session": [],
+        "other_reasons": [
+          "depth_limit"
+        ],
+        "primary": "budget_limit",
+        "runflow_version": "ppv1-runflow-2",
+        "unexplored": {
+          "blocked": 1,
+          "blocked_objects": [
+            {
+              "action_id": "sact_ce28e053207ee775f0ed",
+              "hypothesis_id": "hyp_bb7300da3a85de8a821c",
+              "reason": "depth_limit"
+            }
+          ],
+          "claimed_actions": 0,
+          "deferred": 0,
+          "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+          "open_attempts": 0,
+          "pending_actions": 0,
+          "pending_requests": 0
+        }
+      }
+    }
+  },
+  "source": "controller stdout and observations before resume; extracted read-only"
+}

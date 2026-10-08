@@ -1,0 +1,112 @@
+{
+  "actual_date": "2026-10-07",
+  "actual_head": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+  "archive_started": "2026-10-07T20:39:12.925278+08:00",
+  "conclusion": "S3a_not_pass_S3b_not_released",
+  "contracts": {
+    "inherited_chemical_contracts": "-8 unchanged, see execution_specialist/runtime_environment/stdout.txt",
+    "limits": "ppv1-search-limits-3",
+    "profile": "ppv1-profile-9",
+    "search": "ppv1-search-1",
+    "store": "ppv1-store-9"
+  },
+  "evidence_path": "/Volumes/CC/Enzyme_Agent/dependingv43/docs/review_evidence/ppv1_s3a_codex_2026-10-07",
+  "independent_counts": {
+    "chemistry_small_cases": 15,
+    "inheritance_authority_cases": 26,
+    "inheritance_raw_submit_case": 1,
+    "parent_collection": {
+      "errors": 2,
+      "exit": 2,
+      "new_cases_not_executed": 58
+    },
+    "parent_profile": {
+      "exit": 1,
+      "failed": 2,
+      "passed": 21
+    },
+    "ppv1": {
+      "failed": 0,
+      "passed": 594,
+      "skipped": 0
+    },
+    "r8_literal_cx_cases": 9,
+    "root_policy_cases": 5,
+    "root_request_cases": 11,
+    "root_request_footer_rows": 0,
+    "root_request_metadata_rows": 1,
+    "s3a_new": {
+      "passed": 58,
+      "recover": 13,
+      "search": 45
+    },
+    "safe_g01": {
+      "deselected": 17,
+      "failed": 0,
+      "passed": 1196,
+      "skipped": 8
+    },
+    "search_synthetic_completed_cases": 22
+  },
+  "limitations": [
+    "root request/policy original wall-clock elapsed was not separately captured; do not invent it",
+    "new portable wrappers only syntax/safety checked, not runtime executed",
+    "preparation errors and early stops retained; not counted as completed full matrices",
+    "historical R8 full evidence suite not rerun; necessary current controls and full PPV1 executed",
+    "no chemical performance or criteria-freeze certification"
+  ],
+  "p1": [
+    "S3A-01",
+    "S3A-02",
+    "S3A-03",
+    "S3A-04",
+    "S3A-05"
+  ],
+  "parent_head": "00e509a974b40a7c9779fcd35e53b16637a13d60",
+  "provenance": {
+    "execution": "this reviewer delegated engineering specialist, independent execution",
+    "inheritance": "this reviewer delegated integrity/chemistry specialist, independent probes",
+    "mimo": "read-only response, no execution attributed to mimo",
+    "root": "this reviewer public request/policy probes, not implementation evidence",
+    "search": "this reviewer delegated public-chain specialist, independent synthetic probes"
+  },
+  "publication_command": {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/ppv1_s3a_root_9b78f42_1h707lr5/publish_evidence.py"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "operation": "new report/evidence only, no testing or probe execution"
+  },
+  "report_path": "/Volumes/CC/Enzyme_Agent/dependingv43/docs/POLLUTANT_PATHWAY_S3A_CODEX_REVIEW_2026-10-07.md",
+  "report_sha256": "663974209979e0577a4f149e40b201379aeed5c41fd3c20ec1083531808d5c68",
+  "reuse": "completed current-round executions reused during archive assembly; no suite/probe rerun",
+  "review_start_utc": "2026-10-07 12:10:04 UTC",
+  "runtime": {
+    "bytecode_disabled": true,
+    "pytest_cache_disabled": true,
+    "python": "3.11.16",
+    "python_path": "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "rdkit": "2026.03.6",
+    "sqlite": "3.53.4"
+  },
+  "safety": {
+    "actual_network_requests": 0,
+    "dependingv4_access": false,
+    "external_model_calls": 0,
+    "git_commit": false,
+    "git_push": false,
+    "gold_question_sealed_run_access": false,
+    "only_new_report_and_evidence_repository_writes": true,
+    "real_provider_send_calls": 0,
+    "source_tests_existing_docs_agents_unchanged": true,
+    "synthetic_only": true
+  },
+  "schema": "ppv1-s3a-codex-review-1",
+  "task_spec_sha256": "8488d36dc849393f6e0411423bcf5ec9d7275aa091a9ac9e1f05ff38ec29558d",
+  "timezone": "Asia/Shanghai"
+}

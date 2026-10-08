@@ -1,0 +1,41 @@
+[
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r7_root_bRx3Oc/storage_current/storage_assert_observed.py",
+      "/private/tmp/ppv1_r7_root_bRx3Oc/storage_current/storage_contract_probe.output.jsonl"
+    ],
+    "cwd": "/private/tmp/ppv1_r7_root_bRx3Oc/storage_current",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "storage_observed_assert.stdout.txt",
+    "stderr": "storage_observed_assert.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r7_root_bRx3Oc/conditions_current/conditions_public_probe.py",
+      "--source",
+      "/private/tmp/ppv1_r7_root_bRx3Oc/conditions_current"
+    ],
+    "cwd": "/private/tmp/ppv1_r7_root_bRx3Oc/conditions_current",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "conditions_public_probe.stdout.txt",
+    "stderr": "conditions_public_probe.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r7_root_bRx3Oc/r6_reproduce/assert_observed.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r7_root_bRx3Oc/r6_reproduce",
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "stdout": "r6_assert_expected_failure.stdout.txt",
+    "stderr": "r6_assert_expected_failure.stderr.txt"
+  }
+]

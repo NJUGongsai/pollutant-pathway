@@ -1,0 +1,40 @@
+src/pathway_v43/vendor/molecode/molecule/rdkit_to_mermaid.py:361:        mol = Chem.MolFromSmiles(smiles)
+src/pathway_v43/vendor/molecode/molecule/__init__.py:8:    >>> mermaid = mol_to_mermaid(Chem.MolFromSmiles("CCO"), name="Ethanol")
+src/pathway_v43/vendor/molecode/PROVENANCE.md:59:    mermaid = mol_to_mermaid(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"),
+src/pathway_v43/validation/conservation.py:491:    mol = Chem.MolFromSmiles(raw)
+src/pathway_v43/services/analog_source.py:107:    mol = Chem.MolFromSmiles(smiles) if smiles else None
+src/pathway_v43/services/analog_source.py:135:    return Chem.MolFromSmiles(smiles) if smiles else None
+src/pathway_v43/services/analog_source.py:139:    mol = Chem.MolFromSmiles(smiles) if smiles else None
+src/pathway_v43/services/analog_source.py:420:        current = Chem.MolFromSmiles(current_smiles)
+src/pathway_v43/services/analog_source.py:421:        donor = Chem.MolFromSmiles(ref.mapped_lhs or ref.reactant_smiles)
+src/pathway_v43/gold_health.py:165:    return Chem.MolFromSmiles(smiles) if smiles else None
+src/pathway_v43/services/donor_applicability.py:135:    return Chem.MolFromSmiles(smiles) if smiles else None
+src/pathway_v43/services/donor_applicability.py:251:    return Chem.MolFromSmiles(smiles or "") if smiles else None
+src/pathway_v43/services/donor_applicability.py:255:    mol = Chem.MolFromSmiles(smiles or "") if smiles else None
+src/pathway_v43/adapters/v3_engine.py:77:    m = Chem.MolFromSmiles(smi)
+src/pathway_v43/adapters/v3_engine.py:361:        if Chem.MolFromSmiles(smiles) is None:
+src/pathway_v43/pollutant/chemstate.py:659:    """结构 → ChemicalState(工厂;解析失败 fail-closed)。
+src/pathway_v43/pollutant/chemstate.py:688:    mol = Chem.MolFromSmiles(structure)
+src/pathway_v43/pollutant/chemstate.py:704:    return ChemicalState(
+src/pathway_v43/pollutant/chemstate.py:739:    return ChemicalState(
+src/pathway_v43/pollutant/chemstate.py:924:    mol = Chem.MolFromSmiles(structure)
+src/pathway_v43/pollutant/events.py:52:    """参与物无法构建 ChemicalState(整体问题,不静默丢共同产物)。"""
+src/pathway_v43/pollutant/events.py:141:    """为假设的全部参与物构建 ChemicalState(整体构建,不部分提交)。
+src/pathway_v43/domain/identity.py:29:    m = Chem.MolFromSmiles(smi)
+src/pathway_v43/domain/identity.py:42:    m = Chem.MolFromSmiles(smi)
+src/pathway_v43/domain/identity.py:60:    return Chem.MolFromSmiles(smiles) is not None
+src/pathway_v43/pollutant/audit.py:393:    return Chem.MolFromSmiles(state.smiles_isomeric)
+src/pathway_v43/pollutant/audit.py:512:                       if states[p.state_ref].smiles_isomeric == ""
+src/pathway_v43/pollutant/audit.py:900:            mol = Chem.MolFromSmiles(identity) if identity else None
+src/pathway_v43/pollutant/audit.py:2328:        reparsed = Chem.MolFromSmiles(serialized) if serialized else None
+src/pathway_v43/pollutant/audit.py:2596:    mol_before = Chem.MolFromSmiles(str(current_smiles)) \
+src/pathway_v43/pollutant/audit.py:2599:    mol_after = Chem.MolFromSmiles(str(product_mapped)) \
+src/pathway_v43/pollutant/audit.py:2615:    plain_mol = Chem.MolFromSmiles(str(result_smiles)) \
+src/pathway_v43/services/atom_tool.py:177:    mol = Chem.MolFromSmiles(smiles or "")
+src/pathway_v43/services/atom_tool.py:295:        for b in Chem.MolFromSmiles(current.smiles).GetBonds()
+src/pathway_v43/services/atom_tool.py:296:    } if Chem.MolFromSmiles(current.smiles) is not None else set()
+src/pathway_v43/services/atom_tool.py:410:    mol = Chem.MolFromSmiles(current.smiles)
+src/pathway_v43/services/atom_tool.py:599:        mm = Chem.MolFromSmiles(mapped_smiles)
+src/pathway_v43/services/atom_tool.py:608:    return Chem.MolFromSmiles(execution.get("product_smiles", "")), id_to_idx
+src/pathway_v43/services/atom_tool.py:796:        mol = Chem.MolFromSmiles(smi) if smi else None
+src/pathway_v43/pollutant/substrate_profile.py:91:        mol = Chem.MolFromSmiles(state.smiles_isomeric)

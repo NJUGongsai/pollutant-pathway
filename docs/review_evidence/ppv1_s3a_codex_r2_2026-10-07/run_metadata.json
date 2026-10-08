@@ -1,0 +1,81 @@
+{
+  "actual_head": "dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03",
+  "parent_head": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+  "actual_date_Asia_Shanghai": "2026-10-07",
+  "prepared_at_utc": "2026-10-07T15:37:47.894679+00:00",
+  "decision": "S3a_NOT_PASS_S3b_NOT_RELEASED",
+  "P1_retained": [
+    "S3A-02",
+    "S3A-03",
+    "S3A-04"
+  ],
+  "closed_original_groups": [
+    "S3A-01_four_wrong_output_identities",
+    "S3A-05_inflight_disclosure"
+  ],
+  "independent_results": {
+    "PPV1": {
+      "passed": 648,
+      "skipped": 0,
+      "failed": 0,
+      "new_tests_included_subcount": 54
+    },
+    "baseline_r2_new54": {
+      "failed": 52,
+      "passed": 2,
+      "collection_errors": 0,
+      "failure_classification": {
+        "behavior_assertions": 48,
+        "return_shape_TypeError": 3,
+        "old_rejection_kind_assertion_early_stop": 1
+      }
+    },
+    "safe_G01": {
+      "passed": 1250,
+      "skipped": 8,
+      "deselected": 17,
+      "whitelist_inputs": 275,
+      "repo": 215,
+      "ordinary_v3_source": 42,
+      "approved_ordinary_assets": 18
+    },
+    "narrow_chemistry": {
+      "captured_cases": 15,
+      "all_contract_assertions_complete": true
+    }
+  },
+  "runtime": {
+    "python": "3.11.16",
+    "RDKit": "2026.03.6",
+    "SQLite": "3.53.4",
+    "profile": 10,
+    "search": 2,
+    "store": 9,
+    "search_limits": 3
+  },
+  "legacy_code_identity": "4ea99b698a05ab8685bbd5687835043a2bf07f0c7f219591beccbff2507c29ae",
+  "legacy_code_identity_unchanged_from_parent": true,
+  "resume": {
+    "quota_not_code_error": true,
+    "pre_quota_completed_runtime_validation": false,
+    "initial_reads_reused": true,
+    "already_completed_suites_repeated_for_archival": false
+  },
+  "boundary_adjudication": {
+    "TOCTOU_external_concurrent_corruption": "P2_disclosure_not_new_P1",
+    "conservative_defer_unattributed_event": "acceptable_boundary"
+  },
+  "source_guard_existing_input_count": 375,
+  "repository_mutation_allowlist": [
+    "docs/POLLUTANT_PATHWAY_S3A_CODEX_REVIEW_R2_2026-10-07.md",
+    "docs/review_evidence/ppv1_s3a_codex_r2_2026-10-07/"
+  ],
+  "network_requests": 0,
+  "external_model_calls": 0,
+  "real_provider_calls": 0,
+  "synthetic_engineering_only": true,
+  "dev_or_298_science_performance_claim": false,
+  "new_phase_implementation": false,
+  "judging_LLM_calls": 0,
+  "documentation_only_publication": true
+}

@@ -1,0 +1,38 @@
+{
+  "event": "account_usage_limit_interruption_and_resume",
+  "source": "User explicitly stated ChatGPT account usage limit interrupted evidence-writing; not a code/test error. Prior agent status messages also reported usage limits.",
+  "interruption_exact_time": "not independently logged; no exact time asserted",
+  "resume_clock_observation_UTC": "2026-10-07 10:03:40 UTC",
+  "resume_clock_observation_Asia_Shanghai": "2026-10-07 18:03:40 +08:00",
+  "actual_date": "2026-10-07",
+  "stage_at_interruption": "All required runtime verification completed and logged; draft report existed in tmp, permanent report/evidence not yet written. Final chemistry draft recheck was interrupted; completed chemistry report/matrices and root replay remain valid.",
+  "reused_evidence": [
+    "536 PPV1",
+    "28 current and baseline14/14",
+    "G01 1138/8/17",
+    "R6 12 scripts",
+    "R7 chem55+tail3 and new60",
+    "storage15+new17",
+    "conditions16",
+    "baseline charge doc correction",
+    "static inventory/grep"
+  ],
+  "resume_work": "Read artifact checks; verify preexisting source/evidence hashes; assemble new permanent bundle/README/portable scripts; publish report and SHA lists. No pytest, chemistry/storage probe, G01, model or evaluation rerun after resumption.",
+  "actual_HEAD_unchanged": "00e509a974b40a7c9779fcd35e53b16637a13d60",
+  "existing_input_files_verified": 463,
+  "drift": {},
+  "specialist_packages_verified": {
+    "execution_specialist": {
+      "hash_list_sha256": "942f19cbf33afcadf6ee724be235d8c50584e9ea7b9ec28a3e5aed9ca42e7b6b",
+      "listed_files_verified": 58
+    },
+    "storage_specialist": {
+      "hash_list_sha256": "bf95ea4f8549c2eac5ade9a377c127790d5a444f08cc3a9b0dd3d8f331d76821",
+      "listed_files_verified": 17
+    },
+    "chemistry_specialist": {
+      "hash_list_sha256": "680912a0a46238db34c0735c1183d0e2f25e14e289fb59260a3b2653878d9063",
+      "listed_files_verified": 26
+    }
+  }
+}

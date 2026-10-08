@@ -1,0 +1,57 @@
+{
+  "abstain_behavior_not_new_gate": true,
+  "bounded_metadata_findings": [
+    "zero_depth stop loses depth/blocked disclosure",
+    "feedback valid scripted requests remain registered/pending"
+  ],
+  "failed_fault_injector": [
+    "three_products_after_two_followups"
+  ],
+  "lawful_again_cases": [
+    "crash_after_claim_idempotent_again",
+    "crash_after_request_registered_idempotent_again",
+    "crash_after_bundle_written_idempotent_again",
+    "crash_after_event_submitted_idempotent_again"
+  ],
+  "lawful_public_hard_kill_cases": [
+    "crash_after_claim",
+    "crash_after_request_registered",
+    "crash_after_bundle_written",
+    "crash_after_event_submitted"
+  ],
+  "network_calls": 0,
+  "no_fabricated_completed_internal_assertions": true,
+  "not_test_pass_count": true,
+  "observations": 34,
+  "p1_groups": {
+    "S3B-01": [
+      "frozen_plan_omitted",
+      "frozen_plan_changed",
+      "frozen_plan_decide_changed"
+    ],
+    "S3B-02": [
+      "public_artifact_hash_bad",
+      "public_artifact_json_bad"
+    ],
+    "S3B-03": [
+      "transition_after_transition_enqueued_before_attach",
+      "transition_after_event_submitted",
+      "three_products_after_two_corrected"
+    ],
+    "S3B-04": [
+      "public_concurrent_resume"
+    ],
+    "S3B-05": [
+      "model_novel_nonempty",
+      "model_novel_empty"
+    ]
+  },
+  "partial_capture": [
+    "barrier_distinct_worker_partial_capture"
+  ],
+  "raw_false_is_expected_gap_observed": [
+    "public_artifact_hash_bad",
+    "public_artifact_json_bad"
+  ],
+  "supplemental_observations": 6
+}

@@ -1,0 +1,43 @@
+{
+  "positives": [
+    [
+      "plain",
+      "CO",
+      null
+    ],
+    [
+      "ABS",
+      "F[C@H](Cl)Br |a:1|",
+      "a:"
+    ],
+    [
+      "AND",
+      "C[C@H](O)CC |&1:1|",
+      "&1:"
+    ],
+    [
+      "OR",
+      "C[C@H](O)CC |o1:1|",
+      "o1:"
+    ],
+    [
+      "radical",
+      "[CH3] |^1:0|",
+      "^1:"
+    ]
+  ],
+  "negatives": [
+    [
+      "and",
+      "C[C@H](O)CC |and:1|"
+    ],
+    [
+      "or",
+      "C[C@H](O)CC |or:1|"
+    ],
+    [
+      "rad",
+      "[CH3] |rad:0|"
+    ]
+  ]
+}

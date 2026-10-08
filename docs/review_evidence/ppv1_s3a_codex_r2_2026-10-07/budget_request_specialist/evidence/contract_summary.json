@@ -1,0 +1,45 @@
+{
+  "cases": 115,
+  "pass": 92,
+  "failed_cases": [
+    "read_policy_missing_version_budget",
+    "read_policy_missing_version_recover",
+    "read_policy_null_limits_budget",
+    "read_policy_null_limits_claim",
+    "read_policy_null_limits_recover",
+    "references_missing_action_recover",
+    "references_unclaimed_action_recover",
+    "references_foreign_action_run_sent",
+    "references_foreign_action_run_response",
+    "references_foreign_action_run_failed",
+    "references_foreign_action_run_recover",
+    "references_foreign_attempt_run_sent",
+    "references_foreign_attempt_run_response",
+    "references_foreign_attempt_run_failed",
+    "references_closed_attempt_recover",
+    "references_empty_expand_attempt_sent",
+    "references_empty_expand_attempt_response",
+    "references_empty_expand_attempt_failed",
+    "references_empty_expand_attempt_recover",
+    "request_reuse_run_id",
+    "request_reuse_attempt_id",
+    "released_recover",
+    "stop_six_reason_priority"
+  ],
+  "groups": {
+    "S3A-03": {
+      "cases": 40,
+      "pass": 35
+    },
+    "S3A-04": {
+      "cases": 60,
+      "pass": 43
+    },
+    "S3A-05": {
+      "cases": 15,
+      "pass": 14
+    }
+  },
+  "network_requests": 0,
+  "external_model_calls": 0
+}

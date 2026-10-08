@@ -1,0 +1,124 @@
+[
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/r6_original/reproduce.py",
+      "--repo",
+      "/Volumes/CC/Enzyme_Agent/dependingv43",
+      "--out",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/r6_replay",
+      "--allow-head-change",
+      "--skip-pytest"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "r6_reproduce.stdout.txt",
+    "stderr": "r6_reproduce.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/assert_r7_replay.py",
+      "--out",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/r6_replay",
+      "--reference",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/r6_selected_outcome_reference.json"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "r6_closed_groups_assert.stdout.txt",
+    "stderr": "r6_closed_groups_assert.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/r6_replay/assert_observed.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/r6_replay",
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "stdout": "r6_old_gap_assert.stdout.txt",
+    "stderr": "r6_old_gap_assert.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/chemistry_current/chemical_boundary_probe.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/chemistry_current",
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "stdout": "r7_chemical_replay.stdout.txt",
+    "stderr": "r7_chemical_replay.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/chemistry_current/r8_probe_completion.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/chemistry_current",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "r7_chemical_tail_completion.stdout.txt",
+    "stderr": "r7_chemical_tail_completion.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/chemistry_current/assert_chemical_observed.py"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/chemistry_current",
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "stdout": "r7_old_chemical_gap_assert.stdout.txt",
+    "stderr": "r7_old_chemical_gap_assert.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/storage_current/storage_contract_probe.py",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/r6_replay"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/storage_current",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "r7_storage_replay.stdout.txt",
+    "stderr": "r7_storage_replay.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/storage_current/storage_assert_observed.py",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/storage_current/storage_contract_probe.output.jsonl"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/storage_current",
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "stdout": "r7_old_storage_gap_assert.stdout.txt",
+    "stderr": "r7_old_storage_gap_assert.stderr.txt"
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/conditions_current/conditions_public_probe.py",
+      "--source",
+      "/private/tmp/ppv1_r8_root_2iv4qo_s/conditions_current"
+    ],
+    "cwd": "/private/tmp/ppv1_r8_root_2iv4qo_s/conditions_current",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "r7_conditions_replay.stdout.txt",
+    "stderr": "r7_conditions_replay.stderr.txt"
+  }
+]

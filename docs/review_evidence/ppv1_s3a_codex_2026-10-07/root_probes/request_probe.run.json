@@ -1,0 +1,98 @@
+{
+  "actual_HEAD": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+  "parent_HEAD": "00e509a974b40a7c9779fcd35e53b16637a13d60",
+  "commands": [
+    {
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/ppv1_s3a_root_9b78f42_1h707lr5/request_probe.py"
+      ],
+      "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "stdout": "request_probe.stdout.jsonl",
+      "stderr": "request_probe.stderr.txt"
+    }
+  ],
+  "synthetic_only": true,
+  "actual_external_model_calls": 0,
+  "source_metadata": "input_snapshot.json",
+  "records": 12,
+  "summary": [
+    {
+      "case": "clean_repeat",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": true
+    },
+    {
+      "case": "payload_changed",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": true
+    },
+    {
+      "case": "purpose_changed",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": true
+    },
+    {
+      "case": "same_request_different_action",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": true
+    },
+    {
+      "case": "unclaimed_action",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": false
+    },
+    {
+      "case": "nonexistent_action",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": false
+    },
+    {
+      "case": "foreign_attempt",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": false
+    },
+    {
+      "case": "request_hash_corrupt",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": true,
+      "recovery_accepted": true
+    },
+    {
+      "case": "request_sent_after_defer",
+      "accepted": true,
+      "error": null,
+      "rows_unchanged": false
+    },
+    {
+      "case": "legal_lifecycle",
+      "accepted": null,
+      "error": null,
+      "rows_unchanged": false
+    },
+    {
+      "case": "real_zero_control",
+      "accepted": false,
+      "error": "SearchBudgetExhausted",
+      "rows_unchanged": true
+    }
+  ],
+  "output_sha256": {
+    "request_probe.py": "d87ced27fecfe367ad5ee07e36f2d9c67af6f5b9f776cc8e023b7c54046bd4e4",
+    "request_probe.stdout.jsonl": "3e3029b287e8f1f073811b22bd2dc7ccceb92be35e88c16ae9cb15a378b9e75b",
+    "request_probe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

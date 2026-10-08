@@ -1,0 +1,78 @@
+{
+  "_label": "r3_e01",
+  "mode": "start",
+  "plan": {
+    "pools": {
+      "CCO": [
+        {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "coefficient": 1,
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          },
+          "key": "B",
+          "origin_group_key": "donor-B",
+          "product_smiles": "CC=O",
+          "transformation_ref": "donor-B"
+        },
+        {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "coefficient": 1,
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          },
+          "key": "C",
+          "origin_group_key": "donor-C",
+          "product_smiles": "CC=O",
+          "transformation_ref": "donor-C"
+        }
+      ]
+    }
+  },
+  "run_id": "r3_e01",
+  "runs_root": "/private/tmp/ppv1_s3b_r3_handoff_6bh5dixp/synthetic_runs/runs"
+}

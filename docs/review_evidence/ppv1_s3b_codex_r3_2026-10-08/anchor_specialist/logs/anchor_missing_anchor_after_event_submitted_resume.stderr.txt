@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py", line 104, in worker
+    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py", line 317, in resume_run
+    return resume_ppv1_run(
+           ^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py", line 1521, in resume_ppv1_run
+    binding = _verify_frozen_plan_binding(ledger, run_id, frozen_plan)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py", line 360, in _verify_frozen_plan_binding
+    raise PPV1RunError(
+pathway_v43.pollutant.runflow.PPV1RunError: run anchor_missing_anchor_after_event_submitted 缺冻结计划锚(无携带 plan_digest 的 retrieve 行;缺锚先拒 —— 不能以无锚状态继续消费任何冻结输入;零补账,原资料保全)

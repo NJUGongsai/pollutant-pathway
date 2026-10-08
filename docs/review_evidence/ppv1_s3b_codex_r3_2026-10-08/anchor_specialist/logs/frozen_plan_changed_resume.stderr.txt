@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/scripts/probe_public.py", line 104, in worker
+    out=resume_run(config=cfg,runs_root=runs_root,run_id=run_id,finder=object(),ppv1_plan=inp.get('plan'),crash_after=inp.get('crash_after'))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/workflow/runner.py", line 317, in resume_run
+    return resume_ppv1_run(
+           ^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s3b_r3_anchor_8dzzx_8b/src/pathway_v43/pollutant/runflow.py", line 1508, in resume_ppv1_run
+    raise PPV1RunError(
+pathway_v43.pollutant.runflow.PPV1RunError: resume 传入计划与冻结输入不符(旧任务不消费新输入;差异须显式新 revision/新任务登记,不能复用旧裁决键)

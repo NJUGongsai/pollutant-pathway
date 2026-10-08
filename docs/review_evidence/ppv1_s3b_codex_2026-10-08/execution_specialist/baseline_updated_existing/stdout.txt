@@ -1,0 +1,148 @@
+..FF................F.............................................F.     [100%]
+=================================== FAILURES ===================================
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v13(S3b):调度与生产链接线(search 契约 -4 → -5;新增独立
+        # 有界格式反馈策略块)
+>       assert block["schema_version"] == "ppv1-profile-13"
+E       AssertionError: assert 'ppv1-profile-12' == 'ppv1-profile-13'
+E         
+E         - ppv1-profile-13
+E         ?               ^
+E         + ppv1-profile-12
+E         ?               ^
+
+tests/test_ppv1_profile.py:48: AssertionError
+__________________ test_ppv1_identity_block_default_switches ___________________
+
+    def test_ppv1_identity_block_default_switches() -> None:
+        block = ppv1_profile.build_profile_identity_block()
+        assert block["input_preview_policy"] == "off"
+        assert block["chemical_reproposal"] == "off"
+        assert block["search_intent"] == "exploration"
+        # S3a:search-limits 由 -2-proposed 草案升为实际可执行版本 v3
+        assert block["search_limits"]["version"] == "ppv1-search-limits-3"
+        assert block["search_limits"]["max_total_search_actions"] == 10
+        # S3b:独立有界格式反馈策略(默认 0 轮;非 search_limits 旧字段)
+>       assert block["format_feedback_policy"] == {
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "version": "ppv1-format-feedback-1",
+            "max_format_feedback_rounds": 0}
+E       KeyError: 'format_feedback_policy'
+
+tests/test_ppv1_profile.py:84: KeyError
+________________ test_start_run_pollutant_dispatches_to_runflow ________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_execution_elmxhbxz/baseline_updated_existing_pytest_tmp/test_start_run_pollutant_dispa0')
+
+    def test_start_run_pollutant_dispatches_to_runflow(tmp_path: Path) -> None:
+        """S3b 行为翻转(2026-10-08,原 S3a fail-closed 拒绝按交付解除):
+        公共 start_run 对 pollutant_pathway_v1 分流到独立 PPV1 执行流 ——
+        建独立 run 目录(run_identity + pollutant.sqlite,不落 legacy
+        PathwayStore);空计划 ⇒ 池无候选诚实停止。E2E 见
+        tests/test_ppv1_s3b_runner.py。"""
+        from pathway_v43.config import resolve_config
+        from pathway_v43.workflow.runner import start_run
+    
+        runs_root = tmp_path / "runs"
+>       out = start_run(
+            config=resolve_config(), runs_root=runs_root,
+            run_id="ppv1-probe", smiles="CCO", max_depth=2,
+            max_expansions=5, max_frontier_width=3,
+            finder=object(), scripted=True,
+            profile=ri.PROFILE_POLLUTANT_PATHWAY_V1,
+        )
+
+tests/test_ppv1_profile.py:267: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/workflow/runner.py:214: in start_run
+    _refuse_undelivered_profile(profile)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+profile = 'pollutant_pathway_v1'
+
+    def _refuse_undelivered_profile(profile: str) -> None:
+        """pollutant_pathway_v1 的执行流入口(实施书 §11 阶段边界)。
+    
+        S0–S2 交付 profile 注册/版本、领域契约、上下文与固定诊断;S3a
+        交付持久搜索底座(pollutant.search,公开底座测试入口);队列化学
+        集成、生产中心证据链与 PPV1 独立分流属 S3b —— 公共执行流交付前
+        显式 fail-closed(不建 run 目录、不写 identity、不进图)。
+        legacy_v43 不受影响。注:本函数所在共享文件的文字更新会使
+        legacy code_identity 聚合哈希变化(旧 run 的跨版本 resume 按既有
+        身份门槛拒绝,是设计行为);legacy 运行时行为零改变。
+        """
+        if profile == PROFILE_POLLUTANT_PATHWAY_V1:
+>           raise RunError(
+                "profile=pollutant_pathway_v1 已注册,但公共执行流未交付:"
+                "S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座"
+                "(pollutant.search,底座测试入口);队列集成/生产链与 PPV1"
+                "独立分流按实施书 §11 属 S3b,交付前拒绝运行",
+                {"profile": profile, "delivered_stages": "S0-S2,S3a-base",
+                 "missing_stages": "S3b-S5"})
+E           pathway_v43.workflow.runner.RunError: profile=pollutant_pathway_v1 已注册,但公共执行流未交付:S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座(pollutant.search,底座测试入口);队列集成/生产链与 PPV1独立分流按实施书 §11 属 S3b,交付前拒绝运行
+
+src/pathway_v43/workflow/runner.py:146: RunError
+__________________ test_runner_start_and_resume_dispatch_ppv1 __________________
+
+tmp_path = PosixPath('/private/tmp/ppv1_s3b_execution_elmxhbxz/baseline_updated_existing_pytest_tmp/test_runner_start_and_resume_d0')
+
+    def test_runner_start_and_resume_dispatch_ppv1(tmp_path) -> None:
+        """S3b 行为翻转(2026-10-08,原 S3a fail-closed 按交付解除):公开
+        runner 双入口对 PPV1 分流到 pollutant.runflow —— start 建独立
+        PPV1 存储(resume 不重建/不覆盖既有搜索/attempt/提交记录);完整
+        E2E/崩溃恢复验收见 tests/test_ppv1_s3b_runner.py。legacy 不受影响
+        (legacy 路径回归另由既有 legacy 测试覆盖)。"""
+        from pathway_v43.storage.run_identity import (
+            PROFILE_POLLUTANT_PATHWAY_V1,
+        )
+        from pathway_v43.workflow.runner import resume_run, start_run
+        from pathway_v43.config import resolve_config
+    
+        runs_root = tmp_path / "runs"
+>       out = start_run(
+            config=resolve_config(), runs_root=runs_root,
+            run_id="ppv1-s3a", smiles="CCO", max_depth=2,
+            max_expansions=5, max_frontier_width=3, finder=object(),
+            scripted=True, profile=PROFILE_POLLUTANT_PATHWAY_V1)
+
+tests/test_ppv1_s3a_search.py:1078: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/pathway_v43/workflow/runner.py:214: in start_run
+    _refuse_undelivered_profile(profile)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+profile = 'pollutant_pathway_v1'
+
+    def _refuse_undelivered_profile(profile: str) -> None:
+        """pollutant_pathway_v1 的执行流入口(实施书 §11 阶段边界)。
+    
+        S0–S2 交付 profile 注册/版本、领域契约、上下文与固定诊断;S3a
+        交付持久搜索底座(pollutant.search,公开底座测试入口);队列化学
+        集成、生产中心证据链与 PPV1 独立分流属 S3b —— 公共执行流交付前
+        显式 fail-closed(不建 run 目录、不写 identity、不进图)。
+        legacy_v43 不受影响。注:本函数所在共享文件的文字更新会使
+        legacy code_identity 聚合哈希变化(旧 run 的跨版本 resume 按既有
+        身份门槛拒绝,是设计行为);legacy 运行时行为零改变。
+        """
+        if profile == PROFILE_POLLUTANT_PATHWAY_V1:
+>           raise RunError(
+                "profile=pollutant_pathway_v1 已注册,但公共执行流未交付:"
+                "S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座"
+                "(pollutant.search,底座测试入口);队列集成/生产链与 PPV1"
+                "独立分流按实施书 §11 属 S3b,交付前拒绝运行",
+                {"profile": profile, "delivered_stages": "S0-S2,S3a-base",
+                 "missing_stages": "S3b-S5"})
+E           pathway_v43.workflow.runner.RunError: profile=pollutant_pathway_v1 已注册,但公共执行流未交付:S0–S2 为领域契约/上下文/固定诊断,S3a 为持久搜索底座(pollutant.search,底座测试入口);队列集成/生产链与 PPV1独立分流按实施书 §11 属 S3b,交付前拒绝运行
+
+src/pathway_v43/workflow/runner.py:146: RunError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s3b_execution_elmxhbxz/baseline_source/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 failed, 64 passed, 1 warning in 0.95s

@@ -1,0 +1,178 @@
+[
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests/s3a_worker.py",
+      "claim-exit",
+      "--db",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/hard_B1/run.sqlite",
+      "--runs-root",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/hard_B1/runs",
+      "--run-id",
+      "hard_B1",
+      "--action-id",
+      "sact_c952d9e44c76846b113a",
+      "--worker",
+      "w1",
+      "--task-key",
+      "tk1"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "returncode": 1,
+    "stdout": "{\"claimed\": true, \"attempt_id\": \"sattempt_fe0711f1c4572f3750c9\", \"task_key\": \"tk1\"}\n",
+    "stderr": "",
+    "elapsed_seconds": 0.14814554096665233
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests/s3a_worker.py",
+      "request-exit",
+      "--db",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/hard_B2/run.sqlite",
+      "--runs-root",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/hard_B2/runs",
+      "--run-id",
+      "hard_B2",
+      "--action-id",
+      "sact_4e903d1aae86b3680fa0",
+      "--worker",
+      "w1",
+      "--task-key",
+      "tk1"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "returncode": 1,
+    "stdout": "{\"receipt_claimed\": true, \"attempt_id\": \"sattempt_65522ed5ae62b7c99091\", \"request\": {\"registered\": true, \"request_id\": \"sreq_4c9447790607f5948127\", \"status\": \"registered\", \"provider_kind\": \"scripted\", \"network_request_count\": 0}}\n",
+    "stderr": "",
+    "elapsed_seconds": 0.1503209579968825
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests/s3a_worker.py",
+      "bundle-exit",
+      "--db",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/hard_B3/run.sqlite",
+      "--runs-root",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/hard_B3/runs",
+      "--run-id",
+      "hard_B3",
+      "--action-id",
+      "sact_13e09a40cf738d03b892",
+      "--worker",
+      "w1",
+      "--task-key",
+      "tk1"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "returncode": 1,
+    "stdout": "{\"receipt_claimed\": true, \"attempt_id\": \"sattempt_92f887e2f024f0796152\"}\n",
+    "stderr": "",
+    "elapsed_seconds": 0.15752212499501184
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests/s3a_worker.py",
+      "submit-exit",
+      "--db",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/hard_B4/run.sqlite",
+      "--runs-root",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/hard_B4/runs",
+      "--run-id",
+      "hard_B4",
+      "--action-id",
+      "sact_659b6060a52203795e5c",
+      "--worker",
+      "w1",
+      "--task-key",
+      "tk1"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "returncode": 1,
+    "stdout": "{\"receipt_claimed\": true, \"attempt_id\": \"sattempt_7f40f152a227a817f495\", \"submitted\": {\"created\": true, \"event_id\": \"ppev_71e1a5884fd571b1585a\", \"action_id\": \"sact_659b6060a52203795e5c\"}}\n",
+    "stderr": "",
+    "elapsed_seconds": 0.16350945801241323
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests/s3a_worker.py",
+      "barrier-claim",
+      "--db",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/barrier_process/run.sqlite",
+      "--runs-root",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/barrier_process/runs",
+      "--run-id",
+      "barrier_process",
+      "--action-id",
+      "sact_92a85c45a27f936f6838",
+      "--worker",
+      "worker_A",
+      "--task-key",
+      "tk1",
+      "--barrier-dir",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/barrier_process/barrier",
+      "--n-workers",
+      "2",
+      "--out-json",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/barrier_process/worker_A.json"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "returncode": 0,
+    "stdout": "{\"worker\": \"worker_A\", \"claimed\": true, \"claimed_by\": \"worker_A\", \"attempt_id\": \"sattempt_e06bc50328ee133cc449\"}\n",
+    "stderr": "",
+    "decoded": [
+      {
+        "worker": "worker_A",
+        "claimed": true,
+        "claimed_by": "worker_A",
+        "attempt_id": "sattempt_e06bc50328ee133cc449"
+      }
+    ]
+  },
+  {
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo/tests/s3a_worker.py",
+      "barrier-claim",
+      "--db",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/barrier_process/run.sqlite",
+      "--runs-root",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/barrier_process/runs",
+      "--run-id",
+      "barrier_process",
+      "--action-id",
+      "sact_92a85c45a27f936f6838",
+      "--worker",
+      "worker_B",
+      "--task-key",
+      "tk1",
+      "--barrier-dir",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/barrier_process/barrier",
+      "--n-workers",
+      "2",
+      "--out-json",
+      "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/crash_generated/barrier_process/worker_B.json"
+    ],
+    "cwd": "/private/tmp/ppv1_s3a_r4_authority_inolg6_c/repo",
+    "returncode": 3,
+    "stdout": "{\"worker\": \"worker_B\", \"claimed\": false, \"error\": \"SearchClaimError\", \"kind\": \"already_claimed\"}\n",
+    "stderr": "",
+    "decoded": [
+      {
+        "worker": "worker_B",
+        "claimed": false,
+        "error": "SearchClaimError",
+        "kind": "already_claimed"
+      }
+    ]
+  }
+]

@@ -1,0 +1,131 @@
+{
+  "source": {
+    "path": "ppv1_pytest_tmp/test_p2_legacy_provenance_refs0/legacy_prov/pathway.sqlite",
+    "bytes": 57344,
+    "sha256": "c89e8efa417e4025ecad742fdf20742ace873da6a86ec96ec2554296195ac3e1"
+  },
+  "open_mode": "ro",
+  "tables": {
+    "compounds": [
+      {
+        "cn": "CCO",
+        "example_smiles": "CCO",
+        "first_path_id": "p_47614405661fb4f140ef"
+      },
+      {
+        "cn": "CC=O",
+        "example_smiles": "CC=O",
+        "first_path_id": "p_dae69f4dab81c494006c"
+      }
+    ],
+    "event_products": [
+      {
+        "event_id": "ev_c6c4cf6158220a8936bc",
+        "position": 0,
+        "product_identity": "CC=O",
+        "product_smiles": "CC=O",
+        "product_smiles_full": "CC=O"
+      },
+      {
+        "event_id": "ev_c6c4cf6158220a8936bc",
+        "position": 1,
+        "product_identity": "CC=O",
+        "product_smiles": "O=CC",
+        "product_smiles_full": "O=CC"
+      }
+    ],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "v43-store-2"
+      },
+      {
+        "key": "current_run",
+        "value": "legacy_prov"
+      },
+      {
+        "key": "graph_revision",
+        "value": "1"
+      }
+    ],
+    "path_instances": [
+      {
+        "path_id": "p_47614405661fb4f140ef",
+        "run_id": "legacy_prov",
+        "parent_path_id": null,
+        "event_id": null,
+        "product_position": null,
+        "substrate_identity": "CCO",
+        "status": "expanded",
+        "depth": 0,
+        "status_reason": "committed_event",
+        "seq": 0,
+        "created_at": "2026-10-07 20:58:09"
+      },
+      {
+        "path_id": "p_dae69f4dab81c494006c",
+        "run_id": "legacy_prov",
+        "parent_path_id": "p_47614405661fb4f140ef",
+        "event_id": "ev_c6c4cf6158220a8936bc",
+        "product_position": 0,
+        "substrate_identity": "CC=O",
+        "status": "rejected",
+        "depth": 1,
+        "status_reason": "",
+        "seq": 1,
+        "created_at": "2026-10-07 20:58:09"
+      },
+      {
+        "path_id": "p_829d6225cbf2a47e2fc4",
+        "run_id": "legacy_prov",
+        "parent_path_id": "p_47614405661fb4f140ef",
+        "event_id": "ev_c6c4cf6158220a8936bc",
+        "product_position": 1,
+        "substrate_identity": "CC=O",
+        "status": "rejected",
+        "depth": 1,
+        "status_reason": "",
+        "seq": 2,
+        "created_at": "2026-10-07 20:58:09"
+      }
+    ],
+    "reaction_events": [
+      {
+        "event_id": "ev_c6c4cf6158220a8936bc",
+        "run_id": "legacy_prov",
+        "parent_path_id": "p_47614405661fb4f140ef",
+        "substrate_identity": "CCO",
+        "evidence_id": "legacy_prov-e0",
+        "evidence_hash": "fb2edf1dac0acd85ac7cd78f613fc219f3fb8d184d4dd62e460b7a741fae6093",
+        "source_id": "legacy_prov-e0",
+        "kind": "recorded_reaction",
+        "condition_fit": "unknown",
+        "created_at": "2026-10-07 20:58:09",
+        "model_ref": ""
+      }
+    ]
+  },
+  "schema": [
+    {
+      "name": "compounds",
+      "sql": "CREATE TABLE compounds (\n    cn             TEXT PRIMARY KEY,\n    example_smiles TEXT NOT NULL,\n    first_path_id  TEXT NOT NULL\n)"
+    },
+    {
+      "name": "event_products",
+      "sql": "CREATE TABLE event_products (\n    event_id       TEXT NOT NULL,\n    position       INTEGER NOT NULL,\n    product_identity TEXT NOT NULL,\n    product_smiles TEXT NOT NULL,\n    product_smiles_full TEXT NOT NULL,\n    PRIMARY KEY (event_id, position)\n)"
+    },
+    {
+      "name": "meta",
+      "sql": "CREATE TABLE meta (\n    key   TEXT PRIMARY KEY,\n    value TEXT NOT NULL\n)"
+    },
+    {
+      "name": "path_instances",
+      "sql": "CREATE TABLE path_instances (\n    path_id           TEXT PRIMARY KEY,\n    run_id            TEXT NOT NULL,\n    parent_path_id    TEXT,\n    event_id          TEXT,\n    product_position  INTEGER,\n    substrate_identity TEXT NOT NULL,\n    status            TEXT NOT NULL,\n    depth             INTEGER NOT NULL,\n    status_reason     TEXT NOT NULL DEFAULT '',\n    seq               INTEGER NOT NULL,\n    created_at        TEXT NOT NULL\n)"
+    },
+    {
+      "name": "reaction_events",
+      "sql": "CREATE TABLE reaction_events (\n    event_id           TEXT PRIMARY KEY,\n    run_id             TEXT NOT NULL,\n    parent_path_id     TEXT NOT NULL,\n    substrate_identity TEXT NOT NULL,\n    evidence_id        TEXT NOT NULL,\n    evidence_hash      TEXT NOT NULL,\n    source_id          TEXT NOT NULL,\n    kind               TEXT NOT NULL,\n    condition_fit      TEXT NOT NULL,\n    created_at         TEXT NOT NULL, model_ref TEXT NOT NULL DEFAULT '',\n    UNIQUE (run_id, parent_path_id, substrate_identity, evidence_id)\n)"
+    }
+  ],
+  "read_succeeded": true
+}

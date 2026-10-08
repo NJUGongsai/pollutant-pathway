@@ -1,0 +1,30 @@
+{
+  "actual_HEAD": "dcb7ed62bd4271cfa7bde2732dc0b4fdd0360d03",
+  "actual_baseline_HEAD": "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207",
+  "baseline_input_capture": [
+    {
+      "argv": [
+        "git",
+        "show",
+        "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207:src/pathway_v43/workflow/runner.py"
+      ],
+      "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+      "output": "baseline_workflow_runner.py",
+      "sha256": "64b84ce8074efd5743ccc24284bc940f367fa1a6d109f92a7d698e74f5b1ff73"
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "9b78f4279cc6fa50b3b51c31a5c8e07abbeda207:src/pathway_v43/pollutant/profile.py"
+      ],
+      "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+      "output": "baseline_pollutant_profile.py",
+      "sha256": "9c73ca532309e585cc7b89433ff922cf2bb51d73f719de02dc08b8658cd4afdf"
+    }
+  ],
+  "original_script_sha256": "c3afa0a4d297f725d7179be4ae4c834ebb1b17d041f9b864ae58b882ba43ef60",
+  "adapted_script_sha256": "8c0c1d73cab47a24b1badf60db4892bd1c892a11835a32a66574e5d12ad51714",
+  "adaptation": "only derive changed runner list from actual bytes and add actual HEAD/baseline metadata; all chemistry inputs and expectations unchanged",
+  "syntax_checked_before_execution": true
+}

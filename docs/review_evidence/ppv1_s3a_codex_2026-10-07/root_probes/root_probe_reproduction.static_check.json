@@ -1,0 +1,32 @@
+{
+  "checked_at_utc": "2026-10-07T12:32:29.878180+00:00",
+  "wrapper_sha256": "9558d9700c4aac9ce4db0a68592db203e6567cde06742e52358eb7e39bcbb5cd",
+  "syntax_ast_parse_passed": true,
+  "required_flags": [
+    "--repo",
+    "--out"
+  ],
+  "frozen_snapshot_and_script_hashes_match": true,
+  "head_parent_literal_pins": true,
+  "output_must_be_fresh_and_outside_repo_and_bundle": true,
+  "all_source_vendor_metadata_worker_checked_before_output_creation": true,
+  "subprocess_calls": [
+    "subprocess.check_output(['git', 'status', '--short'], cwd=repo, text=True)",
+    "subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True)",
+    "subprocess.check_output(['git', 'rev-parse', 'HEAD^'], cwd=repo, text=True)",
+    "subprocess.run(argv, cwd=out, env=env, stdout=so, stderr=se)"
+  ],
+  "imports": [
+    "argparse",
+    "hashlib",
+    "json",
+    "os",
+    "shutil",
+    "subprocess",
+    "sys",
+    "time"
+  ],
+  "wrapper_runtime_executed": false,
+  "probe_or_suite_rerun": false,
+  "scope": "AST and source-level safety review; not a runtime guarantee"
+}

@@ -1,0 +1,56 @@
+{
+  "mode": "start",
+  "plan": {
+    "model": {
+      "provider_kind": "scripted",
+      "responses": [
+        "{\"proposals\": \"invalid\"}",
+        "{\"proposals\": [{\"hypothesis_id\": \"hyp_acd6d698557f84e99243\"}]}"
+      ]
+    },
+    "pools": {
+      "CCO": [
+        {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "coefficient": 1,
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          },
+          "key": "B",
+          "origin_group_key": "donor-B",
+          "product_smiles": "CC=O",
+          "transformation_ref": "donor-B"
+        }
+      ]
+    }
+  },
+  "policy": {
+    "format_feedback_policy": {
+      "max_format_feedback_rounds": 1
+    }
+  },
+  "run_id": "feedback_valid",
+  "runs_root": "/private/tmp/ppv1_s3b_queue_vd18_t4h/synthetic_runs/runs"
+}

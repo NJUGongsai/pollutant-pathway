@@ -1,0 +1,64 @@
+{
+  "raw_cases": 115,
+  "raw_pass": 92,
+  "raw_failed": 23,
+  "oracle_adjustments": [
+    {
+      "case": "read_policy_missing_version_claim",
+      "raw_contract_passed": true,
+      "adjustment": "generic rejection assertion was insufficient: returned budget_exhausted for original limit0; correct gate requires search_policy_block_corrupt, independently demonstrated supplement policy_missing_version_claim; classify contract failure"
+    },
+    {
+      "case": "stop_six_reason_priority",
+      "raw_contract_passed": false,
+      "adjustment": "excluded invalid audit expected order; superseded by supplement priority_corrected_original_order with 63/63 subsets passing"
+    }
+  ],
+  "valid_original_matrix_cases": 114,
+  "correct_contract_pass": 91,
+  "correct_contract_failed_cases": [
+    "read_policy_missing_version_budget",
+    "read_policy_missing_version_claim",
+    "read_policy_missing_version_recover",
+    "read_policy_null_limits_budget",
+    "read_policy_null_limits_claim",
+    "read_policy_null_limits_recover",
+    "references_missing_action_recover",
+    "references_unclaimed_action_recover",
+    "references_foreign_action_run_sent",
+    "references_foreign_action_run_response",
+    "references_foreign_action_run_failed",
+    "references_foreign_action_run_recover",
+    "references_foreign_attempt_run_sent",
+    "references_foreign_attempt_run_response",
+    "references_foreign_attempt_run_failed",
+    "references_closed_attempt_recover",
+    "references_empty_expand_attempt_sent",
+    "references_empty_expand_attempt_response",
+    "references_empty_expand_attempt_failed",
+    "references_empty_expand_attempt_recover",
+    "request_reuse_run_id",
+    "request_reuse_attempt_id",
+    "released_recover"
+  ],
+  "groups": {
+    "S3A-03": {
+      "cases": 40,
+      "pass": 34
+    },
+    "S3A-04": {
+      "cases": 60,
+      "pass": 43
+    },
+    "S3A-05": {
+      "cases": 14,
+      "pass": 14
+    }
+  },
+  "supplement_records": 13,
+  "supplement_behavior_cases": 12,
+  "supplement_runtime_record": 1,
+  "network_requests": 0,
+  "external_model_calls": 0,
+  "counts_are_case_controls_not_vulnerability_counts": true
+}
