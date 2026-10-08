@@ -1,0 +1,28 @@
+# git state at evidence assembly (2026-10-08)
+HEAD=8735601b75825388fe9f4a177a1131ef264054a1
+parent_of_HEAD=fc40605819201ae4a7101fc500b19083d78383b0
+direct_parent_baseline_for_new_tests=8735601b75825388fe9f4a177a1131ef264054a1 (S4b HEAD, review target)
+
+# working tree dirty (src/tests + untracked review material, NOT committed by this batch):
+ M src/pathway_v43/pollutant/endpoint.py
+ M src/pathway_v43/pollutant/native_export.py
+ M src/pathway_v43/pollutant/native_result.py
+ M src/pathway_v43/pollutant/profile.py
+ M src/pathway_v43/pollutant/runflow.py
+ M src/pathway_v43/pollutant/v3_projection.py
+ M tests/test_ppv1_profile.py
+ M tests/test_ppv1_s4a_endpoint.py
+ M tests/test_ppv1_s4b_export.py
+?? .zcodeignore
+?? docs/POLLUTANT_PATHWAY_S4A_CODEX_REVIEW_2026-10-08.md
+?? docs/POLLUTANT_PATHWAY_S4B_CODEX_REVIEW_2026-10-08.md
+?? docs/POLLUTANT_PATHWAY_S4_CODEX_CONFIRM_REVIEW_2026-10-08.md
+?? docs/mimo_ppv1_chem_review_response_r16.md
+?? docs/mimo_ppv1_chem_review_response_r17.md
+?? docs/review_evidence/ppv1_s4_confirm_codex_2026-10-08/
+?? docs/review_evidence/ppv1_s4_impl_2026-10-08/s4_rework_r1/
+?? docs/review_evidence/ppv1_s4a_codex_2026-10-08/
+?? docs/review_evidence/ppv1_s4a_mimo_2026-10-08/
+?? docs/review_evidence/ppv1_s4b_codex_2026-10-08/
+?? docs/review_evidence/ppv1_s4b_mimo_2026-10-08/
+?? tests/test_ppv1_s4_rework_r1.py

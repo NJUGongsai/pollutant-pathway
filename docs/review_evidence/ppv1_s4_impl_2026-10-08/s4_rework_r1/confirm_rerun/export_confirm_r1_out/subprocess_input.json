@@ -1,0 +1,11 @@
+{
+  "code": "import json,sys\nfrom pathlib import Path\nfrom pathway_v43.storage.artifact_store import ArtifactStore\nfrom pathway_v43.pollutant.store import PollutantPathwayStore\nfrom pathway_v43.pollutant.search import SearchLedger\nfrom pathway_v43.pollutant.endpoint import read_run_endpoint\nfrom pathway_v43.pollutant.native_result import build_native_result\nfrom pathway_v43.pollutant.native_export import export_native_result\nroot=Path(sys.argv[1]);run=sys.argv[2]\nledger=SearchLedger(PollutantPathwayStore(root/run/'pollutant.sqlite'),ArtifactStore(root,run),run)\nnative=build_native_result(ledger,endpoint_record=read_run_endpoint(ledger,run))\nprint(json.dumps(export_native_result(ledger,native,root/run),sort_keys=True))\n",
+  "argv": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-c",
+    "<code>",
+    "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs",
+    "public-chain"
+  ]
+}

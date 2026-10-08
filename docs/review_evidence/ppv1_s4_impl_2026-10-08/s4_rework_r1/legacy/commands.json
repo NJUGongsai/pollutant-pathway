@@ -1,0 +1,58 @@
+[
+  {
+    "name": "legacy_current",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "docs/review_evidence/ppv1_s4_impl_2026-10-08/s4b_r1/scripts/legacy_export_byte_probe.py",
+      "--src",
+      "/Volumes/CC/Enzyme_Agent/dependingv43/src",
+      "--out",
+      "/private/tmp/s4r1_evidence/legacy_current",
+      "--runs-root",
+      "/private/tmp/s4r1_legacy_runs_cur"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "pinned_env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/private/tmp/s4r1_run/current/src",
+      "V3_CODE_ROOT": "/private/tmp/s4r1_run/dependingv3",
+      "DEPENDING_V3_ROOT": "/private/tmp/s4r1_run/dependingv3",
+      "V43_ASSET_ROOT": "/private/tmp/s4r1_run/current/assets",
+      "BBD_DATA_ROOT": "/private/tmp/s4r1_run/empty_external_data",
+      "PATH": "/usr/bin:/bin:/Users/cc/miniconda3/envs/depending43/bin"
+    },
+    "exit_code": 0,
+    "outputs": [
+      "legacy_current/"
+    ]
+  },
+  {
+    "name": "legacy_parent",
+    "argv": [
+      "/Users/cc/miniconda3/envs/depending43/bin/python",
+      "-B",
+      "docs/review_evidence/ppv1_s4_impl_2026-10-08/s4b_r1/scripts/legacy_export_byte_probe.py",
+      "--src",
+      "/private/tmp/s4r1_parent_wt/src",
+      "--out",
+      "/private/tmp/s4r1_evidence/legacy_parent",
+      "--runs-root",
+      "/private/tmp/s4r1_legacy_runs_par"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "pinned_env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/private/tmp/s4r1_run/current/src",
+      "V3_CODE_ROOT": "/private/tmp/s4r1_run/dependingv3",
+      "DEPENDING_V3_ROOT": "/private/tmp/s4r1_run/dependingv3",
+      "V43_ASSET_ROOT": "/private/tmp/s4r1_run/current/assets",
+      "BBD_DATA_ROOT": "/private/tmp/s4r1_run/empty_external_data",
+      "PATH": "/usr/bin:/bin:/Users/cc/miniconda3/envs/depending43/bin"
+    },
+    "exit_code": 0,
+    "outputs": [
+      "legacy_parent/"
+    ]
+  }
+]

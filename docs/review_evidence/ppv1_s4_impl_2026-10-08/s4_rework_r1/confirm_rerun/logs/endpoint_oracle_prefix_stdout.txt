@@ -1,0 +1,46 @@
+FF...                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_original_f02_unknown_necessary_condition_limits_endpoint[unknown_essential_condition] _
+
+name = 'unknown_essential_condition'
+
+    @pytest.mark.parametrize('name',['unknown_essential_condition','explicit_unknown_essential_condition'])
+    def test_original_f02_unknown_necessary_condition_limits_endpoint(name):
+     row=ROWS[name]
+     assert any('oxygen_regime' in c['route_assessment']['requirement_coverage']['unknown_keys'] for c in row['contexts'])
+     assert len(row['native_export']['payload']['events'])==1
+     # Source proof is independent source-reported input, never authenticated reality.
+     ev=row['endpoint']['endpoint_evidence'][0]
+     assert ev['conditions_environment'].startswith('aerobic')
+     assert ev['proof_scope']=='source-reported; not verified by this repo'
+     actual={'strict_endpoint':row['endpoint']['chemical_endpoint_assessment'], 'native_export':row['native_export']['payload']['endpoint_record']['chemical_endpoint_assessment'], 'v3_summary':row['v3_projection']['unprojectable_summaries']['endpoint_assessment']}
+>    assert all(v=='unknown' for v in actual.values()), {'original_acceptance':'S4 task §4.2 and §8 endpoint-condition unknown/control','name':name,'actual':actual}
+E    AssertionError: {'original_acceptance': 'S4 task §4.2 and §8 endpoint-condition unknown/control', 'name': 'unknown_essential_condition...t': 'supported_mineralization', 'native_export': 'supported_mineralization', 'v3_summary': 'supported_mineralization'}}
+E    assert False
+E     +  where False = all(<generator object test_original_f02_unknown_necessary_condition_limits_endpoint.<locals>.<genexpr> at 0x1082fa190>)
+
+endpoint_contract_prefetch/scripts/test_endpoint_requirement_contract.py:21: AssertionError
+_ test_original_f02_unknown_necessary_condition_limits_endpoint[explicit_unknown_essential_condition] _
+
+name = 'explicit_unknown_essential_condition'
+
+    @pytest.mark.parametrize('name',['unknown_essential_condition','explicit_unknown_essential_condition'])
+    def test_original_f02_unknown_necessary_condition_limits_endpoint(name):
+     row=ROWS[name]
+     assert any('oxygen_regime' in c['route_assessment']['requirement_coverage']['unknown_keys'] for c in row['contexts'])
+     assert len(row['native_export']['payload']['events'])==1
+     # Source proof is independent source-reported input, never authenticated reality.
+     ev=row['endpoint']['endpoint_evidence'][0]
+     assert ev['conditions_environment'].startswith('aerobic')
+     assert ev['proof_scope']=='source-reported; not verified by this repo'
+     actual={'strict_endpoint':row['endpoint']['chemical_endpoint_assessment'], 'native_export':row['native_export']['payload']['endpoint_record']['chemical_endpoint_assessment'], 'v3_summary':row['v3_projection']['unprojectable_summaries']['endpoint_assessment']}
+>    assert all(v=='unknown' for v in actual.values()), {'original_acceptance':'S4 task §4.2 and §8 endpoint-condition unknown/control','name':name,'actual':actual}
+E    AssertionError: {'original_acceptance': 'S4 task §4.2 and §8 endpoint-condition unknown/control', 'name': 'explicit_unknown_essential_...t': 'supported_mineralization', 'native_export': 'supported_mineralization', 'v3_summary': 'supported_mineralization'}}
+E    assert False
+E     +  where False = all(<generator object test_original_f02_unknown_necessary_condition_limits_endpoint.<locals>.<genexpr> at 0x108570ee0>)
+
+endpoint_contract_prefetch/scripts/test_endpoint_requirement_contract.py:21: AssertionError
+=========================== short test summary info ============================
+FAILED endpoint_contract_prefetch/scripts/test_endpoint_requirement_contract.py::test_original_f02_unknown_necessary_condition_limits_endpoint[unknown_essential_condition]
+FAILED endpoint_contract_prefetch/scripts/test_endpoint_requirement_contract.py::test_original_f02_unknown_necessary_condition_limits_endpoint[explicit_unknown_essential_condition]
+2 failed, 3 passed in 0.02s

@@ -1,0 +1,1006 @@
+{
+  "single_necessary_ref": {
+    "removed_ref": "stask-exp_1d327239b8fcfb964702/production_report",
+    "removed_record": {
+      "payload_hash": "84d03407fa53ed1b9e73dacb8dc11cb4709524166616933106051162feeb89d6",
+      "source_action_id": "sact_683a389216df9130ed8e"
+    },
+    "remaining_refs": [
+      "ctx:pc_0757aa71e8cd78057880/path_context",
+      "run-plan/frozen_plan",
+      "soutc_234fc67403b6e4d758ec/expansion_outcome",
+      "soutc_a5e5efd2f5f782715dae/expansion_outcome",
+      "soutc_aebbafde18eed6b0b70d/expansion_outcome",
+      "soutc_e515b70ee4ecd9aad159/expansion_outcome"
+    ],
+    "core_digest_self_consistent": true,
+    "original_response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出引用的 artifact 损坏:stask-exp_1d327239b8fcfb964702/production_report(H07 完整性失败;保全原文件,不静默略过)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "stask-exp_1d327239b8fcfb964702/production_report",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "fake_response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出必要引用的 artifact 损坏:stask-exp_1d327239b8fcfb964702/production_report(H07 完整性失败;保全原文件,不能跳过后当合法缺席)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "stask-exp_1d327239b8fcfb964702/production_report",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "db_hashes_before": {
+      "budget_reservations": "962cbc43aea79f5202826d0344ebbb5f380a4f5f403dbed87740214279c849df",
+      "endpoint_records": "5c84703e00b57bbf001f8452234f7fd07abf5d1ccdeee75881803c9261bf6563",
+      "event_appearance_links": "a056640a622c08372183b452fb65797f6143611cd93738fcc7c2b3d5ee65d1c9",
+      "events": "968e9ba3969a0db1820fc427ec133e9b952d9f5cae84cdb908ff23dd460eaab0",
+      "expansion_plans": "1a89ec25ebf96f40e5524d83ce9f11b9c280d9ffc04bfe19e3f3793481e7b795",
+      "hypotheses": "313315fd19d57ffffe0d23161d2e1ae76ff29143bc1d557c834fe342595d6e6b",
+      "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+      "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "report_projections": "dd3d8645010cf35ab9406d4efc9192ee9a81c053517f12e6a5a0ac576f3ac0e1",
+      "search_actions": "be5123a9de8476e094e0bbe14b3aa5d192a1ef561f0ce8eabcf7b3bf69e5683e",
+      "search_attempts": "2fdb67fae706c4f2e097e653ca9e247f5ec45d53720c65d88cb96ad82c2fdab6",
+      "search_commit_records": "0728dcd4a4ca9de262b8605ac3c274f0899a49c484750adfccd96aff493ab27e",
+      "search_runs": "36a7f7f16daa2f14e1cd83235a52f2e3ba0f2d5f1f576c95b8115210f4458c18",
+      "state_appearances": "3c6df68bb825c6c3b75d4c12a7e93b00549252ac5f4bb60bfeabefecd0d4bdee",
+      "states": "4c5ae6f48f292d36144c0df78d80846c2c762254683c8bcbab7dcf4be844a1ac",
+      "stop_reason_records": "d56f808aa5898031eb3ec42fa187e1c075dd0704cc4616c8d6b7dcb3a9ff0546"
+    },
+    "db_hashes_after": {
+      "budget_reservations": "962cbc43aea79f5202826d0344ebbb5f380a4f5f403dbed87740214279c849df",
+      "endpoint_records": "5c84703e00b57bbf001f8452234f7fd07abf5d1ccdeee75881803c9261bf6563",
+      "event_appearance_links": "a056640a622c08372183b452fb65797f6143611cd93738fcc7c2b3d5ee65d1c9",
+      "events": "968e9ba3969a0db1820fc427ec133e9b952d9f5cae84cdb908ff23dd460eaab0",
+      "expansion_plans": "1a89ec25ebf96f40e5524d83ce9f11b9c280d9ffc04bfe19e3f3793481e7b795",
+      "hypotheses": "313315fd19d57ffffe0d23161d2e1ae76ff29143bc1d557c834fe342595d6e6b",
+      "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+      "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "report_projections": "dd3d8645010cf35ab9406d4efc9192ee9a81c053517f12e6a5a0ac576f3ac0e1",
+      "search_actions": "be5123a9de8476e094e0bbe14b3aa5d192a1ef561f0ce8eabcf7b3bf69e5683e",
+      "search_attempts": "2fdb67fae706c4f2e097e653ca9e247f5ec45d53720c65d88cb96ad82c2fdab6",
+      "search_commit_records": "0728dcd4a4ca9de262b8605ac3c274f0899a49c484750adfccd96aff493ab27e",
+      "search_runs": "36a7f7f16daa2f14e1cd83235a52f2e3ba0f2d5f1f576c95b8115210f4458c18",
+      "state_appearances": "3c6df68bb825c6c3b75d4c12a7e93b00549252ac5f4bb60bfeabefecd0d4bdee",
+      "states": "4c5ae6f48f292d36144c0df78d80846c2c762254683c8bcbab7dcf4be844a1ac",
+      "stop_reason_records": "d56f808aa5898031eb3ec42fa187e1c075dd0704cc4616c8d6b7dcb3a9ff0546"
+    },
+    "db_unchanged": true,
+    "original_payload_equals_fake": true,
+    "bad_artifact_preserved": true,
+    "restored_original_positive": {
+      "accepted": true
+    }
+  },
+  "missing_outcome": {
+    "retrieve_candidates": [
+      {
+        "action_id": "sact_0c214d26902abce0058d",
+        "action_kind": "retrieve",
+        "task_key": "stask-dec_f6496f55e3cb3da04b73",
+        "soutc_key": "soutc_f4959da3dfd1873a0033",
+        "artifact": {
+          "created_at": "2026-10-08T10:00:25+00:00",
+          "name": "expansion_outcome",
+          "payload": {
+            "action_id": "sact_0c214d26902abce0058d",
+            "evidence_refs": [],
+            "outcome": {
+              "detail": {
+                "pool_digest": "5cec131a86d5523fdccab9c08f83b5e45b5bbc543c76f8915a57a831f1ae79c5",
+                "pool_size": 2,
+                "substrate_smiles": "CCO"
+              },
+              "kind": "pool_digest"
+            },
+            "outcome_version": "ppv1-runflow-outcome-1"
+          },
+          "payload_hash": "c2928f99a03a25764bf86642ce09224c5278fa88f4c296b431920c726f00b0ad",
+          "run_id": "missing-outcome",
+          "schema_version": "v43-artifact-1",
+          "task_id": "soutc_f4959da3dfd1873a0033"
+        },
+        "aggregated": true
+      },
+      {
+        "action_id": "sact_c9b1c202d5a84873029e",
+        "action_kind": "retrieve",
+        "task_key": "",
+        "soutc_key": "soutc_741ca9b78f7cab19d9ca",
+        "artifact": {
+          "created_at": "2026-10-08T10:00:25+00:00",
+          "name": "expansion_outcome",
+          "payload": {
+            "action_id": "sact_c9b1c202d5a84873029e",
+            "evidence_refs": [
+              "ppev_96f385f8f4e96787b3bc"
+            ],
+            "outcome": {
+              "detail": {
+                "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+                "source_event_id": "ppev_96f385f8f4e96787b3bc",
+                "substrate_smiles": "CC=O",
+                "unresolved_continuation": true
+              },
+              "kind": "no_local_candidate"
+            },
+            "outcome_version": "ppv1-runflow-outcome-1"
+          },
+          "payload_hash": "13769ab4ea989441c7dbc55d8f6e962fe8920f10c87f6f12ff6413b6db6ef53d",
+          "run_id": "missing-outcome",
+          "schema_version": "v43-artifact-1",
+          "task_id": "soutc_741ca9b78f7cab19d9ca"
+        },
+        "aggregated": true
+      },
+      {
+        "action_id": "sact_f5782d066e329544e0d3",
+        "action_kind": "retrieve",
+        "task_key": "",
+        "soutc_key": "soutc_3cbbefeac854fe4a5682",
+        "artifact": {
+          "created_at": "2026-10-08T10:00:25+00:00",
+          "name": "expansion_outcome",
+          "payload": {
+            "action_id": "sact_f5782d066e329544e0d3",
+            "evidence_refs": [
+              "ppev_96f385f8f4e96787b3bc"
+            ],
+            "outcome": {
+              "detail": {
+                "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+                "source_event_id": "ppev_96f385f8f4e96787b3bc",
+                "substrate_smiles": "[H][H]",
+                "unresolved_continuation": true
+              },
+              "kind": "no_local_candidate"
+            },
+            "outcome_version": "ppv1-runflow-outcome-1"
+          },
+          "payload_hash": "d37db4443a5feeae89118726aa1e38a4321ab7d0383ffe155c065fa0d870ef70",
+          "run_id": "missing-outcome",
+          "schema_version": "v43-artifact-1",
+          "task_id": "soutc_3cbbefeac854fe4a5682"
+        },
+        "aggregated": true
+      }
+    ],
+    "missing": {
+      "action_id": "sact_c9b1c202d5a84873029e",
+      "action_kind": "retrieve",
+      "task_key": "",
+      "soutc_key": "soutc_741ca9b78f7cab19d9ca",
+      "artifact": {
+        "created_at": "2026-10-08T10:00:25+00:00",
+        "name": "expansion_outcome",
+        "payload": {
+          "action_id": "sact_c9b1c202d5a84873029e",
+          "evidence_refs": [
+            "ppev_96f385f8f4e96787b3bc"
+          ],
+          "outcome": {
+            "detail": {
+              "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+              "source_event_id": "ppev_96f385f8f4e96787b3bc",
+              "substrate_smiles": "CC=O",
+              "unresolved_continuation": true
+            },
+            "kind": "no_local_candidate"
+          },
+          "outcome_version": "ppv1-runflow-outcome-1"
+        },
+        "payload_hash": "13769ab4ea989441c7dbc55d8f6e962fe8920f10c87f6f12ff6413b6db6ef53d",
+        "run_id": "missing-outcome",
+        "schema_version": "v43-artifact-1",
+        "task_id": "soutc_741ca9b78f7cab19d9ca"
+      },
+      "aggregated": true
+    },
+    "direct_artifact_guard": {
+      "accepted": false,
+      "exception": "SearchArtifactIntegrityError",
+      "message": "搜索 artifact 完整性失败:soutc_741ca9b78f7cab19d9ca/expansion_outcome(hash 不符;保全原文件,不静默跳过、不覆盖重跑)",
+      "detail": {
+        "task_key": "soutc_741ca9b78f7cab19d9ca",
+        "name": "expansion_outcome",
+        "kind": "artifact_hash_mismatch",
+        "original_error": "ArtifactIntegrityError",
+        "stored_hash": "13769ab4ea989441c7dbc55d8f6e962fe8920f10c87f6f12ff6413b6db6ef53d",
+        "actual_hash": "bf99dad7789d978e2faed66763a62809104a943a3e676c54bde61c7f7f8f1e56"
+      }
+    },
+    "read_native_export_response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出引用的 artifact 损坏:soutc_741ca9b78f7cab19d9ca/expansion_outcome(H07 完整性失败;保全原文件,不静默略过)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "soutc_741ca9b78f7cab19d9ca/expansion_outcome",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "build_native_result_response": {
+      "accepted": false,
+      "exception": "NativeResultContractError",
+      "message": "原生结果消费的必要 artifact 损坏:soutc_741ca9b78f7cab19d9ca/expansion_outcome(H07 完整性失败;保全原文件,不静默略过、不清洗后继续)",
+      "detail": {
+        "kind": "native_result_artifact_corrupt",
+        "task_key": "soutc_741ca9b78f7cab19d9ca",
+        "name": "expansion_outcome",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "table_hash_before": {
+      "budget_reservations": "984819ac85100e7a52a2e70bce5db7fa9b8c3114255d3eb1fcad87c9a93f451c",
+      "endpoint_records": "6cbfada9a7ec43aea8f9da87c4c0a680940d097b643e9cb242cca9be766f49e9",
+      "event_appearance_links": "2609de46ee33137ae7d38782ae1fae4e09555495dc72bb759a2712ff9f213af8",
+      "events": "89d8703261ddd82f6efae732f75ed479114cea2d48d7ed84e967592997b1f8cf",
+      "expansion_plans": "540ed3266c01fcca258d22e6d4e859dd3f601664906c96e57a584641caed011a",
+      "hypotheses": "8619d6ba6a579e2b6b7e850740d7f4eebbcf3360991a5ca0432ea9214459699e",
+      "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+      "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "report_projections": "b87b0f26d9805b8db5fc4c7a6a47397df5c166703a3542eb07037a408ec27196",
+      "search_actions": "19d11d3dac92f9e2edd44722efd3a06d7b584899d68a882ffb549a1a769ee2e9",
+      "search_attempts": "d4255c8caf8e530cfc41fc18b41197ac45643255568c2824248174ec1559128a",
+      "search_commit_records": "d333ac1f7b238a2fb542e073dc7bed0ff6fe1d408608785d9838fd661255ce71",
+      "search_runs": "8c7f637c82a0c229b8a4ac26d06e1c0c0cd448b8f3dd096a2b748099e56a9ee4",
+      "state_appearances": "b4d8d9a53120662f3b47fa17923ecba0caf55ee25b696152d8336e0ef9292b55",
+      "states": "4c5ae6f48f292d36144c0df78d80846c2c762254683c8bcbab7dcf4be844a1ac",
+      "stop_reason_records": "73432822625e5acc52822046376705cb72f439944ea5f83beb1f49d9ba292f94"
+    },
+    "table_hash_after": {
+      "budget_reservations": "984819ac85100e7a52a2e70bce5db7fa9b8c3114255d3eb1fcad87c9a93f451c",
+      "endpoint_records": "6cbfada9a7ec43aea8f9da87c4c0a680940d097b643e9cb242cca9be766f49e9",
+      "event_appearance_links": "2609de46ee33137ae7d38782ae1fae4e09555495dc72bb759a2712ff9f213af8",
+      "events": "89d8703261ddd82f6efae732f75ed479114cea2d48d7ed84e967592997b1f8cf",
+      "expansion_plans": "540ed3266c01fcca258d22e6d4e859dd3f601664906c96e57a584641caed011a",
+      "hypotheses": "8619d6ba6a579e2b6b7e850740d7f4eebbcf3360991a5ca0432ea9214459699e",
+      "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+      "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "report_projections": "b87b0f26d9805b8db5fc4c7a6a47397df5c166703a3542eb07037a408ec27196",
+      "search_actions": "19d11d3dac92f9e2edd44722efd3a06d7b584899d68a882ffb549a1a769ee2e9",
+      "search_attempts": "d4255c8caf8e530cfc41fc18b41197ac45643255568c2824248174ec1559128a",
+      "search_commit_records": "d333ac1f7b238a2fb542e073dc7bed0ff6fe1d408608785d9838fd661255ce71",
+      "search_runs": "8c7f637c82a0c229b8a4ac26d06e1c0c0cd448b8f3dd096a2b748099e56a9ee4",
+      "state_appearances": "b4d8d9a53120662f3b47fa17923ecba0caf55ee25b696152d8336e0ef9292b55",
+      "states": "4c5ae6f48f292d36144c0df78d80846c2c762254683c8bcbab7dcf4be844a1ac",
+      "stop_reason_records": "73432822625e5acc52822046376705cb72f439944ea5f83beb1f49d9ba292f94"
+    },
+    "db_unchanged": true,
+    "bad_artifact_preserved": true,
+    "native_aggregation_count": 4,
+    "restored_positive": {
+      "accepted": true
+    }
+  },
+  "projection_only": {
+    "native_read_before": {
+      "accepted": true
+    },
+    "fake_projection_read": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影的已表达字段与按登记 adapter 从其原生载荷同源复算的内容不符:['route.steps', 'unprojectable_summaries'](有损投影不许可捏造/删除已提交事件、deferred 或其它已表达事实;自洽重算 projection_digest 换新目录不洗白;保全原文件)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "adapter_derived_content",
+        "mismatched_fields": [
+          "route.steps",
+          "unprojectable_summaries"
+        ],
+        "native_export_digest": "3317d56d28ba74115f092e39dad0a2f097024ad84f7a4d7b23a9066fbaf97b9e"
+      }
+    },
+    "native_read_after": {
+      "accepted": true
+    },
+    "true_event_count": 1,
+    "true_deferred_count": 1,
+    "false_step_count": 0,
+    "false_deferred_count": 0,
+    "native_refs_unchanged": true,
+    "manifest_unchanged": "296ebdc33eb9f209d375149f42fe53f70a8363ae783cefa3586fd199d6488aba",
+    "payload_unchanged": "a48d833057ab07d366c30d7c7caab5147db9c98d2269453c0474180b5e221ff2",
+    "db_unchanged": true,
+    "core_digest_self_consistent": true
+  },
+  "public_resume": {
+    "before_counters": {
+      "events": 1,
+      "search_attempts": 1,
+      "model_requests": 0,
+      "budget_reservations": 13,
+      "search_actions": 6,
+      "search_commit_records": 5
+    },
+    "after_counters": {
+      "events": 1,
+      "search_attempts": 1,
+      "model_requests": 0,
+      "budget_reservations": 13,
+      "search_actions": 6,
+      "search_commit_records": 5
+    },
+    "no_business_duplicate": true,
+    "old_bytes_preserved": true,
+    "summaries": [
+      {
+        "run_id": "public-resume",
+        "profile": "pollutant_pathway_v1",
+        "runflow_version": "ppv1-runflow-5",
+        "resumed": true,
+        "stop": {
+          "primary": "budget_limit",
+          "other_reasons": [],
+          "unexplored": {
+            "pending_actions": 0,
+            "deferred": 1,
+            "blocked": 0,
+            "blocked_objects": [],
+            "claimed_actions": 0,
+            "open_attempts": 0,
+            "pending_requests": 0,
+            "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search"
+          },
+          "budget": {
+            "version": "ppv1-search-limits-3",
+            "run_level": {
+              "max_total_search_actions": {
+                "max": 10,
+                "used": 5,
+                "remaining": 5
+              },
+              "max_retrievals_total": {
+                "max": 64,
+                "used": 3,
+                "remaining": 61
+              },
+              "max_scenario_transitions": {
+                "max": 2,
+                "used": 0,
+                "remaining": 2
+              },
+              "max_real_model_requests": {
+                "max": 0,
+                "used": 0,
+                "remaining": 0
+              }
+            },
+            "scoped": {
+              "max_retrievals_per_parent": {
+                "spath_45c0308ef24f68ecd9dc": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                },
+                "spath_cc001fda2d8a70281ed7": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                },
+                "spath_e17e9e24031d84509f29": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                }
+              },
+              "max_alternative_hypotheses_per_parent": {
+                "spath_e17e9e24031d84509f29": {
+                  "max": 2,
+                  "used": 1,
+                  "remaining": 1
+                }
+              },
+              "max_attempts_per_hypothesis": {
+                "hyp_f9206530ef7b91b65730": {
+                  "max": 2,
+                  "used": 1,
+                  "remaining": 1
+                }
+              },
+              "max_reopens_per_hypothesis": {}
+            }
+          },
+          "budget_exhausted_keys": [
+            "max_retrievals_per_parent@spath_45c0308ef24f68ecd9dc",
+            "max_retrievals_per_parent@spath_cc001fda2d8a70281ed7",
+            "max_retrievals_per_parent@spath_e17e9e24031d84509f29"
+          ],
+          "events_submitted_session": [],
+          "runflow_version": "ppv1-runflow-5"
+        },
+        "stop_reason": "budget_limit",
+        "counts": {
+          "states": 3,
+          "state_appearances": 4,
+          "hypotheses": 1,
+          "events": 1,
+          "report_projections": 1,
+          "expansion_plans": 1,
+          "event_appearance_links": 3,
+          "provenance_records": 0
+        },
+        "recovery": {
+          "actions": [
+            {
+              "action_id": "sact_2390ee0a270b8c2ded69",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_5e2ea2d06ba66196d8da",
+              "action_kind": "expand_hypothesis",
+              "status": "deferred",
+              "boundary": null,
+              "disposition": "not_claimed_no_recovery_needed"
+            },
+            {
+              "action_id": "sact_69d2b1dd2e3ee1bec793",
+              "action_kind": "decide",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_d3818a6a24898814805a",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_e19e5d7302f70592d98a",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_fb2bda4026db8236505d",
+              "action_kind": "expand_hypothesis",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            }
+          ],
+          "pending_requests": [],
+          "unknown_status_requests": [],
+          "isolated_actions": []
+        },
+        "frozen_plan_binding": {
+          "anchor_action_ids": [
+            "sact_2390ee0a270b8c2ded69"
+          ],
+          "anchor_statuses": [
+            "done"
+          ],
+          "anchor_plan_digest": "697e19eefbdf59e1361cea99e6f653870b72e70ae334b1d94f6b682d9e489b86",
+          "frozen_plan_digest": "697e19eefbdf59e1361cea99e6f653870b72e70ae334b1d94f6b682d9e489b86",
+          "task_key_verified": true,
+          "note": "后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合"
+        },
+        "driver_session": {
+          "pid": 92567,
+          "acquired_at": "2026-10-08T10:00:26+00:00",
+          "note": "flock 是执行权权威;崩溃 OS 自动释放"
+        },
+        "endpoint": {
+          "execution_status": "completed",
+          "search_stop_reason": "budget_limit",
+          "chemical_endpoint_assessment": "supported_mineralization",
+          "bookkeeping_status": "unknown",
+          "independent_source_support_count": 1,
+          "inherited_unresolved_dependencies": 0,
+          "necessary_condition_unknown_keys": [],
+          "necessary_condition_conflict_keys": [],
+          "payload_hash": "fd0b875c6e2a1c134f2cb35b119150b09ab8ea129221ad9c8905c39f5215223a"
+        },
+        "endpoint_record_payload_hash": "fd0b875c6e2a1c134f2cb35b119150b09ab8ea129221ad9c8905c39f5215223a",
+        "native_result": {
+          "content_digest": "97a20c0526d74faeaaef4c76c896907c84abc5602497803e6f7ae30f151c6733",
+          "task_key": "run-native-result:97a20c0526d74faeaaef4c76",
+          "native_result_version": "ppv1-native-result-2",
+          "note": "S4a 对象底座:完整字段 + 确定性规范化(同事实同 digest);正式文件导出见 native_export"
+        },
+        "native_export": {
+          "export_digest": "0f29e4366ba2c58b1a9d42bfb09fb38db5f7dcc0dae9c6b477440f029cd7c42c",
+          "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_supp_r1_ws/runs/public-resume/native_export/0f29e4366ba2c58b1a9d42bf",
+          "payload_sha256": "cfd3fa76d4d28d7e74de09b0c278155f8c90a775493bbea0002de9ea183251ae",
+          "content_digest": "97a20c0526d74faeaaef4c76c896907c84abc5602497803e6f7ae30f151c6733",
+          "schema_version": "ppv1-native-export-2",
+          "export_policy_version": "ppv1-native-export-policy-2",
+          "note": "S4b 正式文件导出(全量事实 + manifest 新鲜度锚);读取/消费走 read_native_export(首消费:missing/corrupt/version/policy/stale/reference 拒)"
+        },
+        "v3_projection": {
+          "projection_digest": "848ccb78398649b9a70bbbeaa006f0ed2e8742d231c2fd341d7705c30c959d53",
+          "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_supp_r1_ws/runs/public-resume/v3_projection/848ccb78398649b9a70bbbea",
+          "native_export_digest": "0f29e4366ba2c58b1a9d42bfb09fb38db5f7dcc0dae9c6b477440f029cd7c42c",
+          "lossy_projection": true,
+          "steps": 1,
+          "information_loss_axes": [
+            "alternative_reactions",
+            "audit_proof_scope",
+            "budget_stop_reason",
+            "coefficients",
+            "conditions_dependencies",
+            "coproducts",
+            "deferred_unexpanded",
+            "endpoint_evidence_level",
+            "path_identity",
+            "route_origins",
+            "source_provenance",
+            "unknown_partial_axes"
+          ],
+          "note": "v3 有损投影(lossy_projection;原生引用 + 信息损失清单);反向消费禁止 —— 不得从投影改写原生事实/事件;读取走 read_v3_projection"
+        }
+      },
+      {
+        "run_id": "public-resume",
+        "profile": "pollutant_pathway_v1",
+        "runflow_version": "ppv1-runflow-5",
+        "resumed": true,
+        "stop": {
+          "primary": "budget_limit",
+          "other_reasons": [],
+          "unexplored": {
+            "pending_actions": 0,
+            "deferred": 1,
+            "blocked": 0,
+            "blocked_objects": [],
+            "claimed_actions": 0,
+            "open_attempts": 0,
+            "pending_requests": 0,
+            "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search"
+          },
+          "budget": {
+            "version": "ppv1-search-limits-3",
+            "run_level": {
+              "max_total_search_actions": {
+                "max": 10,
+                "used": 5,
+                "remaining": 5
+              },
+              "max_retrievals_total": {
+                "max": 64,
+                "used": 3,
+                "remaining": 61
+              },
+              "max_scenario_transitions": {
+                "max": 2,
+                "used": 0,
+                "remaining": 2
+              },
+              "max_real_model_requests": {
+                "max": 0,
+                "used": 0,
+                "remaining": 0
+              }
+            },
+            "scoped": {
+              "max_retrievals_per_parent": {
+                "spath_45c0308ef24f68ecd9dc": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                },
+                "spath_cc001fda2d8a70281ed7": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                },
+                "spath_e17e9e24031d84509f29": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                }
+              },
+              "max_alternative_hypotheses_per_parent": {
+                "spath_e17e9e24031d84509f29": {
+                  "max": 2,
+                  "used": 1,
+                  "remaining": 1
+                }
+              },
+              "max_attempts_per_hypothesis": {
+                "hyp_f9206530ef7b91b65730": {
+                  "max": 2,
+                  "used": 1,
+                  "remaining": 1
+                }
+              },
+              "max_reopens_per_hypothesis": {}
+            }
+          },
+          "budget_exhausted_keys": [
+            "max_retrievals_per_parent@spath_45c0308ef24f68ecd9dc",
+            "max_retrievals_per_parent@spath_cc001fda2d8a70281ed7",
+            "max_retrievals_per_parent@spath_e17e9e24031d84509f29"
+          ],
+          "events_submitted_session": [],
+          "runflow_version": "ppv1-runflow-5"
+        },
+        "stop_reason": "budget_limit",
+        "counts": {
+          "states": 3,
+          "state_appearances": 4,
+          "hypotheses": 1,
+          "events": 1,
+          "report_projections": 1,
+          "expansion_plans": 1,
+          "event_appearance_links": 3,
+          "provenance_records": 0
+        },
+        "recovery": {
+          "actions": [
+            {
+              "action_id": "sact_2390ee0a270b8c2ded69",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_5e2ea2d06ba66196d8da",
+              "action_kind": "expand_hypothesis",
+              "status": "deferred",
+              "boundary": null,
+              "disposition": "not_claimed_no_recovery_needed"
+            },
+            {
+              "action_id": "sact_69d2b1dd2e3ee1bec793",
+              "action_kind": "decide",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_d3818a6a24898814805a",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_e19e5d7302f70592d98a",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_fb2bda4026db8236505d",
+              "action_kind": "expand_hypothesis",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            }
+          ],
+          "pending_requests": [],
+          "unknown_status_requests": [],
+          "isolated_actions": []
+        },
+        "frozen_plan_binding": {
+          "anchor_action_ids": [
+            "sact_2390ee0a270b8c2ded69"
+          ],
+          "anchor_statuses": [
+            "done"
+          ],
+          "anchor_plan_digest": "697e19eefbdf59e1361cea99e6f653870b72e70ae334b1d94f6b682d9e489b86",
+          "frozen_plan_digest": "697e19eefbdf59e1361cea99e6f653870b72e70ae334b1d94f6b682d9e489b86",
+          "task_key_verified": true,
+          "note": "后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合"
+        },
+        "driver_session": {
+          "pid": 92567,
+          "acquired_at": "2026-10-08T10:00:26+00:00",
+          "note": "flock 是执行权权威;崩溃 OS 自动释放"
+        },
+        "endpoint": {
+          "execution_status": "completed",
+          "search_stop_reason": "budget_limit",
+          "chemical_endpoint_assessment": "supported_mineralization",
+          "bookkeeping_status": "unknown",
+          "independent_source_support_count": 1,
+          "inherited_unresolved_dependencies": 0,
+          "necessary_condition_unknown_keys": [],
+          "necessary_condition_conflict_keys": [],
+          "payload_hash": "fd0b875c6e2a1c134f2cb35b119150b09ab8ea129221ad9c8905c39f5215223a"
+        },
+        "endpoint_record_payload_hash": "fd0b875c6e2a1c134f2cb35b119150b09ab8ea129221ad9c8905c39f5215223a",
+        "native_result": {
+          "content_digest": "97a20c0526d74faeaaef4c76c896907c84abc5602497803e6f7ae30f151c6733",
+          "task_key": "run-native-result:97a20c0526d74faeaaef4c76",
+          "native_result_version": "ppv1-native-result-2",
+          "note": "S4a 对象底座:完整字段 + 确定性规范化(同事实同 digest);正式文件导出见 native_export"
+        },
+        "native_export": {
+          "export_digest": "0f29e4366ba2c58b1a9d42bfb09fb38db5f7dcc0dae9c6b477440f029cd7c42c",
+          "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_supp_r1_ws/runs/public-resume/native_export/0f29e4366ba2c58b1a9d42bf",
+          "payload_sha256": "cfd3fa76d4d28d7e74de09b0c278155f8c90a775493bbea0002de9ea183251ae",
+          "content_digest": "97a20c0526d74faeaaef4c76c896907c84abc5602497803e6f7ae30f151c6733",
+          "schema_version": "ppv1-native-export-2",
+          "export_policy_version": "ppv1-native-export-policy-2",
+          "note": "S4b 正式文件导出(全量事实 + manifest 新鲜度锚);读取/消费走 read_native_export(首消费:missing/corrupt/version/policy/stale/reference 拒)"
+        },
+        "v3_projection": {
+          "projection_digest": "848ccb78398649b9a70bbbeaa006f0ed2e8742d231c2fd341d7705c30c959d53",
+          "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_supp_r1_ws/runs/public-resume/v3_projection/848ccb78398649b9a70bbbea",
+          "native_export_digest": "0f29e4366ba2c58b1a9d42bfb09fb38db5f7dcc0dae9c6b477440f029cd7c42c",
+          "lossy_projection": true,
+          "steps": 1,
+          "information_loss_axes": [
+            "alternative_reactions",
+            "audit_proof_scope",
+            "budget_stop_reason",
+            "coefficients",
+            "conditions_dependencies",
+            "coproducts",
+            "deferred_unexpanded",
+            "endpoint_evidence_level",
+            "path_identity",
+            "route_origins",
+            "source_provenance",
+            "unknown_partial_axes"
+          ],
+          "note": "v3 有损投影(lossy_projection;原生引用 + 信息损失清单);反向消费禁止 —— 不得从投影改写原生事实/事件;读取走 read_v3_projection"
+        }
+      },
+      {
+        "run_id": "public-resume",
+        "profile": "pollutant_pathway_v1",
+        "runflow_version": "ppv1-runflow-5",
+        "resumed": true,
+        "stop": {
+          "primary": "budget_limit",
+          "other_reasons": [],
+          "unexplored": {
+            "pending_actions": 0,
+            "deferred": 1,
+            "blocked": 0,
+            "blocked_objects": [],
+            "claimed_actions": 0,
+            "open_attempts": 0,
+            "pending_requests": 0,
+            "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search"
+          },
+          "budget": {
+            "version": "ppv1-search-limits-3",
+            "run_level": {
+              "max_total_search_actions": {
+                "max": 10,
+                "used": 5,
+                "remaining": 5
+              },
+              "max_retrievals_total": {
+                "max": 64,
+                "used": 3,
+                "remaining": 61
+              },
+              "max_scenario_transitions": {
+                "max": 2,
+                "used": 0,
+                "remaining": 2
+              },
+              "max_real_model_requests": {
+                "max": 0,
+                "used": 0,
+                "remaining": 0
+              }
+            },
+            "scoped": {
+              "max_retrievals_per_parent": {
+                "spath_45c0308ef24f68ecd9dc": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                },
+                "spath_cc001fda2d8a70281ed7": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                },
+                "spath_e17e9e24031d84509f29": {
+                  "max": 1,
+                  "used": 1,
+                  "remaining": 0
+                }
+              },
+              "max_alternative_hypotheses_per_parent": {
+                "spath_e17e9e24031d84509f29": {
+                  "max": 2,
+                  "used": 1,
+                  "remaining": 1
+                }
+              },
+              "max_attempts_per_hypothesis": {
+                "hyp_f9206530ef7b91b65730": {
+                  "max": 2,
+                  "used": 1,
+                  "remaining": 1
+                }
+              },
+              "max_reopens_per_hypothesis": {}
+            }
+          },
+          "budget_exhausted_keys": [
+            "max_retrievals_per_parent@spath_45c0308ef24f68ecd9dc",
+            "max_retrievals_per_parent@spath_cc001fda2d8a70281ed7",
+            "max_retrievals_per_parent@spath_e17e9e24031d84509f29"
+          ],
+          "events_submitted_session": [],
+          "runflow_version": "ppv1-runflow-5"
+        },
+        "stop_reason": "budget_limit",
+        "counts": {
+          "states": 3,
+          "state_appearances": 4,
+          "hypotheses": 1,
+          "events": 1,
+          "report_projections": 1,
+          "expansion_plans": 1,
+          "event_appearance_links": 3,
+          "provenance_records": 0
+        },
+        "recovery": {
+          "actions": [
+            {
+              "action_id": "sact_2390ee0a270b8c2ded69",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_5e2ea2d06ba66196d8da",
+              "action_kind": "expand_hypothesis",
+              "status": "deferred",
+              "boundary": null,
+              "disposition": "not_claimed_no_recovery_needed"
+            },
+            {
+              "action_id": "sact_69d2b1dd2e3ee1bec793",
+              "action_kind": "decide",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_d3818a6a24898814805a",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_e19e5d7302f70592d98a",
+              "action_kind": "retrieve",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            },
+            {
+              "action_id": "sact_fb2bda4026db8236505d",
+              "action_kind": "expand_hypothesis",
+              "status": "done",
+              "boundary": "B4_verified",
+              "disposition": "done_commit_verified"
+            }
+          ],
+          "pending_requests": [],
+          "unknown_status_requests": [],
+          "isolated_actions": []
+        },
+        "frozen_plan_binding": {
+          "anchor_action_ids": [
+            "sact_2390ee0a270b8c2ded69"
+          ],
+          "anchor_statuses": [
+            "done"
+          ],
+          "anchor_plan_digest": "697e19eefbdf59e1361cea99e6f653870b72e70ae334b1d94f6b682d9e489b86",
+          "frozen_plan_digest": "697e19eefbdf59e1361cea99e6f653870b72e70ae334b1d94f6b682d9e489b86",
+          "task_key_verified": true,
+          "note": "后段锚定:root retrieve 已 done(B3/B4)时执行层核验不可达,本核对在 resume 首消费前闭合"
+        },
+        "driver_session": {
+          "pid": 92567,
+          "acquired_at": "2026-10-08T10:00:26+00:00",
+          "note": "flock 是执行权权威;崩溃 OS 自动释放"
+        },
+        "endpoint": {
+          "execution_status": "completed",
+          "search_stop_reason": "budget_limit",
+          "chemical_endpoint_assessment": "supported_mineralization",
+          "bookkeeping_status": "unknown",
+          "independent_source_support_count": 1,
+          "inherited_unresolved_dependencies": 0,
+          "necessary_condition_unknown_keys": [],
+          "necessary_condition_conflict_keys": [],
+          "payload_hash": "fd0b875c6e2a1c134f2cb35b119150b09ab8ea129221ad9c8905c39f5215223a"
+        },
+        "endpoint_record_payload_hash": "fd0b875c6e2a1c134f2cb35b119150b09ab8ea129221ad9c8905c39f5215223a",
+        "native_result": {
+          "content_digest": "97a20c0526d74faeaaef4c76c896907c84abc5602497803e6f7ae30f151c6733",
+          "task_key": "run-native-result:97a20c0526d74faeaaef4c76",
+          "native_result_version": "ppv1-native-result-2",
+          "note": "S4a 对象底座:完整字段 + 确定性规范化(同事实同 digest);正式文件导出见 native_export"
+        },
+        "native_export": {
+          "export_digest": "0f29e4366ba2c58b1a9d42bfb09fb38db5f7dcc0dae9c6b477440f029cd7c42c",
+          "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_supp_r1_ws/runs/public-resume/native_export/0f29e4366ba2c58b1a9d42bf",
+          "payload_sha256": "cfd3fa76d4d28d7e74de09b0c278155f8c90a775493bbea0002de9ea183251ae",
+          "content_digest": "97a20c0526d74faeaaef4c76c896907c84abc5602497803e6f7ae30f151c6733",
+          "schema_version": "ppv1-native-export-2",
+          "export_policy_version": "ppv1-native-export-policy-2",
+          "note": "S4b 正式文件导出(全量事实 + manifest 新鲜度锚);读取/消费走 read_native_export(首消费:missing/corrupt/version/policy/stale/reference 拒)"
+        },
+        "v3_projection": {
+          "projection_digest": "848ccb78398649b9a70bbbeaa006f0ed2e8742d231c2fd341d7705c30c959d53",
+          "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_supp_r1_ws/runs/public-resume/v3_projection/848ccb78398649b9a70bbbea",
+          "native_export_digest": "0f29e4366ba2c58b1a9d42bfb09fb38db5f7dcc0dae9c6b477440f029cd7c42c",
+          "lossy_projection": true,
+          "steps": 1,
+          "information_loss_axes": [
+            "alternative_reactions",
+            "audit_proof_scope",
+            "budget_stop_reason",
+            "coefficients",
+            "conditions_dependencies",
+            "coproducts",
+            "deferred_unexpanded",
+            "endpoint_evidence_level",
+            "path_identity",
+            "route_origins",
+            "source_provenance",
+            "unknown_partial_axes"
+          ],
+          "note": "v3 有损投影(lossy_projection;原生引用 + 信息损失清单);反向消费禁止 —— 不得从投影改写原生事实/事件;读取走 read_v3_projection"
+        }
+      }
+    ],
+    "read_controls": [
+      {
+        "native_read": {
+          "accepted": true
+        },
+        "projection_read": {
+          "accepted": true
+        }
+      },
+      {
+        "native_read": {
+          "accepted": true
+        },
+        "projection_read": {
+          "accepted": true
+        }
+      },
+      {
+        "native_read": {
+          "accepted": true
+        },
+        "projection_read": {
+          "accepted": true
+        }
+      }
+    ],
+    "settled_digest_stable": true,
+    "network_requests": 0
+  }
+}

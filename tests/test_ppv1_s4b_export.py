@@ -167,14 +167,14 @@ def test_native_export_public_chain_files_and_manifest(
     assert (out_dir / "manifest.json").is_file()
     manifest = json.loads(
         (out_dir / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["schema_version"] == "ppv1-native-export-1"
+    assert manifest["schema_version"] == "ppv1-native-export-2"
     assert manifest["run_id"] == "s4b"
     assert manifest["content_digest"] == out["native_result"][
         "content_digest"]
     assert manifest["export_policy"]["version"] == \
-        "ppv1-native-export-policy-1"
+        "ppv1-native-export-policy-2"
     assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
-    assert manifest["contract_versions"]["profile"] == "ppv1-profile-16"
+    assert manifest["contract_versions"]["profile"] == "ppv1-profile-17"
     assert manifest["payload_sha256"] == \
         out["native_export"]["payload_sha256"]
     # 无时间戳(G02 确定性面)
@@ -395,8 +395,9 @@ def test_g02_stale_after_policy_change(tmp_path: Path) -> None:
     runs_root, out = _full_fixture(tmp_path)
     digest = out["native_export"]["export_digest"]
     ledger = ledger_for(runs_root, "s4b")
+    # 未来策略(回修 r1 后当前策略版本为 -2,未来版本取 -3)
     future_policy = dict(native_export_policy())
-    future_policy["version"] = "ppv1-native-export-policy-2"
+    future_policy["version"] = "ppv1-native-export-policy-3"
     with pytest.raises(NativeExportContractError) as excinfo:
         read_native_export(ledger, runs_root / "s4b", digest,
                            policy=future_policy)
@@ -516,8 +517,8 @@ def test_v3_projection_lossy_marker_reference_and_losses(
     digest = out["v3_projection"]["projection_digest"]
     payload = read_v3_projection(runs_root / "s4b", digest)
     assert payload["lossy_projection"] is True
-    assert payload["schema_version"] == "ppv1-v3-projection-1"
-    assert payload["adapter_version"] == "ppv1-v3-projection-1"
+    assert payload["schema_version"] == "ppv1-v3-projection-2"
+    assert payload["adapter_version"] == "ppv1-v3-projection-2"
     ref = payload["native_reference"]
     assert ref["native_export_digest"] == \
         out["native_export"]["export_digest"]

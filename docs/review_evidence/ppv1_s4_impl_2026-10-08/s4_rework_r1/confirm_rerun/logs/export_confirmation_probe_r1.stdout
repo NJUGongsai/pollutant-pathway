@@ -1,0 +1,183 @@
+{
+  "positive_public_chain": true,
+  "focus_suite": "separate 18-pass JUnit",
+  "manifest_mutations": [
+    {
+      "case": "run_id_foreign",
+      "requested_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "manifest_declared_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "actual_core_digest": "3539e1de3455579c2e096b288f9485babc408693145c8a1cd7c248da008bf936",
+      "core_digest_matches_declared": false,
+      "response": {
+        "accepted": false,
+        "exception": "NativeExportContractError",
+        "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+        "detail": {
+          "kind": "export_manifest_corrupt",
+          "check": "manifest_core_digest",
+          "declared": "1c1b4fa671bd",
+          "recomputed": "3539e1de3455"
+        }
+      },
+      "modified_manifest_sha256": "fce542737a3ef7f7db7de520ffe6f5b04ca62593207dec3051c04b439d1e439a",
+      "preserved": true,
+      "tables_unchanged": true
+    },
+    {
+      "case": "contract_version_foreign",
+      "requested_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "manifest_declared_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "actual_core_digest": "ad4fe07e9afc3410a14f806cbe381a754ebcb051e81e8b64c1667ad8a0d68dad",
+      "core_digest_matches_declared": false,
+      "response": {
+        "accepted": false,
+        "exception": "NativeExportContractError",
+        "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+        "detail": {
+          "kind": "export_manifest_corrupt",
+          "check": "manifest_core_digest",
+          "declared": "1c1b4fa671bd",
+          "recomputed": "ad4fe07e9afc"
+        }
+      },
+      "modified_manifest_sha256": "bf12e37f199ce849a6357c169bfd95fb27dff44c885139884aa898195b3ba15f",
+      "preserved": true,
+      "tables_unchanged": true
+    },
+    {
+      "case": "policy_body_foreign",
+      "requested_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "manifest_declared_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "actual_core_digest": "abd815621b62c44efbe7be402f84ce743dabcd04ef614eaa639f106db57a2521",
+      "core_digest_matches_declared": false,
+      "response": {
+        "accepted": false,
+        "exception": "NativeExportContractError",
+        "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+        "detail": {
+          "kind": "export_manifest_corrupt",
+          "check": "manifest_core_digest",
+          "declared": "1c1b4fa671bd",
+          "recomputed": "abd815621b62"
+        }
+      },
+      "modified_manifest_sha256": "a4ce0c6404999663b9bfee06bf02dc1159b3601f0fdc1261be039fec15dbda0b",
+      "preserved": true,
+      "tables_unchanged": true
+    },
+    {
+      "case": "all_artifact_references_omitted",
+      "requested_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "manifest_declared_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "actual_core_digest": "90b9a9d9fca580337971e4a47210da7b87bbd0797d3bab26c3cd8bd0e31f23aa",
+      "core_digest_matches_declared": false,
+      "response": {
+        "accepted": false,
+        "exception": "NativeExportContractError",
+        "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+        "detail": {
+          "kind": "export_manifest_corrupt",
+          "check": "manifest_core_digest",
+          "declared": "1c1b4fa671bd",
+          "recomputed": "90b9a9d9fca5"
+        }
+      },
+      "modified_manifest_sha256": "ab69085bf8e091793ae3879669bdfd8000752b2b6043cdb84f33e9273f7c6f3b",
+      "preserved": true,
+      "tables_unchanged": true
+    }
+  ],
+  "necessary_reference_omission": {
+    "original_export_digest": "01f1faf9fe2521f67ea3137ebd0853821cee8e89ad1fc3a5ee58dbf67ef4c726",
+    "original_response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出引用的 artifact 损坏:stask-exp_956f9377e5862673c91b/production_report(H07 完整性失败;保全原文件,不静默略过)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "stask-exp_956f9377e5862673c91b/production_report",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "fake_export_digest": "ca62325d3d8689d21b054002a0ce71874e45aa493c54760e90b039c33d280c07",
+    "fake_response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出必要引用的 artifact 损坏:stask-exp_956f9377e5862673c91b/production_report(H07 完整性失败;保全原文件,不能跳过后当合法缺席)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "stask-exp_956f9377e5862673c91b/production_report",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "removed_refs": {
+      "ctx:pc_0757aa71e8cd78057880/path_context": {
+        "payload_hash": "034cabb10a2f3385d001f9850a55fded0e57289cfa4d943808948305cf27f151",
+        "source_action_id": ""
+      },
+      "run-plan/frozen_plan": {
+        "payload_hash": "fd888fc2eef9b54e160caa48be32d5a9776b9fd10372d6c5be510ce537727d27",
+        "source_action_id": ""
+      },
+      "soutc_23affeb465d856b5cc72/expansion_outcome": {
+        "payload_hash": "7e2799414d2ac52fb66fd065f9a747b0c7c57b839289ed4b0bf4ef69e997a14c",
+        "source_action_id": "sact_6e91c4807830b1562d9e"
+      },
+      "soutc_a2aa6f010e7fbbf8d562/expansion_outcome": {
+        "payload_hash": "77a2ad1395116339d5ae33f798180d6749eaecdfa3454b5d80b704ca1271b93c",
+        "source_action_id": "sact_af1b9e5d9b3d607d738c"
+      },
+      "soutc_b0c39291cc5bb2506fa6/expansion_outcome": {
+        "payload_hash": "506f72abcef1412c45b117c78229c76a46c8137ef0f94084275096b465c404ae",
+        "source_action_id": "sact_a7f8cf4dad9e64565a3f"
+      },
+      "soutc_e118955d2e23f326bfec/expansion_outcome": {
+        "payload_hash": "c2cec9de7111a3575eeca270881c7a7af7916c4683e4e5328af405cb92431903",
+        "source_action_id": "sact_d901e650d0eeeb29651e"
+      },
+      "stask-exp_956f9377e5862673c91b/production_report": {
+        "payload_hash": "29f4db854bf0819813431f9db6d10b5cd40f4a1f64ea8bd34b067226a197214a",
+        "source_action_id": "sact_bc26c0287c2d71d999fd"
+      }
+    },
+    "corrupted_report_key": "stask-exp_956f9377e5862673c91b/production_report",
+    "corrupted_report_sha256": "fe9f85eaad600941ac8217390fcab58f00477afdcbf7116b952034e8f4f2f792",
+    "corrupted_report_preserved": true,
+    "tables_unchanged": true,
+    "payload_bytes_unchanged": true
+  },
+  "projection_binding": {
+    "build_response": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影输入的 native_result 与其引用的导出 content_digest 不一致(混搭真 export 引用 + 假 native;拒)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "export_content_digest_binding",
+        "native_result_content_digest": "308ef750032ae7bcc54f47b08d941fd36d119f545c719cdb78f5bb7e16697bd5",
+        "manifest_content_digest": "f7ed3e4fb33ea7aba169d931a6af658cbd3efc0403cbe78b5d7ecf0aff574cca"
+      }
+    },
+    "response": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影输入的 native_result 与其引用的导出 content_digest 不一致(混搭真 export 引用 + 假 native;拒)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "export_content_digest_binding",
+        "native_result_content_digest": "308ef750032ae7bcc54f47b08d941fd36d119f545c719cdb78f5bb7e16697bd5",
+        "manifest_content_digest": "f7ed3e4fb33ea7aba169d931a6af658cbd3efc0403cbe78b5d7ecf0aff574cca"
+      }
+    },
+    "source_has_events": 1,
+    "projection_steps": null,
+    "source_deferred_count": 1,
+    "projection_deferred_count": null,
+    "native_reference_digest_matches_real": false,
+    "projection_native_reference": {},
+    "real_content_digest": "f7ed3e4fb33ea7aba169d931a6af658cbd3efc0403cbe78b5d7ecf0aff574cca",
+    "tables_unchanged": true
+  }
+}

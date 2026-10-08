@@ -1,0 +1,47 @@
+{
+  "adjudication": {
+    "committed_event_ids": [
+      "ev_2d13e59c50fd706a3160",
+      "ev_30dcbc6001ed8fbbf016"
+    ],
+    "n_adjudications": 2,
+    "payload_hashes_sha256": "54de84f1ddd8be7ff2670f12b0d3c6cae8af2b9cef99b2a8381dba4d3e5b86f5",
+    "policy_versions": [],
+    "schema_version": "v43-report-adjudication-1"
+  },
+  "counts": {
+    "n_committed_products": 4,
+    "n_merged_parents": 0,
+    "n_parents_no_reportable": 0,
+    "n_products_emitted": 3,
+    "n_report_only_products": 0,
+    "n_reportable_not_expanded": 3,
+    "n_reportable_products": 4,
+    "n_steps": 1,
+    "n_truncated_products": 0
+  },
+  "export_policy": {
+    "in_parent_dedupe": "keep_first_rank",
+    "multi_event_merge": "commit_order_created_at_then_event_id",
+    "parent_merge": "first_seen_identity_by_parent_seq",
+    "products_per_parent_cap": 5,
+    "raw_smiles_field": "product_smiles_full_fallback_product_smiles",
+    "step_order": "parent_seq"
+  },
+  "export_policy_sha256": "a5bd77bba99328d8a3c64a3b0990dcf5d1af4a88b671de61744bb3d19f8571aa",
+  "ledger_current_run": "legB",
+  "ledger_graph_revision": 2,
+  "parent_raw_form_variants": {
+    "CCO": [
+      "CCO"
+    ]
+  },
+  "predictions_lines": 1,
+  "predictions_sha256": "bff09630242a0b744688e77bf62676d75d649c17880f5df27a4f2660cceb3e41",
+  "root_unparseable": false,
+  "route_id": "legB",
+  "run_id": "legB",
+  "run_identity_fingerprint": "6ea822a4b6d0a3e3933f46bce5cfa004ec6c74c4693f4889f8f8a031781c163a",
+  "schema_version": "v43-export-v3-2",
+  "superseded": null
+}

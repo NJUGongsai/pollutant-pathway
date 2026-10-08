@@ -28,6 +28,17 @@
   recorded/来源直报不升级"本场景已观察事实" —— 存在未解决必要
   依赖时终点保持 unknown(evidence 保留 + blocked_reasons 披露),
   未解决依赖清单与依赖来源、条件评估、proof scope 一并保留;
+- **S4-C01(确认复核 §4,回修 r1)必要条件同源限制**:当前路线
+  已引入的必要条件(level=essential、basis=essential_claimed_by_
+  source)经**同源** ``PathContext.route_assessment()``(历史快照
+  逐边合取 + 当前阶段 live;旧边按记录值消费,不重评)评估为
+  unknown/conflict 时,终点同样保持 unknown —— 必要条件未知/
+  冲突不能被 recorded 或充分证据字段洗白;逐条评估行全文保留在
+  record.route_condition_assessment,输入摘要(route_conditions_
+  digest)入 derived_from 与首消费 staleness 同源重算;已知兼容
+  正控、无必要条件、缺启动 NAD 依赖正/负控保持既有行为(不全拒、
+  不解析自由文本、不新增化学门;契约 ppv1-endpoint-2 /
+  endpoint-policy-2);
 - **F03 不同来路与重复来源不增独立支持**:证据条目按"观察身份"
   (来源引用集合 + basis + 声明 + 窗口/检测/条件)去重后计数;
   同一来源的多个引用/同一观察的多个包装只算一次独立支持;
@@ -67,10 +78,10 @@ unverified_axes(未核实轴)、proof_scope(证明范围)。
 入口矩阵(每处消费的事实/权威/校验/失败表示):
 
 | # | 入口 | 消费事实 | 独立权威 | 校验 | 失败表示 |
-| 1 | derive_run_endpoint | stop ledger(持久行)/事件行/上下文 artifact/冻结计划证据 | search_actions/events/search_attempts + path_context artifact + frozen plan | stop report 六原因枚举;证据字段契约;去重同源 canonical_json | 派生内契约违反 ⇒ EndpointContractError(零写入) |
+| 1 | derive_run_endpoint | stop ledger(持久行)/事件行/上下文 artifact/冻结计划证据/**必要条件同源 route_assessment** | search_actions/events/search_attempts + path_context artifact + frozen plan | stop report 六原因枚举;证据字段契约;去重同源 canonical_json;必要条件 = PathContext 同源评估 | 派生内契约违反 ⇒ EndpointContractError(零写入) |
 | 2 | put_stop_record / put_endpoint_record | 派生载荷 | 本表行 | payload_hash 全量哈希;幂等同内容重写零漂移 | 同 run 异内容 = 正常更新(派生投影,不是事件);损坏行读取先拒 |
-| 3 | read_run_endpoint(非严格) | endpoint/stop 行 | DB 行 | 版本门 + payload_hash 复算 + 跨表引用一致 + 与当前事实的 staleness 对照 | 缺失 ⇒ None;损坏/未知版本/过期 ⇒ 结构化失败(保全,不覆盖) |
-| 4 | consume_run_endpoint(严格首消费) | 同上 | 同上 + 当前 events/actions/依赖/证据摘要 | 同上全部 + 任一输入漂移 ⇒ endpoint_record_stale 拒 | 拒绝 = 零写入、原行保全 |
+| 3 | read_run_endpoint(非严格) | endpoint/stop 行 | DB 行 | 版本门 + payload_hash 复算 + 跨表引用一致 + 与当前事实的 staleness 对照(含 route_conditions_digest) | 缺失 ⇒ None;损坏/未知版本/过期 ⇒ 结构化失败(保全,不覆盖) |
+| 4 | consume_run_endpoint(严格首消费) | 同上 | 同上 + 当前 events/actions/依赖/证据/必要条件摘要 | 同上全部 + 任一输入漂移 ⇒ endpoint_record_stale 拒 | 拒绝 = 零写入、原行保全 |
 | 5 | build_native_result(native_result.py) | endpoint 记录 + 全部持久事实 | 本模块产出的 endpoint/stop 记录 + store 行 | 只消费已验证记录 | 过期/损坏先拒,不包装成"正式结果" |
 
 resume/replay:derive 只读业务表(事件/假设/状态/动作行零写入),
@@ -340,6 +351,91 @@ def _inherited_unresolved_dependencies(ledger) -> list[dict]:
     return sorted(seen.values(), key=lambda d: d["dependency_id"])
 
 
+def _route_condition_assessments(ledger) -> list[dict]:
+    """S4-C01(确认复核 §4):当前路线已引入的**必要条件**评估消费。
+
+    与 F02 依赖继承同一来源面(search_actions.context_ref 去重枚举的
+    上下文,经 load_context H07 + 内容身份首消费),消费**同源**
+    ``PathContext.route_assessment()``(历史快照逐边合取 + 当前阶段
+    live;旧边结论按记录值消费,不拿当前事实重评后洗白),收集:
+
+    - 每上下文的 requirement_coverage 摘要(unknown_keys/conflict_
+      keys/essential_keys)与 environment_fit;
+    - **必要**(level=essential 且 basis=essential_claimed_by_source)
+      且 status ∈ {unknown, conflict} 的逐条评估行**全文保留**
+      (key/status/reason/fact_sources/requirement_signature/
+      route_edge_source 等;不解析自由文本,不改化学门);
+    - 阻断输入 = 必要条件 unknown/conflict 行(与 F02 未解决依赖
+      同层);无必要要求或全部满足的上下文只记摘要,不构成阻断
+      (合法正控保持 supported,不"全拒")。
+
+    上下文消费失败 ⇒ endpoint_context_consumption_failed 结构化拒
+    (不清洗后继续)。"""
+    from .path_context import (
+        CONFLICT as _CONFLICT,
+        REQUIREMENT_BASIS_ESSENTIAL_CLAIMED as _ESSENTIAL_CLAIMED,
+        REQUIREMENT_ESSENTIAL as _ESSENTIAL,
+        UNKNOWN as _UNKNOWN,
+    )
+    from .production import load_context
+    rows = ledger.conn.execute(
+        "SELECT DISTINCT context_ref FROM search_actions WHERE run_id = ?"
+        " AND context_ref != '' ORDER BY context_ref",
+        (ledger.run_id,)).fetchall()
+    out: list[dict] = []
+    for row in rows:
+        context_ref = str(row["context_ref"])
+        try:
+            context = load_context(ledger.artifact_store, context_ref)
+        except Exception as exc:  # noqa: BLE001 —— H07/身份失败如实上抛
+            raise EndpointContractError(
+                f"endpoint 派生消费上下文 {context_ref} 失败(首消费守卫;"
+                "不清洗后继续)",
+                {"kind": "endpoint_context_consumption_failed",
+                 "context_ref": context_ref,
+                 "error": f"{type(exc).__name__}: {exc}"[:200]}) from exc
+        assessment = context.route_assessment()
+        coverage = dict(assessment.requirement_coverage or {})
+        necessary_rows = [
+            dict(r) for r in (assessment.per_requirement or [])
+            if isinstance(r, dict)
+            and str(r.get("level") or "") == _ESSENTIAL
+            and str(r.get("basis") or "") == _ESSENTIAL_CLAIMED]
+        blocking_rows = [
+            r for r in necessary_rows
+            if str(r.get("status") or "") in (_UNKNOWN, _CONFLICT)]
+        out.append({
+            "context_ref": context_ref,
+            "environment_fit": str(assessment.environment_fit or ""),
+            "requirement_coverage": {
+                "essential_keys": list(coverage.get("essential_keys") or []),
+                "unknown_keys": list(coverage.get("unknown_keys") or []),
+                "conflict_keys": list(coverage.get("conflict_keys") or []),
+            },
+            "necessary_unmet_per_requirement": blocking_rows,
+            "source": ("PathContext.route_assessment(历史快照逐边合取 + "
+                       "当前阶段 live;旧边按记录值消费,不重评)"),
+        })
+    return out
+
+
+def _necessary_condition_keys(route_conditions: list[dict]) -> tuple:
+    """必要条件 unknown/conflict 键聚合(去重稳定排序;来自同源
+    route_assessment 的阻断行,不解析自由文本)。"""
+    unknown: set[str] = set()
+    conflict: set[str] = set()
+    for entry in route_conditions or []:
+        for row in entry.get("necessary_unmet_per_requirement") or []:
+            key = str(row.get("key") or "")
+            if not key:
+                continue
+            if str(row.get("status") or "") == "conflict":
+                conflict.add(key)
+            else:
+                unknown.add(key)
+    return sorted(unknown), sorted(conflict)
+
+
 def _route_conditions_snapshot(ledger) -> dict:
     """条件/环境快照(终点证据保留字段的条件侧输入):上下文条件
     事实按 key 聚合已知/未知计数与冲突计数;known_conflict 的评估归
@@ -458,7 +554,8 @@ def _bookkeeping_from_events(store, events: list[dict]) -> dict:
 
 
 def _assess_endpoint(evidence: list[dict],
-                     inherited_unresolved: list[dict]) -> dict:
+                     inherited_unresolved: list[dict],
+                     route_conditions: list[dict] | None = None) -> dict:
     """chemical_endpoint_assessment 派生(四值;只由独立终点证据决定)。
 
     - F01:无证据/证据不足 ⇒ unknown(停止原因永不映射为终点);
@@ -468,10 +565,16 @@ def _assess_endpoint(evidence: list[dict],
     - 声明级充分性:claim 所需字段缺失 ⇒ 不足以支持,逐字段披露;
     - F02:存在未解决必要依赖 ⇒ 评估保持 unknown(evidence 保留;
       blocked_reasons 披露;resolved 后同证据可支持);
+    - S4-C01(确认复核 §4):当前路线已引入的**必要条件**存在
+      unknown/conflict(同源 route_assessment,历史快照消费)⇒ 评估
+      同样保持 unknown(evidence 全文保留;blocked_reasons 披露;
+      已知兼容正控/无必要条件不受影响 —— 不全拒、不改化学门);
     - F03:计数用去重口径(观察身份 + 来源身份),来路全保留;
     - 评估 = 已获支持的最强声明;mineralization 优先于 terminal
       product 优先于 handoff(同为来源层声明,取较强者)。
     """
+    route_conditions = list(route_conditions or [])
+    unknown_keys, conflict_keys = _necessary_condition_keys(route_conditions)
     dedup_by_key: dict[str, list[dict]] = {}
     for entry in evidence:
         dedup_by_key.setdefault(_evidence_dedup_key(entry), []).append(entry)
@@ -511,6 +614,10 @@ def _assess_endpoint(evidence: list[dict],
             _evidence_source_identity(entry))
     if inherited_unresolved:
         blocked_reasons.append("unresolved_dependencies_inherited")
+    if unknown_keys:
+        blocked_reasons.append("necessary_conditions_unknown")
+    if conflict_keys:
+        blocked_reasons.append("necessary_conditions_conflict")
     assessment = ENDPOINT_UNKNOWN
     if not blocked_reasons and supported_claims:
         assessment = max(
@@ -537,6 +644,8 @@ def _assess_endpoint(evidence: list[dict],
                 for claim, ids in sorted(supported_claims.items())},
             "missing_field_disclosures": missing_field_disclosures,
             "blocked_reasons": blocked_reasons,
+            "necessary_condition_unknown_keys": unknown_keys,
+            "necessary_condition_conflict_keys": conflict_keys,
             "dedup_note": ("F03 去重口径 = 观察身份(来源引用集合 + "
                            "basis + 声明 + 窗口/检测/条件)与来源身份"
                            "(来源引用集合);来路不删除,全部原始条目"
@@ -547,7 +656,10 @@ def _assess_endpoint(evidence: list[dict],
         "assessment_note": ("评估只由独立终点证据决定(来源层直报;"
                             "模型预测/路径推断不能单独产生 supported_*;"
                             "停止原因永不映射为终点(F01);存在未解决"
-                            "必要依赖时评估保持 unknown(F02));"
+                            "必要依赖时评估保持 unknown(F02);当前路线"
+                            "已引入的必要条件 unknown/conflict 同样保持"
+                            " unknown(S4-C01,同源 route_assessment;"
+                            "已知兼容正控不受影响));"
                             "metabolic_handoff 不等于矿化;"
                             "supported_terminal_transformation_product"
                             " 不推断永久去除"),
@@ -619,12 +731,14 @@ def _endpoint_current_input_digests(ledger, evidence: list[dict]) -> dict:
     的 hash 作跨表一致性,不参与本重算)。"""
     events = ledger.store.list_events(ledger.run_id)
     inherited = _inherited_unresolved_dependencies(ledger)
+    route_conditions = _route_condition_assessments(ledger)
     return {
         "events_digest": _events_digest(events),
         "search_actions_digest": _search_actions_digest(
             ledger.conn, ledger.run_id),
         "endpoint_evidence_digest": content_hash(evidence),
         "inherited_dependencies_digest": content_hash(inherited),
+        "route_conditions_digest": content_hash(route_conditions),
     }
 
 
@@ -716,7 +830,7 @@ def derive_run_endpoint(ledger, *, stop_report: dict,
       停止原因六值枚举与主因优先级已在 search 层冻结);
     - events 行(参与物/系数/CO₂ → bookkeeping 分账);
     - 上下文 artifact(H07 + 内容身份首消费)→ F02 未解决依赖 +
-      条件事实快照;
+      条件事实快照 + **必要条件同源 route_assessment(S4-C01)**;
     - 冻结计划的 endpoint_evidence 声明(来源层直报;F03 去重计数)。
 
     输出四分账 + 证据 + 账目 + derived_from(重算输入摘要,消费侧
@@ -737,9 +851,10 @@ def derive_run_endpoint(ledger, *, stop_report: dict,
         execution_status = EXECUTION_STATUS_COMPLETED
     stop_persisted = put_stop_record(ledger.conn, run_id, stop_report or {})
     inherited = _inherited_unresolved_dependencies(ledger)
+    route_conditions = _route_condition_assessments(ledger)
     conditions = _route_conditions_snapshot(ledger)
     bookkeeping = _bookkeeping_from_events(ledger.store, events)
-    assessment = _assess_endpoint(evidence, inherited)
+    assessment = _assess_endpoint(evidence, inherited, route_conditions)
     # 根碳去向状态只能来自证据(声明了核查范围的直报证据 ⇒ 记录其
     # 声明范围;仍不是本仓自己的核实)—— 不从 bookkeeping 推导
     fate_reported = any(
@@ -779,6 +894,23 @@ def derive_run_endpoint(ledger, *, stop_report: dict,
         # ---- 账目与条件 ----
         "bookkeeping": bookkeeping,
         "conditions_snapshot": conditions,
+        # ---- S4-C01:必要条件同源评估(全文保留;阻断输入) ----
+        "route_condition_assessment": {
+            "contexts": route_conditions,
+            "necessary_condition_unknown_keys":
+                assessment["evidence_summary"][
+                    "necessary_condition_unknown_keys"],
+            "necessary_condition_conflict_keys":
+                assessment["evidence_summary"][
+                    "necessary_condition_conflict_keys"],
+            "note": ("当前路线必要条件评估(同源 PathContext.route_"
+                     "assessment:历史快照逐边合取 + 当前阶段 live;旧边"
+                     "按记录值消费,不拿当前事实重评);必要条件存在 "
+                     "unknown/conflict ⇒ 终点保持 unknown(证据全文保留,"
+                     "不被 recorded 或充分字段洗白);已知兼容/无必要条件"
+                     "不构成阻断(不全拒);条件评估权威在 PathContext,"
+                     "此处只消费同源结果,不解析自由文本、不新增化学门"),
+        },
         # ---- 运行错误与执行披露 ----
         "run_error": dict(run_error) if run_error is not None else None,
         # ---- 派生输入摘要(消费侧 staleness 同源重算) ----
@@ -788,6 +920,7 @@ def derive_run_endpoint(ledger, *, stop_report: dict,
                 ledger.conn, run_id),
             "endpoint_evidence_digest": content_hash(evidence),
             "inherited_dependencies_digest": content_hash(inherited),
+            "route_conditions_digest": content_hash(route_conditions),
             "endpoint_policy_version": PPV1_ENDPOINT_POLICY_VERSION,
             "search_schema_version": PPV1_SEARCH_SCHEMA_VERSION,
             "derived_note": ("重算输入摘要;stop 报告含会话 refusals "
@@ -806,6 +939,7 @@ def derive_run_endpoint(ledger, *, stop_report: dict,
 def endpoint_summary_fields(record: dict) -> dict:
     """公共 summary 的四分账字段(脚本输出断言面;完整记录在
     endpoint_records 表)。"""
+    route_conditions = record.get("route_condition_assessment") or {}
     return {
         "execution_status": record["execution_status"],
         "search_stop_reason": record["search_stop_reason"]["primary"],
@@ -816,5 +950,9 @@ def endpoint_summary_fields(record: dict) -> dict:
             "independent_source_support_count"],
         "inherited_unresolved_dependencies": len(
             record["inherited_unresolved_dependencies"]),
+        "necessary_condition_unknown_keys": list(
+            route_conditions.get("necessary_condition_unknown_keys") or []),
+        "necessary_condition_conflict_keys": list(
+            route_conditions.get("necessary_condition_conflict_keys") or []),
         "payload_hash": record["payload_hash"],
     }

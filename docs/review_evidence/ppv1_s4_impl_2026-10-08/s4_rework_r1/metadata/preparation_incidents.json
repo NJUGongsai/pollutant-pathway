@@ -1,0 +1,34 @@
+{
+  "classification": "environment preparation incidents (not product P1), honestly retained",
+  "incidents": [
+    {
+      "where": "isolated-source full PPV1 (first attempt)",
+      "result": "18 failed / 933 passed, exit 1",
+      "cause": "isolated source had no sibling dependingv3; S3b hard-kill worker children default V3_CODE_ROOT to <repo-parent>/dependingv3 and the first-consumption identity guard refused (v3_engine_code/molecode mismatch) - same class as the confirmation review preparation incident",
+      "fix": "placed an ordinary dependingv3 source copy at /private/tmp/s4r1_run/dependingv3 (sibling of the isolated repo current/) and pinned V3_CODE_ROOT/DEPENDING_V3_ROOT to it (parent/child same root, per rework instruction); V43_ASSET_ROOT=<iso>/current/assets, BBD_DATA_ROOT=<iso>/empty_external_data",
+      "retry": "single corrected full run only: 951 passed / 0 failed / 0 skipped exit 0 (junit + stdout/stderr archived under current/)"
+    },
+    {
+      "where": "isolated-source full non-slow (first attempt)",
+      "result": "8 failed / 1546 passed",
+      "cause": "the isolated dependingv3 copy lacked assets/ (tests test_asset_manifest/test_asset_root_isolation require the ordinary v3 assets tree; the excluded export charge-fixture case also needs absent evaluation-side fixtures)",
+      "fix": "copied ordinary dependingv3/assets (140M, no evaluation/gold) into the isolated v3 root; the 1 remaining failure is the G01-explicitly-deselected export case",
+      "retry": "with the G01-consistent --deselect: 1553 passed / 8 skipped / 17 deselected exit 0"
+    },
+    {
+      "where": "G01 controller first invocation",
+      "result": "IndentationError (controller edit), exit 1",
+      "cause": "line-continuation typo when adding S4_REWORK_R1_NEW_INPUTS to the copied controller",
+      "fix": "fixed the continuation; reran fresh output dir",
+      "retry": "1553 passed / 8 skipped / 17 deselected exit 0, 295 inputs, SHA before/after recorded"
+    },
+    {
+      "where": "verbatim re-run of reviewer scripts",
+      "result": "export_confirmation_probe.py exit 1 at the projection-binding segment; export_supplemental_probe.py exit 1 (StopIteration)",
+      "cause": "EXPECTED post-fix failures of the gap-pinning observation scripts: the fake-native build now refuses (S4-C04) so the reviewers direct build call raises; the missing-outcome hunt no longer finds a non-aggregated empty-task_key candidate (S4-C03 closed)",
+      "disposition": "registered as expected failures; adjusted faithful re-runs (wrapped call / all-aggregated assertion) recorded separately; permanent counterexample expectations unchanged"
+    }
+  ],
+  "source_or_test_edits_during_incidents": false,
+  "expectation_edits": false
+}

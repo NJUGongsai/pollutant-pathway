@@ -190,7 +190,18 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 全部保持;legacy/export_v3/G2/AtomTool 逐字节零触碰(字节专项
 # 回归见 S4b 交付书);S4a 既有测试除 profile 版本字面量外零改动。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-16"
+# S4 回修 r1(2026-10-08,确认复核 §4 四组 P1 S4-C01~C04):
+# endpoint-2/endpoint-policy-2(必要条件同源 route_assessment 阻断)、
+# native-result-2(soutc 空 task_key 键枚举闭合)、native-export-2/
+# native-export-policy-2(manifest core 复算 + run/版本/策略内容绑定 +
+# 必要 artifact 引用集合独立权威闭合)、v3-projection-2(构建与首消费
+# 验证真实原生来源/adapter 同源复算)。store 保持 -10(无新表);
+# runflow 保持 -5(接线不变,派生/导出/投影内部契约升级)。
+# v16(S4b 批次)profile-16 见上方历史注释;legacy/export_v3/G2/
+# AtomTool 逐字节零触碰;判据一–五与 0d/0e/0f/0g 消费语义不变
+# (工程注册变更,行为互证以存量回归 + 字节 diff 为证)。
+
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-17"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -207,22 +218,35 @@ PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-8"
 PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-8"
 PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-8"
 PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
-# S4a:endpoint 分账契约(四分账/证据字段/F01-F03/独立持久化与首
-# 消费;pollutant/endpoint.py)
-PPV1_ENDPOINT_SCHEMA_VERSION = "ppv1-endpoint-1"
-# S4a:endpoint 派生策略(固定规则;无用户可配项;变更须升版本)
-PPV1_ENDPOINT_POLICY_VERSION = "ppv1-endpoint-policy-1"
-# S4a:原生结果对象契约(完整字段 + 确定性规范化;正式导出/S4b;
-# pollutant/native_result.py)
-PPV1_NATIVE_RESULT_VERSION = "ppv1-native-result-1"
-# S4b:原生正式导出契约(文件级 payload + manifest + 读取/过期/
-# 完整性首消费;pollutant/native_export.py)
-PPV1_NATIVE_EXPORT_VERSION = "ppv1-native-export-1"
-# S4b:导出策略(固定序列化/命名/无时间戳规则;变更须升版本)
-PPV1_NATIVE_EXPORT_POLICY_VERSION = "ppv1-native-export-policy-1"
-# S4b:v3 有损投影适配契约(lossy_projection + 原生引用 + 信息损失
-# 清单 + 反向消费禁止;pollutant/v3_projection.py)
-PPV1_V3_PROJECTION_VERSION = "ppv1-v3-projection-1"
+# S4 回修 r1(S4-C01,2026-10-08,确认复核 §4):endpoint 派生消费
+# 当前路线必要条件的同源 PathContext.route_assessment(历史快照逐边
+# 合取;旧边按记录值消费)—— 必要条件 unknown/conflict 阻断终点
+# (证据全文保留、已知兼容正控不受影响);record 新增 route_
+# condition_assessment 字段与 derived_from.route_conditions_digest。
+# v1(S4a 首批)登记四分账/证据字段/F01-F03/独立持久化与首消费。
+PPV1_ENDPOINT_SCHEMA_VERSION = "ppv1-endpoint-2"
+# S4 回修 r1(S4-C01):派生规则变更(必要条件阻断输入)⇒ 策略升
+# -2;v1(S4a 首批)登记固定规则(无用户可配项)。
+PPV1_ENDPOINT_POLICY_VERSION = "ppv1-endpoint-policy-2"
+# S4 回修 r1(S4-C03,2026-10-08,确认复核 §4):artifact_reference_
+# index 的 soutc(stable_id) 键枚举不再被空 action.task_key 挡住
+# (child retrieve 等的调度结论全文入原生输出/导出 manifest;缺键
+# 不产空 task_key 引用)。v1(S4a 首批)登记完整字段 + 确定性规范化。
+PPV1_NATIVE_RESULT_VERSION = "ppv1-native-result-2"
+# S4 回修 r1(S4-C02,2026-10-08,确认复核 §4):manifest core 自身
+# digest 复算 + run/版本/策略内容绑定 + 必要 artifact 引用集合由
+# 独立权威同源枚举闭合(与每行 hash 校验分别核;合法缺席保留)。
+# v1(S4b 首批)登记文件级 payload + manifest + 读取/过期/完整性首消费。
+PPV1_NATIVE_EXPORT_VERSION = "ppv1-native-export-2"
+# S4 回修 r1(S4-C02):首消费核验规则变更 ⇒ 策略升 -2;v1(S4b
+# 首批)登记固定序列化/命名/无时间戳规则(无用户可配项)。
+PPV1_NATIVE_EXPORT_POLICY_VERSION = "ppv1-native-export-policy-2"
+# S4 回修 r1(S4-C04,2026-10-08,确认复核 §4):构建与首消费验证
+# 真实原生来源(构建侧消费已验证导出;读取侧核 reference 内部一致
+# 及投影已表达字段按登记 adapter 从该原生载荷同源复算)—— 已验证
+# 原生存在/投影自 hash 不再是投影证书。v1(S4b 首批)登记
+# lossy_projection + 原生引用 + 信息损失清单 + 反向消费禁止。
+PPV1_V3_PROJECTION_VERSION = "ppv1-v3-projection-2"
 # S4b:run 执行流契约(S3b 起在 runflow.py 消费;v5 = S4b 正式导出
 # 与 v3 投影接线。**单一事实源自本批起移入 profile**:runflow 与
 # native_export manifest 的 contract_versions 共用本常量,避免

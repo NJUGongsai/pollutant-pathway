@@ -1,0 +1,126 @@
+{
+  "parent_head": "8735601b75825388fe9f4a177a1131ef264054a1",
+  "sparse": [
+    "src",
+    "tests",
+    "pyproject.toml"
+  ],
+  "totals": {
+    "passed": 72,
+    "failed": 23
+  },
+  "new_file_counts": {
+    "total": 19,
+    "red": 19,
+    "classification": {
+      "field_missing_on_parent": 1,
+      "assertion_failure": 5,
+      "signature_missing_on_parent": 2,
+      "behavior_failure_refusal_missing": 11
+    }
+  },
+  "updated_files_version_literal_red": [
+    "tests.test_ppv1_profile::test_ppv1_identity_block_contract_versions",
+    "tests.test_ppv1_s4a_endpoint::test_endpoint_four_way_split_public_chain",
+    "tests.test_ppv1_s4b_export::test_native_export_public_chain_files_and_manifest",
+    "tests.test_ppv1_s4b_export::test_v3_projection_lossy_marker_reference_and_losses"
+  ],
+  "updated_files_legal_green": 72,
+  "per_new_test": [
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c01_unknown_essential_condition_blocks_mineralization[fact_missing]",
+      "class": "assertion_failure",
+      "message": "AssertionError: assert 'supported_mineralization' == 'unknown'\n  \n  - unknown\n  + supported_mineralization"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c01_unknown_essential_condition_blocks_mineralization[fact_explicit_unknown]",
+      "class": "assertion_failure",
+      "message": "AssertionError: assert 'supported_mineralization' == 'unknown'\n  \n  - unknown\n  + supported_mineralization"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c01_known_condition_legal_and_no_requirements_supported",
+      "class": "field_missing_on_parent",
+      "message": "KeyError: 'necessary_condition_unknown_keys'"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c01_conflict_essential_condition_blocks_with_evidence",
+      "class": "assertion_failure",
+      "message": "AssertionError: assert 'supported_mineralization' == 'unknown'\n  \n  - unknown\n  + supported_mineralization"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c01_corrupt_context_refuses_first_consumption",
+      "class": "assertion_failure",
+      "message": "AssertionError: assert 'supported_mineralization' == 'unknown'\n  \n  - unknown\n  + supported_mineralization"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c03_child_retrieve_soutc_aggregated_full_text",
+      "class": "assertion_failure",
+      "message": "AssertionError: assert {'soutc_4e397...1fac62e285dc'} <= {'ctx:pc_0757...90ca739', ...}\n  \n  Extra items in the left set"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c03_corrupt_child_soutc_refused_by_build_and_read",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE NativeResultContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c02_manifest_only_edits_refused_by_core_digest[run_id]",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE NativeExportContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c02_manifest_only_edits_refused_by_core_digest[contract_profile]",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE NativeExportContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c02_manifest_only_edits_refused_by_core_digest[policy_body]",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE NativeExportContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c02_manifest_only_edits_refused_by_core_digest[artifact_references]",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE NativeExportContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c02_self_consistent_reseal_missing_necessary_ref",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE NativeExportContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c02_self_consistent_run_and_contract_and_policy_binding",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE NativeExportContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c02_dangling_recorded_ref_refused",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE NativeExportContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c04_fake_native_with_real_export_ref_refused_at_build",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE V3ProjectionContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c04_projection_only_tamper_refused_at_read",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE V3ProjectionContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c04_mixed_native_reference_refused_at_read",
+      "class": "behavior_failure_refusal_missing",
+      "message": "Failed: DID NOT RAISE V3ProjectionContractError"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_c04_projection_read_with_ledger_consumes_native_first",
+      "class": "signature_missing_on_parent",
+      "message": "TypeError: read_v3_projection() got an unexpected keyword argument 'ledger'"
+    },
+    {
+      "nodeid": "tests.test_ppv1_s4_rework_r1::test_rework_full_public_chain_consistency",
+      "class": "signature_missing_on_parent",
+      "message": "TypeError: read_v3_projection() got an unexpected keyword argument 'ledger'"
+    }
+  ]
+}

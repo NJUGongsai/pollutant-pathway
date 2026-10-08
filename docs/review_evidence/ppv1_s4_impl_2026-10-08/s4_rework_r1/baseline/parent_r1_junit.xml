@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="23" skipped="0" tests="95" time="5.499" timestamp="2026-10-08T17:40:31.761041+08:00" hostname="bogon"><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c01_unknown_essential_condition_blocks_mineralization[fact_missing]" time="0.277"><failure message="AssertionError: assert 'supported_mineralization' == 'unknown'&#10;  &#10;  - unknown&#10;  + supported_mineralization">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c01_unknown_essential_con0')
+facts = []
+
+    @pytest.mark.parametrize("facts", [
+        pytest.param([], id="fact_missing"),
+        pytest.param([{"key": "oxygen_regime", "value": None,
+                       "status": "unknown", "source_ref": "src:synthetic"}],
+                     id="fact_explicit_unknown"),
+    ])
+    def test_c01_unknown_essential_condition_blocks_mineralization(
+            tmp_path: Path, facts: list) -&gt; None:
+        """C01 主反例(确认复核 §4):充分矿化声明 + 有来源 essential
+        oxygen_regime=aerobic,当前事实缺失/显式 unknown ⇒ endpoint 保持
+        unknown(event=1);证据全文保留;阻断原因与必要未知键披露;
+        derived_from 含 route_conditions_digest;首消费通过(同源重算);
+        native 导出与 v3 摘要同值。"""
+        plan = {"condition_facts": facts,
+                "pools": {"CCO": [spec("B", "CC=O", "donor-B",
+                                       requirements=oxygen_req())]},
+                "endpoint_evidence": [mineralization_evidence()]}
+        runs_root = tmp_path / "runs"
+        out = start(tmp_path, "c01u", plan)
+        assert out["counts"]["events"] == 1
+        endpoint = out["endpoint"]
+&gt;       assert endpoint["chemical_endpoint_assessment"] == "unknown"
+E       AssertionError: assert 'supported_mineralization' == 'unknown'
+E         
+E         - unknown
+E         + supported_mineralization
+
+tests/test_ppv1_s4_rework_r1.py:147: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c01_unknown_essential_condition_blocks_mineralization[fact_explicit_unknown]" time="0.057"><failure message="AssertionError: assert 'supported_mineralization' == 'unknown'&#10;  &#10;  - unknown&#10;  + supported_mineralization">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c01_unknown_essential_con1')
+facts = [{'key': 'oxygen_regime', 'value': None, 'status': 'unknown', 'source_ref': 'src:synthetic'}]
+
+    @pytest.mark.parametrize("facts", [
+        pytest.param([], id="fact_missing"),
+        pytest.param([{"key": "oxygen_regime", "value": None,
+                       "status": "unknown", "source_ref": "src:synthetic"}],
+                     id="fact_explicit_unknown"),
+    ])
+    def test_c01_unknown_essential_condition_blocks_mineralization(
+            tmp_path: Path, facts: list) -&gt; None:
+        """C01 主反例(确认复核 §4):充分矿化声明 + 有来源 essential
+        oxygen_regime=aerobic,当前事实缺失/显式 unknown ⇒ endpoint 保持
+        unknown(event=1);证据全文保留;阻断原因与必要未知键披露;
+        derived_from 含 route_conditions_digest;首消费通过(同源重算);
+        native 导出与 v3 摘要同值。"""
+        plan = {"condition_facts": facts,
+                "pools": {"CCO": [spec("B", "CC=O", "donor-B",
+                                       requirements=oxygen_req())]},
+                "endpoint_evidence": [mineralization_evidence()]}
+        runs_root = tmp_path / "runs"
+        out = start(tmp_path, "c01u", plan)
+        assert out["counts"]["events"] == 1
+        endpoint = out["endpoint"]
+&gt;       assert endpoint["chemical_endpoint_assessment"] == "unknown"
+E       AssertionError: assert 'supported_mineralization' == 'unknown'
+E         
+E         - unknown
+E         + supported_mineralization
+
+tests/test_ppv1_s4_rework_r1.py:147: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c01_known_condition_legal_and_no_requirements_supported" time="0.060"><failure message="KeyError: 'necessary_condition_unknown_keys'">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c01_known_condition_legal0')
+
+    def test_c01_known_condition_legal_and_no_requirements_supported(
+            tmp_path: Path) -&gt; None:
+        """C01 正控:已知 aerobic 满足必要条件 / 无必要条件 ⇒ 同证据
+        保持 supported(不全拒);v3 摘要同步。"""
+        plan = {"condition_facts": [
+            {"key": "oxygen_regime", "value": "aerobic",
+             "status": "known_present", "source_ref": "src:synthetic"}],
+            "pools": {"CCO": [spec("B", "CC=O", "donor-B",
+                                   requirements=oxygen_req())]},
+            "endpoint_evidence": [mineralization_evidence()]}
+        runs_root = tmp_path / "runs"
+        out = start(tmp_path, "c01k", plan)
+        assert out["endpoint"]["chemical_endpoint_assessment"] == \
+            "supported_mineralization"
+&gt;       assert out["endpoint"]["necessary_condition_unknown_keys"] == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'necessary_condition_unknown_keys'
+
+tests/test_ppv1_s4_rework_r1.py:206: KeyError</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c01_conflict_essential_condition_blocks_with_evidence" time="0.051"><failure message="AssertionError: assert 'supported_mineralization' == 'unknown'&#10;  &#10;  - unknown&#10;  + supported_mineralization">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c01_conflict_essential_co0')
+
+    def test_c01_conflict_essential_condition_blocks_with_evidence(
+            tmp_path: Path) -&gt; None:
+        """C01 冲突反例(确认复核补充观察):已知 anaerobic 与 essential
+        aerobic 冲突 ⇒ conflict 阻断,证据保留。"""
+        plan = {"condition_facts": [
+            {"key": "oxygen_regime", "value": "anaerobic",
+             "status": "known_present", "source_ref": "src:synthetic"}],
+            "pools": {"CCO": [spec("B", "CC=O", "donor-B",
+                                   requirements=oxygen_req())]},
+            "endpoint_evidence": [mineralization_evidence()]}
+        out = start(tmp_path, "c01c", plan)
+&gt;       assert out["endpoint"]["chemical_endpoint_assessment"] == "unknown"
+E       AssertionError: assert 'supported_mineralization' == 'unknown'
+E         
+E         - unknown
+E         + supported_mineralization
+
+tests/test_ppv1_s4_rework_r1.py:229: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c01_corrupt_context_refuses_first_consumption" time="0.057"><failure message="AssertionError: assert 'supported_mineralization' == 'unknown'&#10;  &#10;  - unknown&#10;  + supported_mineralization">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c01_corrupt_context_refus0')
+
+    def test_c01_corrupt_context_refuses_first_consumption(
+            tmp_path: Path) -&gt; None:
+        """C01 消费同源:route_conditions_digest 的重算消费上下文权威 ——
+        上下文 artifact 损坏 ⇒ 首消费拒(endpoint_context_consumption_
+        failed),不清洗后继续。"""
+        plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B",
+                                       requirements=oxygen_req())]},
+                "endpoint_evidence": [mineralization_evidence()]}
+        runs_root = tmp_path / "runs"
+        out = start(tmp_path, "c01x", plan)
+        ledger = ledger_for(runs_root, "c01x")
+        refs = ledger.conn.execute(
+            "SELECT DISTINCT context_ref FROM search_actions WHERE run_id = ?"
+            " AND context_ref != ''", ("c01x",)).fetchall()
+        ctx_ref = str(refs[0]["context_ref"])
+        ctx_path = runs_root / "c01x" / "results" / f"ctx:{ctx_ref}" / \
+            "path_context.json"
+        backup = ctx_path.read_bytes()
+        envelope = json.loads(backup)
+        # 注入新事实(任何上下文都必然改变载荷内容 ⇒ payload_hash 失配)
+        envelope["payload"]["condition_facts"] = [
+            {"key": "oxygen_regime", "value": "aerobic",
+             "status": "known_present", "source_ref": "tampered"}]
+        ctx_path.write_text(canonical_json(envelope) + "\n", encoding="utf-8")
+        with pytest.raises(EndpointContractError) as excinfo:
+            read_run_endpoint(ledger, "c01x")
+        assert excinfo.value.detail["kind"] == \
+            "endpoint_context_consumption_failed"
+        ctx_path.write_bytes(backup)
+&gt;       assert read_run_endpoint(ledger, "c01x")[
+            "chemical_endpoint_assessment"] == "unknown"
+E       AssertionError: assert 'supported_mineralization' == 'unknown'
+E         
+E         - unknown
+E         + supported_mineralization
+
+tests/test_ppv1_s4_rework_r1.py:267: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c03_child_retrieve_soutc_aggregated_full_text" time="0.065"><failure message="AssertionError: assert {'soutc_4e397...1fac62e285dc'} &lt;= {'ctx:pc_0757...90ca739', ...}&#10;  &#10;  Extra items in the left set:&#10;  'soutc_4e3970b4adce2b20bf0c'&#10;  'soutc_d23924261fac62e285dc'">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c03_child_retrieve_soutc_0')
+
+    def test_c03_child_retrieve_soutc_aggregated_full_text(
+            tmp_path: Path) -&gt; None:
+        """C03 主反例:child retrieve 合法空 task_key 的
+        no_local_candidate/unresolved_continuation 全文进原生输出与
+        manifest 引用;无空 task_key 引用。"""
+        runs_root, out = _full_fixture(tmp_path, "c03a")
+        ledger = ledger_for(runs_root, "c03a")
+        keys = child_retrieve_soutc_keys(ledger)
+        assert len(keys) == 2  # 双备选/共同产物夹具的两个 child retrieve
+        # 索引:空 task_key 不产空引用;soutc 键独立枚举
+        index = artifact_reference_index(ledger)
+        assert all(e["task_key"] for e in index)
+&gt;       assert set(keys) &lt;= {e["task_key"] for e in index}
+E       AssertionError: assert {'soutc_4e397...1fac62e285dc'} &lt;= {'ctx:pc_0757...90ca739', ...}
+E         
+E         Extra items in the left set:
+E         'soutc_4e3970b4adce2b20bf0c'
+E         'soutc_d23924261fac62e285dc'
+
+tests/test_ppv1_s4_rework_r1.py:286: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c03_corrupt_child_soutc_refused_by_build_and_read" time="0.066"><failure message="Failed: DID NOT RAISE NativeResultContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c03_corrupt_child_soutc_r0')
+
+    def test_c03_corrupt_child_soutc_refused_by_build_and_read(
+            tmp_path: Path) -&gt; None:
+        """C03 首消费:坏必要 soutc(H07 损坏)不能被跳过 —— build_native_
+        result 与 read_native_export 都拒;还原正控通过。"""
+        runs_root, out = _full_fixture(tmp_path, "c03b")
+        ledger = ledger_for(runs_root, "c03b")
+        key = child_retrieve_soutc_keys(ledger)[0]
+        path = runs_root / "c03b" / "results" / key / "expansion_outcome.json"
+        backup = path.read_bytes()
+        envelope = json.loads(backup)
+        envelope["payload"]["outcome"] = {"kind": "tampered"}
+        path.write_text(canonical_json(envelope) + "\n", encoding="utf-8")
+&gt;       with pytest.raises(NativeResultContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeResultContractError
+
+tests/test_ppv1_s4_rework_r1.py:321: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c02_manifest_only_edits_refused_by_core_digest[run_id]" time="0.068"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c02_manifest_only_edits_r0')
+field = 'run_id', mutate = &lt;function &lt;lambda&gt; at 0x11cd253a0&gt;
+
+    @pytest.mark.parametrize("field,mutate", [
+        pytest.param("run_id",
+                     lambda m: m.update({"run_id": "other-run"}),
+                     id="run_id"),
+        pytest.param("contract_profile",
+                     lambda m: m["contract_versions"].update(
+                         {"profile": "ppv1-profile-99"}),
+                     id="contract_profile"),
+        pytest.param("policy_body",
+                     lambda m: m["export_policy"].update(
+                         {"overwrite": "allowed"}),
+                     id="policy_body"),
+        pytest.param("artifact_references",
+                     lambda m: m["artifact_references"].popitem(),
+                     id="artifact_references"),
+    ])
+    def test_c02_manifest_only_edits_refused_by_core_digest(
+            tmp_path: Path, field: str, mutate) -&gt; None:
+        """C02 反例 A:仅改 manifest 单字段保持原 export_digest ⇒ manifest
+        core 自身 digest 复算拒(export_manifest_corrupt);原字节保全,
+        还原后正控读回。"""
+        runs_root, out = _full_fixture(tmp_path, "c02a")
+        ledger = ledger_for(runs_root, "c02a")
+        digest = out["native_export"]["export_digest"]
+        manifest_path = (runs_root / "c02a" / "native_export" /
+                         digest[:24] / "manifest.json")
+        original = manifest_path.read_bytes()
+        manifest = json.loads(original)
+        mutate(manifest)
+        manifest_path.write_text(canonical_json(manifest) + "\n",
+                                 encoding="utf-8")
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r1.py:370: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c02_manifest_only_edits_refused_by_core_digest[contract_profile]" time="0.066"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c02_manifest_only_edits_r1')
+field = 'contract_profile', mutate = &lt;function &lt;lambda&gt; at 0x11cd25440&gt;
+
+    @pytest.mark.parametrize("field,mutate", [
+        pytest.param("run_id",
+                     lambda m: m.update({"run_id": "other-run"}),
+                     id="run_id"),
+        pytest.param("contract_profile",
+                     lambda m: m["contract_versions"].update(
+                         {"profile": "ppv1-profile-99"}),
+                     id="contract_profile"),
+        pytest.param("policy_body",
+                     lambda m: m["export_policy"].update(
+                         {"overwrite": "allowed"}),
+                     id="policy_body"),
+        pytest.param("artifact_references",
+                     lambda m: m["artifact_references"].popitem(),
+                     id="artifact_references"),
+    ])
+    def test_c02_manifest_only_edits_refused_by_core_digest(
+            tmp_path: Path, field: str, mutate) -&gt; None:
+        """C02 反例 A:仅改 manifest 单字段保持原 export_digest ⇒ manifest
+        core 自身 digest 复算拒(export_manifest_corrupt);原字节保全,
+        还原后正控读回。"""
+        runs_root, out = _full_fixture(tmp_path, "c02a")
+        ledger = ledger_for(runs_root, "c02a")
+        digest = out["native_export"]["export_digest"]
+        manifest_path = (runs_root / "c02a" / "native_export" /
+                         digest[:24] / "manifest.json")
+        original = manifest_path.read_bytes()
+        manifest = json.loads(original)
+        mutate(manifest)
+        manifest_path.write_text(canonical_json(manifest) + "\n",
+                                 encoding="utf-8")
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r1.py:370: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c02_manifest_only_edits_refused_by_core_digest[policy_body]" time="0.067"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c02_manifest_only_edits_r2')
+field = 'policy_body', mutate = &lt;function &lt;lambda&gt; at 0x11cd254e0&gt;
+
+    @pytest.mark.parametrize("field,mutate", [
+        pytest.param("run_id",
+                     lambda m: m.update({"run_id": "other-run"}),
+                     id="run_id"),
+        pytest.param("contract_profile",
+                     lambda m: m["contract_versions"].update(
+                         {"profile": "ppv1-profile-99"}),
+                     id="contract_profile"),
+        pytest.param("policy_body",
+                     lambda m: m["export_policy"].update(
+                         {"overwrite": "allowed"}),
+                     id="policy_body"),
+        pytest.param("artifact_references",
+                     lambda m: m["artifact_references"].popitem(),
+                     id="artifact_references"),
+    ])
+    def test_c02_manifest_only_edits_refused_by_core_digest(
+            tmp_path: Path, field: str, mutate) -&gt; None:
+        """C02 反例 A:仅改 manifest 单字段保持原 export_digest ⇒ manifest
+        core 自身 digest 复算拒(export_manifest_corrupt);原字节保全,
+        还原后正控读回。"""
+        runs_root, out = _full_fixture(tmp_path, "c02a")
+        ledger = ledger_for(runs_root, "c02a")
+        digest = out["native_export"]["export_digest"]
+        manifest_path = (runs_root / "c02a" / "native_export" /
+                         digest[:24] / "manifest.json")
+        original = manifest_path.read_bytes()
+        manifest = json.loads(original)
+        mutate(manifest)
+        manifest_path.write_text(canonical_json(manifest) + "\n",
+                                 encoding="utf-8")
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r1.py:370: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c02_manifest_only_edits_refused_by_core_digest[artifact_references]" time="0.067"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c02_manifest_only_edits_r3')
+field = 'artifact_references', mutate = &lt;function &lt;lambda&gt; at 0x11cd25580&gt;
+
+    @pytest.mark.parametrize("field,mutate", [
+        pytest.param("run_id",
+                     lambda m: m.update({"run_id": "other-run"}),
+                     id="run_id"),
+        pytest.param("contract_profile",
+                     lambda m: m["contract_versions"].update(
+                         {"profile": "ppv1-profile-99"}),
+                     id="contract_profile"),
+        pytest.param("policy_body",
+                     lambda m: m["export_policy"].update(
+                         {"overwrite": "allowed"}),
+                     id="policy_body"),
+        pytest.param("artifact_references",
+                     lambda m: m["artifact_references"].popitem(),
+                     id="artifact_references"),
+    ])
+    def test_c02_manifest_only_edits_refused_by_core_digest(
+            tmp_path: Path, field: str, mutate) -&gt; None:
+        """C02 反例 A:仅改 manifest 单字段保持原 export_digest ⇒ manifest
+        core 自身 digest 复算拒(export_manifest_corrupt);原字节保全,
+        还原后正控读回。"""
+        runs_root, out = _full_fixture(tmp_path, "c02a")
+        ledger = ledger_for(runs_root, "c02a")
+        digest = out["native_export"]["export_digest"]
+        manifest_path = (runs_root / "c02a" / "native_export" /
+                         digest[:24] / "manifest.json")
+        original = manifest_path.read_bytes()
+        manifest = json.loads(original)
+        mutate(manifest)
+        manifest_path.write_text(canonical_json(manifest) + "\n",
+                                 encoding="utf-8")
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r1.py:370: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c02_self_consistent_reseal_missing_necessary_ref" time="0.067"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c02_self_consistent_resea0')
+
+    def test_c02_self_consistent_reseal_missing_necessary_ref(
+            tmp_path: Path) -&gt; None:
+        """C02 反例 B:自洽重封(重算 manifest core/export_digest、复制
+        原 payload、新目录)漏单项必要 production_report 引用 ⇒ 必要
+        集合闭合拒;原导出不受影响(保全);坏/缺 H07 由逐行校验拒
+        (C03 测试覆盖坏 H07)。"""
+        runs_root, out = _full_fixture(tmp_path, "c02b")
+        ledger = ledger_for(runs_root, "c02b")
+        digest = out["native_export"]["export_digest"]
+        out_dir = runs_root / "c02b" / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        mutated, new_digest = _resealed_manifest(
+            manifest, lambda k: "/production_report" in k)
+        assert new_digest != digest
+        new_dir = runs_root / "c02b" / "native_export" / new_digest[:24]
+        new_dir.mkdir(parents=True)
+        shutil.copy(str(out_dir / "payload.json"),
+                    str(new_dir / "payload.json"))
+        (new_dir / "manifest.json").write_text(
+            canonical_json(mutated) + "\n", encoding="utf-8")
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r1.py:410: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c02_self_consistent_run_and_contract_and_policy_binding" time="0.066"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c02_self_consistent_run_a0')
+
+    def test_c02_self_consistent_run_and_contract_and_policy_binding(
+            tmp_path: Path) -&gt; None:
+        """C02 绑定:自洽重封(重算 export_digest)换 run_id/契约版本/
+        策略正文 ⇒ run 绑定/版本门/策略正文绑定拒(不是仅 core 自比较)。"""
+        runs_root, out = _full_fixture(tmp_path, "c02c")
+        ledger = ledger_for(runs_root, "c02c")
+        digest = out["native_export"]["export_digest"]
+        out_dir = runs_root / "c02c" / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        payload_bytes = (out_dir / "payload.json").read_bytes()
+    
+        def reseal(mutate) -&gt; str:
+            mutated = json.loads(json.dumps(manifest))
+            mutate(mutated)
+            mutated.pop("export_digest", None)
+            new_digest = content_hash(mutated)
+            mutated["export_digest"] = new_digest
+            new_dir = runs_root / "c02c" / "native_export" / new_digest[:24]
+            new_dir.mkdir(parents=True)
+            (new_dir / "payload.json").write_bytes(payload_bytes)
+            (new_dir / "manifest.json").write_text(
+                canonical_json(mutated) + "\n", encoding="utf-8")
+            return new_digest
+    
+        # 换 run_id(其余自洽)⇒ run 绑定拒
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r1.py:459: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c02_dangling_recorded_ref_refused" time="0.068"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c02_dangling_recorded_ref0')
+
+    def test_c02_dangling_recorded_ref_refused(tmp_path: Path) -&gt; None:
+        """C02 缺 H07:manifest 记录的必要 artifact 被删 ⇒ 逐行校验拒
+        (保全;还原正控)。"""
+        runs_root, out = _full_fixture(tmp_path, "c02d")
+        ledger = ledger_for(runs_root, "c02d")
+        digest = out["native_export"]["export_digest"]
+        key = child_retrieve_soutc_keys(ledger)[0]
+        path = runs_root / "c02d" / "results" / key / "expansion_outcome.json"
+        backup = tmp_path / "soutc_backup.json"
+        shutil.move(str(path), backup)
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r1.py:494: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c04_fake_native_with_real_export_ref_refused_at_build" time="0.068"><failure message="Failed: DID NOT RAISE V3ProjectionContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c04_fake_native_with_real0')
+
+    def test_c04_fake_native_with_real_export_ref_refused_at_build(
+            tmp_path: Path) -&gt; None:
+        """C04 反例 A:复制真 native 删 events/deferred 后自洽重算
+        content_digest,配真 export 引用 ⇒ build_v3_projection 拒(构建
+        侧消费已验证原生来源);不落任何投影文件。"""
+        runs_root, out = _full_fixture(tmp_path, "c04a")
+        ledger = ledger_for(runs_root, "c04a")
+        digest = out["native_export"]["export_digest"]
+        verified = read_native_export(ledger, runs_root / "c04a", digest)
+        fake = json.loads(json.dumps(verified["payload"]))
+        fake["events"] = []
+        fake["deferred_entries"] = []
+        fake.pop("content_digest", None)
+        fake["content_digest"] = content_hash(fake)
+        export_summary = {"export_digest": digest,
+                          "payload_sha256": verified["payload_sha256"]}
+        before = sorted(p.name for p in
+                        (runs_root / "c04a" / "v3_projection").iterdir())
+&gt;       with pytest.raises(V3ProjectionContractError) as excinfo:
+E       Failed: DID NOT RAISE V3ProjectionContractError
+
+tests/test_ppv1_s4_rework_r1.py:524: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c04_projection_only_tamper_refused_at_read" time="0.068"><failure message="Failed: DID NOT RAISE V3ProjectionContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c04_projection_only_tampe0')
+
+    def test_c04_projection_only_tamper_refused_at_read(tmp_path: Path) -&gt; None:
+        """C04 反例 B:只改投影已表达字段(steps/deferred 计数)并自洽
+        重算 projection_digest 换新目录,native_reference 全真 ⇒
+        read_v3_projection 拒(adapter 同源复算);真原生/真投影不受影响;
+        反向消费禁止面(零 DB 写)保持。"""
+        runs_root, out = _full_fixture(tmp_path, "c04b")
+        ledger = ledger_for(runs_root, "c04b")
+        export_digest = out["native_export"]["export_digest"]
+        projection_digest = out["v3_projection"]["projection_digest"]
+        proj_path = (runs_root / "c04b" / "v3_projection" /
+                     projection_digest[:24] / "projection.json")
+        projection = json.loads(proj_path.read_text(encoding="utf-8"))
+        steps_before = projection["route"]["steps"]
+        assert steps_before  # 夹具有已提交事件
+        tampered = json.loads(json.dumps(projection))
+        tampered["route"]["steps"] = []
+        tampered["unprojectable_summaries"]["deferred_entry_count"] = 0
+        tampered.pop("projection_digest", None)
+        tampered["projection_digest"] = content_hash(tampered)
+        tampered_dir = runs_root / "c04b" / "v3_projection" / \
+            tampered["projection_digest"][:24]
+        tampered_dir.mkdir(parents=True)
+        (tampered_dir / "projection.json").write_text(
+            canonical_json(tampered) + "\n", encoding="utf-8")
+&gt;       with pytest.raises(V3ProjectionContractError) as excinfo:
+E       Failed: DID NOT RAISE V3ProjectionContractError
+
+tests/test_ppv1_s4_rework_r1.py:558: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c04_mixed_native_reference_refused_at_read" time="0.065"><failure message="Failed: DID NOT RAISE V3ProjectionContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c04_mixed_native_referenc0')
+
+    def test_c04_mixed_native_reference_refused_at_read(
+            tmp_path: Path) -&gt; None:
+        """C04 混搭:投影自洽重算后换 native_reference 的 content_digest/
+        task_key(真 export digest 保留)⇒ 引用内部一致拒(已验证原生
+        存在/投影自 hash 不是投影证书)。"""
+        runs_root, out = _full_fixture(tmp_path, "c04c")
+        projection_digest = out["v3_projection"]["projection_digest"]
+        proj_path = (runs_root / "c04c" / "v3_projection" /
+                     projection_digest[:24] / "projection.json")
+        projection = json.loads(proj_path.read_text(encoding="utf-8"))
+        tampered = json.loads(json.dumps(projection))
+        tampered["native_reference"]["native_result_content_digest"] = \
+            "f" * 64
+        tampered["native_reference"]["native_result_task_key"] = \
+            "run-native-result:" + "f" * 24
+        tampered.pop("projection_digest", None)
+        tampered["projection_digest"] = content_hash(tampered)
+        tampered_dir = runs_root / "c04c" / "v3_projection" / \
+            tampered["projection_digest"][:24]
+        tampered_dir.mkdir(parents=True)
+        (tampered_dir / "projection.json").write_text(
+            canonical_json(tampered) + "\n", encoding="utf-8")
+&gt;       with pytest.raises(V3ProjectionContractError) as excinfo:
+E       Failed: DID NOT RAISE V3ProjectionContractError
+
+tests/test_ppv1_s4_rework_r1.py:597: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_c04_projection_read_with_ledger_consumes_native_first" time="0.066"><failure message="TypeError: read_v3_projection() got an unexpected keyword argument 'ledger'">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_c04_projection_read_with_0')
+
+    def test_c04_projection_read_with_ledger_consumes_native_first(
+            tmp_path: Path) -&gt; None:
+        """C04 正控 + 原生首消费联动:read_v3_projection(ledger=...) 先走
+        read_native_export 完整首消费 —— 原生导出文件缺失 ⇒ 投影读取拒
+        (不吞成成功);还原后通过。"""
+        runs_root, out = _full_fixture(tmp_path, "c04d")
+        ledger = ledger_for(runs_root, "c04d")
+        export_digest = out["native_export"]["export_digest"]
+        projection_digest = out["v3_projection"]["projection_digest"]
+        manifest_path = (runs_root / "c04d" / "native_export" /
+                         export_digest[:24] / "manifest.json")
+        backup = tmp_path / "manifest_backup.json"
+        shutil.move(str(manifest_path), backup)
+        with pytest.raises(V3ProjectionContractError) as excinfo:
+&gt;           read_v3_projection(runs_root / "c04d", projection_digest,
+                               ledger=ledger)
+E           TypeError: read_v3_projection() got an unexpected keyword argument 'ledger'
+
+tests/test_ppv1_s4_rework_r1.py:622: TypeError</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r1" name="test_rework_full_public_chain_consistency" time="0.066"><failure message="TypeError: read_v3_projection() got an unexpected keyword argument 'ledger'">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_rework_full_public_chain_0')
+
+    def test_rework_full_public_chain_consistency(tmp_path: Path) -&gt; None:
+        """回修后完整公共链:start → 四分账/导出/投影/双首消费 → resume
+        幂等(事件/预算零新增)→ 三处消费一致(记录/native/v3 摘要)。"""
+        runs_root, out = _full_fixture(tmp_path, "e2er")
+        ledger = ledger_for(runs_root, "e2er")
+        counts_before = out["counts"]
+        record = read_run_endpoint(ledger, "e2er")
+        verified = read_native_export(
+            ledger, runs_root / "e2er", out["native_export"]["export_digest"])
+&gt;       projection = read_v3_projection(
+            runs_root / "e2er", out["v3_projection"]["projection_digest"],
+            ledger=ledger)
+E       TypeError: read_v3_projection() got an unexpected keyword argument 'ledger'
+
+tests/test_ppv1_s4_rework_r1.py:643: TypeError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_profile_names_registry" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_identity_schema_version_bumped" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_contract_versions" time="0.000"><failure message="AssertionError: assert 'ppv1-profile-16' == 'ppv1-profile-17'&#10;  &#10;  - ppv1-profile-17&#10;  ?               ^&#10;  + ppv1-profile-16&#10;  ?               ^">def test_ppv1_identity_block_contract_versions() -&gt; None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v16(S4b):正式文件导出 + v3 有损投影
+        # (native-export-1 / native-export-policy-1 / v3-projection-1;
+        # endpoint-1 / endpoint-policy-1 / native-result-1 沿 S4a)
+&gt;       assert block["schema_version"] == "ppv1-profile-17"
+E       AssertionError: assert 'ppv1-profile-16' == 'ppv1-profile-17'
+E         
+E         - ppv1-profile-17
+E         ?               ^
+E         + ppv1-profile-16
+E         ?               ^
+
+tests/test_ppv1_profile.py:49: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_default_switches" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-filter]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-None]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[search_intent-anything_goes]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_search_limits_validation" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_excludes_pollutant_for_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_pollutant_includes_full_tree" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_legacy_stable_under_pollutant_changes" time="0.006" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_default_is_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_legacy_rejects_profile_policy" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_pollutant_block" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_profile_mismatch_rejected" time="0.006" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_v1_missing_profile_read_as_legacy" time="0.003" /><testcase classname="tests.test_ppv1_profile" name="test_identity_fingerprint_includes_profile" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_pollutant_dispatches_to_runflow" time="0.027" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_cli_profile_flag_choices" time="0.003" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_endpoint_four_way_split_public_chain" time="0.057"><failure message="AssertionError: assert 'ppv1-endpoint-1' == 'ppv1-endpoint-2'&#10;  &#10;  - ppv1-endpoint-2&#10;  ?               ^&#10;  + ppv1-endpoint-1&#10;  ?               ^">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_endpoint_four_way_split_p0')
+
+    def test_endpoint_four_way_split_public_chain(tmp_path: Path) -&gt; None:
+        """公共 start → 驱动 → 停止 → 四分账:四者独立存在、分表持久化、
+        summary 字段断言;无证据 ⇒ unknown(搜索记录不是终点结论)。"""
+        plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B")]}}
+        runs_root = tmp_path / "runs"
+        out = start(tmp_path, "s4a", plan)
+        endpoint = out["endpoint"]
+        assert endpoint["execution_status"] == "completed"
+        assert endpoint["search_stop_reason"] is not None
+        assert endpoint["chemical_endpoint_assessment"] == "unknown"
+        assert endpoint["bookkeeping_status"] == "closed_within_declared_scope"
+        assert endpoint["independent_source_support_count"] == 0
+        assert endpoint["inherited_unresolved_dependencies"] == 0
+        # 四分账独立持久化:stop_reason_records 与 endpoint_records 分表
+        conn = sqlite3.connect(str(runs_root / "s4a" / "pollutant.sqlite"))
+        conn.row_factory = sqlite3.Row
+        stop_rows = conn.execute(
+            "SELECT payload, payload_hash FROM stop_reason_records").fetchall()
+        endpoint_rows = conn.execute(
+            "SELECT payload FROM endpoint_records").fetchall()
+        assert len(stop_rows) == 1
+        assert len(endpoint_rows) == 1
+        stop_payload = json.loads(stop_rows[0]["payload"])
+        record = json.loads(endpoint_rows[0]["payload"])
+        # 停止原因独立行;endpoint 记录按 hash 引用(不复制语义、不代替)
+        assert stop_payload["stop_report"]["primary"] == \
+            endpoint["search_stop_reason"]
+        assert record["search_stop_reason"]["stop_record_payload_hash"] == \
+            stop_rows[0]["payload_hash"]
+        # 四字段独立:execution/stop/chemical/bookkeeping 互不派生自彼此
+        assert record["execution_status"] != record["bookkeeping_status"]
+        assert record["chemical_endpoint_assessment"] == "unknown"
+&gt;       assert record["schema_version"] == "ppv1-endpoint-2"
+E       AssertionError: assert 'ppv1-endpoint-1' == 'ppv1-endpoint-2'
+E         
+E         - ppv1-endpoint-2
+E         ?               ^
+E         + ppv1-endpoint-1
+E         ?               ^
+
+tests/test_ppv1_s4a_endpoint.py:179: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_endpoint_resume_idempotent_no_duplicate_writes" time="0.077" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_endpoint_after_crash_resume_derives_once" time="0.085" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_stop_reasons_never_produce_endpoint[budget_limit]" time="0.057" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_stop_reasons_never_produce_endpoint[depth_limit]" time="0.055" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_stop_reasons_never_produce_endpoint[no_local_candidate]" time="0.055" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_stop_reasons_never_produce_endpoint[awaiting_prediction]" time="0.055" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_stop_reasons_never_produce_endpoint[exhausted_search]" time="0.056" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_stop_reasons_never_produce_endpoint[user_stop]" time="0.058" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_zero_budget_stop_endpoint_unknown" time="0.026" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_zero_depth_stop_blocked_objects_kept" time="0.031" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_empty_pool_no_candidate" time="0.027" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f01_stop_does_not_overwrite_valid_evidence" time="0.026" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f02_unresolved_dependency_blocks_endpoint_recorded_not_washed" time="0.057" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f02_control_supported_dependency_same_evidence_supported" time="0.059" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f03_duplicate_wrapped_evidence_not_independent" time="0.055" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f03_same_source_two_claims_one_support" time="0.056" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f03_distinct_sources_two_independent_supports" time="0.056" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f03_model_prediction_and_inference_never_supported" time="0.056" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_f03_no_evidence_basis_unknown" time="0.054" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_endpoint_evidence_contract_rejects_bad_entries" time="0.050" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_bookkeeping_closed_but_not_mineralization" time="0.055" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_bookkeeping_unknown_coefficients" time="0.056" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_co2_alternatives_not_summed_single_not_mineralization" time="0.080" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_essential_conflict_endpoint_unknown_hypothesis_kept" time="0.057" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_execution_failed_on_model_structure_failure" time="0.032" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_native_result_completeness" time="0.067" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_native_result_deterministic_rebuild" time="0.068" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_native_result_preserves_distinct_routes" time="0.079" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_consume_valid_endpoint_record" time="0.066" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_consume_refuses_stale_record" time="0.085" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_consume_refuses_corrupt_record" time="0.068" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_consume_refuses_unknown_version" time="0.066" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_consume_refuses_broken_stop_reference" time="0.067" /><testcase classname="tests.test_ppv1_s4a_endpoint" name="test_consume_missing_record_refused_strict" time="0.034" /><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_public_chain_files_and_manifest" time="0.063"><failure message="AssertionError: assert 'ppv1-native-export-1' == 'ppv1-native-export-2'&#10;  &#10;  - ppv1-native-export-2&#10;  ?                    ^&#10;  + ppv1-native-export-1&#10;  ?                    ^">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -&gt; None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+&gt;       assert manifest["schema_version"] == "ppv1-native-export-2"
+E       AssertionError: assert 'ppv1-native-export-1' == 'ppv1-native-export-2'
+E         
+E         - ppv1-native-export-2
+E         ?                    ^
+E         + ppv1-native-export-1
+E         ?                    ^
+
+tests/test_ppv1_s4b_export.py:170: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_full_fact_coverage" time="0.065" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_repeat_export_same_bytes_including_subprocess" time="0.233" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_export_after_crash_resume_repeat_identical" time="0.106" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_export_read_back_matches_native_authority" time="0.066" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_stale_after_graph_change" time="0.138" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_stale_after_policy_change" time="0.068" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_integrity_structured_failures" time="0.068" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_self_consistent_rewrite_not_laundered" time="0.067" /><testcase classname="tests.test_ppv1_s4b_export" name="test_tampered_export_refuses_overwrite" time="0.074" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_lossy_marker_reference_and_losses" time="0.065"><failure message="AssertionError: assert 'ppv1-v3-projection-1' == 'ppv1-v3-projection-2'&#10;  &#10;  - ppv1-v3-projection-2&#10;  ?                    ^&#10;  + ppv1-v3-projection-1&#10;  ?                    ^">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-421/test_v3_projection_lossy_marke0')
+
+    def test_v3_projection_lossy_marker_reference_and_losses(
+            tmp_path: Path) -&gt; None:
+        """v3 有损投影:lossy_projection 标记、适配版本、原生引用(可解析
+        回原生导出)、信息损失清单覆盖任务书要求的损失轴、不可投影摘要
+        (引用/计数,不展开全文)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["v3_projection"]["projection_digest"]
+        payload = read_v3_projection(runs_root / "s4b", digest)
+        assert payload["lossy_projection"] is True
+&gt;       assert payload["schema_version"] == "ppv1-v3-projection-2"
+E       AssertionError: assert 'ppv1-v3-projection-1' == 'ppv1-v3-projection-2'
+E         
+E         - ppv1-v3-projection-2
+E         ?                    ^
+E         + ppv1-v3-projection-1
+E         ?                    ^
+
+tests/test_ppv1_s4b_export.py:520: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_steps_per_event_no_cn_merge_no_fabrication" time="0.081" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_deterministic_and_reverse_lookup" time="0.066" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_reverse_consumption_refused_zero_writes" time="0.069" /><testcase classname="tests.test_ppv1_s4b_export" name="test_full_public_chain_crash_resume_export_replay" time="0.102" /><testcase classname="tests.test_ppv1_s4b_export" name="test_endpoint_stop_reference_broken_refuses_export" time="0.065" /><testcase classname="tests.test_ppv1_s4b_export" name="test_empty_pool_run_exports_and_projects" time="0.030" /><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_v3_projection_conflict_preserves" time="0.065" /></testsuite></testsuites>

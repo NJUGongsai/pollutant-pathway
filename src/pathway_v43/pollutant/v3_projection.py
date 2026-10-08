@@ -39,14 +39,35 @@
   native`` 从投影目录按 native 引用反查(**读文件,不改原生**);
   原生 manifest 不内嵌投影清单(原生不可变,投影可后生成)。
 
+**S4-C04 回修(确认复核 §4;契约 ppv1-v3-projection-2)—— 构建
+与首消费验证真实原生来源**:
+
+- 构建侧(``build_v3_projection``)不再裸信调用方传入的 native_
+  result/native_export:**先经 read_native_export 首消费**核验该
+  导出(ledger 权威/manifest/payload/引用/策略/事实),并要求
+  传入的 native_result 与该导出的 payload 同一(canonical 字节
+  同源)、run/内容 digest/导出摘要绑定一致 —— 假 native(删
+  events/deferred 后自洽重算 digest)配真 export 引用 ⇒ 拒;
+- 读取侧(``read_v3_projection``,可选传 ledger 走完整原生首消费)
+  不只核投影自 hash/版本/lossy 标记/原生 manifest 文件存在:
+  ① native_reference 与真实 manifest 的内部一致(export digest/
+  content digest/task_key/payload sha/graph revision aggregate/
+  run_id 两两绑定);② 投影已表达字段(route.steps/root_smiles/
+  unprojectable_summaries/information_losses/run_id)**由该原生
+  payload 按登记 adapter 同源复算比对** —— projection-only 自洽
+  改内容(重算 projection_digest 换新目录)配真 reference ⇒ 拒;
+  已验证原生存在/投影自 hash 不是投影证书。
+
 读取失败结构化拒(kind):``v3_projection_missing`` /
 ``v3_projection_corrupt``(不可解析/标记篡改) /
 ``v3_projection_version_unknown`` / ``v3_projection_digest_mismatch``
-/ ``v3_native_reference_missing``。零写入,原文件保全。
+/ ``v3_native_reference_missing`` / ``v3_projection_source_binding_
+mismatch``(S4-C04:来源绑定/同源复算不符)。零写入,原文件保全。
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -54,8 +75,10 @@ from pathlib import Path
 from ..domain.models import canonical_json, content_hash
 from .native_export import (
     NATIVE_EXPORT_MANIFEST_FILE,
+    NATIVE_EXPORT_PAYLOAD_FILE,
     NATIVE_EXPORT_SUBDIR,
     graph_facts_digests,
+    read_native_export,
 )
 from .native_result import NATIVE_RESULT_TASK_KEY
 from .profile import (
@@ -247,21 +270,84 @@ def _route_steps(native_result: dict,
     return steps, dynamic_losses
 
 
+def _verify_native_source_binding(ledger, native_result: dict,
+                                  native_export: dict,
+                                  run_dir: Path) -> dict:
+    """S4-C04 构建侧源绑定:投影输入必须是**当前 run 已验证的原生
+    结果与其正式导出**(已验证原生存在不是裸对象的证书)。
+
+    - native_result 自身内容 digest 复算(裸对象不是权威);
+    - native_result.run_id 与 ledger 绑定;
+    - native_export 的 export_digest 经 ``read_native_export`` 完整
+      首消费(manifest/payload/权威引用/策略/事实 digest 全核;
+      endpoint 首消费先行)—— 与读取侧共用同一原生消费/绑定源;
+    - 该导出的 manifest.content_digest/payload 必须与传入的
+      native_result 同一(整对象比对):假 native(删 events/
+      deferred 后自洽重算 digest)配真 export 引用 ⇒ 拒;
+    - 调用方给的 payload_sha256(如有)与 manifest 一致。
+    """
+    content_digest = str(native_result.get("content_digest") or "")
+    if not content_digest or content_hash(
+            {k: v for k, v in native_result.items()
+             if k != "content_digest"}) != content_digest:
+        raise V3ProjectionContractError(
+            "投影输入的 native_result 内容 digest 复算不一致(裸对象"
+            "不是权威;构建消费已验证原生来源,不猜不补)",
+            {"kind": "v3_projection_source_binding_mismatch",
+             "check": "native_result_content_digest"})
+    if str(native_result.get("run_id") or "") != str(ledger.run_id):
+        raise V3ProjectionContractError(
+            "投影输入的 native_result 与当前 run 不符(run 绑定;"
+            "跨 run 混搭不投影)",
+            {"kind": "v3_projection_source_binding_mismatch",
+             "check": "native_result_run_binding",
+             "native_result_run_id": str(native_result.get("run_id") or ""),
+             "ledger_run_id": str(ledger.run_id)})
+    export_digest = str((native_export or {}).get("export_digest") or "")
+    if not export_digest:
+        raise V3ProjectionContractError(
+            "投影输入缺 native_export.export_digest(原生引用锚;"
+            "不猜默认)",
+            {"kind": "v3_projection_source_binding_mismatch",
+             "check": "native_export_digest_missing"})
+    verified = read_native_export(ledger, run_dir, export_digest)
+    manifest = verified["manifest"]
+    if str(manifest.get("content_digest")) != content_digest:
+        raise V3ProjectionContractError(
+            "投影输入的 native_result 与其引用的导出 content_digest"
+            " 不一致(混搭真 export 引用 + 假 native;拒)",
+            {"kind": "v3_projection_source_binding_mismatch",
+             "check": "export_content_digest_binding",
+             "native_result_content_digest": content_digest,
+             "manifest_content_digest":
+                 str(manifest.get("content_digest") or "")})
+    declared_sha = str((native_export or {}).get("payload_sha256") or "")
+    if declared_sha and declared_sha != str(manifest.get("payload_sha256")):
+        raise V3ProjectionContractError(
+            "投影输入的 native_export.payload_sha256 与导出 manifest"
+            " 不符(引用锚不一致;拒)",
+            {"kind": "v3_projection_source_binding_mismatch",
+             "check": "export_payload_sha_binding",
+             "declared": declared_sha[:12],
+             "manifest": str(manifest.get("payload_sha256"))[:12]})
+    if verified["payload"] != native_result:
+        raise V3ProjectionContractError(
+            "投影输入的 native_result 不是该导出的原生载荷(整对象"
+            "比对不符;假 native 不能配真 export 引用)",
+            {"kind": "v3_projection_source_binding_mismatch",
+             "check": "native_payload_identity",
+             "export_digest": export_digest})
+    return verified
+
+
 # ---------------------------------------------------------------- 构建
 
 
-def build_v3_projection(ledger, native_result: dict, *,
-                        native_export: dict,
-                        run_dir: str | Path) -> dict:
-    """native result → v3 有损投影载荷(确定性;纯派生零写入)。
-
-    native_export = export_native_result 的返回(原生引用锚);
-    native_result 必须是 build_native_result 的产物(其 endpoint 记录
-    已通过首消费 —— 过期记录不投影成"正式结果")。
-    """
-    run_dir = Path(run_dir)
-    content_digest = str(native_result["content_digest"])
-    endpoint_record = native_result.get("endpoint_record") or {}
+def _derived_projection_content(native_result: dict,
+                                run_dir: Path) -> dict:
+    """登记 adapter 的同源派生内容(S4-C04 单一来源):构建写入与
+    读取复算共用 —— 步骤/动态损失/信息损失清单/不可投影摘要/
+    root_smiles/run_id 全部由**该原生载荷**确定性派生,不各算一套。"""
     steps, dynamic_losses = _route_steps(
         native_result, _state_smiles_map(native_result))
     losses = list(_INFORMATION_LOSSES) + dynamic_losses
@@ -272,6 +358,34 @@ def build_v3_projection(ledger, native_result: dict, *,
                        "真实输入;空答卷不是终点/去除结论)"),
             "native_authority": "native payload: events",
         })
+    return {
+        "run_id": str(native_result.get("run_id") or ""),
+        "route_steps": steps,
+        "root_smiles": _root_smiles(run_dir),
+        "information_losses": losses,
+        "unprojectable_summaries": _unprojectable_summaries(
+            native_result, native_result.get("endpoint_record") or {}),
+    }
+
+
+def build_v3_projection(ledger, native_result: dict, *,
+                        native_export: dict,
+                        run_dir: str | Path) -> dict:
+    """native result → v3 有损投影载荷(确定性;纯派生零写入)。
+
+    native_export = export_native_result 的返回(原生引用锚);
+    native_result 必须是 build_native_result 的产物(其 endpoint 记录
+    已通过首消费 —— 过期记录不投影成"正式结果")。
+
+    S4-C04:构建先经 ``_verify_native_source_binding`` 验证真实原生
+    来源(传入对象 = 当前 run 已验证导出的原生载荷),假 native +
+    真 export 引用不再照收。
+    """
+    run_dir = Path(run_dir)
+    _verify_native_source_binding(
+        ledger, native_result, native_export, run_dir)
+    content_digest = str(native_result["content_digest"])
+    derived = _derived_projection_content(native_result, run_dir)
     graph_facts = graph_facts_digests(ledger)
     payload = {
         "schema_version": PPV1_V3_PROJECTION_VERSION,
@@ -301,12 +415,11 @@ def build_v3_projection(ledger, native_result: dict, *,
         },
         "route": {
             "route_id": ledger.run_id,
-            "root_smiles": _root_smiles(run_dir),
-            "steps": steps,
+            "root_smiles": derived["root_smiles"],
+            "steps": derived["route_steps"],
         },
-        "information_losses": losses,
-        "unprojectable_summaries": _unprojectable_summaries(
-            native_result, endpoint_record),
+        "information_losses": derived["information_losses"],
+        "unprojectable_summaries": derived["unprojectable_summaries"],
         "boundary": {
             "reverse_consumption": V3_REVERSE_CONSUMPTION,
             "not_counted_as_extra_path": True,
@@ -333,6 +446,7 @@ def _unprojectable_summaries(native_result: dict,
     bookkeeping = endpoint_record.get("bookkeeping") or {}
     evidence_summary = endpoint_record.get("evidence_summary") or {}
     conditions = endpoint_record.get("conditions_snapshot") or {}
+    route_conditions = endpoint_record.get("route_condition_assessment") or {}
     stop = (endpoint_record.get("search_stop_reason") or {})
     inherited = endpoint_record.get(
         "inherited_unresolved_dependencies") or []
@@ -349,6 +463,12 @@ def _unprojectable_summaries(native_result: dict,
             "independent_source_support_count"),
         "inherited_unresolved_dependency_ids": sorted(
             str(d.get("dependency_id") or "") for d in inherited),
+        "necessary_condition_unknown_keys": list(
+            route_conditions.get("necessary_condition_unknown_keys")
+            or []),
+        "necessary_condition_conflict_keys": list(
+            route_conditions.get("necessary_condition_conflict_keys")
+            or []),
         "stop_reason_primary": stop.get("primary"),
         "stop_other_reasons": list(stop.get("other_reasons") or []),
         "unexplored_counts": {
@@ -455,9 +575,23 @@ def _load_projection(run_dir: Path, projection_digest: str) -> dict:
     return payload
 
 
-def read_v3_projection(run_dir: str | Path, projection_digest: str) -> dict:
+def read_v3_projection(run_dir: str | Path, projection_digest: str, *,
+                       ledger=None) -> dict:
     """投影读取(首消费:integrity → 版本门 → lossy 标记 → 原生引用
-    存在性;零写入;原生侧新鲜度由 read_native_export 负责)。"""
+    绑定 + 同源复算;零写入)。
+
+    S4-C04:已验证原生存在/投影自 hash不是投影证书 —— 读取核:
+
+    - ledger 传入时先走 ``read_native_export`` 完整原生首消费
+      (权威引用/策略/事实 digest;与构建侧共用同一绑定源);
+    - native_reference 与真实原生导出 manifest 的内部一致(export
+      digest/core digest 复算/payload sha/content digest/task_key/
+      graph revision aggregate/run_id 两两绑定);
+    - 投影已表达字段(route.steps/root_smiles/unprojectable_
+      summaries/information_losses/run_id)由该原生 payload 按登记
+      adapter(``_derived_projection_content`` 单一来源)同源复算比对
+      —— projection-only 自洽改内容 + 真 reference ⇒ 拒。
+    """
     run_dir = Path(run_dir)
     payload = _load_projection(run_dir, projection_digest)
     recomputed = content_hash(
@@ -470,22 +604,135 @@ def read_v3_projection(run_dir: str | Path, projection_digest: str) -> dict:
              "path": str(run_dir / V3_PROJECTION_SUBDIR
                          / str(projection_digest)[:24]
                          / V3_PROJECTION_FILE)})
-    # 原生引用存在性(正向引用核对;不含原生新鲜度判定 —— 那是
-    # read_native_export 的职责,消费方应先读原生再读投影)
-    native_export_digest = str(
-        (payload.get("native_reference") or {}).get(
-            "native_export_digest") or "")
-    manifest_path = (run_dir / NATIVE_EXPORT_SUBDIR
-                     / native_export_digest[:24]
-                     / NATIVE_EXPORT_MANIFEST_FILE)
-    if not native_export_digest or not manifest_path.is_file():
+    # ---- S4-C04:原生来源绑定(先可传 ledger 走完整原生首消费) ----
+    reference = dict(payload.get("native_reference") or {})
+    native_export_digest = str(reference.get("native_export_digest") or "")
+    if not native_export_digest:
         raise V3ProjectionContractError(
-            f"投影的原生导出引用不可解析:{native_export_digest or '<空>'}"
+            "投影缺 native_reference.native_export_digest(引用断裂;"
+            "不猜补)",
+            {"kind": "v3_native_reference_missing",
+             "native_export_digest": ""})
+    if ledger is not None:
+        try:
+            read_native_export(ledger, run_dir, native_export_digest)
+        except Exception as exc:  # noqa: BLE001 —— 原生首消费失败如实拒
+            raise V3ProjectionContractError(
+                f"投影引用的原生导出首消费失败:{native_export_digest}"
+                "(投影的原生来源必须先经原生首消费;不吞成成功)",
+                {"kind": "v3_projection_source_binding_mismatch",
+                 "check": "native_export_first_consumption",
+                 "native_export_digest": native_export_digest,
+                 "error": f"{type(exc).__name__}: {exc}"[:200]}) from exc
+    # 文件级绑定:manifest/payload 本体 + 引用内部一致
+    native_manifest, native_payload = _load_bound_native_export(
+        run_dir, native_export_digest, payload)
+    # ---- S4-C04:已表达字段按登记 adapter 同源复算比对 ----
+    expected = _derived_projection_content(native_payload, run_dir)
+    mismatches: list[str] = []
+    if str(payload.get("run_id") or "") != expected["run_id"]:
+        mismatches.append("run_id")
+    route = dict(payload.get("route") or {})
+    if list(route.get("steps") or []) != expected["route_steps"]:
+        mismatches.append("route.steps")
+    if str(route.get("root_smiles") or "") != expected["root_smiles"]:
+        mismatches.append("route.root_smiles")
+    if list(payload.get("information_losses") or []) != \
+            expected["information_losses"]:
+        mismatches.append("information_losses")
+    if dict(payload.get("unprojectable_summaries") or {}) != \
+            expected["unprojectable_summaries"]:
+        mismatches.append("unprojectable_summaries")
+    if mismatches:
+        raise V3ProjectionContractError(
+            f"投影的已表达字段与按登记 adapter 从其原生载荷同源复算的"
+            f"内容不符:{sorted(mismatches)}(有损投影不许可捏造/删除"
+            "已提交事件、deferred 或其它已表达事实;自洽重算 projection"
+            "_digest 换新目录不洗白;保全原文件)",
+            {"kind": "v3_projection_source_binding_mismatch",
+             "check": "adapter_derived_content",
+             "mismatched_fields": sorted(mismatches),
+             "native_export_digest": native_export_digest})
+    return payload
+
+
+def _load_bound_native_export(run_dir: Path, export_digest: str,
+                              projection_payload: dict) -> tuple[dict, dict]:
+    """S4-C04 文件级来源绑定:读取投影引用的原生导出 manifest+payload
+    并核内部一致(与构建侧 read_native_export 共用绑定语义;无 ledger
+    的发现接口也核到内容绑定,不再只列文件/只查存在)。
+
+    返回 (manifest, payload);文件缺失 ⇒ v3_native_reference_missing;
+    绑定不符 ⇒ v3_projection_source_binding_mismatch。"""
+    out_dir = run_dir / NATIVE_EXPORT_SUBDIR / str(export_digest)[:24]
+    manifest_path = out_dir / NATIVE_EXPORT_MANIFEST_FILE
+    payload_path = out_dir / NATIVE_EXPORT_PAYLOAD_FILE
+    if not manifest_path.is_file() or not payload_path.is_file():
+        raise V3ProjectionContractError(
+            f"投影的原生导出引用不可解析:{export_digest or '<空>'}"
             "(引用断裂 ⇒ 拒;不猜补)",
             {"kind": "v3_native_reference_missing",
-             "native_export_digest": native_export_digest,
+             "native_export_digest": export_digest,
              "expected_manifest": str(manifest_path)})
-    return payload
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        native_payload = json.loads(
+            payload_path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise V3ProjectionContractError(
+            f"投影的原生导出文件不可解析:{out_dir}(引用断裂 ⇒ 拒)",
+            {"kind": "v3_native_reference_missing",
+             "native_export_digest": export_digest,
+             "error": f"{type(exc).__name__}: {exc}"[:200]}) from exc
+    reference = dict(projection_payload.get("native_reference") or {})
+    binding: list[str] = []
+    if str(manifest.get("export_digest") or "") != export_digest:
+        binding.append("manifest_export_digest")
+    core_recomputed = content_hash(
+        {k: v for k, v in manifest.items() if k != "export_digest"})
+    if core_recomputed != str(manifest.get("export_digest") or ""):
+        binding.append("manifest_core_digest")
+    payload_sha = hashlib.sha256(
+        payload_path.read_bytes()).hexdigest()
+    if payload_sha != str(manifest.get("payload_sha256") or ""):
+        binding.append("payload_sha256")
+    if content_hash({k: v for k, v in native_payload.items()
+                     if k != "content_digest"}) \
+            != str(native_payload.get("content_digest") or ""):
+        binding.append("payload_content_digest")
+    if str(native_payload.get("content_digest") or "") != \
+            str(manifest.get("content_digest") or ""):
+        binding.append("manifest_content_digest")
+    if str(reference.get("native_result_content_digest") or "") != \
+            str(manifest.get("content_digest") or ""):
+        binding.append("reference_content_digest")
+    if str(reference.get("native_export_payload_sha256") or "") != \
+            str(manifest.get("payload_sha256") or ""):
+        binding.append("reference_payload_sha256")
+    authority = dict(manifest.get("authority_references") or {})
+    if str(reference.get("native_result_task_key") or "") != \
+            str(authority.get("native_result_task_key") or ""):
+        binding.append("reference_native_task_key")
+    if str(projection_payload.get("run_id") or "") != \
+            str(manifest.get("run_id") or "") \
+            or str(native_payload.get("run_id") or "") != \
+            str(manifest.get("run_id") or ""):
+        binding.append("run_id")
+    graph_revision = dict(projection_payload.get(
+        "native_graph_revision") or {})
+    if str(graph_revision.get("aggregate_digest") or "") != \
+            content_hash(manifest.get("graph_facts") or {}):
+        binding.append("graph_revision_aggregate")
+    if binding:
+        raise V3ProjectionContractError(
+            f"投影与原生导出的来源绑定不一致:{sorted(binding)}"
+            "(已验证原生存在/投影自 hash 不是投影证书;混搭 digest/"
+            "task_key/sha 或换 manifest 不洗白;保全原文件)",
+            {"kind": "v3_projection_source_binding_mismatch",
+             "check": "native_reference_internal_consistency",
+             "binding_failures": sorted(binding),
+             "native_export_digest": export_digest})
+    return manifest, native_payload
 
 
 def list_v3_projections_for_native(

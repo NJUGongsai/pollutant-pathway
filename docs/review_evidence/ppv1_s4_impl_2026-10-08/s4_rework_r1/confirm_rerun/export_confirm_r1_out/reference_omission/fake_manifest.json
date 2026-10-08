@@ -1,0 +1,54 @@
+{
+  "artifact_references": {},
+  "authority_references": {
+    "endpoint_record_payload_hash": "e68e3f9f79f61150aa0a75c281dcbf27c09ddf7c4504eee4e8371082456b083e",
+    "native_result_content_digest": "6b53842fd28f440f259257485b989a53253ee8d00b478ae082c078df5f76d57a",
+    "native_result_task_key": "run-native-result:6b53842fd28f440f25925748",
+    "stop_record_payload_hash": "531f0523228cf57e23e72b717a2782e69c470abd8f6ec23b5683d9fe5bb315cd"
+  },
+  "content_digest": "6b53842fd28f440f259257485b989a53253ee8d00b478ae082c078df5f76d57a",
+  "contract_versions": {
+    "endpoint": "ppv1-endpoint-2",
+    "endpoint_policy": "ppv1-endpoint-policy-2",
+    "native_result": "ppv1-native-result-2",
+    "profile": "ppv1-profile-17",
+    "runflow": "ppv1-runflow-5",
+    "search": "ppv1-search-6",
+    "store": "ppv1-store-10"
+  },
+  "determinism_note": "payload/manifest 无时间戳;canonical_json 键序 + 列表稳定排序;export_digest = content_hash(本 manifest 去掉 export_digest 键);同事实+同版本+同策略 ⇒ 同字节",
+  "export_policy": {
+    "directory_naming": "native_export/<export_digest[:24]>/",
+    "export_digest_basis": "content_hash(manifest_core_without_export_digest)",
+    "manifest_serialization": "canonical_json_sortkeys_compact_newline",
+    "manifest_timestamps": "forbidden",
+    "overwrite": "forbidden_same_digest_different_bytes_refused",
+    "payload_serialization": "canonical_json_sortkeys_compact_newline",
+    "payload_timestamps": "forbidden",
+    "stale_detection": "manifest_core_digest_recompute+run_and_contract_version_binding+graph_facts_digests+authority_references+necessary_artifact_reference_set_closure+policy_body_and_hash",
+    "version": "ppv1-native-export-policy-2"
+  },
+  "export_policy_sha256": "cdf6fa3becd1e3a9c705ef329c18587adc3f2e53a6794401dfd9fd43e23dc5f8",
+  "graph_facts": {
+    "budget_reservations": "391698e8d664fec910a37cb5005a0c8e8876c1bfa9d20f8cca9c2b2b9a6255fa",
+    "endpoint_records": "b467c6c872894a0f71de6170bdd6072749f78f50e8350fab3c4bbfc5eb880278",
+    "event_appearance_links": "cc5dfce707dffc916f33808f20ca91abf5a3555a08c4a54c0c3cc46ed09fb1df",
+    "events": "0c1e62131ace4f40b9bb552dfb1eaedb306f9cf28115dc50d43269ca6e4fba18",
+    "expansion_plans": "b72f1892e374a538c5834cd18c160a06eb7356a69c5f91aa709274a78e5e36c0",
+    "hypotheses": "3351ce068f5c630f23d24aa529e6f4f7e487ca365fac56526ff2da6bb6f5ec32",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "note": "PPV1 graph revision 等价身份 = 持久事实表逐表内容 digest(legacy 整数 graph_revision 不适用;任何行变化 ⇒ 旧导出 stale)",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "160a89a2a1aa4e955750705af3bcf350bea276bacca498f7e1aa3a8d25738568",
+    "search_actions": "1756d66fd522ad93f4c365c41aa07ac3b3517adc666144088f686ec6ae623c01",
+    "search_attempts": "e269ec9cf125e3123e09130e8aa0b47b5c864ec0139c0150a18867ea241aa423",
+    "search_commit_records": "4ad0fa3285ea0d3fa6e3c54feaa9685a0e5afd5a9d5db18e98bc4a97a4d6b1e1",
+    "state_appearances": "e0a6d99d046b9c1195ba7c195fea807b5cc9cbb3ad69e06a662be7de57a424b3",
+    "states": "6e86183b72a10b7d988a87b628c545e42f24111bb14d785691b0a209a1d294df",
+    "stop_reason_records": "9a1e617b1c66dc68874a445bfc0d9f7404c0e9fe991a988d43fc74908949ea29"
+  },
+  "payload_sha256": "c266175c3abc39272d327cadcfed1f6e4a3c9905aaa54ccc471728b136978e40",
+  "run_id": "reference-omission",
+  "schema_version": "ppv1-native-export-2",
+  "export_digest": "ca62325d3d8689d21b054002a0ce71874e45aa493c54760e90b039c33d280c07"
+}

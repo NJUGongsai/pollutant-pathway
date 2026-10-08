@@ -176,9 +176,9 @@ def test_endpoint_four_way_split_public_chain(tmp_path: Path) -> None:
     # 四字段独立:execution/stop/chemical/bookkeeping 互不派生自彼此
     assert record["execution_status"] != record["bookkeeping_status"]
     assert record["chemical_endpoint_assessment"] == "unknown"
-    assert record["schema_version"] == "ppv1-endpoint-1"
+    assert record["schema_version"] == "ppv1-endpoint-2"
     assert record["derived_from"]["endpoint_policy_version"] == \
-        "ppv1-endpoint-policy-1"
+        "ppv1-endpoint-policy-2"
     conn.close()
 
 

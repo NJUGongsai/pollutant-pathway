@@ -24,22 +24,40 @@ S4b 范围(任务书 §7 S4b 第 1-4 项 + §4.4 G02):把 S4a 原生结果对象
 1. 文件缺失 ⇒ ``export_missing``;
 2. manifest 不可解析/缺 export_digest/与请求 digest 不符 ⇒
    ``export_manifest_corrupt``(integrity);
+2b. **manifest core 自身 digest 复算(S4-C02 回修)**:manifest 去掉
+   export_digest 键后重算 content_hash,与声明的 export_digest 不符
+   ⇒ ``export_manifest_corrupt`` —— manifest-only 改坏(run_id/契约
+   版本/策略正文/引用集合,保持原 digest)不再被字面值比较放过;
 3. payload 字节 sha 与 manifest 不符 ⇒ ``export_payload_corrupt``
    (integrity;保全原文件,不覆盖不重算);
 4. manifest schema 版本未知 ⇒ ``export_version_unknown``(fail-closed
-   不猜迁移);
+   不猜迁移);**契约版本块整组绑定(S4-C02)**:manifest.contract_
+   versions 与当前 profile 常量逐项不符 ⇒ 同 kind 拒(自洽重写换
+   版本集合不再照收);
+4b. **run 绑定(S4-C02)**:manifest.run_id != ledger.run_id ⇒
+   ``export_reference_mismatch``(run/版本/策略内容与当前登记源
+   绑定,不是 manifest 内自洽证书);
 5. payload 内容 digest 复算不符 ⇒ ``export_digest_mismatch``;
 6. 权威引用断裂(endpoint/stop 行、原生结果 artifact、被引用
    artifact、冻结计划;含内容 hash 不一致)⇒
    ``export_reference_mismatch``(endpoint 记录自身的 staleness 由
    read_run_endpoint 首消费先行 —— 输入漂移先以 endpoint 拒绝浮出);
-7. 导出策略 hash 不符 ⇒ ``export_policy_stale``(stale 类;策略/版本
-   变化后旧导出不得当当前结果);
+7. 导出策略 hash/正文绑定(S4-C02:manifest 自记策略正文重算 hash
+   须与自记 sha256 一致,且正文须等于当前策略)不符 ⇒
+   ``export_policy_stale``(stale 类;策略/版本变化后旧导出不得当
+   当前结果);
 8. graph facts digest 与当前持久权威不符 ⇒ ``export_stale``
-   (stale 类;改变源图 ⇒ 旧结果过期,不能静默消费)。
+   (stale 类;改变源图 ⇒ 旧结果过期,不能静默消费);
+9. **必要 artifact 引用集合闭合(S4-C02 回修)**:由独立权威
+   (artifact_reference_index + 冻结计划)同源枚举当前应引用且实际
+   存在的 artifact 集合,与 manifest 自报集合**整集比对**(漏单项
+   必要引用的自洽重封 ⇒ 拒;引用的 artifact 已缺失 ⇒ 拒);与每行
+   hash 校验(第 6 步)分别核;合法缺席(枚举到但当前不存在的
+   artifact)保留,不产空引用;枚举中撞到损坏 artifact ⇒ 结构化
+   ``export_reference_mismatch`` 拒(坏必要 soutc 等不能被跳过)。
 
 防"洗白":过期/损坏导出**零写入、原文件保全**;自洽重写 payload +
-manifest(重算内部 hash)逃不过第 6/8 条 —— 引用与事实 digest 从
+manifest(重算内部 hash)逃不过第 6/8/9 条 —— 引用与事实 digest 从
 独立权威(DB 行 + artifact store)重算,不信任 manifest 自声明。
 不做密码学签名、不抗全库协同改写(沿 S3B-01/S4a 同一边界披露)。
 
@@ -75,7 +93,7 @@ from .profile import (
     PPV1_SEARCH_SCHEMA_VERSION,
     PPV1_STORE_SCHEMA_VERSION,
 )
-from .search import read_search_artifact
+from .search import SearchArtifactIntegrityError, read_search_artifact
 
 NATIVE_EXPORT_SUBDIR = "native_export"
 NATIVE_EXPORT_PAYLOAD_FILE = "payload.json"
@@ -100,10 +118,15 @@ class NativeExportConflict(NativeExportContractError):
 
 
 def native_export_policy() -> dict:
-    """固定导出策略(ppv1-native-export-policy-1;无用户可配项)。
+    """固定导出策略(ppv1-native-export-policy-2;无用户可配项)。
 
-    变更任一规则(序列化/命名/无时间戳/manifest 组成)须升
-    PPV1_NATIVE_EXPORT_POLICY_VERSION —— 旧导出按 policy stale 拒。
+    变更任一规则(序列化/命名/无时间戳/manifest 组成/首消费核验集)
+    须升 PPV1_NATIVE_EXPORT_POLICY_VERSION —— 旧导出按 policy stale 拒。
+
+    v2(S4-C02 回修,确认复核 §4):首消费新增 manifest core 自身
+    digest 复算、run/契约版本/策略正文与当前登记源绑定、必要
+    artifact 引用集合由独立权威同源枚举后整集闭合(与每行 hash
+    校验分别核)。
     """
     return {
         "version": PPV1_NATIVE_EXPORT_POLICY_VERSION,
@@ -115,14 +138,82 @@ def native_export_policy() -> dict:
         "payload_timestamps": "forbidden",
         "manifest_timestamps": "forbidden",
         "overwrite": "forbidden_same_digest_different_bytes_refused",
-        "stale_detection":
-            "graph_facts_digests+authority_references+policy_hash",
+        "stale_detection": (
+            "manifest_core_digest_recompute+run_and_contract_version"
+            "_binding+graph_facts_digests+authority_references+necessary"
+            "_artifact_reference_set_closure+policy_body_and_hash"),
     }
 
 
 def export_policy_hash(policy: dict) -> str:
     return hashlib.sha256(
         canonical_json(policy).encode("utf-8")).hexdigest()
+
+
+def _current_contract_versions() -> dict:
+    """manifest contract_versions 的当前登记源(profile 常量单一来源;
+    写入与首消费绑定核验共用,不在读取侧另造第二套版本集合)。"""
+    return {
+        "profile": PPV1_PROFILE_SCHEMA_VERSION,
+        "store": PPV1_STORE_SCHEMA_VERSION,
+        "search": PPV1_SEARCH_SCHEMA_VERSION,
+        "runflow": PPV1_RUNFLOW_SCHEMA_VERSION,
+        "endpoint": PPV1_ENDPOINT_SCHEMA_VERSION,
+        "endpoint_policy": PPV1_ENDPOINT_POLICY_VERSION,
+        "native_result": PPV1_NATIVE_RESULT_VERSION,
+    }
+
+
+def _necessary_artifact_reference_keys(ledger) -> dict:
+    """必要 artifact 引用集合的独立权威同源枚举(S4-C02)。
+
+    与 _artifact_references/manifest 写入共用 artifact_reference_index
+    + 冻结计划两个来源(**同一完整索引,不另修一套规则**);此处
+    枚举的是"当前应被引用且实际存在"的集合:缺席(尚未产出)的
+    artifact 不产空引用(合法缺席);损坏 artifact ⇒ 结构化拒
+    (坏必要 soutc 等不能被跳过,不静默略过后当合法缺席)。
+    返回 {key: payload_hash}(key = task_key/name)。"""
+    refs: dict[str, str] = {}
+    for entry in artifact_reference_index(ledger):
+        try:
+            envelope = read_search_artifact(
+                ledger.artifact_store, entry["task_key"], entry["name"])
+        except SearchArtifactIntegrityError as exc:
+            raise NativeExportContractError(
+                f"导出必要引用的 artifact 损坏:{entry['task_key']}/"
+                f"{entry['name']}(H07 完整性失败;保全原文件,不能跳过"
+                "后当合法缺席)",
+                {"kind": "export_reference_mismatch",
+                 "artifact": f"{entry['task_key']}/{entry['name']}",
+                 "artifact_error_kind": exc.detail.get("kind"),
+                 "original_error": type(exc).__name__}) from exc
+        if envelope is None:
+            continue  # 合法缺席(不产空引用)
+        refs[f"{entry['task_key']}/{entry['name']}"] = \
+            str(envelope.get("payload_hash") or "")
+    frozen = _read_frozen_plan_or_refuse(ledger)
+    if frozen is not None:
+        refs[f"{_FROZEN_PLAN_TASK_KEY}/{_FROZEN_PLAN_ARTIFACT}"] = \
+            str(frozen.get("payload_hash") or "")
+    return dict(sorted(refs.items()))
+
+
+def _read_frozen_plan_or_refuse(ledger) -> dict | None:
+    """冻结计划 artifact 读取(损坏 ⇒ 结构化拒;缺席 ⇒ None 合法)。"""
+    try:
+        return read_search_artifact(
+            ledger.artifact_store, _FROZEN_PLAN_TASK_KEY,
+            _FROZEN_PLAN_ARTIFACT)
+    except SearchArtifactIntegrityError as exc:
+        raise NativeExportContractError(
+            f"导出必要引用的冻结计划 artifact 损坏:"
+            f"{_FROZEN_PLAN_TASK_KEY}/{_FROZEN_PLAN_ARTIFACT}"
+            "(H07 完整性失败;保全原文件,不能跳过后当合法缺席)",
+            {"kind": "export_reference_mismatch",
+             "artifact": f"{_FROZEN_PLAN_TASK_KEY}/"
+                         f"{_FROZEN_PLAN_ARTIFACT}",
+             "artifact_error_kind": exc.detail.get("kind"),
+             "original_error": type(exc).__name__}) from exc
 
 
 # ---------------------------------------------------------------- 事实 digest
@@ -194,16 +285,24 @@ def _artifact_references(ledger) -> dict:
     reference_mismatch 拒)。"""
     refs: dict[str, dict] = {}
     for entry in artifact_reference_index(ledger):
-        envelope = read_search_artifact(
-            ledger.artifact_store, entry["task_key"], entry["name"])
+        try:
+            envelope = read_search_artifact(
+                ledger.artifact_store, entry["task_key"], entry["name"])
+        except SearchArtifactIntegrityError as exc:
+            raise NativeExportContractError(
+                f"导出引用的 artifact 损坏:{entry['task_key']}/"
+                f"{entry['name']}(H07 完整性失败;保全原文件,导出先拒)",
+                {"kind": "export_reference_mismatch",
+                 "artifact": f"{entry['task_key']}/{entry['name']}",
+                 "artifact_error_kind": exc.detail.get("kind"),
+                 "original_error": type(exc).__name__}) from exc
         if envelope is None:
             continue
         refs[f"{entry['task_key']}/{entry['name']}"] = {
             "payload_hash": str(envelope.get("payload_hash") or ""),
             "source_action_id": entry["source_action_id"],
         }
-    frozen = read_search_artifact(
-        ledger.artifact_store, _FROZEN_PLAN_TASK_KEY, _FROZEN_PLAN_ARTIFACT)
+    frozen = _read_frozen_plan_or_refuse(ledger)
     if frozen is not None:
         refs[f"{_FROZEN_PLAN_TASK_KEY}/{_FROZEN_PLAN_ARTIFACT}"] = {
             "payload_hash": str(frozen.get("payload_hash") or ""),
@@ -297,15 +396,7 @@ def export_native_result(ledger, native_result: dict,
         "run_id": ledger.run_id,
         "export_policy": policy,
         "export_policy_sha256": export_policy_hash(policy),
-        "contract_versions": {
-            "profile": PPV1_PROFILE_SCHEMA_VERSION,
-            "store": PPV1_STORE_SCHEMA_VERSION,
-            "search": PPV1_SEARCH_SCHEMA_VERSION,
-            "runflow": PPV1_RUNFLOW_SCHEMA_VERSION,
-            "endpoint": PPV1_ENDPOINT_SCHEMA_VERSION,
-            "endpoint_policy": PPV1_ENDPOINT_POLICY_VERSION,
-            "native_result": PPV1_NATIVE_RESULT_VERSION,
-        },
+        "contract_versions": _current_contract_versions(),
         "content_digest": str(native_result["content_digest"]),
         "payload_sha256": payload_sha,
         "graph_facts": graph_facts_digests(ledger),
@@ -391,6 +482,22 @@ def read_native_export(ledger, run_dir: str | Path, export_digest: str,
             {"kind": "export_manifest_corrupt",
              "requested": str(export_digest),
              "manifest": str(manifest.get("export_digest") or "")})
+    # ---- 2b. manifest core 自身 digest 复算(S4-C02) ----
+    # manifest 去掉 export_digest 键后重算 content_hash,与声明值比对:
+    # manifest-only 改坏(run_id/契约版本/策略正文/引用集合,保持原
+    # digest)不再被字面值比较放过;这不是新增一个自比较字段,而是
+    # 对文件内容本身的 core 复算(与导出侧 export_digest 同一构造)。
+    core_recomputed = content_hash(
+        {k: v for k, v in manifest.items() if k != "export_digest"})
+    if core_recomputed != str(manifest.get("export_digest")):
+        raise NativeExportContractError(
+            "导出 manifest core 自身 digest 复算不一致(manifest 被改"
+            "而 export_digest 未同步,或 manifest 组成非法;保全原文件,"
+            "不以重算新 digest 洗白)",
+            {"kind": "export_manifest_corrupt",
+             "check": "manifest_core_digest",
+             "declared": str(manifest.get("export_digest"))[:12],
+             "recomputed": core_recomputed[:12]})
     # ---- 3. payload 字节完整性 ----
     payload_bytes = payload_path.read_bytes()
     payload_sha = hashlib.sha256(payload_bytes).hexdigest()
@@ -402,13 +509,37 @@ def read_native_export(ledger, run_dir: str | Path, export_digest: str,
              "path": str(payload_path),
              "recorded": str(manifest.get("payload_sha256"))[:12],
              "actual": payload_sha[:12]})
-    # ---- 4. 版本门 ----
+    # ---- 4. 版本门(schema + 契约版本块整组绑定,S4-C02) ----
     if str(manifest.get("schema_version") or "") != PPV1_NATIVE_EXPORT_VERSION:
         raise NativeExportContractError(
             f"导出 schema 版本未知:{manifest.get('schema_version')!r}"
             f"(当前 {PPV1_NATIVE_EXPORT_VERSION};fail-closed 不猜迁移)",
             {"kind": "export_version_unknown",
              "schema_version": str(manifest.get("schema_version") or "")})
+    current_contracts = _current_contract_versions()
+    recorded_contracts = manifest.get("contract_versions") or {}
+    contract_drift = sorted(
+        key for key, value in current_contracts.items()
+        if str(recorded_contracts.get(key)) != str(value))
+    if contract_drift:
+        raise NativeExportContractError(
+            f"导出契约版本块与当前登记源不符:{contract_drift}"
+            "(run/版本/策略内容与当前权威绑定,不是 manifest 内自洽"
+            "证书;旧导出不得当当前结果)",
+            {"kind": "export_version_unknown",
+             "changed_contracts": contract_drift,
+             "recorded": {k: recorded_contracts.get(k)
+                          for k in contract_drift},
+             "current": {k: current_contracts[k] for k in contract_drift}})
+    # ---- 4b. run 绑定(S4-C02) ----
+    if str(manifest.get("run_id") or "") != str(ledger.run_id):
+        raise NativeExportContractError(
+            "导出 manifest 的 run_id 与当前 run 权威不符(run 绑定;"
+            "自洽重封换 run 身份不再照收)",
+            {"kind": "export_reference_mismatch",
+             "check": "run_binding",
+             "manifest_run_id": str(manifest.get("run_id") or ""),
+             "ledger_run_id": str(ledger.run_id)})
     # ---- 5. payload 内容 digest 复算 ----
     try:
         payload = json.loads(payload_bytes.decode("utf-8"))
@@ -480,8 +611,17 @@ def read_native_export(ledger, run_dir: str | Path, export_digest: str,
     artifact_refs = manifest.get("artifact_references") or {}
     for key, recorded in sorted(artifact_refs.items()):
         task_key, _, name = key.partition("/")
-        envelope = read_search_artifact(
-            ledger.artifact_store, task_key, name)
+        try:
+            envelope = read_search_artifact(
+                ledger.artifact_store, task_key, name)
+        except SearchArtifactIntegrityError as exc:
+            raise NativeExportContractError(
+                f"导出引用的 artifact 损坏:{key}(H07 完整性失败;"
+                "保全原文件,不静默略过)",
+                {"kind": "export_reference_mismatch",
+                 "artifact": key,
+                 "artifact_error_kind": exc.detail.get("kind"),
+                 "original_error": type(exc).__name__}) from exc
         if envelope is None or str(envelope.get("payload_hash") or "") \
                 != str((recorded or {}).get("payload_hash")):
             raise NativeExportContractError(
@@ -494,16 +634,31 @@ def read_native_export(ledger, run_dir: str | Path, export_digest: str,
                  "current_payload_hash": (
                      str(envelope.get("payload_hash") or "")[:12]
                      if envelope is not None else "<missing>")})
-    # ---- 7. 导出策略 ----
+    # ---- 7. 导出策略(正文与 hash 双绑定,S4-C02) ----
     current_policy = policy if policy is not None else native_export_policy()
-    current_policy_sha = export_policy_hash(current_policy)
-    if str(manifest.get("export_policy_sha256")) != current_policy_sha:
+    recorded_policy_body = manifest.get("export_policy")
+    if not isinstance(recorded_policy_body, dict) \
+            or recorded_policy_body != current_policy:
         raise NativeExportContractError(
             "导出过期:导出策略/版本变化(旧导出不得当作当前结果;"
             "重新导出走公共 start/resume 或 export_native_result)",
             {"kind": "export_policy_stale",
-             "recorded": str(manifest.get("export_policy_sha256"))[:12],
-             "current": current_policy_sha[:12]})
+             "check": "policy_body_binding",
+             "recorded": recorded_policy_body,
+             "current": current_policy})
+    recorded_policy_sha = str(manifest.get("export_policy_sha256") or "")
+    if recorded_policy_sha != export_policy_hash(current_policy) \
+            or recorded_policy_sha != export_policy_hash(
+                recorded_policy_body):
+        raise NativeExportContractError(
+            "导出策略 hash 与正文绑定失败(策略正文与自记 sha256 不符;"
+            "保全原文件,不以重算 hash 洗白)",
+            {"kind": "export_policy_stale",
+             "check": "policy_body_hash_binding",
+             "recorded": recorded_policy_sha[:12],
+             "current": export_policy_hash(current_policy)[:12],
+             "body_recomputed": export_policy_hash(
+                 recorded_policy_body)[:12]})
     # ---- 8. graph facts staleness(独立权威重算,不信 manifest) ----
     current_facts = graph_facts_digests(ledger)
     recorded_facts = manifest.get("graph_facts") or {}
@@ -519,5 +674,21 @@ def read_native_export(ledger, run_dir: str | Path, export_digest: str,
             {"kind": "export_stale", "changed_facts": changed,
              "recorded": {k: recorded_facts.get(k) for k in changed},
              "current": {k: current_facts[k] for k in changed}})
+    # ---- 9. 必要 artifact 引用集合闭合(S4-C02;与每行 hash 校验
+    # 分别核;放在 stale 之后 —— 事实漂移先以 export_stale 浮出,
+    # 纯引用集合篡改(事实不动)由本步拒) ----
+    current_necessary = _necessary_artifact_reference_keys(ledger)
+    recorded_ref_keys = set(artifact_refs)
+    omitted = sorted(set(current_necessary) - recorded_ref_keys)
+    dangling = sorted(recorded_ref_keys - set(current_necessary))
+    if omitted or dangling:
+        raise NativeExportContractError(
+            "导出的必要 artifact 引用集合不闭合(独立权威同源枚举后"
+            "整集比对;漏单项必要引用的自洽重封/引用的 artifact 已缺失"
+            "均拒;与每行 hash 校验分别核)",
+            {"kind": "export_reference_mismatch",
+             "check": "necessary_artifact_reference_set_closure",
+             "omitted_necessary_refs": omitted,
+             "dangling_recorded_refs": dangling})
     return {"manifest": manifest, "payload": payload,
             "payload_sha256": payload_sha}

@@ -29,7 +29,11 @@ v3 有损适配 —— 本模块不实现文件消费契约。
   attempt 状态(S4b 修正:非事件动作完成的调度结论 artifact
   —— record_expansion_outcome 的 action.task_key 键与 _complete_
   action 的 soutc 键**都**聚合;S4a 只查前者,retrieve/decide 等
-  调度结论漏聚);
+  调度结论漏聚;**S4-C03 回修(确认复核 §4)**:soutc 键按
+  action_id 独立枚举,空 action.task_key 不再挡住 child retrieve
+  等的 no_local_candidate/unresolved_continuation 结论聚合与
+  manifest 引用;坏必要 artifact 结构化拒,不静默略过;契约
+  ppv1-native-result-2);
 - 预算预约与实际消耗:budget_reservations 聚合 + budget_snapshot
   (同 search 层派生,不复制判据);
 - 搜索停止原因:stop_reason_records 行(独立持久化;经 hash 复算);
@@ -52,7 +56,7 @@ import json
 
 from ..domain.models import content_hash, stable_id
 from .profile import PPV1_NATIVE_RESULT_VERSION
-from .search import read_search_artifact
+from .search import SearchArtifactIntegrityError, read_search_artifact
 
 NATIVE_RESULT_TASK_KEY = "run-native-result"
 NATIVE_RESULT_ARTIFACT = "native_result"
@@ -87,21 +91,26 @@ def _rows_sorted(rows: list, key_fields: tuple) -> list[dict]:
 
 def artifact_reference_index(ledger) -> list[dict]:
     """原生结果消费的 artifact 引用索引(**单一来源**:build_native_
-    result 的读取循环与 native_export 的 manifest 引用集合共用本函数,
-    不各自实现第二套枚举规则)。
+    result 的读取循环与 native_export 的 manifest 引用集合/首消费
+    必要集合闭合共用本函数,不各自实现第二套枚举规则)。
 
     条目 = {task_key, name, source_action_id}(稳定排序:task_key);
     覆盖 build_native_result 实际消费的全部 artifact:
     - path_context(上下文:条件/依赖;task_key = ctx:<ref>);
     - production_report(按 action.task_key 与 action_kind 过滤,与
-      build 的过滤条件逐字一致);
-    - expansion_outcome(**两个写入口的键都枚举**:展开尝试的非事件
-      结论走 record_expansion_outcome ⇒ action.task_key;非事件动作
-      完成(retrieve/decide/activate/transition 的调度结论)走
-      runflow._complete_action ⇒ stable_id("soutc", action_id) ——
-      S4b 修正:S4a 只按 action.task_key 查,retrieve/decide 等的
-      调度结论 artifact 全部漏聚;两个键都登记,缺失的键读取时
-      自然跳过)。冻结计划 artifact 不在本索引内(native 构建不
+      build 的过滤条件逐字一致;**仅键合法时列举** —— 空 task_key
+      不产空键引用);
+    - expansion_outcome(**两个写入口的键都枚举**):展开尝试的非事件
+      结论走 record_expansion_outcome ⇒ action.task_key(仅键合法时
+      列举);非事件动作完成(retrieve/decide/activate/transition 的
+      调度结论)走 runflow._complete_action ⇒ stable_id("soutc",
+      action_id) —— **S4-C03 回修(确认复核 §4):soutc 键按
+      action_id 独立枚举,不依赖 action.task_key 非空**;S4b 首批
+      在空 task_key 动作上提前 continue,使 child retrieve 等的
+      no_local_candidate/unresolved_continuation 结论在 build 聚合
+      与 manifest 引用里全部漏掉。缺键/缺席 artifact 读取时自然
+      跳过(合法缺席);坏(损坏)artifact 在读取入口如实上抛,
+      不静默略过。冻结计划 artifact 不在本索引内(native 构建不
       消费它;导出侧由 native_export 单独引用)。
     """
     conn = ledger.conn
@@ -121,19 +130,23 @@ def artifact_reference_index(ledger) -> list[dict]:
                         "source_action_id": ""})
     for action in actions:
         task_key = str(action.get("task_key") or "")
-        if not task_key:
-            continue
         kind = str(action.get("action_kind"))
         action_id = str(action.get("action_id"))
-        if kind in ("expand_hypothesis", "retrieve", "decide"):
-            entries.append({"task_key": task_key,
-                            "name": _PRODUCTION_REPORT,
-                            "source_action_id": action_id})
-        if kind in ("expand_hypothesis", "retrieve", "decide",
-                    "activate_deferred", "scenario_transition"):
-            entries.append({"task_key": task_key,
-                            "name": _EXPANSION_OUTCOME,
-                            "source_action_id": action_id})
+        outcome_kinds = ("expand_hypothesis", "retrieve", "decide",
+                         "activate_deferred", "scenario_transition")
+        # task_key 键引用:仅在键合法时列举(缺键不产空键引用)
+        if task_key:
+            if kind in ("expand_hypothesis", "retrieve", "decide"):
+                entries.append({"task_key": task_key,
+                                "name": _PRODUCTION_REPORT,
+                                "source_action_id": action_id})
+            if kind in outcome_kinds:
+                entries.append({"task_key": task_key,
+                                "name": _EXPANSION_OUTCOME,
+                                "source_action_id": action_id})
+        # soutc 键引用:按 action_id 独立枚举(S4-C03 —— 空 task_key
+        # 不能挡 soutc(action_id) 的枚举;build 与 manifest 共用本索引)
+        if kind in outcome_kinds:
             entries.append({"task_key": stable_id("soutc", action_id),
                             "name": _EXPANSION_OUTCOME,
                             "source_action_id": action_id})
@@ -261,7 +274,19 @@ def build_native_result(ledger, *, endpoint_record: dict) -> dict:
     refs = artifact_reference_index(ledger)
 
     def _envelope(task_key: str, name: str) -> dict | None:
-        return read_search_artifact(ledger.artifact_store, task_key, name)
+        # S4-C03:坏必要 artifact(如 soutc)不能被静默略过 —— H07
+        # 完整性失败结构化上抛(保全原文件;合法缺席仍返回 None 跳过)
+        try:
+            return read_search_artifact(
+                ledger.artifact_store, task_key, name)
+        except SearchArtifactIntegrityError as exc:
+            raise NativeResultContractError(
+                f"原生结果消费的必要 artifact 损坏:{task_key}/{name}"
+                "(H07 完整性失败;保全原文件,不静默略过、不清洗后继续)",
+                {"kind": "native_result_artifact_corrupt",
+                 "task_key": task_key, "name": name,
+                 "artifact_error_kind": exc.detail.get("kind"),
+                 "original_error": type(exc).__name__}) from exc
 
     contexts: list[dict] = []
     for entry in refs:

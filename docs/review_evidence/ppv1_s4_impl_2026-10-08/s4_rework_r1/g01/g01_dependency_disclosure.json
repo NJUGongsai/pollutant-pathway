@@ -1,0 +1,66 @@
+{
+  "g01": {
+    "tests": "1561",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "8"
+  },
+  "skipped_per_nodeid": [
+    {
+      "nodeid": "tests.test_analog_assets::test_row_counts_match_v4_parser",
+      "reason": "v4 对照代码根不可用:/private/tmp/s4r1_evidence/g01_run/dependingv4"
+    },
+    {
+      "nodeid": "tests.test_analog_v2_corpus::test_v2_selected_and_remapped_rows_decidable",
+      "reason": "v2 provenance 未生成"
+    },
+    {
+      "nodeid": "tests.test_analog_v2_corpus::test_v2_line_level_one_to_one_and_duplicate_ids_recorded",
+      "reason": "v2 summary 未生成"
+    },
+    {
+      "nodeid": "tests.test_batch_runner::test_input_manifest_whitelist_from_frozen_v3",
+      "reason": "v3 冻结基准不可用"
+    },
+    {
+      "nodeid": "tests.test_score_report::test_frozen_evaluator_cli_really_runs_dev",
+      "reason": "v3 冻结基准不可用"
+    },
+    {
+      "nodeid": "tests.test_score_report::test_evaluator_refusal_on_wrong_split",
+      "reason": "v3 冻结基准不可用"
+    },
+    {
+      "nodeid": "tests.test_score_report::test_evaluator_refusal_on_missing_lines",
+      "reason": "v3 冻结基准不可用"
+    },
+    {
+      "nodeid": "tests.test_score_report::test_diagnose_route_buckets",
+      "reason": "v3 冻结基准不可用"
+    }
+  ],
+  "skipped_categories": {
+    "real_frozen_evaluation": [
+      "tests.test_batch_runner::test_input_manifest_whitelist_from_frozen_v3",
+      "tests.test_score_report::test_frozen_evaluator_cli_really_runs_dev",
+      "tests.test_score_report::test_evaluator_refusal_on_wrong_split",
+      "tests.test_score_report::test_evaluator_refusal_on_missing_lines",
+      "tests.test_score_report::test_diagnose_route_buckets"
+    ],
+    "missing_v4_reference": [
+      "tests.test_analog_assets::test_row_counts_match_v4_parser"
+    ],
+    "phase_d_provenance_summary": [
+      "tests.test_analog_v2_corpus::test_v2_selected_and_remapped_rows_decidable",
+      "tests.test_analog_v2_corpus::test_v2_line_level_one_to_one_and_duplicate_ids_recorded"
+    ]
+  },
+  "deselects": {
+    "slow": 16,
+    "explicit": [
+      "tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden"
+    ]
+  },
+  "input_count": 295,
+  "expected_passed_engineering_only": 1553
+}

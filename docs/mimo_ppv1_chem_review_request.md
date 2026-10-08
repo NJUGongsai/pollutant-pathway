@@ -1,32 +1,32 @@
-# mimo 化学评审请求:pollutant_pathway_v1 化学判据(S4b 批次版 v17)
+# mimo 化学评审请求:pollutant_pathway_v1 化学判据(S4 回修 r1 版 v18)
 
-- 日期:2026-10-08(S4b 收尾批(正式文件导出 + v3 有损投影 + 完整
-  端到端链);替换 2026-10-08 v16 请求。v16 送审快照(字节同
-  fc40605 提交)与本批 v17 送审快照均存 `docs/review_evidence/
-  ppv1_s4_impl_2026-10-08/s4b_r1/mimo/`;旧回应 r5–r16 原样保留
-  不覆盖)
+- 日期:2026-10-08(S4 回修 r1 批(确认复核四组 P1:S4-C01 必要条件
+  终点限制/S4-C02 导出 manifest 绑定与必要引用集合闭合/S4-C03 空
+  task_key 的 soutc 聚合/S4-C04 原生→v3 投影来源绑定);替换
+  2026-10-08 v17 请求。v17 送审快照(字节存 s4b_r1/mimo/)与本批
+  v18 送审快照(存 s4_rework_r1/mimo/)均不覆盖;旧回应 r5–r17
+  原样保留不回写)
 - 触发点:AGENTS.md mimo 三触发点之 1(需评判化学结构时——冻结或
-  发布前);本批为 **S4b 收尾批交付后的判据侧请求**(S4 任务书
-  §12;S4a 复审已通过(备用通道 tokeasy,主会话记录),S4b 为
-  S4 末批)
+  发布前);本批为 **S4 确认复核(Codex 正链)判四组 P1 后的回修
+  交付判据侧请求**(S4 任务书 §12 + 确认复核 §8 回修提示词;S4a
+  复审已通过,S4b 经确认复核不通过、本批只回修四组)
 - 评审对象:冻结判据 ppv1-criteria-v1(判据一–五 + 0d/0e 消费契约
-  正文**不变**)+ S4a 的 endpoint 分账消费契约(0f 节,ppv1-
-  endpoint-1/endpoint-policy-1/native-result-1;已送审 v16)+
-  **S4b 新增的正式导出与 v3 有损投影消费契约**(ppv1-native-
-  export-1/native-export-policy-1/v3-projection-1;profile-16/
-  runflow-5 为其工程登记面,store 保持 -10;见 0g 节)
-- 与 v16 的差异来源:S4 任务书末批实施(S4b:路径原生正式文件导出
-  /确定性重复生成/stale+integrity 识别/全量事实导出/v3 lossy_
-  projection 有损适配/原生↔v3 双向引用边界/legacy 冻结字节专项
-  回归/start-resume-export-adapter-replay 完整公共链/G02 七测/
-  S4 全量回归)。**v17 不修改判据一–五与 0d/0e/0f 的任何正文
-  语义**("语义未改变"声明见 0g 节末);新增的是 0g 节(S4b
-  正式导出与 v3 有损投影的规则级表述,全部为导出/投影侧的消费
-  契约与化学边界声明)与 §6 数字更新
+  正文**不变**)+ S4a/S4b 的 endpoint/导出/投影消费契约(0f/0g 节;
+  v16/v17 已送审,回应 r16/r17 待采信互证)+ **本批回修的四组消费
+  契约表述**(ppv1-endpoint-2/endpoint-policy-2/native-result-2/
+  native-export-2/native-export-policy-2/v3-projection-2;profile-17
+  为其工程登记面,store 保持 -10、runflow 保持 -5;见 0h 节)
+- 与 v17 的差异来源:确认复核 `POLLUTANT_PATHWAY_S4_CODEX_CONFIRM_
+  REVIEW_2026-10-08.md` §4 四组公开反例的最低收口实施。**v18 不
+  修改判据一–五与 0d/0e/0f/0g 的任何正文语义**("语义未改变"声明
+  见 0h 节末);新增的是 0h 节(四组回修的规则级表述,全部为
+  endpoint/导出/聚合/投影侧的消费契约闭合与化学边界声明)与 §6
+  数字更新
 - 自包含性:本版展开必要规则全文,不以"同 v7/v8"缩写引用历史;
   规则级表述与合成规则级夹具,无任何金标/题面/封存逐题数据;由
   用户转交,回复原文落盘 `docs/`;实施 agent 不调用模型,只读/执行
-  类声明一律待执行验证
+  类声明一律待执行验证(本批执行声明由主会话安排的 Codex 复审
+  另行验证,不以本请求文字替代)
 
 ## 0. 背景(一段话)
 
@@ -675,6 +675,103 @@ S4b(S4 收尾批)把 S4a 原生结果对象落为**正式文件导出**,并给�
     任何表述实际改变判据正文/范围/硬门,须按版本规范另评
     (ppv1-criteria-v2 起),不得静默生效。
 
+## 0h. S4 回修 r1:四组消费契约闭合(受审表述;v18 新增)
+
+S4 正链确认复核(Codex,2026-10-08)对 S4a+S4b 裁定**不确认通过**,
+四组 P1(均落在 S4 任务书已定验收内,不是新增化学门):S4-C01 必要
+条件未知未进入终点阻断;S4-C02 manifest 未绑定自身内容、必要权威
+引用可被删后绕过首消费;S4-C03 空 task_key 动作的下游 soutc 结论
+漏聚;S4-C04 v3 投影可把错误内容挂到真实原生引用。本批按确认复核
+§4 最低收口回修;以下全部为**消费契约闭合表述**,不改判据一–五
+与 0d/0e/0f/0g 任何正文语义(见本节末"语义未改变"声明)。
+
+1. **S4-C01 必要条件同源限制(ppv1-endpoint-2/endpoint-policy-2)**:
+   当前路线已引入的**必要条件**(假设声明 level=essential 且
+   basis=essential_claimed_by_source,即"来源声明必需"轴)经**同源**
+   `PathContext.route_assessment()`(历史快照逐边合取 + 当前阶段
+   live;旧边按记录值消费,不拿当前事实重评后洗白)评估为
+   unknown/conflict 时,chemical_endpoint_assessment 保持 **unknown**
+   —— 必要条件未知/冲突不能被来源层 recorded 标记或充分证据字段
+   洗白(与 F02 未解决依赖同层阻断);逐条评估行**全文保留**在
+   record.route_condition_assessment(含 reason/fact_sources/
+   requirement_signature),输入摘要(route_conditions_digest)入
+   derived_from 与首消费 staleness 同源重算;start/resume/严格首消费/
+   native 导出载荷/v3 摘要(endpoint_assessment + 必要条件 unknown/
+   conflict 键)同值。**边界**:已知兼容(必要条件满足)与无必要
+   条件的合法来源声明保持可支持(**不全拒**);缺启动 NAD 依赖正/
+   负控保持;不解析证据自由文本;不新增机制/生物可行性/电子转移硬
+   门(评估仍只由来源层直报证据决定,必要条件只作**阻断输入**,
+   不作支持输入);来源声明真实性仍不在认证范围(沿 0f.2)。
+2. **S4-C02 manifest 绑定与必要引用集合闭合(ppv1-native-export-2/
+   native-export-policy-2)**:首消费新增三层核验(全部 fail-closed、
+   零写入、原文件保全,八 kind 拒绝面保持):(a) **manifest core
+   自身 digest 复算** —— manifest 去掉 export_digest 键后重算内容
+   hash 须与声明值一致(不是新增自比较字段,是对文件内容本身与
+   导出侧同一构造复算),manifest-only 改坏 run_id/契约版本/策略
+   正文/引用集合而保持原 digest ⇒ export_manifest_corrupt 拒;
+   (b) **run/版本/策略内容与当前登记源绑定** —— manifest.run_id
+   与当前 ledger run 绑定、contract_versions 块与 profile 常量逐项
+   绑定、自记策略正文重算 hash 须与自记 sha256 一致且正文等于当前
+   策略 ⇒ 自洽重封换 run/版本/策略不再照收;(c) **必要 artifact
+   引用集合由独立权威同源枚举后整集闭合**(与每行 hash 校验分别
+   核)—— 与导出写入共用同一 artifact_reference_index + 冻结计划
+   来源(**同一完整索引,不各修一套规则**),枚举"当前应被引用且
+   实际存在"的集合与 manifest 自报集合整集比对:漏单项必要引用的
+   自洽重封(重算 digest、新目录、复制 payload)⇒ export_reference_
+   mismatch 拒;引用的 artifact 已缺失 ⇒ 同拒;枚举撞到损坏
+   artifact ⇒ 结构化拒(不静默略过);**合法缺席**(尚未产出的
+   artifact)保留,不产空引用。仍不做密码学签名、不抗全库协同改写
+   (沿已披露边界)。
+3. **S4-C03 空 task_key 的 soutc 聚合闭合(ppv1-native-result-2)**:
+   非事件动作完成的调度结论 artifact 按 `stable_id("soutc",
+   action_id)` 键**独立枚举,不再被空 action.task_key 挡住** ——
+   正常公共链中 child retrieve 的 no_local_candidate /
+   unresolved_continuation=True 结论**全文**进原生结果对象的
+   expansion_outcomes 与导出 manifest 引用(build 与 manifest 共用
+   同一索引);task_key 键的生产报告/结论**仅在键合法时列举**(缺键
+   不产空键引用);坏必要 soutc ⇒ build 与导出读取都结构化拒(不
+   静默略过、不当合法缺席);合法缺席与去重保持;retrieve/decide/
+   activate/transition 同一规则适用。
+4. **S4-C04 原生→v3 投影来源绑定(ppv1-v3-projection-2)**:
+   **已验证原生存在/投影自 hash 不再是投影证书**:(a) 构建侧先经
+   `read_native_export` 首消费核验其引用的原生导出,并要求传入的
+   native_result 与该导出的 payload **同一**(整对象比对 + 内容
+   digest/导出摘要/run 绑定)—— 假 native(删 events/deferred 后
+   自洽重算 digest)配真 export 引用 ⇒ 构建拒;(b) 读取侧核
+   native_reference 与真实原生导出 manifest 的**内部一致**(export
+   digest/core 复算/payload sha/content digest/task_key/graph
+   revision aggregate/run_id 两两绑定)—— 混搭 digest/task_key/sha
+   或换 manifest ⇒ 拒;(c) 投影**已表达字段**(route.steps/
+   root_smiles/unprojectable_summaries/information_losses/run_id)
+   由该原生 payload 按**登记 adapter 同源复算比对**(单一来源
+   派生函数,构建与读取共用)—— projection-only 自洽改内容
+   (重算 projection_digest 换新目录)配真 reference ⇒ 拒;可选传
+   ledger 时读取先走完整原生首消费。有损 12 轴、正常与空池答卷、
+   逐事件步骤不按 CN 合并、不编造终点、反向消费禁止、零 DB 写、
+   投影与原生不计两条路径(F03)全部保持(0g.6–0g.9)。
+5. **正控保持声明**:四组回修均带确认复核给出的正控/负控复验
+   (同一充分矿化声明:无必要条件 ⇒ supported;已知 aerobic 必要
+   条件满足 ⇒ supported;缺启动 NAD ⇒ unknown;边界控制 5/5;
+   修前 2F/3P oracle 对修后重捕获数据 5/5、对修前捕获数据保持
+   2F/3P 不改期待);确认复核的公开反例逐案复制到新 tmp 复跑全部
+   翻转为拒;旧观察脚本钉住缺口、按修后预期失败登记(两支脚本
+   逐字复跑 exit 1 于缺口闭合点,忠实微调版记录全部翻转为拒)。
+6. **S4 回修 r1 边界诚实声明**:本批不改 legacy/export_v3/G2/
+   AtomTool/production.py(逐字节);全部 scripted/off 规则级夹具,
+   网络请求 0、真实 provider 默认 off、判分零 LLM;金标/题面/封存
+   逐题 run/dependingv4/冻结 v3 资产一律未访问;dev 与 298 题域
+   双向不外推;S5 未启动;判据冻结状态不因本批改变;工程登记面
+   版本升级(见 §6 契约族)不改 0d/0e/0f/0g 消费契约的化学含义。
+7. **语义未改变声明(v18 对冻结判据的关系)**:判据一–五与
+   0d/0e/0f/0g 正文**一字未改**;本批只是把确认复核判为缺失的
+   四组**既有验收**(任务书 §2.B/§2.C/§4.2/§4.4/§8 已定范围)
+   落到消费入口闭合,不新增化学判据、不改变已冻结判据的含义/
+   范围/硬门 —— 按 AGENTS.md 与冻结稿"冻结后变更"条款,属
+   "只描述本批实际新增的消费入口且不改变已冻结判据含义"情形,
+   **明确写出:语义未改变**。若评审认定 0h 任何表述实际改变判据
+   正文/范围/硬门(尤其 0h.1 的必要条件阻断是否应视为新硬门),
+   须按版本规范另评(ppv1-criteria-v2 起),不得静默生效。
+
 ## 1. 判据一:分子身份(v12 文本,自包含)
 
 **1. 身份键**:`state_id` = **化学 CX 事实子集**的规范化 canonical
@@ -1155,8 +1252,29 @@ r3 源码核对后落字(旧交付/旧回应原文不回写):
 
 ## 6. 程序证据与状态(程序事实,不替代化学判断;执行类声明待验证)
 
-- 规则级测试:ppv1 全量 **932 passed/0 skip**(914 存量 + 18 新
-  S4b,34 文件,全部合成夹具;18 项覆盖:正式导出公共链/文件与
+- **本批(v18 / S4 回修 r1,隔离源正式执行,执行细节由主会话安排
+  的 Codex 复审另行验证)**:ppv1 全量 **951 passed/0 skipped/
+  0 failed exit 0**(932 存量 + 19 新回修回归,34 文件;隔离源含
+  vendor/普通 dependingv3 同级副本、父/子同一 V3_CODE_ROOT;两次
+  准备失败(隔离 v3 根缺失/资产缺失)如实保留,唯一有效重试为
+  正式数字);隔离全量非 slow(G01 同口径 deselect)**1553 passed/
+  8 skipped/17 deselected exit 0**(仓内树不 deselect 为 1562
+  passed/16 deselected);G01 安全隔离(新控制器,**295** 输入 =
+  294 + 1 新测试文件,SHA 前后一致)= **1553 passed/8 skipped/
+  17 deselected exit 0**(8 skip = 5 真实评价 + 1 v4 + 2 phase_d;
+  17 = 16 slow + 1 明确排除;1534(S4b)→ 1553 各自单列不混计);
+  直接父 8735601 detached 稀疏 worktree 同字节:新回修文件 **19 红
+  全为缺拒绝/缺字段/缺签名类行为红(0 collection 红,模块在父上
+  存在)**,3 份更新测试文件 **6 版本字面量红 + 72 合法正控绿**;
+  legacy 字节专项(当前树 vs 父 8735601)两 run 四产物**逐字节
+  一致**,52 份 legacy code_identity 聚合保持 18007e6a…;
+  确认复核 oracle/边界控制/导出观察脚本复跑结论见 0h.5;
+- 规则级测试(v17 / S4b 历史口径,供对照):ppv1 全量 **932
+  passed/0 skip**(914 存量 + 18 新 S4b;仓内树)与全量非 slow
+  **1543 passed/16 deselected**;直接父 fc40605 上新 S4b 文件
+  18 collection 红 + 2 版本字面量红 + 21 合法绿;G01 294 输入
+  1534/8/17;详见 0g 节与 S4b 交付书——以下 18 项覆盖清单沿
+  v17 保留:
   manifest 结构/全量事实覆盖(共同产物/备选/来路/条件/audit/
   deferred/预算/停止/endpoint + 15 表 graph facts + 四类 artifact
   引用)、G02 七测(①同进程+独立子进程重复导出字节一致 ②崩溃
@@ -1172,6 +1290,16 @@ r3 源码核对后落字(旧交付/旧回应原文不回写):
   空池 run 导出与投影、投影不可变);另有全量非 slow
   **1543 passed/16 deselected**(含 legacy/export_v3 全量回归,
   当前树,exit 0);
+- **本批新增 19 项回修回归覆盖清单(v18)**:S4-C01 必要条件缺失/
+  显式 unknown 双参数化(start/resume/记录全文/阻断原因/derived_
+  from 摘要/严格首消费/native 导出/v3 摘要同值)+ 已知满足与
+  无必要条件正控 + 冲突反例 + 上下文损坏首消费拒;S4-C03 child
+  retrieve soutc 全文聚合 + manifest 引用 + 坏必要 soutc build/
+  read 双拒 + 空键不产引用;S4-C02 manifest 四例 mutation core
+  复算拒 + 自洽漏必要引用集合闭合拒(单项/全部)+ 自洽换 run/
+  版本/策略绑定拒 + 缺 H07 逐行拒;S4-C04 假 native 构建拒 +
+  projection-only 自洽改内容读取拒 + 混搭 reference 拒 + ledger
+  联动原生首消费拒/还原正控 + 完整公共链一致性/幂等/网络 0;
 - **legacy/export_v3 冻结字节专项(本批新增)**:当前树 vs 直接
   父 fc40605 detached worktree,同字节探针脚本(两组合成 legacy
   run:单事件多产物/两事件竞争同父+deferred)分别构建并导出
@@ -1196,7 +1324,24 @@ r3 源码核对后落字(旧交付/旧回应原文不回写):
   R7 1110/R8 1138/S3a 1196/r2 1250/r3 1299/r4 1389/S3b 1453/
   S3b-r2 1473/S3b-r3 1481/S4a 1516 各自单列,不混计;1534 =
   1516 + 18);
-- 契约族:search 保持 **ppv1-search-6**、search-limits 保持
+- 契约族:**本批(v18)升级** endpoint **ppv1-endpoint-1 → -2**
+  (S4-C01:记录新增 route_condition_assessment 字段 + 必要条件
+  同源评估)、endpoint 派生策略 **ppv1-endpoint-policy-1 → -2**
+  (必要条件 unknown/conflict 阻断输入)、原生结果对象
+  **ppv1-native-result-1 → -2**(S4-C03:soutc 键独立枚举)、
+  原生正式导出 **ppv1-native-export-1 → -2** 与导出策略
+  **ppv1-native-export-policy-1 → -2**(S4-C02:core 复算 +
+  run/版本/策略绑定 + 必要引用集合闭合)、v3 有损投影
+  **ppv1-v3-projection-1 → -2**(S4-C04:构建与首消费验证真实
+  原生来源/adapter 同源复算);profile **ppv1-profile-16 → -17**
+  (契约注册面;旧 run 按版本门拒,不跨版本续跑);search 保持
+  **ppv1-search-6**、search-limits 保持 **-3**、format-feedback-1
+  保持(默认 0 轮)、model-proposals 保持 **-2**;store 保持
+  **ppv1-store-10**(无新表)、执行流保持 **ppv1-runflow-5**
+  (接线不变,投影读回增加可选 ledger 联动)。FROZEN_PLAN_VERSION
+  保持 ppv1-frozen-plan-1。**production.py 本批零改动(生产化学
+  链与 AuditContractError 义务字节不变)**;以下为 v17 历史登记
+  沿革:search 保持 **ppv1-search-6**、search-limits 保持
   **-3**、format-feedback-1 保持(默认 0 轮)、model-proposals
   保持 **-2**;endpoint **ppv1-endpoint-1**、endpoint 派生策略
   **ppv1-endpoint-policy-1**、原生结果对象 **ppv1-native-result-1**
@@ -1237,10 +1382,11 @@ r3 源码核对后落字(旧交付/旧回应原文不回写):
 
 对每条判据(含 0d 节八条、0e 节六条消费契约,0c-v13 七条/
 0c-v14 五条/0c-v15 七条落字,0f 节 S4a 十一条 endpoint/原生结果
-表述,以及 **0g 节 S4b 十二条正式导出/v3 有损投影表述**):
+表述,0g 节 S4b 十二条正式导出/v3 有损投影表述,以及 **0h 节
+S4 回修 r1 七条四组消费契约闭合表述**):
 1) 结论(同意/不同意/有条件同意+条件);
 2) 可直接落进规则文字的修改建议;3) "程序上诚实但化学上误导"
 风险点。逐条表态,不接受总体评价式回复。执行类声明一律标
-"待执行验证"。引用 0c/0d/0e/0f/0g 清单之外的事实(分支名/
+"待执行验证"。引用 0c/0d/0e/0f/0g/0h 清单之外的事实(分支名/
 版本/异常处置)时必须先给出可复核的源位置,否则按不采信
 处理。

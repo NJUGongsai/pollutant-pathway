@@ -1377,7 +1377,7 @@ def _derive_endpoint_and_native_result(ledger: SearchLedger,
     v3_payload = build_v3_projection(
         ledger, native, native_export=export_out, run_dir=run_dir)
     v3_out = persist_v3_projection(run_dir, v3_payload)
-    read_v3_projection(run_dir, v3_out["projection_digest"])
+    read_v3_projection(run_dir, v3_out["projection_digest"], ledger=ledger)
     return {
         "record": record,
         "verified": verified,

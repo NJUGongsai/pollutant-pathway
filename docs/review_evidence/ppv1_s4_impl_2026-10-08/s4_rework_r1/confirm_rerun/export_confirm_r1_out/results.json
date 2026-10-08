@@ -1,0 +1,649 @@
+{
+  "positive_public_chain": {
+    "summary": {
+      "run_id": "public-chain",
+      "profile": "pollutant_pathway_v1",
+      "runflow_version": "ppv1-runflow-5",
+      "resumed": false,
+      "stop": {
+        "primary": "budget_limit",
+        "other_reasons": [],
+        "unexplored": {
+          "pending_actions": 0,
+          "deferred": 1,
+          "blocked": 0,
+          "blocked_objects": [],
+          "claimed_actions": 0,
+          "open_attempts": 0,
+          "pending_requests": 0,
+          "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search"
+        },
+        "budget": {
+          "version": "ppv1-search-limits-3",
+          "run_level": {
+            "max_total_search_actions": {
+              "max": 10,
+              "used": 5,
+              "remaining": 5
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "used": 3,
+              "remaining": 61
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "used": 0,
+              "remaining": 2
+            },
+            "max_real_model_requests": {
+              "max": 0,
+              "used": 0,
+              "remaining": 0
+            }
+          },
+          "scoped": {
+            "max_retrievals_per_parent": {
+              "spath_684f194cade8285b0cc6": {
+                "max": 1,
+                "used": 1,
+                "remaining": 0
+              },
+              "spath_6a4d165ad7d3f54bf7b1": {
+                "max": 1,
+                "used": 1,
+                "remaining": 0
+              },
+              "spath_6f056f314394d8ca424e": {
+                "max": 1,
+                "used": 1,
+                "remaining": 0
+              }
+            },
+            "max_alternative_hypotheses_per_parent": {
+              "spath_6a4d165ad7d3f54bf7b1": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_attempts_per_hypothesis": {
+              "hyp_af44ac17d0211ab90055": {
+                "max": 2,
+                "used": 1,
+                "remaining": 1
+              }
+            },
+            "max_reopens_per_hypothesis": {}
+          }
+        },
+        "budget_exhausted_keys": [
+          "max_retrievals_per_parent@spath_684f194cade8285b0cc6",
+          "max_retrievals_per_parent@spath_6a4d165ad7d3f54bf7b1",
+          "max_retrievals_per_parent@spath_6f056f314394d8ca424e"
+        ],
+        "events_submitted_session": [
+          "ppev_2e36973aa8dc3d51d520"
+        ],
+        "runflow_version": "ppv1-runflow-5"
+      },
+      "stop_reason": "budget_limit",
+      "counts": {
+        "states": 3,
+        "state_appearances": 4,
+        "hypotheses": 1,
+        "events": 1,
+        "report_projections": 1,
+        "expansion_plans": 1,
+        "event_appearance_links": 3,
+        "provenance_records": 0
+      },
+      "driver_session": {
+        "pid": 92532,
+        "acquired_at": "2026-10-08T09:59:33+00:00",
+        "note": "flock 是执行权权威;崩溃 OS 自动释放"
+      },
+      "endpoint": {
+        "execution_status": "completed",
+        "search_stop_reason": "budget_limit",
+        "chemical_endpoint_assessment": "supported_mineralization",
+        "bookkeeping_status": "unknown",
+        "independent_source_support_count": 1,
+        "inherited_unresolved_dependencies": 0,
+        "necessary_condition_unknown_keys": [],
+        "necessary_condition_conflict_keys": [],
+        "payload_hash": "0aaed20b1d17733ca4142cab678c39e2d9695b7e5c000a57935eb01dd93744d4"
+      },
+      "endpoint_record_payload_hash": "0aaed20b1d17733ca4142cab678c39e2d9695b7e5c000a57935eb01dd93744d4",
+      "native_result": {
+        "content_digest": "99440deca1667af670e6f1c2d10800d40c5889f449d39e77a2f76375c85e13e7",
+        "task_key": "run-native-result:99440deca1667af670e6f1c2",
+        "native_result_version": "ppv1-native-result-2",
+        "note": "S4a 对象底座:完整字段 + 确定性规范化(同事实同 digest);正式文件导出见 native_export"
+      },
+      "native_export": {
+        "export_digest": "ed3914dee2bc4c017d6847e88cd3517223e79eaf8f1bf8450f1913cf4165acfb",
+        "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/native_export/ed3914dee2bc4c017d6847e8",
+        "payload_sha256": "ca7b9a8f7981280b0266c4fa24268eb7670bc728946ad7b4770b189b1dba4459",
+        "content_digest": "99440deca1667af670e6f1c2d10800d40c5889f449d39e77a2f76375c85e13e7",
+        "schema_version": "ppv1-native-export-2",
+        "export_policy_version": "ppv1-native-export-policy-2",
+        "note": "S4b 正式文件导出(全量事实 + manifest 新鲜度锚);读取/消费走 read_native_export(首消费:missing/corrupt/version/policy/stale/reference 拒)"
+      },
+      "v3_projection": {
+        "projection_digest": "bcd9b19492db950f1134bb3628ea25cec46bb68e083b58badb148541e6332ab4",
+        "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/v3_projection/bcd9b19492db950f1134bb36",
+        "native_export_digest": "ed3914dee2bc4c017d6847e88cd3517223e79eaf8f1bf8450f1913cf4165acfb",
+        "lossy_projection": true,
+        "steps": 1,
+        "information_loss_axes": [
+          "alternative_reactions",
+          "audit_proof_scope",
+          "budget_stop_reason",
+          "coefficients",
+          "conditions_dependencies",
+          "coproducts",
+          "deferred_unexpanded",
+          "endpoint_evidence_level",
+          "path_identity",
+          "route_origins",
+          "source_provenance",
+          "unknown_partial_axes"
+        ],
+        "note": "v3 有损投影(lossy_projection;原生引用 + 信息损失清单);反向消费禁止 —— 不得从投影改写原生事实/事件;读取走 read_v3_projection"
+      }
+    },
+    "same_process": {
+      "export_digest": "ed3914dee2bc4c017d6847e88cd3517223e79eaf8f1bf8450f1913cf4165acfb",
+      "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/native_export/ed3914dee2bc4c017d6847e8",
+      "payload_path": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/native_export/ed3914dee2bc4c017d6847e8/payload.json",
+      "manifest_path": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/native_export/ed3914dee2bc4c017d6847e8/manifest.json",
+      "payload_sha256": "ca7b9a8f7981280b0266c4fa24268eb7670bc728946ad7b4770b189b1dba4459",
+      "content_digest": "99440deca1667af670e6f1c2d10800d40c5889f449d39e77a2f76375c85e13e7",
+      "schema_version": "ppv1-native-export-2",
+      "export_policy_version": "ppv1-native-export-policy-2",
+      "created": {
+        "payload": false,
+        "manifest": false
+      },
+      "note": "S4b 正式文件导出:全量事实 + manifest 新鲜度锚(graph facts digest/权威引用/策略 hash);确定性幂等,旧导出按 digest 保全;读取走 read_native_export 首消费"
+    },
+    "subprocess": {
+      "content_digest": "99440deca1667af670e6f1c2d10800d40c5889f449d39e77a2f76375c85e13e7",
+      "created": {
+        "manifest": false,
+        "payload": false
+      },
+      "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/native_export/ed3914dee2bc4c017d6847e8",
+      "export_digest": "ed3914dee2bc4c017d6847e88cd3517223e79eaf8f1bf8450f1913cf4165acfb",
+      "export_policy_version": "ppv1-native-export-policy-2",
+      "manifest_path": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/native_export/ed3914dee2bc4c017d6847e8/manifest.json",
+      "note": "S4b 正式文件导出:全量事实 + manifest 新鲜度锚(graph facts digest/权威引用/策略 hash);确定性幂等,旧导出按 digest 保全;读取走 read_native_export 首消费",
+      "payload_path": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/native_export/ed3914dee2bc4c017d6847e8/payload.json",
+      "payload_sha256": "ca7b9a8f7981280b0266c4fa24268eb7670bc728946ad7b4770b189b1dba4459",
+      "schema_version": "ppv1-native-export-2"
+    },
+    "payload_sha256": "ca7b9a8f7981280b0266c4fa24268eb7670bc728946ad7b4770b189b1dba4459",
+    "manifest_sha256": "688a03e93f6f5f77ba87967e264f2b123e24c6fd377cc37f60e7d5cb7d9c036f",
+    "table_hash_before": {
+      "budget_reservations": "dfd3e1b07abce0aebc24f57cfc73a516538603fd1f16ef89cebf02218a8d9d88",
+      "endpoint_records": "4423859e0440a82b4c4afb8eb4726e6b3ffb6f98c4fb06365451e1808ae0032a",
+      "event_appearance_links": "4f53c245a7eeb1c8c2481b3fc210bad97878158bb80770e924b547714394333b",
+      "events": "41e2f62f6883f24960ccf37786c9e63f917c296dff7904017f052a1ba945668e",
+      "expansion_plans": "d3b9090fc7f11d1b82f2cfc674eb44ea75462abe23bc708b7f60f2e95f63c2bf",
+      "hypotheses": "b160b2c19bbc43264cdbd6d65bcdd9e629dc9f96facc9ee14f02cfc7ad6df9da",
+      "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+      "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "report_projections": "fdc72c77a6029416a0b44a1d0363c24a99548cd73d329daae79b49b97cfedc8a",
+      "search_actions": "ff2813d4d193f47691bf0c7681158442ab62de99d6904c4276bb0d4c4bf50978",
+      "search_attempts": "fde8263442b158aa7d1ddad46c96429a6048d31f1d85e1a92a31a47b391886d4",
+      "search_commit_records": "959aa186ea085759a77f5d07a321ec3a6122f0d44ebd78a4f4ba7773506783cd",
+      "search_runs": "4113de262d92074545e22b769a40216cb140c986bf4017452bf2a99b88f94bda",
+      "state_appearances": "edb87b30a47806271d9ff3f5e1a9654eee4975815c51793afe47a8775bd968f2",
+      "states": "aa6730d86226f22b6ae5fb0e302302db28b310584c857cc4740154ce8dcdf497",
+      "stop_reason_records": "3b4dfea55c55c7e61bbebbd229915dc968be2b112c7dee156f1bfe757bf75da7"
+    },
+    "table_hash_after": {
+      "budget_reservations": "dfd3e1b07abce0aebc24f57cfc73a516538603fd1f16ef89cebf02218a8d9d88",
+      "endpoint_records": "4423859e0440a82b4c4afb8eb4726e6b3ffb6f98c4fb06365451e1808ae0032a",
+      "event_appearance_links": "4f53c245a7eeb1c8c2481b3fc210bad97878158bb80770e924b547714394333b",
+      "events": "41e2f62f6883f24960ccf37786c9e63f917c296dff7904017f052a1ba945668e",
+      "expansion_plans": "d3b9090fc7f11d1b82f2cfc674eb44ea75462abe23bc708b7f60f2e95f63c2bf",
+      "hypotheses": "b160b2c19bbc43264cdbd6d65bcdd9e629dc9f96facc9ee14f02cfc7ad6df9da",
+      "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+      "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "report_projections": "fdc72c77a6029416a0b44a1d0363c24a99548cd73d329daae79b49b97cfedc8a",
+      "search_actions": "ff2813d4d193f47691bf0c7681158442ab62de99d6904c4276bb0d4c4bf50978",
+      "search_attempts": "fde8263442b158aa7d1ddad46c96429a6048d31f1d85e1a92a31a47b391886d4",
+      "search_commit_records": "959aa186ea085759a77f5d07a321ec3a6122f0d44ebd78a4f4ba7773506783cd",
+      "search_runs": "4113de262d92074545e22b769a40216cb140c986bf4017452bf2a99b88f94bda",
+      "state_appearances": "edb87b30a47806271d9ff3f5e1a9654eee4975815c51793afe47a8775bd968f2",
+      "states": "aa6730d86226f22b6ae5fb0e302302db28b310584c857cc4740154ce8dcdf497",
+      "stop_reason_records": "3b4dfea55c55c7e61bbebbd229915dc968be2b112c7dee156f1bfe757bf75da7"
+    },
+    "both_key_entries": [
+      {
+        "action_id": "sact_08e4bf0c5143ef2be5a9",
+        "action_kind": "expand_hypothesis",
+        "candidate_keys": [
+          "stask-exp_17626748fab6829695cc",
+          "soutc_73dba102c63e1bd0c6ab"
+        ]
+      },
+      {
+        "action_id": "sact_169cc87d3d49d2569973",
+        "action_kind": "decide",
+        "candidate_keys": [
+          "stask-dec_bafd6c6d3263f311d15a",
+          "soutc_10e375db7d232fd39ec2"
+        ]
+      },
+      {
+        "action_id": "sact_44ff7f06733057a700d9",
+        "action_kind": "expand_hypothesis",
+        "candidate_keys": [
+          "stask-exp_602f281d65dcf071c2b0",
+          "soutc_dabfb41914f47d8f8ee4"
+        ]
+      },
+      {
+        "action_id": "sact_5f59cb9d2a69c95cd143",
+        "action_kind": "retrieve",
+        "candidate_keys": [
+          "",
+          "soutc_61882d19796966b3f007"
+        ]
+      },
+      {
+        "action_id": "sact_b28ac053afa09ee50a1b",
+        "action_kind": "retrieve",
+        "candidate_keys": [
+          "stask-dec_6b6ef280be7f7b842da5",
+          "soutc_3115b689a36b1846d395"
+        ]
+      },
+      {
+        "action_id": "sact_cd09099a2ce10dfbf780",
+        "action_kind": "retrieve",
+        "candidate_keys": [
+          "",
+          "soutc_83ea15af57062fd7c915"
+        ]
+      }
+    ],
+    "existing_outcome_keys": [
+      [
+        "soutc_10e375db7d232fd39ec2",
+        "sact_169cc87d3d49d2569973"
+      ],
+      [
+        "soutc_61882d19796966b3f007",
+        "sact_5f59cb9d2a69c95cd143"
+      ],
+      [
+        "soutc_3115b689a36b1846d395",
+        "sact_b28ac053afa09ee50a1b"
+      ],
+      [
+        "soutc_83ea15af57062fd7c915",
+        "sact_cd09099a2ce10dfbf780"
+      ]
+    ],
+    "aggregated_outcome_keys": [
+      [
+        "soutc_10e375db7d232fd39ec2",
+        "sact_169cc87d3d49d2569973"
+      ],
+      [
+        "soutc_3115b689a36b1846d395",
+        "sact_b28ac053afa09ee50a1b"
+      ],
+      [
+        "soutc_61882d19796966b3f007",
+        "sact_5f59cb9d2a69c95cd143"
+      ],
+      [
+        "soutc_83ea15af57062fd7c915",
+        "sact_cd09099a2ce10dfbf780"
+      ]
+    ],
+    "aggregation_complete": true,
+    "missing_outcomes": [],
+    "projection": {
+      "adapter_version": "ppv1-v3-projection-2",
+      "boundary": {
+        "not_counted_as_extra_path": true,
+        "notes": "本投影是 native result 的有损视图:不得反写原生事实/事件/状态;不得从 v3 步骤位置推导事件身份或终点结论;投影与原生结果不得计为两条路径(F03);矿化/去除/解毒结论只能来自原生 endpoint 分账(证据等级权威)",
+        "reverse_consumption": "forbidden"
+      },
+      "information_losses": [
+        {
+          "axis": "route_origins",
+          "detail": "v3 步骤不携带来路/parent/context/事件身份;同 CN 不同来路在 v3 字段层不可区分(本适配不按 CN 合并,同父多事件保留为多步,但链接身份丢失)",
+          "native_authority": "native payload: events/state_appearances/paths"
+        },
+        {
+          "axis": "coproducts",
+          "detail": "共同产物与主产物混入同一无差别产物列表;产物角色/位次语义不进 v3 字段",
+          "native_authority": "native payload: events.participants[].role"
+        },
+        {
+          "axis": "alternative_reactions",
+          "detail": "同父备选反应关系(各自独立假设/事件)在 v3 形态不可表达",
+          "native_authority": "native payload: alternatives"
+        },
+        {
+          "axis": "conditions_dependencies",
+          "detail": "条件/环境事实与依赖(含未解决依赖)不在 v3 字段",
+          "native_authority": "native payload: contexts/endpoint_record"
+        },
+        {
+          "axis": "audit_proof_scope",
+          "detail": "audit 结论/准入/证明范围与失败原因不进 v3 字段",
+          "native_authority": "native payload: audit_production_reports"
+        },
+        {
+          "axis": "deferred_unexpanded",
+          "detail": "deferred(两类)与 blocked/未展开集合不在 v3 字段",
+          "native_authority": "native payload: deferred_entries/blocked_entries"
+        },
+        {
+          "axis": "endpoint_evidence_level",
+          "detail": "endpoint 分账(四分账/证据等级/独立支持计数)不可投影;v3 步骤不得解释为矿化/去除/解毒结论",
+          "native_authority": "native payload: endpoint_record"
+        },
+        {
+          "axis": "budget_stop_reason",
+          "detail": "预算预约/消耗与搜索停止原因不进 v3 字段",
+          "native_authority": "native payload: budget/stop 记录"
+        },
+        {
+          "axis": "unknown_partial_axes",
+          "detail": "unknown/partial 的具体轴(系数未知/条件未知/依赖未决)丢失",
+          "native_authority": "native payload: endpoint_record.bookkeeping"
+        },
+        {
+          "axis": "coefficients",
+          "detail": "参与物系数/系数状态(账目闭合)不在 v3 字段",
+          "native_authority": "native payload: events.participants[].coefficient"
+        },
+        {
+          "axis": "path_identity",
+          "detail": "根/子路径身份与深度结构在 v3 单路线形态不可表达",
+          "native_authority": "native payload: paths"
+        },
+        {
+          "axis": "source_provenance",
+          "detail": "来源引用/provenance 记录不进 v3 字段",
+          "native_authority": "native payload: provenance_records"
+        }
+      ],
+      "lossy_projection": true,
+      "native_graph_revision": {
+        "aggregate_digest": "8431face54ab132816e16c57995a0390f1fe437f56a203760bb41886e7758db5",
+        "basis": "graph_facts_digests(与 native_export manifest 同源单一函数;PPV1 graph revision 等价身份)",
+        "contract_versions": {
+          "endpoint": "ppv1-endpoint-2",
+          "endpoint_policy": "ppv1-endpoint-policy-2",
+          "native_result": "ppv1-native-result-2",
+          "profile": "ppv1-profile-17",
+          "runflow": "ppv1-runflow-5",
+          "search": "ppv1-search-6"
+        }
+      },
+      "native_reference": {
+        "native_export_digest": "ed3914dee2bc4c017d6847e88cd3517223e79eaf8f1bf8450f1913cf4165acfb",
+        "native_export_payload_sha256": "ca7b9a8f7981280b0266c4fa24268eb7670bc728946ad7b4770b189b1dba4459",
+        "native_result_content_digest": "99440deca1667af670e6f1c2d10800d40c5889f449d39e77a2f76375c85e13e7",
+        "native_result_task_key": "run-native-result:99440deca1667af670e6f1c2"
+      },
+      "projection_digest": "bcd9b19492db950f1134bb3628ea25cec46bb68e083b58badb148541e6332ab4",
+      "route": {
+        "root_smiles": "CCO",
+        "route_id": "public-chain",
+        "steps": [
+          {
+            "parent_smiles": "CCO",
+            "predicted_products": [
+              "CC=O",
+              "[H][H]"
+            ]
+          }
+        ]
+      },
+      "run_id": "public-chain",
+      "schema_version": "ppv1-v3-projection-2",
+      "unprojectable_summaries": {
+        "alternative_group_count": 1,
+        "audit_report_count": 1,
+        "blocked_entry_count": 0,
+        "bookkeeping_status": "unknown",
+        "co2_aggregated": false,
+        "co2_product_occurrences": 0,
+        "condition_keys_known": [],
+        "condition_keys_unknown": [],
+        "coproduct_event_count": 1,
+        "deferred_entry_count": 1,
+        "deferred_types": [
+          "alternative_reaction_deferred"
+        ],
+        "endpoint_assessment": "supported_mineralization",
+        "execution_status": "completed",
+        "independent_source_support_count": 1,
+        "inherited_unresolved_dependency_ids": [],
+        "necessary_condition_conflict_keys": [],
+        "necessary_condition_unknown_keys": [],
+        "note": "全部值为摘要/计数;不可投影字段全文在原生导出(native_reference);不得据本摘要下化学结论",
+        "provenance_record_count": 0,
+        "root_carbon_fate_status": "source_reported_check_scope_only",
+        "stop_other_reasons": [],
+        "stop_reason_primary": "budget_limit",
+        "unexplored_counts": {
+          "blocked": 0,
+          "claimed_actions": 0,
+          "deferred": 1,
+          "open_attempts": 0,
+          "pending_actions": 0,
+          "pending_requests": 0
+        }
+      }
+    },
+    "reverse_lookup": [
+      {
+        "projection_digest": "bcd9b19492db950f1134bb3628ea25cec46bb68e083b58badb148541e6332ab4",
+        "dir": "/private/tmp/s4r1_evidence/confirm_rerun/export_confirm_r1_ws/runs/public-chain/v3_projection/bcd9b19492db950f1134bb36",
+        "lossy_projection": true
+      }
+    ],
+    "network_requests": 0
+  },
+  "manifest_mutations": [
+    {
+      "case": "run_id_foreign",
+      "requested_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "manifest_declared_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "actual_core_digest": "3539e1de3455579c2e096b288f9485babc408693145c8a1cd7c248da008bf936",
+      "core_digest_matches_declared": false,
+      "response": {
+        "accepted": false,
+        "exception": "NativeExportContractError",
+        "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+        "detail": {
+          "kind": "export_manifest_corrupt",
+          "check": "manifest_core_digest",
+          "declared": "1c1b4fa671bd",
+          "recomputed": "3539e1de3455"
+        }
+      },
+      "modified_manifest_sha256": "fce542737a3ef7f7db7de520ffe6f5b04ca62593207dec3051c04b439d1e439a",
+      "preserved": true,
+      "tables_unchanged": true
+    },
+    {
+      "case": "contract_version_foreign",
+      "requested_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "manifest_declared_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "actual_core_digest": "ad4fe07e9afc3410a14f806cbe381a754ebcb051e81e8b64c1667ad8a0d68dad",
+      "core_digest_matches_declared": false,
+      "response": {
+        "accepted": false,
+        "exception": "NativeExportContractError",
+        "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+        "detail": {
+          "kind": "export_manifest_corrupt",
+          "check": "manifest_core_digest",
+          "declared": "1c1b4fa671bd",
+          "recomputed": "ad4fe07e9afc"
+        }
+      },
+      "modified_manifest_sha256": "bf12e37f199ce849a6357c169bfd95fb27dff44c885139884aa898195b3ba15f",
+      "preserved": true,
+      "tables_unchanged": true
+    },
+    {
+      "case": "policy_body_foreign",
+      "requested_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "manifest_declared_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "actual_core_digest": "abd815621b62c44efbe7be402f84ce743dabcd04ef614eaa639f106db57a2521",
+      "core_digest_matches_declared": false,
+      "response": {
+        "accepted": false,
+        "exception": "NativeExportContractError",
+        "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+        "detail": {
+          "kind": "export_manifest_corrupt",
+          "check": "manifest_core_digest",
+          "declared": "1c1b4fa671bd",
+          "recomputed": "abd815621b62"
+        }
+      },
+      "modified_manifest_sha256": "a4ce0c6404999663b9bfee06bf02dc1159b3601f0fdc1261be039fec15dbda0b",
+      "preserved": true,
+      "tables_unchanged": true
+    },
+    {
+      "case": "all_artifact_references_omitted",
+      "requested_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "manifest_declared_digest": "1c1b4fa671bda86e8306bb07440735efc4be2a67ee30844e5eeeb0e19f4f41b8",
+      "actual_core_digest": "90b9a9d9fca580337971e4a47210da7b87bbd0797d3bab26c3cd8bd0e31f23aa",
+      "core_digest_matches_declared": false,
+      "response": {
+        "accepted": false,
+        "exception": "NativeExportContractError",
+        "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+        "detail": {
+          "kind": "export_manifest_corrupt",
+          "check": "manifest_core_digest",
+          "declared": "1c1b4fa671bd",
+          "recomputed": "90b9a9d9fca5"
+        }
+      },
+      "modified_manifest_sha256": "ab69085bf8e091793ae3879669bdfd8000752b2b6043cdb84f33e9273f7c6f3b",
+      "preserved": true,
+      "tables_unchanged": true
+    }
+  ],
+  "manifest_restore_positive": {
+    "accepted": true,
+    "type": "dict"
+  },
+  "necessary_reference_omission": {
+    "original_export_digest": "01f1faf9fe2521f67ea3137ebd0853821cee8e89ad1fc3a5ee58dbf67ef4c726",
+    "original_response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出引用的 artifact 损坏:stask-exp_956f9377e5862673c91b/production_report(H07 完整性失败;保全原文件,不静默略过)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "stask-exp_956f9377e5862673c91b/production_report",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "fake_export_digest": "ca62325d3d8689d21b054002a0ce71874e45aa493c54760e90b039c33d280c07",
+    "fake_response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出必要引用的 artifact 损坏:stask-exp_956f9377e5862673c91b/production_report(H07 完整性失败;保全原文件,不能跳过后当合法缺席)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "stask-exp_956f9377e5862673c91b/production_report",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "removed_refs": {
+      "ctx:pc_0757aa71e8cd78057880/path_context": {
+        "payload_hash": "034cabb10a2f3385d001f9850a55fded0e57289cfa4d943808948305cf27f151",
+        "source_action_id": ""
+      },
+      "run-plan/frozen_plan": {
+        "payload_hash": "fd888fc2eef9b54e160caa48be32d5a9776b9fd10372d6c5be510ce537727d27",
+        "source_action_id": ""
+      },
+      "soutc_23affeb465d856b5cc72/expansion_outcome": {
+        "payload_hash": "7e2799414d2ac52fb66fd065f9a747b0c7c57b839289ed4b0bf4ef69e997a14c",
+        "source_action_id": "sact_6e91c4807830b1562d9e"
+      },
+      "soutc_a2aa6f010e7fbbf8d562/expansion_outcome": {
+        "payload_hash": "77a2ad1395116339d5ae33f798180d6749eaecdfa3454b5d80b704ca1271b93c",
+        "source_action_id": "sact_af1b9e5d9b3d607d738c"
+      },
+      "soutc_b0c39291cc5bb2506fa6/expansion_outcome": {
+        "payload_hash": "506f72abcef1412c45b117c78229c76a46c8137ef0f94084275096b465c404ae",
+        "source_action_id": "sact_a7f8cf4dad9e64565a3f"
+      },
+      "soutc_e118955d2e23f326bfec/expansion_outcome": {
+        "payload_hash": "c2cec9de7111a3575eeca270881c7a7af7916c4683e4e5328af405cb92431903",
+        "source_action_id": "sact_d901e650d0eeeb29651e"
+      },
+      "stask-exp_956f9377e5862673c91b/production_report": {
+        "payload_hash": "29f4db854bf0819813431f9db6d10b5cd40f4a1f64ea8bd34b067226a197214a",
+        "source_action_id": "sact_bc26c0287c2d71d999fd"
+      }
+    },
+    "corrupted_report_key": "stask-exp_956f9377e5862673c91b/production_report",
+    "corrupted_report_sha256": "fe9f85eaad600941ac8217390fcab58f00477afdcbf7116b952034e8f4f2f792",
+    "corrupted_report_preserved": true,
+    "tables_unchanged": true,
+    "payload_bytes_unchanged": true
+  },
+  "dependency_restore_positive": {
+    "accepted": true,
+    "type": "dict"
+  },
+  "projection_binding": {
+    "build_response": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影输入的 native_result 与其引用的导出 content_digest 不一致(混搭真 export 引用 + 假 native;拒)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "export_content_digest_binding",
+        "native_result_content_digest": "308ef750032ae7bcc54f47b08d941fd36d119f545c719cdb78f5bb7e16697bd5",
+        "manifest_content_digest": "f7ed3e4fb33ea7aba169d931a6af658cbd3efc0403cbe78b5d7ecf0aff574cca"
+      }
+    },
+    "response": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影输入的 native_result 与其引用的导出 content_digest 不一致(混搭真 export 引用 + 假 native;拒)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "export_content_digest_binding",
+        "native_result_content_digest": "308ef750032ae7bcc54f47b08d941fd36d119f545c719cdb78f5bb7e16697bd5",
+        "manifest_content_digest": "f7ed3e4fb33ea7aba169d931a6af658cbd3efc0403cbe78b5d7ecf0aff574cca"
+      }
+    },
+    "source_has_events": 1,
+    "projection_steps": null,
+    "source_deferred_count": 1,
+    "projection_deferred_count": null,
+    "native_reference_digest_matches_real": false,
+    "projection_native_reference": {},
+    "real_content_digest": "f7ed3e4fb33ea7aba169d931a6af658cbd3efc0403cbe78b5d7ecf0aff574cca",
+    "tables_unchanged": true
+  }
+}

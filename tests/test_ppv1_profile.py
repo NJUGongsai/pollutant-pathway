@@ -46,7 +46,7 @@ def test_ppv1_identity_block_contract_versions() -> None:
     # v16(S4b):正式文件导出 + v3 有损投影
     # (native-export-1 / native-export-policy-1 / v3-projection-1;
     # endpoint-1 / endpoint-policy-1 / native-result-1 沿 S4a)
-    assert block["schema_version"] == "ppv1-profile-16"
+    assert block["schema_version"] == "ppv1-profile-17"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),

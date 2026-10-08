@@ -1,0 +1,131 @@
+{
+  "adapter_version": "ppv1-v3-projection-2",
+  "boundary": {
+    "not_counted_as_extra_path": true,
+    "notes": "本投影是 native result 的有损视图:不得反写原生事实/事件/状态;不得从 v3 步骤位置推导事件身份或终点结论;投影与原生结果不得计为两条路径(F03);矿化/去除/解毒结论只能来自原生 endpoint 分账(证据等级权威)",
+    "reverse_consumption": "forbidden"
+  },
+  "information_losses": [
+    {
+      "axis": "route_origins",
+      "detail": "v3 步骤不携带来路/parent/context/事件身份;同 CN 不同来路在 v3 字段层不可区分(本适配不按 CN 合并,同父多事件保留为多步,但链接身份丢失)",
+      "native_authority": "native payload: events/state_appearances/paths"
+    },
+    {
+      "axis": "coproducts",
+      "detail": "共同产物与主产物混入同一无差别产物列表;产物角色/位次语义不进 v3 字段",
+      "native_authority": "native payload: events.participants[].role"
+    },
+    {
+      "axis": "alternative_reactions",
+      "detail": "同父备选反应关系(各自独立假设/事件)在 v3 形态不可表达",
+      "native_authority": "native payload: alternatives"
+    },
+    {
+      "axis": "conditions_dependencies",
+      "detail": "条件/环境事实与依赖(含未解决依赖)不在 v3 字段",
+      "native_authority": "native payload: contexts/endpoint_record"
+    },
+    {
+      "axis": "audit_proof_scope",
+      "detail": "audit 结论/准入/证明范围与失败原因不进 v3 字段",
+      "native_authority": "native payload: audit_production_reports"
+    },
+    {
+      "axis": "deferred_unexpanded",
+      "detail": "deferred(两类)与 blocked/未展开集合不在 v3 字段",
+      "native_authority": "native payload: deferred_entries/blocked_entries"
+    },
+    {
+      "axis": "endpoint_evidence_level",
+      "detail": "endpoint 分账(四分账/证据等级/独立支持计数)不可投影;v3 步骤不得解释为矿化/去除/解毒结论",
+      "native_authority": "native payload: endpoint_record"
+    },
+    {
+      "axis": "budget_stop_reason",
+      "detail": "预算预约/消耗与搜索停止原因不进 v3 字段",
+      "native_authority": "native payload: budget/stop 记录"
+    },
+    {
+      "axis": "unknown_partial_axes",
+      "detail": "unknown/partial 的具体轴(系数未知/条件未知/依赖未决)丢失",
+      "native_authority": "native payload: endpoint_record.bookkeeping"
+    },
+    {
+      "axis": "coefficients",
+      "detail": "参与物系数/系数状态(账目闭合)不在 v3 字段",
+      "native_authority": "native payload: events.participants[].coefficient"
+    },
+    {
+      "axis": "path_identity",
+      "detail": "根/子路径身份与深度结构在 v3 单路线形态不可表达",
+      "native_authority": "native payload: paths"
+    },
+    {
+      "axis": "source_provenance",
+      "detail": "来源引用/provenance 记录不进 v3 字段",
+      "native_authority": "native payload: provenance_records"
+    }
+  ],
+  "lossy_projection": true,
+  "native_graph_revision": {
+    "aggregate_digest": "104c9c624a3fd661c50e8a07a00d275218ec56436685e1c1f4a96b2a62f32253",
+    "basis": "graph_facts_digests(与 native_export manifest 同源单一函数;PPV1 graph revision 等价身份)",
+    "contract_versions": {
+      "endpoint": "ppv1-endpoint-2",
+      "endpoint_policy": "ppv1-endpoint-policy-2",
+      "native_result": "ppv1-native-result-2",
+      "profile": "ppv1-profile-17",
+      "runflow": "ppv1-runflow-5",
+      "search": "ppv1-search-6"
+    }
+  },
+  "native_reference": {
+    "native_export_digest": "3317d56d28ba74115f092e39dad0a2f097024ad84f7a4d7b23a9066fbaf97b9e",
+    "native_export_payload_sha256": "a48d833057ab07d366c30d7c7caab5147db9c98d2269453c0474180b5e221ff2",
+    "native_result_content_digest": "08fd27d15a51c9e4ce08320f316bd199055dac7d0c685e5cdf3a9532da1b65fc",
+    "native_result_task_key": "run-native-result:08fd27d15a51c9e4ce08320f"
+  },
+  "route": {
+    "root_smiles": "CCO",
+    "route_id": "projection-only",
+    "steps": []
+  },
+  "run_id": "projection-only",
+  "schema_version": "ppv1-v3-projection-2",
+  "unprojectable_summaries": {
+    "alternative_group_count": 1,
+    "audit_report_count": 1,
+    "blocked_entry_count": 0,
+    "bookkeeping_status": "unknown",
+    "co2_aggregated": false,
+    "co2_product_occurrences": 0,
+    "condition_keys_known": [],
+    "condition_keys_unknown": [],
+    "coproduct_event_count": 1,
+    "deferred_entry_count": 0,
+    "deferred_types": [
+      "alternative_reaction_deferred"
+    ],
+    "endpoint_assessment": "supported_mineralization",
+    "execution_status": "completed",
+    "independent_source_support_count": 1,
+    "inherited_unresolved_dependency_ids": [],
+    "necessary_condition_conflict_keys": [],
+    "necessary_condition_unknown_keys": [],
+    "note": "全部值为摘要/计数;不可投影字段全文在原生导出(native_reference);不得据本摘要下化学结论",
+    "provenance_record_count": 0,
+    "root_carbon_fate_status": "source_reported_check_scope_only",
+    "stop_other_reasons": [],
+    "stop_reason_primary": "budget_limit",
+    "unexplored_counts": {
+      "blocked": 0,
+      "claimed_actions": 0,
+      "deferred": 1,
+      "open_attempts": 0,
+      "pending_actions": 0,
+      "pending_requests": 0
+    }
+  },
+  "projection_digest": "e89a3606d18ee64447ecfd532d292f45ea7f4dc08e6d1f1277d262e722feb5e4"
+}
