@@ -1,0 +1,3596 @@
+{
+  "database_after_start": {
+    "schema": [
+      {
+        "name": "idx_ppv1_budget_run",
+        "sql": "CREATE INDEX idx_ppv1_budget_run\n    ON budget_reservations (run_id, limit_key, scope, status)",
+        "tbl_name": "budget_reservations",
+        "type": "index"
+      },
+      {
+        "name": "idx_ppv1_commit_action",
+        "sql": "CREATE UNIQUE INDEX idx_ppv1_commit_action\n    ON search_commit_records (action_id)",
+        "tbl_name": "search_commit_records",
+        "type": "index"
+      },
+      {
+        "name": "idx_ppv1_events_run",
+        "sql": "CREATE INDEX idx_ppv1_events_run\n    ON events (run_id, parent_path_id)",
+        "tbl_name": "events",
+        "type": "index"
+      },
+      {
+        "name": "idx_ppv1_hyp_parent",
+        "sql": "CREATE INDEX idx_ppv1_hyp_parent\n    ON hypotheses (parent_path_id)",
+        "tbl_name": "hypotheses",
+        "type": "index"
+      },
+      {
+        "name": "idx_ppv1_search_actions_run",
+        "sql": "CREATE INDEX idx_ppv1_search_actions_run\n    ON search_actions (run_id, status)",
+        "tbl_name": "search_actions",
+        "type": "index"
+      },
+      {
+        "name": "idx_ppv1_search_attempts_action",
+        "sql": "CREATE INDEX idx_ppv1_search_attempts_action\n    ON search_attempts (action_id)",
+        "tbl_name": "search_attempts",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_budget_reservations_1",
+        "sql": null,
+        "tbl_name": "budget_reservations",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_endpoint_records_1",
+        "sql": null,
+        "tbl_name": "endpoint_records",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_event_appearance_links_1",
+        "sql": null,
+        "tbl_name": "event_appearance_links",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_events_1",
+        "sql": null,
+        "tbl_name": "events",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_events_2",
+        "sql": null,
+        "tbl_name": "events",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_expansion_plans_1",
+        "sql": null,
+        "tbl_name": "expansion_plans",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_hypotheses_1",
+        "sql": null,
+        "tbl_name": "hypotheses",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_meta_1",
+        "sql": null,
+        "tbl_name": "meta",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_model_requests_1",
+        "sql": null,
+        "tbl_name": "model_requests",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_provenance_records_1",
+        "sql": null,
+        "tbl_name": "provenance_records",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_report_projections_1",
+        "sql": null,
+        "tbl_name": "report_projections",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_search_actions_1",
+        "sql": null,
+        "tbl_name": "search_actions",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_search_attempts_1",
+        "sql": null,
+        "tbl_name": "search_attempts",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_search_commit_records_1",
+        "sql": null,
+        "tbl_name": "search_commit_records",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_search_runs_1",
+        "sql": null,
+        "tbl_name": "search_runs",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_state_appearances_1",
+        "sql": null,
+        "tbl_name": "state_appearances",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_states_1",
+        "sql": null,
+        "tbl_name": "states",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_stop_reason_records_1",
+        "sql": null,
+        "tbl_name": "stop_reason_records",
+        "type": "index"
+      },
+      {
+        "name": "budget_reservations",
+        "sql": "CREATE TABLE budget_reservations (\n    reservation_id TEXT PRIMARY KEY,\n    run_id        TEXT NOT NULL,\n    limit_key     TEXT NOT NULL,\n    scope         TEXT NOT NULL DEFAULT '',\n    subject       TEXT NOT NULL DEFAULT '',\n    units         INTEGER NOT NULL,\n    action_id     TEXT NOT NULL DEFAULT '',\n    status        TEXT NOT NULL,\n    created_at    TEXT NOT NULL,\n    settled_at    TEXT\n)",
+        "tbl_name": "budget_reservations",
+        "type": "table"
+      },
+      {
+        "name": "endpoint_records",
+        "sql": "CREATE TABLE endpoint_records (\n    run_id       TEXT PRIMARY KEY,\n    payload      TEXT NOT NULL,\n    payload_hash TEXT NOT NULL,\n    created_at   TEXT NOT NULL,\n    updated_at   TEXT\n)",
+        "tbl_name": "endpoint_records",
+        "type": "table"
+      },
+      {
+        "name": "event_appearance_links",
+        "sql": "CREATE TABLE event_appearance_links (\n    event_id        TEXT NOT NULL,\n    state_id        TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    PRIMARY KEY (event_id, state_id, appearance_hash)\n)",
+        "tbl_name": "event_appearance_links",
+        "type": "table"
+      },
+      {
+        "name": "events",
+        "sql": "CREATE TABLE events (\n    event_id           TEXT PRIMARY KEY,\n    run_id             TEXT NOT NULL,\n    parent_path_id     TEXT NOT NULL,\n    hypothesis_id      TEXT NOT NULL,\n    context_hash       TEXT NOT NULL,\n    event_semantics_hash TEXT NOT NULL,\n    payload            TEXT NOT NULL,\n    created_at         TEXT NOT NULL,\n    UNIQUE (run_id, parent_path_id, hypothesis_id, context_hash,\n            event_semantics_hash)\n)",
+        "tbl_name": "events",
+        "type": "table"
+      },
+      {
+        "name": "expansion_plans",
+        "sql": "CREATE TABLE expansion_plans (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)",
+        "tbl_name": "expansion_plans",
+        "type": "table"
+      },
+      {
+        "name": "hypotheses",
+        "sql": "CREATE TABLE hypotheses (\n    hypothesis_id  TEXT PRIMARY KEY,\n    parent_path_id TEXT NOT NULL,\n    context_hash   TEXT NOT NULL DEFAULT '',\n    payload        TEXT NOT NULL,\n    created_at     TEXT NOT NULL\n)",
+        "tbl_name": "hypotheses",
+        "type": "table"
+      },
+      {
+        "name": "meta",
+        "sql": "CREATE TABLE meta (\n    key   TEXT PRIMARY KEY,\n    value TEXT NOT NULL\n)",
+        "tbl_name": "meta",
+        "type": "table"
+      },
+      {
+        "name": "model_requests",
+        "sql": "CREATE TABLE model_requests (\n    request_id   TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    provider_kind TEXT NOT NULL,\n    purpose      TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    network_request_count INTEGER NOT NULL DEFAULT 0,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    response_ref TEXT NOT NULL DEFAULT '',\n    retry_of     TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    updated_at   TEXT\n)",
+        "tbl_name": "model_requests",
+        "type": "table"
+      },
+      {
+        "name": "provenance_records",
+        "sql": "CREATE TABLE provenance_records (\n    record_id TEXT PRIMARY KEY,\n    run_id    TEXT NOT NULL,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)",
+        "tbl_name": "provenance_records",
+        "type": "table"
+      },
+      {
+        "name": "report_projections",
+        "sql": "CREATE TABLE report_projections (\n    event_id  TEXT PRIMARY KEY,\n    payload   TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)",
+        "tbl_name": "report_projections",
+        "type": "table"
+      },
+      {
+        "name": "search_actions",
+        "sql": "CREATE TABLE search_actions (\n    action_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    parent_path_id TEXT NOT NULL DEFAULT '',\n    context_ref  TEXT NOT NULL DEFAULT '',\n    subject_ref  TEXT NOT NULL DEFAULT '',\n    action_kind  TEXT NOT NULL,\n    parent_search_revision INTEGER NOT NULL DEFAULT 0,\n    policy_version TEXT NOT NULL,\n    status       TEXT NOT NULL,\n    payload      TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    budget_reservation_ref TEXT NOT NULL DEFAULT '[]',\n    attempt_refs TEXT NOT NULL DEFAULT '[]',\n    defer_reason TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    claimed_at   TEXT,\n    claimed_by   TEXT,\n    updated_at   TEXT\n)",
+        "tbl_name": "search_actions",
+        "type": "table"
+      },
+      {
+        "name": "search_attempts",
+        "sql": "CREATE TABLE search_attempts (\n    expansion_attempt_id TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    hypothesis_id TEXT NOT NULL DEFAULT '',\n    attempt_index INTEGER NOT NULL,\n    reopen_of    TEXT NOT NULL DEFAULT '',\n    status       TEXT NOT NULL,\n    task_key     TEXT NOT NULL DEFAULT '',\n    payload_hash TEXT NOT NULL DEFAULT '',\n    outcome_ref  TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL,\n    recorded_at  TEXT\n)",
+        "tbl_name": "search_attempts",
+        "type": "table"
+      },
+      {
+        "name": "search_commit_records",
+        "sql": "CREATE TABLE search_commit_records (\n    commit_id    TEXT PRIMARY KEY,\n    run_id       TEXT NOT NULL,\n    action_id    TEXT NOT NULL,\n    attempt_id   TEXT NOT NULL DEFAULT '',\n    event_id     TEXT NOT NULL DEFAULT '',\n    commit_kind  TEXT NOT NULL,\n    payload_hash TEXT NOT NULL DEFAULT '',\n    created_at   TEXT NOT NULL\n)",
+        "tbl_name": "search_commit_records",
+        "type": "table"
+      },
+      {
+        "name": "search_runs",
+        "sql": "CREATE TABLE search_runs (\n    run_id       TEXT PRIMARY KEY,\n    policy_block TEXT NOT NULL,\n    created_at   TEXT NOT NULL\n)",
+        "tbl_name": "search_runs",
+        "type": "table"
+      },
+      {
+        "name": "state_appearances",
+        "sql": "CREATE TABLE state_appearances (\n    state_id    TEXT NOT NULL,\n    appearance_hash TEXT NOT NULL,\n    payload     TEXT NOT NULL,\n    created_at  TEXT NOT NULL,\n    PRIMARY KEY (state_id, appearance_hash)\n)",
+        "tbl_name": "state_appearances",
+        "type": "table"
+      },
+      {
+        "name": "states",
+        "sql": "CREATE TABLE states (\n    state_id   TEXT PRIMARY KEY,\n    payload    TEXT NOT NULL,\n    created_at TEXT NOT NULL\n)",
+        "tbl_name": "states",
+        "type": "table"
+      },
+      {
+        "name": "stop_reason_records",
+        "sql": "CREATE TABLE stop_reason_records (\n    run_id       TEXT PRIMARY KEY,\n    payload      TEXT NOT NULL,\n    payload_hash TEXT NOT NULL,\n    created_at   TEXT NOT NULL,\n    updated_at   TEXT\n)",
+        "tbl_name": "stop_reason_records",
+        "type": "table"
+      }
+    ],
+    "sha256": "d4e597c927d8f8531f018628290ed048099ef56e094a6c40f56e39cc4c072681",
+    "tables": {
+      "budget_reservations": [
+        {
+          "action_id": "sact_0a50ae7b436c13a1b0fe",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_retrievals_per_parent",
+          "reservation_id": "sres_17fea5158962b36526d0",
+          "run_id": "review-identity-known",
+          "scope": "spath_19fd6d4a4aae474ebdbb",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_0a50ae7b436c13a1b0fe",
+          "units": 1
+        },
+        {
+          "action_id": "sact_0a50ae7b436c13a1b0fe",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_retrievals_total",
+          "reservation_id": "sres_655031cccf1451d388a5",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_0a50ae7b436c13a1b0fe",
+          "units": 1
+        },
+        {
+          "action_id": "sact_0a50ae7b436c13a1b0fe",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_total_search_actions",
+          "reservation_id": "sres_f34c9c5da088cee8d771",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_0a50ae7b436c13a1b0fe",
+          "units": 1
+        },
+        {
+          "action_id": "sact_8368f40768d3b2807a31",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_total_search_actions",
+          "reservation_id": "sres_5c715ef59417e2911524",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_8368f40768d3b2807a31",
+          "units": 1
+        },
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_alternative_hypotheses_per_parent",
+          "reservation_id": "sres_c2126e246c150a1426e5",
+          "run_id": "review-identity-known",
+          "scope": "spath_124a3ba00b8ed36db592",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "hyp_3d78bea6858becb8231d",
+          "units": 1
+        },
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_attempts_per_hypothesis",
+          "reservation_id": "sres_c0a1210088682c5fe82e",
+          "run_id": "review-identity-known",
+          "scope": "hyp_3d78bea6858becb8231d",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sattempt_8f67faed53493b533b2f",
+          "units": 1
+        },
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_total_search_actions",
+          "reservation_id": "sres_c5337d6f2abd0234d509",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_c2d285e8eed0256ec188",
+          "units": 1
+        },
+        {
+          "action_id": "sact_ccafea090c71359d2a63",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_retrievals_per_parent",
+          "reservation_id": "sres_33b7451b26f245e1f62d",
+          "run_id": "review-identity-known",
+          "scope": "spath_8a3c385e1fc27f4c1436",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_ccafea090c71359d2a63",
+          "units": 1
+        },
+        {
+          "action_id": "sact_ccafea090c71359d2a63",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_retrievals_total",
+          "reservation_id": "sres_5dcfb23a57608a818c8e",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_ccafea090c71359d2a63",
+          "units": 1
+        },
+        {
+          "action_id": "sact_ccafea090c71359d2a63",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_total_search_actions",
+          "reservation_id": "sres_cd123422fbd2b678d1a9",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_ccafea090c71359d2a63",
+          "units": 1
+        },
+        {
+          "action_id": "sact_db328a494ef1449145b3",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_retrievals_per_parent",
+          "reservation_id": "sres_b35cb93e404b81197a8f",
+          "run_id": "review-identity-known",
+          "scope": "spath_cfb3deb86824ef03c302",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_db328a494ef1449145b3",
+          "units": 1
+        },
+        {
+          "action_id": "sact_db328a494ef1449145b3",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_retrievals_total",
+          "reservation_id": "sres_b0e1b82f8bda8852a794",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_db328a494ef1449145b3",
+          "units": 1
+        },
+        {
+          "action_id": "sact_db328a494ef1449145b3",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_total_search_actions",
+          "reservation_id": "sres_5ee5f3b754ec484a578f",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_db328a494ef1449145b3",
+          "units": 1
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_alternative_hypotheses_per_parent",
+          "reservation_id": "sres_7fad1a9db07f2e8da20b",
+          "run_id": "review-identity-known",
+          "scope": "spath_124a3ba00b8ed36db592",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "hyp_7f55a5a0f4f9b4ae8b04",
+          "units": 1
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_attempts_per_hypothesis",
+          "reservation_id": "sres_85f25b9881e868ada950",
+          "run_id": "review-identity-known",
+          "scope": "hyp_7f55a5a0f4f9b4ae8b04",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sattempt_daafa5f95325150003cc",
+          "units": 1
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_total_search_actions",
+          "reservation_id": "sres_fb1ddb4719c9e2827a6b",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_f31a4a80be35a314c9fc",
+          "units": 1
+        },
+        {
+          "action_id": "sact_f88e24dd1de7bec3db98",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_retrievals_per_parent",
+          "reservation_id": "sres_91bb46b942814cf5b2c5",
+          "run_id": "review-identity-known",
+          "scope": "spath_124a3ba00b8ed36db592",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_f88e24dd1de7bec3db98",
+          "units": 1
+        },
+        {
+          "action_id": "sact_f88e24dd1de7bec3db98",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_retrievals_total",
+          "reservation_id": "sres_0cf7eb91843592670222",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_f88e24dd1de7bec3db98",
+          "units": 1
+        },
+        {
+          "action_id": "sact_f88e24dd1de7bec3db98",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "limit_key": "max_total_search_actions",
+          "reservation_id": "sres_a19b22cadd74b0204740",
+          "run_id": "review-identity-known",
+          "scope": "",
+          "settled_at": "2026-10-08T19:20:23+00:00",
+          "status": "consumed",
+          "subject": "sact_f88e24dd1de7bec3db98",
+          "units": 1
+        }
+      ],
+      "endpoint_records": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"assessment_note\": \"评估只由独立终点证据决定(来源层直报;模型预测/路径推断不能单独产生 supported_*;停止原因永不映射为终点(F01);存在未解决必要依赖时评估保持 unknown(F02);当前路线已引入的必要条件 unknown/conflict 同样保持 unknown(S4-C01,同源 route_assessment;已知兼容正控不受影响));metabolic_handoff 不等于矿化;supported_terminal_transformation_product 不推断永久去除\", \"bookkeeping\": {\"bookkeeping_status\": \"unknown\", \"co2_aggregated\": false, \"co2_product_occurrences\": [], \"co2_run_total\": null, \"events_with_unknown_coefficients\": [{\"event_id\": \"ppev_6ccb62e1e947a221b5bd\", \"hypothesis_id\": \"hyp_3d78bea6858becb8231d\"}], \"missing_participant_state_refs\": [], \"note\": \"账目闭合只表示声明范围内账面闭合(参与物/系数引用完整),不等于发生矿化,也不等于生物可行;不同备选反应生成的 CO₂ 不相加(逐事件/逐备选列示,运行级聚合不产生);root carbon accounting coverage 只表示核查范围,不表示所有根碳已转化;单项 CO₂ 产物不自动解释为根污染物矿化\", \"participants_known_coefficient\": 4, \"participants_total\": 5, \"root_carbon_accounting_coverage\": \"declared_participants_of_submitted_events\", \"root_carbon_fate_inferred_from_bookkeeping\": false, \"root_carbon_fate_status\": \"unknown\"}, \"bookkeeping_status\": \"unknown\", \"chemical_endpoint_assessment\": \"unknown\", \"conditions_snapshot\": {\"condition_keys_known\": [\"oxygen_regime\"], \"condition_keys_unknown\": [], \"note\": \"条件事实快照(来路/评估权威在 PathContext;此处只采计数,不重评估、不把未知条件判缺席\"}, \"derived_from\": {\"derived_note\": \"重算输入摘要;stop 报告含会话 refusals 不可无会话复算,以持久 stop 记录行 hash 作跨表一致性核对\", \"endpoint_evidence_digest\": \"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\", \"endpoint_policy_version\": \"ppv1-endpoint-policy-2\", \"events_digest\": \"60e2d675cb31c1a0f7446bdc11b0793355cda367a239820e516db0f82a978228\", \"inherited_dependencies_digest\": \"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\", \"route_conditions_digest\": \"81554154e37753f00d1c56c45347961f48055224955f44c2fc9cdc4246f258dc\", \"search_actions_digest\": \"ea691f0df93c3106914973d128275328089194ec0b88fee24c12cedce3835c4a\", \"search_schema_version\": \"ppv1-search-6\"}, \"endpoint_evidence\": [], \"endpoint_evidence_source\": {\"note\": \"证据声明为冻结计划输入(S3B-01 冻结来源);来源层直报,不代表本仓已核实来源真实性\", \"raw_plan_endpoint_evidence\": [], \"source\": \"frozen_plan_input\"}, \"evidence_summary\": {\"basis_counts\": {}, \"blocked_reasons\": [], \"dedup_note\": \"F03 去重口径 = 观察身份(来源引用集合 + basis + 声明 + 窗口/检测/条件)与来源身份(来源引用集合);来路不删除,全部原始条目保留在 endpoint_evidence;同一来源多个引用/同一观察多个包装不增加独立支持\", \"direct_observation_entries\": 0, \"distinct_observation_claims\": 0, \"duplicate_evidence_disclosures\": [], \"evidence_entries_total\": 0, \"independent_source_support_count\": 0, \"missing_field_disclosures\": [], \"necessary_condition_conflict_keys\": [], \"necessary_condition_unknown_keys\": [], \"supported_claim_evidence\": {}, \"supported_claims_without_route_blockers\": []}, \"execution_status\": \"completed\", \"inherited_unresolved_dependencies\": [], \"route_condition_assessment\": {\"contexts\": [{\"context_ref\": \"pc_6ccb2e162fcd7fee293f\", \"environment_fit\": \"unknown\", \"necessary_unmet_per_requirement\": [], \"requirement_coverage\": {\"conflict_keys\": [], \"essential_keys\": [], \"unknown_keys\": []}, \"source\": \"PathContext.route_assessment(历史快照逐边合取 + 当前阶段 live;旧边按记录值消费,不重评)\"}], \"necessary_condition_conflict_keys\": [], \"necessary_condition_unknown_keys\": [], \"note\": \"当前路线必要条件评估(同源 PathContext.route_assessment:历史快照逐边合取 + 当前阶段 live;旧边按记录值消费,不拿当前事实重评);必要条件存在 unknown/conflict ⇒ 终点保持 unknown(证据全文保留,不被 recorded 或充分字段洗白);已知兼容/无必要条件不构成阻断(不全拒);条件评估权威在 PathContext,此处只消费同源结果,不解析自由文本、不新增化学门\"}, \"run_error\": null, \"run_id\": \"review-identity-known\", \"schema_version\": \"ppv1-endpoint-2\", \"search_stop_reason\": {\"note\": \"搜索停止是执行事实,独立持久化于 stop_reason_records;停止原因不映射为化学终点(F01)\", \"other_reasons\": [], \"primary\": \"budget_limit\", \"stop_record_payload_hash\": \"0203118d4637df3e1978ead66d977a98ff54384552635e82b30dbff54520195c\", \"unexplored\": {\"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"deferred\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\", \"open_attempts\": 0, \"pending_actions\": 0, \"pending_requests\": 0}}}",
+          "payload_hash": "e14bc9af50e210c074ed179c38441f85762b291e4c3ee7fda38cd4b264cdaddf",
+          "run_id": "review-identity-known",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        }
+      ],
+      "event_appearance_links": [
+        {
+          "appearance_hash": "02544db7c9f48000f2872a3a3921d0bfdc3cc763fe14191aba0e92c431a89291",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "state_id": "cs_ea7e44a64c7461517e4f"
+        },
+        {
+          "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "state_id": "cs_540cc0181e112b383323"
+        },
+        {
+          "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "state_id": "cs_540cc0181e112b383323"
+        },
+        {
+          "appearance_hash": "f3e99c081d26dd10e476ddc30c641beddb9f87dceb2cf0a54000cd22816cf7ae",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "state_id": "cs_ab1de819ede91df490e6"
+        },
+        {
+          "appearance_hash": "f3e99c081d26dd10e476ddc30c641beddb9f87dceb2cf0a54000cd22816cf7ae",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "state_id": "cs_ab1de819ede91df490e6"
+        }
+      ],
+      "events": [
+        {
+          "context_hash": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_semantics_hash": "cd272e401da316757cc90137f1ddb750765176367db69b7b62eb586c21eedb56",
+          "hypothesis_id": "hyp_3d78bea6858becb8231d",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "payload": "{\"catalytic_support\": [], \"event_appearance_manifest\": [{\"appearance_hash\": \"f3e99c081d26dd10e476ddc30c641beddb9f87dceb2cf0a54000cd22816cf7ae\", \"state_id\": \"cs_ab1de819ede91df490e6\"}, {\"appearance_hash\": \"f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c\", \"state_id\": \"cs_540cc0181e112b383323\"}, {\"appearance_hash\": \"02544db7c9f48000f2872a3a3921d0bfdc3cc763fe14191aba0e92c431a89291\", \"state_id\": \"cs_ea7e44a64c7461517e4f\"}], \"participant_state_refs\": [\"cs_ab1de819ede91df490e6\", \"cs_540cc0181e112b383323\", \"cs_ea7e44a64c7461517e4f\"], \"participants\": [{\"coefficient\": \"1\", \"coefficient_status\": \"known\", \"entry_id\": \"pentry_0c81cff0b0cf1fa2a727\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": \"1\", \"coefficient_status\": \"known\", \"entry_id\": \"pentry_909c48a69d106f085a2f\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_d00faee0c5fa3bba5a49\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"coproduct\", \"side\": \"product\", \"state_ref\": \"cs_ea7e44a64c7461517e4f\"}], \"schema_version\": \"ppv1-event-8\"}",
+          "run_id": "review-identity-known"
+        },
+        {
+          "context_hash": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_semantics_hash": "23bbf5622d65ba7b15b1b6d5875608e95e5f5ff47894f1ab1f26f2e4eed9cc15",
+          "hypothesis_id": "hyp_7f55a5a0f4f9b4ae8b04",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "payload": "{\"catalytic_support\": [], \"event_appearance_manifest\": [{\"appearance_hash\": \"f3e99c081d26dd10e476ddc30c641beddb9f87dceb2cf0a54000cd22816cf7ae\", \"state_id\": \"cs_ab1de819ede91df490e6\"}, {\"appearance_hash\": \"f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c\", \"state_id\": \"cs_540cc0181e112b383323\"}], \"participant_state_refs\": [\"cs_ab1de819ede91df490e6\", \"cs_540cc0181e112b383323\"], \"participants\": [{\"coefficient\": \"1\", \"coefficient_status\": \"known\", \"entry_id\": \"pentry_0c81cff0b0cf1fa2a727\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": \"1\", \"coefficient_status\": \"known\", \"entry_id\": \"pentry_909c48a69d106f085a2f\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"schema_version\": \"ppv1-event-8\"}",
+          "run_id": "review-identity-known"
+        }
+      ],
+      "expansion_plans": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "payload": "{\"entries\": [{\"reason\": \"\", \"state_ref\": \"cs_540cc0181e112b383323\", \"status\": \"expanded\"}, {\"reason\": \"\", \"state_ref\": \"cs_ea7e44a64c7461517e4f\", \"status\": \"expanded\"}], \"policy_version\": \"ppv1-expansion-1\"}"
+        },
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "payload": "{\"entries\": [{\"reason\": \"\", \"state_ref\": \"cs_540cc0181e112b383323\", \"status\": \"expanded\"}], \"policy_version\": \"ppv1-expansion-1\"}"
+        }
+      ],
+      "hypotheses": [
+        {
+          "context_hash": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "hypothesis_id": "hyp_3d78bea6858becb8231d",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "payload": "{\"ambiguous_participants\": false, \"assumptions\": [], \"audit_ref\": \"\", \"dependency_refs\": [], \"hypothesis_id\": \"hyp_3d78bea6858becb8231d\", \"legacy_relationship_status\": \"\", \"model_decision_ref\": \"\", \"origin_group_key\": \"donor-B\", \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"participant_list_status\": \"partial\", \"participants\": [{\"coefficient\": \"1\", \"coefficient_status\": \"known\", \"entry_id\": \"pentry_0c81cff0b0cf1fa2a727\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": \"1\", \"coefficient_status\": \"known\", \"entry_id\": \"pentry_909c48a69d106f085a2f\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}, {\"coefficient\": null, \"coefficient_status\": \"unknown\", \"entry_id\": \"pentry_d00faee0c5fa3bba5a49\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"coproduct\", \"side\": \"product\", \"state_ref\": \"cs_ea7e44a64c7461517e4f\"}], \"provenance_refs\": [], \"requirements\": [], \"schema_version\": \"ppv1-hypothesis-8\", \"step_scope\": \"net_reaction\", \"step_scope_evidence_refs\": [], \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"support_group_refs\": [], \"transformation_ref\": \"donor-B\", \"transformation_signature_status\": \"unknown\"}"
+        },
+        {
+          "context_hash": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "hypothesis_id": "hyp_7f55a5a0f4f9b4ae8b04",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "payload": "{\"ambiguous_participants\": false, \"assumptions\": [], \"audit_ref\": \"\", \"dependency_refs\": [], \"hypothesis_id\": \"hyp_7f55a5a0f4f9b4ae8b04\", \"legacy_relationship_status\": \"\", \"model_decision_ref\": \"\", \"origin_group_key\": \"donor-C\", \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"participant_list_status\": \"partial\", \"participants\": [{\"coefficient\": \"1\", \"coefficient_status\": \"known\", \"entry_id\": \"pentry_0c81cff0b0cf1fa2a727\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"primary_substrate\", \"side\": \"reactant\", \"state_ref\": \"cs_ab1de819ede91df490e6\"}, {\"coefficient\": \"1\", \"coefficient_status\": \"known\", \"entry_id\": \"pentry_909c48a69d106f085a2f\", \"merged_from\": [], \"parallel_contribution\": false, \"role\": \"principal_product\", \"side\": \"product\", \"state_ref\": \"cs_540cc0181e112b383323\"}], \"provenance_refs\": [], \"requirements\": [], \"schema_version\": \"ppv1-hypothesis-8\", \"step_scope\": \"net_reaction\", \"step_scope_evidence_refs\": [], \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"support_group_refs\": [], \"transformation_ref\": \"donor-C\", \"transformation_signature_status\": \"unknown\"}"
+        }
+      ],
+      "meta": [
+        {
+          "key": "schema_version",
+          "value": "ppv1-store-10"
+        }
+      ],
+      "model_requests": [],
+      "provenance_records": [],
+      "report_projections": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "payload": "{\"dedup_notes\": [], \"max_reportable\": 2, \"product_ranks\": [{\"basis\": \"declared_rank_order\", \"note\": \"\", \"report_rank\": 1, \"state_ref\": \"cs_540cc0181e112b383323\"}, {\"basis\": \"declared_rank_order\", \"note\": \"\", \"report_rank\": 2, \"state_ref\": \"cs_ea7e44a64c7461517e4f\"}], \"projection_version\": \"ppv1-report-projection-1\", \"reasons\": []}"
+        },
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "payload": "{\"dedup_notes\": [], \"max_reportable\": 2, \"product_ranks\": [{\"basis\": \"declared_rank_order\", \"note\": \"\", \"report_rank\": 1, \"state_ref\": \"cs_540cc0181e112b383323\"}], \"projection_version\": \"ppv1-report-projection-1\", \"reasons\": []}"
+        }
+      ],
+      "search_actions": [
+        {
+          "action_id": "sact_0a50ae7b436c13a1b0fe",
+          "action_kind": "retrieve",
+          "attempt_refs": "[]",
+          "budget_reservation_ref": "[\"sres_17fea5158962b36526d0\", \"sres_655031cccf1451d388a5\", \"sres_f34c9c5da088cee8d771\"]",
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "de8636b5fcde18b2e601cf45039b9624d80bbebcef495169eee4afe65160833a",
+          "parent_path_id": "spath_19fd6d4a4aae474ebdbb",
+          "parent_search_revision": 1,
+          "payload": "{\"context_ref\": \"pc_6ccb2e162fcd7fee293f\", \"depth\": 1, \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"product_state_ref\": \"cs_540cc0181e112b383323\", \"source_event_id\": \"ppev_b78230e81fdfb5899ced\", \"substrate_smiles\": \"CC=O\", \"task_key\": \"\"}",
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "cs_540cc0181e112b383323",
+          "task_key": "",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_8368f40768d3b2807a31",
+          "action_kind": "decide",
+          "attempt_refs": "[]",
+          "budget_reservation_ref": "[\"sres_5c715ef59417e2911524\"]",
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "6cc99c1b5ac2d1b9e8dcd226ca0c80744ee3b503ddc9ef6ec0c8277435d39eff",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "parent_search_revision": 0,
+          "payload": "{\"context_ref\": \"pc_6ccb2e162fcd7fee293f\", \"depth\": 0, \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"pool_digest\": \"a7dac67ad9bb701a10376cd002cb841478e0bd22a2870ecfcfbef9a64259542c\", \"source_event_id\": \"\", \"substrate_smiles\": \"CCO\", \"task_key\": \"stask-dec_b2d0f8e5a137553b769d\"}",
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "pool:a7dac67ad9bb701a",
+          "task_key": "stask-dec_b2d0f8e5a137553b769d",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "action_kind": "expand_hypothesis",
+          "attempt_refs": "[\"sattempt_8f67faed53493b533b2f\"]",
+          "budget_reservation_ref": "[\"sres_c0a1210088682c5fe82e\", \"sres_c2126e246c150a1426e5\", \"sres_c5337d6f2abd0234d509\"]",
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "751249d99080f9c4f964",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "parent_search_revision": 0,
+          "payload": "{\"context_ref\": \"pc_6ccb2e162fcd7fee293f\", \"depth\": 1, \"frozen_pool_digest\": \"c4f92af8cde4a66502b2fbb300505ef46775743d995ebc8b383c473320fb6738\", \"hypothesis_key\": \"B\", \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"source_event_id\": \"\", \"spec\": {\"alignment\": {\"donor_to_current\": {\"S_C_2\": \"S_C_2\", \"S_O_1\": \"S_O_1\"}, \"ref\": \"align-A\", \"status\": \"resolved\"}, \"coefficient\": 1, \"coproducts\": [\"[H][H]\"], \"donor\": {\"center_atom_ids\": [\"S_C_2\", \"S_O_1\"]}, \"edits\": [{\"atom1\": \"S_C_2\", \"atom2\": \"S_O_1\", \"from_order\": \"single\", \"op\": \"change_bond_order\", \"to_order\": \"double\"}], \"expectation\": {\"target_smiles\": \"CC=O\"}, \"key\": \"B\", \"origin_group_key\": \"donor-B\", \"product_smiles\": \"CC=O\", \"step_scope\": \"net_reaction\", \"transformation_ref\": \"donor-B\"}, \"substrate_smiles\": \"CCO\", \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"task_key\": \"stask-exp_806399805f388290395b\"}",
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "hyp_3d78bea6858becb8231d",
+          "task_key": "stask-exp_806399805f388290395b",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_ccafea090c71359d2a63",
+          "action_kind": "retrieve",
+          "attempt_refs": "[]",
+          "budget_reservation_ref": "[\"sres_33b7451b26f245e1f62d\", \"sres_5dcfb23a57608a818c8e\", \"sres_cd123422fbd2b678d1a9\"]",
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "0929379eb563fdead96a3c1b24a7c2bc0603d19e11dbfb627834de95edafdd02",
+          "parent_path_id": "spath_8a3c385e1fc27f4c1436",
+          "parent_search_revision": 1,
+          "payload": "{\"context_ref\": \"pc_6ccb2e162fcd7fee293f\", \"depth\": 1, \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"product_state_ref\": \"cs_ea7e44a64c7461517e4f\", \"source_event_id\": \"ppev_6ccb62e1e947a221b5bd\", \"substrate_smiles\": \"[H][H]\", \"task_key\": \"\"}",
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "cs_ea7e44a64c7461517e4f",
+          "task_key": "",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_db328a494ef1449145b3",
+          "action_kind": "retrieve",
+          "attempt_refs": "[]",
+          "budget_reservation_ref": "[\"sres_5ee5f3b754ec484a578f\", \"sres_b0e1b82f8bda8852a794\", \"sres_b35cb93e404b81197a8f\"]",
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "972e4bdcce5200d449a812225d4a2fa028f1932b71acedbc5289e817b8a6d2c8",
+          "parent_path_id": "spath_cfb3deb86824ef03c302",
+          "parent_search_revision": 1,
+          "payload": "{\"context_ref\": \"pc_6ccb2e162fcd7fee293f\", \"depth\": 1, \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"product_state_ref\": \"cs_540cc0181e112b383323\", \"source_event_id\": \"ppev_6ccb62e1e947a221b5bd\", \"substrate_smiles\": \"CC=O\", \"task_key\": \"\"}",
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "cs_540cc0181e112b383323",
+          "task_key": "",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "action_kind": "expand_hypothesis",
+          "attempt_refs": "[\"sattempt_daafa5f95325150003cc\"]",
+          "budget_reservation_ref": "[\"sres_7fad1a9db07f2e8da20b\", \"sres_85f25b9881e868ada950\", \"sres_fb1ddb4719c9e2827a6b\"]",
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "1e443e1af6fac7812096",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "parent_search_revision": 0,
+          "payload": "{\"context_ref\": \"pc_6ccb2e162fcd7fee293f\", \"depth\": 1, \"frozen_pool_digest\": \"c4f92af8cde4a66502b2fbb300505ef46775743d995ebc8b383c473320fb6738\", \"hypothesis_key\": \"C\", \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"source_event_id\": \"\", \"spec\": {\"alignment\": {\"donor_to_current\": {\"S_C_2\": \"S_C_2\", \"S_O_1\": \"S_O_1\"}, \"ref\": \"align-A\", \"status\": \"resolved\"}, \"coefficient\": 1, \"donor\": {\"center_atom_ids\": [\"S_C_2\", \"S_O_1\"]}, \"edits\": [{\"atom1\": \"S_C_2\", \"atom2\": \"S_O_1\", \"from_order\": \"single\", \"op\": \"change_bond_order\", \"to_order\": \"double\"}], \"expectation\": {\"target_smiles\": \"CC=O\"}, \"key\": \"C\", \"origin_group_key\": \"donor-C\", \"product_smiles\": \"CC=O\", \"step_scope\": \"net_reaction\", \"transformation_ref\": \"donor-C\"}, \"substrate_smiles\": \"CCO\", \"substrate_state_ref\": \"cs_ab1de819ede91df490e6\", \"task_key\": \"stask-exp_249163e31854c0483989\"}",
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "hyp_7f55a5a0f4f9b4ae8b04",
+          "task_key": "stask-exp_249163e31854c0483989",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_f88e24dd1de7bec3db98",
+          "action_kind": "retrieve",
+          "attempt_refs": "[]",
+          "budget_reservation_ref": "[\"sres_0cf7eb91843592670222\", \"sres_91bb46b942814cf5b2c5\", \"sres_a19b22cadd74b0204740\"]",
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "19820b28ae331a1fc99bfa511c7d61e14d0a4fd6f2c55ebddd0f436772d0553d",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "parent_search_revision": 0,
+          "payload": "{\"context_ref\": \"pc_6ccb2e162fcd7fee293f\", \"depth\": 0, \"parent_path_id\": \"spath_124a3ba00b8ed36db592\", \"plan_digest\": \"134b7b686f78c05b7d30425a527f8082599254826f2f42470be6f89067663be1\", \"source_event_id\": \"\", \"substrate_smiles\": \"CCO\", \"task_key\": \"stask-dec_25fc935a1d80f59c159e\"}",
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "cs_ab1de819ede91df490e6",
+          "task_key": "stask-dec_25fc935a1d80f59c159e",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        }
+      ],
+      "search_attempts": [
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "attempt_index": 1,
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "expansion_attempt_id": "sattempt_8f67faed53493b533b2f",
+          "hypothesis_id": "hyp_3d78bea6858becb8231d",
+          "outcome_ref": "",
+          "payload_hash": "",
+          "recorded_at": "2026-10-08T19:20:23+00:00",
+          "reopen_of": "",
+          "run_id": "review-identity-known",
+          "status": "recorded",
+          "task_key": "stask-exp_806399805f388290395b"
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "attempt_index": 1,
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "expansion_attempt_id": "sattempt_daafa5f95325150003cc",
+          "hypothesis_id": "hyp_7f55a5a0f4f9b4ae8b04",
+          "outcome_ref": "",
+          "payload_hash": "",
+          "recorded_at": "2026-10-08T19:20:23+00:00",
+          "reopen_of": "",
+          "run_id": "review-identity-known",
+          "status": "recorded",
+          "task_key": "stask-exp_249163e31854c0483989"
+        }
+      ],
+      "search_commit_records": [
+        {
+          "action_id": "sact_0a50ae7b436c13a1b0fe",
+          "attempt_id": "",
+          "commit_id": "scommit_ee5f7257256438c9fbc1",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "42567a9970f3e387c6cc47338d4add34e27e593fd7f973ed8915624740abbe0b",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_8368f40768d3b2807a31",
+          "attempt_id": "",
+          "commit_id": "scommit_51cce416a94d39c7ed77",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "7cbbba10e45dc6b154d3391c25cc8435aca2a0bd7e4be6fef93f731068c482c7",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "attempt_id": "sattempt_8f67faed53493b533b2f",
+          "commit_id": "scommit_44eca6dbbff2bb57b51b",
+          "commit_kind": "event_committed",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "payload_hash": "751249d99080f9c4f9642bc09f5d464a8e70abc997618de3e265f97fd4b499e9",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_ccafea090c71359d2a63",
+          "attempt_id": "",
+          "commit_id": "scommit_83f879b4394d9aa95e07",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "91e7f313374f4bbccea007a6386d33e14471bc32d37c6b0d14c73f3e4bec02d9",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_db328a494ef1449145b3",
+          "attempt_id": "",
+          "commit_id": "scommit_1b1e867f815cb76a7580",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "1425226b11c0871c7b20be60a7f73139e447d1ee67d443221eaa6e5824f7eb15",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "attempt_id": "sattempt_daafa5f95325150003cc",
+          "commit_id": "scommit_81d75fbe6aa28e2c4add",
+          "commit_kind": "event_committed",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "payload_hash": "1e443e1af6fac78120964e9d5455191344527f6cde6052720ca63bd6ca167961",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_f88e24dd1de7bec3db98",
+          "attempt_id": "",
+          "commit_id": "scommit_ef5d2e4613c14b53ff0c",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "54d656b6165ae8ab92eb6a42fe2550c08c7ede8a082eeb38abe7dc6d8792a6b3",
+          "run_id": "review-identity-known"
+        }
+      ],
+      "search_runs": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-10\", \"endpoint\": \"ppv1-endpoint-2\", \"endpoint_policy\": \"ppv1-endpoint-policy-2\", \"evaluation\": \"ppv1-evaluation-1\", \"event\": \"ppv1-event-8\", \"format_feedback\": \"ppv1-format-feedback-1\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"native_export\": \"ppv1-native-export-3\", \"native_export_policy\": \"ppv1-native-export-policy-3\", \"native_result\": \"ppv1-native-result-2\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"preregistration_template\": \"ppv1-preregistration-template-1\", \"profile\": \"ppv1-profile-20\", \"provenance\": \"ppv1-provenance-8\", \"reference_graph\": \"ppv1-reference-graph-1\", \"runflow\": \"ppv1-runflow-5\", \"search\": \"ppv1-search-6\", \"split_manifest\": \"ppv1-split-manifest-1\", \"store\": \"ppv1-store-10\", \"substrate_profile\": \"ppv1-substrate-profile-8\", \"v3_projection\": \"ppv1-v3-projection-3\"}, \"delivered_stages\": \"S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export,S5a-interface\", \"format_feedback_policy\": {\"max_format_feedback_rounds\": 0, \"version\": \"ppv1-format-feedback-1\"}, \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-20\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 64, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+          "run_id": "review-identity-known"
+        }
+      ],
+      "state_appearances": [
+        {
+          "appearance_hash": "02544db7c9f48000f2872a3a3921d0bfdc3cc763fe14191aba0e92c431a89291",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"synthetic-pool-spec\"}], \"state_id\": \"cs_ea7e44a64c7461517e4f\", \"structure_origin\": \"source_product\", \"structure_smiles_raw\": \"[H][H]\"}",
+          "state_id": "cs_ea7e44a64c7461517e4f"
+        },
+        {
+          "appearance_hash": "7c510820c283849127e05284dbf94176808144f7ad8b022ea57c47c356ccbf9e",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"ppv1-root-input\"}], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"raw_input\", \"structure_smiles_raw\": \"CCO\"}",
+          "state_id": "cs_ab1de819ede91df490e6"
+        },
+        {
+          "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"synthetic-pool-spec\"}], \"state_id\": \"cs_540cc0181e112b383323\", \"structure_origin\": \"source_product\", \"structure_smiles_raw\": \"CC=O\"}",
+          "state_id": "cs_540cc0181e112b383323"
+        },
+        {
+          "appearance_hash": "f3e99c081d26dd10e476ddc30c641beddb9f87dceb2cf0a54000cd22816cf7ae",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"ppv1-substrate:review-identity-known\"}], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"raw_input\", \"structure_smiles_raw\": \"CCO\"}",
+          "state_id": "cs_ab1de819ede91df490e6"
+        }
+      ],
+      "states": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"cn_identity\": \"CC=O\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CC=O\", \"state_id\": \"cs_540cc0181e112b383323\", \"stereo_information_status\": \"not_applicable\"}",
+          "state_id": "cs_540cc0181e112b383323"
+        },
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"cn_identity\": \"CCO\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CCO\", \"state_id\": \"cs_ab1de819ede91df490e6\", \"stereo_information_status\": \"not_applicable\"}",
+          "state_id": "cs_ab1de819ede91df490e6"
+        },
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"cn_identity\": \"[H][H]\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"[H][H]\", \"state_id\": \"cs_ea7e44a64c7461517e4f\", \"stereo_information_status\": \"not_applicable\"}",
+          "state_id": "cs_ea7e44a64c7461517e4f"
+        }
+      ],
+      "stop_reason_records": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": "{\"record_version\": \"ppv1-endpoint-2\", \"run_id\": \"review-identity-known\", \"stop_report\": {\"budget\": {\"run_level\": {\"max_real_model_requests\": {\"max\": 0, \"remaining\": 0, \"used\": 0}, \"max_retrievals_total\": {\"max\": 64, \"remaining\": 60, \"used\": 4}, \"max_scenario_transitions\": {\"max\": 2, \"remaining\": 2, \"used\": 0}, \"max_total_search_actions\": {\"max\": 10, \"remaining\": 3, \"used\": 7}}, \"scoped\": {\"max_alternative_hypotheses_per_parent\": {\"spath_124a3ba00b8ed36db592\": {\"max\": 2, \"remaining\": 0, \"used\": 2}}, \"max_attempts_per_hypothesis\": {\"hyp_3d78bea6858becb8231d\": {\"max\": 2, \"remaining\": 1, \"used\": 1}, \"hyp_7f55a5a0f4f9b4ae8b04\": {\"max\": 2, \"remaining\": 1, \"used\": 1}}, \"max_reopens_per_hypothesis\": {}, \"max_retrievals_per_parent\": {\"spath_124a3ba00b8ed36db592\": {\"max\": 1, \"remaining\": 0, \"used\": 1}, \"spath_19fd6d4a4aae474ebdbb\": {\"max\": 1, \"remaining\": 0, \"used\": 1}, \"spath_8a3c385e1fc27f4c1436\": {\"max\": 1, \"remaining\": 0, \"used\": 1}, \"spath_cfb3deb86824ef03c302\": {\"max\": 1, \"remaining\": 0, \"used\": 1}}}, \"version\": \"ppv1-search-limits-3\"}, \"budget_exhausted_keys\": [\"max_alternative_hypotheses_per_parent@spath_124a3ba00b8ed36db592\", \"max_retrievals_per_parent@spath_124a3ba00b8ed36db592\", \"max_retrievals_per_parent@spath_19fd6d4a4aae474ebdbb\", \"max_retrievals_per_parent@spath_8a3c385e1fc27f4c1436\", \"max_retrievals_per_parent@spath_cfb3deb86824ef03c302\"], \"events_submitted_session\": [\"ppev_6ccb62e1e947a221b5bd\", \"ppev_b78230e81fdfb5899ced\"], \"other_reasons\": [], \"primary\": \"budget_limit\", \"runflow_version\": \"ppv1-runflow-5\", \"unexplored\": {\"blocked\": 0, \"blocked_objects\": [], \"claimed_actions\": 0, \"deferred\": 0, \"note\": \"停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search\", \"open_attempts\": 0, \"pending_actions\": 0, \"pending_requests\": 0}}}",
+          "payload_hash": "0203118d4637df3e1978ead66d977a98ff54384552635e82b30dbff54520195c",
+          "run_id": "review-identity-known",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        }
+      ]
+    }
+  },
+  "native_export": {
+    "manifest": {
+      "artifact_references": {
+        "ctx:pc_6ccb2e162fcd7fee293f/path_context": {
+          "payload_hash": "f5539508ce96ceb90bf6f0597652b1c415a17b8016487531e95ddae0a8beec2d",
+          "source_action_id": ""
+        },
+        "run-plan/frozen_plan": {
+          "payload_hash": "00bcfdb2890968cde2afab82114abfac343c1e051e444050b96fa0baf9c219eb",
+          "source_action_id": ""
+        },
+        "soutc_1b1e867f815cb76a7580/expansion_outcome": {
+          "payload_hash": "972e4bdcce5200d449a812225d4a2fa028f1932b71acedbc5289e817b8a6d2c8",
+          "source_action_id": "sact_db328a494ef1449145b3"
+        },
+        "soutc_51cce416a94d39c7ed77/expansion_outcome": {
+          "payload_hash": "6cc99c1b5ac2d1b9e8dcd226ca0c80744ee3b503ddc9ef6ec0c8277435d39eff",
+          "source_action_id": "sact_8368f40768d3b2807a31"
+        },
+        "soutc_83f879b4394d9aa95e07/expansion_outcome": {
+          "payload_hash": "0929379eb563fdead96a3c1b24a7c2bc0603d19e11dbfb627834de95edafdd02",
+          "source_action_id": "sact_ccafea090c71359d2a63"
+        },
+        "soutc_ee5f7257256438c9fbc1/expansion_outcome": {
+          "payload_hash": "de8636b5fcde18b2e601cf45039b9624d80bbebcef495169eee4afe65160833a",
+          "source_action_id": "sact_0a50ae7b436c13a1b0fe"
+        },
+        "soutc_ef5d2e4613c14b53ff0c/expansion_outcome": {
+          "payload_hash": "19820b28ae331a1fc99bfa511c7d61e14d0a4fd6f2c55ebddd0f436772d0553d",
+          "source_action_id": "sact_f88e24dd1de7bec3db98"
+        },
+        "stask-exp_249163e31854c0483989/production_report": {
+          "payload_hash": "11066edc06c0975e972f7ec573a71b6ea6e7b1e7cf469e23feb092174ad11a7c",
+          "source_action_id": "sact_f31a4a80be35a314c9fc"
+        },
+        "stask-exp_806399805f388290395b/production_report": {
+          "payload_hash": "ed52ac63a458fdcb8525749ab30bbf9f512398554f2a4c07de31014caae1acf7",
+          "source_action_id": "sact_c2d285e8eed0256ec188"
+        }
+      },
+      "authority_references": {
+        "endpoint_record_payload_hash": "e14bc9af50e210c074ed179c38441f85762b291e4c3ee7fda38cd4b264cdaddf",
+        "native_result_content_digest": "b78d8b7cb90abf04975c014b4a91d3e5f0a3fb8537d7850d309319d264f0a498",
+        "native_result_task_key": "run-native-result:b78d8b7cb90abf04975c014b",
+        "stop_record_payload_hash": "0203118d4637df3e1978ead66d977a98ff54384552635e82b30dbff54520195c"
+      },
+      "content_digest": "b78d8b7cb90abf04975c014b4a91d3e5f0a3fb8537d7850d309319d264f0a498",
+      "contract_versions": {
+        "endpoint": "ppv1-endpoint-2",
+        "endpoint_policy": "ppv1-endpoint-policy-2",
+        "native_result": "ppv1-native-result-2",
+        "profile": "ppv1-profile-20",
+        "runflow": "ppv1-runflow-5",
+        "search": "ppv1-search-6",
+        "store": "ppv1-store-10"
+      },
+      "determinism_note": "payload/manifest 无时间戳;canonical_json 键序 + 列表稳定排序;export_digest = content_hash(本 manifest 去掉 export_digest 键);同事实+同版本+同策略 ⇒ 同字节",
+      "export_digest": "dc274a0df9135430a017ef15277314014b4268ced5bf401312e92a57291d8422",
+      "export_policy": {
+        "directory_naming": "native_export/<export_digest[:24]>/",
+        "export_digest_basis": "content_hash(manifest_core_without_export_digest)",
+        "manifest_serialization": "canonical_json_sortkeys_compact_newline",
+        "manifest_timestamps": "forbidden",
+        "overwrite": "forbidden_same_digest_different_bytes_refused",
+        "payload_serialization": "canonical_json_sortkeys_compact_newline",
+        "payload_timestamps": "forbidden",
+        "stale_detection": "manifest_core_digest_recompute+run_and_contract_version_binding+payload_native_result_version_binding+graph_facts_digests+authority_references+necessary_artifact_reference_set_closure_from_completed_actions_commits_and_native_consumption+policy_body_and_hash",
+        "version": "ppv1-native-export-policy-3"
+      },
+      "export_policy_sha256": "05518295dfd81c4e997922353e30a7a976456d84d0b41075888d448f99549957",
+      "graph_facts": {
+        "budget_reservations": "888b6712413cf4411babc816c128faeecf2f2f3e779b1f50f2a312396fff3459",
+        "endpoint_records": "946d34f233ea145d74204e12c16ec62fb2a241d4923bc522b6c9594273585aa9",
+        "event_appearance_links": "4ce7fff8f267d13cc5fc862c145506915d4b99b1d378514cd91286e2b07fabd7",
+        "events": "66bde90823ec69a45c87f47c79252356723fa322405e75f2819525fad90a1137",
+        "expansion_plans": "f190680caa4112fa09bf0d25c1c6665a693d9f303010cb5a1537c23621c60f56",
+        "hypotheses": "7d81d0d2d534634eaeea9b871f866730f2c2f17581ea30bcb6b00b512abafa40",
+        "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "note": "PPV1 graph revision 等价身份 = 持久事实表逐表内容 digest(legacy 整数 graph_revision 不适用;任何行变化 ⇒ 旧导出 stale)",
+        "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "report_projections": "01dbe58828ab37224754adc5b58d405c89632222f2e9410795afb3c420243594",
+        "search_actions": "40a65019c5d88d6088a604eb4408ade26c73675e9e6c96c61f10eaed6eec53f6",
+        "search_attempts": "baec1035b58c46cd44ade54613282133495f40787f6ed58ba3b9e85f52959921",
+        "search_commit_records": "3247dd33fcdc3184a64705ebcf47838822ebde1a2a0978f26da30c4bbe588810",
+        "state_appearances": "352f6970bce480d639eaab3963a75a07da7eb552dd6f74a1beb831ae7ab0f1ae",
+        "states": "152655b6c4e6c0cabc24bd492f32f83d98eab5fecf07a5f78361732e15a6fa8f",
+        "stop_reason_records": "849dab64177015ad171a4c578d47cefbdb472e9c417c5fd4ea40653bb6c52631"
+      },
+      "payload_sha256": "ff5f66ed4903b030354623075be87cb5ac6daa11ea5dd2a7a5c12f2cabc757aa",
+      "run_id": "review-identity-known",
+      "schema_version": "ppv1-native-export-3"
+    },
+    "payload": {
+      "alternatives": [
+        {
+          "alternative_hypotheses": [
+            "hyp_3d78bea6858becb8231d",
+            "hyp_7f55a5a0f4f9b4ae8b04"
+          ],
+          "note": "同父备选反应各自独立(不合并为单反应;A01);不同来路/parent/context 不按 CN 全局合并",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "statuses": [
+            "done",
+            "done"
+          ]
+        }
+      ],
+      "audit_production_reports": [
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "production_payload": {
+            "action_id": "sact_c2d285e8eed0256ec188",
+            "admission": {
+              "disposition": "retain_conditional",
+              "reasons": [
+                "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):participant_completeness,element_accounting,formal_charge_accounting,transformation_center,condition_check"
+              ]
+            },
+            "attempt_id": "sattempt_8f67faed53493b533b2f",
+            "audit": {
+              "admission_disposition": "",
+              "admission_policy_ref": "ppv1-admission-8",
+              "admission_reasons": [],
+              "audit_id": "audit_27d27cf990238fed00a6",
+              "biological_support_status": "unknown",
+              "checker_versions": {
+                "audit": "ppv1-audit-8",
+                "chemstate": "ppv1-chemstate-8",
+                "condition_assessment": "ppv1-condition-assessment-8",
+                "donor_diagnostic": "ppv1-donor-diagnostic-10",
+                "hypothesis": "ppv1-hypothesis-8",
+                "legacy_g2_family": "v43-cons-2"
+              },
+              "checks": [
+                {
+                  "coverage": "participants_with_state",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "structure_parse_valence",
+                  "reason_code": "all_participants_parse",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "state_ledger_references",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "participant_state_refs",
+                  "reason_code": "all_participant_states_resolved",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "state_ids",
+                  "detail": {
+                    "fidelity_axis_notes": []
+                  },
+                  "evidence_refs": [],
+                  "name": "identity_fidelity",
+                  "reason_code": "identity_states_consistent",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+                  "detail": {},
+                  "evidence_refs": [
+                    "v43-cons-2"
+                  ],
+                  "name": "finite_rule_diagnostic",
+                  "reason_code": "not_provided",
+                  "status": "not_applicable"
+                },
+                {
+                  "coverage": "participant_list",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "participant_completeness",
+                  "reason_code": "participant_list_status:partial",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "full_balance",
+                  "detail": {
+                    "accounting_scope": "not_run_incomplete_list"
+                  },
+                  "evidence_refs": [],
+                  "name": "element_accounting",
+                  "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "full_balance",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "formal_charge_accounting",
+                  "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "mapping_dependent",
+                  "detail": {
+                    "center_match": true,
+                    "center_match_basis": "direct",
+                    "center_property_deltas": [
+                      {
+                        "atom_id": "S_C_2",
+                        "cip_labels": [
+                          "",
+                          ""
+                        ],
+                        "element": "C",
+                        "formal_charge": [
+                          0,
+                          0
+                        ],
+                        "h_count": [
+                          2,
+                          1
+                        ],
+                        "isotope": [
+                          0,
+                          0
+                        ],
+                        "property_delta": "h_count"
+                      },
+                      {
+                        "atom_id": "S_O_1",
+                        "cip_labels": [
+                          "",
+                          ""
+                        ],
+                        "element": "O",
+                        "formal_charge": [
+                          0,
+                          0
+                        ],
+                        "h_count": [
+                          1,
+                          0
+                        ],
+                        "isotope": [
+                          0,
+                          0
+                        ],
+                        "property_delta": "h_count"
+                      }
+                    ],
+                    "checker_scope": "region_net_change",
+                    "checker_version": "ppv1-donor-diagnostic-10",
+                    "coverage_mode": "whole_molecule",
+                    "coverage_rule": "atom_delta_stoichiometric_completion",
+                    "covered_product_identities": [
+                      "CC=O"
+                    ],
+                    "declared_signature_status": "unknown",
+                    "extra_changes": [],
+                    "product_coverage": "unknown_coefficients",
+                    "proof_scope": "self_contained_recompute",
+                    "strict_target_match": true,
+                    "uncovered_product_refs": [
+                      "cs_ea7e44a64c7461517e4f"
+                    ],
+                    "uncovered_reactant_refs": []
+                  },
+                  "evidence_refs": [
+                    "align-A"
+                  ],
+                  "name": "transformation_center",
+                  "reason_code": "center_evidence_coverage_unknown_coefficients(参与物系数未知:覆盖与贡献规模不可算,不得计入全部核实;系数须已知或另行补全,不冒充已覆盖)",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "step_scope",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "step_scope_check",
+                  "reason_code": "step_scope:net_reaction",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "declared_dimensions",
+                  "detail": {
+                    "assessment_scope": [],
+                    "unassessed_dimensions": [
+                      "biotic_abiotic",
+                      "inoculum_source",
+                      "light_regime",
+                      "phase_bioavailability",
+                      "redox_regime_eh",
+                      "required_trace_elements_cofactors",
+                      "salinity_ionic_strength",
+                      "substrate_concentration"
+                    ]
+                  },
+                  "evidence_refs": [],
+                  "name": "condition_check",
+                  "reason_code": "environment_fit:unknown;coverage:",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "dependency_set",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "provenance_dependency",
+                  "reason_code": "no_unresolved_dependencies",
+                  "status": "verified"
+                }
+              ],
+              "input_hash": "ain_5a4bffc9d0ce37fbf0a5",
+              "legacy_gate_result_ref": "",
+              "participant_accounting_status": "partial",
+              "schema_version": "ppv1-audit-8",
+              "scope": "hypothesis_admission"
+            },
+            "child_depth": 2,
+            "completed": {
+              "action_id": "sact_c2d285e8eed0256ec188",
+              "completed": true,
+              "event_id": "ppev_6ccb62e1e947a221b5bd",
+              "outcome_ref": ""
+            },
+            "event": null,
+            "event_id": "ppev_6ccb62e1e947a221b5bd",
+            "execution": {
+              "center_evidence": {
+                "bound_inputs": {
+                  "alignment_ref": "align-A",
+                  "donor_centers": [
+                    "S_C_2",
+                    "S_O_1"
+                  ],
+                  "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                  "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                  "product_identity": "CC=O",
+                  "substrate_identity": "CCO"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-10",
+                "declaration_mismatch": false,
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "proof_record": {
+                  "alignment": {
+                    "donor_to_current": {
+                      "S_C_2": "S_C_2",
+                      "S_O_1": "S_O_1"
+                    },
+                    "equivalence_classes": [],
+                    "ref": "align-A",
+                    "status": "resolved"
+                  },
+                  "current": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "smiles": "CCO"
+                  },
+                  "donor": {
+                    "center_atom_ids": [
+                      "S_C_2",
+                      "S_O_1"
+                    ]
+                  },
+                  "edits": [
+                    {
+                      "atom1": "S_C_2",
+                      "atom2": "S_O_1",
+                      "from_order": "single",
+                      "op": "change_bond_order",
+                      "to_order": "double"
+                    }
+                  ],
+                  "expectation": {
+                    "target_smiles": "CC=O"
+                  },
+                  "result": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "n_edits": 1,
+                    "ok": true,
+                    "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                    "product_smiles": "CC=O",
+                    "protocol_version": "v43-editproto-2",
+                    "reasons": []
+                  }
+                },
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true
+              },
+              "diagnostic": {
+                "alignment_ref": "align-A",
+                "center_evidence": {
+                  "bound_inputs": {
+                    "alignment_ref": "align-A",
+                    "donor_centers": [
+                      "S_C_2",
+                      "S_O_1"
+                    ],
+                    "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                    "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                    "product_identity": "CC=O",
+                    "substrate_identity": "CCO"
+                  },
+                  "center_match": true,
+                  "center_match_basis": "direct",
+                  "checker_scope": "region_net_change",
+                  "checker_version": "ppv1-donor-diagnostic-10",
+                  "declaration_mismatch": false,
+                  "evidence_refs": [
+                    "align-A"
+                  ],
+                  "proof_record": {
+                    "alignment": {
+                      "donor_to_current": {
+                        "S_C_2": "S_C_2",
+                        "S_O_1": "S_O_1"
+                      },
+                      "equivalence_classes": [],
+                      "ref": "align-A",
+                      "status": "resolved"
+                    },
+                    "current": {
+                      "atom_id_map": {
+                        "S_C_1": 0,
+                        "S_C_2": 1,
+                        "S_O_1": 2
+                      },
+                      "smiles": "CCO"
+                    },
+                    "donor": {
+                      "center_atom_ids": [
+                        "S_C_2",
+                        "S_O_1"
+                      ]
+                    },
+                    "edits": [
+                      {
+                        "atom1": "S_C_2",
+                        "atom2": "S_O_1",
+                        "from_order": "single",
+                        "op": "change_bond_order",
+                        "to_order": "double"
+                      }
+                    ],
+                    "expectation": {
+                      "target_smiles": "CC=O"
+                    },
+                    "result": {
+                      "atom_id_map": {
+                        "S_C_1": 0,
+                        "S_C_2": 1,
+                        "S_O_1": 2
+                      },
+                      "n_edits": 1,
+                      "ok": true,
+                      "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                      "product_smiles": "CC=O",
+                      "protocol_version": "v43-editproto-2",
+                      "reasons": []
+                    }
+                  },
+                  "proof_scope": "self_contained_recompute",
+                  "strict_target_match": true
+                },
+                "center_match_basis": "direct",
+                "center_property_deltas": [
+                  {
+                    "atom_id": "S_C_2",
+                    "cip_labels": [
+                      "",
+                      ""
+                    ],
+                    "element": "C",
+                    "formal_charge": [
+                      0,
+                      0
+                    ],
+                    "h_count": [
+                      2,
+                      1
+                    ],
+                    "isotope": [
+                      0,
+                      0
+                    ],
+                    "property_delta": "h_count"
+                  },
+                  {
+                    "atom_id": "S_O_1",
+                    "cip_labels": [
+                      "",
+                      ""
+                    ],
+                    "element": "O",
+                    "formal_charge": [
+                      0,
+                      0
+                    ],
+                    "h_count": [
+                      1,
+                      0
+                    ],
+                    "isotope": [
+                      0,
+                      0
+                    ],
+                    "property_delta": "h_count"
+                  }
+                ],
+                "declaration_mismatches": [],
+                "declaration_only": [],
+                "equivalence_basis": "",
+                "executed_bond_changes": [
+                  {
+                    "atom1_id": "S_C_2",
+                    "atom2_id": "S_O_1",
+                    "from_order": "single",
+                    "kind": "order_change",
+                    "to_order": "double"
+                  }
+                ],
+                "extra_changes": [],
+                "joint_mapping": {},
+                "legacy_cn_match": true,
+                "missing_info_reasons": [],
+                "net_change_empty": false,
+                "reaction_center_match": true,
+                "schema_version": "ppv1-donor-diagnostic-10",
+                "stereo_comparison_unsupported_atoms": [],
+                "strict_target_match": true
+              },
+              "execution_ok": true,
+              "production_version": "ppv1-search-production-1",
+              "render": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "canonical_smiles": "CCO",
+                "input_smiles": "CCO"
+              },
+              "result": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "n_edits": 1,
+                "ok": true,
+                "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                "product_smiles": "CC=O",
+                "protocol_version": "v43-editproto-2",
+                "reasons": []
+              },
+              "substrate_smiles": "CCO",
+              "tool_inputs": {
+                "alignment": {
+                  "donor_to_current": {
+                    "S_C_2": "S_C_2",
+                    "S_O_1": "S_O_1"
+                  },
+                  "ref": "align-A",
+                  "status": "resolved"
+                },
+                "donor": {
+                  "center_atom_ids": [
+                    "S_C_2",
+                    "S_O_1"
+                  ]
+                },
+                "edits": [
+                  {
+                    "atom1": "S_C_2",
+                    "atom2": "S_O_1",
+                    "from_order": "single",
+                    "op": "change_bond_order",
+                    "to_order": "double"
+                  }
+                ],
+                "expectation": {
+                  "target_smiles": "CC=O"
+                }
+              }
+            },
+            "expansion_plan": {
+              "entries": [
+                {
+                  "reason": "",
+                  "state_ref": "cs_540cc0181e112b383323",
+                  "status": "expanded"
+                },
+                {
+                  "reason": "",
+                  "state_ref": "cs_ea7e44a64c7461517e4f",
+                  "status": "expanded"
+                }
+              ],
+              "policy_version": "ppv1-expansion-1"
+            },
+            "parent_search_revision": 0,
+            "production_version": "ppv1-search-production-1",
+            "report_projection": {
+              "dedup_notes": [],
+              "max_reportable": 2,
+              "product_ranks": [
+                {
+                  "basis": "declared_rank_order",
+                  "note": "",
+                  "report_rank": 1,
+                  "state_ref": "cs_540cc0181e112b383323"
+                },
+                {
+                  "basis": "declared_rank_order",
+                  "note": "",
+                  "report_rank": 2,
+                  "state_ref": "cs_ea7e44a64c7461517e4f"
+                }
+              ],
+              "projection_version": "ppv1-report-projection-1",
+              "reasons": []
+            },
+            "status": "submitted",
+            "submitted": {
+              "action_id": "sact_c2d285e8eed0256ec188",
+              "created": true,
+              "event_id": "ppev_6ccb62e1e947a221b5bd"
+            }
+          },
+          "task_key": "stask-exp_806399805f388290395b"
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "production_payload": {
+            "action_id": "sact_f31a4a80be35a314c9fc",
+            "admission": {
+              "disposition": "retain_conditional",
+              "reasons": [
+                "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):participant_completeness,element_accounting,formal_charge_accounting,condition_check"
+              ]
+            },
+            "attempt_id": "sattempt_daafa5f95325150003cc",
+            "audit": {
+              "admission_disposition": "",
+              "admission_policy_ref": "ppv1-admission-8",
+              "admission_reasons": [],
+              "audit_id": "audit_852a7bdf9a3c1ad25aba",
+              "biological_support_status": "unknown",
+              "checker_versions": {
+                "audit": "ppv1-audit-8",
+                "chemstate": "ppv1-chemstate-8",
+                "condition_assessment": "ppv1-condition-assessment-8",
+                "donor_diagnostic": "ppv1-donor-diagnostic-10",
+                "hypothesis": "ppv1-hypothesis-8",
+                "legacy_g2_family": "v43-cons-2"
+              },
+              "checks": [
+                {
+                  "coverage": "participants_with_state",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "structure_parse_valence",
+                  "reason_code": "all_participants_parse",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "state_ledger_references",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "participant_state_refs",
+                  "reason_code": "all_participant_states_resolved",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "state_ids",
+                  "detail": {
+                    "fidelity_axis_notes": []
+                  },
+                  "evidence_refs": [],
+                  "name": "identity_fidelity",
+                  "reason_code": "identity_states_consistent",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+                  "detail": {},
+                  "evidence_refs": [
+                    "v43-cons-2"
+                  ],
+                  "name": "finite_rule_diagnostic",
+                  "reason_code": "not_provided",
+                  "status": "not_applicable"
+                },
+                {
+                  "coverage": "participant_list",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "participant_completeness",
+                  "reason_code": "participant_list_status:partial",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "full_balance",
+                  "detail": {
+                    "accounting_scope": "not_run_incomplete_list"
+                  },
+                  "evidence_refs": [],
+                  "name": "element_accounting",
+                  "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "full_balance",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "formal_charge_accounting",
+                  "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "mapping_dependent",
+                  "detail": {
+                    "atom_delta": {
+                      "H": "2"
+                    },
+                    "center_match": true,
+                    "center_match_basis": "direct",
+                    "center_property_deltas": [
+                      {
+                        "atom_id": "S_C_2",
+                        "cip_labels": [
+                          "",
+                          ""
+                        ],
+                        "element": "C",
+                        "formal_charge": [
+                          0,
+                          0
+                        ],
+                        "h_count": [
+                          2,
+                          1
+                        ],
+                        "isotope": [
+                          0,
+                          0
+                        ],
+                        "property_delta": "h_count"
+                      },
+                      {
+                        "atom_id": "S_O_1",
+                        "cip_labels": [
+                          "",
+                          ""
+                        ],
+                        "element": "O",
+                        "formal_charge": [
+                          0,
+                          0
+                        ],
+                        "h_count": [
+                          1,
+                          0
+                        ],
+                        "isotope": [
+                          0,
+                          0
+                        ],
+                        "property_delta": "h_count"
+                      }
+                    ],
+                    "checker_scope": "region_net_change",
+                    "checker_version": "ppv1-donor-diagnostic-10",
+                    "completion_license": "composition_only_hydrogen_equivalents",
+                    "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+                    "coverage_mode": "whole_molecule",
+                    "coverage_rule": "atom_delta_stoichiometric_completion",
+                    "coverage_violations": [],
+                    "covered_product_identities": [
+                      "CC=O"
+                    ],
+                    "declared_signature_status": "unknown",
+                    "extra_changes": [],
+                    "product_coverage": "full",
+                    "proof_scope": "self_contained_recompute",
+                    "strict_target_match": true,
+                    "substrate_scale": "1",
+                    "uncovered_product_elements": {},
+                    "uncovered_product_refs": [],
+                    "uncovered_reactant_elements": {},
+                    "uncovered_reactant_refs": [],
+                    "unlicensed_uncovered_identities": []
+                  },
+                  "evidence_refs": [
+                    "align-A"
+                  ],
+                  "name": "transformation_center",
+                  "reason_code": "center_evidence_verified:ppv1-donor-diagnostic-10(scope=region_net_change;basis=direct)",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "step_scope",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "step_scope_check",
+                  "reason_code": "step_scope:net_reaction",
+                  "status": "verified"
+                },
+                {
+                  "coverage": "declared_dimensions",
+                  "detail": {
+                    "assessment_scope": [],
+                    "unassessed_dimensions": [
+                      "biotic_abiotic",
+                      "inoculum_source",
+                      "light_regime",
+                      "phase_bioavailability",
+                      "redox_regime_eh",
+                      "required_trace_elements_cofactors",
+                      "salinity_ionic_strength",
+                      "substrate_concentration"
+                    ]
+                  },
+                  "evidence_refs": [],
+                  "name": "condition_check",
+                  "reason_code": "environment_fit:unknown;coverage:",
+                  "status": "unknown"
+                },
+                {
+                  "coverage": "dependency_set",
+                  "detail": {},
+                  "evidence_refs": [],
+                  "name": "provenance_dependency",
+                  "reason_code": "no_unresolved_dependencies",
+                  "status": "verified"
+                }
+              ],
+              "input_hash": "ain_2e3d1506b77d4c4a8c93",
+              "legacy_gate_result_ref": "",
+              "participant_accounting_status": "partial",
+              "schema_version": "ppv1-audit-8",
+              "scope": "hypothesis_admission"
+            },
+            "child_depth": 2,
+            "completed": {
+              "action_id": "sact_f31a4a80be35a314c9fc",
+              "completed": true,
+              "event_id": "ppev_b78230e81fdfb5899ced",
+              "outcome_ref": ""
+            },
+            "event": null,
+            "event_id": "ppev_b78230e81fdfb5899ced",
+            "execution": {
+              "center_evidence": {
+                "bound_inputs": {
+                  "alignment_ref": "align-A",
+                  "donor_centers": [
+                    "S_C_2",
+                    "S_O_1"
+                  ],
+                  "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                  "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                  "product_identity": "CC=O",
+                  "substrate_identity": "CCO"
+                },
+                "center_match": true,
+                "center_match_basis": "direct",
+                "checker_scope": "region_net_change",
+                "checker_version": "ppv1-donor-diagnostic-10",
+                "declaration_mismatch": false,
+                "evidence_refs": [
+                  "align-A"
+                ],
+                "proof_record": {
+                  "alignment": {
+                    "donor_to_current": {
+                      "S_C_2": "S_C_2",
+                      "S_O_1": "S_O_1"
+                    },
+                    "equivalence_classes": [],
+                    "ref": "align-A",
+                    "status": "resolved"
+                  },
+                  "current": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "smiles": "CCO"
+                  },
+                  "donor": {
+                    "center_atom_ids": [
+                      "S_C_2",
+                      "S_O_1"
+                    ]
+                  },
+                  "edits": [
+                    {
+                      "atom1": "S_C_2",
+                      "atom2": "S_O_1",
+                      "from_order": "single",
+                      "op": "change_bond_order",
+                      "to_order": "double"
+                    }
+                  ],
+                  "expectation": {
+                    "target_smiles": "CC=O"
+                  },
+                  "result": {
+                    "atom_id_map": {
+                      "S_C_1": 0,
+                      "S_C_2": 1,
+                      "S_O_1": 2
+                    },
+                    "n_edits": 1,
+                    "ok": true,
+                    "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                    "product_smiles": "CC=O",
+                    "protocol_version": "v43-editproto-2",
+                    "reasons": []
+                  }
+                },
+                "proof_scope": "self_contained_recompute",
+                "strict_target_match": true
+              },
+              "diagnostic": {
+                "alignment_ref": "align-A",
+                "center_evidence": {
+                  "bound_inputs": {
+                    "alignment_ref": "align-A",
+                    "donor_centers": [
+                      "S_C_2",
+                      "S_O_1"
+                    ],
+                    "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+                    "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+                    "product_identity": "CC=O",
+                    "substrate_identity": "CCO"
+                  },
+                  "center_match": true,
+                  "center_match_basis": "direct",
+                  "checker_scope": "region_net_change",
+                  "checker_version": "ppv1-donor-diagnostic-10",
+                  "declaration_mismatch": false,
+                  "evidence_refs": [
+                    "align-A"
+                  ],
+                  "proof_record": {
+                    "alignment": {
+                      "donor_to_current": {
+                        "S_C_2": "S_C_2",
+                        "S_O_1": "S_O_1"
+                      },
+                      "equivalence_classes": [],
+                      "ref": "align-A",
+                      "status": "resolved"
+                    },
+                    "current": {
+                      "atom_id_map": {
+                        "S_C_1": 0,
+                        "S_C_2": 1,
+                        "S_O_1": 2
+                      },
+                      "smiles": "CCO"
+                    },
+                    "donor": {
+                      "center_atom_ids": [
+                        "S_C_2",
+                        "S_O_1"
+                      ]
+                    },
+                    "edits": [
+                      {
+                        "atom1": "S_C_2",
+                        "atom2": "S_O_1",
+                        "from_order": "single",
+                        "op": "change_bond_order",
+                        "to_order": "double"
+                      }
+                    ],
+                    "expectation": {
+                      "target_smiles": "CC=O"
+                    },
+                    "result": {
+                      "atom_id_map": {
+                        "S_C_1": 0,
+                        "S_C_2": 1,
+                        "S_O_1": 2
+                      },
+                      "n_edits": 1,
+                      "ok": true,
+                      "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                      "product_smiles": "CC=O",
+                      "protocol_version": "v43-editproto-2",
+                      "reasons": []
+                    }
+                  },
+                  "proof_scope": "self_contained_recompute",
+                  "strict_target_match": true
+                },
+                "center_match_basis": "direct",
+                "center_property_deltas": [
+                  {
+                    "atom_id": "S_C_2",
+                    "cip_labels": [
+                      "",
+                      ""
+                    ],
+                    "element": "C",
+                    "formal_charge": [
+                      0,
+                      0
+                    ],
+                    "h_count": [
+                      2,
+                      1
+                    ],
+                    "isotope": [
+                      0,
+                      0
+                    ],
+                    "property_delta": "h_count"
+                  },
+                  {
+                    "atom_id": "S_O_1",
+                    "cip_labels": [
+                      "",
+                      ""
+                    ],
+                    "element": "O",
+                    "formal_charge": [
+                      0,
+                      0
+                    ],
+                    "h_count": [
+                      1,
+                      0
+                    ],
+                    "isotope": [
+                      0,
+                      0
+                    ],
+                    "property_delta": "h_count"
+                  }
+                ],
+                "declaration_mismatches": [],
+                "declaration_only": [],
+                "equivalence_basis": "",
+                "executed_bond_changes": [
+                  {
+                    "atom1_id": "S_C_2",
+                    "atom2_id": "S_O_1",
+                    "from_order": "single",
+                    "kind": "order_change",
+                    "to_order": "double"
+                  }
+                ],
+                "extra_changes": [],
+                "joint_mapping": {},
+                "legacy_cn_match": true,
+                "missing_info_reasons": [],
+                "net_change_empty": false,
+                "reaction_center_match": true,
+                "schema_version": "ppv1-donor-diagnostic-10",
+                "stereo_comparison_unsupported_atoms": [],
+                "strict_target_match": true
+              },
+              "execution_ok": true,
+              "production_version": "ppv1-search-production-1",
+              "render": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "canonical_smiles": "CCO",
+                "input_smiles": "CCO"
+              },
+              "result": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "n_edits": 1,
+                "ok": true,
+                "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                "product_smiles": "CC=O",
+                "protocol_version": "v43-editproto-2",
+                "reasons": []
+              },
+              "substrate_smiles": "CCO",
+              "tool_inputs": {
+                "alignment": {
+                  "donor_to_current": {
+                    "S_C_2": "S_C_2",
+                    "S_O_1": "S_O_1"
+                  },
+                  "ref": "align-A",
+                  "status": "resolved"
+                },
+                "donor": {
+                  "center_atom_ids": [
+                    "S_C_2",
+                    "S_O_1"
+                  ]
+                },
+                "edits": [
+                  {
+                    "atom1": "S_C_2",
+                    "atom2": "S_O_1",
+                    "from_order": "single",
+                    "op": "change_bond_order",
+                    "to_order": "double"
+                  }
+                ],
+                "expectation": {
+                  "target_smiles": "CC=O"
+                }
+              }
+            },
+            "expansion_plan": {
+              "entries": [
+                {
+                  "reason": "",
+                  "state_ref": "cs_540cc0181e112b383323",
+                  "status": "expanded"
+                }
+              ],
+              "policy_version": "ppv1-expansion-1"
+            },
+            "parent_search_revision": 0,
+            "production_version": "ppv1-search-production-1",
+            "report_projection": {
+              "dedup_notes": [],
+              "max_reportable": 2,
+              "product_ranks": [
+                {
+                  "basis": "declared_rank_order",
+                  "note": "",
+                  "report_rank": 1,
+                  "state_ref": "cs_540cc0181e112b383323"
+                }
+              ],
+              "projection_version": "ppv1-report-projection-1",
+              "reasons": []
+            },
+            "status": "submitted",
+            "submitted": {
+              "action_id": "sact_f31a4a80be35a314c9fc",
+              "created": true,
+              "event_id": "ppev_b78230e81fdfb5899ced"
+            }
+          },
+          "task_key": "stask-exp_249163e31854c0483989"
+        }
+      ],
+      "blocked_entries": [],
+      "budget": {
+        "budget_snapshot": {
+          "run_level": {
+            "max_real_model_requests": {
+              "max": 0,
+              "remaining": 0,
+              "used": 0
+            },
+            "max_retrievals_total": {
+              "max": 64,
+              "remaining": 60,
+              "used": 4
+            },
+            "max_scenario_transitions": {
+              "max": 2,
+              "remaining": 2,
+              "used": 0
+            },
+            "max_total_search_actions": {
+              "max": 10,
+              "remaining": 3,
+              "used": 7
+            }
+          },
+          "scoped": {
+            "max_alternative_hypotheses_per_parent": {
+              "spath_124a3ba00b8ed36db592": {
+                "max": 2,
+                "remaining": 0,
+                "used": 2
+              }
+            },
+            "max_attempts_per_hypothesis": {
+              "hyp_3d78bea6858becb8231d": {
+                "max": 2,
+                "remaining": 1,
+                "used": 1
+              },
+              "hyp_7f55a5a0f4f9b4ae8b04": {
+                "max": 2,
+                "remaining": 1,
+                "used": 1
+              }
+            },
+            "max_reopens_per_hypothesis": {},
+            "max_retrievals_per_parent": {
+              "spath_124a3ba00b8ed36db592": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              },
+              "spath_19fd6d4a4aae474ebdbb": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              },
+              "spath_8a3c385e1fc27f4c1436": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              },
+              "spath_cfb3deb86824ef03c302": {
+                "max": 1,
+                "remaining": 0,
+                "used": 1
+              }
+            }
+          },
+          "version": "ppv1-search-limits-3"
+        },
+        "reservation_groups": [
+          {
+            "limit_key": "max_alternative_hypotheses_per_parent",
+            "rows": 2,
+            "scope": "spath_124a3ba00b8ed36db592",
+            "status": "consumed",
+            "units": 2
+          },
+          {
+            "limit_key": "max_attempts_per_hypothesis",
+            "rows": 1,
+            "scope": "hyp_3d78bea6858becb8231d",
+            "status": "consumed",
+            "units": 1
+          },
+          {
+            "limit_key": "max_attempts_per_hypothesis",
+            "rows": 1,
+            "scope": "hyp_7f55a5a0f4f9b4ae8b04",
+            "status": "consumed",
+            "units": 1
+          },
+          {
+            "limit_key": "max_retrievals_per_parent",
+            "rows": 1,
+            "scope": "spath_124a3ba00b8ed36db592",
+            "status": "consumed",
+            "units": 1
+          },
+          {
+            "limit_key": "max_retrievals_per_parent",
+            "rows": 1,
+            "scope": "spath_19fd6d4a4aae474ebdbb",
+            "status": "consumed",
+            "units": 1
+          },
+          {
+            "limit_key": "max_retrievals_per_parent",
+            "rows": 1,
+            "scope": "spath_8a3c385e1fc27f4c1436",
+            "status": "consumed",
+            "units": 1
+          },
+          {
+            "limit_key": "max_retrievals_per_parent",
+            "rows": 1,
+            "scope": "spath_cfb3deb86824ef03c302",
+            "status": "consumed",
+            "units": 1
+          },
+          {
+            "limit_key": "max_retrievals_total",
+            "rows": 4,
+            "scope": "",
+            "status": "consumed",
+            "units": 4
+          },
+          {
+            "limit_key": "max_total_search_actions",
+            "rows": 7,
+            "scope": "",
+            "status": "consumed",
+            "units": 7
+          }
+        ]
+      },
+      "content_digest": "b78d8b7cb90abf04975c014b4a91d3e5f0a3fb8537d7850d309319d264f0a498",
+      "contexts": [
+        {
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "payload": {
+            "accumulated_requirements": [],
+            "assessed_scope": "possible",
+            "assessment_scope": [],
+            "assumptions": [],
+            "condition_facts": [
+              {
+                "key": "oxygen_regime",
+                "origin": "user_input",
+                "phase_id": "",
+                "source_ref": "src:synthetic",
+                "status": "known_present",
+                "subject_scenario_ref": "",
+                "unit": "",
+                "value": "aerobic"
+              }
+            ],
+            "context_id": "pc_6ccb2e162fcd7fee293f",
+            "dependencies": [],
+            "dependency_refs": [],
+            "parent_context_ref": "",
+            "phase_history": [],
+            "phase_id": "phase-0",
+            "requested_scope": "possible",
+            "scenario_ref": "",
+            "scenario_transition": null,
+            "schema_version": "ppv1-context-8"
+          }
+        }
+      ],
+      "coproducts": [
+        {
+          "coproduct_state_refs": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "note": "完整事件保留共同产物(不被报告 K/展开宽度截断)"
+        }
+      ],
+      "deferred_entries": [],
+      "endpoint_record": {
+        "assessment_note": "评估只由独立终点证据决定(来源层直报;模型预测/路径推断不能单独产生 supported_*;停止原因永不映射为终点(F01);存在未解决必要依赖时评估保持 unknown(F02);当前路线已引入的必要条件 unknown/conflict 同样保持 unknown(S4-C01,同源 route_assessment;已知兼容正控不受影响));metabolic_handoff 不等于矿化;supported_terminal_transformation_product 不推断永久去除",
+        "bookkeeping": {
+          "bookkeeping_status": "unknown",
+          "co2_aggregated": false,
+          "co2_product_occurrences": [],
+          "co2_run_total": null,
+          "events_with_unknown_coefficients": [
+            {
+              "event_id": "ppev_6ccb62e1e947a221b5bd",
+              "hypothesis_id": "hyp_3d78bea6858becb8231d"
+            }
+          ],
+          "missing_participant_state_refs": [],
+          "note": "账目闭合只表示声明范围内账面闭合(参与物/系数引用完整),不等于发生矿化,也不等于生物可行;不同备选反应生成的 CO₂ 不相加(逐事件/逐备选列示,运行级聚合不产生);root carbon accounting coverage 只表示核查范围,不表示所有根碳已转化;单项 CO₂ 产物不自动解释为根污染物矿化",
+          "participants_known_coefficient": 4,
+          "participants_total": 5,
+          "root_carbon_accounting_coverage": "declared_participants_of_submitted_events",
+          "root_carbon_fate_inferred_from_bookkeeping": false,
+          "root_carbon_fate_status": "unknown"
+        },
+        "bookkeeping_status": "unknown",
+        "chemical_endpoint_assessment": "unknown",
+        "conditions_snapshot": {
+          "condition_keys_known": [
+            "oxygen_regime"
+          ],
+          "condition_keys_unknown": [],
+          "note": "条件事实快照(来路/评估权威在 PathContext;此处只采计数,不重评估、不把未知条件判缺席"
+        },
+        "derived_from": {
+          "derived_note": "重算输入摘要;stop 报告含会话 refusals 不可无会话复算,以持久 stop 记录行 hash 作跨表一致性核对",
+          "endpoint_evidence_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "endpoint_policy_version": "ppv1-endpoint-policy-2",
+          "events_digest": "60e2d675cb31c1a0f7446bdc11b0793355cda367a239820e516db0f82a978228",
+          "inherited_dependencies_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "route_conditions_digest": "81554154e37753f00d1c56c45347961f48055224955f44c2fc9cdc4246f258dc",
+          "search_actions_digest": "ea691f0df93c3106914973d128275328089194ec0b88fee24c12cedce3835c4a",
+          "search_schema_version": "ppv1-search-6"
+        },
+        "endpoint_evidence": [],
+        "endpoint_evidence_source": {
+          "note": "证据声明为冻结计划输入(S3B-01 冻结来源);来源层直报,不代表本仓已核实来源真实性",
+          "raw_plan_endpoint_evidence": [],
+          "source": "frozen_plan_input"
+        },
+        "evidence_summary": {
+          "basis_counts": {},
+          "blocked_reasons": [],
+          "dedup_note": "F03 去重口径 = 观察身份(来源引用集合 + basis + 声明 + 窗口/检测/条件)与来源身份(来源引用集合);来路不删除,全部原始条目保留在 endpoint_evidence;同一来源多个引用/同一观察多个包装不增加独立支持",
+          "direct_observation_entries": 0,
+          "distinct_observation_claims": 0,
+          "duplicate_evidence_disclosures": [],
+          "evidence_entries_total": 0,
+          "independent_source_support_count": 0,
+          "missing_field_disclosures": [],
+          "necessary_condition_conflict_keys": [],
+          "necessary_condition_unknown_keys": [],
+          "supported_claim_evidence": {},
+          "supported_claims_without_route_blockers": []
+        },
+        "execution_status": "completed",
+        "inherited_unresolved_dependencies": [],
+        "route_condition_assessment": {
+          "contexts": [
+            {
+              "context_ref": "pc_6ccb2e162fcd7fee293f",
+              "environment_fit": "unknown",
+              "necessary_unmet_per_requirement": [],
+              "requirement_coverage": {
+                "conflict_keys": [],
+                "essential_keys": [],
+                "unknown_keys": []
+              },
+              "source": "PathContext.route_assessment(历史快照逐边合取 + 当前阶段 live;旧边按记录值消费,不重评)"
+            }
+          ],
+          "necessary_condition_conflict_keys": [],
+          "necessary_condition_unknown_keys": [],
+          "note": "当前路线必要条件评估(同源 PathContext.route_assessment:历史快照逐边合取 + 当前阶段 live;旧边按记录值消费,不拿当前事实重评);必要条件存在 unknown/conflict ⇒ 终点保持 unknown(证据全文保留,不被 recorded 或充分字段洗白);已知兼容/无必要条件不构成阻断(不全拒);条件评估权威在 PathContext,此处只消费同源结果,不解析自由文本、不新增化学门"
+        },
+        "run_error": null,
+        "run_id": "review-identity-known",
+        "schema_version": "ppv1-endpoint-2",
+        "search_stop_reason": {
+          "note": "搜索停止是执行事实,独立持久化于 stop_reason_records;停止原因不映射为化学终点(F01)",
+          "other_reasons": [],
+          "primary": "budget_limit",
+          "stop_record_payload_hash": "0203118d4637df3e1978ead66d977a98ff54384552635e82b30dbff54520195c",
+          "unexplored": {
+            "blocked": 0,
+            "blocked_objects": [],
+            "claimed_actions": 0,
+            "deferred": 0,
+            "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+            "open_attempts": 0,
+            "pending_actions": 0,
+            "pending_requests": 0
+          }
+        }
+      },
+      "event_ids": [
+        "ppev_6ccb62e1e947a221b5bd",
+        "ppev_b78230e81fdfb5899ced"
+      ],
+      "events": [
+        {
+          "context_hash": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_semantics_hash": "cd272e401da316757cc90137f1ddb750765176367db69b7b62eb586c21eedb56",
+          "hypothesis_id": "hyp_3d78bea6858becb8231d",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "payload": {
+            "catalytic_support": [],
+            "event_appearance_manifest": [
+              {
+                "appearance_hash": "f3e99c081d26dd10e476ddc30c641beddb9f87dceb2cf0a54000cd22816cf7ae",
+                "state_id": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+                "state_id": "cs_540cc0181e112b383323"
+              },
+              {
+                "appearance_hash": "02544db7c9f48000f2872a3a3921d0bfdc3cc763fe14191aba0e92c431a89291",
+                "state_id": "cs_ea7e44a64c7461517e4f"
+              }
+            ],
+            "participant_state_refs": [
+              "cs_ab1de819ede91df490e6",
+              "cs_540cc0181e112b383323",
+              "cs_ea7e44a64c7461517e4f"
+            ],
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              },
+              {
+                "coefficient": null,
+                "coefficient_status": "unknown",
+                "entry_id": "pentry_d00faee0c5fa3bba5a49",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "coproduct",
+                "side": "product",
+                "state_ref": "cs_ea7e44a64c7461517e4f"
+              }
+            ],
+            "schema_version": "ppv1-event-8"
+          },
+          "run_id": "review-identity-known"
+        },
+        {
+          "context_hash": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_semantics_hash": "23bbf5622d65ba7b15b1b6d5875608e95e5f5ff47894f1ab1f26f2e4eed9cc15",
+          "hypothesis_id": "hyp_7f55a5a0f4f9b4ae8b04",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "payload": {
+            "catalytic_support": [],
+            "event_appearance_manifest": [
+              {
+                "appearance_hash": "f3e99c081d26dd10e476ddc30c641beddb9f87dceb2cf0a54000cd22816cf7ae",
+                "state_id": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+                "state_id": "cs_540cc0181e112b383323"
+              }
+            ],
+            "participant_state_refs": [
+              "cs_ab1de819ede91df490e6",
+              "cs_540cc0181e112b383323"
+            ],
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "schema_version": "ppv1-event-8"
+          },
+          "run_id": "review-identity-known"
+        }
+      ],
+      "expansion_outcomes": [
+        {
+          "action_id": "sact_0a50ae7b436c13a1b0fe",
+          "outcome_payload": {
+            "action_id": "sact_0a50ae7b436c13a1b0fe",
+            "evidence_refs": [
+              "ppev_b78230e81fdfb5899ced"
+            ],
+            "outcome": {
+              "detail": {
+                "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+                "source_event_id": "ppev_b78230e81fdfb5899ced",
+                "substrate_smiles": "CC=O",
+                "unresolved_continuation": true
+              },
+              "kind": "no_local_candidate"
+            },
+            "outcome_version": "ppv1-runflow-outcome-1"
+          },
+          "task_key": "soutc_ee5f7257256438c9fbc1"
+        },
+        {
+          "action_id": "sact_8368f40768d3b2807a31",
+          "outcome_payload": {
+            "action_id": "sact_8368f40768d3b2807a31",
+            "evidence_refs": [],
+            "outcome": {
+              "detail": {
+                "blocked": 0,
+                "deferred": 0,
+                "model": {},
+                "pool_digest": "c4f92af8cde4a66502b2fbb300505ef46775743d995ebc8b383c473320fb6738",
+                "selected": 2
+              },
+              "kind": "scheduled"
+            },
+            "outcome_version": "ppv1-runflow-outcome-1"
+          },
+          "task_key": "soutc_51cce416a94d39c7ed77"
+        },
+        {
+          "action_id": "sact_ccafea090c71359d2a63",
+          "outcome_payload": {
+            "action_id": "sact_ccafea090c71359d2a63",
+            "evidence_refs": [
+              "ppev_6ccb62e1e947a221b5bd"
+            ],
+            "outcome": {
+              "detail": {
+                "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+                "source_event_id": "ppev_6ccb62e1e947a221b5bd",
+                "substrate_smiles": "[H][H]",
+                "unresolved_continuation": true
+              },
+              "kind": "no_local_candidate"
+            },
+            "outcome_version": "ppv1-runflow-outcome-1"
+          },
+          "task_key": "soutc_83f879b4394d9aa95e07"
+        },
+        {
+          "action_id": "sact_db328a494ef1449145b3",
+          "outcome_payload": {
+            "action_id": "sact_db328a494ef1449145b3",
+            "evidence_refs": [
+              "ppev_6ccb62e1e947a221b5bd"
+            ],
+            "outcome": {
+              "detail": {
+                "note": "检索/池无候选;不反证上游;按稳定次序继续可用备选",
+                "source_event_id": "ppev_6ccb62e1e947a221b5bd",
+                "substrate_smiles": "CC=O",
+                "unresolved_continuation": true
+              },
+              "kind": "no_local_candidate"
+            },
+            "outcome_version": "ppv1-runflow-outcome-1"
+          },
+          "task_key": "soutc_1b1e867f815cb76a7580"
+        },
+        {
+          "action_id": "sact_f88e24dd1de7bec3db98",
+          "outcome_payload": {
+            "action_id": "sact_f88e24dd1de7bec3db98",
+            "evidence_refs": [],
+            "outcome": {
+              "detail": {
+                "pool_digest": "a7dac67ad9bb701a10376cd002cb841478e0bd22a2870ecfcfbef9a64259542c",
+                "pool_size": 2,
+                "substrate_smiles": "CCO"
+              },
+              "kind": "pool_digest"
+            },
+            "outcome_version": "ppv1-runflow-outcome-1"
+          },
+          "task_key": "soutc_ef5d2e4613c14b53ff0c"
+        }
+      ],
+      "expansion_plans": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "payload": {
+            "entries": [
+              {
+                "reason": "",
+                "state_ref": "cs_540cc0181e112b383323",
+                "status": "expanded"
+              },
+              {
+                "reason": "",
+                "state_ref": "cs_ea7e44a64c7461517e4f",
+                "status": "expanded"
+              }
+            ],
+            "policy_version": "ppv1-expansion-1"
+          }
+        },
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "payload": {
+            "entries": [
+              {
+                "reason": "",
+                "state_ref": "cs_540cc0181e112b383323",
+                "status": "expanded"
+              }
+            ],
+            "policy_version": "ppv1-expansion-1"
+          }
+        }
+      ],
+      "generated_at_basis": {
+        "note": "生成依据:store SQLite 行 + artifact store(H07 完整性包装)读取;确定性规范化 = canonical_json 键序 + 列表稳定排序;载荷不含构建时间戳(同事实⇒ 同 digest;artifact 信封 created_at 记录落盘时刻);正式文件导出/manifest/读取消费契约属 S4b",
+        "source": "persistent store rows + H07-verified artifacts"
+      },
+      "hypotheses": [
+        {
+          "context_hash": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "hypothesis_id": "hyp_3d78bea6858becb8231d",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "payload": {
+            "ambiguous_participants": false,
+            "assumptions": [],
+            "audit_ref": "",
+            "dependency_refs": [],
+            "hypothesis_id": "hyp_3d78bea6858becb8231d",
+            "legacy_relationship_status": "",
+            "model_decision_ref": "",
+            "origin_group_key": "donor-B",
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "participant_list_status": "partial",
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              },
+              {
+                "coefficient": null,
+                "coefficient_status": "unknown",
+                "entry_id": "pentry_d00faee0c5fa3bba5a49",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "coproduct",
+                "side": "product",
+                "state_ref": "cs_ea7e44a64c7461517e4f"
+              }
+            ],
+            "provenance_refs": [],
+            "requirements": [],
+            "schema_version": "ppv1-hypothesis-8",
+            "step_scope": "net_reaction",
+            "step_scope_evidence_refs": [],
+            "substrate_state_ref": "cs_ab1de819ede91df490e6",
+            "support_group_refs": [],
+            "transformation_ref": "donor-B",
+            "transformation_signature_status": "unknown"
+          }
+        },
+        {
+          "context_hash": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "hypothesis_id": "hyp_7f55a5a0f4f9b4ae8b04",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "payload": {
+            "ambiguous_participants": false,
+            "assumptions": [],
+            "audit_ref": "",
+            "dependency_refs": [],
+            "hypothesis_id": "hyp_7f55a5a0f4f9b4ae8b04",
+            "legacy_relationship_status": "",
+            "model_decision_ref": "",
+            "origin_group_key": "donor-C",
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "participant_list_status": "partial",
+            "participants": [
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_0c81cff0b0cf1fa2a727",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "primary_substrate",
+                "side": "reactant",
+                "state_ref": "cs_ab1de819ede91df490e6"
+              },
+              {
+                "coefficient": "1",
+                "coefficient_status": "known",
+                "entry_id": "pentry_909c48a69d106f085a2f",
+                "merged_from": [],
+                "parallel_contribution": false,
+                "role": "principal_product",
+                "side": "product",
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "provenance_refs": [],
+            "requirements": [],
+            "schema_version": "ppv1-hypothesis-8",
+            "step_scope": "net_reaction",
+            "step_scope_evidence_refs": [],
+            "substrate_state_ref": "cs_ab1de819ede91df490e6",
+            "support_group_refs": [],
+            "transformation_ref": "donor-C",
+            "transformation_signature_status": "unknown"
+          }
+        }
+      ],
+      "model_requests": [],
+      "native_result_version": "ppv1-native-result-2",
+      "paths": [
+        {
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "origin": "root",
+          "parent_path_id": "",
+          "path_id": "spath_124a3ba00b8ed36db592",
+          "product_state_ref": "cs_ab1de819ede91df490e6",
+          "source_event_id": ""
+        },
+        {
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "origin": "coproduct_followup",
+          "parent_path_id": "spath_8a3c385e1fc27f4c1436",
+          "path_id": "spath_856e0b83523d0b2dfee3",
+          "product_state_ref": "cs_ea7e44a64c7461517e4f",
+          "source_event_id": "ppev_6ccb62e1e947a221b5bd"
+        },
+        {
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "origin": "coproduct_followup",
+          "parent_path_id": "spath_19fd6d4a4aae474ebdbb",
+          "path_id": "spath_888b2380c907b938707e",
+          "product_state_ref": "cs_540cc0181e112b383323",
+          "source_event_id": "ppev_b78230e81fdfb5899ced"
+        },
+        {
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "origin": "coproduct_followup",
+          "parent_path_id": "spath_cfb3deb86824ef03c302",
+          "path_id": "spath_f409c478b39b2359f277",
+          "product_state_ref": "cs_540cc0181e112b383323",
+          "source_event_id": "ppev_6ccb62e1e947a221b5bd"
+        }
+      ],
+      "provenance_records": [],
+      "report_projections": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "payload": {
+            "dedup_notes": [],
+            "max_reportable": 2,
+            "product_ranks": [
+              {
+                "basis": "declared_rank_order",
+                "note": "",
+                "report_rank": 1,
+                "state_ref": "cs_540cc0181e112b383323"
+              },
+              {
+                "basis": "declared_rank_order",
+                "note": "",
+                "report_rank": 2,
+                "state_ref": "cs_ea7e44a64c7461517e4f"
+              }
+            ],
+            "projection_version": "ppv1-report-projection-1",
+            "reasons": []
+          }
+        },
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "payload": {
+            "dedup_notes": [],
+            "max_reportable": 2,
+            "product_ranks": [
+              {
+                "basis": "declared_rank_order",
+                "note": "",
+                "report_rank": 1,
+                "state_ref": "cs_540cc0181e112b383323"
+              }
+            ],
+            "projection_version": "ppv1-report-projection-1",
+            "reasons": []
+          }
+        }
+      ],
+      "run_id": "review-identity-known",
+      "search_actions": [
+        {
+          "action_id": "sact_0a50ae7b436c13a1b0fe",
+          "action_kind": "retrieve",
+          "attempt_refs": [],
+          "budget_reservation_ref": [
+            "sres_17fea5158962b36526d0",
+            "sres_655031cccf1451d388a5",
+            "sres_f34c9c5da088cee8d771"
+          ],
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "de8636b5fcde18b2e601cf45039b9624d80bbebcef495169eee4afe65160833a",
+          "parent_path_id": "spath_19fd6d4a4aae474ebdbb",
+          "parent_search_revision": 1,
+          "payload": {
+            "context_ref": "pc_6ccb2e162fcd7fee293f",
+            "depth": 1,
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "product_state_ref": "cs_540cc0181e112b383323",
+            "source_event_id": "ppev_b78230e81fdfb5899ced",
+            "substrate_smiles": "CC=O",
+            "task_key": ""
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "cs_540cc0181e112b383323",
+          "task_key": "",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_8368f40768d3b2807a31",
+          "action_kind": "decide",
+          "attempt_refs": [],
+          "budget_reservation_ref": [
+            "sres_5c715ef59417e2911524"
+          ],
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "6cc99c1b5ac2d1b9e8dcd226ca0c80744ee3b503ddc9ef6ec0c8277435d39eff",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "parent_search_revision": 0,
+          "payload": {
+            "context_ref": "pc_6ccb2e162fcd7fee293f",
+            "depth": 0,
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "pool_digest": "a7dac67ad9bb701a10376cd002cb841478e0bd22a2870ecfcfbef9a64259542c",
+            "source_event_id": "",
+            "substrate_smiles": "CCO",
+            "task_key": "stask-dec_b2d0f8e5a137553b769d"
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "pool:a7dac67ad9bb701a",
+          "task_key": "stask-dec_b2d0f8e5a137553b769d",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "action_kind": "expand_hypothesis",
+          "attempt_refs": [
+            "sattempt_8f67faed53493b533b2f"
+          ],
+          "budget_reservation_ref": [
+            "sres_c0a1210088682c5fe82e",
+            "sres_c2126e246c150a1426e5",
+            "sres_c5337d6f2abd0234d509"
+          ],
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "751249d99080f9c4f964",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "parent_search_revision": 0,
+          "payload": {
+            "context_ref": "pc_6ccb2e162fcd7fee293f",
+            "depth": 1,
+            "frozen_pool_digest": "c4f92af8cde4a66502b2fbb300505ef46775743d995ebc8b383c473320fb6738",
+            "hypothesis_key": "B",
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "source_event_id": "",
+            "spec": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "coproducts": [
+                "[H][H]"
+              ],
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "B",
+              "origin_group_key": "donor-B",
+              "product_smiles": "CC=O",
+              "step_scope": "net_reaction",
+              "transformation_ref": "donor-B"
+            },
+            "substrate_smiles": "CCO",
+            "substrate_state_ref": "cs_ab1de819ede91df490e6",
+            "task_key": "stask-exp_806399805f388290395b"
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "hyp_3d78bea6858becb8231d",
+          "task_key": "stask-exp_806399805f388290395b",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_ccafea090c71359d2a63",
+          "action_kind": "retrieve",
+          "attempt_refs": [],
+          "budget_reservation_ref": [
+            "sres_33b7451b26f245e1f62d",
+            "sres_5dcfb23a57608a818c8e",
+            "sres_cd123422fbd2b678d1a9"
+          ],
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "0929379eb563fdead96a3c1b24a7c2bc0603d19e11dbfb627834de95edafdd02",
+          "parent_path_id": "spath_8a3c385e1fc27f4c1436",
+          "parent_search_revision": 1,
+          "payload": {
+            "context_ref": "pc_6ccb2e162fcd7fee293f",
+            "depth": 1,
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "product_state_ref": "cs_ea7e44a64c7461517e4f",
+            "source_event_id": "ppev_6ccb62e1e947a221b5bd",
+            "substrate_smiles": "[H][H]",
+            "task_key": ""
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "cs_ea7e44a64c7461517e4f",
+          "task_key": "",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_db328a494ef1449145b3",
+          "action_kind": "retrieve",
+          "attempt_refs": [],
+          "budget_reservation_ref": [
+            "sres_5ee5f3b754ec484a578f",
+            "sres_b0e1b82f8bda8852a794",
+            "sres_b35cb93e404b81197a8f"
+          ],
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "972e4bdcce5200d449a812225d4a2fa028f1932b71acedbc5289e817b8a6d2c8",
+          "parent_path_id": "spath_cfb3deb86824ef03c302",
+          "parent_search_revision": 1,
+          "payload": {
+            "context_ref": "pc_6ccb2e162fcd7fee293f",
+            "depth": 1,
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "product_state_ref": "cs_540cc0181e112b383323",
+            "source_event_id": "ppev_6ccb62e1e947a221b5bd",
+            "substrate_smiles": "CC=O",
+            "task_key": ""
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "cs_540cc0181e112b383323",
+          "task_key": "",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "action_kind": "expand_hypothesis",
+          "attempt_refs": [
+            "sattempt_daafa5f95325150003cc"
+          ],
+          "budget_reservation_ref": [
+            "sres_7fad1a9db07f2e8da20b",
+            "sres_85f25b9881e868ada950",
+            "sres_fb1ddb4719c9e2827a6b"
+          ],
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "1e443e1af6fac7812096",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "parent_search_revision": 0,
+          "payload": {
+            "context_ref": "pc_6ccb2e162fcd7fee293f",
+            "depth": 1,
+            "frozen_pool_digest": "c4f92af8cde4a66502b2fbb300505ef46775743d995ebc8b383c473320fb6738",
+            "hypothesis_key": "C",
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "source_event_id": "",
+            "spec": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "coefficient": 1,
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "key": "C",
+              "origin_group_key": "donor-C",
+              "product_smiles": "CC=O",
+              "step_scope": "net_reaction",
+              "transformation_ref": "donor-C"
+            },
+            "substrate_smiles": "CCO",
+            "substrate_state_ref": "cs_ab1de819ede91df490e6",
+            "task_key": "stask-exp_249163e31854c0483989"
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "hyp_7f55a5a0f4f9b4ae8b04",
+          "task_key": "stask-exp_249163e31854c0483989",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        },
+        {
+          "action_id": "sact_f88e24dd1de7bec3db98",
+          "action_kind": "retrieve",
+          "attempt_refs": [],
+          "budget_reservation_ref": [
+            "sres_0cf7eb91843592670222",
+            "sres_91bb46b942814cf5b2c5",
+            "sres_a19b22cadd74b0204740"
+          ],
+          "claimed_at": "2026-10-08T19:20:23+00:00",
+          "claimed_by": "ppv1-driver:review-identity-known",
+          "context_ref": "pc_6ccb2e162fcd7fee293f",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "defer_reason": "",
+          "outcome_ref": "19820b28ae331a1fc99bfa511c7d61e14d0a4fd6f2c55ebddd0f436772d0553d",
+          "parent_path_id": "spath_124a3ba00b8ed36db592",
+          "parent_search_revision": 0,
+          "payload": {
+            "context_ref": "pc_6ccb2e162fcd7fee293f",
+            "depth": 0,
+            "parent_path_id": "spath_124a3ba00b8ed36db592",
+            "plan_digest": "134b7b686f78c05b7d30425a527f8082599254826f2f42470be6f89067663be1",
+            "source_event_id": "",
+            "substrate_smiles": "CCO",
+            "task_key": "stask-dec_25fc935a1d80f59c159e"
+          },
+          "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+          "run_id": "review-identity-known",
+          "status": "done",
+          "subject_ref": "cs_ab1de819ede91df490e6",
+          "task_key": "stask-dec_25fc935a1d80f59c159e",
+          "updated_at": "2026-10-08T19:20:23+00:00"
+        }
+      ],
+      "search_attempts": [
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "attempt_index": 1,
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "expansion_attempt_id": "sattempt_8f67faed53493b533b2f",
+          "hypothesis_id": "hyp_3d78bea6858becb8231d",
+          "outcome_ref": "",
+          "payload_hash": "",
+          "recorded_at": "2026-10-08T19:20:23+00:00",
+          "reopen_of": "",
+          "run_id": "review-identity-known",
+          "status": "recorded",
+          "task_key": "stask-exp_806399805f388290395b"
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "attempt_index": 1,
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "expansion_attempt_id": "sattempt_daafa5f95325150003cc",
+          "hypothesis_id": "hyp_7f55a5a0f4f9b4ae8b04",
+          "outcome_ref": "",
+          "payload_hash": "",
+          "recorded_at": "2026-10-08T19:20:23+00:00",
+          "reopen_of": "",
+          "run_id": "review-identity-known",
+          "status": "recorded",
+          "task_key": "stask-exp_249163e31854c0483989"
+        }
+      ],
+      "search_commit_records": [
+        {
+          "action_id": "sact_db328a494ef1449145b3",
+          "attempt_id": "",
+          "commit_id": "scommit_1b1e867f815cb76a7580",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "1425226b11c0871c7b20be60a7f73139e447d1ee67d443221eaa6e5824f7eb15",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_c2d285e8eed0256ec188",
+          "attempt_id": "sattempt_8f67faed53493b533b2f",
+          "commit_id": "scommit_44eca6dbbff2bb57b51b",
+          "commit_kind": "event_committed",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "payload_hash": "751249d99080f9c4f9642bc09f5d464a8e70abc997618de3e265f97fd4b499e9",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_8368f40768d3b2807a31",
+          "attempt_id": "",
+          "commit_id": "scommit_51cce416a94d39c7ed77",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "7cbbba10e45dc6b154d3391c25cc8435aca2a0bd7e4be6fef93f731068c482c7",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_f31a4a80be35a314c9fc",
+          "attempt_id": "sattempt_daafa5f95325150003cc",
+          "commit_id": "scommit_81d75fbe6aa28e2c4add",
+          "commit_kind": "event_committed",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "payload_hash": "1e443e1af6fac78120964e9d5455191344527f6cde6052720ca63bd6ca167961",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_ccafea090c71359d2a63",
+          "attempt_id": "",
+          "commit_id": "scommit_83f879b4394d9aa95e07",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "91e7f313374f4bbccea007a6386d33e14471bc32d37c6b0d14c73f3e4bec02d9",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_0a50ae7b436c13a1b0fe",
+          "attempt_id": "",
+          "commit_id": "scommit_ee5f7257256438c9fbc1",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "42567a9970f3e387c6cc47338d4add34e27e593fd7f973ed8915624740abbe0b",
+          "run_id": "review-identity-known"
+        },
+        {
+          "action_id": "sact_f88e24dd1de7bec3db98",
+          "attempt_id": "",
+          "commit_id": "scommit_ef5d2e4613c14b53ff0c",
+          "commit_kind": "outcome_recorded",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "event_id": "",
+          "payload_hash": "54d656b6165ae8ab92eb6a42fe2550c08c7ede8a082eeb38abe7dc6d8792a6b3",
+          "run_id": "review-identity-known"
+        }
+      ],
+      "state_appearances": [
+        {
+          "appearance_hash": "f13aa6ebc1f7cf0ad6c52b76bbfef291a46c93e66ba69d80a40f0339e19ed46c",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": {
+            "original_structure_available": true,
+            "representation_fidelity": {
+              "formal_charge": "as_written",
+              "isotope": "as_written",
+              "protonation_basis": "as_written",
+              "stereo": "as_written"
+            },
+            "source_refs": [
+              {
+                "record": "synthetic-pool-spec"
+              }
+            ],
+            "state_id": "cs_540cc0181e112b383323",
+            "structure_origin": "source_product",
+            "structure_smiles_raw": "CC=O"
+          },
+          "state_id": "cs_540cc0181e112b383323"
+        },
+        {
+          "appearance_hash": "7c510820c283849127e05284dbf94176808144f7ad8b022ea57c47c356ccbf9e",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": {
+            "original_structure_available": true,
+            "representation_fidelity": {
+              "formal_charge": "as_written",
+              "isotope": "as_written",
+              "protonation_basis": "as_written",
+              "stereo": "as_written"
+            },
+            "source_refs": [
+              {
+                "record": "ppv1-root-input"
+              }
+            ],
+            "state_id": "cs_ab1de819ede91df490e6",
+            "structure_origin": "raw_input",
+            "structure_smiles_raw": "CCO"
+          },
+          "state_id": "cs_ab1de819ede91df490e6"
+        },
+        {
+          "appearance_hash": "f3e99c081d26dd10e476ddc30c641beddb9f87dceb2cf0a54000cd22816cf7ae",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": {
+            "original_structure_available": true,
+            "representation_fidelity": {
+              "formal_charge": "as_written",
+              "isotope": "as_written",
+              "protonation_basis": "as_written",
+              "stereo": "as_written"
+            },
+            "source_refs": [
+              {
+                "record": "ppv1-substrate:review-identity-known"
+              }
+            ],
+            "state_id": "cs_ab1de819ede91df490e6",
+            "structure_origin": "raw_input",
+            "structure_smiles_raw": "CCO"
+          },
+          "state_id": "cs_ab1de819ede91df490e6"
+        },
+        {
+          "appearance_hash": "02544db7c9f48000f2872a3a3921d0bfdc3cc763fe14191aba0e92c431a89291",
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": {
+            "original_structure_available": true,
+            "representation_fidelity": {
+              "formal_charge": "as_written",
+              "isotope": "as_written",
+              "protonation_basis": "as_written",
+              "stereo": "as_written"
+            },
+            "source_refs": [
+              {
+                "record": "synthetic-pool-spec"
+              }
+            ],
+            "state_id": "cs_ea7e44a64c7461517e4f",
+            "structure_origin": "source_product",
+            "structure_smiles_raw": "[H][H]"
+          },
+          "state_id": "cs_ea7e44a64c7461517e4f"
+        }
+      ],
+      "states": [
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": {
+            "cn_identity": "CC=O",
+            "formal_charge": 0,
+            "isotope_information_status": "not_applicable",
+            "schema_version": "ppv1-chemstate-8",
+            "smiles_isomeric": "CC=O",
+            "state_id": "cs_540cc0181e112b383323",
+            "stereo_information_status": "not_applicable"
+          },
+          "state_id": "cs_540cc0181e112b383323"
+        },
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": {
+            "cn_identity": "CCO",
+            "formal_charge": 0,
+            "isotope_information_status": "not_applicable",
+            "schema_version": "ppv1-chemstate-8",
+            "smiles_isomeric": "CCO",
+            "state_id": "cs_ab1de819ede91df490e6",
+            "stereo_information_status": "not_applicable"
+          },
+          "state_id": "cs_ab1de819ede91df490e6"
+        },
+        {
+          "created_at": "2026-10-08T19:20:23+00:00",
+          "payload": {
+            "cn_identity": "[H][H]",
+            "formal_charge": 0,
+            "isotope_information_status": "not_applicable",
+            "schema_version": "ppv1-chemstate-8",
+            "smiles_isomeric": "[H][H]",
+            "state_id": "cs_ea7e44a64c7461517e4f",
+            "stereo_information_status": "not_applicable"
+          },
+          "state_id": "cs_ea7e44a64c7461517e4f"
+        }
+      ]
+    },
+    "payload_sha256": "ff5f66ed4903b030354623075be87cb5ac6daa11ea5dd2a7a5c12f2cabc757aa"
+  },
+  "plan": {
+    "condition_facts": [
+      {
+        "key": "oxygen_regime",
+        "source_ref": "src:synthetic",
+        "status": "known_present",
+        "value": "aerobic"
+      }
+    ],
+    "endpoint_evidence": [],
+    "pools": {
+      "CCO": [
+        {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "coefficient": 1,
+          "coproducts": [
+            "[H][H]"
+          ],
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          },
+          "key": "B",
+          "origin_group_key": "donor-B",
+          "product_smiles": "CC=O",
+          "step_scope": "net_reaction",
+          "transformation_ref": "donor-B"
+        },
+        {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "coefficient": 1,
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          },
+          "key": "C",
+          "origin_group_key": "donor-C",
+          "product_smiles": "CC=O",
+          "step_scope": "net_reaction",
+          "transformation_ref": "donor-C"
+        }
+      ]
+    },
+    "schedule_budget": {
+      "max_select": 2
+    }
+  },
+  "start_output": {
+    "counts": {
+      "event_appearance_links": 5,
+      "events": 2,
+      "expansion_plans": 2,
+      "hypotheses": 2,
+      "provenance_records": 0,
+      "report_projections": 2,
+      "state_appearances": 4,
+      "states": 3
+    },
+    "driver_session": {
+      "acquired_at": "2026-10-08T19:20:23+00:00",
+      "note": "flock 是执行权权威;崩溃 OS 自动释放",
+      "pid": 54595
+    },
+    "endpoint": {
+      "bookkeeping_status": "unknown",
+      "chemical_endpoint_assessment": "unknown",
+      "execution_status": "completed",
+      "independent_source_support_count": 0,
+      "inherited_unresolved_dependencies": 0,
+      "necessary_condition_conflict_keys": [],
+      "necessary_condition_unknown_keys": [],
+      "payload_hash": "e14bc9af50e210c074ed179c38441f85762b291e4c3ee7fda38cd4b264cdaddf",
+      "search_stop_reason": "budget_limit"
+    },
+    "endpoint_record_payload_hash": "e14bc9af50e210c074ed179c38441f85762b291e4c3ee7fda38cd4b264cdaddf",
+    "native_export": {
+      "content_digest": "b78d8b7cb90abf04975c014b4a91d3e5f0a3fb8537d7850d309319d264f0a498",
+      "dir": "/private/tmp/ppv1_s5a_rework_r1/before/runs/known/review-identity-known/native_export/dc274a0df9135430a017ef15",
+      "export_digest": "dc274a0df9135430a017ef15277314014b4268ced5bf401312e92a57291d8422",
+      "export_policy_version": "ppv1-native-export-policy-3",
+      "note": "S4b 正式文件导出(全量事实 + manifest 新鲜度锚);读取/消费走 read_native_export(首消费:missing/corrupt/version/policy/stale/reference 拒)",
+      "payload_sha256": "ff5f66ed4903b030354623075be87cb5ac6daa11ea5dd2a7a5c12f2cabc757aa",
+      "schema_version": "ppv1-native-export-3"
+    },
+    "native_result": {
+      "content_digest": "b78d8b7cb90abf04975c014b4a91d3e5f0a3fb8537d7850d309319d264f0a498",
+      "native_result_version": "ppv1-native-result-2",
+      "note": "S4a 对象底座:完整字段 + 确定性规范化(同事实同 digest);正式文件导出见 native_export",
+      "task_key": "run-native-result:b78d8b7cb90abf04975c014b"
+    },
+    "profile": "pollutant_pathway_v1",
+    "resumed": false,
+    "run_id": "review-identity-known",
+    "runflow_version": "ppv1-runflow-5",
+    "stop": {
+      "budget": {
+        "run_level": {
+          "max_real_model_requests": {
+            "max": 0,
+            "remaining": 0,
+            "used": 0
+          },
+          "max_retrievals_total": {
+            "max": 64,
+            "remaining": 60,
+            "used": 4
+          },
+          "max_scenario_transitions": {
+            "max": 2,
+            "remaining": 2,
+            "used": 0
+          },
+          "max_total_search_actions": {
+            "max": 10,
+            "remaining": 3,
+            "used": 7
+          }
+        },
+        "scoped": {
+          "max_alternative_hypotheses_per_parent": {
+            "spath_124a3ba00b8ed36db592": {
+              "max": 2,
+              "remaining": 0,
+              "used": 2
+            }
+          },
+          "max_attempts_per_hypothesis": {
+            "hyp_3d78bea6858becb8231d": {
+              "max": 2,
+              "remaining": 1,
+              "used": 1
+            },
+            "hyp_7f55a5a0f4f9b4ae8b04": {
+              "max": 2,
+              "remaining": 1,
+              "used": 1
+            }
+          },
+          "max_reopens_per_hypothesis": {},
+          "max_retrievals_per_parent": {
+            "spath_124a3ba00b8ed36db592": {
+              "max": 1,
+              "remaining": 0,
+              "used": 1
+            },
+            "spath_19fd6d4a4aae474ebdbb": {
+              "max": 1,
+              "remaining": 0,
+              "used": 1
+            },
+            "spath_8a3c385e1fc27f4c1436": {
+              "max": 1,
+              "remaining": 0,
+              "used": 1
+            },
+            "spath_cfb3deb86824ef03c302": {
+              "max": 1,
+              "remaining": 0,
+              "used": 1
+            }
+          }
+        },
+        "version": "ppv1-search-limits-3"
+      },
+      "budget_exhausted_keys": [
+        "max_alternative_hypotheses_per_parent@spath_124a3ba00b8ed36db592",
+        "max_retrievals_per_parent@spath_124a3ba00b8ed36db592",
+        "max_retrievals_per_parent@spath_19fd6d4a4aae474ebdbb",
+        "max_retrievals_per_parent@spath_8a3c385e1fc27f4c1436",
+        "max_retrievals_per_parent@spath_cfb3deb86824ef03c302"
+      ],
+      "events_submitted_session": [
+        "ppev_6ccb62e1e947a221b5bd",
+        "ppev_b78230e81fdfb5899ced"
+      ],
+      "other_reasons": [],
+      "primary": "budget_limit",
+      "runflow_version": "ppv1-runflow-5",
+      "unexplored": {
+        "blocked": 0,
+        "blocked_objects": [],
+        "claimed_actions": 0,
+        "deferred": 0,
+        "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search",
+        "open_attempts": 0,
+        "pending_actions": 0,
+        "pending_requests": 0
+      }
+    },
+    "stop_reason": "budget_limit",
+    "v3_projection": {
+      "dir": "/private/tmp/ppv1_s5a_rework_r1/before/runs/known/review-identity-known/v3_projection/f42f90cd4ede7680cb15de3c",
+      "information_loss_axes": [
+        "alternative_reactions",
+        "audit_proof_scope",
+        "budget_stop_reason",
+        "coefficients",
+        "conditions_dependencies",
+        "coproducts",
+        "deferred_unexpanded",
+        "endpoint_evidence_level",
+        "path_identity",
+        "route_origins",
+        "source_provenance",
+        "unknown_partial_axes"
+      ],
+      "lossy_projection": true,
+      "native_export_digest": "dc274a0df9135430a017ef15277314014b4268ced5bf401312e92a57291d8422",
+      "note": "v3 有损投影(lossy_projection;原生引用 + 信息损失清单);反向消费禁止 —— 不得从投影改写原生事实/事件;读取走 read_v3_projection",
+      "projection_digest": "f42f90cd4ede7680cb15de3cd40b0e550e5f3bc447d967f9405aaf975b20497c",
+      "steps": 2
+    }
+  }
+}

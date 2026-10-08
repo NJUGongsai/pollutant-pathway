@@ -1,0 +1,317 @@
+{
+  "checks": [
+    {
+      "check": "s5a01_scope_cap_reference_intermediates_cn_only",
+      "passed": true,
+      "before_nodes_strict_violations": 2,
+      "after_limited_nodes_cn_only": 2,
+      "after_edge_statuses": [
+        "unmatched_required_node_uncovered"
+      ]
+    },
+    {
+      "check": "s5a01_scope_cap_reference_all_cn_only",
+      "passed": true,
+      "before_nodes_strict_violations": 4,
+      "after_limited_nodes_cn_only": 4,
+      "after_edge_statuses": [
+        "unmatched_required_node_uncovered"
+      ]
+    },
+    {
+      "check": "s5a01_scope_cap_reference_intermediates_partial",
+      "passed": true,
+      "before_nodes_strict_violations": 2,
+      "after_limited_nodes_cn_only": 2,
+      "after_edge_statuses": [
+        "unmatched_required_node_uncovered"
+      ]
+    },
+    {
+      "check": "s5a01_scope_cap_reference_all_partial",
+      "passed": true,
+      "before_nodes_strict_violations": 4,
+      "after_limited_nodes_cn_only": 4,
+      "after_edge_statuses": [
+        "unmatched_required_node_uncovered"
+      ]
+    },
+    {
+      "check": "s5a01_scope_cap_reference_intermediates_unknown",
+      "passed": true,
+      "before_nodes_strict_violations": 2,
+      "after_limited_nodes_cn_only": 2,
+      "after_edge_statuses": [
+        "unmatched_required_node_uncovered"
+      ]
+    },
+    {
+      "check": "s5a01_scope_cap_reference_all_unknown",
+      "passed": true,
+      "before_nodes_strict_violations": 4,
+      "after_limited_nodes_cn_only": 4,
+      "after_edge_statuses": [
+        "unmatched_required_node_uncovered"
+      ]
+    },
+    {
+      "check": "s5a01_legal_strict_control_kept",
+      "passed": true,
+      "before_edge_statuses": [
+        "matched_strict"
+      ],
+      "after_edge_statuses": [
+        "matched_strict"
+      ]
+    },
+    {
+      "check": "s5a01_real_cn_collateral_kept_isotope",
+      "passed": true
+    },
+    {
+      "check": "s5a01_real_cn_collateral_kept_charge",
+      "passed": true
+    },
+    {
+      "check": "s5a03_required_node_reactant_unmatched_structure",
+      "passed": true,
+      "before_edge": "matched_strict",
+      "after_edge": "unmatched_required_node_uncovered",
+      "after_gaps": [
+        "n-required-missing"
+      ]
+    },
+    {
+      "check": "s5a03_required_node_reactant_limited_duplicate",
+      "passed": true,
+      "before_edge": "matched_strict",
+      "after_edge": "unmatched_required_node_uncovered",
+      "after_gaps": [
+        "n-required-missing"
+      ]
+    },
+    {
+      "check": "s5a03_required_node_product_unmatched_structure",
+      "passed": true,
+      "before_edge": "matched_strict",
+      "after_edge": "unmatched_required_node_uncovered",
+      "after_gaps": [
+        "n-required-missing"
+      ]
+    },
+    {
+      "check": "s5a03_required_node_product_limited_duplicate",
+      "passed": true,
+      "before_edge": "matched_strict",
+      "after_edge": "unmatched_required_node_uncovered",
+      "after_gaps": [
+        "n-required-missing"
+      ]
+    },
+    {
+      "check": "s5a03_participants_only_p2_deferred_reactant_inconsistent_participant_nodes",
+      "passed": true,
+      "note": "participants-only P2: deferred, unchanged"
+    },
+    {
+      "check": "s5a03_participants_only_p2_deferred_product_inconsistent_participant_nodes",
+      "passed": true,
+      "note": "participants-only P2: deferred, unchanged"
+    },
+    {
+      "check": "s5a02_condition_missing_fact",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "condition_unknown",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_same_known_present",
+      "passed": true,
+      "frozen": "satisfied",
+      "before": "compatible",
+      "after": "compatible",
+      "expected": "compatible"
+    },
+    {
+      "check": "s5a02_condition_opposite_known_present",
+      "passed": true,
+      "frozen": "conflict",
+      "before": "essential_conflict",
+      "after": "essential_conflict",
+      "expected": "essential_conflict"
+    },
+    {
+      "check": "s5a02_condition_same_known_absent",
+      "passed": true,
+      "frozen": "conflict",
+      "before": "essential_conflict",
+      "after": "essential_conflict",
+      "expected": "essential_conflict"
+    },
+    {
+      "check": "s5a02_condition_other_known_absent",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "essential_conflict",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_numeric_known_absent",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "essential_conflict",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_entity_other_known_absent",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "essential_conflict",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_canonical_unit_positive",
+      "passed": true,
+      "frozen": "satisfied",
+      "before": "compatible",
+      "after": "compatible",
+      "expected": "compatible"
+    },
+    {
+      "check": "s5a02_condition_unit_unknown",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "compatible",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_unit_mismatch_K",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "compatible",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_unit_noncanonical_F",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "compatible",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_conflicting_facts_conflict_first",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "essential_conflict",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_conflicting_facts_satisfied_first",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "compatible",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_necessity_no_source",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "essential_conflict",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_zero_point_present",
+      "passed": true,
+      "frozen": "satisfied",
+      "before": "essential_conflict",
+      "after": "compatible",
+      "expected": "compatible"
+    },
+    {
+      "check": "s5a02_condition_negative_interval_present",
+      "passed": true,
+      "frozen": "satisfied",
+      "before": "essential_conflict",
+      "after": "compatible",
+      "expected": "compatible"
+    },
+    {
+      "check": "s5a02_condition_dict_interval_present",
+      "passed": true,
+      "frozen": "satisfied",
+      "before": "essential_conflict",
+      "after": "compatible",
+      "expected": "compatible"
+    },
+    {
+      "check": "s5a02_condition_matrix_label_unresolved",
+      "passed": true,
+      "frozen": "unknown",
+      "before": "essential_conflict",
+      "after": "condition_unknown",
+      "expected": "condition_unknown"
+    },
+    {
+      "check": "s5a02_condition_required_absent_fact_absent",
+      "passed": true,
+      "frozen": "not_directly_representable",
+      "before": "essential_conflict",
+      "after": "requirement_status_not_representable",
+      "expected": "requirement_status_not_representable"
+    },
+    {
+      "check": "s5a02_condition_required_absent_fact_present",
+      "passed": true,
+      "frozen": "not_directly_representable",
+      "before": "compatible",
+      "after": "requirement_status_not_representable",
+      "expected": "requirement_status_not_representable"
+    },
+    {
+      "check": "s5a04_refused_explicit_root_relative_wrong_cwd",
+      "passed": true,
+      "before_accepted": true,
+      "after_refused": true,
+      "after_kind": "gold_content_outside_declared_root"
+    },
+    {
+      "check": "s5a04_refused_kept_explicit_root_absolute_outside",
+      "passed": true,
+      "before_refused": true,
+      "after_refused": true,
+      "after_kind": "gold_content_outside_declared_root"
+    },
+    {
+      "check": "s5a04_refused_explicit_root_relative_symlink_escape",
+      "passed": true,
+      "before_accepted": true,
+      "after_refused": true,
+      "after_kind": "gold_content_outside_declared_root"
+    },
+    {
+      "check": "s5a04_refused_kept_explicit_root_absolute_symlink_escape",
+      "passed": true,
+      "before_refused": true,
+      "after_refused": true,
+      "after_kind": "gold_content_outside_declared_root"
+    },
+    {
+      "check": "s5a04_lawful_lawful_relative_inside_declared_root",
+      "passed": true,
+      "after_receipt_path": "/private/tmp/ppv1_s5a_rework_r1/after/work/write_boundary/normal_fake_repo/reports/phase_s1_hit60/dev_gold/good.json"
+    }
+  ],
+  "pass": 40,
+  "fail": 0
+}

@@ -1,0 +1,482 @@
+[
+  {
+    "name": "missing_fact",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "oxygen_regime",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "no_applicable_fact:oxygen_regime",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "same_known_present",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "oxygen_regime",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "value_match:oxygen_regime",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "opposite_known_present",
+    "literal_classifier": "essential_conflict",
+    "public_evaluation_buckets": {
+      "essential_conflict": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "oxygen_regime",
+      "level": "essential",
+      "status": "conflict",
+      "reason": "value_mismatch:oxygen_regime:aerobic!=anaerobic",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "same_known_absent",
+    "literal_classifier": "essential_conflict",
+    "public_evaluation_buckets": {
+      "essential_conflict": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "oxygen_regime",
+      "level": "essential",
+      "status": "conflict",
+      "reason": "required_value_known_absent:oxygen_regime(必需值被同值 known_absent 事实明确否定;明确缺失不提供正支持)",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "other_known_absent",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "oxygen_regime",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "other_value_known_absent_not_determining:oxygen_regime(不同字符串值的缺席不判定必需值状态:oxygen 封闭枚举下'anaerobic 缺席'不证明 aerobic 在场;matrix 文本不等只证明标签未解析)",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "numeric_known_absent",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "numeric_absence_semantics_undefined:temperature_C(数值/区间值事实被明确否定;首版未定义数值否定语义,单点缺席不推出整个必需区间缺席;不按正值直比)",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "range",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "entity_other_known_absent",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "electron_acceptor",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "entity_not_among_known_facts:electron_acceptor:required='O2',known=['NO3']",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"O2\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "canonical_unit_positive",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "within_range:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "range",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "unit_unknown",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "source_unit_unknown:temperature_C(带量纲键的事实未声明单位=原来源单位未知;不按数值直比,不以注记升级为已归一;单位归一由事实来源/适配器承担)",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "range",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+      "unit_basis": "source_unit_unknown",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "unit_mismatch_K",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "unit_mismatch:temperature_C:'K'(首版无换算,不按数值直比)",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "range",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "unit_noncanonical_F",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "unit_mismatch:temperature_C:'F'(首版无换算,不按数值直比)",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "range",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "conflicting_facts_conflict_first",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "oxygen_regime",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "conflicting_applicable_facts:oxygen_regime",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "conflicting_facts_satisfied_first",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "oxygen_regime",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "conflicting_applicable_facts:oxygen_regime",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation",
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "necessity_no_source",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "oxygen_regime",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "necessity_unsourced_not_gating",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": false,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"oxygen_regime\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[],\"value\":\"aerobic\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "zero_point_present",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "point_match:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "point",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":0,\"value_basis\":\"point\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "negative_interval_present",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "within_range:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "range",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":{\"hi\":10,\"lo\":-5},\"value_basis\":\"range\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "dict_interval_present",
+    "literal_classifier": "compatible",
+    "public_evaluation_buckets": {
+      "compatible": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "temperature_C",
+      "level": "essential",
+      "status": "satisfied",
+      "reason": "within_range:temperature_C",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "range",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"temperature_C\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":{\"hi\":30,\"lo\":20},\"value_basis\":\"range\"}",
+      "unit_basis": "canonical",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "matrix_label_unresolved",
+    "literal_classifier": "condition_unknown",
+    "public_evaluation_buckets": {
+      "condition_unknown": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "key": "matrix",
+      "level": "essential",
+      "status": "unknown",
+      "reason": "matrix_value_unresolved:matrix:soil!=activated_sludge(无封闭枚举/注册映射/范围关系;文本不等不证明不相容,同义词/包含关系须注册语义后方可判定)",
+      "basis": "essential_claimed_by_source",
+      "value_basis": "entity",
+      "sourced": true,
+      "introduced_phase_id": "phase-0",
+      "introduced_edge": "synthetic-condition-compare",
+      "fact_sources": [
+        "src:synthetic-observation"
+      ],
+      "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"synthetic-condition-compare\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"matrix\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic\"],\"value\":\"soil\",\"value_basis\":\"entity\"}",
+      "route_edge_source": "current_step"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "required_absent_fact_absent",
+    "literal_classifier": "requirement_status_not_representable",
+    "public_evaluation_buckets": {
+      "requirement_status_not_representable": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "status": "not_directly_representable",
+      "reason": "Requirement has no status=known_absent field; this case is reference schema semantics only"
+    },
+    "scoring_status": "scored"
+  },
+  {
+    "name": "required_absent_fact_present",
+    "literal_classifier": "requirement_status_not_representable",
+    "public_evaluation_buckets": {
+      "requirement_status_not_representable": 1
+    },
+    "public_evaluation_status": "interface_verified_only",
+    "frozen_assessment": {
+      "status": "not_directly_representable",
+      "reason": "Requirement has no status=known_absent field; this case is reference schema semantics only"
+    },
+    "scoring_status": "scored"
+  }
+]

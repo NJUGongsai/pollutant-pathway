@@ -21,7 +21,10 @@ S5a 边界(任务书 §15):本评测器是**接口与规则级程序行为交付
   集合 + known/unseen 直接证据重叠检查;失败 ⇒ ``blocked_leakage``,
   不聚合;
 - **金标写入守卫**(S5-27):含金标产物只能进授权 gitignored 根
-  (``persist_evaluation_output``);普通目录拒绝;
+  (``persist_evaluation_output``);普通目录拒绝;**S5A-04:核验与
+  写入使用同一个解析后实际规范路径**(relative target 基准 = 相对
+  cwd,出界/symlink 逃根先拒,零新文件;未声明根 ⇒ 含金标一律
+  拒;禁止出界后回退原字符串授权);
 - **S4 导出缺席**(S5-28):无导出 ⇒ 状态 ``pending_no_independent_
   data``,不运行正式科学评测。
 
@@ -30,6 +33,26 @@ conflict/unknown/compatible、endpoint/矿化声明检查、预算漏展开、
 深度分桶)全部为 **proposed 规则级实现**(预注册模板中逐项标注
 proposed;最终冻结属用户/teacher,§10.1)。阈值/样本量/分母/置信
 区间全部 TBD(输出里逐项携带 ``TBD_USER_TEACHER_DECISION``)。
+
+S5a 回修 r1(S5A-01/02/03/04;复审 §4 四组 P1,契约升
+ppv1-evaluation-2):
+
+- **S5A-01 参考身份 scope 先消费许可再授严格档**:参考节点声明
+  ``structure_identity_scope ∈ {cn_only, partial, unknown}`` ⇒ 内容
+  严格相等也封顶为 CN 旁证(机读 ``identity_scope_cap``),不授
+  ``strict_structure``、不进 ``strict_by_node``/边严格候选/严格指标
+  (节点→边→聚合逐层;合法 strict 与真实 CN 旁证控制保持);
+- **S5A-02 条件分类沿冻结同源规则**:登记 ConditionScope → 冻结
+  Requirement/事实映射(映射限定机读披露),消费 path_context 同一
+  实现的单位三态/实体-数值-异值 absence/多事实保守 unknown/
+  necessity 来源/适用场景阶段/声明 value_basis;缺表示能力 ⇒
+  unknown/unsupported 族机读披露;要求侧 ``status=known_absent``
+  单列 ``requirement_status_not_representable``(不伪称冻结矛盾);
+- **S5A-03 声明必要 from/to 节点空命中不被 union 吞**:每个必要
+  节点须有许可严格命中才可完整 strict;空集合保持
+  ``unmatched_required_node_uncovered`` + 逐节点
+  ``required_node_gaps`` 机读披露;参与物覆盖消费完整声明集合;
+- **S5A-04 persist 核验与写入同一实际规范路径**(见上)。
 
 本模块不读取真实科学数据/金标/题面/封存 run;不写数据库;合成
 规则级测试之外的数字一律 interface/pending。
@@ -65,6 +88,30 @@ except ImportError:  # pragma: no cover —— 环境异常时 fail-closed
     strict_identity_of = None  # type: ignore[assignment]
     cn_identity = None  # type: ignore[assignment]
     ChemicalStateError = RuntimeError  # type: ignore[assignment]
+
+try:  # S5A-02:条件分类与冻结判据四同一事实源(path_context)
+    from .path_context import (
+        CONDITION_KEYS,
+        CONDITION_KEY_UNITS,
+        CONFLICT,
+        INTERVAL_CONDITION_KEYS,
+        NOT_APPLICABLE,
+        REQUIREMENT_ESSENTIAL,
+        REQUIREMENT_PREFERENCE,
+        SATISFIED,
+        UNKNOWN,
+        VALUE_BASIS_ENTITY,
+        VALUE_BASIS_LABEL,
+        VALUE_BASIS_POINT,
+        VALUE_BASIS_RANGE,
+        aggregate_environment_fit,
+        build_condition_fact,
+        build_requirement,
+    )
+except ImportError:  # pragma: no cover —— 环境异常时 fail-closed
+    aggregate_environment_fit = None  # type: ignore[assignment]
+    build_condition_fact = None  # type: ignore[assignment]
+    build_requirement = None  # type: ignore[assignment]
 
 # ---- §12 状态枚举与程序可发子集 ----
 
@@ -568,8 +615,17 @@ def match_reference_nodes(reference_graph: dict,
       reference_structure_unparseable;
     - 严格结构命中要求双方严格身份相等;CN 相同但严格身份不同/未知
       ⇒ ``cn_only``(**不**计为严格结构命中,S5-10/S5-11);
+    - **S5A-01(参考身份 scope 先消费许可,再授严格档)**:参考节点
+      声明 ``structure_identity_scope ∈ {cn_only, partial, unknown}``
+      ⇒ 许可范围封顶 —— 内容严格相等也只作 CN 旁证(``cn_only``),
+      不授 ``strict_structure``、不进边严格匹配的 ``strict_by_node``
+      与严格指标(冻结稿 §0 旁证不叠加升格;scope=strict_structure
+      才允许严格档);封顶发生时机读披露附 ``identity_scope_cap``
+      (机读);合法 strict 与真实 CN 旁证控制保持,不全面拒绝带
+      标签或有限图;
     - 每条 occurrence 独立条目(同结构不同 occurrence 不合并,S5-04);
-    - 预测侧 occurrence 计数(state_appearances/事件参与)如实披露。
+    - 预测侧 occurrence 计数(state_appearances/事件参与)如实披露
+      (两档基数不同,不可跨档比较)。
     """
     states = _export_states(payload)
     appearance_counts: dict[str, int] = {}
@@ -594,6 +650,9 @@ def match_reference_nodes(reference_graph: dict,
             "cn_only_state_ids": [],
             "predicted_occurrence_count": 0,
         }
+        # S5A-01:先消费参考声明的许可范围,再决定严格档
+        scope_permits_strict = entry["reference_identity_scope"] == \
+            "strict_structure"
         try:
             ref_strict = strict_identity_of(
                 str(node.get("structure_smiles")))
@@ -613,17 +672,33 @@ def match_reference_nodes(reference_graph: dict,
                 strict_ids.append(state_id)
             elif ref_cn is not None and state["cn_identity"] == ref_cn:
                 cn_ids.append(state_id)
-        if strict_ids:
+        if strict_ids and scope_permits_strict:
             entry["match_status"] = "strict_structure"
             entry["matched_state_ids"] = sorted(strict_ids)
             entry["predicted_occurrence_count"] = max(
                 appearance_counts.get(sid, 0) for sid in strict_ids)
-        elif cn_ids:
-            # CN 相同但严格身份不同/未知:旁证,不计严格命中
+        elif strict_ids or cn_ids:
+            # CN 旁证档:CN 相同但严格身份不同/未知,或(S5A-01)参考
+            # scope 声明 cn_only/partial/unknown 时内容严格相等也封顶
+            # 为旁证 —— 均不计严格命中
             entry["match_status"] = "cn_only"
-            entry["cn_only_state_ids"] = sorted(cn_ids)
+            entry["cn_only_state_ids"] = sorted(
+                set(strict_ids) | set(cn_ids))
             entry["predicted_occurrence_count"] = max(
-                participation_counts.get(sid, 0) for sid in cn_ids)
+                participation_counts.get(sid, 0)
+                for sid in entry["cn_only_state_ids"])
+            if strict_ids and not scope_permits_strict:
+                entry["identity_scope_cap"] = {
+                    "reference_identity_scope":
+                        entry["reference_identity_scope"],
+                    "content_strict_equal_state_ids": sorted(strict_ids),
+                    "capped_to": "cn_only",
+                    "note": (
+                        "参考声明 identity_scope=cn_only/partial/unknown"
+                        " ⇒ 许可范围封顶:内容严格相等也只作 CN 旁证,"
+                        "不授 strict_structure、不进边严格匹配与严格指标"
+                        "(S5A-01;冻结稿 §0 旁证不叠加升格)"),
+                }
         out.append(entry)
     return out
 
@@ -635,18 +710,33 @@ def match_reference_edges(reference_graph: dict, payload: dict,
 
     - 候选事件:反应物/产物侧状态分别命中 from/to 参考节点的严格
       匹配集合;
+    - **S5A-03(声明必要 from/to 节点空命中不被 union 吞)**:每个
+      声明的必要 from/to 参考节点都必须有**许可的严格命中**才可授
+      完整 strict;任一必要节点严格命中集为空 ⇒ 该边不产生严格
+      候选(空集合保持为未覆盖 ``unmatched_required_node_```
+      ``uncovered``,逐节点机读披露 ``required_node_gaps``,不被
+      整侧 union 删除;不能把缩小后的子集标 exact);参与物覆盖
+      比较因此消费**完整的声明节点集合**(必要参与物完整清单
+      同源闭合);仅 participants 新增而 from/to 未列的多视图案
+      不进门禁(表示语义同步属后续 P2 裁定);
     - ``match_status`` ∈ matched_strict | matched_structure_only |
-      unmatched_reference_coverage | unmatched_budget_unexpanded |
-      unmatched —— step_scope 不一致 ⇒ ``matched_structure_only``
-      (net reaction/elementary step/multistep summary 不混作同一边,
-      S5-12);
+      matched_participant_coverage_partial | unmatched_required_
+      node_uncovered | unmatched_reference_coverage |
+      unmatched_budget_unexpanded | unmatched —— step_scope 不一致 ⇒
+      ``matched_structure_only``(net reaction/elementary step/
+      multistep summary 不混作同一边,S5-12);
     - 同父多备选事件逐条列示(A→B 与 A→C 不合并成 B+C 单一事件,
       S5-02);
-    - 事件级共同产物参与物完整计数(报告 K/展开宽度不删 C,S5-03)。
+    - 事件级共同产物参与物完整计数(报告 K/展开宽度不删 C,S5-03);
+    - 合法 exact、superset/partial 覆盖披露、共同产物、独立备选
+      保持(不新增角色/系数/计量门;系数状态由参考图声明、评测
+      侧仅披露不比较)。
     """
     states = _export_states(payload)
     strict_by_node: dict[str, set[str]] = {}
+    node_status_by_id: dict[str, str] = {}
     for entry in node_matches:
+        node_status_by_id[entry["node_id"]] = entry["match_status"]
         if entry["match_status"] == "strict_structure":
             strict_by_node[entry["node_id"]] = set(
                 entry["matched_state_ids"])
@@ -664,6 +754,22 @@ def match_reference_edges(reference_graph: dict, payload: dict,
         edge_id = str(edge.get("edge_id"))
         from_ids = [str(x) for x in edge.get("from_node_ids") or []]
         to_ids = [str(x) for x in edge.get("to_node_ids") or []]
+        # ---- S5A-03:逐声明必要节点核严格命中;空集不并入 union ----
+        required_node_gaps: list[dict] = []
+        for side, node_id_list in (("reactant", from_ids),
+                                   ("product", to_ids)):
+            for node_id in node_id_list:
+                if not strict_by_node.get(node_id):
+                    required_node_gaps.append({
+                        "node_id": node_id,
+                        "side": side,
+                        "node_match_status": node_status_by_id.get(
+                            node_id, "unmatched"),
+                        "note": (
+                            "声明必要 from/to 参考节点无许可严格命中 ⇒ "
+                            "该边不产生严格候选(空集合保持未覆盖,不被"
+                            "union 吞掉;S5A-03)"),
+                    })
         from_states = set().union(*(
             strict_by_node.get(n, set()) for n in from_ids)) if \
             from_ids else set()
@@ -673,9 +779,12 @@ def match_reference_edges(reference_graph: dict, payload: dict,
         exact_events: list[dict] = []
         coverage_mismatch_events: list[dict] = []
         structure_only_events: list[dict] = []
-        if (not from_ids or from_states) and (to_ids and to_states):
+        if not required_node_gaps and (not from_ids or from_states) \
+                and (to_ids and to_states):
             # 参考侧声明了 from/to 节点但严格匹配集为空 ⇒ 不产生候选
-            # (结构未命中不能借空集放行为"任意反应物")
+            # (结构未命中不能借空集放行为"任意反应物");S5A-03 之后
+            # 该分支只在全部必要节点均有严格命中时到达,from_states/
+            # to_states 因此是完整声明集合(非缩小子集)
             for event in sorted(events,
                                 key=lambda e: str(e.get("event_id"))):
                 participants = _event_participants(event)
@@ -730,6 +839,10 @@ def match_reference_edges(reference_graph: dict, payload: dict,
             status = "matched_participant_coverage_partial"
         elif structure_only_events:
             status = "matched_structure_only"
+        elif required_node_gaps:
+            # S5A-03:必要参考节点未覆盖 ⇒ 未覆盖分桶(不判错、不冒充
+            # 已匹配;逐节点缺口机读披露)
+            status = "unmatched_required_node_uncovered"
         elif edge_id in not_evaluable_edges or known_gaps:
             status = "unmatched_reference_coverage"
         elif stop_reason in ("budget_limit", "depth_limit") or \
@@ -743,6 +856,7 @@ def match_reference_edges(reference_graph: dict, payload: dict,
             "matched_events": exact_events,
             "coverage_mismatch_events": coverage_mismatch_events,
             "structure_only_events": structure_only_events,
+            "required_node_gaps": required_node_gaps,
             "reference_participant_node_ids": [
                 str(p.get("node_id"))
                 for p in edge.get("participants") or []],
@@ -754,72 +868,378 @@ def match_reference_edges(reference_graph: dict, payload: dict,
     return out
 
 
-def _value_matches(required: str, fact_value: str) -> bool:
-    """确定性值比较(精确字符串;或 lo-hi 区间包含数值)。"""
-    if str(required) == str(fact_value):
-        return True
-    required = str(required)
-    fact_value = str(fact_value)
-    if "-" in required:
-        parts = required.split("-", 1)
+def _parse_interval_literal(value) -> dict | None:
+    """把 ``lo-hi`` 字符串(含负 lo,如 ``-5-10``)解析为区间 dict。
+
+    解析失败(非两侧数值/多段)⇒ None(调用方按登记映射的定性标签
+    路径处理,不发明换算)。注册的映射限定:与冻结 Requirement 的
+    区间表示 ``{"lo", "hi"}`` 同形。
+    """
+    if isinstance(value, dict):
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    negative = text.startswith("-")
+    if negative:
+        text = text[1:]
+    parts = text.split("-")
+    if negative and parts:
+        parts = ["-" + parts[0]] + parts[1:]
+    if len(parts) != 2:
+        return None
+    try:
+        lo, hi = float(parts[0]), float(parts[1])
+    except (ValueError, TypeError):
+        return None
+    return {"lo": lo, "hi": hi}
+
+
+def _parse_number_literal(value):
+    """数值字符串 → int/float;否则 None(不做任何字符串语义猜测)。"""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return value
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        number = float(text)
+    except (ValueError, TypeError):
+        return None
+    return int(number) if number.is_integer() else number
+
+
+def _map_condition_scope_to_requirement(
+        requirement: dict) -> tuple[dict | None, list[dict]]:
+    """S5A-02 登记映射:ConditionScope → 冻结 ``Requirement`` 构造参数。
+
+    登记的映射限定(与复审对照口径一致;原 ConditionScope 全文保存在
+    参考图中不回写、不重解释):
+
+    - key 必须在冻结条件键集(CONDITION_KEYS)内,否则**表示能力
+      缺失**(机读披露 ``condition_key_not_representable``,分类进
+      unknown/unsupported 族,不判冲突/相容);
+    - 区间键(pH/temperature_C):``lo-hi`` 字符串规范为 ``{lo,hi}``
+      区间(value_basis=range)、单个数值规范为点值(point)、其余
+      字符串按定性标签(label;首版注册表为空 ⇒ 冻结侧 unknown);
+    - 物种/枚举/matrix 键:字符串值按实体/枚举身份比对(entity);
+      非字符串值不映射(表示能力缺失);
+    - 声明单位参与消费:带量纲键的非规范单位 ⇒ 首版无换算 ⇒ 机读
+      披露 ``requirement_unit_noncanonical``(分类 unknown 族);
+      无量纲键空单位合法;键名量纲即要求值量纲(冻结契约:要求值
+      恒为键规范单位);
+    - requirement.status=known_absent 无冻结负要求表示 ⇒ 单列
+      ``requirement_status_not_representable``(不伪称冻结矛盾);
+    - source_refs 原样映射(冻结侧:necessity 无来源 ⇒ unknown);
+    - subject_scenario_ref → 评估场景(事实按冻结适用性规则过滤,
+      场景/阶段不由字符串首条事实替代)。
+
+    返回 (build_requirement 关键字参数 | None, 机读披露列表);
+    None = 该 ConditionScope 在冻结契约下无合法表示。
+    """
+    key = str(requirement.get("key") or "")
+    disclosures: list[dict] = []
+    if key not in CONDITION_KEYS:
+        disclosures.append({
+            "kind": "condition_key_not_representable",
+            "key": key,
+            "frozen_condition_keys": sorted(CONDITION_KEYS),
+            "note": ("冻结条件键集之外的条件键无冻结 Requirement 表示"
+                     " ⇒ unknown/unsupported 族,不判冲突/相容"),
+        })
+        return None, disclosures
+    level = str(requirement.get("required") or "essential")
+    if level not in (REQUIREMENT_ESSENTIAL, REQUIREMENT_PREFERENCE):
+        disclosures.append({
+            "kind": "requirement_level_not_representable",
+            "level": level,
+        })
+        return None, disclosures
+    raw_value = requirement.get("value_or_interval")
+    kwargs: dict = {
+        "key": key,
+        "level": level,
+        "source_refs": [str(x) for x in
+                        (requirement.get("source_refs") or [])],
+    }
+    if key in INTERVAL_CONDITION_KEYS:
+        if isinstance(raw_value, dict):
+            kwargs["value"] = raw_value
+            kwargs["value_basis"] = VALUE_BASIS_RANGE
+        elif (isinstance(raw_value, (int, float))
+              and not isinstance(raw_value, bool)):
+            kwargs["value"] = raw_value
+            kwargs["value_basis"] = VALUE_BASIS_POINT
+        else:
+            interval = _parse_interval_literal(raw_value)
+            if interval is not None:
+                kwargs["value"] = interval
+                kwargs["value_basis"] = VALUE_BASIS_RANGE
+            elif _parse_number_literal(raw_value) is not None:
+                kwargs["value"] = _parse_number_literal(raw_value)
+                kwargs["value_basis"] = VALUE_BASIS_POINT
+            else:
+                kwargs["value"] = raw_value
+                kwargs["value_basis"] = VALUE_BASIS_LABEL
+    else:
+        if isinstance(raw_value, str) and raw_value:
+            kwargs["value"] = raw_value
+            kwargs["value_basis"] = VALUE_BASIS_ENTITY
+        else:
+            disclosures.append({
+                "kind": "requirement_value_not_representable",
+                "key": key,
+                "value": repr(raw_value),
+                "note": ("非区间键的冻结 Requirement 只接受字符串实体"
+                         "/枚举值;该值形状无冻结表示 ⇒ unknown 族"),
+            })
+            return None, disclosures
+    # ---- 声明单位参与消费(带量纲键;首版无换算) ----
+    unit = str(requirement.get("unit") or "")
+    allowed_units = CONDITION_KEY_UNITS.get(key)
+    if allowed_units is None:
+        if unit:
+            disclosures.append({
+                "kind": "requirement_unit_unexpected",
+                "key": key,
+                "unit": unit,
+                "note": ("该条件键无量纲;声明了单位 ⇒ 机读披露,分类"
+                         " unknown 族(不猜测单位语义)"),
+            })
+    else:
+        if unit not in allowed_units:
+            kind = ("requirement_unit_noncanonical"
+                    if unit else
+                    "requirement_unit_not_declared")
+            disclosures.append({
+                "kind": kind,
+                "key": key,
+                "unit": unit,
+                "allowed_units": sorted(allowed_units),
+                "note": ("冻结要求值恒为键规范单位且首版无换算;"
+                         "非规范/未声明单位 ⇒ 机读披露,分类 unknown 族"),
+            })
+    return kwargs, disclosures
+
+
+def _build_frozen_facts(facts: list[dict]) -> tuple[list, list[dict]]:
+    """S5A-02 登记映射:导出/输入侧条件事实 → 冻结 ``ConditionFact``。
+
+    逐条 ``build_condition_fact``(冻结构造器:键/枚举/区间形状/有限性
+    fail-closed 校验);表示不了的条目**机读披露后跳过**(该条不参与
+    评估 ⇒ 同键其余事实/缺事实按冻结侧语义保守处理,不静默删、不
+    伪造)。origin/source_ref/scenario/phase 原样映射(适用场景/阶段
+    由冻结侧 ``_applicable`` 过滤规则消费)。
+    """
+    frozen: list = []
+    disclosures: list[dict] = []
+    for fact in facts:
+        if not isinstance(fact, dict):
+            disclosures.append({
+                "kind": "condition_fact_not_representable",
+                "note": f"条件事实非对象:{type(fact).__name__}"})
+            continue
         try:
-            low, high = float(parts[0]), float(parts[1])
-            value = float(fact_value)
-            return low <= value <= high
-        except (ValueError, TypeError):
-            return False
-    return False
+            frozen.append(build_condition_fact(
+                key=str(fact.get("key") or ""),
+                value=fact.get("value"),
+                unit=str(fact.get("unit") or ""),
+                status=str(fact.get("status") or "unknown"),
+                origin=str(fact.get("origin") or "user_input"),
+                source_ref=str(fact.get("source_ref") or ""),
+                subject_scenario_ref=str(
+                    fact.get("subject_scenario_ref") or ""),
+                phase_id=str(fact.get("phase_id") or "")))
+        except Exception as exc:  # noqa: BLE001 —— 机读披露,不崩溃
+            disclosures.append({
+                "kind": "condition_fact_not_representable",
+                "key": str(fact.get("key") or ""),
+                "error": f"{type(exc).__name__}: {exc}"[:200],
+                "note": ("该条件事实在冻结契约下无合法表示 ⇒ 跳过"
+                         "(缺该事实 ⇒ 冻结侧按缺事实/未知保守处理)"),
+            })
+    return frozen, disclosures
+
+
+def _classify_condition_requirement_detailed(
+        requirement: dict, facts: list[dict]) -> dict:
+    """S5A-02:ConditionScope × 条件事实 → 同源条件分类(详细结果)。
+
+    消费**冻结同源规则**(path_context 的 ``aggregate_environment_``
+    ``fit``/``_assess_requirement`` —— 单位三态、实体/数值/异值
+    absence、多事实保守 unknown、necessity 来源、适用场景/阶段、声明
+    value_basis 全部由同一实现裁决,评测侧不再另写字符串首条规则):
+
+    - 冻结 satisfied → ``compatible``;conflict → ``essential_conflict``
+      (essential)/``preference_unsatisfied``(preference,经同源值轴
+      探针拷贝,preference 永不门禁);unknown → ``condition_unknown``
+      (携带冻结 reason 码,机读);
+    - requirement.status=known_absent → 单列
+      ``requirement_status_not_representable``(无冻结负要求表示,
+      不伪称冻结矛盾);
+    - 冻结键集外的键 → ``condition_unsupported_key``(unknown 族);
+    - 要求/事实个别条目无冻结表示 ⇒ 机读披露,分类保守 unknown 族;
+    - 适用场景轴:要求 subject_scenario_ref 非空且**全部**同键事实
+      场景非空且不同 ⇒ ``scenario_transition_changed``(S5-15 披露
+      桶保留;不再首条说了算);否则场景过滤交冻结侧规则。
+    """
+    key = str(requirement.get("key") or "")
+    status = str(requirement.get("status") or "unknown")
+    disclosures: list[dict] = []
+    base = {"key": key,
+            "required": str(requirement.get("required") or "essential")}
+    if key not in CONDITION_KEYS:
+        _, map_disc = _map_condition_scope_to_requirement(requirement)
+        return {**base,
+                "classification": "condition_unsupported_key",
+                "frozen_status": None,
+                "reason": "condition_key_not_representable",
+                "mapping_disclosures": map_disc}
+    if status == "known_absent":
+        return {**base,
+                "classification": "requirement_status_not_representable",
+                "frozen_status": None,
+                "reason": (
+                    "requirement_status_known_absent_not_representable:"
+                    "冻结 Requirement 无负要求表示(不推断负要求、"
+                    "不伪称冻结矛盾;单列机读披露,S5A-02)"),
+                "mapping_disclosures": [{
+                    "kind": "requirement_status_not_representable",
+                    "key": key,
+                    "status": status,
+                    "note": ("ConditionScope.status=known_absent 在冻结"
+                             "契约下无直接映射;参考 schema 语义待用户/"
+                             "teacher 裁定,评测侧不代定"),
+                }]}
+    if status != "known_present":
+        return {**base,
+                "classification": "condition_unknown",
+                "frozen_status": None,
+                "reason": "requirement_status_unknown",
+                "mapping_disclosures": []}
+    # ---- 场景轴(消费全部同键事实;S5-15 桶保留) ----
+    matching = [f for f in facts
+                if isinstance(f, dict) and str(f.get("key")) == key]
+    ref_scenario = str(requirement.get("subject_scenario_ref") or "")
+    if ref_scenario and matching and all(
+            str(f.get("subject_scenario_ref") or "")
+            and str(f.get("subject_scenario_ref") or "") != ref_scenario
+            for f in matching):
+        return {**base,
+                "classification": "scenario_transition_changed",
+                "frozen_status": None,
+                "reason": "subject_scenario_mismatch_all_matching_facts",
+                "mapping_disclosures": []}
+    # ---- 登记映射 → 冻结 Requirement ----
+    kwargs, disclosures = _map_condition_scope_to_requirement(requirement)
+    if kwargs is None:
+        return {**base,
+                "classification": "condition_unknown",
+                "frozen_status": None,
+                "reason": "requirement_not_representable",
+                "mapping_disclosures": disclosures}
+    try:
+        frozen_req = build_requirement(**kwargs)
+    except Exception as exc:  # noqa: BLE001 —— 机读披露,不崩溃
+        disclosures.append({
+            "kind": "requirement_not_representable",
+            "key": key,
+            "error": f"{type(exc).__name__}: {exc}"[:200]})
+        return {**base,
+                "classification": "condition_unknown",
+                "frozen_status": None,
+                "reason": "requirement_not_representable",
+                "mapping_disclosures": disclosures}
+    frozen_facts, fact_disclosures = _build_frozen_facts(facts)
+    disclosures.extend(fact_disclosures)
+    level = kwargs["level"]
+    if level == REQUIREMENT_PREFERENCE:
+        # preference 永不门禁(冻结侧 N/A + note);满足轴经同一冻结
+        # 值规则的同源探针拷贝(essential 拷贝仅用于读值轴状态,不改
+        # 门禁语义):satisfied → compatible / conflict →
+        # preference_unsatisfied / unknown → condition_unknown
+        probe = build_requirement(
+            key=kwargs["key"], level=REQUIREMENT_ESSENTIAL,
+            value=kwargs.get("value"),
+            value_basis=kwargs.get("value_basis"),
+            source_refs=kwargs.get("source_refs"))
+        assessment = aggregate_environment_fit(
+            facts=frozen_facts, requirements=[probe],
+            declared_scope=[key], scenario_ref=ref_scenario, phase_id="")
+        row = assessment.per_requirement[0]
+        if row["status"] == SATISFIED:
+            classification = "compatible"
+        elif row["status"] == CONFLICT:
+            classification = "preference_unsatisfied"
+        else:
+            classification = "condition_unknown"
+        return {**base,
+                "classification": classification,
+                "frozen_status": row["status"],
+                "reason": str(row.get("reason") or ""),
+                "mapping_disclosures": disclosures,
+                "preference_not_gating": True}
+    assessment = aggregate_environment_fit(
+        facts=frozen_facts, requirements=[frozen_req],
+        declared_scope=[key], scenario_ref=ref_scenario, phase_id="")
+    row = assessment.per_requirement[0]
+    if row["status"] == SATISFIED:
+        classification = "compatible"
+    elif row["status"] == CONFLICT:
+        classification = "essential_conflict"
+    elif row["status"] == NOT_APPLICABLE:
+        classification = "condition_not_gating"
+    elif row["status"] == UNKNOWN:
+        classification = "condition_unknown"
+    else:  # pragma: no cover —— 冻结状态枚举之外的防御
+        classification = "condition_unknown"
+    return {**base,
+            "classification": classification,
+            "frozen_status": row["status"],
+            "reason": str(row.get("reason") or ""),
+            "mapping_disclosures": disclosures}
 
 
 def classify_condition_requirement(requirement: dict,
                                    facts: list[dict]) -> str:
     """条件分类(§9.5;conflict/unknown/compatible/分桶,不互相混算)。
 
-    - essential + 事实 known_absent 或值冲突 ⇒ ``essential_conflict``
-      (S5-14;unknown 不混入冲突);
-    - 事实缺席/未知、要求状态未知 ⇒ ``condition_unknown``
-      (S5-13:必要项缺失报 unknown,不报 compatible);
-    - preference 不满足 ⇒ ``preference_unsatisfied``(非冲突);
-    - 事实与要求均已知且一致 ⇒ ``compatible``;
+    S5A-02:评测侧条件分类**沿冻结同源规则**裁决(不再另写字符串
+    首条简化规则):
+
+    - essential + 冻结侧 conflict(同值字符串 known_absent、封闭枚举
+      不匹配、点/区间不相交)⇒ ``essential_conflict``(S5-14;unknown
+      不混入冲突);
+    - 数值/区间 known_absent、异值字符串 known_absent、异实体缺席、
+      单位未知/不匹配、多事实矛盾、necessity 无来源、matrix 未注册
+      标签 ⇒ 冻结侧 unknown ⇒ ``condition_unknown``(S5-13:必要项
+      缺失/不可判报 unknown,不报 compatible 也不报 conflict);
+    - preference 不满足 ⇒ ``preference_unsatisfied``(非冲突;经同源
+      值轴探针,preference 永不门禁);
+    - 冻结 satisfied ⇒ ``compatible``(相容是给定事实集的结论,不核
+      事实真实性);
     - 要求挂接的 subject scenario 与事实场景不同 ⇒
       ``scenario_transition_changed``;
+    - 冻结键集外的键 ⇒ ``condition_unsupported_key``;要求侧
+      status=known_absent ⇒ ``requirement_status_not_representable``
+      (单列,不伪称冻结矛盾);
     - 历史来源条件由 ``source_conditions_preserved`` 原样披露
       (S5-15,不改写为当前事实 —— 不在本分类器内)。
     """
-    key = str(requirement.get("key") or "")
-    required_level = str(requirement.get("required") or "essential")
-    required_value = str(requirement.get("value_or_interval") or "")
-    required_status = str(requirement.get("status") or "unknown")
-    ref_scenario = str(requirement.get("subject_scenario_ref") or "")
-    if required_status == "unknown":
-        return "condition_unknown"
-    matching = [f for f in facts
-                if isinstance(f, dict) and str(f.get("key")) == key]
-    if not matching:
-        return "condition_unknown"
-    fact = matching[0]
-    fact_status = str(fact.get("status") or "unknown")
-    fact_value = str(fact.get("value") or "")
-    fact_scenario = str(fact.get("subject_scenario_ref") or "")
-    if ref_scenario and fact_scenario and ref_scenario != fact_scenario:
-        return "scenario_transition_changed"
-    if fact_status == "unknown":
-        return "condition_unknown"
-    if fact_status == "known_absent":
-        return ("essential_conflict" if required_level == "essential"
-                else "preference_unsatisfied")
-    if fact_status == "known_present":
-        if _value_matches(required_value, fact_value):
-            return "compatible"
-        return ("essential_conflict" if required_level == "essential"
-                else "preference_unsatisfied")
-    return "condition_unknown"
+    return _classify_condition_requirement_detailed(
+        requirement, facts)["classification"]
 
 
 def classify_sample_conditions(reference_graph: dict,
                                payload: dict) -> dict:
     """样本级条件轴:参考条件要求 × 预测条件事实(来自导出 contexts
-    的 condition_facts;S4 公开字段)分桶 + 历史来源条件原样保留。"""
+    的 condition_facts;S4 公开字段)分桶 + 历史来源条件原样保留。
+
+    S5A-02:逐条消费 ``_classify_condition_requirement_detailed``
+    (ConditionScope → 冻结 Requirement 登记映射 + path_context 同源
+    规则;携带冻结 reason 码与机读映射披露)。"""
     facts: list[dict] = []
     for context in payload.get("contexts") or []:
         body = context.get("payload") or {}
@@ -828,19 +1248,29 @@ def classify_sample_conditions(reference_graph: dict,
                          if isinstance(x, dict))
     buckets: dict[str, int] = {}
     details: list[dict] = []
+    disclosures: list[dict] = []
     requirements: list[dict] = []
     for node in reference_graph.get("nodes") or []:
         requirements.extend(node.get("condition_scope") or [])
     for edge in reference_graph.get("edges") or []:
         requirements.extend(edge.get("condition_requirements") or [])
     for requirement in requirements:
-        status = classify_condition_requirement(requirement, facts)
+        result = _classify_condition_requirement_detailed(
+            requirement, facts)
+        status = result["classification"]
         buckets[status] = buckets.get(status, 0) + 1
         details.append({
-            "key": str(requirement.get("key")),
-            "required": str(requirement.get("required")),
+            "key": result["key"],
+            "required": result["required"],
             "classification": status,
+            "frozen_status": result.get("frozen_status"),
+            "reason": result.get("reason") or "",
         })
+        for disclosure in result.get("mapping_disclosures") or []:
+            disclosures.append({
+                "key": result["key"],
+                "required": result["required"],
+                **disclosure})
     # S5-15:历史来源条件原样保留(不改写为当前场景事实)
     source_conditions_preserved: list[dict] = []
     for record in reference_graph.get("provenance_manifest") or []:
@@ -855,9 +1285,15 @@ def classify_sample_conditions(reference_graph: dict,
             d["key"], d["required"], d["classification"])),
         "condition_facts_consumed": sorted(
             {str(f.get("key")) for f in facts}),
+        "mapping_disclosures": sorted(
+            disclosures, key=lambda d: (
+                d.get("key") or "", d.get("kind") or "",
+                str(d.get("error") or ""))),
         "source_conditions_preserved": source_conditions_preserved,
         "note": ("unknown 不计为冲突;满足不升级为全路径相容;"
-                 "历史来源条件保留原文(S5-13/14/15)"),
+                 "分类沿冻结同源规则(单位三态/absence 保守 unknown/"
+                 "多事实/necessity 来源;S5A-02);历史来源条件保留原文"
+                 "(S5-13/14/15)"),
     }
 
 
@@ -1653,34 +2089,74 @@ def persist_evaluation_output(output: dict, target: str | Path, *,
     ``contains_gold``:输出是否嵌入参考图/金标内容(真实评测时由
     调用方如实标注)。授权根镜像 .gitignore 的金标隔离目录;普通
     目录(含仓内非 gitignored 路径)写入拒绝。
+
+    S5A-04:核验与写入使用**同一个解析后的实际规范路径**(``
+    Path.resolve()`` 一次;授权判定、目录创建、写文件三处同一路径,
+    禁止出界后回退原字符串授权):
+
+    - 显式 ``repo_root``:relative target 基准 = **相对 cwd** 解析
+      (声明根即核验根);解析后实际路径逃出声明根(错 cwd、绝对
+      路径越界、任意一层 symlink 逃根)⇒ 结构化先拒
+      (``gold_content_outside_declared_root``;零新文件/目录);
+      根内路径再核 repo 相对路径是否为授权 gitignored 根
+      (``gold_content_unauthorized_path``);
+    - 未声明 ``repo_root``:含金标写入一律拒绝(``
+      gold_content_root_required``)—— 授权判定必须有一个可核验
+      的根,不做未解析路径名授权;
+    - ``contains_gold=False`` 的普通非敏感写入保持原行为(写调用
+      方给定路径;本守卫不新增内容 DLP、完整沙箱或敌意并发
+      symlink-race 防御,S5A-04 范围仅为根规则闭合)。
     """
     target = Path(target)
     text = canonical_json(output) + "\n"
     if contains_gold:
-        rel = None
-        if repo_root is not None:
-            root = Path(repo_root).resolve()
-            resolved = target.resolve()
-            try:
-                rel = resolved.relative_to(root).as_posix()
-            except ValueError:
-                rel = None
-        if rel is None:
-            rel = target.as_posix().lstrip("/")
-        authorized = any(
-            rel == root or rel.startswith(root + "/")
-            for root in sorted(GOLD_AUTHORIZED_ROOTS))
-        if not authorized:
+        if repo_root is None:
             raise EvaluationContractError(
-                f"含金标的评测产物只能写入授权 gitignored 目录:"
-                f"{target}(授权根 {sorted(GOLD_AUTHORIZED_ROOTS)};"
-                "普通目录写入拒绝,S5-27)", {
-                    "kind": "gold_content_unauthorized_path",
+                f"含金标产物写入必须显式声明 repo_root(未声明根 ⇒ "
+                f"一律拒绝:授权判定必须有一个可核验的根,不用未解析"
+                f"路径名授权;S5A-04):{target}", {
+                    "kind": "gold_content_root_required",
                     "target": str(target),
                     "authorized_roots": sorted(
                         GOLD_AUTHORIZED_ROOTS)})
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(text, encoding="utf-8")
-    return {"path": str(target),
+        root = Path(repo_root).resolve()
+        resolved = target.resolve()
+        try:
+            rel = resolved.relative_to(root).as_posix()
+        except ValueError:
+            rel = None
+        if rel is None:
+            # 解析后实际路径逃出声明根:错 cwd/绝对路径越界/任意层
+            # symlink 逃根均在此先拒(零新文件/目录;不回退原字符串)
+            raise EvaluationContractError(
+                f"含金标的评测产物解析后实际路径逃出声明 repo_root:"
+                f"{resolved}(声明根 {root};相对基准=相对 cwd,出界先"
+                "拒;symlink 实际逃根先拒;零新文件/目录;禁止出界后"
+                "按原字符串授权,S5A-04)", {
+                    "kind": "gold_content_outside_declared_root",
+                    "target": str(target),
+                    "resolved_target": str(resolved),
+                    "declared_repo_root": str(root)})
+        authorized = any(
+            rel == root_path or rel.startswith(root_path + "/")
+            for root_path in sorted(GOLD_AUTHORIZED_ROOTS))
+        if not authorized:
+            raise EvaluationContractError(
+                f"含金标的评测产物只能写入授权 gitignored 目录:"
+                f"{resolved}(repo 相对路径 {rel};授权根 "
+                f"{sorted(GOLD_AUTHORIZED_ROOTS)};普通目录写入拒绝,"
+                "S5-27)", {
+                    "kind": "gold_content_unauthorized_path",
+                    "target": str(target),
+                    "resolved_target": str(resolved),
+                    "repo_relative_path": rel,
+                    "authorized_roots": sorted(
+                        GOLD_AUTHORIZED_ROOTS)})
+        write_path = resolved
+    else:
+        write_path = target
+    write_path.parent.mkdir(parents=True, exist_ok=True)
+    write_path.write_text(text, encoding="utf-8")
+    return {"path": str(write_path),
             "sha256": hashlib.sha256(
                 text.encode("utf-8")).hexdigest()}

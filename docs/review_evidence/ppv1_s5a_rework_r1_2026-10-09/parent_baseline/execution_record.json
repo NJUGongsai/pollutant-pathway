@@ -1,0 +1,36 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_ppv1_s5a_rework_r1.py",
+    "tests/test_ppv1_s5a_evaluator.py",
+    "tests/test_ppv1_s5a_schema.py",
+    "tests/test_ppv1_profile.py",
+    "tests/test_ppv1_s4b_export.py",
+    "-q",
+    "--junitxml",
+    "/private/tmp/ppv1_s5a_rework_r1/parent_final/junit.xml"
+  ],
+  "cwd": "/private/tmp/ppv1_s5a_rework_r1/parent_wt",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s5a_rework_r1/parent_wt/src",
+    "PATH": "/Users/cc/.opencode/bin:/Users/cc/miniconda3/bin:/Users/cc/miniconda3/condabin:/Users/cc/.local/bin:/Users/cc/homebrew/bin:/Users/cc/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ZCode.app/Contents/Resources/tools/bfs:/Applications/ZCode.app/Contents/Resources/tools/ripgrep:/Applications/ZCode.app/Contents/Resources/tools/ugrep"
+  },
+  "exit_code": 1,
+  "elapsed_wall_seconds": 7.654,
+  "stdout_sha256": "acb05031329e3f9daca14f2dd3942e25a78d0d61069f137d4067116261f8c84a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "git_head": "2e1e7af3c4bef9e98db9481167a835cabd3c088e",
+  "git_dirty": [
+    "M tests/test_ppv1_profile.py",
+    " M tests/test_ppv1_s4b_export.py",
+    " M tests/test_ppv1_s5a_evaluator.py",
+    " M tests/test_ppv1_s5a_schema.py",
+    "?? tests/test_ppv1_s5a_rework_r1.py"
+  ]
+}

@@ -1,0 +1,119 @@
+[
+  {
+    "name": "explicit_root_relative_wrong_cwd",
+    "target_literal": "reports/phase_s1_hit60/dev_gold/report.json",
+    "cwd": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/elsewhere",
+    "declared_repo_root": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo",
+    "resolved_target": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/elsewhere/reports/phase_s1_hit60/dev_gold/report.json",
+    "resolved_inside_declared_root": false,
+    "input": {
+      "status": "interface_verified_only",
+      "payload": "synthetic-placeholder-not-gold"
+    },
+    "contains_gold": true,
+    "target_exists_before": false,
+    "receipt": {
+      "path": "reports/phase_s1_hit60/dev_gold/report.json",
+      "sha256": "a2eac613e574fe656c258987d9bd70feb97f37a532f7c9108d61328b3753961f"
+    },
+    "target_exists_after": true,
+    "written_text": "{\"payload\":\"synthetic-placeholder-not-gold\",\"status\":\"interface_verified_only\"}\n",
+    "written_sha256": "a2eac613e574fe656c258987d9bd70feb97f37a532f7c9108d61328b3753961f"
+  },
+  {
+    "name": "explicit_root_absolute_outside",
+    "target_literal": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/elsewhere/reports/phase_s1_hit60/dev_gold/abs.json",
+    "cwd": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/elsewhere",
+    "declared_repo_root": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo",
+    "resolved_target": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/elsewhere/reports/phase_s1_hit60/dev_gold/abs.json",
+    "resolved_inside_declared_root": false,
+    "input": {
+      "status": "interface_verified_only",
+      "payload": "synthetic-placeholder-not-gold"
+    },
+    "contains_gold": true,
+    "target_exists_before": false,
+    "exception": {
+      "type": "EvaluationContractError",
+      "message": "含金标的评测产物只能写入授权 gitignored 目录:/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/elsewhere/reports/phase_s1_hit60/dev_gold/abs.json(授权根 ['reports/phase_s0_hit60/manual_review', 'reports/phase_s15_hit60/edit_path_replay/raw_inputs', 'reports/phase_s1_hit60/dev_gold'];普通目录写入拒绝,S5-27)",
+      "detail": {
+        "kind": "gold_content_unauthorized_path",
+        "target": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/elsewhere/reports/phase_s1_hit60/dev_gold/abs.json",
+        "authorized_roots": [
+          "reports/phase_s0_hit60/manual_review",
+          "reports/phase_s15_hit60/edit_path_replay/raw_inputs",
+          "reports/phase_s1_hit60/dev_gold"
+        ]
+      }
+    },
+    "target_exists_after": false
+  },
+  {
+    "name": "explicit_root_relative_symlink_escape",
+    "target_literal": "reports/phase_s1_hit60/dev_gold/report.json",
+    "cwd": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo",
+    "declared_repo_root": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo",
+    "resolved_target": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/external_target/report.json",
+    "resolved_inside_declared_root": false,
+    "input": {
+      "status": "interface_verified_only",
+      "payload": "synthetic-placeholder-not-gold"
+    },
+    "contains_gold": true,
+    "target_exists_before": false,
+    "receipt": {
+      "path": "reports/phase_s1_hit60/dev_gold/report.json",
+      "sha256": "a2eac613e574fe656c258987d9bd70feb97f37a532f7c9108d61328b3753961f"
+    },
+    "target_exists_after": true,
+    "written_text": "{\"payload\":\"synthetic-placeholder-not-gold\",\"status\":\"interface_verified_only\"}\n",
+    "written_sha256": "a2eac613e574fe656c258987d9bd70feb97f37a532f7c9108d61328b3753961f"
+  },
+  {
+    "name": "explicit_root_absolute_symlink_escape",
+    "target_literal": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo/reports/phase_s1_hit60/dev_gold/abs_link.json",
+    "cwd": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo",
+    "declared_repo_root": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo",
+    "resolved_target": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/external_target/abs_link.json",
+    "resolved_inside_declared_root": false,
+    "input": {
+      "status": "interface_verified_only",
+      "payload": "synthetic-placeholder-not-gold"
+    },
+    "contains_gold": true,
+    "target_exists_before": false,
+    "exception": {
+      "type": "EvaluationContractError",
+      "message": "含金标的评测产物只能写入授权 gitignored 目录:/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo/reports/phase_s1_hit60/dev_gold/abs_link.json(授权根 ['reports/phase_s0_hit60/manual_review', 'reports/phase_s15_hit60/edit_path_replay/raw_inputs', 'reports/phase_s1_hit60/dev_gold'];普通目录写入拒绝,S5-27)",
+      "detail": {
+        "kind": "gold_content_unauthorized_path",
+        "target": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/declared_repo/reports/phase_s1_hit60/dev_gold/abs_link.json",
+        "authorized_roots": [
+          "reports/phase_s0_hit60/manual_review",
+          "reports/phase_s15_hit60/edit_path_replay/raw_inputs",
+          "reports/phase_s1_hit60/dev_gold"
+        ]
+      }
+    },
+    "target_exists_after": false
+  },
+  {
+    "name": "lawful_relative_inside_declared_root",
+    "target_literal": "reports/phase_s1_hit60/dev_gold/good.json",
+    "cwd": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/normal_fake_repo",
+    "declared_repo_root": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/normal_fake_repo",
+    "resolved_target": "/private/tmp/ppv1_s5a_rework_r1/before/work/write_boundary/normal_fake_repo/reports/phase_s1_hit60/dev_gold/good.json",
+    "resolved_inside_declared_root": true,
+    "input": {
+      "status": "interface_verified_only",
+      "payload": "synthetic-placeholder-not-gold"
+    },
+    "contains_gold": true,
+    "receipt": {
+      "path": "reports/phase_s1_hit60/dev_gold/good.json",
+      "sha256": "a2eac613e574fe656c258987d9bd70feb97f37a532f7c9108d61328b3753961f"
+    },
+    "written_text": "{\"payload\":\"synthetic-placeholder-not-gold\",\"status\":\"interface_verified_only\"}\n",
+    "written_sha256": "a2eac613e574fe656c258987d9bd70feb97f37a532f7c9108d61328b3753961f"
+  }
+]

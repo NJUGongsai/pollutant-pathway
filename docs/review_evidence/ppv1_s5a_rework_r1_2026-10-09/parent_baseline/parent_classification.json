@@ -1,0 +1,73 @@
+{
+  "parent_head": "2e1e7af3c4bef9e98db9481167a835cabd3c088e",
+  "files_run": [
+    "tests/test_ppv1_s5a_rework_r1.py",
+    "tests/test_ppv1_s5a_evaluator.py",
+    "tests/test_ppv1_s5a_schema.py",
+    "tests/test_ppv1_profile.py",
+    "tests/test_ppv1_s4b_export.py"
+  ],
+  "failed_count": 41,
+  "passed_count": 94,
+  "collection_errors": 0,
+  "failed_by_class": {
+    "behavior_S5A-01": [
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[cn_only]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[partial]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[unknown]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[cn_only]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[partial]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[unknown]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_matcher_unit_scope_cap"
+    ],
+    "behavior_S5A-02": [
+      "tests/test_ppv1_s5a_evaluator.py::test_condition_classifier_unknown_conflict_compatible",
+      "tests/test_ppv1_s5a_evaluator.py::test_s5_13_14_15_condition_axes_end_to_end",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_conflict_first]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_satisfied_first]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[dict_interval_present]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[entity_other_known_absent]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[matrix_label_unresolved]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[necessity_no_source]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[negative_interval_present]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[numeric_known_absent]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[other_known_absent]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_absent]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_present]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_mismatch_K]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_noncanonical_F]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_unknown]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[zero_point_present]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_end_to_end_buckets_with_frozen_reasons",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_unsupported_key_and_fact_disclosures"
+    ],
+    "behavior_S5A-03": [
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-product]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-reactant]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-product]",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-reactant]"
+    ],
+    "behavior_S5A-04": [
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_no_root_refused_and_plain_write_kept",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_resolved_path_authorization",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_symlink_escape_refused"
+    ],
+    "behavior_S5A-04_refusal_kind": [
+      "tests/test_ppv1_s5a_schema.py::test_s5_27_gold_output_write_guard"
+    ],
+    "field_S5A-03_disclosure": [
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a01_legal_strict_and_real_cn_controls_kept",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_legal_exact_superset_partial_controls_kept",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a03_participants_only_node_deferred_p2"
+    ],
+    "implementation_missing_S5A-02_detailed_classifier": [
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a02_frozen_reasons_and_mapping_disclosures"
+    ],
+    "version_literal": [
+      "tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions",
+      "tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration"
+    ]
+  },
+  "summary": "41 failed / 94 passed / 0 collection errors"
+}

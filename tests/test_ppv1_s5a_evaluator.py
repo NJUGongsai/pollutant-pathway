@@ -560,24 +560,39 @@ def test_s5_12_step_scope_separate_axis(tmp_path: Path) -> None:
 
 def test_condition_classifier_unknown_conflict_compatible() -> None:
     """S5-13/14:必要项缺失 ⇒ unknown(不报 compatible);明确 essential
-    冲突 ⇒ conflict(unknown 不混入);preference 不满足单独分桶。"""
+    冲突 ⇒ conflict(unknown 不混入);preference 不满足单独分桶。
+
+    S5A-02:分类沿冻结同源规则(条件键集外的键/无法表示的事实条目
+    ⇒ unknown/unsupported 族,不判冲突/相容)。"""
     facts = [{"key": "oxygen_regime", "value": "aerobic",
               "status": "known_present"}]
     missing = classify_condition_requirement(
-        condition_scope("redox_regime", "anaerobic"), facts)
-    assert missing == "condition_unknown"
+        condition_scope("electron_acceptor", "O2"), facts)
+    assert missing == "condition_unknown"  # 缺事实 ⇒ unknown(S5-13)
     conflict = classify_condition_requirement(
         condition_scope("oxygen_regime", "anaerobic"), facts)
     assert conflict == "essential_conflict"
     compatible = classify_condition_requirement(
         condition_scope("oxygen_regime", "aerobic"), facts)
     assert compatible == "compatible"
-    # S5-14:事实 known_absent(条件明确缺席)⇒ essential 冲突
+    # S5-14:必需值同词被 known_absent 明确否定 ⇒ essential 冲突
+    # (冻结侧 required_value_known_absent)
     absent = classify_condition_requirement(
+        condition_scope("oxygen_regime", "aerobic"),
+        [{"key": "oxygen_regime", "value": "aerobic",
+          "status": "known_absent"}])
+    assert absent == "essential_conflict"
+    # 异值/无法表示的缺席事实不判必需值状态(冻结侧保守 unknown)
+    other_absent = classify_condition_requirement(
+        condition_scope("oxygen_regime", "aerobic"),
+        [{"key": "oxygen_regime", "value": "anaerobic",
+          "status": "known_absent"}])
+    assert other_absent == "condition_unknown"
+    empty_value_absent = classify_condition_requirement(
         condition_scope("oxygen_regime", "aerobic"),
         [{"key": "oxygen_regime", "value": "",
           "status": "known_absent"}])
-    assert absent == "essential_conflict"
+    assert empty_value_absent == "condition_unknown"
     unknown_fact = classify_condition_requirement(
         condition_scope("oxygen_regime", "aerobic"),
         [{"key": "oxygen_regime", "value": "anaerobic",
@@ -587,11 +602,16 @@ def test_condition_classifier_unknown_conflict_compatible() -> None:
         condition_scope("oxygen_regime", "anaerobic",
                         required="preference"), facts)
     assert preference == "preference_unsatisfied"
-    # 区间匹配(确定性)
+    # 区间匹配(确定性;事实值为数值 —— 冻结契约要求区间键事实为
+    # 数值/区间形状;键拼写须为冻结键 pH)
     interval = classify_condition_requirement(
-        condition_scope("ph", "6.5-7.5"),
-        [{"key": "ph", "value": "7", "status": "known_present"}])
+        condition_scope("pH", "6.5-7.5"),
+        [{"key": "pH", "value": 7, "status": "known_present"}])
     assert interval == "compatible"
+    # S5A-02:冻结条件键集外的键 ⇒ unsupported(unknown 族,不判冲突)
+    unsupported = classify_condition_requirement(
+        condition_scope("redox_regime", "anaerobic"), facts)
+    assert unsupported == "condition_unsupported_key"
     # 场景转换后条件变化单独分桶
     changed = classify_condition_requirement(
         {**condition_scope("oxygen_regime", "aerobic"),
@@ -605,20 +625,32 @@ def test_condition_classifier_unknown_conflict_compatible() -> None:
 def test_s5_13_14_15_condition_axes_end_to_end(tmp_path: Path) -> None:
     """端到端条件轴:e-alt-1 携带 3 条要求 —— aerobic essential
     (事实 aerobic known_present ⇒ compatible)/ redox essential 缺事实
-    (⇒ unknown,S5-13)/ aerobic=anaerobic essential(值冲突 ⇒
-    conflict,S5-14);历史来源条件原样保留(S5-15)。"""
+    (⇒ 冻结键集外 ⇒ condition_unsupported_key,S5A-02 机读披露;
+    S5-13 unknown 族语义由缺事实案在单元级覆盖)/ aerobic=anaerobic
+    essential(值冲突 ⇒ conflict,S5-14);历史来源条件原样保留
+    (S5-15)。"""
     output, _ = _evaluate(tmp_path, "s5a-cond", _plan())
     sample = _sample(output)
     buckets = sample["environment_conflicts"]["buckets"]
     assert buckets.get("compatible") == 2  # e-alt-1 + e-alt-2 各一条
-    assert buckets.get("condition_unknown") == 1  # redox 缺事实
+    # redox_regime 不在冻结条件键集 ⇒ unsupported(unknown 族,机读披露)
+    assert buckets.get("condition_unsupported_key") == 1
     assert buckets.get("essential_conflict") == 1  # aerobic=anaerobic
-    # unknown 不混入冲突:两个独立分桶(unknown 不计入冲突桶)
-    assert set(buckets) >= {"condition_unknown", "essential_conflict"}
-    assert buckets["essential_conflict"] == 1
-    assert buckets["condition_unknown"] == 1
+    # unknown 族不计冲突:分桶互斥(unsupported/unknown 不进冲突桶)
+    assert set(buckets) >= {"condition_unsupported_key",
+                            "essential_conflict"}
     assert sample["environment_conflicts"]["condition_facts_consumed"] \
         == ["oxygen_regime"]
+    # S5A-02:分类携带冻结 reason 码 + 机读映射披露(缺表示能力)
+    detail = next(d for d in
+                  sample["environment_conflicts"]["details"]
+                  if d["key"] == "oxygen_regime"
+                  and d["classification"] == "essential_conflict")
+    assert detail["frozen_status"] == "conflict"
+    assert "value_mismatch" in detail["reason"]
+    disclosures = sample["environment_conflicts"]["mapping_disclosures"]
+    assert any(d["kind"] == "condition_key_not_representable"
+               and d["key"] == "redox_regime" for d in disclosures)
     # S5-15:历史来源条件(30C)原样保留,不改写为当前场景事实
     preserved = sample["environment_conflicts"][
         "source_conditions_preserved"]
@@ -633,7 +665,7 @@ def test_s5_13_14_15_condition_axes_end_to_end(tmp_path: Path) -> None:
     metric = next(m for m in output["aggregate_metrics"]
                   if m["metric_id"] == "environment_conflict_rate")
     assert metric["buckets"].get("essential_conflict") == 1
-    assert metric["buckets"].get("condition_unknown") == 1
+    assert metric["buckets"].get("condition_unsupported_key") == 1
 
 
 # ----------------------------------------------- S5-16 unknown/partial

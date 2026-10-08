@@ -235,7 +235,32 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 由 donor-diagnostic-10 承载(见下方该常量注释);criteria-v1 冻结
 # 正文与 FREEZE_RECORD 逐字节不改;S4/S3 已关项不重开;v19 载荷按
 # 未知版本既有门拒绝,无兼容迁移。
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-20"
+# v21(S5a 回修 r1,2026-10-09,复审 POLLUTANT_PATHWAY_S5A_CODEX_
+# REVIEW_2026-10-09 §4 四组 P1):评测契约 ppv1-evaluation-1 → -2 ——
+# (S5A-01)参考节点 identity scope(cn_only/partial/unknown)先消费
+# 许可再授严格档:内容严格相等也封顶 CN 旁证(identity_scope_cap
+# 机读披露),不进 strict_by_node/边严格候选/严格指标(节点→边→
+# 聚合);(S5A-02)条件分类沿冻结同源规则:登记 ConditionScope →
+# 冻结 Requirement/事实映射(path_context 同一实现消费单位三态/
+# 实体-数值-异值 absence/多事实保守 unknown/necessity 来源/适用
+# 场景阶段/声明 value_basis;缺表示能力 ⇒ unknown/unsupported 族
+# 机读披露;要求侧 known_absent 单列 not_representable,不伪称冻结
+# 矛盾,不发明 label 库/换算/负要求);(S5A-03)声明必要 from/to
+# 参考节点空命中不被整侧 union 吞:逐节点核许可严格命中,空集保持
+# unmatched_required_node_uncovered + required_node_gaps 机读披露,
+# 参与物覆盖消费完整声明集合;(S5A-04)persist_evaluation_output
+# 核验与写入同一解析后实际规范路径(relative 基准=相对 cwd,出界/
+# symlink 逃根先拒零新文件,未声明根 ⇒ 含金标一律拒,禁止出界后
+# 回退原字符串授权)。预注册模板 ppv1-preregistration-template-1 →
+# -2(proposed 文字与实现证明范围同步:identity scope 许可、必要
+# 节点闭合、条件同源口径、写边界根规则、角色/系数与 unknown==
+# unknown 的实现证明范围如实标注,全部仍 proposed 不冻结)。参考图
+# schema 保持 -1(字段形状零变化;scope 许可是消费侧语义,由
+# evaluation-2 承载);split-manifest 保持 -1。criteria-v1 冻结正文
+# 与 FREEZE_RECORD 逐字节不改;S4/S3 已关项不重开;判据一–五与
+# 0d/0e/0f/0g/0h 消费语义零触碰;v20 载荷按未知版本既有门拒绝,
+# 无兼容迁移。
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-21"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -273,8 +298,18 @@ PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
 # 收费 provider 默认 off;不构成任何 dev/298 科学性能声明。
 PPV1_REFERENCE_GRAPH_VERSION = "ppv1-reference-graph-1"
 PPV1_SPLIT_MANIFEST_VERSION = "ppv1-split-manifest-1"
-PPV1_EVALUATION_VERSION = "ppv1-evaluation-1"
-PPV1_PREREGISTRATION_TEMPLATE_VERSION = "ppv1-preregistration-template-1"
+# S5a 回修 r1(S5A-01/02/03/04,2026-10-09,复审 §4 四组 P1):评测
+# 侧匹配/分类/写边界语义修正 ⇒ 契约升 -2,不偷换同一已登记契约 ——
+# (01)参考 identity scope 先消费许可再授严格档;(02)条件分类沿
+# 冻结同源规则 + ConditionScope→Requirement 登记映射;(03)必要
+# from/to 节点空命中不被 union 吞;(04)persist 核验与写入同一
+# 解析后实际规范路径。v1(S5a 批次)登记 §8 输入/输出 + split
+# manifest + leakage + 确定性匹配/指标接口。
+PPV1_EVALUATION_VERSION = "ppv1-evaluation-2"
+# S5a 回修 r1:proposed 文字与实现证明范围同步(仍 proposed 不冻结,
+# §10.1 全部 TBD;同步内容见 v21 注释)⇒ 模板版本升 -2。
+PPV1_PREREGISTRATION_TEMPLATE_VERSION = \
+    "ppv1-preregistration-template-2"
 # S4 回修 r1(S4-C01,2026-10-08,确认复核 §4):endpoint 派生消费
 # 当前路线必要条件的同源 PathContext.route_assessment(历史快照逐边
 # 合取;旧边按记录值消费)—— 必要条件 unknown/conflict 阻断终点

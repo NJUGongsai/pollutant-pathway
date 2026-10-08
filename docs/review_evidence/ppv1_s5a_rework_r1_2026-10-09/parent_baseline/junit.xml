@@ -1,0 +1,1078 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="41" skipped="0" tests="135" time="7.229" timestamp="2026-10-09T03:44:55.640661+08:00" hostname="bogon"><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[cn_only]" time="0.360"><failure message="AssertionError: assert 'strict_structure' == 'cn_only'&#10;  &#10;  - cn_only&#10;  + strict_structure">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a01_limited_scope_inter0')
+scope = 'cn_only'
+
+    @pytest.mark.parametrize("scope", LIMITED_SCOPES)
+    def test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral(
+            tmp_path: Path, scope: str) -&gt; None:
+        """S5A-01(中间体档):参考中间体声明 cn_only/partial/unknown ⇒
+        内容严格相等也只作 CN 旁证(cn_only + identity_scope_cap 机读),
+        不授 strict_structure;两备选边无许可严格命中 ⇒ 未覆盖分桶;
+        聚合 matched_strict 归零(节点→边→聚合逐层翻转)。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a01-int-" + scope)
+        graph = synth_reference_graph()
+        for node in graph["nodes"]:
+            if node["role"] == "intermediate":
+                node["structure_identity_scope"] = scope
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        for entry in sample["predicted_node_matches"]:
+            if entry["reference_identity_scope"] == scope:
+&gt;               assert entry["match_status"] == "cn_only"
+E               AssertionError: assert 'strict_structure' == 'cn_only'
+E                 
+E                 - cn_only
+E                 + strict_structure
+
+tests/test_ppv1_s5a_rework_r1.py:104: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[partial]" time="0.109"><failure message="AssertionError: assert 'strict_structure' == 'cn_only'&#10;  &#10;  - cn_only&#10;  + strict_structure">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a01_limited_scope_inter1')
+scope = 'partial'
+
+    @pytest.mark.parametrize("scope", LIMITED_SCOPES)
+    def test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral(
+            tmp_path: Path, scope: str) -&gt; None:
+        """S5A-01(中间体档):参考中间体声明 cn_only/partial/unknown ⇒
+        内容严格相等也只作 CN 旁证(cn_only + identity_scope_cap 机读),
+        不授 strict_structure;两备选边无许可严格命中 ⇒ 未覆盖分桶;
+        聚合 matched_strict 归零(节点→边→聚合逐层翻转)。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a01-int-" + scope)
+        graph = synth_reference_graph()
+        for node in graph["nodes"]:
+            if node["role"] == "intermediate":
+                node["structure_identity_scope"] = scope
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        for entry in sample["predicted_node_matches"]:
+            if entry["reference_identity_scope"] == scope:
+&gt;               assert entry["match_status"] == "cn_only"
+E               AssertionError: assert 'strict_structure' == 'cn_only'
+E                 
+E                 - cn_only
+E                 + strict_structure
+
+tests/test_ppv1_s5a_rework_r1.py:104: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[unknown]" time="0.112"><failure message="AssertionError: assert 'strict_structure' == 'cn_only'&#10;  &#10;  - cn_only&#10;  + strict_structure">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a01_limited_scope_inter2')
+scope = 'unknown'
+
+    @pytest.mark.parametrize("scope", LIMITED_SCOPES)
+    def test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral(
+            tmp_path: Path, scope: str) -&gt; None:
+        """S5A-01(中间体档):参考中间体声明 cn_only/partial/unknown ⇒
+        内容严格相等也只作 CN 旁证(cn_only + identity_scope_cap 机读),
+        不授 strict_structure;两备选边无许可严格命中 ⇒ 未覆盖分桶;
+        聚合 matched_strict 归零(节点→边→聚合逐层翻转)。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a01-int-" + scope)
+        graph = synth_reference_graph()
+        for node in graph["nodes"]:
+            if node["role"] == "intermediate":
+                node["structure_identity_scope"] = scope
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        for entry in sample["predicted_node_matches"]:
+            if entry["reference_identity_scope"] == scope:
+&gt;               assert entry["match_status"] == "cn_only"
+E               AssertionError: assert 'strict_structure' == 'cn_only'
+E                 
+E                 - cn_only
+E                 + strict_structure
+
+tests/test_ppv1_s5a_rework_r1.py:104: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_all_nodes_capped[cn_only]" time="0.109"><failure message="AssertionError: assert 'strict_structure' == 'cn_only'&#10;  &#10;  - cn_only&#10;  + strict_structure">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a01_limited_scope_all_n0')
+scope = 'cn_only'
+
+    @pytest.mark.parametrize("scope", LIMITED_SCOPES)
+    def test_s5a01_limited_scope_all_nodes_capped(tmp_path: Path,
+                                                  scope: str) -&gt; None:
+        """S5A-01(全部节点档):整图声明有限 scope ⇒ 全部节点封顶旁证、
+        零严格边;不全面拒绝带标签或有限图(样本仍 scored、条目保留)。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a01-all-" + scope)
+        graph = synth_reference_graph()
+        for node in graph["nodes"]:
+            node["structure_identity_scope"] = scope
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored"  # 不全面拒绝有限图
+        for entry in sample["predicted_node_matches"]:
+&gt;           assert entry["match_status"] == "cn_only"
+E           AssertionError: assert 'strict_structure' == 'cn_only'
+E             
+E             - cn_only
+E             + strict_structure
+
+tests/test_ppv1_s5a_rework_r1.py:148: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_all_nodes_capped[partial]" time="0.111"><failure message="AssertionError: assert 'strict_structure' == 'cn_only'&#10;  &#10;  - cn_only&#10;  + strict_structure">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a01_limited_scope_all_n1')
+scope = 'partial'
+
+    @pytest.mark.parametrize("scope", LIMITED_SCOPES)
+    def test_s5a01_limited_scope_all_nodes_capped(tmp_path: Path,
+                                                  scope: str) -&gt; None:
+        """S5A-01(全部节点档):整图声明有限 scope ⇒ 全部节点封顶旁证、
+        零严格边;不全面拒绝带标签或有限图(样本仍 scored、条目保留)。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a01-all-" + scope)
+        graph = synth_reference_graph()
+        for node in graph["nodes"]:
+            node["structure_identity_scope"] = scope
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored"  # 不全面拒绝有限图
+        for entry in sample["predicted_node_matches"]:
+&gt;           assert entry["match_status"] == "cn_only"
+E           AssertionError: assert 'strict_structure' == 'cn_only'
+E             
+E             - cn_only
+E             + strict_structure
+
+tests/test_ppv1_s5a_rework_r1.py:148: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_limited_scope_all_nodes_capped[unknown]" time="0.110"><failure message="AssertionError: assert 'strict_structure' == 'cn_only'&#10;  &#10;  - cn_only&#10;  + strict_structure">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a01_limited_scope_all_n2')
+scope = 'unknown'
+
+    @pytest.mark.parametrize("scope", LIMITED_SCOPES)
+    def test_s5a01_limited_scope_all_nodes_capped(tmp_path: Path,
+                                                  scope: str) -&gt; None:
+        """S5A-01(全部节点档):整图声明有限 scope ⇒ 全部节点封顶旁证、
+        零严格边;不全面拒绝带标签或有限图(样本仍 scored、条目保留)。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a01-all-" + scope)
+        graph = synth_reference_graph()
+        for node in graph["nodes"]:
+            node["structure_identity_scope"] = scope
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored"  # 不全面拒绝有限图
+        for entry in sample["predicted_node_matches"]:
+&gt;           assert entry["match_status"] == "cn_only"
+E           AssertionError: assert 'strict_structure' == 'cn_only'
+E             
+E             - cn_only
+E             + strict_structure
+
+tests/test_ppv1_s5a_rework_r1.py:148: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_legal_strict_and_real_cn_controls_kept" time="0.109"><failure message="KeyError: 'required_node_gaps'">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a01_legal_strict_and_re0')
+
+    def test_s5a01_legal_strict_and_real_cn_controls_kept(
+            tmp_path: Path) -&gt; None:
+        """S5A-01 正控:合法 strict_scope 图保持两条完整严格边与严格节点;
+        真实同位素/电荷差异的 CN 旁证(节点 cn_only、边不严格)保持。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a01-controls")
+        output = _evaluate_graph(tmp_path, run_id, digest,
+                                 synth_reference_graph())
+        sample = output["sample_results"][0]
+        assert all(edge["match_status"] == "matched_strict"
+                   for edge in sample["predicted_edge_matches"])
+        assert all(node["match_status"] == "strict_structure"
+                   for node in sample["predicted_node_matches"])
+&gt;       assert all(edge["required_node_gaps"] == []
+                   for edge in sample["predicted_edge_matches"])
+
+tests/test_ppv1_s5a_rework_r1.py:169: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;list_iterator object at 0x117573460&gt;
+
+&gt;   assert all(edge["required_node_gaps"] == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+               for edge in sample["predicted_edge_matches"])
+E   KeyError: 'required_node_gaps'
+
+tests/test_ppv1_s5a_rework_r1.py:169: KeyError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a01_matcher_unit_scope_cap" time="0.003"><failure message="AssertionError: assert 'strict_structure' == 'cn_only'&#10;  &#10;  - cn_only&#10;  + strict_structure">def test_s5a01_matcher_unit_scope_cap() -&gt; None:
+        """S5A-01 单元级:cn_only scope 参考节点遇内容严格相等预测 ⇒
+        cn_only(封顶);strict_scope 同节点 ⇒ strict_structure(许可差)。"""
+        from pathway_v43.domain.identity import cn_identity
+        from pathway_v43.pollutant.chemstate import strict_identity_of
+    
+        smiles = "F[C@H](Cl)Br"
+        payload = {"states": [{
+            "state_id": "cs-1",
+            "payload": {"smiles_isomeric": strict_identity_of(smiles),
+                        "cn_identity": cn_identity(smiles)}}]}
+        node = {
+            "node_id": "n-cap", "state_identity": "strict:r",
+            "structure_smiles": smiles,
+            "structure_identity_scope": "cn_only",
+            "role": "intermediate", "occurrence_id": "occ-cap-1",
+            "source_group_refs": ["sg-study-A"],
+            "condition_scope": [], "provenance_refs": ["pv-1"],
+            "node_status": "observed",
+        }
+        graph = synth_reference_graph()
+        graph = {**graph, "nodes": graph["nodes"] + [node]}
+        capped = match_reference_nodes(graph, payload)
+        entry = next(e for e in capped if e["node_id"] == "n-cap")
+&gt;       assert entry["match_status"] == "cn_only"
+E       AssertionError: assert 'strict_structure' == 'cn_only'
+E         
+E         - cn_only
+E         + strict_structure
+
+tests/test_ppv1_s5a_rework_r1.py:217: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-reactant]" time="0.111"><failure message="AssertionError: assert 'matched_strict' == 'unmatched_re...ode_uncovered'&#10;  &#10;  - unmatched_required_node_uncovered&#10;  + matched_strict">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a03_required_node_empty0')
+side = 'reactant', kind = 'unmatched_structure'
+
+    @pytest.mark.parametrize("side", ("reactant", "product"))
+    @pytest.mark.parametrize("kind", ("unmatched_structure",
+                                      "limited_duplicate"))
+    def test_s5a03_required_node_empty_hit_blocks_strict(
+            tmp_path: Path, side: str, kind: str) -&gt; None:
+        """S5A-03:原合法 declared_complete 边新增必需反应物/共同产物节点
+        (from/to 与 participants 同源完整、schema 通过),该节点未严格
+        命中 ⇒ 真实事件不得 matched_strict;空集保持未覆盖分桶 + 逐节点
+        required_node_gaps 机读披露;另一条边合法严格保持。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a03-" + side +
+                                             "-" + kind)
+        graph = synth_reference_graph()
+        edge = graph["edges"][1]  # e-alt-2(A→C 备选边)
+        existing = graph["nodes"][0] if side == "reactant" \
+            else graph["nodes"][2]
+        extra = copy.deepcopy(existing)
+        extra.update(node_id="n-required-missing",
+                     occurrence_id="occ-extra-required")
+        if kind == "unmatched_structure":
+            extra.update(structure_smiles="C", state_identity="strict:C")
+        else:  # limited_duplicate:同结构但声明 cn_only(S5A-01 封顶)
+            extra.update(structure_identity_scope="cn_only")
+        graph["nodes"].append(extra)
+        edge["from_node_ids" if side == "reactant"
+             else "to_node_ids"].append(extra["node_id"])
+        edge["participants"].append({
+            "node_id": extra["node_id"], "side": side,
+            "role": "cosubstrate" if side == "reactant" else "coproduct",
+            "coefficient": 1, "coefficient_status": "known"})
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        # schema 回执通过 + 全部节点条目保存(含新增节点)
+        assert len(sample["predicted_node_matches"]) == 5
+        added = next(e for e in sample["predicted_node_matches"]
+                     if e["node_id"] == "n-required-missing")
+        assert added["match_status"] in ("cn_only", "unmatched")
+        target = next(e for e in sample["predicted_edge_matches"]
+                      if e["edge_id"] == "e-alt-2")
+&gt;       assert target["match_status"] == "unmatched_required_node_uncovered"
+E       AssertionError: assert 'matched_strict' == 'unmatched_re...ode_uncovered'
+E         
+E         - unmatched_required_node_uncovered
+E         + matched_strict
+
+tests/test_ppv1_s5a_rework_r1.py:275: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-product]" time="0.111"><failure message="AssertionError: assert 'matched_strict' == 'unmatched_re...ode_uncovered'&#10;  &#10;  - unmatched_required_node_uncovered&#10;  + matched_strict">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a03_required_node_empty1')
+side = 'product', kind = 'unmatched_structure'
+
+    @pytest.mark.parametrize("side", ("reactant", "product"))
+    @pytest.mark.parametrize("kind", ("unmatched_structure",
+                                      "limited_duplicate"))
+    def test_s5a03_required_node_empty_hit_blocks_strict(
+            tmp_path: Path, side: str, kind: str) -&gt; None:
+        """S5A-03:原合法 declared_complete 边新增必需反应物/共同产物节点
+        (from/to 与 participants 同源完整、schema 通过),该节点未严格
+        命中 ⇒ 真实事件不得 matched_strict;空集保持未覆盖分桶 + 逐节点
+        required_node_gaps 机读披露;另一条边合法严格保持。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a03-" + side +
+                                             "-" + kind)
+        graph = synth_reference_graph()
+        edge = graph["edges"][1]  # e-alt-2(A→C 备选边)
+        existing = graph["nodes"][0] if side == "reactant" \
+            else graph["nodes"][2]
+        extra = copy.deepcopy(existing)
+        extra.update(node_id="n-required-missing",
+                     occurrence_id="occ-extra-required")
+        if kind == "unmatched_structure":
+            extra.update(structure_smiles="C", state_identity="strict:C")
+        else:  # limited_duplicate:同结构但声明 cn_only(S5A-01 封顶)
+            extra.update(structure_identity_scope="cn_only")
+        graph["nodes"].append(extra)
+        edge["from_node_ids" if side == "reactant"
+             else "to_node_ids"].append(extra["node_id"])
+        edge["participants"].append({
+            "node_id": extra["node_id"], "side": side,
+            "role": "cosubstrate" if side == "reactant" else "coproduct",
+            "coefficient": 1, "coefficient_status": "known"})
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        # schema 回执通过 + 全部节点条目保存(含新增节点)
+        assert len(sample["predicted_node_matches"]) == 5
+        added = next(e for e in sample["predicted_node_matches"]
+                     if e["node_id"] == "n-required-missing")
+        assert added["match_status"] in ("cn_only", "unmatched")
+        target = next(e for e in sample["predicted_edge_matches"]
+                      if e["edge_id"] == "e-alt-2")
+&gt;       assert target["match_status"] == "unmatched_required_node_uncovered"
+E       AssertionError: assert 'matched_strict' == 'unmatched_re...ode_uncovered'
+E         
+E         - unmatched_required_node_uncovered
+E         + matched_strict
+
+tests/test_ppv1_s5a_rework_r1.py:275: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-reactant]" time="0.112"><failure message="AssertionError: assert 'strict_structure' in ('cn_only', 'unmatched')">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a03_required_node_empty2')
+side = 'reactant', kind = 'limited_duplicate'
+
+    @pytest.mark.parametrize("side", ("reactant", "product"))
+    @pytest.mark.parametrize("kind", ("unmatched_structure",
+                                      "limited_duplicate"))
+    def test_s5a03_required_node_empty_hit_blocks_strict(
+            tmp_path: Path, side: str, kind: str) -&gt; None:
+        """S5A-03:原合法 declared_complete 边新增必需反应物/共同产物节点
+        (from/to 与 participants 同源完整、schema 通过),该节点未严格
+        命中 ⇒ 真实事件不得 matched_strict;空集保持未覆盖分桶 + 逐节点
+        required_node_gaps 机读披露;另一条边合法严格保持。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a03-" + side +
+                                             "-" + kind)
+        graph = synth_reference_graph()
+        edge = graph["edges"][1]  # e-alt-2(A→C 备选边)
+        existing = graph["nodes"][0] if side == "reactant" \
+            else graph["nodes"][2]
+        extra = copy.deepcopy(existing)
+        extra.update(node_id="n-required-missing",
+                     occurrence_id="occ-extra-required")
+        if kind == "unmatched_structure":
+            extra.update(structure_smiles="C", state_identity="strict:C")
+        else:  # limited_duplicate:同结构但声明 cn_only(S5A-01 封顶)
+            extra.update(structure_identity_scope="cn_only")
+        graph["nodes"].append(extra)
+        edge["from_node_ids" if side == "reactant"
+             else "to_node_ids"].append(extra["node_id"])
+        edge["participants"].append({
+            "node_id": extra["node_id"], "side": side,
+            "role": "cosubstrate" if side == "reactant" else "coproduct",
+            "coefficient": 1, "coefficient_status": "known"})
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        # schema 回执通过 + 全部节点条目保存(含新增节点)
+        assert len(sample["predicted_node_matches"]) == 5
+        added = next(e for e in sample["predicted_node_matches"]
+                     if e["node_id"] == "n-required-missing")
+&gt;       assert added["match_status"] in ("cn_only", "unmatched")
+E       AssertionError: assert 'strict_structure' in ('cn_only', 'unmatched')
+
+tests/test_ppv1_s5a_rework_r1.py:272: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-product]" time="0.113"><failure message="AssertionError: assert 'strict_structure' in ('cn_only', 'unmatched')">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a03_required_node_empty3')
+side = 'product', kind = 'limited_duplicate'
+
+    @pytest.mark.parametrize("side", ("reactant", "product"))
+    @pytest.mark.parametrize("kind", ("unmatched_structure",
+                                      "limited_duplicate"))
+    def test_s5a03_required_node_empty_hit_blocks_strict(
+            tmp_path: Path, side: str, kind: str) -&gt; None:
+        """S5A-03:原合法 declared_complete 边新增必需反应物/共同产物节点
+        (from/to 与 participants 同源完整、schema 通过),该节点未严格
+        命中 ⇒ 真实事件不得 matched_strict;空集保持未覆盖分桶 + 逐节点
+        required_node_gaps 机读披露;另一条边合法严格保持。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a03-" + side +
+                                             "-" + kind)
+        graph = synth_reference_graph()
+        edge = graph["edges"][1]  # e-alt-2(A→C 备选边)
+        existing = graph["nodes"][0] if side == "reactant" \
+            else graph["nodes"][2]
+        extra = copy.deepcopy(existing)
+        extra.update(node_id="n-required-missing",
+                     occurrence_id="occ-extra-required")
+        if kind == "unmatched_structure":
+            extra.update(structure_smiles="C", state_identity="strict:C")
+        else:  # limited_duplicate:同结构但声明 cn_only(S5A-01 封顶)
+            extra.update(structure_identity_scope="cn_only")
+        graph["nodes"].append(extra)
+        edge["from_node_ids" if side == "reactant"
+             else "to_node_ids"].append(extra["node_id"])
+        edge["participants"].append({
+            "node_id": extra["node_id"], "side": side,
+            "role": "cosubstrate" if side == "reactant" else "coproduct",
+            "coefficient": 1, "coefficient_status": "known"})
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        sample = output["sample_results"][0]
+        # schema 回执通过 + 全部节点条目保存(含新增节点)
+        assert len(sample["predicted_node_matches"]) == 5
+        added = next(e for e in sample["predicted_node_matches"]
+                     if e["node_id"] == "n-required-missing")
+&gt;       assert added["match_status"] in ("cn_only", "unmatched")
+E       AssertionError: assert 'strict_structure' in ('cn_only', 'unmatched')
+
+tests/test_ppv1_s5a_rework_r1.py:272: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_participants_only_node_deferred_p2" time="0.110"><failure message="KeyError: 'required_node_gaps'">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a03_participants_only_n0')
+
+    def test_s5a03_participants_only_node_deferred_p2(
+            tmp_path: Path) -&gt; None:
+        """S5A-03 范围限定:仅 participants 新增而 from/to 未列的多视图
+        节点不进门禁(评审 §4.3 将该 schema 歧义单列 P2/表示语义同步;
+        本回归钉住现行为,冻结前须裁定)。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a03-part-only")
+        graph = synth_reference_graph()
+        edge = graph["edges"][1]
+        extra = copy.deepcopy(graph["nodes"][3])
+        extra.update(node_id="n-part-only", structure_smiles="C",
+                     state_identity="strict:C",
+                     occurrence_id="occ-part-only", role="coproduct")
+        graph["nodes"].append(extra)
+        edge["participants"].append({
+            "node_id": extra["node_id"], "side": "product",
+            "role": "coproduct", "coefficient": 1,
+            "coefficient_status": "known"})
+        output = _evaluate_graph(tmp_path, run_id, digest, graph)
+        target = next(
+            e for e in output["sample_results"][0]["predicted_edge_matches"]
+            if e["edge_id"] == "e-alt-2")
+&gt;       assert target["required_node_gaps"] == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'required_node_gaps'
+
+tests/test_ppv1_s5a_rework_r1.py:313: KeyError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a03_legal_exact_superset_partial_controls_kept" time="0.111"><failure message="KeyError: 'required_node_gaps'">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a03_legal_exact_superse0')
+
+    def test_s5a03_legal_exact_superset_partial_controls_kept(
+            tmp_path: Path) -&gt; None:
+        """S5A-03 正控:合法图 required_node_gaps 恒空;事件侧超集/缺共同
+        产物的覆盖失配披露(matched_participant_coverage_partial)保持,
+        不因必要节点闭合而吞覆盖分桶。"""
+        runs_root, run_id, digest = _one_run(tmp_path, "s5a03-controls")
+        output = _evaluate_graph(tmp_path, run_id, digest,
+                                 synth_reference_graph())
+        sample = output["sample_results"][0]
+        for edge in sample["predicted_edge_matches"]:
+&gt;           assert edge["required_node_gaps"] == []
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'required_node_gaps'
+
+tests/test_ppv1_s5a_rework_r1.py:327: KeyError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[missing_fact]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[same_known_present]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[opposite_known_present]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[same_known_absent]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[other_known_absent]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">name = 'other_known_absent'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[numeric_known_absent]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">name = 'numeric_known_absent'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[entity_other_known_absent]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">name = 'entity_other_known_absent'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[canonical_unit_positive]" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[unit_unknown]" time="0.000"><failure message="AssertionError: assert 'compatible' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + compatible">name = 'unit_unknown'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[unit_mismatch_K]" time="0.000"><failure message="AssertionError: assert 'compatible' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + compatible">name = 'unit_mismatch_K'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[unit_noncanonical_F]" time="0.000"><failure message="AssertionError: assert 'compatible' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + compatible">name = 'unit_noncanonical_F'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_conflict_first]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">name = 'conflicting_facts_conflict_first'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_satisfied_first]" time="0.000"><failure message="AssertionError: assert 'compatible' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + compatible">name = 'conflicting_facts_satisfied_first'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'compatible' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[necessity_no_source]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">name = 'necessity_no_source'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[zero_point_present]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'compatible'&#10;  &#10;  - compatible&#10;  + essential_conflict">name = 'zero_point_present'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'compatible'
+E         
+E         - compatible
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[negative_interval_present]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'compatible'&#10;  &#10;  - compatible&#10;  + essential_conflict">name = 'negative_interval_present'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'compatible'
+E         
+E         - compatible
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[dict_interval_present]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'compatible'&#10;  &#10;  - compatible&#10;  + essential_conflict">name = 'dict_interval_present'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'compatible'
+E         
+E         - compatible
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[matrix_label_unresolved]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">name = 'matrix_label_unresolved'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_absent]" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'requirement_...representable'&#10;  &#10;  - requirement_status_not_representable&#10;  + essential_conflict">name = 'required_absent_fact_absent'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'essential_conflict' == 'requirement_...representable'
+E         
+E         - requirement_status_not_representable
+E         + essential_conflict
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_present]" time="0.000"><failure message="AssertionError: assert 'compatible' == 'requirement_...representable'&#10;  &#10;  - requirement_status_not_representable&#10;  + compatible">name = 'required_absent_fact_present'
+
+    @pytest.mark.parametrize("name", [
+        "missing_fact", "same_known_present", "opposite_known_present",
+        "same_known_absent", "other_known_absent", "numeric_known_absent",
+        "entity_other_known_absent", "canonical_unit_positive",
+        "unit_unknown", "unit_mismatch_K", "unit_noncanonical_F",
+        "conflicting_facts_conflict_first",
+        "conflicting_facts_satisfied_first", "necessity_no_source",
+        "zero_point_present", "negative_interval_present",
+        "dict_interval_present", "matrix_label_unresolved",
+        "required_absent_fact_absent", "required_absent_fact_present",
+    ])
+    def test_s5a02_condition_classification_matches_frozen_source(
+            name: str) -&gt; None:
+        """S5A-02:20 条件案(评审 conditions 探针同案)逐案与冻结同源
+        评估一致 —— 5 同义正控保持(父基线同分类值)、13 分歧案翻转为
+        冻结结果、2 required_absent 单列 not_representable(不伪称冻结
+        矛盾)。断言公共分类器:父基线上 5 正控仍绿、15 反例真实红。"""
+        requirement, facts, expected, _frozen_status = _condition_case(name)
+&gt;       assert classify_condition_requirement(requirement, facts) == expected
+E       AssertionError: assert 'compatible' == 'requirement_...representable'
+E         
+E         - requirement_status_not_representable
+E         + compatible
+
+tests/test_ppv1_s5a_rework_r1.py:478: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_frozen_reasons_and_mapping_disclosures" time="0.000"><failure message="AttributeError: module 'pathway_v43.pollutant.evaluation' has no attribute '_classify_condition_requirement_detailed'">def test_s5a02_frozen_reasons_and_mapping_disclosures() -&gt; None:
+        """S5A-02 机读面:逐案携带冻结 reason 码(单位三态/absence/多
+        事实/necessity)与 frozen_status;2 required_absent 案的披露
+        kind 单列 requirement_status_not_representable。"""
+        for name, snippet in _FROZEN_REASON_SNIPPETS.items():
+            requirement, facts, _expected, _frozen = _condition_case(name)
+&gt;           result = _detailed(requirement, facts)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_ppv1_s5a_rework_r1.py:487: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+requirement = {'key': 'oxygen_regime', 'value_or_interval': 'aerobic', 'unit': '', 'status': 'known_present', ...}
+facts = [{'key': 'oxygen_regime', 'value': 'anaerobic', 'status': 'known_absent', 'unit': '', ...}]
+
+    def _detailed(requirement: dict, facts: list) -&gt; dict:
+        """S5A-02 详细分类器(经模块属性取用:父基线缺该实现 ⇒ 逐
+        nodeid 真实红,不是 collection 错误)。"""
+&gt;       return _evaluation_module._classify_condition_requirement_detailed(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            requirement, facts)
+E       AttributeError: module 'pathway_v43.pollutant.evaluation' has no attribute '_classify_condition_requirement_detailed'
+
+tests/test_ppv1_s5a_rework_r1.py:45: AttributeError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_unsupported_key_and_fact_disclosures" time="0.000"><failure message="AssertionError: assert 'condition_unknown' == 'condition_unsupported_key'&#10;  &#10;  - condition_unsupported_key&#10;  + condition_unknown">def test_s5a02_unsupported_key_and_fact_disclosures() -&gt; None:
+        """S5A-02 缺表示能力机读披露:冻结键集外的键 ⇒
+        condition_unsupported_key;无法表示的事实条目 ⇒ 跳过 + 披露
+        (该键缺事实 ⇒ 冻结侧 unknown,不静默删也不判冲突)。"""
+        unsupported = classify_condition_requirement(
+            condition_scope("redox_regime", "anaerobic"),
+            [{"key": "oxygen_regime", "value": "aerobic",
+              "status": "known_present"}])
+&gt;       assert unsupported == "condition_unsupported_key"
+E       AssertionError: assert 'condition_unknown' == 'condition_unsupported_key'
+E         
+E         - condition_unsupported_key
+E         + condition_unknown
+
+tests/test_ppv1_s5a_rework_r1.py:526: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_preference_and_scenario_axes_kept" time="0.000" /><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a02_end_to_end_buckets_with_frozen_reasons" time="0.083"><failure message="AssertionError: assert None == 2&#10; +  where None = &lt;built-in method get of dict object at 0x11755c3c0&gt;('condition_unknown')&#10; +    where &lt;built-in method get of dict object at 0x11755c3c0&gt; = {'compatible': 1, 'essential_conflict': 1}.get">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a02_end_to_end_buckets_0')
+
+    def test_s5a02_end_to_end_buckets_with_frozen_reasons(
+            tmp_path: Path) -&gt; None:
+        """S5A-02 端到端:真实 public 链上,同键两条相反事实(多事实保守
+        unknown)、温度单位不匹配 ⇒ condition_unknown(不再是
+        essential_conflict/compatible);分类 details 携带冻结 reason 码。"""
+        plan = _plan(select=1)
+        plan["condition_facts"] = [
+            {"key": "oxygen_regime", "value": "anaerobic",
+             "status": "known_present", "source_ref": "src:synthetic"},
+            {"key": "oxygen_regime", "value": "aerobic",
+             "status": "known_present", "source_ref": "src:synthetic-2"},
+            {"key": "temperature_C", "value": 30, "status": "known_present",
+             "unit": "K", "source_ref": "src:synthetic"},
+        ]
+        runs_root, out = _run(tmp_path, "s5a02-e2e", plan)
+        digest = out["native_export"]["export_digest"]
+        graph = synth_reference_graph(graph_id="rg-s5a02-e2e")
+        graph["edges"] = graph["edges"][:1]
+        graph["edges"][0]["condition_requirements"] = [
+            condition_scope("oxygen_regime", "aerobic"),
+            {**condition_scope("temperature_C", "20-30"), "unit": "C"},
+        ]
+        for node in graph["nodes"]:
+            node["condition_scope"] = []
+        output = _evaluate_graph(tmp_path, "s5a02-e2e", digest, graph)
+        conflicts = output["sample_results"][0]["environment_conflicts"]
+        buckets = conflicts["buckets"]
+        # 多事实矛盾(anaerobic + aerobic)⇒ 保守 unknown,不首条说了算;
+        # 温度 K 对要求 20-30 C ⇒ 单位不匹配 unknown,不假相容
+&gt;       assert buckets.get("condition_unknown") == 2
+E       AssertionError: assert None == 2
+E        +  where None = &lt;built-in method get of dict object at 0x11755c3c0&gt;('condition_unknown')
+E        +    where &lt;built-in method get of dict object at 0x11755c3c0&gt; = {'compatible': 1, 'essential_conflict': 1}.get
+
+tests/test_ppv1_s5a_rework_r1.py:602: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a04_persist_resolved_path_authorization" time="0.001"><failure message="Failed: DID NOT RAISE EvaluationContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a04_persist_resolved_pa0')
+
+    def test_s5a04_persist_resolved_path_authorization(
+            tmp_path: Path) -&gt; None:
+        """S5A-04:核验与写入同一解析后实际规范路径 —— 错 cwd 相对路径
+        解析逃根 ⇒ 先拒零新文件;不回退原字符串授权(评审五案之一)。"""
+        elsewhere = tmp_path / "elsewhere"
+        elsewhere.mkdir()
+        declared = tmp_path / "declared_repo"
+        declared.mkdir()
+        original = Path.cwd()
+        try:
+            import os
+            os.chdir(elsewhere)
+            target = Path("reports/phase_s1_hit60/dev_gold/report.json")
+&gt;           with pytest.raises(EvaluationContractError) as excinfo:
+E           Failed: DID NOT RAISE EvaluationContractError
+
+tests/test_ppv1_s5a_rework_r1.py:628: Failed</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a04_persist_symlink_escape_refused" time="0.001"><failure message="Failed: DID NOT RAISE EvaluationContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a04_persist_symlink_esc0')
+
+    def test_s5a04_persist_symlink_escape_refused(tmp_path: Path) -&gt; None:
+        """S5A-04:授权名目录为 symlink 指向根外 ⇒ 相对/绝对 target 实际
+        逃根均先拒(零新文件);合法根内相对正控接受且回执=实际路径。"""
+        import os
+        declared = tmp_path / "declared_repo"
+        declared.mkdir()
+        external = tmp_path / "external_target"
+        external.mkdir()
+        link = declared / "reports" / "phase_s1_hit60" / "dev_gold"
+        link.parent.mkdir(parents=True)
+        link.symlink_to(external, target_is_directory=True)
+        output = {"status": "interface_verified_only",
+                  "payload": "synthetic-placeholder-not-gold"}
+        original = Path.cwd()
+        try:
+            os.chdir(declared)
+            # 相对 target 经 symlink 逃根 ⇒ 拒
+            relative = Path("reports/phase_s1_hit60/dev_gold/report.json")
+&gt;           with pytest.raises(EvaluationContractError) as excinfo:
+E           Failed: DID NOT RAISE EvaluationContractError
+
+tests/test_ppv1_s5a_rework_r1.py:662: Failed</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a04_persist_no_root_refused_and_plain_write_kept" time="0.000"><failure message="AssertionError: assert 'gold_content...thorized_path' == 'gold_content_root_required'&#10;  &#10;  - gold_content_root_required&#10;  + gold_content_unauthorized_path">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5a04_persist_no_root_ref0')
+
+    def test_s5a04_persist_no_root_refused_and_plain_write_kept(
+            tmp_path: Path) -&gt; None:
+        """S5A-04 根规则:未声明 repo_root 的含金标写入一律拒(根规则
+        明确,不做未解析路径名授权);根内非授权路径拒;普通非敏感写入
+        保持原行为。"""
+        output = {"status": "interface_verified_only",
+                  "payload": "synthetic"}
+        plain = tmp_path / "out" / "report.json"
+        with pytest.raises(EvaluationContractError) as excinfo:
+            persist_evaluation_output(output, plain, contains_gold=True)
+&gt;       assert excinfo.value.detail["kind"] == "gold_content_root_required"
+E       AssertionError: assert 'gold_content...thorized_path' == 'gold_content_root_required'
+E         
+E         - gold_content_root_required
+E         + gold_content_unauthorized_path
+
+tests/test_ppv1_s5a_rework_r1.py:711: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_rework_r1" name="test_s5a_rework_contract_version_registration" time="0.000"><failure message="AssertionError: assert 'ppv1-evaluation-1' == 'ppv1-evaluation-2'&#10;  &#10;  - ppv1-evaluation-2&#10;  ?                 ^&#10;  + ppv1-evaluation-1&#10;  ?                 ^">def test_s5a_rework_contract_version_registration() -&gt; None:
+        """S5a 回修 r1:评测契约升 -2、预注册模板升 -2、profile 升 -21
+        (匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
+        冻结正文不受影响)。"""
+&gt;       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-2"
+E       AssertionError: assert 'ppv1-evaluation-1' == 'ppv1-evaluation-2'
+E         
+E         - ppv1-evaluation-2
+E         ?                 ^
+E         + ppv1-evaluation-1
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r1.py:735: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_native_export_consumed_via_public_entry" time="0.109" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_28_unreadable_export_disclosed" time="0.105" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_lossy_projection_not_scorable" time="0.001" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_02_alternatives_not_merged" time="0.130" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_03_coproduct_not_deleted_by_report_k" time="0.113" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_04_distinct_occurrence_not_merged_by_cn" time="0.109" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_05_same_study_records_one_group" time="0.108" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_06_unknown_independence_not_counted" time="0.109" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_07_source_group_across_splits_blocks" time="0.110" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_08_known_unseen_overlap_blocks" time="0.110" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_09_unpainted_reference_edge_coverage_limit" time="0.108" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_20_budget_unexpanded_edge_separate_bucket" time="0.110" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_10_strict_identity_and_center_evidence_separate_axes" time="0.110" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_11_cn_same_not_strict_hit" time="0.005" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_12_step_scope_separate_axis" time="0.111" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_condition_classifier_unknown_conflict_compatible" time="0.000"><failure message="AssertionError: assert 'essential_conflict' == 'condition_unknown'&#10;  &#10;  - condition_unknown&#10;  + essential_conflict">def test_condition_classifier_unknown_conflict_compatible() -&gt; None:
+        """S5-13/14:必要项缺失 ⇒ unknown(不报 compatible);明确 essential
+        冲突 ⇒ conflict(unknown 不混入);preference 不满足单独分桶。
+    
+        S5A-02:分类沿冻结同源规则(条件键集外的键/无法表示的事实条目
+        ⇒ unknown/unsupported 族,不判冲突/相容)。"""
+        facts = [{"key": "oxygen_regime", "value": "aerobic",
+                  "status": "known_present"}]
+        missing = classify_condition_requirement(
+            condition_scope("electron_acceptor", "O2"), facts)
+        assert missing == "condition_unknown"  # 缺事实 ⇒ unknown(S5-13)
+        conflict = classify_condition_requirement(
+            condition_scope("oxygen_regime", "anaerobic"), facts)
+        assert conflict == "essential_conflict"
+        compatible = classify_condition_requirement(
+            condition_scope("oxygen_regime", "aerobic"), facts)
+        assert compatible == "compatible"
+        # S5-14:必需值同词被 known_absent 明确否定 ⇒ essential 冲突
+        # (冻结侧 required_value_known_absent)
+        absent = classify_condition_requirement(
+            condition_scope("oxygen_regime", "aerobic"),
+            [{"key": "oxygen_regime", "value": "aerobic",
+              "status": "known_absent"}])
+        assert absent == "essential_conflict"
+        # 异值/无法表示的缺席事实不判必需值状态(冻结侧保守 unknown)
+        other_absent = classify_condition_requirement(
+            condition_scope("oxygen_regime", "aerobic"),
+            [{"key": "oxygen_regime", "value": "anaerobic",
+              "status": "known_absent"}])
+&gt;       assert other_absent == "condition_unknown"
+E       AssertionError: assert 'essential_conflict' == 'condition_unknown'
+E         
+E         - condition_unknown
+E         + essential_conflict
+
+tests/test_ppv1_s5a_evaluator.py:590: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_13_14_15_condition_axes_end_to_end" time="0.111"><failure message="AssertionError: assert None == 1&#10; +  where None = &lt;built-in method get of dict object at 0x117889100&gt;('condition_unsupported_key')&#10; +    where &lt;built-in method get of dict object at 0x117889100&gt; = {'compatible': 2, 'condition_unknown': 1, 'essential_conflict': 1}.get">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5_13_14_15_condition_axe0')
+
+    def test_s5_13_14_15_condition_axes_end_to_end(tmp_path: Path) -&gt; None:
+        """端到端条件轴:e-alt-1 携带 3 条要求 —— aerobic essential
+        (事实 aerobic known_present ⇒ compatible)/ redox essential 缺事实
+        (⇒ 冻结键集外 ⇒ condition_unsupported_key,S5A-02 机读披露;
+        S5-13 unknown 族语义由缺事实案在单元级覆盖)/ aerobic=anaerobic
+        essential(值冲突 ⇒ conflict,S5-14);历史来源条件原样保留
+        (S5-15)。"""
+        output, _ = _evaluate(tmp_path, "s5a-cond", _plan())
+        sample = _sample(output)
+        buckets = sample["environment_conflicts"]["buckets"]
+        assert buckets.get("compatible") == 2  # e-alt-1 + e-alt-2 各一条
+        # redox_regime 不在冻结条件键集 ⇒ unsupported(unknown 族,机读披露)
+&gt;       assert buckets.get("condition_unsupported_key") == 1
+E       AssertionError: assert None == 1
+E        +  where None = &lt;built-in method get of dict object at 0x117889100&gt;('condition_unsupported_key')
+E        +    where &lt;built-in method get of dict object at 0x117889100&gt; = {'compatible': 2, 'condition_unknown': 1, 'essential_conflict': 1}.get
+
+tests/test_ppv1_s5a_evaluator.py:637: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_16_unknown_partial_not_confirmed_not_error" time="0.109" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_17_mineralization_negative_control" time="0.110" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_17_correct_mineralization_claim_with_root_carbon" time="0.110" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_18_stop_reason_is_not_endpoint" time="0.109" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_17_mineralization_without_root_carbon_flagged" time="0.000" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_19_unresolved_dependency_not_washed" time="0.113" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_endpoint_classifier_co2_merging_flagged" time="0.000" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_budget_omission_from_export_buckets" time="0.000" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_24_repeat_evaluation_deterministic" time="0.246" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_s5_25_natural_language_cannot_change_result" time="0.124" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_metric_interface_axes_and_tbd" time="0.111" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_depth_metrics_interface" time="0.108" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_interface_mode_status_and_pending_semantics" time="0.220" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_reference_graph_sha_binding_refuses_drift" time="0.001" /><testcase classname="tests.test_ppv1_s5a_evaluator" name="test_export_schema_version_binding" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_01_reference_graph_full_field_validation" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_01_missing_field_fails_with_field_path" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_01_unknown_schema_version_refused" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_01_unparseable_file_refused" time="0.001" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_reference_graph_unknown_top_level_field_refused" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_reference_graph_root_limited_scope_declaration" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_reference_graph_distinct_occurrence_kept" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_reference_graph_mineralization_evidence_floor" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_split_manifest_schema" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_evaluation_input_required_fields" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_21_mixed_domain_refused" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_22_mixed_track_refused" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_evaluation_input_lossy_projection_contract" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_23_preregistration_template_tbd_marking" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_preregistration_validation_fail_closed" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_26_paid_provider_off_by_default" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_real_data_scope_requires_approved_prereg" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_27_gold_output_write_guard" time="0.001"><failure message="AssertionError: assert 'gold_content...thorized_path' == 'gold_content_root_required'&#10;  &#10;  - gold_content_root_required&#10;  + gold_content_unauthorized_path">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_s5_27_gold_output_write_g0')
+
+    def test_s5_27_gold_output_write_guard(tmp_path: Path) -&gt; None:
+        """S5-27:含金标产物写入普通目录 ⇒ 流程拒绝;授权 gitignored 根
+        (镜像 .gitignore)放行;非金标输出正常写。
+    
+        S5A-04:核验与写入同一解析后实际规范路径 —— 未声明根 ⇒ 含金标
+        一律拒(gold_content_root_required);解析后逃出声明根(错 cwd/
+        symlink 逃根)先拒零新文件(gold_content_outside_declared_root)。"""
+        output = {"status": "interface_verified_only", "payload": "synthetic"}
+        plain = tmp_path / "out" / "report.json"
+        with pytest.raises(EvaluationContractError) as excinfo:
+            persist_evaluation_output(output, plain, contains_gold=True)
+        # S5A-04:未声明 repo_root ⇒ 含金标写入一律拒绝(根规则明确)
+&gt;       assert excinfo.value.detail["kind"] == "gold_content_root_required"
+E       AssertionError: assert 'gold_content...thorized_path' == 'gold_content_root_required'
+E         
+E         - gold_content_root_required
+E         + gold_content_unauthorized_path
+
+tests/test_ppv1_s5a_schema.py:626: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s5a_schema" name="test_s5_28_no_native_export_pending" time="0.000" /><testcase classname="tests.test_ppv1_s5a_schema" name="test_emitted_status_never_evaluated" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_profile_names_registry" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_identity_schema_version_bumped" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_contract_versions" time="0.000"><failure message="AssertionError: assert 'ppv1-profile-20' == 'ppv1-profile-21'&#10;  &#10;  - ppv1-profile-21&#10;  ?               ^&#10;  + ppv1-profile-20&#10;  ?               ^">def test_ppv1_identity_block_contract_versions() -&gt; None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v21(S5a 回修 r1):evaluation-2(S5A-01 identity scope 许可/
+        # S5A-02 条件同源分类/S5A-03 必要节点闭合/S5A-04 写边界根规则)
+        # + preregistration-template-2(proposed 文字同步)⇒ profile 身份
+        # 块随登记升版;v20(S5a 批次):donor-diagnostic-10(presence
+        # records isotope + axis_detail 披露,R4 §8 授权搭车 P2)+ 四个
+        # 新接口契约(reference-graph/split-manifest/evaluation/
+        # preregistration-template);v19(S4 回修 r3):
+        # donor-diagnostic-9(同位素 diff 并入实际净变化集,PPV1-ISO-01;
+        # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
+        # native-export-policy-3 / v3-projection-3;endpoint/native-result
+        # 系沿 r1)
+&gt;       assert block["schema_version"] == "ppv1-profile-21"
+E       AssertionError: assert 'ppv1-profile-20' == 'ppv1-profile-21'
+E         
+E         - ppv1-profile-21
+E         ?               ^
+E         + ppv1-profile-20
+E         ?               ^
+
+tests/test_ppv1_profile.py:57: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_default_switches" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-filter]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-None]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[search_intent-anything_goes]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_search_limits_validation" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_excludes_pollutant_for_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_pollutant_includes_full_tree" time="0.003" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_legacy_stable_under_pollutant_changes" time="0.006" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_default_is_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_legacy_rejects_profile_policy" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_pollutant_block" time="0.003" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_profile_mismatch_rejected" time="0.007" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_v1_missing_profile_read_as_legacy" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_identity_fingerprint_includes_profile" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_pollutant_dispatches_to_runflow" time="0.031" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_unknown_profile_rejected" time="0.001" /><testcase classname="tests.test_ppv1_profile" name="test_cli_profile_flag_choices" time="0.003" /><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_public_chain_files_and_manifest" time="0.076"><failure message="AssertionError: assert 'ppv1-profile-20' == 'ppv1-profile-21'&#10;  &#10;  - ppv1-profile-21&#10;  ?               ^&#10;  + ppv1-profile-20&#10;  ?               ^">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-498/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -&gt; None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        assert manifest["schema_version"] == "ppv1-native-export-3"
+        assert manifest["run_id"] == "s4b"
+        assert manifest["content_digest"] == out["native_result"][
+            "content_digest"]
+        assert manifest["export_policy"]["version"] == \
+            "ppv1-native-export-policy-3"
+        assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
+        # S5a 回修 r1:profile-20 → -21(evaluation-2 注册进身份块)
+&gt;       assert manifest["contract_versions"]["profile"] == "ppv1-profile-21"
+E       AssertionError: assert 'ppv1-profile-20' == 'ppv1-profile-21'
+E         
+E         - ppv1-profile-21
+E         ?               ^
+E         + ppv1-profile-20
+E         ?               ^
+
+tests/test_ppv1_s4b_export.py:178: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_full_fact_coverage" time="0.075" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_repeat_export_same_bytes_including_subprocess" time="0.264" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_export_after_crash_resume_repeat_identical" time="0.132" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_export_read_back_matches_native_authority" time="0.081" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_stale_after_graph_change" time="0.162" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_stale_after_policy_change" time="0.084" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_integrity_structured_failures" time="0.079" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_self_consistent_rewrite_not_laundered" time="0.081" /><testcase classname="tests.test_ppv1_s4b_export" name="test_tampered_export_refuses_overwrite" time="0.080" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_lossy_marker_reference_and_losses" time="0.076" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_steps_per_event_no_cn_merge_no_fabrication" time="0.096" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_deterministic_and_reverse_lookup" time="0.082" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_reverse_consumption_refused_zero_writes" time="0.080" /><testcase classname="tests.test_ppv1_s4b_export" name="test_full_public_chain_crash_resume_export_replay" time="0.121" /><testcase classname="tests.test_ppv1_s4b_export" name="test_endpoint_stop_reference_broken_refuses_export" time="0.076" /><testcase classname="tests.test_ppv1_s4b_export" name="test_empty_pool_run_exports_and_projects" time="0.033" /><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_v3_projection_conflict_preserves" time="0.077" /></testsuite></testsuites>

@@ -1,0 +1,925 @@
+{
+  "case": "product_limited_duplicate",
+  "evaluation_input": {
+    "data_scope": "synthetic_rule_level",
+    "domain": "dev",
+    "evaluator_schema_version": "ppv1-evaluation-1",
+    "interface_verification": true,
+    "metric_policy_version": "ppv1-evaluation-metrics-proposed",
+    "missingness_policy_version": "ppv1-evaluation-missingness-proposed",
+    "model_provider_policy": {
+      "provider_kind": "none"
+    },
+    "native_path_exports": [
+      {
+        "export_digest": "dc274a0df9135430a017ef15277314014b4268ced5bf401312e92a57291d8422",
+        "run_id": "review-identity-known"
+      }
+    ],
+    "preregistration_id": "prereg-s5a-template",
+    "reference_graph_manifest": [
+      {
+        "domain": "dev",
+        "reference_graph_id": "rg-synth-1",
+        "sha256": "6d5c7f39613a8ab9c3f1c5ede4655b7108440a8f320388c8d73023de4ab72a12",
+        "track": "known_evidence_reconstruction"
+      }
+    ],
+    "run_identity": {
+      "export_schema_version": "ppv1-native-export-3",
+      "profile_version": "ppv1-profile-20",
+      "run_id": "review-identity-known"
+    },
+    "scoring_policy_version": "ppv1-evaluation-scoring-proposed",
+    "split_manifest": {
+      "assignments": [
+        {
+          "reference_graph_id": "rg-synth-1",
+          "source_group_id": "sg-study-A",
+          "split": "development"
+        },
+        {
+          "reference_graph_id": "rg-synth-1",
+          "source_group_id": "sg-study-B",
+          "split": "development"
+        }
+      ],
+      "input_data_manifest_hash": "sha:synthetic-inputs",
+      "schema_version": "ppv1-split-manifest-1",
+      "split_manifest_id": "sm-synth-1",
+      "split_rule_version": "ppv1-split-rule-synth-1",
+      "unseen_exclusion_manifest": {
+        "excluded": [],
+        "track": "unseen_path_inference"
+      }
+    },
+    "track": "known_evidence_reconstruction"
+  },
+  "graph": {
+    "coverage_statement": {
+      "covered_axes": [
+        "nodes",
+        "edges"
+      ],
+      "known_gaps": [],
+      "not_evaluable_edge_ids": [],
+      "not_evaluable_node_ids": []
+    },
+    "creation_review": {
+      "note": "S5a 合成规则级参考图(无金标/题面)",
+      "review_status": "synthetic_rule_level",
+      "reviewer": "s5a-synthetic"
+    },
+    "domain": "dev",
+    "edges": [
+      {
+        "coefficient_status": "partial",
+        "condition_requirements": [
+          {
+            "key": "oxygen_regime",
+            "required": "essential",
+            "source_refs": [
+              "src:synthetic"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:synth-aerobic",
+            "unit": "",
+            "value_or_interval": "aerobic"
+          },
+          {
+            "key": "redox_regime",
+            "required": "essential",
+            "source_refs": [
+              "src:synthetic"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:synth-aerobic",
+            "unit": "",
+            "value_or_interval": "anaerobic"
+          },
+          {
+            "key": "oxygen_regime",
+            "required": "essential",
+            "source_refs": [
+              "src:synthetic"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:synth-aerobic",
+            "unit": "",
+            "value_or_interval": "anaerobic"
+          }
+        ],
+        "edge_id": "e-alt-1",
+        "edge_status": "observed",
+        "evidence_basis": "study_series",
+        "from_node_ids": [
+          "n-root"
+        ],
+        "participant_list_status": "declared_complete",
+        "participants": [
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-root",
+            "role": "primary_substrate",
+            "side": "reactant"
+          },
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-int-occ-a",
+            "role": "principal_product",
+            "side": "product"
+          },
+          {
+            "coefficient": null,
+            "coefficient_status": "unknown",
+            "node_id": "n-coproduct-h2",
+            "role": "coproduct",
+            "side": "product"
+          }
+        ],
+        "provenance_refs": [
+          "pv-1"
+        ],
+        "scenario_scope": "scenario:synth-aerobic",
+        "source_group_refs": [
+          "sg-study-A"
+        ],
+        "step_scope": "net_reaction",
+        "to_node_ids": [
+          "n-int-occ-a",
+          "n-coproduct-h2"
+        ],
+        "transformation_ref": "tref-donor-B",
+        "transformation_signature_status": "declared"
+      },
+      {
+        "coefficient_status": "known",
+        "condition_requirements": [
+          {
+            "key": "oxygen_regime",
+            "required": "essential",
+            "source_refs": [
+              "src:synthetic"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:synth-aerobic",
+            "unit": "",
+            "value_or_interval": "aerobic"
+          }
+        ],
+        "edge_id": "e-alt-2",
+        "edge_status": "observed",
+        "evidence_basis": "study_series",
+        "from_node_ids": [
+          "n-root"
+        ],
+        "participant_list_status": "declared_complete",
+        "participants": [
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-root",
+            "role": "primary_substrate",
+            "side": "reactant"
+          },
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-int-occ-b",
+            "role": "principal_product",
+            "side": "product"
+          },
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-required-missing",
+            "role": "coproduct",
+            "side": "product"
+          }
+        ],
+        "provenance_refs": [
+          "pv-2"
+        ],
+        "scenario_scope": "scenario:synth-aerobic",
+        "source_group_refs": [
+          "sg-study-B"
+        ],
+        "step_scope": "net_reaction",
+        "to_node_ids": [
+          "n-int-occ-b",
+          "n-required-missing"
+        ],
+        "transformation_ref": "tref-donor-C",
+        "transformation_signature_status": "declared"
+      }
+    ],
+    "endpoint_annotations": [],
+    "nodes": [
+      {
+        "condition_scope": [],
+        "node_id": "n-root",
+        "node_status": "observed",
+        "occurrence_id": "occ-root-1",
+        "provenance_refs": [
+          "pv-1",
+          "pv-2"
+        ],
+        "role": "root",
+        "source_group_refs": [
+          "sg-study-A",
+          "sg-study-B"
+        ],
+        "state_identity": "strict:CCO",
+        "structure_identity_scope": "strict_structure",
+        "structure_smiles": "CCO"
+      },
+      {
+        "condition_scope": [],
+        "node_id": "n-int-occ-a",
+        "node_status": "observed",
+        "occurrence_id": "occ-cco-a",
+        "provenance_refs": [
+          "pv-1"
+        ],
+        "role": "intermediate",
+        "source_group_refs": [
+          "sg-study-A"
+        ],
+        "state_identity": "strict:CC=O",
+        "structure_identity_scope": "strict_structure",
+        "structure_smiles": "CC=O"
+      },
+      {
+        "condition_scope": [],
+        "node_id": "n-int-occ-b",
+        "node_status": "observed",
+        "occurrence_id": "occ-cco-b",
+        "provenance_refs": [
+          "pv-2"
+        ],
+        "role": "intermediate",
+        "source_group_refs": [
+          "sg-study-B"
+        ],
+        "state_identity": "strict:CC=O",
+        "structure_identity_scope": "strict_structure",
+        "structure_smiles": "CC=O"
+      },
+      {
+        "condition_scope": [],
+        "node_id": "n-coproduct-h2",
+        "node_status": "observed",
+        "occurrence_id": "occ-h2-a",
+        "provenance_refs": [
+          "pv-1"
+        ],
+        "role": "coproduct",
+        "source_group_refs": [
+          "sg-study-A"
+        ],
+        "state_identity": "strict:[H][H]",
+        "structure_identity_scope": "strict_structure",
+        "structure_smiles": "[H][H]"
+      },
+      {
+        "condition_scope": [],
+        "node_id": "n-required-missing",
+        "node_status": "observed",
+        "occurrence_id": "occ-extra-required",
+        "provenance_refs": [
+          "pv-2"
+        ],
+        "role": "intermediate",
+        "source_group_refs": [
+          "sg-study-B"
+        ],
+        "state_identity": "strict:CC=O",
+        "structure_identity_scope": "cn_only",
+        "structure_smiles": "CC=O"
+      }
+    ],
+    "provenance_manifest": [
+      {
+        "citation_ref": "cite:synth-A",
+        "evidence_basis": "direct_observation",
+        "independent_status": "independent",
+        "observation_scope": "lab_incubation",
+        "provenance_id": "pv-1",
+        "source_conditions": [
+          {
+            "key": "temperature",
+            "required": "preference",
+            "source_refs": [
+              "cite:synth-A"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:study-A-historical",
+            "unit": "C",
+            "value_or_interval": "30"
+          }
+        ],
+        "source_group_id": "sg-study-A",
+        "source_origin": "journal",
+        "structure_match_scope": "strict_structure"
+      },
+      {
+        "citation_ref": "cite:synth-B",
+        "evidence_basis": "recorded",
+        "independent_status": "independent",
+        "observation_scope": "recorded_only",
+        "provenance_id": "pv-2",
+        "source_conditions": [],
+        "source_group_id": "sg-study-B",
+        "source_origin": "database",
+        "structure_match_scope": "strict_structure"
+      }
+    ],
+    "reference_graph_id": "rg-synth-1",
+    "root_entity": {
+      "entity_id": "root-ethanol",
+      "formal_charge": 0,
+      "isotope_information_status": "not_applicable",
+      "source_refs": [
+        "src:synthetic"
+      ],
+      "stereo_information_status": "not_applicable",
+      "strict_structure_identity": "CCO",
+      "structure_smiles_raw": "CCO"
+    },
+    "schema_version": "ppv1-reference-graph-1",
+    "source_groups": [
+      {
+        "independence_status": "independent",
+        "member_records": [
+          "rhea:1001",
+          "rhea:1002"
+        ],
+        "note": "同论文两条记录:一组",
+        "source_group_id": "sg-study-A"
+      },
+      {
+        "independence_status": "independent",
+        "member_records": [
+          "rhea:2001"
+        ],
+        "note": "独立研究 B",
+        "source_group_id": "sg-study-B"
+      }
+    ],
+    "split_assignment": {
+      "route_group_keys": [
+        "route-ethanol-oxidation"
+      ],
+      "split": "development",
+      "split_rule_version": "ppv1-split-rule-synth-1"
+    },
+    "track": "known_evidence_reconstruction"
+  },
+  "output": {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 3
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "budget_omission_report": {
+      "note": "预算漏展开单独报告,不静默从分母删除(S5-20/§9.8)",
+      "per_sample": {
+        "dev:known_evidence_reconstruction:rg-synth-1": {
+          "buckets": {
+            "action_budget": 1,
+            "awaiting_prediction": 0,
+            "blocked_objects": 0,
+            "deferred_not_activated": 0,
+            "depth_budget": 0,
+            "other_explicit_stop": 0,
+            "scoped_limit_reached": 5
+          },
+          "deferred_entries": [],
+          "note": "预算漏展开单独报告;不计为模型化学错误,也不从科学命中分母无声删除(分母定义 TBD 用户/teacher 裁定)",
+          "stop_reason": "budget_limit"
+        }
+      }
+    },
+    "coverage_report": {
+      "known_gaps_per_graph": {
+        "rg-synth-1": []
+      },
+      "not_evaluable_edges_per_graph": {
+        "rg-synth-1": []
+      },
+      "note": "未画出的参考边不自动判模型错误,计入参考覆盖限制(S5-09);参考图不完备时如实披露覆盖范围",
+      "reference_graphs": [
+        "rg-synth-1"
+      ],
+      "unmatched_exports": []
+    },
+    "domain": "dev",
+    "evaluation_id": "2409815029fa6061ce4811ca5f756d9906418c71525dfff51d4a18a36a310246",
+    "evaluator_schema_version": "ppv1-evaluation-1",
+    "export_read_errors": [],
+    "invalid_input_count": 0,
+    "leakage_checks": {
+      "statistics": {
+        "database_record_count": 3,
+        "record_to_group_ratio_note": "同一来源组的多条数据库记录只计一个 source group(S5-05);不虚增独立支持",
+        "source_group_count": 2,
+        "unknown_independence_groups": [],
+        "unknown_independence_note": "independence=unknown 的组不进入要求独立支持的指标分母(S5-06;除非预注册另有规定)"
+      },
+      "status": "passed",
+      "violations": []
+    },
+    "missingness_report": {
+      "condition_unknown_note": "条件未知/覆盖不足与冲突分桶;未知不计冲突",
+      "note": "unknown/partial/conditional 保留;不用全面拒绝换通过(§18 第 16 条)",
+      "unknown_partial_summary_per_sample": {
+        "dev:known_evidence_reconstruction:rg-synth-1": {
+          "audit_unknown_checks": 9,
+          "conditional_admission_events": 2,
+          "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+          "unresolved_outcomes": 3
+        }
+      }
+    },
+    "output_sha256": "0dc8d01c321fd98ad27c152ef9508ab1f4d58f102d30b5fe625c4a81a0a8c742",
+    "run_identity": {
+      "export_schema_version": "ppv1-native-export-3",
+      "profile_version": "ppv1-profile-20",
+      "run_id": "review-identity-known"
+    },
+    "sample_results": [
+      {
+        "budget_omission": {
+          "buckets": {
+            "action_budget": 1,
+            "awaiting_prediction": 0,
+            "blocked_objects": 0,
+            "deferred_not_activated": 0,
+            "depth_budget": 0,
+            "other_explicit_stop": 0,
+            "scoped_limit_reached": 5
+          },
+          "deferred_entries": [],
+          "note": "预算漏展开单独报告;不计为模型化学错误,也不从科学命中分母无声删除(分母定义 TBD 用户/teacher 裁定)",
+          "stop_reason": "budget_limit"
+        },
+        "depth_metrics": {
+          "buckets": {
+            "beyond_depth_budget": 0,
+            "depth_1": 0,
+            "depth_2": 2,
+            "depth_3_plus": 0,
+            "events_with_unknown_depth": 0
+          },
+          "event_depths": {
+            "ppev_6ccb62e1e947a221b5bd": 2,
+            "ppev_b78230e81fdfb5899ced": 2
+          },
+          "insufficient_sample_buckets": [
+            "beyond_depth_budget",
+            "depth_1",
+            "depth_3_plus",
+            "events_with_unknown_depth"
+          ],
+          "note": "样本量不足的桶标记 insufficient_sample,不合并成看似稳定的总分;最低样本量 TBD 用户/teacher 裁定"
+        },
+        "endpoint_claim_checks": {
+          "annotation_checks": [],
+          "misclaims": [],
+          "predicted_assessment": "unknown",
+          "search_stop_reason": "budget_limit",
+          "stop_endpoint_separated": "search_stop_reason 与 chemical_endpoint_assessment 分账独立;停止原因永不映射为终点(S5-18)"
+        },
+        "environment_conflicts": {
+          "buckets": {
+            "compatible": 2,
+            "condition_unknown": 1,
+            "essential_conflict": 1
+          },
+          "condition_facts_consumed": [
+            "oxygen_regime"
+          ],
+          "details": [
+            {
+              "classification": "compatible",
+              "key": "oxygen_regime",
+              "required": "essential"
+            },
+            {
+              "classification": "compatible",
+              "key": "oxygen_regime",
+              "required": "essential"
+            },
+            {
+              "classification": "essential_conflict",
+              "key": "oxygen_regime",
+              "required": "essential"
+            },
+            {
+              "classification": "condition_unknown",
+              "key": "redox_regime",
+              "required": "essential"
+            }
+          ],
+          "note": "unknown 不计为冲突;满足不升级为全路径相容;历史来源条件保留原文(S5-13/14/15)",
+          "source_conditions_preserved": [
+            {
+              "provenance_id": "pv-1",
+              "source_conditions": [
+                {
+                  "key": "temperature",
+                  "required": "preference",
+                  "source_refs": [
+                    "cite:synth-A"
+                  ],
+                  "status": "known_present",
+                  "subject_scenario_ref": "scenario:study-A-historical",
+                  "unit": "C",
+                  "value_or_interval": "30"
+                }
+              ]
+            }
+          ]
+        },
+        "false_or_unverified_edges": {
+          "buckets": {
+            "outside_reference_model_only": 0,
+            "outside_reference_no_auditable_basis": 0,
+            "outside_reference_with_allowed_inference_basis": 0,
+            "reference_coverage_indeterminate": 0
+          },
+          "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+        },
+        "key_intermediate_matches": [
+          {
+            "cn_only_state_ids": [],
+            "match_status": "strict_structure",
+            "matched_state_ids": [
+              "cs_540cc0181e112b383323"
+            ],
+            "node_id": "n-int-occ-a",
+            "occurrence_id": "occ-cco-a",
+            "predicted_occurrence_count": 1,
+            "reference_identity_scope": "strict_structure",
+            "role": "intermediate"
+          },
+          {
+            "cn_only_state_ids": [],
+            "match_status": "strict_structure",
+            "matched_state_ids": [
+              "cs_540cc0181e112b383323"
+            ],
+            "node_id": "n-int-occ-b",
+            "occurrence_id": "occ-cco-b",
+            "predicted_occurrence_count": 1,
+            "reference_identity_scope": "strict_structure",
+            "role": "intermediate"
+          },
+          {
+            "cn_only_state_ids": [],
+            "match_status": "strict_structure",
+            "matched_state_ids": [
+              "cs_540cc0181e112b383323"
+            ],
+            "node_id": "n-required-missing",
+            "occurrence_id": "occ-extra-required",
+            "predicted_occurrence_count": 1,
+            "reference_identity_scope": "cn_only",
+            "role": "intermediate"
+          }
+        ],
+        "mineralization_claim_checks": {
+          "misclaims": [],
+          "note": "矿化证据最低口径:根碳账核查范围 + 来源层直报;仅 CO₂ 产物/仅模型推演/bookkeeping 皆不构成矿化结论",
+          "predicted_assessment": "unknown"
+        },
+        "predicted_edge_matches": [
+          {
+            "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)",
+            "coverage_mismatch_events": [
+              {
+                "coproduct_participants": [],
+                "event_id": "ppev_b78230e81fdfb5899ced",
+                "event_step_scope": "net_reaction",
+                "participant_coverage": "partial_subset",
+                "participant_state_refs": [
+                  "cs_540cc0181e112b383323",
+                  "cs_ab1de819ede91df490e6"
+                ],
+                "reference_step_scope": "net_reaction",
+                "step_scope_consistent": true
+              }
+            ],
+            "edge_id": "e-alt-1",
+            "match_status": "matched_strict",
+            "matched_events": [
+              {
+                "coproduct_participants": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "event_id": "ppev_6ccb62e1e947a221b5bd",
+                "event_step_scope": "net_reaction",
+                "participant_coverage": "exact",
+                "participant_state_refs": [
+                  "cs_540cc0181e112b383323",
+                  "cs_ab1de819ede91df490e6",
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "reference_step_scope": "net_reaction",
+                "step_scope_consistent": true
+              }
+            ],
+            "reference_participant_node_ids": [
+              "n-root",
+              "n-int-occ-a",
+              "n-coproduct-h2"
+            ],
+            "structure_only_events": []
+          },
+          {
+            "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)",
+            "coverage_mismatch_events": [
+              {
+                "coproduct_participants": [
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "event_id": "ppev_6ccb62e1e947a221b5bd",
+                "event_step_scope": "net_reaction",
+                "participant_coverage": "superset",
+                "participant_state_refs": [
+                  "cs_540cc0181e112b383323",
+                  "cs_ab1de819ede91df490e6",
+                  "cs_ea7e44a64c7461517e4f"
+                ],
+                "reference_step_scope": "net_reaction",
+                "step_scope_consistent": true
+              }
+            ],
+            "edge_id": "e-alt-2",
+            "match_status": "matched_strict",
+            "matched_events": [
+              {
+                "coproduct_participants": [],
+                "event_id": "ppev_b78230e81fdfb5899ced",
+                "event_step_scope": "net_reaction",
+                "participant_coverage": "exact",
+                "participant_state_refs": [
+                  "cs_540cc0181e112b383323",
+                  "cs_ab1de819ede91df490e6"
+                ],
+                "reference_step_scope": "net_reaction",
+                "step_scope_consistent": true
+              }
+            ],
+            "reference_participant_node_ids": [
+              "n-root",
+              "n-int-occ-b",
+              "n-required-missing"
+            ],
+            "structure_only_events": []
+          }
+        ],
+        "predicted_node_matches": [
+          {
+            "cn_only_state_ids": [],
+            "match_status": "strict_structure",
+            "matched_state_ids": [
+              "cs_ab1de819ede91df490e6"
+            ],
+            "node_id": "n-root",
+            "occurrence_id": "occ-root-1",
+            "predicted_occurrence_count": 2,
+            "reference_identity_scope": "strict_structure",
+            "role": "root"
+          },
+          {
+            "cn_only_state_ids": [],
+            "match_status": "strict_structure",
+            "matched_state_ids": [
+              "cs_540cc0181e112b383323"
+            ],
+            "node_id": "n-int-occ-a",
+            "occurrence_id": "occ-cco-a",
+            "predicted_occurrence_count": 1,
+            "reference_identity_scope": "strict_structure",
+            "role": "intermediate"
+          },
+          {
+            "cn_only_state_ids": [],
+            "match_status": "strict_structure",
+            "matched_state_ids": [
+              "cs_540cc0181e112b383323"
+            ],
+            "node_id": "n-int-occ-b",
+            "occurrence_id": "occ-cco-b",
+            "predicted_occurrence_count": 1,
+            "reference_identity_scope": "strict_structure",
+            "role": "intermediate"
+          },
+          {
+            "cn_only_state_ids": [],
+            "match_status": "strict_structure",
+            "matched_state_ids": [
+              "cs_ea7e44a64c7461517e4f"
+            ],
+            "node_id": "n-coproduct-h2",
+            "occurrence_id": "occ-h2-a",
+            "predicted_occurrence_count": 1,
+            "reference_identity_scope": "strict_structure",
+            "role": "coproduct"
+          },
+          {
+            "cn_only_state_ids": [],
+            "match_status": "strict_structure",
+            "matched_state_ids": [
+              "cs_540cc0181e112b383323"
+            ],
+            "node_id": "n-required-missing",
+            "occurrence_id": "occ-extra-required",
+            "predicted_occurrence_count": 1,
+            "reference_identity_scope": "cn_only",
+            "role": "intermediate"
+          }
+        ],
+        "reference_graph_id": "rg-synth-1",
+        "root_entity_id": "root-ethanol",
+        "sample_id": "dev:known_evidence_reconstruction:rg-synth-1",
+        "scoring_errors": [],
+        "scoring_status": "scored",
+        "source_group_ids": [
+          "sg-study-A",
+          "sg-study-B"
+        ],
+        "unknown_or_partial_summary": {
+          "audit_unknown_checks": 9,
+          "conditional_admission_events": 2,
+          "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+          "unresolved_outcomes": 3
+        }
+      }
+    ],
+    "scoring_provenance": {
+      "consumed_field_policy": "仅消费冻结结构化字段清单;自然语言字段不进判定(S5-25)",
+      "cost": 0,
+      "data_scope": "synthetic_rule_level",
+      "evaluator_version": "ppv1-evaluation-1",
+      "llm_in_scoring": false,
+      "network_request_count": 0,
+      "preregistration_sha256": "5746f561bb455c33bb21f61b2fe26bda2fe19d6b20694eecb6aa661d013c9cac",
+      "provider_kind": "none",
+      "reference_graph_sha256s": {
+        "rg-synth-1": "6d5c7f39613a8ab9c3f1c5ede4655b7108440a8f320388c8d73023de4ab72a12"
+      },
+      "scientific_metric_status": "interface_only:合成规则级数字不外推 dev/298,不构成科学性能声明(§5.1 题域标签/§12 状态语义)",
+      "split_manifest_sha256": "b769d5d63a66d7636dd92a6f2299a672d81e12a2162cd9dd048ba5852ea8fa00",
+      "split_manifest_version": "ppv1-split-manifest-1"
+    },
+    "split": {
+      "rg-synth-1": "development"
+    },
+    "status": "interface_verified_only",
+    "track": "known_evidence_reconstruction",
+    "uncertainty_intervals": [
+      {
+        "method": "TBD_USER_TEACHER_DECISION",
+        "note": "置信区间方法/多重比较处理 TBD;接口仅预留分轴结构,不产出区间数值",
+        "status": "pending_preregistration"
+      }
+    ]
+  }
+}

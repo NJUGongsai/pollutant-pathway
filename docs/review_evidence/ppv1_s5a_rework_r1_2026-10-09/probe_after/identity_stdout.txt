@@ -1,0 +1,422 @@
+{
+  "case_count": 19,
+  "scope_limited": [
+    {
+      "case": "reference_intermediates_cn_only",
+      "nodes": {
+        "n-root": {
+          "scope": "strict_structure",
+          "status": "strict_structure",
+          "matched_state_ids": [
+            "cs_ab1de819ede91df490e6"
+          ],
+          "cn_only_state_ids": []
+        },
+        "n-int-occ-a": {
+          "scope": "cn_only",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-int-occ-b": {
+          "scope": "cn_only",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-coproduct-h2": {
+          "scope": "strict_structure",
+          "status": "strict_structure",
+          "matched_state_ids": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "cn_only_state_ids": []
+        }
+      },
+      "edges": {
+        "e-alt-1": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        },
+        "e-alt-2": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        }
+      },
+      "status": "interface_verified_only"
+    },
+    {
+      "case": "reference_all_cn_only",
+      "nodes": {
+        "n-root": {
+          "scope": "cn_only",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_ab1de819ede91df490e6"
+          ]
+        },
+        "n-int-occ-a": {
+          "scope": "cn_only",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-int-occ-b": {
+          "scope": "cn_only",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-coproduct-h2": {
+          "scope": "cn_only",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_ea7e44a64c7461517e4f"
+          ]
+        }
+      },
+      "edges": {
+        "e-alt-1": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        },
+        "e-alt-2": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        }
+      },
+      "status": "interface_verified_only"
+    },
+    {
+      "case": "reference_intermediates_partial",
+      "nodes": {
+        "n-root": {
+          "scope": "strict_structure",
+          "status": "strict_structure",
+          "matched_state_ids": [
+            "cs_ab1de819ede91df490e6"
+          ],
+          "cn_only_state_ids": []
+        },
+        "n-int-occ-a": {
+          "scope": "partial",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-int-occ-b": {
+          "scope": "partial",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-coproduct-h2": {
+          "scope": "strict_structure",
+          "status": "strict_structure",
+          "matched_state_ids": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "cn_only_state_ids": []
+        }
+      },
+      "edges": {
+        "e-alt-1": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        },
+        "e-alt-2": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        }
+      },
+      "status": "interface_verified_only"
+    },
+    {
+      "case": "reference_all_partial",
+      "nodes": {
+        "n-root": {
+          "scope": "partial",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_ab1de819ede91df490e6"
+          ]
+        },
+        "n-int-occ-a": {
+          "scope": "partial",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-int-occ-b": {
+          "scope": "partial",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-coproduct-h2": {
+          "scope": "partial",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_ea7e44a64c7461517e4f"
+          ]
+        }
+      },
+      "edges": {
+        "e-alt-1": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        },
+        "e-alt-2": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        }
+      },
+      "status": "interface_verified_only"
+    },
+    {
+      "case": "reference_intermediates_unknown",
+      "nodes": {
+        "n-root": {
+          "scope": "strict_structure",
+          "status": "strict_structure",
+          "matched_state_ids": [
+            "cs_ab1de819ede91df490e6"
+          ],
+          "cn_only_state_ids": []
+        },
+        "n-int-occ-a": {
+          "scope": "unknown",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-int-occ-b": {
+          "scope": "unknown",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-coproduct-h2": {
+          "scope": "strict_structure",
+          "status": "strict_structure",
+          "matched_state_ids": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "cn_only_state_ids": []
+        }
+      },
+      "edges": {
+        "e-alt-1": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        },
+        "e-alt-2": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        }
+      },
+      "status": "interface_verified_only"
+    },
+    {
+      "case": "reference_all_unknown",
+      "nodes": {
+        "n-root": {
+          "scope": "unknown",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_ab1de819ede91df490e6"
+          ]
+        },
+        "n-int-occ-a": {
+          "scope": "unknown",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-int-occ-b": {
+          "scope": "unknown",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_540cc0181e112b383323"
+          ]
+        },
+        "n-coproduct-h2": {
+          "scope": "unknown",
+          "status": "cn_only",
+          "matched_state_ids": [],
+          "cn_only_state_ids": [
+            "cs_ea7e44a64c7461517e4f"
+          ]
+        }
+      },
+      "edges": {
+        "e-alt-1": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        },
+        "e-alt-2": {
+          "status": "unmatched_required_node_uncovered",
+          "matched_events": [],
+          "structure_only": []
+        }
+      },
+      "status": "interface_verified_only"
+    }
+  ],
+  "required_node": [
+    {
+      "case": "reactant_unmatched_structure",
+      "added_node_status": "unmatched",
+      "target_edge_status": "unmatched_required_node_uncovered"
+    },
+    {
+      "case": "reactant_limited_duplicate",
+      "added_node_status": "cn_only",
+      "target_edge_status": "unmatched_required_node_uncovered"
+    },
+    {
+      "case": "reactant_inconsistent_participant_nodes",
+      "added_node_status": "unmatched",
+      "target_edge_status": "matched_strict"
+    },
+    {
+      "case": "product_unmatched_structure",
+      "added_node_status": "unmatched",
+      "target_edge_status": "unmatched_required_node_uncovered"
+    },
+    {
+      "case": "product_limited_duplicate",
+      "added_node_status": "cn_only",
+      "target_edge_status": "unmatched_required_node_uncovered"
+    },
+    {
+      "case": "product_inconsistent_participant_nodes",
+      "added_node_status": "unmatched",
+      "target_edge_status": "matched_strict"
+    }
+  ],
+  "unknown_scope": {
+    "case": "reactant_inconsistent_participant_nodes",
+    "added_node": {
+      "node_id": "n-required-missing",
+      "occurrence_id": "occ-extra-required",
+      "role": "coproduct",
+      "reference_identity_scope": "strict_structure",
+      "match_status": "unmatched",
+      "matched_state_ids": [],
+      "cn_only_state_ids": [],
+      "predicted_occurrence_count": 0
+    },
+    "target_edge": {
+      "edge_id": "e-alt-2",
+      "match_status": "matched_strict",
+      "matched_events": [
+        {
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_step_scope": "net_reaction",
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true,
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6"
+          ],
+          "coproduct_participants": [],
+          "participant_coverage": "exact"
+        }
+      ],
+      "coverage_mismatch_events": [
+        {
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_step_scope": "net_reaction",
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true,
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6",
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "coproduct_participants": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "participant_coverage": "superset"
+        }
+      ],
+      "structure_only_events": [],
+      "required_node_gaps": [],
+      "reference_participant_node_ids": [
+        "n-root",
+        "n-int-occ-b",
+        "n-required-missing"
+      ],
+      "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)"
+    },
+    "aggregate_reference_edges": {
+      "metric_id": "reference_edge_recall",
+      "spec_ref": "S5-spec 9.1",
+      "axis": {
+        "domain": "dev",
+        "track": "known_evidence_reconstruction",
+        "split": "development"
+      },
+      "buckets": {
+        "matched_strict": 2
+      },
+      "denominator_policy": "TBD_USER_TEACHER_DECISION",
+      "status": "interface_only_synthetic",
+      "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD"
+    }
+  },
+  "stereo_unit": [
+    {
+      "node_id": "n-root",
+      "occurrence_id": "occ-root-1",
+      "role": "root",
+      "reference_identity_scope": "strict_structure",
+      "match_status": "cn_only",
+      "matched_state_ids": [],
+      "cn_only_state_ids": [
+        "synthetic-stereo-control"
+      ],
+      "predicted_occurrence_count": 0
+    }
+  ]
+}

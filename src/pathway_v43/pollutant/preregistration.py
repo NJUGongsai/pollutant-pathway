@@ -1,4 +1,4 @@
-"""S5a 预注册模板(ppv1-preregistration-template-1;§10.2/§14.3)。
+"""S5a 预注册模板(ppv1-preregistration-template-2;§10.2/§14.3)。
 
 模板交付边界(§14.3):
 
@@ -7,6 +7,11 @@
 - 逐项标注哪些阈值**尚未冻结**;
 - 逐项标注哪些指标只有**接口定义**(interface_definition_only);
 - 标注哪些结果**不得在冻结前对外发布**。
+
+S5a 回修 r1(2026-10-09,复审 §4 四组 P1):模板 -1 → -2,proposed
+文字与实现证明范围同步(identity scope 许可封顶、必要节点闭合、
+条件同源口径、写边界根规则、角色/系数与 unknown==unknown 的实现
+证明范围如实标注;全部仍 proposed 不冻结,§10.1 全部 TBD 不变)。
 
 S5a 只交付模板与装配/校验程序;**不冻结任何字段取值**(§10.1 全部
 TBD 属用户/teacher 裁定,不得代定;不得从当前 dev 结果反推阈值或
@@ -94,22 +99,40 @@ def build_preregistration_template(*, note: str = "") -> dict:
         "identity_matching_policy": {
             "status": PROPOSED,
             "rule": ("严格结构身份=与生产同源 strict identity;CN 仅旁证"
-                     "(CN 相同而严格身份不同不计严格命中);反应中心与"
-                     "step scope 分轴;最终冻结 TBD")},
+                     "(CN 相同而严格身份不同不计严格命中);参考节点声明"
+                     " identity_scope=cn_only/partial/unknown ⇒ 许可范围"
+                     "封顶:内容严格相等也只作 CN 旁证,不授严格命中、"
+                     "不进边严格匹配与严格指标(旁证不叠加升格;当前"
+                     "实现已按此执行,最终冻结 TBD)")},
         "edge_matching_policy": {
             "status": PROPOSED,
-            "rule": ("参与物/角色/系数完整匹配;共同产物不被报告 K 删除;"
-                     "备选反应不合并;distinct occurrence 不按 CN 合并;"
-                     "step_scope 不一致分轴;最终冻结 TBD")},
+            "rule": ("参与物**状态集合**覆盖匹配(当前实现证明范围:"
+                     "不比较角色/系数,系数状态仅披露;共同产物不被"
+                     "报告 K 删除;备选反应不合并;distinct occurrence"
+                     " 不按 CN 合并;step_scope 不一致分轴);每个声明"
+                     "必要 from/to 参考节点须有许可严格命中才可完整"
+                     " strict,空命中保持未覆盖分桶不被 union 吞;"
+                     "是否新增角色/系数/计量匹配轴属用户/teacher 裁定"
+                     "(未裁定时按状态集合口径,最终冻结 TBD)")},
         "step_scope_policy": {
             "status": PROPOSED,
             "rule": ("net_reaction/elementary_step/multistep_summary/"
-                     "unknown 不混作同一边;unknown 不冒充净反应")},
+                     "unknown 不混作同一边;unknown 不冒充净反应(当前"
+                     "实现披露限定:参考与事件双方均 unknown 时仍按"
+                     "scope 一致计入严格档,是否单列 unknown_scope 桶"
+                     "属冻结前须裁定的口径)")},
         "condition_policy": {
             "status": PROPOSED,
             "rule": ("essential 冲突/条件未知/preference 不满足/来源"
                      "条件不可映射分桶;未知不计冲突;历史来源条件保留"
-                     "原文不改写")},
+                     "原文不改写;条件分类沿冻结同源规则(单位三态、"
+                     "实体/数值/异值 absence 保守语义、多事实保守"
+                     "unknown、necessity 来源、适用场景阶段、声明"
+                     "value_basis 由同一实现裁决);ConditionScope → "
+                     "冻结 Requirement 的登记映射限定与缺表示能力"
+                     "披露随评测契约登记;要求侧 known_absent 无冻结"
+                     "负要求表示 ⇒ 单列不判冲突(负要求语义属用户/"
+                     "teacher 裁定)")},
         "unknown_partial_policy": {
             "status": PROPOSED,
             "rule": ("unknown/partial/conditional 不计 confirmed 也不"
@@ -136,6 +159,14 @@ def build_preregistration_template(*, note: str = "") -> dict:
             "rule": ("真实 provider 默认关闭;无用户逐次授权时网络请求"
                      "为零、费用为零;判分零 LLM(评分程序不得调用 LLM/"
                      "不得以自然语言语义裁判/不得二次裁判覆盖程序结果)")},
+        "output_write_boundary_policy": {
+            "status": PROPOSED,
+            "rule": ("评测输出落盘核验与写入使用同一解析后实际规范路径"
+                     "(含金标产物:相对 target 基准=相对 cwd,解析后"
+                     "逃出声明 repo_root/任意层 symlink 逃根 ⇒ 先拒"
+                     "零新文件;未声明根 ⇒ 一律拒;仅授权 gitignored"
+                     "根放行;普通非敏感写入不受限)——当前实现已按此"
+                     "执行;是否追加内容 DLP/沙箱/并发防御属另行裁定")},
         "cost_limit": TBD,
         "stop_rule": TBD,
         "change_control": {

@@ -325,7 +325,7 @@ def synth_evaluation_input(*, domain: str = "dev",
         "evaluator_schema_version": PPV1_EVALUATION_VERSION,
         "run_identity": {
             "run_id": "synth-run-1",
-            "profile_version": "ppv1-profile-20",
+            "profile_version": "ppv1-profile-21",
             "export_schema_version": PPV1_NATIVE_EXPORT_VERSION,
         },
         "native_path_exports": exports or [],
@@ -613,13 +613,17 @@ def test_real_data_scope_requires_approved_prereg() -> None:
 
 def test_s5_27_gold_output_write_guard(tmp_path: Path) -> None:
     """S5-27:含金标产物写入普通目录 ⇒ 流程拒绝;授权 gitignored 根
-    (镜像 .gitignore)放行;非金标输出正常写。"""
+    (镜像 .gitignore)放行;非金标输出正常写。
+
+    S5A-04:核验与写入同一解析后实际规范路径 —— 未声明根 ⇒ 含金标
+    一律拒(gold_content_root_required);解析后逃出声明根(错 cwd/
+    symlink 逃根)先拒零新文件(gold_content_outside_declared_root)。"""
     output = {"status": "interface_verified_only", "payload": "synthetic"}
     plain = tmp_path / "out" / "report.json"
     with pytest.raises(EvaluationContractError) as excinfo:
         persist_evaluation_output(output, plain, contains_gold=True)
-    assert excinfo.value.detail["kind"] == \
-        "gold_content_unauthorized_path"
+    # S5A-04:未声明 repo_root ⇒ 含金标写入一律拒绝(根规则明确)
+    assert excinfo.value.detail["kind"] == "gold_content_root_required"
     assert not plain.exists()  # 零写入
     # 仓内普通路径同样拒绝(用临时 repo_root 模拟仓根)
     repo_root = tmp_path / "repo"
@@ -628,13 +632,15 @@ def test_s5_27_gold_output_write_guard(tmp_path: Path) -> None:
         persist_evaluation_output(
             output, inside_plain, contains_gold=True,
             repo_root=repo_root)
-    # 授权根(镜像 .gitignore 金标隔离目录)放行
+    # 授权根(镜像 .gitignore 金标隔离目录)放行;回执为实际写入路径
     authorized = repo_root / "reports" / "phase_s1_hit60" / "dev_gold" \
         / "report.json"
     receipt = persist_evaluation_output(
-        output, authorized, contains_gold=True, repo_root=repo_root)
+        output, authorized, contains_gold=True,
+        repo_root=repo_root)
     assert authorized.is_file()
     assert receipt["sha256"]
+    assert receipt["path"] == str(authorized.resolve())
     assert "reports/phase_s1_hit60/dev_gold" in GOLD_AUTHORIZED_ROOTS
     # 非金标输出写普通目录合法
     normal = persist_evaluation_output(output, plain)

@@ -1,0 +1,278 @@
+{
+  "classification": "unit-only, not native public chain",
+  "output": [
+    {
+      "cn_only_state_ids": [
+        "synthetic-stereo-control"
+      ],
+      "match_status": "cn_only",
+      "matched_state_ids": [],
+      "node_id": "n-root",
+      "occurrence_id": "occ-root-1",
+      "predicted_occurrence_count": 0,
+      "reference_identity_scope": "strict_structure",
+      "role": "root"
+    }
+  ],
+  "payload": {
+    "states": [
+      {
+        "payload": {
+          "cn_identity": "FC(Cl)Br",
+          "smiles_isomeric": "F[C@@H](Cl)Br"
+        },
+        "state_id": "synthetic-stereo-control"
+      }
+    ]
+  },
+  "reference": {
+    "coverage_statement": {
+      "covered_axes": [
+        "nodes",
+        "edges"
+      ],
+      "known_gaps": [],
+      "not_evaluable_edge_ids": [],
+      "not_evaluable_node_ids": []
+    },
+    "creation_review": {
+      "note": "S5a 合成规则级参考图(无金标/题面)",
+      "review_status": "synthetic_rule_level",
+      "reviewer": "s5a-synthetic"
+    },
+    "domain": "dev",
+    "edges": [
+      {
+        "coefficient_status": "partial",
+        "condition_requirements": [
+          {
+            "key": "oxygen_regime",
+            "required": "essential",
+            "source_refs": [
+              "src:synthetic"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:synth-aerobic",
+            "unit": "",
+            "value_or_interval": "aerobic"
+          },
+          {
+            "key": "redox_regime",
+            "required": "essential",
+            "source_refs": [
+              "src:synthetic"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:synth-aerobic",
+            "unit": "",
+            "value_or_interval": "anaerobic"
+          },
+          {
+            "key": "oxygen_regime",
+            "required": "essential",
+            "source_refs": [
+              "src:synthetic"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:synth-aerobic",
+            "unit": "",
+            "value_or_interval": "anaerobic"
+          }
+        ],
+        "edge_id": "e-alt-1",
+        "edge_status": "observed",
+        "evidence_basis": "study_series",
+        "from_node_ids": [
+          "n-root"
+        ],
+        "participant_list_status": "declared_complete",
+        "participants": [
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-root",
+            "role": "primary_substrate",
+            "side": "reactant"
+          },
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-int-occ-a",
+            "role": "principal_product",
+            "side": "product"
+          },
+          {
+            "coefficient": null,
+            "coefficient_status": "unknown",
+            "node_id": "n-coproduct-h2",
+            "role": "coproduct",
+            "side": "product"
+          }
+        ],
+        "provenance_refs": [
+          "pv-1"
+        ],
+        "scenario_scope": "scenario:synth-aerobic",
+        "source_group_refs": [
+          "sg-study-A"
+        ],
+        "step_scope": "net_reaction",
+        "to_node_ids": [
+          "n-int-occ-a",
+          "n-coproduct-h2"
+        ],
+        "transformation_ref": "tref-donor-B",
+        "transformation_signature_status": "declared"
+      },
+      {
+        "coefficient_status": "known",
+        "condition_requirements": [
+          {
+            "key": "oxygen_regime",
+            "required": "essential",
+            "source_refs": [
+              "src:synthetic"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:synth-aerobic",
+            "unit": "",
+            "value_or_interval": "aerobic"
+          }
+        ],
+        "edge_id": "e-alt-2",
+        "edge_status": "observed",
+        "evidence_basis": "study_series",
+        "from_node_ids": [
+          "n-root"
+        ],
+        "participant_list_status": "declared_complete",
+        "participants": [
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-root",
+            "role": "primary_substrate",
+            "side": "reactant"
+          },
+          {
+            "coefficient": 1,
+            "coefficient_status": "known",
+            "node_id": "n-int-occ-b",
+            "role": "principal_product",
+            "side": "product"
+          }
+        ],
+        "provenance_refs": [
+          "pv-2"
+        ],
+        "scenario_scope": "scenario:synth-aerobic",
+        "source_group_refs": [
+          "sg-study-B"
+        ],
+        "step_scope": "net_reaction",
+        "to_node_ids": [
+          "n-int-occ-b"
+        ],
+        "transformation_ref": "tref-donor-C",
+        "transformation_signature_status": "declared"
+      }
+    ],
+    "endpoint_annotations": [],
+    "nodes": [
+      {
+        "condition_scope": [],
+        "node_id": "n-root",
+        "node_status": "observed",
+        "occurrence_id": "occ-root-1",
+        "provenance_refs": [
+          "pv-1",
+          "pv-2"
+        ],
+        "role": "root",
+        "source_group_refs": [
+          "sg-study-A",
+          "sg-study-B"
+        ],
+        "state_identity": "strict:CCO",
+        "structure_identity_scope": "strict_structure",
+        "structure_smiles": "F[C@H](Cl)Br"
+      }
+    ],
+    "provenance_manifest": [
+      {
+        "citation_ref": "cite:synth-A",
+        "evidence_basis": "direct_observation",
+        "independent_status": "independent",
+        "observation_scope": "lab_incubation",
+        "provenance_id": "pv-1",
+        "source_conditions": [
+          {
+            "key": "temperature",
+            "required": "preference",
+            "source_refs": [
+              "cite:synth-A"
+            ],
+            "status": "known_present",
+            "subject_scenario_ref": "scenario:study-A-historical",
+            "unit": "C",
+            "value_or_interval": "30"
+          }
+        ],
+        "source_group_id": "sg-study-A",
+        "source_origin": "journal",
+        "structure_match_scope": "strict_structure"
+      },
+      {
+        "citation_ref": "cite:synth-B",
+        "evidence_basis": "recorded",
+        "independent_status": "independent",
+        "observation_scope": "recorded_only",
+        "provenance_id": "pv-2",
+        "source_conditions": [],
+        "source_group_id": "sg-study-B",
+        "source_origin": "database",
+        "structure_match_scope": "strict_structure"
+      }
+    ],
+    "reference_graph_id": "rg-synth-1",
+    "root_entity": {
+      "entity_id": "root-ethanol",
+      "formal_charge": 0,
+      "isotope_information_status": "not_applicable",
+      "source_refs": [
+        "src:synthetic"
+      ],
+      "stereo_information_status": "not_applicable",
+      "strict_structure_identity": "CCO",
+      "structure_smiles_raw": "CCO"
+    },
+    "schema_version": "ppv1-reference-graph-1",
+    "source_groups": [
+      {
+        "independence_status": "independent",
+        "member_records": [
+          "rhea:1001",
+          "rhea:1002"
+        ],
+        "note": "同论文两条记录:一组",
+        "source_group_id": "sg-study-A"
+      },
+      {
+        "independence_status": "independent",
+        "member_records": [
+          "rhea:2001"
+        ],
+        "note": "独立研究 B",
+        "source_group_id": "sg-study-B"
+      }
+    ],
+    "split_assignment": {
+      "route_group_keys": [
+        "route-ethanol-oxidation"
+      ],
+      "split": "development",
+      "split_rule_version": "ppv1-split-rule-synth-1"
+    },
+    "track": "known_evidence_reconstruction"
+  }
+}

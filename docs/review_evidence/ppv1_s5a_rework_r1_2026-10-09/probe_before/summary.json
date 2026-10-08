@@ -1,0 +1,3143 @@
+[
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "strict_control",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [
+          "ppev_6ccb62e1e947a221b5bd"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [
+          "ppev_b78230e81fdfb5899ced"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 0,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "reference_intermediates_cn_only",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [
+          "ppev_6ccb62e1e947a221b5bd"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [
+          "ppev_b78230e81fdfb5899ced"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "cn_only",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "cn_only",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 0,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "reference_all_cn_only",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [
+          "ppev_6ccb62e1e947a221b5bd"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [
+          "ppev_b78230e81fdfb5899ced"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "cn_only",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "cn_only",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "cn_only",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "cn_only",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 0,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "reference_intermediates_partial",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [
+          "ppev_6ccb62e1e947a221b5bd"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [
+          "ppev_b78230e81fdfb5899ced"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "partial",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "partial",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 0,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "reference_all_partial",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [
+          "ppev_6ccb62e1e947a221b5bd"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [
+          "ppev_b78230e81fdfb5899ced"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "partial",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "partial",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "partial",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "partial",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 0,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "reference_intermediates_unknown",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [
+          "ppev_6ccb62e1e947a221b5bd"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [
+          "ppev_b78230e81fdfb5899ced"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "unknown",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "unknown",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 0,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "reference_all_unknown",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [
+          "ppev_6ccb62e1e947a221b5bd"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [
+          "ppev_b78230e81fdfb5899ced"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "unknown",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "unknown",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "unknown",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "unknown",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 0,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_participant_coverage_partial": 1,
+          "unmatched_budget_unexpanded": 1
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "cn_only": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 2,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "strict_mismatch_isotope",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [],
+        "status": "matched_participant_coverage_partial",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [],
+        "status": "unmatched_budget_unexpanded",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "matched_state_ids": [],
+        "scope": "strict_structure",
+        "status": "cn_only"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "matched_state_ids": [],
+        "scope": "strict_structure",
+        "status": "cn_only"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 2,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_participant_coverage_partial": 1,
+          "unmatched_budget_unexpanded": 1
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "cn_only": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 2,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "strict_mismatch_charge",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [],
+        "status": "matched_participant_coverage_partial",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [],
+        "status": "unmatched_budget_unexpanded",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "matched_state_ids": [],
+        "scope": "strict_structure",
+        "status": "cn_only"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "matched_state_ids": [],
+        "scope": "strict_structure",
+        "status": "cn_only"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 2,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_structure_only": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 2,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "scope_known_vs_elementary_step",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [],
+        "status": "matched_structure_only",
+        "structure_only": [
+          "ppev_6ccb62e1e947a221b5bd",
+          "ppev_b78230e81fdfb5899ced"
+        ]
+      },
+      "e-alt-2": {
+        "matched_events": [],
+        "status": "matched_structure_only",
+        "structure_only": [
+          "ppev_6ccb62e1e947a221b5bd",
+          "ppev_b78230e81fdfb5899ced"
+        ]
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 2,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_structure_only": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 2,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "scope_known_vs_multistep_summary",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [],
+        "status": "matched_structure_only",
+        "structure_only": [
+          "ppev_6ccb62e1e947a221b5bd",
+          "ppev_b78230e81fdfb5899ced"
+        ]
+      },
+      "e-alt-2": {
+        "matched_events": [],
+        "status": "matched_structure_only",
+        "structure_only": [
+          "ppev_6ccb62e1e947a221b5bd",
+          "ppev_b78230e81fdfb5899ced"
+        ]
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 2,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_structure_only": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 2,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "scope_known_vs_unknown",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [],
+        "status": "matched_structure_only",
+        "structure_only": [
+          "ppev_6ccb62e1e947a221b5bd",
+          "ppev_b78230e81fdfb5899ced"
+        ]
+      },
+      "e-alt-2": {
+        "matched_events": [],
+        "status": "matched_structure_only",
+        "structure_only": [
+          "ppev_6ccb62e1e947a221b5bd",
+          "ppev_b78230e81fdfb5899ced"
+        ]
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 2,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "known",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 9,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "aggregate_metrics": [
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "matched_strict": 2
+        },
+        "denominator_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "reference_edge_recall",
+        "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+        "spec_ref": "S5-spec 9.1",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "strict_structure": 2
+        },
+        "key_intermediate_list_frozen": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "key_intermediate_recall",
+        "note": "关键中间体清单须评测前冻结;不按预测结果动态决定;严格身份与仅 CN 分轴;known/unseen 分轨",
+        "spec_ref": "S5-spec 9.2",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "confirmed_claim_events": 0
+        },
+        "coverage_policy": "TBD_USER_TEACHER_DECISION",
+        "independent_review_subset": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "confirmed_error_rate",
+        "note": "仅在有独立正负复核依据的子集上报告;unknown/partial/conditional 不计 confirmed(本接口只数程序可见的误声明类型;独立复核 TBD)",
+        "spec_ref": "S5-spec 9.3",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "outside_reference_model_only": 0,
+          "outside_reference_no_auditable_basis": 0,
+          "outside_reference_with_allowed_inference_basis": 0,
+          "reference_coverage_indeterminate": 0
+        },
+        "metric_id": "outside_reference_unverified_edges",
+        "note": "不直接等同错误率:参考图可能不完备;unseen 轨道允许未见边;参考覆盖不足另在 coverage_report 披露",
+        "spec_ref": "S5-spec 9.4",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "compatible": 2,
+          "condition_unknown": 1,
+          "essential_conflict": 1
+        },
+        "metric_id": "environment_conflict_rate",
+        "note": "essential 冲突/条件未知/覆盖不足/preference 不满足/来源条件不可映射分桶;unknown 不计冲突,满足不升级为全路径相容",
+        "spec_ref": "S5-spec 9.5",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {},
+        "endpoint_taxonomy": [
+          "metabolic_handoff",
+          "supported_mineralization",
+          "supported_terminal_transformation_product",
+          "unknown"
+        ],
+        "metric_id": "endpoint_mineralization_misclaim_rate",
+        "note": "终点分类沿用 S4 四分账;bookkeeping_status 不单独提升为矿化结论;停止原因不是终点",
+        "spec_ref": "S5-spec 9.6",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "beyond_depth_budget": 0,
+          "depth_1": 0,
+          "depth_2": 2,
+          "depth_3_plus": 0,
+          "events_with_unknown_depth": 0
+        },
+        "insufficient_sample_policy": "TBD_USER_TEACHER_DECISION",
+        "metric_id": "depth_performance",
+        "note": "按第 1/2/3+ 条反应边分桶;样本量不足 ⇒ insufficient_sample,不合并总分",
+        "spec_ref": "S5-spec 9.7",
+        "status": "interface_only_synthetic"
+      },
+      {
+        "axis": {
+          "domain": "dev",
+          "split": "development",
+          "track": "known_evidence_reconstruction"
+        },
+        "buckets": {
+          "action_budget": 1,
+          "awaiting_prediction": 0,
+          "blocked_objects": 0,
+          "deferred_not_activated": 0,
+          "depth_budget": 0,
+          "other_explicit_stop": 0,
+          "scoped_limit_reached": 5
+        },
+        "metric_id": "budget_omission",
+        "note": "预算漏展开单独报告;不计化学错误,不从分母无声删除;是否作性能指标/限制项/单独门槛 TBD",
+        "spec_ref": "S5-spec 9.8",
+        "status": "interface_only_synthetic"
+      }
+    ],
+    "case": "scope_unknown_vs_unknown",
+    "edges": {
+      "e-alt-1": {
+        "matched_events": [
+          "ppev_18ef6509cb68dcaa2a2a"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      },
+      "e-alt-2": {
+        "matched_events": [
+          "ppev_74b3cbbdc829d6d4bc10"
+        ],
+        "status": "matched_strict",
+        "structure_only": []
+      }
+    },
+    "nodes": {
+      "n-coproduct-h2": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ea7e44a64c7461517e4f"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-a": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-int-occ-b": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_540cc0181e112b383323"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      },
+      "n-root": {
+        "cn_only_state_ids": [],
+        "matched_state_ids": [
+          "cs_ab1de819ede91df490e6"
+        ],
+        "scope": "strict_structure",
+        "status": "strict_structure"
+      }
+    },
+    "outside_reference": {
+      "buckets": {
+        "outside_reference_model_only": 0,
+        "outside_reference_no_auditable_basis": 0,
+        "outside_reference_with_allowed_inference_basis": 0,
+        "reference_coverage_indeterminate": 0
+      },
+      "note": "参考图可能不完备/unseen 轨道允许未见边:该指标不直接等同错误率;参考覆盖不足无法判断的边在 coverage_report 披露"
+    },
+    "run": "unknown",
+    "status": "interface_verified_only",
+    "tables_unchanged": true,
+    "unknown_partial": {
+      "audit_unknown_checks": 11,
+      "conditional_admission_events": 2,
+      "note": "unknown/partial/conditional 如实保留:不计 confirmed,也不自动计为错误(S5-16);分母处理 TBD",
+      "unresolved_outcomes": 3
+    }
+  },
+  {
+    "added_node": {
+      "cn_only_state_ids": [],
+      "match_status": "unmatched",
+      "matched_state_ids": [],
+      "node_id": "n-required-missing",
+      "occurrence_id": "occ-extra-required",
+      "predicted_occurrence_count": 0,
+      "reference_identity_scope": "strict_structure",
+      "role": "root"
+    },
+    "aggregate_reference_edges": {
+      "axis": {
+        "domain": "dev",
+        "split": "development",
+        "track": "known_evidence_reconstruction"
+      },
+      "buckets": {
+        "matched_strict": 2
+      },
+      "denominator_policy": "TBD_USER_TEACHER_DECISION",
+      "metric_id": "reference_edge_recall",
+      "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+      "spec_ref": "S5-spec 9.1",
+      "status": "interface_only_synthetic"
+    },
+    "case": "reactant_unmatched_structure",
+    "target_edge": {
+      "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)",
+      "coverage_mismatch_events": [
+        {
+          "coproduct_participants": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "superset",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6",
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "edge_id": "e-alt-2",
+      "match_status": "matched_strict",
+      "matched_events": [
+        {
+          "coproduct_participants": [],
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "exact",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "reference_participant_node_ids": [
+        "n-root",
+        "n-int-occ-b",
+        "n-required-missing"
+      ],
+      "structure_only_events": []
+    }
+  },
+  {
+    "added_node": {
+      "cn_only_state_ids": [],
+      "match_status": "strict_structure",
+      "matched_state_ids": [
+        "cs_ab1de819ede91df490e6"
+      ],
+      "node_id": "n-required-missing",
+      "occurrence_id": "occ-extra-required",
+      "predicted_occurrence_count": 2,
+      "reference_identity_scope": "cn_only",
+      "role": "root"
+    },
+    "aggregate_reference_edges": {
+      "axis": {
+        "domain": "dev",
+        "split": "development",
+        "track": "known_evidence_reconstruction"
+      },
+      "buckets": {
+        "matched_strict": 2
+      },
+      "denominator_policy": "TBD_USER_TEACHER_DECISION",
+      "metric_id": "reference_edge_recall",
+      "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+      "spec_ref": "S5-spec 9.1",
+      "status": "interface_only_synthetic"
+    },
+    "case": "reactant_limited_duplicate",
+    "target_edge": {
+      "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)",
+      "coverage_mismatch_events": [
+        {
+          "coproduct_participants": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "superset",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6",
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "edge_id": "e-alt-2",
+      "match_status": "matched_strict",
+      "matched_events": [
+        {
+          "coproduct_participants": [],
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "exact",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "reference_participant_node_ids": [
+        "n-root",
+        "n-int-occ-b",
+        "n-required-missing"
+      ],
+      "structure_only_events": []
+    }
+  },
+  {
+    "added_node": {
+      "cn_only_state_ids": [],
+      "match_status": "unmatched",
+      "matched_state_ids": [],
+      "node_id": "n-required-missing",
+      "occurrence_id": "occ-extra-required",
+      "predicted_occurrence_count": 0,
+      "reference_identity_scope": "strict_structure",
+      "role": "coproduct"
+    },
+    "aggregate_reference_edges": {
+      "axis": {
+        "domain": "dev",
+        "split": "development",
+        "track": "known_evidence_reconstruction"
+      },
+      "buckets": {
+        "matched_strict": 2
+      },
+      "denominator_policy": "TBD_USER_TEACHER_DECISION",
+      "metric_id": "reference_edge_recall",
+      "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+      "spec_ref": "S5-spec 9.1",
+      "status": "interface_only_synthetic"
+    },
+    "case": "reactant_inconsistent_participant_nodes",
+    "target_edge": {
+      "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)",
+      "coverage_mismatch_events": [
+        {
+          "coproduct_participants": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "superset",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6",
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "edge_id": "e-alt-2",
+      "match_status": "matched_strict",
+      "matched_events": [
+        {
+          "coproduct_participants": [],
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "exact",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "reference_participant_node_ids": [
+        "n-root",
+        "n-int-occ-b",
+        "n-required-missing"
+      ],
+      "structure_only_events": []
+    }
+  },
+  {
+    "added_node": {
+      "cn_only_state_ids": [],
+      "match_status": "unmatched",
+      "matched_state_ids": [],
+      "node_id": "n-required-missing",
+      "occurrence_id": "occ-extra-required",
+      "predicted_occurrence_count": 0,
+      "reference_identity_scope": "strict_structure",
+      "role": "intermediate"
+    },
+    "aggregate_reference_edges": {
+      "axis": {
+        "domain": "dev",
+        "split": "development",
+        "track": "known_evidence_reconstruction"
+      },
+      "buckets": {
+        "matched_strict": 2
+      },
+      "denominator_policy": "TBD_USER_TEACHER_DECISION",
+      "metric_id": "reference_edge_recall",
+      "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+      "spec_ref": "S5-spec 9.1",
+      "status": "interface_only_synthetic"
+    },
+    "case": "product_unmatched_structure",
+    "target_edge": {
+      "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)",
+      "coverage_mismatch_events": [
+        {
+          "coproduct_participants": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "superset",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6",
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "edge_id": "e-alt-2",
+      "match_status": "matched_strict",
+      "matched_events": [
+        {
+          "coproduct_participants": [],
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "exact",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "reference_participant_node_ids": [
+        "n-root",
+        "n-int-occ-b",
+        "n-required-missing"
+      ],
+      "structure_only_events": []
+    }
+  },
+  {
+    "added_node": {
+      "cn_only_state_ids": [],
+      "match_status": "strict_structure",
+      "matched_state_ids": [
+        "cs_540cc0181e112b383323"
+      ],
+      "node_id": "n-required-missing",
+      "occurrence_id": "occ-extra-required",
+      "predicted_occurrence_count": 1,
+      "reference_identity_scope": "cn_only",
+      "role": "intermediate"
+    },
+    "aggregate_reference_edges": {
+      "axis": {
+        "domain": "dev",
+        "split": "development",
+        "track": "known_evidence_reconstruction"
+      },
+      "buckets": {
+        "matched_strict": 2
+      },
+      "denominator_policy": "TBD_USER_TEACHER_DECISION",
+      "metric_id": "reference_edge_recall",
+      "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+      "spec_ref": "S5-spec 9.1",
+      "status": "interface_only_synthetic"
+    },
+    "case": "product_limited_duplicate",
+    "target_edge": {
+      "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)",
+      "coverage_mismatch_events": [
+        {
+          "coproduct_participants": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "superset",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6",
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "edge_id": "e-alt-2",
+      "match_status": "matched_strict",
+      "matched_events": [
+        {
+          "coproduct_participants": [],
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "exact",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "reference_participant_node_ids": [
+        "n-root",
+        "n-int-occ-b",
+        "n-required-missing"
+      ],
+      "structure_only_events": []
+    }
+  },
+  {
+    "added_node": {
+      "cn_only_state_ids": [],
+      "match_status": "unmatched",
+      "matched_state_ids": [],
+      "node_id": "n-required-missing",
+      "occurrence_id": "occ-extra-required",
+      "predicted_occurrence_count": 0,
+      "reference_identity_scope": "strict_structure",
+      "role": "coproduct"
+    },
+    "aggregate_reference_edges": {
+      "axis": {
+        "domain": "dev",
+        "split": "development",
+        "track": "known_evidence_reconstruction"
+      },
+      "buckets": {
+        "matched_strict": 2
+      },
+      "denominator_policy": "TBD_USER_TEACHER_DECISION",
+      "metric_id": "reference_edge_recall",
+      "note": "严格反应边召回与结构身份/step scope/参考覆盖/预算未展开分桶;分母与通过线 TBD",
+      "spec_ref": "S5-spec 9.1",
+      "status": "interface_only_synthetic"
+    },
+    "case": "product_inconsistent_participant_nodes",
+    "target_edge": {
+      "coproduct_preserved_note": "完整事件保留共同产物参与物(报告 K/展开宽度不删除;S5-03);同父备选反应各自独立(不合并为单反应,S5-02)",
+      "coverage_mismatch_events": [
+        {
+          "coproduct_participants": [
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "event_id": "ppev_6ccb62e1e947a221b5bd",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "superset",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6",
+            "cs_ea7e44a64c7461517e4f"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "edge_id": "e-alt-2",
+      "match_status": "matched_strict",
+      "matched_events": [
+        {
+          "coproduct_participants": [],
+          "event_id": "ppev_b78230e81fdfb5899ced",
+          "event_step_scope": "net_reaction",
+          "participant_coverage": "exact",
+          "participant_state_refs": [
+            "cs_540cc0181e112b383323",
+            "cs_ab1de819ede91df490e6"
+          ],
+          "reference_step_scope": "net_reaction",
+          "step_scope_consistent": true
+        }
+      ],
+      "reference_participant_node_ids": [
+        "n-root",
+        "n-int-occ-b",
+        "n-required-missing"
+      ],
+      "structure_only_events": []
+    }
+  }
+]
