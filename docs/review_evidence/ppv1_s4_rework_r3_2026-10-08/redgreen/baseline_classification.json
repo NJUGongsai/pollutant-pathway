@@ -1,0 +1,118 @@
+{
+  "parent_commit": "2ff919fa6ef127d4a477b1b1bb52beb685365a9d",
+  "parent_tree": "git archive 2ff919f extracted to fresh tmp; 7 same-byte test files copied over (sha256 equal, recorded in same_byte_sha256.json)",
+  "totals": {
+    "failed": 15,
+    "passed": 961,
+    "collection_errors": 0
+  },
+  "by_classification": {
+    "behavior": [
+      "tests/test_ppv1_s4_rework_r3.py::test_iso01_mixed_outside_audit_violated_not_expand",
+      "tests/test_ppv1_s4_rework_r3.py::test_iso01_mixed_outside_isotope_center_false",
+      "tests/test_ppv1_s4_rework_r3.py::test_iso01_mixed_outside_tampered_true_blocked_by_recompute",
+      "tests/test_ppv1_s4_rework_r3.py::test_iso01_production_mixed_outside_not_r6",
+      "tests/test_ppv1_s4_rework_r3.py::test_iso01_pure_isotope_real_axis_not_stereo_mislabel"
+    ],
+    "field": [
+      "tests/test_ppv1_s4_rework_r3.py::test_iso01_mixed_inside_center_still_true",
+      "tests/test_ppv1_s4_rework_r3.py::test_iso01_retained_isotope_bond_change_still_true"
+    ],
+    "version": [
+      "tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions",
+      "tests/test_ppv1_r2_chem.py::test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified",
+      "tests/test_ppv1_r2_chem.py::test_r4_01_name_only_evidence_not_verified",
+      "tests/test_ppv1_r4_chem.py::test_r3_01_unknown_checker_scope_rejected",
+      "tests/test_ppv1_r7_chem.py::test_r6_02b_audit_rerun_rejects_tainted_proof_record",
+      "tests/test_ppv1_s3b_production.py::test_execute_atomtool_expansion_legal",
+      "tests/test_ppv1_s4_rework_r3.py::test_iso01_diagnostic_version_bumped",
+      "tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest"
+    ],
+    "unclassified": []
+  },
+  "failures": {
+    "tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions": {
+      "classification": "version",
+      "basis": "ppv1-profile-18 != -19",
+      "junit_first_failure_line": "def test_ppv1_identity_block_contract_versions() -> None:"
+    },
+    "tests/test_ppv1_r2_chem.py::test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified": {
+      "classification": "version",
+      "basis": "checker_version -8 != -9 (real diagnostic)",
+      "junit_first_failure_line": "def test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified("
+    },
+    "tests/test_ppv1_r2_chem.py::test_r4_01_name_only_evidence_not_verified": {
+      "classification": "version",
+      "basis": "hand-crafted evidence -9 unregistered on parent -> center_checker_not_registered path",
+      "junit_first_failure_line": "def test_r4_01_name_only_evidence_not_verified() -> None:"
+    },
+    "tests/test_ppv1_r4_chem.py::test_r3_01_unknown_checker_scope_rejected": {
+      "classification": "version",
+      "basis": "hand-crafted evidence -9 unregistered on parent",
+      "junit_first_failure_line": "def test_r3_01_unknown_checker_scope_rejected() -> None:"
+    },
+    "tests/test_ppv1_r7_chem.py::test_r6_02b_audit_rerun_rejects_tainted_proof_record": {
+      "classification": "version",
+      "basis": "hand-crafted evidence -9 unregistered on parent",
+      "junit_first_failure_line": "def test_r6_02b_audit_rerun_rejects_tainted_proof_record() -> None:"
+    },
+    "tests/test_ppv1_s3b_production.py::test_execute_atomtool_expansion_legal": {
+      "classification": "version",
+      "basis": "checker_version -8 != -9",
+      "junit_first_failure_line": "def test_execute_atomtool_expansion_legal() -> None:"
+    },
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_pure_isotope_real_axis_not_stereo_mislabel": {
+      "classification": "behavior",
+      "basis": "assert None is False (diagnostic center_match)",
+      "junit_first_failure_line": "def test_iso01_pure_isotope_real_axis_not_stereo_mislabel() -> None:"
+    },
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_mixed_outside_isotope_center_false": {
+      "classification": "behavior",
+      "basis": "assert True is False (diagnostic center_match)",
+      "junit_first_failure_line": "def test_iso01_mixed_outside_isotope_center_false() -> None:"
+    },
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_mixed_inside_center_still_true": {
+      "classification": "field",
+      "basis": "KeyError: 'isotope' (center_property_deltas record)",
+      "junit_first_failure_line": "def test_iso01_mixed_inside_center_still_true() -> None:"
+    },
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_retained_isotope_bond_change_still_true": {
+      "classification": "field",
+      "basis": "'isotope' not in record disclosure",
+      "junit_first_failure_line": "def test_iso01_retained_isotope_bond_change_still_true() -> None:"
+    },
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_diagnostic_version_bumped": {
+      "classification": "version",
+      "basis": "ppv1-donor-diagnostic-8 != -9",
+      "junit_first_failure_line": "def test_iso01_diagnostic_version_bumped() -> None:"
+    },
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_mixed_outside_audit_violated_not_expand": {
+      "classification": "behavior",
+      "basis": "assert 'verified' == 'violated' (audit center)",
+      "junit_first_failure_line": "def test_iso01_mixed_outside_audit_violated_not_expand() -> None:"
+    },
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_mixed_outside_tampered_true_blocked_by_recompute": {
+      "classification": "behavior",
+      "basis": "DID NOT RAISE AuditContractError (recompute agreed with tampered True)",
+      "junit_first_failure_line": "def test_iso01_mixed_outside_tampered_true_blocked_by_recompute() -> None:"
+    },
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_production_mixed_outside_not_r6": {
+      "classification": "behavior",
+      "basis": "assert 'expand' != 'expand' (production admission)",
+      "junit_first_failure_line": "tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-453/test_iso01_production_mixed_ou0')"
+    },
+    "tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest": {
+      "classification": "version",
+      "basis": "contract_versions.profile -18 != -19",
+      "junit_first_failure_line": "tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-453/test_native_export_public_chai0')"
+    }
+  },
+  "controls_still_green_on_parent": [
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_all_atoms_center_scope_control",
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_non_tetra_stereo_only_still_unknown_stereo_code",
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_wrong_target_strict_false_still_violated",
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_retained_control_audit_verified_r6",
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_production_bond_control_still_r6",
+    "tests/test_ppv1_s4_rework_r3.py::test_iso01_production_retained_isotope_control_still_r6"
+  ]
+}

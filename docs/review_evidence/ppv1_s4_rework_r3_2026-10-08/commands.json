@@ -1,0 +1,99 @@
+{
+  "environment": {
+    "python": "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "flags": "-B; PYTHONDONTWRITEBYTECODE=1; pytest -p no:cacheprovider",
+    "rdkit": "2026.03.6",
+    "sqlite": "3.53.4",
+    "python_version": "3.11.16",
+    "repo": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "working_tree_head_at_execution": "2ff919fa6ef127d4a477b1b1bb52beb685365a9d (parent; local commit created after evidence packaging)",
+    "isolated_source_root": "/private/tmp/ppv1_s4_rework_r3_iso_20261008_222322/src_copy",
+    "parent_tree_root": "/private/tmp/ppv1_s4_rework_r3_redgreen/parent (git archive 2ff919f + 7 same-byte test files)"
+  },
+  "commands": [
+    {
+      "name": "ppv1_full",
+      "cwd": "repo",
+      "argv": [
+        "python -B -m pytest tests/test_ppv1*.py -p no:cacheprovider -q --junitxml logs/ppv1/ppv1_junit.xml"
+      ],
+      "exit": 0,
+      "result": "976 passed, 0 skipped (36+1 files; 962 existing + 14 new r3)"
+    },
+    {
+      "name": "parent_redgreen_same_byte",
+      "cwd": "parent_tree",
+      "argv": [
+        "python -B -m pytest tests/test_ppv1*.py -p no:cacheprovider -q --junitxml ..."
+      ],
+      "exit": 1,
+      "result": "15 failed / 961 passed / 0 collection errors (5 behavior + 2 field + 8 version; see redgreen/baseline_classification.json)"
+    },
+    {
+      "name": "isotope_probe_8cases",
+      "cwd": "ROOT",
+      "argv": [
+        "python -B scripts/probe.py <fresh_results_dir>"
+      ],
+      "env": {
+        "PYTHONPATH": "ROOT/src_copy"
+      },
+      "exit": 0,
+      "runs": [
+        "results (exploratory, artifacts kept in tmp)",
+        "results_formal (formal, logs archived; summary.json byte-identical to first run)"
+      ],
+      "result": "8/8 cases completed; mixed_outside_isotope: center False/violated/R5v/not submitted"
+    },
+    {
+      "name": "production_probe_3cases",
+      "cwd": "ROOT",
+      "argv": [
+        "python -B scripts/production_probe.py <fresh_results_dir>"
+      ],
+      "env": {
+        "PYTHONPATH": "ROOT/src_copy"
+      },
+      "exit": 0,
+      "runs": [
+        "production_results (exploratory)",
+        "production_results_formal (formal; summary byte-identical)"
+      ],
+      "result": "3/3 cases completed; production_mixed_outside_isotope: retain_conditional(R5v)/center violated/not R6; two controls expand/R6/submitted"
+    },
+    {
+      "name": "g01_safe_isolation",
+      "cwd": "copied_repo",
+      "argv": [
+        "python -B scripts/safe_g01_r3.py --repo <repo> --out <fresh_out> --python <depending43 python>"
+      ],
+      "exit": 0,
+      "result": "1578 passed / 8 skipped / 17 deselected in 228.21s; 297 inputs SHA-256 identical before/after"
+    },
+    {
+      "name": "executed_script_shas",
+      "value": {
+        "probe.py": "e43901fc126bdbd67655f54a8d69bc33b07af561081ddb3c76fa1c4f364bc4a2",
+        "production_probe.py": "76642d91e22fa7eb48ec61bac3ef53193c4d298adb81bdb65dce59564eb1a578",
+        "safe_g01_r3.py": "af0bfb6f4cb38c2252361e392af5c9f3c355f071c3c1d898efc93f8bec1b730e"
+      }
+    }
+  ],
+  "boundary": {
+    "old_permanent_evidence_untouched": [
+      "docs/review_evidence/ppv1_s4_codex_r3_2026-10-08/ (reviewer property, read-only)"
+    ],
+    "not_accessed": [
+      "gold standard",
+      "exam faces",
+      "sealed per-question runs",
+      "dependingv4",
+      "original v3 evaluation assets"
+    ],
+    "no_external_models": true,
+    "no_push": true,
+    "no_llm_scoring": true,
+    "sqlite_binaries_not_archived": true,
+    "network": "no network tools invoked; scripts not instrumented for socket counting (same disclosure as review R3)"
+  }
+}

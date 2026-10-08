@@ -1,0 +1,574 @@
+{
+  "name": "isotope_only",
+  "current": {
+    "smiles": "CCO",
+    "atom_id_map": {
+      "S_C_1": 0,
+      "S_C_2": 1,
+      "S_O_1": 2
+    }
+  },
+  "edits": [],
+  "actual_atomtool_output_before_mutation": {
+    "ok": true,
+    "reasons": [],
+    "product_smiles": "CCO",
+    "product_mapped_smiles": "[CH3:1][CH2:2][OH:3]",
+    "atom_id_map": {
+      "S_C_1": 0,
+      "S_C_2": 1,
+      "S_O_1": 2
+    },
+    "protocol_version": "v43-editproto-2",
+    "n_edits": 0
+  },
+  "result_consumed_by_donor": {
+    "ok": true,
+    "reasons": [],
+    "product_smiles": "[13CH3]CO",
+    "product_mapped_smiles": "[13CH3:1][CH2:2][OH:3]",
+    "atom_id_map": {
+      "S_C_1": 0,
+      "S_C_2": 1,
+      "S_O_1": 2
+    },
+    "protocol_version": "v43-editproto-2",
+    "n_edits": 0
+  },
+  "synthetic_tool_result_mutation": "only",
+  "donor": {
+    "center_atom_ids": [
+      "d0",
+      "d1"
+    ]
+  },
+  "alignment": {
+    "status": "resolved",
+    "donor_to_current": {
+      "d0": "S_C_2",
+      "d1": "S_O_1"
+    },
+    "equivalence_classes": [],
+    "ref": "synthetic:review:isotope_only"
+  },
+  "expectation": {
+    "target_smiles": "[13CH3]CO"
+  },
+  "actual_isotope_changes": [
+    {
+      "atom_id": "S_C_1",
+      "before": 0,
+      "after": 13,
+      "outside_declared_center": true
+    }
+  ],
+  "diagnostic": {
+    "strict_target_match": true,
+    "legacy_cn_match": true,
+    "reaction_center_match": false,
+    "center_match_basis": "",
+    "extra_changes": [
+      {
+        "atom_id": "S_C_1",
+        "delta": [
+          "isotope",
+          "present_in_product"
+        ],
+        "element": "C",
+        "formal_charge": {
+          "before": 0,
+          "after": 0
+        },
+        "h_count": {
+          "before": 3,
+          "after": 3
+        },
+        "isotope": {
+          "before": 0,
+          "after": 13
+        },
+        "stereo": {
+          "before_cip": null,
+          "after_cip": null
+        }
+      }
+    ],
+    "alignment_ref": "synthetic:review:isotope_only",
+    "missing_info_reasons": [],
+    "executed_bond_changes": [],
+    "declaration_only": [],
+    "declaration_mismatches": [],
+    "equivalence_basis": "",
+    "joint_mapping": {},
+    "net_change_empty": false,
+    "center_property_deltas": [],
+    "center_evidence": {
+      "checker_version": "ppv1-donor-diagnostic-9",
+      "checker_scope": "region_net_change",
+      "center_match": false,
+      "center_match_basis": "",
+      "declaration_mismatch": false,
+      "strict_target_match": true,
+      "proof_scope": "self_contained_recompute",
+      "evidence_refs": [
+        "synthetic:review:isotope_only"
+      ],
+      "bound_inputs": {
+        "substrate_identity": "CCO",
+        "product_identity": "[13CH3]CO",
+        "edits_signature": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "donor_centers": [
+          "d0",
+          "d1"
+        ],
+        "alignment_ref": "synthetic:review:isotope_only",
+        "execution_fingerprint": "961a98a14f603276dbe30aaee2b7da4f0f65a61d3676f3e5cdc88c27973abe87"
+      },
+      "proof_record": {
+        "current": {
+          "smiles": "CCO",
+          "atom_id_map": {
+            "S_C_1": 0,
+            "S_C_2": 1,
+            "S_O_1": 2
+          }
+        },
+        "donor": {
+          "center_atom_ids": [
+            "d0",
+            "d1"
+          ]
+        },
+        "alignment": {
+          "status": "resolved",
+          "donor_to_current": {
+            "d0": "S_C_2",
+            "d1": "S_O_1"
+          },
+          "equivalence_classes": [],
+          "ref": "synthetic:review:isotope_only"
+        },
+        "expectation": {
+          "target_smiles": "[13CH3]CO"
+        },
+        "result": {
+          "ok": true,
+          "reasons": [],
+          "product_smiles": "[13CH3]CO",
+          "product_mapped_smiles": "[13CH3:1][CH2:2][OH:3]",
+          "atom_id_map": {
+            "S_C_1": 0,
+            "S_C_2": 1,
+            "S_O_1": 2
+          },
+          "protocol_version": "v43-editproto-2",
+          "n_edits": 0
+        },
+        "edits": []
+      }
+    },
+    "stereo_comparison_unsupported_atoms": [],
+    "schema_version": "ppv1-donor-diagnostic-9"
+  },
+  "evidence": {
+    "checker_version": "ppv1-donor-diagnostic-9",
+    "checker_scope": "region_net_change",
+    "center_match": false,
+    "center_match_basis": "",
+    "declaration_mismatch": false,
+    "strict_target_match": true,
+    "proof_scope": "self_contained_recompute",
+    "evidence_refs": [
+      "synthetic:review:isotope_only"
+    ],
+    "bound_inputs": {
+      "substrate_identity": "CCO",
+      "product_identity": "[13CH3]CO",
+      "edits_signature": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "donor_centers": [
+        "d0",
+        "d1"
+      ],
+      "alignment_ref": "synthetic:review:isotope_only",
+      "execution_fingerprint": "961a98a14f603276dbe30aaee2b7da4f0f65a61d3676f3e5cdc88c27973abe87"
+    },
+    "proof_record": {
+      "current": {
+        "smiles": "CCO",
+        "atom_id_map": {
+          "S_C_1": 0,
+          "S_C_2": 1,
+          "S_O_1": 2
+        }
+      },
+      "donor": {
+        "center_atom_ids": [
+          "d0",
+          "d1"
+        ]
+      },
+      "alignment": {
+        "status": "resolved",
+        "donor_to_current": {
+          "d0": "S_C_2",
+          "d1": "S_O_1"
+        },
+        "equivalence_classes": [],
+        "ref": "synthetic:review:isotope_only"
+      },
+      "expectation": {
+        "target_smiles": "[13CH3]CO"
+      },
+      "result": {
+        "ok": true,
+        "reasons": [],
+        "product_smiles": "[13CH3]CO",
+        "product_mapped_smiles": "[13CH3:1][CH2:2][OH:3]",
+        "atom_id_map": {
+          "S_C_1": 0,
+          "S_C_2": 1,
+          "S_O_1": 2
+        },
+        "protocol_version": "v43-editproto-2",
+        "n_edits": 0
+      },
+      "edits": []
+    }
+  },
+  "states": [
+    {
+      "state_id": "cs_ab1de819ede91df490e6",
+      "structure_smiles_raw": "CCO",
+      "smiles_isomeric": "CCO",
+      "cn_identity": "CCO",
+      "structure_origin": "source_product",
+      "original_structure_available": true,
+      "formal_charge": 0,
+      "stereo_information_status": "not_applicable",
+      "isotope_information_status": "not_applicable",
+      "source_refs": [
+        {
+          "record": "synthetic:isotope_only"
+        }
+      ],
+      "representation_fidelity": {
+        "stereo": "as_written",
+        "isotope": "as_written",
+        "formal_charge": "as_written",
+        "protonation_basis": "as_written"
+      },
+      "schema_version": "ppv1-chemstate-8"
+    },
+    {
+      "state_id": "cs_a5f70e40f982d7864323",
+      "structure_smiles_raw": "[13CH3]CO",
+      "smiles_isomeric": "[13CH3]CO",
+      "cn_identity": "CCO",
+      "structure_origin": "source_product",
+      "original_structure_available": true,
+      "formal_charge": 0,
+      "stereo_information_status": "not_applicable",
+      "isotope_information_status": "specified",
+      "source_refs": [
+        {
+          "record": "synthetic:isotope_only"
+        }
+      ],
+      "representation_fidelity": {
+        "stereo": "as_written",
+        "isotope": "as_written",
+        "formal_charge": "as_written",
+        "protonation_basis": "as_written"
+      },
+      "schema_version": "ppv1-chemstate-8"
+    }
+  ],
+  "hypothesis": {
+    "schema_version": "ppv1-hypothesis-8",
+    "hypothesis_id": "hyp_e057c4d6c8184d00f82a",
+    "parent_path_id": "synthetic:path",
+    "substrate_state_ref": "cs_ab1de819ede91df490e6",
+    "participants": [
+      {
+        "state_ref": "cs_ab1de819ede91df490e6",
+        "side": "reactant",
+        "role": "primary_substrate",
+        "coefficient": "1",
+        "coefficient_status": "known",
+        "parallel_contribution": false,
+        "merged_from": [],
+        "entry_id": "pentry_0c81cff0b0cf1fa2a727"
+      },
+      {
+        "state_ref": "cs_a5f70e40f982d7864323",
+        "side": "product",
+        "role": "principal_product",
+        "coefficient": "1",
+        "coefficient_status": "known",
+        "parallel_contribution": false,
+        "merged_from": [],
+        "entry_id": "pentry_dc49939dc26475a16e2a"
+      }
+    ],
+    "participant_list_status": "declared_complete",
+    "step_scope": "net_reaction",
+    "transformation_ref": "",
+    "transformation_signature_status": "unknown",
+    "step_scope_evidence_refs": [],
+    "provenance_refs": [],
+    "support_group_refs": [],
+    "requirements": [],
+    "assumptions": [],
+    "dependency_refs": [],
+    "audit_ref": "",
+    "model_decision_ref": "",
+    "legacy_relationship_status": "",
+    "ambiguous_participants": false,
+    "origin_group_key": "synthetic:isotope_only"
+  },
+  "context": {
+    "schema_version": "ppv1-context-8",
+    "context_id": "pc_7bc02aa61d3b8131e4bb",
+    "parent_context_ref": "",
+    "phase_id": "phase-0",
+    "requested_scope": "possible",
+    "condition_facts": [
+      {
+        "key": "oxygen_regime",
+        "value": "aerobic",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "accumulated_requirements": [
+      {
+        "key": "oxygen_regime",
+        "level": "essential",
+        "value": "aerobic",
+        "basis": "essential_claimed_by_source",
+        "value_basis": "entity",
+        "source_refs": [
+          "synthetic:rule"
+        ],
+        "applicable_dimensions": [],
+        "observed_source_conditions": [],
+        "note": "",
+        "introduced_phase_id": "phase-0",
+        "introduced_scenario_ref": "",
+        "introduced_edge": ""
+      }
+    ],
+    "assumptions": [],
+    "dependency_refs": [],
+    "dependencies": [],
+    "assessment_scope": [
+      "oxygen_regime"
+    ],
+    "scenario_ref": "",
+    "scenario_transition": null,
+    "phase_history": [],
+    "assessed_scope": "condition_compatible"
+  },
+  "audit": {
+    "schema_version": "ppv1-audit-8",
+    "audit_id": "audit_f168be1ec28b9646fa44",
+    "scope": "hypothesis_admission",
+    "input_hash": "ain_e29ea079bbf8cd6081b5",
+    "checks": [
+      {
+        "name": "structure_parse_valence",
+        "status": "verified",
+        "reason_code": "all_participants_parse",
+        "evidence_refs": [],
+        "coverage": "participants_with_state",
+        "detail": {}
+      },
+      {
+        "name": "participant_state_refs",
+        "status": "verified",
+        "reason_code": "all_participant_states_resolved",
+        "evidence_refs": [],
+        "coverage": "state_ledger_references",
+        "detail": {}
+      },
+      {
+        "name": "identity_fidelity",
+        "status": "verified",
+        "reason_code": "identity_states_consistent",
+        "evidence_refs": [],
+        "coverage": "state_ids",
+        "detail": {
+          "fidelity_axis_notes": []
+        }
+      },
+      {
+        "name": "finite_rule_diagnostic",
+        "status": "not_applicable",
+        "reason_code": "not_provided",
+        "evidence_refs": [
+          "v43-cons-2"
+        ],
+        "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+        "detail": {}
+      },
+      {
+        "name": "participant_completeness",
+        "status": "verified",
+        "reason_code": "declared_complete_with_known_coefficients",
+        "evidence_refs": [],
+        "coverage": "participant_list",
+        "detail": {}
+      },
+      {
+        "name": "element_accounting",
+        "status": "verified",
+        "reason_code": "elements_balanced_all_hydrogen",
+        "evidence_refs": [],
+        "coverage": "full_balance",
+        "detail": {
+          "element_delta": {},
+          "accounting_scope": "full_balance_all_hydrogen",
+          "accounting_notes": "isotopes_D_T_counted_as_H; radical_electrons_not_counted; verified_only_element_and_formal_charge_closure",
+          "omission_pattern_matches": [],
+          "omission_pattern_semantics": "omission_pattern_matches 仅表示缺口向量与该常见模式逐元素数值相符(excess_on=多出侧,missing_from=缺写侧;不证明实际缺该物质、不推断遗漏原因、不含电子/质子计量;H+_count1 仅表示 H 计数为 1 的模式名)"
+        }
+      },
+      {
+        "name": "formal_charge_accounting",
+        "status": "verified",
+        "reason_code": "formal_charge_balanced",
+        "evidence_refs": [],
+        "coverage": "full_balance",
+        "detail": {
+          "charge_delta": "0",
+          "accounting_scope": "full_balance_original_formal_charge"
+        }
+      },
+      {
+        "name": "transformation_center",
+        "status": "violated",
+        "reason_code": "center_mismatch_per_deterministic_checker:ppv1-donor-diagnostic-9",
+        "evidence_refs": [
+          "synthetic:review:isotope_only"
+        ],
+        "coverage": "mapping_dependent",
+        "detail": {
+          "declared_signature_status": "unknown",
+          "checker_version": "ppv1-donor-diagnostic-9",
+          "checker_scope": "region_net_change",
+          "proof_scope": "self_contained_recompute",
+          "center_match": false,
+          "center_match_basis": "",
+          "strict_target_match": true,
+          "coverage_mode": "whole_molecule",
+          "covered_product_identities": [
+            "[13CH3]CO"
+          ],
+          "uncovered_product_refs": [],
+          "uncovered_reactant_refs": [],
+          "product_coverage": "full",
+          "coverage_rule": "atom_delta_stoichiometric_completion",
+          "completion_license": "composition_only_hydrogen_equivalents",
+          "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+          "unlicensed_uncovered_identities": [],
+          "substrate_scale": "1",
+          "atom_delta": {},
+          "uncovered_reactant_elements": {},
+          "uncovered_product_elements": {},
+          "coverage_violations": []
+        }
+      },
+      {
+        "name": "step_scope_check",
+        "status": "verified",
+        "reason_code": "step_scope:net_reaction",
+        "evidence_refs": [],
+        "coverage": "step_scope",
+        "detail": {}
+      },
+      {
+        "name": "condition_check",
+        "status": "verified",
+        "reason_code": "environment_fit:compatible;coverage:oxygen_regime",
+        "evidence_refs": [],
+        "coverage": "declared_dimensions",
+        "detail": {
+          "unassessed_dimensions": [
+            "biotic_abiotic",
+            "inoculum_source",
+            "light_regime",
+            "phase_bioavailability",
+            "redox_regime_eh",
+            "required_trace_elements_cofactors",
+            "salinity_ionic_strength",
+            "substrate_concentration"
+          ],
+          "assessment_scope": [
+            "oxygen_regime"
+          ]
+        }
+      },
+      {
+        "name": "provenance_dependency",
+        "status": "verified",
+        "reason_code": "no_unresolved_dependencies",
+        "evidence_refs": [],
+        "coverage": "dependency_set",
+        "detail": {}
+      }
+    ],
+    "legacy_gate_result_ref": "",
+    "participant_accounting_status": "full",
+    "biological_support_status": "unknown",
+    "admission_disposition": "",
+    "admission_policy_ref": "ppv1-admission-8",
+    "admission_reasons": [],
+    "checker_versions": {
+      "audit": "ppv1-audit-8",
+      "chemstate": "ppv1-chemstate-8",
+      "hypothesis": "ppv1-hypothesis-8",
+      "condition_assessment": "ppv1-condition-assessment-8",
+      "donor_diagnostic": "ppv1-donor-diagnostic-9",
+      "legacy_g2_family": "v43-cons-2"
+    }
+  },
+  "admission": "retain_conditional",
+  "admission_reasons": [
+    "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):transformation_center"
+  ],
+  "center_status": "violated",
+  "center_detail": {
+    "declared_signature_status": "unknown",
+    "checker_version": "ppv1-donor-diagnostic-9",
+    "checker_scope": "region_net_change",
+    "proof_scope": "self_contained_recompute",
+    "center_match": false,
+    "center_match_basis": "",
+    "strict_target_match": true,
+    "coverage_mode": "whole_molecule",
+    "covered_product_identities": [
+      "[13CH3]CO"
+    ],
+    "uncovered_product_refs": [],
+    "uncovered_reactant_refs": [],
+    "product_coverage": "full",
+    "coverage_rule": "atom_delta_stoichiometric_completion",
+    "completion_license": "composition_only_hydrogen_equivalents",
+    "completion_license_scope": "registered:composition_only_hydrogen_equivalents(H2/[H] 按 2[H] 氢当量;数值配平不证明未登记多原子共底物初始图的结构贡献)",
+    "unlicensed_uncovered_identities": [],
+    "substrate_scale": "1",
+    "atom_delta": {},
+    "uncovered_reactant_elements": {},
+    "uncovered_product_elements": {},
+    "coverage_violations": []
+  },
+  "ledger_before": null,
+  "ledger_after": null,
+  "submit_receipt": null,
+  "replay_receipt": null,
+  "not_submitted_reason": "admission did not expand; caller respected actual decision"
+}

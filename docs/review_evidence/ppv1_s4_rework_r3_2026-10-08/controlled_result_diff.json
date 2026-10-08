@@ -1,0 +1,35 @@
+{
+  "production_bond_control": [
+    {
+      "changed_fields": [],
+      "detail": {},
+      "synthetic_isotope_mutation": false
+    }
+  ],
+  "production_isotope_retained_control": [
+    {
+      "changed_fields": [],
+      "detail": {},
+      "synthetic_isotope_mutation": false
+    }
+  ],
+  "production_mixed_outside_isotope": [
+    {
+      "changed_fields": [
+        "product_mapped_smiles",
+        "product_smiles"
+      ],
+      "detail": {
+        "product_mapped_smiles": {
+          "raw": "[CH3:1][CH:2]=[O:3]",
+          "consumer": "[13CH3:1][CH:2]=[O:3]"
+        },
+        "product_smiles": {
+          "raw": "CC=O",
+          "consumer": "[13CH3]C=O"
+        }
+      },
+      "synthetic_isotope_mutation": true
+    }
+  ]
+}

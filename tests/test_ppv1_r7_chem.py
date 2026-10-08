@@ -460,7 +460,7 @@ def test_r6_02b_audit_rerun_rejects_tainted_proof_record() -> None:
     门洗成 verified/R6。"""
     render_result, edits, execution = _oxidation_inputs()
     evidence = {
-        "checker_version": "ppv1-donor-diagnostic-8",
+        "checker_version": "ppv1-donor-diagnostic-9",
         "checker_scope": "region_net_change",
         "center_match": True, "center_match_basis": "direct",
         "declaration_mismatch": False, "strict_target_match": True,

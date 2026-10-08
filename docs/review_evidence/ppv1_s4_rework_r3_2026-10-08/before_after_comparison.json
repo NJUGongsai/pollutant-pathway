@@ -1,0 +1,296 @@
+{
+  "eight_cases": {
+    "bond_control": {
+      "diagnostic_center_match": [
+        true,
+        true
+      ],
+      "center_status": [
+        "verified",
+        "verified"
+      ],
+      "admission": [
+        "expand",
+        "expand"
+      ],
+      "first_admission_reason": [
+        "R6:all_verified_no_conflict",
+        "R6:all_verified_no_conflict"
+      ],
+      "submitted_before": true,
+      "submitted_after": true,
+      "diagnostic_strict_target_match": [
+        true,
+        true
+      ],
+      "declaration_mismatches": [
+        [],
+        []
+      ]
+    },
+    "isotope_only": {
+      "diagnostic_center_match": [
+        null,
+        false
+      ],
+      "center_status": [
+        "unknown",
+        "violated"
+      ],
+      "admission": [
+        "retain_conditional",
+        "retain_conditional"
+      ],
+      "first_admission_reason": [
+        "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步",
+        "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):"
+      ],
+      "submitted_before": false,
+      "submitted_after": false,
+      "diagnostic_strict_target_match": [
+        true,
+        true
+      ],
+      "declaration_mismatches": [
+        [],
+        []
+      ]
+    },
+    "isotope_retained_bond_control": {
+      "diagnostic_center_match": [
+        true,
+        true
+      ],
+      "center_status": [
+        "verified",
+        "verified"
+      ],
+      "admission": [
+        "expand",
+        "expand"
+      ],
+      "first_admission_reason": [
+        "R6:all_verified_no_conflict",
+        "R6:all_verified_no_conflict"
+      ],
+      "submitted_before": true,
+      "submitted_after": true,
+      "diagnostic_strict_target_match": [
+        true,
+        true
+      ],
+      "declaration_mismatches": [
+        [],
+        []
+      ]
+    },
+    "mixed_inside_isotope": {
+      "diagnostic_center_match": [
+        true,
+        true
+      ],
+      "center_status": [
+        "verified",
+        "verified"
+      ],
+      "admission": [
+        "expand",
+        "expand"
+      ],
+      "first_admission_reason": [
+        "R6:all_verified_no_conflict",
+        "R6:all_verified_no_conflict"
+      ],
+      "submitted_before": true,
+      "submitted_after": true,
+      "diagnostic_strict_target_match": [
+        true,
+        true
+      ],
+      "declaration_mismatches": [
+        [],
+        []
+      ]
+    },
+    "mixed_outside_isotope": {
+      "diagnostic_center_match": [
+        true,
+        false
+      ],
+      "center_status": [
+        "verified",
+        "violated"
+      ],
+      "admission": [
+        "expand",
+        "retain_conditional"
+      ],
+      "first_admission_reason": [
+        "R6:all_verified_no_conflict",
+        "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):"
+      ],
+      "submitted_before": true,
+      "submitted_after": false,
+      "diagnostic_strict_target_match": [
+        true,
+        true
+      ],
+      "declaration_mismatches": [
+        [],
+        []
+      ]
+    },
+    "mixed_outside_isotope_all_center_control": {
+      "diagnostic_center_match": [
+        true,
+        true
+      ],
+      "center_status": [
+        "verified",
+        "verified"
+      ],
+      "admission": [
+        "expand",
+        "expand"
+      ],
+      "first_admission_reason": [
+        "R6:all_verified_no_conflict",
+        "R6:all_verified_no_conflict"
+      ],
+      "submitted_before": true,
+      "submitted_after": true,
+      "diagnostic_strict_target_match": [
+        true,
+        true
+      ],
+      "declaration_mismatches": [
+        [],
+        []
+      ]
+    },
+    "mixed_outside_wrong_target_control": {
+      "diagnostic_center_match": [
+        true,
+        false
+      ],
+      "center_status": [
+        "violated",
+        "violated"
+      ],
+      "admission": [
+        "retain_conditional",
+        "retain_conditional"
+      ],
+      "first_admission_reason": [
+        "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):",
+        "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):"
+      ],
+      "submitted_before": false,
+      "submitted_after": false,
+      "diagnostic_strict_target_match": [
+        false,
+        false
+      ],
+      "declaration_mismatches": [
+        [],
+        []
+      ]
+    },
+    "non_tetra_stereo_only_control": {
+      "diagnostic_center_match": [
+        null,
+        null
+      ],
+      "center_status": [
+        "unknown",
+        "unknown"
+      ],
+      "admission": [
+        "retain_conditional",
+        "retain_conditional"
+      ],
+      "first_admission_reason": [
+        "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步",
+        "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步"
+      ],
+      "submitted_before": false,
+      "submitted_after": false,
+      "diagnostic_strict_target_match": [
+        true,
+        true
+      ],
+      "declaration_mismatches": [
+        [],
+        []
+      ]
+    }
+  },
+  "production_callers": {
+    "production_bond_control": {
+      "admission_disposition": [
+        "expand",
+        "expand"
+      ],
+      "admission_first_reason": [
+        "R6:all_verified_no_conflict",
+        "R6:all_verified_no_conflict"
+      ],
+      "center_status": [
+        "verified",
+        "verified"
+      ],
+      "status": [
+        "submitted",
+        "submitted"
+      ],
+      "event_count": [
+        1,
+        1
+      ]
+    },
+    "production_isotope_retained_control": {
+      "admission_disposition": [
+        "expand",
+        "expand"
+      ],
+      "admission_first_reason": [
+        "R6:all_verified_no_conflict",
+        "R6:all_verified_no_conflict"
+      ],
+      "center_status": [
+        "verified",
+        "verified"
+      ],
+      "status": [
+        "submitted",
+        "submitted"
+      ],
+      "event_count": [
+        1,
+        1
+      ]
+    },
+    "production_mixed_outside_isotope": {
+      "admission_disposition": [
+        "expand",
+        "retain_conditional"
+      ],
+      "admission_first_reason": [
+        "R6:all_verified_no_conflict",
+        "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):"
+      ],
+      "center_status": [
+        "verified",
+        "violated"
+      ],
+      "status": [
+        "submitted",
+        "submitted"
+      ],
+      "event_count": [
+        1,
+        1
+      ]
+    }
+  }
+}

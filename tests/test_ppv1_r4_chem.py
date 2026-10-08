@@ -567,7 +567,7 @@ def test_r3_01_unknown_checker_scope_rejected() -> None:
     audit = audit_hypothesis(
         hyp, states={s.state_id: s for s in states.values()},
         context=_aerobic_context(),
-        center_evidence={"checker_version": "ppv1-donor-diagnostic-8",
+        center_evidence={"checker_version": "ppv1-donor-diagnostic-9",
                          "checker_scope": "full_template_visionary",
                          "center_match": True,
                          "bound_inputs": {

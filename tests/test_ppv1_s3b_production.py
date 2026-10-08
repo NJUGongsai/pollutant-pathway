@@ -130,7 +130,7 @@ def test_execute_atomtool_expansion_legal() -> None:
     assert diagnostic["strict_target_match"] is True
     assert diagnostic["reaction_center_match"] is True
     center = out["center_evidence"]
-    assert center["checker_version"] == "ppv1-donor-diagnostic-8"
+    assert center["checker_version"] == "ppv1-donor-diagnostic-9"
     assert center["center_match"] is True
     # proof_record 完整输入集(audit 内部复算用)
     for key in ("current", "donor", "alignment", "expectation", "result"):

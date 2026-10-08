@@ -209,7 +209,19 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 来源版本不包装成已验证结果)。store 保持 -10;runflow 保持 -5;
 # endpoint/native-result 系列沿 r1 不变。S4-C01/C03 与合法控制保持
 # 关闭,不加新科学门;判据冻结范围(一–五、0d/0e)不动。
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-18"
+# S4 回修 r3(2026-10-08,复审 R3 唯一阻塞 PPV1-ISO-01):供体诊断
+# 契约 ppv1-donor-diagnostic-8 → -9 —— 同位素 diff 并入实际净变化集
+# (冻结判据五 §5 既有承诺的实现兑现,不改冻结正文/判定规则):逐原子
+# isotope 比较入 deltas/records/changed atoms/中心外 extra_changes/
+# 中心属性披露,audit 复算链(_rerun_proof_record)同轴;中心外同位素
+# 变化按既有"中心外变化 ⇒ center False"处理,不再漏核后 verified/
+# full/R6;net_change_only_in_stereo_representation 残余语义缩窄为
+# 真·立体表示差异(纯同位素不再误标"仅立体")。audit/admission 决策
+# 表与理由码不变(语义变化由 donor-diagnostic-9 承载);store/runflow/
+# endpoint/native-result/native-export/v3-projection 不动。profile
+# 身份块含 donor_diagnostic ⇒ profile-18 → -19;v18 载荷按未知版本
+# 既有门拒绝,profile 仍未放行执行流,无历史产物需要迁移。
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-19"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -220,7 +232,7 @@ PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-8"
 PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-8"
 PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-8"
 PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-8"
-PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-8"
+PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-9"
 PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-8"
 PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-8"
 PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-8"

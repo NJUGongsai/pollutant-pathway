@@ -1,0 +1,39 @@
+{
+  "exit_code": 0,
+  "elapsed_wall_seconds": 229.777,
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python3.11",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-rs",
+    "-m",
+    "not slow",
+    "--deselect",
+    "tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden",
+    "--junitxml",
+    "/private/tmp/ppv1_s4_rework_r3_iso_20261008_222322/g01/run1/g01_junit.xml",
+    "tests/"
+  ],
+  "cwd": "/private/tmp/ppv1_s4_rework_r3_iso_20261008_222322/g01/run1/repo",
+  "stdout": "g01_safe.stdout.txt",
+  "stderr": "g01_safe.stderr.txt",
+  "skip_lines": [
+    "SKIPPED [1] tests/test_analog_assets.py:95: v4 对照代码根不可用:/private/tmp/ppv1_s4_rework_r3_iso_20261008_222322/g01/run1/dependingv4",
+    "SKIPPED [1] tests/test_analog_v2_corpus.py:62: v2 provenance 未生成",
+    "SKIPPED [1] tests/test_analog_v2_corpus.py:153: v2 summary 未生成",
+    "SKIPPED [1] tests/test_batch_runner.py:52: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:110: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:163: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:172: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:184: v3 冻结基准不可用"
+  ],
+  "summary_lines": [
+    "1578 passed, 8 skipped, 17 deselected, 1 warning in 228.21s (0:03:48)"
+  ],
+  "stdout_sha256": "fb0114d7f57eea9d003e80187399aac204a6cfbef835aee64a335097c47277d4",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,5 +1,28 @@
 """ChemicalAudit — 检查范围明确,未知不可冒充核实(v8 回修,S2)。
 
+v9(ppv1-donor-diagnostic-9,2026-10-08 S4 回修 r3,复审 R3 唯一
+阻塞 PPV1-ISO-01)相对 v8 的变化:
+- **同位素变化并入实际净变化集**:冻结判据五 §5 早已把实际净变化
+  定义为"键 diff ∪ 电荷/立体/同位素变化集"(冻结正文 394–396 行),
+  实现缺口是 _atom_property_diffs 从未比较同位素 —— 本轮**兑现既有
+  冻结承诺,不改冻结正文/判定规则**:逐原子 isotope diff 入 deltas
+  (机读码 "isotope")、逐原子记录 records["isotope"]=[before,after]、
+  入 changed atoms 与中心外 extra_changes/中心属性披露,audit 复算
+  链(_rerun_proof_record 重跑同一 checker)自动同轴;中心外同位素
+  变化按既有规则"中心外变化 ⇒ center False"处理(不再是漏核后
+  verified/full/R6);
+- **net_change_only_in_stereo_representation 排他理由自 v9 起为真**:
+  同位素轴入图变化集后,"身份键不同而图轴无差异"的残余只能是立体
+  表示差异(非四面体等 unsupported 立体轴)—— v8 前纯同位素曾被
+  该码误标"仅立体"(身份轴混谈),v9 起纯同位素走真实轴(isotope
+  delta + 中心范围判定),不再冒用立体码;
+- 声明–执行对账(_declaration_accounting)仍只对账键变化/原子增删:
+  ops 声明语言没有同位素操作(冻结 AtomTool 协议无该 op),同位素
+  检出走属性 diff 披露 + 中心范围判定(strict 轴/区域轴分轴保留,
+  mimo 5.3(3) 先例一致);不新增科学门、不认证实验/机制/来源真实
+  性。audit/admission 决策表与理由码不变(语义变化全部由 donor-
+  diagnostic-9 承载;profile 身份块随登记升 -19)。
+
 v8(ppv1-audit-8 / ppv1-admission-8 / ppv1-donor-diagnostic-8,
 2026-10-07 R8 回修)相对 v7 的变化(Codex R7 复审 R7-01):
 - **直接 states 首次消费同源验证**:audit_hypothesis 对每个被消费的
@@ -2111,12 +2134,18 @@ def _atom_property_diffs(
         before: Chem.Mol, after_mapped: Chem.Mol,
         id_to_idx_before: dict[str, int],
         id_to_idx_after: dict[str, int]) -> tuple[set[str], dict[str, dict]]:
-    """逐原子属性 diff(形式电荷/ΔH/构型)∪ 原子增删(R3-03 v4)。
+    """逐原子属性 diff(形式电荷/ΔH/构型/Δ同位素)∪ 原子增删(R3-03 v4)。
 
     - 立体用**映射配体下的奇偶构型比较**(_stereo_config_delta);
       CIP 标签(rdCIPLabeler 准确口径)仅入披露记录 —— 标签 R→S
       可能只是配体优先级重排,不是构型变化;非四面体手性 ⇒ 该原子
       立体轴记 unknown(stereo_comparison_unsupported),不入变化集;
+    - **同位素 diff(S4 回修 r3,PPV1-ISO-01,方案 A 兑现冻结判据五
+      §5 既有承诺)**:逐原子 GetIsotope() 比较,deltas 机读码
+      "isotope",记录 isotope=[before,after] —— 入 changed atoms、
+      中心外 extra_changes、中心属性披露与 audit 公开重算(复跑本
+      checker 同轴);身份键(chemstate)本就保留同位素,零净变化
+      分支与同位素轴自洽(身份相同 ⇒ 同位素必相同);
     - after 按映射号对齐(idx+1);属性不变但被键变化触及的原子不在
       本 diff 集(由键 diff 承接)。
     """
@@ -2153,12 +2182,18 @@ def _atom_property_diffs(
             b_charge, a_charge = (b_atom.GetFormalCharge(),
                                   a_atom.GetFormalCharge())
             b_h, a_h = b_atom.GetTotalNumHs(), a_atom.GetTotalNumHs()
+            # S4 回修 r3(PPV1-ISO-01):同位素 diff 入实际净变化集
+            # (冻结判据五 §5 现义兑现;身份键含同位素,故该轴与
+            # 零净变化分支自洽)
+            b_iso, a_iso = b_atom.GetIsotope(), a_atom.GetIsotope()
             deltas: list[str] = []
             unsupported = False
             if b_charge != a_charge:
                 deltas.append("formal_charge")
             if b_h != a_h:
                 deltas.append("h_count")
+            if b_iso != a_iso:
+                deltas.append("isotope")
             stereo_delta = _stereo_config_delta(b_atom, a_atom)
             if stereo_delta is None:
                 unsupported = True
@@ -2170,6 +2205,8 @@ def _atom_property_diffs(
                 "element": b_atom.GetSymbol(),
                 "formal_charge": [b_charge, a_charge],
                 "h_count": [b_h, a_h],
+                # 同位素轴披露(before/after;元素不变的核素变化)
+                "isotope": [b_iso, a_iso],
                 # 准确 CIP 标签(披露;标签 diff ≠ 构型变化)
                 "cip_labels": [before_cip.get(bi, ""),
                                after_cip.get(ai, "")],
@@ -2710,15 +2747,20 @@ def check_edit_against_donor(
         missing.append("center_or_edits_unavailable")
     elif not changed_atoms:
         # 零图轴变化:身份相同(上方 net_change_empty 已记 no_executed_
-        # change)或**身份不同而图轴空** —— 后者只能是图变化集未承载的
-        # 立体表示差异(非四面体等 unsupported 立体轴,R4-07):
-        # 不得称"实际净变化为空"(理由码断言一件身份轴已证伪的事)
+        # change)或**身份不同而图轴空** —— v9(S4 回修 r3)起同位素轴
+        # 已入图变化集(_atom_property_diffs 比较 GetIsotope),残余的
+        # "身份不同而图轴空"只能是图变化集未承载的立体表示差异(非
+        # 四面体等 unsupported 立体轴,R4-07):不得称"实际净变化为空"
+        # (理由码断言一件身份轴已证伪的事);纯同位素差异不再落入本
+        # 分支(v8 前曾以本码误标"仅立体",PPV1-ISO-01),走真实轴
+        # (isotope delta + 中心范围判定)
         center_match = None
         if not net_change_empty:
             missing.append(
                 "net_change_only_in_stereo_representation(身份键不同而"
-                "图轴无差异:非四面体/未比较立体轴的差异不经图变化集"
-                "承载,见 stereo_comparison_unsupported_atoms;center "
+                "图轴无差异:残余差异属未比较/未承载的立体表示轴(非"
+                "四面体等,见 stereo_comparison_unsupported_atoms;同位素"
+                "轴已入图变化集,不在此列);center "
                 "不可判,不得称实际净变化为空)")
         else:
             missing.append(
@@ -2821,7 +2863,9 @@ def check_edit_against_donor(
             "atoms)")
 
     # ---- 中心原子属性披露(R3-01/05:ops 对账不覆盖属性,E-iii;
-    # R4-07:unsupported 立体轴同通道公开,不静默缺席) ----
+    # R4-07:unsupported 立体轴同通道公开,不静默缺席;
+    # v9/S4 回修 r3:isotope 轴同通道公开(records["isotope"],
+    # 中心内同位素变化随 property_delta 的 "isotope" 机读码披露) ----
     center_property_deltas: list[dict] = []
     for aid in sorted(center_direct_ids):
         rec = atom_records.get(aid)
@@ -2913,12 +2957,14 @@ def _atom_change_summary(atoms: set[str], before: Chem.Mol,
                          after: Chem.Mol, id_to_idx_after: dict,
                          atom_records: dict[str, dict] | None = None,
                          ) -> list[dict]:
-    """中心区域外变化原子的逐原子 Δ 摘要(element/电荷/ΔH/Δ立体)。
+    """中心区域外变化原子的逐原子 Δ 摘要(element/电荷/ΔH/Δ同位素/Δ立体)。
 
     v3(mimo 5.2(a)):补 ΔH 与 Δ立体;电荷输出 before/after 而非
     仅产物值;atom_records 提供 _atom_property_diffs 的逐 id 记录。
+    v9(S4 回修 r3,PPV1-ISO-01):补 Δ同位素披露(records["isotope"]
+    的 before/after;"isotope" 机读码已在 delta 列表)。
     """
-    out = []
+    out: list[dict] = []
     records = atom_records or {}
     for aid in sorted(atoms):
         rec = dict(records.get(aid) or {})
@@ -2931,6 +2977,8 @@ def _atom_change_summary(atoms: set[str], before: Chem.Mol,
                 entry["formal_charge"] = rec["formal_charge"]
             if "h_count" in rec:
                 entry["h_count"] = rec["h_count"]
+            if "isotope" in rec:
+                entry["isotope"] = rec["isotope"]
             if "cip" in rec:
                 entry["stereo"] = rec["cip"]
             out.append(entry)
@@ -2952,6 +3000,11 @@ def _atom_change_summary(atoms: set[str], before: Chem.Mol,
             entry["h_count"] = {
                 "before": rec["h_count"][0],
                 "after": rec["h_count"][1]}
+        if "isotope" in rec:
+            # 同位素轴 before/after(核素变化;与 element 不变并存合法)
+            entry["isotope"] = {
+                "before": rec["isotope"][0],
+                "after": rec["isotope"][1]}
         if "cip_labels" in rec:
             # 准确 CIP 标签(rdCIPLabeler)——仅披露;标签 diff ≠ 构型
             # 变化(构型判定用奇偶法,见 property_delta 中的 stereo 项)

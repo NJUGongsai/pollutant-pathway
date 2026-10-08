@@ -1,0 +1,191 @@
+[
+  {
+    "name": "isotope_only",
+    "actual_isotope_changes": [
+      {
+        "atom_id": "S_C_1",
+        "before": 0,
+        "after": 13,
+        "outside_declared_center": true
+      }
+    ],
+    "admission": "retain_conditional",
+    "admission_reasons": [
+      "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):transformation_center"
+    ],
+    "center_status": "violated",
+    "submit_receipt": null,
+    "replay_receipt": null,
+    "center_product_coverage": "full",
+    "diagnostic_center_match": false,
+    "diagnostic_strict_target_match": true,
+    "declaration_mismatches": [],
+    "diagnostic_missing": []
+  },
+  {
+    "name": "bond_control",
+    "actual_isotope_changes": [],
+    "admission": "expand",
+    "admission_reasons": [
+      "R6:all_verified_no_conflict"
+    ],
+    "center_status": "verified",
+    "submit_receipt": {
+      "created": true,
+      "event_id": "ppev_caabf93c157219d04493"
+    },
+    "replay_receipt": {
+      "created": false,
+      "event_id": "ppev_caabf93c157219d04493"
+    },
+    "center_product_coverage": "full",
+    "diagnostic_center_match": true,
+    "diagnostic_strict_target_match": true,
+    "declaration_mismatches": [],
+    "diagnostic_missing": []
+  },
+  {
+    "name": "isotope_retained_bond_control",
+    "actual_isotope_changes": [],
+    "admission": "expand",
+    "admission_reasons": [
+      "R6:all_verified_no_conflict"
+    ],
+    "center_status": "verified",
+    "submit_receipt": {
+      "created": true,
+      "event_id": "ppev_6a36cd6e08bf393674ca"
+    },
+    "replay_receipt": {
+      "created": false,
+      "event_id": "ppev_6a36cd6e08bf393674ca"
+    },
+    "center_product_coverage": "full",
+    "diagnostic_center_match": true,
+    "diagnostic_strict_target_match": true,
+    "declaration_mismatches": [],
+    "diagnostic_missing": []
+  },
+  {
+    "name": "mixed_outside_isotope",
+    "actual_isotope_changes": [
+      {
+        "atom_id": "S_C_1",
+        "before": 0,
+        "after": 13,
+        "outside_declared_center": true
+      }
+    ],
+    "admission": "retain_conditional",
+    "admission_reasons": [
+      "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):transformation_center"
+    ],
+    "center_status": "violated",
+    "submit_receipt": null,
+    "replay_receipt": null,
+    "center_product_coverage": "full",
+    "diagnostic_center_match": false,
+    "diagnostic_strict_target_match": true,
+    "declaration_mismatches": [],
+    "diagnostic_missing": []
+  },
+  {
+    "name": "mixed_inside_isotope",
+    "actual_isotope_changes": [
+      {
+        "atom_id": "S_O_1",
+        "before": 0,
+        "after": 18,
+        "outside_declared_center": false
+      }
+    ],
+    "admission": "expand",
+    "admission_reasons": [
+      "R6:all_verified_no_conflict"
+    ],
+    "center_status": "verified",
+    "submit_receipt": {
+      "created": true,
+      "event_id": "ppev_1a646ce98ccf8b6c239c"
+    },
+    "replay_receipt": {
+      "created": false,
+      "event_id": "ppev_1a646ce98ccf8b6c239c"
+    },
+    "center_product_coverage": "full",
+    "diagnostic_center_match": true,
+    "diagnostic_strict_target_match": true,
+    "declaration_mismatches": [],
+    "diagnostic_missing": []
+  },
+  {
+    "name": "mixed_outside_isotope_all_center_control",
+    "actual_isotope_changes": [
+      {
+        "atom_id": "S_C_1",
+        "before": 0,
+        "after": 13,
+        "outside_declared_center": false
+      }
+    ],
+    "admission": "expand",
+    "admission_reasons": [
+      "R6:all_verified_no_conflict"
+    ],
+    "center_status": "verified",
+    "submit_receipt": {
+      "created": true,
+      "event_id": "ppev_fdfb91de0518ec9c3e0b"
+    },
+    "replay_receipt": {
+      "created": false,
+      "event_id": "ppev_fdfb91de0518ec9c3e0b"
+    },
+    "center_product_coverage": "full",
+    "diagnostic_center_match": true,
+    "diagnostic_strict_target_match": true,
+    "declaration_mismatches": [],
+    "diagnostic_missing": []
+  },
+  {
+    "name": "mixed_outside_wrong_target_control",
+    "actual_isotope_changes": [
+      {
+        "atom_id": "S_C_1",
+        "before": 0,
+        "after": 13,
+        "outside_declared_center": true
+      }
+    ],
+    "admission": "retain_conditional",
+    "admission_reasons": [
+      "R5v:declared_violated_other(确定性检查发现的不一致,非元素/电荷声明账;不 reject):transformation_center"
+    ],
+    "center_status": "violated",
+    "submit_receipt": null,
+    "replay_receipt": null,
+    "center_product_coverage": "full",
+    "diagnostic_center_match": false,
+    "diagnostic_strict_target_match": false,
+    "declaration_mismatches": [],
+    "diagnostic_missing": []
+  },
+  {
+    "name": "non_tetra_stereo_only_control",
+    "actual_isotope_changes": [],
+    "admission": "retain_conditional",
+    "admission_reasons": [
+      "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):transformation_center"
+    ],
+    "center_status": "unknown",
+    "submit_receipt": null,
+    "replay_receipt": null,
+    "center_product_coverage": "full",
+    "diagnostic_center_match": null,
+    "diagnostic_strict_target_match": true,
+    "declaration_mismatches": [],
+    "diagnostic_missing": [
+      "net_change_only_in_stereo_representation(身份键不同而图轴无差异:残余差异属未比较/未承载的立体表示轴(非四面体等,见 stereo_comparison_unsupported_atoms;同位素轴已入图变化集,不在此列);center 不可判,不得称实际净变化为空)"
+    ]
+  }
+]
