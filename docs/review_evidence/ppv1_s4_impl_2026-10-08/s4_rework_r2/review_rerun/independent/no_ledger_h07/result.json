@@ -1,0 +1,206 @@
+{
+  "name": "no_ledger_h07",
+  "table_hash_before": {
+    "budget_reservations": "52e5d8939bf9c887c11dc7eda6c1e726e6ba216d3b6aefac4ecdaf2cdb4f29cc",
+    "endpoint_records": "68fda1e1ca8b73087c04a5c8dd6eea79d2cd711187818e3e73b705aa01627837",
+    "event_appearance_links": "00a625faa489caca3ff99e1d3ef4659301d34f8cc0eda827266d3f5e19c06735",
+    "events": "5db1db304ce67ba305afca0f7602e5a290a477b55a8ca0c3d42ee328f20bda21",
+    "expansion_plans": "4b46938437f8f8b62d6859204742c7308cd594e329565f4499c986edf63aaeea",
+    "hypotheses": "f0dee440fe52b95e724b2151dab66232ee5fee116611a6b49c4d4f23628dfb85",
+    "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "03ec9200ccaa15c1cfbc0f1647b8e0736c2375e7e2fc5cf587626b54f06a14ea",
+    "search_actions": "98a5896a5752b1614738d3e9effc447c0eb1b738e817afc9f10fba5d69d130e1",
+    "search_attempts": "9ba146ae2b0050b6174d54a29e9e8a30f8f3deaccc9752e809e80fb73ed3215f",
+    "search_commit_records": "9a1a37ed100707fa5806d447b56f1baf9d3b250ad2d56db73fe3ec613aec0278",
+    "search_runs": "24eae71419a067df691b63698d9c15d43b769543c2461a99d5e5833e568cc5e6",
+    "state_appearances": "b658cd71108702d6a97cd47a9e891fc79d9d12b26fe6044d37d4add001f77160",
+    "states": "5c0eeb37a28209675591862d6ad2883246ab5388d5d30dc0522c33797bc2da12",
+    "stop_reason_records": "19abd7f51ce720d921421b7bd4ec731bec52f7283a5745e744a2ccbe67ae8fb9"
+  },
+  "table_hash_after": {
+    "budget_reservations": "52e5d8939bf9c887c11dc7eda6c1e726e6ba216d3b6aefac4ecdaf2cdb4f29cc",
+    "endpoint_records": "68fda1e1ca8b73087c04a5c8dd6eea79d2cd711187818e3e73b705aa01627837",
+    "event_appearance_links": "00a625faa489caca3ff99e1d3ef4659301d34f8cc0eda827266d3f5e19c06735",
+    "events": "5db1db304ce67ba305afca0f7602e5a290a477b55a8ca0c3d42ee328f20bda21",
+    "expansion_plans": "4b46938437f8f8b62d6859204742c7308cd594e329565f4499c986edf63aaeea",
+    "hypotheses": "f0dee440fe52b95e724b2151dab66232ee5fee116611a6b49c4d4f23628dfb85",
+    "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "03ec9200ccaa15c1cfbc0f1647b8e0736c2375e7e2fc5cf587626b54f06a14ea",
+    "search_actions": "98a5896a5752b1614738d3e9effc447c0eb1b738e817afc9f10fba5d69d130e1",
+    "search_attempts": "9ba146ae2b0050b6174d54a29e9e8a30f8f3deaccc9752e809e80fb73ed3215f",
+    "search_commit_records": "9a1a37ed100707fa5806d447b56f1baf9d3b250ad2d56db73fe3ec613aec0278",
+    "search_runs": "24eae71419a067df691b63698d9c15d43b769543c2461a99d5e5833e568cc5e6",
+    "state_appearances": "b658cd71108702d6a97cd47a9e891fc79d9d12b26fe6044d37d4add001f77160",
+    "states": "5c0eeb37a28209675591862d6ad2883246ab5388d5d30dc0522c33797bc2da12",
+    "stop_reason_records": "19abd7f51ce720d921421b7bd4ec731bec52f7283a5745e744a2ccbe67ae8fb9"
+  },
+  "zero_database_write": true,
+  "native_read": {
+    "accepted": false,
+    "exception": "NativeExportContractError",
+    "message": "导出引用的 artifact 损坏:stask-exp_2e9d720acaf1cf983821/production_report(H07 完整性失败;保全原文件,不静默略过)",
+    "detail": {
+      "kind": "export_reference_mismatch",
+      "artifact": "stask-exp_2e9d720acaf1cf983821/production_report",
+      "artifact_error_kind": "artifact_hash_mismatch",
+      "original_error": "SearchArtifactIntegrityError"
+    }
+  },
+  "projection_no_ledger": {
+    "accepted": true,
+    "returned": {
+      "adapter_version": "ppv1-v3-projection-3",
+      "boundary": {
+        "not_counted_as_extra_path": true,
+        "notes": "本投影是 native result 的有损视图:不得反写原生事实/事件/状态;不得从 v3 步骤位置推导事件身份或终点结论;投影与原生结果不得计为两条路径(F03);矿化/去除/解毒结论只能来自原生 endpoint 分账(证据等级权威)",
+        "reverse_consumption": "forbidden"
+      },
+      "information_losses": [
+        {
+          "axis": "route_origins",
+          "detail": "v3 步骤不携带来路/parent/context/事件身份;同 CN 不同来路在 v3 字段层不可区分(本适配不按 CN 合并,同父多事件保留为多步,但链接身份丢失)",
+          "native_authority": "native payload: events/state_appearances/paths"
+        },
+        {
+          "axis": "coproducts",
+          "detail": "共同产物与主产物混入同一无差别产物列表;产物角色/位次语义不进 v3 字段",
+          "native_authority": "native payload: events.participants[].role"
+        },
+        {
+          "axis": "alternative_reactions",
+          "detail": "同父备选反应关系(各自独立假设/事件)在 v3 形态不可表达",
+          "native_authority": "native payload: alternatives"
+        },
+        {
+          "axis": "conditions_dependencies",
+          "detail": "条件/环境事实与依赖(含未解决依赖)不在 v3 字段",
+          "native_authority": "native payload: contexts/endpoint_record"
+        },
+        {
+          "axis": "audit_proof_scope",
+          "detail": "audit 结论/准入/证明范围与失败原因不进 v3 字段",
+          "native_authority": "native payload: audit_production_reports"
+        },
+        {
+          "axis": "deferred_unexpanded",
+          "detail": "deferred(两类)与 blocked/未展开集合不在 v3 字段",
+          "native_authority": "native payload: deferred_entries/blocked_entries"
+        },
+        {
+          "axis": "endpoint_evidence_level",
+          "detail": "endpoint 分账(四分账/证据等级/独立支持计数)不可投影;v3 步骤不得解释为矿化/去除/解毒结论",
+          "native_authority": "native payload: endpoint_record"
+        },
+        {
+          "axis": "budget_stop_reason",
+          "detail": "预算预约/消耗与搜索停止原因不进 v3 字段",
+          "native_authority": "native payload: budget/stop 记录"
+        },
+        {
+          "axis": "unknown_partial_axes",
+          "detail": "unknown/partial 的具体轴(系数未知/条件未知/依赖未决)丢失",
+          "native_authority": "native payload: endpoint_record.bookkeeping"
+        },
+        {
+          "axis": "coefficients",
+          "detail": "参与物系数/系数状态(账目闭合)不在 v3 字段",
+          "native_authority": "native payload: events.participants[].coefficient"
+        },
+        {
+          "axis": "path_identity",
+          "detail": "根/子路径身份与深度结构在 v3 单路线形态不可表达",
+          "native_authority": "native payload: paths"
+        },
+        {
+          "axis": "source_provenance",
+          "detail": "来源引用/provenance 记录不进 v3 字段",
+          "native_authority": "native payload: provenance_records"
+        }
+      ],
+      "lossy_projection": true,
+      "native_graph_revision": {
+        "aggregate_digest": "bebd0ba1109fa8696f2a23b61269f05a7851394ac88c31eaf14fcdbef22d9b87",
+        "basis": "graph_facts_digests(与 native_export manifest 同源单一函数;PPV1 graph revision 等价身份)",
+        "contract_versions": {
+          "endpoint": "ppv1-endpoint-2",
+          "endpoint_policy": "ppv1-endpoint-policy-2",
+          "native_result": "ppv1-native-result-2",
+          "profile": "ppv1-profile-18",
+          "runflow": "ppv1-runflow-5",
+          "search": "ppv1-search-6"
+        }
+      },
+      "native_reference": {
+        "native_export_digest": "fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd",
+        "native_export_payload_sha256": "bd42fe6a23e772e6de741821316ffd351f1138c9431a67da9e783ff98004ab1e",
+        "native_result_content_digest": "155a5c021edccedd5b242d49834acb950c317ff2deb6a7862e2e021400cfbd9e",
+        "native_result_task_key": "run-native-result:155a5c021edccedd5b242d49"
+      },
+      "projection_digest": "24506e699c014d86fd00b0091763ea955508e30472ab3e6985241ce58c1831eb",
+      "route": {
+        "root_smiles": "CCO",
+        "route_id": "projection-binding",
+        "steps": [
+          {
+            "parent_smiles": "CCO",
+            "predicted_products": [
+              "CC=O",
+              "[H][H]"
+            ]
+          }
+        ]
+      },
+      "run_id": "projection-binding",
+      "schema_version": "ppv1-v3-projection-3",
+      "unprojectable_summaries": {
+        "alternative_group_count": 1,
+        "audit_report_count": 1,
+        "blocked_entry_count": 0,
+        "bookkeeping_status": "unknown",
+        "co2_aggregated": false,
+        "co2_product_occurrences": 0,
+        "condition_keys_known": [],
+        "condition_keys_unknown": [],
+        "coproduct_event_count": 1,
+        "deferred_entry_count": 1,
+        "deferred_types": [
+          "alternative_reaction_deferred"
+        ],
+        "endpoint_assessment": "supported_mineralization",
+        "execution_status": "completed",
+        "independent_source_support_count": 1,
+        "inherited_unresolved_dependency_ids": [],
+        "necessary_condition_conflict_keys": [],
+        "necessary_condition_unknown_keys": [],
+        "note": "全部值为摘要/计数;不可投影字段全文在原生导出(native_reference);不得据本摘要下化学结论",
+        "provenance_record_count": 0,
+        "root_carbon_fate_status": "source_reported_check_scope_only",
+        "stop_other_reasons": [],
+        "stop_reason_primary": "budget_limit",
+        "unexplored_counts": {
+          "blocked": 0,
+          "claimed_actions": 0,
+          "deferred": 1,
+          "open_attempts": 0,
+          "pending_actions": 0,
+          "pending_requests": 0
+        }
+      }
+    }
+  },
+  "projection_with_ledger": {
+    "accepted": false,
+    "exception": "V3ProjectionContractError",
+    "message": "投影引用的原生导出首消费失败:fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd(投影的原生来源必须先经原生首消费;不吞成成功)",
+    "detail": {
+      "kind": "v3_projection_source_binding_mismatch",
+      "check": "native_export_first_consumption",
+      "native_export_digest": "fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd",
+      "error": "NativeExportContractError: 导出引用的 artifact 损坏:stask-exp_2e9d720acaf1cf983821/production_report(H07 完整性失败;保全原文件,不静默略过)"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 """S4b 原生正式导出 —— 文件级 payload + manifest + 读取/过期/完整性
-首消费(契约 ppv1-native-export-1 / native-export-policy-1 登记)。
+首消费(契约 ppv1-native-export-3 / native-export-policy-3 登记)。
 
 S4b 范围(任务书 §7 S4b 第 1-4 项 + §4.4 G02):把 S4a 原生结果对象
 落为**正式文件导出**(run 目录 ``native_export/<export_digest>/``):
@@ -38,6 +38,11 @@ S4b 范围(任务书 §7 S4b 第 1-4 项 + §4.4 G02):把 S4a 原生结果对象
    ``export_reference_mismatch``(run/版本/策略内容与当前登记源
    绑定,不是 manifest 内自洽证书);
 5. payload 内容 digest 复算不符 ⇒ ``export_digest_mismatch``;
+5b. **payload 原生结果版本门(S4-C04 r2,复审 R2 §4)**:payload
+   的 ``native_result_version`` 缺失/非当前登记版本 ⇒
+   ``export_version_unknown``(与 manifest schema/契约版本块同
+   一登记源 profile 常量;自洽重封换版本不再被内容 digest 复算
+   之外的口放过);
 6. 权威引用断裂(endpoint/stop 行、原生结果 artifact、被引用
    artifact、冻结计划;含内容 hash 不一致)⇒
    ``export_reference_mismatch``(endpoint 记录自身的 staleness 由
@@ -48,13 +53,18 @@ S4b 范围(任务书 §7 S4b 第 1-4 项 + §4.4 G02):把 S4a 原生结果对象
    当前结果);
 8. graph facts digest 与当前持久权威不符 ⇒ ``export_stale``
    (stale 类;改变源图 ⇒ 旧结果过期,不能静默消费);
-9. **必要 artifact 引用集合闭合(S4-C02 回修)**:由独立权威
-   (artifact_reference_index + 冻结计划)同源枚举当前应引用且实际
-   存在的 artifact 集合,与 manifest 自报集合**整集比对**(漏单项
-   必要引用的自洽重封 ⇒ 拒;引用的 artifact 已缺失 ⇒ 拒);与每行
-   hash 校验(第 6 步)分别核;合法缺席(枚举到但当前不存在的
-   artifact)保留,不产空引用;枚举中撞到损坏 artifact ⇒ 结构化
-   ``export_reference_mismatch`` 拒(坏必要 soutc 等不能被跳过)。
+9. **必要 artifact 引用集合闭合(S4-C02;S4 回修 r2 复审 R2 §4)**:
+   应有必要项由**已完成 action/task/commit + 原生实际消费
+   (payload 引用)+ 冻结计划锚行**同源闭合(共用
+   artifact_reference_index 索引,必要性按权威行判定),**不由
+   "文件目前存在"决定** —— 删已完成任务的 production_report 文件
+   + 删 manifest 同引用 + 自洽重算新 digest(文件与引用一起消失)
+   不再把必要项缩成合法缺席;应有项缺文件/漏引用 ⇒ 拒(导出侧
+   写入前同样先拒,不封不完整 manifest);现存集合与必要集合分别
+   核,与每行 hash 校验(第 6 步)分开;合法未生产/空池/deferred/
+   未完成 action 候选保持合法缺席,不一刀切所有索引候选;枚举中
+   撞到损坏 artifact ⇒ 结构化 ``export_reference_mismatch`` 拒
+   (坏必要 soutc 等不能被跳过)。
 
 防"洗白":过期/损坏导出**零写入、原文件保全**;自洽重写 payload +
 manifest(重算内部 hash)逃不过第 6/8/9 条 —— 引用与事实 digest 从
@@ -74,9 +84,12 @@ import json
 import os
 from pathlib import Path
 
-from ..domain.models import canonical_json, content_hash
+from ..domain.models import canonical_json, content_hash, stable_id
 from .endpoint import read_run_endpoint
 from .native_result import (
+    _CONTEXT_ARTIFACT,
+    _EXPANSION_OUTCOME,
+    _PRODUCTION_REPORT,
     NATIVE_RESULT_ARTIFACT,
     NATIVE_RESULT_TASK_KEY,
     artifact_reference_index,
@@ -93,7 +106,14 @@ from .profile import (
     PPV1_SEARCH_SCHEMA_VERSION,
     PPV1_STORE_SCHEMA_VERSION,
 )
-from .search import SearchArtifactIntegrityError, read_search_artifact
+from .search import (
+    ACTION_KIND_EXPAND_HYPOTHESIS,
+    ACTION_KIND_RETRIEVE,
+    ACTION_STATUS_DONE,
+    COMMIT_KIND_OUTCOME,
+    SearchArtifactIntegrityError,
+    read_search_artifact,
+)
 
 NATIVE_EXPORT_SUBDIR = "native_export"
 NATIVE_EXPORT_PAYLOAD_FILE = "payload.json"
@@ -118,7 +138,7 @@ class NativeExportConflict(NativeExportContractError):
 
 
 def native_export_policy() -> dict:
-    """固定导出策略(ppv1-native-export-policy-2;无用户可配项)。
+    """固定导出策略(ppv1-native-export-policy-3;无用户可配项)。
 
     变更任一规则(序列化/命名/无时间戳/manifest 组成/首消费核验集)
     须升 PPV1_NATIVE_EXPORT_POLICY_VERSION —— 旧导出按 policy stale 拒。
@@ -127,6 +147,11 @@ def native_export_policy() -> dict:
     digest 复算、run/契约版本/策略正文与当前登记源绑定、必要
     artifact 引用集合由独立权威同源枚举后整集闭合(与每行 hash
     校验分别核)。
+    v3(S4 回修 r2,复审 R2 §4):必要集合闭合的枚举语义修正 ——
+    应有必要项由已完成 action/task/commit + 原生实际消费(payload
+    引用)+ 冻结计划锚行同源闭合,不由"文件目前存在"决定(文件+
+    引用一起消失的自洽重封不再照收;导出侧写入前同样先拒);首
+    消费新增 payload 原生结果版本门(native_result_version)。
     """
     return {
         "version": PPV1_NATIVE_EXPORT_POLICY_VERSION,
@@ -140,8 +165,10 @@ def native_export_policy() -> dict:
         "overwrite": "forbidden_same_digest_different_bytes_refused",
         "stale_detection": (
             "manifest_core_digest_recompute+run_and_contract_version"
-            "_binding+graph_facts_digests+authority_references+necessary"
-            "_artifact_reference_set_closure+policy_body_and_hash"),
+            "_binding+payload_native_result_version_binding+graph"
+            "_facts_digests+authority_references+necessary_artifact"
+            "_reference_set_closure_from_completed_actions_commits"
+            "_and_native_consumption+policy_body_and_hash"),
     }
 
 
@@ -164,15 +191,20 @@ def _current_contract_versions() -> dict:
     }
 
 
-def _necessary_artifact_reference_keys(ledger) -> dict:
-    """必要 artifact 引用集合的独立权威同源枚举(S4-C02)。
+def _existing_artifact_reference_keys(ledger) -> dict:
+    """**现存** artifact 引用键集合(S4-C02 r2:与必要集合分开)。
 
     与 _artifact_references/manifest 写入共用 artifact_reference_index
     + 冻结计划两个来源(**同一完整索引,不另修一套规则**);此处
-    枚举的是"当前应被引用且实际存在"的集合:缺席(尚未产出)的
-    artifact 不产空引用(合法缺席);损坏 artifact ⇒ 结构化拒
-    (坏必要 soutc 等不能被跳过,不静默略过后当合法缺席)。
-    返回 {key: payload_hash}(key = task_key/name)。"""
+    枚举的是"当前实际存在"的集合:缺席(尚未产出)的 artifact 不
+    产空引用(合法缺席);损坏 artifact ⇒ 结构化拒(坏必要 soutc
+    等不能被跳过,不静默略过后当合法缺席)。
+    返回 {key: payload_hash}(key = task_key/name)。
+
+    S4 回修 r2(复审 R2 §4):本函数只回答"文件现在在不在";**应
+    有必要项**(即使文件已消失也必须被引用/存在)由
+    ``_necessary_artifact_reference_keys`` 按独立权威行闭合 ——
+    两集合分别核,必要性不由存在性决定。"""
     refs: dict[str, str] = {}
     for entry in artifact_reference_index(ledger):
         try:
@@ -196,6 +228,134 @@ def _necessary_artifact_reference_keys(ledger) -> dict:
         refs[f"{_FROZEN_PLAN_TASK_KEY}/{_FROZEN_PLAN_ARTIFACT}"] = \
             str(frozen.get("payload_hash") or "")
     return dict(sorted(refs.items()))
+
+
+def _frozen_plan_anchor_exists(ledger) -> bool:
+    """冻结计划锚行(S3B-01 同源判定):存在携带 plan_digest 的
+    retrieve 行 ⇒ 计划已按 start 流程持久化(frozen_plan artifact
+    先于任何 retrieve 执行落盘)⇒ 计划 artifact 应存在。"""
+    rows = ledger.conn.execute(
+        "SELECT payload FROM search_actions WHERE run_id = ? AND"
+        " action_kind = ?", (ledger.run_id, ACTION_KIND_RETRIEVE)
+    ).fetchall()
+    for row in rows:
+        try:
+            payload = json.loads(row["payload"] or "{}")
+        except (ValueError, TypeError):
+            continue  # 坏锚由 resume/绑定层披露;此处不另加门
+        if isinstance(payload, dict) and \
+                str(payload.get("plan_digest") or ""):
+            return True
+    return False
+
+
+def _necessary_artifact_reference_keys(ledger,
+                                       payload: dict | None = None) -> dict:
+    """**应有必要** artifact 引用集合(S4-C02;S4 回修 r2,复审 R2
+    §4:必要性不由"文件目前存在"决定)。
+
+    依**原生实际消费与已完成 action/task/commit/计划同源闭合**
+    (同一 artifact_reference_index 索引,必要性按权威行判定,不另
+    造第二套枚举;在读文件之前即从 DB 行 + payload 判定):
+
+    - ``expansion_outcome``(soutc 键):status=done 且 outcome 类
+      提交的 retrieve/decide/activate_deferred/scenario_transition
+      (调度结论 ``runflow._complete_action`` **先写 artifact 后完成**
+      ⇒ 完成即已写,含恢复路径;expand 空 task_key 时
+      record_expansion_outcome 回退写同键);
+    - ``expansion_outcome``(task_key 键):status=done 且 outcome
+      类提交的 expand_hypothesis(record_expansion_outcome 写 action
+      行冻结 task_key,先写后完成);
+    - ``production_report``:必要性**只由原生实际消费(payload 的
+      audit_production_reports 引用)决定** —— 行闭合不判:生产链
+      ``production.py _report("submitted")`` 在 complete_action
+      **之后**落盘,B4 崩溃恢复(事件已提交、记账未闭合 ⇒ 恢复幂
+      等补账)**合法不产报告** ⇒ "done expand 必有 report"不是本
+      系统不变量,不以行闭合强加(合法 B4 缺席保持;删已完成任务
+      报告的反例由 payload 消费闭合捕获);
+    - **原生实际消费**:payload 的 audit_production_reports /
+      expansion_outcomes / contexts 声明引用的每个键(与行闭合互
+      为冗余 —— 原生声明依赖的项即使行判定不必要,缺文件/漏引用
+      也拒);
+    - **冻结计划**:存在携带 plan_digest 的 retrieve 锚行(S3B-01
+      同源)⇒ frozen_plan 应存在。
+
+    合法缺席保留(不强制存在):未完成(pending/claimed/deferred/
+    blocked)action 的全部候选、retrieve/decide 的 production_report
+    候选(生产链不写)、事件类提交 expand 的报告候选(B4 恢复补账
+    合法不产)、payload 未消费的一切。损坏 artifact 由读取入口按
+    H07 结构化拒(原有语义不变)。
+
+    返回 {key: basis}(basis = 判定依据标签,供拒绝对话;本函数
+    纯只读 DB/payload,零文件写入,不读 artifact 文件 ⇒ 不存在
+    "由文件存在反推必要"的回路)。"""
+    conn = ledger.conn
+    run_id = ledger.run_id
+    actions = {str(r["action_id"]): r for r in conn.execute(
+        "SELECT action_id, action_kind, task_key, status FROM"
+        " search_actions WHERE run_id = ?", (run_id,)).fetchall()}
+    commits = {str(r["action_id"]): str(r["commit_kind"] or "")
+               for r in conn.execute(
+        "SELECT action_id, commit_kind FROM search_commit_records WHERE"
+        " run_id = ?", (run_id,)).fetchall()}
+    necessary: dict[str, str] = {}
+    for entry in artifact_reference_index(ledger):
+        action = actions.get(str(entry.get("source_action_id") or ""))
+        if action is None:
+            continue  # ctx 条目(无 action 行)不由行闭合判定
+        if str(action["status"]) != ACTION_STATUS_DONE:
+            continue  # 合法缺席:未完成(含 deferred/blocked)
+        commit_kind = commits.get(str(action["action_id"]))
+        if commit_kind is None:
+            # done 无提交记录 = 记账不变量破坏,由权威层披露;
+            # 集合闭合不另加新门(不加新科学门)
+            continue
+        kind = str(action["action_kind"])
+        task_key = str(action["task_key"] or "")
+        entry_key = str(entry["task_key"])
+        if str(entry["name"]) == _EXPANSION_OUTCOME:
+            # 先写后完成的不变量:B4 补账只覆盖事件类提交,outcome 类
+            # 完成(record_expansion_outcome / runflow._complete_action)
+            # 恒先落盘 artifact ⇒ done+outcome 提交 ⇒ artifact 应存在
+            is_soutc = entry_key == stable_id(
+                "soutc", str(action["action_id"]))
+            if commit_kind == COMMIT_KIND_OUTCOME:
+                if is_soutc:
+                    if kind != ACTION_KIND_EXPAND_HYPOTHESIS or not task_key:
+                        necessary[f"{entry_key}/{_EXPANSION_OUTCOME}"] = \
+                            "done_outcome_completion_soutc"
+                elif kind == ACTION_KIND_EXPAND_HYPOTHESIS and task_key \
+                        and entry_key == task_key:
+                    necessary[f"{entry_key}/{_EXPANSION_OUTCOME}"] = \
+                        "done_expand_outcome_task_key"
+        # production_report 的行闭合分支不存在:B4 恢复合法不产报告
+        # (见 docstring);其必要性由下方 payload 实际消费闭合决定
+    # ---- 原生实际消费(payload 声明依赖;与行闭合互为冗余) ----
+    if payload is not None:
+        for report in payload.get("audit_production_reports") or []:
+            task_key = str((report or {}).get("task_key") or "")
+            if task_key:
+                necessary.setdefault(
+                    f"{task_key}/{_PRODUCTION_REPORT}",
+                    "payload_audit_production_report_consumed")
+        for outcome in payload.get("expansion_outcomes") or []:
+            task_key = str((outcome or {}).get("task_key") or "")
+            if task_key:
+                necessary.setdefault(
+                    f"{task_key}/{_EXPANSION_OUTCOME}",
+                    "payload_expansion_outcome_consumed")
+        for context in payload.get("contexts") or []:
+            context_ref = str((context or {}).get("context_ref") or "")
+            if context_ref:
+                necessary.setdefault(
+                    f"ctx:{context_ref}/{_CONTEXT_ARTIFACT}",
+                    "payload_context_consumed")
+    # ---- 冻结计划(锚行同源) ----
+    if _frozen_plan_anchor_exists(ledger):
+        necessary.setdefault(
+            f"{_FROZEN_PLAN_TASK_KEY}/{_FROZEN_PLAN_ARTIFACT}",
+            "frozen_plan_anchor_row")
+    return dict(sorted(necessary.items()))
 
 
 def _read_frozen_plan_or_refuse(ledger) -> dict | None:
@@ -386,6 +546,53 @@ def export_native_result(ledger, native_result: dict,
     # endpoint 记录首消费门(独立于调用方:过期/损坏记录不包装成正式
     # 结果 —— 与 runflow 派生侧同一判据来源,幂等只读)
     read_run_endpoint(ledger, ledger.run_id)
+    # ---- S4-C02 r2:导出侧写入前的必要集合闭合(与读取侧同一判据
+    # 来源;先结构化拒、零文件写入、缺席形态保全)----
+    # 应有必要项由已完成 action/task/commit + 原生实际消费(native_
+    # result payload 声明)+ 冻结计划锚行闭合:必要项缺文件(文件+
+    # 引用一起消失,或构建时即缺席)不得封成"完整导出"后靠读取侧
+    # 兜底;manifest 引用集合(_artifact_references,现存项)必须
+    # 覆盖全部必要项。
+    necessary = _necessary_artifact_reference_keys(ledger, native_result)
+    missing_necessary: list[str] = []
+    for key in necessary:
+        task_key, _, name = key.partition("/")
+        try:
+            envelope = read_search_artifact(
+                ledger.artifact_store, task_key, name)
+        except SearchArtifactIntegrityError as exc:
+            raise NativeExportContractError(
+                f"导出必要引用的 artifact 损坏:{key}(H07 完整性失败;"
+                "保全原文件,不能跳过后当合法缺席;先拒,零写入)",
+                {"kind": "export_reference_mismatch",
+                 "artifact": key,
+                 "artifact_error_kind": exc.detail.get("kind"),
+                 "original_error": type(exc).__name__}) from exc
+        if envelope is None:
+            missing_necessary.append(key)
+    missing_necessary.sort()
+    if missing_necessary:
+        raise NativeExportContractError(
+            f"导出必要 artifact 缺席:{missing_necessary}(依据已完成"
+            " action/task/commit + 原生实际消费 + 冻结计划锚闭合;应有"
+            "项缺文件不能当合法缺席,不封不完整 manifest;零写入,原"
+            "状态保全)",
+            {"kind": "export_reference_mismatch",
+             "check": "necessary_artifact_reference_set_closure",
+             "missing_necessary_files": missing_necessary,
+             "necessary_basis": {k: necessary[k]
+                                 for k in missing_necessary}})
+    refs = _artifact_references(ledger)
+    omitted_necessary = sorted(set(necessary) - set(refs))
+    if omitted_necessary:
+        raise NativeExportContractError(
+            f"导出的必要 artifact 引用集合不闭合:{omitted_necessary}"
+            "(manifest 引用未覆盖必要项;先拒,零写入)",
+            {"kind": "export_reference_mismatch",
+             "check": "necessary_artifact_reference_set_closure",
+             "omitted_necessary_refs": omitted_necessary,
+             "necessary_basis": {k: necessary[k]
+                                 for k in omitted_necessary}})
     policy = native_export_policy()
     payload_text = canonical_json(native_result) + "\n"
     payload_sha = hashlib.sha256(
@@ -400,7 +607,7 @@ def export_native_result(ledger, native_result: dict,
         "content_digest": str(native_result["content_digest"]),
         "payload_sha256": payload_sha,
         "graph_facts": graph_facts_digests(ledger),
-        "artifact_references": _artifact_references(ledger),
+        "artifact_references": refs,
         "authority_references": _authority_references(
             ledger, native_result),
         "determinism_note": (
@@ -565,6 +772,23 @@ def read_native_export(ledger, run_dir: str | Path, export_digest: str,
             {"kind": "export_digest_mismatch",
              "payload": str(payload.get("content_digest")),
              "manifest": str(manifest.get("content_digest"))})
+    # ---- 5b. payload 原生结果版本门(S4-C04 r2,复审 R2 §4) ----
+    # 与 manifest schema/契约版本块同一登记源(profile 常量);自洽
+    # 重封(重算 content_digest/payload_sha256/manifest digest)换
+    # native_result_version 不再只靠权威 artifact 绑定兜底 —— 未知/
+    # 缺失来源版本不包装成已验证结果(fail-closed 不猜迁移,历史
+    # 版本无显式 adapter ⇒ 拒)。
+    if str(payload.get("native_result_version") or "") \
+            != PPV1_NATIVE_RESULT_VERSION:
+        raise NativeExportContractError(
+            f"导出 payload 的原生结果版本未知/缺失:"
+            f"{payload.get('native_result_version')!r}(当前 "
+            f"{PPV1_NATIVE_RESULT_VERSION};fail-closed 不猜迁移;"
+            "保全原文件,未知来源版本不包装成已验证结果)",
+            {"kind": "export_version_unknown",
+             "check": "payload_native_result_version_binding",
+             "native_result_version":
+                 str(payload.get("native_result_version") or "")})
     # ---- 6. 权威引用(endpoint 首消费先行 + DB 行 + artifacts) ----
     read_run_endpoint(ledger, ledger.run_id)
     refs = manifest.get("authority_references") or {}
@@ -674,21 +898,34 @@ def read_native_export(ledger, run_dir: str | Path, export_digest: str,
             {"kind": "export_stale", "changed_facts": changed,
              "recorded": {k: recorded_facts.get(k) for k in changed},
              "current": {k: current_facts[k] for k in changed}})
-    # ---- 9. 必要 artifact 引用集合闭合(S4-C02;与每行 hash 校验
-    # 分别核;放在 stale 之后 —— 事实漂移先以 export_stale 浮出,
-    # 纯引用集合篡改(事实不动)由本步拒) ----
-    current_necessary = _necessary_artifact_reference_keys(ledger)
+    # ---- 9. 必要 artifact 引用集合闭合(S4-C02;S4 回修 r2,复审
+    # R2 §4;与每行 hash 校验分别核;放在 stale 之后 —— 事实漂移先以
+    # export_stale 浮出,纯引用集合篡改(事实不动)由本步拒) ----
+    # 应有必要项由已完成 action/task/commit + 原生实际消费(payload
+    # 声明)+ 冻结计划锚行同源闭合(在读文件之前从 DB/payload 判定,
+    # 不由文件存在决定):文件+引用一起消失的自洽重封(删已完成任务
+    # 的 production_report 等)在此拒 —— 必要项缺文件不是合法缺席。
+    # 现存集合(合法缺席语义)与必要集合分别核:漏必要引用、漏现存
+    # 引用、悬垂(引用不存在的项)分别披露。
+    necessary = _necessary_artifact_reference_keys(ledger, payload)
+    existing = _existing_artifact_reference_keys(ledger)
     recorded_ref_keys = set(artifact_refs)
-    omitted = sorted(set(current_necessary) - recorded_ref_keys)
-    dangling = sorted(recorded_ref_keys - set(current_necessary))
-    if omitted or dangling:
+    omitted_necessary = sorted(set(necessary) - recorded_ref_keys)
+    omitted_existing = sorted(
+        set(existing) - recorded_ref_keys - set(necessary))
+    dangling = sorted(recorded_ref_keys - set(existing))
+    if omitted_necessary or omitted_existing or dangling:
         raise NativeExportContractError(
-            "导出的必要 artifact 引用集合不闭合(独立权威同源枚举后"
-            "整集比对;漏单项必要引用的自洽重封/引用的 artifact 已缺失"
-            "均拒;与每行 hash 校验分别核)",
+            "导出的必要 artifact 引用集合不闭合(应有必要项由已完成"
+            " action/task/commit + 原生实际消费 + 冻结计划锚同源闭合,"
+            "不由文件存在决定;漏必要/漏现存引用与悬垂引用分别披露;"
+            "与每行 hash 校验分别核)",
             {"kind": "export_reference_mismatch",
              "check": "necessary_artifact_reference_set_closure",
-             "omitted_necessary_refs": omitted,
+             "omitted_necessary_refs": omitted_necessary,
+             "necessary_basis": {k: necessary[k]
+                                 for k in omitted_necessary},
+             "omitted_existing_refs": omitted_existing,
              "dangling_recorded_refs": dangling})
     return {"manifest": manifest, "payload": payload,
             "payload_sha256": payload_sha}

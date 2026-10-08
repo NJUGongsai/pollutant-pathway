@@ -1,0 +1,713 @@
+{
+  "manifest_run": {
+    "zero_database_write": true,
+    "response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+      "detail": {
+        "kind": "export_manifest_corrupt",
+        "check": "manifest_core_digest",
+        "declared": "a4a66f9b4bc8",
+        "recomputed": "51bf78abb5d7"
+      }
+    }
+  },
+  "manifest_version": {
+    "zero_database_write": true,
+    "response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+      "detail": {
+        "kind": "export_manifest_corrupt",
+        "check": "manifest_core_digest",
+        "declared": "a4a66f9b4bc8",
+        "recomputed": "9b3151f5874a"
+      }
+    }
+  },
+  "manifest_policy": {
+    "zero_database_write": true,
+    "response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+      "detail": {
+        "kind": "export_manifest_corrupt",
+        "check": "manifest_core_digest",
+        "declared": "a4a66f9b4bc8",
+        "recomputed": "921fc1f42f28"
+      }
+    }
+  },
+  "manifest_refs": {
+    "zero_database_write": true,
+    "response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出 manifest core 自身 digest 复算不一致(manifest 被改而 export_digest 未同步,或 manifest 组成非法;保全原文件,不以重算新 digest 洗白)",
+      "detail": {
+        "kind": "export_manifest_corrupt",
+        "check": "manifest_core_digest",
+        "declared": "a4a66f9b4bc8",
+        "recomputed": "59d0d64d1a81"
+      }
+    }
+  },
+  "manifest_restore": {},
+  "selfconsistent_run": {
+    "zero_database_write": true,
+    "response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出 manifest 的 run_id 与当前 run 权威不符(run 绑定;自洽重封换 run 身份不再照收)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "check": "run_binding",
+        "manifest_run_id": "foreign-run",
+        "ledger_run_id": "manifest-only"
+      }
+    }
+  },
+  "selfconsistent_version": {
+    "zero_database_write": true,
+    "response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出契约版本块与当前登记源不符:['profile'](run/版本/策略内容与当前权威绑定,不是 manifest 内自洽证书;旧导出不得当当前结果)",
+      "detail": {
+        "kind": "export_version_unknown",
+        "changed_contracts": [
+          "profile"
+        ],
+        "recorded": {
+          "profile": "bad-profile"
+        },
+        "current": {
+          "profile": "ppv1-profile-18"
+        }
+      }
+    }
+  },
+  "selfconsistent_policy": {
+    "zero_database_write": true,
+    "response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出过期:导出策略/版本变化(旧导出不得当作当前结果;重新导出走公共 start/resume 或 export_native_result)",
+      "detail": {
+        "kind": "export_policy_stale",
+        "check": "policy_body_binding",
+        "recorded": {
+          "directory_naming": "native_export/<export_digest[:24]>/",
+          "export_digest_basis": "content_hash(manifest_core_without_export_digest)",
+          "manifest_serialization": "canonical_json_sortkeys_compact_newline",
+          "manifest_timestamps": "forbidden",
+          "overwrite": "forbidden_same_digest_different_bytes_refused",
+          "payload_serialization": "canonical_json_sortkeys_compact_newline",
+          "payload_timestamps": "forbidden",
+          "stale_detection": "manifest_core_digest_recompute+run_and_contract_version_binding+payload_native_result_version_binding+graph_facts_digests+authority_references+necessary_artifact_reference_set_closure_from_completed_actions_commits_and_native_consumption+policy_body_and_hash",
+          "version": "bad-policy"
+        },
+        "current": {
+          "version": "ppv1-native-export-policy-3",
+          "payload_serialization": "canonical_json_sortkeys_compact_newline",
+          "manifest_serialization": "canonical_json_sortkeys_compact_newline",
+          "directory_naming": "native_export/<export_digest[:24]>/",
+          "export_digest_basis": "content_hash(manifest_core_without_export_digest)",
+          "payload_timestamps": "forbidden",
+          "manifest_timestamps": "forbidden",
+          "overwrite": "forbidden_same_digest_different_bytes_refused",
+          "stale_detection": "manifest_core_digest_recompute+run_and_contract_version_binding+payload_native_result_version_binding+graph_facts_digests+authority_references+necessary_artifact_reference_set_closure_from_completed_actions_commits_and_native_consumption+policy_body_and_hash"
+        }
+      }
+    }
+  },
+  "single_ref_intact": {
+    "zero_database_write": true,
+    "selfconsistent_omitted_read": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出的必要 artifact 引用集合不闭合(应有必要项由已完成 action/task/commit + 原生实际消费 + 冻结计划锚同源闭合,不由文件存在决定;漏必要/漏现存引用与悬垂引用分别披露;与每行 hash 校验分别核)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "check": "necessary_artifact_reference_set_closure",
+        "omitted_necessary_refs": [
+          "stask-exp_d62a57d77845f8eaab2c/production_report"
+        ],
+        "necessary_basis": {
+          "stask-exp_d62a57d77845f8eaab2c/production_report": "payload_audit_production_report_consumed"
+        },
+        "omitted_existing_refs": [],
+        "dangling_recorded_refs": []
+      }
+    }
+  },
+  "single_ref_corrupt": {
+    "zero_database_write": true,
+    "selfconsistent_omitted_read": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出必要引用的 artifact 损坏:stask-exp_50284c9e0941e02183db/production_report(H07 完整性失败;保全原文件,不能跳过后当合法缺席)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "stask-exp_50284c9e0941e02183db/production_report",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    }
+  },
+  "single_ref_missing": {
+    "zero_database_write": true,
+    "selfconsistent_omitted_read": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出的必要 artifact 引用集合不闭合(应有必要项由已完成 action/task/commit + 原生实际消费 + 冻结计划锚同源闭合,不由文件存在决定;漏必要/漏现存引用与悬垂引用分别披露;与每行 hash 校验分别核)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "check": "necessary_artifact_reference_set_closure",
+        "omitted_necessary_refs": [
+          "stask-exp_186406fb43fba8a83c9e/production_report"
+        ],
+        "necessary_basis": {
+          "stask-exp_186406fb43fba8a83c9e/production_report": "payload_audit_production_report_consumed"
+        },
+        "omitted_existing_refs": [],
+        "dangling_recorded_refs": []
+      }
+    }
+  },
+  "child_outcome": {
+    "zero_database_write": true,
+    "all_existing_aggregated": true,
+    "build_response": {
+      "accepted": false,
+      "exception": "NativeResultContractError",
+      "message": "原生结果消费的必要 artifact 损坏:soutc_64dc783615f11ef0323a/expansion_outcome(H07 完整性失败;保全原文件,不静默略过、不清洗后继续)",
+      "detail": {
+        "kind": "native_result_artifact_corrupt",
+        "task_key": "soutc_64dc783615f11ef0323a",
+        "name": "expansion_outcome",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "native_export_response": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出引用的 artifact 损坏:soutc_64dc783615f11ef0323a/expansion_outcome(H07 完整性失败;保全原文件,不静默略过)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "soutc_64dc783615f11ef0323a/expansion_outcome",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    }
+  },
+  "fake_native": {
+    "zero_database_write": true,
+    "response": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影输入的 native_result 与其引用的导出 content_digest 不一致(混搭真 export 引用 + 假 native;拒)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "export_content_digest_binding",
+        "native_result_content_digest": "535e7fb36705ebb0b659059344edf653e22f44582a8bd685ab19f3b0fe6ef88c",
+        "manifest_content_digest": "155a5c021edccedd5b242d49834acb950c317ff2deb6a7862e2e021400cfbd9e"
+      }
+    }
+  },
+  "projection_only": {
+    "zero_database_write": true,
+    "no_ledger_response": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影的已表达字段与按登记 adapter 从其原生载荷同源复算的内容不符:['route.steps', 'unprojectable_summaries'](有损投影不许可捏造/删除已提交事件、deferred 或其它已表达事实;自洽重算 projection_digest 换新目录不洗白;保全原文件)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "adapter_derived_content",
+        "mismatched_fields": [
+          "route.steps",
+          "unprojectable_summaries"
+        ],
+        "native_export_digest": "fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd"
+      }
+    },
+    "with_ledger_response": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影的已表达字段与按登记 adapter 从其原生载荷同源复算的内容不符:['route.steps', 'unprojectable_summaries'](有损投影不许可捏造/删除已提交事件、deferred 或其它已表达事实;自洽重算 projection_digest 换新目录不洗白;保全原文件)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "adapter_derived_content",
+        "mismatched_fields": [
+          "route.steps",
+          "unprojectable_summaries"
+        ],
+        "native_export_digest": "fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd"
+      }
+    }
+  },
+  "no_ledger_h07": {
+    "zero_database_write": true,
+    "native_read": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出引用的 artifact 损坏:stask-exp_2e9d720acaf1cf983821/production_report(H07 完整性失败;保全原文件,不静默略过)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "artifact": "stask-exp_2e9d720acaf1cf983821/production_report",
+        "artifact_error_kind": "artifact_hash_mismatch",
+        "original_error": "SearchArtifactIntegrityError"
+      }
+    },
+    "projection_no_ledger": {
+      "accepted": true,
+      "returned": {
+        "adapter_version": "ppv1-v3-projection-3",
+        "boundary": {
+          "not_counted_as_extra_path": true,
+          "notes": "本投影是 native result 的有损视图:不得反写原生事实/事件/状态;不得从 v3 步骤位置推导事件身份或终点结论;投影与原生结果不得计为两条路径(F03);矿化/去除/解毒结论只能来自原生 endpoint 分账(证据等级权威)",
+          "reverse_consumption": "forbidden"
+        },
+        "information_losses": [
+          {
+            "axis": "route_origins",
+            "detail": "v3 步骤不携带来路/parent/context/事件身份;同 CN 不同来路在 v3 字段层不可区分(本适配不按 CN 合并,同父多事件保留为多步,但链接身份丢失)",
+            "native_authority": "native payload: events/state_appearances/paths"
+          },
+          {
+            "axis": "coproducts",
+            "detail": "共同产物与主产物混入同一无差别产物列表;产物角色/位次语义不进 v3 字段",
+            "native_authority": "native payload: events.participants[].role"
+          },
+          {
+            "axis": "alternative_reactions",
+            "detail": "同父备选反应关系(各自独立假设/事件)在 v3 形态不可表达",
+            "native_authority": "native payload: alternatives"
+          },
+          {
+            "axis": "conditions_dependencies",
+            "detail": "条件/环境事实与依赖(含未解决依赖)不在 v3 字段",
+            "native_authority": "native payload: contexts/endpoint_record"
+          },
+          {
+            "axis": "audit_proof_scope",
+            "detail": "audit 结论/准入/证明范围与失败原因不进 v3 字段",
+            "native_authority": "native payload: audit_production_reports"
+          },
+          {
+            "axis": "deferred_unexpanded",
+            "detail": "deferred(两类)与 blocked/未展开集合不在 v3 字段",
+            "native_authority": "native payload: deferred_entries/blocked_entries"
+          },
+          {
+            "axis": "endpoint_evidence_level",
+            "detail": "endpoint 分账(四分账/证据等级/独立支持计数)不可投影;v3 步骤不得解释为矿化/去除/解毒结论",
+            "native_authority": "native payload: endpoint_record"
+          },
+          {
+            "axis": "budget_stop_reason",
+            "detail": "预算预约/消耗与搜索停止原因不进 v3 字段",
+            "native_authority": "native payload: budget/stop 记录"
+          },
+          {
+            "axis": "unknown_partial_axes",
+            "detail": "unknown/partial 的具体轴(系数未知/条件未知/依赖未决)丢失",
+            "native_authority": "native payload: endpoint_record.bookkeeping"
+          },
+          {
+            "axis": "coefficients",
+            "detail": "参与物系数/系数状态(账目闭合)不在 v3 字段",
+            "native_authority": "native payload: events.participants[].coefficient"
+          },
+          {
+            "axis": "path_identity",
+            "detail": "根/子路径身份与深度结构在 v3 单路线形态不可表达",
+            "native_authority": "native payload: paths"
+          },
+          {
+            "axis": "source_provenance",
+            "detail": "来源引用/provenance 记录不进 v3 字段",
+            "native_authority": "native payload: provenance_records"
+          }
+        ],
+        "lossy_projection": true,
+        "native_graph_revision": {
+          "aggregate_digest": "bebd0ba1109fa8696f2a23b61269f05a7851394ac88c31eaf14fcdbef22d9b87",
+          "basis": "graph_facts_digests(与 native_export manifest 同源单一函数;PPV1 graph revision 等价身份)",
+          "contract_versions": {
+            "endpoint": "ppv1-endpoint-2",
+            "endpoint_policy": "ppv1-endpoint-policy-2",
+            "native_result": "ppv1-native-result-2",
+            "profile": "ppv1-profile-18",
+            "runflow": "ppv1-runflow-5",
+            "search": "ppv1-search-6"
+          }
+        },
+        "native_reference": {
+          "native_export_digest": "fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd",
+          "native_export_payload_sha256": "bd42fe6a23e772e6de741821316ffd351f1138c9431a67da9e783ff98004ab1e",
+          "native_result_content_digest": "155a5c021edccedd5b242d49834acb950c317ff2deb6a7862e2e021400cfbd9e",
+          "native_result_task_key": "run-native-result:155a5c021edccedd5b242d49"
+        },
+        "projection_digest": "24506e699c014d86fd00b0091763ea955508e30472ab3e6985241ce58c1831eb",
+        "route": {
+          "root_smiles": "CCO",
+          "route_id": "projection-binding",
+          "steps": [
+            {
+              "parent_smiles": "CCO",
+              "predicted_products": [
+                "CC=O",
+                "[H][H]"
+              ]
+            }
+          ]
+        },
+        "run_id": "projection-binding",
+        "schema_version": "ppv1-v3-projection-3",
+        "unprojectable_summaries": {
+          "alternative_group_count": 1,
+          "audit_report_count": 1,
+          "blocked_entry_count": 0,
+          "bookkeeping_status": "unknown",
+          "co2_aggregated": false,
+          "co2_product_occurrences": 0,
+          "condition_keys_known": [],
+          "condition_keys_unknown": [],
+          "coproduct_event_count": 1,
+          "deferred_entry_count": 1,
+          "deferred_types": [
+            "alternative_reaction_deferred"
+          ],
+          "endpoint_assessment": "supported_mineralization",
+          "execution_status": "completed",
+          "independent_source_support_count": 1,
+          "inherited_unresolved_dependency_ids": [],
+          "necessary_condition_conflict_keys": [],
+          "necessary_condition_unknown_keys": [],
+          "note": "全部值为摘要/计数;不可投影字段全文在原生导出(native_reference);不得据本摘要下化学结论",
+          "provenance_record_count": 0,
+          "root_carbon_fate_status": "source_reported_check_scope_only",
+          "stop_other_reasons": [],
+          "stop_reason_primary": "budget_limit",
+          "unexplored_counts": {
+            "blocked": 0,
+            "claimed_actions": 0,
+            "deferred": 1,
+            "open_attempts": 0,
+            "pending_actions": 0,
+            "pending_requests": 0
+          }
+        }
+      }
+    },
+    "projection_with_ledger": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影引用的原生导出首消费失败:fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd(投影的原生来源必须先经原生首消费;不吞成成功)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "native_export_first_consumption",
+        "native_export_digest": "fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd",
+        "error": "NativeExportContractError: 导出引用的 artifact 损坏:stask-exp_2e9d720acaf1cf983821/production_report(H07 完整性失败;保全原文件,不静默略过)"
+      }
+    }
+  },
+  "no_ledger_resealed_source": {
+    "zero_database_write": true,
+    "native_read": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出 manifest 与原生结果 artifact 的 content_digest 不一致(权威源分叉;拒)",
+      "detail": {
+        "kind": "export_reference_mismatch",
+        "manifest": "535e7fb36705ebb0b659059344edf653e22f44582a8bd685ab19f3b0fe6ef88c",
+        "artifact": "155a5c021edccedd5b242d49834acb950c317ff2deb6a7862e2e021400cfbd9e"
+      }
+    },
+    "projection_no_ledger": {
+      "accepted": true,
+      "returned": {
+        "adapter_version": "ppv1-v3-projection-3",
+        "boundary": {
+          "not_counted_as_extra_path": true,
+          "notes": "本投影是 native result 的有损视图:不得反写原生事实/事件/状态;不得从 v3 步骤位置推导事件身份或终点结论;投影与原生结果不得计为两条路径(F03);矿化/去除/解毒结论只能来自原生 endpoint 分账(证据等级权威)",
+          "reverse_consumption": "forbidden"
+        },
+        "information_losses": [
+          {
+            "axis": "route_origins",
+            "detail": "v3 步骤不携带来路/parent/context/事件身份;同 CN 不同来路在 v3 字段层不可区分(本适配不按 CN 合并,同父多事件保留为多步,但链接身份丢失)",
+            "native_authority": "native payload: events/state_appearances/paths"
+          },
+          {
+            "axis": "coproducts",
+            "detail": "共同产物与主产物混入同一无差别产物列表;产物角色/位次语义不进 v3 字段",
+            "native_authority": "native payload: events.participants[].role"
+          },
+          {
+            "axis": "alternative_reactions",
+            "detail": "同父备选反应关系(各自独立假设/事件)在 v3 形态不可表达",
+            "native_authority": "native payload: alternatives"
+          },
+          {
+            "axis": "conditions_dependencies",
+            "detail": "条件/环境事实与依赖(含未解决依赖)不在 v3 字段",
+            "native_authority": "native payload: contexts/endpoint_record"
+          },
+          {
+            "axis": "audit_proof_scope",
+            "detail": "audit 结论/准入/证明范围与失败原因不进 v3 字段",
+            "native_authority": "native payload: audit_production_reports"
+          },
+          {
+            "axis": "deferred_unexpanded",
+            "detail": "deferred(两类)与 blocked/未展开集合不在 v3 字段",
+            "native_authority": "native payload: deferred_entries/blocked_entries"
+          },
+          {
+            "axis": "endpoint_evidence_level",
+            "detail": "endpoint 分账(四分账/证据等级/独立支持计数)不可投影;v3 步骤不得解释为矿化/去除/解毒结论",
+            "native_authority": "native payload: endpoint_record"
+          },
+          {
+            "axis": "budget_stop_reason",
+            "detail": "预算预约/消耗与搜索停止原因不进 v3 字段",
+            "native_authority": "native payload: budget/stop 记录"
+          },
+          {
+            "axis": "unknown_partial_axes",
+            "detail": "unknown/partial 的具体轴(系数未知/条件未知/依赖未决)丢失",
+            "native_authority": "native payload: endpoint_record.bookkeeping"
+          },
+          {
+            "axis": "coefficients",
+            "detail": "参与物系数/系数状态(账目闭合)不在 v3 字段",
+            "native_authority": "native payload: events.participants[].coefficient"
+          },
+          {
+            "axis": "path_identity",
+            "detail": "根/子路径身份与深度结构在 v3 单路线形态不可表达",
+            "native_authority": "native payload: paths"
+          },
+          {
+            "axis": "source_provenance",
+            "detail": "来源引用/provenance 记录不进 v3 字段",
+            "native_authority": "native payload: provenance_records"
+          },
+          {
+            "axis": "no_committed_events_empty_answer",
+            "detail": "无已提交事件 ⇒ v3 答卷为空步骤(root_smiles 仍为真实输入;空答卷不是终点/去除结论)",
+            "native_authority": "native payload: events"
+          }
+        ],
+        "lossy_projection": true,
+        "native_graph_revision": {
+          "aggregate_digest": "bebd0ba1109fa8696f2a23b61269f05a7851394ac88c31eaf14fcdbef22d9b87",
+          "basis": "graph_facts_digests(与 native_export manifest 同源单一函数;PPV1 graph revision 等价身份)",
+          "contract_versions": {
+            "endpoint": "ppv1-endpoint-2",
+            "endpoint_policy": "ppv1-endpoint-policy-2",
+            "native_result": "ppv1-native-result-2",
+            "profile": "ppv1-profile-18",
+            "runflow": "ppv1-runflow-5",
+            "search": "ppv1-search-6"
+          }
+        },
+        "native_reference": {
+          "native_export_digest": "8884df5f467e1e1321ff720973b23c61e26363d00204eb259e9ed6b3862f2121",
+          "native_export_payload_sha256": "f46248736e244179c406c6094a257488b6d469d75aa9a916c379d7ddb1ee266b",
+          "native_result_content_digest": "535e7fb36705ebb0b659059344edf653e22f44582a8bd685ab19f3b0fe6ef88c",
+          "native_result_task_key": "run-native-result:155a5c021edccedd5b242d49"
+        },
+        "projection_digest": "56793e8f8a0df3863a84ac0688724cf91c7eea96bc6aedab61ff1b980958d830",
+        "route": {
+          "root_smiles": "CCO",
+          "route_id": "projection-binding",
+          "steps": []
+        },
+        "run_id": "projection-binding",
+        "schema_version": "ppv1-v3-projection-3",
+        "unprojectable_summaries": {
+          "alternative_group_count": 1,
+          "audit_report_count": 1,
+          "blocked_entry_count": 0,
+          "bookkeeping_status": "unknown",
+          "co2_aggregated": false,
+          "co2_product_occurrences": 0,
+          "condition_keys_known": [],
+          "condition_keys_unknown": [],
+          "coproduct_event_count": 1,
+          "deferred_entry_count": 0,
+          "deferred_types": [],
+          "endpoint_assessment": "supported_mineralization",
+          "execution_status": "completed",
+          "independent_source_support_count": 1,
+          "inherited_unresolved_dependency_ids": [],
+          "necessary_condition_conflict_keys": [],
+          "necessary_condition_unknown_keys": [],
+          "note": "全部值为摘要/计数;不可投影字段全文在原生导出(native_reference);不得据本摘要下化学结论",
+          "provenance_record_count": 0,
+          "root_carbon_fate_status": "source_reported_check_scope_only",
+          "stop_other_reasons": [],
+          "stop_reason_primary": "budget_limit",
+          "unexplored_counts": {
+            "blocked": 0,
+            "claimed_actions": 0,
+            "deferred": 1,
+            "open_attempts": 0,
+            "pending_actions": 0,
+            "pending_requests": 0
+          }
+        }
+      }
+    },
+    "projection_with_ledger": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影引用的原生导出首消费失败:8884df5f467e1e1321ff720973b23c61e26363d00204eb259e9ed6b3862f2121(投影的原生来源必须先经原生首消费;不吞成成功)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "native_export_first_consumption",
+        "native_export_digest": "8884df5f467e1e1321ff720973b23c61e26363d00204eb259e9ed6b3862f2121",
+        "error": "NativeExportContractError: 导出 manifest 与原生结果 artifact 的 content_digest 不一致(权威源分叉;拒)"
+      }
+    }
+  },
+  "unknown_export_schema": {
+    "zero_database_write": true,
+    "native_read": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出 schema 版本未知:'ppv1-native-export-UNKNOWN'(当前 ppv1-native-export-3;fail-closed 不猜迁移)",
+      "detail": {
+        "kind": "export_version_unknown",
+        "schema_version": "ppv1-native-export-UNKNOWN"
+      }
+    },
+    "projection_no_ledger": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影引用的原生来源版本未知/缺失/不一致:['manifest_schema_version'](无 ledger 文件级首读同样先核父 manifest schema/契约版本组与 native payload 版本 —— 与有 ledger 首读/构建共用同一登记源;不用当前 adapter 默猜迁移,未知来源版本不包装成已验证结果;保全原文件)",
+      "detail": {
+        "kind": "v3_native_source_version_unknown",
+        "check": "native_source_version_gate",
+        "version_problems": [
+          "manifest_schema_version"
+        ],
+        "recorded": {
+          "manifest_schema_version": "ppv1-native-export-UNKNOWN"
+        },
+        "current": {
+          "manifest_schema_version": "ppv1-native-export-3"
+        }
+      }
+    },
+    "projection_with_ledger": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影引用的原生导出首消费失败:137a09583f01408ac35bba33da694a1d28a202c78d87aeee3d207f235ed6003d(投影的原生来源必须先经原生首消费;不吞成成功)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "native_export_first_consumption",
+        "native_export_digest": "137a09583f01408ac35bba33da694a1d28a202c78d87aeee3d207f235ed6003d",
+        "error": "NativeExportContractError: 导出 schema 版本未知:'ppv1-native-export-UNKNOWN'(当前 ppv1-native-export-3;fail-closed 不猜迁移)"
+      }
+    }
+  },
+  "unknown_contract_profile": {
+    "zero_database_write": true,
+    "native_read": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出契约版本块与当前登记源不符:['profile'](run/版本/策略内容与当前权威绑定,不是 manifest 内自洽证书;旧导出不得当当前结果)",
+      "detail": {
+        "kind": "export_version_unknown",
+        "changed_contracts": [
+          "profile"
+        ],
+        "recorded": {
+          "profile": "ppv1-profile-UNKNOWN"
+        },
+        "current": {
+          "profile": "ppv1-profile-18"
+        }
+      }
+    },
+    "projection_no_ledger": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影引用的原生来源版本未知/缺失/不一致:['contract_versions:profile'](无 ledger 文件级首读同样先核父 manifest schema/契约版本组与 native payload 版本 —— 与有 ledger 首读/构建共用同一登记源;不用当前 adapter 默猜迁移,未知来源版本不包装成已验证结果;保全原文件)",
+      "detail": {
+        "kind": "v3_native_source_version_unknown",
+        "check": "native_source_version_gate",
+        "version_problems": [
+          "contract_versions:profile"
+        ],
+        "recorded": {
+          "contract_versions:profile": "ppv1-profile-UNKNOWN"
+        },
+        "current": {
+          "contract_versions:profile": "ppv1-profile-18"
+        }
+      }
+    },
+    "projection_with_ledger": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影引用的原生导出首消费失败:626d300b8812840d2d7595f961f8787d2e60fcca4e1d00cb247921aa83807541(投影的原生来源必须先经原生首消费;不吞成成功)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "native_export_first_consumption",
+        "native_export_digest": "626d300b8812840d2d7595f961f8787d2e60fcca4e1d00cb247921aa83807541",
+        "error": "NativeExportContractError: 导出契约版本块与当前登记源不符:['profile'](run/版本/策略内容与当前权威绑定,不是 manifest 内自洽证书;旧导出不得当当前结果)"
+      }
+    }
+  },
+  "unknown_native_result": {
+    "zero_database_write": true,
+    "native_read": {
+      "accepted": false,
+      "exception": "NativeExportContractError",
+      "message": "导出 payload 的原生结果版本未知/缺失:'ppv1-native-result-UNKNOWN'(当前 ppv1-native-result-2;fail-closed 不猜迁移;保全原文件,未知来源版本不包装成已验证结果)",
+      "detail": {
+        "kind": "export_version_unknown",
+        "check": "payload_native_result_version_binding",
+        "native_result_version": "ppv1-native-result-UNKNOWN"
+      }
+    },
+    "projection_no_ledger": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影引用的原生来源版本未知/缺失/不一致:['payload_native_result_version'](无 ledger 文件级首读同样先核父 manifest schema/契约版本组与 native payload 版本 —— 与有 ledger 首读/构建共用同一登记源;不用当前 adapter 默猜迁移,未知来源版本不包装成已验证结果;保全原文件)",
+      "detail": {
+        "kind": "v3_native_source_version_unknown",
+        "check": "native_source_version_gate",
+        "version_problems": [
+          "payload_native_result_version"
+        ],
+        "recorded": {
+          "payload_native_result_version": "ppv1-native-result-UNKNOWN"
+        },
+        "current": {
+          "payload_native_result_version": "ppv1-native-result-2"
+        }
+      }
+    },
+    "projection_with_ledger": {
+      "accepted": false,
+      "exception": "V3ProjectionContractError",
+      "message": "投影引用的原生导出首消费失败:b0b7868f74825dff6798660ee1e4dcd7246d3f0d9babdb0b0b18604f8908415d(投影的原生来源必须先经原生首消费;不吞成成功)",
+      "detail": {
+        "kind": "v3_projection_source_binding_mismatch",
+        "check": "native_export_first_consumption",
+        "native_export_digest": "b0b7868f74825dff6798660ee1e4dcd7246d3f0d9babdb0b0b18604f8908415d",
+        "error": "NativeExportContractError: 导出 payload 的原生结果版本未知/缺失:'ppv1-native-result-UNKNOWN'(当前 ppv1-native-result-2;fail-closed 不猜迁移;保全原文件,未知来源版本不包装成已验证结果)"
+      }
+    }
+  }
+}

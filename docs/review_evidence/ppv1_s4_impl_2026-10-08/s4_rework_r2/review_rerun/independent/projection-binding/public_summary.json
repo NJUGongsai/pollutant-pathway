@@ -1,0 +1,153 @@
+{
+  "run_id": "projection-binding",
+  "profile": "pollutant_pathway_v1",
+  "runflow_version": "ppv1-runflow-5",
+  "resumed": false,
+  "stop": {
+    "primary": "budget_limit",
+    "other_reasons": [],
+    "unexplored": {
+      "pending_actions": 0,
+      "deferred": 1,
+      "blocked": 0,
+      "blocked_objects": [],
+      "claimed_actions": 0,
+      "open_attempts": 0,
+      "pending_requests": 0,
+      "note": "停止不是化学终点;存在 deferred/知识缺口时不称“所有路线都探索完”;claimed/open attempt 是仍在执行的未完成工作,存在时不报 exhausted_search"
+    },
+    "budget": {
+      "version": "ppv1-search-limits-3",
+      "run_level": {
+        "max_total_search_actions": {
+          "max": 10,
+          "used": 5,
+          "remaining": 5
+        },
+        "max_retrievals_total": {
+          "max": 64,
+          "used": 3,
+          "remaining": 61
+        },
+        "max_scenario_transitions": {
+          "max": 2,
+          "used": 0,
+          "remaining": 2
+        },
+        "max_real_model_requests": {
+          "max": 0,
+          "used": 0,
+          "remaining": 0
+        }
+      },
+      "scoped": {
+        "max_retrievals_per_parent": {
+          "spath_4364c8fa3414ba6d0ab3": {
+            "max": 1,
+            "used": 1,
+            "remaining": 0
+          },
+          "spath_5bfaa7ee3758b4693faf": {
+            "max": 1,
+            "used": 1,
+            "remaining": 0
+          },
+          "spath_a7aa3af26260ecad797a": {
+            "max": 1,
+            "used": 1,
+            "remaining": 0
+          }
+        },
+        "max_alternative_hypotheses_per_parent": {
+          "spath_5bfaa7ee3758b4693faf": {
+            "max": 2,
+            "used": 1,
+            "remaining": 1
+          }
+        },
+        "max_attempts_per_hypothesis": {
+          "hyp_033de71407b1e3b06f49": {
+            "max": 2,
+            "used": 1,
+            "remaining": 1
+          }
+        },
+        "max_reopens_per_hypothesis": {}
+      }
+    },
+    "budget_exhausted_keys": [
+      "max_retrievals_per_parent@spath_4364c8fa3414ba6d0ab3",
+      "max_retrievals_per_parent@spath_5bfaa7ee3758b4693faf",
+      "max_retrievals_per_parent@spath_a7aa3af26260ecad797a"
+    ],
+    "events_submitted_session": [
+      "ppev_96c9740e6c87deef271c"
+    ],
+    "runflow_version": "ppv1-runflow-5"
+  },
+  "stop_reason": "budget_limit",
+  "counts": {
+    "states": 3,
+    "state_appearances": 4,
+    "hypotheses": 1,
+    "events": 1,
+    "report_projections": 1,
+    "expansion_plans": 1,
+    "event_appearance_links": 3,
+    "provenance_records": 0
+  },
+  "driver_session": {
+    "pid": 10305,
+    "acquired_at": "2026-10-08T12:01:09+00:00",
+    "note": "flock 是执行权权威;崩溃 OS 自动释放"
+  },
+  "endpoint": {
+    "execution_status": "completed",
+    "search_stop_reason": "budget_limit",
+    "chemical_endpoint_assessment": "supported_mineralization",
+    "bookkeeping_status": "unknown",
+    "independent_source_support_count": 1,
+    "inherited_unresolved_dependencies": 0,
+    "necessary_condition_unknown_keys": [],
+    "necessary_condition_conflict_keys": [],
+    "payload_hash": "fc82b051daa322b56b073c32a50b4c5795308607a1955cf5cac7075db6b95e76"
+  },
+  "endpoint_record_payload_hash": "fc82b051daa322b56b073c32a50b4c5795308607a1955cf5cac7075db6b95e76",
+  "native_result": {
+    "content_digest": "155a5c021edccedd5b242d49834acb950c317ff2deb6a7862e2e021400cfbd9e",
+    "task_key": "run-native-result:155a5c021edccedd5b242d49",
+    "native_result_version": "ppv1-native-result-2",
+    "note": "S4a 对象底座:完整字段 + 确定性规范化(同事实同 digest);正式文件导出见 native_export"
+  },
+  "native_export": {
+    "export_digest": "fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd",
+    "dir": "/private/tmp/s4r2_review/independent_workspace/runs/projection-binding/native_export/fa556ed680f57d660045ebc6",
+    "payload_sha256": "bd42fe6a23e772e6de741821316ffd351f1138c9431a67da9e783ff98004ab1e",
+    "content_digest": "155a5c021edccedd5b242d49834acb950c317ff2deb6a7862e2e021400cfbd9e",
+    "schema_version": "ppv1-native-export-3",
+    "export_policy_version": "ppv1-native-export-policy-3",
+    "note": "S4b 正式文件导出(全量事实 + manifest 新鲜度锚);读取/消费走 read_native_export(首消费:missing/corrupt/version/policy/stale/reference 拒)"
+  },
+  "v3_projection": {
+    "projection_digest": "24506e699c014d86fd00b0091763ea955508e30472ab3e6985241ce58c1831eb",
+    "dir": "/private/tmp/s4r2_review/independent_workspace/runs/projection-binding/v3_projection/24506e699c014d86fd00b009",
+    "native_export_digest": "fa556ed680f57d660045ebc6e16af9efa6753f5432eaf83a42e301317eb042dd",
+    "lossy_projection": true,
+    "steps": 1,
+    "information_loss_axes": [
+      "alternative_reactions",
+      "audit_proof_scope",
+      "budget_stop_reason",
+      "coefficients",
+      "conditions_dependencies",
+      "coproducts",
+      "deferred_unexpanded",
+      "endpoint_evidence_level",
+      "path_identity",
+      "route_origins",
+      "source_provenance",
+      "unknown_partial_axes"
+    ],
+    "note": "v3 有损投影(lossy_projection;原生引用 + 信息损失清单);反向消费禁止 —— 不得从投影改写原生事实/事件;读取走 read_v3_projection"
+  }
+}

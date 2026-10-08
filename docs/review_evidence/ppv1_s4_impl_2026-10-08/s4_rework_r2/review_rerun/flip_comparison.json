@@ -1,0 +1,80 @@
+{
+  "purpose": "S4 回修 r2:R2 复审反例逐字复跑(independent_cases.py)修前/修后对照",
+  "source_of_pre": "docs/review_evidence/ppv1_s4_codex_r2_2026-10-08/export_chain/independent/results.json(只读)",
+  "source_of_post": "review_rerun/independent/results.json(fresh tmp 逐字复跑)",
+  "rows": [
+    {
+      "case": "single_ref_missing",
+      "probe": "selfconsistent_omitted_read",
+      "r2_review_pre_fix": "ACCEPTED",
+      "r2_rework_post_fix": "REFUSED",
+      "zero_database_write_rerun": true,
+      "flipped_to_refused": true,
+      "boundary_preserved": false
+    },
+    {
+      "case": "single_ref_intact",
+      "probe": "selfconsistent_omitted_read",
+      "r2_review_pre_fix": "REFUSED",
+      "r2_rework_post_fix": "REFUSED",
+      "zero_database_write_rerun": true,
+      "flipped_to_refused": false,
+      "boundary_preserved": false
+    },
+    {
+      "case": "single_ref_corrupt",
+      "probe": "selfconsistent_omitted_read",
+      "r2_review_pre_fix": "REFUSED",
+      "r2_rework_post_fix": "REFUSED",
+      "zero_database_write_rerun": true,
+      "flipped_to_refused": false,
+      "boundary_preserved": false
+    },
+    {
+      "case": "unknown_export_schema",
+      "probe": "projection_no_ledger",
+      "r2_review_pre_fix": "ACCEPTED",
+      "r2_rework_post_fix": "REFUSED",
+      "zero_database_write_rerun": true,
+      "flipped_to_refused": true,
+      "boundary_preserved": false
+    },
+    {
+      "case": "unknown_contract_profile",
+      "probe": "projection_no_ledger",
+      "r2_review_pre_fix": "ACCEPTED",
+      "r2_rework_post_fix": "REFUSED",
+      "zero_database_write_rerun": true,
+      "flipped_to_refused": true,
+      "boundary_preserved": false
+    },
+    {
+      "case": "unknown_native_result",
+      "probe": "projection_no_ledger",
+      "r2_review_pre_fix": "ACCEPTED",
+      "r2_rework_post_fix": "REFUSED",
+      "zero_database_write_rerun": true,
+      "flipped_to_refused": true,
+      "boundary_preserved": false
+    },
+    {
+      "case": "no_ledger_h07",
+      "probe": "projection_no_ledger",
+      "r2_review_pre_fix": "ACCEPTED",
+      "r2_rework_post_fix": "ACCEPTED",
+      "zero_database_write_rerun": true,
+      "flipped_to_refused": false,
+      "boundary_preserved": true
+    },
+    {
+      "case": "no_ledger_resealed_source",
+      "probe": "projection_no_ledger",
+      "r2_review_pre_fix": "ACCEPTED",
+      "r2_rework_post_fix": "ACCEPTED",
+      "zero_database_write_rerun": true,
+      "flipped_to_refused": false,
+      "boundary_preserved": true
+    }
+  ],
+  "conclusion": "C02 主反例(single_ref_missing)与 C04 三个未知来源版本案的公开入口全部由接受翻转为拒;no_ledger_h07/no_ledger_resealed_source 无 ledger 观测按 R2 裁定登记的文件级边界保持接受(不新增 DB 新鲜度门);单案零 DB 写保持"
+}

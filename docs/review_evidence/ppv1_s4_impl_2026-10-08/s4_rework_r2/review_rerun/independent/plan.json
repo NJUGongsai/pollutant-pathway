@@ -1,0 +1,100 @@
+{
+  "pools": {
+    "CCO": [
+      {
+        "key": "B",
+        "product_smiles": "CC=O",
+        "coefficient": 1,
+        "transformation_ref": "donor-B",
+        "origin_group_key": "donor-B",
+        "edits": [
+          {
+            "op": "change_bond_order",
+            "atom1": "S_C_2",
+            "atom2": "S_O_1",
+            "from_order": "single",
+            "to_order": "double"
+          }
+        ],
+        "donor": {
+          "center_atom_ids": [
+            "S_C_2",
+            "S_O_1"
+          ]
+        },
+        "alignment": {
+          "status": "resolved",
+          "donor_to_current": {
+            "S_C_2": "S_C_2",
+            "S_O_1": "S_O_1"
+          },
+          "ref": "align-A"
+        },
+        "expectation": {
+          "target_smiles": "CC=O"
+        },
+        "coproducts": [
+          "[H][H]"
+        ]
+      },
+      {
+        "key": "C",
+        "product_smiles": "CC=O",
+        "coefficient": 1,
+        "transformation_ref": "donor-C",
+        "origin_group_key": "donor-C",
+        "edits": [
+          {
+            "op": "change_bond_order",
+            "atom1": "S_C_2",
+            "atom2": "S_O_1",
+            "from_order": "single",
+            "to_order": "double"
+          }
+        ],
+        "donor": {
+          "center_atom_ids": [
+            "S_C_2",
+            "S_O_1"
+          ]
+        },
+        "alignment": {
+          "status": "resolved",
+          "donor_to_current": {
+            "S_C_2": "S_C_2",
+            "S_O_1": "S_O_1"
+          },
+          "ref": "align-A"
+        },
+        "expectation": {
+          "target_smiles": "CC=O"
+        }
+      }
+    ]
+  },
+  "schedule_budget": {
+    "max_select": 1
+  },
+  "endpoint_evidence": [
+    {
+      "evidence_basis": "direct_observation",
+      "endpoint_claim": "supported_mineralization",
+      "source_refs": [
+        "src:study-A"
+      ],
+      "source_support_scope": "root-substrate-mineralization-report",
+      "conditions_environment": "aerobic activated sludge 20C pH 7",
+      "observation_window": "28d incubation",
+      "detection_range": "CO2 trap + LC-MS 0.1-100 uM",
+      "necessary_dependencies": [
+        "aerobic consortium acclimated"
+      ],
+      "root_carbon_fate_check_scope": "14C-labelled root carbon balance 92% recovered as CO2",
+      "unverified_axes": [
+        "rate",
+        "community composition"
+      ],
+      "proof_scope": "source-reported; not verified by this repo"
+    }
+  ]
+}

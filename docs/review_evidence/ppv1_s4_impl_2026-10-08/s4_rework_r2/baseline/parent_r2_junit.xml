@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="52" time="3.461" timestamp="2026-10-08T19:59:01.182840+08:00" hostname="bogon"><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c02_single_ref_variants_refused[ref_only_file_intact]" time="0.317"><failure message="KeyError: 'necessary_basis'">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_c02_single_ref_variants_r0')
+mode = 'intact'
+
+    @pytest.mark.parametrize("mode", [
+        pytest.param("intact", id="ref_only_file_intact"),
+        pytest.param("corrupt", id="file_corrupt_ref_dropped"),
+        pytest.param("missing", id="file_and_ref_deleted_selfconsistent"),
+    ])
+    def test_c02_single_ref_variants_refused(tmp_path: Path, mode: str) -&gt; None:
+        """C02 主反例(复审 R2 §4 single_ref_missing 三变体):对已完成
+        expand 任务的 production_report —— ①仅删 manifest 引用(文件在);
+        ②文件改坏 + 删引用;③**文件与引用一起删 + 自洽重算新 digest**
+        (DB/native 均不改)⇒ 读取一律先结构化拒(必要集合闭合;③由
+        原生实际消费闭合捕获,不再被"枚举时文件不存在=合法缺席"放过);
+        零业务写、原 payload/native 权威/缺席形态保全、还原正控通过。"""
+        run_id = f"c02r2-{mode}"
+        runs_root, out = _full_fixture(tmp_path, run_id)
+        ledger = ledger_for(runs_root, run_id)
+        digest = out["native_export"]["export_digest"]
+        out_dir = runs_root / run_id / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        payload_bytes = (out_dir / "payload.json").read_bytes()
+        before = table_hashes(ledger)
+        ref = next(k for k in manifest["artifact_references"]
+                   if k.endswith("/production_report"))
+        task, name = ref.rsplit("/", 1)
+        path = runs_root / run_id / "results" / task / (name + ".json")
+        raw = path.read_bytes()
+        # ---- 必要性独立证据(复审 necessary_report_basis.json 同源):
+        # done expand + 已登记提交记录 + 事件 + 原生 payload 实际消费 ----
+        row = ledger.conn.execute(
+            "SELECT action_id, action_kind, status FROM search_actions"
+            " WHERE run_id = ? AND task_key = ?",
+            (run_id, task)).fetchone()
+        assert row is not None and row["action_kind"] == "expand_hypothesis"
+        assert row["status"] == "done"
+        commit = ledger.conn.execute(
+            "SELECT commit_kind, event_id FROM search_commit_records"
+            " WHERE action_id = ?", (row["action_id"],)).fetchone()
+        assert commit is not None and commit["commit_kind"] == "event_committed"
+        assert commit["event_id"]
+        payload = json.loads(payload_bytes)
+        assert any(r.get("task_key") == task
+                   for r in payload["audit_production_reports"])
+        native_key = manifest["authority_references"]["native_result_task_key"]
+        native_path = runs_root / run_id / "results" / native_key / \
+            "native_result.json"
+        native_sha_before = hashlib.sha256(
+            native_path.read_bytes()).hexdigest()
+        # ---- 变体注入 ----
+        if mode == "corrupt":
+            bad = json.loads(raw)
+            bad["payload"]["codex_corrupt_dependency"] = True
+            path.write_text(canonical_json(bad) + "\n", encoding="utf-8")
+        if mode == "missing":
+            path.unlink()
+        # 原 digest 读:引用仍在 ⇒ 逐行校验拒(坏/缺);intact 则通过
+        if mode == "intact":
+            read_native_export(ledger, runs_root / run_id, digest)
+        else:
+            with pytest.raises(NativeExportContractError) as excinfo:
+                read_native_export(ledger, runs_root / run_id, digest)
+            assert excinfo.value.detail["kind"] == "export_reference_mismatch"
+            assert excinfo.value.detail["artifact"] == ref
+        # ---- 删 manifest 同引用 + 自洽重算新 digest(DB/native 不改) ----
+        mutated = json.loads(json.dumps(manifest))
+        mutated["artifact_references"].pop(ref)
+        new_digest, new_dir = _repackage(
+            runs_root / run_id, mutated, payload_bytes)
+        assert new_digest != digest
+        with pytest.raises(NativeExportContractError) as excinfo:
+            read_native_export(ledger, runs_root / run_id, new_digest)
+        detail = excinfo.value.detail
+        assert detail["kind"] == "export_reference_mismatch"
+        if mode == "corrupt":
+            # 坏文件在集合闭合枚举侧先撞 H07 完整性拒(artifact 级;
+            # 先于集合比对 —— 与旧语义一致:坏必要 artifact 不静默跳过)
+            assert detail.get("artifact") == ref
+            assert detail.get("artifact_error_kind")
+        else:
+            assert detail["check"] == "necessary_artifact_reference_set_closure"
+            assert ref in detail["omitted_necessary_refs"]
+&gt;           assert detail["necessary_basis"][ref] == \
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+                "payload_audit_production_report_consumed"
+E           KeyError: 'necessary_basis'
+
+tests/test_ppv1_s4_rework_r2.py:258: KeyError</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c02_single_ref_variants_refused[file_corrupt_ref_dropped]" time="0.084" /><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c02_single_ref_variants_refused[file_and_ref_deleted_selfconsistent]" time="0.098"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_c02_single_ref_variants_r2')
+mode = 'missing'
+
+    @pytest.mark.parametrize("mode", [
+        pytest.param("intact", id="ref_only_file_intact"),
+        pytest.param("corrupt", id="file_corrupt_ref_dropped"),
+        pytest.param("missing", id="file_and_ref_deleted_selfconsistent"),
+    ])
+    def test_c02_single_ref_variants_refused(tmp_path: Path, mode: str) -&gt; None:
+        """C02 主反例(复审 R2 §4 single_ref_missing 三变体):对已完成
+        expand 任务的 production_report —— ①仅删 manifest 引用(文件在);
+        ②文件改坏 + 删引用;③**文件与引用一起删 + 自洽重算新 digest**
+        (DB/native 均不改)⇒ 读取一律先结构化拒(必要集合闭合;③由
+        原生实际消费闭合捕获,不再被"枚举时文件不存在=合法缺席"放过);
+        零业务写、原 payload/native 权威/缺席形态保全、还原正控通过。"""
+        run_id = f"c02r2-{mode}"
+        runs_root, out = _full_fixture(tmp_path, run_id)
+        ledger = ledger_for(runs_root, run_id)
+        digest = out["native_export"]["export_digest"]
+        out_dir = runs_root / run_id / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        payload_bytes = (out_dir / "payload.json").read_bytes()
+        before = table_hashes(ledger)
+        ref = next(k for k in manifest["artifact_references"]
+                   if k.endswith("/production_report"))
+        task, name = ref.rsplit("/", 1)
+        path = runs_root / run_id / "results" / task / (name + ".json")
+        raw = path.read_bytes()
+        # ---- 必要性独立证据(复审 necessary_report_basis.json 同源):
+        # done expand + 已登记提交记录 + 事件 + 原生 payload 实际消费 ----
+        row = ledger.conn.execute(
+            "SELECT action_id, action_kind, status FROM search_actions"
+            " WHERE run_id = ? AND task_key = ?",
+            (run_id, task)).fetchone()
+        assert row is not None and row["action_kind"] == "expand_hypothesis"
+        assert row["status"] == "done"
+        commit = ledger.conn.execute(
+            "SELECT commit_kind, event_id FROM search_commit_records"
+            " WHERE action_id = ?", (row["action_id"],)).fetchone()
+        assert commit is not None and commit["commit_kind"] == "event_committed"
+        assert commit["event_id"]
+        payload = json.loads(payload_bytes)
+        assert any(r.get("task_key") == task
+                   for r in payload["audit_production_reports"])
+        native_key = manifest["authority_references"]["native_result_task_key"]
+        native_path = runs_root / run_id / "results" / native_key / \
+            "native_result.json"
+        native_sha_before = hashlib.sha256(
+            native_path.read_bytes()).hexdigest()
+        # ---- 变体注入 ----
+        if mode == "corrupt":
+            bad = json.loads(raw)
+            bad["payload"]["codex_corrupt_dependency"] = True
+            path.write_text(canonical_json(bad) + "\n", encoding="utf-8")
+        if mode == "missing":
+            path.unlink()
+        # 原 digest 读:引用仍在 ⇒ 逐行校验拒(坏/缺);intact 则通过
+        if mode == "intact":
+            read_native_export(ledger, runs_root / run_id, digest)
+        else:
+            with pytest.raises(NativeExportContractError) as excinfo:
+                read_native_export(ledger, runs_root / run_id, digest)
+            assert excinfo.value.detail["kind"] == "export_reference_mismatch"
+            assert excinfo.value.detail["artifact"] == ref
+        # ---- 删 manifest 同引用 + 自洽重算新 digest(DB/native 不改) ----
+        mutated = json.loads(json.dumps(manifest))
+        mutated["artifact_references"].pop(ref)
+        new_digest, new_dir = _repackage(
+            runs_root / run_id, mutated, payload_bytes)
+        assert new_digest != digest
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r2.py:246: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c02_export_write_side_refuses_missing_necessary_soutc" time="0.078"><failure message="Failed: DID NOT RAISE NativeExportContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_c02_export_write_side_ref0')
+
+    def test_c02_export_write_side_refuses_missing_necessary_soutc(
+            tmp_path: Path) -&gt; None:
+        """C02 写入侧同规则:实际必需的 soutc(done outcome 提交,先写
+        后完成)文件缺席时,export_native_result **先结构化拒**(不封
+        不完整 manifest;零新导出目录、零业务写);还原后重导出幂等
+        (同 digest,目录数不变)。"""
+        run_id = "c02w"
+        runs_root, out = _full_fixture(tmp_path, run_id)
+        ledger = ledger_for(runs_root, run_id)
+        key = child_retrieve_soutc_keys(ledger)[0]
+        path = runs_root / run_id / "results" / key / "expansion_outcome.json"
+        backup = tmp_path / "soutc_backup.json"
+        before = table_hashes(ledger)
+        dirs_before = set(list_native_exports(runs_root / run_id))
+        shutil.move(str(path), backup)
+        # build 合法跳过缺席文件(消费侧合法缺席语义不变)
+        native = build_native_result(
+            ledger, endpoint_record=read_run_endpoint(ledger, run_id))
+        assert all(o.get("task_key") != key
+                   for o in native["expansion_outcomes"])
+&gt;       with pytest.raises(NativeExportContractError) as excinfo:
+E       Failed: DID NOT RAISE NativeExportContractError
+
+tests/test_ppv1_s4_rework_r2.py:298: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c02_b4_recovered_expand_without_report_still_exports" time="0.077" /><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c04_unknown_source_version_no_ledger_refused[unknown_export_schema]" time="0.080"><failure message="Failed: DID NOT RAISE V3ProjectionContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_c04_unknown_source_versio0')
+mode = 'export_schema'
+
+    @pytest.mark.parametrize("mode", [
+        pytest.param("export_schema", id="unknown_export_schema"),
+        pytest.param("contract_profile", id="unknown_contract_profile"),
+        pytest.param("native_result", id="unknown_native_result"),
+        pytest.param("native_result_missing", id="missing_native_result"),
+    ])
+    def test_c04_unknown_source_version_no_ledger_refused(
+            tmp_path: Path, mode: str) -&gt; None:
+        """C04 主反例(复审 R2 §4 两最小案 + native_result 版本变体):
+        只改真实引用来源 manifest 的 schema_version / contract_versions.
+        profile,或 native payload 的 native_result_version(UNKNOWN/
+        缺失 + 自洽重算 content_digest),payload 其余字节/DB/steps 均
+        不变 ⇒ **无 ledger 投影首读先拒**(v3_native_source_version_
+        unknown,先于当前 adapter 解释内容,与有 ledger/构建共用登记
+        源);有 ledger 经原生首消费拒;原生读取拒;原文件保全。"""
+        run_id = f"c04r2-{mode}"
+        runs_root, out = _full_fixture(tmp_path, run_id)
+        ledger = ledger_for(runs_root, run_id)
+        run_dir = runs_root / run_id
+        digest = out["native_export"]["export_digest"]
+        projection_digest = out["v3_projection"]["projection_digest"]
+        out_dir = run_dir / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        projection = json.loads(
+            (run_dir / "v3_projection" / projection_digest[:24] /
+             "projection.json").read_text(encoding="utf-8"))
+        steps_before = projection["route"]["steps"]
+        before = table_hashes(ledger)
+        verified = read_native_export(ledger, run_dir, digest)
+        original_payload_bytes = (out_dir / "payload.json").read_bytes()
+        original_manifest_bytes = (out_dir / "manifest.json").read_bytes()
+        native = verified["payload"]
+        source_payload = json.loads(json.dumps(native))
+        mutated_manifest = json.loads(json.dumps(manifest))
+        expected_problem = {
+            "export_schema": "manifest_schema_version",
+            "contract_profile": "contract_versions:profile",
+            "native_result": "payload_native_result_version",
+            "native_result_missing": "payload_native_result_version",
+        }[mode]
+        if mode == "export_schema":
+            mutated_manifest["schema_version"] = "ppv1-native-export-UNKNOWN"
+        if mode == "contract_profile":
+            mutated_manifest["contract_versions"]["profile"] = \
+                "ppv1-profile-UNKNOWN"
+        if mode in ("native_result", "native_result_missing"):
+            if mode == "native_result":
+                source_payload["native_result_version"] = \
+                    "ppv1-native-result-UNKNOWN"
+            else:
+                source_payload.pop("native_result_version", None)
+            source_payload.pop("content_digest", None)
+            source_payload["content_digest"] = content_hash(source_payload)
+            mutated_manifest["content_digest"] = \
+                source_payload["content_digest"]
+        source_bytes = (canonical_json(source_payload) + "\n").encode("utf-8")
+        mutated_manifest["payload_sha256"] = \
+            hashlib.sha256(source_bytes).hexdigest()
+        new_digest, _ = _repackage(run_dir, mutated_manifest, source_bytes)
+        new_projection_digest = _resealed_projection(
+            run_dir, projection, export_digest=new_digest,
+            content_digest=source_payload["content_digest"],
+            payload_sha=mutated_manifest["payload_sha256"])
+        # ---- 无 ledger 首读:先拒(父来源版本门,先于 adapter 解释) ----
+&gt;       with pytest.raises(V3ProjectionContractError) as excinfo:
+E       Failed: DID NOT RAISE V3ProjectionContractError
+
+tests/test_ppv1_s4_rework_r2.py:423: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c04_unknown_source_version_no_ledger_refused[unknown_contract_profile]" time="0.080"><failure message="Failed: DID NOT RAISE V3ProjectionContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_c04_unknown_source_versio1')
+mode = 'contract_profile'
+
+    @pytest.mark.parametrize("mode", [
+        pytest.param("export_schema", id="unknown_export_schema"),
+        pytest.param("contract_profile", id="unknown_contract_profile"),
+        pytest.param("native_result", id="unknown_native_result"),
+        pytest.param("native_result_missing", id="missing_native_result"),
+    ])
+    def test_c04_unknown_source_version_no_ledger_refused(
+            tmp_path: Path, mode: str) -&gt; None:
+        """C04 主反例(复审 R2 §4 两最小案 + native_result 版本变体):
+        只改真实引用来源 manifest 的 schema_version / contract_versions.
+        profile,或 native payload 的 native_result_version(UNKNOWN/
+        缺失 + 自洽重算 content_digest),payload 其余字节/DB/steps 均
+        不变 ⇒ **无 ledger 投影首读先拒**(v3_native_source_version_
+        unknown,先于当前 adapter 解释内容,与有 ledger/构建共用登记
+        源);有 ledger 经原生首消费拒;原生读取拒;原文件保全。"""
+        run_id = f"c04r2-{mode}"
+        runs_root, out = _full_fixture(tmp_path, run_id)
+        ledger = ledger_for(runs_root, run_id)
+        run_dir = runs_root / run_id
+        digest = out["native_export"]["export_digest"]
+        projection_digest = out["v3_projection"]["projection_digest"]
+        out_dir = run_dir / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        projection = json.loads(
+            (run_dir / "v3_projection" / projection_digest[:24] /
+             "projection.json").read_text(encoding="utf-8"))
+        steps_before = projection["route"]["steps"]
+        before = table_hashes(ledger)
+        verified = read_native_export(ledger, run_dir, digest)
+        original_payload_bytes = (out_dir / "payload.json").read_bytes()
+        original_manifest_bytes = (out_dir / "manifest.json").read_bytes()
+        native = verified["payload"]
+        source_payload = json.loads(json.dumps(native))
+        mutated_manifest = json.loads(json.dumps(manifest))
+        expected_problem = {
+            "export_schema": "manifest_schema_version",
+            "contract_profile": "contract_versions:profile",
+            "native_result": "payload_native_result_version",
+            "native_result_missing": "payload_native_result_version",
+        }[mode]
+        if mode == "export_schema":
+            mutated_manifest["schema_version"] = "ppv1-native-export-UNKNOWN"
+        if mode == "contract_profile":
+            mutated_manifest["contract_versions"]["profile"] = \
+                "ppv1-profile-UNKNOWN"
+        if mode in ("native_result", "native_result_missing"):
+            if mode == "native_result":
+                source_payload["native_result_version"] = \
+                    "ppv1-native-result-UNKNOWN"
+            else:
+                source_payload.pop("native_result_version", None)
+            source_payload.pop("content_digest", None)
+            source_payload["content_digest"] = content_hash(source_payload)
+            mutated_manifest["content_digest"] = \
+                source_payload["content_digest"]
+        source_bytes = (canonical_json(source_payload) + "\n").encode("utf-8")
+        mutated_manifest["payload_sha256"] = \
+            hashlib.sha256(source_bytes).hexdigest()
+        new_digest, _ = _repackage(run_dir, mutated_manifest, source_bytes)
+        new_projection_digest = _resealed_projection(
+            run_dir, projection, export_digest=new_digest,
+            content_digest=source_payload["content_digest"],
+            payload_sha=mutated_manifest["payload_sha256"])
+        # ---- 无 ledger 首读:先拒(父来源版本门,先于 adapter 解释) ----
+&gt;       with pytest.raises(V3ProjectionContractError) as excinfo:
+E       Failed: DID NOT RAISE V3ProjectionContractError
+
+tests/test_ppv1_s4_rework_r2.py:423: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c04_unknown_source_version_no_ledger_refused[unknown_native_result]" time="0.079"><failure message="Failed: DID NOT RAISE V3ProjectionContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_c04_unknown_source_versio2')
+mode = 'native_result'
+
+    @pytest.mark.parametrize("mode", [
+        pytest.param("export_schema", id="unknown_export_schema"),
+        pytest.param("contract_profile", id="unknown_contract_profile"),
+        pytest.param("native_result", id="unknown_native_result"),
+        pytest.param("native_result_missing", id="missing_native_result"),
+    ])
+    def test_c04_unknown_source_version_no_ledger_refused(
+            tmp_path: Path, mode: str) -&gt; None:
+        """C04 主反例(复审 R2 §4 两最小案 + native_result 版本变体):
+        只改真实引用来源 manifest 的 schema_version / contract_versions.
+        profile,或 native payload 的 native_result_version(UNKNOWN/
+        缺失 + 自洽重算 content_digest),payload 其余字节/DB/steps 均
+        不变 ⇒ **无 ledger 投影首读先拒**(v3_native_source_version_
+        unknown,先于当前 adapter 解释内容,与有 ledger/构建共用登记
+        源);有 ledger 经原生首消费拒;原生读取拒;原文件保全。"""
+        run_id = f"c04r2-{mode}"
+        runs_root, out = _full_fixture(tmp_path, run_id)
+        ledger = ledger_for(runs_root, run_id)
+        run_dir = runs_root / run_id
+        digest = out["native_export"]["export_digest"]
+        projection_digest = out["v3_projection"]["projection_digest"]
+        out_dir = run_dir / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        projection = json.loads(
+            (run_dir / "v3_projection" / projection_digest[:24] /
+             "projection.json").read_text(encoding="utf-8"))
+        steps_before = projection["route"]["steps"]
+        before = table_hashes(ledger)
+        verified = read_native_export(ledger, run_dir, digest)
+        original_payload_bytes = (out_dir / "payload.json").read_bytes()
+        original_manifest_bytes = (out_dir / "manifest.json").read_bytes()
+        native = verified["payload"]
+        source_payload = json.loads(json.dumps(native))
+        mutated_manifest = json.loads(json.dumps(manifest))
+        expected_problem = {
+            "export_schema": "manifest_schema_version",
+            "contract_profile": "contract_versions:profile",
+            "native_result": "payload_native_result_version",
+            "native_result_missing": "payload_native_result_version",
+        }[mode]
+        if mode == "export_schema":
+            mutated_manifest["schema_version"] = "ppv1-native-export-UNKNOWN"
+        if mode == "contract_profile":
+            mutated_manifest["contract_versions"]["profile"] = \
+                "ppv1-profile-UNKNOWN"
+        if mode in ("native_result", "native_result_missing"):
+            if mode == "native_result":
+                source_payload["native_result_version"] = \
+                    "ppv1-native-result-UNKNOWN"
+            else:
+                source_payload.pop("native_result_version", None)
+            source_payload.pop("content_digest", None)
+            source_payload["content_digest"] = content_hash(source_payload)
+            mutated_manifest["content_digest"] = \
+                source_payload["content_digest"]
+        source_bytes = (canonical_json(source_payload) + "\n").encode("utf-8")
+        mutated_manifest["payload_sha256"] = \
+            hashlib.sha256(source_bytes).hexdigest()
+        new_digest, _ = _repackage(run_dir, mutated_manifest, source_bytes)
+        new_projection_digest = _resealed_projection(
+            run_dir, projection, export_digest=new_digest,
+            content_digest=source_payload["content_digest"],
+            payload_sha=mutated_manifest["payload_sha256"])
+        # ---- 无 ledger 首读:先拒(父来源版本门,先于 adapter 解释) ----
+&gt;       with pytest.raises(V3ProjectionContractError) as excinfo:
+E       Failed: DID NOT RAISE V3ProjectionContractError
+
+tests/test_ppv1_s4_rework_r2.py:423: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c04_unknown_source_version_no_ledger_refused[missing_native_result]" time="0.078"><failure message="Failed: DID NOT RAISE V3ProjectionContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_c04_unknown_source_versio3')
+mode = 'native_result_missing'
+
+    @pytest.mark.parametrize("mode", [
+        pytest.param("export_schema", id="unknown_export_schema"),
+        pytest.param("contract_profile", id="unknown_contract_profile"),
+        pytest.param("native_result", id="unknown_native_result"),
+        pytest.param("native_result_missing", id="missing_native_result"),
+    ])
+    def test_c04_unknown_source_version_no_ledger_refused(
+            tmp_path: Path, mode: str) -&gt; None:
+        """C04 主反例(复审 R2 §4 两最小案 + native_result 版本变体):
+        只改真实引用来源 manifest 的 schema_version / contract_versions.
+        profile,或 native payload 的 native_result_version(UNKNOWN/
+        缺失 + 自洽重算 content_digest),payload 其余字节/DB/steps 均
+        不变 ⇒ **无 ledger 投影首读先拒**(v3_native_source_version_
+        unknown,先于当前 adapter 解释内容,与有 ledger/构建共用登记
+        源);有 ledger 经原生首消费拒;原生读取拒;原文件保全。"""
+        run_id = f"c04r2-{mode}"
+        runs_root, out = _full_fixture(tmp_path, run_id)
+        ledger = ledger_for(runs_root, run_id)
+        run_dir = runs_root / run_id
+        digest = out["native_export"]["export_digest"]
+        projection_digest = out["v3_projection"]["projection_digest"]
+        out_dir = run_dir / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        projection = json.loads(
+            (run_dir / "v3_projection" / projection_digest[:24] /
+             "projection.json").read_text(encoding="utf-8"))
+        steps_before = projection["route"]["steps"]
+        before = table_hashes(ledger)
+        verified = read_native_export(ledger, run_dir, digest)
+        original_payload_bytes = (out_dir / "payload.json").read_bytes()
+        original_manifest_bytes = (out_dir / "manifest.json").read_bytes()
+        native = verified["payload"]
+        source_payload = json.loads(json.dumps(native))
+        mutated_manifest = json.loads(json.dumps(manifest))
+        expected_problem = {
+            "export_schema": "manifest_schema_version",
+            "contract_profile": "contract_versions:profile",
+            "native_result": "payload_native_result_version",
+            "native_result_missing": "payload_native_result_version",
+        }[mode]
+        if mode == "export_schema":
+            mutated_manifest["schema_version"] = "ppv1-native-export-UNKNOWN"
+        if mode == "contract_profile":
+            mutated_manifest["contract_versions"]["profile"] = \
+                "ppv1-profile-UNKNOWN"
+        if mode in ("native_result", "native_result_missing"):
+            if mode == "native_result":
+                source_payload["native_result_version"] = \
+                    "ppv1-native-result-UNKNOWN"
+            else:
+                source_payload.pop("native_result_version", None)
+            source_payload.pop("content_digest", None)
+            source_payload["content_digest"] = content_hash(source_payload)
+            mutated_manifest["content_digest"] = \
+                source_payload["content_digest"]
+        source_bytes = (canonical_json(source_payload) + "\n").encode("utf-8")
+        mutated_manifest["payload_sha256"] = \
+            hashlib.sha256(source_bytes).hexdigest()
+        new_digest, _ = _repackage(run_dir, mutated_manifest, source_bytes)
+        new_projection_digest = _resealed_projection(
+            run_dir, projection, export_digest=new_digest,
+            content_digest=source_payload["content_digest"],
+            payload_sha=mutated_manifest["payload_sha256"])
+        # ---- 无 ledger 首读:先拒(父来源版本门,先于 adapter 解释) ----
+&gt;       with pytest.raises(V3ProjectionContractError) as excinfo:
+E       Failed: DID NOT RAISE V3ProjectionContractError
+
+tests/test_ppv1_s4_rework_r2.py:423: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c04_version_group_missing_and_projection_conflict_refused" time="0.076"><failure message="Failed: DID NOT RAISE V3ProjectionContractError">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_c04_version_group_missing0')
+
+    def test_c04_version_group_missing_and_projection_conflict_refused(
+            tmp_path: Path) -&gt; None:
+        """C04 版本组缺失/冲突(复审 R2 §4"native_result 版本与版本组
+        缺失/冲突覆盖"):manifest contract_versions 整块删除的自洽重封
+        ⇒ 无 ledger 拒(manifest_contract_versions_missing);投影自记
+        native_graph_revision.contract_versions 与登记源冲突(自洽重算
+        projection_digest)⇒ 无 ledger 拒(projection_contract_versions:
+        profile)。原文件保全。"""
+        run_id = "c04vg"
+        runs_root, out = _full_fixture(tmp_path, run_id)
+        ledger = ledger_for(runs_root, run_id)
+        run_dir = runs_root / run_id
+        digest = out["native_export"]["export_digest"]
+        projection_digest = out["v3_projection"]["projection_digest"]
+        out_dir = run_dir / "native_export" / digest[:24]
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        projection = json.loads(
+            (run_dir / "v3_projection" / projection_digest[:24] /
+             "projection.json").read_text(encoding="utf-8"))
+        payload_bytes = (out_dir / "payload.json").read_bytes()
+        before = table_hashes(ledger)
+        # ---- (a) contract_versions 整块缺失 ----
+        mutated = json.loads(json.dumps(manifest))
+        mutated.pop("contract_versions", None)
+        new_digest, _ = _repackage(run_dir, mutated, payload_bytes)
+        pd_a = _resealed_projection(
+            run_dir, projection, export_digest=new_digest)
+&gt;       with pytest.raises(V3ProjectionContractError) as excinfo:
+E       Failed: DID NOT RAISE V3ProjectionContractError
+
+tests/test_ppv1_s4_rework_r2.py:494: Failed</failure></testcase><testcase classname="tests.test_ppv1_s4_rework_r2" name="test_c04_legal_reads_with_version_gates_and_empty_pool" time="0.110" /><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_public_chain_files_and_manifest" time="0.076"><failure message="AssertionError: assert 'ppv1-native-export-2' == 'ppv1-native-export-3'&#10;  &#10;  - ppv1-native-export-3&#10;  ?                    ^&#10;  + ppv1-native-export-2&#10;  ?                    ^">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -&gt; None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+&gt;       assert manifest["schema_version"] == "ppv1-native-export-3"
+E       AssertionError: assert 'ppv1-native-export-2' == 'ppv1-native-export-3'
+E         
+E         - ppv1-native-export-3
+E         ?                    ^
+E         + ppv1-native-export-2
+E         ?                    ^
+
+tests/test_ppv1_s4b_export.py:170: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_full_fact_coverage" time="0.077" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_repeat_export_same_bytes_including_subprocess" time="0.259" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_export_after_crash_resume_repeat_identical" time="0.124" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_export_read_back_matches_native_authority" time="0.078" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_stale_after_graph_change" time="0.160" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_stale_after_policy_change" time="0.116" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_integrity_structured_failures" time="0.081" /><testcase classname="tests.test_ppv1_s4b_export" name="test_g02_self_consistent_rewrite_not_laundered" time="0.079" /><testcase classname="tests.test_ppv1_s4b_export" name="test_tampered_export_refuses_overwrite" time="0.080" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_lossy_marker_reference_and_losses" time="0.077"><failure message="AssertionError: assert 'ppv1-v3-projection-2' == 'ppv1-v3-projection-3'&#10;  &#10;  - ppv1-v3-projection-3&#10;  ?                    ^&#10;  + ppv1-v3-projection-2&#10;  ?                    ^">tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-442/test_v3_projection_lossy_marke0')
+
+    def test_v3_projection_lossy_marker_reference_and_losses(
+            tmp_path: Path) -&gt; None:
+        """v3 有损投影:lossy_projection 标记、适配版本、原生引用(可解析
+        回原生导出)、信息损失清单覆盖任务书要求的损失轴、不可投影摘要
+        (引用/计数,不展开全文)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["v3_projection"]["projection_digest"]
+        payload = read_v3_projection(runs_root / "s4b", digest)
+        assert payload["lossy_projection"] is True
+&gt;       assert payload["schema_version"] == "ppv1-v3-projection-3"
+E       AssertionError: assert 'ppv1-v3-projection-2' == 'ppv1-v3-projection-3'
+E         
+E         - ppv1-v3-projection-3
+E         ?                    ^
+E         + ppv1-v3-projection-2
+E         ?                    ^
+
+tests/test_ppv1_s4b_export.py:520: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_steps_per_event_no_cn_merge_no_fabrication" time="0.096" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_deterministic_and_reverse_lookup" time="0.081" /><testcase classname="tests.test_ppv1_s4b_export" name="test_v3_projection_reverse_consumption_refused_zero_writes" time="0.077" /><testcase classname="tests.test_ppv1_s4b_export" name="test_full_public_chain_crash_resume_export_replay" time="0.120" /><testcase classname="tests.test_ppv1_s4b_export" name="test_endpoint_stop_reference_broken_refuses_export" time="0.076" /><testcase classname="tests.test_ppv1_s4b_export" name="test_empty_pool_run_exports_and_projects" time="0.032" /><testcase classname="tests.test_ppv1_s4b_export" name="test_native_export_v3_projection_conflict_preserves" time="0.076" /><testcase classname="tests.test_ppv1_profile" name="test_profile_names_registry" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_identity_schema_version_bumped" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_contract_versions" time="0.000"><failure message="AssertionError: assert 'ppv1-profile-17' == 'ppv1-profile-18'&#10;  &#10;  - ppv1-profile-18&#10;  ?               ^&#10;  + ppv1-profile-17&#10;  ?               ^">def test_ppv1_identity_block_contract_versions() -&gt; None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v18(S4 回修 r2):必要集合闭合语义修正 + 无 ledger 投影
+        # 首读父版本门(native-export-3 / native-export-policy-3 /
+        # v3-projection-3;endpoint/native-result 系沿 r1)
+&gt;       assert block["schema_version"] == "ppv1-profile-18"
+E       AssertionError: assert 'ppv1-profile-17' == 'ppv1-profile-18'
+E         
+E         - ppv1-profile-18
+E         ?               ^
+E         + ppv1-profile-17
+E         ?               ^
+
+tests/test_ppv1_profile.py:49: AssertionError</failure></testcase><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_default_switches" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-filter]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[input_preview_policy-None]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_ppv1_identity_block_fail_closed[search_intent-anything_goes]" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_search_limits_validation" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_excludes_pollutant_for_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_pollutant_includes_full_tree" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_code_identity_legacy_stable_under_pollutant_changes" time="0.006" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_default_is_legacy" time="0.002" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_legacy_rejects_profile_policy" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_pollutant_block" time="0.003" /><testcase classname="tests.test_ppv1_profile" name="test_build_run_identity_unknown_profile_rejected" time="0.000" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_profile_mismatch_rejected" time="0.007" /><testcase classname="tests.test_ppv1_profile" name="test_check_resume_identity_v1_missing_profile_read_as_legacy" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_identity_fingerprint_includes_profile" time="0.004" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_pollutant_dispatches_to_runflow" time="0.032" /><testcase classname="tests.test_ppv1_profile" name="test_start_run_unknown_profile_rejected" time="0.001" /><testcase classname="tests.test_ppv1_profile" name="test_cli_profile_flag_choices" time="0.003" /></testsuite></testsuites>

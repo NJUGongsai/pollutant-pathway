@@ -1,0 +1,26 @@
+# parent baseline worktree setup (2026-10-08, S4 rework r2)
+cwd=/Volumes/CC/Enzyme_Agent/dependingv43
+cmd: git worktree add --detach /private/tmp/s4r2_parent_wt 0dd35d14d6539fbf134be18565f6709e852fc076
+sparse: git sparse-checkout set src tests
+HEAD=0dd35d14d6539fbf134be18565f6709e852fc076
+same-byte copy of 3 test files from working tree (new r2 file + 2 updated literal files)
+{
+  "tests/test_ppv1_s4_rework_r2.py": {
+    "repo_sha256": "d89d6c7f10f3c1051798c42e2c61f49adbf4a1053dfbf60de3e0348e6b09610c",
+    "parent_wt_sha256": "d89d6c7f10f3c1051798c42e2c61f49adbf4a1053dfbf60de3e0348e6b09610c",
+    "same_bytes": true,
+    "existed_on_parent": false
+  },
+  "tests/test_ppv1_s4b_export.py": {
+    "repo_sha256": "d6a3905b358dd0e40706ce74f6277abb9aa49843adcb53d79c1e428e7eacbbed",
+    "parent_wt_sha256": "d6a3905b358dd0e40706ce74f6277abb9aa49843adcb53d79c1e428e7eacbbed",
+    "same_bytes": true,
+    "existed_on_parent": true
+  },
+  "tests/test_ppv1_profile.py": {
+    "repo_sha256": "f0b7ee7d994eb0c843e5a20ee64ffe04dc38685f75c645eeed1703ee210a0dfb",
+    "parent_wt_sha256": "f0b7ee7d994eb0c843e5a20ee64ffe04dc38685f75c645eeed1703ee210a0dfb",
+    "same_bytes": true,
+    "existed_on_parent": true
+  }
+}

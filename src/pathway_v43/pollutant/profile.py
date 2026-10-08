@@ -200,8 +200,16 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # v16(S4b 批次)profile-16 见上方历史注释;legacy/export_v3/G2/
 # AtomTool 逐字节零触碰;判据一–五与 0d/0e/0f/0g 消费语义不变
 # (工程注册变更,行为互证以存量回归 + 字节 diff 为证)。
-
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-17"
+# v18(S4 回修 r2,2026-10-08,复审 R2 §4):native-export-3/
+# native-export-policy-3(必要集合闭合语义修正:应由已完成
+# action/task/commit + 原生实际消费 + 冻结计划锚行闭合,不由文件
+# 存在决定,导出侧写入前先拒;payload 原生结果版本门)、
+# v3-projection-3(无 ledger 文件级首读核父 manifest schema/契约
+# 版本组与 native payload 版本,与有 ledger/构建共用登记源,未知
+# 来源版本不包装成已验证结果)。store 保持 -10;runflow 保持 -5;
+# endpoint/native-result 系列沿 r1 不变。S4-C01/C03 与合法控制保持
+# 关闭,不加新科学门;判据冻结范围(一–五、0d/0e)不动。
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-18"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -237,16 +245,27 @@ PPV1_NATIVE_RESULT_VERSION = "ppv1-native-result-2"
 # digest 复算 + run/版本/策略内容绑定 + 必要 artifact 引用集合由
 # 独立权威同源枚举闭合(与每行 hash 校验分别核;合法缺席保留)。
 # v1(S4b 首批)登记文件级 payload + manifest + 读取/过期/完整性首消费。
-PPV1_NATIVE_EXPORT_VERSION = "ppv1-native-export-2"
+# v3(S4 回修 r2,2026-10-08,复审 R2 §4):必要集合闭合的枚举语义
+# 修正 —— 应有必要项由已完成 action/task/commit + 原生实际消费
+# (payload 引用)+ 冻结计划锚行同源闭合,不由"文件目前存在"决定
+# (文件+引用一起消失的自洽重封拒;导出侧写入前同样先拒);首消费
+# 新增 payload 原生结果版本门(native_result_version)。
+PPV1_NATIVE_EXPORT_VERSION = "ppv1-native-export-3"
 # S4 回修 r1(S4-C02):首消费核验规则变更 ⇒ 策略升 -2;v1(S4b
 # 首批)登记固定序列化/命名/无时间戳规则(无用户可配项)。
-PPV1_NATIVE_EXPORT_POLICY_VERSION = "ppv1-native-export-policy-2"
+# v3(S4 回修 r2,复审 R2 §4):必要集合闭合语义修正(权威行闭合,
+# 非存在闭合)+ payload 版本门 ⇒ 策略再升 -3。
+PPV1_NATIVE_EXPORT_POLICY_VERSION = "ppv1-native-export-policy-3"
 # S4 回修 r1(S4-C04,2026-10-08,确认复核 §4):构建与首消费验证
 # 真实原生来源(构建侧消费已验证导出;读取侧核 reference 内部一致
 # 及投影已表达字段按登记 adapter 从该原生载荷同源复算)—— 已验证
 # 原生存在/投影自 hash 不再是投影证书。v1(S4b 首批)登记
 # lossy_projection + 原生引用 + 信息损失清单 + 反向消费禁止。
-PPV1_V3_PROJECTION_VERSION = "ppv1-v3-projection-2"
+# v3(S4 回修 r2,复审 R2 §4):无 ledger 文件级首读先核父 manifest
+# schema/契约版本组与 native payload 版本(与有 ledger 首读/构建
+# 共用同一登记源;未知/缺失/不一致 v3_native_source_version_unknown
+# 拒,不默猜迁移)。
+PPV1_V3_PROJECTION_VERSION = "ppv1-v3-projection-3"
 # S4b:run 执行流契约(S3b 起在 runflow.py 消费;v5 = S4b 正式导出
 # 与 v3 投影接线。**单一事实源自本批起移入 profile**:runflow 与
 # native_export manifest 的 contract_versions 共用本常量,避免

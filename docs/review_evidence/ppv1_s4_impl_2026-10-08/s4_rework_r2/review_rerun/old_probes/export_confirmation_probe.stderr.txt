@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/private/tmp/s4r2_review/package/scripts/export_confirmation_probe.py", line 106, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/private/tmp/s4r2_review/package/scripts/export_confirmation_probe.py", line 98, in main
+    proj=build_v3_projection(l,fake_native,native_export=s['native_export'],run_dir=runs/'projection-binding');persist=persist_v3_projection(runs/'projection-binding',proj);response=call(lambda:read_v3_projection(runs/'projection-binding',persist['projection_digest']))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/s4r2_review/source/src/pathway_v43/pollutant/v3_projection.py", line 401, in build_v3_projection
+    _verify_native_source_binding(
+  File "/private/tmp/s4r2_review/source/src/pathway_v43/pollutant/v3_projection.py", line 332, in _verify_native_source_binding
+    raise V3ProjectionContractError(
+pathway_v43.pollutant.v3_projection.V3ProjectionContractError: 投影输入的 native_result 与其引用的导出 content_digest 不一致(混搭真 export 引用 + 假 native;拒)

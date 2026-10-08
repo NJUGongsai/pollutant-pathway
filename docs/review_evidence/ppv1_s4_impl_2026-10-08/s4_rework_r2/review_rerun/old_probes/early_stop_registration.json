@@ -1,0 +1,33 @@
+{
+  "purpose": "旧确认复核观察探针逐字复跑(s4r2_review fresh tmp;R2 复审已登记其在 r1 修复后按钉住缺口早停;本批 r2 复跑同样按预期早停于同一缺口,未执行段单列,不把早停当通过,也不反改旧断言)",
+  "export_confirmation_probe.py": {
+    "exit_code": 1,
+    "early_stop_at": "projection_binding 段:fake native(删 events/deferred)配真 export 引用的 build_v3_projection 调用抛 V3ProjectionContractError(v3_projection.py _verify_native_source_binding)—— r1 已闭合的 S4-C04 反例,复跑按预期失败",
+    "executed_segments": [
+      "positive_public_chain(公开链/同进程重导出/独立子进程/聚合完整性/网络 0)",
+      "manifest_mutations(四改 core 拒)+ manifest_restore_positive",
+      "necessary_reference_omission + dependency_restore_positive"
+    ],
+    "unexecuted_segments": [
+      "results['projection_binding'] 记录(因 build 拒而未达)",
+      "末段汇总 print(未达)"
+    ],
+    "partial_outputs": "old_probes/confirmation_out/(manifest_mutations/reference_omission/subprocess 记录)"
+  },
+  "export_supplemental_probe.py": {
+    "exit_code": 1,
+    "early_stop_at": "missing_outcome 段:next(候选 for not aggregated) 抛 StopIteration —— r1 已闭合的 S4-C03 聚合缺口后不再存在未聚合空 task_key 候选,复跑按预期失败",
+    "executed_segments": [
+      "single_necessary_ref(自洽漏单必要 production_report 引用:original 拒/fake 拒/还原正控)"
+    ],
+    "unexecuted_segments": [
+      "results['missing_outcome'](StopIteration)",
+      "results['projection_only']",
+      "results['public_resume']"
+    ],
+    "partial_outputs": "old_probes/supplemental_out/single-ref/"
+  },
+  "assert_observed_gaps.py": {
+    "not_rerun_reason": "其断言钉的是 r1 修复前的缺口观察(如 single_necessary_ref fake_response accepted=True);r2 复审自身已按『旧脚本按设计拒绝后未执行内部控制不报通过』登记;本批复跑 independent_cases.py 已含同源更强断言面,不重复执行旧 早停断言脚本,不反改其断言"
+  }
+}

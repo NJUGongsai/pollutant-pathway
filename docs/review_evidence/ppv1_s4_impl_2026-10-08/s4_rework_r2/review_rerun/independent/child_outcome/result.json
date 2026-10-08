@@ -1,0 +1,83 @@
+{
+  "name": "child_outcome",
+  "table_hash_before": {
+    "budget_reservations": "5e5b8114e1f6be9c80a50bc1f6de3b2d00e4bb33ac63baba518559f46fb7141e",
+    "endpoint_records": "4caaf92720cfc7913c612978f632b1411295db83bcb1a8db0f55d55b6e174841",
+    "event_appearance_links": "3d9edd2a16881e952ff44759ff342d05b241fff0c1b63342f94567192f2dd551",
+    "events": "95f4bfd9f7ae016c5b6b028a8321fd913acbfb07061c6bd47219a8da9d36bb09",
+    "expansion_plans": "70460d7b6f58c882a22e47cb8b2bf996aeee795e30e44ecbcac554fbb474cfc0",
+    "hypotheses": "4ae569bfa87945562ce2178585dc12bc0a7c233d7355eb890ed9da7f5b81b756",
+    "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "b601db04cc562a2e155b24583f5e00949dbaccc8f1b0510a3786ca5c88a68829",
+    "search_actions": "0a3041ec0bbe5be0479edfc3df45fa8f4528faf6b9ff8a24d538cf38c249a650",
+    "search_attempts": "f14663f53924856478a7c5358a3f030dad9f5ef95b12c619c2bff9f0728f20f6",
+    "search_commit_records": "5bfff8f73b8f84f7932d2b71a233c98e77ca526a222f80c849f3cd9e35539fe7",
+    "search_runs": "b47b064607297327400d9af442ce5e9f753df6cf4f975823f44b6239464a9af2",
+    "state_appearances": "bda042cfc982d994a152483c947715dba2b57af78b535d505af9b84dc8c21673",
+    "states": "5c0eeb37a28209675591862d6ad2883246ab5388d5d30dc0522c33797bc2da12",
+    "stop_reason_records": "3640445f77e1c7d6e42c5cdc942f46c05191f557a1a82cdb3ae93e35ca68205c"
+  },
+  "table_hash_after": {
+    "budget_reservations": "5e5b8114e1f6be9c80a50bc1f6de3b2d00e4bb33ac63baba518559f46fb7141e",
+    "endpoint_records": "4caaf92720cfc7913c612978f632b1411295db83bcb1a8db0f55d55b6e174841",
+    "event_appearance_links": "3d9edd2a16881e952ff44759ff342d05b241fff0c1b63342f94567192f2dd551",
+    "events": "95f4bfd9f7ae016c5b6b028a8321fd913acbfb07061c6bd47219a8da9d36bb09",
+    "expansion_plans": "70460d7b6f58c882a22e47cb8b2bf996aeee795e30e44ecbcac554fbb474cfc0",
+    "hypotheses": "4ae569bfa87945562ce2178585dc12bc0a7c233d7355eb890ed9da7f5b81b756",
+    "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "b601db04cc562a2e155b24583f5e00949dbaccc8f1b0510a3786ca5c88a68829",
+    "search_actions": "0a3041ec0bbe5be0479edfc3df45fa8f4528faf6b9ff8a24d538cf38c249a650",
+    "search_attempts": "f14663f53924856478a7c5358a3f030dad9f5ef95b12c619c2bff9f0728f20f6",
+    "search_commit_records": "5bfff8f73b8f84f7932d2b71a233c98e77ca526a222f80c849f3cd9e35539fe7",
+    "search_runs": "b47b064607297327400d9af442ce5e9f753df6cf4f975823f44b6239464a9af2",
+    "state_appearances": "bda042cfc982d994a152483c947715dba2b57af78b535d505af9b84dc8c21673",
+    "states": "5c0eeb37a28209675591862d6ad2883246ab5388d5d30dc0522c33797bc2da12",
+    "stop_reason_records": "3640445f77e1c7d6e42c5cdc942f46c05191f557a1a82cdb3ae93e35ca68205c"
+  },
+  "zero_database_write": true,
+  "all_existing_aggregated": true,
+  "existing_soutc_count": 4,
+  "native_outcome_count": 4,
+  "child_soutc_in_manifest": true,
+  "direct_guard": {
+    "accepted": false,
+    "exception": "SearchArtifactIntegrityError",
+    "message": "搜索 artifact 完整性失败:soutc_64dc783615f11ef0323a/expansion_outcome(hash 不符;保全原文件,不静默跳过、不覆盖重跑)",
+    "detail": {
+      "task_key": "soutc_64dc783615f11ef0323a",
+      "name": "expansion_outcome",
+      "kind": "artifact_hash_mismatch",
+      "original_error": "ArtifactIntegrityError",
+      "stored_hash": "3717382241a183af142f4cc5aabe51d7ca0bc32eca564912a0ef9ee8a484e94e",
+      "actual_hash": "530872e855573648a3cc9c8570a14b4566c035f64e4dda30dcf02cdebbad7129"
+    }
+  },
+  "build_response": {
+    "accepted": false,
+    "exception": "NativeResultContractError",
+    "message": "原生结果消费的必要 artifact 损坏:soutc_64dc783615f11ef0323a/expansion_outcome(H07 完整性失败;保全原文件,不静默略过、不清洗后继续)",
+    "detail": {
+      "kind": "native_result_artifact_corrupt",
+      "task_key": "soutc_64dc783615f11ef0323a",
+      "name": "expansion_outcome",
+      "artifact_error_kind": "artifact_hash_mismatch",
+      "original_error": "SearchArtifactIntegrityError"
+    }
+  },
+  "native_export_response": {
+    "accepted": false,
+    "exception": "NativeExportContractError",
+    "message": "导出引用的 artifact 损坏:soutc_64dc783615f11ef0323a/expansion_outcome(H07 完整性失败;保全原文件,不静默略过)",
+    "detail": {
+      "kind": "export_reference_mismatch",
+      "artifact": "soutc_64dc783615f11ef0323a/expansion_outcome",
+      "artifact_error_kind": "artifact_hash_mismatch",
+      "original_error": "SearchArtifactIntegrityError"
+    }
+  },
+  "bad_file_preserved": true
+}

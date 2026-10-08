@@ -1,0 +1,37 @@
+{
+  "purpose": "G01 8 项 skip 与 17 项 deselect 逐 nodeid 披露(缺席不当作通过)",
+  "skips": [
+    "SKIPPED [1] tests/test_analog_assets.py:95: v4 对照代码根不可用:/private/tmp/s4r2_g01/dependingv4",
+    "SKIPPED [1] tests/test_analog_v2_corpus.py:62: v2 provenance 未生成",
+    "SKIPPED [1] tests/test_analog_v2_corpus.py:153: v2 summary 未生成",
+    "SKIPPED [1] tests/test_batch_runner.py:52: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:110: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:163: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:172: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:184: v3 冻结基准不可用"
+  ],
+  "skip_categories": {
+    "real_evaluation_benchmark_frozen": [
+      "tests/test_batch_runner.py::52",
+      "tests/test_score_report.py::110",
+      "tests/test_score_report.py::163",
+      "tests/test_score_report.py::172",
+      "tests/test_score_report.py::184"
+    ],
+    "missing_v4_parser_source": [
+      "tests/test_analog_assets.py::95"
+    ],
+    "phase_d_v2_provenance_summary": [
+      "tests/test_analog_v2_corpus.py::62",
+      "tests/test_analog_v2_corpus.py::153"
+    ]
+  },
+  "deselected": {
+    "slow_marker": 16,
+    "explicit_excluded_case": "tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden",
+    "note": "17 = 16 slow(真实/对照工程节点)+ 1 明确排除的原评价资产依赖 charge fixture"
+  },
+  "summary": [
+    "1564 passed, 8 skipped, 17 deselected, 1 warning in 228.69s (0:03:48)"
+  ]
+}

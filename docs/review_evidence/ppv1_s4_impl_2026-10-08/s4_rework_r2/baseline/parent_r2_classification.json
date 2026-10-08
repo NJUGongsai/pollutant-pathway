@@ -1,0 +1,34 @@
+{
+  "parent_commit": "0dd35d14d6539fbf134be18565f6709e852fc076",
+  "same_byte_files": {
+    "tests/test_ppv1_s4_rework_r2.py": "new file (not on parent)",
+    "tests/test_ppv1_s4b_export.py": "same bytes copied over parent",
+    "tests/test_ppv1_profile.py": "same bytes copied over parent"
+  },
+  "totals": {
+    "failed": 11,
+    "passed": 41,
+    "collection_red": 0
+  },
+  "red_classification": {
+    "behavior_refusal_missing": [
+      "tests/test_ppv1_s4_rework_r2.py::test_c02_single_ref_variants_refused[file_and_ref_deleted_selfconsistent] — 父上自洽重封(文件+引用同删)读取未拒(复审 R2 主反例 single_ref_missing)",
+      "tests/test_ppv1_s4_rework_r2.py::test_c02_export_write_side_refuses_missing_necessary_soutc — 父上导出侧无必要集合写入前守卫(允许封不完整 manifest 并落新目录)",
+      "tests/test_ppv1_s4_rework_r2.py::test_c04_unknown_source_version_no_ledger_refused[unknown_export_schema] — 父上无 ledger 首读接受未知父 schema(反例 A)",
+      "tests/test_ppv1_s4_rework_r2.py::test_c04_unknown_source_version_no_ledger_refused[unknown_contract_profile] — 父上无 ledger 首读接受未知契约版本(反例 B)",
+      "tests/test_ppv1_s4_rework_r2.py::test_c04_unknown_source_version_no_ledger_refused[unknown_native_result] — 父上无 ledger 首读接受未知原生结果版本(反例 C 变体)",
+      "tests/test_ppv1_s4_rework_r2.py::test_c04_unknown_source_version_no_ledger_refused[missing_native_result] — 父上无 ledger 首读接受缺失原生结果版本",
+      "tests/test_ppv1_s4_rework_r2.py::test_c04_version_group_missing_and_projection_conflict_refused — 父上无 ledger 首读接受版本组缺失/投影版本组冲突"
+    ],
+    "field_missing": [
+      "tests/test_ppv1_s4_rework_r2.py::test_c02_single_ref_variants_refused[ref_only_file_intact] — 父上已由 r1 集合闭合拒(仅删引用),但拒绝 detail 缺 necessary_basis/新闭合字段(KeyError)—— 字段红,非行为翻转"
+    ],
+    "version_literal": [
+      "tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest — native-export-3/native-export-policy-3/profile-18 字面量(父为 -2/-2/17)",
+      "tests/test_ppv1_s4b_export.py::test_v3_projection_lossy_marker_reference_and_losses — v3-projection-3 字面量(父为 -2)",
+      "tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions — profile-18 字面量(父为 17)"
+    ],
+    "form_or_collection": []
+  },
+  "legal_green_note": "r2 新文件在父上 3 绿 = file_corrupt(H07 拒,先于集合闭合,父已拒)+ B4 合法无报告可导出 + 合法无/有 ledger 读取/空答卷;s4b_export 16 绿(含 future-policy 用例:父上 future=-3 与当前 -2 不同 ⇒ policy stale 拒,用例语义成立);profile 22 绿"
+}

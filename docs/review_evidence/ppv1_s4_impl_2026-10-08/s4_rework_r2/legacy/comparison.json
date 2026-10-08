@@ -1,0 +1,29 @@
+{
+  "purpose": "S4 回修 r2 冻结 legacy/export_v3 字节不变专项(两树各 2 run × 2 产物)",
+  "current_tree": "isolated /private/tmp/s4r2_run/current(S4 r2 工作树)",
+  "parent_tree": "detached sparse worktree 0dd35d1",
+  "probe": "s4b_r1/scripts/legacy_export_byte_probe.py 逐字复本(fresh tmp,sha 记录于 old_script_identity.json),两树各跑一次",
+  "artifacts": {
+    "legA_predictions.jsonl": {
+      "current_sha256": "45ac163680175e3dcfb5770468d29d70aa3c8f8912ab9dc8227463116cd12b85",
+      "parent_sha256": "45ac163680175e3dcfb5770468d29d70aa3c8f8912ab9dc8227463116cd12b85",
+      "byte_identical": true
+    },
+    "legA_export_metadata.json": {
+      "current_sha256": "46c67f2c743e6bc57f77a03245385502c1d110ae8c7970ea51e9223ac18ea619",
+      "parent_sha256": "46c67f2c743e6bc57f77a03245385502c1d110ae8c7970ea51e9223ac18ea619",
+      "byte_identical": true
+    },
+    "legB_predictions.jsonl": {
+      "current_sha256": "bff09630242a0b744688e77bf62676d75d649c17880f5df27a4f2660cceb3e41",
+      "parent_sha256": "bff09630242a0b744688e77bf62676d75d649c17880f5df27a4f2660cceb3e41",
+      "byte_identical": true
+    },
+    "legB_export_metadata.json": {
+      "current_sha256": "f4fd74dadfc0efa9f24b2a960c1aa0a03917890862ab2dd73b350533ef991c5e",
+      "parent_sha256": "f4fd74dadfc0efa9f24b2a960c1aa0a03917890862ab2dd73b350533ef991c5e",
+      "byte_identical": true
+    }
+  },
+  "all_byte_identical": true
+}

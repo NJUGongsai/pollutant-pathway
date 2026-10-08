@@ -1,0 +1,46 @@
+{
+  "adjudication": {
+    "committed_event_ids": [
+      "ev_e823e559f1e6c244300a"
+    ],
+    "n_adjudications": 1,
+    "payload_hashes_sha256": "ddabc384bde6e7d34e99e0222bad577cfe30fc32d9b5b89886d1535b95d8aac0",
+    "policy_versions": [],
+    "schema_version": "v43-report-adjudication-1"
+  },
+  "counts": {
+    "n_committed_products": 2,
+    "n_merged_parents": 0,
+    "n_parents_no_reportable": 0,
+    "n_products_emitted": 2,
+    "n_report_only_products": 0,
+    "n_reportable_not_expanded": 1,
+    "n_reportable_products": 2,
+    "n_steps": 1,
+    "n_truncated_products": 0
+  },
+  "export_policy": {
+    "in_parent_dedupe": "keep_first_rank",
+    "multi_event_merge": "commit_order_created_at_then_event_id",
+    "parent_merge": "first_seen_identity_by_parent_seq",
+    "products_per_parent_cap": 5,
+    "raw_smiles_field": "product_smiles_full_fallback_product_smiles",
+    "step_order": "parent_seq"
+  },
+  "export_policy_sha256": "a5bd77bba99328d8a3c64a3b0990dcf5d1af4a88b671de61744bb3d19f8571aa",
+  "ledger_current_run": "legA",
+  "ledger_graph_revision": 1,
+  "parent_raw_form_variants": {
+    "CCO": [
+      "CCO"
+    ]
+  },
+  "predictions_lines": 1,
+  "predictions_sha256": "45ac163680175e3dcfb5770468d29d70aa3c8f8912ab9dc8227463116cd12b85",
+  "root_unparseable": false,
+  "route_id": "legA",
+  "run_id": "legA",
+  "run_identity_fingerprint": "6ea822a4b6d0a3e3933f46bce5cfa004ec6c74c4693f4889f8f8a031781c163a",
+  "schema_version": "v43-export-v3-2",
+  "superseded": null
+}

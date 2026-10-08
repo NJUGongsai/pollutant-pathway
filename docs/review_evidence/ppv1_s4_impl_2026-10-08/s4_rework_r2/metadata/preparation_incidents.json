@@ -1,0 +1,18 @@
+[
+  {
+    "id": "prep-1",
+    "stage": "隔离源全量非 slow 首次执行",
+    "incident": "dependingv3 同级副本首备只含 src,缺 assets/(7 个非 PPV1 资产树用例失败:test_asset_manifest 1 + test_asset_root_isolation 6;全部指向 $RUN/dependingv3/assets/MANIFEST.sha256 缺失/清单文件缺失,与产品无关)",
+    "correction": "补拷 dependingv3/assets(排除 __pycache__;不复制 evaluation/,reports/,training/,tests/,vendor/)",
+    "retry_policy": "单次修正重跑;首次失败输出保留为 full_nonslow_deselect_first_failed.*",
+    "no_product_change": true
+  },
+  {
+    "id": "prep-2",
+    "stage": "评审 independent_cases.py 逐字复跑首次执行",
+    "incident": "复跑目录准备时预建了 independent_workspace/package 下子目录,而脚本自身 mkdir(无 exist_ok) ⇒ FileExistsError 早退(exit 1,无任何用例执行)",
+    "correction": "删除预建目录后单次重跑(脚本自建 package/independent 与 independent_workspace)",
+    "retry_policy": "单次修正重跑",
+    "no_product_change": true
+  }
+]

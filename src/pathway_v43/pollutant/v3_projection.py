@@ -1,5 +1,5 @@
 """S4b v3 有损投影适配 —— native result → v3 形态的显式 lossy 视图
-(契约 ppv1-v3-projection-1 登记;legacy export_v3.py 冻结零触碰)。
+(契约 ppv1-v3-projection-3 登记;legacy export_v3.py 冻结零触碰)。
 
 任务书 §2.C:旧 v3 适配必须是**显式有损投影**,本模块逐条落实:
 
@@ -58,11 +58,25 @@
   改内容(重算 projection_digest 换新目录)配真 reference ⇒ 拒;
   已验证原生存在/投影自 hash 不是投影证书。
 
+**S4 回修 r2(S4-C04 残余,复审 R2 §4;契约 ppv1-v3-projection-3)
+—— 无 ledger 文件级首读核父来源版本**:``_load_bound_native_export``
+在解析父 manifest/payload 后、当前 adapter 解释内容**之前**,按
+**共用登记源**(profile 常量经 native_export 的版本单一来源,与
+有 ledger 首读/构建同一登记)核父 manifest ``schema_version``、
+``contract_versions`` 整组(缺失/未知/冲突分别披露)与 native
+payload ``native_result_version`` —— 未知/缺失/不一致来源版本
+``v3_native_source_version_unknown`` 结构化拒,不把未知来源版本
+包装成已验证结果,不用当前 adapter 默猜迁移(历史版本无显式对应
+adapter ⇒ 拒);无 ledger 不强加 DB 新鲜度(该分工不变),但文件
+级首消费不再免版本门。
+
 读取失败结构化拒(kind):``v3_projection_missing`` /
 ``v3_projection_corrupt``(不可解析/标记篡改) /
 ``v3_projection_version_unknown`` / ``v3_projection_digest_mismatch``
-/ ``v3_native_reference_missing`` / ``v3_projection_source_binding_
-mismatch``(S4-C04:来源绑定/同源复算不符)。零写入,原文件保全。
+/ ``v3_native_reference_missing`` / ``v3_native_source_version_
+unknown``(S4-C04 r2:父来源版本门) / ``v3_projection_source_
+binding_mismatch``(S4-C04:来源绑定/同源复算不符)。零写入,原
+文件保全。
 """
 
 from __future__ import annotations
@@ -77,6 +91,7 @@ from .native_export import (
     NATIVE_EXPORT_MANIFEST_FILE,
     NATIVE_EXPORT_PAYLOAD_FILE,
     NATIVE_EXPORT_SUBDIR,
+    _current_contract_versions,
     graph_facts_digests,
     read_native_export,
 )
@@ -84,6 +99,7 @@ from .native_result import NATIVE_RESULT_TASK_KEY
 from .profile import (
     PPV1_ENDPOINT_POLICY_VERSION,
     PPV1_ENDPOINT_SCHEMA_VERSION,
+    PPV1_NATIVE_EXPORT_VERSION,
     PPV1_NATIVE_RESULT_VERSION,
     PPV1_PROFILE_SCHEMA_VERSION,
     PPV1_RUNFLOW_SCHEMA_VERSION,
@@ -587,6 +603,11 @@ def read_v3_projection(run_dir: str | Path, projection_digest: str, *,
     - native_reference 与真实原生导出 manifest 的内部一致(export
       digest/core digest 复算/payload sha/content digest/task_key/
       graph revision aggregate/run_id 两两绑定);
+    - **无 ledger 文件级首读同样先核父来源版本(S4-C04 r2,复审
+      R2 §4)**:父 manifest schema/契约版本组 + native payload 版本
+      按共用登记源(与有 ledger 首读/构建同一来源)先拒未知/缺失/
+      不一致(``_verify_native_source_versions``),不把未知来源版本
+      包装成已验证结果;无 ledger 不强加 DB 新鲜度(分工不变);
     - 投影已表达字段(route.steps/root_smiles/unprojectable_
       summaries/information_losses/run_id)由该原生 payload 按登记
       adapter(``_derived_projection_content`` 单一来源)同源复算比对
@@ -656,6 +677,85 @@ def read_v3_projection(run_dir: str | Path, projection_digest: str, *,
     return payload
 
 
+def _verify_native_source_versions(manifest: dict, native_payload: dict,
+                                   projection_payload: dict) -> None:
+    """S4-C04 r2(复审 R2 §4):无 ledger 文件级投影首读的父来源
+    版本门(先于当前 adapter 解释内容)。
+
+    与有 ledger 首读(read_native_export 完整首消费的 manifest
+    schema/契约版本块门 + payload 原生结果版本门)及构建侧
+    (build_v3_projection → _verify_native_source_binding →
+    read_native_export)**共用同一版本登记源**(profile 常量;
+    manifest 契约块经 native_export._current_contract_versions 单一
+    来源)—— 不用当前 adapter 默猜未知/缺失/冲突版本,不把未知
+    来源版本包装成已验证结果;历史版本无显式对应 adapter ⇒ 拒
+    (fail-closed 不猜迁移)。无 ledger 不强加 DB 新鲜度(文件级
+    分工不变),本门只核版本登记。
+
+    核验项(缺失/未知/冲突分别入 problems 披露):
+    - manifest.schema_version(父导出 schema);
+    - manifest.contract_versions 整组(7 键,逐键对当前登记源;
+      整块缺失单独披露);
+    - native payload.native_result_version(原生结果版本);
+    - 投影自记 native_graph_revision.contract_versions 与登记源的
+      重叠键冲突(版本组两处不一致)。"""
+    problems: list[str] = []
+    recorded: dict[str, str] = {}
+    current: dict[str, str] = {}
+    schema_version = str(manifest.get("schema_version") or "")
+    if schema_version != PPV1_NATIVE_EXPORT_VERSION:
+        problems.append("manifest_schema_version")
+        recorded["manifest_schema_version"] = schema_version
+        current["manifest_schema_version"] = PPV1_NATIVE_EXPORT_VERSION
+    recorded_contracts = manifest.get("contract_versions")
+    current_contracts = _current_contract_versions()
+    if not isinstance(recorded_contracts, dict) or not recorded_contracts:
+        problems.append("manifest_contract_versions_missing")
+        recorded["manifest_contract_versions"] = \
+            "<missing>" if recorded_contracts is None else \
+            json.dumps(recorded_contracts, ensure_ascii=False)[:120]
+        current["manifest_contract_versions"] = json.dumps(
+            current_contracts, ensure_ascii=False)
+    else:
+        for key, value in current_contracts.items():
+            if str(recorded_contracts.get(key)) != str(value):
+                problems.append(f"contract_versions:{key}")
+                recorded[f"contract_versions:{key}"] = \
+                    str(recorded_contracts.get(key))
+                current[f"contract_versions:{key}"] = str(value)
+    payload_version = str(
+        native_payload.get("native_result_version") or "")
+    if payload_version != PPV1_NATIVE_RESULT_VERSION:
+        problems.append("payload_native_result_version")
+        recorded["payload_native_result_version"] = payload_version
+        current["payload_native_result_version"] = \
+            PPV1_NATIVE_RESULT_VERSION
+    projection_contracts = dict(
+        (projection_payload.get("native_graph_revision") or {})
+        .get("contract_versions") or {})
+    if not isinstance(projection_contracts, dict):
+        projection_contracts = {}
+    for key, value in projection_contracts.items():
+        if key in current_contracts and str(value) != \
+                str(current_contracts[key]):
+            problems.append(f"projection_contract_versions:{key}")
+            recorded[f"projection_contract_versions:{key}"] = str(value)
+            current[f"projection_contract_versions:{key}"] = \
+                str(current_contracts[key])
+    if problems:
+        raise V3ProjectionContractError(
+            "投影引用的原生来源版本未知/缺失/不一致:"
+            f"{sorted(problems)}(无 ledger 文件级首读同样先核父 "
+            "manifest schema/契约版本组与 native payload 版本 —— 与"
+            "有 ledger 首读/构建共用同一登记源;不用当前 adapter 默"
+            "猜迁移,未知来源版本不包装成已验证结果;保全原文件)",
+            {"kind": "v3_native_source_version_unknown",
+             "check": "native_source_version_gate",
+             "version_problems": sorted(problems),
+             "recorded": recorded,
+             "current": current})
+
+
 def _load_bound_native_export(run_dir: Path, export_digest: str,
                               projection_payload: dict) -> tuple[dict, dict]:
     """S4-C04 文件级来源绑定:读取投影引用的原生导出 manifest+payload
@@ -663,6 +763,8 @@ def _load_bound_native_export(run_dir: Path, export_digest: str,
     的发现接口也核到内容绑定,不再只列文件/只查存在)。
 
     返回 (manifest, payload);文件缺失 ⇒ v3_native_reference_missing;
+    父来源版本未知/缺失/不一致 ⇒ ``v3_native_source_version_unknown``
+    (S4-C04 r2,先于 adapter 解释内容;与有 ledger/构建共用登记源);
     绑定不符 ⇒ v3_projection_source_binding_mismatch。"""
     out_dir = run_dir / NATIVE_EXPORT_SUBDIR / str(export_digest)[:24]
     manifest_path = out_dir / NATIVE_EXPORT_MANIFEST_FILE
@@ -684,6 +786,10 @@ def _load_bound_native_export(run_dir: Path, export_digest: str,
             {"kind": "v3_native_reference_missing",
              "native_export_digest": export_digest,
              "error": f"{type(exc).__name__}: {exc}"[:200]}) from exc
+    # ---- S4-C04 r2:父来源版本门(先于 adapter 解释内容与绑定比对;
+    # 与有 ledger 首读/构建共用同一登记源) ----
+    _verify_native_source_versions(manifest, native_payload,
+                                   projection_payload)
     reference = dict(projection_payload.get("native_reference") or {})
     binding: list[str] = []
     if str(manifest.get("export_digest") or "") != export_digest:

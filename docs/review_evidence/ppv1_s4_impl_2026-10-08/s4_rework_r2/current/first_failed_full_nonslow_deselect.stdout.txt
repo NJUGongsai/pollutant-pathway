@@ -1,0 +1,195 @@
+......s...........s..s...........................FF.FFFFF............... [  4%]
+.s...................................................................... [  9%]
+........................................................................ [ 13%]
+........................................................................ [ 18%]
+........................................................................ [ 22%]
+........................................................................ [ 27%]
+........................................................................ [ 32%]
+........................................................................ [ 36%]
+........................................................................ [ 41%]
+........................................................................ [ 45%]
+........................................................................ [ 50%]
+........................................................................ [ 54%]
+........................................................................ [ 59%]
+........................................................................ [ 64%]
+........................................................................ [ 68%]
+........................................................................ [ 73%]
+........................................................................ [ 77%]
+........................................................................ [ 82%]
+........................................................................ [ 87%]
+........................................................................ [ 91%]
+........................................................................ [ 96%]
+..................ssss......................................             [100%]
+=================================== FAILURES ===================================
+________________________ test_no_fallback_to_v3_assets _________________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-439/test_no_fallback_to_v3_assets0')
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+
+    def test_no_fallback_to_v3_assets(tmp_path, v3_code_root):
+        """空 assets 根必须失败;原 v3/assets 即使完好也不得兜底。"""
+        empty = tmp_path / "empty_assets"
+        empty.mkdir()
+>       assert (v3_code_root / "assets" / "MANIFEST.sha256").is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = ((PosixPath('/private/tmp/s4r2_run/dependingv3') / 'assets') / 'MANIFEST.sha256').is_file
+
+tests/test_asset_manifest.py:142: AssertionError
+_________________________ test_missing_core_file_fails _________________________
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+make_assets_copy = <function make_assets_copy.<locals>._make at 0x10a275ee0>
+
+    def test_missing_core_file_fails(v3_code_root, make_assets_copy):
+>       _assert_v3_assets_intact(v3_code_root)
+
+tests/test_asset_root_isolation.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+
+    def _assert_v3_assets_intact(v3_code_root):
+        """失败用例的前提:旧 v3/assets 完好存在(证明失败并非资产本就缺失)。"""
+>       assert (v3_code_root / "assets" / "MANIFEST.sha256").is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = ((PosixPath('/private/tmp/s4r2_run/dependingv3') / 'assets') / 'MANIFEST.sha256').is_file
+
+tests/test_asset_root_isolation.py:34: AssertionError
+___________________ test_tampered_extension_rule_file_fails ____________________
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+make_assets_copy = <function make_assets_copy.<locals>._make at 0x10a275ee0>
+
+    def test_tampered_extension_rule_file_fails(v3_code_root, make_assets_copy):
+        """扩展规则不在 v3 核心校验范围,只能由本仓总清单抓出。"""
+>       _assert_v3_assets_intact(v3_code_root)
+
+tests/test_asset_root_isolation.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+
+    def _assert_v3_assets_intact(v3_code_root):
+        """失败用例的前提:旧 v3/assets 完好存在(证明失败并非资产本就缺失)。"""
+>       assert (v3_code_root / "assets" / "MANIFEST.sha256").is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = ((PosixPath('/private/tmp/s4r2_run/dependingv3') / 'assets') / 'MANIFEST.sha256').is_file
+
+tests/test_asset_root_isolation.py:34: AssertionError
+_______________________ test_missing_analog_index_fails ________________________
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+make_assets_copy = <function make_assets_copy.<locals>._make at 0x10a275ee0>
+manifest_identity = {'manifest_sha256': 'ac9b97b872c9666eebbe32b42c626997aca34438ade17d7bbf36a8154b848e6c', 'manifest_json_sha256': '400ee...4bda83bc59b14a9dd5d953c77c9a90790d2d7655c2', 'assets_root': '/private/tmp/s4r2_run/current/assets', 'n_files': 22, ...}
+
+    def test_missing_analog_index_fails(v3_code_root, make_assets_copy,
+                                        manifest_identity):
+>       _assert_v3_assets_intact(v3_code_root)
+
+tests/test_asset_root_isolation.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+
+    def _assert_v3_assets_intact(v3_code_root):
+        """失败用例的前提:旧 v3/assets 完好存在(证明失败并非资产本就缺失)。"""
+>       assert (v3_code_root / "assets" / "MANIFEST.sha256").is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = ((PosixPath('/private/tmp/s4r2_run/dependingv3') / 'assets') / 'MANIFEST.sha256').is_file
+
+tests/test_asset_root_isolation.py:34: AssertionError
+____________________ test_tampered_analog_index_hash_fails _____________________
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+make_assets_copy = <function make_assets_copy.<locals>._make at 0x10a275ee0>
+
+    def test_tampered_analog_index_hash_fails(v3_code_root, make_assets_copy):
+>       _assert_v3_assets_intact(v3_code_root)
+
+tests/test_asset_root_isolation.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+
+    def _assert_v3_assets_intact(v3_code_root):
+        """失败用例的前提:旧 v3/assets 完好存在(证明失败并非资产本就缺失)。"""
+>       assert (v3_code_root / "assets" / "MANIFEST.sha256").is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = ((PosixPath('/private/tmp/s4r2_run/dependingv3') / 'assets') / 'MANIFEST.sha256').is_file
+
+tests/test_asset_root_isolation.py:34: AssertionError
+__________________ test_v3_reactions_symlink_escape_rejected ___________________
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+make_assets_copy = <function make_assets_copy.<locals>._make at 0x10a275ee0>
+
+    def test_v3_reactions_symlink_escape_rejected(v3_code_root, make_assets_copy):
+        """回归(P1):把副本的 v3_reactions 整体 symlink 到旧仓 dependingv3/assets。
+    
+        字节与清单哈希逐一对得上,但配置 assets 根为物理边界 —— 清单校验必须以
+        “文件物理路径逃逸”拒绝,checkenv/引擎入口同样 fail-closed,
+        且不得把旧仓文件路径当作核心文件报告。
+        """
+>       _assert_v3_assets_intact(v3_code_root)
+
+tests/test_asset_root_isolation.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+
+    def _assert_v3_assets_intact(v3_code_root):
+        """失败用例的前提:旧 v3/assets 完好存在(证明失败并非资产本就缺失)。"""
+>       assert (v3_code_root / "assets" / "MANIFEST.sha256").is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = ((PosixPath('/private/tmp/s4r2_run/dependingv3') / 'assets') / 'MANIFEST.sha256').is_file
+
+tests/test_asset_root_isolation.py:34: AssertionError
+______________ test_checkenv_rejects_v3_reactions_symlink_escape _______________
+
+v3_code_root = PosixPath('/private/tmp/s4r2_run/dependingv3')
+make_assets_copy = <function make_assets_copy.<locals>._make at 0x10a275ee0>
+
+    def test_checkenv_rejects_v3_reactions_symlink_escape(
+        v3_code_root, make_assets_copy
+    ):
+        """回归(P1,review 复现路径):checkenv 对 symlink 逃逸必须 exit 2 + JSON。"""
+        copy = make_assets_copy()  # 全物理复制,仅 v3_reactions 换成指向旧仓的 symlink
+        shutil.rmtree(copy / "v3_reactions")
+        (copy / "v3_reactions").symlink_to(
+            v3_code_root / "assets", target_is_directory=True)
+        env = dict(os.environ, PYTHONPATH=str(REPO_ROOT / "src"))
+        proc = subprocess.run(
+            [sys.executable, "-m", "pathway_v43", "checkenv",
+             "--assets-root", str(copy), "--v3-code-root", str(v3_code_root)],
+            capture_output=True, text=True, timeout=300, env=env,
+        )
+        assert proc.returncode == 2, proc.stdout + proc.stderr
+        assert "Traceback" not in proc.stdout
+        payload = json.loads(proc.stdout)
+        assert payload["ok"] is False
+>       assert "逃逸" in payload["error"]["message"]
+E       AssertionError: assert '逃逸' in '清单文件缺失:/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-439/assets_copy4/copy_5/v3_reactions/MANIFEST.extensions.sha256'
+
+tests/test_asset_root_isolation.py:137: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/s4r2_run/current/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_analog_assets.py:95: v4 对照代码根不可用:/private/tmp/s4r2_run/dependingv4
+SKIPPED [1] tests/test_analog_v2_corpus.py:62: v2 provenance 未生成
+SKIPPED [1] tests/test_analog_v2_corpus.py:153: v2 summary 未生成
+SKIPPED [1] tests/test_batch_runner.py:52: v3 冻结基准不可用
+SKIPPED [1] tests/test_score_report.py:110: v3 冻结基准不可用
+SKIPPED [1] tests/test_score_report.py:163: v3 冻结基准不可用
+SKIPPED [1] tests/test_score_report.py:172: v3 冻结基准不可用
+SKIPPED [1] tests/test_score_report.py:184: v3 冻结基准不可用
+7 failed, 1557 passed, 8 skipped, 17 deselected, 1 warning in 228.91s (0:03:48)

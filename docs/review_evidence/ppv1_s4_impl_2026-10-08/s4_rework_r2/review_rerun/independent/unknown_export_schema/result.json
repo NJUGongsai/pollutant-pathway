@@ -1,0 +1,80 @@
+{
+  "name": "unknown_export_schema",
+  "table_hash_before": {
+    "budget_reservations": "52e5d8939bf9c887c11dc7eda6c1e726e6ba216d3b6aefac4ecdaf2cdb4f29cc",
+    "endpoint_records": "68fda1e1ca8b73087c04a5c8dd6eea79d2cd711187818e3e73b705aa01627837",
+    "event_appearance_links": "00a625faa489caca3ff99e1d3ef4659301d34f8cc0eda827266d3f5e19c06735",
+    "events": "5db1db304ce67ba305afca0f7602e5a290a477b55a8ca0c3d42ee328f20bda21",
+    "expansion_plans": "4b46938437f8f8b62d6859204742c7308cd594e329565f4499c986edf63aaeea",
+    "hypotheses": "f0dee440fe52b95e724b2151dab66232ee5fee116611a6b49c4d4f23628dfb85",
+    "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "03ec9200ccaa15c1cfbc0f1647b8e0736c2375e7e2fc5cf587626b54f06a14ea",
+    "search_actions": "98a5896a5752b1614738d3e9effc447c0eb1b738e817afc9f10fba5d69d130e1",
+    "search_attempts": "9ba146ae2b0050b6174d54a29e9e8a30f8f3deaccc9752e809e80fb73ed3215f",
+    "search_commit_records": "9a1a37ed100707fa5806d447b56f1baf9d3b250ad2d56db73fe3ec613aec0278",
+    "search_runs": "24eae71419a067df691b63698d9c15d43b769543c2461a99d5e5833e568cc5e6",
+    "state_appearances": "b658cd71108702d6a97cd47a9e891fc79d9d12b26fe6044d37d4add001f77160",
+    "states": "5c0eeb37a28209675591862d6ad2883246ab5388d5d30dc0522c33797bc2da12",
+    "stop_reason_records": "19abd7f51ce720d921421b7bd4ec731bec52f7283a5745e744a2ccbe67ae8fb9"
+  },
+  "table_hash_after": {
+    "budget_reservations": "52e5d8939bf9c887c11dc7eda6c1e726e6ba216d3b6aefac4ecdaf2cdb4f29cc",
+    "endpoint_records": "68fda1e1ca8b73087c04a5c8dd6eea79d2cd711187818e3e73b705aa01627837",
+    "event_appearance_links": "00a625faa489caca3ff99e1d3ef4659301d34f8cc0eda827266d3f5e19c06735",
+    "events": "5db1db304ce67ba305afca0f7602e5a290a477b55a8ca0c3d42ee328f20bda21",
+    "expansion_plans": "4b46938437f8f8b62d6859204742c7308cd594e329565f4499c986edf63aaeea",
+    "hypotheses": "f0dee440fe52b95e724b2151dab66232ee5fee116611a6b49c4d4f23628dfb85",
+    "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "03ec9200ccaa15c1cfbc0f1647b8e0736c2375e7e2fc5cf587626b54f06a14ea",
+    "search_actions": "98a5896a5752b1614738d3e9effc447c0eb1b738e817afc9f10fba5d69d130e1",
+    "search_attempts": "9ba146ae2b0050b6174d54a29e9e8a30f8f3deaccc9752e809e80fb73ed3215f",
+    "search_commit_records": "9a1a37ed100707fa5806d447b56f1baf9d3b250ad2d56db73fe3ec613aec0278",
+    "search_runs": "24eae71419a067df691b63698d9c15d43b769543c2461a99d5e5833e568cc5e6",
+    "state_appearances": "b658cd71108702d6a97cd47a9e891fc79d9d12b26fe6044d37d4add001f77160",
+    "states": "5c0eeb37a28209675591862d6ad2883246ab5388d5d30dc0522c33797bc2da12",
+    "stop_reason_records": "19abd7f51ce720d921421b7bd4ec731bec52f7283a5745e744a2ccbe67ae8fb9"
+  },
+  "zero_database_write": true,
+  "native_read": {
+    "accepted": false,
+    "exception": "NativeExportContractError",
+    "message": "导出 schema 版本未知:'ppv1-native-export-UNKNOWN'(当前 ppv1-native-export-3;fail-closed 不猜迁移)",
+    "detail": {
+      "kind": "export_version_unknown",
+      "schema_version": "ppv1-native-export-UNKNOWN"
+    }
+  },
+  "projection_no_ledger": {
+    "accepted": false,
+    "exception": "V3ProjectionContractError",
+    "message": "投影引用的原生来源版本未知/缺失/不一致:['manifest_schema_version'](无 ledger 文件级首读同样先核父 manifest schema/契约版本组与 native payload 版本 —— 与有 ledger 首读/构建共用同一登记源;不用当前 adapter 默猜迁移,未知来源版本不包装成已验证结果;保全原文件)",
+    "detail": {
+      "kind": "v3_native_source_version_unknown",
+      "check": "native_source_version_gate",
+      "version_problems": [
+        "manifest_schema_version"
+      ],
+      "recorded": {
+        "manifest_schema_version": "ppv1-native-export-UNKNOWN"
+      },
+      "current": {
+        "manifest_schema_version": "ppv1-native-export-3"
+      }
+    }
+  },
+  "projection_with_ledger": {
+    "accepted": false,
+    "exception": "V3ProjectionContractError",
+    "message": "投影引用的原生导出首消费失败:137a09583f01408ac35bba33da694a1d28a202c78d87aeee3d207f235ed6003d(投影的原生来源必须先经原生首消费;不吞成成功)",
+    "detail": {
+      "kind": "v3_projection_source_binding_mismatch",
+      "check": "native_export_first_consumption",
+      "native_export_digest": "137a09583f01408ac35bba33da694a1d28a202c78d87aeee3d207f235ed6003d",
+      "error": "NativeExportContractError: 导出 schema 版本未知:'ppv1-native-export-UNKNOWN'(当前 ppv1-native-export-3;fail-closed 不猜迁移)"
+    }
+  }
+}

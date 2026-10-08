@@ -1,0 +1,225 @@
+[
+  {
+    "name": "ppv1_full_isolated",
+    "argv": [
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "tests/test_ppv1*.py",
+      "--junitxml",
+      "current/ppv1_full_junit.xml"
+    ],
+    "cwd": "/private/tmp/s4r2_run/current",
+    "exit_code": 0,
+    "result": "962 passed / 0 skipped / 0 failed(951 r1 存量 + 11 新;36 文件)",
+    "outputs": [
+      "current/"
+    ]
+  },
+  {
+    "name": "s4_focus_isolated",
+    "argv": [
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "test_ppv1_s4_rework_r2.py",
+      "test_ppv1_s4_rework_r1.py",
+      "test_ppv1_s4a_endpoint.py",
+      "test_ppv1_s4b_export.py",
+      "--junitxml",
+      "current/s4_focus_junit.xml"
+    ],
+    "cwd": "/private/tmp/s4r2_run/current",
+    "exit_code": 0,
+    "result": "83 passed(11 r2 + 19 r1 + 35 s4a + 18 s4b)",
+    "outputs": [
+      "current/"
+    ]
+  },
+  {
+    "name": "full_nonslow_deselect_isolated",
+    "argv": [
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "-rs",
+      "-m",
+      "not slow",
+      "--deselect",
+      "tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden",
+      "tests/",
+      "--junitxml",
+      "current/full_nonslow_deselect_junit.xml"
+    ],
+    "cwd": "/private/tmp/s4r2_run/current",
+    "exit_code": 0,
+    "result": "1564 passed / 8 skipped / 17 deselected(1553 r1 + 11 新);首次执行 7 失败为准备事故(prep-1),修正后单次重跑通过;失败输出保留 first_failed_*",
+    "outputs": [
+      "current/"
+    ]
+  },
+  {
+    "name": "g01_safe_isolated",
+    "argv": [
+      "python",
+      "-B",
+      "scripts/safe_g01_s4_rework_r2.py",
+      "--repo",
+      "/Volumes/CC/Enzyme_Agent/dependingv43",
+      "--out",
+      "/private/tmp/s4r2_g01",
+      "--python",
+      ".../depending43/bin/python",
+      "--v3-src",
+      "/Volumes/CC/Enzyme_Agent/dependingv3/src"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "exit_code": 0,
+    "result": "1564 passed / 8 skipped / 17 deselected;296 输入(295 r1 + 1 新),执行后对仓源逐文件 SHA 复核一致(0 mismatch)",
+    "outputs": [
+      "g01/"
+    ]
+  },
+  {
+    "name": "parent_baseline",
+    "argv": [
+      "git worktree add --detach /private/tmp/s4r2_parent_wt 0dd35d1",
+      "git sparse-checkout set src tests",
+      "(同字节拷 3 测试文件)",
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "test_ppv1_s4_rework_r2.py",
+      "test_ppv1_s4b_export.py",
+      "test_ppv1_profile.py"
+    ],
+    "cwd": "/private/tmp/s4r2_parent_wt",
+    "exit_code": 1,
+    "result": "11 failed / 41 passed(7 拒绝缺失行为红 + 1 字段红 + 3 版本字面量红;0 collection);分类见 baseline/parent_r2_classification.json",
+    "outputs": [
+      "baseline/"
+    ]
+  },
+  {
+    "name": "legacy_current",
+    "argv": [
+      "python",
+      "-B",
+      "/private/tmp/s4r2_legacy_probe/legacy_export_byte_probe.py",
+      "--src",
+      "/private/tmp/s4r2_run/current/src",
+      "--out",
+      "legacy/legacy_current",
+      "--runs-root",
+      "/private/tmp/s4r2_legacy_runs_cur"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "exit_code": 0,
+    "result": "legA/legB 2 产物",
+    "outputs": [
+      "legacy/"
+    ]
+  },
+  {
+    "name": "legacy_parent",
+    "argv": [
+      "python",
+      "-B",
+      "/private/tmp/s4r2_legacy_probe/legacy_export_byte_probe.py",
+      "--src",
+      "/private/tmp/s4r2_parent_wt/src",
+      "--out",
+      "legacy/legacy_parent",
+      "--runs-root",
+      "/private/tmp/s4r2_legacy_runs_par"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "exit_code": 0,
+    "result": "legA/legB 2 产物;与当前树 4/4 逐字节一致(comparison.json)",
+    "outputs": [
+      "legacy/"
+    ]
+  },
+  {
+    "name": "legacy_code_identity",
+    "argv": [
+      "python",
+      "-B",
+      "scripts/legacy_code_identity.py",
+      "--current-src",
+      "/private/tmp/s4r2_run/current/src",
+      "--parent-src",
+      "/private/tmp/s4r2_parent_wt/src",
+      "--out",
+      "legacy/legacy_code_identity.json"
+    ],
+    "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+    "exit_code": 0,
+    "result": "52 非 pollutant src 文件聚合两树一致 2b32c86e...(方法:逐文件 sha256 → content_hash;git diff 0dd35d1 -- src 仅 3 个 pollutant 文件变动为旁证)",
+    "outputs": [
+      "legacy/"
+    ]
+  },
+  {
+    "name": "review_independent_cases_verbatim",
+    "argv": [
+      "python",
+      "-B",
+      "/private/tmp/s4r2_review/package/scripts/independent_cases.py"
+    ],
+    "cwd": "/private/tmp/s4r2_review/package",
+    "exit_code": 0,
+    "result": "R2 反例逐案复跑:single_ref_missing 自洽重封读取由接受翻转为拒;unknown_export_schema/unknown_contract_profile/unknown_native_result 无 ledger 首读全部翻转为拒;边界观测(no_ledger_h07/no_ledger_resealed_source 无 ledger)按登记边界保持接受;全部用例零 DB 写",
+    "outputs": [
+      "review_rerun/independent/",
+      "review_rerun/independent_cases.stdout.txt"
+    ]
+  },
+  {
+    "name": "review_public_controls_verbatim",
+    "argv": [
+      "python",
+      "-B",
+      "/private/tmp/s4r2_review/package/scripts/public_controls.py"
+    ],
+    "cwd": "/private/tmp/s4r2_review/package",
+    "exit_code": 0,
+    "result": "公开 start/resume 正控全绿,网络 0",
+    "outputs": [
+      "review_rerun/public_controls/"
+    ]
+  },
+  {
+    "name": "review_old_probes_verbatim",
+    "argv": [
+      "python",
+      "-B",
+      ".../export_confirmation_probe.py --source ... --workspace ... --out ...",
+      "python",
+      "-B",
+      ".../export_supplemental_probe.py ..."
+    ],
+    "cwd": "/private/tmp/s4r2_review/package",
+    "exit_code": 1,
+    "result": "两旧探针按 r1 已闭合缺口预期早停(fake-native build 拒 / StopIteration),未执行段单列于 old_probes/early_stop_registration.json;不把早停当通过",
+    "outputs": [
+      "review_rerun/old_probes/"
+    ]
+  }
+]

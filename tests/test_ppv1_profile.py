@@ -43,10 +43,10 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    # v16(S4b):正式文件导出 + v3 有损投影
-    # (native-export-1 / native-export-policy-1 / v3-projection-1;
-    # endpoint-1 / endpoint-policy-1 / native-result-1 沿 S4a)
-    assert block["schema_version"] == "ppv1-profile-17"
+    # v18(S4 回修 r2):必要集合闭合语义修正 + 无 ledger 投影
+    # 首读父版本门(native-export-3 / native-export-policy-3 /
+    # v3-projection-3;endpoint/native-result 系沿 r1)
+    assert block["schema_version"] == "ppv1-profile-18"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),

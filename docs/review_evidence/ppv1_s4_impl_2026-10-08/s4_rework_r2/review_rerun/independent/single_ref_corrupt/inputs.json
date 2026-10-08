@@ -1,0 +1,565 @@
+{
+  "deleted_reference": "stask-exp_50284c9e0941e02183db/production_report",
+  "original_report": {
+    "created_at": "2026-10-08T12:01:09+00:00",
+    "name": "production_report",
+    "payload": {
+      "action_id": "sact_3082c7317d0884449ed7",
+      "admission": {
+        "disposition": "retain_conditional",
+        "reasons": [
+          "R5:unknown_checks_present(不自动拒绝;可有界探索可能路径,继承未解决依赖;未知步长不进确认单步指标):participant_completeness,element_accounting,formal_charge_accounting,transformation_center,condition_check"
+        ]
+      },
+      "attempt_id": "sattempt_ee01b67c40cf1f4e10b7",
+      "audit": {
+        "admission_disposition": "",
+        "admission_policy_ref": "ppv1-admission-8",
+        "admission_reasons": [],
+        "audit_id": "audit_1505acbe85d396dc219d",
+        "biological_support_status": "unknown",
+        "checker_versions": {
+          "audit": "ppv1-audit-8",
+          "chemstate": "ppv1-chemstate-8",
+          "condition_assessment": "ppv1-condition-assessment-8",
+          "donor_diagnostic": "ppv1-donor-diagnostic-8",
+          "hypothesis": "ppv1-hypothesis-8",
+          "legacy_g2_family": "v43-cons-2"
+        },
+        "checks": [
+          {
+            "coverage": "participants_with_state",
+            "detail": {},
+            "evidence_refs": [],
+            "name": "structure_parse_valence",
+            "reason_code": "all_participants_parse",
+            "status": "verified"
+          },
+          {
+            "coverage": "state_ledger_references",
+            "detail": {},
+            "evidence_refs": [],
+            "name": "participant_state_refs",
+            "reason_code": "all_participant_states_resolved",
+            "status": "verified"
+          },
+          {
+            "coverage": "state_ids",
+            "detail": {
+              "fidelity_axis_notes": []
+            },
+            "evidence_refs": [],
+            "name": "identity_fidelity",
+            "reason_code": "identity_states_consistent",
+            "status": "verified"
+          },
+          {
+            "coverage": "only_legacy_rules_H_O_free_fragment_counts",
+            "detail": {},
+            "evidence_refs": [
+              "v43-cons-2"
+            ],
+            "name": "finite_rule_diagnostic",
+            "reason_code": "not_provided",
+            "status": "not_applicable"
+          },
+          {
+            "coverage": "participant_list",
+            "detail": {},
+            "evidence_refs": [],
+            "name": "participant_completeness",
+            "reason_code": "participant_list_status:partial",
+            "status": "unknown"
+          },
+          {
+            "coverage": "full_balance",
+            "detail": {
+              "accounting_scope": "not_run_incomplete_list"
+            },
+            "evidence_refs": [],
+            "name": "element_accounting",
+            "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+            "status": "unknown"
+          },
+          {
+            "coverage": "full_balance",
+            "detail": {},
+            "evidence_refs": [],
+            "name": "formal_charge_accounting",
+            "reason_code": "partial_or_unknown_participants_full_balance_unknown",
+            "status": "unknown"
+          },
+          {
+            "coverage": "mapping_dependent",
+            "detail": {
+              "center_match": true,
+              "center_match_basis": "direct",
+              "checker_scope": "region_net_change",
+              "checker_version": "ppv1-donor-diagnostic-8",
+              "coverage_mode": "whole_molecule",
+              "coverage_rule": "atom_delta_stoichiometric_completion",
+              "covered_product_identities": [
+                "CC=O"
+              ],
+              "declared_signature_status": "unknown",
+              "product_coverage": "unknown_coefficients",
+              "proof_scope": "self_contained_recompute",
+              "strict_target_match": true,
+              "uncovered_product_refs": [
+                "cs_ea7e44a64c7461517e4f"
+              ],
+              "uncovered_reactant_refs": []
+            },
+            "evidence_refs": [
+              "align-A"
+            ],
+            "name": "transformation_center",
+            "reason_code": "center_evidence_coverage_unknown_coefficients(参与物系数未知:覆盖与贡献规模不可算,不得计入全部核实;系数须已知或另行补全,不冒充已覆盖)",
+            "status": "unknown"
+          },
+          {
+            "coverage": "step_scope",
+            "detail": {},
+            "evidence_refs": [],
+            "name": "step_scope_check",
+            "reason_code": "step_scope:net_reaction",
+            "status": "verified"
+          },
+          {
+            "coverage": "declared_dimensions",
+            "detail": {
+              "assessment_scope": [],
+              "unassessed_dimensions": [
+                "biotic_abiotic",
+                "inoculum_source",
+                "light_regime",
+                "phase_bioavailability",
+                "redox_regime_eh",
+                "required_trace_elements_cofactors",
+                "salinity_ionic_strength",
+                "substrate_concentration"
+              ]
+            },
+            "evidence_refs": [],
+            "name": "condition_check",
+            "reason_code": "environment_fit:unknown;coverage:",
+            "status": "unknown"
+          },
+          {
+            "coverage": "dependency_set",
+            "detail": {},
+            "evidence_refs": [],
+            "name": "provenance_dependency",
+            "reason_code": "no_unresolved_dependencies",
+            "status": "verified"
+          }
+        ],
+        "input_hash": "ain_4c72e00ffee6cb0dfee8",
+        "legacy_gate_result_ref": "",
+        "participant_accounting_status": "partial",
+        "schema_version": "ppv1-audit-8",
+        "scope": "hypothesis_admission"
+      },
+      "child_depth": 2,
+      "completed": {
+        "action_id": "sact_3082c7317d0884449ed7",
+        "completed": true,
+        "event_id": "ppev_51f37280296b8f738058",
+        "outcome_ref": ""
+      },
+      "event": null,
+      "event_id": "ppev_51f37280296b8f738058",
+      "execution": {
+        "center_evidence": {
+          "bound_inputs": {
+            "alignment_ref": "align-A",
+            "donor_centers": [
+              "S_C_2",
+              "S_O_1"
+            ],
+            "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+            "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+            "product_identity": "CC=O",
+            "substrate_identity": "CCO"
+          },
+          "center_match": true,
+          "center_match_basis": "direct",
+          "checker_scope": "region_net_change",
+          "checker_version": "ppv1-donor-diagnostic-8",
+          "declaration_mismatch": false,
+          "evidence_refs": [
+            "align-A"
+          ],
+          "proof_record": {
+            "alignment": {
+              "donor_to_current": {
+                "S_C_2": "S_C_2",
+                "S_O_1": "S_O_1"
+              },
+              "equivalence_classes": [],
+              "ref": "align-A",
+              "status": "resolved"
+            },
+            "current": {
+              "atom_id_map": {
+                "S_C_1": 0,
+                "S_C_2": 1,
+                "S_O_1": 2
+              },
+              "smiles": "CCO"
+            },
+            "donor": {
+              "center_atom_ids": [
+                "S_C_2",
+                "S_O_1"
+              ]
+            },
+            "edits": [
+              {
+                "atom1": "S_C_2",
+                "atom2": "S_O_1",
+                "from_order": "single",
+                "op": "change_bond_order",
+                "to_order": "double"
+              }
+            ],
+            "expectation": {
+              "target_smiles": "CC=O"
+            },
+            "result": {
+              "atom_id_map": {
+                "S_C_1": 0,
+                "S_C_2": 1,
+                "S_O_1": 2
+              },
+              "n_edits": 1,
+              "ok": true,
+              "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+              "product_smiles": "CC=O",
+              "protocol_version": "v43-editproto-2",
+              "reasons": []
+            }
+          },
+          "proof_scope": "self_contained_recompute",
+          "strict_target_match": true
+        },
+        "diagnostic": {
+          "alignment_ref": "align-A",
+          "center_evidence": {
+            "bound_inputs": {
+              "alignment_ref": "align-A",
+              "donor_centers": [
+                "S_C_2",
+                "S_O_1"
+              ],
+              "edits_signature": "b14f2475217f4463c803bda7ba95440fb15cfb86dd73fd9651b6f7b10997616c",
+              "execution_fingerprint": "c69ea697adc5a579e2794ac6526ebe1ceff9f1b307996bf358b12537d9b95c41",
+              "product_identity": "CC=O",
+              "substrate_identity": "CCO"
+            },
+            "center_match": true,
+            "center_match_basis": "direct",
+            "checker_scope": "region_net_change",
+            "checker_version": "ppv1-donor-diagnostic-8",
+            "declaration_mismatch": false,
+            "evidence_refs": [
+              "align-A"
+            ],
+            "proof_record": {
+              "alignment": {
+                "donor_to_current": {
+                  "S_C_2": "S_C_2",
+                  "S_O_1": "S_O_1"
+                },
+                "equivalence_classes": [],
+                "ref": "align-A",
+                "status": "resolved"
+              },
+              "current": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "smiles": "CCO"
+              },
+              "donor": {
+                "center_atom_ids": [
+                  "S_C_2",
+                  "S_O_1"
+                ]
+              },
+              "edits": [
+                {
+                  "atom1": "S_C_2",
+                  "atom2": "S_O_1",
+                  "from_order": "single",
+                  "op": "change_bond_order",
+                  "to_order": "double"
+                }
+              ],
+              "expectation": {
+                "target_smiles": "CC=O"
+              },
+              "result": {
+                "atom_id_map": {
+                  "S_C_1": 0,
+                  "S_C_2": 1,
+                  "S_O_1": 2
+                },
+                "n_edits": 1,
+                "ok": true,
+                "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+                "product_smiles": "CC=O",
+                "protocol_version": "v43-editproto-2",
+                "reasons": []
+              }
+            },
+            "proof_scope": "self_contained_recompute",
+            "strict_target_match": true
+          },
+          "center_match_basis": "direct",
+          "center_property_deltas": [
+            {
+              "atom_id": "S_C_2",
+              "cip_labels": [
+                "",
+                ""
+              ],
+              "element": "C",
+              "formal_charge": [
+                0,
+                0
+              ],
+              "h_count": [
+                2,
+                1
+              ],
+              "property_delta": "h_count"
+            },
+            {
+              "atom_id": "S_O_1",
+              "cip_labels": [
+                "",
+                ""
+              ],
+              "element": "O",
+              "formal_charge": [
+                0,
+                0
+              ],
+              "h_count": [
+                1,
+                0
+              ],
+              "property_delta": "h_count"
+            }
+          ],
+          "declaration_mismatches": [],
+          "declaration_only": [],
+          "equivalence_basis": "",
+          "executed_bond_changes": [
+            {
+              "atom1_id": "S_C_2",
+              "atom2_id": "S_O_1",
+              "from_order": "single",
+              "kind": "order_change",
+              "to_order": "double"
+            }
+          ],
+          "extra_changes": [],
+          "joint_mapping": {},
+          "legacy_cn_match": true,
+          "missing_info_reasons": [],
+          "net_change_empty": false,
+          "reaction_center_match": true,
+          "schema_version": "ppv1-donor-diagnostic-8",
+          "stereo_comparison_unsupported_atoms": [],
+          "strict_target_match": true
+        },
+        "execution_ok": true,
+        "production_version": "ppv1-search-production-1",
+        "render": {
+          "atom_id_map": {
+            "S_C_1": 0,
+            "S_C_2": 1,
+            "S_O_1": 2
+          },
+          "canonical_smiles": "CCO",
+          "input_smiles": "CCO"
+        },
+        "result": {
+          "atom_id_map": {
+            "S_C_1": 0,
+            "S_C_2": 1,
+            "S_O_1": 2
+          },
+          "n_edits": 1,
+          "ok": true,
+          "product_mapped_smiles": "[CH3:1][CH:2]=[O:3]",
+          "product_smiles": "CC=O",
+          "protocol_version": "v43-editproto-2",
+          "reasons": []
+        },
+        "substrate_smiles": "CCO",
+        "tool_inputs": {
+          "alignment": {
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A",
+            "status": "resolved"
+          },
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "edits": [
+            {
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "op": "change_bond_order",
+              "to_order": "double"
+            }
+          ],
+          "expectation": {
+            "target_smiles": "CC=O"
+          }
+        }
+      },
+      "expansion_plan": {
+        "entries": [
+          {
+            "reason": "",
+            "state_ref": "cs_540cc0181e112b383323",
+            "status": "expanded"
+          },
+          {
+            "reason": "",
+            "state_ref": "cs_ea7e44a64c7461517e4f",
+            "status": "expanded"
+          }
+        ],
+        "policy_version": "ppv1-expansion-1"
+      },
+      "parent_search_revision": 0,
+      "production_version": "ppv1-search-production-1",
+      "report_projection": {
+        "dedup_notes": [],
+        "max_reportable": 2,
+        "product_ranks": [
+          {
+            "basis": "declared_rank_order",
+            "note": "",
+            "report_rank": 1,
+            "state_ref": "cs_540cc0181e112b383323"
+          },
+          {
+            "basis": "declared_rank_order",
+            "note": "",
+            "report_rank": 2,
+            "state_ref": "cs_ea7e44a64c7461517e4f"
+          }
+        ],
+        "projection_version": "ppv1-report-projection-1",
+        "reasons": []
+      },
+      "status": "submitted",
+      "submitted": {
+        "action_id": "sact_3082c7317d0884449ed7",
+        "created": true,
+        "event_id": "ppev_51f37280296b8f738058"
+      }
+    },
+    "payload_hash": "26d54c8211c63871c96fe79764ecd3c537f5f50f4e54d1984fc8e3e6cf480048",
+    "run_id": "single-ref-corrupt",
+    "schema_version": "v43-artifact-1",
+    "task_id": "stask-exp_50284c9e0941e02183db"
+  },
+  "new_manifest": {
+    "artifact_references": {
+      "ctx:pc_0757aa71e8cd78057880/path_context": {
+        "payload_hash": "034cabb10a2f3385d001f9850a55fded0e57289cfa4d943808948305cf27f151",
+        "source_action_id": ""
+      },
+      "run-plan/frozen_plan": {
+        "payload_hash": "fd888fc2eef9b54e160caa48be32d5a9776b9fd10372d6c5be510ce537727d27",
+        "source_action_id": ""
+      },
+      "soutc_2a4e1aac7c4e4d038ec6/expansion_outcome": {
+        "payload_hash": "255e699aa6180ba9986a51c8cab5973fe54d95e68b6b9b3a506f45dc3b2a7b3f",
+        "source_action_id": "sact_f8239bd6f7453be17fce"
+      },
+      "soutc_713f6da0d42e1a149a90/expansion_outcome": {
+        "payload_hash": "464b0311a3798451f7da5a8add03d6b88cb9dc50f3666ec709c65cf1b5f62ec9",
+        "source_action_id": "sact_4219f8b3cc98f3f00989"
+      },
+      "soutc_86ca1c6834b3cb5e8382/expansion_outcome": {
+        "payload_hash": "c4cfc51ca9ef1b085751cb3542baf9b623ae50f76a64836415014cc911fd2cd6",
+        "source_action_id": "sact_8c152c91a9cc66ce9e70"
+      },
+      "soutc_c3e829545bf055ca7d87/expansion_outcome": {
+        "payload_hash": "4e1c04748e2a3300d535b459310e0997f53b248c5d4404b5906f4e51a4398456",
+        "source_action_id": "sact_9f1338ff245c9fb613cc"
+      }
+    },
+    "authority_references": {
+      "endpoint_record_payload_hash": "fbf4f643359f2cedc4d93a4081e39a218210963947d87833c5187935d699c448",
+      "native_result_content_digest": "de702c31c5373da8d08cab4223ff8c0947aa51b6c86193c4ad1218d33c8d47b1",
+      "native_result_task_key": "run-native-result:de702c31c5373da8d08cab42",
+      "stop_record_payload_hash": "69aae60f4babdefef30d8eee9c5c816694187bfd921588d7f65af4035e9e7834"
+    },
+    "content_digest": "de702c31c5373da8d08cab4223ff8c0947aa51b6c86193c4ad1218d33c8d47b1",
+    "contract_versions": {
+      "endpoint": "ppv1-endpoint-2",
+      "endpoint_policy": "ppv1-endpoint-policy-2",
+      "native_result": "ppv1-native-result-2",
+      "profile": "ppv1-profile-18",
+      "runflow": "ppv1-runflow-5",
+      "search": "ppv1-search-6",
+      "store": "ppv1-store-10"
+    },
+    "determinism_note": "payload/manifest 无时间戳;canonical_json 键序 + 列表稳定排序;export_digest = content_hash(本 manifest 去掉 export_digest 键);同事实+同版本+同策略 ⇒ 同字节",
+    "export_digest": "cca48fd5e321de286adb6791e6942734373229602a0fee7983d84559f83440d3",
+    "export_policy": {
+      "directory_naming": "native_export/<export_digest[:24]>/",
+      "export_digest_basis": "content_hash(manifest_core_without_export_digest)",
+      "manifest_serialization": "canonical_json_sortkeys_compact_newline",
+      "manifest_timestamps": "forbidden",
+      "overwrite": "forbidden_same_digest_different_bytes_refused",
+      "payload_serialization": "canonical_json_sortkeys_compact_newline",
+      "payload_timestamps": "forbidden",
+      "stale_detection": "manifest_core_digest_recompute+run_and_contract_version_binding+payload_native_result_version_binding+graph_facts_digests+authority_references+necessary_artifact_reference_set_closure_from_completed_actions_commits_and_native_consumption+policy_body_and_hash",
+      "version": "ppv1-native-export-policy-3"
+    },
+    "export_policy_sha256": "05518295dfd81c4e997922353e30a7a976456d84d0b41075888d448f99549957",
+    "graph_facts": {
+      "budget_reservations": "acfd9e122ffd231a8347fe23138876d05c633e50e2d6ee3f427327795255b034",
+      "endpoint_records": "fec8ad18cffcce0fed620f8999cffde909dd1736372462c54d3ef85fe38ce653",
+      "event_appearance_links": "125f373c438d48dac26081c4ae4d269a73aa862a2f3391d10a97034302bb8682",
+      "events": "e30e111379e1b6ba230960cff1bcbf363407078286b25d0e4a1eb380b9acd2c6",
+      "expansion_plans": "6fa9b9d214e54b6db1d4f73eff7ed6e06eda50b6065c481fd9d4e84560ff8aeb",
+      "hypotheses": "54de88b21dcf0b8c1a848162eb6ce34e80eeec427772b88d37687b4f35942d27",
+      "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "note": "PPV1 graph revision 等价身份 = 持久事实表逐表内容 digest(legacy 整数 graph_revision 不适用;任何行变化 ⇒ 旧导出 stale)",
+      "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "report_projections": "f7518a661d1604befde5e14e60d9259fe9c1cfe681c9b965c55cabec6246bc4f",
+      "search_actions": "dc71ca4d6a77a7571178aa105182e391fccab9470f44a0915145a56b5d43d770",
+      "search_attempts": "e335fad0cb6f45e4ab81dbfe0e5c4da7608d58a78fc49f6fea0d13efafb73dd6",
+      "search_commit_records": "0fc399673d36349c1514884853b673846594dc298fa6e07d9dcf04ca28c64dda",
+      "state_appearances": "e78a46b1447d8e257b68092e0e1fd758e881eeac2c39d0e4c131cc885914ed97",
+      "states": "54e1aa089438e9bc21e185e5ae25df94e2d21caf7f770820a2458cf89587f98d",
+      "stop_reason_records": "07c2124862c55cd8e6db785eb12b685a607a29e91195b1a103378b70865b415a"
+    },
+    "payload_sha256": "5994f48e1bd105035d3802289b16eb3c14f29fdecb58f0456fdfbee7f05ab020",
+    "run_id": "single-ref-corrupt",
+    "schema_version": "ppv1-native-export-3"
+  },
+  "source_mode": "corrupt",
+  "original_digest": "5fabf64dac5ad4e9ecd7db69d1a779219a92c74927647f346452c31239e6365e",
+  "new_digest": "cca48fd5e321de286adb6791e6942734373229602a0fee7983d84559f83440d3"
+}

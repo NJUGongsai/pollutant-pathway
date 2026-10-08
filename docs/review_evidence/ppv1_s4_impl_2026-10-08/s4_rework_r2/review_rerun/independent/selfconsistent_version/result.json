@@ -1,0 +1,60 @@
+{
+  "name": "selfconsistent_version",
+  "table_hash_before": {
+    "budget_reservations": "c45b94495bf132758d23754da99889c47353f4cd0023897a9a7c2136ba5f55cc",
+    "endpoint_records": "dd7efe04600737a3d4f6aeffe27585b9a47da0005162b67bb8617429c5bf82dc",
+    "event_appearance_links": "e1e1d30df014a0a939f8336a7098fb1f3d10eaacefc325ad6e612423ac6eeaa5",
+    "events": "d799ea4a54449e675aba23a0e98fde3c06892ccdfb00e18d6910163e82b3f0ae",
+    "expansion_plans": "8b87079eb913908376a66937ed1141a8c21d9ba2ea180a4cdbda3fd50c48ca8f",
+    "hypotheses": "d20b85159280f8822a4a18d70b54fd40beeb904f027ce5c9345d92dbea34cfc7",
+    "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "3d2e6fbf4bb2ddaaf1b85e34e83f06c4fc9cba6c8a337759fc1b785b9272c2d1",
+    "search_actions": "51e7caa32814a58eee9914a6cdad7c4a80822520b771c87b7a64c1a5bfef0918",
+    "search_attempts": "b9f71ab4d57d4ef5b0051b8a99f42a328c434a0940500b4b3d4777075fb44a95",
+    "search_commit_records": "529389a0e3905476136c9be0dd49c424c6eb85208b8f79fb68c35e5cb3e874a3",
+    "search_runs": "b974799ebf6bc53f5a0fce1d90f38e7a21da2c5ab990dd3fd59215ccfd1d6457",
+    "state_appearances": "063d01f6d70ac350402ecd442b6154f63760b59eaf8a8cfca58c8c554db758d4",
+    "states": "5c0eeb37a28209675591862d6ad2883246ab5388d5d30dc0522c33797bc2da12",
+    "stop_reason_records": "5479a2005f4d0898c691371ec0b68bda09ffde881e27f1fbca52cfac696b3af1"
+  },
+  "table_hash_after": {
+    "budget_reservations": "c45b94495bf132758d23754da99889c47353f4cd0023897a9a7c2136ba5f55cc",
+    "endpoint_records": "dd7efe04600737a3d4f6aeffe27585b9a47da0005162b67bb8617429c5bf82dc",
+    "event_appearance_links": "e1e1d30df014a0a939f8336a7098fb1f3d10eaacefc325ad6e612423ac6eeaa5",
+    "events": "d799ea4a54449e675aba23a0e98fde3c06892ccdfb00e18d6910163e82b3f0ae",
+    "expansion_plans": "8b87079eb913908376a66937ed1141a8c21d9ba2ea180a4cdbda3fd50c48ca8f",
+    "hypotheses": "d20b85159280f8822a4a18d70b54fd40beeb904f027ce5c9345d92dbea34cfc7",
+    "meta": "e5511ce4fa13e7cfce02e237e57d8dcd94c6fe9e576c32ae91a1104278f9fa58",
+    "model_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "provenance_records": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "report_projections": "3d2e6fbf4bb2ddaaf1b85e34e83f06c4fc9cba6c8a337759fc1b785b9272c2d1",
+    "search_actions": "51e7caa32814a58eee9914a6cdad7c4a80822520b771c87b7a64c1a5bfef0918",
+    "search_attempts": "b9f71ab4d57d4ef5b0051b8a99f42a328c434a0940500b4b3d4777075fb44a95",
+    "search_commit_records": "529389a0e3905476136c9be0dd49c424c6eb85208b8f79fb68c35e5cb3e874a3",
+    "search_runs": "b974799ebf6bc53f5a0fce1d90f38e7a21da2c5ab990dd3fd59215ccfd1d6457",
+    "state_appearances": "063d01f6d70ac350402ecd442b6154f63760b59eaf8a8cfca58c8c554db758d4",
+    "states": "5c0eeb37a28209675591862d6ad2883246ab5388d5d30dc0522c33797bc2da12",
+    "stop_reason_records": "5479a2005f4d0898c691371ec0b68bda09ffde881e27f1fbca52cfac696b3af1"
+  },
+  "zero_database_write": true,
+  "response": {
+    "accepted": false,
+    "exception": "NativeExportContractError",
+    "message": "导出契约版本块与当前登记源不符:['profile'](run/版本/策略内容与当前权威绑定,不是 manifest 内自洽证书;旧导出不得当当前结果)",
+    "detail": {
+      "kind": "export_version_unknown",
+      "changed_contracts": [
+        "profile"
+      ],
+      "recorded": {
+        "profile": "bad-profile"
+      },
+      "current": {
+        "profile": "ppv1-profile-18"
+      }
+    }
+  },
+  "modified_manifest_preserved": true
+}
