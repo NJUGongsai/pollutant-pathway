@@ -43,14 +43,23 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    # v19(S4 回修 r3):donor-diagnostic-9(同位素 diff 并入实际净
-    # 变化集,PPV1-ISO-01;audit/admission 决策表不变)⇒ profile 身份
-    # 块随登记升版;其余契约版本沿 r2(native-export-3 /
+    # v20(S5a 批次):donor-diagnostic-10(presence records isotope +
+    # axis_detail 披露,R4 §8 授权搭车 P2)+ 四个新接口契约
+    # (reference-graph/split-manifest/evaluation/preregistration-
+    # template)⇒ profile 身份块随登记升版;v19(S4 回修 r3):
+    # donor-diagnostic-9(同位素 diff 并入实际净变化集,PPV1-ISO-01;
+    # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
     # native-export-policy-3 / v3-projection-3;endpoint/native-result
     # 系沿 r1)
-    assert block["schema_version"] == "ppv1-profile-19"
+    assert block["schema_version"] == "ppv1-profile-20"
     contracts = block["contracts"]
-    assert contracts["donor_diagnostic"] == "ppv1-donor-diagnostic-9"
+    assert contracts["donor_diagnostic"] == "ppv1-donor-diagnostic-10"
+    # S5a:三个新接口契约 + split manifest 进 contract_versions
+    assert contracts["reference_graph"] == "ppv1-reference-graph-1"
+    assert contracts["split_manifest"] == "ppv1-split-manifest-1"
+    assert contracts["evaluation"] == "ppv1-evaluation-1"
+    assert contracts["preregistration_template"] == \
+        "ppv1-preregistration-template-1"
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),
         ("hypothesis", "ppv1-hypothesis-"),
@@ -88,9 +97,9 @@ def test_ppv1_identity_block_default_switches() -> None:
     assert block["format_feedback_policy"] == {
         "version": "ppv1-format-feedback-1",
         "max_format_feedback_rounds": 0}
-    # S4b:正式文件导出/v3 有损投影入 delivered_stages(S5 未交付)
-    assert block["delivered_stages"] == \
-        "S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export"
+    # S4b:正式文件导出/v3 有损投影入 delivered_stages;S5a:评测接口
+    assert block["delivered_stages"] == (
+        "S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export,S5a-interface")
 
 
 @pytest.mark.parametrize("field,bad", [

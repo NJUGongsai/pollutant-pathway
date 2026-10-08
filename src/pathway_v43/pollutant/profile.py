@@ -220,8 +220,22 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 表与理由码不变(语义变化由 donor-diagnostic-9 承载);store/runflow/
 # endpoint/native-result/native-export/v3-projection 不动。profile
 # 身份块含 donor_diagnostic ⇒ profile-18 → -19;v18 载荷按未知版本
-# 既有门拒绝,profile 仍未放行执行流,无历史产物需要迁移。
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-19"
+# 既有门拒绝。
+# v20(S5a 批次,2026-10-08,S5 任务书 §15 S5a 工程侧先行 + R4 §8
+# 授权搭车 P2,均为披露/测试级、零新门、判定语义零变化):S5a 登记
+# 三个新接口契约 —— 参考图 schema(ppv1-reference-graph-1:§7 全字段
+# 校验,见 pollutant/reference_graph.py)、评测契约(ppv1-evaluation-1:
+# §8 评测器输入/输出 + split manifest schema(ppv1-split-manifest-1)
+# + leakage check + 确定性匹配/指标接口 + 零 LLM 判分 + provider 默认
+# off + 金标写入守卫,见 pollutant/evaluation.py)与预注册模板
+# (ppv1-preregistration-template-1:§10.2/§14.3 TBD 字段标注,见
+# pollutant/preregistration.py);全部只声明接口与合成规则级行为,
+# 不冻结任何阈值/金标/样本量(§10.1 全部 TBD 属用户/teacher 裁定),
+# 科学状态只允许 interface_verified_only/pending 族(§12)。搭车 P2
+# 由 donor-diagnostic-10 承载(见下方该常量注释);criteria-v1 冻结
+# 正文与 FREEZE_RECORD 逐字节不改;S4/S3 已关项不重开;v19 载荷按
+# 未知版本既有门拒绝,无兼容迁移。
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-20"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -232,12 +246,35 @@ PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-8"
 PPV1_SUBSTRATE_PROFILE_SCHEMA_VERSION = "ppv1-substrate-profile-8"
 PPV1_AUDIT_SCHEMA_VERSION = "ppv1-audit-8"
 PPV1_ADMISSION_POLICY_VERSION = "ppv1-admission-8"
-PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-9"
+# S5a 批次搭车 P2(2026-10-08,R4 §8 授权;披露/测试级,零新门,
+# 判定语义零变化):供体诊断契约 ppv1-donor-diagnostic-9 → -10 ——
+# (a)被增/删原子(presence)的 records 补 isotope 字段(原子 presence
+# 摘要可见性;_atom_change_summary 的 presence 分支本就读取该键,
+# 不改变任何判定结果);(b)audit 中心检查的 axis_detail 携带复算诊断
+# 的 extra_changes/center_property_deltas(便于读者第一眼看到标签轴;
+# 完整 diagnostic/proof/production 产物已有,本处为披露级复制)。
+# audit/admission 决策表与理由码不变(语义零变化由本版本承载,沿
+# S4 r3 "语义变化由 donor-diagnostic 版本承载"的先例);criteria-v1
+# 冻结正文与 FREEZE_RECORD 逐字节不改。
+PPV1_DONOR_DIAGNOSTIC_VERSION = "ppv1-donor-diagnostic-10"
 PPV1_POOL_AUDIT_SCHEMA_VERSION = "ppv1-pool-audit-8"
 PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-8"
 PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-8"
 PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-8"
 PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
+# S5a 批次(2026-10-08,S5 任务书 §15 S5a + §14 工程侧先行):三个新
+# 接口契约首版登记 —— reference_graph(参考图 schema §7 全字段,
+# pollutant/reference_graph.py)、evaluation(评测器输入/输出契约 §8
+# + split manifest schema + leakage check + 确定性匹配与指标接口,
+# pollutant/evaluation.py)、preregistration_template(§10.2/§14.3 含
+# TBD 标注的预注册模板,pollutant/preregistration.py)。三者只冻结
+# **接口形状与程序行为**;匹配规则为 proposed(预注册中另行标注),
+# 阈值/金标/样本量全部 TBD 用户/teacher 裁定(§10.1),判分零 LLM,
+# 收费 provider 默认 off;不构成任何 dev/298 科学性能声明。
+PPV1_REFERENCE_GRAPH_VERSION = "ppv1-reference-graph-1"
+PPV1_SPLIT_MANIFEST_VERSION = "ppv1-split-manifest-1"
+PPV1_EVALUATION_VERSION = "ppv1-evaluation-1"
+PPV1_PREREGISTRATION_TEMPLATE_VERSION = "ppv1-preregistration-template-1"
 # S4 回修 r1(S4-C01,2026-10-08,确认复核 §4):endpoint 派生消费
 # 当前路线必要条件的同源 PathContext.route_assessment(历史快照逐边
 # 合取;旧边按记录值消费)—— 必要条件 unknown/conflict 阻断终点
@@ -562,6 +599,10 @@ def contract_versions() -> dict:
         "native_export_policy": PPV1_NATIVE_EXPORT_POLICY_VERSION,
         "v3_projection": PPV1_V3_PROJECTION_VERSION,
         "runflow": PPV1_RUNFLOW_SCHEMA_VERSION,
+        "reference_graph": PPV1_REFERENCE_GRAPH_VERSION,
+        "split_manifest": PPV1_SPLIT_MANIFEST_VERSION,
+        "evaluation": PPV1_EVALUATION_VERSION,
+        "preregistration_template": PPV1_PREREGISTRATION_TEMPLATE_VERSION,
         "legacy_gate_ref": LEGACY_GATE_PROFILE_REF,
         "legacy_g2_family_ref": LEGACY_G2_FAMILY_REF,
     }
@@ -722,6 +763,8 @@ def build_profile_identity_block(
         # PPV1 runner 分流(公开 start_run/resume_run 开放 PPV1 路径);
         # S4a 交付 endpoint 四分账/证据/F01-F03/独立持久化与原生结果
         # 对象底座;S4b 交付正式文件导出/文件级 G02 过期识别/v3 有损
-        # 投影与完整公共链(科学性能评测仍属 S5)
-        "delivered_stages": "S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export",
+        # 投影与完整公共链;S5a 交付评测接口(schema/评测器/预注册
+        # 模板;真实数据科学评测仍属 S5b,状态 pending)
+        "delivered_stages": ("S0-S2,S3a-base,S3b,S4a-endpoint,"
+                             "S4b-export,S5a-interface"),
     }

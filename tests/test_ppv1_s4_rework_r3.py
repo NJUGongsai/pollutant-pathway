@@ -21,7 +21,7 @@ R3_2026-10-08.md §4 唯一阻塞)。冻结判据五 §5(冻结正文 394–396 
 - 字段红:isotope 披露键(records["isotope"]/extra_changes isotope
   before/after)父上不存在;
 - 版本红:见 test_ppv1_profile.py / test_ppv1_s4b_export.py 的
-  ppv1-profile-19 / ppv1-donor-diagnostic-9 字面量;
+  ppv1-profile-20 / ppv1-donor-diagnostic-10 字面量;
 - 正常控保持(父绿子绿,不翻红):正常键变、原有 13C 保持、中心内
   isotope、全中心范围控制、strict False → violated、非四面体
   stereo-only → unknown。
@@ -351,7 +351,7 @@ def test_iso01_diagnostic_version_bumped() -> None:
         expectation={"target_smiles": tool["product_smiles"]},
         result=tool, edits=BOND_EDIT)
     evidence = center_evidence_from_donor_diagnostic(diag)
-    assert evidence["checker_version"] == "ppv1-donor-diagnostic-9"
+    assert evidence["checker_version"] == "ppv1-donor-diagnostic-10"
 
 
 # ================================================== audit/admission 层

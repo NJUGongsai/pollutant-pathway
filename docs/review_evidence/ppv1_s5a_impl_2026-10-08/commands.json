@@ -1,0 +1,46 @@
+{
+  "note": "S5a 实施侧证据命令(全部在仓库根 /Volumes/CC/Enzyme_Agent/dependingv43 执行,除非另注;解释器 ~/miniconda3/envs/depending43/bin/python;PYTHONDONTWRITEBYTECODE=1 + -B + pytest -p no:cacheprovider)",
+  "commands": [
+    {
+      "name": "ppv1_full",
+      "command": "python -B -m pytest tests/test_ppv1*.py -p no:cacheprovider -q --junitxml ppv1/ppv1_junit.xml",
+      "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+      "stdout": "ppv1/ppv1.stdout.txt",
+      "result": "1045 passed, 0 skipped, exit 0(976 既有 + 69 新增,0 collection 红)"
+    },
+    {
+      "name": "g01_safe_isolation",
+      "command": "python -B /private/tmp/s5a_g01/safe_g01_s5a.py --repo /Volumes/CC/Enzyme_Agent/dependingv43 --out /private/tmp/s5a_g01/run1 --python ~/miniconda3/envs/depending43/bin/python",
+      "script_copy": "scripts/safe_g01_s5a.py(与执行的脚本逐字节相同;脚本本身在 fresh /private/tmp 执行,不在永久证据目录运行任何业务探针)",
+      "cwd": "/private/tmp(safe_g01_s5a.py 写 --out 指定的新目录)",
+      "inner_command": "python -B -m pytest -p no:cacheprovider -q -rs -m 'not slow' --deselect tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden --junitxml g01_junit.xml tests/",
+      "inner_cwd": "/private/tmp/s5a_g01/run1/repo(隔离副本;永不写真实仓树/永久证据目录)",
+      "result": "1647 passed / 8 skipped / 17 deselected, exit 0;303 输入前后 SHA-256 全同(297 r3 谱系 + 6 S5a 新输入)"
+    },
+    {
+      "name": "parent_baseline_redgreen",
+      "command": "git worktree add --detach /private/tmp/s5a_parent a19960f && cp <当前树 3 个新测试文件 + 9 个修改测试文件> tests/ && python -B -m pytest tests/test_ppv1*.py -p no:cacheprovider -q --continue-on-collection-errors --junitxml parent_baseline/parent_junit.xml",
+      "cwd": "/private/tmp/s5a_parent(父 a19960f 工作树;测试文件为当前树同字节)",
+      "result": "12 failed + 2 collection errors / 981 passed, exit 1(父上红 = 2 collection(evaluation/reference_graph 模块缺失)+ 3 isotope P2 行为/字段(presence records isotope/axis_detail 披露/版本登记)+ 9 版本字面量(profile-20/donor-diagnostic-10);当前树全绿 ⇒ 新测试真咬合)"
+    },
+    {
+      "name": "g01_input_sha_verification",
+      "command": "python -B <对隔离副本 303 个输入复算 SHA-256 与 input_sha256.json 对照>",
+      "cwd": "/private/tmp/s5a_g01/run1",
+      "result": "g01/input_sha256_after.json:全部不变"
+    }
+  ],
+  "boundary": {
+    "gold_or_face_access": false,
+    "sealed_run_access": false,
+    "dependingv4_access": false,
+    "real_scientific_data_access": false,
+    "llm_scoring": false,
+    "network_requests": 0,
+    "cost": 0,
+    "push": false,
+    "commit": false,
+    "legacy_or_export_v3_or_g2_or_atomtool_bytes_changed": false,
+    "criteria_frozen_text_or_freeze_record_changed": false
+  }
+}

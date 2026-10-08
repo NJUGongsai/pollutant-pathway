@@ -1,0 +1,368 @@
+.................................FF................................F.F.. [  7%]
+........................................................................ [ 14%]
+......................F................................................. [ 21%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+...............................................F........................ [ 43%]
+........................................................................ [ 50%]
+........................................................................ [ 58%]
+........................................................................ [ 65%]
+........................................................................ [ 72%]
+........................................................................ [ 79%]
+........F............................................................... [ 87%]
+....................................................F................... [ 94%]
+......................F...............................FFF                [100%]
+==================================== ERRORS ====================================
+______________ ERROR collecting tests/test_ppv1_s5a_evaluator.py _______________
+ImportError while importing test module '/private/tmp/s5a_parent/tests/test_ppv1_s5a_evaluator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ppv1_s5a_evaluator.py:40: in <module>
+    from pathway_v43.pollutant import preregistration  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ImportError: cannot import name 'preregistration' from 'pathway_v43.pollutant' (/private/tmp/s5a_parent/src/pathway_v43/pollutant/__init__.py)
+________________ ERROR collecting tests/test_ppv1_s5a_schema.py ________________
+ImportError while importing test module '/private/tmp/s5a_parent/tests/test_ppv1_s5a_schema.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/cc/miniconda3/envs/depending43/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ppv1_s5a_schema.py:34: in <module>
+    from pathway_v43.pollutant import preregistration  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ImportError: cannot import name 'preregistration' from 'pathway_v43.pollutant' (/private/tmp/s5a_parent/src/pathway_v43/pollutant/__init__.py)
+=================================== FAILURES ===================================
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v20(S5a 批次):donor-diagnostic-10(presence records isotope +
+        # axis_detail 披露,R4 §8 授权搭车 P2)+ 四个新接口契约
+        # (reference-graph/split-manifest/evaluation/preregistration-
+        # template)⇒ profile 身份块随登记升版;v19(S4 回修 r3):
+        # donor-diagnostic-9(同位素 diff 并入实际净变化集,PPV1-ISO-01;
+        # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
+        # native-export-policy-3 / v3-projection-3;endpoint/native-result
+        # 系沿 r1)
+>       assert block["schema_version"] == "ppv1-profile-20"
+E       AssertionError: assert 'ppv1-profile-19' == 'ppv1-profile-20'
+E         
+E         - ppv1-profile-20
+E         ?              ^^
+E         + ppv1-profile-19
+E         ?              ^^
+
+tests/test_ppv1_profile.py:54: AssertionError
+__________________ test_ppv1_identity_block_default_switches ___________________
+
+    def test_ppv1_identity_block_default_switches() -> None:
+        block = ppv1_profile.build_profile_identity_block()
+        assert block["input_preview_policy"] == "off"
+        assert block["chemical_reproposal"] == "off"
+        assert block["search_intent"] == "exploration"
+        # S3a:search-limits 由 -2-proposed 草案升为实际可执行版本 v3
+        assert block["search_limits"]["version"] == "ppv1-search-limits-3"
+        assert block["search_limits"]["max_total_search_actions"] == 10
+        # S3b:独立有界格式反馈策略(默认 0 轮;非 search_limits 旧字段)
+        assert block["format_feedback_policy"] == {
+            "version": "ppv1-format-feedback-1",
+            "max_format_feedback_rounds": 0}
+        # S4b:正式文件导出/v3 有损投影入 delivered_stages;S5a:评测接口
+>       assert block["delivered_stages"] == (
+            "S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export,S5a-interface")
+E       AssertionError: assert 'S0-S2,S3a-ba...nt,S4b-export' == 'S0-S2,S3a-ba...S5a-interface'
+E         
+E         - S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export,S5a-interface
+E         ?                                           --------------
+E         + S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export
+
+tests/test_ppv1_profile.py:101: AssertionError
+____ test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified ____
+
+    def test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified(
+            ) -> None:
+        """注册确定性 checker(供体诊断)证据且**绑定本反应**(底物/产物
+        身份与被审参与物一致)⇒ 中心 verified;合法全核实路径可达 R6。
+    
+        R4 修正(R3-01 复审点名):v3 版本曾把乙醇→乙醛诊断用于乙酸
+        假设(跨反应)并把 expand 当正例 —— 过强断言已废除;本正例改用
+        绑定一致的 CCO→CC=O+[H][H] 假设,跨反应复用另设负例钉住。
+        """
+        current, edits, execution = _ethanol_co_execution()
+        diag = _diag(current, edits, execution, ["dC", "dO"],
+                     {"dC": "S_C_2", "dO": "S_O_1"})
+        assert diag.reaction_center_match is True
+        evidence = center_evidence_from_donor_diagnostic(diag)
+>       assert evidence["checker_version"] == "ppv1-donor-diagnostic-10"
+E       AssertionError: assert 'ppv1-donor-diagnostic-9' == 'ppv1-donor-diagnostic-10'
+E         
+E         - ppv1-donor-diagnostic-10
+E         ?                       ^^
+E         + ppv1-donor-diagnostic-9
+E         ?                       ^
+
+tests/test_ppv1_r2_chem.py:391: AssertionError
+__________________ test_r4_01_name_only_evidence_not_verified __________________
+
+    def test_r4_01_name_only_evidence_not_verified() -> None:
+        """R3-01 注册名-only 反例:{checker_version, center_match: True}
+        无绑定 ⇒ 中心 unknown,不到 R6。"""
+        states = _states(ETHANOL, ACETALDEHYDE, "[H][H]")
+        hyp = _bound_evidence_hypothesis(states)
+        audit = audit_hypothesis(
+            hyp, states={s.state_id: s for s in states.values()},
+            context=_aerobic_context(),
+            center_evidence={"checker_version": "ppv1-donor-diagnostic-10",
+                             "center_match": True,
+                             "checker_scope": "region_net_change"})
+        center = next(c for c in audit.checks
+                      if c.name == CHECK_TRANSFORMATION_CENTER)
+        assert center.status == CHECK_UNKNOWN
+        # R5(R4-01):无可复算证明记录 ⇒ proof_missing(两条身份字符串/
+        # 自报字段不构成证明;与 binding_missing 同族,均为不可信依据)
+>       assert "center_evidence_proof_missing" in center.reason_code
+E       AssertionError: assert 'center_evidence_proof_missing' in 'center_checker_not_registered:ppv1-donor-diagnostic-10(确定性中心 checker 须注册并独立列项评审)'
+E        +  where 'center_checker_not_registered:ppv1-donor-diagnostic-10(确定性中心 checker 须注册并独立列项评审)' = AuditCheck(name='transformation_center', status='unknown', reason_code='center_checker_not_registered:ppv1-donor-diagn...ge='mapping_dependent', detail={'declared_signature_status': 'unknown', 'checker_version': 'ppv1-donor-diagnostic-10'}).reason_code
+
+tests/test_ppv1_r2_chem.py:453: AssertionError
+__________________ test_r3_01_unknown_checker_scope_rejected ___________________
+
+    def test_r3_01_unknown_checker_scope_rejected() -> None:
+        """R3-01:checker scope 未声明/未登记 ⇒ unknown(限定区域证据
+        不得冒充完整变换验证)。"""
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN)
+        hyp = _bound_hyp(states)
+        audit = audit_hypothesis(
+            hyp, states={s.state_id: s for s in states.values()},
+            context=_aerobic_context(),
+            center_evidence={"checker_version": "ppv1-donor-diagnostic-10",
+                             "checker_scope": "full_template_visionary",
+                             "center_match": True,
+                             "bound_inputs": {
+                                 "substrate_identity": "CCO",
+                                 "product_identity": ACETALDEHYDE}})
+        center = next(c for c in audit.checks
+                      if c.name == CHECK_TRANSFORMATION_CENTER)
+        assert center.status == CHECK_UNKNOWN
+>       assert "center_checker_scope_unknown" in center.reason_code
+E       AssertionError: assert 'center_checker_scope_unknown' in 'center_checker_not_registered:ppv1-donor-diagnostic-10(确定性中心 checker 须注册并独立列项评审)'
+E        +  where 'center_checker_not_registered:ppv1-donor-diagnostic-10(确定性中心 checker 须注册并独立列项评审)' = AuditCheck(name='transformation_center', status='unknown', reason_code='center_checker_not_registered:ppv1-donor-diagn...ge='mapping_dependent', detail={'declared_signature_status': 'unknown', 'checker_version': 'ppv1-donor-diagnostic-10'}).reason_code
+
+tests/test_ppv1_r4_chem.py:579: AssertionError
+_____________ test_r6_02b_audit_rerun_rejects_tainted_proof_record _____________
+
+    def test_r6_02b_audit_rerun_rejects_tainted_proof_record() -> None:
+        """R6-02B 链条闭合:手工携带含 |r| 原始串的 proof_record 走公开
+        audit 复算 ⇒ 复跑 checker 同守卫拒绝(结构化),不得经审计证据
+        门洗成 verified/R6。"""
+        render_result, edits, execution = _oxidation_inputs()
+        evidence = {
+            "checker_version": "ppv1-donor-diagnostic-10",
+            "checker_scope": "region_net_change",
+            "center_match": True, "center_match_basis": "direct",
+            "declaration_mismatch": False, "strict_target_match": True,
+            "proof_scope": "self_contained_recompute",
+            "evidence_refs": ["r7"],
+            "bound_inputs": {
+                "substrate_identity": "CCO",
+                "product_identity": "CC=O",
+                "edits_signature": "x", "donor_centers": ["dC", "dO"],
+                "alignment_ref": "r7", "execution_fingerprint": "x"},
+            "proof_record": {
+                "current": {"smiles": render_result.smiles + " |r|",
+                            "atom_id_map": dict(
+                                render_result.atom_id_map)},
+                "donor": {"center_atom_ids": ["dC", "dO"]},
+                "alignment": {"status": "resolved",
+                              "donor_to_current": {"dC": "S_C_2",
+                                                   "dO": "S_O_1"},
+                              "equivalence_classes": [], "ref": "r7"},
+                "expectation": {"target_smiles":
+                                execution["product_smiles"]},
+                "result": dict(execution),
+                "edits": list(edits),
+            },
+        }
+        states = _states(ETHANOL, ACETALDEHYDE, HYDROGEN,
+                         origin=STRUCTURE_ORIGIN_RAW_INPUT)
+        hyp = _hyp(states, [(ETHANOL, 1)],
+                   [(ACETALDEHYDE, 1), (HYDROGEN, 1)],
+                   group="r7-rerun-r")
+>       with pytest.raises(AuditContractError) as ei:
+E       Failed: DID NOT RAISE AuditContractError
+
+tests/test_ppv1_r7_chem.py:494: Failed
+____________________ test_execute_atomtool_expansion_legal _____________________
+
+    def test_execute_atomtool_expansion_legal() -> None:
+        out = execute_atomtool_expansion(
+            substrate_smiles=SUB_SMILES,
+            tool_inputs={"edits": EDITS, "donor": DONOR,
+                         "alignment": ALIGNMENT,
+                         "expectation": {"target_smiles": PROD_SMILES}})
+        assert out["execution_ok"] is True
+        assert out["result"]["product_smiles"] == PROD_SMILES
+        diagnostic = out["diagnostic"]
+        assert diagnostic["strict_target_match"] is True
+        assert diagnostic["reaction_center_match"] is True
+        center = out["center_evidence"]
+>       assert center["checker_version"] == "ppv1-donor-diagnostic-10"
+E       AssertionError: assert 'ppv1-donor-diagnostic-9' == 'ppv1-donor-diagnostic-10'
+E         
+E         - ppv1-donor-diagnostic-10
+E         ?                       ^^
+E         + ppv1-donor-diagnostic-9
+E         ?                       ^
+
+tests/test_ppv1_s3b_production.py:133: AssertionError
+_____________________ test_iso01_diagnostic_version_bumped _____________________
+
+    def test_iso01_diagnostic_version_bumped() -> None:
+        """契约身份登记:donor-diagnostic-9(同位素轴入实际净变化集
+        ⇒ checker 语义变更须升版;profile 身份块随登记,见
+        test_ppv1_profile.py)。"""
+        current, rendered, tool = _ethanol_bond_execution()
+        donor, alignment = _donor_alignment(["S_C_2", "S_O_1"])
+        diag = check_edit_against_donor(
+            current=current, donor=donor, alignment=alignment,
+            expectation={"target_smiles": tool["product_smiles"]},
+            result=tool, edits=BOND_EDIT)
+        evidence = center_evidence_from_donor_diagnostic(diag)
+>       assert evidence["checker_version"] == "ppv1-donor-diagnostic-10"
+E       AssertionError: assert 'ppv1-donor-diagnostic-9' == 'ppv1-donor-diagnostic-10'
+E         
+E         - ppv1-donor-diagnostic-10
+E         ?                       ^^
+E         + ppv1-donor-diagnostic-9
+E         ?                       ^
+
+tests/test_ppv1_s4_rework_r3.py:354: AssertionError
+______________ test_native_export_public_chain_files_and_manifest ______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-474/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -> None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        assert manifest["schema_version"] == "ppv1-native-export-3"
+        assert manifest["run_id"] == "s4b"
+        assert manifest["content_digest"] == out["native_result"][
+            "content_digest"]
+        assert manifest["export_policy"]["version"] == \
+            "ppv1-native-export-policy-3"
+        assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
+>       assert manifest["contract_versions"]["profile"] == "ppv1-profile-20"
+E       AssertionError: assert 'ppv1-profile-19' == 'ppv1-profile-20'
+E         
+E         - ppv1-profile-20
+E         ?              ^^
+E         + ppv1-profile-19
+E         ?              ^^
+
+tests/test_ppv1_s4b_export.py:177: AssertionError
+________________ test_presence_records_carry_isotope_disclosure ________________
+
+    def test_presence_records_carry_isotope_disclosure() -> None:
+        """P2-2(donor-diagnostic-10):被增原子 records 补 isotope 单侧值
+        (presence 摘要可见性;不改判定 —— presence 原子已入 changed 集)。"""
+        from pathway_v43.pollutant.audit import _atom_property_diffs
+    
+        rendered = render("CCO", name="S")
+        ids = dict(rendered.atom_id_map)
+        # add_atom 协议(真实执行器):新 O 原子挂到 S_O_1
+        edits = [{"op": "add_atom", "element": "O", "atom1": "S_O_1",
+                  "new_atom_id": "S_O_9"}]
+        result = execute_edits(rendered, edits)
+        assert result["ok"] is True, result
+        after_map = {str(k): int(v)
+                     for k, v in result["atom_id_map"].items()}
+        # 合成标签变异:新增原子带 13 标签(防御验证口径)
+        mapped = Chem.MolFromSmiles(result["product_mapped_smiles"])
+        new_idx = after_map["S_O_9"]
+        atom = next(a for a in mapped.GetAtoms()
+                    if a.GetAtomMapNum() - 1 == new_idx)
+        atom.SetIsotope(13)
+        plain = Chem.Mol(mapped)
+        for a in plain.GetAtoms():
+            a.SetAtomMapNum(0)
+        result["product_mapped_smiles"] = Chem.MolToSmiles(mapped)
+        result["product_smiles"] = Chem.MolToSmiles(plain)
+        before = Chem.MolFromSmiles(rendered.smiles)
+        changed, records = _atom_property_diffs(
+            before, mapped, ids, after_map)
+        assert "S_O_9" in changed
+        assert records["S_O_9"]["presence"] == "atom_added"
+        assert records["S_O_9"]["element"] == "O"
+>       assert records["S_O_9"]["isotope"] == 13  # P2-2 单侧披露
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'isotope'
+
+tests/test_ppv1_s5a_isotope_regressions.py:432: KeyError
+_______________ test_axis_detail_carries_recomputed_disclosures ________________
+
+    def test_axis_detail_carries_recomputed_disclosures() -> None:
+        """P2-3(donor-diagnostic-10,披露级零语义变化):audit center 检查
+        axis_detail 携带复算 extra_changes/center_property_deltas(含
+        isotope before/after)—— 读者在 center 检查第一眼即见标签轴。"""
+        # 中心内 isotope(verified 案):center_property_deltas 含 isotope
+        diag, _, _, _, _, center = \
+            _label_direction_case("CCO", 13, "S_C_1", ["S_C_1"])
+        assert center.status == "verified"
+        detail = center.detail
+        assert detail["center_match"] is True
+>       deltas = detail["center_property_deltas"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'center_property_deltas'
+
+tests/test_ppv1_s5a_isotope_regressions.py:452: KeyError
+___________________ test_donor_diagnostic_version_registered ___________________
+
+    def test_donor_diagnostic_version_registered() -> None:
+        """契约身份登记:donor-diagnostic-10(S5a 搭车 P2 披露承载;语义
+        零变化),profile 随登记升 -20(见 test_ppv1_profile.py)。"""
+        diag, evidence, *_ = _hybrid_outside_isotope_case()
+>       assert evidence["checker_version"] == "ppv1-donor-diagnostic-10"
+E       AssertionError: assert 'ppv1-donor-diagnostic-9' == 'ppv1-donor-diagnostic-10'
+E         
+E         - ppv1-donor-diagnostic-10
+E         ?                       ^^
+E         + ppv1-donor-diagnostic-9
+E         ?                       ^
+
+tests/test_ppv1_s5a_isotope_regressions.py:474: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/s5a_parent/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_default_switches
+FAILED tests/test_ppv1_r2_chem.py::test_r2_01_center_evidence_with_real_donor_diagnostic_reaches_verified
+FAILED tests/test_ppv1_r2_chem.py::test_r4_01_name_only_evidence_not_verified
+FAILED tests/test_ppv1_r4_chem.py::test_r3_01_unknown_checker_scope_rejected
+FAILED tests/test_ppv1_r7_chem.py::test_r6_02b_audit_rerun_rejects_tainted_proof_record
+FAILED tests/test_ppv1_s3b_production.py::test_execute_atomtool_expansion_legal
+FAILED tests/test_ppv1_s4_rework_r3.py::test_iso01_diagnostic_version_bumped
+FAILED tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest
+FAILED tests/test_ppv1_s5a_isotope_regressions.py::test_presence_records_carry_isotope_disclosure
+FAILED tests/test_ppv1_s5a_isotope_regressions.py::test_axis_detail_carries_recomputed_disclosures
+FAILED tests/test_ppv1_s5a_isotope_regressions.py::test_donor_diagnostic_version_registered
+ERROR tests/test_ppv1_s5a_evaluator.py
+ERROR tests/test_ppv1_s5a_schema.py
+12 failed, 981 passed, 1 warning, 2 errors in 36.92s

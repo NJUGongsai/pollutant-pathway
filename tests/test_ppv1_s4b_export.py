@@ -174,7 +174,7 @@ def test_native_export_public_chain_files_and_manifest(
     assert manifest["export_policy"]["version"] == \
         "ppv1-native-export-policy-3"
     assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
-    assert manifest["contract_versions"]["profile"] == "ppv1-profile-19"
+    assert manifest["contract_versions"]["profile"] == "ppv1-profile-20"
     assert manifest["payload_sha256"] == \
         out["native_export"]["payload_sha256"]
     # 无时间戳(G02 确定性面)

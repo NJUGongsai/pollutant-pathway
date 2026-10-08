@@ -1,0 +1,57 @@
+{
+  "new_files": {
+    "src/pathway_v43/pollutant/reference_graph.py": "3ca75e2d139049bb0d598e02ed131c9818b2c5b85483ba9e7037735003cf8b84",
+    "src/pathway_v43/pollutant/evaluation.py": "dd02083b070c898a714fd24f1b391d495053bb344fde0a095c3a6c7cac9fa22d",
+    "src/pathway_v43/pollutant/preregistration.py": "4d6aa6a09bd2cbcde4664156e8ebae1af257ba853f4496b389d7c8600366a566",
+    "tests/test_ppv1_s5a_schema.py": "7c79cf9de64539dcdd0a1ca233081708bd39ffe4a02efe713b64b13a87e2d79f",
+    "tests/test_ppv1_s5a_evaluator.py": "7c42e226e006fcfe264296066d05746f0fa00e89a80131be76c42b0991567aee",
+    "tests/test_ppv1_s5a_isotope_regressions.py": "2149043d7e0e4d65d9bb6ac89138816f75ddb36249478168a66338bfab07ea39"
+  },
+  "new_files_absent_on_parent_head": true,
+  "modified_files_vs_head": {
+    "src/pathway_v43/pollutant/audit.py": {
+      "parent_head_sha256": "a777dc39dcf3a9c77014a1601ff7cb3684c843ffeed2054afe6e68cbb463cb5d",
+      "current_sha256": "7b93368513a12dceaa9c84dc838f5dcdcd883c536baef0a6b16ea4aaef0a59b6"
+    },
+    "src/pathway_v43/pollutant/profile.py": {
+      "parent_head_sha256": "57d6a9af90598c23db5b3948544d4fd7fbe115bfbecd09df5f2f8f182eed7777",
+      "current_sha256": "96844fd962c46ad0488337ffd8afeb2748864bdca7bb6e43174efc9b5f01ce8d"
+    },
+    "tests/test_ppv1_profile.py": {
+      "parent_head_sha256": "a40a4fdf238cfd33a49211787ec36e555765fd03990774d618c2b8707a4acee6",
+      "current_sha256": "ddfce99c2a53e512adfbe6c613be54841871c041af9e1b8c829cb460c85766a2"
+    },
+    "tests/test_ppv1_s4b_export.py": {
+      "parent_head_sha256": "474346b49cf3b0433659770a99318510bc7a57271e9d9098097272092d16fb45",
+      "current_sha256": "8fe9ba73d88bc4eefa48f2ecd10bab2ee5f4418909f18341df7c4a118f327b48"
+    },
+    "tests/test_ppv1_r2_chem.py": {
+      "parent_head_sha256": "3ede52a72e6adae146600968db82b657e51113b6c5ecb3a66cc4f0e5afb5370d",
+      "current_sha256": "df57ac8b8a46bbb16c78f81d2a090f1bde802b652989c5008c205dd4b2513556"
+    },
+    "tests/test_ppv1_r4_chem.py": {
+      "parent_head_sha256": "59c2e6bc451d8b2f815755e628f9504b89e3d474c69c4b7d477c83b17f7ad027",
+      "current_sha256": "bc5ef1bc80fb5beee4b0c874281fa94281d2fd92434ff946bfc94ad654fdb1ed"
+    },
+    "tests/test_ppv1_r7_chem.py": {
+      "parent_head_sha256": "30e379676212999acc331beb92ebccfed976c929557a2fb1303c4eb315bf1566",
+      "current_sha256": "a25c22359ccce73fd8fecf2c0d52bf3d8141dbffeea5b7a0d4e4b248ab1f8166"
+    },
+    "tests/test_ppv1_s3b_production.py": {
+      "parent_head_sha256": "8ad87430d7b1e89ee71dddd59c9aac24d579c6f7867514246c5d69450195e10c",
+      "current_sha256": "bb97a847c35282e038592a230c7ddce29f1f938c97b7786bb5abc0a0662a2ae3"
+    },
+    "tests/test_ppv1_s4_rework_r3.py": {
+      "parent_head_sha256": "219cf7c14abf6c628ddd289584673c147c04a6f72d482fe74a5580217833b47e",
+      "current_sha256": "bfda51dbe1195a603722528301ebd2b6807a985b4ab6444f7b5c0d935edea162"
+    }
+  },
+  "actual_input_head": "a19960f9012ceb326a1c40d5906861f223124946",
+  "working_tree_dirty_at_seal": "M src/pathway_v43/pollutant/audit.py\n M src/pathway_v43/pollutant/profile.py\n M tests/test_ppv1_profile.py\n M tests/test_ppv1_r2_chem.py\n M tests/test_ppv1_r4_chem.py\n M tests/test_ppv1_r7_chem.py\n M tests/test_ppv1_s3b_production.py\n M tests/test_ppv1_s4_rework_r3.py\n M tests/test_ppv1_s4b_export.py\n?? .zcodeignore\n?? docs/POLLUTANT_PATHWAY_S4A_CODEX_REVIEW_2026-10-08.md\n?? docs/POLLUTANT_PATHWAY_S4B_CODEX_REVIEW_2026-10-08.md\n?? docs/POLLUTANT_PATHWAY_S4_CODEX_CONFIRM_REVIEW_2026-10-08.md\n?? docs/POLLUTANT_PATHWAY_S4_CODEX_REVIEW_R2_2026-10-08.md\n?? docs/POLLUTANT_PATHWAY_S4_CODEX_REVIEW_R3_2026-10-08.md\n?? docs/POLLUTANT_PATHWAY_S4_CODEX_REVIEW_R4_2026-10-08.md\n?? docs/mimo_ppv1_chem_review_response_r16.md\n?? docs/mimo_ppv1_chem_review_response_r17.md\n?? docs/mimo_ppv1_chem_review_response_r18.md\n?? docs/mimo_ppv1_chem_review_response_r19.md\n?? docs/mimo_ppv1_chem_review_response_r20.md\n?? docs/review_evidence/ppv1_s4_codex_r2_2026-10-08/\n?? docs/review_evidence/ppv1_s4_codex_r3_2026-10-08/\n?? docs/review_evidence/ppv1_s4_codex_r4_2026-10-08/\n?? docs/review_evidence/ppv1_s4_confirm_codex_2026-10-08/\n?? docs/review_evidence/ppv1_s4_rework_mimo_2026-10-08/\n?? docs/review_evidence/ppv1_s4_rework_r2_mimo_2026-10-08/\n?? docs/review_evidence/ppv1_s4_rework_r3_mimo_2026-10-08/\n?? docs/review_evidence/ppv1_s4a_codex_2026-10-08/\n?? docs/review_evidence/ppv1_s4a_mimo_2026-10-08/\n?? docs/review_evidence/ppv1_s4b_codex_2026-10-08/\n?? docs/review_evidence/ppv1_s4b_mimo_2026-10-08/\n?? docs/review_evidence/ppv1_s5a_impl_2026-10-08/\n?? src/pathway_v43/pollutant/evaluation.py\n?? src/pathway_v43/pollutant/preregistration.py\n?? src/pathway_v43/pollutant/reference_graph.py\n?? tests/test_ppv1_s5a_evaluator.py\n?? tests/test_ppv1_s5a_isotope_regressions.py\n?? tests/test_ppv1_s5a_schema.py",
+  "environment": {
+    "python": "3.11.16",
+    "interpreter": "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "rdkit": "2026.03.6",
+    "pyc_policy": "PYTHONDONTWRITEBYTECODE=1, -B, pytest -p no:cacheprovider"
+  }
+}

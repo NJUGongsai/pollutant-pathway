@@ -1,0 +1,54 @@
+{
+  "package": "ppv1_s5a_impl_2026-10-08",
+  "date": "2026-10-08",
+  "task": "S5a engineering-side interface batch (evaluation interface)",
+  "spec": "docs/POLLUTANT_PATHWAY_S5_SPEC_TASK_2026-10-08.md",
+  "review_handoff": "docs/POLLUTANT_PATHWAY_S4_CODEX_REVIEW_R4_2026-10-08.md",
+  "attachments": {
+    "README.md": "e89e4146249f58fca40f6f403ff3df34aa171f18f4881e910edee294ee895edc",
+    "commands.json": "7da73da2c3e51db295db545348beae32276c3aef9939b423fe56cf176044d14b",
+    "g01/execution_result.json": "8a6ee75752e9ccb16790ce5f97f25f967e39da1d331b5e3e5682c0c1dcd36147",
+    "g01/g01_junit.xml": "291341cec5d1a08c0122f70ed2994948bec0ac4f3f5ddac699555ee2b9d5f29d",
+    "g01/g01_safe.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "g01/g01_safe.stdout.txt": "7f418ec560891fd64dad8feecad847ca851d64525b51c39b47065e2c4fe99db8",
+    "g01/input_sha256.json": "eb531d8011014bdbff2827aa0c2e4e9d4ea1a7aeebe1577d51441f883357f96d",
+    "g01/input_sha256_after.json": "c3bf3c027565ab29c4e337be07ce20718eeecfadd39fb9c1fc238d34a889da3b",
+    "g01/preparation.json": "c80a288fa9ef4945d82e17960c46b6d2d0b95051d078dfe139684f216367fc13",
+    "parent_baseline/parent.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "parent_baseline/parent.stdout.txt": "b18bf5777a4ceecc898b643f14afb4b5bd035b5e6c20030a4cf43e27ae213aa3",
+    "parent_baseline/parent_junit.xml": "8077efef565a04c94fb6f60393d4c509e246ad6873db7074ed7719945597bf32",
+    "ppv1/ppv1.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ppv1/ppv1.stdout.txt": "007d77f946df3de58d59daa28b131a7b8bda084cb035d86095bd53d9ace4ff9d",
+    "ppv1/ppv1_junit.xml": "9e1605ac0bb498e202b6cad3bd8f39fcc104cf9ed889fdf15ec483bf85eccfe2",
+    "scripts/changed_inputs.json": "c3fe6677055d750a26f1def1b4a7190c24092ad1642bbf4d0a33a2193a13281d",
+    "scripts/safe_g01_s5a.py": "b78bd4986b3a9974d9ec7725c0cbdb5619b84e7f6ef445f814f751a7dd21b54b"
+  },
+  "excluded_root_controls": [
+    "manifest.json",
+    "SHA256SUMS"
+  ],
+  "nested_subpackages": [
+    "ppv1",
+    "g01",
+    "parent_baseline",
+    "scripts"
+  ],
+  "nested_manifests_included": true,
+  "counts": {
+    "ppv1_full": "1045 passed / 0 skipped / exit 0",
+    "g01_safe": "1647 passed / 8 skipped / 17 deselected / exit 0",
+    "g01_inputs_verified": "303 before/after SHA-256 identical",
+    "parent_baseline": "12 failed + 2 collection / 981 passed"
+  },
+  "boundaries": {
+    "gold": false,
+    "face": false,
+    "sealed_runs": false,
+    "dependingv4": false,
+    "llm_scoring": false,
+    "network_requests": 0,
+    "cost": 0,
+    "push": false,
+    "commit": false
+  }
+}

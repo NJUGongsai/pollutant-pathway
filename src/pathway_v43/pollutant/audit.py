@@ -1,5 +1,19 @@
 """ChemicalAudit — 检查范围明确,未知不可冒充核实(v8 回修,S2)。
 
+v10(ppv1-donor-diagnostic-10,2026-10-08 S5a 批次搭车 P2,R4 §8
+授权)相对 v9 的变化(全部披露/测试级,零新门,判定语义零变化):
+- **被增/删原子(presence)records 补 isotope 单侧值**(R4 §5 P2-2):
+  原子 presence 摘要可见性 —— _atom_change_summary 的 presence 分支
+  本就消费该键;presence 原子已入 changed 集合,不改任何判定结果;
+- **audit center 检查 axis_detail 携带复算 extra_changes/center_
+  property_deltas**(R4 §5 P2-3):完整 diagnostic/proof/production
+  产物已有,此处让读者在 center 检查 detail 第一眼即见标签轴(含
+  isotope before/after);不改变任何状态/理由码;
+- 四处 docstring/属性注释补 isotope 轴口径(R4 §5 P2-1,文案级)。
+  audit/admission 决策表与理由码不变(语义承载沿 S4 r3 先例由
+  donor-diagnostic 版本登记;profile 身份块随登记升 -20;criteria-v1
+  冻结正文与 FREEZE_RECORD 逐字节不改)。
+
 v9(ppv1-donor-diagnostic-9,2026-10-08 S4 回修 r3,复审 R3 唯一
 阻塞 PPV1-ISO-01)相对 v8 的变化:
 - **同位素变化并入实际净变化集**:冻结判据五 §5 早已把实际净变化
@@ -1183,6 +1197,21 @@ def audit_hypothesis(
                                        "center_match": center_match,
                                        "center_match_basis": basis_str,
                                        "strict_target_match": strict_axis,
+                                       # S5a 搭车 P2(R4 §5 P2-3,披露级,
+                                       # 判定语义零变化;登记于
+                                       # donor-diagnostic-10):携带复算
+                                       # 诊断的 extra_changes/center_
+                                       # property_deltas(含 isotope 轴
+                                       # before/after)—— 完整 diagnostic/
+                                       # proof/production 产物已有,此处
+                                       # 让读者在 center 检查第一眼即可
+                                       # 见标签轴,不新增任何门
+                                       "extra_changes": [
+                                           dict(x) for x in
+                                           rerun.extra_changes],
+                                       "center_property_deltas": [
+                                           dict(x) for x in
+                                           rerun.center_property_deltas],
                                        **coverage_detail}
                         if not binding_ok:
                             # 部分覆盖(额外未核实转化/未核实贡献)或
@@ -1904,7 +1933,8 @@ class DonorConsistencyDiagnostic:
 
     本诊断的**命名与范围**:供体迁移的**实际净变化区域诊断** —— 核验
     (i)执行前后结构的真实净变化集合(键 diff ∪ 原子增删 ∪ 逐原子
-    形式电荷/氢数/立体 diff),(ii)声明编辑与实际执行是否对账,
+    形式电荷/氢数/立体/**同位素** diff —— isotope 轴自 v9/donor-
+    diagnostic-9 起入实际净变化集),(ii)声明编辑与实际执行是否对账,
     (iii)实际变化是否局限于对齐后的供体中心区域(**或其联合对称像**)。
     **不**核验供体反应自身的变换模板(供体侧预期键变化对比,S3 接线);
     图等价 ≠ 酶识别/机制等价(symmetric_equivalent 只是拓扑对称证据)。
@@ -1936,7 +1966,8 @@ class DonorConsistencyDiagnostic:
     net_change_empty: bool = False     # 执行前后结构身份一致(零净变化)
     # v4(R3-01/03/05):
     center_property_deltas: list[dict] = field(default_factory=list)
-        # **中心原子**的属性 Δ(电荷/ΔH/构型/准确 CIP 标签)披露 ——
+        # **中心原子**的属性 Δ(电荷/ΔH/构型/准确 CIP 标签/Δ同位素
+        # isotope,自 v9 起经 records["isotope"] 同通道披露)披露 ——
         # ops 对账不覆盖属性,未声明的中心属性变化经此可见(E-iii);
         # 只披露不判 center(区域归属由 changed 集合判定)
     center_evidence: dict = field(default_factory=dict)
@@ -2166,13 +2197,24 @@ def _atom_property_diffs(
         bi = id_to_idx_before.get(aid)
         ai = id_to_idx_after.get(aid)
         if bi is None and ai is not None:
+            # S5a 搭车 P2(R4 §5 P2-2):被增原子 records 补 isotope
+            # 单侧值(presence 摘要可见性;_atom_change_summary 的
+            # presence 分支本就消费该键;不改判定结果 —— presence
+            # 原子已入 changed 集合)
             records[aid] = {"presence": "atom_added",
                             "element": after_by_mapnum[ai].GetSymbol()
-                            if ai in after_by_mapnum else ""}
+                            if ai in after_by_mapnum else "",
+                            "isotope": (after_by_mapnum[ai].GetIsotope()
+                                        if ai in after_by_mapnum
+                                        else None)}
             changed.add(aid)
         elif ai is None and bi is not None:
+            # 同上:被删原子补 before 侧 isotope 单侧值
             records[aid] = {"presence": "atom_removed",
-                            "element": before.GetAtomWithIdx(bi).GetSymbol()}
+                            "element": before.GetAtomWithIdx(bi)
+                            .GetSymbol(),
+                            "isotope": before.GetAtomWithIdx(bi)
+                            .GetIsotope()}
             changed.add(aid)
         else:
             b_atom = before.GetAtomWithIdx(bi)
@@ -2392,8 +2434,10 @@ def _declaration_accounting(
       (s→d→s→d 净效应 = double,不再逐条要求中间态相等);
     - 原子增删集合:add_atom 的隐含 anchor 键由模拟自然形成,不是
       undeclared_bond_change(执行器协议行为)。
-    原子属性(电荷/ΔH/构型)**不在对账范围**(ops 声明语言没有对应
-    操作;其检出走属性 diff 披露 + strict 轴,mimo 5.3(3))。
+    原子属性(电荷/ΔH/构型/同位素)**不在对账范围**(ops 声明语言
+    没有对应操作 —— 含 isotope:固定 AtomTool 无 isotope op,同位素
+    变化只能来自执行图与声明中心范围的偏离;其检出走属性 diff 披露
+    + strict 轴 + 中心范围判定,mimo 5.3(3)/S4 回修 r3)。
     返回 (失配明细, 声明终态键变化)。
     """
     mismatches: list[str] = []
@@ -2574,7 +2618,8 @@ def check_edit_against_donor(
       plain_product_mapped_product_disagreement;
     - center:实际变化 ⊆ 对齐中心(direct)或存在联合自同构像
       (symmetric_equivalent)⇒ True;中心外变化 ⇒ False +
-      extra_changes(逐原子 element/形式电荷/ΔH/Δ立体 before/after);
+      extra_changes(逐原子 element/形式电荷/ΔH/Δ立体/**Δ同位素
+      isotope** before/after,v9 起 records["isotope"] 同源);
     - 全部供体中心原子必须有映射(部分缺 ⇒ unknown,不部分判定);
       自同构搜索截断 ⇒ unknown(automorphism_search_truncated)。
     """
