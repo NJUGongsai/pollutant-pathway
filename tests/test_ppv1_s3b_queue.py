@@ -1,5 +1,5 @@
 """S3b 队列调度回归(schedule/record_outcome/activate_deferred/转换/
-followup;ppv1-search-5)。
+followup;ppv1-search-6;r2 更新:深度 blocked 对象持久行)。
 
 规则级合成夹具(CCO → CC=O;AtomTool 编辑协议 change_bond_order);
 临时 SQLite/artifact,无金标/题面/封存材料。覆盖(任务书 §7 S3b 行):
@@ -50,6 +50,7 @@ from pathway_v43.pollutant.queue import (  # noqa: E402
 from pathway_v43.pollutant.search import (  # noqa: E402
     ACTION_KIND_EXPAND_HYPOTHESIS,
     ACTION_KIND_SCENARIO_TRANSITION,
+    ACTION_STATUS_BLOCKED,
     ACTION_STATUS_DEFERRED,
     ACTION_STATUS_DONE,
     ACTION_STATUS_PENDING,
@@ -167,7 +168,10 @@ def test_schedule_max_select_cap_leaves_selection_cap_reason(
 
 
 def test_schedule_depth_blocked_whole_pool(tmp_path) -> None:
-    # max_search_depth 1:depth 2 整池 blocked,不入队
+    # max_search_depth 1:depth 2 整池 blocked —— **S3b r2(S3B-06):
+    # blocked 对象持久化为 search_actions 行(status=blocked +
+    # defer_reason=depth_limit),stop_report 同源消费;不入可执行
+    # 队列(reactivate/claim 均拒)**
     _, ledger, _, _ = make_run(tmp_path, "sch-4", {"max_search_depth": 1})
     sub, prod = make_substrate_states()
     h1 = make_hypothesis("p1", sub, prod)
@@ -176,9 +180,27 @@ def test_schedule_depth_blocked_whole_pool(tmp_path) -> None:
         parent_search_revision=0, pool=[make_pool_entry(h1.hypothesis_id)],
         policy_version=PV, depth=2)
     assert out["blocked"][0]["reason"] == "depth_limit"
-    assert ledger.action(out["selected"][0]["action_id"]) is None \
-        if out["selected"] else True
     assert out["selected"] == [] and out["deferred"] == []
+    # blocked 行持久化(幂等:重排 unchanged,不重数)
+    row = ledger.action(out["blocked"][0]["action_id"])
+    assert row is not None
+    assert row["status"] == ACTION_STATUS_BLOCKED
+    assert row["defer_reason"] == "depth_limit"
+    assert row["payload"]["blocked_reason"] == "depth_limit"
+    again = schedule_hypotheses(
+        ledger, run_id="sch-4", parent_path_id="p1", context_ref="ctx",
+        parent_search_revision=0, pool=[make_pool_entry(h1.hypothesis_id)],
+        policy_version=PV, depth=2)
+    assert again["blocked"][0]["action_id"] == \
+        out["blocked"][0]["action_id"]
+    blocked_rows = ledger.actions_with_status(
+        "sch-4", ACTION_STATUS_BLOCKED)
+    assert len(blocked_rows) == 1
+    # blocked 不可激活(保留原因不强行执行)
+    from pathway_v43.pollutant.search import SearchClaimError
+    with pytest.raises(SearchClaimError):
+        ledger.claim_action(out["blocked"][0]["action_id"],
+                            worker_id="w1")
 
 
 def test_schedule_idempotent_reschedule_and_done_blocked(tmp_path) -> None:

@@ -1,0 +1,46 @@
+{
+  "scope": "S3b-r2 rework new+updated test files, same-byte, on detached worktree of direct parent c1211183c0874b12c5b5461845d3c61f0a84719c",
+  "baseline_worktree": "/private/tmp/ppv1_s3b_r2_base_c121 (git worktree add --detach c1211183; copies of the r2 test files placed under tests/ unchanged bytes)",
+  "copied_files": [
+    "tests/test_ppv1_s3b_r2.py (new)",
+    "tests/s3b_worker.py (updated worker: injection/concurrent-resume/no-plan modes)",
+    "tests/test_ppv1_profile.py (updated)",
+    "tests/test_ppv1_s3b_queue.py (updated)",
+    "tests/test_ppv1_s3b_model.py (updated)"
+  ],
+  "command": "PYTHONDONTWRITEBYTECODE=1 $PY -B -m pytest tests/test_ppv1_s3b_r2.py tests/test_ppv1_profile.py tests/test_ppv1_s3b_queue.py tests/test_ppv1_s3b_model.py -q -p no:cacheprovider",
+  "result": "18 failed / 57 passed / 0 collection errors / 0 skipped, exit 1",
+  "classification": {
+    "new_file_behavior_red": [
+      "test_ppv1_s3b_r2.py::test_s3b01_resume_without_plan_uses_frozen_input (S3B-01: parent consumes empty plan, 0 events)",
+      "test_ppv1_s3b_r2.py::test_s3b01_resume_changed_plan_rejected (S3B-01: parent accepts changed plan donor-X)",
+      "test_ppv1_s3b_r2.py::test_s3b01_frozen_plan_tamper_integrity_failure (S3B-01: parent has no frozen-plan integrity gate)",
+      "test_ppv1_s3b_r2.py::test_s3b02_bad_bundle_hash_isolated_not_reexecuted (S3B-02: parent re-executes tool, 1 event)",
+      "test_ppv1_s3b_r2.py::test_s3b02_bad_bundle_json_isolated_independent_tasks_continue (S3B-02: parent re-executes both, 2 events)",
+      "test_ppv1_s3b_r2.py::test_s3b03_partial_followup_hard_kill_completed (S3B-03: parent leaves 2/3 followups)",
+      "test_ppv1_s3b_r2.py::test_s3b03_transition_after_event_submitted_new_context (S3B-03: parent loses transition, followup phase-0)",
+      "test_ppv1_s3b_r2.py::test_s3b03_transition_enqueued_crash_window_closed (S3B-03: parent transition lacks pending_followup, loses post-effect context)",
+      "test_ppv1_s3b_r2.py::test_s3b04_concurrent_public_resume_single_executor (S3B-04: parent both processes resume, second tool entry)",
+      "test_ppv1_s3b_r2.py::test_s3b05_novel_nonempty_independent_hypothesis_chain (S3B-05: parent counts novel, only 1 event)",
+      "test_ppv1_s3b_r2.py::test_s3b05_novel_empty_pool_profile_and_consumption (S3B-05: parent short-circuits no_local_candidate, 0 requests)",
+      "test_ppv1_s3b_r2.py::test_s3b05_model_abstain_empty_pool_legal (S3B-05: parent does not consult model, 0 requests)",
+      "test_ppv1_s3b_r2.py::test_s3b05_novel_insufficient_content_structured_reject (S3B-05: parent ignores novel, run completes without run_error)",
+      "test_ppv1_s3b_r2.py::test_s3b06_zero_depth_budget_composite_stop_disclosure (S3B-06: parent other_reasons=[], blocked 0)",
+      "test_ppv1_s3b_r2.py::test_s3b06_zero_depth_repeat_resume_not_recounted (S3B-06: parent blocked 0 / no blocked_objects)"
+    ],
+    "new_file_legal_positive_green_on_parent": [
+      "test_ppv1_s3b_r2.py::test_s3b01_same_plan_resume_positive_control (B3 same-output single event, idempotent re-resume)",
+      "test_ppv1_s3b_r2.py::test_s3b03_b4_event_submitted_no_followup_completed (B4 0-followup window: parent LIKE-count reconcile also completes 3/3; r2 idempotent re-derivation double-cover)",
+      "test_ppv1_s3b_r2.py::test_s3b03_three_products_normal_positive_control (normal 3-product run, 3 followups, event not truncated)",
+      "test_ppv1_s3b_r2.py::test_s3b06_legal_nonzero_no_blocked_positive_control (key-tolerant: no blocked, no depth reason)",
+      "test_ppv1_s3b_r2.py::test_s3b06_empty_pool_no_local_candidate_positive_control (empty pool primary no_local_candidate with retrieval budget not exhausted)"
+    ],
+    "updated_file_red": [
+      "test_ppv1_profile.py::test_ppv1_identity_block_contract_versions (intentional version-literal flip profile-13->14 / search-5->6, same convention as prior batches)",
+      "test_ppv1_s3b_queue.py::test_schedule_depth_blocked_whole_pool (field-form red: parent blocked entries lack action_id key; r2 expects persisted blocked row; underlying behavior red = no persistence on parent)",
+      "test_ppv1_s3b_model.py::test_parse_novel_requires_proposal_context_and_reaction_spec (behavior red: parent accepts novel without reaction_spec, DID NOT RAISE + parsed entry lacks reaction_spec key)"
+    ],
+    "collection_errors": 0,
+    "notes": "早停内部段不报通过:失败均在首个修复目标断言处如实失败,合法正控在父保持绿;父上 s3b_worker.py 更新模式与新测试文件同字节执行(真实子进程硬杀/并发 barrier),非 collection 红 —— 父已含全部 S3b 模块。"
+  }
+}

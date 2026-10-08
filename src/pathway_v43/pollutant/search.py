@@ -1073,6 +1073,153 @@ class SearchLedger:
                 "action_id": action_id, "status": ACTION_STATUS_PENDING,
                 "reason": "reactivated"}
 
+    # ------------------------------------------------------------ S3b r2 队列
+
+    def record_blocked_hypothesis(
+        self,
+        *,
+        run_id: str,
+        parent_path_id: str,
+        context_ref: str,
+        subject_ref: str,
+        parent_search_revision: int = 0,
+        policy_version: str,
+        payload: dict,
+        blocked_reason: str = "blocked",
+    ) -> dict:
+        """**S3b r2(S3B-06,search-6)**:调度 blocked 假设对象的持久
+        记录(同源记录,公开 stop 消费)。
+
+        - 调度的真实 blocked 原因(深度超限等)与假设对象以
+          search_actions 行持久化:status=blocked、defer_reason=原因、
+          payload 冻结任务输入(+ blocked_reason);**stop_report 从
+          持久行派生**(unexplored.blocked 计数 + blocked_objects 对象
+          清单;depth_limit 行同时进入停止原因)—— 不再只存计数或
+          无处消费的哈希;正常/恢复同源(重放幂等,不重数);
+        - blocked 不是可执行状态:claim/激活均拒(保留原因不强行执
+          行);零预算预约(claim 才是预约口;blocked 从未执行);
+        - 幂等:同身份同内容 unchanged;同键异内容冲突(与 enqueue
+          同一判据,不覆盖)。已存在同身份非 blocked 行(done/pending/
+          deferred)⇒ 返回该状态(不强行改写 —— 权威行优先)。
+        """
+        if not str(blocked_reason):
+            raise SearchContractError(
+                "blocked 记录必须携带原因(独立未展开/阻断原因)",
+                {"kind": "missing_blocked_reason",
+                 "action_subject": subject_ref})
+        self._limits(run_id)  # 冻结策略块严格消费(与 enqueue 同源)
+        task_payload = dict(payload)
+        task_payload["blocked_reason"] = str(blocked_reason)
+        action_id = stable_id(
+            "sact", run_id, parent_path_id, context_ref, subject_ref,
+            ACTION_KIND_EXPAND_HYPOTHESIS, str(int(parent_search_revision)),
+            policy_version)
+        payload_json = json.dumps(task_payload, ensure_ascii=False,
+                                  sort_keys=True)
+        payload_digest = content_hash(task_payload)
+        self._begin()
+        try:
+            row = self.conn.execute(
+                "SELECT payload, status FROM search_actions WHERE"
+                " action_id = ?", (action_id,)).fetchone()
+            if row is not None:
+                stored = json.loads(row["payload"])
+                if content_hash(stored) != payload_digest:
+                    raise SearchIdentityConflict(
+                        f"action {action_id} 已存在且任务输入不同(同键异"
+                        "内容拒绝,不覆盖)", {"action_id": action_id,
+                                              "kind": "action_payload_conflict"})
+                self.conn.rollback()
+                return {"created": False, "unchanged": True,
+                        "action_id": action_id,
+                        "status": row["status"], "reason": "already_recorded"}
+            self.conn.execute(
+                "INSERT INTO search_actions (action_id, run_id,"
+                " parent_path_id, context_ref, subject_ref, action_kind,"
+                " parent_search_revision, policy_version, status, payload,"
+                " task_key, defer_reason, created_at) VALUES"
+                " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (action_id, run_id, parent_path_id, context_ref,
+                 subject_ref, ACTION_KIND_EXPAND_HYPOTHESIS,
+                 int(parent_search_revision), policy_version,
+                 ACTION_STATUS_BLOCKED, payload_json,
+                 str(task_payload.get("task_key", "")), str(blocked_reason),
+                 now_iso()))
+            self.conn.commit()
+        except Exception:
+            self.conn.rollback()
+            raise
+        return {"created": True, "action_id": action_id,
+                "status": ACTION_STATUS_BLOCKED}
+
+    def isolate_recovered_failure(
+        self, action_id: str, *, kind: str,
+        note: str = "",
+    ) -> dict:
+        """**S3b r2(S3B-02,search-6)**:恢复裁定的坏 artifact/缺权威
+        action 的明确隔离(接 driver 执行门)。
+
+        - recover_run 已诚实识别(SearchArtifactIntegrityError 等)但
+          action 仍处于 claimed 的任务:claimed → blocked
+          (defer_reason=recovery_failure:<kind>),驱动不再以 claimed
+          旧收据授权重执行 —— 零猜重算、零坏任务 event/成功 commit/
+          consume;
+        - 证据保全:claimed_by/attempt/预约行原样保留(不释放、不改
+          状态 —— 预约既已发生,如实留在账上;坏 artifact 原文件由
+          recover 侧保全);stop_report 以 blocked 计入未探索并阻止
+          exhausted_search;
+        - 幂等:已 blocked 同原因 ⇒ unchanged(重复 resume 不重数);
+          已 blocked 异原因 ⇒ 冲突;非 claimed 状态 ⇒ 结构化拒(只
+          隔离恢复报告认定为坏的 claimed 任务,不动 done/deferred);
+        - 其余合法独立任务(B1–B4 正常恢复)不受影响,由驱动继续。
+        """
+        if not str(kind):
+            raise SearchContractError(
+                "隔离必须携带恢复裁定的失败类别", {"action_id": action_id,
+                                                 "kind": "missing_failure_kind"})
+        reason = f"recovery_failure:{kind}"
+        self._begin()
+        try:
+            row = self.conn.execute(
+                "SELECT status, defer_reason FROM search_actions WHERE"
+                " action_id = ?", (action_id,)).fetchone()
+            if row is None:
+                raise SearchContractError(
+                    f"隔离引用的 action 不存在:{action_id}",
+                    {"action_id": action_id, "kind": "action_missing"})
+            status = row["status"]
+            if status == ACTION_STATUS_BLOCKED:
+                if str(row["defer_reason"] or "") != reason:
+                    self.conn.rollback()
+                    raise SearchIdentityConflict(
+                        f"action {action_id} 已 blocked 且原因不同(不覆盖"
+                        "既有阻断原因)", {"action_id": action_id,
+                                          "kind": "blocked_reason_conflict",
+                                          "existing": row["defer_reason"]})
+                self.conn.rollback()
+                return {"isolated": False, "unchanged": True,
+                        "action_id": action_id, "defer_reason": reason,
+                        "note": note}
+            if status != ACTION_STATUS_CLAIMED:
+                self.conn.rollback()
+                raise SearchContractError(
+                    f"action {action_id} 状态为 {status}(隔离只作用于恢复"
+                    "报告认定为坏的 claimed 任务,不动其他权威状态)",
+                    {"action_id": action_id,
+                     "kind": "isolate_requires_claimed", "status": status})
+            self.conn.execute(
+                "UPDATE search_actions SET status = ?, defer_reason = ?,"
+                " updated_at = ? WHERE action_id = ? AND status = ?",
+                (ACTION_STATUS_BLOCKED, reason, now_iso(), action_id,
+                 ACTION_STATUS_CLAIMED))
+            self.conn.commit()
+        except Exception:
+            self.conn.rollback()
+            raise
+        return {"isolated": True, "unchanged": False,
+                "action_id": action_id, "defer_reason": reason,
+                "note": note}
+
     # ------------------------------------------------------------ 认领+预算
 
     def _reserve(self, run_id: str, limit_key: str, scope: str,
@@ -2807,6 +2954,10 @@ class SearchLedger:
         - budget_limit:任一上限 used ≥ max(真实零/耗尽即停该资源);
         - depth_limit / product_width_limit 等入队拒绝来自 refusals
           (调用方收集;瞬态拒绝不留行 —— 拒绝原因即返回值);
+          **S3b r2(S3B-06)**:调度深度阻断的假设对象经
+          record_blocked_hypothesis 持久行留存,depth_limit 原因与
+          blocked_objects 清单从持久行同源派生(refusals 会话内存不作
+          唯一来源;正常/恢复同源);
         - awaiting_prediction:存在 registered/sent 无响应请求且无其他
           pending 动作;
         - **S3A-05:claimed/inflight action 与 open attempt 计入未完成
@@ -2845,15 +2996,28 @@ class SearchLedger:
                          for r in (refusals or [])}
         if STOP_REASON_DEPTH_LIMIT in refusal_kinds:
             reasons.add(STOP_REASON_DEPTH_LIMIT)
+        # ---- S3b r2(S3B-06):blocked 对象同源持久记录消费 ----
+        # 深度阻断的假设对象经 record_blocked_hypothesis 持久化
+        # (search_actions 行 status=blocked + defer_reason);停止原因
+        # depth_limit 从持久行派生(正常/恢复同源,refusals 是会话内存,
+        # 不作唯一来源);unexplored.blocked_objects 逐对象披露
+        # (action/假设/原因,有界 100 条;不是只存计数)。
+        blocked_rows = self.conn.execute(
+            "SELECT action_id, subject_ref, defer_reason FROM"
+            " search_actions WHERE run_id = ? AND status = ?"
+            " ORDER BY created_at, action_id",
+            (run_id, ACTION_STATUS_BLOCKED)).fetchall()
+        blocked_reasons = {str(r["defer_reason"] or "")
+                           for r in blocked_rows}
+        if STOP_REASON_DEPTH_LIMIT in blocked_reasons:
+            reasons.add(STOP_REASON_DEPTH_LIMIT)
         pending_actions = int(self.conn.execute(
             "SELECT COUNT(*) FROM search_actions WHERE run_id = ? AND"
             " status = ?", (run_id, ACTION_STATUS_PENDING)).fetchone()[0])
         deferred = int(self.conn.execute(
             "SELECT COUNT(*) FROM search_actions WHERE run_id = ? AND"
             " status = ?", (run_id, ACTION_STATUS_DEFERRED)).fetchone()[0])
-        blocked = int(self.conn.execute(
-            "SELECT COUNT(*) FROM search_actions WHERE run_id = ? AND"
-            " status = ?", (run_id, ACTION_STATUS_BLOCKED)).fetchone()[0])
+        blocked = len(blocked_rows)
         # ---- S3A-05:正在执行的动作与开放尝试(持久未完成工作) ----
         claimed_actions = int(self.conn.execute(
             "SELECT COUNT(*) FROM search_actions WHERE run_id = ? AND"
@@ -2880,6 +3044,13 @@ class SearchLedger:
         unexplored = {
             "pending_actions": pending_actions, "deferred": deferred,
             "blocked": blocked,
+            # S3b r2(S3B-06):blocked 未探索对象逐条披露(action/假设/
+            # 原因;有界 100 条;不只存计数;恢复后从持久行同源复算)
+            "blocked_objects": [
+                {"action_id": str(r["action_id"]),
+                 "hypothesis_id": str(r["subject_ref"]),
+                 "reason": str(r["defer_reason"] or "")}
+                for r in blocked_rows[:100]],
             "claimed_actions": claimed_actions,
             "open_attempts": open_attempts,
             "pending_requests": pending_requests,

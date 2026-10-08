@@ -1,5 +1,7 @@
 """S3b 模型假设协议 —— proposals[] 解析与有界格式反馈(实施书 §5.3;
-契约随 search-5 / format-feedback-1 登记)。
+契约随 search-6 / format-feedback-1 登记;**S3b r2:协议版本
+ppv1-model-proposals-1 → -2 —— novel 池外提案必须携带完整
+reaction_spec 反应内容**)。
 
 范围:PPV1 新任务的模型响应协议 `proposals[]`(每项一条独立反应
 假设;内部共同产物集合与 participants/来源/条件/依赖按既有契约)、
@@ -9,10 +11,22 @@ ppv1-format-feedback-1,默认 0 轮;结构无法解析记结构失败,不能以
 格式反馈改分子再试到通过)。模型不直接写 SQLite/frontier/条件事实/
 策略(本层只解析与登记,消费在调度/生产链)。
 
+**S3b r2(S3B-05)**:novel 池外提案不再只是计数披露 —— 每条 novel
+提案必须声明**明确反应内容**(`reaction_spec`:与冻结池条目同形状的
+假设载荷,product_smiles/edits/donor/alignment/expectation 等按
+既有 prepare_hypothesis 契约)与**来源**(`proposal_context`:
+reference_hypothesis_ids/output_origin 明示,不伪造来源);驱动消费
+novel 为独立假设(结构身份/参与物/系数/共同产物/条件/依赖经既有
+契约构造)入有界调度,走固定工具→audit→admission→submit。缺
+reaction_spec ⇒ json_field 格式错误(可进有界反馈;无足够内容不能
+授有效 hypothesis,不伪造内容);reaction_spec 内容非法(结构/契约)
+在构造/执行侧结构化拒,不是格式反馈(不以反馈改分子再试到通过)。
+空池时驱动仍组装底物档案并消费模型响应(合法空列表/弃权保持)。
+
 入口矩阵:
 
 | # | 入口 | 消费 | 校验/事务 |
-| 1 | parse_model_proposals | 模型响应文本(脚本/恢复) | JSON 解析(失败 ⇒ 结构失败,非格式反馈);proposals[] 形状契约(dict/list/字段);允许 ID 集(池内假设引用须 ∈ 冻结池);novel 必须带 proposal_context(reference_hypothesis_ids/output_origin 明示,不伪造来源);空列表/弃权合法;rank 引稳定 ID 且须在提案集内;解析结果只是提案,不是 recorded 状态 |
+| 1 | parse_model_proposals | 模型响应文本(脚本/恢复) | JSON 解析(失败 ⇒ 结构失败,非格式反馈);proposals[] 形状契约(dict/list/字段);允许 ID 集(池内假设引用须 ∈ 冻结池);novel 必须带 proposal_context(reference_hypothesis_ids/output_origin 明示,不伪造来源)**与 reaction_spec(完整反应内容;缺 ⇒ json_field 错误)**;空列表/弃权合法;rank 引稳定 ID 且须在提案集内;解析结果只是提案,不是 recorded 状态 |
 | 2 | classify_format_error | 解析失败的错误分类 | 仅 json_field/json_type/allowed_id/syntax 四类可进格式反馈;not_json ⇒ structure_unparseable(记结构失败,零反馈轮) |
 | 3 | register_format_feedback_round | 反馈轮计数(持久事实源)+ 错误载荷 | model_requests 行(purpose=format_feedback;scripted/fake 网络 0;real 走 register_model_request 即时占额 —— 传入模型对象不自动补预算);轮数 = 同 action 的既有 format_feedback 请求数,超 max_format_feedback_rounds ⇒ 结构化拒(结构失败保持,不以反馈重试到通过);每轮持久记录输入/错误类别/反馈版本/次数 |
 
@@ -41,7 +55,7 @@ from .search import (
     SearchLedger,
 )
 
-MODEL_PROTOCOL_VERSION = "ppv1-model-proposals-1"
+MODEL_PROTOCOL_VERSION = "ppv1-model-proposals-2"
 PURPOSE_FORMAT_FEEDBACK = "format_feedback"
 
 # ---- 错误分类(只有前四类可进格式反馈;structure_unparseable 不可) ----
@@ -90,7 +104,11 @@ def parse_model_proposals(
         提案引用);
       * novel 池外提案:必须携带 `proposal_context`(dict,含
         `reference_hypothesis_ids`(可空,池内参考)与 `output_origin`
-        (明示来源,如 "novel_outside_pool"),不伪造来源);
+        (明示来源,如 "novel_outside_pool"),不伪造来源)**与
+        `reaction_spec`(dict,与冻结池条目同形状的完整反应内容 ——
+        product_smiles/edits/donor/alignment/expectation 等按既有
+        prepare_hypothesis 契约;缺 ⇒ json_field 格式错误,无足够
+        内容不能授有效 hypothesis)**;
       * 共同产物与备选不混:proposal 内的 `coproducts`(list)是
         **该假设内部**的共同产物声明,不作为独立提案出现(发现
         顶层的 coproduct 形状混淆 ⇒ syntax 契约错误);
@@ -178,8 +196,20 @@ def parse_model_proposals(
                     f"proposals[{i}] 的 proposal_context 缺 output_origin"
                     "(明示来源)",
                     {"index": i, "hypothesis_id": hypothesis_id})
+            # ---- S3b r2(S3B-05):novel 必须携带完整反应内容 ----
+            reaction_spec = item.get("reaction_spec")
+            if not isinstance(reaction_spec, dict) or not reaction_spec:
+                _format_error(
+                    FORMAT_ERROR_JSON_FIELD,
+                    f"proposals[{i}] 池外 novel 提案 {hypothesis_id} 缺"
+                    " reaction_spec(完整反应内容:product_smiles/edits/"
+                    "donor/alignment/expectation 按既有假设契约;无足够"
+                    "内容不能授有效 hypothesis,不伪造内容)",
+                    {"index": i, "hypothesis_id": hypothesis_id,
+                     "novel_reaction_spec_missing": True})
             entry["origin"] = "novel"
             entry["proposal_context"] = dict(context)
+            entry["reaction_spec"] = dict(reaction_spec)
         coproducts = item.get("coproducts")
         if coproducts is not None and not isinstance(coproducts, list):
             _format_error(

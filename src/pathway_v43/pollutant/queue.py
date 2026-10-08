@@ -1,5 +1,5 @@
 """S3b 队列调度 —— 冻结池选择、deferred 两类分别激活、场景转换进调度
-(实施书 §5.1/§5.2;契约 ppv1-search-5)。
+(实施书 §5.1/§5.2;契约 ppv1-search-6)。
 
 范围(任务书 §2.3 S3b 行):`schedule_hypotheses`(selected/deferred/
 blocked + 原因)、`record_expansion_outcome`(非事件尝试结论持久化)、
@@ -13,10 +13,10 @@ pollutant/production.py,本层只冻结其产物)。
 入口矩阵(每处消费的对象/身份/版本/权威及校验来源):
 
 | # | 入口 | 消费 | 校验/事务 |
-| 1 | schedule_hypotheses | 池条目(调用方经 production 冻结的 hypothesis/spec)+ 父/上下文/revision/预算视图 | 池条目结构契约(dict/hypothesis_id/payload);_limits 严格冻结块;剩余额度从预约行派生(快照不是事实源);enqueue 幂等/同键异内容冲突;深度结构性拒绝;选中数受剩余 alternatives 与调用方 max_select 双重限制 |
+| 1 | schedule_hypotheses | 池条目(调用方经 production 冻结的 hypothesis/spec)+ 父/上下文/revision/预算视图 | 池条目结构契约(dict/hypothesis_id/payload);_limits 严格冻结块;剩余额度从预约行派生(快照不是事实源);enqueue 幂等/同键异内容冲突;深度结构性拒绝(**S3b r2/S3B-06:深度阻断对象经 record_blocked_hypothesis 持久化为 blocked 行 + 原因,stop_report 同源消费**);选中数受剩余 alternatives 与调用方 max_select 双重限制 |
 | 2 | record_expansion_outcome | attempt 行 + 认领所有权 + outcome 载荷 | attempt 存在/归属本 run+本 action 且 open;action 处于 claimed 且 worker 为认领者;outcome kind 枚举;artifact 先写(expansion_outcome,不可覆盖);complete_action 走 S3A-02 完整权威核验 |
 | 3 | activate_deferred | deferred action 行 + trigger + expected_parent_revision | ledger.reactivate_deferred_action 同一判据(状态/trigger/revision/预算预检);按 deferred_type 分类;trigger 不一致逐项结构化冲突;重复触发幂等 unchanged |
-| 4 | enqueue_scenario_transition | 转换载荷(须显式 source_ref)+ 当前上下文 | 转换 dict 契约(source_ref 非空、new_phase_id/new_scenario_ref);enqueue 幂等/冲突;转换预算在 claim 预约(独立计,不是反应边) |
+| 4 | enqueue_scenario_transition | 转换载荷(须显式 source_ref)+ 当前上下文 + **S3b r2/S3B-03:pending_followup(转换后 followup 的事实)在创建时一次冻结入载荷** | 转换 dict 契约(source_ref 非空、new_phase_id/new_scenario_ref);pending_followup 须非空 dict(事件/产物全集/父路径/上下文/revision/深度 —— 转换执行后按新上下文调度);enqueue 幂等/冲突;转换预算在 claim 预约(独立计,不是反应边);**入队与附随一次写入(无两写窗口,B4 恢复按冻结载荷幂等闭合)** |
 | 5 | enqueue_coproduct_followups | 事件产物清单 + 展开计划(expanded/deferred/not_tracked) | 计划引用必须是事件产物参与物;宽度/预算不足的产物入 deferred(独立未展开原因);完整事件事实不截断(计划只管 followup) |
 
 deferred 两类(任务书 §5.1):共同产物 deferred(coproduct_deferred,
@@ -172,8 +172,9 @@ def schedule_hypotheses(
       initial_status=deferred 入队(deferred_type=
       alternative_reaction_deferred;独立未展开原因
       alternatives_budget / selection_cap;激活条件 defer_trigger);
-    - blocked:深度超限(不入队)、同一身份的 action 已 done(无新
-      信息不再安排 ⇒ already_expanded)等结构性格拒;
+    - blocked:深度超限(**S3b r2:持久 blocked 行 + 原因;不入可执
+      行队列**)、同一身份的 action 已 done(无新信息不再安排 ⇒
+      already_expanded)等结构性格拒;
     - 池 digest(条目身份+次序)返回给调用方进 decision 任务键
       (决策身份绑定冻结池;池成员顺序不可被调度结果改写);
     - 剩余 alternatives 从持久预约行派生(含 reserved/consumed;快照
@@ -219,14 +220,31 @@ def schedule_hypotheses(
     taken = 0
     depth = int(depth)
     if depth > int(limits["max_search_depth"]):
-        # 深度超限:整池 blocked(不入队;0 = 不展开任何产品)
+        # 深度超限:整池 blocked —— **S3b r2(S3B-06):blocked 对象
+        # 持久化为 search_actions 行(status=blocked,defer_reason=
+        # depth_limit,冻结任务输入)**;stop_report 从持久行派生
+        # depth_limit 停止原因与 blocked_objects 未探索清单(不是只存
+        # 计数;blocked 不可执行,reactivate/claim 均拒)。
         for _, entry in ordered:
             blocked.append({
                 "hypothesis_id": str(entry["hypothesis_id"]),
                 "reason": "depth_limit",
+                "action_id": "",
                 "detail": {"depth": depth,
                            "max_search_depth":
                                int(limits["max_search_depth"])}})
+            recorded = ledger.record_blocked_hypothesis(
+                run_id=run_id, parent_path_id=parent_path_id,
+                context_ref=str(entry.get("payload", {}).get(
+                    "context_ref") or context_ref),
+                subject_ref=str(entry["hypothesis_id"]),
+                parent_search_revision=parent_search_revision,
+                policy_version=policy_version,
+                payload=dict(entry["payload"]),
+                blocked_reason="depth_limit")
+            if recorded.get("action_id"):
+                blocked[-1]["action_id"] = recorded["action_id"]
+                blocked[-1]["status"] = recorded.get("status")
         return {
             "run_id": run_id, "parent_path_id": parent_path_id,
             "context_ref": context_ref,
@@ -273,8 +291,17 @@ def schedule_hypotheses(
         if not enqueue.get("created"):
             status = enqueue.get("status")
             if enqueue.get("reason") == "depth_limit":
+                # S3b r2(S3B-06):入队层深度拒绝同样持久 blocked 行
+                recorded = ledger.record_blocked_hypothesis(
+                    run_id=run_id, parent_path_id=parent_path_id,
+                    context_ref=entry_context, subject_ref=hypothesis_id,
+                    parent_search_revision=parent_search_revision,
+                    policy_version=policy_version,
+                    payload=dict(task_payload),
+                    blocked_reason="depth_limit")
                 blocked.append({"hypothesis_id": hypothesis_id,
-                                "reason": "depth_limit"})
+                                "reason": "depth_limit",
+                                "action_id": recorded.get("action_id")})
                 continue
             if status == ACTION_STATUS_DONE:
                 blocked.append({"hypothesis_id": hypothesis_id,
@@ -483,6 +510,7 @@ def enqueue_scenario_transition(
     policy_version: str,
     parent_search_revision: int,
     task_key: str = "",
+    pending_followup: dict | None = None,
 ) -> dict:
     """场景转换进调度(§5.2:只由用户/来源明确支持;独立 action/预算/
     记录;仅改变后续阶段,不重写旧边评估)。
@@ -494,6 +522,13 @@ def enqueue_scenario_transition(
     - action kind=scenario_transition(转换预算在 claim 预约;转换
       次数与反应边深度分账);执行侧(derive_child_context 冻结旧阶段
       快照、只后效)见 runflow/production;
+    - **S3b r2(S3B-03)**:pending_followup(转换后 followup 的必要
+      事实:event_id/expansion_plan/产物 state_ref 全集/父路径/上下文/
+      parent_search_revision/depth)在**创建时一次冻结入载荷** ——
+      消除"先入队、另一次 UPDATE 附加"的两写窗口(崩溃恰好落在两写
+      之间会丢失转换与后续的关联);B4 恢复按冻结载荷幂等闭合(同键
+      同内容 unchanged;不重发事件、不重复扣额)。pending_followup
+      须为非空 dict(缺/坏 ⇒ 契约拒,不猜映射);
     - enqueue 幂等/同键异内容冲突(转换动作身份 = run/父/context/
       subject/kind/revision/policy)。
     """
@@ -512,8 +547,16 @@ def enqueue_scenario_transition(
             raise ScheduleContractError(
                 f"阶段转换缺 {key}(显式指定新阶段/新场景;不猜默认)",
                 {"kind": "transition_field_missing", "field": key})
+    if pending_followup is not None and (
+            not isinstance(pending_followup, dict) or not pending_followup):
+        raise ScheduleContractError(
+            "转换的 pending_followup 必须是非空 dict(转换后 followup 的"
+            "必要事实一次冻结入载荷;不猜映射)",
+            {"kind": "transition_followup_invalid"})
     payload = {"task_key": task_key, "transition": dict(transition),
                "context_ref": context_ref}
+    if pending_followup is not None:
+        payload["pending_followup"] = dict(pending_followup)
     return ledger.enqueue_action(
         run_id=run_id, parent_path_id=parent_path_id,
         context_ref=context_ref,

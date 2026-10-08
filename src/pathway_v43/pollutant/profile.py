@@ -131,8 +131,24 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 复用 model_requests 行(purpose=format_feedback),context 持久化
 # 走 artifact 存储并经 from_dict 内容身份首消费核验)。profile 仍未
 # 有放行前的历史产物需要迁移;v12 身份载荷按既有门拒绝。
+# v14(S3b 回修 r2,2026-10-08,Codex S3b 复审 S3B-01~06 六组 P1):
+# search 契约 ppv1-search-5 → -6(调度 blocked 对象同源持久记录 +
+# stop_report 派生 depth_limit 原因与 blocked_objects 清单;恢复
+# 裁定的坏 artifact/缺权威 action 明确隔离 claimed → blocked,不猜
+# 重算/不创建成功 event/commit/consume;转换 action 的 pending_
+# followup 创建时一次冻结入载荷,消除两写窗口);模型协议
+# ppv1-model-proposals-1 → -2(novel 池外提案必须携带完整
+# reaction_spec 反应内容与 proposal_context 来源,缺内容不能授有效
+# hypothesis,不得伪造来源;驱动消费 novel 为独立假设走固定工具→
+# audit→admission→submit);run 执行流 ppv1-runflow-1 → -2(冻结
+# 计划/池/必要输入首用与恢复共用持久来源 —— start 持久化冻结计划,
+# resume 无 plan 沿冻结输入、传入计划内容不符结构化拒、decide 冻结
+# pool_digest 与 retrieve 任务 plan_digest 同源核验;公开 start/resume
+# 以 run 目录 flock 执行会话互斥,双进程只一方取得执行权,崩溃 OS
+# 自动释放、新进程沿原 attempt/预约接管;空池仍组装底物档案并消费
+# 模型 novel 响应)。search-limits 保持 -3;store 保持 -9(无新表)。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-13"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-14"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -195,7 +211,20 @@ PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
 # pollutant/production.py(固定 AtomTool→供体诊断→converter→audit→
 # admission→事件提交,AuditContractError 中止本次 admission/提交,
 # 不吞成 verified/R6/成功提交)。
-PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-5"
+# v6(S3b 回修 r2,2026-10-08,Codex S3b 复审 S3B-02/03/06):调度
+# blocked 对象同源持久记录(record_blocked_hypothesis:search_actions
+# 行 status=blocked + defer_reason;stop_report 从持久行派生
+# depth_limit 停止原因与 blocked_objects 未探索对象清单,不再只存
+# blocked 计数;blocked 不是可执行状态 —— reactivate/claim 均拒,
+# 不强行执行、零预算预约);恢复裁定的坏 artifact/缺权威 action 明确
+# 隔离(isolate_recovered_failure:claimed → blocked +
+# defer_reason=recovery_failure:<kind>,claimed_by/attempt/预约行
+# 原样保全,不猜重算、不创建成功 event/commit/consume;坏任务不再
+# 以 claimed 旧收据授权重执行,合法独立任务继续);转换 action 的
+# pending_followup 在创建时一次冻结入载荷(消除"入队后另一次 UPDATE
+# 附加"的两写窗口,B4 恢复按冻结载荷幂等闭合)。store 保持 -9(无
+# 新表:blocked/隔离复用 search_actions 行;转换附随复用 payload)。
+PPV1_SEARCH_SCHEMA_VERSION = "ppv1-search-6"
 # 复用的既有冻结判据(只引用,不修改;覆盖限制见各模块 docstring)
 LEGACY_GATE_PROFILE_REF = "frozen_hit60_gate"  # legacy 门禁族(v43 gates/G2)
 LEGACY_G2_FAMILY_REF = "v43-cons-2"            # 有限规则诊断复用族(conservation.py)

@@ -43,9 +43,9 @@ def test_identity_schema_version_bumped() -> None:
 def test_ppv1_identity_block_contract_versions() -> None:
     block = ri and ppv1_profile.build_profile_identity_block()
     assert block["name"] == "pollutant_pathway_v1"
-    # v13(S3b):调度与生产链接线(search 契约 -4 → -5;新增独立
-    # 有界格式反馈策略块)
-    assert block["schema_version"] == "ppv1-profile-13"
+    # v14(S3b r2):冻结输入恢复/坏 artifact 隔离/后续集合/执行会话
+    # 互斥/novel 消费者/blocked 持久(search -5 → -6)
+    assert block["schema_version"] == "ppv1-profile-14"
     contracts = block["contracts"]
     for key, prefix in (
         ("chemstate", "ppv1-chemstate-"),
@@ -66,7 +66,7 @@ def test_ppv1_identity_block_contract_versions() -> None:
         ("search", "ppv1-search-"),
     ):
         assert contracts[key].startswith(prefix), key
-    assert contracts["search"] == "ppv1-search-5"  # S3b 调度/生产链(r5)
+    assert contracts["search"] == "ppv1-search-6"  # S3b r2 调度恢复闭合(r6)
     assert contracts["format_feedback"] == "ppv1-format-feedback-1"
     assert contracts["gate_mapper"] == "ppv1-gate-mapper-3"
     assert contracts["legacy_gate_ref"] == "frozen_hit60_gate"

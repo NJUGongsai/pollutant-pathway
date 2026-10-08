@@ -1,25 +1,37 @@
 """S3b PPV1 独立 runner 执行流 —— start/resume 分流后的确定性驱动
-(实施书 §6.2;契约随 search-5 / profile-13 登记)。
+(实施书 §6.2;契约随 search-6 / profile-14 / runflow-2 登记)。
 
 职责:workflow.runner 的 PPV1 分流目标 —— **独立**执行/存储(不落
 legacy CN/PathwayStore/预算派生/LangGraph):
 - start:严格 root state(工厂守卫)→ 根 context(持久化 artifact,
-  消费经 from_dict 内容身份核验)→ 注册搜索 run(profile 策略块:十
-  上限 + format_feedback_policy)→ 根 retrieve 入队 → 确定性驱动循环;
+  消费经 from_dict 内容身份核验)→ **冻结计划输入持久化(S3b r2/
+  S3B-01)** → 注册搜索 run(profile 策略块:十上限 + format_feedback
+  policy)→ 根 retrieve 入队(任务输入绑定计划摘要)→ 确定性驱动循环;
 - resume:身份逐字段核对(code/资产/策略/profile/prediction)→
-  recover_run 四崩溃边界(B4 补账/B3 消费 bundle/B1 续跑/B2 披露)
-  → 继续驱动循环(同 worker 身份幂等 reclaim;不重建/不覆盖既有
+  **执行会话互斥(S3b r2/S3B-04:run 目录 flock,双进程只一方取得
+  执行权;崩溃 OS 自动释放,新进程接管)** → 冻结计划输入核对
+  (S3B-01:无 plan 沿冻结输入;传入内容不符结构化拒)→ recover_run
+  四崩溃边界(B4 补账/B3 消费 bundle/B1 续跑/B2 披露)→ **恢复
+  裁定的坏 artifact/缺权威 action 明确隔离(S3B-02:不重执行、
+  证据保全,合法独立任务继续)** → 继续驱动循环(不重建/不覆盖既有
   搜索/attempt/request/提交记录);
 - 驱动循环(scripted/规则级):pending 顺序认领 → 按 action_kind 分发:
-  retrieve(池获取)/ decide(schedule_hypotheses;scripted 模型
-  proposals[] 协议 + 有界格式反馈)/ expand_hypothesis(固定生产链:
-  AtomTool→诊断→converter→audit→admission→提交;**AuditContractError
-  窄捕获记 contract_aborted 方法失败,不吞成成功**)/
-  activate_deferred(两类 deferred 激活)/ scenario_transition
-  (derive_child_context 冻结旧阶段快照,只后效,转换后 followup 用
-  新上下文);
-- 停止:队列耗尽 + stop_report(主因优先级、claimed/open/deferred
-  未探索集合);停止不是化学终点。
+  retrieve(池获取;**空池 + 模型在计划内仍进 decide —— 空池可组装
+  底物档案并消费 novel 响应,S3b r2/S3B-05**)/ decide(schedule_
+  hypotheses + 底物档案 + scripted 模型 proposals[] 协议 + 有界格式
+  反馈 + **novel 独立假设消费:S3B-05**)/ expand_hypothesis(固定
+  生产链:AtomTool→诊断→converter→audit→admission→提交;
+  **AuditContractError 窄捕获记 contract_aborted 方法失败,不吞成
+  成功**)/ activate_deferred(两类 deferred 激活)/ scenario_
+  transition(derive_child_context 冻结旧阶段快照,只后效,转换后
+  followup 用新上下文;**pending_followup 创建时一次冻结入载荷,
+  S3b r2/S3B-03**);
+- 恢复补调度(S3B-03):reconcile_followups 从权威事件/展开计划/
+  提交记录与冻结计划的显式转换意图逐对象幂等补齐(0/部分/全部
+  followup 与转换附随;不以任意 payload 引用计数当完整性证书);
+- 停止:队列耗尽 + stop_report(主因优先级、claimed/open/deferred/
+  blocked 未探索集合;**blocked 对象与深度原因从持久行同源派生,
+  S3b r2/S3B-06**);停止不是化学终点。
 
 **预算纪律**:PPV1 不从 model 对象派生任何真实请求预算(与 legacy
 的 max_llm_calls 随展开派生不同 —— 传入 model 只记录身份,额度仍是
@@ -33,16 +45,26 @@ network_request_count=0。
 scenario_transitions: [{after_hypothesis_key, transition}],
 activations: [{deferred_type, trigger, expected_parent_revision,
 parent}], schedule_budget: {max_select}}。
+
+**S3b r2 冻结输入身份(S3B-01)**:计划在 start 时持久化为冻结
+artifact(plan_digest 内容绑定);resume 的 retrieve/decide/模型
+请求/expand/followup/转换全部消费该冻结来源 —— 旧任务不消费新输入;
+不传 plan 沿冻结输入(缺输入不变空池);传入计划内容不符 ⇒ 结构化
+拒绝(frozen_plan_mismatch),差异须显式新 revision/新任务登记;
+decide 已冻结的 pool_digest 与 retrieve 任务的 plan_digest 同源核验
+(同计划正控保持)。
 """
 
 from __future__ import annotations
 
+import fcntl
 import json
+import os
 from pathlib import Path
 
 from ..adapters.v3_engine import v3_code_identity
 from ..config import V43Config
-from ..domain.models import content_hash, stable_id
+from ..domain.models import content_hash, now_iso, stable_id
 from ..storage.artifact_store import ArtifactStore
 from ..storage.run_identity import (
     PROFILE_POLLUTANT_PATHWAY_V1,
@@ -99,6 +121,7 @@ from .search import (
     COMMIT_KIND_OUTCOME,
     PROVIDER_KIND_REAL,
     PROVIDER_KIND_SCRIPTED,
+    SearchArtifactIntegrityError,
     SearchBudgetExhausted,
     SearchClaimError,
     SearchConcurrencyError,
@@ -107,11 +130,16 @@ from .search import (
     SearchLedger,
     decision_task_key,
     expansion_task_key,
+    read_search_artifact,
     search_policy_version,
 )
 from .store import PollutantPathwayStore
+from .substrate_profile import build_substrate_profile
 
-RUNFLOW_VERSION = "ppv1-runflow-1"
+RUNFLOW_VERSION = "ppv1-runflow-2"
+FROZEN_PLAN_VERSION = "ppv1-frozen-plan-1"
+FROZEN_PLAN_TASK_KEY = "run-plan"
+FROZEN_PLAN_ARTIFACT = "frozen_plan"
 
 
 class PPV1RunError(RuntimeError):
@@ -148,7 +176,7 @@ def _substrate_state(smiles: str, label: str):
 
 def _worker_id(run_id: str) -> str:
     """确定性 worker 身份(同 run 的 resume 以同一逻辑 worker 幂等
-    reclaim —— B1 续跑;跨进程竞争方得到 already_claimed)。"""
+    reclaim —— B1 续跑;跨进程竞争方被驱动会话互斥挡在执行前)。"""
     return f"ppv1-driver:{run_id}"
 
 
@@ -177,8 +205,139 @@ def _complete_action(ledger: SearchLedger, action_id: str, *,
         outcome_ref=outcome_ref)
 
 
+# ------------------------------------------------------- S3B-01 冻结计划输入
+
+
+def _persist_frozen_plan(artifact_store, plan: dict) -> dict:
+    """S3B-01:start 时把计划持久化为**冻结输入来源**(artifact 内容
+    身份绑定;plan_digest 全量哈希)。驱动循环此后只消费冻结来源。"""
+    if artifact_store is None:
+        raise PPV1RunError(
+            "持久化冻结计划需要 artifact_store", {"kind": "artifact_store_missing"})
+    payload = {"plan_version": FROZEN_PLAN_VERSION,
+               "plan": plan or {},
+               "plan_digest": _plan_digest(plan)}
+    artifact_store.write(FROZEN_PLAN_TASK_KEY, FROZEN_PLAN_ARTIFACT, payload)
+    return payload
+
+
+def _load_frozen_plan(artifact_store) -> dict:
+    """S3B-01:resume 加载冻结计划输入(H07 完整性包装 + 内容身份
+    核验;缺/坏 ⇒ 结构化拒绝 —— 缺输入不能当空池合法完成,不猜)。"""
+    if artifact_store is None:
+        raise PPV1RunError(
+            "读取冻结计划需要 artifact_store", {"kind": "artifact_store_missing"})
+    try:
+        envelope = read_search_artifact(
+            artifact_store, FROZEN_PLAN_TASK_KEY, FROZEN_PLAN_ARTIFACT)
+    except SearchArtifactIntegrityError as exc:
+        raise PPV1RunError(
+            "冻结计划输入完整性失败(保全原文件;不静默跳过、不覆盖)"
+            f":{exc}", {"kind": "frozen_plan_integrity_failure",
+                        "artifact_kind": exc.detail.get("kind")}) from exc
+    if envelope is None:
+        raise PPV1RunError(
+            "冻结计划输入缺失(计划在 start 时持久化;缺输入不能当空池"
+            "合法完成,不猜)", {"kind": "frozen_plan_missing"})
+    payload = envelope.get("payload") or {}
+    plan = payload.get("plan")
+    digest = str(payload.get("plan_digest") or "")
+    if not isinstance(plan, dict) or not digest:
+        raise PPV1RunError(
+            "冻结计划载荷损坏(缺 plan/plan_digest;fail-closed,不猜)",
+            {"kind": "frozen_plan_corrupt"})
+    if content_hash(plan) != digest:
+        raise PPV1RunError(
+            "冻结计划内容与摘要不符(内容身份核验失败;保全失败)",
+            {"kind": "frozen_plan_digest_mismatch"})
+    return plan
+
+
+# ------------------------------------------------------- S3B-04 执行会话互斥
+
+
+class _DriverSession:
+    """公开 start/resume 的**执行会话互斥**(S3B-04;run 目录
+    driver.lock 的 flock LOCK_EX|LOCK_NB)。
+
+    - 双进程同时驱动同一 run:一方取得执行权,另一方在**任何恢复/
+      认领/请求/工具执行之前**结构化拒绝(driver_session_active,
+      竞争方可复用:等持有方退出后再次 resume 即幂等复用完成结果);
+    - 崩溃(进程死亡)⇒ OS 自动释放 flock ⇒ 新进程接管(原 attempt/
+      预约/claim 行原样保留,B1 同 worker 幂等 reclaim 续跑;不永久
+      锁死崩溃任务);
+    - 锁文件内容记录持有者 pid/时间(披露用;**flock 是权威**,
+      文件内容不作判据);同机文件锁语义,不宣称分布式锁或外部
+      provider exactly-once;
+    - 正常完成/异常退出都释放(try/finally;进程死亡由 OS 释放)。
+    """
+
+    def __init__(self, run_dir: Path):
+        self.path = Path(run_dir) / "driver.lock"
+        self.fh = None
+        self.info: dict = {}
+
+    def __enter__(self) -> "_DriverSession":
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.fh = open(self.path, "a+", encoding="utf-8")
+        try:
+            fcntl.flock(self.fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            holder: dict = {}
+            try:
+                holder = json.loads(
+                    self.path.read_text(encoding="utf-8") or "{}")
+            except (ValueError, OSError):
+                holder = {}
+            self.fh.close()
+            self.fh = None
+            raise PPV1RunError(
+                "run 已有活动驱动会话(执行会话互斥:竞争方在任何恢复"
+                "/认领/请求/工具执行前返回;不创建新 attempt/event、不"
+                "重复扣额;崩溃由 OS 释放,新进程可接管)",
+                {"kind": "driver_session_active", "holder": holder,
+                 "pid": os.getpid()}) from exc
+        self.info = {"pid": os.getpid(), "acquired_at": now_iso(),
+                     "note": "flock 是执行权权威;崩溃 OS 自动释放"}
+        try:
+            self.fh.seek(0)
+            self.fh.truncate()
+            self.fh.write(json.dumps(self.info, ensure_ascii=False))
+            self.fh.flush()
+        except OSError:
+            pass  # 披露信息写失败不影响执行权(flock 已持有)
+        return self
+
+    def __exit__(self, *exc) -> bool:
+        if self.fh is not None:
+            try:
+                fcntl.flock(self.fh.fileno(), fcntl.LOCK_UN)
+            except OSError:
+                pass
+            finally:
+                self.fh.close()
+                self.fh = None
+        return False
+
+
+def _isolated_recovery_actions(recovery: dict) -> list[dict]:
+    """S3B-02:从恢复报告提取坏 artifact/缺权威的失败处置(disposition
+    为携带 error 的 dict);这些 action 须被隔离,不以 claimed 旧收据
+    授权重执行。"""
+    out = []
+    for entry in (recovery or {}).get("actions") or []:
+        disp = entry.get("disposition")
+        if isinstance(disp, dict) and disp.get("error"):
+            out.append({"action_id": entry.get("action_id"),
+                        "action_kind": entry.get("action_kind"),
+                        "boundary": entry.get("boundary"),
+                        "failure": dict(disp)})
+    return out
+
+
 class _Driver:
-    """一次驱动会话(进程内;恢复后新实例从持久记录继续)。"""
+    """一次驱动会话(进程内;恢复后新实例从持久记录继续;消费冻结
+    计划输入)。"""
 
     def __init__(self, ledger: SearchLedger, plan: dict, run_id: str,
                  worker_id: str, crash_after: str | None = None) -> None:
@@ -203,14 +362,27 @@ class _Driver:
     # ------------------------------------------------------------ 主循环
 
     def reconcile_followups(self) -> None:
-        """B4 补救:事件已提交、followup 调度未完成的 action(done 但
-        事件产物无任何 followup)⇒ 从权威记录(事件 + 展开计划附件)
-        幂等补调度(不重发事件、不重复扣额;queue 幂等)。转换分支:
-        存在携带本事件 pending_followup 的转换 action ⇒ 留给转换执行。
+        """B4 补调度(S3b r2/S3B-03):事件已提交、后续调度未完成 ⇒
+        从**权威记录**(提交记录的 event_id → 事件行 + 展开计划附件)
+        与**冻结计划的显式转换意图**(scenario_transitions 按该 expand
+        的 hypothesis_key 匹配)派生期望后续集合,逐对象幂等补齐。
+
+        - 不再以"payload LIKE 引用计数 > 1"当完整性证书:期望集合 =
+          事件参与物产物 state_ref 全集 × 展开计划(expanded ⇒ pending
+          retrieve / deferred ⇒ deferred retrieve / not_tracked ⇒ 无);
+        - 计划带转换 ⇒ 补齐/复用携带 pending_followup 的转换 action
+          (转换执行后以新上下文调度 followup —— 只后效;旧边评估不动);
+          覆盖事件提交后转换未入队(B4)、转换已入队(载荷一次冻结)
+          两窗口;
+        - 无转换 ⇒ enqueue_coproduct_followups 幂等补齐全部产物
+          (0/部分/全部 followup 逐对象闭合;同键同内容 unchanged,
+          不重发事件、不重复扣额);
+        - 事件权威不重放(submit 幂等键);损坏权威由 store/recover
+        侧先行拒绝,本层不猜补。
         """
         rows = self.ledger.conn.execute(
             "SELECT a.action_id, a.parent_path_id, a.context_ref,"
-            " a.parent_search_revision, a.payload,"
+            " a.parent_search_revision, a.policy_version, a.payload,"
             " c.event_id FROM search_actions a JOIN search_commit_records"
             " c ON c.action_id = a.action_id WHERE a.run_id = ? AND"
             " a.action_kind = ? AND a.status = ? AND c.event_id != ''",
@@ -218,17 +390,15 @@ class _Driver:
              "done")).fetchall()
         for row in rows:
             event_id = row["event_id"]
-            existing = self.ledger.conn.execute(
-                "SELECT COUNT(*) FROM search_actions WHERE run_id = ? AND"
-                " payload LIKE ?",
-                (self.run_id, f"%{event_id}%")).fetchone()[0]
-            if int(existing) > 1:  # 事件引用已出现在 followup/转换载荷
+            payload = json.loads(row["payload"]) or {}
+            plan_transition = self._match_transition(payload)
+            if plan_transition is not None:
+                self._ensure_transition_followup(row, event_id, payload,
+                                                 plan_transition)
                 continue
-            plan = self.store.expansion_plan(event_id)
-            if not plan:
-                continue
+            plan_doc = self.store.expansion_plan(event_id)
             ev = self.store.get_event(event_id)
-            if not ev:
+            if not plan_doc or not ev:
                 continue
             ev_payload = ev.get("payload")
             participants = (json.loads(ev_payload).get("participants")
@@ -244,19 +414,75 @@ class _Driver:
                 parent_path_id=row["parent_path_id"],
                 context_ref=row["context_ref"], event_id=event_id,
                 product_state_refs=product_refs,
-                expansion_plan=dict(plan),
-                policy_version=search_policy_version(),
+                expansion_plan=dict(plan_doc),
+                policy_version=row["policy_version"],
                 parent_search_revision=int(
                     row["parent_search_revision"]) + 1,
                 substrate_smiles_by_ref=smiles_by_ref,
-                depth=int((json.loads(row["payload"]) or {}).get("depth")
-                          or 1))
+                depth=int(payload.get("depth") or 1))
+
+    def _transition_followup_payload(
+            self, *, event_id: str, expansion_plan: dict,
+            product_state_refs: list[str], parent_path_id: str,
+            context_ref: str, revision: int, depth: int) -> dict:
+        """转换 action 的 pending_followup 冻结载荷(**单一构建源**:
+        _run_expand 的事件后入队与 B4 reconcile 的补齐共用 —— 同输入
+        同字节,幂等闭环)。"""
+        return {
+            "event_id": event_id,
+            "expansion_plan": dict(expansion_plan),
+            "product_state_refs": list(product_state_refs),
+            "parent_path_id": parent_path_id,
+            "context_ref": context_ref,
+            "parent_search_revision": int(revision),
+            "depth": int(depth),
+        }
+
+    def _ensure_transition_followup(self, row, event_id: str,
+                                     payload: dict,
+                                     plan_transition: dict) -> None:
+        """B4/转换窗口:确保携带 pending_followup 的转换 action 存在
+        (幂等 enqueue;同键同内容 unchanged)。转换执行后按新上下文
+        调度 followup;不重写旧边评估。"""
+        parent_path_id = row["parent_path_id"]
+        revision = int(row["parent_search_revision"]) + 1
+        ev = self.store.get_event(event_id)
+        if not ev:
+            return
+        ev_payload = ev.get("payload")
+        participants = (json.loads(ev_payload).get("participants")
+                        if isinstance(ev_payload, str) and ev_payload
+                        else ev.get("participants")) or []
+        product_refs = [
+            str(p.get("state_ref")) for p in participants
+            if isinstance(p, dict) and p.get("side") == "product"]
+        plan_doc = dict(self.store.expansion_plan(event_id) or {})
+        pending_followup = self._transition_followup_payload(
+            event_id=event_id, expansion_plan=plan_doc,
+            product_state_refs=product_refs,
+            parent_path_id=parent_path_id,
+            context_ref=row["context_ref"], revision=revision,
+            depth=int(payload.get("depth") or 1))
+        enqueue_scenario_transition(
+            self.ledger, run_id=self.run_id,
+            parent_path_id=parent_path_id,
+            context_ref=row["context_ref"],
+            transition=dict(plan_transition),
+            policy_version=row["policy_version"],
+            parent_search_revision=revision,
+            task_key=_task_key_for(
+                run_id=self.run_id, parent_path_id=parent_path_id,
+                context_ref=row["context_ref"], subject_ref=event_id,
+                kind="scenario_transition", revision=revision,
+                policy_version=row["policy_version"],
+                extra=content_hash(plan_transition)),
+            pending_followup=pending_followup)
 
     def _inflight_action_ids(self) -> list[str]:
         """在途 action(pending + 本 worker 已认领未完成 —— B1 续跑:
         同 worker 幂等 reclaim 后继续执行;其他 worker 认领的 action
-        不在驱动清单内,由其执行方续跑)。稳定次序:created_at,
-        action_id。"""
+        不在驱动清单内,由其执行方续跑;blocked(含恢复隔离)不执行)。
+        稳定次序:created_at, action_id。"""
         rows = self.ledger.conn.execute(
             "SELECT action_id FROM search_actions WHERE run_id = ? AND"
             " (status = ? OR (status = ? AND claimed_by = ?))"
@@ -342,9 +568,20 @@ class _Driver:
         substrate_smiles = str(payload.get("substrate_smiles") or "")
         source_event_id = str(payload.get("source_event_id") or "")
         substrate_depth = int(payload.get("depth") or 0)
+        # ---- S3B-01:任务输入绑定的计划摘要与当前冻结输入同源核验 ----
+        frozen_plan_digest = str(payload.get("plan_digest") or "")
+        if frozen_plan_digest and \
+                frozen_plan_digest != _plan_digest(self.plan):
+            raise PPV1RunError(
+                "retrieve 任务输入绑定的计划摘要与当前冻结输入不一致"
+                "(旧任务不消费新输入;差异须显式新 revision/新任务)",
+                {"kind": "plan_digest_mismatch",
+                 "task_plan_digest": frozen_plan_digest,
+                 "frozen_plan_digest": _plan_digest(self.plan),
+                 "action_id": receipt["action_id"]})
         specs = self._pool_for(substrate_smiles)
         self.total_retrievals += 1
-        if not specs:
+        if not specs and not self.plan.get("model"):
             self.empty_pool_retrievals += 1
             # E01:首选下游无候选 ⇒ 记 unresolved_continuation(不改
             # 上游真假;上游事件/attempt 保留)
@@ -359,6 +596,9 @@ class _Driver:
                                       "次序继续可用备选")}},
                 evidence_refs=[source_event_id] if source_event_id else [])
             return
+        # 空池但计划带模型(S3B-05):仍进 decide —— 空池可组装底物档案
+        # 并消费模型响应(novel 池外提案/合法弃权);有效候选集为空时
+        # 由 decide 如实落 no_local_candidate。
         digest = content_hash({"specs": specs})
         task_key = decision_task_key(
             run_id=self.run_id, parent_path_id=receipt["parent_path_id"],
@@ -410,10 +650,32 @@ class _Driver:
         substrate_smiles = str(payload.get("substrate_smiles") or "")
         substrate_depth = int(payload.get("depth") or 0)
         specs = self._pool_for(substrate_smiles)
+        # ---- S3B-01:decide 已冻结的池摘要同源核验(retrieve 落账的
+        # pool_digest 与当前冻结输入重取的 specs 重算不一致 ⇒ 拒,
+        # 不以旧任务键消费新池) ----
+        frozen_pool_digest = str(payload.get("pool_digest") or "")
+        current_specs_digest = content_hash({"specs": specs})
+        if frozen_pool_digest and \
+                frozen_pool_digest != current_specs_digest:
+            raise PPV1RunError(
+                "decide 已冻结的池摘要与当前冻结输入重取的池不一致"
+                "(旧任务不消费新输入;差异须显式新 revision/新任务)",
+                {"kind": "pool_digest_mismatch",
+                 "frozen_pool_digest": frozen_pool_digest,
+                 "current_specs_digest": current_specs_digest,
+                 "action_id": receipt["action_id"]})
         substrate = _substrate_state(substrate_smiles,
                                      f"ppv1-substrate:{self.run_id}")
         parent_ctx = load_context(self.ledger.artifact_store,
                                   receipt["context_ref"])
+        # ---- S3B-05:底物档案独立于候选(空池仍组装;持久 artifact
+        # 供审计;S2 已交付的只读构造,不接触模型/策略) ----
+        substrate_profile = build_substrate_profile(substrate, parent_ctx)
+        if self.ledger.artifact_store is not None and \
+                str(receipt.get("task_key") or ""):
+            self.ledger.artifact_store.write(
+                str(receipt["task_key"]), "substrate_profile",
+                substrate_profile.to_dict())
         prepared_entries = []
         for index, spec in enumerate(specs):
             key = str(spec.get("key") or f"spec-{index}")
@@ -445,6 +707,42 @@ class _Driver:
                                                  "网络发送被阻止;传入"
                                                  "模型对象不自动补预算")}})
                 return
+        # ---- S3B-05:novel 池外提案的独立假设消费(经 prepare_
+        # hypothesis 单一构建源:结构身份/参与物/系数/共同产物/条件/
+        # 依赖沿既有契约;来源经 proposal_context 明示入冻结任务
+        # 输入;无足够内容在解析/构造侧结构化拒,不伪造) ----
+        novel_by_key: dict[str, dict] = {}
+        for proposal in (model_note.get("novel_proposals") or []):
+            reaction_spec = dict(proposal["reaction_spec"])
+            novel_key = str(proposal.get("hypothesis_id") or "")
+            origin = str((proposal.get("proposal_context") or {}).get(
+                "output_origin") or "novel_outside_pool")
+            prepared = prepare_hypothesis(
+                reaction_spec,
+                parent_path_id=receipt["parent_path_id"],
+                substrate_state=substrate,
+                transformation_ref=str(
+                    reaction_spec.get("transformation_ref") or ""),
+                source_refs=[{"record": f"novel-model-proposal:{origin}"}])
+            prepared_entries.append((novel_key, reaction_spec, prepared))
+            novel_by_key[novel_key] = proposal
+        if not prepared_entries:
+            # 有效候选集为空(池空且模型弃权/无 novel):no_local_
+            # candidate 如实落账(不改上游真假)
+            self.empty_pool_retrievals += 1
+            source_event_id = str(payload.get("source_event_id") or "")
+            _complete_action(
+                self.ledger, receipt["action_id"],
+                worker_id=self.worker_id,
+                outcome={"kind": OUTCOME_KIND_NO_LOCAL_CANDIDATE,
+                         "detail": {
+                             "substrate_smiles": substrate_smiles,
+                             "source_event_id": source_event_id,
+                             "unresolved_continuation": bool(source_event_id),
+                             "note": ("检索/池与模型提案均无候选;不反证"
+                                      "上游;按稳定次序继续可用备选")}},
+                evidence_refs=[source_event_id] if source_event_id else [])
+            return
         rank_by_key = model_note.get("rank_by_key") or {}
         entries: list[dict] = []
         expand_depth = substrate_depth + 1
@@ -470,22 +768,26 @@ class _Driver:
                 tool_id="atom-tool-vendored",
                 prompt_version=_plan_digest(self.plan)[:16],
                 feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
+            entry_payload = {
+                "task_key": task_key,
+                "spec": dict(spec),
+                "hypothesis_key": key,
+                "substrate_smiles": substrate_smiles,
+                "substrate_state_ref": substrate.state_id,
+                "context_ref": context_ref,
+                "parent_path_id": receipt["parent_path_id"],
+                "depth": expand_depth,
+                "source_event_id": str(
+                    payload.get("source_event_id") or ""),
+            }
+            if key in novel_by_key:
+                entry_payload["proposal_context"] = dict(
+                    novel_by_key[key].get("proposal_context") or {})
             entries.append({
                 "hypothesis_key": key,
                 "hypothesis_id": hypothesis.hypothesis_id,
                 "rank": rank,
-                "payload": {
-                    "task_key": task_key,
-                    "spec": dict(spec),
-                    "hypothesis_key": key,
-                    "substrate_smiles": substrate_smiles,
-                    "substrate_state_ref": substrate.state_id,
-                    "context_ref": context_ref,
-                    "parent_path_id": receipt["parent_path_id"],
-                    "depth": expand_depth,
-                    "source_event_id": str(
-                        payload.get("source_event_id") or ""),
-                },
+                "payload": entry_payload,
             })
         schedule = schedule_hypotheses(
             self.ledger, run_id=self.run_id,
@@ -533,7 +835,9 @@ class _Driver:
     def _model_proposals(self, receipt: dict,
                          prepared_entries: list) -> dict:
         """scripted 模型 proposals[] 协议(网络 0;真实 provider 默认
-        off —— 登记被预算拒绝,网络发送被阻止)。"""
+        off —— 登记被预算拒绝,网络发送被阻止)。novel 池外提案
+        (S3B-05)须携带 reaction_spec 完整反应内容,由调用方构造独立
+        假设消费。"""
         action_id = receipt["action_id"]
         attempt_id = (receipt.get("attempt_refs") or [""])[0]
         allowed = {prepared["hypothesis"].hypothesis_id
@@ -603,12 +907,18 @@ class _Driver:
         note["parsed_proposals"] = len(parsed["proposals"])
         note["abstained"] = parsed["abstained"]
         note["rank_by_key"] = rank_by_key
+        novel = [p for p in parsed["proposals"]
+                 if p.get("origin") == "novel"]
+        if novel:
+            note["novel_proposals"] = novel
         return note
 
     def _next_model_response(self) -> str:
         if self.model_responses:
             return str(self.model_responses.pop(0))
-        return "{}"
+        # 脚本响应队列耗尽 ⇒ 合法弃权(proposals=[];不猜内容、不
+        # 伪造响应;弃权与规则池并行,不强制停止规则搜索)
+        return '{"proposals": []}'
 
     # ------------------------------------------------------------ expand
 
@@ -692,22 +1002,17 @@ class _Driver:
         revision = int(receipt["parent_search_revision"]) + 1
         plan_transition = self._match_transition(payload)
         product_refs = [s.state_id for s in prepared["product_states"]]
-        substrate_smiles_by_ref = {
-            s.state_id: s.smiles_isomeric
-            for s in prepared["product_states"]}
         if plan_transition is not None:
-            # 转换动作携带 pending followup(转换执行后由新上下文调度)
-            transition_payload = {
-                "transition": dict(plan_transition),
-                "pending_followup": {
-                    "event_id": production["event_id"],
-                    "expansion_plan": production["expansion_plan"],
-                    "product_state_refs": product_refs,
-                    "parent_path_id": parent_path_id,
-                    "context_ref": receipt["context_ref"],
-                    "parent_search_revision": revision,
-                    "depth": int(payload.get("depth") or 1)},
-            }
+            # 转换动作携带 pending followup(**创建时一次冻结入载荷**,
+            # S3B-03:无两写窗口;转换执行后由新上下文调度)
+            pending_followup = self._transition_followup_payload(
+                event_id=production["event_id"],
+                expansion_plan=production["expansion_plan"],
+                product_state_refs=product_refs,
+                parent_path_id=parent_path_id,
+                context_ref=receipt["context_ref"],
+                revision=revision,
+                depth=int(payload.get("depth") or 1))
             enqueue_scenario_transition(
                 self.ledger, run_id=self.run_id,
                 parent_path_id=parent_path_id,
@@ -721,12 +1026,12 @@ class _Driver:
                     subject_ref=production["event_id"],
                     kind="scenario_transition", revision=revision,
                     policy_version=receipt["policy_version"],
-                    extra=content_hash(plan_transition)))
-            # 把 pending_followup 并入转换 action 冻结载荷(幂等)
-            self._attach_followup_to_transition(
-                parent_path_id, receipt["context_ref"], revision,
-                content_hash(plan_transition), transition_payload)
+                    extra=content_hash(plan_transition)),
+                pending_followup=pending_followup)
         else:
+            substrate_smiles_by_ref = {
+                s.state_id: s.smiles_isomeric
+                for s in prepared["product_states"]}
             enqueue_coproduct_followups(
                 self.ledger, run_id=self.run_id,
                 parent_path_id=parent_path_id,
@@ -738,40 +1043,6 @@ class _Driver:
                 parent_search_revision=revision,
                 substrate_smiles_by_ref=substrate_smiles_by_ref,
                 depth=int(payload.get("depth") or 1))
-
-    def _attach_followup_to_transition(self, parent_path_id: str,
-                                        context_ref: str, revision: int,
-                                        transition_digest: str,
-                                        transition_payload: dict) -> None:
-        """把 pending_followup 并入转换 action 的冻结载荷(同键同内容
-        幂等;转换执行后按新上下文调度 followup)。"""
-        action_id = stable_id(
-            "sact", self.run_id, parent_path_id, context_ref,
-            stable_id("strans", parent_path_id, context_ref,
-                      transition_digest),
-            ACTION_KIND_SCENARIO_TRANSITION, str(int(revision)),
-            search_policy_version())
-        row = self.ledger.conn.execute(
-            "SELECT payload FROM search_actions WHERE action_id = ?",
-            (action_id,)).fetchone()
-        if row is None:
-            raise PPV1RunError(
-                f"转换 action {action_id} 不存在(无法附加 pending_"
-                "followup)", {"kind": "transition_action_missing"})
-        stored = json.loads(row["payload"])
-        if "pending_followup" in stored:
-            return  # 幂等:已携带
-        stored["pending_followup"] = transition_payload["pending_followup"]
-        self.ledger._begin()
-        try:
-            self.ledger.conn.execute(
-                "UPDATE search_actions SET payload = ? WHERE action_id = ?"
-                " AND status = ?",
-                (json.dumps(stored, ensure_ascii=False, sort_keys=True), action_id, "pending"))
-            self.ledger.conn.commit()
-        except Exception:
-            self.ledger.conn.rollback()
-            raise
 
     def _match_transition(self, payload: dict) -> dict | None:
         key = str(payload.get("hypothesis_key") or "")
@@ -936,9 +1207,13 @@ def start_ppv1_run(
       format_feedback_policy;未知取值 fail-closed);
     - run identity(代码/资产/策略/模型/MoleCode;PPV1 哈希全树)落盘
       后进驱动;重复 run 拒绝;
+    - **执行会话互斥(S3B-04)**:run 目录 flock(并发 start 单胜者
+      由原子目录创建保证;此后驱动全程持锁,并发 resume 在执行前拒);
     - 严格 root state(工厂守卫)+ 根 context(artifact 持久化)+
+      **冻结计划输入持久化(S3B-01:plan_digest 内容绑定)** +
       搜索 run 注册(policy block = profile 块;恢复按同一身份);
-    - 根 retrieve 入队(计划池;空池 ⇒ no_local_candidate 诚实停止);
+    - 根 retrieve 入队(任务输入绑定计划摘要;空池 ⇒ no_local_
+      candidate 诚实停止 —— 计划带模型时空池仍进 decide,S3B-05);
     - 驱动循环 + stop_report(停止不是化学终点)。
     """
     runs_root = Path(runs_root)
@@ -954,51 +1229,59 @@ def start_ppv1_run(
     except FileExistsError:
         from ..workflow.runner import RunAlreadyExists
         raise RunAlreadyExists(run_id, run_dir) from None
-    policy_block = build_profile_identity_block(**(profile_policy or {}))
-    limits = policy_block["search_limits"]
-    asset_identity = (scripted_asset_identity() if scripted
-                      else retrieval_asset_identity(config))
-    identity = build_run_identity(
-        run_id=run_id, root_smiles=smiles, root_cn=_cn_of(smiles),
-        strategy=_strategy_block(limits), asset_identity=asset_identity,
-        v3_code_identity=v3_code_identity(config.v3_code_root),
-        prediction=_prediction_block(model),
-        profile=PROFILE_POLLUTANT_PATHWAY_V1,
-        profile_policy=profile_policy or None)
-    write_run_identity(runs_root, identity)
-    store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
-    artifacts = ArtifactStore(runs_root, run_id)
-    ledger = SearchLedger(store, artifacts, run_id)
-    ledger.register_search_run(run_id, policy_block)
-    root_state = _substrate_state(smiles, "ppv1-root-input")
-    store.put_state(root_state.to_dict())
-    root_ctx = build_path_context(
-        condition_facts=_fact_list((plan or {}).get("condition_facts")),
-        scenario_ref=str((plan or {}).get("scenario_ref") or ""),
-        dependencies=[
-            build_cyclic_dependency(dict(d))
-            for d in ((plan or {}).get("dependencies") or [])])
-    context_ref = persist_context(artifacts, root_ctx)
-    driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
-                     crash_after=crash_after)
-    root_path = driver.root_path_id
-    task_key = decision_task_key(
-        run_id=run_id, parent_path_id=root_path, context_ref=context_ref,
-        frozen_pool_digest=_plan_digest(plan or {}),
-        parent_search_revision=0, policy_version=search_policy_version(),
-        strict_state_digest=root_state.state_id,
-        tool_id="atom-tool-vendored",
-        prompt_version=_plan_digest(plan or {})[:16],
-        feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
-    ledger.enqueue_action(
-        run_id=run_id, parent_path_id=root_path, context_ref=context_ref,
-        subject_ref=root_state.state_id, action_kind=ACTION_KIND_RETRIEVE,
-        parent_search_revision=0, policy_version=search_policy_version(),
-        payload={"task_key": task_key, "substrate_smiles": smiles,
-                 "context_ref": context_ref, "parent_path_id": root_path,
-                 "depth": 0, "source_event_id": ""})
-    report = driver.drive()
-    return _summary(store, run_id, report, resumed=False)
+    with _DriverSession(run_dir) as session:
+        policy_block = build_profile_identity_block(**(profile_policy or {}))
+        limits = policy_block["search_limits"]
+        asset_identity = (scripted_asset_identity() if scripted
+                          else retrieval_asset_identity(config))
+        identity = build_run_identity(
+            run_id=run_id, root_smiles=smiles, root_cn=_cn_of(smiles),
+            strategy=_strategy_block(limits), asset_identity=asset_identity,
+            v3_code_identity=v3_code_identity(config.v3_code_root),
+            prediction=_prediction_block(model),
+            profile=PROFILE_POLLUTANT_PATHWAY_V1,
+            profile_policy=profile_policy or None)
+        write_run_identity(runs_root, identity)
+        store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
+        artifacts = ArtifactStore(runs_root, run_id)
+        ledger = SearchLedger(store, artifacts, run_id)
+        ledger.register_search_run(run_id, policy_block)
+        root_state = _substrate_state(smiles, "ppv1-root-input")
+        store.put_state(root_state.to_dict())
+        root_ctx = build_path_context(
+            condition_facts=_fact_list((plan or {}).get("condition_facts")),
+            scenario_ref=str((plan or {}).get("scenario_ref") or ""),
+            dependencies=[
+                build_cyclic_dependency(dict(d))
+                for d in ((plan or {}).get("dependencies") or [])])
+        context_ref = persist_context(artifacts, root_ctx)
+        # ---- S3B-01:计划持久化为冻结输入来源(此后驱动只消费冻结) ----
+        _persist_frozen_plan(artifacts, plan or {})
+        driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
+                         crash_after=crash_after)
+        root_path = driver.root_path_id
+        task_key = decision_task_key(
+            run_id=run_id, parent_path_id=root_path,
+            context_ref=context_ref,
+            frozen_pool_digest=_plan_digest(plan or {}),
+            parent_search_revision=0, policy_version=search_policy_version(),
+            strict_state_digest=root_state.state_id,
+            tool_id="atom-tool-vendored",
+            prompt_version=_plan_digest(plan or {})[:16],
+            feedback_policy_version=FORMAT_FEEDBACK_POLICY_VERSION)
+        ledger.enqueue_action(
+            run_id=run_id, parent_path_id=root_path,
+            context_ref=context_ref, subject_ref=root_state.state_id,
+            action_kind=ACTION_KIND_RETRIEVE,
+            parent_search_revision=0, policy_version=search_policy_version(),
+            payload={"task_key": task_key, "substrate_smiles": smiles,
+                     "context_ref": context_ref, "parent_path_id": root_path,
+                     "depth": 0, "source_event_id": "",
+                     "plan_digest": _plan_digest(plan or {})})
+        report = driver.drive()
+        summary = _summary(store, run_id, report, resumed=False)
+        summary["driver_session"] = dict(session.info)
+        return summary
 
 
 def resume_ppv1_run(
@@ -1010,14 +1293,26 @@ def resume_ppv1_run(
     model=None,
     crash_after: str | None = None,
 ) -> dict:
-    """PPV1 独立 resume(身份核对 → 四边界恢复 → 继续驱动)。
+    """PPV1 独立 resume(身份核对 → 执行会话互斥 → 冻结输入核对 →
+    四边界恢复 → 坏 artifact 隔离 → 继续驱动)。
 
     - 保存身份的 profile 必须 PPV1(legacy run 不走本路径;未知
       profile fail-closed);
     - 当前身份逐字段核对(check_resume_identity:代码/资产/策略/
       模型/MoleCode 任一变更拒绝;不原地切换);
+    - **执行会话互斥(S3B-04)**:先取 run 目录 flock,失败 ⇒ 结构化
+      拒绝(竞争方在任何恢复/认领/请求/工具执行前返回;崩溃 OS 自动
+      释放,新进程接管原 attempt/预约);
+    - **冻结输入核对(S3B-01)**:加载 start 持久化的冻结计划
+      (H07 完整性包装 + 内容身份核验;缺/坏结构化拒);不传 plan ⇒
+      沿冻结输入(缺输入不变空池);传入计划内容不符 ⇒ 拒
+      (frozen_plan_mismatch;差异须显式新 revision/新任务);
     - recover_run:B4 幂等补账/B3 消费同一 output/B1 读冻结记录续跑/
       B2 pending 披露(不默发);
+    - **恢复裁定接执行门(S3B-02)**:坏 artifact/缺权威的 claimed
+      action 明确隔离(claimed → blocked,recovery_failure:<kind>;
+      零猜重算、零坏任务 event/成功 commit/consume,证据保全);
+      其他合法独立任务继续驱动;
     - 同 worker 身份继续驱动(幂等 reclaim);不重建/不覆盖既有
       搜索/attempt/request/提交记录。
     """
@@ -1055,22 +1350,50 @@ def resume_ppv1_run(
         profile_policy=profile_kwargs or None)
     check_resume_identity(saved, current)
     run_dir = runs_root / run_id
-    store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
-    artifacts = ArtifactStore(runs_root, run_id)
-    ledger = SearchLedger(store, artifacts, run_id)
-    recovery = ledger.recover_run(
-        run_id, policy_block=(saved.get("profile") or None),
-        worker_id=_worker_id(run_id))
-    driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
-                     crash_after=crash_after)
-    report = driver.drive()
-    summary = _summary(store, run_id, report, resumed=True)
-    summary["recovery"] = {
-        "actions": recovery.get("actions"),
-        "pending_requests": recovery.get("pending_requests"),
-        "unknown_status_requests": recovery.get("unknown_status_requests"),
-    }
-    return summary
+    with _DriverSession(run_dir) as session:
+        store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
+        artifacts = ArtifactStore(runs_root, run_id)
+        ledger = SearchLedger(store, artifacts, run_id)
+        # ---- S3B-01:冻结计划输入核对(先于任何恢复消费) ----
+        frozen_plan = _load_frozen_plan(artifacts)
+        if plan is not None:
+            submitted_digest = _plan_digest(plan)
+            frozen_digest = _plan_digest(frozen_plan)
+            if submitted_digest != frozen_digest:
+                raise PPV1RunError(
+                    "resume 传入计划与冻结输入不符(旧任务不消费新输入;"
+                    "差异须显式新 revision/新任务登记,不能复用旧裁决键)",
+                    {"kind": "frozen_plan_mismatch",
+                     "frozen_plan_digest": frozen_digest,
+                     "submitted_plan_digest": submitted_digest,
+                     "run_id": run_id})
+        recovery = ledger.recover_run(
+            run_id, policy_block=(saved.get("profile") or None),
+            worker_id=_worker_id(run_id))
+        # ---- S3B-02:恢复裁定接 driver 执行门(坏 artifact/缺权威
+        # 隔离;合法 B1–B4 不受影响;证据保全) ----
+        isolated: list[dict] = []
+        for failure in _isolated_recovery_actions(recovery):
+            out = ledger.isolate_recovered_failure(
+                str(failure["action_id"]),
+                kind=str((failure.get("failure") or {}).get("kind")
+                         or "unknown"),
+                note="恢复裁定的坏 artifact/缺权威:隔离不重执行,"
+                     "证据保全;合法独立任务继续")
+            isolated.append({**failure, "isolation": out})
+        driver = _Driver(ledger, frozen_plan, run_id, _worker_id(run_id),
+                         crash_after=crash_after)
+        report = driver.drive()
+        summary = _summary(store, run_id, report, resumed=True)
+        summary["recovery"] = {
+            "actions": recovery.get("actions"),
+            "pending_requests": recovery.get("pending_requests"),
+            "unknown_status_requests": recovery.get(
+                "unknown_status_requests"),
+            "isolated_actions": isolated,
+        }
+        summary["driver_session"] = dict(session.info)
+        return summary
 
 
 def _cn_of(smiles: str) -> str:

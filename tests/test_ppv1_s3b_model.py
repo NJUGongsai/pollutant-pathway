@@ -1,5 +1,6 @@
 """S3b 模型假设协议回归(proposals[]/rank/有界格式反馈;
-ppv1-model-proposals-1 / format-feedback-1)。
+ppv1-model-proposals-2 / format-feedback-1;r2 更新:novel 须携带
+reaction_spec 完整反应内容)。
 
 覆盖(任务书 §7 S3b「模型协议/反馈」行):
 - 备选与共同产物不混;空列表/弃权合法;稳定 ID 引用;
@@ -103,20 +104,43 @@ def test_parse_unknown_pool_id_requires_novel_context() -> None:
     assert ei2.value.detail["kind"] == FORMAT_ERROR_ALLOWED_ID
 
 
-def test_parse_novel_requires_proposal_context() -> None:
+def test_parse_novel_requires_proposal_context_and_reaction_spec() -> None:
+    # S3b r2(S3B-05):novel 池外提案须带 proposal_context(来源)与
+    # reaction_spec(完整反应内容)—— 无足够内容不能授有效 hypothesis
     with pytest.raises(ModelProtocolError) as ei:
         parse_model_proposals(
             _resp({"proposals": [{"hypothesis_id": "hyp_new"}]}),
             allowed_hypothesis_ids=ALLOWED)
     assert ei.value.detail["kind"] == FORMAT_ERROR_JSON_FIELD
+    # 有 context 但缺 reaction_spec ⇒ json_field(可进有界反馈)
+    with pytest.raises(ModelProtocolError) as ei3:
+        parse_model_proposals(
+            _resp({"proposals": [{
+                "hypothesis_id": "hyp_new",
+                "proposal_context": {
+                    "reference_hypothesis_ids": ["hyp_A"],
+                    "output_origin": "novel_outside_pool"}}]}),
+            allowed_hypothesis_ids=ALLOWED)
+    assert ei3.value.detail["kind"] == FORMAT_ERROR_JSON_FIELD
+    assert ei3.value.detail["novel_reaction_spec_missing"] is True
+    # 完整 novel(内容 + 来源)⇒ 解析通过,reaction_spec 透传消费方
     parsed = parse_model_proposals(
         _resp({"proposals": [{
             "hypothesis_id": "hyp_new",
             "proposal_context": {
                 "reference_hypothesis_ids": ["hyp_A"],
-                "output_origin": "novel_outside_pool"}}]}),
+                "output_origin": "novel_outside_pool"},
+            "reaction_spec": {
+                "key": "Novel", "product_smiles": "CC=O",
+                "coefficient": 1, "transformation_ref": "donor-Novel",
+                "origin_group_key": "donor-Novel",
+                "edits": [], "donor": {"center_atom_ids": []},
+                "alignment": {"status": "resolved"},
+                "expectation": {"target_smiles": "CC=O"}}}]}),
         allowed_hypothesis_ids=ALLOWED)
     assert parsed["proposals"][0]["origin"] == "novel"
+    assert parsed["proposals"][0]["reaction_spec"]["product_smiles"] == \
+        "CC=O"
     # 参考引用必须在池内
     with pytest.raises(ModelProtocolError) as ei2:
         parse_model_proposals(
@@ -124,7 +148,8 @@ def test_parse_novel_requires_proposal_context() -> None:
                 "hypothesis_id": "hyp_new",
                 "proposal_context": {
                     "reference_hypothesis_ids": ["hyp_other"],
-                    "output_origin": "x"}}]}),
+                    "output_origin": "x"},
+                "reaction_spec": {"product_smiles": "CC=O"}}]}),
             allowed_hypothesis_ids=ALLOWED)
     assert ei2.value.detail["kind"] == FORMAT_ERROR_ALLOWED_ID
 

@@ -1,0 +1,44 @@
+{
+  "batch": "s3b_r2",
+  "date": "2026-10-08",
+  "actual_head_at_implementation": "c1211183c0874b12c5b5461845d3c61f0a84719c",
+  "parent_commit": "b7f2bba02ca49edd0a45a13bc9b8434909d99175",
+  "review_report": "docs/POLLUTANT_PATHWAY_S3B_CODEX_REVIEW_2026-10-08.md",
+  "p1_groups": [
+    "S3B-01",
+    "S3B-02",
+    "S3B-03",
+    "S3B-04",
+    "S3B-05",
+    "S3B-06"
+  ],
+  "execution_summary": {
+    "ppv1_full_current": "871 passed / 0 skipped / 0 failed exit 0 (851 + 20)",
+    "parent_c121_same_byte": "18 failed / 57 passed / 0 collection errors (new file: 15 behavior red + 5 legal green; updated files: 1 version-literal flip + 1 field-form red + 1 behavior red)",
+    "g01_isolated": "1473 passed / 8 skipped / 17 deselected exit 0 (287 inputs)"
+  },
+  "files": [
+    "README.md",
+    "baseline/baseline_classification.json",
+    "baseline/parent_c121_new_and_updated.junit.xml",
+    "baseline/parent_c121_new_and_updated.stderr.txt",
+    "baseline/parent_c121_new_and_updated.stdout.txt",
+    "current/ppv1_full.junit.xml",
+    "current/ppv1_full.stderr.txt",
+    "current/ppv1_full.stdout.txt",
+    "g01/execution_result.json",
+    "g01/g01_junit.xml",
+    "g01/g01_safe.stderr.txt",
+    "g01/g01_safe.stdout.txt",
+    "g01/input_sha256.json",
+    "g01/preparation.json",
+    "manifest.json",
+    "mimo/mimo_ppv1_chem_review_request_v13_sent.md",
+    "scripts/safe_g01_s3b_r2.py"
+  ],
+  "external_file_hashes": {
+    "delivery_doc": "ff65003d87226eaae3efd9544663c8c92eb76ec130933db232c7baeeb91f36d3",
+    "mimo_request_v14": "707daf8e380a16baccf03440b4fc6d72d5a23c6ad1f7f445fec4c88db47822f0"
+  },
+  "note": "manifest does not hash itself; SHA256SUMS covers all other files in this directory; external hashes reference delivery doc and mimo v14 request at commit time"
+}
