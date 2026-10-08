@@ -1,0 +1,81 @@
+{
+ "batch": "ppv1 S4a r1 (endpoint accounting split + native result base)",
+ "date": "2026-10-08",
+ "repo": "/Volumes/CC/Enzyme_Agent/dependingv43",
+ "implementation_time_head": "0e345e83de27e7369334fe092da7a6ccbc8afd6c",
+ "parent_baseline": "adf0287abef0c4803962fee0df0065d8e6f3793d",
+ "src_tests_identical_to_parent_at_start": true,
+ "user_untracked_kept_untouched": [".zcodeignore"],
+ "criteria_status": "frozen ppv1-criteria-v1 (2026-10-08); this batch does not modify the frozen criteria text",
+ "environment": {
+  "python": "3.11.16 (conda depending43)",
+  "rdkit": "2026.03.6",
+  "sqlite": "3.53.4",
+  "platform": "macOS-27.0.1-arm64",
+  "pytest_flags": "-p no:cacheprovider; PYTHONDONTWRITEBYTECODE=1; -B"
+ },
+ "contract_versions": {
+  "new": ["ppv1-endpoint-1", "ppv1-endpoint-policy-1", "ppv1-native-result-1"],
+  "bumped": {"store": "ppv1-store-9 -> ppv1-store-10",
+             "profile": "ppv1-profile-14 -> ppv1-profile-15",
+             "runflow": "ppv1-runflow-3 -> ppv1-runflow-4"},
+  "kept": ["ppv1-search-6", "ppv1-search-limits-3",
+           "ppv1-format-feedback-1", "ppv1-model-proposals-2",
+           "ppv1-frozen-plan-1", "ppv1-*-8 chemistry family"]
+ },
+ "source_changes": {
+  "new": ["src/pathway_v43/pollutant/endpoint.py",
+          "src/pathway_v43/pollutant/native_result.py",
+          "tests/test_ppv1_s4a_endpoint.py"],
+  "modified": ["src/pathway_v43/pollutant/runflow.py",
+               "src/pathway_v43/pollutant/profile.py",
+               "src/pathway_v43/pollutant/store.py",
+               "tests/test_ppv1_profile.py (two version/stage literals)"],
+  "frozen_untouched": ["src/pathway_v43/output/export_v3.py",
+                       "src/pathway_v43/services/atom_tool.py",
+                       "src/pathway_v43/workflow/runner.py",
+                       "src/pathway_v43/pollutant/production.py",
+                       "src/pathway_v43/pollutant/chemstate.py",
+                       "src/pathway_v43/pollutant/path_context.py",
+                       "src/pathway_v43/pollutant/hypothesis.py",
+                       "src/pathway_v43/pollutant/events.py",
+                       "src/pathway_v43/pollutant/audit.py",
+                       "src/pathway_v43/pollutant/search.py",
+                       "src/pathway_v43/pollutant/queue.py",
+                       "src/pathway_v43/pollutant/model_protocol.py"]
+ },
+ "results": {
+  "current_s4a_focus": "35 passed / 0 failed (exit 0)",
+  "current_ppv1_full": "914 passed / 0 skipped / 0 failed (879 stock + 35 new)",
+  "current_full_nonslow": "1525 passed / 16 deselected / 0 failed",
+  "parent_baseline_same_byte": "35 collection red (module missing) + 2 version-literal red + 21 legal green; 0 behavior red",
+  "g01_safe_isolated": "1516 passed / 8 skipped / 17 deselected (exit 0; 291 inputs; 1481 s3b_r3 + 35 new)"
+ },
+ "g01_absent_dependencies": {
+  "real_frozen_evaluation": ["tests/test_batch_runner.py:52",
+                             "tests/test_score_report.py:110",
+                             "tests/test_score_report.py:163",
+                             "tests/test_score_report.py:172",
+                             "tests/test_score_report.py:184"],
+  "missing_v4_parser_source": ["tests/test_analog_assets.py:95"],
+  "uncopied_phase_d_derived": ["tests/test_analog_v2_corpus.py:62",
+                               "tests/test_analog_v2_corpus.py:153"],
+  "slow_deselected": 16,
+  "explicit_deselected": "tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden",
+  "network_requests": 0,
+  "real_provider": "off (default)",
+  "gold_or_benchmark_or_sealed_or_v4_access": false,
+  "llm_grading": 0
+ },
+ "scope_boundaries": {
+  "s4b_not_done": ["formal file export", "file-level determinism/G02 matrix",
+                   "export-side stale/integrity", "v3 lossy_projection adapter",
+                   "bidirectional native/v3 references",
+                   "full start/resume->native export->v3 adapter->replay chain"],
+  "s5_not_started": true,
+  "science_performance": "pending; synthetic rule-level contract results only; not extrapolable to dev (B1) or 298 (RHEA)"
+ },
+ "delivery_book": "docs/POLLUTANT_PATHWAY_S4A_DELIVERY_2026-10-08.md",
+ "mimo_request": "docs/mimo_ppv1_chem_review_request.md (v16; v15 sent snapshot archived byte-exact from parent adf0287)",
+ "evidence_files": 32
+}

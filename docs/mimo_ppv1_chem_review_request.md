@@ -1,22 +1,25 @@
-# mimo 化学评审请求:pollutant_pathway_v1 化学判据(S3b 回修 r3 版 v15)
+# mimo 化学评审请求:pollutant_pathway_v1 化学判据(S4a 批次版 v16)
 
-- 日期:2026-10-08(S3b 回修 r3 批次;替换 2026-10-08 v14 请求。
-  v14 送审快照已存 `docs/review_evidence/ppv1_s3_impl_2026-10-08/
-  s3b_r2/mimo/`(字节同刚送审的 v14);旧回应 r5–r14 原样保留不覆盖)
+- 日期:2026-10-08(S4a 首批(endpoint 分账与原生结果底座);替换
+  2026-10-08 v15 请求。v15 送审快照已存 `docs/review_evidence/
+  ppv1_s4_impl_2026-10-08/s4a_r1/mimo/`(字节同冻结底本,父提交
+  adf0287);旧回应 r5–r15 原样保留不覆盖)
 - 触发点:AGENTS.md mimo 三触发点之 1(需评判化学结构时——冻结或
-  发布前)
-- 评审对象:S0–S2 判据(ppv1-*-8 契约族)+ S3 消费契约的 S3b-r3
-  更新(ppv1-search-6 / ppv1-store-9 / ppv1-profile-14 /
-  search-limits-3 / format-feedback-1 / model-proposals-2 /
-  **runflow-3**);**判据尚未冻结**
-- 与 v14 的差异来源:Codex S3b-r2 复审未放行
-  (`POLLUTANT_PATHWAY_S3B_CODEX_REVIEW_R2_2026-10-08.md` §4 唯一
-  残余 P1 S3B-01 后段锚定 + §2/§5/§6 精度裁定)+ S3b-r3 回修交付。
-  r3 **不新增化学判据或门禁**;新增的是**恢复消费契约文字**(0e.1
-  后段锚定段:冻结计划与独立既存 run/root/task 原绑定核对的三类
-  拒因分栏)与 0c-v15 节(复审 R2 §2/§5/§6 的精度更正落字);受审
-  文字为 0e.1 更新段、0c-v15 全部、0d 按 0c-v14/v15 更正后的表述、
-  §6 数字与契约版本更新
+  发布前);本批为 **S4a 首批交付后的判据侧请求**(S4 任务书 §12)
+- 评审对象:冻结判据 ppv1-criteria-v1(判据一–五 + 0d/0e 消费契约
+  正文**不变**)+ **S4a 新增的 endpoint 分账消费契约**
+  (ppv1-endpoint-1 / ppv1-endpoint-policy-1 /
+  ppv1-native-result-1;store-10 / profile-15 / runflow-4 为其
+  工程登记面;见 0f 节)
+- 与 v15 的差异来源:S4 任务书首批实施(S4a:endpoint 四分账/
+  F01/F02/F03/根碳账/终点证据/独立持久化与首消费/原生结果对象
+  底座)。**v16 不修改判据一–五与 0d/0e 的任何正文语义**
+  ("语义未改变"声明见 0f 节末);新增的是 0f 节(S4a endpoint
+  分账与原生结果底座的规则级表述,全部为终点/账目/导出侧的
+  消费契约与化学边界声明,属 S4 范围——冻结判据 §0 明示
+  "chemical endpoint 评估属 S4,本判据族不产出任何终点/矿化/
+  解毒结论",本批即该 S4 范围的首批工程与判据侧表述)与 §6
+  数字更新
 - 自包含性:本版展开必要规则全文,不以"同 v7/v8"缩写引用历史;
   规则级表述与合成规则级夹具,无任何金标/题面/封存逐题数据;由
   用户转交,回复原文落盘 `docs/`;实施 agent 不调用模型,只读/执行
@@ -47,7 +50,25 @@ r3 文件)**5 行为红 + 3 合法正控绿**(0 collection/版本/字段红,
 字符串;账平、物种同 CN 或一份正确局部诊断不能代替整条声明的
 覆盖与追溯。停止不是化学终点;搜索记录/合成图不是终点结论。工程
 数字是合成规则级契约结果,不代表 dev(B1 环境路径中间步骤)或
-298(RHEA 通用酶学)科学性能;判据未冻结;S4/S5 未启动。
+298(RHEA 通用酶学)科学性能。**v15 后判据已冻结
+(ppv1-criteria-v1,2026-10-08 用户拍板;冻结稿 =
+`docs/POLLUTANT_PATHWAY_CRITERIA_FROZEN_V1_2026-10-08.md`,底本
+即本文件 v15)**;Codex S3b-r3 终审通过、S3 工程交接完成。本批
+(S4a,S4 任务书首批)交付 **endpoint 分账与原生结果底座**:
+公共 start/resume 在驱动结束后把 execution_status /
+search_stop_reason / chemical_endpoint_assessment /
+bookkeeping_status 四分账独立持久化(stop_reason_records /
+endpoint_records 两张派生投影表),终点评估只由独立终点证据
+(冻结计划的来源层直报声明)决定,F01 停止非终点/F02 未知依赖
+不被 recorded 洗白/F03 重复来源不增独立支持,根碳账只表达核查
+范围(账平不当矿化、备选 CO₂ 不相加),并构建确定性原生结果
+对象(同事实同 digest;正式文件导出与 v3 有损适配属 S4b 未做)。
+工程数字:ppv1 全量 **914 passed/0 skip**(879 存量 + 35 新 S4a,
+33 文件);直接父 adf0287 同字节对照(新 S4a 文件)**35 collection
+红(模块缺失)+ 更新的 profile 测试 2 版本字面量红 + 21 合法正控
+绿**;G01 安全隔离 **1516 passed/8 skipped/17 deselected**
+(291 输入)。S4b(v3 有损适配/正式导出/完整端到端)与 S5 未做;
+科学性能保持 pending。
 
 ## 0b. S3a r4 实现与未实现边界(工程披露;受审表述)
 
@@ -380,6 +401,139 @@ ppv1-runflow-3(r3 自 -2 升)/ ppv1-model-proposals-2 登记;
    budget_limit > depth_limit > …;零深度+预算复合时主因
    budget_limit 合法、depth_limit 入其他原因);正常运行/恢复
    同源、不丢/不重数;blocked 对象存在 ⇒ 不称 exhausted_search。
+
+## 0f. S4a endpoint 分账与原生结果底座(受审表述;v16 新增)
+
+S4a(S4 任务书首批)把"搜索停止"与"化学终点"正式分账。以下
+全部为**消费契约与化学边界声明**(终点/账目/导出侧),不改判据
+一–五与 0d/0e 任何正文语义(见本节末"语义未改变"声明)。
+
+1. **四分账(四者独立存在、互不代替)**:
+   - `execution_status`(completed/failed/incomplete):执行会话
+     本身是否完成(claimed/open 在途 = incomplete;run_error =
+     failed)—— 是执行事实,不是停止原因、不是终点、不是账目;
+   - `search_stop_reason`(六原因 + 冻结主因优先级,沿用 0e.5/
+     search-6 已冻结口径):**独立持久化**于 stop_reason_records
+     表;endpoint 记录只按 payload_hash 引用,不复制其语义;
+   - `chemical_endpoint_assessment`(unknown / metabolic_handoff /
+     supported_terminal_transformation_product /
+     supported_mineralization):**只**由独立终点证据决定(见 3/4);
+   - `bookkeeping_status`(closed_within_declared_scope /
+     not_closed / unknown):参与物/系数/根碳账/映射是否在声明
+     范围内闭合(见 6)。
+2. **F01 停止非终点**:无候选/深度上限/预算上限/模型弃权/等待
+   预测/队列耗尽/用户停止七类情形只产生搜索停止状态,**永不**
+   映射为终点值;无独立终点证据 ⇒ assessment = unknown;停止不
+   覆盖已有有效终点证据(有效直报证据 + budget_limit 停止并存:
+   评估照 supported、停止照 budget_limit);停止时保留 deferred/
+   未展开/blocked 对象/预算原因/已有证据。
+3. **终点证据(来源层直报;全部字段保留)**:证据声明来自冻结
+   计划输入(S3B-01 冻结来源;合成规则级夹具,不是生产数据),
+   每条必带:evidence_basis(direct_observation /
+   inferred_from_pathway / model_prediction / no_evidence ——
+   表示依据种类,不是固定强度次序)、endpoint_claim、source_refs
+   (来源引用)、source_support_scope(来源支持范围)、
+   conditions_environment(条件与环境)、observation_window
+   (观察时间/窗口)、detection_range(检测范围)、
+   necessary_dependencies(必要依赖)、root_carbon_fate_check_
+   scope(根碳去向核查范围)、unverified_axes(未核实轴)、
+   proof_scope(证明范围)。**只有 direct_observation 可支持
+   claim;模型预测或路径推断不能单独产生 supported_***
+   (inferred/model/no_evidence 条目保留作披露,不入支持)。
+   声明级充分性(claim 所需字段缺失 ⇒ 该证据不足以支持该 claim,
+   评估保持 unknown 并逐字段披露缺失;证据本身不丢):handoff 需
+   source_refs + scope;terminal product 需 + 条件 + 窗口 + 检测
+   范围;mineralization 需再 + 根碳去向核查范围 + 必要依赖
+   (缺根碳去向/来源终点证据/必要条件 ⇒ unknown)。
+   来源报告的矿化比例必须保留计量基础、条件、时间范围和证据
+   引用(观察窗口/检测范围/核查范围字段即其载体);较长观察期
+   不自动更可信(窗口是保留字段,不是强度)。
+4. **F02 未知依赖不被 recorded 洗白**:route 上未解决必要依赖
+   (上下文 Dependency status != supported,含 unresolved/
+   contradicted)沿途保留并继承进 endpoint 记录(依赖 id/kind/
+   statement/status/来源/引入假设);存在未解决必要依赖 ⇒ 评估
+   保持 unknown(evidence 保留 + blocked_reasons=
+   unresolved_dependencies_inherited;依赖解决后同证据可支持)。
+   recorded 只表示该边/该观察在来源层被记录,不表示终点已获
+   支持 —— endpoint 记录同时保留 recorded 状态(事件/attempt
+   行)、inherited unresolved、依赖来源、条件快照与 proof scope。
+5. **F03 不同来路与重复来源不增独立支持**:计数用去重口径 =
+   观察身份(来源引用集合 + basis + 声明 + 窗口/检测/条件)+
+   来源身份(来源引用集合);同一观察的多个包装、同一来源的
+   多个引用/多条声明只算一次独立支持;**来路不删除** —— 全部
+   原始条目按原样保留在 endpoint_evidence;同模型多次采样按
+   同一来源身份计(model_prediction 本就不支持)。同一模型多次
+   采样只估计随机变化,不是新增独立路径(S5 统计侧同口径)。
+6. **根碳账(账平不当矿化)**:bookkeeping 只表达声明范围内
+   账面闭合(全部事件参与物系数已知且引用完整 ⇒ closed;
+   未知系数 ⇒ unknown,不猜数值;参与物状态引用悬空 ⇒
+   not_closed);`root_carbon_accounting_coverage` 是**核查范围**
+   (查了什么:submitted 事件的声明参与物),不表示所有根碳已
+   转化;**不同备选反应生成的 CO₂ 不相加**(逐事件/逐备选列示,
+   运行级聚合值不产生);单项 CO₂ 产物不自动解释为根污染物
+   矿化;root_carbon_fate_status 只能来自证据(有直报核查范围 ⇒
+   source_reported_check_scope_only,仍非本仓自己的核实;无 ⇒
+   unknown),**恒不由 bookkeeping 推导**;账目闭合不等于发生
+   矿化,也不等于生物可行。
+7. **评估取值边界**:评估 = 已获支持的最强声明(mineralization >
+   terminal product > handoff);metabolic_handoff 不等于矿化;
+   supported_terminal_transformation_product 不推断永久去除;
+   不自动推导解毒(S4 全程无解毒结论字段;detoxification 不在
+   首版语义内);停止/账平/同 CN/多旁证均不作为终点依据。
+8. **endpoint 独立持久化与首消费**:stop_reason_records /
+   endpoint_records 两张派生投影表(纯增量,store-10;零既有列/
+   行为改动);派生只读业务表(零 event/attempt/request/budget
+   写入);派生后立即首消费读回(版本门 / payload_hash 复算 /
+   跨表 stop 引用一致 / staleness 输入摘要重算对照 —— events/
+   actions/证据/依赖四摘要 + endpoint_policy_version 任一漂移 ⇒
+   endpoint_record_stale 拒;篡改 payload ⇒ corrupt 拒;自洽改写
+   schema_version ⇒ 版本门拒;引用断裂 ⇒ 拒;均保全原行、零写入,
+   不能以重算新 hash 洗白);重复 resume 同事实 ⇒ 同 payload_hash
+   (载荷不含时间戳;停止视图含会话 refusals/no_local_candidate
+   的会话观察,允许随会话更新 —— 事件/预算零新增是硬边界)。
+9. **原生结果对象(底座;ppv1-native-result-1)**:从持久权威
+   (store 行 + H07 校验 artifact)聚合完整字段:states+appearances
+   (不同来路 source_refs/structure_origin 各自保留,不按 CN
+   合并)、路径身份(父+事件+产物引用,同 queue 单一来源)、
+   全部假设/事件/报告投影/展开计划(仅报告状态与已展开状态
+   分列)、备选反应关系(同父多 expand)、共同产物(事件内
+   coproduct)、条件与依赖(上下文 artifact 首消费)、provenance、
+   audit 结果与 proof scope(每 expand 的 production_report,
+   H07 校验读取)、失败/unknown/partial 原因(expansion_outcome:
+   unresolved_continuation/method_failed/contract_aborted 等)、
+   deferred 两类分别列示、blocked、预算预约与实际消耗、model
+   requests、搜索停止记录、endpoint 四分账记录;**确定性规范
+   化**:canonical_json 键序 + 列表稳定排序,载荷不含构建时间戳
+   ⇒ 同事实同 digest;落盘为 digest 键派生 artifact(不可变幂
+   等,事实变化 = 新键新记录,历史保留)。**G02 完整面(文件级
+   重复导出/manifest/读取消费/过期识别与 v3 lossy_projection
+   适配)属 S4b 未做** —— S4a 只交付对象级确定性与 endpoint 记录
+   级 stale/integrity。
+10. **S4a 边界诚实声明**:v3 有损适配**未实施**(无 lossy_
+    projection 产出;legacy/export_v3.py/AtomTool/G2 冻结零改动,
+    52 份 legacy code_identity 文件与生产/化学共享核心
+    production/chemstate/path_context/hypothesis/events/audit/
+    search/queue/model_protocol 逐字节同父 adf0287,legacy 聚合
+    保持 18007e6a…);原生正式文件导出/manifest/读取消费契约/
+    过期识别的完整矩阵未做(仅对象底座 + endpoint 记录级校验);
+    完整端到端链(start/resume→native export→v3 adapter→replay)
+    未做(S4a 只验证 start/resume→驱动→停止→endpoint 分账→
+    首消费→对象底座);本批全部 scripted/off 规则级夹具,网络
+    请求 0、真实 provider 默认 off、判分零 LLM;科学性能/真实
+    检索质量/金标/题面/封存 run 一律未触碰;dev 与 298 题域
+    双向不外推。
+11. **语义未改变声明(v16 对冻结判据的关系)**:判据一–五与
+    0d/0e 正文**一字未改**;本批只是**描述 S4a 实际新增的消费
+    入口**(endpoint 四分账派生/读取/首消费 + 原生结果对象),
+    不改变已冻结判据的含义、范围或硬门 —— 按 AGENTS.md 与冻结
+    稿"冻结后变更"条款,这属"只描述本批实际新增的消费入口且
+    不改变已冻结判据含义"情形,**明确写出:语义未改变**。工程
+    登记面变化(store-9→10 两张纯增量派生投影表、profile-14→15
+    新增 endpoint/native-result 契约注册、runflow-3→4 公共入口
+    接线)不改 0d/0e 消费契约行为(put_state/submit_event/搜索
+    记账/恢复协议/冻结计划锚定全部保持;879 存量测试零改动全绿
+    为程序证据)。若评审认定 0f 任何表述实际改变判据正文/范围/
+    硬门,须按版本规范另评(ppv1-criteria-v2 起),不得静默生效。
 
 ## 1. 判据一:分子身份(v12 文本,自包含)
 
@@ -861,57 +1015,76 @@ r3 源码核对后落字(旧交付/旧回应原文不回写):
 
 ## 6. 程序证据与状态(程序事实,不替代化学判断;执行类声明待验证)
 
-- 规则级测试:ppv1 全量 **879 passed/0 skip**(871 r2 存量 + 8 新
-  r3,32 文件,全部合成夹具;8 项覆盖 S3B-01 后段锚定:两原反例
-  翻转(B3/B4 自洽重封装拒)/重封装+显式同新 plan 拒/缺锚拒/
-  坏锚拒 四+一负控,与 B3 省略 plan 幂等恢复/同计划显式/合法
-  原计划转换 phase-1 三正控;r2 的 20 项与存量 851 零改动全绿);
-  另有公开入口真子进程探针 15/15(两原反例拒 + 十五表零变化 +
-  13 保留控制:同/省略/换 plan、四崩溃、合法转换 phase-1、三产物
-  2/3→3/3、重复 resume、novel、弃权、零深度复合);
-- 基线红绿(直接父 2bedfc0 detached worktree 同字节,父已含全部
-  S3b 模块 ⇒ **无 collection 红**;本批不更新既有测试文件 ⇒ 无
-  版本字面量/字段形态红):新 r3 文件 **5 行为红 + 3 合法正控绿**
-  (5 红全为"未结构化拒"型:父上 public resume 完整执行并消费
-  注入转换/补账,失败点在拒绝断言,非早停内部段;正控 = B3 省略
-  plan 幂等恢复/同计划显式/合法转换 phase-1,父亦绿);
+- 规则级测试:ppv1 全量 **914 passed/0 skip**(879 存量 + 35 新
+  S4a,33 文件,全部合成夹具;35 项覆盖:四分账公共链/分表持久
+  化、F01 六原因单元全覆盖 + 零预算/零深度/空池/停止不覆盖证据
+  四公共链夹具、F02 未解决依赖阻断 + supported 控制组、F03 去重
+  三态(同观察多包装/同来源多声明/不同来源)、四类 evidence
+  basis、claim 字段充分性披露、根碳账(账平不矿化/未知系数/
+  备选 CO₂ 不相加/核查范围)、essential 冲突、失败状态、原生
+  结果对象(字段组完整/确定性重建/不同来路保留)、首消费五负控
+  (stale/corrupt/版本门/引用断裂/缺记录)+ 正控、resume 幂等、
+  B4 崩溃恢复);另有全量非 slow **1525 passed/16 deselected**(
+  含 legacy/export_v3 全量回归,当前树);
+- 基线红绿(直接父 adf0287 detached worktree 同字节):新 S4a
+  文件 **35 collection 红**(`pathway_v43.pollutant.endpoint`
+  模块缺失;implementation missing 如实登记,未 stub/未改
+  import/未弱化期望);更新的 test_ppv1_profile.py **2 版本/
+  阶段字面量红**(profile-15 与 delivered_stages 字面量;父合法
+  实现 profile-14)+ **21 合法正控绿**;0 行为红;
 - G01:安全隔离工程回归(R7 路径白名单 + R8/S3a/r2/r3/r4/S3b/
-  S3b-r2/S3b-r3 输入,**288** 项输入(287 r2 + 1 新 r3 测试文件)
-  SHA 前后一致;不复制 evaluation/金标/题面/封存/v4;固定
-  PYTHONPATH/空 BBD_DATA_ROOT/V3_CODE_ROOT/V43_ASSET_ROOT/
-  DEPENDING_V3_ROOT)⇒ **1481 passed/8 skipped/17 deselected**,
-  exit 0(8 skip = 5 真实评价依赖 + 1 v4 对照源 + 2 phase_d 派生
-  metadata;17 deselect = 16 slow + 1 明确排除 export 用例;历史
-  R7 1110/R8 1138/S3a 首批 1196/r2 1250/r3 1299/r4 1389/S3b
-  1453/S3b-r2 1473 各自单列,不混计;1481 = 1473 + 8 新 r3);
-- 契约族:search 保持 **ppv1-search-6**、profile 保持 **-14**、
-  store 保持 **-9**、search-limits 保持 **-3**、format-feedback-1
-  保持(默认 0 轮)、model-proposals 保持 **-2**;执行流
-  **ppv1-runflow-2 → ppv1-runflow-3**(resume 入口新增后段锚定
-  核对;无测试断言其字面量,本批 0 个既有测试文件更新);
-  FROZEN_PLAN_VERSION 保持 ppv1-frozen-plan-1(artifact 格式未变;
-  锚核对读既有 search_actions 行,无新表/列)。**production.py
+  S3b-r2/S3b-r3/S4a 输入,**291** 项输入(288 s3b_r3 + 3 新
+  S4a:endpoint.py/native_result.py/test 文件)SHA 前后一致;不
+  复制 evaluation/金标/题面/封存/v4;固定 PYTHONPATH/空
+  BBD_DATA_ROOT/V3_CODE_ROOT/V43_ASSET_ROOT/DEPENDING_V3_ROOT)
+  ⇒ **1516 passed/8 skipped/17 deselected**,exit 0(8 skip =
+  5 真实评价依赖 + 1 v4 对照源 + 2 phase_d 派生 metadata;
+  17 deselect = 16 slow + 1 明确排除 export 用例;历史
+  R7 1110/R8 1138/S3a 1196/r2 1250/r3 1299/r4 1389/S3b 1453/
+  S3b-r2 1473/S3b-r3 1481 各自单列,不混计;1516 = 1481 + 35);
+- 契约族:search 保持 **ppv1-search-6**、search-limits 保持
+  **-3**、format-feedback-1 保持(默认 0 轮)、model-proposals
+  保持 **-2**;**新增** endpoint **ppv1-endpoint-1**、endpoint
+  派生策略 **ppv1-endpoint-policy-1**(固定规则,无用户可配
+  项)、原生结果对象 **ppv1-native-result-1**;store
+  **ppv1-store-9 → ppv1-store-10**(纯增量两张派生投影表
+  stop_reason_records/endpoint_records,零既有列/行为改动;
+  旧 run 不跨版本续跑);profile **ppv1-profile-14 → -15**(
+  新契约注册 + delivered_stages 增 S4a-endpoint;两个既有
+  字面量测试为本批唯一既有测试改动,如实披露);执行流
+  **ppv1-runflow-3 → ppv1-runflow-4**(公共 start/resume 在
+  drive 后接 endpoint 派生 + 首消费 + 原生结果对象)。
+  FROZEN_PLAN_VERSION 保持 ppv1-frozen-plan-1。**production.py
   本批零改动(生产化学链与 AuditContractError 义务字节不变)**;
-- **legacy 影响:本批零改动**(git diff 仅 pollutant/runflow.py +
-  pollutant/profile.py 契约注册注释;52 份 legacy code_identity
-  文件与九份生产/化学共享核心父↔当前逐字节一致;legacy 聚合保持
+- **legacy 影响:本批零改动**(git diff vs adf0287 仅
+  pollutant/endpoint.py(新)/native_result.py(新)/runflow.py/
+  profile.py/store.py + tests/test_ppv1_s4a_endpoint.py(新)/
+  test_ppv1_profile.py;52 份 legacy code_identity 文件与
+  production/chemstate/path_context/hypothesis/events/audit/
+  search/queue/model_protocol/runner 共享核心父↔当前逐字节
+  一致;legacy 聚合保持
   18007e6a7cc239606eb30921f91045540446a7d7298108be30d47fce
   2f1374d6);
-- 判据未冻结;v15 无新化学机制(判据一–五正文与 v12/v13 相同未
-  改);受审文字:0e.1 更新段(后段锚定三类拒因分栏)、0c-v15
-  七条精度更正、0d 按 0c-v14/v15 更正后的表述、§6 数字与契约
-  版本;
-- 参考(外部常识,非本仓资产):RDKit Book(CXSMILES 扩展/增强
-  立体/立体化学章节)、rdCIPLabeler API;CXSMILES 解析器行为经
-  Release_2026_03_6 源码取证与实证用例校准;**冻结前须以执行
-  证据复核 RDKit(锁定 2026.03.6)词法取证与放行正控的往返无损**。
+- **判据冻结状态**:ppv1-criteria-v1 已冻结(2026-10-08 用户
+  拍板;冻结稿 = `docs/POLLUTANT_PATHWAY_CRITERIA_FROZEN_V1_
+  2026-10-08.md`,底本即本文件 v15,冻结批次在 adf0287 只读
+  复核行号)。v16 **不改判据正文**(见 0f.11 语义未改变声明);
+  冻结稿 §8 要求后续源码变更重锚行号 —— 本批改动的
+  runflow/store/profile 行号将漂移,属工程登记面,待下次判据
+  版本(如有)统一重锚;判据行为互证以 879 存量零改动全绿 +
+  逐字节 diff 为程序证据;
+- 参考(外部常识,非本仓资产):RDKit Book(CXSMILES 扩展/
+  增强立体/立体化学章节)、rdCIPLabeler API;CXSMILES 解析器
+  行为经 Release_2026_03_6 源码取证与实证用例校准(冻结时已由
+  Codex R3 复审独立执行证成);本批无新 RDKit 依赖面。
 
 ## 7. 请求的回复格式
 
-对每条判据(含 0e 节六条消费契约、0d 节八条消费契约与 0c-v13
-七条/0c-v14 五条/0c-v15 七条落字):1) 结论(同意/不同意/有条件
-同意+条件);2) 可直接落进规则文字的修改建议;3) "程序上诚实但
-化学上误导"风险点。逐条表态,不接受总体评价式回复。执行类声明
-一律标"待执行验证"。引用 0c/0d/0e 清单之外的事实(分支名/版本/
+对每条判据(含 0d 节八条、0e 节六条消费契约,0c-v13 七条/
+0c-v14 五条/0c-v15 七条落字,以及 **0f 节 S4a 十一条 endpoint/
+原生结果表述**):1) 结论(同意/不同意/有条件同意+条件);
+2) 可直接落进规则文字的修改建议;3) "程序上诚实但化学上误导"
+风险点。逐条表态,不接受总体评价式回复。执行类声明一律标
+"待执行验证"。引用 0c/0d/0e/0f 清单之外的事实(分支名/版本/
 异常处置)时必须先给出可复核的源位置,否则按不采信
 处理。

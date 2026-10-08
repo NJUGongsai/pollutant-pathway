@@ -149,8 +149,8 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 模型 novel 响应)。search-limits 保持 -3;store 保持 -9(无新表)。
 # S3b r3(2026-10-08,Codex S3b-r2 复审唯一残余 P1 S3B-01 后段锚定):
 # run 执行流 ppv1-runflow-2 → -3 —— resume **首消费前**把读取的冻结
-# 计划与独立既存 run/root/task 原绑定核对(start 落账的根 retrieve 行
-# payload.plan_digest 为独立权威;task_key 经同一 decision_task_key
+# 计划与独立既存 run/root/task 原绑定核对(start 落账的根 retrieve
+# 行 payload.plan_digest 为独立权威;task_key 经同一 decision_task_key
 # 单一来源按行内字段重算比对 —— artifact 文件内自算的信封 payload_
 # hash/plan_digest 是自洽证书,不能单独证明仍是原输入);缺锚
 # (frozen_plan_anchor_missing)/坏锚(frozen_plan_anchor_corrupt)/
@@ -160,12 +160,27 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 不可达)。正常同计划/省略 plan/显式同计划恢复全保持。profile 保持
 # -14;search 保持 -6;search-limits 保持 -3;store 保持 -9(核对读
 # 既有 search_actions 行,无新表);生产化学链 production.py 不动。
+# v15(S4a 批次,2026-10-08,S4 任务书 §7 S4a 边界):endpoint 分账
+# 与原生结果底座 —— 新增 endpoint 契约(ppv1-endpoint-1:execution_
+# status/search_stop_reason/chemical_endpoint_assessment/
+# bookkeeping_status 四分账 + 终点证据字段 + F01/F02/F03 规则 +
+# stop/endpoint 独立持久化与首消费/staleness 校验,见 pollutant/
+# endpoint.py)、endpoint 派生策略(ppv1-endpoint-policy-1:固定规则,
+# 无用户可配项)与原生结果对象契约(ppv1-native-result-1:完整字段
+# 聚合 + canonical 确定性规范化,见 pollutant/native_result.py;
+# 正式文件导出/v3 适配/S4b);store 升 -10(纯增量两张派生投影表
+# stop_reason_records/endpoint_records,零既有列/行为改动);runflow
+# 升 -4(公共 start/resume 在 drive 后派生 endpoint 四分账并独立
+# 持久化;stop/endpoint 只读业务表,零 event/attempt/request/budget
+# 新写入)。**本批不触碰冻结判据语义**:判据一–五(ppv1-*-8 族)
+# 与 0d/0e 消费契约(search-6 语义/legacy 契约)全部保持;S0–S3
+# 全量既有测试除 profile 版本字面量外零改动。
 
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-14"
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-15"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
-PPV1_STORE_SCHEMA_VERSION = "ppv1-store-9"
+PPV1_STORE_SCHEMA_VERSION = "ppv1-store-10"
 PPV1_CONTEXT_SCHEMA_VERSION = "ppv1-context-8"
 PPV1_DEPENDENCY_SCHEMA_VERSION = "ppv1-dependency-8"
 PPV1_PROVENANCE_SCHEMA_VERSION = "ppv1-provenance-8"
@@ -178,6 +193,14 @@ PPV1_POOL_ORDER_VERSION = "ppv1-pool-order-8"
 PPV1_INPUT_PREVIEW_VERSION = "ppv1-input-preview-8"
 PPV1_CONDITION_ASSESSMENT_VERSION = "ppv1-condition-assessment-8"
 PPV1_GATE_MAPPER_VERSION = "ppv1-gate-mapper-3"
+# S4a:endpoint 分账契约(四分账/证据字段/F01-F03/独立持久化与首
+# 消费;pollutant/endpoint.py)
+PPV1_ENDPOINT_SCHEMA_VERSION = "ppv1-endpoint-1"
+# S4a:endpoint 派生策略(固定规则;无用户可配项;变更须升版本)
+PPV1_ENDPOINT_POLICY_VERSION = "ppv1-endpoint-policy-1"
+# S4a:原生结果对象契约(完整字段 + 确定性规范化;正式导出/S4b;
+# pollutant/native_result.py)
+PPV1_NATIVE_RESULT_VERSION = "ppv1-native-result-1"
 # S3a:持久搜索底座契约(SearchAction/attempt/预约/请求/提交记录/
 # 恢复协议/停止原因优先级;pollutant/search.py)
 # v2(S3a 回修 r2,2026-10-07,Codex S3a 复审 S3A-01~05):搜索消费
@@ -450,6 +473,9 @@ def contract_versions() -> dict:
         "gate_mapper": PPV1_GATE_MAPPER_VERSION,
         "search": PPV1_SEARCH_SCHEMA_VERSION,
         "format_feedback": FORMAT_FEEDBACK_POLICY_VERSION,
+        "endpoint": PPV1_ENDPOINT_SCHEMA_VERSION,
+        "endpoint_policy": PPV1_ENDPOINT_POLICY_VERSION,
+        "native_result": PPV1_NATIVE_RESULT_VERSION,
         "legacy_gate_ref": LEGACY_GATE_PROFILE_REF,
         "legacy_g2_family_ref": LEGACY_G2_FAMILY_REF,
     }
@@ -607,6 +633,8 @@ def build_profile_identity_block(
             format_feedback_policy),
         # S0–S2 交付领域契约/上下文/固定诊断;S3a 交付持久搜索底座
         # (身份/预算/认领/恢复);S3b 交付队列化学集成/生产中心证据链/
-        # PPV1 runner 分流(公开 start_run/resume_run 开放 PPV1 路径)
-        "delivered_stages": "S0-S2,S3a-base,S3b",
+        # PPV1 runner 分流(公开 start_run/resume_run 开放 PPV1 路径);
+        # S4a 交付 endpoint 四分账/证据/F01-F03/独立持久化与原生结果
+        # 对象底座(正式导出与 v3 适配属 S4b)
+        "delivered_stages": "S0-S2,S3a-base,S3b,S4a-endpoint",
     }

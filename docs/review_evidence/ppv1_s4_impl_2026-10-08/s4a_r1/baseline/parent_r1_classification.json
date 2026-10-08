@@ -1,0 +1,50 @@
+{
+ "batch": "ppv1 S4a r1",
+ "parent_baseline": "adf0287abef0c4803962fee0df0065d8e6f3793d",
+ "worktree": "/private/tmp/ppv1_s4a_base_adf0287 (detached, same-byte test files)",
+ "date": "2026-10-08",
+ "runs": [
+  {
+   "file": "tests/test_ppv1_s4a_endpoint.py",
+   "same_bytes_as_current": true,
+   "result": "collection error (exit 2)",
+   "classification": {
+    "category": "collection/import/module missing",
+    "reason": "ModuleNotFoundError: No module named 'pathway_v43.pollutant.endpoint' (test module import at line 46); transitively pollutant.native_result also absent on parent",
+    "affected_cases": 35,
+    "note": "implementation missing on parent, honestly registered; not behavior failures, no test expectation modified to force red; parent modules were not stubbed"
+   }
+  },
+  {
+   "file": "tests/test_ppv1_profile.py",
+   "same_bytes_as_current": true,
+   "result": "2 failed / 21 passed (exit 1)",
+   "classification": {
+    "expected_value_version_literal_reds": [
+     {
+      "case": "test_ppv1_identity_block_contract_versions",
+      "assertion": "block['schema_version'] == 'ppv1-profile-15'",
+      "parent_value": "ppv1-profile-14",
+      "category": "expected behavior difference (version literal; parent legitimately implements profile-14 without the S4a endpoint contracts)"
+     },
+     {
+      "case": "test_ppv1_identity_block_default_switches",
+      "assertion": "block['delivered_stages'] == 'S0-S2,S3a-base,S3b,S4a-endpoint'",
+      "parent_value": "S0-S2,S3a-base,S3b",
+      "category": "expected behavior difference (stage-registry literal; parent has no S4a)"
+     }
+    ],
+    "legal_positive_green": 21,
+    "note": "both reds are intentional version/stage-registry literal flips disclosed in the S4a delivery book; no behavior red"
+   }
+  }
+ ],
+ "summary": {
+  "collection_import_red": 35,
+  "expected_behavior_difference_version_literal_red": 2,
+  "legal_positive_green": 21,
+  "behavior_failure_red": 0,
+  "not_reached_after_expected_rejection": 0,
+  "note": "no compat patch, no import modified, no expectation weakened, no parent module copied; parent stock 879-test suite was independently verified green by Codex S3b-r3 review and is not re-run here"
+ }
+}

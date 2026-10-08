@@ -1,5 +1,17 @@
 """S3b PPV1 独立 runner 执行流 —— start/resume 分流后的确定性驱动
-(实施书 §6.2;契约随 search-6 / profile-14 / runflow-3 登记)。
+(实施书 §6.2;契约随 search-6 / profile-15 / runflow-4 登记)。
+
+S4a 增量(runflow-4):公共 start/resume 在驱动结束(stop report
+之后)进入 **endpoint 四分账派生**(pollutant/endpoint.py:execution_
+status / search_stop_reason / chemical_endpoint_assessment /
+bookkeeping_status 独立分账、F01 停止非终点/F02 未知依赖不被
+recorded 洗白/F03 去重计数不增独立支持),stop 与 endpoint 分别
+持久化于 stop_reason_records / endpoint_records 两张派生投影表
+(store-10;派生只读业务表,零 event/attempt/request/budget 写入),
+派生后立即首消费读回(版本/hash/跨表引用/staleness 自校验)并构建
+**原生结果对象**(pollutant/native_result.py:完整字段 + canonical
+确定性规范化,同事实同 digest;正式文件导出/v3 适配属 S4b)。
+停止不是化学终点;endpoint 评估只由独立终点证据决定。
 
 职责:workflow.runner 的 PPV1 分流目标 —— **独立**执行/存储(不落
 legacy CN/PathwayStore/预算派生/LangGraph):
@@ -95,6 +107,11 @@ from ..storage.run_identity import (
 )
 from .audit import AuditContractError
 from .chemstate import build_chemical_state
+from .endpoint import (
+    derive_run_endpoint,
+    endpoint_summary_fields,
+    read_run_endpoint,
+)
 from .model_protocol import (
     FEEDBACK_ELIGIBLE,
     ModelProtocolError,
@@ -151,10 +168,11 @@ from .search import (
     read_search_artifact,
     search_policy_version,
 )
+from .native_result import build_native_result, persist_native_result
 from .store import PollutantPathwayStore
 from .substrate_profile import build_substrate_profile
 
-RUNFLOW_VERSION = "ppv1-runflow-3"
+RUNFLOW_VERSION = "ppv1-runflow-4"
 FROZEN_PLAN_VERSION = "ppv1-frozen-plan-1"
 FROZEN_PLAN_TASK_KEY = "run-plan"
 FROZEN_PLAN_ARTIFACT = "frozen_plan"
@@ -1304,6 +1322,44 @@ class _Driver:
 # ---------------------------------------------------------------- 入口
 
 
+def _derive_endpoint_and_native_result(ledger: SearchLedger,
+                                       report: dict,
+                                       driver: _Driver) -> dict:
+    """S4a:公共 start/resume 的 endpoint 分账派生 + 独立持久化 +
+    首消费读回 + 原生结果对象(确定性规范化)。
+
+    - 派生只读业务表(零 event/attempt/request/budget 写入;唯一
+      写入 = stop_reason_records/endpoint_records 两张派生投影表与
+      原生结果 artifact);
+    - 派生后立即以 read_run_endpoint 首消费读回(版本门/hash/跨表
+      引用/staleness 自校验 —— 派生与消费共用同一判据来源,不留
+      "只写不读"的未验证窗口);
+    - 原生结果对象消费已验证 endpoint 记录(过期/损坏记录不包装成
+      "正式结果");
+    - endpoint 派生失败(如上下文 artifact 首消费失败)⇒ 结构化
+      EndpointContractError 上抛(不吞成成功;已写入的派生行如实
+      保留,下次派生幂等更新)。
+    """
+    record = derive_run_endpoint(
+        ledger, stop_report=report, run_error=driver.run_error,
+        plan=driver.plan)
+    verified = read_run_endpoint(ledger, ledger.run_id)
+    native = build_native_result(ledger, endpoint_record=verified)
+    persisted_native = persist_native_result(ledger, native)
+    return {
+        "record": record,
+        "verified": verified,
+        "native_result": {
+            "content_digest": persisted_native["content_digest"],
+            "task_key": persisted_native["task_key"],
+            "native_result_version": native["native_result_version"],
+            "note": ("S4a 对象底座:完整字段 + 确定性规范化(同事实同 "
+                     "digest);正式文件导出/manifest/读取消费契约与 "
+                     "v3 适配属 S4b"),
+        },
+    }
+
+
 def _strategy_block(limits: dict) -> dict:
     """PPV1 策略块(身份记录用;搜索预算事实源是 search_limits ——
     **不从 model 派生任何真实请求预算**)。"""
@@ -1415,8 +1471,16 @@ def start_ppv1_run(
                      "depth": 0, "source_event_id": "",
                      "plan_digest": _plan_digest(plan or {})})
         report = driver.drive()
+        # ---- S4a:endpoint 四分账派生 + 独立持久化 + 首消费 + 原生
+        # 结果对象(确定性规范化;停止不是化学终点) ----
+        endpoint_out = _derive_endpoint_and_native_result(
+            ledger, report, driver)
         summary = _summary(store, run_id, report, resumed=False)
         summary["driver_session"] = dict(session.info)
+        summary["endpoint"] = endpoint_summary_fields(endpoint_out["record"])
+        summary["endpoint_record_payload_hash"] = endpoint_out["record"][
+            "payload_hash"]
+        summary["native_result"] = dict(endpoint_out["native_result"])
         return summary
 
 
@@ -1536,6 +1600,11 @@ def resume_ppv1_run(
         driver = _Driver(ledger, frozen_plan, run_id, _worker_id(run_id),
                          crash_after=crash_after)
         report = driver.drive()
+        # ---- S4a:endpoint 四分账派生(恢复后按当前事实重派生;重复
+        # resume 同事实 ⇒ 同 payload_hash 幂等,不重复写 event/
+        # attempt/request/budget) ----
+        endpoint_out = _derive_endpoint_and_native_result(
+            ledger, report, driver)
         summary = _summary(store, run_id, report, resumed=True)
         summary["recovery"] = {
             "actions": recovery.get("actions"),
@@ -1546,6 +1615,10 @@ def resume_ppv1_run(
         }
         summary["frozen_plan_binding"] = dict(binding)
         summary["driver_session"] = dict(session.info)
+        summary["endpoint"] = endpoint_summary_fields(endpoint_out["record"])
+        summary["endpoint_record_payload_hash"] = endpoint_out["record"][
+            "payload_hash"]
+        summary["native_result"] = dict(endpoint_out["native_result"])
         return summary
 
 

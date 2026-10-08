@@ -1,5 +1,14 @@
 """PollutantPathwayStore — 新模式的独立 SQLite 账本(v8 回修,S1)。
 
+v10(ppv1-store-10,S4a 批次 2026-10-08):新增 S4a endpoint 分账
+持久化表(stop_reason_records / endpoint_records;pollutant/
+endpoint.py 消费)。表结构随 schema 版本升 v10 拒旧库(合成规则级
+run,无历史产物需要迁移;旧 run 不跨版本续跑)。本版本**不改变
+既有事件/状态/假设/搜索路径的任何校验语义** —— endpoint 层是纯
+新增派生投影(只读业务表 + 独立持久化),put_state/submit_event/
+搜索记账/恢复协议全部保持 v9 行为;表结构变更为纯增量(两张新表,
+零既有列改动)。
+
 v9(ppv1-store-9,S3a 批次 2026-10-07):新增 S3a 持久搜索底座表
 (search_runs / search_actions / search_attempts / budget_reservations /
 model_requests / search_commit_records;任务书 §4/实施书 §9)。表结构
@@ -340,6 +349,20 @@ CREATE TABLE IF NOT EXISTS provenance_records (
     run_id    TEXT NOT NULL,
     payload   TEXT NOT NULL,
     created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS stop_reason_records (
+    run_id       TEXT PRIMARY KEY,
+    payload      TEXT NOT NULL,
+    payload_hash TEXT NOT NULL,
+    created_at   TEXT NOT NULL,
+    updated_at   TEXT
+);
+CREATE TABLE IF NOT EXISTS endpoint_records (
+    run_id       TEXT PRIMARY KEY,
+    payload      TEXT NOT NULL,
+    payload_hash TEXT NOT NULL,
+    created_at   TEXT NOT NULL,
+    updated_at   TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_ppv1_events_run
     ON events (run_id, parent_path_id);
