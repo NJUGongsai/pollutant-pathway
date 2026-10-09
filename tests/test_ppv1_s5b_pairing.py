@@ -639,8 +639,14 @@ def test_pairing_disclosure_deterministic(tmp_path: Path) -> None:
 
 
 def test_evaluation4_contract_registered() -> None:
-    """evaluation-4 / profile-24 契约登记(配对语义变更升版,不偷换
-    同一已登记契约;reference-graph-1/split-manifest-1 不变)。"""
+    """evaluation / profile 契约登记(配对语义变更升版,不偷换
+    同一已登记契约;reference-graph-1/split-manifest-1 不变)。
+
+    S5b 启动批:evaluation-4/profile-24(qid 感知配对);S5b 启动批
+    回修(S5B-L01):evaluation-5/profile-25(real 档配对禁
+    root_identity_fallback;守卫回归另见
+    tests/test_ppv1_s5b_rework_l01.py)。
+    """
     from pathway_v43.pollutant.profile import (
         PPV1_EVALUATION_VERSION,
         PPV1_PROFILE_SCHEMA_VERSION,
@@ -648,10 +654,10 @@ def test_evaluation4_contract_registered() -> None:
         PPV1_SPLIT_MANIFEST_VERSION,
         contract_versions,
     )
-    assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-4"
-    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-24"
-    assert contract_versions()["evaluation"] == "ppv1-evaluation-4"
-    assert contract_versions()["profile"] == "ppv1-profile-24"
+    assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-5"
+    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-25"
+    assert contract_versions()["evaluation"] == "ppv1-evaluation-5"
+    assert contract_versions()["profile"] == "ppv1-profile-25"
     # qid 是 manifest/导出条目级输入子字段与消费侧语义:
     # reference-graph-1 / split-manifest-1 字段形状零变化
     assert PPV1_REFERENCE_GRAPH_VERSION == "ppv1-reference-graph-1"

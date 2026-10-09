@@ -1,0 +1,23 @@
+{
+  "aggregate_metrics": null,
+  "detail": {
+    "data_scope": "real",
+    "export_entries_without_declared_qid": [
+      "2c1601a347de68f12468cd5482f31850b661d7d41b8bdb9c17756952dbd99db1",
+      "c8847acd10ff97e5b3ef01222d88193250f7aeda72603dac8cee99a80ea31c42"
+    ],
+    "graphs_without_declared_qid": [
+      "codex-a",
+      "codex-b"
+    ],
+    "kind": "real_data_root_identity_fallback_forbidden",
+    "note": "真实批两侧须声明 qid 走 qid_strict 配对;预注册发车核对:coverage_report.pairing.bases_by_graph 须全为 qid_strict(任一 root_identity_fallback ⇒ 阻断判分)",
+    "pairing_basis": "root_identity_fallback"
+  },
+  "exception": "EvaluationContractError",
+  "kind": "real_data_root_identity_fallback_forbidden",
+  "message": "data_scope=real 而样本↔导出配对落入 root_identity_fallback(评测输入两侧全部未声明 qid:reference_graph_manifest 条目与 native_path_exports 条目均无 qid)——真实数据配对首次消费禁止根身份回退(53 重复底物/同根多题 G1 下会重新引入首中即 break 张冠李戴;fail-closed,先于任何样本评分/聚合/结果写入;该门是样本身份边界,不是 criteria-v2 化学判据)",
+  "output_object": null,
+  "sample_results": null,
+  "traceback": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s5b_rework_repro.122448/script/repro_real_noqid.py\", line 95, in evaluate\n    out = evaluate_scientific(\n          ^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s5b_rework_repro.122448/tree_post/src/pathway_v43/pollutant/evaluation.py\", line 2213, in evaluate_scientific\n    raise EvaluationContractError(\npathway_v43.pollutant.evaluation.EvaluationContractError: data_scope=real 而样本↔导出配对落入 root_identity_fallback(评测输入两侧全部未声明 qid:reference_graph_manifest 条目与 native_path_exports 条目均无 qid)——真实数据配对首次消费禁止根身份回退(53 重复底物/同根多题 G1 下会重新引入首中即 break 张冠李戴;fail-closed,先于任何样本评分/聚合/结果写入;该门是样本身份边界,不是 criteria-v2 化学判据)\n"
+}

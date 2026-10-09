@@ -1,0 +1,41 @@
+{
+  "exit_code": 0,
+  "elapsed_wall_seconds": 233.326,
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python3.11",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-rs",
+    "-m",
+    "not slow",
+    "--deselect",
+    "tests/test_export_v3.py::test_charge_fixture_cn_hits_raw_sb_misses_neutralization_forbidden",
+    "--junitxml",
+    "/private/tmp/ppv1_s5b_rework_g01.123319/attempt2/g01_junit.xml",
+    "tests/"
+  ],
+  "cwd": "/private/tmp/ppv1_s5b_rework_g01.123319/attempt2/repo",
+  "stdout": "g01_safe.stdout.txt",
+  "stderr": "g01_safe.stderr.txt",
+  "skip_lines": [
+    "SKIPPED [1] tests/test_analog_assets.py:95: v4 对照代码根不可用:/private/tmp/ppv1_s5b_rework_g01.123319/attempt2/dependingv4",
+    "SKIPPED [1] tests/test_analog_v2_corpus.py:62: v2 provenance 未生成",
+    "SKIPPED [1] tests/test_analog_v2_corpus.py:153: v2 summary 未生成",
+    "SKIPPED [1] tests/test_batch_runner.py:52: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_ppv1_s5a_rework_r2.py:350: frozen criteria text not copied into allowlisted isolation trees (G01 boundary); byte integrity verified at the evidence level (shasum in review_evidence package)",
+    "SKIPPED [1] tests/test_ppv1_s5a_rework_r3.py:667: frozen criteria text not copied into allowlisted isolation trees (G01 boundary); byte integrity verified at the evidence level (shasum in review_evidence package)",
+    "SKIPPED [1] tests/test_score_report.py:110: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:163: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:172: v3 冻结基准不可用",
+    "SKIPPED [1] tests/test_score_report.py:184: v3 冻结基准不可用"
+  ],
+  "summary_lines": [
+    "1740 passed, 10 skipped, 17 deselected, 1 warning in 231.51s (0:03:51)"
+  ],
+  "stdout_sha256": "19f40be79832719b11bf0197194eb05e96bf728624e21a324dc921597fb25966",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/private/tmp/ppv1_s5b_rework_g01.123319/safe_g01_s5b_rework.py", line 390, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/private/tmp/ppv1_s5b_rework_g01.123319/safe_g01_s5b_rework.py", line 207, in main
+    copied['repo/' + name] = boundary_copy(repo / rel, dst / rel, repo)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ppv1_s5b_rework_g01.123319/safe_g01_s5b_rework.py", line 133, in boundary_copy
+    raise RuntimeError(f'Input file missing: {source}')
+RuntimeError: Input file missing: /private/tmp/ppv1_s5b_rework_snap.122808/assets/.DS_Store

@@ -1,0 +1,13 @@
+{
+  "aggregate_metrics": null,
+  "detail": {
+    "kind": "real_data_requires_approved_preregistration",
+    "preregistration_id": "prereg-s5a-template"
+  },
+  "exception": "EvaluationContractError",
+  "kind": "real_data_requires_approved_preregistration",
+  "message": "data_scope=real 而预注册未批准(真实数据评测属 S5b;须用户/teacher 完成题源/金标/样本量/阈值/预算裁定后另行启动)",
+  "output_object": null,
+  "sample_results": null,
+  "traceback": "Traceback (most recent call last):\n  File \"/private/tmp/ppv1_s5b_rework_repro.122448/script/repro_real_noqid.py\", line 95, in evaluate\n    out = evaluate_scientific(\n          ^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/ppv1_s5b_rework_repro.122448/tree_pre/src/pathway_v43/pollutant/evaluation.py\", line 2060, in evaluate_scientific\n    raise EvaluationContractError(\npathway_v43.pollutant.evaluation.EvaluationContractError: data_scope=real 而预注册未批准(真实数据评测属 S5b;须用户/teacher 完成题源/金标/样本量/阈值/预算裁定后另行启动)\n"
+}

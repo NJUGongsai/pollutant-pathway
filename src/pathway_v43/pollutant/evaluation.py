@@ -1,4 +1,4 @@
-"""S5a 科学评测器接口(ppv1-evaluation-3;S5 任务书 §8/§9/§11/§12)。
+"""S5a 科学评测器接口(ppv1-evaluation-5;S5 任务书 §8/§9/§11/§12)。
 
 S5a 边界(任务书 §15):本评测器是**接口与规则级程序行为交付** ——
 消费 S4 公开入口(``read_native_export``;§3.1)、确定性零 LLM 判分、
@@ -130,6 +130,26 @@ S5b 启动批(evaluation-4,2026-10-09,mimo r25 ⚠️P1-9 G1 配对错位
   条目 ``qid``(S5-25 结构化字段清单的条目级子字段扩展,仍非
   自然语言进判定;其余输入字段消费范围不变)。
 
+S5b 启动批回修(S5B-L01,evaluation-5,2026-10-09,复审
+POLLUTANT_PATHWAY_S5B_CODEX_REVIEW §4.1;**仅 real 档配对守卫
+新增**,匹配/条件/指标/守卫判定零触碰):
+
+- **real 首消费禁双无 qid / root_identity_fallback**:``
+  evaluate_scientific`` 在配对计算后、样本评分/聚合/结果写入前,
+  对 ``data_scope=real`` 且配对档为 ``root_identity_fallback``
+  (评测输入两侧全部未声明 qid)抛结构化 ``EvaluationContractError``
+  (``kind=real_data_root_identity_fallback_forbidden``,机读携带
+  data_scope 与缺 qid 的图/导出条目范围)——真实样本身份边界
+  fail-closed,不静默退成错误样本评分(复审公开合成反例:real
+  标签+fake approved 形状+两侧全无 qid ⇒ 修前一图 scored 进聚合、
+  另一图 not_evaluated;修后整评结构化拒,零样本评分/聚合);
+- 合法控制全部保持:``synthetic_rule_level`` 双无 qid 回退(合成
+  夹具正控,披露不变)、real 严格 qid 档正控、qid 缺配
+  ``not_evaluated`` 与四个既有输入守卫、real+未批准预注册拒;
+- 该门不是 criteria-v2 化学门:qid 不进化学结构判据(冻结判据
+  正文/FREEZE_RECORD/path_context 逐字节不改);预注册发车侧
+  同步落 ``bases_by_graph`` 全 ``qid_strict`` 核对(见预注册 §9)。
+
 本模块不读取真实科学数据/金标/题面/封存 run;不写数据库;合成
 规则级测试之外的数字一律 interface/pending。
 """
@@ -235,7 +255,10 @@ PAIRING_BASIS_NOTE = (
     "可读导出(输入清单序),qid 无匹配 ⇒ not_evaluated(reason qid "
     "未配到),不按根身份张冠李戴;root_identity_fallback:两侧均未"
     "声明 qid(合成夹具路径)⇒ 回退根严格身份首中配对并在此机读披露"
-    "(evaluation-4;evaluation-3 该回退为隐式行为)")
+    "(evaluation-4;evaluation-3 该回退为隐式行为);evaluation-5:"
+    "data_scope=real 的配对首次消费禁止 root_identity_fallback(结构化"
+    "拒 real_data_root_identity_fallback_forbidden,先于样本评分/聚合/"
+    "结果写入——合成夹具回退与 real 严格档保持合法)")
 
 # 评测器实际消费的结构化字段(S5-25:自然语言/自由文本字段不进
 # 判定;本清单之外的一切输入字段一律忽略,不参与任何匹配或计数)。
@@ -1833,7 +1856,12 @@ def _pair_exports_to_samples(graphs: dict[str, dict],
       定;清单按 digest 字典序),机读披露 ``pairing_basis=
       root_identity_fallback``,不静默;
     - 两档均保持:每个导出至多配到一个样本;一个样本可配多个导出
-      (同 qid 多 run);配不到的导出到 coverage_report 披露。
+      (同 qid 多 run);配不到的导出到 coverage_report 披露;
+    - evaluation-5(S5B-L01):``data_scope=real`` 下本函数返回的
+      回退档结果会在 ``evaluate_scientific`` 的配对首次消费处被
+      结构化拒(``real_data_root_identity_fallback_forbidden``)——
+      守卫在消费侧,配对函数本身不接收 data_scope(合成回退语义
+      保持不变,由调用方按档拦截)。
     """
     pairing: dict[str, dict] = {graph_id: {
         "basis": PAIRING_BASIS_ROOT_IDENTITY_FALLBACK,
@@ -2170,6 +2198,38 @@ def evaluate_scientific(
     pairing = _pair_exports_to_samples(
         graphs, export_payloads,
         _export_entry_order(evaluation_input), export_qids, manifest_qids)
+    # ---- S5b 回修(S5B-L01,evaluation-5):real 首消费禁双无 qid/
+    # root_identity_fallback —— data_scope=real 而配对档为根身份回退
+    # (评测输入 manifest 条目与 native_path_exports 条目两侧全部未
+    # 声明 qid)⇒ 结构化拒,落在配对首次消费处,先于任何样本评分/
+    # 聚合/结果写入(fail-closed:这是既定样本身份边界的兑现,不是
+    # criteria-v2 新化学门;qid 不进化学结构判据,化学匹配/条件/
+    # 指标判定零触碰)。合法控制保持:synthetic_rule_level 双无 qid
+    # 回退(合成夹具正控)、real 严格 qid 档、qid 缺配 not_evaluated
+    # 与四个既有输入守卫。 ----
+    if data_scope == "real" and any(
+            info["basis"] == PAIRING_BASIS_ROOT_IDENTITY_FALLBACK
+            for info in pairing.values()):
+        raise EvaluationContractError(
+            "data_scope=real 而样本↔导出配对落入 root_identity_fallback"
+            "(评测输入两侧全部未声明 qid:reference_graph_manifest 条目与"
+            " native_path_exports 条目均无 qid)——真实数据配对首次消费"
+            "禁止根身份回退(53 重复底物/同根多题 G1 下会重新引入首中即"
+            " break 张冠李戴;fail-closed,先于任何样本评分/聚合/结果"
+            "写入;该门是样本身份边界,不是 criteria-v2 化学判据)", {
+                "kind": "real_data_root_identity_fallback_forbidden",
+                "data_scope": data_scope,
+                "pairing_basis": PAIRING_BASIS_ROOT_IDENTITY_FALLBACK,
+                "graphs_without_declared_qid": sorted(graphs),
+                "export_entries_without_declared_qid": sorted(
+                    str(entry.get("export_digest"))
+                    for entry in evaluation_input.get(
+                        "native_path_exports") or []
+                    if entry.get("qid") is None),
+                "note": ("真实批两侧须声明 qid 走 qid_strict 配对;"
+                         "预注册发车核对:coverage_report.pairing."
+                         "bases_by_graph 须全为 qid_strict(任一"
+                         " root_identity_fallback ⇒ 阻断判分)")})
     unmatched_exports = sorted(
         set(export_payloads) - {d for info in pairing.values()
                                 for d in info["paired_export_digests"]})
@@ -2435,7 +2495,9 @@ def evaluate_scientific(
             "consumed_field_policy": (
                 "仅消费冻结结构化字段清单;自然语言字段不进判定"
                 "(S5-25);evaluation-4 新增条目级子字段 manifest.qid /"
-                " native_path_exports.qid 仅用于样本↔导出配对"),
+                " native_path_exports.qid 仅用于样本↔导出配对;"
+                "evaluation-5 real 档配对禁 root_identity_fallback"
+                "(守卫在配对消费侧,不新增消费字段)"),
             "data_scope": data_scope,
             "scientific_metric_status": (
                 "interface_only:合成规则级数字不外推 dev/298,不构成"

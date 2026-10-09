@@ -1,0 +1,382 @@
+..F....................F................................................ [ 46%]
+..........F.................F............F.............................. [ 92%]
+....FF.....F                                                             [100%]
+=================================== FAILURES ===================================
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v21(S5a 回修 r1):evaluation-2(S5A-01 identity scope 许可/
+        # S5A-02 条件同源分类/S5A-03 必要节点闭合/S5A-04 写边界根规则)
+        # + preregistration-template-2(proposed 文字同步)⇒ profile 身份
+        # 块随登记升版;v20(S5a 批次):donor-diagnostic-10(presence
+        # records isotope + axis_detail 披露,R4 §8 授权搭车 P2)+ 四个
+        # 新接口契约(reference-graph/split-manifest/evaluation/
+        # preregistration-template);v19(S4 回修 r3):
+        # donor-diagnostic-9(同位素 diff 并入实际净变化集,PPV1-ISO-01;
+        # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
+        # native-export-policy-3 / v3-projection-3;endpoint/native-result
+        # 系沿 r1);v24(S5b 启动批):evaluation-4(qid 感知样本↔导出
+        # 配对;mimo r25 ⚠️P1-9 G1 配对错位修复);v25(S5b 回修):
+        # evaluation-5(S5B-L01 real 档配对禁 root_identity_fallback)
+>       assert block["schema_version"] == "ppv1-profile-25"
+E       AssertionError: assert 'ppv1-profile-24' == 'ppv1-profile-25'
+E         
+E         - ppv1-profile-25
+E         ?               ^
+E         + ppv1-profile-24
+E         ?               ^
+
+tests/test_ppv1_profile.py:59: AssertionError
+______________ test_native_export_public_chain_files_and_manifest ______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-547/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -> None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        assert manifest["schema_version"] == "ppv1-native-export-3"
+        assert manifest["run_id"] == "s4b"
+        assert manifest["content_digest"] == out["native_result"][
+            "content_digest"]
+        assert manifest["export_policy"]["version"] == \
+            "ppv1-native-export-policy-3"
+        assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
+        # S5a 回修 r1:profile-20 → -21(evaluation-2 注册进身份块);
+        # S5a 回修 r2:profile-21 → -22(evaluation-3 单位收口);
+        # S5a 回修 r3:profile-22 → -23(S5A-05 消费侧引用绑定 + 五处
+        # P2 文案;evaluation-3/template-3 版本号不变);
+        # S5b 启动批:profile-23 → -24(evaluation-4 qid 感知配对);
+        # S5b 启动批回修:profile-24 → -25(evaluation-5 real 档配对禁
+        # root_identity_fallback,S5B-L01)
+>       assert manifest["contract_versions"]["profile"] == "ppv1-profile-25"
+E       AssertionError: assert 'ppv1-profile-24' == 'ppv1-profile-25'
+E         
+E         - ppv1-profile-25
+E         ?               ^
+E         + ppv1-profile-24
+E         ?               ^
+
+tests/test_ppv1_s4b_export.py:184: AssertionError
+________________ test_s5a_rework_contract_version_registration _________________
+
+    def test_s5a_rework_contract_version_registration() -> None:
+        """S5a 回修 r1→r2:评测契约 -2→-3、预注册模板 -2→-3、profile
+        -21→-22(匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
+        冻结正文不受影响;r2 只登记 S5A-02 单位收口与 B2 文案纠错)。"""
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-5"
+E       AssertionError: assert 'ppv1-evaluation-4' == 'ppv1-evaluation-5'
+E         
+E         - ppv1-evaluation-5
+E         ?                 ^
+E         + ppv1-evaluation-4
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r1.py:735: AssertionError
+________ test_s5a_r2_contract_version_registration_and_frozen_integrity ________
+
+    @pytest.mark.skipif(
+        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),
+        reason="frozen criteria text not copied into allowlisted isolation "
+               "trees (G01 boundary); byte integrity verified at the "
+               "evidence level (shasum in review_evidence package)")
+    def test_s5a_r2_contract_version_registration_and_frozen_integrity() \
+            -> None:
+        """S5a 回修 r2:评测契约 -2→-3、模板 -2→-3、profile -21→-22
+        (S5A-02 单位收口语义由 evaluation-3 承载;reference-graph/
+        split-manifest 字段形状零变化);criteria-v1 冻结正文与
+        FREEZE_RECORD 逐字节不改(单位是消费侧语义)。"""
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-5"
+E       AssertionError: assert 'ppv1-evaluation-4' == 'ppv1-evaluation-5'
+E         
+E         - ppv1-evaluation-5
+E         ?                 ^
+E         + ppv1-evaluation-4
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r2.py:361: AssertionError
+________ test_s5a_r3_contract_version_registration_and_frozen_integrity ________
+
+    @pytest.mark.skipif(
+        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),
+        reason="frozen criteria text not copied into allowlisted isolation "
+               "trees (G01 boundary); byte integrity verified at the "
+               "evidence level (shasum in review_evidence package)")
+    def test_s5a_r3_contract_version_registration_and_frozen_integrity() \
+            -> None:
+        """S5a 回修 r3:production 链 -1→-2(S5A-05 首消费引用绑定,由
+        search-production-2 承载)、profile -22→-23(聚合登记);evaluation-3
+        / template-3 **版本号不变**(五处 known×unknown 限定物种键等 P2
+        文案为拟冻结前同步,非语义变更);reference-graph-1/split-manifest-1
+        不变;criteria-v1 冻结正文/FREEZE_RECORD/path_context 冻结判决
+        逐字节不改(绑定守卫在 production 消费侧)。"""
+        assert SEARCH_PRODUCTION_VERSION == "ppv1-search-production-2"
+        # S5b 启动批:evaluation-3→-4(qid 感知样本↔导出配对;mimo r25
+        # ⚠️P1-9 G1 配对错位修复)+ profile -23→-24(聚合登记);
+        # S5b 启动批回修:evaluation-4→-5(real 档配对禁
+        # root_identity_fallback,S5B-L01)+ profile -24→-25
+>       assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-25"
+E       AssertionError: assert 'ppv1-profile-24' == 'ppv1-profile-25'
+E         
+E         - ppv1-profile-25
+E         ?               ^
+E         + ppv1-profile-24
+E         ?               ^
+
+tests/test_ppv1_s5a_rework_r3.py:685: AssertionError
+_____________________ test_evaluation4_contract_registered _____________________
+
+    def test_evaluation4_contract_registered() -> None:
+        """evaluation / profile 契约登记(配对语义变更升版,不偷换
+        同一已登记契约;reference-graph-1/split-manifest-1 不变)。
+    
+        S5b 启动批:evaluation-4/profile-24(qid 感知配对);S5b 启动批
+        回修(S5B-L01):evaluation-5/profile-25(real 档配对禁
+        root_identity_fallback;守卫回归另见
+        tests/test_ppv1_s5b_rework_l01.py)。
+        """
+        from pathway_v43.pollutant.profile import (
+            PPV1_EVALUATION_VERSION,
+            PPV1_PROFILE_SCHEMA_VERSION,
+            PPV1_REFERENCE_GRAPH_VERSION,
+            PPV1_SPLIT_MANIFEST_VERSION,
+            contract_versions,
+        )
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-5"
+E       AssertionError: assert 'ppv1-evaluation-4' == 'ppv1-evaluation-5'
+E         
+E         - ppv1-evaluation-5
+E         ?                 ^
+E         + ppv1-evaluation-4
+E         ?                 ^
+
+tests/test_ppv1_s5b_pairing.py:657: AssertionError
+____________ test_real_label_noqid_structured_reject_before_scoring ____________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-547/test_real_label_noqid_structur0')
+
+    def test_real_label_noqid_structured_reject_before_scoring(
+            tmp_path: Path) -> None:
+        """反例翻转:S5B-L01——real 标签 + 两侧全无 qid 声明 ⇒ 配对首
+        次消费处结构化拒(``real_data_root_identity_fallback_forbidden``),
+        先于任何样本评分/聚合/结果写入(修前 a399d6e:codex-a scored
+        进聚合、codex-b not_evaluated,复现见回修证据包)。
+    
+        ``data_scope='real'`` + fake approved 形状沿复审公开反例轴;
+        全部数据是合成夹具(dev/known/development),不冒称真实 298/
+        金标/用户科学授权。
+        """
+        case = _noqid_two_graph_input(tmp_path, scope="real")
+>       with pytest.raises(EvaluationContractError) as excinfo:
+E       Failed: DID NOT RAISE EvaluationContractError
+
+tests/test_ppv1_s5b_rework_l01.py:131: Failed
+____________________ test_l01_contract_version_registration ____________________
+
+    def test_l01_contract_version_registration() -> None:
+        """evaluation-5 / profile-25 契约登记(S5B-L01 real 档配对守卫
+        升版,不偷换已登记契约;reference-graph-1/split-manifest-1/
+        preregistration-template-3 不变;qid 不进化学结构判据)。"""
+        from pathway_v43.pollutant.profile import (
+            PPV1_PREREGISTRATION_TEMPLATE_VERSION,
+            PPV1_REFERENCE_GRAPH_VERSION,
+            PPV1_SPLIT_MANIFEST_VERSION,
+        )
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-5"
+E       AssertionError: assert 'ppv1-evaluation-4' == 'ppv1-evaluation-5'
+E         
+E         - ppv1-evaluation-5
+E         ?                 ^
+E         + ppv1-evaluation-4
+E         ?                 ^
+
+tests/test_ppv1_s5b_rework_l01.py:250: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s5b_rework_parent.123016/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+________________________ test_cli_profile_flag_choices _________________________
+----------------------------- Captured stderr call -----------------------------
+usage: pathway_v43 run [-h] [--v3-code-root V3_CODE_ROOT]
+                       [--assets-root ASSETS_ROOT] [--out OUT]
+                       [--runs-root RUNS_ROOT] [--smiles SMILES] --run-id
+                       RUN_ID [--max-depth MAX_DEPTH]
+                       [--max-expansions MAX_EXPANSIONS]
+                       [--max-frontier-width MAX_FRONTIER_WIDTH]
+                       [--model {off,fake,real}] [--fake-script FAKE_SCRIPT]
+                       [--max-llm-calls MAX_LLM_CALLS]
+                       [--max-proposals MAX_PROPOSALS]
+                       [--migrate-from MIGRATE_FROM]
+                       [--profile {legacy_v43,pollutant_pathway_v1}]
+pathway_v43 run: error: argument --profile: invalid choice: 'zzz' (choose from 'legacy_v43', 'pollutant_pathway_v1')
+=========================== short test summary info ============================
+PASSED tests/test_ppv1_profile.py::test_profile_names_registry
+PASSED tests/test_ppv1_profile.py::test_identity_schema_version_bumped
+PASSED tests/test_ppv1_profile.py::test_ppv1_identity_block_default_switches
+PASSED tests/test_ppv1_profile.py::test_ppv1_identity_block_fail_closed[input_preview_policy-filter]
+PASSED tests/test_ppv1_profile.py::test_ppv1_identity_block_fail_closed[input_preview_policy-None]
+PASSED tests/test_ppv1_profile.py::test_ppv1_identity_block_fail_closed[chemical_reproposal-maybe]
+PASSED tests/test_ppv1_profile.py::test_ppv1_identity_block_fail_closed[search_intent-anything_goes]
+PASSED tests/test_ppv1_profile.py::test_search_limits_validation
+PASSED tests/test_ppv1_profile.py::test_code_identity_excludes_pollutant_for_legacy
+PASSED tests/test_ppv1_profile.py::test_code_identity_pollutant_includes_full_tree
+PASSED tests/test_ppv1_profile.py::test_code_identity_unknown_profile_rejected
+PASSED tests/test_ppv1_profile.py::test_code_identity_legacy_stable_under_pollutant_changes
+PASSED tests/test_ppv1_profile.py::test_build_run_identity_default_is_legacy
+PASSED tests/test_ppv1_profile.py::test_build_run_identity_legacy_rejects_profile_policy
+PASSED tests/test_ppv1_profile.py::test_build_run_identity_pollutant_block
+PASSED tests/test_ppv1_profile.py::test_build_run_identity_unknown_profile_rejected
+PASSED tests/test_ppv1_profile.py::test_check_resume_identity_profile_mismatch_rejected
+PASSED tests/test_ppv1_profile.py::test_check_resume_identity_v1_missing_profile_read_as_legacy
+PASSED tests/test_ppv1_profile.py::test_identity_fingerprint_includes_profile
+PASSED tests/test_ppv1_profile.py::test_start_run_pollutant_dispatches_to_runflow
+PASSED tests/test_ppv1_profile.py::test_start_run_unknown_profile_rejected
+PASSED tests/test_ppv1_profile.py::test_cli_profile_flag_choices
+PASSED tests/test_ppv1_s4b_export.py::test_native_export_full_fact_coverage
+PASSED tests/test_ppv1_s4b_export.py::test_g02_repeat_export_same_bytes_including_subprocess
+PASSED tests/test_ppv1_s4b_export.py::test_g02_export_after_crash_resume_repeat_identical
+PASSED tests/test_ppv1_s4b_export.py::test_g02_export_read_back_matches_native_authority
+PASSED tests/test_ppv1_s4b_export.py::test_g02_stale_after_graph_change
+PASSED tests/test_ppv1_s4b_export.py::test_g02_stale_after_policy_change
+PASSED tests/test_ppv1_s4b_export.py::test_g02_integrity_structured_failures
+PASSED tests/test_ppv1_s4b_export.py::test_g02_self_consistent_rewrite_not_laundered
+PASSED tests/test_ppv1_s4b_export.py::test_tampered_export_refuses_overwrite
+PASSED tests/test_ppv1_s4b_export.py::test_v3_projection_lossy_marker_reference_and_losses
+PASSED tests/test_ppv1_s4b_export.py::test_v3_projection_steps_per_event_no_cn_merge_no_fabrication
+PASSED tests/test_ppv1_s4b_export.py::test_v3_projection_deterministic_and_reverse_lookup
+PASSED tests/test_ppv1_s4b_export.py::test_v3_projection_reverse_consumption_refused_zero_writes
+PASSED tests/test_ppv1_s4b_export.py::test_full_public_chain_crash_resume_export_replay
+PASSED tests/test_ppv1_s4b_export.py::test_endpoint_stop_reference_broken_refuses_export
+PASSED tests/test_ppv1_s4b_export.py::test_empty_pool_run_exports_and_projects
+PASSED tests/test_ppv1_s4b_export.py::test_native_export_v3_projection_conflict_preserves
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[cn_only]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[partial]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_intermediate_nodes_capped_to_collateral[unknown]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[cn_only]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[partial]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a01_limited_scope_all_nodes_capped[unknown]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a01_legal_strict_and_real_cn_controls_kept
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a01_matcher_unit_scope_cap
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-reactant]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[unmatched_structure-product]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-reactant]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a03_required_node_empty_hit_blocks_strict[limited_duplicate-product]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a03_participants_only_node_deferred_p2
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a03_legal_exact_superset_partial_controls_kept
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[missing_fact]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[same_known_present]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[opposite_known_present]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[same_known_absent]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[other_known_absent]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[numeric_known_absent]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[entity_other_known_absent]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[canonical_unit_positive]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_unknown]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_mismatch_K]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[unit_noncanonical_F]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_conflict_first]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[conflicting_facts_satisfied_first]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[necessity_no_source]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[zero_point_present]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[negative_interval_present]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[dict_interval_present]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[matrix_label_unresolved]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_absent]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_condition_classification_matches_frozen_source[required_absent_fact_present]
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_frozen_reasons_and_mapping_disclosures
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_unsupported_key_and_fact_disclosures
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_preference_and_scenario_axes_kept
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a02_end_to_end_buckets_with_frozen_reasons
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_resolved_path_authorization
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_symlink_escape_refused
+PASSED tests/test_ppv1_s5a_rework_r1.py::test_s5a04_persist_no_root_refused_and_plain_write_kept
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_298_vs_25C]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_K_25_vs_25C]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_F_77_vs_25C]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_dimensionless_unit_unexpected]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_C_25_vs_25C]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_six_cases_classifier[B1_requirement_unit_empty_25_vs_25C]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_unit_branch_not_masked_by_missing_facts
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_requirement_vs_fact_unit_semantics_split
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_preference_with_unrepresentable_unit_stays_unknown
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_298_vs_25C-condition_unknown]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_K_25_vs_25C-condition_unknown]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_F_77_vs_25C-condition_unknown]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_dimensionless_unit_unexpected-condition_unknown]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_C_25_vs_25C-compatible]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b1_end_to_end_public_chain_and_aggregate[B1_requirement_unit_empty_25_vs_25C-compatible]
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_b2_checked_builder_and_order_gates
+PASSED tests/test_ppv1_s5a_rework_r2.py::test_s5a02_r2_r1_condition_cases_all_preserved
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case1_normal_checked_unknown_roundtrip
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case2_old_id_changed_content_still_rejected
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case3_self_consistent_new_id_old_address_rejected
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case4_checked_legal_new_content_old_address_rejected
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case5_legal_new_id_new_address_parent_chain
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case1_public_control_resume_preserved
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case2_public_old_id_rejected_with_table_disclosure
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case3_public_new_id_old_address_rejected
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case4_public_checked_legal_old_address_rejected
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case5_public_legal_transition_chain_preserved
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_endpoint_entries_reuse_common_guard
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_entry_matrix_static_guard
+PASSED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_p2_text_sync_species_key_limitation
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_01_reference_graph_full_field_validation
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_01_missing_field_fails_with_field_path
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_01_unknown_schema_version_refused
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_01_unparseable_file_refused
+PASSED tests/test_ppv1_s5a_schema.py::test_reference_graph_unknown_top_level_field_refused
+PASSED tests/test_ppv1_s5a_schema.py::test_reference_graph_root_limited_scope_declaration
+PASSED tests/test_ppv1_s5a_schema.py::test_reference_graph_distinct_occurrence_kept
+PASSED tests/test_ppv1_s5a_schema.py::test_reference_graph_mineralization_evidence_floor
+PASSED tests/test_ppv1_s5a_schema.py::test_split_manifest_schema
+PASSED tests/test_ppv1_s5a_schema.py::test_evaluation_input_required_fields
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_21_mixed_domain_refused
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_22_mixed_track_refused
+PASSED tests/test_ppv1_s5a_schema.py::test_evaluation_input_lossy_projection_contract
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_23_preregistration_template_tbd_marking
+PASSED tests/test_ppv1_s5a_schema.py::test_preregistration_validation_fail_closed
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_26_paid_provider_off_by_default
+PASSED tests/test_ppv1_s5a_schema.py::test_real_data_scope_requires_approved_prereg
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_27_gold_output_write_guard
+PASSED tests/test_ppv1_s5a_schema.py::test_s5_28_no_native_export_pending
+PASSED tests/test_ppv1_s5a_schema.py::test_emitted_status_never_evaluated
+PASSED tests/test_ppv1_s5b_pairing.py::test_g1_same_substrate_two_qids_pair_own_runs
+PASSED tests/test_ppv1_s5b_pairing.py::test_qid_unpaired_not_mispaired_by_root
+PASSED tests/test_ppv1_s5b_pairing.py::test_qid_declared_by_unreadable_entry_disclosed
+PASSED tests/test_ppv1_s5b_pairing.py::test_strict_regime_graph_without_qid_not_root_paired
+PASSED tests/test_ppv1_s5b_pairing.py::test_export_qid_orphan_to_no_graph_unmatched_exports
+PASSED tests/test_ppv1_s5b_pairing.py::test_fallback_root_identity_pairing_disclosed
+PASSED tests/test_ppv1_s5b_pairing.py::test_same_qid_multiple_exports_list_order_selection
+PASSED tests/test_ppv1_s5b_pairing.py::test_pairing_independent_of_entry_order
+PASSED tests/test_ppv1_s5b_pairing.py::test_manifest_qid_not_in_source_refs_rejected
+PASSED tests/test_ppv1_s5b_pairing.py::test_duplicate_manifest_qid_rejected
+PASSED tests/test_ppv1_s5b_pairing.py::test_export_qid_run_binding_mismatch_rejected
+PASSED tests/test_ppv1_s5b_pairing.py::test_empty_qid_string_rejected
+PASSED tests/test_ppv1_s5b_pairing.py::test_pairing_disclosure_deterministic
+PASSED tests/test_ppv1_s5b_rework_l01.py::test_real_noqid_prereg_gate_precedes_pairing_guard
+PASSED tests/test_ppv1_s5b_rework_l01.py::test_real_noqid_input_guard_precedes_pairing_guard
+PASSED tests/test_ppv1_s5b_rework_l01.py::test_synthetic_noqid_fallback_positive_control_kept
+PASSED tests/test_ppv1_s5b_rework_l01.py::test_real_label_strict_qid_positive_control_kept
+PASSED tests/test_ppv1_s5b_rework_l01.py::test_real_qid_unpaired_not_evaluated_kept
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions
+FAILED tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest
+FAILED tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_contract_version_registration_and_frozen_integrity
+FAILED tests/test_ppv1_s5b_pairing.py::test_evaluation4_contract_registered
+FAILED tests/test_ppv1_s5b_rework_l01.py::test_real_label_noqid_structured_reject_before_scoring
+FAILED tests/test_ppv1_s5b_rework_l01.py::test_l01_contract_version_registration
+8 failed, 148 passed, 1 warning in 7.60s

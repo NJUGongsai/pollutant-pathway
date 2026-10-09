@@ -1,0 +1,10 @@
+{
+ "run": "PPV1 全量(45 文件,快照树 a399d6e+仅本回修 10 文件叠加;含两份冻结正文准入使守卫实际执行)",
+ "cwd": "/private/tmp/ppv1_s5b_rework_snap.122808",
+ "argv": ["/Users/cc/miniconda3/envs/depending43/bin/python", "-B", "-m", "pytest", "-p", "no:cacheprovider", "-q", "-rA", "--junitxml", "/private/tmp/ppv1_s5b_rework_snaprun2.122951/junit.xml", "tests/test_ppv1_*.py"],
+ "env_pinned": {"PYTHONDONTWRITEBYTECODE": "1", "OMP_NUM_THREADS": "1", "PYTHONPATH": "/private/tmp/ppv1_s5b_rework_snap.122808/src"},
+ "exit_code": 0,
+ "result": "1140 passed / 0 skipped / 0 failed(1133 存量 + 7 新 tests/test_ppv1_s5b_rework_l01.py)",
+ "stdout": "stdout.txt", "stderr": "stderr.txt", "junit": "junit.xml",
+ "note": "仓内真实工作树另有一轮 1140 绿(12:23)但彼时检测到并行会话对 runflow.py 的改动,归属不净;本快照轮为归属干净数"
+}

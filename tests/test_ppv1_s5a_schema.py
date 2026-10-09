@@ -325,7 +325,10 @@ def synth_evaluation_input(*, domain: str = "dev",
         "evaluator_schema_version": PPV1_EVALUATION_VERSION,
         "run_identity": {
             "run_id": "synth-run-1",
-            "profile_version": "ppv1-profile-24",
+            # S5b 启动批回修:profile-24 → -25(evaluation-5 real 档
+            # 配对禁 root_identity_fallback,S5B-L01;run_identity 夹具
+            # 字面量同步)
+            "profile_version": "ppv1-profile-25",
             "export_schema_version": PPV1_NATIVE_EXPORT_VERSION,
         },
         "native_path_exports": exports or [],

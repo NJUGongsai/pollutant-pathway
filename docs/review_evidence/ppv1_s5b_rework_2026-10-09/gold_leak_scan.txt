@@ -1,0 +1,24 @@
+# 金标零泄漏扫描(2026-10-09, S5b 回修批提交前守门)
+
+方法(与启动批两层扫描的差异如实声明):本批任务边界明文"不碰
+题面金标",故金标对照文件(questions.jsonl)本批零读取;改用
+**合成白名单一致性扫描**——抽取交付物全部反引号 span 与裸
+SMILES 形 token,逐一对照白名单 = r25/r26 送审与复审 caliber
+27 案已按"与 298 真实金标集合零重叠"纪律核验过的虚构分子
+(CCO/CO/CC=O/[H][H]/CCOCC/CCO.CO/CC(=O)[O-]/F[C@@H](Cl)Br/
+[13CH3]O/CCCCCC 系)。白名单外的化学形 token 需人工裁定。
+
+扫描结果(七个交付路径):
+== docs/POLLUTANT_PATHWAY_S5B_REWORK_DELIVERY_2026-10-09.md: 分子 token 全在白名单;白名单外命中仅为标识符(EvaluationContractError/PYTHONDONTWRITEBYTECODE/VERSION)
+== docs/mimo_ppv1_chem_review_request_r27.md: 分子 token 全在白名单;白名单外命中仅为标识符(EvaluationContractError)
+== docs/POLLUTANT_PATHWAY_S5B_PREREGISTRATION_2026-10-09.md: 分子 token 全在白名单;白名单外命中仅为词(BRENDA/SHA)
+== docs/POLLUTANT_PATHWAY_S5B_LAUNCH_DELIVERY_2026-10-09.md: 分子 token 全在白名单;白名单外命中仅为标识符
+== docs/mimo_ppv1_chem_review_request_r26.md: 零白名单外命中
+== tests/test_ppv1_s5b_rework_l01.py: 零白名单外命中
+== 本证据 README.md: 分子 token 全在白名单;白名单外命中仅为标识符
+
+结论:交付物中全部 SMILES 取值均在已核验零重叠的合成白名单内
+('CC=O' 等本身即启动批两层扫描证实不在金标取值集合中的合成例);
+零重叠性质承袭 r26 送审通道与复审 caliber 包的既有核验;金标
+内容零入仓,金标文件本批零读取。扫描脚本在 /private/tmp 执行
+不入仓。

@@ -679,9 +679,11 @@ def test_s5a_r3_contract_version_registration_and_frozen_integrity() \
     逐字节不改(绑定守卫在 production 消费侧)。"""
     assert SEARCH_PRODUCTION_VERSION == "ppv1-search-production-2"
     # S5b 启动批:evaluation-3→-4(qid 感知样本↔导出配对;mimo r25
-    # ⚠️P1-9 G1 配对错位修复)+ profile -23→-24(聚合登记)
-    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-24"
-    assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-4"
+    # ⚠️P1-9 G1 配对错位修复)+ profile -23→-24(聚合登记);
+    # S5b 启动批回修:evaluation-4→-5(real 档配对禁
+    # root_identity_fallback,S5B-L01)+ profile -24→-25
+    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-25"
+    assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-5"
     assert PPV1_PREREGISTRATION_TEMPLATE_VERSION == \
         "ppv1-preregistration-template-3"
     assert PPV1_REFERENCE_GRAPH_VERSION == "ppv1-reference-graph-1"

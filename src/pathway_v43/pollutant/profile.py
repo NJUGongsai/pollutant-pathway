@@ -296,7 +296,19 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 升 -24 纯为携带该契约变更;v23 载荷按未知版本既有门拒绝,无
 # 兼容迁移。criteria-v1 冻结正文与 FREEZE_RECORD 逐字节不改;
 # S5b 真实评测未启动(零真实模型调用、零费用、零金标接触)。
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-24"
+# -25(S5b 启动批回修,2026-10-09,S5B-L01,复审
+# POLLUTANT_PATHWAY_S5B_CODEX_REVIEW §4.1):身份块携带
+# evaluation-5 —— real 档配对守卫新增(evaluate_scientific 在
+# 配对首次消费处对 data_scope=real 且 pairing_basis=
+# root_identity_fallback(评测输入两侧全部未声明 qid)结构化拒
+# real_data_root_identity_fallback_forbidden,先于样本评分/聚合/
+# 结果写入;合成夹具双无 qid 回退、real 严格 qid 档、qid 缺配
+# not_evaluated 与四个既有输入守卫保持合法;不是 criteria-v2
+# 化学门,qid 不进化学结构判据)。profile 升 -25 纯为携带该
+# 契约变更;v24 载荷按未知版本既有门拒绝,无兼容迁移。criteria-v1
+# 冻结正文与 FREEZE_RECORD 逐字节不改;path_context 零触碰;
+# S5b 真实评测仍未启动(零真实模型调用、零费用、零金标接触)。
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-25"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -362,7 +374,26 @@ PPV1_SPLIT_MANIFEST_VERSION = "ppv1-split-manifest-1"
 # template-3 不变;criteria-v1 冻结正文与 FREEZE_RECORD 逐字节
 # 不改;S5A-01/02/03/04/05、S4/S3、ISO-01 保持关闭不重开;S5b
 # 真实评测未启动(本批零真实模型调用、零费用)。
-PPV1_EVALUATION_VERSION = "ppv1-evaluation-4"
+# S5b 启动批回修(S5B-L01,2026-10-09,复审
+# POLLUTANT_PATHWAY_S5B_CODEX_REVIEW §4.1):契约升 -5 —— real
+# 档配对守卫新增(仅此一处语义变更,匹配/条件/指标/既有输入
+# 守卫判定零触碰):evaluate_scientific 在配对计算后、样本评分/
+# 聚合/结果写入前,对 data_scope=real 且配对档为
+# root_identity_fallback(评测输入 manifest 条目与
+# native_path_exports 条目两侧全部未声明 qid)抛结构化
+# EvaluationContractError(kind=real_data_root_identity_
+# fallback_forbidden,机读携带 data_scope 与缺 qid 的图/导出条目
+# 范围)——真实样本身份边界 fail-closed(复审公开合成反例:real
+# 标签+两侧全无 qid 修前一图 scored 进聚合/另一图 not_evaluated
+# ⇒ 修后整评结构化拒,零样本评分/聚合/持久化)。合法控制保持:
+# synthetic_rule_level 双无 qid 回退披露、real 严格 qid 档、
+# qid 缺配 not_evaluated、四输入守卫、real+未批准预注册拒。
+# 该门不是 criteria-v2 化学门:qid 不进化学结构判据(冻结判据
+# 正文/FREEZE_RECORD/path_context 逐字节不改);预注册发车侧
+# 同步落 bases_by_graph 全 qid_strict 核对。reference-graph-1/
+# split-manifest-1 字段形状零变化;preregistration-template-3
+# 不变。
+PPV1_EVALUATION_VERSION = "ppv1-evaluation-5"
 # S5a 回修 r2(2026-10-09,复审 R2 §4 唯一残余 P1 S5A-02):条件
 # 分类语义修正 ⇒ 契约升 -3,不偷换同一已登记契约 —— (02r2)要求侧
 # 单位支持能力在 ConditionScope→冻结 Requirement 映射首消费处决定:

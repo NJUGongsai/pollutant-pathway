@@ -1,0 +1,40 @@
+{
+  "event": "并行会话对仓工作树的非本批改动(实施中发现,如实登记)",
+  "observed_at": "2026-10-09 12:24-12:25 CST(本回修 PPV1 全量快照轮之后)",
+  "foreign_tracked_modification": {
+    "path": "src/pathway_v43/pollutant/runflow.py",
+    "nature": "S5b provider 接线内容(_Driver model 注入/real fetch 分支;非本回修范围,未触碰)"
+  },
+  "foreign_untracked": [
+    "src/pathway_v43/pollutant/real_model.py(19457B, provider 适配器;非本回修,未读取正文)",
+    "src/.DS_Store",
+    "src/pathway_v43/.DS_Store"
+  ],
+  "handling": "按 PPV1_REVIEW_PROTOCOL §2(并行改动结果不冠以本批身份、不回退他方改动):全部验证改用 detached 稀疏 worktree 快照(a399d6e + 仅本回修 10 文件叠加);他方文件不读取正文、不纳入任何验证树、不提交;真实仓 tests/ 从未全量(G01 纪律保持)",
+  "rework_files_overlaid": [
+    "src/pathway_v43/pollutant/evaluation.py",
+    "src/pathway_v43/pollutant/profile.py",
+    "tests/test_ppv1_profile.py",
+    "tests/test_ppv1_s4b_export.py",
+    "tests/test_ppv1_s5a_rework_r1.py",
+    "tests/test_ppv1_s5a_rework_r2.py",
+    "tests/test_ppv1_s5a_rework_r3.py",
+    "tests/test_ppv1_s5a_schema.py",
+    "tests/test_ppv1_s5b_pairing.py",
+    "tests/test_ppv1_s5b_rework_l01.py"
+  ],
+  "snapshot_worktree": "/private/tmp/ppv1_s5b_rework_snap.122808",
+  "snapshot_head": "a399d6e665720f6e5f2f836bd6d6ef2e5448a0b2",
+  "snapshot_status_porcelain": [
+    "M src/pathway_v43/pollutant/evaluation.py",
+    " M src/pathway_v43/pollutant/profile.py",
+    " M tests/test_ppv1_profile.py",
+    " M tests/test_ppv1_s4b_export.py",
+    " M tests/test_ppv1_s5a_rework_r1.py",
+    " M tests/test_ppv1_s5a_rework_r2.py",
+    " M tests/test_ppv1_s5a_rework_r3.py",
+    " M tests/test_ppv1_s5a_schema.py",
+    " M tests/test_ppv1_s5b_pairing.py",
+    "?? tests/test_ppv1_s5b_rework_l01.py"
+  ]
+}

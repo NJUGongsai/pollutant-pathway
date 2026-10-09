@@ -1,0 +1,17 @@
+{
+ "run": "直接父基线红绿(a399d6e src 原字节 + 8 个当前字节测试文件:7 改+1 新)",
+ "cwd": "/private/tmp/ppv1_s5b_rework_parent.123016",
+ "argv": ["/Users/cc/miniconda3/envs/depending43/bin/python", "-B", "-m", "pytest", "-p", "no:cacheprovider", "-q", "-rA", "--junitxml", "/private/tmp/ppv1_s5b_rework_parentrun.123047/junit.xml", "tests/test_ppv1_profile.py", "tests/test_ppv1_s4b_export.py", "tests/test_ppv1_s5a_rework_r1.py", "tests/test_ppv1_s5a_rework_r2.py", "tests/test_ppv1_s5a_rework_r3.py", "tests/test_ppv1_s5a_schema.py", "tests/test_ppv1_s5b_pairing.py", "tests/test_ppv1_s5b_rework_l01.py"],
+ "env_pinned": {"PYTHONDONTWRITEBYTECODE": "1", "OMP_NUM_THREADS": "1", "PYTHONPATH": "/private/tmp/ppv1_s5b_rework_parent.123016/src"},
+ "exit_code": 1,
+ "result": "8 failed / 148 passed / 0 collection errors / 0 skipped(156 nodeid)",
+ "first_failure_classification": {
+  "guard_expected_but_not_raised": ["tests/test_ppv1_s5b_rework_l01.py::test_real_label_noqid_structured_reject_before_scoring(DID NOT RAISE EvaluationContractError;父上 evaluate 返回错误评分输出)"],
+  "version_literal": ["tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions", "tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest", "tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration", "tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity", "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_contract_version_registration_and_frozen_integrity", "tests/test_ppv1_s5b_pairing.py::test_evaluation4_contract_registered", "tests/test_ppv1_s5b_rework_l01.py::test_l01_contract_version_registration"],
+  "pairing_value_or_effect_behavior": [],
+  "missing_field_or_keyerror": [],
+  "collection_error": 0,
+  "note": "r2/r3 版本红后段的冻结正文 SHA 断言未执行(先停在版本字面量,不冒称冻结完整性翻转);tests/test_ppv1_s5a_schema.py 当前字节在父上绿(仅夹具字面量,无断言)"
+ },
+ "stdout": "stdout.txt", "stderr": "stderr.txt", "junit": "junit.xml"
+}

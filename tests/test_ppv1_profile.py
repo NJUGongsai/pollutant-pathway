@@ -54,8 +54,9 @@ def test_ppv1_identity_block_contract_versions() -> None:
     # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
     # native-export-policy-3 / v3-projection-3;endpoint/native-result
     # 系沿 r1);v24(S5b 启动批):evaluation-4(qid 感知样本↔导出
-    # 配对;mimo r25 ⚠️P1-9 G1 配对错位修复)
-    assert block["schema_version"] == "ppv1-profile-24"
+    # 配对;mimo r25 ⚠️P1-9 G1 配对错位修复);v25(S5b 回修):
+    # evaluation-5(S5B-L01 real 档配对禁 root_identity_fallback)
+    assert block["schema_version"] == "ppv1-profile-25"
     contracts = block["contracts"]
     assert contracts["donor_diagnostic"] == "ppv1-donor-diagnostic-10"
     # S5a:三个新接口契约 + split manifest 进 contract_versions
@@ -64,10 +65,11 @@ def test_ppv1_identity_block_contract_versions() -> None:
     # profile → -22 —— S5A-02 单位收口 + B2 文案纠错;S5a 回修 r3:
     # profile → -23 —— S5A-05 消费侧引用绑定 + 五处 P2 文案,
     # evaluation-3/template-3 版本号不变;S5b 启动批:evaluation → -4
-    # qid 感知配对 + profile → -24)
+    # qid 感知配对 + profile → -24;S5b 启动批回修:evaluation → -5
+    # real 档配对禁 root_identity_fallback(S5B-L01)+ profile → -25)
     assert contracts["reference_graph"] == "ppv1-reference-graph-1"
     assert contracts["split_manifest"] == "ppv1-split-manifest-1"
-    assert contracts["evaluation"] == "ppv1-evaluation-4"
+    assert contracts["evaluation"] == "ppv1-evaluation-5"
     assert contracts["preregistration_template"] == \
         "ppv1-preregistration-template-3"
     for key, prefix in (

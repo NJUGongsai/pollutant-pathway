@@ -1,0 +1,24 @@
+{
+ "run": "评审公开 real 标签双无 qid 反例的修前/修后复现(复制复审证据 ppv1_s5b_codex_2026-10-09/pairing/outputs/real_label_noqid_public_* 场景到 fresh /private/tmp 重建)",
+ "script": "scripts/repro_real_noqid.py",
+ "prefault": {
+  "cwd": "/private/tmp/ppv1_s5b_rework_repro.122448",
+  "argv": ["/Users/cc/miniconda3/envs/depending43/bin/python", "-B", "/private/tmp/ppv1_s5b_rework_repro.122448/script/repro_real_noqid.py", "/private/tmp/ppv1_s5b_rework_repro.122448/tree_pre", "/private/tmp/ppv1_s5b_rework_repro.122448/case_work_pre", "/private/tmp/ppv1_s5b_rework_repro.122448/outputs_prefault", "prefault"],
+  "env_pinned": {"PYTHONDONTWRITEBYTECODE": "1", "OMP_NUM_THREADS": "1", "BBD_DATA_ROOT": ".../empty_roots/d1", "V3_CODE_ROOT": ".../empty_roots/d2", "DEPENDING_V3_ROOT": ".../empty_roots/d2", "V43_ASSET_ROOT": ".../empty_roots/d3"},
+  "exit_code": 0,
+  "verdict": "PREFAULT_REPRODUCED:codex-a scored(8 项聚合)+codex-b not_evaluated_export_missing,两图 root_identity_fallback——与复审公开反例输出同缺口"
+ },
+ "guarded": {
+  "cwd": "/private/tmp/ppv1_s5b_rework_repro.122448",
+  "argv": ["/Users/cc/miniconda3/envs/depending43/bin/python", "-B", "/private/tmp/ppv1_s5b_rework_repro.122448/script/repro_real_noqid.py", "/private/tmp/ppv1_s5b_rework_repro.122448/tree_post", "/private/tmp/ppv1_s5b_rework_repro.122448/case_work_post", "/private/tmp/ppv1_s5b_rework_repro.122448/outputs_guarded", "guarded"],
+  "env_pinned": {"同上,指向 case_work_post 空根"},
+  "exit_code": 0,
+  "verdict": "GUARDED_STRUCTURED_REJECT:EvaluationContractError kind=real_data_root_identity_fallback_forbidden;零样本评分/零聚合/零结果写入(异常先于输出构造,detail 机读携带 data_scope/pairing_basis/缺 qid 图与导出条目范围)"
+ },
+ "positive_controls_kept_both_sides": ["synthetic 双无 qid 回退 scored+披露", "real 严格 qid 全 scored(qid_strict)", "real+未批准预注册先拒(real_data_requires_approved_preregistration)"],
+ "trees": {
+  "tree_pre": "git archive a399d6e src + pyproject.toml + 3 个测试辅助文件(83 文件,守卫 0 处)",
+  "tree_post": "快照树(=a399d6e+本回修 10 文件)的 src+pyproject+3 个测试辅助文件(83 文件,守卫 4 处,与快照逐字节一致)"
+ },
+ "all_data_synthetic": true, "no_network": true, "no_llm": true
+}
