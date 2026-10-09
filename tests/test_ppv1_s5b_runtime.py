@@ -713,3 +713,19 @@ def test_scoring_report_pass_line_semantics(synth_batch) -> None:
         encoding="utf-8")
     assert "参照" in technical
     assert "两口径" in technical or "双口径" in technical
+
+
+def test_proposals_prompt_bond_order_vocab_matches_executor() -> None:
+    """S5b 冒烟回归(2026-10-09):提示词键级词表须与执行器凯库勒空间一致
+    (single|double|triple)——旧提示词多写 aromatic,模型照写、执行器 KeyError
+    整题崩溃(RXNG_22901c/RXNG_330df2)。PROPOSALS_PROMPT_VERSION 为内容
+    哈希,本变更自动升版并随身份入账(resume 拒旧提示词)。"""
+    from pathway_v43.pollutant.real_model import (
+        _PROPOSALS_SYSTEM_PROMPT,
+        PROPOSALS_PROMPT_VERSION,
+    )
+
+    assert '"from_order": "single|double|triple"' in _PROPOSALS_SYSTEM_PROMPT
+    assert '"to_order": "single|double|triple"' in _PROPOSALS_SYSTEM_PROMPT
+    assert "triple|aromatic" not in _PROPOSALS_SYSTEM_PROMPT
+    assert len(PROPOSALS_PROMPT_VERSION) == 64

@@ -99,8 +99,8 @@ Output contract (strict JSON, no markdown fences, no commentary):
           {"op": "break_bond", "atom1": "<id>", "atom2": "<id>"}
           | {"op": "form_bond", "atom1": "<id>", "atom2": "<id>"}
           | {"op": "change_bond_order", "atom1": "<id>", "atom2": "<id>",
-             "from_order": "single|double|triple|aromatic",
-             "to_order": "single|double|triple|aromatic"}
+             "from_order": "single|double|triple",
+             "to_order": "single|double|triple"}
           | {"op": "add_atom", "element": "<element symbol>",
              "new_atom_id": "<id>", "atom1": "<anchor id>"}
         ],

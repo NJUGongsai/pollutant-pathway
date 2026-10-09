@@ -462,7 +462,17 @@ def execute_edits(current: MoleculeRender, edits: list) -> dict:
                     f"edit_execution_failed:bond_order_mismatch:"
                     f"{a1}~{a2}:expected_{frm}_have_{have}:{tag}")
                 continue
-            bond.SetBondType(_BOND_TOKENS[to])
+            target_type = _BOND_TOKENS.get(to)
+            if target_type is None:
+                # validate_edits 应已拒绝;防御(production 直调路径不过
+                # 预校验):未知键级词(执行器为凯库勒空间,如 aromatic)
+                # 结构化拒因,不得抛 KeyError 逃逸(2026-10-09 S5b 冒烟
+                # RXNG_22901c/RXNG_330df2 整题崩溃根因)
+                reasons.append(
+                    f"edit_execution_failed:bad_bond_order:"
+                    f"{a1}~{a2}:to_{to}:{tag}")
+                continue
+            bond.SetBondType(target_type)
         elif op == "add_atom":
             element = str(edit.get("element", ""))
             new_id = str(edit.get("new_atom_id", ""))

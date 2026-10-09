@@ -16,6 +16,7 @@ from pathway_v43.services.atom_tool import (
     check_edit_references,
     check_target_molecode,
     element_delta,
+    execute_edits,
     molecode_to_smiles,
     parse_atom_ids,
     render,
@@ -159,3 +160,18 @@ def test_element_delta_counts_heavy_atoms():
     delta2 = element_delta("Oc1ccccc1O", "Oc1ccc(Cl)cc1O")  # 凭空 +Cl
     assert delta2.get("Cl") == 1
     assert element_delta("Oc1ccccc1O", "Oc1ccccc1O") == {}
+
+
+def test_execute_edits_unknown_to_order_refused_not_raised():
+    """S5b 冒烟回归(2026-10-09,RXNG_22901c/RXNG_330df2):模型按旧提示词
+    词汇输出 to_order=aromatic,执行器为凯库勒空间、词表不含 aromatic——
+    旧实现 ``_BOND_TOKENS[to]`` 抛 KeyError 逃逸,整题崩溃。现必须落结构化
+    拒因 fail-closed(与 unknown_op 防御同模式),不抛异常。"""
+    r = render("CCO", name="S")
+    a1, a2 = sorted(r.atom_id_map)[:2]
+    edits = [{"op": "change_bond_order", "atom1": a1, "atom2": a2,
+              "from_order": "single", "to_order": "aromatic"}]
+    execution = execute_edits(r, edits)  # 不得抛异常
+    assert execution["ok"] is False
+    assert any("bad_bond_order" in m and "to_aromatic" in m
+               for m in execution["reasons"])
