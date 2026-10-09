@@ -516,13 +516,18 @@ class _Driver:
     计划输入)。"""
 
     def __init__(self, ledger: SearchLedger, plan: dict, run_id: str,
-                 worker_id: str, crash_after: str | None = None) -> None:
+                 worker_id: str, crash_after: str | None = None,
+                 model=None) -> None:
         self.ledger = ledger
         self.store = ledger.store
         self.plan = plan or {}
         self.run_id = run_id
         self.worker_id = worker_id
         self.crash_after = crash_after
+        # S5b 最小接线钩子:调用方注入的模型对象(scripted 恒 None;
+        # real=RealModelAdapter —— 只在 provider_kind=real 且对象实现
+        # ppv1_real_fetch 时改"取响应"一步,其余行为逐字节不变)
+        self.model = model
         self.refusals: list[dict] = []
         self.run_error: dict | None = None
         self.empty_pool_retrievals = 0
@@ -1013,17 +1018,32 @@ class _Driver:
         """scripted 模型 proposals[] 协议(网络 0;真实 provider 默认
         off —— 登记被预算拒绝,网络发送被阻止)。novel 池外提案
         (S3B-05)须携带 reaction_spec 完整反应内容,由调用方构造独立
-        假设消费。"""
+        假设消费。
+
+        S5b 最小接线(pre §3.2):plan.model.provider_kind=real 且注入的
+        model 对象实现 ``ppv1_real_fetch`` 时,"取响应"一步改走真实
+        provider(登记→sent→complete→responded/failed→同一确定性解析
+        器);格式反馈轮的重试响应同样经真实 fetch(反馈请求已由
+        register_format_feedback_round 登记并占额)。其余路径(含
+        scripted/无 model)行为不变。"""
         action_id = receipt["action_id"]
         attempt_id = (receipt.get("attempt_refs") or [""])[0]
         allowed = {prepared["hypothesis"].hypothesis_id
                    for _, _, prepared in prepared_entries}
-        response = self._next_model_response()
-        request = self.ledger.register_model_request(
-            run_id=self.run_id, action_id=action_id,
-            attempt_id=attempt_id, provider_kind=self.model_provider_kind,
-            request_key=f"decide:{action_id}", purpose="proposals",
-            payload={"response": str(response)[:2000]})
+        real_fetch = self._real_fetch_entry()
+        if real_fetch is not None:
+            fetched = self._call_real_fetch(
+                real_fetch, receipt, prepared_entries)
+            response = fetched["response_text"]
+            request = fetched["request"]
+        else:
+            response = self._next_model_response()
+            request = self.ledger.register_model_request(
+                run_id=self.run_id, action_id=action_id,
+                attempt_id=attempt_id,
+                provider_kind=self.model_provider_kind,
+                request_key=f"decide:{action_id}", purpose="proposals",
+                payload={"response": str(response)[:2000]})
         if self.crash_after == "after_request_registered":
             raise SearchCrashInjection(
                 "请求已登记、无响应(B2 注入点)",
@@ -1061,7 +1081,16 @@ class _Driver:
                          "feedback_kind":
                              feedback_exhausted.detail.get("kind")})                         from feedback_exhausted
                 note["format_feedback_round"] = feedback["request_id"]
-                retry = self._next_model_response()
+                if real_fetch is not None:
+                    retry_fetched = self._call_real_fetch(
+                        real_fetch, receipt, prepared_entries,
+                        feedback_request=feedback,
+                        feedback_error={
+                            "kind": kind,
+                            "response_excerpt": str(response)})
+                    retry = retry_fetched["response_text"]
+                else:
+                    retry = self._next_model_response()
                 parsed = parse_model_proposals(
                     retry, allowed_hypothesis_ids=allowed)
             else:
@@ -1088,6 +1117,58 @@ class _Driver:
         if novel:
             note["novel_proposals"] = novel
         return note
+
+    def _real_fetch_entry(self):
+        """S5b 接线判定:注入对象带 ppv1_real_fetch 即改"取响应"一步。
+
+        登记 provider_kind 仍按 plan.model.provider_kind(real=占
+        max_real_model_requests 额度、network=1;scripted 桩=网络 0、
+        不占真实额度——测试/冒烟路径)。无对象/无方法 ⇒ None(旧行为
+        逐字节不变)。"""
+        if self.model is None:
+            return None
+        fetch = getattr(self.model, "ppv1_real_fetch", None)
+        return fetch if callable(fetch) else None
+
+    def _call_real_fetch(self, fetch, receipt: dict, prepared_entries,
+                         *, feedback_request: dict | None = None,
+                         feedback_error: dict | None = None) -> dict:
+        """真实取响应一步(登记→sent→complete→记账;错误包装为
+        PPV1RunError 结构化失败,失败题留分母,不吞)。"""
+        payload = receipt.get("payload") or {}
+        substrate_smiles = str(payload.get("substrate_smiles") or "")
+        from .real_model import substrate_atom_id_map
+        pool_entries = [
+            {"hypothesis_id": prepared["hypothesis"].hypothesis_id,
+             "product_smiles": str(spec.get("product_smiles") or ""),
+             "transformation_ref": str(spec.get("transformation_ref")
+                                       or ""),
+             "coproducts": [str(c) for c in (spec.get("coproducts")
+                                             or [])]}
+            for _key, spec, prepared in prepared_entries]
+        prompt_payload = {
+            "substrate_smiles": substrate_smiles,
+            "atom_id_map": substrate_atom_id_map(substrate_smiles),
+            "pool_entries": pool_entries,
+        }
+        try:
+            return fetch(
+                ledger=self.ledger, run_id=self.run_id,
+                action_id=str(receipt["action_id"]),
+                attempt_id=(receipt.get("attempt_refs") or [""])[0],
+                prompt_payload=prompt_payload,
+                request_key=f"decide:{receipt['action_id']}",
+                purpose="proposals",
+                request=feedback_request,
+                feedback_error=feedback_error,
+                provider_kind=self.model_provider_kind)
+        except Exception as exc:  # 传输/装配失败 ⇒ 结构化 run 失败
+            detail = dict(getattr(exc, "detail", {}) or {})
+            detail.setdefault("kind", "real_model_call_failure")
+            raise PPV1RunError(
+                f"真实模型调用失败({type(exc).__name__};失败/超时/悬空"
+                "占额度,失败题留分母;429 有界重试已在传输层完成):"
+                f"{str(exc)[:300]}", detail) from exc
 
     def _next_model_response(self) -> str:
         if self.model_responses:
@@ -1513,7 +1594,7 @@ def start_ppv1_run(
         # ---- S3B-01:计划持久化为冻结输入来源(此后驱动只消费冻结) ----
         _persist_frozen_plan(artifacts, plan or {})
         driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
-                         crash_after=crash_after)
+                         crash_after=crash_after, model=model)
         root_path = driver.root_path_id
         task_key = decision_task_key(
             run_id=run_id, parent_path_id=root_path,
@@ -1663,7 +1744,7 @@ def resume_ppv1_run(
                      "证据保全;合法独立任务继续")
             isolated.append({**failure, "isolation": out})
         driver = _Driver(ledger, frozen_plan, run_id, _worker_id(run_id),
-                         crash_after=crash_after)
+                         crash_after=crash_after, model=model)
         report = driver.drive()
         # ---- S4a:endpoint 四分账派生(恢复后按当前事实重派生;重复
         # resume 同事实 ⇒ 同 payload_hash 幂等,不重复写 event/
