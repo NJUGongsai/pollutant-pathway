@@ -25,6 +25,7 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import subprocess
@@ -38,14 +39,21 @@ from ..domain.models import now_iso
 S5B_ORCHESTRATOR_VERSION = "s5b-orchestrator-1"
 
 # 批级缺省闸门参数(发车当日按提供者快照刷新;RPM 200/TPM 3M 快照的
-# 保守余量沿老复测口径;max_calls 是预注册 P1 候选,冒烟后定型补冻结)
+# 保守余量沿老复测口径)
 S5B_DEFAULT_GATE_RPM = 180
 S5B_DEFAULT_GATE_TPM = 2_700_000
-S5B_DEFAULT_GATE_MAX_CALLS = 600
+# R5(S5b W6):首批每 qid 最多 1 次 logical 请求 ×(初次 + 4 次 HTTP
+# 重试)= 5 总 HTTP 尝试 ⇒ 298×1×5 = **1490** 理论 gate cap(不盲用
+# 旧 894/600;新配置数值,不声称旧真实 env 也用 4)
+S5B_DEFAULT_GATE_MAX_CALLS = 1490
 S5B_DEFAULT_MAX_IN_FLIGHT = 40
 S5B_DEFAULT_WORKERS = 40
 
 # 预注册单步预算缺省(search_limits 十上限;P1 候选值,冒烟后定型)
+# R5(S5b W6):max_real_model_requests 1(首批每 qid 1 logical;合法
+# deterministic recorded 可 0)—— 题级/适配层新 logical retry 0;
+# 仅 HTTP 429 走同一 request/idempotency key 的冻结有界传输重试;
+# 格式反馈 0(format_feedback 0,不进反馈轮)
 S5B_DEFAULT_PROFILE_POLICY = {
     "search_limits": {
         "max_alternative_hypotheses_per_parent": 8,
@@ -55,16 +63,21 @@ S5B_DEFAULT_PROFILE_POLICY = {
         "max_total_search_actions": 48,
         "max_scenario_transitions": 0,
         "max_reopens_per_hypothesis": 0,
-        "max_real_model_requests": 5,
+        "max_real_model_requests": 1,
         "max_retrievals_per_parent": 1,
         "max_retrievals_total": 8,
     },
     "format_feedback_policy": {
-        "max_format_feedback_rounds": 2,
+        "max_format_feedback_rounds": 0,
     },
 }
 
 TERMINAL_CASE_STATUSES = frozenset({"completed", "failed"})
+
+# R5(S5b W6):worker 总时限纪律 —— 0 = 禁用(首批默认,沿现政策);
+# 正值 = monotonic 总时限 + terminate/grace/kill;**负值配置拒**;
+# 非正值不得隐式 kill 而少跑题
+S5B_CASE_SCHEMA_VERSION = "s5b-case-1"
 
 
 class S5bOrchestratorError(RuntimeError):
@@ -131,6 +144,79 @@ def is_terminal(case: dict | None) -> bool:
     return bool(case) and str(case.get("status")) in TERMINAL_CASE_STATUSES
 
 
+def validate_case(case: dict | None, qid: str, *,
+                  expected_run_id: str = "") -> dict:
+    """R4:validated case reader —— 校验后才可 SKIP/汇总/评分。
+
+    校验面(坏 case ⇒ 结构化拒,不当终态消费):
+    - qid 一致(case["qid"] 必须等于请求 qid;外 qid 拒);
+    - run_id 一致(expected 给出时;错 identity 拒);
+    - schema_version = s5b-case-1(worker 落盘时写入;缺/错 ⇒ 拒);
+    - 终态合法性:status ∈ {completed, failed};completed 须携带
+      stop_reason(空 stop_reason 的 completed 拒);**env_check_only
+      不写正式 completed**(env check 落 ``cases/env_check/`` 另文件,
+      主 cases/ 下的 env_check_only 行 ⇒ 拒,不算终态);
+    - export_digest:completed 时须为字符串(可空 = 失败导出的诚实
+      空串;非字符串类型拒)。
+    返回 {ok, reasons, status}。
+    """
+    reasons: list[str] = []
+    if not isinstance(case, dict) or not case:
+        return {"ok": False, "reasons": ["case_missing_or_invalid"],
+                "status": ""}
+    status = str(case.get("status") or "")
+    if str(case.get("qid") or "") != str(qid):
+        reasons.append("qid_mismatch")
+    if expected_run_id and str(case.get("run_id") or "") \
+            and str(case.get("run_id")) != str(expected_run_id):
+        reasons.append("run_id_mismatch")
+    if str(case.get("case_schema_version") or "") != S5B_CASE_SCHEMA_VERSION:
+        reasons.append("case_schema_version_missing_or_invalid")
+    if status == "completed" and str(case.get("stop_reason") or "") == "":
+        reasons.append("completed_without_stop_reason")
+    if status == "completed" \
+            and str(case.get("stop_reason") or "") == "env_check_only":
+        reasons.append("env_check_only_is_not_official_completed")
+    if status == "completed" and not isinstance(
+            case.get("export_digest"), str):
+        reasons.append("export_digest_not_string")
+    return {"ok": not reasons, "reasons": reasons, "status": status}
+
+
+def read_validated_case(batch_root: Path, qid: str, *,
+                        expected_run_id: str = "",
+                        strict: bool = True) -> dict | None:
+    """读取 + R4 校验;strict=True 时坏 case ⇒ S5bOrchestratorError
+    (fail-closed,SKIP/汇总/评分前拒);strict=False 返回 None(诊断
+    场景)。合法终态返回 case dict;非终态/缺文件返回 None。"""
+    case = read_case(batch_root, qid)
+    if case is None:
+        return None
+    verdict = validate_case(case, qid, expected_run_id=expected_run_id)
+    if not verdict["ok"]:
+        if strict:
+            raise S5bOrchestratorError(
+                f"case 文件校验失败(qid={qid};SKIP/汇总/评分前拒,"
+                f"不消费坏终态):{verdict['reasons']}", {
+                    "kind": "s5b_case_validation_failed",
+                    "qid": str(qid), "reasons": verdict["reasons"],
+                    "status": verdict["status"]})
+        return None
+    if not is_terminal(case):
+        return None
+    return case
+
+
+def write_case_atomic(path: Path, payload: dict) -> None:
+    """case 原子 replace(R4:tmp + os.replace;半截文件不可见)。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                   indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
+
+
 # ---------------------------------------------------------------- 主入口
 
 
@@ -157,10 +243,24 @@ def run_s5b_batch(
     - profile_policy / gate 参数在**发车时**写冻结副本
       (``orchestration.json``)——同批根续跑时原样复用(改参 ⇒ 拒,
       一致性沿预注册纪律);
+    - **R4:单协调者 flock**(batch_root/coord.lock;双协调者结构化
+      拒 —— 与 run 级 driver.lock 并存,不冲突);死亡未封存恢复只有
+      一份最终 case、一次评分(评分在协调者锁内执行);
+    - **R5:worker_total_timeout** 0=禁用(首批默认,沿现政策;非正值
+      不得隐式 kill 而少跑题);正值 = monotonic 总时限 + terminate/
+      grace/kill + 死亡占位对账;**负值配置拒**;stderr 独立有界日志/
+      主动 drain(防 PIPE 阻塞);
     - 返回批报告 dict(同时落盘 batch_report.json + progress.json)。
     """
     batch_root = Path(batch_root)
     runs_root = Path(runs_root)
+    if float(worker_timeout_s) < 0:
+        raise S5bOrchestratorError(
+            f"worker_timeout_s 非法:{worker_timeout_s}(0=禁用,正值="
+            "monotonic 总时限;负值拒)", {
+                "kind": "s5b_worker_timeout_invalid",
+                "worker_timeout_s": float(worker_timeout_s)})
+    worker_timeout_s = float(worker_timeout_s)
     manifest_path = batch_root / "batch_manifest.json"
     if not manifest_path.is_file():
         raise S5bOrchestratorError(
@@ -216,52 +316,111 @@ def run_s5b_batch(
     (batch_root / "profile_policy.json").write_text(
         json.dumps(frozen["profile_policy"], ensure_ascii=False,
                    sort_keys=True, indent=1) + "\n", encoding="utf-8")
-    # ---- 批级闸门(状态文件持久;worker 客户端经 env 装载同门) ----
-    FileRateGate(
+    # ---- 批级闸门(状态文件持久;worker 客户端经 env 装载同门;
+    # R2:参数首消费核对 —— 状态文件冻结参数与构造参数一致才可用) ----
+    gate = FileRateGate(
         batch_root / "gate", rpm=int(gate_rpm), tpm=int(gate_tpm),
         max_calls=int(gate_max_calls),
         max_in_flight=int(max_in_flight))
+    gate.verify_config()
     gate_dir = str(batch_root / "gate")
-    # ---- 执行循环 ----
-    cases_dir = batch_root / "cases"
-    cases_dir.mkdir(parents=True, exist_ok=True)
+    # ---- R4:单协调者 flock(与 run 级 driver.lock 并存;双协调者拒) ----
+    coord_lock_path = batch_root / "coord.lock"
+    coord_lock_path.parent.mkdir(parents=True, exist_ok=True)
+    coord_fh = open(coord_lock_path, "a+", encoding="utf-8")
+    try:
+        try:
+            fcntl.flock(coord_fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            raise S5bOrchestratorError(
+                "批根已有活动协调者(单协调者纪律:双协调者结构化拒 —— "
+                "flock 是权威;崩溃 OS 自动释放,新协调者可接管;评分/"
+                "汇总在协调者锁内执行,死亡未封存恢复只有一份最终 case)",
+                {"kind": "s5b_coordinator_active",
+                 "batch_root": str(batch_root),
+                 "pid": os.getpid()}) from exc
+        return _run_batch_loop(
+            batch_root=batch_root, runs_root=runs_root, manifest=manifest,
+            order=order, env_file=env_file, workers=workers,
+            gate_dir=gate_dir, gate=gate, python_bin=python_bin,
+            worker_timeout_s=worker_timeout_s, poll_s=poll_s,
+            started_at_wall=time.time())
+    finally:
+        try:
+            fcntl.flock(coord_fh.fileno(), fcntl.LOCK_UN)
+        except OSError:
+            pass
+        coord_fh.close()
+
+
+def _run_batch_loop(*, batch_root: Path, runs_root: Path,
+                    manifest: dict, order: list, env_file,
+                    workers: int, gate_dir: str, gate: FileRateGate,
+                    python_bin, worker_timeout_s: float, poll_s: float,
+                    started_at_wall: float) -> dict:
+    """执行主循环(协调者锁内;R4 validated case / R5 超时纪律)。"""
     env = _worker_env(env_file, gate_dir)
     py = python_bin or sys.executable
-    pending = [q for q in order if not is_terminal(
-        read_case(batch_root, q))]
+
+    def _terminal_case(qid: str) -> dict | None:
+        return read_validated_case(
+            batch_root, qid, expected_run_id=_run_id_of(manifest, qid))
+
+    pending = [q for q in order if _terminal_case(q) is None]
     skipped = len(order) - len(pending)
     running: dict[str, dict] = {}
     started_at = time.time()
     failures: list[str] = []
     while pending or running:
-        # 收割:进程退出 ⇒ case 文件由 worker 落盘;缺失 ⇒ 失败补位
+        # ---- 收割:进程退出 ⇒ case 文件由 worker 落盘(校验后消费);
+        # 缺失/坏 case ⇒ 失败补位(R4:死亡未封存恢复只有一份最终 case) ----
         for qid in list(running):
-            proc = running[qid]["proc"]
+            entry = running[qid]
+            proc: subprocess.Popen = entry["proc"]
+            # ---- R5:正值 worker 总时限(monotonic;terminate/grace/
+            # kill;死亡占位对账;0 = 禁用不 kill) ----
+            if proc.poll() is None and worker_timeout_s > 0 \
+                    and time.monotonic() - entry["started_monotonic"] \
+                    > worker_timeout_s:
+                entry["timeout_killed"] = True
+                proc.terminate()
+                entry["terminated_at"] = time.monotonic()
+            if proc.poll() is None and entry.get("timeout_killed") \
+                    and "terminated_at" in entry \
+                    and time.monotonic() - entry["terminated_at"] > 5.0:
+                proc.kill()  # grace 5s 后强杀
             if proc.poll() is None:
                 continue
-            entry = running.pop(qid)
-            case = read_case(batch_root, qid)
-            if is_terminal(case):
+            running.pop(qid)
+            stderr_tail = _drain_stderr(entry)
+            case = _terminal_case(qid)
+            if case is not None:
                 if str(case.get("status")) == "failed":
                     failures.append(qid)
             else:
-                # worker 死亡未落 case(被杀/超时):失败补位(留分母;
-                # 下次续跑可 resume 复原)
+                # worker 死亡/超时未落合法终态 case:失败补位(留分母;
+                # 下次续跑可 resume 复原;死亡占位由 gate 对账回收)
                 case = {
                     "qid": qid, "run_id": entry.get("run_id") or "",
                     "status": "failed",
-                    "failure_kind": "worker_exit_without_case",
+                    "case_schema_version": S5B_CASE_SCHEMA_VERSION,
+                    "failure_kind": (
+                        "worker_timeout_killed"
+                        if entry.get("timeout_killed")
+                        else "worker_exit_without_case"),
                     "returncode": proc.returncode,
+                    "stderr_tail": stderr_tail[-2000:],
                     "recorded_at": now_iso(),
-                    "note": ("worker 进程退出未落终态 case(崩溃/被杀);"
-                             "失败题留 298 分母;重跑本批即 resume 续跑"),
+                    "note": ("worker 进程退出未落合法终态 case(崩溃/被杀/"
+                             "超时);失败题留 298 分母;重跑本批即 resume"
+                             " 续跑"),
                 }
-                _write_json(case_path(batch_root, qid), case)
+                write_case_atomic(case_path(batch_root, qid), case)
                 failures.append(qid)
-        # 派发:空槽 + 冻结注册序取下一题
+        # ---- 派发:空槽 + 冻结注册序取下一题(stderr 主动 drain) ----
         while pending and len(running) < max(1, int(workers)):
             qid = pending.pop(0)
-            if is_terminal(read_case(batch_root, qid)):
+            if _terminal_case(qid) is not None:
                 continue
             run_id = _run_id_of(manifest, qid)
             cmd = [
@@ -273,22 +432,74 @@ def run_s5b_batch(
             proc = subprocess.Popen(
                 cmd, env=env, stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE)
-            running[qid] = {"proc": proc, "run_id": run_id,
-                            "started_at": now_iso()}
+            # R5:stderr 独立有界日志/主动 drain(防 PIPE 写满阻塞
+            # worker)
+            running[qid] = {
+                "proc": proc, "run_id": run_id,
+                "started_at": now_iso(),
+                "started_monotonic": time.monotonic(),
+                "stderr_tail": []}
+        _drain_all_stderr(running)
+        # R2:父协调者只回收已确认死亡 owner 的占位(无 TTL)
+        try:
+            gate.reclaim_dead_placeholders()
+        except Exception:  # noqa: BLE001 —— 回收失败不阻断主循环(下轮再试)
+            pass
         _write_progress(batch_root, order, running, pending,
                         started_at)
         if running or pending:
             time.sleep(poll_s)
     _write_progress(batch_root, order, running, pending, started_at)
-    # ---- 汇总(逐题 case + 闸门状态) ----
+    # ---- 汇总(逐题 case + 闸门状态;协调者锁内单次评分由调用方
+    # 在锁外显式执行 score 命令 —— 本函数只汇总,判分入口在 s5b_cli) ----
     gate_state = _read_gate_state(batch_root)
     report = summarize_batch(batch_root, order)
     report["skipped_already_terminal"] = skipped
     report["failed_qids"] = failures
     report["gate"] = gate_state
+    report["worker_timeout_s"] = worker_timeout_s
+    report["coordinator"] = {"pid": os.getpid(),
+                             "lock": str(batch_root / "coord.lock")}
     report["wall_clock_s"] = round(time.time() - started_at, 1)
     _write_json(batch_root / "batch_report.json", report)
     return report
+
+
+def _drain_stderr(entry: dict) -> str:
+    """收割时读尽残留 stderr(有界;返回累计尾部)。"""
+    proc: subprocess.Popen = entry["proc"]
+    tail: list = entry.setdefault("stderr_tail", [])
+    try:
+        chunk = proc.stderr.read() if proc.poll() is not None else None
+    except (OSError, ValueError):
+        chunk = None
+    if chunk:
+        tail.append(chunk.decode("utf-8", errors="replace"))
+    return "".join(tail[-50:])
+
+
+def _drain_all_stderr(running: dict) -> None:
+    """主动 drain 在途 worker 的 stderr(非阻塞;防 PIPE 满)。"""
+    for entry in running.values():
+        proc: subprocess.Popen = entry["proc"]
+        try:
+            import selectors
+
+            sel = selectors.DefaultSelector()
+            sel.register(proc.stderr, selectors.EVENT_READ)
+            ready = sel.select(timeout=0)
+            sel.close()
+            if ready:
+                chunk = proc.stderr.read1(65536) \
+                    if hasattr(proc.stderr, "read1") else None
+                if chunk:
+                    entry.setdefault("stderr_tail", []).append(
+                        chunk.decode("utf-8", errors="replace"))
+                    if len(entry["stderr_tail"]) > 200:
+                        entry["stderr_tail"] = \
+                            entry["stderr_tail"][-100:]
+        except (OSError, ValueError, AttributeError):
+            continue
 
 
 def _run_id_of(manifest: dict, qid: str) -> str:
@@ -343,6 +554,8 @@ def summarize_batch(batch_root: str | Path,
                     order: list[str] | None = None) -> dict:
     """逐题 case 汇总(终态/停止原因/调用/usage/费用状态单列)。
 
+    - **R4:validated case reader** —— 校验(qid/run_id/schema/终态/
+      env_check-only 拒)后才汇总;坏 case ⇒ 结构化 fail-closed;
     - 合法终态补位到全集(order 缺省 = 注册序全集;失败题留分母);
     - usage 只合计已知(known_usage 小计);任何缺失 ⇒ 总额 unknown;
     - 价格快照存在(batch_root/price_snapshot.json)⇒ 算 known 小计
@@ -362,7 +575,13 @@ def summarize_batch(batch_root: str | Path,
                    "total_tokens": 0}
     usage_missing_calls = 0
     for qid in order:
-        case = read_case(batch_root, qid)
+        # R4:汇总前校验(坏 case fail-closed,不静默计终态)
+        case = read_validated_case(
+            batch_root, qid, expected_run_id=_run_id_of(manifest, qid))
+        if case is None and read_case(batch_root, qid) is not None:
+            # 存在但校验失败/非终态:read_validated_case strict 已抛;
+            # 到这里说明非终态(部分写入)—— 按 pending 处理
+            case = None
         status = str((case or {}).get("status") or "pending")
         if status == "completed":
             n_completed += 1

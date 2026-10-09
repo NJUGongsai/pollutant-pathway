@@ -62,9 +62,17 @@ def cmd_build(args: argparse.Namespace) -> int:
 
     pool_provider = None
     if args.pool_mode == "template":
+        config = resolve_config(args.v3_code_root, args.assets_root)
+        engine = None
+        if args.recorded_source:
+            # W2:recorded 精确源通道(公共 get_engine 身份守卫;库
+            # hash 由 recorded_source 校验)
+            from pathway_v43.adapters.v3_engine import get_engine
+
+            engine = get_engine(config)
         pool_provider = default_pool_provider(
-            resolve_config(args.v3_code_root, args.assets_root),
-            max_pool=args.max_pool, threshold=args.pool_threshold)
+            config, max_pool=args.max_pool, threshold=args.pool_threshold,
+            engine=engine)
     manifest = build_question_batch(
         args.questions, args.batch_root, batch_tag=args.batch_tag,
         pool_provider=pool_provider,
@@ -228,6 +236,9 @@ def build_parser() -> argparse.ArgumentParser:
                         "empty=空池(模型 novel 提案)")
     p.add_argument("--provider-kind", choices=("real", "scripted"),
                    default="real")
+    p.add_argument("--recorded-source", action="store_true",
+                   help="W2:recorded 精确源通道(exact strict/cn 分层,"
+                        "推断映射编译;经公共 get_engine 身份守卫)")
     p.add_argument("--max-pool", type=int, default=8)
     p.add_argument("--pool-threshold", type=float, default=0.45)
     p.add_argument("--limit", type=int, default=None)

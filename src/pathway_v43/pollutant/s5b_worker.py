@@ -29,6 +29,9 @@ from pathlib import Path
 
 S5B_WORKER_VERSION = "s5b-worker-1"
 
+# R4:case 载荷 schema(编排器 validated case reader 校验同一常量)
+S5B_CASE_SCHEMA_VERSION = "s5b-case-1"
+
 
 def worker_main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="s5b_worker")
@@ -100,10 +103,14 @@ def worker_main(argv: list[str] | None = None) -> int:
             })
             return 2
     if args.fail_fast_env_check:
-        _write_case(batch_root, {
-            "qid": qid, "run_id": run_id, "status": "completed",
-            "stop_reason": "env_check_only",
-            "note": "仅凭证存在性检查(worker --fail-fast-env-check)",
+        # R4:env_check_only **另文件**(cases/env_check/ 之下),不写
+        # 正式 completed 终态(不占 298 终态、不进 SKIP/汇总/评分面)
+        _write_env_check_case(batch_root, {
+            "qid": qid, "run_id": run_id,
+            "case_schema_version": S5B_CASE_SCHEMA_VERSION,
+            "status": "env_check_only",
+            "note": "仅凭证存在性检查(worker --fail-fast-env-check);"
+                    "另文件承载,不是正式 completed 终态",
         })
         return 0
     config = resolve_config()
@@ -140,6 +147,7 @@ def worker_main(argv: list[str] | None = None) -> int:
     _write_case(batch_root, {
         "qid": qid,
         "run_id": run_id,
+        "case_schema_version": S5B_CASE_SCHEMA_VERSION,
         "status": "completed",
         "stop_reason": str(summary.get("stop_reason") or ""),
         "run_error": dict(
@@ -213,15 +221,38 @@ def _usage_summary(run_dir: Path) -> dict:
 
 
 def _write_case(batch_root: Path, payload: dict) -> None:
+    """终态 case 原子落盘(R4:tmp + os.replace + case schema 版本)。"""
+    import os
+
     from pathway_v43.domain.models import now_iso
 
     path = batch_root / "cases" / f"{payload['qid']}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
+    payload.setdefault("case_schema_version", S5B_CASE_SCHEMA_VERSION)
     payload["worker_version"] = S5B_WORKER_VERSION
     payload["recorded_at"] = now_iso()
-    path.write_text(
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(
         json.dumps(payload, ensure_ascii=False, sort_keys=True,
                    indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def _write_env_check_case(batch_root: Path, payload: dict) -> None:
+    """R4:env check 结果另文件(cases/env_check/ 之下;不进正式终态)。"""
+    import os
+
+    from pathway_v43.domain.models import now_iso
+
+    path = batch_root / "cases" / "env_check" / f"{payload['qid']}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload["worker_version"] = S5B_WORKER_VERSION
+    payload["recorded_at"] = now_iso()
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                   indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
 
 
 if __name__ == "__main__":  # pragma: no cover —— 子进程入口

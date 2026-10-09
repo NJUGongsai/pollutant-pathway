@@ -116,12 +116,13 @@ from ..storage.run_identity import (
     write_run_identity,
 )
 from .audit import AuditContractError
-from .chemstate import build_chemical_state
+from .chemstate import ChemicalStateError, build_chemical_state
 from .endpoint import (
     derive_run_endpoint,
     endpoint_summary_fields,
     read_run_endpoint,
 )
+from .hypothesis import HypothesisContractError
 from .model_protocol import (
     FEEDBACK_ELIGIBLE,
     ModelProtocolError,
@@ -198,6 +199,9 @@ RUNFLOW_VERSION = PPV1_RUNFLOW_SCHEMA_VERSION
 FROZEN_PLAN_VERSION = "ppv1-frozen-plan-1"
 FROZEN_PLAN_TASK_KEY = "run-plan"
 FROZEN_PLAN_ARTIFACT = "frozen_plan"
+# W3:统一选择排序规则版本("模型选择"与"确定性 fallback"两个版本化
+# 规则;显式 rank 先于 fallback;novel 不因来源排后;净反应签名去重)
+S5B_RANK_POLICY_VERSION = "s5b-rank-policy-1"
 
 
 class PPV1RunError(RuntimeError):
@@ -889,24 +893,63 @@ class _Driver:
                                                  "模型对象不自动补预算")}})
                 return
         # ---- S3B-05:novel 池外提案的独立假设消费(经 prepare_
-        # hypothesis 单一构建源:结构身份/参与物/系数/共同产物/条件/
-        # 依赖沿既有契约;来源经 proposal_context 明示入冻结任务
-        # 输入;无足够内容在解析/构造侧结构化拒,不伪造) ----
+        # hypothesis 单一构建源;来源经 proposal_context 明示入冻结
+        # 任务输入)----
+        # W5(有限容错):单条 novel 提案的 reaction_spec 非法(结构/
+        # 契约)在共同 prevalidation **逐条拒并保留合法候选** —— 一坏
+        # 一合法是正控;全坏如实 empty(不 run 拒)。整 JSON 不可解析、
+        # 权威记录损坏、真正 audit/store 契约违规仍 run 拒(不走本容
+        # 错;不能 catch-all 把损坏洗成方法失败)。
         novel_by_key: dict[str, dict] = {}
+        novel_rejections: list[dict] = []
+        # W5:共同 prevalidation —— 同一 render 事实源逐条 validate_edits
+        # (坏引用/未知 op/非法 ID 在 decide 层逐条拒,不留到执行层)
+        from ..services.atom_tool import render as _render, \
+            validate_edits as _validate_edits
+
+        try:
+            _current_render = _render(substrate_smiles, "S")
+        except Exception:  # noqa: BLE001 —— 底物渲染失败走 run 级失败
+            _current_render = None
         for proposal in (model_note.get("novel_proposals") or []):
             reaction_spec = dict(proposal["reaction_spec"])
             novel_key = str(proposal.get("hypothesis_id") or "")
             origin = str((proposal.get("proposal_context") or {}).get(
                 "output_origin") or "novel_outside_pool")
-            prepared = prepare_hypothesis(
-                reaction_spec,
-                parent_path_id=receipt["parent_path_id"],
-                substrate_state=substrate,
-                transformation_ref=str(
-                    reaction_spec.get("transformation_ref") or ""),
-                source_refs=[{"record": f"novel-model-proposal:{origin}"}])
+            if _current_render is not None:
+                verdict = _validate_edits(
+                    _current_render,
+                    reaction_spec.get("edits") or [])
+                if not verdict.get("ok"):
+                    novel_rejections.append({
+                        "hypothesis_id": novel_key,
+                        "kind": "novel_edit_prevalidation_failed",
+                        "reasons": verdict.get("reasons", [])[:6]})
+                    continue
+            try:
+                prepared = prepare_hypothesis(
+                    reaction_spec,
+                    parent_path_id=receipt["parent_path_id"],
+                    substrate_state=substrate,
+                    transformation_ref=str(
+                        reaction_spec.get("transformation_ref") or ""),
+                    source_refs=[{
+                        "record": f"novel-model-proposal:{origin}"}])
+            except (PPV1RunError, SearchContractError,
+                    HypothesisContractError, ChemicalStateError) as exc:
+                _detail = getattr(exc, "detail", None)
+                _kind = ""
+                if isinstance(_detail, dict):
+                    _kind = str(_detail.get("kind") or "")
+                novel_rejections.append({
+                    "hypothesis_id": novel_key,
+                    "kind": _kind or type(exc).__name__,
+                    "reason": str(exc)[:200]})
+                continue
             prepared_entries.append((novel_key, reaction_spec, prepared))
             novel_by_key[novel_key] = proposal
+        if novel_rejections:
+            model_note["novel_rejections"] = novel_rejections
         if not prepared_entries:
             # 有效候选集为空(池空且模型弃权/无 novel):no_local_
             # candidate 如实落账(不改上游真假)
@@ -925,6 +968,72 @@ class _Driver:
                 evidence_refs=[source_event_id] if source_event_id else [])
             return
         rank_by_key = model_note.get("rank_by_key") or {}
+        # ---- W3(S5b rank-policy-1):统一选择排序规则(版本化) ----
+        # logical proposal ID(池 spec key / novel hypothesis_id)→
+        # prepared hypothesis ID → 净反应签名(去重/合并 provenance)→
+        # effective_rank → 实际提交事件:
+        # - **模型选择**:parsed rank_hypotheses 的显式位次(model_rank,
+        #   1 起始;novel 与池条目同权 —— novel 不因来源被排后);
+        # - **确定性 fallback**:未获显式 rank 的条目按池声明序 + novel
+        #   提案序;
+        # - **全部显式有效 rank 先于一切未 rank fallback**(模型未选
+        #   的池条目不隐式抢前 5;旧实现未 rank 池条目按池 index+1 落
+        #   位,可与模型位次冲突甚至反超 —— 已证源码问题);
+        # - 去重:同净反应签名(严格产物多重集)的后续条目折叠,合并
+        #   provenance;不同反应/条件/角色不因主产物或 CN 相同被误并;
+        # - 不在 score 后重排事件;成功 root 事件按实际 (created_at,
+        #   event_id) 供原 scorer 计 K(提交序 = 高分辨率 created_at,
+        #   store 公共 writer 忠实记录)。
+        from .s5b_compiler import net_reaction_signature
+
+        dedup_rejections: list[dict] = []
+        dedup_by_signature: dict[tuple, str] = {}
+        deduped_entries: list = []
+        for entry in prepared_entries:
+            key, spec, _prepared = entry
+            signature = net_reaction_signature(spec)
+            if signature in dedup_by_signature:
+                dedup_rejections.append({
+                    "logical_proposal_id": key,
+                    "merged_into": dedup_by_signature[signature],
+                    "signature": [str(x) for x in signature][:6]})
+                continue
+            dedup_by_signature[signature] = key
+            deduped_entries.append(entry)
+        prepared_entries = deduped_entries
+        if dedup_rejections:
+            model_note["dedup_rejections"] = dedup_rejections
+        model_rank_by_key = {
+            str(k): int(v) for k, v in (rank_by_key or {}).items()
+            if str(k) in {key for key, _, _ in prepared_entries}}
+        # W3:novel 条目的模型位次从原始 ID 表补回(novel 键 = 模型
+        # 自报 hypothesis_id;池条目键 = 池 key —— 两个命名空间都按
+        # 模型 rank 原位次收录,不因来源排后)
+        model_rank_by_id = {
+            str(k): int(v)
+            for k, v in (model_note.get("model_rank_by_id")
+                         or {}).items()}
+        for key, _spec, _prepared in prepared_entries:
+            if key in model_rank_by_key:
+                continue
+            if key in novel_by_key:
+                if key in model_rank_by_id:
+                    model_rank_by_key[key] = model_rank_by_id[key]
+        ranked_keys = [k for k, _ in sorted(
+            model_rank_by_key.items(), key=lambda kv: (kv[1], kv[0]))]
+        effective_rank_by_key: dict[str, int] = {}
+        rank_basis_by_key: dict[str, str] = {}
+        next_rank = 1
+        for key in ranked_keys:                      # 模型选择(显式位次)
+            effective_rank_by_key[key] = next_rank
+            rank_basis_by_key[key] = "model_selection"
+            next_rank += 1
+        for key, _spec, _prepared in prepared_entries:  # 确定性 fallback
+            if key in effective_rank_by_key:
+                continue
+            effective_rank_by_key[key] = next_rank
+            rank_basis_by_key[key] = "deterministic_fallback"
+            next_rank += 1
         entries: list[dict] = []
         expand_depth = substrate_depth + 1
         for index, (key, spec, prepared) in enumerate(prepared_entries):
@@ -938,7 +1047,7 @@ class _Driver:
                     parent_ctx, prepared, hypothesis.hypothesis_id)
                 context_ref = persist_context(
                     self.ledger.artifact_store, child_ctx)
-            rank = int(rank_by_key.get(key, index + 1))
+            rank = int(effective_rank_by_key.get(key, index + 1))
             task_key = expansion_task_key(
                 run_id=self.run_id,
                 parent_path_id=receipt["parent_path_id"],
@@ -960,6 +1069,17 @@ class _Driver:
                 "depth": expand_depth,
                 "source_event_id": str(
                     payload.get("source_event_id") or ""),
+                # ---- W3:统一排序字段(logical→effective→事件链) ----
+                "logical_proposal_id": key,
+                "prepared_hypothesis_id": hypothesis.hypothesis_id,
+                "net_reaction_signature": [
+                    str(x) for x in net_reaction_signature(spec)],
+                "model_rank": (
+                    int(model_rank_by_key[key])
+                    if key in model_rank_by_key else None),
+                "effective_rank": rank,
+                "rank_basis": rank_basis_by_key.get(key, ""),
+                "rank_policy_version": S5B_RANK_POLICY_VERSION,
             }
             if key in novel_by_key:
                 entry_payload["proposal_context"] = dict(
@@ -1112,6 +1232,13 @@ class _Driver:
         note["parsed_proposals"] = len(parsed["proposals"])
         note["abstained"] = parsed["abstained"]
         note["rank_by_key"] = rank_by_key
+        # W3:模型 rank 的**原始 ID 表**(池 prepared hypothesis_id 与
+        # novel 自报 id 都收录)—— novel 在本函数之后才准备,其模型
+        # 位次若只按池键映射会丢失(旧实现 895–909 后追加 + 941 池后
+        # fallback ⇒ 模型首位 novel 可能丢失;统一映射在 _run_decide)
+        note["model_rank_by_id"] = {
+            str(hid): position
+            for position, hid in enumerate(parsed["rank_hypotheses"], 1)}
         novel = [p for p in parsed["proposals"]
                  if p.get("origin") == "novel"]
         if novel:
@@ -1137,7 +1264,8 @@ class _Driver:
         PPV1RunError 结构化失败,失败题留分母,不吞)。"""
         payload = receipt.get("payload") or {}
         substrate_smiles = str(payload.get("substrate_smiles") or "")
-        from .real_model import substrate_atom_id_map
+        from .real_model import execution_graph_payload, \
+            substrate_atom_id_map
         pool_entries = [
             {"hypothesis_id": prepared["hypothesis"].hypothesis_id,
              "product_smiles": str(spec.get("product_smiles") or ""),
@@ -1150,6 +1278,9 @@ class _Driver:
             "substrate_smiles": substrate_smiles,
             "atom_id_map": substrate_atom_id_map(substrate_smiles),
             "pool_entries": pool_entries,
+            # W5:同一执行图载荷(与 W1 编译器/execute_edits 同一事实源;
+            # 模型不自猜 RDKit 解析/Kekulé)
+            "execution_graph": execution_graph_payload(substrate_smiles),
         }
         try:
             return fetch(
@@ -1258,7 +1389,12 @@ class _Driver:
         parent_path_id = receipt["parent_path_id"]
         revision = int(receipt["parent_search_revision"]) + 1
         plan_transition = self._match_transition(payload)
-        product_refs = [s.state_id for s in prepared["product_states"]]
+        # W1 #9:followup 调度按 distinct 状态生成唯一条目(事件参与物
+        # 语义完整保留在事件载荷;同 state 重复不重复调度)
+        product_refs: list[str] = []
+        for state in prepared["product_states"]:
+            if state.state_id not in product_refs:
+                product_refs.append(state.state_id)
         if plan_transition is not None:
             # 转换动作携带 pending followup(**创建时一次冻结入载荷**,
             # S3B-03:无两写窗口;转换执行后由新上下文调度)

@@ -556,9 +556,11 @@ def test_v3_projection_steps_per_event_no_cn_merge_no_fabrication(
     """投影步骤 = 逐事件(同父双备选不合并为单反应;共同产物入产物
     列表但角色列为损失);root_smiles 为真实输入;endpoint unknown 时
     投影不得编造终点;CO₂ 备选不相加(逐事件步骤保留)。"""
-    # 双备选各生成 CO₂(不同 hypothesis)⇒ 无证据 ⇒ unknown
+    # 双备选各生成 CO₂(不同 hypothesis;W3 去重契约下须不同净反应
+    # —— C 带不同共同产物集合)⇒ 无证据 ⇒ unknown
     plan = {"pools": {"CCO": [spec("B", "O=C=O", "donor-B"),
-                              spec("C", "O=C=O", "donor-C")]}}
+                              spec("C", "O=C=O", "donor-C",
+                                   coproducts=["[H][H]"])]}}
     runs_root = tmp_path / "runs"
     out = start(tmp_path, "v3co2", plan)
     digest = out["v3_projection"]["projection_digest"]

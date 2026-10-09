@@ -89,23 +89,44 @@ class S5bScoringError(RuntimeError):
 
 # ---------------------------------------------------------------- 预注册门
 
+# R1(S5b W6):批准状态共用枚举白名单 —— approved/confirmed/
+# preregistration_confirmed 视为已批准;rejected/空白/not_approved/
+# pending 族/未知取值一律拒(旧实现"非空且不含 pending 即通过"会把
+# rejected/not_approved 误放行)。归一 helper 也验证(两处同一白名单,
+# 不另造第二套判据)。
+PREREG_APPROVAL_APPROVED_STATUSES = frozenset((
+    "approved", "confirmed", "preregistration_confirmed"))
+
 
 def preregistration_approved(preregistration: dict | None) -> bool:
-    """批准判定(冻结稿升格 2026-10-09):状态非空且不含 pending 即
-    视为已批准(兼容 approved / confirmed /
-    preregistration_confirmed;pending 族取值含
-    preregistration_pending_final_confirmation);空 ⇒ fail-closed 拒。"""
-    status = str((preregistration or {}).get("approval_status") or "")
-    if not status:
-        return False
-    return "pending" not in status.strip().lower()
+    """批准判定(R1 白名单):approval_status ∈ 白名单(大小写不敏感、
+    两侧空白归一)⇒ 已批准;其余一切取值(含 rejected/not_approved/
+    pending 族/空白/未知)⇒ 拒。"""
+    status = str((preregistration or {}).get("approval_status") or
+                 "").strip().lower()
+    return status in PREREG_APPROVAL_APPROVED_STATUSES
 
 
-def normalize_preregistration(preregistration: dict | None) -> dict:
+def normalize_preregistration(preregistration: dict | None) -> dict | None:
     """传给 evaluate_scientific 前归一(其契约要求 approval_status
-    恰为 "approved";approved/confirmed/preregistration_confirmed 均归
-    一,其余字段原样透传)。"""
-    prereg = dict(preregistration or {})
+    恰为 "approved";白名单内三值归一,其余字段原样透传)。
+
+    R1:非白名单取值 ⇒ S5bScoringError(结构化拒;归一入口不静默洗
+    白 rejected/not_approved/未知状态)。``None``(合成口径无预注册
+    记录;真实口径的门已在上游拒绝 None)原样透传 —— 评测器自身的
+    pending_preregistration 状态语义兜底,不伪造 approved。"""
+    if preregistration is None:
+        return None
+    prereg = dict(preregistration)
+    status = str(prereg.get("approval_status") or "").strip().lower()
+    if status not in PREREG_APPROVAL_APPROVED_STATUSES:
+        raise S5bScoringError(
+            f"预注册批准状态非法:{status!r}(白名单 = "
+            f"{sorted(PREREG_APPROVAL_APPROVED_STATUSES)};"
+            "rejected/not_approved/pending/未知一律拒,不静默归一)",
+            {"kind": "s5b_preregistration_status_invalid",
+             "approval_status": status,
+             "allowed": sorted(PREREG_APPROVAL_APPROVED_STATUSES)})
     prereg["approval_status"] = "approved"
     return prereg
 
@@ -296,11 +317,60 @@ def score_s5b_batch(
                         if (r["old"]["anyof_rank"] or math.inf) <= k)
         for k in (1, 3, 5)}
     buckets = _bucket_counts(per_qid)
+    # ---- W0(S5b):聚合诊断 U/H5/L + 分桶/状态表闭合断言 ----
+    # U = 全部合法已提交 root 事件的 strict 匹配题数(取消 K 的候选
+    # 覆盖上限诊断;不改正式尺子);H5 = 正式 strict@5;L = U − H5。
+    # 断言 0 ≤ H1 ≤ H3 ≤ H5 ≤ U ≤ 分母(违例 ⇒ fail-closed,判分产物
+    # 不落盘);判分互斥桶(match_status)总 = 分母;运行状态附表
+    # 总 = 分母(两表分开,叠加桶不重复计分母)。
+    u_hits = sum(1 for r in per_qid
+                 if str(r["main"].get("match_status")) == "matched_strict")
+    h1 = int(main_hits["hit@1"])
+    h3 = int(main_hits["hit@3"])
+    h5 = int(main_hits["hit@5"])
+    if not (0 <= h1 <= h3 <= h5 <= u_hits <= denominator):
+        raise S5bScoringError(
+            "聚合诊断单调性断言失败(0≤H1≤H3≤H5≤U≤分母;判分产物"
+            "不落盘,fail-closed)", {
+                "kind": "s5b_aggregate_monotonicity_violation",
+                "H1": h1, "H3": h3, "H5": h5, "U": u_hits,
+                "denominator": denominator})
+    match_status_total = sum(
+        v for k, v in buckets.items() if not k.startswith("run_"))
+    run_status_total = sum(
+        v for k, v in buckets.items() if k.startswith("run_"))
+    run_status_table = _run_status_counts(per_qid)
+    if match_status_total != denominator:
+        raise S5bScoringError(
+            f"判分互斥桶(match_status)总和 {match_status_total} ≠ 分母 "
+            f"{denominator}(fail-closed;叠加桶不得重复计分母)", {
+                "kind": "s5b_match_status_bucket_total_mismatch",
+                "total": match_status_total,
+                "denominator": denominator})
+    if sum(run_status_table.values()) != denominator:
+        raise S5bScoringError(
+            f"运行状态附表总和 {sum(run_status_table.values())} ≠ 分母 "
+            f"{denominator}(fail-closed)", {
+                "kind": "s5b_run_status_total_mismatch",
+                "denominator": denominator})
     aggregate = {
         "s5b_scoring_version": S5B_SCORING_VERSION,
         "data_scope": data_scope,
         "domain_tag": domain_tag,
         "denominator": denominator,
+        "aggregate_diagnosis": {
+            "U_strict_matched_questions": u_hits,
+            "H1": h1, "H3": h3, "H5": h5,
+            "L_below_k": u_hits - h5,
+            "definition": (
+                "W0 聚合诊断:U=全部合法已提交 root 事件的 strict 匹配"
+                "题数(K 取消的候选覆盖上限);H5=正式 strict@5;"
+                "L=U−H5(排序损失)。U<150 ⇒ 优先供给/生成;U≥150 而 "
+                "H5<150 ⇒ 主攻排序。诊断不改正式尺子;不向预测侧回传"
+                "逐题目标/reference/正确 source ID/oracle 事件序"),
+            "monotonicity_assertion": "0<=H1<=H3<=H5<=U<=denominator: ok",
+        },
+        "run_status_table": run_status_table,
         "main_caliber": {
             **{k: v for k, v in main_hits.items()},
             **{f"{k}_rate": round(v / denominator, 4)
@@ -579,16 +649,22 @@ def _projection_of(payload: dict, event_id: str) -> dict:
 
 
 def _bucket_counts(per_qid: list[dict]) -> dict:
+    """判分互斥桶(match_status;每题恰一桶,总和 = 分母;W0 闭合)。"""
     buckets: dict[str, int] = {}
     for row in per_qid:
         key = str(row["main"].get("match_status") or "unknown")
         buckets[key] = buckets.get(key, 0) + 1
-    for row in per_qid:
-        status = str(row.get("run_status") or "")
-        if status != "completed":
-            key = f"run_{status or 'no_case'}"
-            buckets[key] = buckets.get(key, 0) + 1
     return dict(sorted(buckets.items()))
+
+
+def _run_status_counts(per_qid: list[dict]) -> dict:
+    """运行状态附表(每题恰一项,总和 = 分母;与判分桶分开,
+    叠加桶不重复计分母)。"""
+    table: dict[str, int] = {}
+    for row in per_qid:
+        status = str(row.get("run_status") or "no_case")
+        table[status] = table.get(status, 0) + 1
+    return dict(sorted(table.items()))
 
 
 def _confidence_intervals(per_qid: list[dict], entries: dict,
@@ -734,11 +810,29 @@ def render_report(aggregate: dict, evaluator_output: dict) -> str:
                  f"{anyof['hit@1']}/{anyof['hit@3']}/{anyof['hit@5']}"
                  f"(题域 298;不与主表混算)")
     lines.append("")
-    lines.append("## 分桶(失败/unknown/预算漏展开单列)")
+    lines.append("## 分桶(失败/unknown/预算漏展开单列;判分互斥桶总=分母)")
     lines.append("")
     for bucket, count in aggregate["buckets"].items():
         lines.append(f"- {bucket}: {count}")
     lines.append("")
+    lines.append("## 运行状态附表(总和=分母;与判分桶分开)")
+    lines.append("")
+    for status, count in (aggregate.get("run_status_table")
+                          or {}).items():
+        lines.append(f"- {status}: {count}")
+    lines.append("")
+    diagnosis = aggregate.get("aggregate_diagnosis") or {}
+    if diagnosis:
+        lines.append("## 聚合诊断 U/H5/L(W0;不改正式尺子)")
+        lines.append("")
+        lines.append(
+            f"- U(strict 匹配题数) = {diagnosis.get('U_strict_matched_questions')};"
+            f"H5 = {diagnosis.get('H5')};L = U−H5 = "
+            f"{diagnosis.get('L_below_k')}")
+        lines.append(
+            "- U<150 ⇒ 优先供给/生成;U≥150 而 H5<150 ⇒ 主攻排序"
+            "(诊断只选通用问题方向,不向预测侧回传逐题目标)")
+        lines.append("")
     ci = aggregate.get("confidence_intervals") or {}
     lines.append("## 置信区间(95%)")
     lines.append("")

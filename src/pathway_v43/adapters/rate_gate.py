@@ -116,10 +116,24 @@ class FileRateGate:
                 self._save(self._fresh_state())
                 return
             try:
-                json.loads(text)
+                state = json.loads(text)
             except Exception as exc:
                 raise GateCorrupt({"path": str(self.state_path),
                                    "error": str(exc)[:200]}) from exc
+            # R2:worker 从**冻结值装配** —— 打开既有批根状态文件时,
+            # rpm/tpm/max_calls/max_in_flight 采纳状态文件冻结值(协调
+            # 者发车写入),不与本地构造默认/环境冲突混用;新状态才用
+            # 构造参数。首消费核对见 verify_config。
+            if isinstance(state, dict) and state.get("max_calls") is not None:
+                try:
+                    self.rpm = int(state.get("rpm", self.rpm))
+                    self.tpm = int(state.get("tpm", self.tpm))
+                    self.max_calls = int(state.get("max_calls",
+                                                   self.max_calls))
+                    self.max_in_flight = int(
+                        state.get("max_in_flight", 0) or 0)
+                except (TypeError, ValueError):
+                    pass
 
     def _fresh_state(self) -> dict:
         return {
@@ -137,6 +151,12 @@ class FileRateGate:
             "peak_in_flight": 0,           # 历史峰值(持久证据)
             "cooldown_until": 0.0,
             "stopped": None,               # {"reason":..., "status":..., "at":...}
+            # R2(S5b W6):每次 acquire 的占位 ID(存活 owner 集合;
+            # 释放恰一次、重复幂等;父协调者只回收已确认死亡 owner 的
+            # 占位 —— 无 TTL,活长请求不因超时被释放)
+            "placeholders": {},            # {placeholder_id: {pid, issued_at}}
+            "placeholder_seq": 0,
+            "reclaimed_dead": 0,           # 已回收的死亡 owner 占位数(披露)
         }
 
     @contextmanager
@@ -165,11 +185,15 @@ class FileRateGate:
                     "cooldown_until", "stopped"):
             if key not in state:
                 raise GateCorrupt({"missing_key": key})
-        # in_flight/max_in_flight 为后加字段:旧状态文件缺省补 0(兼容),
-        # 不破坏既有闸门语义
+        # in_flight/max_in_flight/placeholders 为后加字段:旧状态文件
+        # 缺省补 0/空(兼容,不破坏既有闸门语义;新批从 _fresh_state
+        # 带全量字段 —— R2 占位语义仅新批生效)
         state.setdefault("in_flight", 0)
         state.setdefault("max_in_flight", 0)
         state.setdefault("peak_in_flight", 0)
+        state.setdefault("placeholders", {})
+        state.setdefault("placeholder_seq", 0)
+        state.setdefault("reclaimed_dead", 0)
         return state
 
     def _save(self, state: dict) -> None:
@@ -197,7 +221,13 @@ class FileRateGate:
     # ------------------------------------------------------------ 发起闸门
 
     def acquire(self) -> dict:
-        """阻塞直到允许发起新请求;返回放行时刻的闸门快照(审计用)。"""
+        """阻塞直到允许发起新请求;返回放行时刻的闸门快照(审计用)。
+
+        R2:每次 acquire 分配**占位 ID**(placeholder_id);调用方在
+        一次 HTTP 尝试结束(成功/429/鉴权/超时/传输失败/解码失败)时以
+        ``record_response(placeholder_id=...)`` 恰一次释放;未 acquire
+        不 release(未知占位 no-op);重复 release 幂等(占位已移除 ⇒
+        no-op,不重复扣 in_flight)。"""
         deadline = time.monotonic() + self.acquire_timeout_s
         while True:
             with self._locked() as f:
@@ -226,6 +256,7 @@ class FileRateGate:
                                       + self.window_s) - now)
                 if max_if > 0 and int(state.get("in_flight", 0)) >= max_if:
                     # 同时在途上限:必须等一个在途请求 record_response 释放
+                    # (或父协调者回收已确认死亡 owner 的占位)
                     wait = max(wait, 0.05)
                 if wait <= 0:
                     state["request_starts"].append(now)
@@ -234,10 +265,19 @@ class FileRateGate:
                     state["peak_in_flight"] = max(
                         int(state.get("peak_in_flight", 0)),
                         int(state["in_flight"]))
+                    # ---- R2:占位 ID 分配 ----
+                    state["placeholder_seq"] = \
+                        int(state.get("placeholder_seq", 0)) + 1
+                    placeholder_id = "g{0}-{1}-{2}".format(
+                        state["placeholder_seq"], os.getpid(),
+                        int(now * 1000))
+                    state.setdefault("placeholders", {})[placeholder_id] = {
+                        "pid": os.getpid(), "issued_at": now}
                     self._save(state)
                     return {"acquired_at": now,
                             "total_requests": state["total_requests"],
-                            "in_flight": state["in_flight"]}
+                            "in_flight": state["in_flight"],
+                            "placeholder_id": placeholder_id}
             # 等待加抖动(0-10%),避免整组 worker 同步踩点
             if time.monotonic() > deadline:
                 raise TimeoutError(
@@ -252,15 +292,31 @@ class FileRateGate:
                         retry_after_s: float | None = None,
                         request_id: str | None = None,
                         forbidden: bool = False,
-                        reason: str = "") -> None:
-        """响应后记账:token 计入滑窗;429 设冷却;付费/权限错误置停止。"""
+                        reason: str = "",
+                        placeholder_id: str | None = None) -> None:
+        """响应后记账:token 计入滑窗;429 设冷却;付费/权限错误置停止。
+
+        R2 释放语义(占位):
+        - ``placeholder_id`` 给出且仍存活 ⇒ 移除占位并 -1 in_flight
+          (恰一次);占位未知/已移除 ⇒ **不扣减**(未 acquire 不
+          release;重复 release 幂等);
+        - ``placeholder_id`` 缺省(旧调用方/旧批根)⇒ 维持旧行为直接
+          -1(兼容;新批一律带占位)。
+        其余记账(token/429/停止标志)与占位无关,照常执行。"""
         with self._locked() as f:
             state = self._load(f)
             now = time.time()
             self._purge(state, now)
-            # 一次 HTTP 尝试结束 = 一个在途槽位释放(与 acquire 的 +1 配对;
-            # 429 重试的每次尝试各自 acquire/record,计数保持平衡)
-            state["in_flight"] = max(0, int(state.get("in_flight", 0)) - 1)
+            placeholders = state.setdefault("placeholders", {})
+            if placeholder_id is None:
+                # 旧语义(兼容):一次 HTTP 尝试结束 = 一个在途槽位释放
+                state["in_flight"] = max(
+                    0, int(state.get("in_flight", 0)) - 1)
+            elif placeholder_id in placeholders:
+                placeholders.pop(placeholder_id)
+                state["in_flight"] = max(
+                    0, int(state.get("in_flight", 0)) - 1)
+            # 未知/已释放占位:no-op(未 acquire 不 release;幂等)
             if usage:
                 total = int(usage.get("total_tokens")
                             or (int(usage.get("prompt_tokens") or 0)
@@ -282,6 +338,75 @@ class FileRateGate:
                     "at": now,
                 }
             self._save(state)
+
+    # ------------------------------------------------------------ 死亡占位回收
+
+    def reclaim_dead_placeholders(self, *, pid_alive=None) -> dict:
+        """父协调者回收**已确认死亡 owner** 的占位(R2)。
+
+        - 判死 = ``pid_alive(pid)`` 回调(缺省 = 本机 os.kill(pid,0)
+          抛 ProcessLookupError);**无 TTL** —— 活长请求不因超时被
+          释放;owner 活着 ⇒ 占位保留(即使看起来"很久");
+        - 回收只减 in_flight,**total_requests 不退**(发起事实保留);
+          unknown 活跃状态不清零后继续付费;
+        - 幂等:重复调用对已移除占位 no-op。返回回收摘要(披露)。
+        """
+        if pid_alive is None:
+            def pid_alive(pid: int) -> bool:
+                try:
+                    os.kill(int(pid), 0)
+                    return True
+                except ProcessLookupError:
+                    return False
+                except PermissionError:
+                    return True   # 存在但属他人:视为活
+                except OSError:
+                    return True  # 无法判定:保守视为活(不误回收)
+        with self._locked() as f:
+            state = self._load(f)
+            placeholders = state.setdefault("placeholders", {})
+            dead = [pid_key for pid_key, entry in placeholders.items()
+                    if not pid_alive(int(entry.get("pid", 0)))]
+            for pid_key in dead:
+                placeholders.pop(pid_key)
+                state["in_flight"] = max(
+                    0, int(state.get("in_flight", 0)) - 1)
+            state["reclaimed_dead"] = int(
+                state.get("reclaimed_dead", 0)) + len(dead)
+            self._save(state)
+            return {"reclaimed": len(dead),
+                    "reclaimed_ids": dead,
+                    "in_flight": int(state.get("in_flight", 0)),
+                    "total_requests": int(state.get("total_requests", 0))}
+
+    # ------------------------------------------------------------ 参数核对
+
+    def verify_config(self) -> dict:
+        """gate 参数首消费/恢复核对(R2):构造参数与状态文件冻结值
+        一致才可用(rpm/tpm/max_calls/max_in_flight 任一不符 ⇒ 拒,
+        不静默混用)。返回冻结参数摘要。"""
+        with self._locked() as f:
+            state = self._load(f)
+        frozen = {
+            "rpm": int(state.get("rpm", 0)),
+            "tpm": int(state.get("tpm", 0)),
+            "max_calls": int(state.get("max_calls", 0)),
+            "max_in_flight": int(state.get("max_in_flight", 0) or 0),
+        }
+        current = {
+            "rpm": int(self.rpm),
+            "tpm": int(self.tpm),
+            "max_calls": int(self.max_calls),
+            "max_in_flight": int(self.max_in_flight),
+        }
+        if frozen != current:
+            raise GateCorrupt({
+                "kind": "gate_config_mismatch",
+                "frozen": frozen,
+                "current": current,
+                "note": ("gate 参数与批根冻结副本不一致(worker 从"
+                         "冻结值装配并拒 env 冲突;不静默混用)")})
+        return frozen
 
     # ------------------------------------------------------------ 只读快照
 

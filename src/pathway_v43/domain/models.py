@@ -75,6 +75,18 @@ def now_iso() -> str:
     return datetime.now(UTC).isoformat(timespec="seconds")
 
 
+def now_iso_hires() -> str:
+    """高分辨率 UTC ISO 时间戳(微秒;W3:S5b 事件提交时序)。
+
+    用途:事件首提的 created_at —— 原秒级 now_iso 下同秒事件按
+    event_id(内容哈希字典序)被原 scorer 重排,提交序不可保;微秒
+    分辨率使 (created_at, event_id) 排序忠实反映首次提交序(仍保留
+    event_id 兜底 tie-break,不造时间、不改 scorer 排序)。其余
+    时间戳字段继续用秒级 now_iso(身份/显示语义不变)。
+    """
+    return datetime.now(UTC).isoformat(timespec="microseconds")
+
+
 def stable_id(prefix: str, *parts: str) -> str:
     """由内容派生的稳定内部 ID(幂等重放产生同一 ID)。"""
     digest = hashlib.sha256("\x1f".join(parts).encode("utf-8")).hexdigest()

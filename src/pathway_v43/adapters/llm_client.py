@@ -334,9 +334,11 @@ class OpenAICompatibleClient:
         max_attempts = max(0, self.max_http_retries) + 1
 
         for attempt_no in range(1, max_attempts + 1):
+            gate_placeholder = None
             if self.gate is not None:
                 try:
-                    self.gate.acquire()
+                    acquired = self.gate.acquire()
+                    gate_placeholder = acquired.get("placeholder_id")
                 except RuntimeError as exc:
                     return self._gate_block(exc)
             try:
@@ -363,9 +365,11 @@ class OpenAICompatibleClient:
                 if status == 429:
                     # 限流:不是化学失败,也不是预算失败;有界退避 + 抖动
                     if self.gate is not None:
+                        # R2:一次尝试恰一次 release(占位 ID)
                         self.gate.record_response(
                             status=429, retry_after_s=retry_after,
-                            request_id=req_id)
+                            request_id=req_id,
+                            placeholder_id=gate_placeholder)
                     if attempt_no < max_attempts:
                         wait = retry_after if retry_after else (
                             BACKOFF_BASE_S * (2 ** (attempt_no - 1)))
@@ -384,7 +388,8 @@ class OpenAICompatibleClient:
                     if self.gate is not None:
                         self.gate.record_response(
                             forbidden=True, status=status, request_id=req_id,
-                            reason=f"http_{status}")
+                            reason=f"http_{status}",
+                            placeholder_id=gate_placeholder)
                     return LLMResponse(
                         ok=False, error_kind="forbidden_permanent",
                         error_message=f"http_{status}_no_new_paid_requests",
@@ -392,6 +397,9 @@ class OpenAICompatibleClient:
                         status=status, http_attempts=attempts)
                 # 其余 HTTP 错误(400/5xx 等):一次结构化传输失败,
                 # 不在客户端层重试(节点层 attempt 重试会逐次落盘)
+                if self.gate is not None:
+                    self.gate.record_response(
+                        placeholder_id=gate_placeholder)
                 return LLMResponse(
                     ok=False, error_kind="transport_error",
                     error_message=f"HTTPError:{status}",
@@ -399,14 +407,16 @@ class OpenAICompatibleClient:
                     status=status, http_attempts=attempts)
             except TimeoutError:
                 if self.gate is not None:
-                    self.gate.record_response()
+                    self.gate.record_response(
+                        placeholder_id=gate_placeholder)
                 return LLMResponse(
                     ok=False, error_kind="timeout",
                     elapsed_s=time.monotonic() - t0,
                     http_attempts=attempts)
             except urllib.error.URLError as exc:
                 if self.gate is not None:
-                    self.gate.record_response()
+                    self.gate.record_response(
+                        placeholder_id=gate_placeholder)
                 reason = getattr(exc, "reason", exc)
                 is_timeout = isinstance(reason, TimeoutError)
                 return LLMResponse(
@@ -418,7 +428,8 @@ class OpenAICompatibleClient:
                     http_attempts=attempts)
             except Exception as exc:  # 网络/HTTP 错误:显式传输失败
                 if self.gate is not None:
-                    self.gate.record_response()
+                    self.gate.record_response(
+                        placeholder_id=gate_placeholder)
                 return LLMResponse(
                     ok=False, error_kind="transport_error",
                     error_message=f"{type(exc).__name__}",
@@ -430,7 +441,8 @@ class OpenAICompatibleClient:
         if self.gate is not None:
             self.gate.record_response(status=status,
                                       usage=payload.get("usage") or {},
-                                      request_id=self._request_id(headers_lo))
+                                      request_id=self._request_id(headers_lo),
+                                      placeholder_id=gate_placeholder)
         try:
             message = payload["choices"][0]["message"]
             text = message.get("content") or ""

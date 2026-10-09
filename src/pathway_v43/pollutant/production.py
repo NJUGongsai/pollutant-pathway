@@ -454,7 +454,14 @@ def expand_hypothesis_production(
             execution=execution, admission=admission, event=None,
             audit=audit.to_dict())
     # ---- 展开计划(宽度/深度预算不足只影响 followup,不删事件事实) ----
-    product_refs = [s.state_id for s in prepared["product_states"]]
+    # W1 #9(S5b HIT50):重复 state_ref 在计划生产者按 **distinct 状态**
+    # 生成唯一调度条目(同 state 重复入队的展开/投影条目折叠;事件参与
+    # 物/occurrence/计量语义不受本去重影响 —— 参与物侧完整保留在事件
+    # 载荷,store 首提出现绑定按全部参与物闭合)。
+    product_refs: list[str] = []
+    for state in prepared["product_states"]:
+        if state.state_id not in product_refs:
+            product_refs.append(state.state_id)
     width = int(limits["max_product_expansion_width"])
     max_depth = int(limits["max_search_depth"])
     child_depth = int(depth) + 1
@@ -466,6 +473,9 @@ def expand_hypothesis_production(
         for ref in product_refs:
             plan_reasons[ref] = "depth_limit"
     else:
+        # W1 #10:expanded/deferred 的取位序 = 参与物声明序(调用方
+        # 冻结的产物位次),不是通用化学优先级;超出宽度走 deferred
+        # (计划 reason 显式记 basis,不冒充化学排序)
         expanded = product_refs[:width]
         deferred_products = product_refs[width:]
         for ref in deferred_products:

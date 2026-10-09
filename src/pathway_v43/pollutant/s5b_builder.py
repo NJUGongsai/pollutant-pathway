@@ -377,206 +377,183 @@ def build_run_input(question: dict, *, batch_tag: str,
 # ---------------------------------------------------------------- 池供给
 
 
+# W4 池策略版本(冻结候选配置:raw 预算/池宽/阈值/补位/融合规则;
+# 变化 ⇒ 升版本 ⇒ 新身份)
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-1"
+S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
+S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
+S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)
+S5B_POOL_FALLBACK_THRESHOLD = 0.40  # 输入侧条件降阈值(不足时)
+S5B_POOL_MIN_UNIQUE = 3         # 独特候选不足该数才降阈值
+
+
+def _net_reaction_signature(spec: dict) -> tuple:
+    """独特净反应签名(委托 s5b_compiler.net_reaction_signature 单一
+    构建源;W3 decide 侧与 W4 池侧共用同一判据)。"""
+    from .s5b_compiler import net_reaction_signature
+
+    return net_reaction_signature(spec)
+
+
 def default_pool_provider(config: V43Config | None, *,
-                           max_pool: int = 8, threshold: float = 0.45):
-    """真实跑的缺省池供给:类比模板底物侧相似检索(零金标)。
+                           max_pool: int = S5B_POOL_MAX,
+                           raw_top: int = S5B_POOL_RAW_TOP,
+                           threshold: float = S5B_POOL_THRESHOLD,
+                           fallback_threshold: float =
+                           S5B_POOL_FALLBACK_THRESHOLD,
+                           min_unique_targets: int = S5B_POOL_MIN_UNIQUE,
+                           engine=None):
+    """真实跑的缺省池供给(W4:编译后补位 + 有界输入侧动态检索;零金标)。
 
-    - 通道 = ``AnalogSourceResolver.templates_similar_to``(供体反应物
-      与当前底物的 Tanimoto 相似度;排序 (-sim, line_no, record_id)
-      确定性;只召回带映射模板);
-    - 每个模板 → PPV1 spec(产物/编辑/供体/对齐/预期按模板映射派生,
-      确定性;派生失败如实跳过该模板并计数披露);
-    - config 为 None(测试/无资产)⇒ 返回空池供给(空池 + 模型 novel
-      提案仍合法:S3B-05);
-    - **本 provider 零金标消费**:只看 substrate_smiles。
+    通道与融合(顺序即池序;冻结配置):
+    1. **recorded 精确源**(W2,``recorded_source.find_recorded_exact``):
+       strict exact 在前(引擎 lookup 置顶序),CN candidate 次之 ——
+       两级都不越模型选择,只供给候选;
+    2. **类比模板**(analog_source.templates_similar_to,阈值
+       ``threshold``、raw 预算 ``raw_top``):按相似度降序;
+    3. 逐候选经 ``s5b_compiler``(W1 共同编译器)编译 —— **编译成功才
+       进可执行池**;失败结构化原因计数(不支持层面如实披露);
+       **检索序保留**(不按 key 字典序重排 —— 旧实现按 key 排序会无意
+       覆盖原检索排名);
+    4. 独特净反应槽去重(同签名合并 provenance;首个保留);
+    5. **失败补位**:编译失败的候选不占槽 —— raw 前 N 全 unsupported
+       而第 N+1 合法时第 N+1 可入池(旧实现 top_k=池宽导致前 8 全败
+       无补位,是已证源码问题);
+    6. 独特可用候选 < ``min_unique_targets`` 且 ``threshold`` >
+       ``fallback_threshold`` ⇒ **仅输入侧条件**降至
+       ``fallback_threshold`` 重检索(raw/池宽不变;不支持不强补满);
+    7. 池宽截断 ``max_pool``(计数单位 = 独特净反应,不是 source)。
+
+    config/engine 为 None(测试/无资产)⇒ 对应通道关闭(空池 + 模型
+    novel 提案仍合法:S3B-05)。**零金标消费**:只看 substrate_smiles。
+    provider.last_diagnostics 记录最近一次调用的通道/编译/去重诊断
+    (build_question_batch 落 manifest 条目)。
     """
+    diagnostics: dict = {}
+
     def provider(substrate_smiles: str) -> list[dict]:
-        if config is None:
+        substrate = str(substrate_smiles)
+        diagnostics.clear()
+        if config is None and engine is None:
+            diagnostics.update({
+                "pool_policy_version": S5B_POOL_POLICY_VERSION,
+                "channels": [], "note": "无 config/engine:空池(novel 合法)"})
             return []
-        from ..services.analog_source import AnalogSourceResolver
+        ordered: list[dict] = []   # (编译成功的 spec,按融合序)
+        seen_keys: set[str] = set()
+        compile_failures: dict[str, int] = {}
+        n_recorded_strict = n_recorded_cn = 0
 
-        resolver = AnalogSourceResolver(config)
-        refs = resolver.templates_similar_to(
-            str(substrate_smiles), threshold=threshold, top_k=max_pool)
-        specs: list[dict] = []
-        skipped = 0
-        for ref in refs:
-            spec = _template_to_spec(ref, str(substrate_smiles))
-            if spec is None:
-                skipped += 1
+        def _record_compiled(spec: dict) -> None:
+            ordered.append(spec)
+            seen_keys.add(str(spec["key"]))
+
+        def _record_failure(reason: str) -> None:
+            compile_failures[reason] = compile_failures.get(reason, 0) + 1
+
+        # ---- 通道 1:recorded 精确源(W2;engine 注入时) ----
+        if engine is not None:
+            from .recorded_source import find_recorded_exact
+
+            exact = find_recorded_exact(
+                substrate_smiles=substrate, engine=engine,
+                max_reactions=raw_top)
+            for cand in exact.get("candidates") or []:
+                if cand.get("tier") == "recorded_strict_exact":
+                    n_recorded_strict += 1
+                else:
+                    n_recorded_cn += 1
+                spec = cand.get("compile")
+                if spec is None:
+                    _record_failure(str(cand.get("compile_reason")
+                                        or "recorded_compile_failed"))
+                    continue
+                _record_compiled(spec)
+            diagnostics.update({
+                "recorded_diagnostics": dict(
+                    exact.get("diagnostics") or {})})
+
+        # ---- 通道 2/3:类比模板 + 编译(失败补位) ----
+        analog_specs: list[dict] = []
+        if config is not None:
+            from ..services.analog_source import AnalogSourceResolver
+
+            resolver = AnalogSourceResolver(config)
+
+            def _compile_analog_refs(refs) -> None:
+                from .s5b_compiler import compile_donor_template
+
+                for ref in refs:
+                    out = compile_donor_template(
+                        mapped_lhs=str(ref.mapped_lhs or ""),
+                        mapped_rhs=str(ref.mapped_rhs or ""),
+                        center_atoms=[int(x) for x in
+                                      (ref.center_atoms or [])],
+                        substrate_smiles=substrate,
+                        record_id=str(ref.record_id or "tpl"),
+                        mapping_origin="native",
+                        alignment_ref=(
+                            f"corpus-template:{ref.record_id}"),
+                        key_prefix="tpl")
+                    if out.get("status") != "compiled":
+                        _record_failure(str(out.get("reason")))
+                        continue
+                    spec = dict(out["spec"])
+                    spec["key"] = f"tpl-{ref.record_id}"
+                    spec["transformation_ref"] = str(ref.record_id)
+                    spec["origin_group_key"] = (
+                        f"analog-template:{ref.record_id}")
+                    spec["coefficient"] = 1
+                    analog_specs.append(spec)
+
+            refs = resolver.templates_similar_to(
+                substrate, threshold=threshold, top_k=raw_top)
+            _compile_analog_refs(refs)
+            # ---- W4 #5:独特不足 ⇒ 输入侧条件降阈值(raw/池宽不变) ----
+            n_unique = len({_net_reaction_signature(s)
+                            for s in ordered + analog_specs})
+            threshold_dropped = False
+            if n_unique < int(min_unique_targets) \
+                    and float(threshold) > float(fallback_threshold):
+                threshold_dropped = True
+                more = resolver.templates_similar_to(
+                    substrate, threshold=float(fallback_threshold),
+                    top_k=raw_top)
+                seen_records = {str(r.record_id) for r in refs}
+                _compile_analog_refs(
+                    [r for r in more
+                     if str(r.record_id) not in seen_records])
+            diagnostics.update({
+                "analog_threshold": float(threshold),
+                "analog_threshold_dropped": threshold_dropped})
+
+        # ---- 通道融合(池序):recorded strict/cn → analog(相似度序)----
+        merged: list[dict] = []
+        signature_of: dict[tuple, dict] = {}
+        for spec in ordered + analog_specs:
+            sig = _net_reaction_signature(spec)
+            if sig in signature_of:
+                # 同独特净反应:合并 provenance,不重复挤占槽(W4)
+                first = signature_of[sig]
+                first.setdefault("compile", {}).setdefault(
+                    "merged_source_keys", []).append(str(spec["key"]))
                 continue
-            specs.append(spec)
-        specs.sort(key=lambda s: str(s["key"]))
-        return specs[:max_pool]
+            signature_of[sig] = spec
+            merged.append(spec)
+        diagnostics.update({
+            "pool_policy_version": S5B_POOL_POLICY_VERSION,
+            "n_recorded_strict_exact": n_recorded_strict,
+            "n_recorded_cn_candidate": n_recorded_cn,
+            "n_analog_compiled": len(analog_specs),
+            "n_unique_net_reactions": len(merged),
+            "n_pool_returned": min(len(merged), int(max_pool)),
+            "compile_failure_histogram": dict(
+                sorted(compile_failures.items())),
+        })
+        return merged[:int(max_pool)]
 
+    provider.last_diagnostics = diagnostics
     return provider
-
-
-def _template_to_spec(ref, substrate_smiles: str) -> dict | None:
-    """映射模板 → PPV1 池 spec(确定性;失败返回 None 如实跳过)。
-
-    - 产物 = 模板 rhs(去映射);
-    - 编辑 = 模板 lhs→rhs 的键差(生成/断裂/变阶/新原子)经对齐映射
-      到当前底物原子 ID(MoleCode 空间);
-    - 供体中心 = 模板 center_atoms(供体侧原子空间 D_*_*;对齐映射
-      供体→当前);
-    - 预期产物 = 模板 rhs。
-    """
-    from rdkit import Chem
-
-    from ..services.atom_tool import align_donor_mapping, render
-
-    try:
-        lhs_mol = Chem.MolFromSmiles(ref.mapped_lhs or "")
-        rhs_mol = Chem.MolFromSmiles(ref.mapped_rhs or "")
-        sub_mol = Chem.MolFromSmiles(substrate_smiles)
-        if lhs_mol is None or rhs_mol is None or sub_mol is None:
-            return None
-        current = render(substrate_smiles, "S")
-        match, _strategy = align_donor_mapping(lhs_mol, sub_mol)
-        if not match:
-            return None
-        # lhs idx → 当前 idx → MoleCode 原子 ID
-        idx_to_current_id = dict(current.idx_atom_map)
-        lhs_to_current_id: dict[int, str] = {}
-        for query_idx, cur_idx in match.items():
-            atom_id = idx_to_current_id.get(int(cur_idx))
-            if atom_id is None:
-                return None
-            lhs_to_current_id[int(query_idx)] = str(atom_id)
-        # 中心原子:map number → lhs idx(供体空间 ID)
-        center_map_nums = set(int(x) for x in (ref.center_atoms or []))
-        center_ids: list[str] = []
-        for atom in lhs_mol.GetAtoms():
-            map_num = atom.GetAtomMapNum()
-            if center_map_nums and map_num not in center_map_nums:
-                continue
-            cur_id = lhs_to_current_id.get(atom.GetIdx())
-            if cur_id is None:
-                return None  # 中心原子须全部有映射,否则如实跳过
-            center_ids.append(cur_id)
-        if not center_ids:
-            return None
-        edits = _bond_diff_edits(lhs_mol, rhs_mol, lhs_to_current_id)
-        if edits is None:
-            return None
-        record_id = str(ref.record_id or "tpl")
-        donor_to_current = {
-            f"D_{i}": lhs_to_current_id[i]
-            for i in sorted(lhs_to_current_id)}
-        return {
-            "key": f"tpl-{record_id}",
-            "product_smiles": str(ref.product_smiles or ""),
-            "coefficient": 1,
-            "transformation_ref": record_id,
-            "origin_group_key": f"analog-template:{record_id}",
-            "edits": edits,
-            "donor": {"center_atom_ids": sorted(center_ids)},
-            "alignment": {
-                "status": "resolved",
-                "donor_to_current": donor_to_current,
-                "equivalence_classes": [],
-                "ref": f"corpus-template:{record_id}",
-            },
-            "expectation": {"target_smiles":
-                            str(ref.product_smiles or "")},
-        }
-    except Exception:  # noqa: BLE001 —— 派生失败如实跳过该模板
-        return None
-
-
-def _bond_diff_edits(lhs_mol, rhs_mol,
-                     lhs_to_current_id: dict[int, str]) -> list | None:
-    """模板 lhs→rhs 键差 → 当前底物原子 ID 的编辑协议列表。
-
-    键以 (lhs_idx, lhs_idx) 标识(模板同原子映射保持 idx 对应);新增
-    原子(add_atom)锚定到其在 rhs 侧的成键 lhs 原子。全部映射到当前
-    ID 后无法表达(涉及无映射原子)⇒ None(跳过该模板,不猜)。
-    """
-    from rdkit import Chem
-
-    def bonds(mol):
-        out = {}
-        for bond in mol.GetBonds():
-            key = frozenset((bond.GetBeginAtomIdx(),
-                            bond.GetEndAtomIdx()))
-            out[key] = bond.GetBondType()
-        return out
-
-    def order_token(bond_type):
-        return {
-            Chem.BondType.SINGLE: "single",
-            Chem.BondType.DOUBLE: "double",
-            Chem.BondType.TRIPLE: "triple",
-            Chem.BondType.AROMATIC: "aromatic",
-        }.get(bond_type)
-
-    lhs_bonds = bonds(lhs_mol)
-    rhs_bonds = bonds(rhs_mol)
-    edits: list[dict] = []
-    # 新增原子:rhs 有、lhs 无的 idx(模板 rhs 保持 lhs 原子 idx 不变)
-    new_atoms = sorted(
-        {a.GetIdx()
-         for key in rhs_bonds for a_idx in key
-         for a in [rhs_mol.GetAtomWithIdx(a_idx)]
-         if a_idx >= lhs_mol.GetNumAtoms() or
-         not _atom_exists(lhs_mol, a_idx)})
-    next_new = 1
-    new_id_of: dict[int, str] = {}
-    for idx in new_atoms:
-        atom = rhs_mol.GetAtomWithIdx(idx)
-        element = atom.GetSymbol()
-        new_id = f"S_{element}_N{next_new}"
-        next_new += 1
-        new_id_of[idx] = new_id
-        # 锚点 = 与该新原子成键且存在于 lhs 的原子
-        anchor = None
-        for key in rhs_bonds:
-            if idx in key:
-                other = next(iter(key - {idx}))
-                if other in lhs_to_current_id:
-                    anchor = lhs_to_current_id[other]
-                    break
-        if anchor is None:
-            return None
-        edits.append({"op": "add_atom", "element": element,
-                      "new_atom_id": new_id, "atom1": anchor})
-    for key in sorted(rhs_bonds, key=sorted):
-        ids = sorted(key)
-        a1 = _edit_target(ids[0], lhs_to_current_id, new_id_of)
-        a2 = _edit_target(ids[1], lhs_to_current_id, new_id_of)
-        if a1 is None or a2 is None:
-            return None
-        rhs_order = order_token(rhs_bonds[key])
-        lhs_order = order_token(lhs_bonds.get(key)) \
-            if key in lhs_bonds else None
-        if lhs_order is None:
-            edits.append({"op": "form_bond", "atom1": a1, "atom2": a2})
-        elif lhs_order != rhs_order:
-            edits.append({
-                "op": "change_bond_order", "atom1": a1, "atom2": a2,
-                "from_order": lhs_order, "to_order": rhs_order})
-    for key in sorted(lhs_bonds, key=sorted):
-        if key in rhs_bonds:
-            continue
-        ids = sorted(key)
-        a1 = lhs_to_current_id.get(ids[0])
-        a2 = lhs_to_current_id.get(ids[1])
-        if a1 is None or a2 is None:
-            return None
-        edits.append({"op": "break_bond", "atom1": a1, "atom2": a2})
-    return edits
-
-
-def _atom_exists(mol, idx: int) -> bool:
-    return 0 <= idx < mol.GetNumAtoms()
-
-
-def _edit_target(idx: int, lhs_to_current_id: dict[int, str],
-                 new_id_of: dict[int, str]) -> str | None:
-    if idx in new_id_of:
-        return new_id_of[idx]
-    return lhs_to_current_id.get(idx)
 
 
 # ---------------------------------------------------------------- 主入口
@@ -637,6 +614,8 @@ def build_question_batch(
             json.dumps(graph, ensure_ascii=False, sort_keys=True,
                        indent=1) + "\n", encoding="utf-8")
         pools = {substrate: provider(substrate)}
+        pool_specs = pools[substrate]
+        pool_diag = dict(getattr(provider, "last_diagnostics", None) or {})
         run_input = build_run_input(
             record, batch_tag=batch_tag, pools=pools,
             provider_kind=provider_kind)
@@ -653,7 +632,8 @@ def build_question_batch(
             "graph_sha256": reference_graph_sha256(graph),
             "run_input_rel": f"run_inputs/{qid}.json",
             "substrate_smiles": substrate,
-            "pool_size": len(pools[substrate]),
+            "pool_size": len(pool_specs),
+            "pool_diagnostics": pool_diag,
             "n_gold_products": len(record["products_smiles"]),
             "repeated_substrate": substrate_counts[substrate] > 1,
         })

@@ -1958,7 +1958,16 @@ class PollutantPathwayStore:
                          event.participant_state_refs,
                      "catalytic_support": event.catalytic_support,
                      "event_appearance_manifest": appearance_manifest,
-                 }, ensure_ascii=False, sort_keys=True), now_iso()))
+                     # W3:事件载荷携带首提时间(与行 created_at 同源;
+                     # 重放分支不 INSERT 不刷新)
+                     "created_at": event.created_at,
+                 }, ensure_ascii=False, sort_keys=True),
+                 # W3:行 created_at 忠实采用 PathwayEvent.created_at
+                 # (首次实际提交的高分辨率时间;旧实现 INSERT 时重记
+                 # now_iso 丢首提序 —— 仅改 dataclass 时间无效,此处为
+                 # 权威 events 表的同一修复)。幂等重放不进本分支,时间
+                 # 不刷新;不造时间、不改 event_id、不改 scorer 排序。
+                 event.created_at))
             # R6-05(R7):本事件**完整 (state_id, appearance_hash) 集合**
             # 持久进独立完整性表(与事件 payload 清单同源双写;重放
             # 双向核验 —— payload 或 links 任一侧单点删项可检,同

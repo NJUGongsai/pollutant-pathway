@@ -18,7 +18,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ..domain.models import canonical_json, content_hash, now_iso, stable_id
+from ..domain.models import (
+    canonical_json,
+    content_hash,
+    now_iso,
+    now_iso_hires,
+    stable_id,
+)
 from .chemstate import ChemicalState, build_chemical_state
 from .hypothesis import (
     PARTICIPANT_SIDE_PRODUCT,
@@ -80,7 +86,9 @@ class PathwayEvent:
     participant_state_refs: list[str]  # 全部参与物 ChemicalState 引用
     catalytic_support: list[dict] = field(default_factory=list)
     schema_version: str = PPV1_EVENT_SCHEMA_VERSION
-    created_at: str = field(default_factory=now_iso)
+    # W3:事件首提时间用微秒分辨率(提交序可被 (created_at,event_id)
+    # 忠实排序;同秒 hash 字典序重排不再吞掉真实提交序)
+    created_at: str = field(default_factory=now_iso_hires)
 
     @property
     def event_semantics_hash(self) -> str:

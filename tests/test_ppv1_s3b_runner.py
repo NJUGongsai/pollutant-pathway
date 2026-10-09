@@ -72,6 +72,27 @@ def spec(key: str, product: str, tref: str, **overrides) -> dict:
     return d
 
 
+
+
+def peroxide_spec(key: str, tref: str, **overrides) -> dict:
+    """与 spec() 不同净反应的合成池条目(CCOO;W3 去重契约下备选
+    须为独特净反应才各自成事件)。"""
+    d = {
+        "key": key, "product_smiles": "CCOO", "coefficient": 1,
+        "transformation_ref": tref, "origin_group_key": f"donor-{key}",
+        "edits": [{"op": "add_atom", "element": "O",
+                   "new_atom_id": "SN_O_1", "atom1": "S_O_1"}],
+        "donor": {"center_atom_ids": ["S_O_1", "SN_O_1"]},
+        "alignment": {"status": "resolved",
+                      "donor_to_current": {"S_O_1": "S_O_1",
+                                           "SN_O_1": "SN_O_1"},
+                      "ref": "align-P"},
+        "expectation": {"target_smiles": "CCOO"},
+    }
+    d.update(overrides)
+    return d
+
+
 def oxygen_req():
     return [{"key": "oxygen_regime", "level": "essential",
              "value": "aerobic", "source_refs": ["src:synthetic"]}]
@@ -108,7 +129,7 @@ def test_e01_preferred_downstream_no_candidate_alternatives_continue(
     """E01:首选 B 展开后下游池空 ⇒ 记 unresolved_continuation(不反证
     上游:事件/attempt 保留);备选 C 在上限内继续。"""
     plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B"),
-                              spec("C", "CC=O", "donor-C")]}}
+                              peroxide_spec("C", "donor-C")]}}
     runs_root = tmp_path / "runs"
     out = start_run(config=resolve_config(), runs_root=runs_root,
                     run_id="e01", smiles="CCO", max_depth=3,
@@ -145,7 +166,7 @@ def test_e02_two_deferred_types_activation_and_idempotence(
     plan = {
         "pools": {"CCO": [spec("B", "CC=O", "donor-B",
                                coproducts=["[H][H]"]),
-                          spec("C", "CC=O", "donor-C")]},
+                          peroxide_spec("C", "donor-C")]},
         "schedule_budget": {"max_select": 1},
         "activations": [
             {"deferred_type": "alternative_reaction_deferred",
@@ -200,8 +221,27 @@ def test_e02_budget_insufficient_keeps_unexpanded_reason(
     (budget_exhausted),不改 deferred 状态;不重复安排同 action。"""
     plan = {
         "pools": {"CCO": [spec("B", "CC=O", "donor-B"),
-                          spec("C", "CC=O", "donor-C"),
-                          spec("D", "CC=O", "donor-D")]},
+                          peroxide_spec("C", "donor-C"),
+                          spec("D", "CC(=O)O", "donor-D",
+                               edits=[
+                                   {"op": "change_bond_order",
+                                    "atom1": "S_C_2", "atom2": "S_O_1",
+                                    "from_order": "single",
+                                    "to_order": "double"},
+                                   {"op": "add_atom", "element": "O",
+                                    "new_atom_id": "SN_O_1",
+                                    "atom1": "S_C_2"}],
+                               donor={"center_atom_ids": ["S_C_2",
+                                                           "S_O_1",
+                                                           "SN_O_1"]},
+                               alignment={"status": "resolved",
+                                          "donor_to_current": {
+                                              "S_C_2": "S_C_2",
+                                              "S_O_1": "S_O_1",
+                                              "SN_O_1": "SN_O_1"},
+                                          "ref": "align-D"},
+                               expectation={"target_smiles":
+                                            "CC(=O)O"})]},
         "schedule_budget": {"max_select": 2},
         "activations": [
             {"deferred_type": "alternative_reaction_deferred",
@@ -343,7 +383,7 @@ def test_branch_isolation_two_contexts(tmp_path: Path) -> None:
                              "source_ref": "src:synthetic"}],
         "pools": {"CCO": [
             spec("B", "CC=O", "donor-B", requirements=oxygen_req()),
-            spec("C", "CC=O", "donor-C")]},
+            peroxide_spec("C", "donor-C")]},
     }
     runs_root = tmp_path / "runs"
     out = start_run(config=resolve_config(), runs_root=runs_root,

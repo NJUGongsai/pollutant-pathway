@@ -541,8 +541,11 @@ def test_co2_alternatives_not_summed_single_not_mineralization(
     """备选分支控:两条备选反应各生成一个 CO₂ 产物 ⇒ 逐事件列示、
     不相加(运行级聚合值不产生);单项/双项 CO₂ 均不自动解释为根
     污染物矿化(无证据 ⇒ unknown)。"""
+    # W3 去重契约:同净产品集合+参与物语义的备选合并 —— 两条备选
+    # 须为不同净反应(不同共同产物)才各自成事件;每条各列一个 CO₂
     plan = {"pools": {"CCO": [spec("B", "O=C=O", "donor-B"),
-                              spec("C", "O=C=O", "donor-C")]}}
+                              spec("C", "O=C=O", "donor-C",
+                                   coproducts=["[H][H]"])]}}
     out = start(tmp_path, "co2", plan)
     assert out["counts"]["events"] == 2
     record = json.loads(endpoint_row(tmp_path / "runs", "co2")["payload"])
@@ -623,9 +626,15 @@ def _native_fixture(tmp_path: Path):
 
 
 def _routes_fixture(tmp_path: Path):
-    """B/C 双备选均展开(无 selection cap)—— 不同来路保留的夹具。"""
+    """B/C 双备选均展开(无 selection cap)—— 不同来路保留的夹具。
+
+    W3 去重契约:同净产品集合+参与物语义的备选在 decide 层合并
+    (合并 provenance);本夹具的"不同来路各自成事件"意图改为不同
+    净反应(不同共同产物集合)的两条备选 —— 同 CC=O 主产物状态仍被
+    两条事件各自引用(状态语义块同 ID、事件来路分开,原断言面不变)。"""
     plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B"),
-                              spec("C", "CC=O", "donor-C")]}}
+                              spec("C", "CC=O", "donor-C",
+                                   coproducts=["[H][H]"])]}}
     runs_root = tmp_path / "runs"
     out = start(tmp_path, "routes", plan)
     return runs_root, out

@@ -98,6 +98,23 @@ def novel_response(novel_key: str = "novel:1",
             "expectation": {"target_smiles": product}}}]})
 
 
+def peroxide_spec(key: str, tref: str) -> dict:
+    """与 spec() 不同净反应的合成池条目(CCOO;W3 去重契约下备选须为
+    独特净反应才各自成事件)。"""
+    return {
+        "key": key, "product_smiles": "CCOO", "coefficient": 1,
+        "transformation_ref": tref, "origin_group_key": f"donor-{key}",
+        "edits": [{"op": "add_atom", "element": "O",
+                   "new_atom_id": "SN_O_1", "atom1": "S_O_1"}],
+        "donor": {"center_atom_ids": ["S_O_1", "SN_O_1"]},
+        "alignment": {"status": "resolved",
+                      "donor_to_current": {"S_O_1": "S_O_1",
+                                           "SN_O_1": "SN_O_1"},
+                      "ref": "align-P"},
+        "expectation": {"target_smiles": "CCOO"},
+    }
+
+
 def run_worker(*args, timeout: int = 120) -> subprocess.CompletedProcess:
     return subprocess.run(
         [PY, "-B", WORKER, *args], capture_output=True, text=True,
@@ -269,7 +286,7 @@ def test_s3b02_bad_bundle_json_isolated_independent_tasks_continue(
     行为红)。"""
     runs_root = tmp_path / "runs"
     plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B"),
-                              spec("C", "CC=O", "donor-C")]}}
+                              peroxide_spec("C", "donor-C")]}}
     with pytest.raises(Exception):  # SearchCrashInjection:B 的 bundle 已写
         start_ppv1_run(config=resolve_config(), runs_root=runs_root,
                        run_id="h07b", smiles="CCO", plan=plan,
@@ -501,9 +518,25 @@ def test_s3b05_novel_nonempty_independent_hypothesis_chain(tmp_path) -> None:
     工具→audit→admission→submit(2 events/2 hypotheses/真实生产链);
     网络恒 0。父基线:novel 只计数不消费(1 event,行为红)。"""
     runs_root = tmp_path / "runs"
+    novel_peroxide = json.dumps({"proposals": [{
+        "hypothesis_id": "novel:1",
+        "proposal_context": {"reference_hypothesis_ids": [],
+                              "output_origin": "novel_outside_pool"},
+        "reaction_spec": {
+            "key": "Novel", "product_smiles": "CCOO", "coefficient": 1,
+            "transformation_ref": "donor-novel:1",
+            "origin_group_key": "donor-novel:1",
+            "edits": [{"op": "add_atom", "element": "O",
+                       "new_atom_id": "SN_O_1", "atom1": "S_O_1"}],
+            "donor": {"center_atom_ids": ["S_O_1", "SN_O_1"]},
+            "alignment": {"status": "resolved",
+                          "donor_to_current": {"S_O_1": "S_O_1",
+                                               "SN_O_1": "SN_O_1"},
+                          "ref": "align-P"},
+            "expectation": {"target_smiles": "CCOO"}}}]})
     plan = {"pools": {"CCO": [spec("B", "CC=O", "donor-B")]},
             "model": {"provider_kind": "scripted",
-                      "responses": [novel_response()]}}
+                      "responses": [novel_peroxide]}}
     out = start_run(config=resolve_config(), runs_root=runs_root,
                     run_id="nv1", smiles="CCO", max_depth=3,
                     max_expansions=10, max_frontier_width=2,
@@ -592,9 +625,11 @@ def test_s3b05_model_abstain_empty_pool_legal(tmp_path) -> None:
 
 def test_s3b05_novel_insufficient_content_structured_reject(
         tmp_path) -> None:
-    """novel reaction_spec 无反应内容(缺 product_smiles)⇒ 构造侧
-    结构化拒(run_error 如实停止;不伪造内容、不进格式反馈)。
-    父基线:提案被忽略、池内 B 照常完成(无 run_error,行为红)。"""
+    """novel reaction_spec 无反应内容(缺 product_smiles)⇒ **共同
+    prevalidation 逐条拒**(W5:一坏一合法 —— 池内 B 照常完成;坏条目
+    结构化披露,不伪造内容、不进格式反馈;run 不因单条坏提案停止)。
+    父基线:提案被忽略、池内 B 照常完成(无 run_error,行为红);
+    r2 旧断言(run_error 停止)被 W5 逐条容错契约取代。"""
     runs_root = tmp_path / "runs"
     bad_spec = {"key": "Novel", "coefficient": 1}
     response = json.dumps({"proposals": [{
@@ -610,9 +645,27 @@ def test_s3b05_novel_insufficient_content_structured_reject(
                     max_expansions=10, max_frontier_width=2,
                     finder=object(), scripted=True,
                     profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan)
-    assert out["stop"].get("run_error", {}).get("kind") == \
-        "spec_missing_product"
-    assert out["counts"]["events"] == 0
+    # 单条坏 ⇒ 逐条拒:run 不停(无 run_error),B 照常提交
+    assert not out["stop"].get("run_error")
+    assert out["counts"]["events"] == 1
+    # 坏条目结构化披露(decide outcome artifact 的 novel_rejections)
+    import glob as _glob
+
+    rejections = None
+    for ofile in _glob.glob(
+            str(runs_root / "nv4" / "results" / "*" /
+                "expansion_outcome.json")):
+        payload = json.loads(
+            Path(ofile).read_text(encoding="utf-8"))["payload"]
+        outcome = payload.get("outcome") or {}
+        if outcome.get("kind") == "scheduled":
+            model_note = (outcome.get("detail") or {}).get("model") or {}
+            if "novel_rejections" in model_note:
+                rejections = model_note["novel_rejections"]
+    assert rejections, "decide outcome 未披露 novel_rejections"
+    assert rejections[0]["hypothesis_id"] == "novel:bad"
+    assert rejections[0]["kind"] in ("spec_missing_product",
+                                     "HypothesisContractError")
 
 
 # ---------------------------------------------------------------- S3B-06
