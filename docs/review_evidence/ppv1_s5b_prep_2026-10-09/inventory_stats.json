@@ -1,0 +1,85 @@
+{
+  "captured": "2026-10-09",
+  "scope": "298 question set inventory, count-level only (no gold content)",
+  "csv_payload": {
+    "sha256": "a3cb7955c1b9e9c1ae0d70636e9df057a35fc35f311f683835de4f19a02ffd0a",
+    "rows_including_header": 299,
+    "columns": 64,
+    "identity_file_claims": {
+      "rows": 298, "unique_global_reaction_id": 298,
+      "deleted_A_rows_present": 0, "replacement_rows_present": 11,
+      "all_external_holdout_status": "EXTERNAL_TEST_HOLDOUT (298/298)",
+      "build_date": "2026-09-21"
+    }
+  },
+  "questions_jsonl": {
+    "sha256": "9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c",
+    "lines": 298, "unique_qids": 298, "qid_prefix": "RXNG_",
+    "field_names_and_types": {
+      "qid": "str", "category": "str", "substrate_smiles": "str",
+      "products_smiles": "list[str] (gold)", "ambiguous_substrate": "bool",
+      "fallback_large": "bool", "nucleotide_fallback": "bool",
+      "n_reactant_components": "int", "n_product_components": "int",
+      "raw_reaction": "str (gold; '>>' separated reaction smiles, 298/298)"
+    },
+    "counts": {
+      "products_smiles_len_histogram": {"1": 253, "2": 41, "3": 4},
+      "empty_products": 0,
+      "ambiguous_substrate_true": 4,
+      "fallback_large_true": 6,
+      "nucleotide_fallback_true": 5,
+      "n_reactant_components_histogram": {"1": 18, "2": 172, "3": 43, "4": 46, "5": 10, "6": 4, "7": 4, "11": 1},
+      "n_product_components_histogram": {"1": 44, "2": 108, "3": 117, "4": 18, "5": 7, "6": 1, "9": 3},
+      "distinct_category_values": 18,
+      "category_top3_counts": [111, 45, 29],
+      "category_min_count": 1,
+      "questions_with_empty_category_field": 111
+    }
+  },
+  "exam_inputs_jsonl": {
+    "sha256": "cb5996c9b960bb4a61fd5747d275077c65ef49bf2cdb74102b9d22dc7f11d703",
+    "lines": 298, "unique_qids": 298,
+    "field_names_and_types": {"input_index": "int", "qid": "str", "substrate_smiles": "str"},
+    "checks": {
+      "qid_set_equal_to_questions_jsonl": true,
+      "qid_order_equal_to_questions_jsonl": true,
+      "input_index_range": [0, 297],
+      "input_index_contiguous": true,
+      "substrate_smiles_mismatches_vs_questions_jsonl": 0
+    }
+  },
+  "source_provenance_csv": {
+    "sha256": "f89ee00f572cc7786ea932b68e5a874d8a7099239aad7ece4907b2cbc4012ad9",
+    "rows": 298,
+    "field_names": ["global_reaction_id","source_databases","source_database_combination","rhea_record_ids","enzymemap_record_ids","brenda_source_record_ids","other_source_record_ids","union_r2_reaction_ids","union_brenda_reaction_ids","scientific_pair_ids","all_scientific_source_accessions","scientific_source_pair_count","unique_source_record_count","canonical_matches_29061_union_master","traceability_status"],
+    "counts": {
+      "nonempty_rhea_record_ids": 60,
+      "nonempty_enzymemap_record_ids": 190,
+      "nonempty_brenda_source_record_ids": 213,
+      "nonempty_other_source_record_ids": 0,
+      "nonempty_union_r2_reaction_ids": 241,
+      "nonempty_union_brenda_reaction_ids": 213,
+      "questions_with_multiple_rhea_ids": 0,
+      "distinct_source_databases_combinations": 5,
+      "traceability_status_histogram": {"PASS_EXACT_GLOBAL_ID_CANONICAL_AND_SOURCE_RECORDS": 298},
+      "unique_source_record_count_min": 1, "unique_source_record_count_max": 155,
+      "unique_source_record_count_single_record_questions": 106
+    }
+  },
+  "extraction_pipeline": {
+    "script": "/Volumes/CC/Enzyme_Agent/dependingv4/scripts/build_ec298_questions.py",
+    "script_sha256": "d5d1fc4c58072f5ac3b9f2ef3b8f9093bfa74c817edcccebc20bc03766c40dea",
+    "stats_file": "/Volumes/CC/Enzyme_Agent/dependingv4/runs/enzymecage298/extraction_stats.json",
+    "revision_note": "2026-09-22 audit revision no.1: patch1 non-organic-element strip; patch2 exact-SMILES GSH co-substrate blacklist; patch3 empty-side fallback_large rescue",
+    "cofactor_stripping_counts": {"reactant_side_total_stripped": 473, "by_long_smiles_gt80": 179, "by_no_carbon": 287, "by_non_organic_element": 7, "by_gsh_blacklist": 5}
+  },
+  "remote_chenyu_check": {
+    "attempted": "2026-10-09, read-only via rebuilt /tmp/cy_ssh.sh (expect wrapper, credentials sourced at runtime from dependingv4/.env.chenyu, never stored)",
+    "result": "BLOCKED - tunnel down: current host channel 'Connection closed by 127.0.0.1 port 7890' (3 attempts), prev host channel same, direct edge IPs refused port",
+    "remote_paths_claimed_by_docs": [
+      "/usrdata/EnzymeCAGE_data/workspaces/dependingv4_v41/runs/enzymecage298/questions.jsonl (CHENYU_ACCESS.md §2/4.1; NOTE: TASK_V43_EC298.md §1.4 records 2026-09-25 live check found this path ABSENT)",
+      "/usrdata/EnzymeCAGE_data/workspaces/ec298_gold_readonly/questions.jsonl (EC298_PHASE_D_RETEST_RAW_RUN_AUDIT_REPORT.md scoring command; mirrors local seal ec298_phase_a_seal/ec298_gold_readonly)"
+    ],
+    "conclusion": "remote live re-verification deferred; local anchors verified against multiple independent copies including Phase-A seal and the 2026-09-28 remote-pulled exam_inputs copy"
+  }
+}

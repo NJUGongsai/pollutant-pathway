@@ -1,0 +1,15 @@
+# 金标零泄漏扫描(2026-10-09, 提交前守门)
+
+方法: 对本批三个交付路径(主报告 / mimo 请求 r25 / 本证据目录两文件)
+做两层扫描, 对照 = ec298_phase_a_seal/ec298_gold_readonly/questions.jsonl
+的 298 题全部 products_smiles(金标产物)与 substrate_smiles(题面底物):
+  1) 子串包含扫描(len>=3): 命中的 'CCCO'/'CCC=O'/'CCCC=O'/'C=O'/'CCC'/
+     'CCCC'/'CCCCO' 均为合成例长分子的内部片段(如 CCCCCC=O 尾部含
+     CCCC=O), 非独立金标取值;
+  2) 整词精确匹配(反引号代码 span 内的 SMILES 形 token 逐一同等
+     比对): 命中 0 0 0 0。
+结论: 交付物中合成例分子(CCO/CC=O/CCOCC/CCCCCC/CCCCCCO/CCCCCC=O)
+均与真实金标集合零整词重叠; 首版曾用 CC(=O)O(乙酸)作合成例, 经
+len>=6 扫描发现与金标撞形后已替换并复扫。金标内容零入仓。
+扫描脚本在 /private/tmp 会话内执行, 不入仓(按本批纪律: 清点脚本
+放 fresh /private/tmp 或证据目录内执行)。

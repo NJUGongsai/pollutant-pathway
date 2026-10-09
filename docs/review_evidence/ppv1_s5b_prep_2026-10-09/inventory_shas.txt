@@ -1,0 +1,37 @@
+# S5b 准备批清点证据(2026-10-09)
+
+环境: macOS darwin27 arm64; repo /Volumes/CC/Enzyme_Agent/dependingv43 @ c91d557 (v4.3, 已推送)
+工具: shasum -a 256 (macOS); ~/miniconda3/envs/depending43/bin/python -B (Python 3.11.16); PYTHONDONTWRITEBYTECODE=1
+纪律: 本目录只含 SHA/计数/字段名/路径/命令记录;金标内容(products_smiles 值/raw_reaction 值/category 取值)零写入。
+
+## 1. 三锚独立重算(2026-10-09)
+```
+a3cb7955c1b9e9c1ae0d70636e9df057a35fc35f311f683835de4f19a02ffd0a  /Volumes/CC/Enzyme_Agent/ENZYMECAGE_POLLUTANT_REACTION_TEST_298_FINAL_V6_PAYLOAD_2026-09-21/ENZYMECAGE_POLLUTANT_REACTION_TEST_298_FINAL_V6_PROVISIONAL_2026-09-21.csv
+a3cb7955c1b9e9c1ae0d70636e9df057a35fc35f311f683835de4f19a02ffd0a  /Volumes/CC/Enzyme_Agent/dependingv4/evaluation/enzymecage_v6/ENZYMECAGE_POLLUTANT_REACTION_TEST_298_FINAL_V6_PAYLOAD_2026-09-21/ENZYMECAGE_POLLUTANT_REACTION_TEST_298_FINAL_V6_PROVISIONAL_2026-09-21.csv
+f89ee00f572cc7786ea932b68e5a874d8a7099239aad7ece4907b2cbc4012ad9  /Volumes/CC/Enzyme_Agent/ENZYMECAGE_POLLUTANT_REACTION_TEST_298_FINAL_V6_PAYLOAD_2026-09-21/ENZYMECAGE_POLLUTANT_REACTION_TEST_298_FINAL_V6_SOURCE_PROVENANCE_2026-09-21.csv
+9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c  /Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/ec298_gold_readonly/questions.jsonl
+9f5955d418c2f3876f13cdc9bebea46a1d545d037b182fa5089f56293ff9211c  /Volumes/CC/Enzyme_Agent/dependingv4/runs/enzymecage298/questions.jsonl
+cb5996c9b960bb4a61fd5747d275077c65ef49bf2cdb74102b9d22dc7f11d703  /Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/dependingv43_dev/runs/ec298_v43r1/exam_inputs.jsonl
+cb5996c9b960bb4a61fd5747d275077c65ef49bf2cdb74102b9d22dc7f11d703  /Volumes/CC/Enzyme_Agent/dependingv43/runs/ec298_pd_retest_pre/local/exam_inputs.remote_copy.jsonl
+cb5996c9b960bb4a61fd5747d275077c65ef49bf2cdb74102b9d22dc7f11d703  /Volumes/CC/Enzyme_Agent/dependingv43/runs/ec298_pd_retest_pre/local/scratch_identity_C0/exam_inputs.jsonl
+cb5996c9b960bb4a61fd5747d275077c65ef49bf2cdb74102b9d22dc7f11d703  /Volumes/CC/Enzyme_Agent/dependingv43/runs/ec298_pd_retest_pre/local/scratch_identity_D3/exam_inputs.jsonl
+d5d1fc4c58072f5ac3b9f2ef3b8f9093bfa74c817edcccebc20bc03766c40dea  /Volumes/CC/Enzyme_Agent/dependingv4/scripts/build_ec298_questions.py
+```
+
+## 2. 提取脚本 SHA 与 stats 文件键
+build_ec298_questions.py SHA256 = d5d1fc4c58072f5ac3b9f2ef3b8f9093bfa74c817edcccebc20bc03766c40dea
+
+## 3. machines-wide 版本歧义扫描(2026-10-09, /Volumes/CC/Enzyme_Agent 全盘)
+```
+questions.jsonl 命中(全盘,含 find 深层遍历): 2 处,SHA 均为 9f5955d4...:
+  /Volumes/CC/Enzyme_Agent/dependingv4/runs/enzymecage298/questions.jsonl
+  /Volumes/CC/Enzyme_Agent/ec298_phase_a_seal/ec298_gold_readonly/questions.jsonl
+exam_inputs*.jsonl 命中: 4 处,SHA 均为 cb5996c9...:
+  ec298_phase_a_seal/dependingv43_dev/runs/ec298_v43r1/exam_inputs.jsonl
+  dependingv43/runs/ec298_pd_retest_pre/local/exam_inputs.remote_copy.jsonl
+  dependingv43/runs/ec298_pd_retest_pre/local/scratch_identity_C0/exam_inputs.jsonl
+  dependingv43/runs/ec298_pd_retest_pre/local/scratch_identity_D3/exam_inputs.jsonl
+V6 题卷 CSV 命中: 2 处(顶层 payload 目录 + dependingv4/evaluation/enzymecage_v6/ 同名 payload 目录),SHA 均为 a3cb7955...
+另: dependingv4/runs/enzymecage298/extraction_stats.json(提取统计,计数级)同目录存在。
+结论: 本机不存在任何与锚不同 SHA 的 298 题卷/questions/exam_inputs 版本,无版本歧义。
+```
