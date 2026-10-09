@@ -415,6 +415,11 @@ def default_pool_provider(config: V43Config | None, *,
        进可执行池**;失败结构化原因计数(不支持层面如实披露);
        **检索序保留**(不按 key 字典序重排 —— 旧实现按 key 排序会无意
        覆盖原检索排名);
+       **W-V3(S5b-pool-pregate-1)**:对齐必要条件前置 —— 模板 lhs
+       元素多重集 ⊄ 底物 ⇒ 编译必 no_alignment(同源 helper
+       ``template_elements_fit``;判据单一来源),在检索层拒、省编译
+       预算;失败仍按 no_alignment 同口径计数(诊断另计
+       ``analog_pregate_skipped``),池成员/失败语义零变化;
     4. 独特净反应槽去重(同签名合并 provenance;首个保留);
     5. **失败补位**:编译失败的候选不占槽 —— raw 前 N 全 unsupported
        而第 N+1 合法时第 N+1 可入池(旧实现 top_k=池宽导致前 8 全败
@@ -481,9 +486,24 @@ def default_pool_provider(config: V43Config | None, *,
             resolver = AnalogSourceResolver(config)
 
             def _compile_analog_refs(refs) -> None:
-                from .s5b_compiler import compile_donor_template
+                from .s5b_compiler import (
+                    compile_donor_template,
+                    template_elements_fit,
+                )
 
                 for ref in refs:
+                    # ---- W-V3(S5b-pool-pregate-1):对齐必要条件前置 ----
+                    # 模板 lhs 元素 ⊄ 底物 ⇒ 编译必 no_alignment(同源
+                    # helper template_elements_fit;判据单一来源,前置
+                    # 只省编译预算,不改池成员/失败原因口径——no_alignment
+                    # 计数含前置拒;诊断另计 analog_pregate_skipped)
+                    if not template_elements_fit(
+                            str(ref.mapped_lhs or ""), substrate):
+                        _record_failure("no_alignment")
+                        diagnostics["analog_pregate_skipped"] = \
+                            int(diagnostics.get("analog_pregate_skipped",
+                                                0)) + 1
+                        continue
                     out = compile_donor_template(
                         mapped_lhs=str(ref.mapped_lhs or ""),
                         mapped_rhs=str(ref.mapped_rhs or ""),

@@ -281,6 +281,31 @@ def score_s5b_batch(
         evaluation_input, reference_graphs=graphs,
         native_export_reader=reader,
         preregistration=normalize_preregistration(prereg))
+    # ---- W-V6.1(mimo r27 判断面一附条件;§9-④ 程序门,随 v3 交付
+    # 工程落地):评分聚合前落程序检查 —— data_scope=real ∧ 任一
+    # pairing basis 非 qid_strict ⇒ S5bScoringError(结构化、机器可读
+    # detail)。与 evaluation-5 代码守卫(评测器内 real 首消费拒
+    # root_identity_fallback)双保险:本门在**判分入口**独立复核
+    # 评测器产出的 bases_by_graph,不依赖评测器内部异常路径;真实批
+    # 判分聚合/落盘前 fail-closed。synthetic 档不受影响(合成回退
+    # basis 聚合照旧)。 ----
+    if data_scope == "real":
+        bases = dict((((output or {}).get("coverage_report") or {})
+                      .get("pairing") or {}).get("bases_by_graph") or {})
+        non_strict = {g: str(b) for g, b in sorted(bases.items())
+                      if str(b) != "qid_strict"}
+        if non_strict:
+            raise S5bScoringError(
+                "data_scope=real 而存在非 qid_strict 的配对 basis(§9-4 "
+                "程序门:真实批须全 qid_strict;判分入口独立复核,先于"
+                "聚合/落盘;与 evaluation-5 首消费守卫双保险)", {
+                    "kind": "s5b_real_pairing_not_all_qid_strict",
+                    "data_scope": data_scope,
+                    "non_qid_strict_bases": non_strict,
+                    "n_graphs": len(bases),
+                    "note": ("预注册 §9-4 配对硬门:coverage_report."
+                             "pairing.bases_by_graph 须全为 qid_strict;"
+                             "synthetic 档回退配对不受本门影响")})
     # ---- 逐题双口径 rank / 桶 ----
     caliber = dict(S5B_DEFAULT_CALIBER_POLICY)
     caliber.update(caliber_policy or {})

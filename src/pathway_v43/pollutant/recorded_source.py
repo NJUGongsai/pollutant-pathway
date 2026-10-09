@@ -59,6 +59,23 @@ RECORDED_SOURCE_VERSION = "s5b-recorded-source-1"
 # 推断映射的子结构同构枚举上限(触顶 ⇒ 歧义披露拒绝,不静默取首解)
 _INFER_MATCH_LIMIT = 200
 
+# ---- W-V2(S5b-recorded-bonddiff-1):有界键差结构对应 ----
+#
+# 尸检(v2 批 L1):116 次 no_structure_correspondence 主因 = any-bond
+# 子结构同构对"键连通性保持"的要求对断键/成键重排与水解型记录过紧
+# (标准两分支:裂解=产物组分 ⊆ donor;加成=donor ⊆ 单一产物组分;
+# 重排/跨组分断裂+新增原子两分支都无法表达)。fallback:删 donor
+# ≤ _INFER_BOND_DIFF_LIMIT 条键后的**允许不连通**查询在产物并集上
+# 匹配 —— 保留原子全覆盖、元素对应、片段内连通保持;被删键 = 允许
+# 的键差(断键或像间重排成键,由 mapped_lhs/rhs 键差推导);未覆盖
+# union 原子 = 新原子(锚定由编译器 W1 #6 规则约束)。预算/歧义披露
+# 不变(枚举触顶 ⇒ truncated 拒;等价映射同目标合并、异目标歧义拒)。
+# 标准(零键差)枚举成功时 fallback 不触发 —— 既有语义逐字节不变。
+_INFER_BOND_DIFF_LIMIT = 2
+# fallback 的查询调用预算(删键组合数上限;超 ⇒ truncated 拒,不静默
+# 缩小枚举面)。原子级预算与 _INFER_MATCH_LIMIT(匹配数)互补。
+_INFER_BOND_DIFF_CALL_LIMIT = 512
+
 # 每进程库索引缓存(1.4MB 文本;hash 锚定后复用)
 _LIBRARY_CACHE: dict = {}
 
@@ -153,6 +170,75 @@ def _mapped_copy(mol, map_of_idx: dict) -> str:
     return Chem.MolToSmiles(out)
 
 
+def _infer_bond_diff_fallback(donor, union) -> list[dict]:
+    """有界键差对应 fallback(W-V2.2;标准枚举为空时才调用)。
+
+    枚举:删 donor 的 1.._INFER_BOND_DIFF_LIMIT 条键(组合序:单键
+    先于双键)⇒ 允许不连通的 any-bond 查询在 union 上匹配;每个
+    match 是一个候选对应(全部 donor 原子均映射、元素对应、片段内
+    连通保持)。被删键 = 允许键差(实际断键/重排由 mapped 双侧键差
+    推导);未覆盖 union 原子 = 新原子。
+
+    预算纪律(与标准分支同源):匹配数 ≤ _INFER_MATCH_LIMIT(每组合);
+    组合调用数 ≤ _INFER_BOND_DIFF_CALL_LIMIT(超 ⇒ 剩余组合不枚举,
+    truncated=True);像去重(不同删键组合可能给出同一像;先到先得,
+    单键组合优先)。产出 mapping 携带 n_bond_diff(删键数,供诊断
+    披露;非机制证据)。
+    """
+    n_donor = donor.GetNumAtoms()
+    n_union = union.GetNumAtoms()
+    bonds = list(donor.GetBonds())
+    from itertools import combinations
+    subsets: list[tuple] = []
+    for k in range(1, _INFER_BOND_DIFF_LIMIT + 1):
+        subsets.extend(combinations(range(len(bonds)), k))
+    mappings: list[dict] = []
+    seen_images: set[tuple] = set()
+    truncated = False
+    calls = 0
+    for subset in subsets:
+        if calls >= _INFER_BOND_DIFF_CALL_LIMIT or \
+                len(mappings) >= _INFER_MATCH_LIMIT:
+            truncated = True
+            break
+        calls += 1
+        q = Chem.RWMol(donor)
+        for b_idx in subset:
+            b = bonds[b_idx]
+            q.RemoveBond(b.GetBeginAtomIdx(), b.GetEndAtomIdx())
+        try:
+            query = _any_bond_query(q.GetMol())
+        except Exception:
+            continue
+        ms = union.GetSubstructMatches(
+            query, uniquify=False, useChirality=False,
+            maxMatches=_INFER_MATCH_LIMIT)
+        for m in ms:
+            image = {d: int(m[d]) for d in range(n_donor)}
+            key = tuple(sorted(image.items()))
+            if key in seen_images:
+                continue
+            seen_images.add(key)
+            covered = set(image.values())
+            new_union = [u for u in range(n_union) if u not in covered]
+            mappings.append({
+                "donor_to_union": image,
+                "new_union": new_union,
+                "removed_donor": [],
+                "truncated": truncated,
+                "n_bond_diff": len(subset)})
+            if len(mappings) >= _INFER_MATCH_LIMIT:
+                truncated = True
+                break
+        if mappings:
+            # 最小键差优先:首个产生像的删键组合已覆盖该键差面;
+            # 更大键差组合仅在更小组合无解时继续(单组合序保证)
+            continue
+    for entry in mappings:
+        entry["truncated"] = truncated or entry["truncated"]
+    return mappings
+
+
 def infer_reaction_mapping(
     donor_smiles: str, product_smiles: list[str],
 ) -> list[dict]:
@@ -169,6 +255,11 @@ def infer_reaction_mapping(
     每个候选 {donor_to_union: {donor_idx: union_idx}, new_union,
     removed_donor, truncated}。约束:元素对应(查询元素标记);不任意
     补原子/删旁群(仅同构像);枚举触顶 ⇒ truncated(调用方拒)。
+
+    **W-V2.2(S5b-recorded-bonddiff-1)**:两个标准策略都无解 ⇒
+    有界键差 fallback(删 donor ≤2 条键的不连通 any-bond 查询在
+    产物并集上匹配;断键/成键重排与跨组分断裂+新增原子的记录恢复
+    对应;预算/歧义披露不变;标准枚举成功时零行为变化)。
     """
     donor = Chem.MolFromSmiles(donor_smiles or "")
     if donor is None:
@@ -197,31 +288,35 @@ def infer_reaction_mapping(
                 query, uniquify=False, useChirality=False,
                 maxMatches=_INFER_MATCH_LIMIT)
             if not ms:
-                return []
+                standard_empty = True
+                break
             comp_matches.append([tuple(m) for m in ms])
-        combos: list[dict] = []
+        else:
+            standard_empty = False
+        if not standard_empty and comp_matches:
+            combos: list[dict] = []
 
-        def _combine(i: int, used: set[int], image: dict) -> None:
-            if len(combos) >= _INFER_MATCH_LIMIT:
-                return
-            if i == len(comps):
-                combos.append(dict(image))
-                return
-            comp_global_offset = offsets[i]
-            for m in comp_matches[i]:
-                if set(m) & used:
-                    continue
-                for q_idx, d_idx in enumerate(m):
-                    image[d_idx] = comp_global_offset + q_idx
-                _combine(i + 1, used | set(m), image)
+            def _combine(i: int, used: set[int], image: dict) -> None:
+                if len(combos) >= _INFER_MATCH_LIMIT:
+                    return
+                if i == len(comps):
+                    combos.append(dict(image))
+                    return
+                comp_global_offset = offsets[i]
+                for m in comp_matches[i]:
+                    if set(m) & used:
+                        continue
+                    for q_idx, d_idx in enumerate(m):
+                        image[d_idx] = comp_global_offset + q_idx
+                    _combine(i + 1, used | set(m), image)
 
-        _combine(0, set(), {})
-        truncated = len(combos) >= _INFER_MATCH_LIMIT
-        for image in combos:
-            removed = [d for d in range(n_donor) if d not in image]
-            mappings.append({"donor_to_union": image, "new_union": [],
-                             "removed_donor": removed,
-                             "truncated": truncated})
+            _combine(0, set(), {})
+            truncated = len(combos) >= _INFER_MATCH_LIMIT
+            for image in combos:
+                removed = [d for d in range(n_donor) if d not in image]
+                mappings.append({"donor_to_union": image, "new_union": [],
+                                 "removed_donor": removed,
+                                 "truncated": truncated})
     else:
         # ---- 加成:donor ⊆ 单一产物组分 ----
         comps = Chem.GetMolFrags(union, asMols=True, sanitizeFrags=True)
@@ -247,6 +342,9 @@ def infer_reaction_mapping(
         truncated = len(mappings) >= _INFER_MATCH_LIMIT
         for entry in mappings:
             entry["truncated"] = truncated
+    if not mappings:
+        # ---- W-V2.2:标准枚举无解 ⇒ 有界键差 fallback ----
+        return _infer_bond_diff_fallback(donor, union)
     return mappings
 
 
@@ -425,6 +523,8 @@ def compile_recorded_reaction(
             alignment_ref=f"recorded-inferred:{record_id}",
             key_prefix="rec")
         if out.get("status") == "compiled":
+            out = dict(out)
+            out["n_bond_diff"] = int(mapping.get("n_bond_diff") or 0)
             compiled_specs.append(out)
         else:
             reasons.add(str(out.get("reason")))
@@ -436,18 +536,33 @@ def compile_recorded_reaction(
                            "all_reasons": sorted(reasons)[:8]}}
     targets = {spec["spec"]["expectation"]["target_smiles"]
                for spec in compiled_specs}
-    if len(targets) > 1:
+    recorded = sorted(x for x in
+                      _record_products_strict(products) if x)
+    # ---- W-V2.3:产物多重集 gate 在**全部候选映射**上评估,择产物集
+    # 可复现者(恰一 executed 组分多重集 == 库记录产物多重集;等价映射
+    # 同集合并取首)。无可复现者:保留原判据 —— 多 distinct 目标 ⇒
+    # ambiguous(歧义披露拒绝);单目标 ⇒ product_set_mismatch(过滤
+    # 缺失/对应错误诚实拒,不冒充完整 record)。
+    reproducible = [
+        spec for spec in compiled_specs
+        if sorted(_executed_components_strict(
+            spec["spec"]["expectation"]["target_smiles"])) == recorded]
+    if reproducible:
+        chosen = reproducible[0]
+    elif len(targets) > 1:
         return {"status": "unsupported", "reason": "ambiguous_mapping",
                 "detail": {"record_id": record_id,
                            "competing_targets": sorted(targets)[:8],
-                           "n_mappings": len(mappings)}}
-    chosen = compiled_specs[0]
+                           "n_mappings": len(mappings),
+                           "n_reproducible": 0,
+                           "note": ("全部候选映射无一复现库记录净产物集合"
+                                    "(歧义不可闭合,拒绝)")}}
+    else:
+        chosen = compiled_specs[0]
     spec = chosen["spec"]
     # ---- strict exact 最终门:执行产物组分 == 库记录产物(多重集) ----
     executed = sorted(_executed_components_strict(
         spec["expectation"]["target_smiles"]))
-    recorded = sorted(x for x in
-                      _record_products_strict(products) if x)
     if executed != recorded:
         return {"status": "unsupported",
                 "reason": "product_set_mismatch",
@@ -456,7 +571,7 @@ def compile_recorded_reaction(
                            "recorded_components": recorded[:8],
                            "note": ("执行产物组分与库记录净产物集合不一致"
                                     "(离去组分缺行/过滤缺失/对应错误;"
-                                    "不冒充完整 record")}}
+                                    "不冒充完整 record)")}}
     spec = dict(spec)
     spec.pop("coefficient", None)  # 库记录无配平系数 ⇒ unknown
     spec["compile"] = dict(spec.get("compile") or {})
@@ -466,6 +581,9 @@ def compile_recorded_reaction(
         "verified_product_set": True,
         "n_mappings": len(mappings),
         "n_equivalent_mappings": len(compiled_specs),
+        # W-V2:有界键差诊断披露(选中的候选映射删键数;0=标准零键差
+        # 对应;非机制证据)
+        "n_bond_diff": int(chosen.get("n_bond_diff") or 0),
     })
     chosen = dict(chosen)
     chosen["spec"] = spec

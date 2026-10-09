@@ -189,8 +189,14 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import datetime, timedelta
 
-from ..domain.models import content_hash, now_iso, stable_id
+from ..domain.models import (
+    content_hash,
+    now_iso,
+    now_iso_hires,
+    stable_id,
+)
 from ..storage.artifact_store import ArtifactIntegrityError
 from .events import PathwayEvent, event_id_for
 from .profile import (
@@ -200,6 +206,32 @@ from .profile import (
     validate_search_limits,
 )
 from .store import PollutantPathwayStore
+
+# ---- W-V1(S5b-submit-order-1):提交序贯彻调度序 ----
+#
+# 尸检坐实(v2 批 295/298,W-V0 独立复现):同 decide 派生的全部
+# expand action 共享**秒级** created_at ⇒ ``ORDER BY created_at,
+# action_id`` 的 tie-break 落到 action_id(``sact_<hash>``)⇒ 取任务
+# 序=哈希序,与 effective_rank 无关 ⇒ 事件提交序=哈希序,主口径
+# hit@K 的位次实际是掷签(反事实重算 hit@1 29→73)。
+#
+# 修复边界(冻结判据零触碰):
+# - 取任务序/候选序判据 ``ORDER BY created_at, action_id`` 与原
+#   scorer ``(created_at, event_id)`` **一字不动**;
+# - 事件侧 store.submit_event 的微秒 created_at(W3)不改;
+# - 修复发生在**入队装配**:enqueue 为 search_actions 行装配本 run
+#   内严格单调递增的**微秒** created_at(真实墙钟优先;快于墙钟的
+#   连续入队 +1µs 递推)⇒ 既有 ORDER BY 自然按调度入队序取任务
+#   (schedule_hypotheses 按 effective_rank 升序入队 ⇒ 取任务序=
+#   调度序 ⇒ 事件提交序=调度序);
+# - 不重排已提交事件、不改 event_id/action_id、不造时间戳回填
+#   (幂等入队 unchanged 分支不触碰已落账 created_at;旧 run 的
+#   秒级行保持原值,新入队时间戳 ≥ 本 run 已落账最大值);
+# - 同 run 严格递增、跨 run 互不依赖(各自取本墙钟/本 run 行集);
+#   并发安全:MAX 读取在 enqueue 的 BEGIN IMMEDIATE 写事务内
+#   (单写者纪律下串行;极限并发退化为 action_id tie-break 旧语义,
+#   不损坏)。
+S5B_SUBMIT_ORDER_POLICY_VERSION = "s5b-submit-order-1"
 
 # ---- 持久对象枚举(schema 固定;语义变更须升版本) ----
 
@@ -670,6 +702,50 @@ class SearchLedger:
         self.artifact_store = artifact_store
         self.run_id = run_id
 
+    # ------------------------------------------------------------ W-V1 时序
+
+    def _next_action_created_at(self, run_id: str) -> str:
+        """本 run 内严格单调递增的微秒 created_at(W-V1:s5b-submit-
+        order-1;**须在 BEGIN IMMEDIATE 写事务内调用**——MAX 读取与
+        INSERT 同事务,单写者纪律下跨进程串行)。
+
+        值 = max(now_iso_hires(), 本 run 已落账最大 created_at + 1µs):
+        - 真实墙钟优先(不造时间;跨 run 互不依赖,各 run 各自取
+          本墙钟);
+        - 快于墙钟的连续入队(同微秒内多次 enqueue)按最大值 +1µs
+          递推 ⇒ 同 run 内**严格递增**(字符串序=时间序,微秒定宽
+          格式);
+        - 旧 run 的秒级行(此前版本写入)参与同一 MAX 比较按解析值
+          对齐(混合格式下字符串 MAX 与时间 MAX 一致;bump 后归一
+          为微秒格式),不重写旧行;
+        - 幂等 unchanged 分支不调用本方法(已落账 created_at 不
+          触碰;崩溃中途恢复重放按本方法语义保持相对次序)。
+
+        调用方:enqueue_action / record_blocked_hypothesis 的
+        INSERT(取任务序 ``ORDER BY created_at, action_id`` 判据
+        不变,天然忠实返回调度入队序)。
+        """
+        now = now_iso_hires()
+        row = self.conn.execute(
+            "SELECT MAX(created_at) AS m FROM search_actions"
+            " WHERE run_id = ?", (run_id,)).fetchone()
+        floor = str(row["m"]) if row is not None and row["m"] else ""
+        if not floor:
+            return now
+        try:
+            floor_dt = datetime.fromisoformat(floor)
+            now_dt = datetime.fromisoformat(now)
+        except ValueError as exc:
+            raise SearchContractError(
+                f"run {run_id} 的 search_actions.created_at 不可解析"
+                f"(账本行损坏;fail-closed 保全):{exc}",
+                {"run_id": run_id, "kind": "action_created_at_corrupt",
+                 "max_created_at": floor[:80]}) from exc
+        if now_dt <= floor_dt:
+            floor_dt = floor_dt + timedelta(microseconds=1)
+            now = floor_dt.isoformat(timespec="microseconds")
+        return now
+
     # ------------------------------------------------------------ 事务
 
     def _begin(self) -> None:
@@ -903,7 +979,10 @@ class SearchLedger:
                  subject_ref, action_kind, int(parent_search_revision),
                  policy_version, initial_status, payload_json,
                  str(task_payload.get("task_key", "")), defer_reason,
-                 now_iso()))
+                 # W-V1(s5b-submit-order-1):本 run 严格单调递增微秒
+                 # created_at(事务内装配;unchanged 幂等分支不触碰
+                 # 已落账时间;取任务序判据不变)
+                 self._next_action_created_at(run_id)))
             self.conn.commit()
         except Exception:
             self.conn.rollback()
@@ -1144,7 +1223,10 @@ class SearchLedger:
                  int(parent_search_revision), policy_version,
                  ACTION_STATUS_BLOCKED, payload_json,
                  str(task_payload.get("task_key", "")), str(blocked_reason),
-                 now_iso()))
+                 # W-V1(s5b-submit-order-1):同 enqueue 单调时序装配
+                 # (blocked 行不入可执行队列,时序同源仅为行集单调
+                 # 一致;unchanged 幂等分支不触碰)
+                 self._next_action_created_at(run_id)))
             self.conn.commit()
         except Exception:
             self.conn.rollback()

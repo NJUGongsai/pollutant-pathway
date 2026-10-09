@@ -667,7 +667,10 @@ class _Driver:
         """在途 action(pending + 本 worker 已认领未完成 —— B1 续跑:
         同 worker 幂等 reclaim 后继续执行;其他 worker 认领的 action
         不在驱动清单内,由其执行方续跑;blocked(含恢复隔离)不执行)。
-        稳定次序:created_at, action_id。"""
+        稳定次序:created_at, action_id(**判据一字不动**;W-V1
+        s5b-submit-order-1 后 created_at 为本 run 严格单调递增微秒
+        装配 ⇒ 本序忠实返回调度入队序=effective_rank 序,同秒
+        action_id 哈希 tie-break 形态消除——事件提交序=调度序)。"""
         rows = self.ledger.conn.execute(
             "SELECT action_id FROM search_actions WHERE run_id = ? AND"
             " (status = ? OR (status = ? AND claimed_by = ?))"

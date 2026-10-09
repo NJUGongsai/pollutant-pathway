@@ -150,6 +150,20 @@ POLLUTANT_PATHWAY_S5B_CODEX_REVIEW §4.1;**仅 real 档配对守卫
   正文/FREEZE_RECORD/path_context 逐字节不改);预注册发车侧
   同步落 ``bases_by_graph`` 全 ``qid_strict`` 核对(见预注册 §9)。
 
+W-V6.2(v3 交付,mimo r27 判断面一附条件;配对唯一消费入口登记):
+
+- ``_pair_exports_to_samples`` 的**全仓唯一活动消费入口 =
+  ``evaluate_scientific``**(配对结果的 real 守卫/样本配对/覆盖
+  披露都在该入口的首消费路径上;AGENTS 返工教训 #1 同规则列全
+  消费入口)。入口矩阵登记:本入口消费 图清单(qid 声明+一致性)、
+  导出条目(qid 声明+run↔qid 绑定)、导出 payload(根严格身份,
+  仅回退档)—— 身份/版本/拒因与 ``PAIRING_BASIS_*`` 常量同源;
+  任何新消费方(判分聚合/导出审计)必须经 ``evaluate_scientific``
+  的产物(``coverage_report.pairing``/样本 ``pairing`` 字段)消费,
+  不得另起直调。锁调用点回归:tests 断言全仓源码中该函数的
+  活动调用恰一处(evaluate_scientific 内;def/注释/文档行除外),
+  防未来绕过(新增第二调用点 ⇒ 测试红,须显式扩本登记)。
+
 本模块不读取真实科学数据/金标/题面/封存 run;不写数据库;合成
 规则级测试之外的数字一律 interface/pending。
 """
@@ -2206,7 +2220,13 @@ def evaluate_scientific(
     # criteria-v2 新化学门;qid 不进化学结构判据,化学匹配/条件/
     # 指标判定零触碰)。合法控制保持:synthetic_rule_level 双无 qid
     # 回退(合成夹具正控)、real 严格 qid 档、qid 缺配 not_evaluated
-    # 与四个既有输入守卫。 ----
+    # 与四个既有输入守卫。
+    # ---- W-V6.3(mimo r27 判断面一附条件,随 v3 交付工程落地):
+    # 触发条件等价性写死 —— 本守卫触发 ⇔ 两个 qid 映射皆空
+    # (manifest_qids 与 export_qids 皆空 ⇒ _pair_exports_to_samples
+    # 整批返回 root_identity_fallback 档)。当前配对档是**整批二档**
+    # (严格 qid / 根回退,无逐图混合);配对档若改逐图混合,本守卫
+    # 须同步改为逐图判定(任一图回退即拒),不得沿用整批判。
     if data_scope == "real" and any(
             info["basis"] == PAIRING_BASIS_ROOT_IDENTITY_FALLBACK
             for info in pairing.values()):
@@ -2220,6 +2240,12 @@ def evaluate_scientific(
                 "kind": "real_data_root_identity_fallback_forbidden",
                 "data_scope": data_scope,
                 "pairing_basis": PAIRING_BASIS_ROOT_IDENTITY_FALLBACK,
+                # W-V6.3:触发等价性机读披露(触发 ⇔ 两个 qid 映射
+                # 皆空;配对档为整批二档,改逐图混合须同步改逐图判)
+                "trigger_equivalence": (
+                    "data_scope=real AND (manifest_qids empty AND "
+                    "export_qids empty) — 整批配对档判定;若配对档改"
+                    "逐图混合,须同步改为逐图判定"),
                 "graphs_without_declared_qid": sorted(graphs),
                 "export_entries_without_declared_qid": sorted(
                     str(entry.get("export_digest"))

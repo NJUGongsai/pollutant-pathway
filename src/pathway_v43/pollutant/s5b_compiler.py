@@ -89,6 +89,34 @@ def _unsupported(reason: str, detail: dict | None = None) -> dict:
             S5B_COMPILER_VERSION}
 
 
+def template_elements_fit(mapped_lhs: str, substrate_smiles: str) -> bool:
+    """对齐必要条件(W-V3:S5b-pool-pregate-1;同源前置门)。
+
+    模板 lhs 的元素多重集 ⊆ 当前底物元素多重集 ⇒ **对齐的必要条件**
+    (不满足 ⇒ 编译必 ``no_alignment``:lhs 原子在底物中不存在)。
+    满足不保证对齐成功(键连通性/部分覆盖仍由 ``compile_donor_template``
+    的完整子结构匹配判定)—— 本 helper 只做前置省编译预算,**判据
+    单一来源:编译层 no_alignment 的必要条件,不新增第二套判据**。
+
+    解析失败 ⇒ True(前置门不拒编译层会拒的东西;fail-open 只对
+    坏输入,坏输入仍由编译层结构化拒)。
+    """
+    try:
+        lhs = Chem.MolFromSmiles(str(mapped_lhs or ""))
+        sub = Chem.MolFromSmiles(str(substrate_smiles or ""))
+        if lhs is None or sub is None:
+            return True
+    except Exception:
+        return True
+    lhs_elems: dict = {}
+    for a in lhs.GetAtoms():
+        lhs_elems[a.GetSymbol()] = lhs_elems.get(a.GetSymbol(), 0) + 1
+    sub_elems: dict = {}
+    for a in sub.GetAtoms():
+        sub_elems[a.GetSymbol()] = sub_elems.get(a.GetSymbol(), 0) + 1
+    return all(lhs_elems[e] <= sub_elems.get(e, 0) for e in lhs_elems)
+
+
 def net_reaction_signature(spec: dict) -> tuple:
     """独特净反应签名(W3/W4 共用去重键):净产品集合严格身份多重集。
 
@@ -521,72 +549,88 @@ def _place_new_atoms(transform, current, map_to_current_id,
     - rhs 新键 aromatic ⇒ 诚实 unsupported(芳香环新合成不在 v2
       编辑协议表达范围)。
     返回 {新增 map 号 → new_atom_id}(供体命名空间 D_<map> 的映射值)。
+
+    W-V2(S5b-recorded-bonddiff-1):**无新增原子时不再早退** —— 纯
+    重排对应(保留原子间断键+成键,如推断映射的有界键差 fallback)
+    的 rhs 新键(端点均为保留原子)同样经 form_bond 落位;旧实现
+    ``if not added: return {}`` 把这类键静默丢弃(推断映射重排在
+    编译层不可表达 —— 已证源码缺口)。
     """
     rhs = transform["rhs"]
     lhs = transform["lhs"]
     added = set(transform["added_maps"])
-    if not added:
-        return {}
-    # rhs 新原子邻接(map 对):新增原子与其全部 rhs 键
-    adj: dict[int, set[int]] = {m: set() for m in added}
-    for b in rhs.mol.GetBonds():
-        ni, nj = (b.GetBeginAtom().GetAtomMapNum(),
-                  b.GetEndAtom().GetAtomMapNum())
-        if ni in added or nj in added:
-            adj.setdefault(ni, set()).add(nj)
-            adj.setdefault(nj, set()).add(ni)
     taken_ids = set(current.atom_id_map)
     new_id_of: dict[int, str] = {}
     anchor_of: dict[int, str] = {}   # 新增 map → 其 add_atom 锚 ID
-    # BFS from 已映射原子(锚点拓扑序)
-    frontier = [m for m in added
-                if any(n not in added for n in adj.get(m, ()))]
-    placed: set[int] = set()
-    while frontier:
-        m = frontier.pop(0)
-        if m in placed:
-            continue
-        anchors = [n for n in adj.get(m, ()) if n not in added]
-        anchor = None
-        for n in anchors:
-            if n in map_to_current_id:
-                anchor = map_to_current_id[n]
-                break
-        if anchor is None:
-            # 无直接锚:是否已落位邻接(新增-新增链)
-            for n in adj.get(m, ()):
-                if n in new_id_of:
-                    anchor = new_id_of[n]
+    if added:
+        # rhs 新原子邻接(map 对):新增原子与其全部 rhs 键
+        adj: dict[int, set[int]] = {m: set() for m in added}
+        for b in rhs.mol.GetBonds():
+            ni, nj = (b.GetBeginAtom().GetAtomMapNum(),
+                      b.GetEndAtom().GetAtomMapNum())
+            if ni in added or nj in added:
+                adj.setdefault(ni, set()).add(nj)
+                adj.setdefault(nj, set()).add(ni)
+        # BFS from 已映射原子(锚点拓扑序)
+        frontier = [m for m in added
+                    if any(n not in added for n in adj.get(m, ()))]
+        placed: set[int] = set()
+        while frontier:
+            m = frontier.pop(0)
+            if m in placed:
+                continue
+            anchors = [n for n in adj.get(m, ()) if n not in added]
+            anchor = None
+            for n in anchors:
+                if n in map_to_current_id:
+                    anchor = map_to_current_id[n]
                     break
-        if anchor is None:
+            if anchor is None:
+                # 无直接锚:是否已落位邻接(新增-新增链)
+                for n in adj.get(m, ()):
+                    if n in new_id_of:
+                        anchor = new_id_of[n]
+                        break
+            if anchor is None:
+                raise S5bCompileError(
+                    f"new_atom_unanchorable:map{m}",
+                    f"新增原子 map {m} 无有依据锚点(不可达已落位原子;"
+                    "不猜落位)",
+                    {"map_no": m})
+            atom = rhs.mol.GetAtomWithIdx(rhs.maps[m])
+            element = atom.GetSymbol()
+            if atom.GetFormalCharge() != 0:
+                raise S5bCompileError(
+                    "new_atom_charge_unsupported",
+                    f"新增原子 map {m} 带形式电荷(协议无电荷 op)",
+                    {"map_no": m})
+            new_id = _new_atom_id(element, taken_ids)
+            taken_ids.add(new_id)
+            new_id_of[m] = new_id
+            anchor_of[m] = anchor
+            placed.add(m)
+            edits.append({"op": "add_atom", "element": element,
+                          "new_atom_id": new_id, "atom1": anchor})
+            for n in adj.get(m, ()):
+                if n in added and n not in placed:
+                    frontier.append(n)
+        if placed != added:
             raise S5bCompileError(
-                f"new_atom_unanchorable:map{m}",
-                f"新增原子 map {m} 无有依据锚点(不可达已落位原子;"
-                "不猜落位)",
-                {"map_no": m})
-        atom = rhs.mol.GetAtomWithIdx(rhs.maps[m])
-        element = atom.GetSymbol()
-        if atom.GetFormalCharge() != 0:
-            raise S5bCompileError(
-                "new_atom_charge_unsupported",
-                f"新增原子 map {m} 带形式电荷(协议无电荷 op)",
-                {"map_no": m})
-        new_id = _new_atom_id(element, taken_ids)
-        taken_ids.add(new_id)
-        new_id_of[m] = new_id
-        anchor_of[m] = anchor
-        placed.add(m)
-        edits.append({"op": "add_atom", "element": element,
-                      "new_atom_id": new_id, "atom1": anchor})
-        for n in adj.get(m, ()):
-            if n in added and n not in placed:
-                frontier.append(n)
-    if placed != added:
-        raise S5bCompileError(
-            "new_atom_placement_incomplete",
-            "新增原子未全部落位(锚点拓扑序未覆盖)",
-            {"unplaced": sorted(added - placed)})
-    # 新成键:rhs 有、lhs 无的 map 对(端点至少一个新增原子或全新)
+                "new_atom_placement_incomplete",
+                "新增原子未全部落位(锚点拓扑序未覆盖)",
+                {"unplaced": sorted(added - placed)})
+    _emit_new_bonds(transform, map_to_current_id, new_id_of, anchor_of,
+                    edits)
+    return new_id_of
+
+
+def _emit_new_bonds(transform, map_to_current_id: dict,
+                    new_id_of: dict, anchor_of: dict,
+                    edits: list[dict]) -> None:
+    """rhs 有、lhs 无的 map 键落位(form_bond + 必要变阶;W-V2:
+    无新增原子时同样执行 —— 保留原子间新成键是重排对应的表达)。"""
+    rhs = transform["rhs"]
+    lhs = transform["lhs"]
     lb = _bond_table_by_map(lhs.mol, lhs.maps)
     rb = _bond_table_by_map(rhs.mol, rhs.maps)
     for key in sorted(set(rb) - set(lb), key=sorted):
@@ -608,15 +652,11 @@ def _place_new_atoms(transform, current, map_to_current_id,
             raise S5bCompileError(
                 f"new_bond_missing_endpoint:map{m1}~map{m2}",
                 "新成键端点无落位", {"map_pair": sorted((m1, m2))})
-        def endpoint_id(m):
-            if m in new_id_of:
-                return new_id_of[m]
-            return map_to_current_id.get(m)
         # add_atom 已接 single 锚定键(新→既有 或 新→已落位新):
         # 该键已存在,不重复 form 同键;仅目标非 single 时变阶
         anchor_bond = (
-            (m1 in new_id_of and anchor_of.get(m1) == endpoint_id(m2))
-            or (m2 in new_id_of and anchor_of.get(m2) == endpoint_id(m1)))
+            (m1 in new_id_of and anchor_of.get(m1) == a2)
+            or (m2 in new_id_of and anchor_of.get(m2) == a1))
         if anchor_bond:
             # add_atom 已接 single 锚定键:不重复 form 同键;目标非
             # single ⇒ 先成 single 再变阶(W1 #6)
@@ -630,7 +670,6 @@ def _place_new_atoms(transform, current, map_to_current_id,
                 edits.append({"op": "change_bond_order", "atom1": a1,
                               "atom2": a2, "from_order": "single",
                               "to_order": orr})
-    return new_id_of
 
 
 # ---------------------------------------------------------------- 主入口
