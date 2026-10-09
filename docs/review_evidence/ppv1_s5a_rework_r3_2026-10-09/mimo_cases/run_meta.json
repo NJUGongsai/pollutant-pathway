@@ -1,0 +1,96 @@
+{
+  "runs": [
+    {
+      "name": "probe_r3 (after tree, review probe byte-faithful)",
+      "scratch": "/private/tmp/ppv1_s5a_r3_mimo_r1_k4q7",
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s5a_r3_mimo_r1_k4q7/package/scripts/probe.py"
+      ],
+      "cwd": "<scratch>/iso",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "<scratch>/iso/src",
+        "PYTEST_ADDOPTS": "-p no:cacheprovider",
+        "CONDA_PREFIX": "/Users/cc/miniconda3/envs/depending43"
+      },
+      "exit_code": 0,
+      "note": "cases 1-3 use the review R3 real public inputs; case 3 (new_id_resealed) flips from accepted to binding-mismatch rejection under r3"
+    },
+    {
+      "name": "cases45_r3 (after tree, contract mode with asserts)",
+      "scratch": "/private/tmp/ppv1_s5a_r3_mimo_r1_k4q7",
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s5a_r3_mimo_r1_k4q7/package/scripts/r3_cases45.py"
+      ],
+      "cwd": "<scratch>/iso",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "<scratch>/iso/src",
+        "PYTEST_ADDOPTS": "-p no:cacheprovider",
+        "CONDA_PREFIX": "/Users/cc/miniconda3/envs/depending43"
+      },
+      "exit_code": 0,
+      "note": "r3-constructed cases 4/5, contract asserts enforced"
+    },
+    {
+      "name": "cases45_r3_observe (after tree, OBSERVE=1)",
+      "scratch": "/private/tmp/ppv1_s5a_r3_mimo_r1_k4q7",
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s5a_r3_mimo_r1_k4q7/package/scripts/r3_cases45.py"
+      ],
+      "cwd": "<scratch>/iso",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "<scratch>/iso/src",
+        "PYTEST_ADDOPTS": "-p no:cacheprovider",
+        "CONDA_PREFIX": "/Users/cc/miniconda3/envs/depending43",
+        "OBSERVE": "1"
+      },
+      "exit_code": 0,
+      "note": "same script with asserts skipped for the observation record; run dirs wiped between invocations (ArtifactStore refuses different-content rewrites)"
+    },
+    {
+      "name": "probe_before (parent 39d739d bytes)",
+      "scratch": "/private/tmp/ppv1_s5a_r3_mimo_before_p39d739d",
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s5a_r3_mimo_before_p39d739d/package/scripts/probe.py"
+      ],
+      "cwd": "<scratch>/iso",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "<scratch>/iso/src",
+        "PYTEST_ADDOPTS": "-p no:cacheprovider",
+        "CONDA_PREFIX": "/Users/cc/miniconda3/envs/depending43"
+      },
+      "exit_code": 0,
+      "note": "before-tree run reproducing the review P1: case 3 accepted, events 0->1"
+    },
+    {
+      "name": "cases45_before_observe (parent bytes, OBSERVE=1)",
+      "scratch": "/private/tmp/ppv1_s5a_r3_mimo_before_p39d739d",
+      "argv": [
+        "/Users/cc/miniconda3/envs/depending43/bin/python",
+        "-B",
+        "/private/tmp/ppv1_s5a_r3_mimo_before_p39d739d/package/scripts/r3_cases45.py"
+      ],
+      "cwd": "<scratch>/iso",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "<scratch>/iso/src",
+        "PYTEST_ADDOPTS": "-p no:cacheprovider",
+        "CONDA_PREFIX": "/Users/cc/miniconda3/envs/depending43",
+        "OBSERVE": "1"
+      },
+      "exit_code": 0,
+      "note": "before-tree case 4 accepted (load + public resume succeed, events 1); case 5 positive control green"
+    }
+  ]
+}

@@ -1,0 +1,358 @@
+[
+  {
+    "order": "known_first",
+    "entry": "typed-direct -> build_path_context -> to_dict/from_dict -> persist_context/load_context",
+    "payload": {
+      "schema_version": "ppv1-context-8",
+      "context_id": "pc_a70da83caa38d8c0a1be",
+      "parent_context_ref": "",
+      "phase_id": "phase-0",
+      "requested_scope": "possible",
+      "condition_facts": [
+        {
+          "key": "electron_acceptor",
+          "value": "O2",
+          "unit": "",
+          "status": "known_present",
+          "origin": "user_input",
+          "source_ref": "src:known",
+          "subject_scenario_ref": "",
+          "phase_id": ""
+        },
+        {
+          "key": "electron_acceptor",
+          "value": "O2",
+          "unit": "",
+          "status": "unknown",
+          "origin": "user_input",
+          "source_ref": "src:unknown",
+          "subject_scenario_ref": "",
+          "phase_id": ""
+        }
+      ],
+      "accumulated_requirements": [
+        {
+          "key": "electron_acceptor",
+          "level": "essential",
+          "value": "O2",
+          "basis": "essential_claimed_by_source",
+          "value_basis": "entity",
+          "source_refs": [
+            "src:synthetic-necessity"
+          ],
+          "applicable_dimensions": [],
+          "observed_source_conditions": [],
+          "note": "",
+          "introduced_phase_id": "phase-0",
+          "introduced_scenario_ref": "",
+          "introduced_edge": ""
+        }
+      ],
+      "assumptions": [],
+      "dependency_refs": [],
+      "dependencies": [],
+      "assessment_scope": [
+        "electron_acceptor"
+      ],
+      "scenario_ref": "",
+      "scenario_transition": null,
+      "phase_history": [],
+      "assessed_scope": "condition_compatible"
+    },
+    "restored_payload": {
+      "schema_version": "ppv1-context-8",
+      "context_id": "pc_a70da83caa38d8c0a1be",
+      "parent_context_ref": "",
+      "phase_id": "phase-0",
+      "requested_scope": "possible",
+      "condition_facts": [
+        {
+          "key": "electron_acceptor",
+          "value": "O2",
+          "unit": "",
+          "status": "known_present",
+          "origin": "user_input",
+          "source_ref": "src:known",
+          "subject_scenario_ref": "",
+          "phase_id": ""
+        },
+        {
+          "key": "electron_acceptor",
+          "value": "O2",
+          "unit": "",
+          "status": "unknown",
+          "origin": "user_input",
+          "source_ref": "src:unknown",
+          "subject_scenario_ref": "",
+          "phase_id": ""
+        }
+      ],
+      "accumulated_requirements": [
+        {
+          "key": "electron_acceptor",
+          "level": "essential",
+          "value": "O2",
+          "basis": "essential_claimed_by_source",
+          "value_basis": "entity",
+          "source_refs": [
+            "src:synthetic-necessity"
+          ],
+          "applicable_dimensions": [],
+          "observed_source_conditions": [],
+          "note": "",
+          "introduced_phase_id": "phase-0",
+          "introduced_scenario_ref": "",
+          "introduced_edge": ""
+        }
+      ],
+      "assumptions": [],
+      "dependency_refs": [],
+      "dependencies": [],
+      "assessment_scope": [
+        "electron_acceptor"
+      ],
+      "scenario_ref": "",
+      "scenario_transition": null,
+      "phase_history": [],
+      "assessed_scope": "condition_compatible"
+    },
+    "assessment": {
+      "per_requirement": [
+        {
+          "key": "electron_acceptor",
+          "level": "essential",
+          "status": "satisfied",
+          "reason": "entity_present:electron_acceptor",
+          "basis": "essential_claimed_by_source",
+          "value_basis": "entity",
+          "sourced": true,
+          "introduced_phase_id": "phase-0",
+          "introduced_edge": "",
+          "fact_sources": [
+            "src:known",
+            "src:unknown"
+          ],
+          "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic-necessity\"],\"value\":\"O2\",\"value_basis\":\"entity\"}"
+        }
+      ],
+      "environment_fit": "compatible",
+      "assessed_scope": "condition_compatible",
+      "assessment_scope": [
+        "electron_acceptor"
+      ],
+      "unassessed_dimensions": [
+        "biotic_abiotic",
+        "inoculum_source",
+        "light_regime",
+        "phase_bioavailability",
+        "redox_regime_eh",
+        "required_trace_elements_cofactors",
+        "salinity_ionic_strength",
+        "substrate_concentration"
+      ],
+      "requirement_coverage": {
+        "essential_keys": [
+          "electron_acceptor"
+        ],
+        "assessed_keys": [
+          "electron_acceptor"
+        ],
+        "satisfied_keys": [
+          "electron_acceptor"
+        ],
+        "covered_keys": [
+          "electron_acceptor"
+        ],
+        "unknown_keys": [],
+        "conflict_keys": []
+      },
+      "preference_notes": [],
+      "declared_scope": [
+        "electron_acceptor"
+      ],
+      "scope_narrowed": false,
+      "scope_narrowed_by": [],
+      "schema_version": "ppv1-condition-assessment-8",
+      "detail": {}
+    },
+    "validated": true,
+    "source_scope": "self-consistent fixture originally created through deliberately unchecked typed fact; not an ordinary checked-plan output"
+  },
+  {
+    "order": "unknown_first",
+    "entry": "typed-direct -> build_path_context -> to_dict/from_dict -> persist_context/load_context",
+    "payload": {
+      "schema_version": "ppv1-context-8",
+      "context_id": "pc_0fc7de50e91da190f350",
+      "parent_context_ref": "",
+      "phase_id": "phase-0",
+      "requested_scope": "possible",
+      "condition_facts": [
+        {
+          "key": "electron_acceptor",
+          "value": "O2",
+          "unit": "",
+          "status": "unknown",
+          "origin": "user_input",
+          "source_ref": "src:unknown",
+          "subject_scenario_ref": "",
+          "phase_id": ""
+        },
+        {
+          "key": "electron_acceptor",
+          "value": "O2",
+          "unit": "",
+          "status": "known_present",
+          "origin": "user_input",
+          "source_ref": "src:known",
+          "subject_scenario_ref": "",
+          "phase_id": ""
+        }
+      ],
+      "accumulated_requirements": [
+        {
+          "key": "electron_acceptor",
+          "level": "essential",
+          "value": "O2",
+          "basis": "essential_claimed_by_source",
+          "value_basis": "entity",
+          "source_refs": [
+            "src:synthetic-necessity"
+          ],
+          "applicable_dimensions": [],
+          "observed_source_conditions": [],
+          "note": "",
+          "introduced_phase_id": "phase-0",
+          "introduced_scenario_ref": "",
+          "introduced_edge": ""
+        }
+      ],
+      "assumptions": [],
+      "dependency_refs": [],
+      "dependencies": [],
+      "assessment_scope": [
+        "electron_acceptor"
+      ],
+      "scenario_ref": "",
+      "scenario_transition": null,
+      "phase_history": [],
+      "assessed_scope": "possible"
+    },
+    "restored_payload": {
+      "schema_version": "ppv1-context-8",
+      "context_id": "pc_0fc7de50e91da190f350",
+      "parent_context_ref": "",
+      "phase_id": "phase-0",
+      "requested_scope": "possible",
+      "condition_facts": [
+        {
+          "key": "electron_acceptor",
+          "value": "O2",
+          "unit": "",
+          "status": "unknown",
+          "origin": "user_input",
+          "source_ref": "src:unknown",
+          "subject_scenario_ref": "",
+          "phase_id": ""
+        },
+        {
+          "key": "electron_acceptor",
+          "value": "O2",
+          "unit": "",
+          "status": "known_present",
+          "origin": "user_input",
+          "source_ref": "src:known",
+          "subject_scenario_ref": "",
+          "phase_id": ""
+        }
+      ],
+      "accumulated_requirements": [
+        {
+          "key": "electron_acceptor",
+          "level": "essential",
+          "value": "O2",
+          "basis": "essential_claimed_by_source",
+          "value_basis": "entity",
+          "source_refs": [
+            "src:synthetic-necessity"
+          ],
+          "applicable_dimensions": [],
+          "observed_source_conditions": [],
+          "note": "",
+          "introduced_phase_id": "phase-0",
+          "introduced_scenario_ref": "",
+          "introduced_edge": ""
+        }
+      ],
+      "assumptions": [],
+      "dependency_refs": [],
+      "dependencies": [],
+      "assessment_scope": [
+        "electron_acceptor"
+      ],
+      "scenario_ref": "",
+      "scenario_transition": null,
+      "phase_history": [],
+      "assessed_scope": "possible"
+    },
+    "assessment": {
+      "per_requirement": [
+        {
+          "key": "electron_acceptor",
+          "level": "essential",
+          "status": "unknown",
+          "reason": "fact_unknown:electron_acceptor",
+          "basis": "essential_claimed_by_source",
+          "value_basis": "entity",
+          "sourced": true,
+          "introduced_phase_id": "phase-0",
+          "introduced_edge": "",
+          "fact_sources": [
+            "src:unknown",
+            "src:known"
+          ],
+          "requirement_signature": "{\"applicable_dimensions\":[],\"basis\":\"essential_claimed_by_source\",\"introduced_edge\":\"\",\"introduced_phase_id\":\"phase-0\",\"introduced_scenario_ref\":\"\",\"key\":\"electron_acceptor\",\"level\":\"essential\",\"note\":\"\",\"observed_source_conditions\":[],\"source_refs\":[\"src:synthetic-necessity\"],\"value\":\"O2\",\"value_basis\":\"entity\"}"
+        }
+      ],
+      "environment_fit": "unknown",
+      "assessed_scope": "possible",
+      "assessment_scope": [
+        "electron_acceptor"
+      ],
+      "unassessed_dimensions": [
+        "biotic_abiotic",
+        "inoculum_source",
+        "light_regime",
+        "phase_bioavailability",
+        "redox_regime_eh",
+        "required_trace_elements_cofactors",
+        "salinity_ionic_strength",
+        "substrate_concentration"
+      ],
+      "requirement_coverage": {
+        "essential_keys": [
+          "electron_acceptor"
+        ],
+        "assessed_keys": [
+          "electron_acceptor"
+        ],
+        "satisfied_keys": [],
+        "covered_keys": [],
+        "unknown_keys": [
+          "electron_acceptor"
+        ],
+        "conflict_keys": []
+      },
+      "preference_notes": [],
+      "declared_scope": [
+        "electron_acceptor"
+      ],
+      "scope_narrowed": false,
+      "scope_narrowed_by": [],
+      "schema_version": "ppv1-condition-assessment-8",
+      "detail": {}
+    },
+    "validated": true,
+    "source_scope": "self-consistent fixture originally created through deliberately unchecked typed fact; not an ordinary checked-plan output"
+  }
+]

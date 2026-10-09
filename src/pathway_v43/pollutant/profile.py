@@ -265,11 +265,28 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # 要求侧单位首消费收口(显式非规范/无量纲键声明单位 ⇒ 映射无合法
 # 表示 ⇒ unknown/unsupported 族 + 机读保留原 unit/value/key;空
 # 单位 canonical-by-key 默认合法)+ B2 文案纠错(同键相反事实两序
-# unknown;known×unknown 按冻结侧首条已知事实;低层 dataclass 次序
-# 边界另列 P2)。reference-graph-1/split-manifest-1 不变(单位是
+# unknown;known×unknown 混合**仅物种键**按冻结侧实体已知事实裁决
+# ——复审 R3 §5 r3 限定;非物种键任一适用 unknown 事实仍
+# condition_unknown;低层 dataclass 次序边界另列 P2)。
+# reference-graph-1/split-manifest-1 不变(单位是
 # 消费侧语义,字段形状零变化);criteria-v1 冻结正文与 FREEZE_
 # RECORD 逐字节不改;S5A-01/03/04、S4/S3、ISO-01 保持关闭不重开。
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-22"
+# -23(S5a 回修 r3,2026-10-09,复审 R3 §4 S5A-05 + §5 五处 P2 文案):
+# 身份块携带 search-production-2(production.load_context 首消费
+# 引用绑定核验:请求 context_ref == 恢复载荷 context_id;旧 ctx:
+# 存储键下的自洽新身份 ⇒ 结构化拒,坏 artifact 保全,不重封覆盖/
+# 不猜迁移/不默发新引用;合法重建新内容新 ID 存新地址沿新引用,
+# 旧引用不复用;正常 resume/子上下文/场景转换保持)+ evaluation-3 /
+# preregistration-template-3 **文本冻结前同步**(复审 R3 §5 五处
+# known×unknown 限定物种键、删合法链"顺序相关"尾巴;condition_
+# unknown 具体枚举、空要求 unit canonical-by-key 代价、value 仅
+# repr 展示、实体事实只证存在不证浓度、指标只分桶且正式分母 TBD
+# 如实披露;不作"声明越具体只能降档"/"分母已定含 unknown"宽泛
+# 承诺;版本号不变 —— 拟冻结前 P2 文字修正,非语义变更,不拒
+# -3 输入)。criteria-v1 冻结正文与 FREEZE_RECORD 逐字节不改;
+# path_context 冻结判决零触碰(绑定守卫在 production 消费侧);
+# S5A-01/02/03/04、S4/S3、ISO-01 保持关闭不重开;S5b 未启动。
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-23"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"

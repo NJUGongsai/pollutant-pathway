@@ -17,8 +17,20 @@ S5a 回修 r2(2026-10-09,复审 R2 §4 唯一残余 P1):模板 -2 → -3,
 condition_policy proposed 文字与实现同真 —— 要求侧单位首消费收口
 (显式非规范/无量纲键声明单位 ⇒ unknown/unsupported 族 + 机读保留
 原 unit/value/key;空单位 canonical-by-key 默认合法)与 B2 事实
-更正(同键相反事实两序 unknown;known×unknown 按首条已知事实;
-低层 dataclass 次序边界另列 P2);全部仍 proposed 不冻结。
+更正(同键相反事实两序 unknown;known×unknown 混合仅物种键按
+实体已知事实裁决 —— 复审 R3 §5 r3 限定;低层 dataclass/restore
+次序边界另列 P2);全部仍 proposed 不冻结。
+
+S5a 回修 r3 文字同步(2026-10-09,复审 R3 §5 五处 P2 之三/之四;
+拟冻结前修正,非语义变更,版本保持 -3):known×unknown 限定物种
+键(非物种键任一适用 unknown 仍 condition_unknown)、删合法链
+"顺序相关"尾巴;补准确披露 —— 单位失败具体枚举 condition_
+unknown、空要求 unit canonical-by-key 约定的误读代价(想写
+298 K 省略 unit ⇒ 按 temperature_C 读 298 °C,不猜意图)、披露
+value 仅 repr 展示串非原生 value_raw、实体事实只证存在不证
+浓度/阈值、指标只分桶且正式分母 TBD(未知桶独立披露,unknown ≠
+无冲突);不作"声明越具体只能降档"/"分母已定包含 unknown"宽泛
+承诺。
 
 S5a 只交付模板与装配/校验程序;**不冻结任何字段取值**(§10.1 全部
 TBD 属用户/teacher 裁定,不得代定;不得从当前 dev 结果反推阈值或
@@ -135,18 +147,30 @@ def build_preregistration_template(*, note: str = "") -> dict:
                      "原文不改写;条件分类沿冻结同源规则(事实侧单位三态"
                      " canonical/source_unit_unknown/unit_mismatch、"
                      "实体/数值/异值 absence 保守语义、同键相反事实保守"
-                     " unknown——known×unknown 混合按冻结侧首条已知"
-                     "事实裁决(合法公共链的 unknown 事实经 checked 构造"
-                     "器值清 None;直接 dataclass 绕过构造器的低层"
-                     "次序差异另列 P2)、necessity 来源、适用场景阶段、"
+                     " unknown——known×unknown 混合仅物种键按冻结侧"
+                     "实体已知事实裁决(present ⇒ compatible、absent ⇒"
+                     " essential_conflict;非物种键任一适用 unknown 事实"
+                     " ⇒ condition_unknown;合法公共链的 unknown 事实经"
+                     " checked 构造器值清 None,两序结果一致;直接"
+                     " dataclass 绕过构造器或 restore 低层直构的次序"
+                     "差异另列 P2,不以文字宣称首消费绑定已通过)、"
+                     "necessity 来源、适用场景阶段、"
                      "声明 value_basis 由同一实现裁决);ConditionScope →"
                      " 冻结 Requirement 的登记映射限定与缺表示能力披露"
                      "随评测契约登记;要求侧单位首消费收口:显式非规范"
                      "单位(温度 K/F)或无量纲键声明单位(物种键 mg/L)"
-                     " ⇒ 无合法冻结表示 ⇒ unknown/unsupported 族并"
-                     "机读保留原 unit/value/key(不做换算、不判相容或"
-                     "冲突);空要求单位按键规范单位约定 canonical-"
-                     "by-key 默认合法;要求侧 known_absent 无冻结"
+                     " ⇒ 无合法冻结表示 ⇒ condition_unknown(具体枚举,"
+                     "机读 reason)并机读保留原 unit/value/key(不做"
+                     "换算、不判相容或冲突;value 披露是 repr 展示串,"
+                     "非原生 value_raw,禁止 eval);空要求单位按键规范"
+                     "单位约定 canonical-by-key 默认合法(代价如实"
+                     "披露:作者想写 298 K 而省略 unit 时只能按"
+                     " temperature_C 读 298 °C,不猜意图);物种键实体"
+                     "事实只证存在、不证浓度/阈值达标;环境指标当前"
+                     "只分桶、无标量分母(未知桶独立披露,unknown ≠"
+                     "无冲突;正式分母 TBD,不作'声明越具体只能降档'"
+                     "或'分母已定包含 unknown'承诺);要求侧 known_absent"
+                     " 无冻结"
                      "负要求表示 ⇒ 单列不判冲突(负要求语义属用户/"
                      "teacher 裁定)")},
         "unknown_partial_policy": {

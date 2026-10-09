@@ -1,0 +1,29 @@
+{
+  "requirement": {
+    "key": "electron_acceptor",
+    "value_or_interval": "O2",
+    "unit": "",
+    "status": "known_present",
+    "required": "essential",
+    "source_refs": [
+      "src:synthetic-requirement"
+    ],
+    "subject_scenario_ref": ""
+  },
+  "fact": {
+    "key": "electron_acceptor",
+    "value": "O2",
+    "unit": "mg/L",
+    "status": "known_present",
+    "source_ref": "src:synthetic-fact"
+  },
+  "result": {
+    "key": "electron_acceptor",
+    "required": "essential",
+    "classification": "compatible",
+    "frozen_status": "satisfied",
+    "reason": "entity_present:electron_acceptor",
+    "mapping_disclosures": []
+  },
+  "scope": "public single-condition classification; entity presence only, no concentration threshold claimed"
+}

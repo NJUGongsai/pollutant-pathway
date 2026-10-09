@@ -72,12 +72,36 @@ ppv1-evaluation-3):
   裁决 —— 要求侧 canonical-by-key 默认与事实侧来源单位三态
   分立(事实侧 temperature 缺单位仍 unknown);公共单条分类、
   sample 分类与聚合同源消费(桶自动传导);
-- **B2 文案纠错(与实现同真)**:合法公共链的 unknown 事实经
+- **B2 文案纠错(与实现同真;S5a r3 复审 R3 §5 限定物种键并删
+  合法链"顺序相关"尾巴)**:合法公共链的 unknown 事实经
   checked ``build_condition_fact`` 值清 None(不带身份)⇒ 同键
   **相反** present×absent 事实两序均 unknown;known×unknown 混合
-  按冻结侧首条已知事实裁决(既有实现,顺序相关);直接
-  dataclass 绕过 checked 构造器的低层次序差异是支持边界,另列
-  P2 不属本契约(改冻结侧物种语义归用户/teacher 裁定)。
+  **仅物种键**(electron_acceptor/electron_donor/growth_
+  substrate 等实体键)按冻结侧实体已知事实裁决(present ⇒
+  compatible、absent ⇒ essential_conflict),**非物种键(数值/
+  枚举/标签)任一适用 unknown 事实 ⇒ condition_unknown**;合法
+  checked 链两序结果一致(实测 20 对照),无合法链顺序差异;
+  直接 dataclass 绕过 checked 构造器或 restore 低层直构的次序
+  语义是已登记支持边界 P2,不属本契约,不以文字宣称首消费绑定
+  已通过(改冻结侧物种语义归用户/teacher 裁定)。
+
+S5a 回修 r3 文字同步(复审 R3 §5 五处 P2 之一/之二,拟冻结前
+修正,非语义变更,版本保持 ppv1-evaluation-3):
+
+- 单位失败的具体枚举是 ``condition_unknown``(带机读 reason),
+  不用 unknown/unsupported 族名冒充具体桶;
+- 空要求 unit 的 canonical-by-key 约定有如实代价:作者实际想写
+  298 K 而省略 unit 时,程序只能按 temperature_C 声明读 298 °C
+  ——不猜作者意图,不把空单位全面降 unknown;
+- 单位/事实披露的 value 是 ``repr(raw_value)`` 展示串,不是
+  JSON 原生 value_raw 字段(value_raw 尚未实现;禁止 eval 展示
+  串);
+- 物种键实体事实只证实体**存在**,不证浓度/阈值达标;
+- environment_conflict_rate 当前只分桶、无标量分母;未知桶独立
+  披露,unknown ≠ 无冲突;正式分母属 TBD_USER_TEACHER_DECISION,
+  不从桶数自行承诺冲突率。不作"所有声明越具体只能降档"或
+  "分母已定包含 unknown"的宽泛承诺(仅固定其他输入、空 unit →
+  显式不支持 unit 一组行为可证)。
 
 本模块不读取真实科学数据/金标/题面/封存 run;不写数据库;合成
 规则级测试之外的数字一律 interface/pending。
@@ -1133,11 +1157,15 @@ def _classify_condition_requirement_detailed(
 
     消费**冻结同源规则**(path_context 的 ``aggregate_environment_``
     ``fit``/``_assess_requirement`` —— 事实侧单位三态、实体/数值/
-    异值 absence、同键相反事实保守 unknown(B2 更正:known×unknown
-    混合按冻结侧首条已知事实裁决,顺序相关;合法公共链的 unknown
-    事实经 checked ``build_condition_fact`` 值清 None 不带身份;直接
-    dataclass 绕过 checked 构造器的低层次序差异是支持边界,另列
-    P2 不属本契约)、necessity 来源、适用场景/阶段、声明
+    异值 absence、同键相反事实保守 unknown(B2 更正,S5a r3 复审
+    R3 §5 限定:known×unknown 混合**仅物种键**按冻结侧实体已知
+    事实裁决(present ⇒ compatible、absent ⇒ essential_conflict);
+    **非物种键任一适用 unknown 事实 ⇒ condition_unknown**;合法
+    公共链的 unknown 事实经 checked ``build_condition_fact`` 值清
+    None 不带身份,两序结果一致(无合法链顺序差异);直接
+    dataclass 绕过 checked 构造器或 restore 低层直构的次序语义是
+    已登记支持边界 P2,另列不属本契约,不以文字宣称首消费绑定
+    已通过)、necessity 来源、适用场景/阶段、声明
     value_basis 全部由同一实现裁决,评测侧不再另写字符串首条规则):
 
     - 冻结 satisfied → ``compatible``;conflict → ``essential_conflict``

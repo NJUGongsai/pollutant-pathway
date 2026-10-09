@@ -1,0 +1,85 @@
+{
+  "command": [
+    "/Users/cc/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_ppv1_s5a_rework_r3.py",
+    "tests/test_ppv1_s5a_rework_r2.py",
+    "tests/test_ppv1_s5a_rework_r1.py",
+    "tests/test_ppv1_profile.py",
+    "tests/test_ppv1_s4b_export.py",
+    "tests/test_ppv1_s5a_schema.py",
+    "-q",
+    "--junitxml",
+    "/private/tmp/ppv1_s5a_r3_evidence/parent_baseline/junit.xml"
+  ],
+  "cwd": "/private/tmp/ppv1_s5a_r3_evidence/parent_39d739d",
+  "pinned_environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/private/tmp/ppv1_s5a_r3_evidence/parent_39d739d/src",
+    "PATH": "/Users/cc/.opencode/bin:/Users/cc/miniconda3/bin:/Users/cc/miniconda3/condabin:/Users/cc/.local/bin:/Users/cc/homebrew/bin:/Users/cc/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ZCode.app/Contents/Resources/tools/bfs:/Applications/ZCode.app/Contents/Resources/tools/ripgrep:/Applications/ZCode.app/Contents/Resources/tools/ugrep"
+  },
+  "exit_code": 1,
+  "summary_lines": [
+    "12 failed, 123 passed, 1 warning in 5.45s",
+    "EXIT=1"
+  ],
+  "failed_nodeids": [
+    "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case3_self_consistent_new_id_old_address_rejected",
+    "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case4_checked_legal_new_content_old_address_rejected",
+    "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case3_public_new_id_old_address_rejected",
+    "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case4_public_checked_legal_old_address_rejected",
+    "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_endpoint_entries_reuse_common_guard",
+    "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_entry_matrix_static_guard",
+    "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_contract_version_registration_and_frozen_integrity",
+    "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_p2_text_sync_species_key_limitation",
+    "tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity",
+    "tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration",
+    "tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions",
+    "tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest"
+  ],
+  "error_nodeids": [],
+  "stdout_sha256": "243c2b42272c508af045924132c5082d4d3da56b83d6a100c8538f6a2e81c757",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "junit_sha256": "6b3184e90ea7700a52699852f4023e4bb850d84626c2ba901bfbbdf81a7e4bba",
+  "test_file_count": 6,
+  "worktree": {
+    "head": "39d739d04f9b3e6e7ad78cb0ec5f1547ac54c962",
+    "mode": "detached git worktree, src/tests/pyproject same-byte as the r2 baseline commit; the six current new/updated test files copied over the parent test bytes (the current tests run against parent src)",
+    "copied_test_files": [
+      "tests/test_ppv1_s5a_rework_r3.py",
+      "tests/test_ppv1_s5a_rework_r2.py",
+      "tests/test_ppv1_s5a_rework_r1.py",
+      "tests/test_ppv1_profile.py",
+      "tests/test_ppv1_s4b_export.py",
+      "tests/test_ppv1_s5a_schema.py"
+    ]
+  },
+  "red_classification": {
+    "behavior_red": [
+      "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case3_self_consistent_new_id_old_address_rejected",
+      "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case4_checked_legal_new_content_old_address_rejected",
+      "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case3_public_new_id_old_address_rejected",
+      "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case4_public_checked_legal_old_address_rejected",
+      "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_endpoint_entries_reuse_common_guard"
+    ],
+    "field_red": [
+      "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_entry_matrix_static_guard",
+      "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_p2_text_sync_species_key_limitation"
+    ],
+    "version_literal_red": [
+      "tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_contract_version_registration_and_frozen_integrity",
+      "tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity",
+      "tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration",
+      "tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions",
+      "tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest"
+    ],
+    "collection_red": [],
+    "observed_equals_declared": true,
+    "undeclared_observed": [],
+    "declared_not_observed": []
+  }
+}

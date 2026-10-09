@@ -1,0 +1,1242 @@
+[
+  {
+    "key": "electron_acceptor",
+    "known_status": "known_present",
+    "order": "known_first",
+    "requirement": {
+      "key": "electron_acceptor",
+      "value_or_interval": "O2",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "electron_acceptor",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "electron_acceptor",
+      "required": "essential",
+      "classification": "compatible",
+      "frozen_status": "satisfied",
+      "reason": "entity_present:electron_acceptor",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "electron_acceptor",
+    "known_status": "known_present",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "electron_acceptor",
+      "value_or_interval": "O2",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "electron_acceptor",
+      "required": "essential",
+      "classification": "compatible",
+      "frozen_status": "satisfied",
+      "reason": "entity_present:electron_acceptor",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "electron_acceptor",
+    "known_status": "known_absent",
+    "order": "known_first",
+    "requirement": {
+      "key": "electron_acceptor",
+      "value_or_interval": "O2",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "known_absent",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "known_absent",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "electron_acceptor",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "electron_acceptor",
+      "required": "essential",
+      "classification": "essential_conflict",
+      "frozen_status": "conflict",
+      "reason": "required_entity_known_absent:electron_acceptor",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "electron_acceptor",
+    "known_status": "known_absent",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "electron_acceptor",
+      "value_or_interval": "O2",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "known_absent",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "unit": "",
+        "status": "known_absent",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "electron_acceptor",
+      "required": "essential",
+      "classification": "essential_conflict",
+      "frozen_status": "conflict",
+      "reason": "required_entity_known_absent:electron_acceptor",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "electron_donor",
+    "known_status": "known_present",
+    "order": "known_first",
+    "requirement": {
+      "key": "electron_donor",
+      "value_or_interval": "acetate",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "electron_donor",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "electron_donor",
+      "required": "essential",
+      "classification": "compatible",
+      "frozen_status": "satisfied",
+      "reason": "entity_present:electron_donor",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "electron_donor",
+    "known_status": "known_present",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "electron_donor",
+      "value_or_interval": "acetate",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "electron_donor",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "electron_donor",
+      "required": "essential",
+      "classification": "compatible",
+      "frozen_status": "satisfied",
+      "reason": "entity_present:electron_donor",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "electron_donor",
+    "known_status": "known_absent",
+    "order": "known_first",
+    "requirement": {
+      "key": "electron_donor",
+      "value_or_interval": "acetate",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "known_absent",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "known_absent",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "electron_donor",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "electron_donor",
+      "required": "essential",
+      "classification": "essential_conflict",
+      "frozen_status": "conflict",
+      "reason": "required_entity_known_absent:electron_donor",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "electron_donor",
+    "known_status": "known_absent",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "electron_donor",
+      "value_or_interval": "acetate",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "known_absent",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "electron_donor",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "electron_donor",
+        "value": "acetate",
+        "unit": "",
+        "status": "known_absent",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "electron_donor",
+      "required": "essential",
+      "classification": "essential_conflict",
+      "frozen_status": "conflict",
+      "reason": "required_entity_known_absent:electron_donor",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "growth_substrate",
+    "known_status": "known_present",
+    "order": "known_first",
+    "requirement": {
+      "key": "growth_substrate",
+      "value_or_interval": "glucose",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "growth_substrate",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "growth_substrate",
+      "required": "essential",
+      "classification": "compatible",
+      "frozen_status": "satisfied",
+      "reason": "entity_present:growth_substrate",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "growth_substrate",
+    "known_status": "known_present",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "growth_substrate",
+      "value_or_interval": "glucose",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "growth_substrate",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "growth_substrate",
+      "required": "essential",
+      "classification": "compatible",
+      "frozen_status": "satisfied",
+      "reason": "entity_present:growth_substrate",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "growth_substrate",
+    "known_status": "known_absent",
+    "order": "known_first",
+    "requirement": {
+      "key": "growth_substrate",
+      "value_or_interval": "glucose",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "known_absent",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "known_absent",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "growth_substrate",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "growth_substrate",
+      "required": "essential",
+      "classification": "essential_conflict",
+      "frozen_status": "conflict",
+      "reason": "required_entity_known_absent:growth_substrate",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "growth_substrate",
+    "known_status": "known_absent",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "growth_substrate",
+      "value_or_interval": "glucose",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "known_absent",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "growth_substrate",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "growth_substrate",
+        "value": "glucose",
+        "unit": "",
+        "status": "known_absent",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "growth_substrate",
+      "required": "essential",
+      "classification": "essential_conflict",
+      "frozen_status": "conflict",
+      "reason": "required_entity_known_absent:growth_substrate",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "temperature_C",
+    "known_status": "known_present",
+    "order": "known_first",
+    "requirement": {
+      "key": "temperature_C",
+      "value_or_interval": "25",
+      "unit": "C",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "temperature_C",
+        "value": 25,
+        "unit": "C",
+        "status": "known_present",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "temperature_C",
+        "value": 25,
+        "unit": "C",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "temperature_C",
+        "value": 25,
+        "unit": "C",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "temperature_C",
+        "value": null,
+        "unit": "C",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "temperature_C",
+      "required": "essential",
+      "classification": "condition_unknown",
+      "frozen_status": "unknown",
+      "reason": "fact_unknown:temperature_C",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "temperature_C",
+    "known_status": "known_present",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "temperature_C",
+      "value_or_interval": "25",
+      "unit": "C",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "temperature_C",
+        "value": 25,
+        "unit": "C",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "temperature_C",
+        "value": 25,
+        "unit": "C",
+        "status": "known_present",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "temperature_C",
+        "value": null,
+        "unit": "C",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "temperature_C",
+        "value": 25,
+        "unit": "C",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "temperature_C",
+      "required": "essential",
+      "classification": "condition_unknown",
+      "frozen_status": "unknown",
+      "reason": "fact_unknown:temperature_C",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "pH",
+    "known_status": "known_present",
+    "order": "known_first",
+    "requirement": {
+      "key": "pH",
+      "value_or_interval": "7",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "pH",
+        "value": 7,
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "pH",
+        "value": 7,
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "pH",
+        "value": 7,
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "pH",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "pH",
+      "required": "essential",
+      "classification": "condition_unknown",
+      "frozen_status": "unknown",
+      "reason": "fact_unknown:pH",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "pH",
+    "known_status": "known_present",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "pH",
+      "value_or_interval": "7",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "pH",
+        "value": 7,
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "pH",
+        "value": 7,
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "pH",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "pH",
+        "value": 7,
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "pH",
+      "required": "essential",
+      "classification": "condition_unknown",
+      "frozen_status": "unknown",
+      "reason": "fact_unknown:pH",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "oxygen_regime",
+    "known_status": "known_present",
+    "order": "known_first",
+    "requirement": {
+      "key": "oxygen_regime",
+      "value_or_interval": "aerobic",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "oxygen_regime",
+        "value": "aerobic",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "oxygen_regime",
+        "value": "aerobic",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "oxygen_regime",
+        "value": "aerobic",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "oxygen_regime",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "oxygen_regime",
+      "required": "essential",
+      "classification": "condition_unknown",
+      "frozen_status": "unknown",
+      "reason": "fact_unknown:oxygen_regime",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "oxygen_regime",
+    "known_status": "known_present",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "oxygen_regime",
+      "value_or_interval": "aerobic",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "oxygen_regime",
+        "value": "aerobic",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "oxygen_regime",
+        "value": "aerobic",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "oxygen_regime",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "oxygen_regime",
+        "value": "aerobic",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "oxygen_regime",
+      "required": "essential",
+      "classification": "condition_unknown",
+      "frozen_status": "unknown",
+      "reason": "fact_unknown:oxygen_regime",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "matrix",
+    "known_status": "known_present",
+    "order": "known_first",
+    "requirement": {
+      "key": "matrix",
+      "value_or_interval": "activated_sludge",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "matrix",
+        "value": "activated_sludge",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      },
+      {
+        "key": "matrix",
+        "value": "activated_sludge",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "matrix",
+        "value": "activated_sludge",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "matrix",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "matrix",
+      "required": "essential",
+      "classification": "condition_unknown",
+      "frozen_status": "unknown",
+      "reason": "fact_unknown:matrix",
+      "mapping_disclosures": []
+    }
+  },
+  {
+    "key": "matrix",
+    "known_status": "known_present",
+    "order": "unknown_first",
+    "requirement": {
+      "key": "matrix",
+      "value_or_interval": "activated_sludge",
+      "unit": "",
+      "status": "known_present",
+      "required": "essential",
+      "source_refs": [
+        "src:synthetic-requirement"
+      ],
+      "subject_scenario_ref": ""
+    },
+    "raw_facts": [
+      {
+        "key": "matrix",
+        "value": "activated_sludge",
+        "unit": "",
+        "status": "unknown",
+        "source_ref": "src:unknown"
+      },
+      {
+        "key": "matrix",
+        "value": "activated_sludge",
+        "unit": "",
+        "status": "known_present",
+        "source_ref": "src:known"
+      }
+    ],
+    "checked_facts": [
+      {
+        "key": "matrix",
+        "value": null,
+        "unit": "",
+        "status": "unknown",
+        "origin": "user_input",
+        "source_ref": "src:unknown",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      },
+      {
+        "key": "matrix",
+        "value": "activated_sludge",
+        "unit": "",
+        "status": "known_present",
+        "origin": "user_input",
+        "source_ref": "src:known",
+        "subject_scenario_ref": "",
+        "phase_id": ""
+      }
+    ],
+    "result": {
+      "key": "matrix",
+      "required": "essential",
+      "classification": "condition_unknown",
+      "frozen_status": "unknown",
+      "reason": "fact_unknown:matrix",
+      "mapping_disclosures": []
+    }
+  }
+]

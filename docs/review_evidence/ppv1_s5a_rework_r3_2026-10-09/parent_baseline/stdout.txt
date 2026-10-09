@@ -1,0 +1,325 @@
+..FF...FF.FFFF.................F........................................ [ 53%]
+.F..F....................F.....................................          [100%]
+=================================== FAILURES ===================================
+________ test_s5a_r3_case3_self_consistent_new_id_old_address_rejected _________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-522/test_s5a_r3_case3_self_consist0')
+
+    def test_s5a_r3_case3_self_consistent_new_id_old_address_rejected(
+            tmp_path) -> None:
+        """案 3(原反例翻转):直构 unknown+实体值的自洽新 context_id +
+        重封 H07,但旧 ctx: 存储键 ⇒ 首消费 ``context_reference_binding_
+        mismatch``;披露期望引用/实际身份;坏 artifact 保全(字节等于
+        突变形态);无新引用签发(不新增 ctx 文件)。父上 load 成功 ⇒
+        行为红。"""
+        artifacts = ArtifactStore(tmp_path / "runs", "r3c3")
+        context = build_path_context(
+            condition_facts=_base_facts(),
+            accumulated_requirements=[_req()],
+            assessment_scope=["electron_acceptor"])
+        ref = persist_context(artifacts, context)
+        mutation, new_id = _mutate_self_consistent_new_id(artifacts, ref)
+        assert new_id != ref
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_s5a_rework_r3.py:291: Failed
+_______ test_s5a_r3_case4_checked_legal_new_content_old_address_rejected _______
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-522/test_s5a_r3_case4_checked_lega0')
+
+    def test_s5a_r3_case4_checked_legal_new_content_old_address_rejected(
+            tmp_path) -> None:
+        """案 4(本轮自构造,复审未执行的建议补控):checked 正规合法
+        新内容(build_path_context 产物,全部事实经 checked 构造器)+
+        自洽新 context_id,写入**旧地址** ⇒ 同样 binding mismatch 拒
+        (内容合法不豁免地址绑定);同一载荷存自己的新地址可正常消费
+        (冻结判据四"重建半边"的合法半边)。父上旧地址 load 成功 ⇒
+        行为红。"""
+        artifacts = ArtifactStore(tmp_path / "runs", "r3c4")
+        context = build_path_context(
+            condition_facts=_base_facts(),
+            accumulated_requirements=[_req()],
+            assessment_scope=["electron_acceptor"])
+        ref = persist_context(artifacts, context)
+        # checked 正规合法新内容:合法重建的语义上下文(新增一条已知道)
+        legal_new = build_path_context(
+            condition_facts=[build_condition_fact(
+                key="electron_acceptor", value="O2",
+                status="known_present", source_ref="src:synthetic-present-2")],
+            accumulated_requirements=[_req()],
+            assessment_scope=["electron_acceptor"])
+        assert legal_new.context_id != ref
+        mutation = _mutate_checked_legal_new_content(
+            artifacts, ref, legal_new.to_dict())
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_s5a_rework_r3.py:331: Failed
+_____________ test_s5a_r3_case3_public_new_id_old_address_rejected _____________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-522/test_s5a_r3_case3_public_new_i0')
+
+    def test_s5a_r3_case3_public_new_id_old_address_rejected(
+            tmp_path) -> None:
+        """案 3(公共链,原反例翻转):自洽新 context_id + 重封 H07 但旧
+        ctx 存储键 ⇒ 公开 resume **首消费拒**(context_reference_binding_
+        mismatch 上抛,不吞);不派生/评估/audit/提交坏上下文事件
+        (events 0);坏 artifact 保全;无新引用签发(ctx 文件集合不变);
+        无关 retrieve/claim 写入逐表披露。父上 resume 成功且 events 0→1
+        ⇒ 行为红。"""
+        runs_root = tmp_path / "runs"
+        run_id = "r3pc3"
+        artifacts = _start_after_claim(runs_root, run_id)
+        files = _ctx_files(artifacts)
+        assert len(files) == 1
+        ref = json.loads(files[0].read_text(
+            encoding="utf-8"))["payload"]["context_id"]
+        mutation, new_id = _mutate_self_consistent_new_id(artifacts, ref)
+        before = _table_snapshot(runs_root / run_id / "pollutant.sqlite")
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_s5a_rework_r3.py:457: Failed
+_________ test_s5a_r3_case4_public_checked_legal_old_address_rejected __________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-522/test_s5a_r3_case4_public_check0')
+
+    def test_s5a_r3_case4_public_checked_legal_old_address_rejected(
+            tmp_path) -> None:
+        """案 4(公共链,自构造):checked 正规合法新内容 + 新 context_id
+        写旧地址 ⇒ 公开 resume 同样首消费拒 binding mismatch;events 0;
+        坏(合法载荷占旧地址)artifact 保全。父上 resume 成功 ⇒ 行为红。"""
+        runs_root = tmp_path / "runs"
+        run_id = "r3pc4"
+        artifacts = _start_after_claim(runs_root, run_id)
+        ref = json.loads(_ctx_files(artifacts)[0].read_text(
+            encoding="utf-8"))["payload"]["context_id"]
+        legal_new = build_path_context(
+            condition_facts=[build_condition_fact(
+                key="electron_acceptor", value="O2",
+                status="known_present", source_ref="src:synthetic-present-2")],
+            accumulated_requirements=[_req()],
+            assessment_scope=["electron_acceptor"])
+        assert legal_new.context_id != ref
+        mutation = _mutate_checked_legal_new_content(
+            artifacts, ref, legal_new.to_dict())
+        before = _table_snapshot(runs_root / run_id / "pollutant.sqlite")
+>       with pytest.raises(ConditionContractError) as ei:
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_s5a_rework_r3.py:500: Failed
+_______________ test_s5a_r3_endpoint_entries_reuse_common_guard ________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-522/test_s5a_r3_endpoint_entries_r0')
+
+    def test_s5a_r3_endpoint_entries_reuse_common_guard(tmp_path) -> None:
+        """入口矩阵(endpoint 三处):坏上下文(新 ID 占旧地址)在
+        endpoint 派生消费同样被共同守卫拒 —— F02 依赖继承与条件评估
+        包成 ``endpoint_context_consumption_failed``(错误文本披露绑定
+        kind);条件快照直构入口直接上抛 binding mismatch。父上共同
+        load 返回新身份 ⇒ 消费不拒,行为红。"""
+        runs_root = tmp_path / "runs"
+        run_id = "r3ep"
+        artifacts = _start_after_claim(runs_root, run_id)
+        ref = json.loads(_ctx_files(artifacts)[0].read_text(
+            encoding="utf-8"))["payload"]["context_id"]
+        _mutate_self_consistent_new_id(artifacts, ref)
+        # 让 resume 走到首消费拒(decide 落账携带旧 context_ref)
+>       with pytest.raises(ConditionContractError):
+E       Failed: DID NOT RAISE ConditionContractError
+
+tests/test_ppv1_s5a_rework_r3.py:598: Failed
+____________________ test_s5a_r3_entry_matrix_static_guard _____________________
+
+    def test_s5a_r3_entry_matrix_static_guard() -> None:
+        """入口矩阵守门(静态):三个 runflow 执行入口(decide/expand/
+        scenario_transition)与三个 endpoint 派生入口全部经
+        production.load_context 同一守卫;production 侧含引用绑定核验;
+        runflow/endpoint/search/path_context/store 本轮零源码触碰。"""
+        runflow_src = (_SRC / "runflow.py").read_text(encoding="utf-8")
+        endpoint_src = (_SRC / "endpoint.py").read_text(encoding="utf-8")
+        production_src = (_SRC / "production.py").read_text(encoding="utf-8")
+        # runflow:三个执行入口各自调用共同 load_context(decide/expand/
+        # transition 的 receipt context_ref)
+        assert runflow_src.count("load_context(self.ledger.artifact_store") == 3
+        assert "from .production import" in runflow_src
+        # endpoint:三个派生入口(依赖继承/条件评估/条件快照)
+        assert endpoint_src.count(
+            "context = load_context(ledger.artifact_store, context_ref)") \
+            + endpoint_src.count(
+                "context = load_context(ledger.artifact_store, str(row"
+                "[\"context_ref\"]))") == 3
+        # production:共同守卫含首消费引用绑定核验与结构化披露
+>       assert "context_reference_binding_mismatch" in production_src
+E       assert 'context_reference_binding_mismatch' in '"""S3b 生产链 —— 固定 AtomTool → 供体诊断 → center evidence converter →\naudit → admission → 事件提交(实施书 §6.1;契约随 search-5 登记)。\n...projection.to_dict(),\n        child_depth=child_depth,\n        parent_search_revision=int(parent_search_revision))\n'
+
+tests/test_ppv1_s5a_rework_r3.py:643: AssertionError
+________ test_s5a_r3_contract_version_registration_and_frozen_integrity ________
+
+    @pytest.mark.skipif(
+        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),
+        reason="frozen criteria text not copied into allowlisted isolation "
+               "trees (G01 boundary); byte integrity verified at the "
+               "evidence level (shasum in review_evidence package)")
+    def test_s5a_r3_contract_version_registration_and_frozen_integrity() \
+            -> None:
+        """S5a 回修 r3:production 链 -1→-2(S5A-05 首消费引用绑定,由
+        search-production-2 承载)、profile -22→-23(聚合登记);evaluation-3
+        / template-3 **版本号不变**(五处 known×unknown 限定物种键等 P2
+        文案为拟冻结前同步,非语义变更);reference-graph-1/split-manifest-1
+        不变;criteria-v1 冻结正文/FREEZE_RECORD/path_context 冻结判决
+        逐字节不改(绑定守卫在 production 消费侧)。"""
+>       assert SEARCH_PRODUCTION_VERSION == "ppv1-search-production-2"
+E       AssertionError: assert 'ppv1-search-production-1' == 'ppv1-search-production-2'
+E         
+E         - ppv1-search-production-2
+E         ?                        ^
+E         + ppv1-search-production-1
+E         ?                        ^
+
+tests/test_ppv1_s5a_rework_r3.py:680: AssertionError
+_______________ test_s5a_r3_p2_text_sync_species_key_limitation ________________
+
+    def test_s5a_r3_p2_text_sync_species_key_limitation() -> None:
+        """搭车 P2 文字同步(复审 R3 §5 五处):known×unknown 限定物种键
+        (非物种键任一适用 unknown 仍 condition_unknown)、删合法链
+        "顺序相关"尾巴;condition_unknown 具体枚举、canonical-by-key 代价、
+        value 仅 repr 展示、实体只证存在不证浓度、指标只分桶且正式分母
+        TBD 落进 proposed 模板文本(仍 proposed 不冻结,版本号不变)。"""
+        from pathway_v43.pollutant.preregistration import \
+            build_preregistration_template
+        rule = build_preregistration_template()["condition_policy"]["rule"]
+>       assert "仅物种键" in rule
+E       AssertionError: assert '仅物种键' in 'essential 冲突/条件未知/preference 不满足/来源条件不可映射分桶;未知不计冲突;历史来源条件保留原文不改写;条件分类沿冻结同源规则(事实侧单位三态 canonical/source_unit_unknown/un...it/value/key(不做换算、不判相容或冲突);空要求单位按键规范单位约定 canonical-by-key 默认合法;要求侧 known_absent 无冻结负要求表示 ⇒ 单列不判冲突(负要求语义属用户/teacher 裁定)'
+
+tests/test_ppv1_s5a_rework_r3.py:706: AssertionError
+________ test_s5a_r2_contract_version_registration_and_frozen_integrity ________
+
+    @pytest.mark.skipif(
+        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),
+        reason="frozen criteria text not copied into allowlisted isolation "
+               "trees (G01 boundary); byte integrity verified at the "
+               "evidence level (shasum in review_evidence package)")
+    def test_s5a_r2_contract_version_registration_and_frozen_integrity() \
+            -> None:
+        """S5a 回修 r2:评测契约 -2→-3、模板 -2→-3、profile -21→-22
+        (S5A-02 单位收口语义由 evaluation-3 承载;reference-graph/
+        split-manifest 字段形状零变化);criteria-v1 冻结正文与
+        FREEZE_RECORD 逐字节不改(单位是消费侧语义)。"""
+        assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
+        assert PPV1_PREREGISTRATION_TEMPLATE_VERSION == \
+            "ppv1-preregistration-template-3"
+        # S5a 回修 r3:profile -22→-23(S5A-05 消费侧引用绑定 +
+        # 五处 P2 文案;evaluation-3/template-3 版本号不变)
+>       assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-23"
+E       AssertionError: assert 'ppv1-profile-22' == 'ppv1-profile-23'
+E         
+E         - ppv1-profile-23
+E         ?               ^
+E         + ppv1-profile-22
+E         ?               ^
+
+tests/test_ppv1_s5a_rework_r2.py:366: AssertionError
+________________ test_s5a_rework_contract_version_registration _________________
+
+    def test_s5a_rework_contract_version_registration() -> None:
+        """S5a 回修 r1→r2:评测契约 -2→-3、预注册模板 -2→-3、profile
+        -21→-22(匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
+        冻结正文不受影响;r2 只登记 S5A-02 单位收口与 B2 文案纠错)。"""
+        assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
+        assert PPV1_PREREGISTRATION_TEMPLATE_VERSION == \
+            "ppv1-preregistration-template-3"
+        # S5a 回修 r3:profile -22→-23(S5A-05 消费侧引用绑定 +
+        # 五处 P2 文案;evaluation-3/template-3 版本号不变)
+>       assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-23"
+E       AssertionError: assert 'ppv1-profile-22' == 'ppv1-profile-23'
+E         
+E         - ppv1-profile-23
+E         ?               ^
+E         + ppv1-profile-22
+E         ?               ^
+
+tests/test_ppv1_s5a_rework_r1.py:740: AssertionError
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v21(S5a 回修 r1):evaluation-2(S5A-01 identity scope 许可/
+        # S5A-02 条件同源分类/S5A-03 必要节点闭合/S5A-04 写边界根规则)
+        # + preregistration-template-2(proposed 文字同步)⇒ profile 身份
+        # 块随登记升版;v20(S5a 批次):donor-diagnostic-10(presence
+        # records isotope + axis_detail 披露,R4 §8 授权搭车 P2)+ 四个
+        # 新接口契约(reference-graph/split-manifest/evaluation/
+        # preregistration-template);v19(S4 回修 r3):
+        # donor-diagnostic-9(同位素 diff 并入实际净变化集,PPV1-ISO-01;
+        # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
+        # native-export-policy-3 / v3-projection-3;endpoint/native-result
+        # 系沿 r1)
+>       assert block["schema_version"] == "ppv1-profile-23"
+E       AssertionError: assert 'ppv1-profile-22' == 'ppv1-profile-23'
+E         
+E         - ppv1-profile-23
+E         ?               ^
+E         + ppv1-profile-22
+E         ?               ^
+
+tests/test_ppv1_profile.py:57: AssertionError
+______________ test_native_export_public_chain_files_and_manifest ______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-522/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -> None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        assert manifest["schema_version"] == "ppv1-native-export-3"
+        assert manifest["run_id"] == "s4b"
+        assert manifest["content_digest"] == out["native_result"][
+            "content_digest"]
+        assert manifest["export_policy"]["version"] == \
+            "ppv1-native-export-policy-3"
+        assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
+        # S5a 回修 r1:profile-20 → -21(evaluation-2 注册进身份块);
+        # S5a 回修 r2:profile-21 → -22(evaluation-3 单位收口);
+        # S5a 回修 r3:profile-22 → -23(S5A-05 消费侧引用绑定 + 五处
+        # P2 文案;evaluation-3/template-3 版本号不变)
+>       assert manifest["contract_versions"]["profile"] == "ppv1-profile-23"
+E       AssertionError: assert 'ppv1-profile-22' == 'ppv1-profile-23'
+E         
+E         - ppv1-profile-23
+E         ?               ^
+E         + ppv1-profile-22
+E         ?               ^
+
+tests/test_ppv1_s4b_export.py:181: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/ppv1_s5a_r3_evidence/parent_39d739d/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case3_self_consistent_new_id_old_address_rejected
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case4_checked_legal_new_content_old_address_rejected
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case3_public_new_id_old_address_rejected
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_case4_public_checked_legal_old_address_rejected
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_endpoint_entries_reuse_common_guard
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_entry_matrix_static_guard
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_contract_version_registration_and_frozen_integrity
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_p2_text_sync_species_key_limitation
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity
+FAILED tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions
+FAILED tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest
+12 failed, 123 passed, 1 warning in 5.45s
+EXIT=1

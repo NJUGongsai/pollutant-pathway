@@ -30,7 +30,7 @@ converter 仍返回版本/来源元数据 + center_match=None —— audit 保�
 | 1 | prepare_hypothesis | 池条目 spec(产物/共同产物/要求/依赖/工具输入) | build_chemical_state 工厂守卫(对工具已确定的产品只能引用,不暗改结构);build_hypothesis 全部 H02/H03/锚点/要求契约;spec 契约(缺产物/坏编辑形状结构化拒) |
 | 2 | execute_atomtool_expansion | 底物 SMILES + 编辑协议 | 冻结 AtomTool render/execute_edits(真实执行,不伪造);check_edit_against_donor 冻结契约;converter 透传绑定证据载荷;零写账 |
 | 3 | expand_hypothesis_production | 冻结假设/状态/上下文 + action 认领 | audit_hypothesis 首消费守卫(state/context 对象验证;center_evidence 绑定/类型/复算 —— 契约异常上抛);decide_admission 决策表;事件提交走 ledger.submit_action_event(公共 writer,冻结身份);complete_action(S3A-02 完整权威核验) |
-| 4 | persist_context / load_context | PathContext 对象 / 存储载荷 | 写:to_dict 全语义载荷;读:read_search_artifact(H07 包装)+ PathContext.from_dict 内容身份核验(首消费守卫;篡改语义字段保留旧 context_id ⇒ 拒) |
+| 4 | persist_context / load_context | PathContext 对象 / 存储载荷 | 写:to_dict 全语义载荷;读:read_search_artifact(H07 包装)+ PathContext.from_dict 内容身份核验(首消费守卫;篡改语义字段保留旧 context_id ⇒ 拒)+ **S5a r3(S5A-05)引用绑定核验**:H07+from_dict 完成后、返回/派生/评估/审核前,核请求 context_ref == 恢复载荷 context_id —— 旧 `ctx:<ref>` 地址下的自洽新身份 ⇒ 结构化拒(旧引用不复用;合法重建须存新地址沿新引用;保全坏 artifact,不重封覆盖、不猜迁移、不默发新引用;selfhash 重算正确不能替代旧引用绑定)。runflow decide/expand/scenario_transition 与 endpoint 三处派生消费共用本入口的同一守卫,不各自另造规则 |
 | 5 | build_cyclic_dependency | 依赖 spec(共底物循环 H04) | Dependency 契约(status 三值;resolution_log 逐轴事实源);缺启动供给 ⇒ unresolved + unresolved_initial_supply(不称化学不可能);有支持 ⇒ supported 不自动阻断 |
 
 分段负控(任务书 §6.1;对应测试逐段断言):合法工具链;工具
@@ -57,6 +57,7 @@ from .events import (
 )
 from .hypothesis import Participant, build_hypothesis
 from .path_context import (
+    ConditionContractError,
     Dependency,
     PathContext,
     SUPPORT_AXIS_INITIAL_SUPPLY,
@@ -71,7 +72,13 @@ from .search import (
 from ..domain.models import content_hash
 from ..services.atom_tool import execute_edits, render
 
-SEARCH_PRODUCTION_VERSION = "ppv1-search-production-1"
+SEARCH_PRODUCTION_VERSION = "ppv1-search-production-2"
+# -2(S5a 回修 r3,2026-10-09,复审 R3 §4 S5A-05):load_context 首消费
+# 增加引用绑定核验 —— H07+from_dict 完成后、实际消费前,请求
+# context_ref 必须等于恢复载荷 context_id;旧 ctx: 存储键下的自洽
+# 新身份(重算 selfhash/重封 H07 均不豁免)⇒ 结构化拒。冻结判据四
+# "重建半边"的兑现:合法新内容新 ID 存新地址沿新引用,旧引用不复用。
+# production 链其余行为零变化。-1 报告按既有版本门策略消费。
 CONTEXT_ARTIFACT_NAME = "path_context"
 
 # admission 处置与驱动语义的映射(expand/retain_conditional ⇒ 事件可
@@ -325,14 +332,47 @@ def persist_context(artifact_store, context: PathContext) -> str:
 
 
 def load_context(artifact_store, context_ref: str) -> PathContext:
-    """上下文首消费(H07 完整性包装 + from_dict 内容身份核验:篡改
-    任何语义字段而保留旧 context_id ⇒ 结构化拒,不清洗后继续)。"""
+    """上下文首消费(H07 完整性包装 + from_dict 内容身份核验 + S5a r3
+    引用绑定核验)。
+
+    三层守卫逐层分测、共用本入口(消费侧单一守卫,不各自另造规则):
+
+    - H07:信封 hash/可解析(保全原文件,search.read_search_artifact);
+    - from_dict 内容身份:载荷 context_id 与按全部语义字段同源重算
+      一致(篡改任何语义字段保留旧 context_id ⇒ 拒,不得洗绿);
+    - **S5A-05(r3)引用绑定**:H07+from_dict 完成后、返回/派生/评估/
+      审核前,核**请求 context_ref == 恢复载荷 context_id** —— selfhash
+      重算正确不能替代旧引用绑定:旧 ``ctx:<context_ref>`` 存储键下
+      换入自洽新 context_id(重封 H07 亦同)⇒ 结构化拒,披露期望
+      引用/实际身份;坏 artifact 保全,不重封覆盖、不猜迁移、不默发
+      新引用。合法重建语义上下文(冻结判据四"重建半边")须用新
+      context_id 存**新地址**并沿新引用首消费(保留 parent_context_
+      ref 链),旧地址/旧引用不复用。
+    """
     if artifact_store is None:
         raise ProductionContractError(
             "读取上下文需要 artifact_store", {"kind": "artifact_store_missing"})
     envelope = read_search_artifact(
         artifact_store, f"ctx:{context_ref}", CONTEXT_ARTIFACT_NAME)
-    return PathContext.from_dict(envelope["payload"])
+    context = PathContext.from_dict(envelope["payload"])
+    # ---- S5A-05(S5a r3):首消费引用绑定(消费侧守卫;冻结侧
+    # path_context 判决零改动)。from_dict 只证明载荷自洽,不证明
+    # 请求/行动引用的就是这份内容 —— 旧地址下的新身份即旧引用
+    # 复用,须在实际消费前拒(ConditionContractError 与内容身份
+    # 同族,公共 resume 边界同形结构化失败,不吞成 run_error)。 ----
+    if context.context_id != context_ref:
+        raise ConditionContractError(
+            "上下文引用绑定不一致:请求 context_ref 与恢复载荷"
+            " context_id 不符(旧 ctx: 存储键下的自洽新身份 ⇒ 拒;"
+            "合法重建须用新 context_id 存新地址并沿新引用首消费,"
+            "旧引用不复用;坏 artifact 保全,不重封覆盖、不猜迁移、"
+            "不默发新引用;selfhash 重算正确不能替代引用绑定)",
+            {"kind": "context_reference_binding_mismatch",
+             "expected_context_ref": str(context_ref),
+             "recovered_context_id": context.context_id,
+             "storage_key": f"ctx:{context_ref}",
+             "parent_context_ref": context.parent_context_ref})
+    return context
 
 
 # ---------------------------------------------------------------- 生产链

@@ -1,0 +1,491 @@
+{
+  "mode": "new_id_resealed",
+  "plan": {
+    "condition_facts": [
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "status": "unknown",
+        "source_ref": "src:synthetic-unknown"
+      },
+      {
+        "key": "electron_acceptor",
+        "value": "O2",
+        "status": "known_present",
+        "source_ref": "src:synthetic-present"
+      }
+    ],
+    "pools": {
+      "CCO": [
+        {
+          "key": "A",
+          "product_smiles": "CC=O",
+          "coefficient": 1,
+          "transformation_ref": "donor-A",
+          "origin_group_key": "donor-A",
+          "edits": [
+            {
+              "op": "change_bond_order",
+              "atom1": "S_C_2",
+              "atom2": "S_O_1",
+              "from_order": "single",
+              "to_order": "double"
+            }
+          ],
+          "donor": {
+            "center_atom_ids": [
+              "S_C_2",
+              "S_O_1"
+            ]
+          },
+          "alignment": {
+            "status": "resolved",
+            "donor_to_current": {
+              "S_C_2": "S_C_2",
+              "S_O_1": "S_O_1"
+            },
+            "ref": "align-A"
+          },
+          "expectation": {
+            "target_smiles": "CC=O"
+          },
+          "coproducts": [
+            "[H][H]"
+          ],
+          "requirements": [
+            {
+              "key": "electron_acceptor",
+              "level": "essential",
+              "value": "O2",
+              "source_refs": [
+                "src:synthetic-necessity"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "schedule_budget": {
+      "max_select": 1
+    }
+  },
+  "start": {
+    "ok": false,
+    "type": "SearchCrashInjection",
+    "error": "认领已落账、执行未开始(B1 注入点)",
+    "detail": {
+      "action_id": "sact_ca850e104ce552ecebe5"
+    }
+  },
+  "old_reference": "pc_a72ff6b1f27d9335da52",
+  "before_envelope": {
+    "created_at": "2026-10-09T00:24:21+00:00",
+    "name": "path_context",
+    "payload": {
+      "accumulated_requirements": [],
+      "assessed_scope": "possible",
+      "assessment_scope": [],
+      "assumptions": [],
+      "condition_facts": [
+        {
+          "key": "electron_acceptor",
+          "origin": "user_input",
+          "phase_id": "",
+          "source_ref": "src:synthetic-unknown",
+          "status": "unknown",
+          "subject_scenario_ref": "",
+          "unit": "",
+          "value": null
+        },
+        {
+          "key": "electron_acceptor",
+          "origin": "user_input",
+          "phase_id": "",
+          "source_ref": "src:synthetic-present",
+          "status": "known_present",
+          "subject_scenario_ref": "",
+          "unit": "",
+          "value": "O2"
+        }
+      ],
+      "context_id": "pc_a72ff6b1f27d9335da52",
+      "dependencies": [],
+      "dependency_refs": [],
+      "parent_context_ref": "",
+      "phase_history": [],
+      "phase_id": "phase-0",
+      "requested_scope": "possible",
+      "scenario_ref": "",
+      "scenario_transition": null,
+      "schema_version": "ppv1-context-8"
+    },
+    "payload_hash": "06fab6cabdef4e4f476d95e2c6aaaf0743eb5571049d39950c620648493c70f0",
+    "run_id": "mimo23-new_id_resealed",
+    "schema_version": "v43-artifact-1",
+    "task_id": "ctx:pc_a72ff6b1f27d9335da52"
+  },
+  "mutation_envelope": {
+    "created_at": "2026-10-09T00:24:21+00:00",
+    "name": "path_context",
+    "payload": {
+      "accumulated_requirements": [],
+      "assessed_scope": "possible",
+      "assessment_scope": [],
+      "assumptions": [],
+      "condition_facts": [
+        {
+          "key": "electron_acceptor",
+          "origin": "user_input",
+          "phase_id": "",
+          "source_ref": "src:synthetic-unknown",
+          "status": "unknown",
+          "subject_scenario_ref": "",
+          "unit": "",
+          "value": "O2"
+        },
+        {
+          "key": "electron_acceptor",
+          "origin": "user_input",
+          "phase_id": "",
+          "source_ref": "src:synthetic-present",
+          "status": "known_present",
+          "subject_scenario_ref": "",
+          "unit": "",
+          "value": "O2"
+        }
+      ],
+      "context_id": "pc_d9978ff5d99526ca0c46",
+      "dependencies": [],
+      "dependency_refs": [],
+      "parent_context_ref": "",
+      "phase_history": [],
+      "phase_id": "phase-0",
+      "requested_scope": "possible",
+      "scenario_ref": "",
+      "scenario_transition": null,
+      "schema_version": "ppv1-context-8"
+    },
+    "payload_hash": "5eadef60b2eecee34fae61ea5e14f4925419060689c13d6f5831e190115630ec",
+    "run_id": "mimo23-new_id_resealed",
+    "schema_version": "v43-artifact-1",
+    "task_id": "ctx:pc_a72ff6b1f27d9335da52"
+  },
+  "production_load": {
+    "ok": false,
+    "type": "ConditionContractError",
+    "error": "上下文引用绑定不一致:请求 context_ref 与恢复载荷 context_id 不符(旧 ctx: 存储键下的自洽新身份 ⇒ 拒;合法重建须用新 context_id 存新地址并沿新引用首消费,旧引用不复用;坏 artifact 保全,不重封覆盖、不猜迁移、不默发新引用;selfhash 重算正确不能替代引用绑定)",
+    "detail": {
+      "kind": "context_reference_binding_mismatch",
+      "expected_context_ref": "pc_a72ff6b1f27d9335da52",
+      "recovered_context_id": "pc_d9978ff5d99526ca0c46",
+      "storage_key": "ctx:pc_a72ff6b1f27d9335da52",
+      "parent_context_ref": ""
+    }
+  },
+  "resume": {
+    "ok": false,
+    "type": "ConditionContractError",
+    "error": "上下文引用绑定不一致:请求 context_ref 与恢复载荷 context_id 不符(旧 ctx: 存储键下的自洽新身份 ⇒ 拒;合法重建须用新 context_id 存新地址并沿新引用首消费,旧引用不复用;坏 artifact 保全,不重封覆盖、不猜迁移、不默发新引用;selfhash 重算正确不能替代引用绑定)",
+    "detail": {
+      "kind": "context_reference_binding_mismatch",
+      "expected_context_ref": "pc_a72ff6b1f27d9335da52",
+      "recovered_context_id": "pc_d9978ff5d99526ca0c46",
+      "storage_key": "ctx:pc_a72ff6b1f27d9335da52",
+      "parent_context_ref": ""
+    }
+  },
+  "business_tables_before": {
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_abc1ec3646556f6fe978",
+        "run_id": "mimo23-new_id_resealed",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_ca850e104ce552ecebe5",
+        "units": 1,
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "status": "reserved",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_f4f7e554425f2c51c9bb",
+        "run_id": "mimo23-new_id_resealed",
+        "limit_key": "max_retrievals_per_parent",
+        "scope": "spath_826c981c9eba5f9bb7aa",
+        "subject": "sact_ca850e104ce552ecebe5",
+        "units": 1,
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "status": "reserved",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "settled_at": null
+      },
+      {
+        "reservation_id": "sres_e0570dcb23af4cd92a3b",
+        "run_id": "mimo23-new_id_resealed",
+        "limit_key": "max_retrievals_total",
+        "scope": "",
+        "subject": "sact_ca850e104ce552ecebe5",
+        "units": 1,
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "status": "reserved",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "settled_at": null
+      }
+    ],
+    "endpoint_records": [],
+    "event_appearance_links": [],
+    "events": [],
+    "expansion_plans": [],
+    "hypotheses": [],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-10"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [],
+    "search_actions": [
+      {
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "run_id": "mimo23-new_id_resealed",
+        "parent_path_id": "spath_826c981c9eba5f9bb7aa",
+        "context_ref": "pc_a72ff6b1f27d9335da52",
+        "subject_ref": "cs_ab1de819ede91df490e6",
+        "action_kind": "retrieve",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"context_ref\": \"pc_a72ff6b1f27d9335da52\", \"depth\": 0, \"parent_path_id\": \"spath_826c981c9eba5f9bb7aa\", \"plan_digest\": \"f67a10c9b9893053d153da7223e4a90b4c59d6e848bc8dccd4321177e1af40f2\", \"source_event_id\": \"\", \"substrate_smiles\": \"CCO\", \"task_key\": \"stask-dec_7ce0b10441a20ea13a54\"}",
+        "task_key": "stask-dec_7ce0b10441a20ea13a54",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_abc1ec3646556f6fe978\", \"sres_e0570dcb23af4cd92a3b\", \"sres_f4f7e554425f2c51c9bb\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "claimed_at": "2026-10-09T00:24:21+00:00",
+        "claimed_by": "ppv1-driver:mimo23-new_id_resealed",
+        "updated_at": null
+      }
+    ],
+    "search_attempts": [],
+    "search_commit_records": [],
+    "search_runs": [
+      {
+        "run_id": "mimo23-new_id_resealed",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-10\", \"endpoint\": \"ppv1-endpoint-2\", \"endpoint_policy\": \"ppv1-endpoint-policy-2\", \"evaluation\": \"ppv1-evaluation-3\", \"event\": \"ppv1-event-8\", \"format_feedback\": \"ppv1-format-feedback-1\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"native_export\": \"ppv1-native-export-3\", \"native_export_policy\": \"ppv1-native-export-policy-3\", \"native_result\": \"ppv1-native-result-2\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"preregistration_template\": \"ppv1-preregistration-template-3\", \"profile\": \"ppv1-profile-23\", \"provenance\": \"ppv1-provenance-8\", \"reference_graph\": \"ppv1-reference-graph-1\", \"runflow\": \"ppv1-runflow-5\", \"search\": \"ppv1-search-6\", \"split_manifest\": \"ppv1-split-manifest-1\", \"store\": \"ppv1-store-10\", \"substrate_profile\": \"ppv1-substrate-profile-8\", \"v3_projection\": \"ppv1-v3-projection-3\"}, \"delivered_stages\": \"S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export,S5a-interface\", \"format_feedback_policy\": {\"max_format_feedback_rounds\": 0, \"version\": \"ppv1-format-feedback-1\"}, \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-23\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 64, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-09T00:24:21+00:00"
+      }
+    ],
+    "state_appearances": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "7c510820c283849127e05284dbf94176808144f7ad8b022ea57c47c356ccbf9e",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"ppv1-root-input\"}], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"raw_input\", \"structure_smiles_raw\": \"CCO\"}",
+        "created_at": "2026-10-09T00:24:21+00:00"
+      }
+    ],
+    "states": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "payload": "{\"cn_identity\": \"CCO\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CCO\", \"state_id\": \"cs_ab1de819ede91df490e6\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-09T00:24:21+00:00"
+      }
+    ],
+    "stop_reason_records": []
+  },
+  "business_tables_after": {
+    "budget_reservations": [
+      {
+        "reservation_id": "sres_abc1ec3646556f6fe978",
+        "run_id": "mimo23-new_id_resealed",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_ca850e104ce552ecebe5",
+        "units": 1,
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "status": "consumed",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "settled_at": "2026-10-09T00:24:21+00:00"
+      },
+      {
+        "reservation_id": "sres_f4f7e554425f2c51c9bb",
+        "run_id": "mimo23-new_id_resealed",
+        "limit_key": "max_retrievals_per_parent",
+        "scope": "spath_826c981c9eba5f9bb7aa",
+        "subject": "sact_ca850e104ce552ecebe5",
+        "units": 1,
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "status": "consumed",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "settled_at": "2026-10-09T00:24:21+00:00"
+      },
+      {
+        "reservation_id": "sres_e0570dcb23af4cd92a3b",
+        "run_id": "mimo23-new_id_resealed",
+        "limit_key": "max_retrievals_total",
+        "scope": "",
+        "subject": "sact_ca850e104ce552ecebe5",
+        "units": 1,
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "status": "consumed",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "settled_at": "2026-10-09T00:24:21+00:00"
+      },
+      {
+        "reservation_id": "sres_0c89fa90ac1e623b8054",
+        "run_id": "mimo23-new_id_resealed",
+        "limit_key": "max_total_search_actions",
+        "scope": "",
+        "subject": "sact_5ef5370085474ec2da7e",
+        "units": 1,
+        "action_id": "sact_5ef5370085474ec2da7e",
+        "status": "reserved",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "settled_at": null
+      }
+    ],
+    "endpoint_records": [],
+    "event_appearance_links": [],
+    "events": [],
+    "expansion_plans": [],
+    "hypotheses": [],
+    "meta": [
+      {
+        "key": "schema_version",
+        "value": "ppv1-store-10"
+      }
+    ],
+    "model_requests": [],
+    "provenance_records": [],
+    "report_projections": [],
+    "search_actions": [
+      {
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "run_id": "mimo23-new_id_resealed",
+        "parent_path_id": "spath_826c981c9eba5f9bb7aa",
+        "context_ref": "pc_a72ff6b1f27d9335da52",
+        "subject_ref": "cs_ab1de819ede91df490e6",
+        "action_kind": "retrieve",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "done",
+        "payload": "{\"context_ref\": \"pc_a72ff6b1f27d9335da52\", \"depth\": 0, \"parent_path_id\": \"spath_826c981c9eba5f9bb7aa\", \"plan_digest\": \"f67a10c9b9893053d153da7223e4a90b4c59d6e848bc8dccd4321177e1af40f2\", \"source_event_id\": \"\", \"substrate_smiles\": \"CCO\", \"task_key\": \"stask-dec_7ce0b10441a20ea13a54\"}",
+        "task_key": "stask-dec_7ce0b10441a20ea13a54",
+        "outcome_ref": "7dd38db2beec80c8f363432f055e319c572ebeeccc2524c0d510476dc2053e20",
+        "budget_reservation_ref": "[\"sres_abc1ec3646556f6fe978\", \"sres_e0570dcb23af4cd92a3b\", \"sres_f4f7e554425f2c51c9bb\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "claimed_at": "2026-10-09T00:24:21+00:00",
+        "claimed_by": "ppv1-driver:mimo23-new_id_resealed",
+        "updated_at": "2026-10-09T00:24:21+00:00"
+      },
+      {
+        "action_id": "sact_5ef5370085474ec2da7e",
+        "run_id": "mimo23-new_id_resealed",
+        "parent_path_id": "spath_826c981c9eba5f9bb7aa",
+        "context_ref": "pc_a72ff6b1f27d9335da52",
+        "subject_ref": "pool:46aacfe56f0d62e5",
+        "action_kind": "decide",
+        "parent_search_revision": 0,
+        "policy_version": "ppv1-search-6/ppv1-search-limits-3",
+        "status": "claimed",
+        "payload": "{\"context_ref\": \"pc_a72ff6b1f27d9335da52\", \"depth\": 0, \"parent_path_id\": \"spath_826c981c9eba5f9bb7aa\", \"pool_digest\": \"46aacfe56f0d62e5ca9c6169828b64e813addc1872d6e20142b4b8c05d23c9ea\", \"source_event_id\": \"\", \"substrate_smiles\": \"CCO\", \"task_key\": \"stask-dec_385eb2154badfd70d34a\"}",
+        "task_key": "stask-dec_385eb2154badfd70d34a",
+        "outcome_ref": "",
+        "budget_reservation_ref": "[\"sres_0c89fa90ac1e623b8054\"]",
+        "attempt_refs": "[]",
+        "defer_reason": "",
+        "created_at": "2026-10-09T00:24:21+00:00",
+        "claimed_at": "2026-10-09T00:24:21+00:00",
+        "claimed_by": "ppv1-driver:mimo23-new_id_resealed",
+        "updated_at": null
+      }
+    ],
+    "search_attempts": [],
+    "search_commit_records": [
+      {
+        "commit_id": "scommit_98ab5cea0f88c05fa2f4",
+        "run_id": "mimo23-new_id_resealed",
+        "action_id": "sact_ca850e104ce552ecebe5",
+        "attempt_id": "",
+        "event_id": "",
+        "commit_kind": "outcome_recorded",
+        "payload_hash": "44fd7bcf677141ea7ad309c00bc8cd4c7d7fa17cfcc21d1144e013f89877e054",
+        "created_at": "2026-10-09T00:24:21+00:00"
+      }
+    ],
+    "search_runs": [
+      {
+        "run_id": "mimo23-new_id_resealed",
+        "policy_block": "{\"chemical_reproposal\": \"off\", \"contracts\": {\"admission_policy\": \"ppv1-admission-8\", \"audit\": \"ppv1-audit-8\", \"chemstate\": \"ppv1-chemstate-8\", \"condition_assessment\": \"ppv1-condition-assessment-8\", \"context\": \"ppv1-context-8\", \"dependency\": \"ppv1-dependency-8\", \"donor_diagnostic\": \"ppv1-donor-diagnostic-10\", \"endpoint\": \"ppv1-endpoint-2\", \"endpoint_policy\": \"ppv1-endpoint-policy-2\", \"evaluation\": \"ppv1-evaluation-3\", \"event\": \"ppv1-event-8\", \"format_feedback\": \"ppv1-format-feedback-1\", \"gate_mapper\": \"ppv1-gate-mapper-3\", \"hypothesis\": \"ppv1-hypothesis-8\", \"input_preview\": \"ppv1-input-preview-8\", \"legacy_g2_family_ref\": \"v43-cons-2\", \"legacy_gate_ref\": \"frozen_hit60_gate\", \"native_export\": \"ppv1-native-export-3\", \"native_export_policy\": \"ppv1-native-export-policy-3\", \"native_result\": \"ppv1-native-result-2\", \"pool_audit\": \"ppv1-pool-audit-8\", \"pool_order\": \"ppv1-pool-order-8\", \"preregistration_template\": \"ppv1-preregistration-template-3\", \"profile\": \"ppv1-profile-23\", \"provenance\": \"ppv1-provenance-8\", \"reference_graph\": \"ppv1-reference-graph-1\", \"runflow\": \"ppv1-runflow-5\", \"search\": \"ppv1-search-6\", \"split_manifest\": \"ppv1-split-manifest-1\", \"store\": \"ppv1-store-10\", \"substrate_profile\": \"ppv1-substrate-profile-8\", \"v3_projection\": \"ppv1-v3-projection-3\"}, \"delivered_stages\": \"S0-S2,S3a-base,S3b,S4a-endpoint,S4b-export,S5a-interface\", \"format_feedback_policy\": {\"max_format_feedback_rounds\": 0, \"version\": \"ppv1-format-feedback-1\"}, \"input_preview_policy\": \"off\", \"input_preview_version\": \"ppv1-input-preview-8\", \"name\": \"pollutant_pathway_v1\", \"schema_version\": \"ppv1-profile-23\", \"search_intent\": \"exploration\", \"search_limits\": {\"max_alternative_hypotheses_per_parent\": 2, \"max_attempts_per_hypothesis\": 2, \"max_product_expansion_width\": 2, \"max_real_model_requests\": 0, \"max_reopens_per_hypothesis\": 1, \"max_retrievals_per_parent\": 1, \"max_retrievals_total\": 64, \"max_scenario_transitions\": 2, \"max_search_depth\": 3, \"max_total_search_actions\": 10, \"version\": \"ppv1-search-limits-3\"}}",
+        "created_at": "2026-10-09T00:24:21+00:00"
+      }
+    ],
+    "state_appearances": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "appearance_hash": "7c510820c283849127e05284dbf94176808144f7ad8b022ea57c47c356ccbf9e",
+        "payload": "{\"original_structure_available\": true, \"representation_fidelity\": {\"formal_charge\": \"as_written\", \"isotope\": \"as_written\", \"protonation_basis\": \"as_written\", \"stereo\": \"as_written\"}, \"source_refs\": [{\"record\": \"ppv1-root-input\"}], \"state_id\": \"cs_ab1de819ede91df490e6\", \"structure_origin\": \"raw_input\", \"structure_smiles_raw\": \"CCO\"}",
+        "created_at": "2026-10-09T00:24:21+00:00"
+      }
+    ],
+    "states": [
+      {
+        "state_id": "cs_ab1de819ede91df490e6",
+        "payload": "{\"cn_identity\": \"CCO\", \"formal_charge\": 0, \"isotope_information_status\": \"not_applicable\", \"schema_version\": \"ppv1-chemstate-8\", \"smiles_isomeric\": \"CCO\", \"state_id\": \"cs_ab1de819ede91df490e6\", \"stereo_information_status\": \"not_applicable\"}",
+        "created_at": "2026-10-09T00:24:21+00:00"
+      }
+    ],
+    "stop_reason_records": []
+  },
+  "mutated_artifact_after": {
+    "created_at": "2026-10-09T00:24:21+00:00",
+    "name": "path_context",
+    "payload": {
+      "accumulated_requirements": [],
+      "assessed_scope": "possible",
+      "assessment_scope": [],
+      "assumptions": [],
+      "condition_facts": [
+        {
+          "key": "electron_acceptor",
+          "origin": "user_input",
+          "phase_id": "",
+          "source_ref": "src:synthetic-unknown",
+          "status": "unknown",
+          "subject_scenario_ref": "",
+          "unit": "",
+          "value": "O2"
+        },
+        {
+          "key": "electron_acceptor",
+          "origin": "user_input",
+          "phase_id": "",
+          "source_ref": "src:synthetic-present",
+          "status": "known_present",
+          "subject_scenario_ref": "",
+          "unit": "",
+          "value": "O2"
+        }
+      ],
+      "context_id": "pc_d9978ff5d99526ca0c46",
+      "dependencies": [],
+      "dependency_refs": [],
+      "parent_context_ref": "",
+      "phase_history": [],
+      "phase_id": "phase-0",
+      "requested_scope": "possible",
+      "scenario_ref": "",
+      "scenario_transition": null,
+      "schema_version": "ppv1-context-8"
+    },
+    "payload_hash": "5eadef60b2eecee34fae61ea5e14f4925419060689c13d6f5831e190115630ec",
+    "run_id": "mimo23-new_id_resealed",
+    "schema_version": "v43-artifact-1",
+    "task_id": "ctx:pc_a72ff6b1f27d9335da52"
+  }
+}

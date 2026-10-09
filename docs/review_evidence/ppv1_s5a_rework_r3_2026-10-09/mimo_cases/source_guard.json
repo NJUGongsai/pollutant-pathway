@@ -1,0 +1,40 @@
+{
+  "after_tree": "/private/tmp/ppv1_s5a_r3_mimo_r1_k4q7",
+  "before_tree": "/private/tmp/ppv1_s5a_r3_mimo_before_p39d739d",
+  "after_src_matches_repo_working_tree": {
+    "src/pathway_v43/pollutant/production.py": true,
+    "src/pathway_v43/pollutant/evaluation.py": true,
+    "src/pathway_v43/pollutant/preregistration.py": true,
+    "src/pathway_v43/pollutant/profile.py": true,
+    "src/pathway_v43/pollutant/path_context.py": true,
+    "src/pathway_v43/pollutant/runflow.py": true,
+    "src/pathway_v43/pollutant/endpoint.py": true,
+    "src/pathway_v43/pollutant/search.py": true,
+    "src/pathway_v43/pollutant/store.py": true
+  },
+  "before_src_matches_parent_39d739d": {
+    "src/pathway_v43/pollutant/production.py": true,
+    "src/pathway_v43/pollutant/evaluation.py": true,
+    "src/pathway_v43/pollutant/preregistration.py": true,
+    "src/pathway_v43/pollutant/profile.py": true,
+    "src/pathway_v43/pollutant/path_context.py": true,
+    "src/pathway_v43/pollutant/runflow.py": true,
+    "src/pathway_v43/pollutant/endpoint.py": true,
+    "src/pathway_v43/pollutant/search.py": true,
+    "src/pathway_v43/pollutant/store.py": true
+  },
+  "probe_py_byte_faithful": {
+    "after": "4e0000f2ca8cc22ef870d991421a55d43c3b1e6c5f301241f2dae2b0c07db9f2",
+    "before": "4e0000f2ca8cc22ef870d991421a55d43c3b1e6c5f301241f2dae2b0c07db9f2",
+    "review_original": "4e0000f2ca8cc22ef870d991421a55d43c3b1e6c5f301241f2dae2b0c07db9f2"
+  },
+  "cases45_script_identical_both_trees": true,
+  "v3_mirror": "source-only copy of the ordinary sibling dependingv3/src/depending code (no evaluation assets, no reports, no .git metadata -> v3_code_identity git_available=False, consistent between start and resume of each case); the original v3 evaluation assets were NOT read",
+  "env": {
+    "python": "/Users/cc/miniconda3/envs/depending43/bin/python (3.11.16)",
+    "flags": "-B, PYTHONDONTWRITEBYTECODE=1, pytest cache off (PYTEST_ADDOPTS -p no:cacheprovider)",
+    "cwd": "<scratch>/iso for every run",
+    "PYTHONPATH": "<scratch>/iso/src"
+  },
+  "run_layout": "each scratch tree: iso/{src,tests,pyproject,assets} + package/scripts + dependingv3/src/depending mirror; runs written to <scratch>/{low_runs,public_runs,case4_runs,case5_runs}; sqlite binaries and run dirs not sealed"
+}

@@ -1,0 +1,149 @@
+{
+  "case": "4 checked legal new content + new context_id at OLD address (self-constructed this round)",
+  "origin": "r3 implementer-constructed; the r3 review did NOT execute this control (its planned fixture was platform-blocked); not claimed as review-executed",
+  "load": {
+    "old_address_load": {
+      "ok": false,
+      "type": "ConditionContractError",
+      "error": "上下文引用绑定不一致:请求 context_ref 与恢复载荷 context_id 不符(旧 ctx: 存储键下的自洽新身份 ⇒ 拒;合法重建须用新 context_id 存新地址并沿新引用首消费,旧引用不复用;坏 artifact 保全,不重封覆盖、不猜迁移、不默发新引用;selfhash 重算正确不能替代引用绑定)",
+      "detail": {
+        "kind": "context_reference_binding_mismatch",
+        "expected_context_ref": "pc_a5efff82e20055500638",
+        "recovered_context_id": "pc_88dd2b68a042134ce92e",
+        "storage_key": "ctx:pc_a5efff82e20055500638",
+        "parent_context_ref": ""
+      }
+    },
+    "new_address_load": {
+      "ok": true,
+      "return": "PathContext(context_id='pc_88dd2b68a042134ce92e', parent_context_ref='', phase_id='phase-0', requested_scope='possible', condition_facts=[ConditionFact(key='electron_acceptor', value='O2', unit='', status='known_present', origin='user_input', source_ref='src:synthetic-present-2', subject_scenario_ref='', phase_id='')], accumulated_requirements=[Requirement(key='electron_acceptor', level='essential', value='O2', basis='essential_claimed_by_source', value_basis='entity', source_refs=('src:synthetic-necessity',), applicable_dimensions=(), observed_source_conditions=(), note='', introduced_phase_id='phase-0', introduced_scenario_ref='', introduced_edge='')], assumptions=[], dependency_refs=[], dependencies=[], assessment_scope=['electron_acceptor'], scenario_ref='', scenario_transition=None, phase_history=[], schema_version='ppv1-context-8')"
+    },
+    "expected_recovered": "pc_88dd2b68a042134ce92e",
+    "artifact_after": {
+      "created_at": "2026-10-09T00:25:41+00:00",
+      "name": "path_context",
+      "payload": {
+        "schema_version": "ppv1-context-8",
+        "context_id": "pc_88dd2b68a042134ce92e",
+        "parent_context_ref": "",
+        "phase_id": "phase-0",
+        "requested_scope": "possible",
+        "condition_facts": [
+          {
+            "key": "electron_acceptor",
+            "value": "O2",
+            "unit": "",
+            "status": "known_present",
+            "origin": "user_input",
+            "source_ref": "src:synthetic-present-2",
+            "subject_scenario_ref": "",
+            "phase_id": ""
+          }
+        ],
+        "accumulated_requirements": [
+          {
+            "key": "electron_acceptor",
+            "level": "essential",
+            "value": "O2",
+            "basis": "essential_claimed_by_source",
+            "value_basis": "entity",
+            "source_refs": [
+              "src:synthetic-necessity"
+            ],
+            "applicable_dimensions": [],
+            "observed_source_conditions": [],
+            "note": "",
+            "introduced_phase_id": "phase-0",
+            "introduced_scenario_ref": "",
+            "introduced_edge": ""
+          }
+        ],
+        "assumptions": [],
+        "dependency_refs": [],
+        "dependencies": [],
+        "assessment_scope": [
+          "electron_acceptor"
+        ],
+        "scenario_ref": "",
+        "scenario_transition": null,
+        "phase_history": [],
+        "assessed_scope": "condition_compatible"
+      },
+      "payload_hash": "ec187515f0089cefae4ed0cf0af7dab29bb85d3a23ee9c54a49f8275b2724f90",
+      "run_id": "c4-load",
+      "schema_version": "v43-artifact-1",
+      "task_id": "ctx:pc_a5efff82e20055500638"
+    },
+    "ctx_files": [
+      "ctx:pc_88dd2b68a042134ce92e/path_context.json",
+      "ctx:pc_a5efff82e20055500638/path_context.json"
+    ],
+    "artifact_preserved": true
+  },
+  "public": {
+    "start": {
+      "ok": false,
+      "type": "SearchCrashInjection",
+      "error": "认领已落账、执行未开始(B1 注入点)",
+      "detail": {
+        "action_id": "sact_3a2e0321ba374868c274"
+      }
+    },
+    "old_reference": "pc_127bc6ff5b4815cc6d4a",
+    "expected_recovered": "pc_88dd2b68a042134ce92e",
+    "resume": {
+      "ok": false,
+      "type": "ConditionContractError",
+      "error": "上下文引用绑定不一致:请求 context_ref 与恢复载荷 context_id 不符(旧 ctx: 存储键下的自洽新身份 ⇒ 拒;合法重建须用新 context_id 存新地址并沿新引用首消费,旧引用不复用;坏 artifact 保全,不重封覆盖、不猜迁移、不默发新引用;selfhash 重算正确不能替代引用绑定)",
+      "detail": {
+        "kind": "context_reference_binding_mismatch",
+        "expected_context_ref": "pc_127bc6ff5b4815cc6d4a",
+        "recovered_context_id": "pc_88dd2b68a042134ce92e",
+        "storage_key": "ctx:pc_127bc6ff5b4815cc6d4a",
+        "parent_context_ref": ""
+      }
+    },
+    "table_deltas": {
+      "budget_reservations": 1,
+      "endpoint_records": 0,
+      "event_appearance_links": 0,
+      "events": 0,
+      "expansion_plans": 0,
+      "hypotheses": 0,
+      "meta": 0,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 0,
+      "search_actions": 1,
+      "search_attempts": 0,
+      "search_commit_records": 1,
+      "search_runs": 0,
+      "state_appearances": 0,
+      "states": 0,
+      "stop_reason_records": 0
+    },
+    "table_counts_after": {
+      "budget_reservations": 4,
+      "endpoint_records": 0,
+      "event_appearance_links": 0,
+      "events": 0,
+      "expansion_plans": 0,
+      "hypotheses": 0,
+      "meta": 1,
+      "model_requests": 0,
+      "provenance_records": 0,
+      "report_projections": 0,
+      "search_actions": 2,
+      "search_attempts": 0,
+      "search_commit_records": 1,
+      "search_runs": 1,
+      "state_appearances": 1,
+      "states": 1,
+      "stop_reason_records": 0
+    },
+    "artifact_preserved": true,
+    "ctx_files": [
+      "ctx:pc_127bc6ff5b4815cc6d4a/path_context.json"
+    ]
+  }
+}

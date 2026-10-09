@@ -1,0 +1,176 @@
+{
+  "round": "S5a rework r3 five-case adjudication",
+  "probe": {
+    "source": "docs/review_evidence/ppv1_s5a_codex_r3_2026-10-09/mimo/scripts/probe.py copied byte-faithful (sha256 4e0000f2ca8cc22ef870d991421a55d43c3b1e6c5f301241f2dae2b0c07db9f2) to fresh tmp trees; cases 1-3 reuse the review real public inputs; case 4/5 scripts are r3-constructed and NOT claimed review-executed",
+    "after_tree": "/private/tmp/ppv1_s5a_r3_mimo_r1_k4q7",
+    "before_tree": "/private/tmp/ppv1_s5a_r3_mimo_before_p39d739d",
+    "cases": [
+      {
+        "mode": "control",
+        "before": {
+          "load_ok": true,
+          "resume_ok": true,
+          "load_kind": null,
+          "events": 1
+        },
+        "after": {
+          "load_ok": true,
+          "resume_ok": true,
+          "load_kind": null,
+          "events": 1
+        },
+        "after_per_table_counts": {
+          "budget_reservations": 13,
+          "endpoint_records": 1,
+          "event_appearance_links": 3,
+          "events": 1,
+          "expansion_plans": 1,
+          "hypotheses": 1,
+          "meta": 1,
+          "model_requests": 0,
+          "provenance_records": 0,
+          "report_projections": 1,
+          "search_actions": 5,
+          "search_attempts": 1,
+          "search_commit_records": 5,
+          "search_runs": 1,
+          "state_appearances": 4,
+          "states": 3,
+          "stop_reason_records": 1
+        },
+        "verdict": "preserved"
+      },
+      {
+        "mode": "old_id_resealed",
+        "before": {
+          "load_ok": false,
+          "resume_ok": false,
+          "load_kind": "context_content_identity_mismatch",
+          "events": 0
+        },
+        "after": {
+          "load_ok": false,
+          "resume_ok": false,
+          "load_kind": "context_content_identity_mismatch",
+          "events": 0
+        },
+        "after_per_table_counts": {
+          "budget_reservations": 4,
+          "endpoint_records": 0,
+          "event_appearance_links": 0,
+          "events": 0,
+          "expansion_plans": 0,
+          "hypotheses": 0,
+          "meta": 1,
+          "model_requests": 0,
+          "provenance_records": 0,
+          "report_projections": 0,
+          "search_actions": 2,
+          "search_attempts": 0,
+          "search_commit_records": 1,
+          "search_runs": 1,
+          "state_appearances": 1,
+          "states": 1,
+          "stop_reason_records": 0
+        },
+        "verdict": "preserved"
+      },
+      {
+        "mode": "new_id_resealed",
+        "before": {
+          "load_ok": true,
+          "resume_ok": true,
+          "load_kind": null,
+          "events": 1
+        },
+        "after": {
+          "load_ok": false,
+          "resume_ok": false,
+          "load_kind": "context_reference_binding_mismatch",
+          "events": 0
+        },
+        "after_per_table_counts": {
+          "budget_reservations": 4,
+          "endpoint_records": 0,
+          "event_appearance_links": 0,
+          "events": 0,
+          "expansion_plans": 0,
+          "hypotheses": 0,
+          "meta": 1,
+          "model_requests": 0,
+          "provenance_records": 0,
+          "report_projections": 0,
+          "search_actions": 2,
+          "search_attempts": 0,
+          "search_commit_records": 1,
+          "search_runs": 1,
+          "state_appearances": 1,
+          "states": 1,
+          "stop_reason_records": 0
+        },
+        "verdict": "FLIPPED: old-address self-consistent new identity now rejected at first consumption (binding mismatch), zero bad-context events"
+      }
+    ]
+  },
+  "case4": {
+    "origin": "r3-constructed (review R3 section 4.2 case 4 was NOT executed by the review; its planned fixture was platform-blocked there; not claimed review-executed)",
+    "before": {
+      "old_address_load_ok": true,
+      "public_resume_ok": true,
+      "events": 1
+    },
+    "after": {
+      "old_address_load_ok": false,
+      "old_address_load_kind": "context_reference_binding_mismatch",
+      "new_address_load_ok": true,
+      "public_resume_ok": false,
+      "events": 0,
+      "table_deltas": {
+        "budget_reservations": 1,
+        "endpoint_records": 0,
+        "event_appearance_links": 0,
+        "events": 0,
+        "expansion_plans": 0,
+        "hypotheses": 0,
+        "meta": 0,
+        "model_requests": 0,
+        "provenance_records": 0,
+        "report_projections": 0,
+        "search_actions": 1,
+        "search_attempts": 0,
+        "search_commit_records": 1,
+        "search_runs": 0,
+        "state_appearances": 0,
+        "states": 0,
+        "stop_reason_records": 0
+      },
+      "artifact_preserved": true
+    },
+    "verdict": "FLIPPED: checked-legal new content at the old address rejected (same guard; content legality does not exempt address binding); the same payload at its own new address stays legal"
+  },
+  "case5": {
+    "origin": "r3-constructed (review R3 section 8 case 5 must be constructed; positive control)",
+    "before": {
+      "child_load_ok": true,
+      "public_resume_ok": true,
+      "address_identity_all_match": true
+    },
+    "after": {
+      "child_load_ok": true,
+      "public_resume_ok": true,
+      "address_identity_all_match": true,
+      "followup_context_refs": [
+        "pc_f1019bc1eeee5d25728a",
+        "pc_f1019bc1eeee5d25728a"
+      ],
+      "child_ids": [
+        "pc_f1019bc1eeee5d25728a"
+      ],
+      "root_ids": [
+        "pc_2183f5d8773e3fa2ec28",
+        "pc_33e39aef5a0a61834dc2"
+      ]
+    },
+    "verdict": "PRESERVED: legal new content new ID new address + parent_context_ref chain allowed; scenario transition child context persisted at the new address and consumed via the new reference"
+  }
+}

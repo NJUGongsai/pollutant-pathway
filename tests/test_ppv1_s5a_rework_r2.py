@@ -361,7 +361,9 @@ def test_s5a_r2_contract_version_registration_and_frozen_integrity() \
     assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
     assert PPV1_PREREGISTRATION_TEMPLATE_VERSION == \
         "ppv1-preregistration-template-3"
-    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-22"
+    # S5a 回修 r3:profile -22→-23(S5A-05 消费侧引用绑定 +
+    # 五处 P2 文案;evaluation-3/template-3 版本号不变)
+    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-23"
     assert PPV1_REFERENCE_GRAPH_VERSION == "ppv1-reference-graph-1"
     assert PPV1_SPLIT_MANIFEST_VERSION == "ppv1-split-manifest-1"
     repo = Path(__file__).resolve().parents[1]
