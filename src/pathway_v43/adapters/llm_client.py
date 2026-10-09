@@ -29,9 +29,14 @@ docs/CHENYU_ACCESS.md 坑清单)在装配期 fail-closed 报"该模型不支持
 温度臂",不静默忽略、不带病发请求。
 
 HTTP 语义:429 记录 status / Retry-After / 请求 ID 后做**有上限**的指数
-退避 + 抖动重试(提供者不把 429 计费,重试不烧钱);401/403 与配额类
-错误置全局闸门停止标志并返回结构化失败,停止一切新付费请求;其余 HTTP
-错误一次的结构化传输失败(节点层重试,attempt 逐次落盘,悬空计入额度)。
+退避 + 抖动重试(提供者对 429 是否计费**未核验** —— v3-R2 起金额侧不
+凭状态码退预留:闸门把无 usage 的 429 归未知保守借记;重试每次先重新
+原子预留,余额不足先拒,不自动加帽;退避仍有界不无界);401/403 与
+配额类错误置全局闸门停止标志并返回结构化失败,停止一切新付费请求;
+其余 HTTP 错误一次的结构化传输失败(节点层重试,attempt 逐次落盘,
+悬空计入额度)。429 的 HTTP 错误体不读取作为计费依据(含 body usage
+的 429 不得被无依据归零;若未来核验提供者政策后要读,须按闸门同源
+usage 完整性判据结算,见 rate_gate._cost_of_usage)。
 
 预测纪律(任务书 §2):解析失败、超时、空响应是显式结果,由
 services/prediction.parse_model_response 判定;本模块只负责传输与调用状态,
@@ -301,10 +306,11 @@ class OpenAICompatibleClient:
         return None
 
     def _gate_block(self, exc: Exception) -> LLMResponse:
-        """闸门拒绝(全局停止/批次预算耗尽/金额硬帽)→ 结构化失败
-        (不是化学失败)。"""
+        """闸门拒绝(全局停止/批次预算耗尽/金额硬帽/金额配置坏)→
+        结构化失败(不是化学失败)。"""
         from .rate_gate import (
             GateBudgetExhausted,
+            GateCorrupt,
             GateCostBudgetExhausted,
             GateStopped,
         )
@@ -320,6 +326,14 @@ class OpenAICompatibleClient:
             return LLMResponse(
                 ok=False, error_kind="budget_cost_exhausted",
                 error_message="budget_hard_cap_reached_before_send",
+                error_detail=dict(getattr(exc, "detail", {}) or {}))
+        if isinstance(exc, GateCorrupt):
+            # v3-R2 残余 C:发送临界区发现存储冻结块派生值/哈希与同源
+            # 重算不一致(或状态半截)⇒ 结构化失败(零发送;保全坏
+            # 记录,不静默清零计数);summary 首消费同 kind
+            return LLMResponse(
+                ok=False, error_kind="budget_config_invalid",
+                error_message="cost_guard_config_corrupt",
                 error_detail=dict(getattr(exc, "detail", {}) or {}))
         if isinstance(exc, GateBudgetExhausted):
             return LLMResponse(
@@ -408,6 +422,10 @@ class OpenAICompatibleClient:
                 })
                 if status == 429:
                     # 限流:不是化学失败,也不是预算失败;有界退避 + 抖动
+                    # (v3-R2 残余 B:HTTP 错误体不读取作为计费依据 ——
+                    # 提供者对 429 是否计费未核验,含 body usage 的 429
+                    # 不得被无依据归零;闸门把无 usage 的 429 归未知保守
+                    # 借记,重试每次先重新预留,余额不足先拒)
                     if self.gate is not None:
                         # R2:一次尝试恰一次 release(占位 ID)
                         self.gate.record_response(

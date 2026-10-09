@@ -45,16 +45,21 @@ OpenAICompatibleClient → FileRateGate)在**每次可能付费的发送尝试
 未结算未知占用 unsettled + 在途预留 reserved + 单次保守上界 ≤ 帽才发,
 否则 `GateCostBudgetExhausted` 结构化拒(余额不足先于传输)。
 
-金额语义(冻结口径,`s5b-budget-guard-1`):
+金额语义(冻结口径,`s5b-budget-guard-1`;**【v3-R2 订正 2026-10-10】
+下述 429 退款与"缺轴补 0"两口径经 R1 正链复审 §4.2/§4.3 证伪,已由
+v3-R2 回修轮改为:缺轴不补 0(完整合法拆分含显式 0 可结算,一轴缺席
+且无可核总计 ⇒ 未知保守保留)、429 无可靠未计费证据 ⇒ 全额保守保留
+——"提供者不把 429 计费"是未经核验的声明,不得作为退预留依据;详见
+`docs/POLLUTANT_PATHWAY_S5B_HIT50_V3_R2_DELIVERY_2026-10-10.md` §二**):
 
 - **预留**:bound =(输入保守界×入价 + 输出上限×出价)/1e6;每个
   HTTP 尝试(acquire 占位)原子预留一次,reservations 逐尝试留痕;
-- **结算**:响应带 usage ⇒ 按冻结价结算实际金额(预留差值退回恰一次,
-  幂等;只有 total 无拆分 ⇒ 全额按较贵单价保守计);**显式 429 之外
-  的一切无 usage 结局(失败/超时/401/402/403/5xx/空响应/未知)⇒ 预留
-  全额转未结算借记,不释放**(可能已付);429 是提供者明示未处理未
-  计费的确定性结局(沿 llm_client 既有口径"提供者不把 429 计费"),
-  预留退回;
+- 【R2 后现行口径】**结算**:响应带**完整合法计费拆分**(input/output
+  两轴显式且有效,含明确 0)⇒ 按冻结价结算实际金额(预留差值退回恰
+  一次,幂等;只有合法可核 total>0 ⇒ 全额按较贵单价保守计);**缺轴
+  不补 0:只知一轴、空 usage、无 usage 的一切结局 —— 含显式 429
+  (状态码不证明计费为零)⇒ 预留全额转未结算借记,不释放**(可能
+  已付);
 - **孤儿/崩溃**:死亡 owner 占位回收只退在途槽位,金额预留保守转
   未结算;恢复/重复结算幂等,不重退不重扣;结算后 committed 超帽 ⇒
   记 overrun(事后披露,不回滚已付事实,后续发送拒);
@@ -79,6 +84,22 @@ OpenAICompatibleClient → FileRateGate)在**每次可能付费的发送尝试
 (max_in_flight 语义不变)、RPM/TPM、429 有界退避、401/403/402 付费
 停止——全部不动(测试 `test_other_gates_untouched_with_cost_guard`
 与既有回归在案)。金额门是**新增**门,不替换上述任何门。
+
+**【v3-R2 订正 2026-10-10】存储摘要与首消费范围(R1 复审 §4.4 证伪
+的口径差)**:本表原口径把 `cost_guard_summary`/`identity_block`/
+`acquire`/`record_response` 统一描述为"消费冻结配置",实际 R1 实现里
+**摘要/身份首消费走 normalize 重算(不校验存储派生值),而 acquire 临
+界区消费 raw stored `per_attempt_bound_cny`**——同一冻结块被两个不同
+事实消费:摘要重算正常可掩盖存储坏派生值(主审反例:批根合法
+bound=.046938/帽=.001,gate.json stored bound 改 .000001 ⇒ 批根核对与
+run 身份均过,实际发送 1 次 settled .00352 超帽)。v3-R2 起改为:
+存储/恢复的冻结块(gate.json `cost_guard` 块)在恢复装配(`_init_state`)
+、摘要(`cost_guard_summary`,client/worker/身份首消费)、发送临界区
+(`acquire`)、结算临界区(`record_response`)一律对照同源 core 重算
+(`verify_stored_cost_guard`):错/缺派生值、错哈希 ⇒ 结构化拒、保全坏
+记录、零新预留/发送;acquire 校验并消费**同一重算规范对象**;builder
+原始 core(`normalize_cost_guard_config`:CLI/编排器装载/构造参数)与
+stored 恢复入口区分。详见 v3-R2 交付书 §二。
 
 ## 三、§4.2 合成控制清单结果(逐条;tests/test_ppv1_s5b_hit50_v3r1_cost.py)
 
@@ -119,8 +140,18 @@ worktree 同字节运行):
 
 - 父:**50 failed / 6 passed / 1 collection error**(cost 文件 19 用例
   未执行——`GateCostBudgetExhausted` 等父版本 API 缺席);
-- 50 红 = **47 行为 + 3 字段**(字段:data_scope_provenance、
-  data_scope_normalized_from、wv6 gate_scope;0 kind 差异);
+- **【v3-R2 订正 2026-10-10,按 R1 正链复审 §2 JUnit 分类表】原
+  "50 红 = 47 行为 + 3 字段"合并标签不成立**,应分类为:7 行为红
+  (validate 的 5 种 falsy + 2 个 basis shape;另有真正旧公开链 8 案
+  由专项补证,数量有重叠不能相加)+ 20 score API 拒绝类型/边界变化
+  (父已抛 EvaluationContractError,测试期待 S5bScoringError)+ 15
+  validate 拒因 kind 变化(父已拒,新 reason 不同)+ 4 evaluate 拒因
+  优先级变化 + 1 裸 IO 错误→入口拒 + 3 字段披露红(data_scope_
+  provenance、data_scope_normalized_from、gate_scope)+ 6 合法保持绿
+  + 1 collection(cost 模块 19 用例未执行,不能记 19 行为红);合计
+  50F/6P/1C 总数一致,但"40 个拒绝边界/类型/顺序变化"须单列,不得
+  写成 47 次旧放行翻转。S5B-V3-01 收口依据是原合法公开 fixture 的
+  逐案翻转,而不是缺图/缺文件弱夹具的异常名替换;
 - 6 绿 = 保持控制(real 门正控、synthetic 档聚合 ×2、真实链披露、
   入口锁(升级后定义域 src+scripts 下父上仍唯一调用)、
   trigger_equivalence);
@@ -217,10 +248,14 @@ worktree 同字节运行):
 
 ## 十、待复审问题
 
-1. **429 释放口径**:本轮工程判断 = 显式 429(提供者明示未处理未
-   计费,llm_client 既有文档口径)预留退回;其余无 usage 结局一律
-   保守保留。若复审要求 429 也保守保留,改动面仅
-   rate_gate.record_response 一分支 + 2 个测试断言;
+1. **429 释放口径**:**【v3-R2 已裁决并实施 2026-10-10】R1 正链复审
+   §4.3 正式裁定"无可靠未计费证据 ⇒ 全额保守保留",本轮(2026-10-10)
+   原工程判断"显式 429 退回预留"作废**——v3-R2 已改为:429 无可计
+   usage ⇒ 预留全额保守保留(不退);含 body usage 的 429 客户端不
+   读取错误体作为计费依据(不归零);闸门直收完整 usage 则按同源完整
+   性判据结算。改动面 = rate_gate 结算分支 + llm_client 注释/映射 +
+   相关测试(v3-R2 交付书 §二);"提供者不把 429 计费"旧注释属未核验
+   声明,已从源码口径删除;
 2. **60 CNY 真实值与输入保守界/输出上限的定稿**属受权协调者发车
    当日(CLI 默认 60/30000/8192 仅为缺省值,发车按当日报价与实测
    prompt 尺寸定稿并冻结);

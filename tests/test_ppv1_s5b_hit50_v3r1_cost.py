@@ -10,9 +10,10 @@ gate,不只测独立 helper)。
 3. 已知超帽(结算后 committed > cap)⇒ 下次发送拒 + overrun 披露;
 4. 双进程 barrier 抢最后额度 ⇒ 恰一进程成功(flock 原子性);
 5. 未知 usage(200 无 usage/失败/超时)⇒ 预留全额保守保留;
-6. 重试/崩溃恢复/幂等结算:每次 HTTP retry 先预留;429(明示未
-   计费)退回;孤儿(owner 死亡)只退在途槽位、金额保留;重复
-   结算 no-op 不重退不重扣;
+6. 重试/崩溃恢复/幂等结算:每次 HTTP retry 先预留;429 无可靠未计费
+   证据 ⇒ 保守保留不退(v3-R2 按 R1 复审 §4.3 裁定改口径;槽位释放/
+   冷却/有界重试保持);孤儿(owner 死亡)只退在途槽位、金额保留;
+   重复结算 no-op 不重退不重扣;
 7. 配置坏/缺先于传输拒:闸门/批根/编排器三层;
 8. 公开链端到端:worker_main(进程内,urllib 打桩)+ run_s5b_batch
    (子进程 worker → 真客户端 → localhost 假提供者)消费同一守卫;
@@ -295,12 +296,13 @@ def test_unknown_usage_reservation_kept(monkeypatch, tmp_path) -> None:
     assert calls["n"] == 3
 
 
-def test_http_retry_each_attempt_reserves_and_429_released(
+def test_http_retry_each_attempt_reserves_429_kept_conservatively(
         monkeypatch, tmp_path) -> None:
-    """控制 6a:HTTP retry 同样先预留 —— 每次尝试各绑定一个预留
-    (reservations 逐尝试留痕);显式 429(提供者明示未计费)退回
-    预留,重试可继续;成功尝试按 usage 结算。"""
-    gate = _gate(tmp_path, cap=BOUND)  # 恰一次尝试额度
+    """控制 6a(v3-R2 按 R1 复审 §4.3 改口径):HTTP retry 同样先
+    预留 —— 每次尝试各绑定一个预留(reservations 逐尝试留痕);显式
+    429 无可靠未计费证据 ⇒ 预留全额保守保留为未结算借记(槽位释放/
+    冷却/有界重试照常);余额内重试可继续;余额耗尽先于重试拒。"""
+    gate = _gate(tmp_path, cap=BOUND * 3)  # 恰容 2 次 429 保留 + 1 成功
     four29 = urllib.error.HTTPError(
         "https://llm.example/v1/chat/completions", 429, "err",
         {"Retry-After": "0"}, __import__("io").BytesIO(b""))
@@ -316,11 +318,20 @@ def test_http_retry_each_attempt_reserves_and_429_released(
     # 每次尝试(含 retry)各自原子预留:3 条留痕
     assert len(reservations) == 3
     states = sorted(e["state"] for e in reservations.values())
-    assert states == ["released_unbilled", "released_unbilled", "settled"]
+    # 429 保守保留(不退);成功尝试按完整 usage 结算
+    assert states == ["settled", "unsettled", "unsettled"]
     snap = FileRateGate(tmp_path / "gate").cost_snapshot()
     assert snap["settled_cny"] == pytest.approx(USAGE_ACTUAL, abs=1e-9)
+    assert snap["unsettled_cny"] == pytest.approx(BOUND * 2, abs=1e-9)
     assert snap["reserved_cny"] == 0.0
-    assert snap["unsettled_cny"] == 0.0
+    # 429 冷却/槽位释放保持(计数机读)
+    assert state["total_429"] == 2
+    assert state["in_flight"] == 0
+    # committed = 2 未知 + 1 结算 = 3*BOUND = 帽 ⇒ 重试/新发送先拒
+    fourth = client.complete(mode="proposals", system_prompt="s",
+                             user_payload="u")
+    assert fourth.error_kind == "budget_cost_exhausted"
+    assert calls["n"] == 3, "余额不足必须先于重试传输拒"
 
 
 def test_failure_and_timeout_keep_full_bound(monkeypatch, tmp_path) -> None:

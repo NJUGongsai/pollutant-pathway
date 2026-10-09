@@ -23,14 +23,26 @@
   ``已结算借记 settled + 未结算未知占用 unsettled + 在途预留 reserved +
   单次尝试保守上界 bound ≤ 硬帽 cap`` 才放行,否则
   ``GateCostBudgetExhausted`` 结构化拒(余额不足先于传输,不自动升帽)。
-  结算语义:响应带 usage ⇒ 按冻结价结算实际金额(预留差值退回恰一次,
-  幂等);**显式 429 之外的一切无 usage 结局(失败/超时/401/402/403/
-  5xx/空响应/未知)不释放可能已付金额** —— 预留全额转为未结算借记;
-  429 是提供者明示未处理未计费的确定性结局(沿 llm_client 既有口径
-  "提供者不把 429 计费"),预留退回;孤儿/崩溃(死亡 owner 占位回收)
-  只退在途槽位,**金额预留保守保留为未结算借记**;重复结算幂等,不重
-  退不重扣。结算后 committed 超帽 ⇒ 记录 overrun 披露(实际已付事实,
-  不回滚)。
+  结算语义(v3-R2:usage 完整性 + 429 保守保留):响应带**完整合法
+  计费拆分**(input/output 两轴显式存在且有效,含明确 0)⇒ 按冻结价
+  结算实际金额(预留差值退回恰一次,幂等);只有合法可核总计
+  (total>0)⇒ 走既有保守总计口径(全额按较贵单价);**只知一轴
+  (prompt-only/output-only)、字段类型坏/负数、空 usage、无 usage 的
+  一切结局 —— 含显式 429(HTTP 429 状态码本身不证明计费为零,提供者
+  对 429 的计费政策未核验)⇒ 缺轴不补 0、不退可能已付金额,预留全额
+  转为未结算借记**;孤儿/崩溃(死亡 owner 占位回收)只退在途槽位,
+  **金额预留同样保守保留为未结算借记**;重复结算幂等,不重退不重扣。
+  结算后 committed 超帽 ⇒ 记录 overrun 披露(实际已付事实,不回滚)。
+- **存储冻结块首消费(v3-R2 残余 C)**:闸门状态 ``cost_guard`` 块是
+  **已有派生 per_attempt_bound_cny/config_sha256 的存储冻结块** ——
+  恢复装配(``_init_state``)、摘要(``cost_guard_summary``,client/
+  worker/身份首消费)、发送临界区(``acquire``)与结算临界区
+  (``record_response``)都对照同源 core 重算比对
+  (``verify_stored_cost_guard``):错/缺派生值、错哈希 ⇒
+  ``GateCorrupt`` 结构化拒(保全坏记录、零新预留/发送);**发送临界区
+  校验并消费同一重算规范对象**,不消费 raw stored 金额。builder 原始
+  core(``normalize_cost_guard_config``:CLI/编排器装载/构造参数)是
+  合法派生入口,与 stored 恢复入口区分(避免全面拒绝替代校验)。
 - 状态文件与锁文件**不含密钥**;凭证只在 worker 进程内存。
 
 状态文件是协调器/worker 间的共享事实源;损坏时 fail-closed(拒绝发起,
@@ -202,6 +214,59 @@ def normalize_cost_guard_config(config: dict | None) -> dict:
     return core
 
 
+def verify_stored_cost_guard(stored: dict) -> dict:
+    """存储/恢复的冻结金额守卫块 → 同源重算比对(v3-R2 残余 C)。
+
+    两个入口区分(不全面拒绝替代校验):
+    - **builder 原始 core**(``normalize_cost_guard_config``:CLI
+      ``budget`` / ``load_budget_guard`` / 闸门构造参数):原始 core
+      数值字段 → 派生 ``per_attempt_bound_cny`` / ``config_sha256``,
+      是合法派生入口;
+    - **stored 恢复**(本函数:闸门状态 ``cost_guard`` 块):冻结块
+      **已有**派生金额与哈希,须对照同源 core 重算逐字段一致才可信。
+
+    判据:``per_attempt_bound_cny`` / ``config_sha256`` 缺任一
+    (``stored_derived_missing``)或与重算值不一致
+    (``stored_derived_mismatch``,bound 数值比对、sha 字符串比对)⇒
+    ValueError(detail 结构化:字段、stored 值、重算值);调用方
+    fail-closed(保全坏记录、零新预留/发送)。
+
+    返回**重算的规范对象**(与 builder 入口同一 normalize 判据产出);
+    临界区/摘要/身份/结算消费该规范对象,不得消费 raw stored 金额。"""
+    if not isinstance(stored, dict):
+        raise ValueError({"kind": "cost_guard_config_invalid",
+                          "reason": "stored_not_an_object",
+                          "value_type": type(stored).__name__})
+    canonical = normalize_cost_guard_config(stored)
+    for field in ("per_attempt_bound_cny", "config_sha256"):
+        if field not in stored:
+            raise ValueError({
+                "kind": "cost_guard_config_invalid",
+                "reason": f"stored_derived_missing:{field}",
+                "field": field,
+                "note": "存储冻结块缺派生字段;fail-closed(零新预留/发送)"})
+        stored_value = stored[field]
+        canonical_value = canonical[field]
+        if field == "per_attempt_bound_cny":
+            try:
+                same = _round_money(float(stored_value)) \
+                    == canonical_value
+            except (TypeError, ValueError):
+                same = False
+        else:
+            same = str(stored_value) == str(canonical_value)
+        if not same:
+            raise ValueError({
+                "kind": "cost_guard_config_invalid",
+                "reason": "stored_derived_mismatch",
+                "field": field,
+                "stored": stored_value,
+                "recalculated": canonical_value,
+                "note": ("存储冻结块派生值与同源 core 重算不一致;"
+                         "保全坏记录,零新预留/发送")})
+    return canonical
+
+
 def _round_money(value: float) -> float:
     return round(float(value), COST_MONEY_DECIMALS)
 
@@ -235,7 +300,10 @@ class FileRateGate:
         # 同时在途请求硬上限(0 = 不限制,dev 语义;EC298 外考 = 40)
         self.max_in_flight = int(max_in_flight)
         # S5B-V3-02:批级金额硬帽配置(None = 不启用;旧 dev 语义批与
-        # 金额守卫并存不冲突——旧批状态无 cost_guard 块,行为不变)
+        # 金额守卫并存不冲突——旧批状态无 cost_guard 块,行为不变)。
+        # 构造参数是 **builder 原始 core 派生入口**(CLI/编排器/测试
+        # 给原始或规范配置);既有状态文件里的存储冻结块走 stored 恢复
+        # 入口(_init_state 内 verify_stored_cost_guard 同源重算比对)
         if cost_guard is None:
             self.cost_guard = None
         else:
@@ -277,23 +345,28 @@ class FileRateGate:
                         state.get("max_in_flight", 0) or 0)
                 except (TypeError, ValueError):
                     pass
-            # S5B-V3-02:金额守卫同样从冻结值装配(协调者写入
-            # cost_guard 块;worker 侧构造缺省 ⇒ 采纳冻结配置;状态块
-            # 坏形状 ⇒ GateCorrupt,先于任何发起)。构造显式给了
-            # cost_guard 而状态无块(新状态)⇒ 用构造值(首跑写盘);
-            # 两侧都有 ⇒ 校验一致性(verify_config 全量核对)。
+            # S5B-V3-02/R2:金额守卫同样从冻结值装配(协调者写入
+            # cost_guard 块;worker 侧构造缺省 ⇒ 采纳冻结配置)。恢复
+            # 装配是 **stored 恢复入口**:冻结块已有派生 bound/hash
+            # 须对照同源 core 重算一致(verify_stored_cost_guard),
+            # 错/缺派生值、错哈希 ⇒ GateCorrupt(保全坏记录,先于任何
+            # 发起;摘要重算正常不能洗掉存储坏字段)。构造显式给了
+            # cost_guard 而状态无块(新状态)⇒ 用构造值(首跑写盘,
+            # builder 派生入口);两侧都有 ⇒ 校验一致性
+            # (verify_config 全量核对)。
             state_cost_guard = (state.get("cost_guard")
                                 if isinstance(state, dict) else None)
             if state_cost_guard is not None:
                 try:
-                    self.cost_guard = normalize_cost_guard_config(
+                    self.cost_guard = verify_stored_cost_guard(
                         state_cost_guard)
                 except ValueError as exc:
                     raise GateCorrupt({
                         "kind": "cost_guard_config_invalid",
                         "detail": exc.args[0] if exc.args else {},
-                        "note": ("冻结金额守卫配置坏形状 ⇒ fail-closed "
-                                 "拒绝发起(不清零计数、不猜价格)")}) from exc
+                        "note": ("存储冻结金额守卫块派生值/哈希与同源重算"
+                                 "不一致 ⇒ fail-closed 拒绝发起(保全坏"
+                                 "记录、不猜价格)")}) from exc
             elif self.cost_guard is not None and \
                     isinstance(state, dict) and state.get("max_calls") \
                     is not None:
@@ -337,12 +410,15 @@ class FileRateGate:
     def _fresh_cost_ledger(self) -> dict:
         return {
             "settled_cny": 0.0,        # 已知 usage 结算的实际借记
-            "unsettled_cny": 0.0,      # 无 usage/孤儿保守保留的预留全额
+            "unsettled_cny": 0.0,      # 无 usage/部分缺轴/429/孤儿保守保留
             "reserved_cny": 0.0,       # 在途预留(每次可能付费发送尝试)
             "send_rejections": 0,      # 金额硬帽拒发次数(披露)
             "overrun": None,           # 结算后发现超帽的事后披露(不回滚)
             # {placeholder_id: {bound_cny, state, settled_cny, pid, at}}
-            # state: reserved | settled | unsettled | released_unbilled
+            # state: reserved | settled | unsettled
+            # (released_unbilled 为 v3-R1 旧 429 退款语义的历史值:新
+            # 结算不再写入 —— 429 无可靠未计费证据一律保守保留;旧状态
+            # 文件里的历史条目只是账本事实,不再产生、不受影响)
             "reservations": {},
         }
 
@@ -454,19 +530,29 @@ class FileRateGate:
                     raise GateBudgetExhausted({
                         "total_requests": state["total_requests"],
                         "max_calls": state["max_calls"]})
-                # ---- S5B-V3-02:金额硬帽原子预留(先于传输) ----
+                # ---- S5B-V3-02/R2:金额硬帽原子预留(先于传输) ----
+                # R2 残余 C:发送临界区先对照同源重算校验存储冻结块,
+                # 校验并消费**同一重算规范对象**(bound/cap/sha 均取自
+                # 重算值,不消费 raw stored 金额);错/缺派生值、错哈希
+                # ⇒ GateCorrupt 结构化拒 —— 零新预留/发送、不落盘
+                # (保全坏记录,摘要重算正常不能洗掉存储坏字段)
                 cost_guard = state.get("cost_guard")
                 cost_bound = None
                 if cost_guard is not None:
-                    cost_bound = _round_money(
-                        cost_guard.get("per_attempt_bound_cny") or 0.0)
-                    cap = _round_money(cost_guard.get("cap_cny"))
-                    committed = self._cost_committed_cny(state)
-                    if cost_bound <= 0.0:
-                        # 冻结块缺派生字段(坏形状)⇒ fail-closed
+                    try:
+                        canonical_guard = verify_stored_cost_guard(
+                            cost_guard)
+                    except ValueError as exc:
                         raise GateCorrupt({
                             "kind": "cost_guard_config_invalid",
-                            "reason": "per_attempt_bound_missing"})
+                            "detail": exc.args[0] if exc.args else {},
+                            "note": ("发送临界区存储冻结块派生值/哈希与"
+                                     "同源重算不一致;零新预留/发送,"
+                                     "保全坏记录(fail-closed)")}) from exc
+                    cost_bound = _round_money(
+                        canonical_guard["per_attempt_bound_cny"])
+                    cap = _round_money(canonical_guard["cap_cny"])
+                    committed = self._cost_committed_cny(state)
                     if committed + cost_bound > cap + COST_EPSILON:
                         cost = state["cost"]
                         cost["send_rejections"] = int(
@@ -487,7 +573,7 @@ class FileRateGate:
                                 (state.get("cost") or {}).get(
                                     "reserved_cny") or 0.0),
                             "config_sha256": str(
-                                cost_guard.get("config_sha256") or ""),
+                                canonical_guard["config_sha256"]),
                             "note": ("批级金额硬帽(冻结机器配置,不自动"
                                      "升帽):已知借记+在途预留+缺 usage "
                                      "未结算预留+单次保守上界 ≤ 帽才发;"
@@ -565,15 +651,22 @@ class FileRateGate:
           -1(兼容;新批一律带占位)。
         其余记账(token/429/停止标志)与占位无关,照常执行。
 
-        S5B-V3-02 金额结算(金额守卫启用且该占位有在途预留时):
-        - 响应带可计 usage ⇒ **按冻结价结算实际金额**(预留全额撤出
-          in_flight 账、实际入 settled;差值退回恰一次;重复/幂等结算
-          no-op,不重退不重扣);结算后 committed 超帽 ⇒ 记 overrun
-          (事后披露,不回滚已付事实,后续发送被拒);
-        - 显式 429 ⇒ 预留退回(提供者明示未处理未计费;llm_client
-          既有口径"提供者不把 429 计费");
-        - **其余一切无 usage 结局(失败/超时/401/402/403/5xx/空响应/
-          未知)⇒ 预留全额转 unsettled 不释放**(可能已付,保守保留);
+        S5B-V3-02/R2 金额结算(金额守卫启用且该占位有在途预留时):
+        - 结算临界区先对照同源重算校验存储冻结块(残余 C),消费**同一
+          重算规范对象**;坏块 ⇒ 不结算,预留保守转未结算(占位/token/
+          冷却记账照常,坏记录保全不洗);
+        - 响应带**完整合法计费拆分**(input/output 两轴显式且有效,含
+          明确 0)⇒ 按冻结价结算实际金额(预留全额撤出 in_flight 账、
+          实际入 settled;差值退回恰一次;重复/幂等结算 no-op,不重退
+          不重扣);只有合法可核 total(>0)⇒ 既有保守总计口径(全额按
+          较贵单价);**只知一轴(prompt-only/output-only)且无完整
+          总计 ⇒ 缺轴不补 0,不可计(残余 A)**;结算后 committed 超帽
+          ⇒ 记 overrun(事后披露,不回滚已付事实,后续发送被拒);
+        - **无可计 usage 的一切结局 —— 含显式 429(残余 B:HTTP 429
+          状态码本身不证明计费为零,提供者对 429 的计费政策未核验)、
+          失败/超时/401/402/403/5xx/空响应/部分缺轴 ⇒ 预留全额转
+          unsettled 不释放**(可能已付,保守保留;槽位释放/429 冷却/
+          有界重试照常,重试每次先重新预留);
         - 占位无预留记录(未 acquire/旧调用方/已结算)⇒ 金额侧 no-op。"""
         with self._locked() as f:
             state = self._load(f)
@@ -589,48 +682,66 @@ class FileRateGate:
                 state["in_flight"] = max(
                     0, int(state.get("in_flight", 0)) - 1)
             # 未知/已释放占位:no-op(未 acquire 不 release;幂等)
-            # ---- S5B-V3-02:金额结算(幂等;见方法 docstring) ----
+            # ---- S5B-V3-02/R2:金额结算(幂等;见方法 docstring) ----
             if state.get("cost_guard") is not None \
                     and placeholder_id is not None:
                 cost = state["cost"]
                 reservations = cost.setdefault("reservations", {})
                 entry = reservations.get(placeholder_id)
                 if entry is not None and entry.get("state") == "reserved":
-                    guard = state["cost_guard"]
                     bound = _round_money(entry.get("bound_cny"))
-                    actual = self._cost_of_usage(guard, usage)
-                    if actual is not None:
-                        entry["state"] = "settled"
-                        entry["settled_cny"] = actual
-                        cost["reserved_cny"] = _round_money(
-                            float(cost.get("reserved_cny") or 0.0) - bound)
-                        cost["settled_cny"] = _round_money(
-                            float(cost.get("settled_cny") or 0.0) + actual)
-                    elif status == 429:
-                        # 提供者明示未处理未计费(429):预留退回
-                        entry["state"] = "released_unbilled"
-                        cost["reserved_cny"] = _round_money(
-                            float(cost.get("reserved_cny") or 0.0) - bound)
-                    else:
-                        # 失败/超时/未知 usage/付费类错误:可能已付 ⇒
-                        # 预留全额保守保留为未结算借记,不释放
+                    # R2 残余 C:结算临界区消费同一合法规范对象 ——
+                    # 存储冻结块对照同源重算;坏块不结算(预留保守保留,
+                    # bound 取 acquire 期原子落盘的账本事实),记账照常,
+                    # 坏记录保全不洗
+                    try:
+                        guard = verify_stored_cost_guard(
+                            state["cost_guard"])
+                    except ValueError:
                         entry["state"] = "unsettled"
+                        entry["note"] = (
+                            "cost_guard_stored_invalid_settlement_kept")
                         cost["reserved_cny"] = _round_money(
                             float(cost.get("reserved_cny") or 0.0) - bound)
                         cost["unsettled_cny"] = _round_money(
                             float(cost.get("unsettled_cny") or 0.0) + bound)
-                    cap = _round_money(guard.get("cap_cny"))
-                    committed = self._cost_committed_cny(state)
-                    if committed > cap + COST_EPSILON and \
-                            not cost.get("overrun"):
-                        cost["overrun"] = {
-                            "kind": "cost_guard_overrun",
-                            "committed_cny": committed,
-                            "cap_cny": cap,
-                            "at": now,
-                            "note": ("结算后发现已知借记+未知占用超帽(实际"
-                                     "已付事实,不回滚);新发送被硬帽拒,"
-                                     "不自动升帽")}
+                    else:
+                        # R2 残余 A:usage 完整性判据(缺轴不补 0)
+                        actual = self._cost_of_usage(guard, usage)
+                        if actual is not None:
+                            entry["state"] = "settled"
+                            entry["settled_cny"] = actual
+                            cost["reserved_cny"] = _round_money(
+                                float(cost.get("reserved_cny") or 0.0)
+                                - bound)
+                            cost["settled_cny"] = _round_money(
+                                float(cost.get("settled_cny") or 0.0)
+                                + actual)
+                        else:
+                            # 无可计 usage 的一切结局 —— 含显式 429
+                            # (R2 残余 B:状态码不证明计费为零,无可靠
+                            # 未计费证据)、失败/超时/付费类错误、
+                            # 空响应、部分缺轴 ⇒ 预留全额保守保留为
+                            # 未结算借记,不释放(可能已付)
+                            entry["state"] = "unsettled"
+                            cost["reserved_cny"] = _round_money(
+                                float(cost.get("reserved_cny") or 0.0)
+                                - bound)
+                            cost["unsettled_cny"] = _round_money(
+                                float(cost.get("unsettled_cny") or 0.0)
+                                + bound)
+                        cap = _round_money(guard.get("cap_cny"))
+                        committed = self._cost_committed_cny(state)
+                        if committed > cap + COST_EPSILON and \
+                                not cost.get("overrun"):
+                            cost["overrun"] = {
+                                "kind": "cost_guard_overrun",
+                                "committed_cny": committed,
+                                "cap_cny": cap,
+                                "at": now,
+                                "note": ("结算后发现已知借记+未知占用超帽"
+                                         "(实际已付事实,不回滚);新发送"
+                                         "被硬帽拒,不自动升帽")}
             if usage:
                 total = int(usage.get("total_tokens")
                             or (int(usage.get("prompt_tokens") or 0)
@@ -657,30 +768,53 @@ class FileRateGate:
     def _cost_of_usage(guard: dict, usage: dict | None) -> float | None:
         """按冻结价把 provider usage 结算为实际金额(CNY;None = 不可计)。
 
-        - input/output 拆分齐 ⇒ 按各自单价精确结算;
-        - 只有 total ⇒ 保守口径:全额按较贵单价计(usage_split_policy
-          冻结进配置披露,不猜拆分);
-        - 无 usage/无可计 token ⇒ None(调用方按未知保守保留预留)。"""
-        if not usage:
+        v3-R2 残余 A:**显式字段存在、类型/非负有效与缺席分开,缺轴
+        不补 0**(``or 0`` 旧口径把 prompt-only 当完整计费证明,退掉
+        未知费用、挤出第二次发送):
+
+        - input/output 两轴均**显式存在且有效**(int/float、非 bool、
+          ≥0、有限;含明确 0)⇒ 完整合法计费拆分,按各自单价精确结算;
+        - 两轴不齐而 ``total_tokens`` 显式存在、有效且 >0 ⇒ 合法可核
+          总计,走既有保守总计口径(全额按较贵单价计;
+          ``usage_split_policy`` 冻结进配置披露,不猜拆分);
+        - **只知一轴(prompt-only/output-only)且无完整总计、字段类型
+          坏/负数/非有限、空 usage、非 dict ⇒ None(不可计)** —— 调用
+          方按未知保守保留预留,不退可能已付金额(模型响应有实际内容,
+          不能由字段缺席推出输出费用为 0)。"""
+        if not isinstance(usage, dict) or not usage:
             return None
-        try:
-            prompt = int(usage.get("prompt_tokens") or 0)
-            completion = int(usage.get("completion_tokens") or 0)
-            total = int(usage.get("total_tokens") or 0)
-        except (TypeError, ValueError):
-            return None
+
+        def _axis(key: str) -> tuple[bool, float | None]:
+            """单轴分类:(显式存在, 值);存在但类型坏/负数/非有限 ⇒
+            (True, None) —— 与缺席 (False, None) 区分。"""
+            if key not in usage:
+                return False, None
+            raw = usage[key]
+            if isinstance(raw, bool) \
+                    or not isinstance(raw, (int, float)):
+                return True, None
+            value = float(raw)
+            if not (value == value and value != float("inf")
+                    and value != float("-inf")) or value < 0.0:
+                return True, None
+            return True, value
+
+        prompt_present, prompt = _axis("prompt_tokens")
+        completion_present, completion = _axis("completion_tokens")
+        _, total = _axis("total_tokens")
         input_price = float(guard.get("input_per_mtok") or 0.0)
         output_price = float(guard.get("output_per_mtok") or 0.0)
-        if prompt > 0 and completion > 0:
+        if prompt_present and completion_present \
+                and prompt is not None and completion is not None:
+            # 完整 input/output 拆分(含显式 0)⇒ 精确结算
             tokens_cny = (prompt * input_price
                           + completion * output_price) / 1_000_000.0
-        elif total > 0:
+        elif total is not None and total > 0:
+            # 合法可核总计 ⇒ 既有保守总计口径(全额较贵单价)
             tokens_cny = total * max(input_price, output_price) \
                 / 1_000_000.0
-        elif prompt > 0 or completion > 0:
-            tokens_cny = (prompt * input_price
-                          + completion * output_price) / 1_000_000.0
         else:
+            # 一轴缺席(或字段无效)且无可核总计 ⇒ 不可计:保守保留
             return None
         return _round_money(tokens_cny)
 
@@ -775,20 +909,27 @@ class FileRateGate:
 
     def cost_guard_summary(self) -> dict | None:
         """冻结金额守卫配置的校验快照(未启用 ⇒ None;坏形状 ⇒
-        GateCorrupt —— 发送侧先于传输拒,身份装配同源消费)。"""
+        GateCorrupt —— 发送侧先于传输拒,身份装配同源消费)。
+
+        v3-R2 残余 C:本方法是 client(complete 首消费)/worker
+        (_verify_budget_guard)/run 身份(identity_block)的**存储冻结块
+        首消费** —— 返回前对照同源 core 重算校验存储派生 bound/hash
+        (错/缺 ⇒ GateCorrupt,不返回"重算洗白"的规范值);返回的
+        规范对象 ⇔ 存储块与重算一致(身份摘要正确不能洗存储坏字段,
+        实际发送/结算消费同一规范对象,见 acquire/record_response)。"""
         with self._locked() as f:
             state = self._load(f)
         guard = state.get("cost_guard")
         if guard is None:
             return None
         try:
-            return normalize_cost_guard_config(guard)
+            return verify_stored_cost_guard(guard)
         except ValueError as exc:
             raise GateCorrupt({
                 "kind": "cost_guard_config_invalid",
                 "detail": exc.args[0] if exc.args else {},
-                "note": "金额守卫配置坏形状;拒绝发起(fail-closed)"}) \
-                from exc
+                "note": ("存储金额守卫冻结块派生值/哈希与同源重算不一致;"
+                         "拒绝发起(fail-closed,保全坏记录)")}) from exc
 
     def cost_snapshot(self) -> dict:
         """金额账本只读快照(协调器/报告披露用:committed 构成 +

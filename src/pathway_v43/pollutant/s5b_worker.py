@@ -47,6 +47,7 @@ def worker_main(argv: list[str] | None = None) -> int:
     sys.path.insert(0, str(_repo_src_path(batch_root)))
 
     from pathway_v43.config import resolve_config
+    from pathway_v43.adapters.rate_gate import GateCorrupt
     from pathway_v43.pollutant.real_model import (
         RealModelAdapter,
         RealModelNotConfigured,
@@ -102,6 +103,18 @@ def worker_main(argv: list[str] | None = None) -> int:
                 "error": str(exc), "detail": dict(exc.detail),
             })
             return 2
+        except GateCorrupt as exc:
+            # v3-R2 残余 C:worker 侧存储冻结块首消费 —— 客户端闸门
+            # 装配(打开既有 gate 状态)即发现存储派生 bound/hash 与
+            # 同源重算不一致 ⇒ 结构化失败 case(失败题留分母,零发送;
+            # 保全坏记录,身份摘要重算正常不能洗掉存储坏字段)
+            _write_case(batch_root, {
+                "qid": qid, "run_id": run_id, "status": "failed",
+                "failure_kind": "budget_guard_invalid",
+                "error": f"闸门金额守卫存储冻结块校验失败:{exc}"[:300],
+                "detail": dict(getattr(exc, "detail", {}) or {}),
+            })
+            return 5
         # ---- S5B-V3-02:real 批金额守卫先于传输核(worker 公开入口) ----
         # 公共链的守卫 = 协调者写入闸门状态文件的冻结配置(worker 经
         # V43_LLM_RATE_GATE 装配);本核对闭合"绕开编排器手动起 worker"
