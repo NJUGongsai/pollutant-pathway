@@ -99,7 +99,10 @@ class LLMResponse:
     error_kind: str = ""         # transport_error | timeout | empty_response |
                                  # rate_limited_exhausted | forbidden_permanent |
                                  # forbidden_stopped_by_gate |
-                                 # batch_api_budget_exhausted
+                                 # batch_api_budget_exhausted |
+                                 # budget_cost_exhausted |
+                                 # budget_config_invalid |
+                                 # budget_output_cap_conflict
     error_message: str = ""
     elapsed_s: float = 0.0
     usage: dict = field(default_factory=dict)
@@ -298,13 +301,25 @@ class OpenAICompatibleClient:
         return None
 
     def _gate_block(self, exc: Exception) -> LLMResponse:
-        """闸门拒绝(全局停止/批次预算耗尽)→ 结构化失败(不是化学失败)。"""
-        from .rate_gate import GateBudgetExhausted, GateStopped
+        """闸门拒绝(全局停止/批次预算耗尽/金额硬帽)→ 结构化失败
+        (不是化学失败)。"""
+        from .rate_gate import (
+            GateBudgetExhausted,
+            GateCostBudgetExhausted,
+            GateStopped,
+        )
 
         if isinstance(exc, GateStopped):
             return LLMResponse(
                 ok=False, error_kind="forbidden_stopped_by_gate",
                 error_message="gate_stopped_no_new_paid_requests",
+                error_detail=dict(getattr(exc, "detail", {}) or {}))
+        if isinstance(exc, GateCostBudgetExhausted):
+            # S5B-V3-02:批级金额硬帽(发送前原子预留失败)—— 余额
+            # 不足先于传输;调用方不得自动升帽重试
+            return LLMResponse(
+                ok=False, error_kind="budget_cost_exhausted",
+                error_message="budget_hard_cap_reached_before_send",
                 error_detail=dict(getattr(exc, "detail", {}) or {}))
         if isinstance(exc, GateBudgetExhausted):
             return LLMResponse(
@@ -321,6 +336,35 @@ class OpenAICompatibleClient:
         params = dict(self.request_params)
         if extra_params:
             params.update(extra_params)
+        # ---- S5B-V3-02:金额守卫首消费(先于传输) ----
+        # 闸门带冻结金额配置 ⇒ ①配置坏形状 ⇒ 结构化拒(不发送);
+        # ②请求体输出上限 = 冻结 max_output_tokens(随请求发送,提供者
+        # 侧可核);显式 request_params 携带不同 max_tokens ⇒ 冲突拒
+        # (单一事实源 = 批根冻结机器配置,不静默混用)。
+        if self.gate is not None:
+            from .rate_gate import GateCorrupt
+
+            try:
+                cost_config = self.gate.cost_guard_summary()
+            except GateCorrupt as exc:
+                return LLMResponse(
+                    ok=False, error_kind="budget_config_invalid",
+                    error_message="cost_guard_config_corrupt",
+                    error_detail=dict(getattr(exc, "detail", {}) or {}))
+            if cost_config is not None:
+                frozen_cap = int(cost_config["max_output_tokens"])
+                declared = params.get("max_tokens")
+                if declared is not None and int(declared) != frozen_cap:
+                    return LLMResponse(
+                        ok=False, error_kind="budget_output_cap_conflict",
+                        error_message=(
+                            "request_params.max_tokens conflicts with "
+                            "frozen budget guard output cap"),
+                        error_detail={
+                            "kind": "budget_output_cap_conflict",
+                            "declared_max_tokens": declared,
+                            "frozen_max_output_tokens": frozen_cap})
+                params["max_tokens"] = frozen_cap
         body = self._request_body(system_prompt, user_payload, params)
         headers = {
             "Content-Type": "application/json",

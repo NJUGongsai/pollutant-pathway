@@ -366,10 +366,15 @@ class RealModelAdapter:
 
         R5:模型身份包含 **retry/timeout 参数**(max_http_retries 与
         timeout_s、request_params)—— 重试/超时变化 = 不同身份,同批
-        resume 逐字段核对拒绝静默继续。"""
+        resume 逐字段核对拒绝静默继续。
+
+        S5B-V3-02:客户端闸门带冻结金额守卫配置 ⇒ ``budget_guard``
+        块入身份(帽/价格/输入保守界/输出上限/配置哈希;resume 逐字段
+        核对 —— 金额配置变化 = 不同批次身份;配置坏形状 ⇒ GateCorrupt
+        上抛,装配期 fail-closed,不静默发送)。"""
         from ..domain.policy import PREDICTION_POLICY_VERSION
 
-        return {
+        block = {
             "enabled": True,
             "provider": self.provider,
             "model_id": self.model_id,
@@ -380,6 +385,27 @@ class RealModelAdapter:
             "timeout_s": float(self.timeout_s),
             "max_http_retries": int(self.max_http_retries),
         }
+        gate = getattr(self.client, "gate", None)
+        if gate is not None:
+            cost_config = gate.cost_guard_summary()
+            if cost_config is not None:
+                block["budget_guard"] = {
+                    "schema": str(cost_config["schema"]),
+                    "cap_cny": float(cost_config["cap_cny"]),
+                    "currency": str(cost_config["currency"]),
+                    "input_per_mtok": float(
+                        cost_config["input_per_mtok"]),
+                    "output_per_mtok": float(
+                        cost_config["output_per_mtok"]),
+                    "input_tokens_conservative_bound": int(
+                        cost_config["input_tokens_conservative_bound"]),
+                    "max_output_tokens": int(
+                        cost_config["max_output_tokens"]),
+                    "per_attempt_bound_cny": float(
+                        cost_config["per_attempt_bound_cny"]),
+                    "config_sha256": str(cost_config["config_sha256"]),
+                }
+        return block
 
     # ------------------------------------------------------------ 账本
 

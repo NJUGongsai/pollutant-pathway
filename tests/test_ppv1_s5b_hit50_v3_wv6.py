@@ -135,6 +135,11 @@ def test_wv6_program_gate_real_non_strict_rejects(tmp_path) -> None:
     assert detail["data_scope"] == "real"
     assert detail["non_qid_strict_bases"] == {
         GRAPH_ID: "root_identity_fallback"}
+    # S5B-V3-01 同门 P2(mimo r28 D1-②):门只核档位与覆盖、不核映射
+    # —— 机读 gate_scope 落字(防"双保险"被读成"映射已核")
+    gate_scope = str(detail.get("gate_scope") or "")
+    assert "不核" in gate_scope and "映射" in gate_scope
+    assert "档位" in gate_scope and "覆盖" in gate_scope
     # 非 fallback 的非 strict 值(未来混合档形状)同样拒
     with pytest.raises(S5bScoringError) as excinfo2:
         _score(tmp_path, batch_root, scope="real",
@@ -164,32 +169,47 @@ def test_wv6_program_gate_synthetic_fallback_aggregates(tmp_path) -> None:
 # ================================================================ 入口锁
 
 def test_wv6_pairing_single_active_call_site_locked() -> None:
-    """W-V6.2:``_pair_exports_to_samples`` 全仓唯一活动调用 =
-    evaluate_scientific(def 行/注释/文档行除外;新增第二调用点 ⇒ 红,
-    须显式扩展 evaluation.py 的 W-V6.2 入口矩阵登记)。"""
+    """W-V6.2(S5B-V3-01 回修收紧):``_pair_exports_to_samples`` 的
+    **活动调用定义域 = 仓内可执行入口 ``src/**/*.py`` 与
+    ``scripts/**/*.py``**,唯一活动调用 = evaluate_scientific 内恰
+    一处(**计数断言**,不是整行前缀豁免 —— evaluation.py 内任何
+    第二处同前缀调用同样红);新增第二调用点 ⇒ 红,须显式扩展
+    evaluation.py 的 W-V6.2 入口矩阵登记。定义行/注释行不计。"""
     pattern = re.compile(r"_pair_exports_to_samples\(")
+    scan_roots = [REPO_ROOT / "src", REPO_ROOT / "scripts"]
     active: list[tuple[str, int, str]] = []
-    for py in sorted((REPO_ROOT / "src").rglob("*.py")):
-        for lineno, line in enumerate(
-                py.read_text(encoding="utf-8").splitlines(), 1):
-            if not pattern.search(line):
+    in_evaluation: list[tuple[int, str]] = []
+    for root in scan_roots:
+        for py in sorted(root.rglob("*.py")):
+            if "__pycache__" in py.parts:
                 continue
-            stripped = line.strip()
-            if stripped.startswith("def _pair_exports_to_samples"):
-                continue  # 定义行
-            if stripped.startswith("#"):
-                continue  # 注释行
-            if py.name == "evaluation.py" and \
-                    "pairing = _pair_exports_to_samples(" in line:
-                continue  # 已登记的唯一活动调用(evaluate_scientific 内)
-            active.append((str(py), lineno, stripped[:80]))
+            for lineno, line in enumerate(
+                    py.read_text(encoding="utf-8").splitlines(), 1):
+                if not pattern.search(line):
+                    continue
+                stripped = line.strip()
+                if stripped.startswith("def _pair_exports_to_samples"):
+                    continue  # 定义行
+                if stripped.startswith("#"):
+                    continue  # 注释行
+                if py.name == "evaluation.py":
+                    in_evaluation.append((lineno, stripped[:80]))
+                else:
+                    active.append((str(py), lineno, stripped[:80]))
     assert active == [], (
-        f"发现未登记的 _pair_exports_to_samples 活动调用(唯一消费入口"
-        f"= evaluate_scientific;新增调用须先扩展 evaluation.py W-V6.2 "
-        f"入口矩阵登记):{active}")
+        f"发现未登记的 _pair_exports_to_samples 活动调用(定义域 = "
+        f"src+scripts 可执行入口;唯一消费入口 = evaluate_scientific;"
+        f"新增调用须先扩展 evaluation.py W-V6.2 入口矩阵登记):{active}")
+    # evaluation.py 内该调用模式计数 == 1(已登记的唯一活动调用;
+    # 同前缀第二处同样红 —— 旧版整行豁免会漏计)
+    assert len(in_evaluation) == 1, in_evaluation
+    assert in_evaluation[0][1].startswith(
+        "pairing = _pair_exports_to_samples(")
     # 定义存在且唯一(防重定义绕过)
     defs = [
-        (str(py), lineno) for py in (REPO_ROOT / "src").rglob("*.py")
+        (str(py), lineno) for root in scan_roots
+        for py in root.rglob("*.py")
+        if "__pycache__" not in py.parts
         for lineno, line in enumerate(
             py.read_text(encoding="utf-8").splitlines(), 1)
         if line.strip().startswith("def _pair_exports_to_samples")]

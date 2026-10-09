@@ -166,6 +166,27 @@ W-V6.2(v3 交付,mimo r27 判断面一附条件;配对唯一消费入口登记):
 
 本模块不读取真实科学数据/金标/题面/封存 run;不写数据库;合成
 规则级测试之外的数字一律 interface/pending。
+
+S5b HIT50 v3 回修(S5B-V3-01,2026-10-10,正链复审
+POLLUTANT_PATHWAY_S5B_HIT50_V3_CODEX_REVIEW §4.1;**仅 data_scope
+首消费校验收紧**,real 门/配对/匹配/指标判定零触碰):
+
+- **data_scope 严格校验(评测首消费)**:``resolve_data_scope`` 为
+  评测(``validate_evaluation_input``/``evaluate_scientific``)与判分
+  (``s5b_scoring.score_s5b_batch``,包装为 S5bScoringError)**共用
+  同一判据**——显式空串/None/bool/数值/未知字符串(含 "Real" 等
+  大小写/空白变体)⇒ 结构化拒(kind=data_scope_invalid),**不再用
+  ``get(...) or synthetic_rule_level`` 的 truthiness 把显式坏值洗成
+  synthetic**(旧路径显式空/None/False/0 被洗白后绕过 real 批准/
+  配对门);**字段完全缺省的既有缺省语义保留**(评测侧缺省 =
+  synthetic_rule_level;判分侧缺省经签名默认 = real),归一来源
+  ``normalized_from`` 机读进 scoring_provenance;CLI choices 不代
+  API 校验(本函数是公开 API 唯一权威判据);
+- 适用入口矩阵:①``validate_evaluation_input``(校验首消费);
+  ②``evaluate_scientific``(同源二次解析 + 输出披露);③
+  ``score_s5b_batch``(判分首消费,同判据异常包装 s5b_data_scope_
+  invalid);合法正控保持:显式 real(配 prereg 批准门)、显式
+  synthetic、完全缺省(合成夹具默认语义)。
 """
 
 from __future__ import annotations
@@ -243,6 +264,67 @@ EMITTED_STATUSES = frozenset(SCIENTIFIC_STATUSES - {
 
 DATA_SCOPES = frozenset({"synthetic_rule_level", "real"})
 PROVIDER_KINDS = frozenset({"none", "scripted", "real"})
+
+
+def resolve_data_scope(raw_value, *, field: str = "data_scope",
+                       default: str,
+                       present: bool) -> tuple[str, dict]:
+    """严格 data_scope 解析(S5B-V3-01;评测/判分首消费共用同一判据)。
+
+    - ``present=False``(字段完全缺省)⇒ **既有缺省语义保留**:返回
+      ``(default, {"field", "value", "normalized_from":
+      "missing_field_default"})``——缺省与坏值不混为一类,归一来源
+      机读披露(评测侧缺省 = synthetic_rule_level;判分侧缺省经
+      函数签名默认 = real,由调用方登记);
+    - ``present=True``(字段显式提供)⇒ 必须是 ``DATA_SCOPES`` 内的
+      非空字符串;显式空串/None/bool/数值/未知字符串(含大小写变体、
+      带空白)⇒ ``EvaluationContractError``(kind=data_scope_invalid,
+      detail 携带 value/value_type/allowed)——**不用 ``or`` truthiness
+      把显式坏值洗成 synthetic**(旧实现 ``get(...) or
+      synthetic_rule_level`` 曾使显式空/None/False/0 绕过 real 门);
+    - CLI choices 不代 API 校验:本函数是公开 score/evaluate API 的
+      唯一权威判据(CLI 层 choices 只是输入便利);
+    - 不做 strip/大小写归一(未知拼写如实拒,不猜意图)。
+
+    返回 ``(scope, provenance)``;score 侧消费时包装为本契约异常
+    (kind 前缀 s5b_),判据同源不另写第二套。
+    """
+    if not present:
+        return default, {
+            "field": field,
+            "value": default,
+            "normalized_from": "missing_field_default",
+        }
+    if isinstance(raw_value, bool) or not isinstance(raw_value, str):
+        raise EvaluationContractError(
+            f"评测输入字段 {field} 显式提供时必须是字符串枚举 "
+            f"{sorted(DATA_SCOPES)}(显式 null/bool/数值/列表一律拒,"
+            f"不用 truthiness 洗成 synthetic;缺字段才走缺省语义;"
+            f"got {type(raw_value).__name__}:{raw_value!r})", {
+                "kind": "data_scope_invalid",
+                "field": field,
+                "value": raw_value,
+                "value_type": type(raw_value).__name__,
+                "allowed": sorted(DATA_SCOPES),
+                "normalized_from": None,
+            })
+    if raw_value == "" or raw_value not in DATA_SCOPES:
+        raise EvaluationContractError(
+            f"评测输入字段 {field} 取值非法:{raw_value!r}(允许 "
+            f"{sorted(DATA_SCOPES)};显式空串/未知字符串/大小写变体一律"
+            "结构化拒,不静默归一;缺字段才走缺省语义)", {
+                "kind": "data_scope_invalid",
+                "field": field,
+                "value": raw_value,
+                "value_type": type(raw_value).__name__,
+                "allowed": sorted(DATA_SCOPES),
+                "normalized_from": None,
+            })
+    return raw_value, {
+        "field": field,
+        "value": raw_value,
+        "normalized_from": "explicit",
+    }
 SPLITS_LIST = sorted(SPLITS)
 STOP_REASONS = frozenset({"budget_limit", "depth_limit",
                           "no_local_candidate", "awaiting_prediction",
@@ -384,8 +466,13 @@ def validate_evaluation_input(evaluation_input: dict) -> dict:
     for field in ("metric_policy_version", "preregistration_id",
                   "scoring_policy_version", "missingness_policy_version"):
         _req_str(evaluation_input.get(field), field)
-    _req_enum(evaluation_input.get("data_scope") or "synthetic_rule_level",
-              "data_scope", DATA_SCOPES)
+    # S5B-V3-01:严格 data_scope 校验(显式空/None/bool/数值/未知值
+    # 结构化拒;字段完全缺省 ⇒ 既有缺省语义保留,evaluate_scientific
+    # 同源归一并机读披露 normalized_from;不用 truthiness 洗白)
+    resolve_data_scope(
+        evaluation_input.get("data_scope"),
+        field="data_scope", default="synthetic_rule_level",
+        present="data_scope" in evaluation_input)
     if not isinstance(evaluation_input.get("interface_verification") or
                       False, bool):
         raise EvaluationContractError(
@@ -2081,8 +2168,13 @@ def evaluate_scientific(
     track = str(evaluation_input["track"])
     interface_mode = bool(
         evaluation_input.get("interface_verification") or False)
-    data_scope = str(evaluation_input.get("data_scope")
-                     or "synthetic_rule_level")
+    # S5B-V3-01:data_scope 与 validate_evaluation_input 首消费共用
+    # resolve_data_scope 同一判据(显式坏值已在校验处拒;此处同源
+    # 解析出 scope + 机读归一来源)
+    data_scope, data_scope_provenance = resolve_data_scope(
+        evaluation_input.get("data_scope"),
+        field="data_scope", default="synthetic_rule_level",
+        present="data_scope" in evaluation_input)
     provider = evaluation_input.get("model_provider_policy") or {}
     provider_kind = str(provider.get("provider_kind") or "none")
     authorization = str(provider.get("authorization") or "")
@@ -2525,6 +2617,10 @@ def evaluate_scientific(
                 "evaluation-5 real 档配对禁 root_identity_fallback"
                 "(守卫在配对消费侧,不新增消费字段)"),
             "data_scope": data_scope,
+            # S5B-V3-01:机读归一来源(explicit | missing_field_default;
+            # 显式坏值在 validate/evaluate 首消费处结构化拒,到不了这里)
+            "data_scope_normalized_from":
+                data_scope_provenance["normalized_from"],
             "scientific_metric_status": (
                 "interface_only:合成规则级数字不外推 dev/298,不构成"
                 "科学性能声明(§5.1 题域标签/§12 状态语义)"),

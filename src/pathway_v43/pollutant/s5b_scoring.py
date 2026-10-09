@@ -33,6 +33,19 @@ s5b-scoring-1)。
 
 判分产物只落批根(gitignored);metrics/聚合表不含金标 SMILES 取值
 (命中/位次/桶标签是判分结论,非金标内容)。
+
+S5b HIT50 v3 回修(S5B-V3-01,2026-10-10,正链复审 §4.1/§5 D1;
+匹配/排序/口径判定零触碰):
+
+- **判分入口严格 data_scope 校验**:``score_s5b_batch`` 首消费与
+  评测器 ``resolve_data_scope`` 共用同一判据 —— 显式空串/None/bool/
+  数值/未知字符串("Real" 等变体)⇒ S5bScoringError(kind=
+  s5b_data_scope_invalid)先于任何批文件装载拒;完全省略参数的既有
+  签名默认 real 保留(provenance 机读);CLI choices 不代 API 校验;
+- **§9-4 独立 basis 门 shape 全集核**:real 档 bases_by_graph 缺
+  coverage/缺 bases/空/非 dict/缺键/foreign 键/非 qid_strict 字符串
+  ⇒ 先拒零 metrics;门只核档位与覆盖、不核映射(gate_scope 机读
+  落字);synthetic 档回退配对不受影响。
 """
 
 from __future__ import annotations
@@ -45,8 +58,10 @@ from pathlib import Path
 from ..domain.identity import cn_identity
 from .evaluation import (
     PPV1_EVALUATION_VERSION,
+    EvaluationContractError,
     evaluate_scientific,
     native_export_reader_from_ledger,
+    resolve_data_scope,
 )
 from .profile import (
     PPV1_NATIVE_EXPORT_VERSION,
@@ -185,6 +200,30 @@ def score_s5b_batch(
     - 返回完整聚合 dict;metrics.json / report.md / report_plain.md
       落批根。
     """
+    # ---- S5B-V3-01:判分入口严格 data_scope 校验(先于任何批文件装载;
+    # 与评测首消费共用 resolve_data_scope 同一判据,异常包装为本契约
+    # S5bScoringError;CLI choices 不代 API 校验 —— 本函数是公开
+    # score API 的权威门)。完全省略参数 ⇒ 既有签名默认 real 保留
+    # (provenance 机读进聚合)。 ----
+    try:
+        data_scope, data_scope_provenance = resolve_data_scope(
+            data_scope, field="data_scope", default="real",
+            present=True)
+    except EvaluationContractError as exc:
+        raise S5bScoringError(
+            f"data_scope 非法:{exc}(判分入口先拒;显式空/null/bool/"
+            "数值/未知字符串不得进判分,也不得绕过 real 门;"
+            "允许 {real, synthetic_rule_level};缺省=签名默认 real)", {
+                **{k: v for k, v in dict(exc.detail or {}).items()
+                   if k != "kind"},
+                "kind": "s5b_data_scope_invalid",
+                "shared_judgment": "evaluation.resolve_data_scope",
+                "note": ("CLI choices 只是输入便利;公开 API 以本门为"
+                         "权威判据(评测/判分同源)")}) from exc
+    # 缺省语义登记:完全省略参数 ⇒ 签名默认 real(与显式传 "real"
+    # 同值;provenance 机读披露该规则,缺省与显式坏值不混类)
+    data_scope_provenance = dict(data_scope_provenance)
+    data_scope_provenance["signature_default"] = "real"
     batch_root = Path(batch_root)
     runs_root = Path(runs_root)
     manifest = json.loads(
@@ -289,20 +328,72 @@ def score_s5b_batch(
     # 评测器产出的 bases_by_graph,不依赖评测器内部异常路径;真实批
     # 判分聚合/落盘前 fail-closed。synthetic 档不受影响(合成回退
     # basis 聚合照旧)。 ----
+    # ---- S5B-V3-01 同门补齐(正链复审 §4.1/§5 D1):独立 basis 门
+    # shape 全集核 —— expected graphIds 非空、bases_by_graph 类型/
+    # 非空/键集精确覆盖注册图(缺键/foreign 键拒)、值全 qid_strict
+    # 字符串;缺 coverage/缺 bases/空/缺键/foreign/非 strict 负控先
+    # 拒零 metrics(本门先于逐题聚合循环)。**门只核档位与覆盖,不核
+    # 映射**(qid↔图映射正确性由评测器权威链负责;本门不替代
+    # source/reference 绑定,也不证明 qid 真值)。 ----
     if data_scope == "real":
-        bases = dict((((output or {}).get("coverage_report") or {})
-                      .get("pairing") or {}).get("bases_by_graph") or {})
-        non_strict = {g: str(b) for g, b in sorted(bases.items())
-                      if str(b) != "qid_strict"}
-        if non_strict:
+        pairing_block = ((output or {}).get("coverage_report") or {}) \
+            .get("pairing")
+        bases = pairing_block.get("bases_by_graph") \
+            if isinstance(pairing_block, dict) else None
+        expected_graph_ids = sorted(graphs)
+        gate_reasons: list[str] = []
+        non_strict: dict[str, str] = {}
+        if bases is None:
+            gate_reasons.append("bases_by_graph_missing")
+        elif not isinstance(bases, dict):
+            gate_reasons.append("bases_by_graph_not_dict")
+        elif not bases:
+            gate_reasons.append("bases_by_graph_empty")
+        else:
+            observed_keys = {str(g) for g in bases}
+            expected_keys = set(expected_graph_ids)
+            missing_keys = sorted(expected_keys - observed_keys)
+            foreign_keys = sorted(observed_keys - expected_keys)
+            if missing_keys:
+                gate_reasons.append("bases_by_graph_missing_keys")
+            if foreign_keys:
+                gate_reasons.append("bases_by_graph_foreign_keys")
+            for graph_id, basis_value in sorted(bases.items()):
+                if not isinstance(basis_value, str) \
+                        or basis_value != "qid_strict":
+                    non_strict[str(graph_id)] = (
+                        basis_value if isinstance(basis_value, str)
+                        else repr(basis_value))
+            if non_strict:
+                gate_reasons.append("bases_not_all_qid_strict")
+        if gate_reasons:
             raise S5bScoringError(
-                "data_scope=real 而存在非 qid_strict 的配对 basis(§9-4 "
-                "程序门:真实批须全 qid_strict;判分入口独立复核,先于"
-                "聚合/落盘;与 evaluation-5 首消费守卫双保险)", {
+                "data_scope=real 而配对 basis 门未过(§9-4 程序门:"
+                f"{';'.join(gate_reasons)};真实批须 bases_by_graph 非空"
+                "且精确覆盖全部注册图、值全为 qid_strict;判分入口独立"
+                "复核,先于聚合/落盘;与 evaluation-5 首消费守卫双"
+                "保险)", {
                     "kind": "s5b_real_pairing_not_all_qid_strict",
                     "data_scope": data_scope,
+                    "reasons": gate_reasons,
                     "non_qid_strict_bases": non_strict,
-                    "n_graphs": len(bases),
+                    "n_graphs": (len(bases)
+                                 if isinstance(bases, dict) else 0),
+                    "expected_graph_ids": expected_graph_ids,
+                    "missing_graph_ids": sorted(
+                        set(expected_graph_ids)
+                        - ({str(g) for g in bases}
+                           if isinstance(bases, dict) else set())),
+                    "foreign_graph_ids": sorted(
+                        ({str(g) for g in bases}
+                         if isinstance(bases, dict) else set())
+                        - set(expected_graph_ids)),
+                    "gate_scope": (
+                        "本门只核配对档位与键覆盖(全局 bases_by_graph "
+                        "对注册图集合的精确覆盖、值全 qid_strict),"
+                        "不核 qid↔图映射正确性 —— 映射由评测器权威链"
+                        "(evaluation-4/5 配对守卫)负责;本门不证明 "
+                        "qid 真值"),
                     "note": ("预注册 §9-4 配对硬门:coverage_report."
                              "pairing.bases_by_graph 须全为 qid_strict;"
                              "synthetic 档回退配对不受本门影响")})
@@ -381,6 +472,9 @@ def score_s5b_batch(
     aggregate = {
         "s5b_scoring_version": S5B_SCORING_VERSION,
         "data_scope": data_scope,
+        # S5B-V3-01:机读归一来源(explicit | missing_field_default;
+        # 本入口缺省=签名默认 real;显式坏值在入口首消费处拒)
+        "data_scope_provenance": data_scope_provenance,
         "domain_tag": domain_tag,
         "denominator": denominator,
         "aggregate_diagnosis": {

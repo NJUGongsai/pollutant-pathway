@@ -102,6 +102,22 @@ def worker_main(argv: list[str] | None = None) -> int:
                 "error": str(exc), "detail": dict(exc.detail),
             })
             return 2
+        # ---- S5B-V3-02:real 批金额守卫先于传输核(worker 公开入口) ----
+        # 公共链的守卫 = 协调者写入闸门状态文件的冻结配置(worker 经
+        # V43_LLM_RATE_GATE 装配);本核对闭合"绕开编排器手动起 worker"
+        # 的口子:real 批无闸门/无金额配置/配置与批根 budget_guard.json
+        # 不一致 ⇒ 先拒(失败题留分母,不发送)。
+        guard_verdict = _verify_budget_guard(
+            batch_root, model, manifest_provider_kind(
+                batch_root / "batch_manifest.json"))
+        if guard_verdict is not None:
+            _write_case(batch_root, {
+                "qid": qid, "run_id": run_id, "status": "failed",
+                "failure_kind": guard_verdict["failure_kind"],
+                "error": guard_verdict["error"],
+                "detail": guard_verdict.get("detail") or {},
+            })
+            return 5
     if args.fail_fast_env_check:
         # R4:env_check_only **另文件**(cases/env_check/ 之下),不写
         # 正式 completed 终态(不占 298 终态、不进 SKIP/汇总/评分面)
@@ -168,6 +184,93 @@ def worker_main(argv: list[str] | None = None) -> int:
 def _repo_src_path(batch_root: Path) -> Path:
     """仓 src 路径(worker 与 src 同仓部署;沿 tests 惯例插入)。"""
     return Path(__file__).resolve().parents[2]
+
+
+def manifest_provider_kind(manifest_path: Path) -> str:
+    """批清单声明的 provider_kind(real=付费 HTTP 发送链)。"""
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return "real"  # 清单不可读 ⇒ 保守按 real(缺预算配置同样先拒)
+    return str(manifest.get("provider_kind") or "real")
+
+
+def _verify_budget_guard(batch_root: Path, model,
+                         provider_kind: str) -> dict | None:
+    """S5B-V3-02:real 批 worker 侧金额守卫核对(先于传输)。
+
+    返回 None = 通过;返回 dict = 结构化拒(失败题留分母,零发送):
+    - 无闸门(bypass 协调器)⇒ budget_guard_missing;
+    - 闸门无金额配置 ⇒ budget_guard_missing;
+    - 闸门配置 config_sha256 ≠ 批根 budget_guard.json ⇒
+      budget_guard_mismatch(不静默混用两套价格/帽)。
+    scripted 桩路径不经本核对(网络 0;provider_kind≠real)。"""
+    if provider_kind != "real":
+        return None
+    gate = getattr(getattr(model, "client", None), "gate", None)
+    if gate is None:
+        return {
+            "failure_kind": "budget_guard_missing",
+            "error": ("real 批 worker 无批级闸门(V43_LLM_RATE_GATE 缺"
+                      "席;金额硬帽不经协调者冻结 ⇒ 先于传输拒,零发送)"),
+            "detail": {"kind": "budget_guard_missing"},
+        }
+    try:
+        cost_config = gate.cost_guard_summary()
+    except Exception as exc:  # noqa: BLE001 —— GateCorrupt 同样先拒
+        return {
+            "failure_kind": "budget_guard_invalid",
+            "error": f"闸门金额守卫配置坏形状:{exc}"[:300],
+            "detail": dict(getattr(exc, "detail", {}) or {}),
+        }
+    if cost_config is None:
+        return {
+            "failure_kind": "budget_guard_missing",
+            "error": ("闸门状态无金额守卫配置(real 批每次付费发送前"
+                      "必须原子预留;未经 s5b_cli budget 冻结 ⇒ 先拒)"),
+            "detail": {"kind": "budget_guard_missing"},
+        }
+    from pathway_v43.pollutant.s5b_orchestrator import (
+        S5B_BUDGET_GUARD_FILE,
+    )
+
+    budget_path = batch_root / S5B_BUDGET_GUARD_FILE
+    if not budget_path.is_file():
+        return {
+            "failure_kind": "budget_guard_missing",
+            "error": (f"批根缺 {S5B_BUDGET_GUARD_FILE}(real 批发车硬"
+                      "门;先于传输拒)"),
+            "detail": {"kind": "budget_guard_missing",
+                       "expected_file": str(budget_path)},
+        }
+    from pathway_v43.pollutant.s5b_orchestrator import (
+        load_budget_guard,
+    )
+
+    try:
+        batch_config = load_budget_guard(batch_root)
+    except Exception as exc:  # noqa: BLE001 —— 坏配置同样先拒
+        return {
+            "failure_kind": "budget_guard_invalid",
+            "error": f"批根金额守卫配置坏形状:{exc}"[:300],
+            "detail": {"kind": "budget_guard_invalid"},
+        }
+    if batch_config is None or \
+            str(batch_config.get("config_sha256")) != \
+            str(cost_config.get("config_sha256")):
+        return {
+            "failure_kind": "budget_guard_mismatch",
+            "error": ("闸门冻结金额配置与批根 budget_guard.json 不一致"
+                      "(单一事实源破裂;不静默混用,先于传输拒)"),
+            "detail": {
+                "kind": "budget_guard_mismatch",
+                "gate_config_sha256": str(
+                    cost_config.get("config_sha256")),
+                "batch_config_sha256": str(
+                    (batch_config or {}).get("config_sha256")),
+            },
+        }
+    return None
 
 
 def _count_model_calls(run_dir: Path) -> int:

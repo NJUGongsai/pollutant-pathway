@@ -1,5 +1,5 @@
 """S5b 编排器 —— 298 题逐 qid 驱动 PPV1 run(40 路并发;断点续跑;
-契约登记 s5b-orchestrator-1)。
+契约登记 s5b-orchestrator-2)。
 
 职责与边界:
 
@@ -9,11 +9,20 @@
   RPM/TPM 滑窗、429 全局冷却、401/403/402 付费停止、批次调用数预算
   max_calls)+ 至多 40 个并发 worker 进程(每 worker OMP_NUM_THREADS=1,
   一题一进程,进程级崩溃隔离);
+- **S5B-V3-02 批级金额硬帽(发送前原子预留)**:real 批(付费 HTTP
+  发送)发车前必须已冻结批根 ``budget_guard.json``(60 CNY 帽默认 +
+  当日价 + 输入保守界 + 输出上限;缺席/坏形状 ⇒ 结构化拒,先于任何
+  worker 派发);配置冻结进 ``orchestration.json`` 与闸门状态文件,
+  实际发送链(worker→RealModelAdapter→OpenAICompatibleClient→
+  FileRateGate)每次可能付费的发送尝试(含 HTTP retry)在闸门临界
+  区内先原子预留,余额不足先于传输拒;失败/超时/未知 usage/孤儿不
+  释放可能已付金额;结算幂等;不自动升帽。HTTP1490/1logical/
+  format0/40 在途等其他门保持不变;
 - **断点续跑**:已完成 qid(终态 case 文件)SKIP;无 case 文件的
   qid 复跑(run 已存在 ⇒ resume_ppv1_run 幂等续跑;不存在 ⇒ start);
 - 逐题终态落盘 ``cases/<qid>.json``(stop_reason/endpoint/调用/usage/
   费用状态;合法终态补位到 298——失败题留分母、不剔题,失败有单独
-  状态与原因);
+  状态与原因;预算耗尽未作答题同样留分母);
 - 凭证:父进程从 env 文件(沿 ``batch.load_env_file`` 只取 ``V43_LLM_*``
   键)或当前环境注入 worker 子进程 env;密钥不落盘不打印不入日志;
 - 本模块不执行判分(判分在封存答卷后由 s5b_scoring 走
@@ -33,10 +42,15 @@ import sys
 import time
 from pathlib import Path
 
-from ..adapters.rate_gate import FileRateGate
+from ..adapters.rate_gate import FileRateGate, normalize_cost_guard_config
 from ..domain.models import now_iso
 
-S5B_ORCHESTRATOR_VERSION = "s5b-orchestrator-1"
+S5B_ORCHESTRATOR_VERSION = "s5b-orchestrator-2"
+
+# 批根金额守卫机器配置文件(S5B-V3-02;由 s5b_cli budget 落盘,
+# 发车时冻结进 orchestration.json 与闸门状态;60 CNY 帽默认)
+S5B_BUDGET_GUARD_FILE = "budget_guard.json"
+S5B_DEFAULT_BUDGET_CAP_CNY = 60.0
 
 # 批级缺省闸门参数(发车当日按提供者快照刷新;RPM 200/TPM 3M 快照的
 # 保守余量沿老复测口径)
@@ -217,6 +231,44 @@ def write_case_atomic(path: Path, payload: dict) -> None:
     os.replace(tmp, path)
 
 
+# ---------------------------------------------------------------- 金额守卫
+
+
+def load_budget_guard(batch_root: str | Path) -> dict | None:
+    """装载并校验批根金额守卫机器配置(S5B-V3-02)。
+
+    - 文件缺席 ⇒ None(scripted 批合法;real 批由 run_s5b_batch 先拒);
+    - 坏 JSON/坏形状(非对象、schema 未知、非 CNY、数值字段缺失或
+      非正数)⇒ S5bOrchestratorError(kind=s5b_budget_guard_invalid,
+      先于任何 worker 派发/传输;不猜默认价格)。
+
+    归一/派生(per_attempt_bound_cny、config_sha256)与闸门/CLI/worker
+    同源(rate_gate.normalize_cost_guard_config,单一判据)。"""
+    path = Path(batch_root) / S5B_BUDGET_GUARD_FILE
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批根金额守卫配置不可读:{path}({exc};发车前 fail-closed,"
+            "不猜默认价格)", {
+                "kind": "s5b_budget_guard_invalid",
+                "reason": "unreadable_json",
+                "path": str(path)}) from exc
+    try:
+        return normalize_cost_guard_config(raw)
+    except ValueError as exc:
+        detail = exc.args[0] if exc.args else {}
+        raise S5bOrchestratorError(
+            f"批根金额守卫配置坏形状:{path}(五数值字段须为正:CNY 帽"
+            "/入价/出价/输入保守界/输出上限;fail-closed,不猜默认)",
+            {"kind": "s5b_budget_guard_invalid",
+             "reason": "invalid_shape",
+             "path": str(path),
+             "detail": detail}) from exc
+
+
 # ---------------------------------------------------------------- 主入口
 
 
@@ -285,6 +337,23 @@ def run_s5b_batch(
         raise S5bOrchestratorError(
             "空执行清单(零题;fail-closed)", {
                 "kind": "s5b_empty_question_list"})
+    # ---- S5B-V3-02:金额守卫机器配置(先于任何 worker 派发/传输) ----
+    # real 批(将产生付费 HTTP 发送)必须已冻结 budget_guard.json:
+    # 60 CNY 帽 + 当日价 + 输入保守界 + 输出上限;缺席/坏形状 ⇒
+    # 结构化拒(余额守卫不能事后补);scripted 批网络 0,配置可选
+    # (存在则同样冻结生效)。
+    provider_kind = str(manifest.get("provider_kind") or "real")
+    budget_guard = load_budget_guard(batch_root)
+    if provider_kind == "real" and budget_guard is None:
+        raise S5bOrchestratorError(
+            f"real 批缺金额守卫机器配置 {batch_root / S5B_BUDGET_GUARD_FILE}"
+            "(S5B-V3-02:60 CNY 硬帽 + 当日价 + 输入保守界 + 输出上限"
+            "先于传输冻结;先用 s5b_cli budget 落盘,不猜默认价格、"
+            "不自动升帽)", {
+                "kind": "s5b_budget_guard_missing",
+                "batch_root": str(batch_root),
+                "expected_file": S5B_BUDGET_GUARD_FILE,
+                "default_cap_cny": S5B_DEFAULT_BUDGET_CAP_CNY})
     # ---- 发车参数冻结(同批根续跑复用;变更拒绝) ----
     frozen = {
         "orchestrator_version": S5B_ORCHESTRATOR_VERSION,
@@ -293,6 +362,7 @@ def run_s5b_batch(
         "gate_rpm": int(gate_rpm),
         "gate_tpm": int(gate_tpm),
         "gate_max_calls": int(gate_max_calls),
+        "budget_guard": budget_guard,
         "profile_policy": profile_policy or S5B_DEFAULT_PROFILE_POLICY,
         "runs_root": str(runs_root),
         "frozen_at": now_iso(),
@@ -317,11 +387,13 @@ def run_s5b_batch(
         json.dumps(frozen["profile_policy"], ensure_ascii=False,
                    sort_keys=True, indent=1) + "\n", encoding="utf-8")
     # ---- 批级闸门(状态文件持久;worker 客户端经 env 装载同门;
-    # R2:参数首消费核对 —— 状态文件冻结参数与构造参数一致才可用) ----
+    # R2:参数首消费核对 —— 状态文件冻结参数与构造参数一致才可用;
+    # S5B-V3-02:金额守卫配置随闸门冻结,worker 侧从状态文件装配) ----
     gate = FileRateGate(
         batch_root / "gate", rpm=int(gate_rpm), tpm=int(gate_tpm),
         max_calls=int(gate_max_calls),
-        max_in_flight=int(max_in_flight))
+        max_in_flight=int(max_in_flight),
+        cost_guard=budget_guard)
     gate.verify_config()
     gate_dir = str(batch_root / "gate")
     # ---- R4:单协调者 flock(与 run 级 driver.lock 并存;双协调者拒) ----
@@ -517,9 +589,33 @@ def _read_gate_state(batch_root: Path) -> dict:
         state = json.loads(path.read_text(encoding="utf-8"))
     except (ValueError, OSError):
         return {"unreadable": True}
-    return {k: state.get(k) for k in (
+    out = {k: state.get(k) for k in (
         "total_requests", "total_429", "total_forbidden",
         "max_calls", "max_in_flight", "peak_in_flight", "stopped")}
+    # S5B-V3-02:金额守卫账本摘要进批报告(已结算/未结算/在途预留/
+    # committed/超帽与拒发计数;只读披露,不改判)
+    if state.get("cost_guard") is not None:
+        cost = state.get("cost") or {}
+        guard = state.get("cost_guard") or {}
+        out["cost_guard"] = {
+            "enabled": True,
+            "cap_cny": guard.get("cap_cny"),
+            "config_sha256": guard.get("config_sha256"),
+            "settled_cny": cost.get("settled_cny"),
+            "unsettled_cny": cost.get("unsettled_cny"),
+            "reserved_cny": cost.get("reserved_cny"),
+            "committed_cny": _round(
+                (cost.get("settled_cny") or 0.0)
+                + (cost.get("unsettled_cny") or 0.0)
+                + (cost.get("reserved_cny") or 0.0)),
+            "send_rejections": cost.get("send_rejections"),
+            "overrun": cost.get("overrun") or None,
+        }
+    return out
+
+
+def _round(value) -> float:
+    return round(float(value or 0.0), 6)
 
 
 def _write_progress(batch_root: Path, order: list[str],

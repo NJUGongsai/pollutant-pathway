@@ -9,9 +9,12 @@ python -m pathway_v43.pollutant.s5b_cli approve \
     --batch-root <批根> --preregistration-id prereg-s5b-2026-10-09
 python -m pathway_v43.pollutant.s5b_cli price \
     --batch-root <批根> --input-per-mtok 0.8 --output-per-mtok 2.8
+python -m pathway_v43.pollutant.s5b_cli budget \
+    --batch-root <批根> --input-per-mtok 0.8 --output-per-mtok 2.8 \
+    [--cap-cny 60] [--input-tokens-bound 30000] [--max-output-tokens 8192]
 python -m pathway_v43.pollutant.s5b_cli run \
     --batch-root <批根> --runs-root <run根> [--env-file <env>] \
-    [--workers 40] [--limit 10] [--gate-max-calls 894]
+    [--workers 40] [--limit 10] [--gate-max-calls 1490]
 python -m pathway_v43.pollutant.s5b_cli score \
     --batch-root <批根> --runs-root <run根>
 ```
@@ -21,6 +24,10 @@ python -m pathway_v43.pollutant.s5b_cli score \
 - approve:落预注册批准记录(发车硬门:主会话在用户确认读后执行;
   状态行已 confirmed 的冻结稿可免本步——score 侧按状态行兜底);
 - price:落当日价格快照(元/Mtok;缺快照 ⇒ 费用不计价,如实报);
+- budget:**S5B-V3-02 冻结批级金额硬帽机器配置**(60 CNY 帽默认 +
+  当日价 + 输入保守界 + 输出上限;real 批 run 前必须已落盘——发送前
+  原子预留、余额不足先于传输拒、失败/未知 usage 不释放、不自动升帽;
+  同价同步写 price_snapshot.json 保持单一价格来源);
 - run:40 路编排(断点续跑;已完成 qid SKIP;进度轮询看
   <批根>/progress.json);
 - score:封存答卷后的零 LLM 判分(金标此时进判分进程;双口径报告)。
@@ -37,13 +44,19 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from pathway_v43.adapters.rate_gate import (  # noqa: E402
+    normalize_cost_guard_config,
+)
 from pathway_v43.pollutant.s5b_builder import (  # noqa: E402
     build_question_batch,
     default_pool_provider,
 )
 from pathway_v43.pollutant.s5b_orchestrator import (  # noqa: E402
+    S5B_BUDGET_GUARD_FILE,
+    S5B_DEFAULT_BUDGET_CAP_CNY,
     S5B_DEFAULT_GATE_MAX_CALLS,
     S5B_DEFAULT_WORKERS,
+    load_budget_guard,
     run_s5b_batch,
     summarize_batch,
 )
@@ -123,8 +136,86 @@ def cmd_price(args: argparse.Namespace) -> int:
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(record, ensure_ascii=False, sort_keys=True,
-                                indent=1) + "\n", encoding="utf-8")
+                               indent=1) + "\n", encoding="utf-8")
     _emit({"command": "price", "ok": True, "path": str(path)})
+    return 0
+
+
+def cmd_budget(args: argparse.Namespace) -> int:
+    """S5B-V3-02:落盘批级金额硬帽机器配置(budget_guard.json)。
+
+    - 五数值字段(cap/input 价/output 价/输入保守界/输出上限)冻结
+      进机器配置;派生 per_attempt_bound_cny 与 config_sha256 可核验;
+    - 同值重复执行幂等;**改值拒绝**(改参须新批根,预注册纪律);
+    - 同价同步写 price_snapshot.json(汇总口径单一来源,防两价源漂移)。
+    """
+    root = Path(args.batch_root)
+    raw = {
+        "schema": "s5b-budget-guard-1",
+        "cap_cny": float(args.cap_cny),
+        "input_per_mtok": float(args.input_per_mtok),
+        "output_per_mtok": float(args.output_per_mtok),
+        "input_tokens_conservative_bound":
+            int(args.input_tokens_bound),
+        "max_output_tokens": int(args.max_output_tokens),
+        "currency": args.currency,
+        "recorded_at": _now_iso(),
+        "note": ("S5B-V3-02 批级金额硬帽机器配置:每次可能付费的发送"
+                 "尝试(含 HTTP retry)先原子预留;失败/超时/未知 usage/"
+                 "孤儿不释放可能已付金额;不自动升帽"),
+    }
+    try:
+        config = normalize_cost_guard_config(raw)
+    except ValueError as exc:
+        detail = exc.args[0] if exc.args else {}
+        _emit({"command": "budget", "ok": False,
+               "error": "金额守卫配置坏形状(五数值字段须为正)",
+               "detail": detail})
+        return 2
+    path = root / S5B_BUDGET_GUARD_FILE
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_file():
+        try:
+            existing = load_budget_guard(root)
+        except Exception:  # noqa: BLE001 —— 坏既有文件按冲突处理
+            existing = None
+        if existing is not None and \
+                existing.get("config_sha256") != \
+                config["config_sha256"]:
+            _emit({
+                "command": "budget", "ok": False,
+                "error": ("批根已有不同金额守卫配置(改值须新批根;"
+                          "预注册纪律:不自动升帽/改价)"),
+                "existing_config_sha256":
+                    existing.get("config_sha256"),
+                "new_config_sha256": config["config_sha256"],
+            })
+            return 3
+    payload = dict(raw)
+    payload.update({k: config[k] for k in (
+        "per_attempt_bound_cny", "config_sha256",
+        "usage_split_policy")})
+    path.write_text(json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                               indent=1) + "\n", encoding="utf-8")
+    # 同价快照(汇总 cost_known 与守卫结算单一价格来源)
+    snapshot = {
+        "input_per_mtok": float(args.input_per_mtok),
+        "output_per_mtok": float(args.output_per_mtok),
+        "currency": args.currency,
+        "recorded_at": _now_iso(),
+        "note": ("与 budget_guard.json 同一次落盘(单一价格来源;"
+                 "汇总 known-usage 小计与发送前预留共用当日价)"),
+    }
+    (root / "price_snapshot.json").write_text(
+        json.dumps(snapshot, ensure_ascii=False, sort_keys=True,
+                   indent=1) + "\n", encoding="utf-8")
+    _emit({
+        "command": "budget", "ok": True, "path": str(path),
+        "config": {k: payload.get(k) for k in (
+            "cap_cny", "input_per_mtok", "output_per_mtok",
+            "input_tokens_conservative_bound", "max_output_tokens",
+            "per_attempt_bound_cny", "config_sha256")},
+    })
     return 0
 
 
@@ -262,6 +353,23 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--cached-input-per-mtok", type=float, default=None)
     p.add_argument("--currency", default="CNY")
     p.set_defaults(func=cmd_price)
+
+    p = sub.add_parser(
+        "budget", help="冻结批级金额硬帽机器配置(S5B-V3-02 发车硬门)")
+    p.add_argument("--batch-root", required=True)
+    p.add_argument("--cap-cny", type=float,
+                   default=S5B_DEFAULT_BUDGET_CAP_CNY,
+                   help="批级金额硬帽(CNY;默认 60;不自动升帽)")
+    p.add_argument("--input-per-mtok", type=float, required=True,
+                   help="当日输入价(元/Mtok;与 price 同源)")
+    p.add_argument("--output-per-mtok", type=float, required=True,
+                   help="当日输出价(元/Mtok;与 price 同源)")
+    p.add_argument("--input-tokens-bound", type=int, default=30000,
+                   help="单次请求输入 tokens 保守上界(发车当日定稿)")
+    p.add_argument("--max-output-tokens", type=int, default=8192,
+                   help="请求体输出 token 上限(随请求发送,提供者侧可核)")
+    p.add_argument("--currency", default="CNY")
+    p.set_defaults(func=cmd_budget)
 
     p = sub.add_parser("run", help="40 路编排(断点续跑)")
     p.add_argument("--batch-root", required=True)
