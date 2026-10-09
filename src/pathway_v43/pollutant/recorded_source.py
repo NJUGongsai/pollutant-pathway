@@ -539,10 +539,11 @@ def compile_recorded_reaction(
     recorded = sorted(x for x in
                       _record_products_strict(products) if x)
     # ---- W-V2.3:产物多重集 gate 在**全部候选映射**上评估,择产物集
-    # 可复现者(恰一 executed 组分多重集 == 库记录产物多重集;等价映射
-    # 同集合并取首)。无可复现者:保留原判据 —— 多 distinct 目标 ⇒
-    # ambiguous(歧义披露拒绝);单目标 ⇒ product_set_mismatch(过滤
-    # 缺失/对应错误诚实拒,不冒充完整 record)。
+    # 可复现者(存在至少一个映射使 executed 组分多重集 == 库记录产物
+    # 多重集;等价映射同集合并、确定性选首 —— 选首是工程事实,不是
+    # 映射唯一性证明,mimo r29-F2)。无可复现者:保留原判据 —— 多
+    # distinct 目标 ⇒ ambiguous(歧义披露拒绝);单目标 ⇒
+    # product_set_mismatch(过滤缺失/对应错误诚实拒,不冒充完整 record)。
     reproducible = [
         spec for spec in compiled_specs
         if sorted(_executed_components_strict(
