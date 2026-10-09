@@ -732,12 +732,13 @@ def test_s5a_rework_contract_version_registration() -> None:
     """S5a 回修 r1→r2:评测契约 -2→-3、预注册模板 -2→-3、profile
     -21→-22(匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
     冻结正文不受影响;r2 只登记 S5A-02 单位收口与 B2 文案纠错)。"""
-    assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-3"
+    assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-4"
     assert PPV1_PREREGISTRATION_TEMPLATE_VERSION == \
         "ppv1-preregistration-template-3"
     # S5a 回修 r3:profile -22→-23(S5A-05 消费侧引用绑定 +
-    # 五处 P2 文案;evaluation-3/template-3 版本号不变)
-    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-23"
+    # 五处 P2 文案;evaluation-3/template-3 版本号不变);
+    # S5b 启动批:evaluation-3→-4(qid 感知配对)+ profile -23→-24
+    assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-24"
     template = preregistration.build_preregistration_template()
     # proposed 文本与实现证明范围同步(仍 proposed,不冻结)
     assert "identity_scope=cn_only/partial/unknown" in template[

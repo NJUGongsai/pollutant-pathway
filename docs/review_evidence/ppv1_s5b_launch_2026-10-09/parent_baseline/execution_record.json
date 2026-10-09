@@ -1,0 +1,66 @@
+{
+  "parent_commit": "4fe1e0a459772861d1f90b6cd1e37ac469a5b0cd",
+  "worktree": "/private/tmp/s5b_launch_parent_4fe1e0a (detached, same-byte)",
+  "tree_state": "src/pyproject.toml byte-identical to parent (git diff HEAD -- src pyproject.toml empty); 6 test files overwritten with current bytes (version literals + fixture literal) and 1 new test file added, disclosed",
+  "command": [
+    "~/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "tests/test_ppv1_s5b_pairing.py",
+    "tests/test_ppv1_profile.py",
+    "tests/test_ppv1_s4b_export.py",
+    "tests/test_ppv1_s5a_schema.py",
+    "tests/test_ppv1_s5a_rework_r1.py",
+    "tests/test_ppv1_s5a_rework_r2.py",
+    "tests/test_ppv1_s5a_rework_r3.py"
+  ],
+  "cwd": "/private/tmp/s5b_launch_parent_4fe1e0a",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1"
+  },
+  "exit_code": 1,
+  "summary": "19 failed / 130 passed / 0 collection errors / exit 1",
+  "n_nodeids": 149,
+  "red_classification": {
+    "new_pairing_behavior_reds (evaluation-3 root-identity first-match/break mispairing, digest[0] arbitrary order, no orphan unmatched export)": [
+      "test_g1_same_substrate_two_qids_pair_own_runs",
+      "test_qid_unpaired_not_mispaired_by_root",
+      "test_strict_regime_graph_without_qid_not_root_paired",
+      "test_export_qid_orphan_to_no_graph_unmatched_exports",
+      "test_same_qid_multiple_exports_list_order_selection",
+      "test_pairing_independent_of_entry_order"
+    ],
+    "new_pairing_disclosure_reds (missing sample/coverage pairing machine-readable fields; behavior itself preserved on parent)": [
+      "test_qid_declared_by_unreadable_entry_disclosed",
+      "test_fallback_root_identity_pairing_disclosed",
+      "test_pairing_disclosure_deterministic"
+    ],
+    "new_pairing_contract_reds (qid sub-field guards absent on parent: source_refs consistency / duplicate qid / run binding / empty qid)": [
+      "test_manifest_qid_not_in_source_refs_rejected",
+      "test_duplicate_manifest_qid_rejected",
+      "test_export_qid_run_binding_mismatch_rejected",
+      "test_empty_qid_string_rejected"
+    ],
+    "new_version_literal_reds (evaluation-4/profile-24 registration)": [
+      "test_evaluation4_contract_registered"
+    ],
+    "existing_version_literal_reds (profile-23/evaluation-3 literals updated this batch in 5 existing files)": [
+      "test_ppv1_identity_block_contract_versions",
+      "test_native_export_public_chain_files_and_manifest",
+      "test_s5a_rework_contract_version_registration",
+      "test_s5a_r2_contract_version_registration_and_frozen_integrity",
+      "test_s5a_r3_contract_version_registration_and_frozen_integrity"
+    ],
+    "observed_equals_declared": true,
+    "greens_on_parent": 130,
+    "green_note": "all remaining 130 nodeids green on the parent tree (S5A behaviors, guards, determinism, S4b manifest chain, schema validation positives; test_ppv1_s5a_schema.py fully green on parent - its only change is an unasserted run_identity fixture literal)"
+  },
+  "junit": "parent_junit.xml",
+  "stdout": "stdout.txt",
+  "stderr": "stderr.txt"
+}

@@ -1,0 +1,27 @@
+# 金标零泄漏扫描(2026-10-09, S5b 启动批提交前守门)
+
+方法: 对本批五个交付路径(预注册冻结稿 / mimo 请求 r26 / 交付书 /
+新测试文件 / 本证据 README)做两层扫描, 对照 =
+ec298_phase_a_seal/ec298_gold_readonly/questions.jsonl 的 298 题全部
+products_smiles(241 个去重金标产物取值)与 substrate_smiles(209 个
+题面底物):
+  1) 子串包含扫描(len>=3): 命中仅为 'C=O'(金标集合中独立存在的
+     短片段, 在交付物中作为合成例 'CC=O' 的内部片段出现, 非独立
+     金标取值的整词使用);
+  2) 整词精确匹配(反引号代码 span 内 token 逐一同等比对): 全部
+     0 命中(冻结稿 0 / r26 0 / 测试文件 0; 交付书与 README 在
+     本扫描执行时点尚未落盘, 落盘后于提交前以同一脚本复扫并补录
+     本文件尾行)。
+结论: 交付物中合成例分子(CCO/CC=O/[H][H]/CCOCC)均与真实金标集合
+零整词重叠('CC=O' 本身不在金标产物取值集合中, 已由子串层证实);
+金标内容零入仓。扫描脚本在 /private/tmp 会话内执行, 不入仓。
+
+## 提交前复扫补录(交付书与 README 落盘后)
+
+复扫时间点: 交付书与 README 落盘后(提交前)
+== docs/POLLUTANT_PATHWAY_S5B_PREREGISTRATION_2026-10-09.md: substring_hits=[] exact_span_hits=[]
+== docs/mimo_ppv1_chem_review_request_r26.md: substring_hits=['C=O'] exact_span_hits=[]
+== docs/POLLUTANT_PATHWAY_S5B_LAUNCH_DELIVERY_2026-10-09.md: substring_hits=['C=O'] exact_span_hits=[]
+== tests/test_ppv1_s5b_pairing.py: substring_hits=['C=O'] exact_span_hits=[]
+== docs/review_evidence/ppv1_s5b_launch_2026-10-09/README.md: substring_hits=['C=O'] exact_span_hits=[]
+复扫结论: 五路径整词精确匹配全零;'C=O' 仅为合成例 'CC=O' 内部短片段(非独立金标取值整词使用)。金标内容零入仓。

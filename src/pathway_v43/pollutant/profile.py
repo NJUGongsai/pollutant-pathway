@@ -286,7 +286,17 @@ PPV1_PROFILE_NAME = PROFILE_POLLUTANT_PATHWAY_V1
 # -3 输入)。criteria-v1 冻结正文与 FREEZE_RECORD 逐字节不改;
 # path_context 冻结判决零触碰(绑定守卫在 production 消费侧);
 # S5A-01/02/03/04、S4/S3、ISO-01 保持关闭不重开;S5b 未启动。
-PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-23"
+# -24(S5b 启动批,2026-10-09,mimo r25 ⚠️P1-9 G1 配对错位修复):
+# 身份块携带 evaluation-4(样本↔导出配对语义变更:qid 感知严格
+# 配对 + manifest/导出条目级 qid 子字段 + run↔qid 权威绑定核 +
+# qid 缺配 not_evaluated 不张冠李戴 + 无 qid 合成夹具回退根身份
+# 配对并机读披露 pairing_basis + 同 qid 多导出按输入清单序取
+# 首位并披露 consumed_export_digest;其余判定零触碰;详见
+# PPV1_EVALUATION_VERSION 注释与 evaluation.py 模块头)。profile
+# 升 -24 纯为携带该契约变更;v23 载荷按未知版本既有门拒绝,无
+# 兼容迁移。criteria-v1 冻结正文与 FREEZE_RECORD 逐字节不改;
+# S5b 真实评测未启动(零真实模型调用、零费用、零金标接触)。
+PPV1_PROFILE_SCHEMA_VERSION = "ppv1-profile-24"
 PPV1_CHEMSTATE_SCHEMA_VERSION = "ppv1-chemstate-8"
 PPV1_HYPOTHESIS_SCHEMA_VERSION = "ppv1-hypothesis-8"
 PPV1_EVENT_SCHEMA_VERSION = "ppv1-event-8"
@@ -331,7 +341,28 @@ PPV1_SPLIT_MANIFEST_VERSION = "ppv1-split-manifest-1"
 # from/to 节点空命中不被 union 吞;(04)persist 核验与写入同一
 # 解析后实际规范路径。v1(S5a 批次)登记 §8 输入/输出 + split
 # manifest + leakage + 确定性匹配/指标接口。
-PPV1_EVALUATION_VERSION = "ppv1-evaluation-3"
+# S5b 启动批(2026-10-09,mimo r25 ⚠️P1-9 G1 配对错位修复):身份块
+# 携带 evaluation-4 —— 样本↔导出配对语义变更(其余判定零触碰):
+# (i)图侧 qid = reference_graph_manifest 条目声明的 qid(一致性核:
+# 必须出现在 root_entity.source_refs,不符 ⇒ 结构化拒;跨条目重复
+# qid ⇒ 拒);(ii)导出侧 qid = native_path_exports 条目声明的 qid,
+# 其 run_id 与 read_native_export 返回 payload 的权威 run_id 绑定
+# 核验(不符 ⇒ 拒);(iii)任一侧声明 qid ⇒ 全局严格 qid 配对档——
+# 图只配同 qid 可读导出(输入清单序),qid 无匹配 ⇒ 样本 not_
+# evaluated + reason qid 未配到,不再按根身份首中即 break 张冠
+# 李戴(53 重复底物/同根多题 G1 场景);严格档下未声明 qid 的图
+# 不回退根身份(单独 reason);(iv)qid 信息完全不可得(合成夹具:
+# 两侧均无 qid 声明)⇒ 回退根严格身份配对并机读披露 pairing_
+# basis=root_identity_fallback(不静默;evaluation-3 该回退为隐式
+# 行为);(v)同一 qid 多导出 ⇒ 按输入清单序取首位,consumed_
+# export_digest 机读披露(确定性);(vi)coverage_report 新增
+# pairing 块 + 样本级 pairing 披露。reference-graph-1/split-
+# manifest-1 字段形状零变化(qid 是 manifest/导出条目级输入子
+# 字段与消费侧语义,由 evaluation-4 承载);preregistration-
+# template-3 不变;criteria-v1 冻结正文与 FREEZE_RECORD 逐字节
+# 不改;S5A-01/02/03/04/05、S4/S3、ISO-01 保持关闭不重开;S5b
+# 真实评测未启动(本批零真实模型调用、零费用)。
+PPV1_EVALUATION_VERSION = "ppv1-evaluation-4"
 # S5a 回修 r2(2026-10-09,复审 R2 §4 唯一残余 P1 S5A-02):条件
 # 分类语义修正 ⇒ 契约升 -3,不偷换同一已登记契约 —— (02r2)要求侧
 # 单位支持能力在 ConditionScope→冻结 Requirement 映射首消费处决定:

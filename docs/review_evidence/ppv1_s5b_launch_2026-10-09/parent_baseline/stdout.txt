@@ -1,0 +1,521 @@
+FFFFFFFFFFFFFF..F....................F.................................. [ 48%]
+............................................F.................F......... [ 96%]
+...F.                                                                    [100%]
+=================================== FAILURES ===================================
+________________ test_g1_same_substrate_two_qids_pair_own_runs _________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_g1_same_substrate_two_qid0')
+
+    def test_g1_same_substrate_two_qids_pair_own_runs(tmp_path: Path) -> None:
+        """同底物两题(不同 qid)各配各的 run:判分不串、互不抢占。
+    
+        修复前(evaluation-3):两 export 按根身份首中即 break 全配给
+        排序在前的图,后图 pending;修复后(evaluation-4)严格 qid 配对,
+        两题各自消费自己 run 的导出——用两计划的可区分覆盖结果证明
+        判分不串(带共同产物的事件只严中 e-alt-1,不带只严中 e-alt-2)。
+        """
+        result = _evaluate_two_runs(
+            tmp_path, graph_a_id="rg-q-a", graph_b_id="rg-q-b",
+            qid_a=QID_A, qid_b=QID_B)
+        output = result["output"]
+        sample_a = _sample_of(output, "rg-q-a")
+        sample_b = _sample_of(output, "rg-q-b")
+        # 两题均 scored(不再出现后图 not_evaluated_export_missing)
+        assert sample_a["scoring_status"] == "scored"
+>       assert sample_b["scoring_status"] == "scored"
+E       AssertionError: assert 'not_evaluated_export_missing' == 'scored'
+E         
+E         - scored
+E         + not_evaluated_export_missing
+
+tests/test_ppv1_s5b_pairing.py:258: AssertionError
+___________________ test_qid_unpaired_not_mispaired_by_root ____________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_qid_unpaired_not_mispaire0')
+
+    def test_qid_unpaired_not_mispaired_by_root(tmp_path: Path) -> None:
+        """qid 声明了但缺配导出 ⇒ not_evaluated + reason 明示,不偷同根
+        别题的导出(修复前:排序在前的图首中即抢走别题导出,判分张冠
+        李戴)。
+    
+        排布:rg-a0(排序在前,qid QID_B,无导出)与 rg-z9(qid QID_A,
+        持有唯一导出)——修复前 rg-a0 抢走 rg-z9 的导出,rg-z9 pending;
+        修复后 rg-a0 空配对 + reason qid 未配到,rg-z9 正常判分。
+        """
+        result = _evaluate_two_runs(
+            tmp_path, graph_a_id="rg-z9", graph_b_id="rg-a0",
+            qid_a=QID_A, qid_b=QID_B, graph_b_run=False)
+        output = result["output"]
+        sample_orphan = _sample_of(output, "rg-a0")
+        sample_owner = _sample_of(output, "rg-z9")
+        # 缺配题:not_evaluated + reason 明示 qid 未配到(机读携带 qid)
+>       assert sample_orphan["scoring_status"] == "not_evaluated_export_missing"
+E       AssertionError: assert 'scored' == 'not_evaluated_export_missing'
+E         
+E         - not_evaluated_export_missing
+E         + scored
+
+tests/test_ppv1_s5b_pairing.py:315: AssertionError
+_______________ test_qid_declared_by_unreadable_entry_disclosed ________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_qid_declared_by_unreadabl0')
+
+    def test_qid_declared_by_unreadable_entry_disclosed(tmp_path: Path) -> None:
+        """qid 声明的导出条目读取失败 ⇒ 样本仍 not_evaluated(reason
+        qid 未配到)且披露该 qid 曾被导出条目声明;不回退根身份。"""
+        _run(tmp_path, "s5b-unreadable", _plan_coproduct())
+        graph = _qid_graph("rg-unreadable", QID_A)
+        evaluation_input = synth_evaluation_input(
+            graphs=[graph],
+            exports=[{"run_id": "s5b-unreadable",
+                      "export_digest": "0" * 64, "qid": QID_A}])
+        evaluation_input["reference_graph_manifest"][0]["qid"] = QID_A
+        reader = _multi_run_reader(tmp_path / "runs", ["s5b-unreadable"])
+        output = evaluate_scientific(
+            evaluation_input,
+            reference_graphs={graph["reference_graph_id"]: graph},
+            native_export_reader=reader,
+            preregistration=preregistration.build_preregistration_template())
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "not_evaluated_export_missing"
+        error = sample["scoring_errors"][0]
+>       assert error["kind"] == "sample_qid_unpaired"
+E       AssertionError: assert 'native_export_missing' == 'sample_qid_unpaired'
+E         
+E         - sample_qid_unpaired
+E         + native_export_missing
+
+tests/test_ppv1_s5b_pairing.py:349: AssertionError
+_____________ test_strict_regime_graph_without_qid_not_root_paired _____________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_strict_regime_graph_witho0')
+
+    def test_strict_regime_graph_without_qid_not_root_paired(
+            tmp_path: Path) -> None:
+        """严格档下未声明 qid 的图不回退根身份配对(回退即重新引入
+        首中即 break 错位):单独 reason 披露,排序在前的无 qid 图不再
+        抢走有 qid 图的导出。"""
+        result = _evaluate_two_runs(
+            tmp_path, graph_a_id="rg-z", graph_b_id="rg-b",
+            qid_a=QID_A, qid_b=QID_B,
+            manifest_qids={"rg-z": QID_A, "rg-b": None})
+        output = result["output"]
+        sample_no_qid = _sample_of(output, "rg-b")
+        sample_with_qid = _sample_of(output, "rg-z")
+        # 无 qid 图(排序在前):not_evaluated + 单独 reason
+        # (不静默、不根身份回退;修复前它抢走唯一导出)
+>       assert sample_no_qid["scoring_status"] == "not_evaluated_export_missing"
+E       AssertionError: assert 'scored' == 'not_evaluated_export_missing'
+E         
+E         - not_evaluated_export_missing
+E         + scored
+
+tests/test_ppv1_s5b_pairing.py:369: AssertionError
+_____________ test_export_qid_orphan_to_no_graph_unmatched_exports _____________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_export_qid_orphan_to_no_g0')
+
+    def test_export_qid_orphan_to_no_graph_unmatched_exports(
+            tmp_path: Path) -> None:
+        """可读导出声明无人认领的 qid ⇒ unmatched_exports 机读披露
+        (每个导出至多配一个样本;修复前同根导出会全配给首中图)。"""
+        run_a = _run(tmp_path, "s5b-orphan-a", _plan_coproduct())
+        digest_a = run_a["native_export"]["export_digest"]
+        run_b = _run(tmp_path, "s5b-orphan-b", _plan_no_coproduct())
+        digest_b = run_b["native_export"]["export_digest"]
+        graph = _qid_graph("rg-sole", QID_A)
+        evaluation_input = synth_evaluation_input(
+            graphs=[graph],
+            exports=[
+                {"run_id": "s5b-orphan-a", "export_digest": digest_a,
+                 "qid": QID_A},
+                {"run_id": "s5b-orphan-b", "export_digest": digest_b,
+                 "qid": "RXNG-SYNTH-ORPHAN"}])
+        evaluation_input["reference_graph_manifest"][0]["qid"] = QID_A
+        reader = _multi_run_reader(
+            tmp_path / "runs", ["s5b-orphan-a", "s5b-orphan-b"])
+        output = evaluate_scientific(
+            evaluation_input,
+            reference_graphs={graph["reference_graph_id"]: graph},
+            native_export_reader=reader,
+            preregistration=preregistration.build_preregistration_template())
+        sample = output["sample_results"][0]
+        # 唯一图只消费自己 qid 的导出;孤儿导出进 unmatched 披露
+        assert sample["scoring_status"] == "scored"
+>       assert sample["pairing"]["consumed_export_digest"] == digest_a
+               ^^^^^^^^^^^^^^^^^
+E       KeyError: 'pairing'
+
+tests/test_ppv1_s5b_pairing.py:407: KeyError
+________________ test_fallback_root_identity_pairing_disclosed _________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_fallback_root_identity_pa0')
+
+    def test_fallback_root_identity_pairing_disclosed(tmp_path: Path) -> None:
+        """两侧均不声明 qid(合成夹具)⇒ 回退根严格身份配对,机读披露
+        pairing_basis=root_identity_fallback(不静默;行为与 evaluation-3
+        一致:单图单导出照常 scored)。"""
+        run = _run(tmp_path, "s5b-fallback", _plan_coproduct())
+        digest = run["native_export"]["export_digest"]
+        graph = synth_reference_graph("rg-fb")  # source_refs 无 qid
+        evaluation_input = synth_evaluation_input(
+            graphs=[graph],
+            exports=[{"run_id": "s5b-fallback", "export_digest": digest}])
+        reader = _multi_run_reader(tmp_path / "runs", ["s5b-fallback"])
+        output = evaluate_scientific(
+            evaluation_input,
+            reference_graphs={graph["reference_graph_id"]: graph},
+            native_export_reader=reader,
+            preregistration=preregistration.build_preregistration_template())
+        sample = output["sample_results"][0]
+        assert sample["scoring_status"] == "scored"
+>       assert sample["pairing"]["basis"] == "root_identity_fallback"
+               ^^^^^^^^^^^^^^^^^
+E       KeyError: 'pairing'
+
+tests/test_ppv1_s5b_pairing.py:432: KeyError
+_____________ test_same_qid_multiple_exports_list_order_selection ______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_same_qid_multiple_exports0')
+
+    def test_same_qid_multiple_exports_list_order_selection(
+            tmp_path: Path) -> None:
+        """同一 qid 两个导出 ⇒ 按输入 native_path_exports 清单序取首位
+        (显式清单序,确定性;披露 paired 全清单与被消费 digest;不随机)
+        ——倒序输入 ⇒ 消费另一端,双向可证。"""
+        run_a = _run(tmp_path, "s5b-multi-a", _plan_coproduct())
+        digest_a = run_a["native_export"]["export_digest"]
+        run_b = _run(tmp_path, "s5b-multi-b", _plan_no_coproduct())
+        digest_b = run_b["native_export"]["export_digest"]
+        graph = _qid_graph("rg-multi", QID_A)
+        exports_forward = [
+            {"run_id": "s5b-multi-a", "export_digest": digest_a,
+             "qid": QID_A},
+            {"run_id": "s5b-multi-b", "export_digest": digest_b,
+             "qid": QID_A}]
+        reader = _multi_run_reader(
+            tmp_path / "runs", ["s5b-multi-a", "s5b-multi-b"])
+    
+        def _evaluate(exports: list[dict]) -> dict:
+            evaluation_input = synth_evaluation_input(
+                graphs=[graph], exports=exports)
+            evaluation_input["reference_graph_manifest"][0]["qid"] = QID_A
+            return evaluate_scientific(
+                evaluation_input,
+                reference_graphs={graph["reference_graph_id"]: graph},
+                native_export_reader=reader,
+                preregistration=preregistration.build_preregistration_template())
+    
+        forward = _evaluate(exports_forward)
+        sample = forward["sample_results"][0]
+        assert sample["scoring_status"] == "scored"
+        # 配对清单 = 两导出(同 qid 多 run),消费 = 清单首位
+>       assert sorted(sample["pairing"]["paired_export_digests"]) == \
+                      ^^^^^^^^^^^^^^^^^
+            sorted([digest_a, digest_b])
+E       KeyError: 'pairing'
+
+tests/test_ppv1_s5b_pairing.py:479: KeyError
+___________________ test_pairing_independent_of_entry_order ____________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_pairing_independent_of_en0')
+
+    def test_pairing_independent_of_entry_order(tmp_path: Path) -> None:
+        """qid 配对结果与 manifest/导出条目顺序无关(只依赖 qid 身份):
+        倒排导出清单 ⇒ 各图消费 digest 不变。"""
+        forward = _evaluate_two_runs(
+            tmp_path, graph_a_id="rg-o-a", graph_b_id="rg-o-b",
+            qid_a=QID_A, qid_b=QID_B)
+        reversed_case = _evaluate_two_runs(
+            tmp_path, graph_a_id="rg-o-a", graph_b_id="rg-o-b",
+            qid_a=QID_A, qid_b=QID_B, export_order="b_a")
+        for case in (forward, reversed_case):
+            for graph_id, qid in (("rg-o-a", QID_A), ("rg-o-b", QID_B)):
+                sample = _sample_of(case["output"], graph_id)
+                assert sample["scoring_status"] == "scored"
+>               assert sample["pairing"]["qid"] == qid
+                       ^^^^^^^^^^^^^^^^^
+E               KeyError: 'pairing'
+
+tests/test_ppv1_s5b_pairing.py:509: KeyError
+________________ test_manifest_qid_not_in_source_refs_rejected _________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_manifest_qid_not_in_sourc0')
+
+    def test_manifest_qid_not_in_source_refs_rejected(
+            tmp_path: Path) -> None:
+        """manifest 声明 qid 未出现在 root_entity.source_refs ⇒ 结构化拒
+        (图侧 qid 一致性核;不猜哪个是真)。"""
+        run = _run(tmp_path, "s5b-srcmismatch", _plan_coproduct())
+        digest = run["native_export"]["export_digest"]
+        graph = synth_reference_graph("rg-mismatch")  # source_refs 无 qid
+        evaluation_input = synth_evaluation_input(
+            graphs=[graph],
+            exports=[{"run_id": "s5b-srcmismatch", "export_digest": digest,
+                      "qid": QID_A}])
+        evaluation_input["reference_graph_manifest"][0]["qid"] = QID_A
+        reader = _multi_run_reader(tmp_path / "runs", ["s5b-srcmismatch"])
+>       with pytest.raises(EvaluationContractError) as excinfo:
+E       Failed: DID NOT RAISE EvaluationContractError
+
+tests/test_ppv1_s5b_pairing.py:539: Failed
+_____________________ test_duplicate_manifest_qid_rejected _____________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_duplicate_manifest_qid_re0')
+
+    def test_duplicate_manifest_qid_rejected(tmp_path: Path) -> None:
+        """两图声明同一 qid(G1 一题一图下配对键歧义)⇒ 结构化拒。"""
+        graph_a = _qid_graph("rg-dup-a", QID_A)
+        graph_b = _qid_graph("rg-dup-b", QID_A)
+        evaluation_input = synth_evaluation_input(
+            graphs=[graph_a, graph_b],
+            split_manifest=_two_graph_split(["rg-dup-a", "rg-dup-b"]),
+            exports=[])
+        for entry in evaluation_input["reference_graph_manifest"]:
+            entry["qid"] = QID_A
+>       with pytest.raises(EvaluationContractError) as excinfo:
+E       Failed: DID NOT RAISE EvaluationContractError
+
+tests/test_ppv1_s5b_pairing.py:561: Failed
+________________ test_export_qid_run_binding_mismatch_rejected _________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_export_qid_run_binding_mi0')
+
+    def test_export_qid_run_binding_mismatch_rejected(tmp_path: Path) -> None:
+        """声明 qid 的导出条目 run_id 与导出 payload 权威 run_id 不符 ⇒
+        结构化拒(qid↔run 映射与 read_native_export 的 run/identity 链
+        断裂,声明不可信;不用声明侧静默配对)。"""
+        run = _run(tmp_path, "s5b-binding", _plan_coproduct())
+        digest = run["native_export"]["export_digest"]
+        graph = _qid_graph("rg-binding", QID_A)
+        evaluation_input = synth_evaluation_input(
+            graphs=[graph],
+            exports=[{"run_id": "s5b-binding-spoof",
+                      "export_digest": digest, "qid": QID_A}])
+        evaluation_input["reference_graph_manifest"][0]["qid"] = QID_A
+        # reader 固定用真实 run 的单 ledger(读出 payload.run_id=
+        # s5b-binding;不看条目 run_id——正是 run 绑定核验要拦的错接线)
+        runs_root = tmp_path / "runs"
+        store = PollutantPathwayStore(
+            runs_root / "s5b-binding" / "pollutant.sqlite")
+        artifacts = ArtifactStore(runs_root, "s5b-binding")
+        ledger = SearchLedger(store, artifacts, "s5b-binding")
+        reader = native_export_reader_from_ledger(
+            ledger, runs_root / "s5b-binding")
+>       with pytest.raises(EvaluationContractError) as excinfo:
+E       Failed: DID NOT RAISE EvaluationContractError
+
+tests/test_ppv1_s5b_pairing.py:591: Failed
+________________________ test_empty_qid_string_rejected ________________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_empty_qid_string_rejected0')
+
+    def test_empty_qid_string_rejected(tmp_path: Path) -> None:
+        """qid 声明为空字符串 ⇒ 结构化拒(空值不静默当未声明)。"""
+        graph = _qid_graph("rg-empty", QID_A)
+        evaluation_input = synth_evaluation_input(
+            graphs=[graph],
+            exports=[{"run_id": "synth", "export_digest": "d" * 64,
+                      "qid": ""}])
+>       with pytest.raises(EvaluationContractError) as excinfo:
+E       Failed: DID NOT RAISE EvaluationContractError
+
+tests/test_ppv1_s5b_pairing.py:611: Failed
+____________________ test_pairing_disclosure_deterministic _____________________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_pairing_disclosure_determ0')
+
+    def test_pairing_disclosure_deterministic(tmp_path: Path) -> None:
+        """同输入重复评测:配对披露(含 consumed digest)确定性一致
+        (S5-24 纪律延伸到 evaluation-4 配对块)。"""
+        first = _evaluate_two_runs(
+            tmp_path, graph_a_id="rg-det-a", graph_b_id="rg-det-b",
+            qid_a=QID_A, qid_b=QID_B)
+        second = _evaluate_two_runs(
+            tmp_path, graph_a_id="rg-det-a", graph_b_id="rg-det-b",
+            qid_a=QID_A, qid_b=QID_B)
+        assert first["output"]["output_sha256"] == \
+            second["output"]["output_sha256"]
+        assert first["output"]["sample_results"] == \
+            second["output"]["sample_results"]
+>       assert first["output"]["coverage_report"]["pairing"] == \
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            second["output"]["coverage_report"]["pairing"]
+E       KeyError: 'pairing'
+
+tests/test_ppv1_s5b_pairing.py:637: KeyError
+_____________________ test_evaluation4_contract_registered _____________________
+
+    def test_evaluation4_contract_registered() -> None:
+        """evaluation-4 / profile-24 契约登记(配对语义变更升版,不偷换
+        同一已登记契约;reference-graph-1/split-manifest-1 不变)。"""
+        from pathway_v43.pollutant.profile import (
+            PPV1_EVALUATION_VERSION,
+            PPV1_PROFILE_SCHEMA_VERSION,
+            PPV1_REFERENCE_GRAPH_VERSION,
+            PPV1_SPLIT_MANIFEST_VERSION,
+            contract_versions,
+        )
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-4"
+E       AssertionError: assert 'ppv1-evaluation-3' == 'ppv1-evaluation-4'
+E         
+E         - ppv1-evaluation-4
+E         ?                 ^
+E         + ppv1-evaluation-3
+E         ?                 ^
+
+tests/test_ppv1_s5b_pairing.py:651: AssertionError
+__________________ test_ppv1_identity_block_contract_versions __________________
+
+    def test_ppv1_identity_block_contract_versions() -> None:
+        block = ri and ppv1_profile.build_profile_identity_block()
+        assert block["name"] == "pollutant_pathway_v1"
+        # v21(S5a 回修 r1):evaluation-2(S5A-01 identity scope 许可/
+        # S5A-02 条件同源分类/S5A-03 必要节点闭合/S5A-04 写边界根规则)
+        # + preregistration-template-2(proposed 文字同步)⇒ profile 身份
+        # 块随登记升版;v20(S5a 批次):donor-diagnostic-10(presence
+        # records isotope + axis_detail 披露,R4 §8 授权搭车 P2)+ 四个
+        # 新接口契约(reference-graph/split-manifest/evaluation/
+        # preregistration-template);v19(S4 回修 r3):
+        # donor-diagnostic-9(同位素 diff 并入实际净变化集,PPV1-ISO-01;
+        # audit/admission 决策表不变);其余契约版本沿 r2(native-export-3 /
+        # native-export-policy-3 / v3-projection-3;endpoint/native-result
+        # 系沿 r1);v24(S5b 启动批):evaluation-4(qid 感知样本↔导出
+        # 配对;mimo r25 ⚠️P1-9 G1 配对错位修复)
+>       assert block["schema_version"] == "ppv1-profile-24"
+E       AssertionError: assert 'ppv1-profile-23' == 'ppv1-profile-24'
+E         
+E         - ppv1-profile-24
+E         ?               ^
+E         + ppv1-profile-23
+E         ?               ^
+
+tests/test_ppv1_profile.py:58: AssertionError
+______________ test_native_export_public_chain_files_and_manifest ______________
+
+tmp_path = PosixPath('/private/var/folders/mg/7frznpjj7y16hqgk_g6h_28c0000gn/T/pytest-of-cc/pytest-538/test_native_export_public_chai0')
+
+    def test_native_export_public_chain_files_and_manifest(
+            tmp_path: Path) -> None:
+        """公共 start → endpoint → 正式导出:summary 字段、payload/manifest
+        文件落位、manifest 结构(版本/策略/事实 digest/引用);导出后立即
+        首消费读回(链内自校验)。"""
+        runs_root, out = _full_fixture(tmp_path)
+        digest = out["native_export"]["export_digest"]
+        out_dir = export_dir_of(runs_root, "s4b", digest)
+        assert (out_dir / "payload.json").is_file()
+        assert (out_dir / "manifest.json").is_file()
+        manifest = json.loads(
+            (out_dir / "manifest.json").read_text(encoding="utf-8"))
+        assert manifest["schema_version"] == "ppv1-native-export-3"
+        assert manifest["run_id"] == "s4b"
+        assert manifest["content_digest"] == out["native_result"][
+            "content_digest"]
+        assert manifest["export_policy"]["version"] == \
+            "ppv1-native-export-policy-3"
+        assert manifest["contract_versions"]["runflow"] == "ppv1-runflow-5"
+        # S5a 回修 r1:profile-20 → -21(evaluation-2 注册进身份块);
+        # S5a 回修 r2:profile-21 → -22(evaluation-3 单位收口);
+        # S5a 回修 r3:profile-22 → -23(S5A-05 消费侧引用绑定 + 五处
+        # P2 文案;evaluation-3/template-3 版本号不变);
+        # S5b 启动批:profile-23 → -24(evaluation-4 qid 感知配对)
+>       assert manifest["contract_versions"]["profile"] == "ppv1-profile-24"
+E       AssertionError: assert 'ppv1-profile-23' == 'ppv1-profile-24'
+E         
+E         - ppv1-profile-24
+E         ?               ^
+E         + ppv1-profile-23
+E         ?               ^
+
+tests/test_ppv1_s4b_export.py:182: AssertionError
+________________ test_s5a_rework_contract_version_registration _________________
+
+    def test_s5a_rework_contract_version_registration() -> None:
+        """S5a 回修 r1→r2:评测契约 -2→-3、预注册模板 -2→-3、profile
+        -21→-22(匹配/分类/写侧语义变更不偷换同一已登记契约;criteria-v1
+        冻结正文不受影响;r2 只登记 S5A-02 单位收口与 B2 文案纠错)。"""
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-4"
+E       AssertionError: assert 'ppv1-evaluation-3' == 'ppv1-evaluation-4'
+E         
+E         - ppv1-evaluation-4
+E         ?                 ^
+E         + ppv1-evaluation-3
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r1.py:735: AssertionError
+________ test_s5a_r2_contract_version_registration_and_frozen_integrity ________
+
+    @pytest.mark.skipif(
+        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),
+        reason="frozen criteria text not copied into allowlisted isolation "
+               "trees (G01 boundary); byte integrity verified at the "
+               "evidence level (shasum in review_evidence package)")
+    def test_s5a_r2_contract_version_registration_and_frozen_integrity() \
+            -> None:
+        """S5a 回修 r2:评测契约 -2→-3、模板 -2→-3、profile -21→-22
+        (S5A-02 单位收口语义由 evaluation-3 承载;reference-graph/
+        split-manifest 字段形状零变化);criteria-v1 冻结正文与
+        FREEZE_RECORD 逐字节不改(单位是消费侧语义)。"""
+>       assert PPV1_EVALUATION_VERSION == "ppv1-evaluation-4"
+E       AssertionError: assert 'ppv1-evaluation-3' == 'ppv1-evaluation-4'
+E         
+E         - ppv1-evaluation-4
+E         ?                 ^
+E         + ppv1-evaluation-3
+E         ?                 ^
+
+tests/test_ppv1_s5a_rework_r2.py:361: AssertionError
+________ test_s5a_r3_contract_version_registration_and_frozen_integrity ________
+
+    @pytest.mark.skipif(
+        not _FROZEN_DOC.exists() or not _FREEZE_RECORD_DOC.exists(),
+        reason="frozen criteria text not copied into allowlisted isolation "
+               "trees (G01 boundary); byte integrity verified at the "
+               "evidence level (shasum in review_evidence package)")
+    def test_s5a_r3_contract_version_registration_and_frozen_integrity() \
+            -> None:
+        """S5a 回修 r3:production 链 -1→-2(S5A-05 首消费引用绑定,由
+        search-production-2 承载)、profile -22→-23(聚合登记);evaluation-3
+        / template-3 **版本号不变**(五处 known×unknown 限定物种键等 P2
+        文案为拟冻结前同步,非语义变更);reference-graph-1/split-manifest-1
+        不变;criteria-v1 冻结正文/FREEZE_RECORD/path_context 冻结判决
+        逐字节不改(绑定守卫在 production 消费侧)。"""
+        assert SEARCH_PRODUCTION_VERSION == "ppv1-search-production-2"
+        # S5b 启动批:evaluation-3→-4(qid 感知样本↔导出配对;mimo r25
+        # ⚠️P1-9 G1 配对错位修复)+ profile -23→-24(聚合登记)
+>       assert PPV1_PROFILE_SCHEMA_VERSION == "ppv1-profile-24"
+E       AssertionError: assert 'ppv1-profile-23' == 'ppv1-profile-24'
+E         
+E         - ppv1-profile-24
+E         ?               ^
+E         + ppv1-profile-23
+E         ?               ^
+
+tests/test_ppv1_s5a_rework_r3.py:683: AssertionError
+=============================== warnings summary ===============================
+src/pathway_v43/pollutant/chemstate.py:1
+  /private/tmp/s5b_launch_parent_4fe1e0a/src/pathway_v43/pollutant/chemstate.py:1: DeprecationWarning: invalid escape sequence '\_'
+    """ChemicalState — 化学状态与 CN 身份分开(实施书 §5.1,S1;v3 回修)。
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ppv1_s5b_pairing.py::test_g1_same_substrate_two_qids_pair_own_runs
+FAILED tests/test_ppv1_s5b_pairing.py::test_qid_unpaired_not_mispaired_by_root
+FAILED tests/test_ppv1_s5b_pairing.py::test_qid_declared_by_unreadable_entry_disclosed
+FAILED tests/test_ppv1_s5b_pairing.py::test_strict_regime_graph_without_qid_not_root_paired
+FAILED tests/test_ppv1_s5b_pairing.py::test_export_qid_orphan_to_no_graph_unmatched_exports
+FAILED tests/test_ppv1_s5b_pairing.py::test_fallback_root_identity_pairing_disclosed
+FAILED tests/test_ppv1_s5b_pairing.py::test_same_qid_multiple_exports_list_order_selection
+FAILED tests/test_ppv1_s5b_pairing.py::test_pairing_independent_of_entry_order
+FAILED tests/test_ppv1_s5b_pairing.py::test_manifest_qid_not_in_source_refs_rejected
+FAILED tests/test_ppv1_s5b_pairing.py::test_duplicate_manifest_qid_rejected
+FAILED tests/test_ppv1_s5b_pairing.py::test_export_qid_run_binding_mismatch_rejected
+FAILED tests/test_ppv1_s5b_pairing.py::test_empty_qid_string_rejected - Faile...
+FAILED tests/test_ppv1_s5b_pairing.py::test_pairing_disclosure_deterministic
+FAILED tests/test_ppv1_s5b_pairing.py::test_evaluation4_contract_registered
+FAILED tests/test_ppv1_profile.py::test_ppv1_identity_block_contract_versions
+FAILED tests/test_ppv1_s4b_export.py::test_native_export_public_chain_files_and_manifest
+FAILED tests/test_ppv1_s5a_rework_r1.py::test_s5a_rework_contract_version_registration
+FAILED tests/test_ppv1_s5a_rework_r2.py::test_s5a_r2_contract_version_registration_and_frozen_integrity
+FAILED tests/test_ppv1_s5a_rework_r3.py::test_s5a_r3_contract_version_registration_and_frozen_integrity
+19 failed, 130 passed, 1 warning in 6.70s

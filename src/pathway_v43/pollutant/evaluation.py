@@ -103,6 +103,33 @@ S5a 回修 r3 文字同步(复审 R3 §5 五处 P2 之一/之二,拟冻结前
   "分母已定包含 unknown"的宽泛承诺(仅固定其他输入、空 unit →
   显式不支持 unit 一组行为可证)。
 
+S5b 启动批(evaluation-4,2026-10-09,mimo r25 ⚠️P1-9 G1 配对错位
+修复;**仅样本↔导出配对语义变更**,匹配/条件/指标/守卫判定零触碰):
+
+- **qid 感知样本↔导出配对**(G1 一题一图 + 53 重复底物下同根
+  多题不得张冠李戴):图侧 qid = ``reference_graph_manifest`` 条目
+  声明的 ``qid``(一致性核:必须出现在该图 ``root_entity.source_
+  refs``——转换规则 §2.2;不一致 ⇒ 结构化拒);导出侧 qid =
+  ``native_path_exports`` 条目声明的 ``qid``(其 ``run_id`` 与
+  read_native_export 返回 payload 的 ``run_id`` 权威绑定核验,
+  不一致 ⇒ 结构化拒);评测输入任一侧声明 qid ⇒ 全局进入严格
+  qid 档——图只配同 qid 的可读导出;qid 无匹配导出 ⇒ 该样本
+  ``not_evaluated`` 且 reason 明示 qid 未配到(**不再按根身份
+  首中即 break 张冠李戴**);严格档下未声明 qid 的图同样不回退
+  根身份(回退即重新引入错位),单独 reason 披露;
+- qid 信息完全不可得(合成测试图不声明 qid 且导出不声明 qid)⇒
+  回退既有根严格身份配对,机读披露 ``pairing_basis=
+  root_identity_fallback``(不静默;S5b 真实图全带 qid 走严格
+  路径);
+- 同一 qid 多导出 ⇒ 配对清单按评测输入 ``native_path_exports``
+  清单序(显式清单序),消费 digest = 首位并以
+  ``consumed_export_digest`` 机读披露(确定性,不随机);
+- 每个导出至多配到一个样本(两档同此约束);配不到的导出仍进
+  ``coverage_report.unmatched_exports`` 披露;
+- 新增消费的权威输入子字段仅两个:manifest 条目 ``qid`` 与导出
+  条目 ``qid``(S5-25 结构化字段清单的条目级子字段扩展,仍非
+  自然语言进判定;其余输入字段消费范围不变)。
+
 本模块不读取真实科学数据/金标/题面/封存 run;不写数据库;合成
 规则级测试之外的数字一律 interface/pending。
 """
@@ -195,8 +222,28 @@ GOLD_AUTHORIZED_ROOTS = frozenset({
     "reports/phase_s15_hit60/edit_path_replay/raw_inputs",
 })
 
+# ---- evaluation-4:样本↔导出配对档位与消费 digest 选择规则(机读) ----
+PAIRING_BASIS_QID_STRICT = "qid_strict"
+PAIRING_BASIS_ROOT_IDENTITY_FALLBACK = "root_identity_fallback"
+DIGEST_SELECTION_QID_LIST_ORDER = \
+    "native_path_exports_list_order_first"
+DIGEST_SELECTION_ROOT_FALLBACK = \
+    "root_identity_first_match_sorted_digest_order"
+PAIRING_BASIS_NOTE = (
+    "qid_strict:评测输入任一侧声明 qid ⇒ 全局严格 qid 配对——图按"
+    " manifest 声明 qid(须在 root_entity.source_refs)只配同 qid 的"
+    "可读导出(输入清单序),qid 无匹配 ⇒ not_evaluated(reason qid "
+    "未配到),不按根身份张冠李戴;root_identity_fallback:两侧均未"
+    "声明 qid(合成夹具路径)⇒ 回退根严格身份首中配对并在此机读披露"
+    "(evaluation-4;evaluation-3 该回退为隐式行为)")
+
 # 评测器实际消费的结构化字段(S5-25:自然语言/自由文本字段不进
-# 判定;本清单之外的一切输入字段一律忽略,不参与任何匹配或计数)
+# 判定;本清单之外的一切输入字段一律忽略,不参与任何匹配或计数)。
+# 条目级子字段(evaluation-4 起如实登记):native_path_exports 条目
+# 消费 run_id/export_digest/lossy_projection/native_reference/
+# lost_fields/qid;reference_graph_manifest 条目消费 reference_
+# graph_id/sha256/domain/track/path/qid;graph 的 root_entity.source_
+# refs 用于 qid 一致性核(只做成员核,不参与化学判定)。
 _CONSUMED_INPUT_FIELDS = (
     "evaluator_schema_version", "run_identity", "native_path_exports",
     "reference_graph_manifest", "split_manifest", "domain", "track",
@@ -347,6 +394,10 @@ def validate_evaluation_input(evaluation_input: dict) -> dict:
                     "kind": "evaluation_input_duplicate_export",
                     "export_digest": digest})
         export_digests.add(digest)
+        # ---- evaluation-4:导出条目 qid(可选;声明时必须非空字符串,
+        # 空值不静默当未声明)——导出侧 run↔qid 映射的声明点 ----
+        if entry.get("qid") is not None:
+            _req_str(entry.get("qid"), f"{field}.qid")
         lossy = bool(entry.get("lossy_projection") or False)
         if lossy:
             # §3.1:消费 v3 有损投影必须标记 lossy + 原生引用 + 已丢字段
@@ -371,6 +422,7 @@ def validate_evaluation_input(evaluation_input: dict) -> dict:
                 "kind": "evaluation_input_field_invalid",
                 "field": "reference_graph_manifest"})
     graph_ids: set[str] = set()
+    manifest_qids: dict[str, str] = {}  # evaluation-4:qid → graph_id
     for i, entry in enumerate(manifest):
         field = f"reference_graph_manifest[{i}]"
         if not isinstance(entry, dict):
@@ -387,6 +439,22 @@ def validate_evaluation_input(evaluation_input: dict) -> dict:
                     "reference_graph_id": graph_id})
         graph_ids.add(graph_id)
         _req_str(entry.get("sha256"), f"{field}.sha256")
+        # ---- evaluation-4:manifest 条目 qid(可选;声明时必须非空
+        # 字符串,且跨条目唯一——一题一图 G1 下重复 qid 会使 qid 配对
+        # 歧义,fail-closed 不猜归属) ----
+        entry_qid = entry.get("qid")
+        if entry_qid is not None:
+            _req_str(entry_qid, f"{field}.qid")
+            if entry_qid in manifest_qids:
+                raise EvaluationContractError(
+                    f"reference_graph_manifest 的 qid 重复:{entry_qid!r}"
+                    "(G1 一题一图:qid 是样本↔导出配对键,重复即歧义;"
+                    "fail-closed,不猜归属)", {
+                        "kind": "evaluation_input_duplicate_qid",
+                        "qid": entry_qid,
+                        "reference_graph_ids": sorted(
+                            (manifest_qids.get(entry_qid), graph_id))})
+            manifest_qids[entry_qid] = graph_id
         entry_domain = str(entry.get("domain") or "")
         entry_track = str(entry.get("track") or "")
         if entry_domain != domain:
@@ -1697,35 +1765,123 @@ def _root_states_of_export(payload: dict) -> set[str]:
     return roots
 
 
-def _pair_exports_to_samples(graphs: dict[str, dict],
-                             export_payloads: dict[str, dict]
-                             ) -> dict[str, list[str]]:
-    """样本 ↔ 导出配对(按根实体严格身份;确定性)。
+def _manifest_qid_map(evaluation_input: dict) -> dict[str, str]:
+    """图侧 qid 声明(graph_id → qid;仅统计显式声明条目)。
 
-    每个导出最多配到一个样本(根身份不同 ⇒ 不配);一个样本可配多
-    个导出(同根多 run);配不到的导出到 coverage_report 披露。
+    evaluation-4:qid 的图侧权威来源是 ``reference_graph_manifest`` 条目
+    的 ``qid`` 子字段(声明时已过非空/唯一校验);一致性核(该 qid
+    必须出现在图 ``root_entity.source_refs``,转换规则 §2.2)由
+    ``evaluate_scientific`` 在图装载后统一执行。
     """
-    pairing: dict[str, list[str]] = {graph_id: []
-                                     for graph_id in sorted(graphs)}
-    for digest, payload in sorted(export_payloads.items()):
-        root_states = _root_states_of_export(payload)
-        root_strict = set()
-        states = _export_states(payload)
-        for state_id in root_states:
-            identity = states.get(state_id, {}).get("smiles_isomeric")
-            if identity:
-                root_strict.add(identity)
-        for graph_id, graph in sorted(graphs.items()):
-            root_entity = graph.get("root_entity") or {}
-            try:
-                ref_strict = strict_identity_of(
-                    str(root_entity.get("structure_smiles_raw") or ""))
-            except ChemicalStateError:
-                ref_strict = str(
-                    root_entity.get("strict_structure_identity") or "")
-            if ref_strict in root_strict:
-                pairing[graph_id].append(digest)
-                break
+    out: dict[str, str] = {}
+    for entry in evaluation_input.get("reference_graph_manifest") or []:
+        qid = entry.get("qid")
+        if qid is None:
+            continue
+        out[str(entry.get("reference_graph_id"))] = str(qid)
+    return out
+
+
+def _export_qid_map(evaluation_input: dict) -> dict[str, str]:
+    """导出侧 qid 声明(digest → qid;仅统计显式声明条目)。
+
+    evaluation-4:评测输入的 run↔qid 映射落点——导出条目同时声明
+    ``qid`` 与 ``run_id``;``run_id`` 与 read_native_export 返回
+    payload 的权威 ``run_id`` 的绑定核验在导出装载处执行。
+    """
+    out: dict[str, str] = {}
+    for entry in evaluation_input.get("native_path_exports") or []:
+        qid = entry.get("qid")
+        if qid is None:
+            continue
+        out[str(entry.get("export_digest"))] = str(qid)
+    return out
+
+
+def _export_entry_order(evaluation_input: dict) -> list[str]:
+    """导出 digest 的评测输入清单序(显式清单序;去重保序)。"""
+    order: list[str] = []
+    seen: set[str] = set()
+    for entry in evaluation_input.get("native_path_exports") or []:
+        digest = str(entry.get("export_digest"))
+        if digest not in seen:
+            seen.add(digest)
+            order.append(digest)
+    return order
+
+
+def _pair_exports_to_samples(graphs: dict[str, dict],
+                             export_payloads: dict[str, dict],
+                             export_entry_order: list[str],
+                             export_qids: dict[str, str],
+                             manifest_qids: dict[str, str],
+                             ) -> dict[str, dict]:
+    """样本 ↔ 导出配对(evaluation-4:qid 感知;确定性)。
+
+    - **严格 qid 档**(评测输入任一侧声明 qid 即全局生效):图按
+      manifest 声明 qid 只配同 qid 的可读导出——配对清单按输入
+      ``native_path_exports`` 清单序(显式清单序,同 qid 多导出时
+      消费首位并以 ``consumed_export_digest`` 披露,不随机);qid
+      无匹配导出 ⇒ 空配对(样本 not_evaluated + reason qid 未配到,
+      **不再按根身份首中即 break 张冠李戴**);严格档下未声明 qid
+      的图同样空配对(单独 reason 披露——回退根身份即重新引入
+      evaluation-3 的同根多题错位);未声明 qid 的导出不配任何图
+      (进 unmatched_exports 披露);
+    - **回退档**(qid 信息完全不可得:无任何图声明 qid 且无任何
+      导出声明 qid ⇒ 合成夹具路径):沿用 evaluation-3 根严格身份
+      配对(根身份不同 ⇒ 不配;每个导出最多配到一个样本,首中即
+      定;清单按 digest 字典序),机读披露 ``pairing_basis=
+      root_identity_fallback``,不静默;
+    - 两档均保持:每个导出至多配到一个样本;一个样本可配多个导出
+      (同 qid 多 run);配不到的导出到 coverage_report 披露。
+    """
+    pairing: dict[str, dict] = {graph_id: {
+        "basis": PAIRING_BASIS_ROOT_IDENTITY_FALLBACK,
+        "qid": None,
+        "paired_export_digests": [],
+        "consumed_export_digest": None,
+        "digest_selection_rule": DIGEST_SELECTION_ROOT_FALLBACK,
+    } for graph_id in sorted(graphs)}
+    if not (manifest_qids or export_qids):
+        # ---- 回退档:根严格身份首中配对(evaluation-3 语义原样) ----
+        for digest, payload in sorted(export_payloads.items()):
+            root_states = _root_states_of_export(payload)
+            root_strict = set()
+            states = _export_states(payload)
+            for state_id in root_states:
+                identity = states.get(state_id, {}).get("smiles_isomeric")
+                if identity:
+                    root_strict.add(identity)
+            for graph_id, graph in sorted(graphs.items()):
+                root_entity = graph.get("root_entity") or {}
+                try:
+                    ref_strict = strict_identity_of(
+                        str(root_entity.get("structure_smiles_raw") or ""))
+                except ChemicalStateError:
+                    ref_strict = str(
+                        root_entity.get("strict_structure_identity") or "")
+                if ref_strict in root_strict:
+                    pairing[graph_id]["paired_export_digests"].append(digest)
+                    break
+        for info in pairing.values():
+            if info["paired_export_digests"]:
+                info["consumed_export_digest"] = \
+                    info["paired_export_digests"][0]
+        return pairing
+    # ---- 严格 qid 档:qid 精确身份配对(不消费根结构) ----
+    for graph_id in sorted(graphs):
+        qid = manifest_qids.get(graph_id)
+        digests = [digest for digest in export_entry_order
+                   if digest in export_payloads
+                   and qid is not None
+                   and export_qids.get(digest) == qid]
+        pairing[graph_id] = {
+            "basis": PAIRING_BASIS_QID_STRICT,
+            "qid": qid,
+            "paired_export_digests": digests,
+            "consumed_export_digest": digests[0] if digests else None,
+            "digest_selection_rule": DIGEST_SELECTION_QID_LIST_ORDER,
+        }
     return pairing
 
 
@@ -1947,6 +2103,25 @@ def evaluate_scientific(
             "(fail-closed;不猜默认)", {
                 "kind": "reference_graph_missing",
                 "missing": missing_graphs})
+    # ---- evaluation-4:图侧 qid 一致性核(manifest 声明 qid 必须出现
+    # 在 root_entity.source_refs——转换规则 §2.2 图侧携带 qid;声明
+    # 与图内容不一致 ⇒ fail-closed,不猜哪个是真) ----
+    manifest_qids = _manifest_qid_map(evaluation_input)
+    export_qids = _export_qid_map(evaluation_input)
+    for graph_id, declared_qid in sorted(manifest_qids.items()):
+        source_refs = {str(ref) for ref in (
+            (graphs[graph_id].get("root_entity") or {}).get(
+                "source_refs") or [])}
+        if declared_qid not in source_refs:
+            raise EvaluationContractError(
+                f"参考图 {graph_id} 的 manifest 声明 qid={declared_qid!r}"
+                "未出现在 root_entity.source_refs(图侧 qid 一致性核;"
+                "qid 是样本↔导出配对键,声明与图内容不一致 ⇒ fail-closed,"
+                "不猜归属;转换规则要求 source_refs 携带 qid)", {
+                    "kind": "reference_graph_qid_not_in_source_refs",
+                    "reference_graph_id": graph_id,
+                    "qid": declared_qid,
+                    "source_refs": sorted(source_refs)})
     # ---- 泄漏检查(§11 第 5 步) ----
     leakage = check_leakage(split_manifest, graphs)
     # ---- 导出装载(§11 第 3 步;S4 公开入口) ----
@@ -1971,10 +2146,33 @@ def evaluate_scientific(
                 "export_digest": digest,
                 "kind": "native_export_unreadable",
                 "error": f"{type(exc).__name__}: {exc}"[:200]})
-    pairing = _pair_exports_to_samples(graphs, export_payloads)
+            continue
+        # ---- evaluation-4:qid↔run 权威绑定核验(声明 qid 的导出条目:
+        # 其 run_id 必须与 read_native_export 返回 payload 的权威
+        # run_id 一致——导出侧 run↔qid 映射的可信前提;不一致 ⇒ 该
+        # qid 映射不可信,fail-closed 结构化拒,不用声明侧静默配对)
+        # ----
+        if entry.get("qid") is not None:
+            payload_run_id = str(
+                (export_payloads[digest].get("run_id")) or "")
+            if payload_run_id != str(entry.get("run_id") or ""):
+                raise EvaluationContractError(
+                    f"导出条目 {digest[:12]} 声明 qid 的 run 绑定不符:"
+                    f"entry.run_id={entry.get('run_id')!r} 而导出 payload "
+                    f"的权威 run_id={payload_run_id!r}(qid↔run 映射与"
+                    "read_native_export 的 run/identity 链断裂 ⇒ 该导出"
+                    "条目的 qid 声明不可信,fail-closed)", {
+                        "kind": "evaluation_export_run_binding_mismatch",
+                        "export_digest": digest,
+                        "qid": str(entry.get("qid")),
+                        "entry_run_id": str(entry.get("run_id") or ""),
+                        "payload_run_id": payload_run_id})
+    pairing = _pair_exports_to_samples(
+        graphs, export_payloads,
+        _export_entry_order(evaluation_input), export_qids, manifest_qids)
     unmatched_exports = sorted(
-        set(export_payloads) - {d for digests in pairing.values()
-                                for d in digests})
+        set(export_payloads) - {d for info in pairing.values()
+                                for d in info["paired_export_digests"]})
     # ---- 样本级评分(§11 第 6–14 步) ----
     sample_results: list[dict] = []
     invalid_input_count = 0
@@ -2006,17 +2204,53 @@ def evaluate_scientific(
             "budget_omission": {},
             "unknown_or_partial_summary": {},
         }
-        digests = pairing.get(graph_id) or []
+        # ---- evaluation-4:样本级配对机读披露(两档均披露;不静默) ----
+        pairing_info = pairing[graph_id]
+        sample["pairing"] = {
+            "basis": pairing_info["basis"],
+            "qid": pairing_info["qid"],
+            "paired_export_digests": list(
+                pairing_info["paired_export_digests"]),
+            "consumed_export_digest": pairing_info[
+                "consumed_export_digest"],
+            "digest_selection_rule": pairing_info["digest_selection_rule"],
+        }
+        digests = pairing_info["paired_export_digests"]
         if not digests:
             sample["scoring_status"] = "not_evaluated_export_missing"
-            sample["scoring_errors"] = [{
-                "kind": "native_export_missing",
-                "note": ("S4 native export 未交付 ⇒ 可验证接口,不运行"
-                         "正式科学评测,状态 pending(S5-28)")}]
+            if pairing_info["basis"] == PAIRING_BASIS_QID_STRICT:
+                if pairing_info["qid"] is not None:
+                    # qid 已声明但未配到导出:reason 明示 qid 未配到,
+                    # 不按根身份回退配对(不再张冠李戴;evaluation-4)
+                    qid_declared_by_entry = pairing_info["qid"] in set(
+                        export_qids.values())
+                    sample["scoring_errors"] = [{
+                        "kind": "sample_qid_unpaired",
+                        "qid": pairing_info["qid"],
+                        "qid_declared_by_export_entry": (
+                            qid_declared_by_entry),
+                        "note": (f"样本声明 qid={pairing_info['qid']!r} "
+                                 "未配到任何可读导出 ⇒ not_evaluated"
+                                 "(qid 未配到;不按根身份回退配对,"
+                                 "同根多题不张冠李戴;evaluation-4)"),
+                    }]
+                else:
+                    sample["scoring_errors"] = [{
+                        "kind": "graph_qid_missing_in_strict_pairing",
+                        "note": ("评测输入存在 qid 声明(严格 qid 配对档)"
+                                 "而该图未声明 qid ⇒ 不回退根身份配对"
+                                 "(回退即重新引入同根多题首中即 break 的"
+                                 "错位);样本 not_evaluated,evaluation-4"),
+                    }]
+            else:
+                sample["scoring_errors"] = [{
+                    "kind": "native_export_missing",
+                    "note": ("S4 native export 未交付 ⇒ 可验证接口,不运行"
+                             "正式科学评测,状态 pending(S5-28)")}]
             invalid_input_count += 1
             sample_results.append(sample)
             continue
-        payload = export_payloads[digests[0]]
+        payload = export_payloads[pairing_info["consumed_export_digest"]]
         node_matches = match_reference_nodes(graph, payload)
         edge_matches = match_reference_edges(graph, payload,
                                              node_matches)
@@ -2090,6 +2324,22 @@ def evaluate_scientific(
                             or {}).get("known_gaps") or [])
             for g in sorted(graphs)},
         "unmatched_exports": unmatched_exports,
+        "pairing": {
+            "bases_by_graph": {g: pairing[g]["basis"]
+                               for g in sorted(pairing)},
+            "qids_by_graph": {g: pairing[g]["qid"]
+                              for g in sorted(pairing)},
+            "paired_export_digests_by_graph": {
+                g: list(pairing[g]["paired_export_digests"])
+                for g in sorted(pairing)},
+            "consumed_export_digest_by_graph": {
+                g: pairing[g]["consumed_export_digest"]
+                for g in sorted(pairing)},
+            "digest_selection_rule_by_graph": {
+                g: pairing[g]["digest_selection_rule"]
+                for g in sorted(pairing)},
+            "note": PAIRING_BASIS_NOTE,
+        },
         "note": ("未画出的参考边不自动判模型错误,计入参考覆盖限制"
                  "(S5-09);参考图不完备时如实披露覆盖范围"),
     }
@@ -2184,7 +2434,8 @@ def evaluate_scientific(
             "cost": 0,
             "consumed_field_policy": (
                 "仅消费冻结结构化字段清单;自然语言字段不进判定"
-                "(S5-25)"),
+                "(S5-25);evaluation-4 新增条目级子字段 manifest.qid /"
+                " native_path_exports.qid 仅用于样本↔导出配对"),
             "data_scope": data_scope,
             "scientific_metric_status": (
                 "interface_only:合成规则级数字不外推 dev/298,不构成"

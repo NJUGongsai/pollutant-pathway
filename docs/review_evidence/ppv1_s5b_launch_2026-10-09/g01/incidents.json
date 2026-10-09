@@ -1,0 +1,21 @@
+{
+  "round": "S5b launch G01 safety isolation (evaluation-4 qid-aware pairing)",
+  "incidents": [],
+  "attempts": [
+    {
+      "attempt": 1,
+      "out_dir": "attempt1/",
+      "exit_code": 0,
+      "result": "1733 passed / 10 skipped / 17 deselected, exit 0, 307 allowlisted inputs (306 r3-lineage + 1 new tests/test_ppv1_s5b_pairing.py), all input SHAs reverified unchanged after the run, 8 legitimately changed inputs vs the r3 G01 set disclosed and script-enforced, 7 isolated pyc files honestly recorded",
+      "logs": "full stdout/stderr/junit/preparation/input SHA/post-run verification preserved inside attempt1/; the console capture is attempt1_console.txt; nothing was deleted before or after the run (the 243MB input copy trees stay in the execution tmp root per input_trees_note.json)"
+    }
+  ],
+  "first_run_success": true,
+  "history_note": "r2's lost-first-run-stdout lesson stays applied along the r3 lineage: fresh output root per attempt, no log removed. One earlier preparation-only invocation of the controller failed before any test execution (r3 G01 input SHA default path pointed at g01/input_sha256.json instead of g01/attempt1/input_sha256.json; fixed, no test ran, nothing recorded as a test attempt) - disclosed here rather than hidden.",
+  "scheduling_failures": "none",
+  "unexecuted_segments": [
+    "No mimo probe re-execution this round: mimo r25 is a review-only session over documents; its two P1 flags were code-verified by the main session and closed by code + regression in this batch (evaluation-4).",
+    "legacy/G2/AtomTool/export_v3/end-to-end non-PPV1 suites were not rerun in the repo tree beyond the PPV1 43-file suite; their behavior is guarded inside the G01 isolation run (1719 -> 1733) and by untouched-module byte discipline (git diff touches only pollutant evaluation/profile + 7 test files)."
+  ],
+  "cache_observation": "G01 isolation tree test subprocesses produced 7 .pyc files despite -B and PYTHONDONTWRITEBYTECODE=1 (list in attempt1/post_run_sha_result.json, same count as the r1/r2/r3 observations); repo tree runs left no pyc. No 'all-no-pyc' claim is made."
+}

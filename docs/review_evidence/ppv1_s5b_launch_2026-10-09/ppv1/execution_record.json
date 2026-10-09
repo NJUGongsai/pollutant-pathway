@@ -1,0 +1,24 @@
+{
+  "command": [
+    "~/miniconda3/envs/depending43/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-rA",
+    "<44 PPV1 test files: test_ppv1_domain/profile/r2_*/r4_*/r5_*/r6_*/r7_*/r8_*/rework/s2/s3a_*/s3b_*/s4_*/s4a_endpoint/s4b_export/s5a_*/s5b_pairing>"
+  ],
+  "cwd": "/Volumes/CC/Enzyme_Agent/dependingv43",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1"
+  },
+  "exit_code": 0,
+  "summary": "1133 passed / 0 skipped / 0 failed / exit 0 (1119 stock from the r3 lineage + 14 new in tests/test_ppv1_s5b_pairing.py, 44 files = 43 r3-lineage + 1 new)",
+  "file_list": "ppv1_file_list.txt",
+  "junit": "ppv1_junit.xml",
+  "stdout": "stdout.txt",
+  "stderr": "stderr.txt"
+}

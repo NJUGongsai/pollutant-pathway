@@ -177,8 +177,9 @@ def test_native_export_public_chain_files_and_manifest(
     # S5a 回修 r1:profile-20 → -21(evaluation-2 注册进身份块);
     # S5a 回修 r2:profile-21 → -22(evaluation-3 单位收口);
     # S5a 回修 r3:profile-22 → -23(S5A-05 消费侧引用绑定 + 五处
-    # P2 文案;evaluation-3/template-3 版本号不变)
-    assert manifest["contract_versions"]["profile"] == "ppv1-profile-23"
+    # P2 文案;evaluation-3/template-3 版本号不变);
+    # S5b 启动批:profile-23 → -24(evaluation-4 qid 感知配对)
+    assert manifest["contract_versions"]["profile"] == "ppv1-profile-24"
     assert manifest["payload_sha256"] == \
         out["native_export"]["payload_sha256"]
     # 无时间戳(G02 确定性面)
