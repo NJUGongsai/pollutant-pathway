@@ -7,6 +7,9 @@ S5b-corpus-retrieval-2 / s5b-pool-policy-3 ——共底物 component
 (corpus_cosubstrate_participants_unsupported),不产 spec/不产
 event;共用许可规则在 find_corpus_recorded_exact 生效(池/公开链
 从源头拿不到坏 spec);判据/AtomTool/冻结评测尺子零改动。
+**W-V4b(2026-10-10)**:池策略随 recorded 两通道编译面扩大升版
+s5b-pool-policy-4(池成员变化;池策略配置零变化;cosubstrate 许可
+零触碰);stereo 消解型夹具按 P1 修订(见 neg2/空池测试)。
 
 依据:v4 任务书 §4(用户六决策 ①②③,2026-10-10)+ §3 入口矩阵
 + Codex v4 复审 §4.3/§8(共底物诚实拒分支最低收口):
@@ -265,10 +268,12 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
     assert "both_direction_rows_retained" in sem[
         "master_direction_policy"]
     assert "native" in sem["mapping_policy"]
-    # 池策略升版(R1:corpus 通道池成员收缩;EAWAG 面不变)
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-3"
-    # EAWAG recorded 源身份零变化(判据单一来源不动摇)
-    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-1"
+    # 池策略升版(W-V4b:池成员变化——recorded 两通道编译面因公共
+    # 编译判据链修复扩大;池策略配置零变化;cosubstrate 许可零触碰)
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-4"
+    # EAWAG recorded 源身份:W-V4b 升版(推断映射预算/枚举面扩展;
+    # find_recorded_exact 检索/分层语义不变)
+    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-2"
 
 
 # ================================================================ 正控族
@@ -587,7 +592,11 @@ def test_wv41_neg1_source_hash_tamper_fail_closed(tmp_path) -> None:
 
 def test_wv41_neg2_cn_match_not_promoted_to_strict(tmp_path) -> None:
     """负控②(决策①):CN 同(立体盲)而 strict 异 ⇒
-    recorded_cn_candidate 不升 strict(分层判据同源,不改)。"""
+    recorded_cn_candidate 不升 strict(分层判据同源,不改)。
+    W-V4b 注:该夹具的立体差异恰为消解型(手性 sp3 中心随 C-O
+    single→double 键级变化消解,donor 手性声明为派生属性)——编译
+    现按 S5b-stereo-dissolution-1 通过(执行后同源复核过),但分层
+    仍不升格:strict 供给与 cn 候选的分层判据零变化。"""
     engine = _CorpusEngine(tmp_path)
     out = find_corpus_recorded_exact(
         substrate_smiles="CC(O)Cl", engine=engine)
@@ -600,9 +609,12 @@ def test_wv41_neg2_cn_match_not_promoted_to_strict(tmp_path) -> None:
     d = out["diagnostics"]
     assert d["n_strict_exact"] == 0
     assert d["n_cn_candidate"] >= 1
-    # 编译层如实拒(立体编辑不支持,不冒充 strict 通过)
-    assert cands[0]["compile_status"] == "unsupported"
-    assert cands[0]["compile_reason"] == "stereo_edit_unsupported"
+    # W-V4b:消解型立体差异编译通过(手性=键级变化派生属性;执行后
+    # 立体同源复核;spec 机读诊断披露)——但 tier 仍是 cn,不升 strict
+    assert cands[0]["compile"] is not None
+    spec = cands[0]["compile"]
+    assert spec["compile"]["stereo_dissolution_applied"] == [2]
+    assert spec["expectation"]["target_smiles"] == "CC(=O)Cl"
 
 
 def test_wv41_neg3_other_substrate_not_in_retrieval_face(tmp_path) -> None:
@@ -750,7 +762,7 @@ def test_wv41_neg11_master_duplicate_no_double_slot(tmp_path) -> None:
 # ================================================================ 池接线
 
 def test_wv41_pool_corpus_appended_after_eawag(tmp_path) -> None:
-    """池接线(s5b-pool-policy-3):EAWAG 面(引擎 lookup 序)保持
+    """池接线(W-V4b:s5b-pool-policy-4):EAWAG 面(引擎 lookup 序)保持
     零变化在前,corpus **整串**候选追加在后(不同净反应各占一槽);
     component-with-co-substrate 候选(行号更小)共用许可 ⇒ 零池槽 +
     拒因计数(父 HEAD 该行入池=真行为红);corpus_channel=False ⇒
@@ -779,7 +791,7 @@ def test_wv41_pool_corpus_appended_after_eawag(tmp_path) -> None:
     # EAWAG 在前(引擎序),corpus 整串追加在后;component 行零槽
     assert keys == ["rec-btX#r0001", "rec-rhea:90008@L2"], keys
     diag = provider.last_diagnostics
-    assert diag["pool_policy_version"] == "s5b-pool-policy-3"
+    assert diag["pool_policy_version"] == "s5b-pool-policy-4"
     assert diag["n_recorded_strict_exact"] == 1
     assert diag["n_corpus_strict_exact"] == 2  # 检索分层(strict 层 2 行)
     assert "corpus_diagnostics" in diag
@@ -803,10 +815,14 @@ def test_wv41_pool_corpus_appended_after_eawag(tmp_path) -> None:
 
 def test_wv41_pool_corpus_all_unsupported_honest_empty(tmp_path) -> None:
     """池诚实边界:corpus 候选全编译失败(通配/电荷/共底物等)⇒
-    空池 + 失败直方图如实(检索命中数不冒充供给,更不冒充命中)。"""
+    空池 + 失败直方图如实(检索命中数不冒充供给,更不冒充命中)。
+    W-V4b:立体夹具改为**纯立体翻转**(C[@H]→C[@@H],无键级变化
+    ——消解谓词要求 single→double/triple 变化,纯翻转不消解,维持
+    stereo_edit_unsupported;旧夹具 C[C@H](O)Cl→CC(=O)Cl 属消解型,
+    现按 P1 编译通过,不再是"全失败"形态)。"""
     corpus_rows = [
         _rhea_row("rhea:90009", "90008", "LR", "C[C@H](O)Cl",
-                  ["C[C@H](O)Cl"], "CC(=O)Cl", ["CC(=O)Cl"]),
+                  ["C[C@H](O)Cl"], "C[C@@H](O)Cl", ["C[C@@H](O)Cl"]),
     ]
     engine = _CorpusEngine(tmp_path, corpus_rows=corpus_rows,
                            library_rows=[])

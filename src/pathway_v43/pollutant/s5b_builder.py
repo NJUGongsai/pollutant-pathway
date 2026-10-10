@@ -379,6 +379,13 @@ def build_run_input(question: dict, *, batch_tag: str,
 
 # W4 池策略版本(冻结候选配置:raw 预算/池宽/阈值/补位/融合规则;
 # 变化 ⇒ 升版本 ⇒ 新身份)
+# s5b-pool-policy-4(W-V4b,2026-10-10,编译墙深层修复轮):池**成员**
+# 变化 ⇒ 按既有身份规则升版——recorded 直通两通道(EAWAG + corpus
+# 整串)的编译面因公共编译判据链修复而扩大(s5b-compiler-2 stereo
+# 消解 + s5b-recorded-source-2 推断映射预算/枚举面扩展);**池策略
+# 配置本身零变化**(raw 预算/池宽/阈值/补位/融合/去重/EAWAG 候选
+# 序/corpus_channel 语义全部不动);cosubstrate 许可规则
+# (s5b-corpus-retrieval-2)零触碰。
 # s5b-pool-policy-3(W-V4.1-R1,2026-10-10,Codex v4 复审 S5B-V4-01
 # 回修):corpus 通道供给面许可变化——component-with-co-substrate
 # 候选在 find_corpus_recorded_exact 编译前结构化 unsupported
@@ -393,7 +400,7 @@ def build_run_input(question: dict, *, batch_tag: str,
 # 候选按(tier strict→cn, 整串→组分, 行号)序**追加在后**;同净反应
 # 签名去重/失败补位/池宽语义不变;corpus_channel 参数仅供消融对照
 # (生产默认 True;False=纯 EAWAG 面,池深前后对照探针用)。
-S5B_POOL_POLICY_VERSION = "s5b-pool-policy-3"
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-4"
 S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
 S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
 S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)

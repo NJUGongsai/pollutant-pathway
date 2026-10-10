@@ -84,6 +84,25 @@ corpus 身份唯一来源 = ``engine.identity_block`` 现有键
 corpus_v1_path/corpus_v1_sha256(env_asset_root.resolve_and_verify
 锚定,无需新哈希机制);sha 锚定后逐行回读,实际 sha ≠ 身份记录 ⇒
 corpus_hash_mismatch fail-closed(源 hash 篡改负控同款)。
+
+W-V4b(S5b-recorded-infer-2,2026-10-10,编译墙深层修复轮):推断
+映射公共判据链的**枚举预算与枚举面扩展**(判据零放宽——产物多重集
+gate 不放宽、等价映射合并、触顶诚实拒、product_set_mismatch 0/28
+维持缺行诚实拒不冒充):
+
+- 有界键差 fallback 预算升档:``_INFER_BOND_DIFF_CALL_LIMIT``
+  512→8192(删键组合调用预算;全 k≤2 枚举覆盖 donor ≤127 键,
+  n(n+1)/2≤8192;实测触顶率前后披露);``_INFER_MATCH_LIMIT``
+  200→800(候选映射歧义上限,触顶 ⇒ truncated 诚实拒不变);
+- fallback 前置必要条件(fast-fail,零语义变化):donor 元素多重集
+  ⊄ union 或 n_donor > n_union ⇒ 任意键差下查询必无解,直接空返回
+  (省去无望记录的组合枚举预算,与 template_elements_fit 同纪律——
+  编译层判据的必要条件前置,不新增第二套判据);
+- 加成/生成分支全组分枚举:旧实现在首个可容纳 donor 的产物组分后
+  break(丢后续组分的候选对应);现全部组分在预算内枚举,候选映射
+  交由编译 + 产物多重集 gate + 落位纪律全映射评估(W-V2.3 同源);
+- stereo 消解在公共编译器侧实施(s5b-compiler-2;本模块零判据改动,
+  通道产出的 stereo_edit_unsupported 事件面由消解谓词收敛)。
 """
 
 from __future__ import annotations
@@ -100,7 +119,7 @@ from .s5b_compiler import S5bCompileError, compile_donor_template
 
 RDLogger.DisableLog("rdApp.*")
 
-RECORDED_SOURCE_VERSION = "s5b-recorded-source-1"
+RECORDED_SOURCE_VERSION = "s5b-recorded-source-2"
 
 # ---- W-V4.1:corpus 直通检索语义冻结登记(§1 硬条款;开工先于接线)----
 # 冻结依据:TASK_V43_PPV1_S5B_HIT50_V4_DRAFT_2026-10-10 §10 用户裁定
@@ -151,7 +170,10 @@ CORPUS_RETRIEVAL_SEMANTICS = {
 }
 
 # 推断映射的子结构同构枚举上限(触顶 ⇒ 歧义披露拒绝,不静默取首解)
-_INFER_MATCH_LIMIT = 200
+# W-V4b(S5b-recorded-infer-2):200→800——候选映射歧义上限升档
+# (v3 分类中触顶类因预算截断被拒;升档后触顶率实测披露,触顶语义
+# 不变:超上限仍 truncated 诚实拒)。
+_INFER_MATCH_LIMIT = 800
 
 # ---- W-V2(S5b-recorded-bonddiff-1):有界键差结构对应 ----
 #
@@ -168,7 +190,11 @@ _INFER_MATCH_LIMIT = 200
 _INFER_BOND_DIFF_LIMIT = 2
 # fallback 的查询调用预算(删键组合数上限;超 ⇒ truncated 拒,不静默
 # 缩小枚举面)。原子级预算与 _INFER_MATCH_LIMIT(匹配数)互补。
-_INFER_BOND_DIFF_CALL_LIMIT = 512
+# W-V4b(S5b-recorded-infer-2):512→8192——全 k≤2 枚举需
+# n_bonds + C(n_bonds,2) = n(n+1)/2 次调用;8192 覆盖 donor ≤127 键
+# (298 题面 EAWAG/corpus 整串 donor 键数实测上界见交付书;升档后
+# 触顶率实测披露)。无望组合(fast-fail 前置必要条件)不再占用预算。
+_INFER_BOND_DIFF_CALL_LIMIT = 8192
 
 # 每进程库索引缓存(1.4MB 文本;hash 锚定后复用)
 _LIBRARY_CACHE: dict = {}
@@ -415,6 +441,21 @@ def _mapped_copy(mol, map_of_idx: dict) -> str:
     return Chem.MolToSmiles(out)
 
 
+def _elements_contained(query_mol, target_mol) -> bool:
+    """query 元素多重集 ⊆ target 元素多重集(子结构匹配必要条件)。
+
+    子结构匹配要求全部 query 原子入 target ⇒ 元素计数必须被包含
+    (键级任意/删键任意都不改变原子集)。fail 判定 = 任意键差下查询
+    必无解 ⇒ 调用方可直接空返回(必要条件前置,非第二套判据)。"""
+    q_counts: dict = {}
+    for a in query_mol.GetAtoms():
+        q_counts[a.GetSymbol()] = q_counts.get(a.GetSymbol(), 0) + 1
+    t_counts: dict = {}
+    for a in target_mol.GetAtoms():
+        t_counts[a.GetSymbol()] = t_counts.get(a.GetSymbol(), 0) + 1
+    return all(q_counts[e] <= t_counts.get(e, 0) for e in q_counts)
+
+
 def _infer_bond_diff_fallback(donor, union) -> list[dict]:
     """有界键差对应 fallback(W-V2.2;标准枚举为空时才调用)。
 
@@ -429,9 +470,16 @@ def _infer_bond_diff_fallback(donor, union) -> list[dict]:
     truncated=True);像去重(不同删键组合可能给出同一像;先到先得,
     单键组合优先)。产出 mapping 携带 n_bond_diff(删键数,供诊断
     披露;非机制证据)。
+
+    W-V4b fast-fail 前置必要条件(零语义变化):donor 元素多重集
+    ⊄ union 或 n_donor > n_union ⇒ 任意删键组合的查询必无解,直接
+    空返回(无望记录不再占用组合预算;与 template_elements_fit 同
+    纪律——判据单一来源的必要条件前置)。
     """
     n_donor = donor.GetNumAtoms()
     n_union = union.GetNumAtoms()
+    if n_donor > n_union or not _elements_contained(donor, union):
+        return []
     bonds = list(donor.GetBonds())
     from itertools import combinations
     subsets: list[tuple] = []
@@ -505,6 +553,11 @@ def infer_reaction_mapping(
     有界键差 fallback(删 donor ≤2 条键的不连通 any-bond 查询在
     产物并集上匹配;断键/成键重排与跨组分断裂+新增原子的记录恢复
     对应;预算/歧义披露不变;标准枚举成功时零行为变化)。
+
+    **W-V4b(S5b-recorded-infer-2)**:预算升档(match 800 / 调用
+    8192)与加成分支全组分枚举(见分支注释);fallback 前置必要
+    条件 fast-fail(元素包含/原子数;零语义变化);触顶诚实拒、
+    等价映射合并、异目标歧义拒全部维持。
     """
     donor = Chem.MolFromSmiles(donor_smiles or "")
     if donor is None:
@@ -564,6 +617,11 @@ def infer_reaction_mapping(
                                  "truncated": truncated})
     else:
         # ---- 加成:donor ⊆ 单一产物组分 ----
+        # W-V4b(S5b-recorded-infer-2):全部组分在预算内枚举(旧实现
+        # 在首个可容纳 donor 的组分后 break——丢后续组分的候选对应;
+        # 不同组分承载的对应是不同的结构假设,交由编译 + 产物多重集
+        # gate + 落位纪律全映射评估,W-V2.3 同源)。每组分枚举上限
+        # _INFER_MATCH_LIMIT;总映射数超限 ⇒ truncated 诚实拒不变。
         comps = Chem.GetMolFrags(union, asMols=True, sanitizeFrags=True)
         offset = 0
         query = _any_bond_query(donor)
@@ -579,11 +637,6 @@ def infer_reaction_mapping(
                     "donor_to_union": image, "new_union": new,
                     "removed_donor": [], "truncated": False})
             offset += comp.GetNumAtoms()
-            if mappings:
-                # 只在能容纳完整 donor 的组分内枚举(首个足够组分;
-                # 更小组分必然放不下 —— n_donor < n_union 且 donor
-                # 连通,任何容纳它的组分大小 ≥ n_donor)
-                break
         truncated = len(mappings) >= _INFER_MATCH_LIMIT
         for entry in mappings:
             entry["truncated"] = truncated

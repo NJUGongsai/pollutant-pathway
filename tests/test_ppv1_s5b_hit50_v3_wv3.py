@@ -8,8 +8,12 @@ no_alignment 1955 / transform_no_change 1660)+ W-V3 零模型审计探针
   **不改池成员/失败原因口径**;
 - 真供给损失(v1 曾执行 ∧ v2 拒)= 47 条(39 transform_no_change
   语料 v1 未映射反应原子 + 8 stereo);语料 v2 换装净更差(76<84
-  compiled,center 数据缺陷 59)⇒ 不换;stereo 边界维持 unsupported
-  (W-V2.4 保留条款,升级须设计复审)。
+  compiled,center 数据缺陷 59)⇒ 不换。
+- **W-V4b 修订**:v3 交付时 stereo 消解型按 W-V2.4 保留条款维持
+  unsupported(升级须先交设计复审);该设计复审已完成(mimo r28
+  E1-E3,2026-10-10),v4b 任务书授权实施——本文件原"边界冻结
+  负控"(bt0002#r0032 维持 stereo_edit_unsupported)翻转为本轮
+  P1 正控(见下方测试;纯翻转/立体创建/非四面体维持拒)。
 
 正负控(任务书 W-V3.3):v1 曾命中的 analog 模板类(合成同构用例:
 去氯水解模板)编译通过入池且执行成事件;真不适用(元素缺席)模板
@@ -189,13 +193,15 @@ def test_wv3_analog_template_compiles_into_pool_and_executes(
     assert "Oc1ccccc1" in products and "Cl" in products, products
 
 
-# ================================================================ 边界冻结
+# ================================================================ 边界翻转(W-V4b P1)
 
-def test_wv3_stereo_boundary_stays_unsupported() -> None:
-    """负控(边界冻结):W-V3 审计证实的真供给损失类之一 = 立体
-    消解型氧化(v1 命中模板 env:EAWAG-BBD:bt0002#r0032:手性二级醇
-    → 酮,立体中心随 sp3→sp2 消解)。stereo 边界维持 unsupported
-    (W-V2.4 保留条款:升级须先交设计复审,不因数量压力放行)。
+def test_wv3_stereo_dissolution_boundary_now_compiles() -> None:
+    """W-V4b P1 正控(原 v3 边界冻结负控翻转,授权链:mimo r28
+    E1-E3 设计评审 + v4b 任务书):v1 命中模板 env:EAWAG-BBD:
+    bt0002#r0032(手性二级醇 → 酮,立体中心随 sp3→sp2 消解)在
+    非手性声明底物上编译通过——消解谓词(真四面体标签 ∧ rhs 无
+    声明 ∧ 全单键 sp3 ∧ 仅 single→double/triple 变化)+ 执行后
+    立体同源复核;spec 机读诊断 stereo_dissolution_applied 落账。
     使用仓内授权语料资产(只读;缺席则跳过)。"""
     from pathway_v43.services.analog_source import AnalogSourceResolver
 
@@ -216,5 +222,39 @@ def test_wv3_stereo_boundary_stays_unsupported() -> None:
         mapping_origin="native",
         alignment_ref="corpus-template:env:EAWAG-BBD:bt0002#r0032",
         key_prefix="tpl")
-    assert out["status"] == "unsupported"
-    assert out["reason"] == "stereo_edit_unsupported"
+    # 旧行为(v3):unsupported / stereo_edit_unsupported(父 HEAD 红)
+    assert out["status"] == "compiled", out
+    spec = out["spec"]
+    # 消解诊断:手性 map(模板 [C@@H:2])落 stereo_dissolution_applied
+    assert spec["compile"]["stereo_dissolution_applied"] == [2]
+    assert "chiral_sp3_center_dissolved_by_bond_order_change" in \
+        spec["compile"]["stereo_dissolution_semantics"]
+    # 执行产物 = 酮(执行后同源复核通过才到 compiled)
+    assert spec["expectation"]["target_smiles"] == "CC(=O)c1ccccc1"
+    # 消解不开的边界(消解谓词四条件逐条拒):纯立体翻转无键级变化
+    out_inv = compile_donor_template(
+        mapped_lhs="[CH3:1][C@@H:2]([OH:3])[Cl:4]",
+        mapped_rhs="[CH3:1][C@H:2]([OH:3])[Cl:4]",
+        center_atoms=[2, 3], substrate_smiles="CC(O)Cl",
+        record_id="wv3-neg-inv")
+    assert out_inv["status"] == "unsupported"
+    assert out_inv["reason"] == "stereo_edit_unsupported"
+    # 立体创建(lhs 无声明 → rhs 有声明)不消解
+    out_cr = compile_donor_template(
+        mapped_lhs="[CH3:1][CH:2]([OH:3])[Cl:4]",
+        mapped_rhs="[CH3:1][C@H:2]([OH:3])[Cl:4]",
+        center_atoms=[2, 3], substrate_smiles="CC(O)Cl",
+        record_id="wv3-neg-cr")
+    assert out_cr["status"] == "unsupported"
+    assert out_cr["reason"] == "stereo_edit_unsupported"
+    # 手性声明底物(显式氢):执行价态墙,诚实 execution_failed
+    # (不冒充消解;AtomTool 层配合属待复审最小改动面)
+    out_chiral = compile_donor_template(
+        mapped_lhs=str(ref.mapped_lhs or ""),
+        mapped_rhs=str(ref.mapped_rhs or ""),
+        center_atoms=[int(x) for x in (ref.center_atoms or [])],
+        substrate_smiles="C[C@H](O)c1ccccc1",
+        record_id="env:EAWAG-BBD:bt0002#r0032-chiral",
+        mapping_origin="native", key_prefix="tpl")
+    assert out_chiral["status"] == "unsupported"
+    assert out_chiral["reason"] == "execution_failed"

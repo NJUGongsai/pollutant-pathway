@@ -30,7 +30,29 @@ W1 规则落地点(任务书逐条):
 9. 对称对齐:全部枚举(有界);等价映射(同目标)合并保留;不同
    目标 ⇒ ambiguous(拒,竞争目标披露)。
 
-版本:s5b-compiler-1。编译失败一律返回 ``{"status": "unsupported",
+W-V4b(S5b-stereo-dissolution-1,2026-10-10,mimo r28 E1-E3 评审方向
+落地):**手性 sp3 中心随键级变化 sp3→sp2 消解**——消解谓词钉死:
+
+- lhs 原子带真四面体手性标签(CHI_TETRAHEDRAL_CW/CCW)∧ rhs 原子
+  无手性声明(CHI_UNSPECIFIED)∧ 该原子全部 lhs 键均为单键(sp3;
+  双键/累积烯中央原子天然不满足 ⇒ 非四面体轴手性不消解)∧ 该原子
+  涉及的全部键变化均为 change_bond_order 型(single→double/triple,
+  无 form/break/芳香 —— 键表顺序不变,RDKit CW/CCW 标签无重解读
+  风险)∧ 至少一个该型变化。满足 ⇒ 该 map 不落 stereo_changed
+  (手性 = 键级变化的派生属性,执行器 sanitize 自然结算);
+- r28 反例族全拒:stereo_created(lhs 无声明→rhs 有声明)、仍为
+  四面体中心的断/成键(有机磷/硫水解、SN2 型配体交换)、非四面体
+  标签、纯立体翻转(无键级变化)一律维持 stereo_edit_unsupported;
+- **执行后 rhs 立体同源复核**(E2-③):消解开后的每例,执行产物
+  在该 map 的立体状态必须 == rhs 声明(UNSPECIFIED);不等 ⇒ 结构化
+  ``stereo_derived_mismatch`` 拒(不靠"派生"假设放行;含显式氢
+  手性底物的价态墙走 execution 诚实拒,不冒充消解);
+- 机读诊断(E2-④):spec.compile 携带 ``stereo_dissolution_applied:
+  maps``(下游统计多少命中依赖消解);E/Z 键立体**不在本放行面内、
+  也不在拒面内**(检测面为原子四面体标签;执行产物 E/Z 未指定,
+  对声明 E/Z 的参考走 cn_only 如实 miss——两头如实,不静默断言)。
+
+版本:s5b-compiler-2。编译失败一律返回 ``{"status": "unsupported",
 "reason": <稳定机读码>, "detail": {...}}``,不抛裸异常、不吞 Exception。
 """
 
@@ -49,7 +71,7 @@ from ..services.atom_tool import (
 
 RDLogger.DisableLog("rdApp.*")
 
-S5B_COMPILER_VERSION = "s5b-compiler-1"
+S5B_COMPILER_VERSION = "s5b-compiler-2"
 
 # 对齐枚举显式上限(超过 ⇒ truncated,不得把截断集合当唯一对齐;
 # 与 donor_applicability._ALIGNMENT_ENUM_LIMIT 同纪律,独立常量:
@@ -207,6 +229,9 @@ def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str) -> dict:
       aromatic≡aromatic 不入表);
     - charge_changed / stereo_changed:保留原子上电荷/四面体手性差异
       (现编辑协议不支持 ⇒ 编译侧 unsupported 判据,见 _compile_edits);
+    - stereo_dissolved(W-V4b):消解开的手性 map(手性 sp3 中心随
+      single→double/triple 键级变化消解,谓词 _is_stereo_dissolution
+      钉死;不落 stereo_changed,执行后同源复核);
     - 坏引用 = 键的 map 端点不在该侧 map 集(结构损坏)⇒ 拒。
     """
     lhs = _parse_mapped_side(mapped_lhs, "lhs")
@@ -227,14 +252,6 @@ def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str) -> dict:
                 f"{ra.GetSymbol()}(map 号联结的元素守恒拒)",
                 {"map_no": n, "lhs_element": la.GetSymbol(),
                  "rhs_element": ra.GetSymbol()})
-    charge_changed, stereo_changed = [], []
-    for n in retained_maps:
-        la = lhs.mol.GetAtomWithIdx(lhs.maps[n])
-        ra = rhs.mol.GetAtomWithIdx(rhs.maps[n])
-        if la.GetFormalCharge() != ra.GetFormalCharge():
-            charge_changed.append(n)
-        if _chiral_token(la) != _chiral_token(ra):
-            stereo_changed.append(n)
     lb = _bond_table_by_map(lhs.mol, lhs.maps)
     rb = _bond_table_by_map(rhs.mol, rhs.maps)
     bond_changes = []
@@ -248,10 +265,22 @@ def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str) -> dict:
             continue  # 不可能(相等才跳过),防御
         bond_changes.append({"map1": pair[0], "map2": pair[1],
                              "order_lhs": ol, "order_rhs": orr})
+    charge_changed, stereo_changed = [], []
+    stereo_dissolved: list[int] = []   # W-V4b:消解候选(见下)
+    for n in retained_maps:
+        la = lhs.mol.GetAtomWithIdx(lhs.maps[n])
+        ra = rhs.mol.GetAtomWithIdx(rhs.maps[n])
+        if la.GetFormalCharge() != ra.GetFormalCharge():
+            charge_changed.append(n)
+        if _chiral_token(la) != _chiral_token(ra):
+            if _is_stereo_dissolution(lhs, rhs, n, bond_changes):
+                stereo_dissolved.append(n)
+            else:
+                stereo_changed.append(n)
     added = sorted(set(rhs.maps) - set(lhs.maps))
     removed = sorted(set(lhs.maps) - set(rhs.maps))
     if not (bond_changes or added or removed or charge_changed
-            or stereo_changed):
+            or stereo_changed or stereo_dissolved):
         raise S5bCompileError(
             "transform_no_change",
             "模板双侧在 map 联结后无净变化(空 edits 不能冒支持)",
@@ -264,7 +293,89 @@ def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str) -> dict:
         "bond_changes": bond_changes,
         "charge_changed_maps": charge_changed,
         "stereo_changed_maps": stereo_changed,
+        # W-V4b(S5b-stereo-dissolution-1):消解开的手性 map(不落
+        # stereo_changed;执行后同源复核见 _compile_donor_template_impl)
+        "stereo_dissolved_maps": stereo_dissolved,
     }
+
+
+_TETRAHEDRAL_TAGS = (
+    Chem.ChiralType.CHI_TETRAHEDRAL_CW,
+    Chem.ChiralType.CHI_TETRAHEDRAL_CCW,
+)
+_UNSPECIFIED_TAG = Chem.ChiralType.CHI_UNSPECIFIED
+
+
+def _is_stereo_dissolution(lhs, rhs, n: int, bond_changes: list) -> bool:
+    """P1 消解谓词(mimo r28 E2 窄化版;钉死,逐条件):
+
+    1. lhs 原子真四面体手性(CW/CCW)∧ rhs 原子无手性声明
+       (UNSPECIFIED)——stereo_created(反向)与非四面体标签不进;
+    2. 该原子全部 lhs 键均单键(sp3;芳香/双键/叁键/累积烯中央原子
+       天然不满足 ⇒ 非四面体中心不消解,r28 E1-4);
+    3. 该原子涉及的全部键变化均为 change_bond_order 型(single→
+       double/triple):form/break 落在现存立体中心一律维持
+       unsupported(键表顺序不变才无 CW/CCW 重解读风险,r28 E1-2
+       有机磷/硫、SN2 型配体交换);
+    4. 至少一个该型变化(纯立体翻转无键级变化不消解)。
+    """
+    la = lhs.mol.GetAtomWithIdx(lhs.maps[n])
+    ra = rhs.mol.GetAtomWithIdx(rhs.maps[n])
+    if la.GetChiralTag() not in _TETRAHEDRAL_TAGS:
+        return False
+    if ra.GetChiralTag() != _UNSPECIFIED_TAG:
+        return False
+    for b in lhs.mol.GetBonds():
+        if n in (b.GetBeginAtom().GetAtomMapNum(),
+                 b.GetEndAtom().GetAtomMapNum()) \
+                and _order_token(b) != "single":
+            return False  # 非 sp3(sp2/芳香/累积烯中央原子)
+    n_changes = 0
+    for ch in bond_changes:
+        if n not in (int(ch["map1"]), int(ch["map2"])):
+            continue
+        if ch["order_lhs"] != "single" \
+                or ch["order_rhs"] not in ("double", "triple"):
+            return False  # 断键/成键/芳香/降阶落在本原子 ⇒ 不消解
+        n_changes += 1
+    return n_changes >= 1
+
+
+def _executed_chiral_tag(execution: dict, atom_id: str):
+    """执行产物在指定原子(当前 ID)的四面体手性标签(无 ⇒ None)。
+
+    经 product_mapped_smiles(映射号 = 执行图 idx+1,随 canonical
+    排序穿越序列化/重解析,S0 取证 §6-2 免疫重排)还原 ID↔原子。"""
+    idx = (execution.get("atom_id_map") or {}).get(str(atom_id))
+    if idx is None:
+        return None
+    mapped = Chem.MolFromSmiles(
+        str(execution.get("product_mapped_smiles") or ""))
+    if mapped is None:
+        return None
+    for atom in mapped.GetAtoms():
+        if atom.GetAtomMapNum() == int(idx) + 1:
+            return atom.GetChiralTag()
+    return None
+
+
+def _stereo_dissolution_mismatch(
+        execution: dict, map_to_current_id: dict,
+        stereo_dissolved: list) -> list:
+    """W-V4b 执行后 rhs 立体同源复核(mimo r28 E2-③)。
+
+    消解开的手性 map:执行产物在该原子上的立体状态必须 == rhs 模板
+    声明(消解谓词已钉 rhs = CHI_UNSPECIFIED)。返回失配清单
+    [(map, tag)]——空清单 = 复核通过;映射缺失/产物不可解析也按
+    失配报告(不靠"派生"假设放行)。"""
+    mismatched: list = []
+    for m in stereo_dissolved:
+        cid = map_to_current_id.get(int(m))
+        tag = _executed_chiral_tag(execution, str(cid)) \
+            if cid is not None else None
+        if tag is None or tag != _UNSPECIFIED_TAG:
+            mismatched.append((int(m), str(tag)))
+    return mismatched
 
 
 def _chiral_token(atom) -> str:
@@ -379,6 +490,10 @@ def _compile_edits(transform: dict, current, arom, kek,
     edits: list[dict] = []
 
     # ---- W1 #7:电荷/手性变化 ⇒ unsupported(协议 v2 无对应 op) ----
+    # W-V4b:stereo_changed_maps 已剔除消解开的手性 map(sp3→sp2 派生
+    # 属性;谓词见 _is_stereo_dissolution)——消解例不经立体 op,由
+    # 键级编辑 + 执行器 sanitize 自然结算;执行后同源复核在编译主入口
+    # (stereo_derived_mismatch),不在此处。
     if transform["charge_changed_maps"]:
         raise S5bCompileError(
             "charge_edit_unsupported",
@@ -749,6 +864,9 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
     # 新增原子(rhs 独有 map)由编译自动并入中心与对齐(新原子变化
     # 属供体变换自身;D_<map> → S_<Elem>_N<n> 映射值)
     added_maps = [int(x) for x in transform["added_maps"]]
+    # W-V4b:消解开的手性 map(执行后同源复核;spec 机读诊断)
+    stereo_dissolved = [int(x) for x in
+                        (transform.get("stereo_dissolved_maps") or [])]
     compiled_per_match: list[dict] = []
     seen_targets: dict[str, dict] = {}
     for match in matches:
@@ -788,6 +906,21 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
                 "target": None, "reason": "execution_failed",
                 "reasons": execution.get("reasons", [])[:8]})
             continue
+        # ---- W-V4b:执行后 rhs 立体同源复核(mimo r28 E2-③) ----
+        # 消解开的手性 map:执行产物在该 map 的立体状态必须 == rhs
+        # 声明(UNSPECIFIED);不等(仍为立体中心/残留标签/映射缺失)
+        # ⇒ 结构化 stereo_derived_mismatch 拒,不靠"派生"假设放行。
+        if stereo_dissolved:
+            mismatched = _stereo_dissolution_mismatch(
+                execution, map_to_current_id, stereo_dissolved)
+            if mismatched:
+                compiled_per_match.append({
+                    "target": None,
+                    "reason": "stereo_derived_mismatch",
+                    "reasons": [
+                        f"stereo_derived_mismatch:map{m}:{tag}"
+                        for m, tag in mismatched][:8]})
+                continue
         target = str(execution["product_smiles"])
         compiled_per_match.append({"target": target, "reason": "",
                                    "edits": edits,
@@ -855,6 +988,16 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
             "template_center_maps": [int(x) for x in center_map_nums],
         },
     }
+    if stereo_dissolved:
+        # W-V4b(E2-④):机读诊断——下游统计"多少 strict 命中依赖消解"
+        spec["compile"]["stereo_dissolution_applied"] = [
+            int(m) for m in stereo_dissolved]
+        spec["compile"]["stereo_dissolution_semantics"] = (
+            "chiral_sp3_center_dissolved_by_bond_order_change_sp3_to_sp2"
+            "; chirality treated as derived property of the bond-order"
+            " edit, settled by executor sanitize; post-execution"
+            " stereo-state homology check applied (mismatch ->"
+            " stereo_derived_mismatch reject)")
     return {"status": "compiled", "spec": spec, "diagnostics": {
         "record_id": record_id, "target_smiles": target,
         "n_alignments": len(compiled_per_match),
