@@ -379,7 +379,13 @@ def build_run_input(question: dict, *, batch_tag: str,
 
 # W4 池策略版本(冻结候选配置:raw 预算/池宽/阈值/补位/融合规则;
 # 变化 ⇒ 升版本 ⇒ 新身份)
-S5B_POOL_POLICY_VERSION = "s5b-pool-policy-1"
+# s5b-pool-policy-2(W-V4.1,2026-10-10):recorded 精确源通道新增
+# corpus_v1(RHEA/enviPath)直通供给(find_corpus_recorded_exact;
+# 用户六决策 ①②③)——EAWAG 候选序保持引擎 lookup 序零变化,corpus
+# 候选按(tier strict→cn, 整串→组分, 行号)序**追加在后**;同净反应
+# 签名去重/失败补位/池宽语义不变;corpus_channel 参数仅供消融对照
+# (生产默认 True;False=纯 EAWAG 面,池深前后对照探针用)。
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-2"
 S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
 S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
 S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)
@@ -402,13 +408,21 @@ def default_pool_provider(config: V43Config | None, *,
                            fallback_threshold: float =
                            S5B_POOL_FALLBACK_THRESHOLD,
                            min_unique_targets: int = S5B_POOL_MIN_UNIQUE,
-                           engine=None):
+                           engine=None,
+                           corpus_channel: bool = True):
     """真实跑的缺省池供给(W4:编译后补位 + 有界输入侧动态检索;零金标)。
 
     通道与融合(顺序即池序;冻结配置):
     1. **recorded 精确源**(W2,``recorded_source.find_recorded_exact``):
        strict exact 在前(引擎 lookup 置顶序),CN candidate 次之 ——
        两级都不越模型选择,只供给候选;
+    1b. **corpus recorded 直通**(W-V4.1,``recorded_source.find_corpus_
+       recorded_exact``;s5b-pool-policy-2 新增,决策 ①②③):RHEA/
+       enviPath 主语料候选按(tier strict→cn、整串→组分、行号)序
+       **追加在 EAWAG 候选之后**(EAWAG 面零变化,单变量归因);
+       corpus 身份缺失/哈希不符 ⇒ fail-closed 抛错(不静默降级);
+       ``corpus_channel=False`` 仅供消融对照(池深前后对照探针;
+       生产默认 True);
     2. **类比模板**(analog_source.templates_similar_to,阈值
        ``threshold``、raw 预算 ``raw_top``):按相似度降序;
     3. 逐候选经 ``s5b_compiler``(W1 共同编译器)编译 —— **编译成功才
@@ -420,7 +434,8 @@ def default_pool_provider(config: V43Config | None, *,
        ``template_elements_fit``;判据单一来源),在检索层拒、省编译
        预算;失败仍按 no_alignment 同口径计数(诊断另计
        ``analog_pregate_skipped``),池成员/失败语义零变化;
-    4. 独特净反应槽去重(同签名合并 provenance;首个保留);
+    4. 独特净反应槽去重(同签名合并 provenance;首个保留;corpus 与
+       EAWAG 同净反应亦合并 —— 不重复占槽);
     5. **失败补位**:编译失败的候选不占槽 —— raw 前 N 全 unsupported
        而第 N+1 合法时第 N+1 可入池(旧实现 top_k=池宽导致前 8 全败
        无补位,是已证源码问题);
@@ -448,6 +463,7 @@ def default_pool_provider(config: V43Config | None, *,
         seen_keys: set[str] = set()
         compile_failures: dict[str, int] = {}
         n_recorded_strict = n_recorded_cn = 0
+        n_corpus_strict = n_corpus_cn = 0
 
         def _record_compiled(spec: dict) -> None:
             ordered.append(spec)
@@ -477,6 +493,28 @@ def default_pool_provider(config: V43Config | None, *,
             diagnostics.update({
                 "recorded_diagnostics": dict(
                     exact.get("diagnostics") or {})})
+
+        # ---- 通道 1b:corpus recorded 直通(W-V4.1;engine 注入时) ----
+        if engine is not None and corpus_channel:
+            from .recorded_source import find_corpus_recorded_exact
+
+            corpus_exact = find_corpus_recorded_exact(
+                substrate_smiles=substrate, engine=engine,
+                max_reactions=raw_top)
+            for cand in corpus_exact.get("candidates") or []:
+                if cand.get("tier") == "recorded_strict_exact":
+                    n_corpus_strict += 1
+                else:
+                    n_corpus_cn += 1
+                spec = cand.get("compile")
+                if spec is None:
+                    _record_failure(str(cand.get("compile_reason")
+                                        or "recorded_compile_failed"))
+                    continue
+                _record_compiled(spec)
+            diagnostics.update({
+                "corpus_diagnostics": dict(
+                    corpus_exact.get("diagnostics") or {})})
 
         # ---- 通道 2/3:类比模板 + 编译(失败补位) ----
         analog_specs: list[dict] = []
@@ -564,6 +602,8 @@ def default_pool_provider(config: V43Config | None, *,
             "pool_policy_version": S5B_POOL_POLICY_VERSION,
             "n_recorded_strict_exact": n_recorded_strict,
             "n_recorded_cn_candidate": n_recorded_cn,
+            "n_corpus_strict_exact": n_corpus_strict,
+            "n_corpus_cn_candidate": n_corpus_cn,
             "n_analog_compiled": len(analog_specs),
             "n_unique_net_reactions": len(merged),
             "n_pool_returned": min(len(merged), int(max_pool)),

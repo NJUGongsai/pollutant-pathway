@@ -38,6 +38,40 @@ s5b-recorded-source-1;零模型、零网络)。
 CN 同而电荷/手性不同 ⇒ recorded_cn_candidate(不 strict);方向反/另
 一底物 ⇒ 不属 exact;filtered 单产品行冒完整 ⇒ 完整集合核对拒;
 缺产品/来源 ⇒ 结构化拒;映射枚举触顶 ⇒ 歧义披露拒。
+
+W-V4.1(S5b-corpus-retrieval-1,2026-10-10 用户六决策 ①②③):RHEA/
+enviPath 主语料(corpus_v1.jsonl,43,177 行)接入 recorded 直通供给
+——**判据与身份语义全部沿用本模块现行实现,不另写第二套**:
+
+- 检索宽/判分严:**CN 口径检索**(cn_identity 同源函数),分层仍按
+  严格身份(donor 侧匹配身份 == 底物严格身份 ⇒ strict;CN 同而
+  strict 异 ⇒ cn_candidate 不升格);
+- **组分级 donor 匹配 + 共底物声明**:底物 == donor 某一组分(CN
+  检索口径),其余组分诚实声明为共底物/条件参与物(co_substrates,
+  不静默丢弃、不冒充单底物反应);整串(单组分 donor 全串)语义下
+  该声明退化为空集;
+- **编译按完整净产物集合核**:donor 侧(整串或匹配组分)→ 记录全量
+  product_components,走同一 ``compile_recorded_reaction`` 推断映射
+  + 产物多重集 gate(共底物↔共产物对应判据属设计件,不本轮实现,
+  交付书登记待复审);
+- **双向保留**:RHEA master 的 LR/RL 双行按**各自行书写方向**作
+  双方向候选分层引用(每行自己的 donor_A→product_B;方向=记录声明,
+  不换向;同一 master 双行同净反应由池侧同签名去重防双槽);
+- **通配行拒因**:含 ``*`` 的行 unsupported_wildcard_atom 行级结构化
+  拒(不冒充可编译;donor 侧通配组分不可检索=天然不供给,产品侧
+  通配检索到即拒并计数);
+- **全库无原生映射**:mapping_status 必须 'absent'/atom_mapping null
+  (corpus_v1 事实);冒充原生映射来源的记录 ⇒ 结构化拒
+  (corpus_native_mapping_claimed),全部走推断映射(mapping_origin
+  =inferred 强制);
+- **provenance 披露**:记录级 provenance_sha256 存在性披露(构造期
+  来源记录指纹,不冒充内容完整性证明);缺 ⇒ corpus_provenance_
+  missing 结构化拒(实测 enviPath 带产物行 5,497 行缺该字段)。
+
+corpus 身份唯一来源 = ``engine.identity_block`` 现有键
+corpus_v1_path/corpus_v1_sha256(env_asset_root.resolve_and_verify
+锚定,无需新哈希机制);sha 锚定后逐行回读,实际 sha ≠ 身份记录 ⇒
+corpus_hash_mismatch fail-closed(源 hash 篡改负控同款)。
 """
 
 from __future__ import annotations
@@ -55,6 +89,37 @@ from .s5b_compiler import S5bCompileError, compile_donor_template
 RDLogger.DisableLog("rdApp.*")
 
 RECORDED_SOURCE_VERSION = "s5b-recorded-source-1"
+
+# ---- W-V4.1:corpus 直通检索语义冻结登记(§1 硬条款;开工先于接线)----
+# 冻结依据:TASK_V43_PPV1_S5B_HIT50_V4_DRAFT_2026-10-10 §10 用户裁定
+# ①(CN 检索 + strict 编译核)②(组分级 + 共底物声明)③(双向保留 +
+# 通配拒因)。判据零新增:检索/分层/编译全部同源复用现行实现。
+CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-1"
+CORPUS_RETRIEVAL_SEMANTICS = {
+    "version": CORPUS_RETRIEVAL_VERSION,
+    "substrate_retrieval_scope": "cn_identity_wide",
+    "tier_rule": (
+        "matched_side_strict_identity == substrate_strict_identity "
+        "-> recorded_strict_exact; cn_equal_strict_differs "
+        "-> recorded_cn_candidate (no strict promotion)"),
+    "donor_side_semantics":
+        "component_level_with_co_substrate_declaration",
+    "whole_string_semantics": (
+        "single_component_donor_or_exact_whole_string_cn_match;"
+        " co_substrate declaration degenerates to empty set"),
+    "wildcard_policy": "row_level_unsupported_wildcard_atom_reject",
+    "master_direction_policy": (
+        "both_direction_rows_retained_per_row_writing; "
+        "identical net reaction deduped by pool signature"),
+    "mapping_policy": (
+        "all_inferred; native mapping claims rejected "
+        "(corpus_v1 has no native atom mappings)"),
+    "provenance_policy": (
+        "record_level_existence_disclosure; missing -> "
+        "corpus_provenance_missing structured reject"),
+    "frozen_by": (
+        "TASK_V43_PPV1_S5B_HIT50_V4 §10 decisions 1/2/3, 2026-10-10"),
+}
 
 # 推断映射的子结构同构枚举上限(触顶 ⇒ 歧义披露拒绝,不静默取首解)
 _INFER_MATCH_LIMIT = 200
@@ -150,6 +215,157 @@ def load_library_index(engine) -> dict:
 def reset_library_cache() -> None:
     """测试钩子:清库索引缓存。"""
     _LIBRARY_CACHE.clear()
+
+
+# ---------------------------------------------------------------- W-V4.1 corpus 回读
+
+# 每进程 corpus 索引缓存(hash 锚定后复用;43,177 行全文索引)
+_CORPUS_CACHE: dict = {}
+
+
+def _corpus_identity(engine) -> dict:
+    """corpus_v1 身份(引擎 identity_block 现有键;fail-closed)。"""
+    block = engine.identity_block or {}
+    path = str(block.get("corpus_v1_path") or "")
+    sha = str(block.get("corpus_v1_sha256") or "")
+    if not path or not sha:
+        raise RecordedSourceError(
+            "引擎身份块缺 corpus_v1 路径/哈希(W-V4.1 corpus 直通需要"
+            "授权且哈希校验的 corpus 身份;不猜,不静默降级为无 corpus"
+            "通道)", {"kind": "corpus_identity_missing"})
+    return {"corpus_v1_path": path, "corpus_v1_sha256": sha}
+
+
+def _corpus_products(record: dict) -> list[str]:
+    """完整净产物集合(product_components 优先,库行序承载;缺则按
+    product_B_smiles 组分分离;均缺 ⇒ 空=record_missing_or_incomplete
+    同款诚实拒)。"""
+    comps = [str(c) for c in (record.get("product_components") or [])
+             if str(c).strip()]
+    if comps:
+        return comps
+    pb = str(record.get("product_B_smiles") or "")
+    if not pb:
+        return []
+    mol = Chem.MolFromSmiles(pb)
+    if mol is None:
+        # 不可解析:原样透传给编译层结构化拒(不猜、不丢弃)
+        return [pb]
+    return [Chem.MolToSmiles(frag) for frag in Chem.GetMolFrags(
+        mol, asMols=True, sanitizeFrags=True)]
+
+
+def _corpus_donor_components(record: dict) -> list[str]:
+    """donor 组分(donor_components 优先;缺/空 ⇒ 按 donor_A_smiles
+    组分分离;均缺 ⇒ 空=不可检索)。"""
+    comps = [str(c) for c in (record.get("donor_components") or [])
+             if str(c).strip()]
+    if comps:
+        return comps
+    da = str(record.get("donor_A_smiles") or "")
+    if not da:
+        return []
+    mol = Chem.MolFromSmiles(da)
+    if mol is None:
+        return [da]  # 原样透传(CN 索引构建时会跳过不可解析项)
+    return [Chem.MolToSmiles(frag) for frag in Chem.GetMolFrags(
+        mol, asMols=True, sanitizeFrags=True)]
+
+
+def load_corpus_index(engine) -> dict:
+    """corpus_v1 逐行回读 + 组分级 CN 检索索引(sha 锚定;W-V4.1)。
+
+    返回 {records: [适配记录], cn_component_index: {cn: [(i, comp_idx)]},
+    cn_whole_index: {cn: [i]}, corpus_v1_sha256, n_rows}:
+    - records[i]:{line_no, record_id, record_key(行唯一键,
+      ``record_id@L<line_no>``;enviPath 303 个重复 record_id ⇒ 必须行
+      定位), source_type, master_id, direction, ec, donor_A_smiles,
+      donor_components, products(完整净产物集合,记录序), provenance_
+      sha256, mapping_status, atom_mapping, parse_note};
+    - 检索索引:donor 各组分的 CN(reusable 同源 ``cn_identity``;
+      通配组分不索引=天然不可检索),多组分 donor 的整串 CN;
+      单组分 donor 经组分索引承载整串语义(kind=whole);
+    - 实际 sha256 ≠ 引擎身份记录 ⇒ 拒(源 hash 篡改负控,load_
+      library_index 同款 fail-closed)。进程内缓存(同一身份复用)。
+    """
+    identity = _corpus_identity(engine)
+    cache_key = (identity["corpus_v1_path"],
+                 identity["corpus_v1_sha256"])
+    if cache_key in _CORPUS_CACHE:
+        return _CORPUS_CACHE[cache_key]
+    actual = hashlib.sha256(
+        open(identity["corpus_v1_path"], "rb").read()).hexdigest()
+    if actual != identity["corpus_v1_sha256"]:
+        raise RecordedSourceError(
+            "corpus 文件哈希与引擎身份记录不符(源 hash 篡改/漂移;"
+            "授权 corpus 校验失败,fail-closed 不消费)", {
+                "kind": "corpus_hash_mismatch",
+                "corpus_v1_path": identity["corpus_v1_path"],
+                "expected_sha256": identity["corpus_v1_sha256"],
+                "actual_sha256": actual})
+    records: list[dict] = []
+    cn_component_index: dict[str, list] = {}
+    cn_whole_index: dict[str, list[int]] = {}
+    with open(identity["corpus_v1_path"], encoding="utf-8") as fh:
+        for line_no, line in enumerate(fh, 1):
+            text = line.strip()
+            if not text:
+                continue
+            row = json.loads(text)
+            record_id = str(row.get("record_id") or "")
+            comps = _corpus_donor_components(row)
+            record = {
+                "line_no": line_no,
+                "record_id": record_id,
+                "record_key": f"{record_id}@L{line_no}",
+                "source_type": str(row.get("source_type") or ""),
+                "master_id": (str(row["master_id"])
+                              if row.get("master_id") else None),
+                "direction": (str(row["direction"])
+                              if row.get("direction") else None),
+                "ec": (str(row["ec"]) if row.get("ec") else None),
+                "donor_A_smiles": str(row.get("donor_A_smiles") or ""),
+                "donor_components": comps,
+                "products": _corpus_products(row),
+                "provenance_sha256": (
+                    str(row["provenance_sha256"])
+                    if row.get("provenance_sha256") else None),
+                "mapping_status": str(row.get("mapping_status") or ""),
+                "atom_mapping": row.get("atom_mapping"),
+                "parse_note": str(row.get("parse_note") or ""),
+            }
+            i = len(records)
+            records.append(record)
+            # 检索索引:通配组分不索引(* 不可与真实底物 CN 相等);
+            # 不可解析组分 CN=None 同样不索引
+            for comp_idx, comp in enumerate(comps):
+                if "*" in comp:
+                    continue
+                comp_cn = cn_identity(comp)
+                if comp_cn is None:
+                    continue
+                cn_component_index.setdefault(comp_cn, []).append(
+                    (i, comp_idx))
+            if len(comps) > 1 and record["donor_A_smiles"]:
+                # 多组分 donor 的整串 CN(单组分由组分索引承载)
+                whole_cn = cn_identity(record["donor_A_smiles"])
+                if whole_cn is not None:
+                    cn_whole_index.setdefault(whole_cn, []).append(i)
+    index = {
+        "records": records,
+        "cn_component_index": cn_component_index,
+        "cn_whole_index": cn_whole_index,
+        "corpus_v1_sha256": identity["corpus_v1_sha256"],
+        "corpus_v1_path": identity["corpus_v1_path"],
+        "n_rows": len(records),
+    }
+    _CORPUS_CACHE[cache_key] = index
+    return index
+
+
+def reset_corpus_cache() -> None:
+    """测试钩子:清 corpus 索引缓存。"""
+    _CORPUS_CACHE.clear()
 
 
 # ---------------------------------------------------------------- 推断映射
@@ -466,6 +682,248 @@ def _strict_of(smiles: str) -> str | None:
         return strict_identity_of(str(smiles))
     except Exception:
         return None
+
+
+# ---------------------------------------------------------------- W-V4.1 主入口
+
+
+def find_corpus_recorded_exact(
+    *, substrate_smiles: str, engine, max_reactions: int = 24,
+) -> dict:
+    """corpus_v1(RHEA/enviPath)recorded 直通候选(W-V4.1 主入口)。
+
+    返回 {candidates: [...], diagnostics: {...}}(与 find_recorded_exact
+    同构;corpus 特有字段见下):
+
+    - 检索(W 决策①:**CN 宽**):底物 CN == 某记录 donor 组分 CN 或
+      (多组分 donor)整串 CN ⇒ 该行入检索面;strict ⊆ CN,严格命中
+      面天然包含;
+    - 分层(同源判据,不另写比较器):匹配侧严格身份 == 底物严格身份
+      ⇒ ``recorded_strict_exact``;CN 同而 strict 异 ⇒
+      ``recorded_cn_candidate``(不升格);
+    - 匹配侧语义(W 决策②):单组分 donor / 整串 CN 命中 ⇒ 整串
+      (kind=whole,co_substrates 空);多组分 donor ⇒ 组分
+      (kind=component,**其余组分声明为共底物/条件参与物**,
+      co_substrates 携带组分 SMILES + 严格身份;不静默丢弃);
+    - 行级拒因(W 决策③+负控 ⑧⑨⑩):通配行 unsupported_wildcard_
+      atom;原生映射冒充 corpus_native_mapping_claimed(corpus_v1 全
+      库无原生映射,mapping_origin=inferred 强制);provenance 缺
+      corpus_provenance_missing;无产物 record_missing_or_incomplete
+      ——全部计数入 compile_failure_histogram(检索面统计仍全量);
+    - 编译(**完整净产物集合核**):匹配侧(donor 整串或组分)→
+      记录全量产物,走同一 ``compile_recorded_reaction``(推断映射/
+      产物多重集 gate/歧义披露,判据零改动);spec 附加 corpus 元数据
+      (source_type/master_id/direction/ec/匹配语义/共底物声明);
+    - 方向(W 决策③):按**各自行书写**编译(donor_A→product_B;
+      direction 为记录声明);master 双行均保留为候选(双方向分层
+      引用);同一 master 多行命中仅诊断披露(同净反应双槽由池侧
+      同签名去重防);
+    - 候选序(确定性):(tier, whole<component, 行号, 组分序);
+      max_reactions 以候选数截断(与 EAWAG 同语义)。
+    """
+    substrate = str(substrate_smiles)
+    substrate_cn = cn_identity(substrate)
+    if substrate_cn is None:
+        return {"candidates": [], "diagnostics": {
+            "corpus_retrieval_version": CORPUS_RETRIEVAL_VERSION,
+            "kind": "substrate_unparseable",
+            "note": "底物不可解析:corpus 检索面为空(诚实,不猜)"}}
+    index = load_corpus_index(engine)
+    records = index["records"]
+    substrate_strict = _strict_of(substrate)
+    # ---- 检索面(CN 宽;行级) ----
+    whole_rows = set(index["cn_whole_index"].get(substrate_cn) or [])
+    comp_entries = list(
+        index["cn_component_index"].get(substrate_cn) or [])
+    row_state: dict[int, dict] = {}
+    for i in whole_rows:
+        row_state.setdefault(i, {"whole": False, "sides": {}})
+        row_state[i]["whole"] = True
+    for i, comp_idx in comp_entries:
+        record = records[i]
+        state = row_state.setdefault(i, {"whole": False, "sides": {}})
+        if state["whole"]:
+            continue  # 整串命中优先:组分侧并入整串语义(不双计)
+        comps = record["donor_components"]
+        if len(comps) <= 1:
+            # 单组分 donor:组分命中 = 整串语义(EAWAG 等价形态)
+            state["whole"] = True
+            continue
+        side_strict = _strict_of(comps[comp_idx]) or comps[comp_idx]
+        # 同一记录内同身份组分去重(重复组分不产双候选;
+        # 不同身份组分各自成候选,分层引用)
+        state["sides"].setdefault(side_strict, comp_idx)
+    # ---- 行级适配拒因(负控 ⑧⑨⑩ + 无产物;检索面全量计数) ----
+    failure_hist: dict[str, int] = {}
+    n_master_rows: dict[str, set[int]] = {}
+    ordered_matches: list[tuple] = []
+    for i, state in row_state.items():
+        record = records[i]
+        if record["master_id"]:
+            n_master_rows.setdefault(
+                record["master_id"], set()).add(record["line_no"])
+        donor_a = record["donor_A_smiles"]
+        comps = record["donor_components"]
+        products = record["products"]
+        # ⑩ 通配行拒因(行级:donor/产物任一侧含 *;donor 侧通配组分
+        # 不可检索=天然不供给,产品侧/共组分通配检索到即拒并计数)
+        if "*" in donor_a or any("*" in c for c in comps) \
+                or any("*" in p for p in products):
+            failure_hist["unsupported_wildcard_atom"] = \
+                failure_hist.get("unsupported_wildcard_atom", 0) + 1
+            continue
+        # ⑧ 原生映射冒充拒(corpus_v1 全库 absent/null;非此形态 ⇒ 拒)
+        if str(record.get("mapping_status") or "") != "absent" \
+                or record.get("atom_mapping") is not None:
+            failure_hist["corpus_native_mapping_claimed"] = \
+                failure_hist.get("corpus_native_mapping_claimed", 0) + 1
+            continue
+        # ⑨ provenance 缺失拒(存在性披露;实测 enviPath 5,497 行)
+        if not record.get("provenance_sha256"):
+            failure_hist["corpus_provenance_missing"] = \
+                failure_hist.get("corpus_provenance_missing", 0) + 1
+            continue
+        # ⑥' 无产物(enviPath educt-only / no-structure)诚实拒
+        if not products:
+            failure_hist["record_missing_or_incomplete"] = \
+                failure_hist.get("record_missing_or_incomplete", 0) + 1
+            continue
+        # ---- 候选侧装配(整串 / 组分) ----
+        if state["whole"]:
+            matched_side = donor_a
+            side_strict = _strict_of(matched_side)
+            tier = ("recorded_strict_exact"
+                    if substrate_strict is not None
+                    and side_strict == substrate_strict
+                    else "recorded_cn_candidate")
+            tier_rank = 0 if tier == "recorded_strict_exact" else 1
+            ordered_matches.append((
+                tier_rank, 0, record["line_no"], 0, i, "whole",
+                matched_side, []))
+            continue
+        for side_key, rep_idx in state["sides"].items():
+            matched_side = comps[rep_idx]
+            tier = ("recorded_strict_exact"
+                    if substrate_strict is not None
+                    and side_key == substrate_strict
+                    else "recorded_cn_candidate")
+            tier_rank = 0 if tier == "recorded_strict_exact" else 1
+            co_comps = [c for j, c in enumerate(comps) if j != rep_idx]
+            ordered_matches.append((
+                tier_rank, 1, record["line_no"], rep_idx, i,
+                "component", matched_side, co_comps))
+    ordered_matches.sort(key=lambda m: (m[0], m[1], m[2], m[3]))
+    # ---- 逐候选编译(判据零改动;同 max_reactions 截断语义) ----
+    candidates: list[dict] = []
+    n_strict = n_cn = 0
+    for (tier_rank, _kind_rank, _line_no, _rep_idx, i, kind,
+         matched_side, co_comps) in ordered_matches:
+        if len(candidates) >= int(max_reactions):
+            break
+        record = records[i]
+        tier = ("recorded_strict_exact" if tier_rank == 0
+                else "recorded_cn_candidate")
+        if tier == "recorded_strict_exact":
+            n_strict += 1
+        else:
+            n_cn += 1
+        products = list(record["products"])
+        try:
+            compiled = compile_recorded_reaction(
+                substrate_smiles=substrate,
+                donor_smiles=matched_side,
+                products=products,
+                record_id=record["record_key"])
+        except RecordedSourceError as exc:
+            reason = str(exc.detail.get("kind") or "record_unparseable")
+            failure_hist[reason] = failure_hist.get(reason, 0) + 1
+            candidates.append(_corpus_candidate(
+                record, tier, kind, matched_side, co_comps,
+                compile_spec=None, compile_status="unsupported",
+                compile_reason=reason, compile_detail={}))
+            continue
+        if compiled.get("status") != "compiled":
+            reason = str(compiled.get("reason") or "unknown")
+            failure_hist[reason] = failure_hist.get(reason, 0) + 1
+        spec = compiled.get("spec")
+        if spec is not None:
+            spec = dict(spec)
+            spec["corpus"] = {
+                "corpus_retrieval_version": CORPUS_RETRIEVAL_VERSION,
+                "source_type": record["source_type"],
+                "record_key": record["record_key"],
+                "master_id": record["master_id"],
+                "direction": record["direction"],
+                "ec": record["ec"],
+                "donor_match_kind": kind,
+                "matched_component": matched_side,
+                "co_substrates": [
+                    {"smiles": str(c),
+                     "strict_identity": _strict_of(str(c))}
+                    for c in co_comps],
+                "co_substrate_semantics": (
+                    "declared_conditional_participants_not_consumed"
+                    "_as_substrate(W-V4.1 决策②;共底物↔共产物对应"
+                    "判据属设计件待复审;不静默丢弃、不冒充单底物反应)"
+                    if co_comps else
+                    "empty_set_whole_string_semantics"),
+                "provenance_sha256": record["provenance_sha256"],
+            }
+        candidates.append(_corpus_candidate(
+            record, tier, kind, matched_side, co_comps,
+            compile_spec=spec,
+            compile_status=str(compiled.get("status")),
+            compile_reason=str(compiled.get("reason") or ""),
+            compile_detail=dict(compiled.get("detail") or {})))
+    multirow = {mid: sorted(rows) for mid, rows in n_master_rows.items()
+                if len(rows) > 1}
+    return {"candidates": candidates, "diagnostics": {
+        "corpus_retrieval_version": CORPUS_RETRIEVAL_VERSION,
+        "corpus_retrieval_semantics": dict(CORPUS_RETRIEVAL_SEMANTICS),
+        "corpus_v1_sha256": index["corpus_v1_sha256"],
+        "corpus_n_rows": index["n_rows"],
+        "n_matched_rows": len(row_state),
+        "n_failure_events": sum(failure_hist.values()),
+        "n_strict_exact": n_strict,
+        "n_cn_candidate": n_cn,
+        "n_master_multirow": len(multirow),
+        "master_multirow_examples": dict(list(multirow.items())[:8]),
+        "compile_failure_histogram": dict(sorted(failure_hist.items())),
+    }}
+
+
+def _corpus_candidate(record: dict, tier: str, kind: str,
+                      matched_side: str, co_comps: list[str],
+                      *, compile_spec, compile_status: str,
+                      compile_reason: str, compile_detail: dict) -> dict:
+    """corpus 候选条目(find_recorded_exact 同构 + corpus 特有字段)。"""
+    return {
+        "record_id": record["record_id"],
+        "record_key": record["record_key"],
+        "tier": tier,
+        "donor_smiles": matched_side,
+        "donor_match_kind": kind,
+        "matched_component": matched_side,
+        "co_substrates": [
+            {"smiles": str(c), "strict_identity": _strict_of(str(c))}
+            for c in co_comps],
+        "direction": record["direction"],
+        "master_id": record["master_id"],
+        "ec": record["ec"],
+        "source_type": record["source_type"],
+        "package": f"corpus:{record['source_type']}",
+        "products": list(record["products"]),
+        "provenance_sha256": record["provenance_sha256"],
+        "filter_flags": {
+            "ion_filtered": False,
+            "cofactor_filtered": False,
+            "filtered": False,
+        },
+        "compile": compile_spec,
+        "compile_status": compile_status,
+        "compile_reason": compile_reason,
+        "compile_detail": compile_detail,
+    }
 
 
 def compile_recorded_reaction(
