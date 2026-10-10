@@ -32,6 +32,117 @@ CLI 入口统一是 `python -m pathway_v43`（子命令：`checkenv` / `probe` /
 `../dependingv3` 冻结引擎代码与本仓 `assets/` 反应检索资产（EAWAG/enviPath/USPTO
 衍生数据，**许可未核实，仅限内部使用，不得公开分发**，见 ASSETS.md）。
 
+## 工作流程
+
+一句话链路：输入一个污染物分子的 SMILES（分子结构字符串）→ 检索已记录的
+酶反应证据 → 按证据"能定就定、不能定才请模型"路由 → 反应事件入账（不可变
+证据）→ 沿路径逐级展开 → 导出答卷 → 确定性判分（零 LLM）。
+
+### 全链路一图
+
+```mermaid
+flowchart LR
+    A["输入 SMILES"] --> B["checkenv / probe 环境自检"]
+    B --> C["run 主干（LangGraph）"]
+    C --> D["检索层：v3 引擎 + 类比索引"]
+    D --> E{"路由裁决 decide_prediction_route"}
+    E -->|"唯一可用 recorded"| F["确定性直通（不经模型）"]
+    E -->|"≥2 条 recorded 竞争"| G["rank_candidates（进 LLM）"]
+    E -->|"类比供体可用"| H["analogy_edit（受约束编辑）"]
+    E -->|"无可用证据"| I["novel_proposal（受约束新提案）"]
+    E -->|"模型 off / 预算尽"| J["诚实停留 awaiting_prediction"]
+    F --> K["确定性门禁 + 事件入账（不可变 sqlite）"]
+    G --> K
+    H --> K
+    I --> K
+    K --> L{"还有预算与待展开路径？"}
+    L -->|"是"| D
+    L -->|"否"| M["export 导出 predictions.jsonl"]
+    J --> M
+    M --> N["score 确定性判分（零 LLM）"]
+    N --> O["报告与证据 runs/<run-id>/"]
+```
+
+### 每步在干什么
+
+- **输入与自检**：`checkenv` 校验资产清单、v3 引擎根与类比索引，任一不对
+  直接报错（fail-closed，不猜）；`probe` 对单个分子冒烟检索，看能拿到什么
+  候选。源码：`src/pathway_v43/__main__.py`、`src/pathway_v43/config.py`。
+- **run 主干**：LangGraph 状态图驱动（节点幂等、每步落 checkpoint），支持
+  `resume` 从检查点恢复与身份核对（代码/资产/策略变了会拒绝恢复）。
+  源码：`src/pathway_v43/workflow/`（`graph.py` `nodes.py` `routing.py` `runner.py`）。
+- **检索层**：包装旁边 dependingv3 仓的冻结检索引擎，加类比供体找回；
+  每张证据卡都带实际来源文件与 SHA256，可逐卡审计。
+  源码：`src/pathway_v43/services/reaction_finder.py`、`src/pathway_v43/adapters/v3_engine.py`。
+- **路由裁决（系统的"思考"点）**：纯函数 `decide_prediction_route` 按证据
+  定走向——只有一条可用已记录反应（recorded）时确定性直通、**不请模型**；
+  多条 recorded 竞争时让模型在既有候选里裁决（rank）；类比供体可用时让模型
+  做受约束编辑（analogy）；都没有才允许受约束新提案（novel），或按拒因
+  诚实停留。模型关掉（`--model off`）或预算耗尽时停在 `awaiting_prediction`，
+  绝不硬猜。源码：`src/pathway_v43/domain/policy.py`。
+- **LLM 出网点**：全仓唯一的网络出口在 `src/pathway_v43/adapters/llm_client.py`，
+  凭证只从环境变量读（模板见 `.env.example`），缺失即 fail-closed；
+  `off` / `fake`（剧本假模型）两种模式全程零费用、零凭证。
+- **事件入账与逐级展开**：反应事件单事务写 SQLite 账本，检索/预测产物写
+  `results/<task_id>/*.json` 不可变证据（带哈希、防篡改）；展开预算以已落盘
+  产物数为准，崩溃恢复不丢计数。源码：`src/pathway_v43/storage/`。
+- **export 导出**：从已提交账本确定性导出 v3 冻结评测格式
+  `runs/<run-id>/predictions.jsonl`（零 LLM），`--verify` 可核对导出新鲜度。
+  源码：`src/pathway_v43/output/export_v3.py`。
+- **score 判分**：只读调用 v3 冻结评测器（dev 切分），确定性程序、零 LLM；
+  同评测器同切分的数字才可并列比较。源码：`src/pathway_v43/output/score_report.py`。
+
+### 跑一遍看（catechol 示例，零费用）
+
+用儿茶酚（catechol，`Oc1ccccc1O`，**非考题分子**，只当工作示例）从自检走到
+判分。全程模型 off，不需要任何 LLM 凭证（命令实录出处：
+`docs/CORE_WORKFLOW_REPORT.md` §4、`docs/EC298_PHASE_B_REPORT.md` §8）：
+
+```sh
+cd /Volumes/CC/Enzyme_Agent/dependingv43
+
+# 1) 环境自检：资产清单/v3 引擎/类比索引，任一不对直接报错
+python -m pathway_v43 checkenv
+
+# 2) 单分子探针：看这个分子能检索到什么候选（输出候选与资产身份）
+python -m pathway_v43 probe --smiles "Oc1ccccc1O" --top-k 10
+
+# 3) 跑主干（模型 off；深度/展开预算给小值，烟测够用）
+python -m pathway_v43 run --smiles 'Oc1ccccc1O' --run-id v43-smoke --max-depth 2 --max-expansions 3
+
+# 4) 查看 run 状态与停止原因
+python -m pathway_v43 inspect --run-id v43-smoke
+
+# 5) 幂等恢复：已完成的 run 原样返回，计数不变
+python -m pathway_v43 resume --run-id v43-smoke
+
+# 6) 导出答卷（v3 冻结格式，零 LLM）
+python -m pathway_v43 export --run-id v43-smoke
+
+# 7) 确定性判分（零 LLM）
+python -m pathway_v43 score --predictions runs/v43-smoke/predictions.jsonl \
+    --out-dir runs/v43-smoke/eval --label v43-smoke
+```
+
+步骤 3 的真实行为（详见 `docs/CORE_WORKFLOW_REPORT.md` §4）：run 停在
+`awaiting_prediction`——根分子检索到 101 张证据卡，其中有 3 条已记录反应
+（recorded）互相竞争。模型关着没人裁决竞争，系统就诚实停在"待预测"，不硬猜、
+不按分数偷偷淘汰候选；inspect 显示的 status 同为 awaiting_prediction。
+步骤 6 导出的答卷如实反映"未提交任何反应事件"（off 模式没裁决就没有提交）；
+步骤 7 的评分器只对 dev 题集里的路线计分，catechol 是题集外分子，判分结果
+不构成任何成绩。
+
+想零费用看到"模型裁决"一步的真实接线：`run` 支持 `--model fake --fake-script
+剧本.json`（剧本假模型，参数定义见 `__main__.py`）；带真实资产的 catechol +
+fake 全链路验收在 `tests/test_prediction_real.py`（3 条竞争 recorded →
+rank_candidates → 选中卡经确定性门禁入账），过程见
+`docs/PREDICTION_ATOMTOOL_REPORT.md` §0。
+
+**想看真实 LLM 全链条**：见 `docs/EXPORT_DEV_REPORT.md` 与 `reports/export_dev/`
+（真实模型 dev 批跑、冻结导出与对照报告）。声明：该报告属 dev 题域（B1 环境
+路径中间步骤），数字不代表 298 题域，两个题域互不外推；具体结果数字见原报告，
+本 README 不抄录任何跑分数字。
+
 ## 目录地图（关键入口）
 
 | 入口 | 一句话说明 |

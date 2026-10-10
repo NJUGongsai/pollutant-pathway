@@ -5,6 +5,8 @@ __pycache__/
 .venv/
 .env
 .env.*
+# .env.example 是环境变量模板（尖括号占位符，无真实凭证），反排除放行入仓
+!.env.example
 runs/
 docs/kimi_k3_review_request.md
 
