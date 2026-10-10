@@ -31,28 +31,52 @@ W1 规则落地点(任务书逐条):
    目标 ⇒ ambiguous(拒,竞争目标披露)。
 
 W-V4b(S5b-stereo-dissolution-1,2026-10-10,mimo r28 E1-E3 评审方向
-落地):**手性 sp3 中心随键级变化 sp3→sp2 消解**——消解谓词钉死:
+落地;**2026-10-10 R1 收口 S5B-V4B-01**:Codex v4b 复审 §4 P1 修正
++ mimo r33 S1/S2 采纳条件落地):**手性 sp3 碳中心随键级变化
+sp3→sp2 消解**——消解谓词钉死(全部条件须满足):
 
-- lhs 原子带真四面体手性标签(CHI_TETRAHEDRAL_CW/CCW)∧ rhs 原子
-  无手性声明(CHI_UNSPECIFIED)∧ 该原子全部 lhs 键均为单键(sp3;
-  双键/累积烯中央原子天然不满足 ⇒ 非四面体轴手性不消解)∧ 该原子
-  涉及的全部键变化均为 change_bond_order 型(single→double/triple,
-  无 form/break/芳香 —— 键表顺序不变,RDKit CW/CCW 标签无重解读
-  风险)∧ 至少一个该型变化。满足 ⇒ 该 map 不落 stereo_changed
-  (手性 = 键级变化的派生属性,执行器 sanitize 自然结算);
-- r28 反例族全拒:stereo_created(lhs 无声明→rhs 有声明)、仍为
-  四面体中心的断/成键(有机磷/硫水解、SN2 型配体交换)、非四面体
-  标签、纯立体翻转(无键级变化)一律维持 stereo_edit_unsupported;
-- **执行后 rhs 立体同源复核**(E2-③):消解开后的每例,执行产物
-  在该 map 的立体状态必须 == rhs 声明(UNSPECIFIED);不等 ⇒ 结构化
-  ``stereo_derived_mismatch`` 拒(不靠"派生"假设放行;含显式氢
-  手性底物的价态墙走 execution 诚实拒,不冒充消解);
+- 0. **元素域 = C**(R1 新增,mimo r33 S2-b ②):非碳四面体中心
+  (P/S/Si 等)在 single→double 后仍可为潜在立体中心(P 执行后
+  Atom_Tetrahedral/未指派、S 为 Atom_TrigonalBipyramidal——Codex
+  v4b §4 真实反例族),违背 r28 E2"执行+sanitize 后该原子非立体
+  中心"放行条件;碳型是唯一有正控证据(二级醇→酮、bt0002#r0032)
+  的放行面,其他元素维持 ``stereo_edit_unsupported`` 拒,扩展须
+  新证据另轮;
+- 1. lhs 原子带真四面体手性标签(CHI_TETRAHEDRAL_CW/CCW)∧ rhs 原子
+  无手性声明(CHI_UNSPECIFIED)∧ 2. 该原子全部 lhs 键均为单键
+  (sp3;双键/累积烯中央原子天然不满足 ⇒ 非四面体轴手性不消解)
+  ∧ 3. 该原子涉及的全部键变化均为 change_bond_order 型(single→
+  double/triple,无 form/break/芳香 —— 键表顺序不变,RDKit CW/CCW
+  标签无重解读风险)∧ 4. 至少一个该型变化。满足 ⇒ 该 map 不落
+  stereo_changed(手性 = 键级变化的派生属性,执行器 sanitize 自然
+  结算);
+- r28 反例族(**标签变化形态**,mimo r33 S1-a 限定)全拒:stereo_
+  created(lhs 无声明→rhs 有声明)、仍为四面体中心的断/成键(有机
+  磷/硫水解、SN2 型配体交换,标签变化书写)、非四面体标签、纯
+  立体翻转(无键级变化)、非碳中心"标签消失"一律维持
+  stereo_edit_unsupported。**同标签(及模板无声明而底物有声明的)
+  断/成键落底物手性中心为已登记残留**(现状可编译、不落
+  stereo_changed;守门扩展 = 执行后同源复核扩展到全部手性保留
+  原子,列入下轮扩展选项,不在本轮);
+- **执行后 rhs 立体同源复核**(E2-③;R1 双轴,mimo r33 S2-a/S2-b
+  ①):消解开后的每例,执行产物该 map 上须同时过两轴——(a) 已
+  指派四面体标签轴:标签 == rhs 声明(UNSPECIFIED);(b) **潜在
+  立体中心轴**(R1 新增):该原子不得出现在执行产物 RDKit
+  ``FindPotentialStereo`` 潜在立体中心清单(含未指派;任何原子轴
+  类型)。复核 = 两轴合取,**已指派标签轴 ≠ 潜在立体中心感知**
+  (旧单轴对"仍为潜在中心但未指派"是空窗,由 R1 ① 补上);任一
+  轴不等、映射缺失或产物不可解析 ⇒ 结构化 ``stereo_derived_
+  mismatch`` 拒(不靠"派生"假设放行;含显式氢手性底物的价态墙
+  走 execution 诚实拒,不冒充消解);
 - 机读诊断(E2-④):spec.compile 携带 ``stereo_dissolution_applied:
   maps``(下游统计多少命中依赖消解);E/Z 键立体**不在本放行面内、
   也不在拒面内**(检测面为原子四面体标签;执行产物 E/Z 未指定,
-  对声明 E/Z 的参考走 cn_only 如实 miss——两头如实,不静默断言)。
+  对声明 E/Z 的参考走 cn_only 如实 miss——两头如实,不静默断言;
+  参考亦无 E/Z 声明时 strict 相等成立,但该相等是**无声明对无
+  声明**,非"E/Z 已核一致"——mimo r33 S1-b)。
 
-版本:s5b-compiler-2。编译失败一律返回 ``{"status": "unsupported",
+版本:s5b-compiler-3(R1:消解许可收窄 + 复核双轴扩展,公共编译
+判据链行为变化)。编译失败一律返回 ``{"status": "unsupported",
 "reason": <稳定机读码>, "detail": {...}}``,不抛裸异常、不吞 Exception。
 """
 
@@ -71,7 +95,7 @@ from ..services.atom_tool import (
 
 RDLogger.DisableLog("rdApp.*")
 
-S5B_COMPILER_VERSION = "s5b-compiler-2"
+S5B_COMPILER_VERSION = "s5b-compiler-3"
 
 # 对齐枚举显式上限(超过 ⇒ truncated,不得把截断集合当唯一对齐;
 # 与 donor_applicability._ALIGNMENT_ENUM_LIMIT 同纪律,独立常量:
@@ -229,9 +253,10 @@ def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str) -> dict:
       aromatic≡aromatic 不入表);
     - charge_changed / stereo_changed:保留原子上电荷/四面体手性差异
       (现编辑协议不支持 ⇒ 编译侧 unsupported 判据,见 _compile_edits);
-    - stereo_dissolved(W-V4b):消解开的手性 map(手性 sp3 中心随
-      single→double/triple 键级变化消解,谓词 _is_stereo_dissolution
-      钉死;不落 stereo_changed,执行后同源复核);
+    - stereo_dissolved(W-V4b;R1 元素域收窄为碳):消解开的手性
+      map(手性 sp3 **碳**中心随 single→double/triple 键级变化消解,
+      谓词 _is_stereo_dissolution 钉死;不落 stereo_changed,执行后
+      同源复核(双轴:已指派标签 + 潜在立体中心清单));
     - 坏引用 = 键的 map 端点不在该侧 map 集(结构损坏)⇒ 拒。
     """
     lhs = _parse_mapped_side(mapped_lhs, "lhs")
@@ -305,10 +330,31 @@ _TETRAHEDRAL_TAGS = (
 )
 _UNSPECIFIED_TAG = Chem.ChiralType.CHI_UNSPECIFIED
 
+# R1(S5B-V4B-01,mimo r33 S2-b ②):消解元素域 = 碳。非碳四面体
+# 中心(P/S/Si 等)在 single→double 后仍可为潜在立体中心(P:
+# Atom_Tetrahedral/未指派;S:Atom_TrigonalBipyramidal —— Codex v4b
+# 复审 §4 真实反例族),违背 r28 E2"执行+sanitize 后该原子非立体
+# 中心"放行条件;碳型是唯一有正控证据的放行面(执行后 sp2 碳不在
+# FindPotentialStereo 清单),其他元素的扩展须新证据另轮预注册。
+_DISSOLUTION_ELEMENTS = ("C",)
+
+# R1(①复核轴):FindPotentialStereo 只认**原子轴**类型 —— 键轴条目
+# (Bond_Double = E/Z、atropisomer)的 centeredOn 是键索引,与原子
+# 索引数值可能碰撞(合成探针实测),不属"该原子潜在立体中心"轴。
+_ATOM_STEREO_TYPES = (
+    Chem.StereoType.Atom_Tetrahedral,
+    Chem.StereoType.Atom_SquarePlanar,
+    Chem.StereoType.Atom_TrigonalBipyramidal,
+    Chem.StereoType.Atom_Octahedral,
+)
+
 
 def _is_stereo_dissolution(lhs, rhs, n: int, bond_changes: list) -> bool:
     """P1 消解谓词(mimo r28 E2 窄化版;钉死,逐条件):
 
+    0. **元素域 = 碳**(R1):lhs/rhs 元素守恒已由 map 号联结守恒门
+       保证;非碳四面体中心不消解(P/S/Si 反例族见
+       _DISSOLUTION_ELEMENTS 注释);
     1. lhs 原子真四面体手性(CW/CCW)∧ rhs 原子无手性声明
        (UNSPECIFIED)——stereo_created(反向)与非四面体标签不进;
     2. 该原子全部 lhs 键均单键(sp3;芳香/双键/叁键/累积烯中央原子
@@ -321,6 +367,8 @@ def _is_stereo_dissolution(lhs, rhs, n: int, bond_changes: list) -> bool:
     """
     la = lhs.mol.GetAtomWithIdx(lhs.maps[n])
     ra = rhs.mol.GetAtomWithIdx(rhs.maps[n])
+    if la.GetSymbol() not in _DISSOLUTION_ELEMENTS:
+        return False
     if la.GetChiralTag() not in _TETRAHEDRAL_TAGS:
         return False
     if ra.GetChiralTag() != _UNSPECIFIED_TAG:
@@ -341,40 +389,75 @@ def _is_stereo_dissolution(lhs, rhs, n: int, bond_changes: list) -> bool:
     return n_changes >= 1
 
 
-def _executed_chiral_tag(execution: dict, atom_id: str):
-    """执行产物在指定原子(当前 ID)的四面体手性标签(无 ⇒ None)。
+def _executed_stereo_state(execution: dict, atom_id: str):
+    """执行产物在指定原子(当前 ID)的立体状态(R1 双轴)。
+
+    返回 ``(tag, potential)``:
+
+    - ``tag`` = 已指派四面体手性标签(原子缺席/产物不可解析/映射
+      缺失 ⇒ None —— 失配语义由调用方 fail-closed 处理);
+    - ``potential`` = 执行产物 RDKit ``FindPotentialStereo`` 报告的
+      **该原子**潜在立体类型(不在清单 ⇒ None;**仅限原子轴类型**
+      —— 键轴条目(Bond_Double/E/Z、atropisomer)的 centeredOn 是
+      键索引,与原子索引数值可能碰撞,不属本轴)。两轴独立:
+      UNSPECIFIED 标签不排除潜在中心(未指派形态),非潜在中心也
+      不排除残留标签(执行器/序列化异常防御)。
 
     经 product_mapped_smiles(映射号 = 执行图 idx+1,随 canonical
     排序穿越序列化/重解析,S0 取证 §6-2 免疫重排)还原 ID↔原子。"""
     idx = (execution.get("atom_id_map") or {}).get(str(atom_id))
     if idx is None:
-        return None
+        return None, None
     mapped = Chem.MolFromSmiles(
         str(execution.get("product_mapped_smiles") or ""))
     if mapped is None:
-        return None
+        return None, None
+    target_idx = None
     for atom in mapped.GetAtoms():
         if atom.GetAtomMapNum() == int(idx) + 1:
-            return atom.GetChiralTag()
-    return None
+            target_idx = atom.GetIdx()
+            break
+    if target_idx is None:
+        return None, None
+    tag = mapped.GetAtomWithIdx(target_idx).GetChiralTag()
+    potential = None
+    try:
+        for info in Chem.FindPotentialStereo(mapped):
+            if info.centeredOn == target_idx \
+                    and info.type in _ATOM_STEREO_TYPES:
+                potential = str(info.type)
+                break
+    except Exception:
+        # fail-closed:潜在中心轴不可判 ⇒ 按失配报告,不放行
+        potential = "potential_check_error"
+    return tag, potential
 
 
 def _stereo_dissolution_mismatch(
         execution: dict, map_to_current_id: dict,
         stereo_dissolved: list) -> list:
-    """W-V4b 执行后 rhs 立体同源复核(mimo r28 E2-③)。
+    """W-V4b 执行后 rhs 立体同源复核(mimo r28 E2-③;R1 双轴)。
 
-    消解开的手性 map:执行产物在该原子上的立体状态必须 == rhs 模板
-    声明(消解谓词已钉 rhs = CHI_UNSPECIFIED)。返回失配清单
-    [(map, tag)]——空清单 = 复核通过;映射缺失/产物不可解析也按
-    失配报告(不靠"派生"假设放行)。"""
+    消解开的手性 map:执行产物该原子须同时过两轴——(a) 已指派
+    四面体标签 == rhs 模板声明(消解谓词已钉 rhs = CHI_UNSPECIFIED);
+    (b) 该原子不在执行产物 RDKit ``FindPotentialStereo`` 潜在立体
+    中心清单(**含未指派**;任何原子轴类型——"无已指派标签"不
+    等于"非立体中心",mimo r28 E2 原文口径)。返回失配清单
+    ``[(map, state)]``——空清单 = 复核通过;映射缺失/产物不可解析/
+    潜在中心轴不可判也按失配报告(不靠"派生"假设放行)。state:
+    标签轴失配 ⇒ ``str(tag)``;潜在中心轴失配 ⇒
+    ``potential:<类型>``(如 ``potential:Atom_Tetrahedral``)。"""
     mismatched: list = []
     for m in stereo_dissolved:
         cid = map_to_current_id.get(int(m))
-        tag = _executed_chiral_tag(execution, str(cid)) \
-            if cid is not None else None
+        if cid is None:
+            mismatched.append((int(m), "None"))
+            continue
+        tag, potential = _executed_stereo_state(execution, str(cid))
         if tag is None or tag != _UNSPECIFIED_TAG:
             mismatched.append((int(m), str(tag)))
+        elif potential is not None:
+            mismatched.append((int(m), f"potential:{potential}"))
     return mismatched
 
 
@@ -906,10 +989,12 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
                 "target": None, "reason": "execution_failed",
                 "reasons": execution.get("reasons", [])[:8]})
             continue
-        # ---- W-V4b:执行后 rhs 立体同源复核(mimo r28 E2-③) ----
-        # 消解开的手性 map:执行产物在该 map 的立体状态必须 == rhs
-        # 声明(UNSPECIFIED);不等(仍为立体中心/残留标签/映射缺失)
-        # ⇒ 结构化 stereo_derived_mismatch 拒,不靠"派生"假设放行。
+        # ---- W-V4b:执行后 rhs 立体同源复核(mimo r28 E2-③;R1 双轴) ----
+        # 消解开的手性 map:执行产物该原子须同时过两轴——(a) 已指派
+        # 四面体标签 == rhs 声明(UNSPECIFIED);(b) 该原子不在执行产物
+        # RDKit FindPotentialStereo 潜在立体中心清单(含未指派)。
+        # 任一轴不等(仍为潜在立体中心/残留标签/映射缺失)⇒ 结构化
+        # stereo_derived_mismatch 拒,不靠"派生"假设放行。
         if stereo_dissolved:
             mismatched = _stereo_dissolution_mismatch(
                 execution, map_to_current_id, stereo_dissolved)
@@ -989,15 +1074,22 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
         },
     }
     if stereo_dissolved:
-        # W-V4b(E2-④):机读诊断——下游统计"多少 strict 命中依赖消解"
+        # W-V4b(E2-④;R1 S2-c 轴/元素限定):机读诊断——下游统计
+        # "多少 strict 命中依赖消解";字符串限定元素域(C)与复核
+        # 双轴,防止 sp3_to_sp2 字面被外推到非碳中心(mimo r33)
         spec["compile"]["stereo_dissolution_applied"] = [
             int(m) for m in stereo_dissolved]
         spec["compile"]["stereo_dissolution_semantics"] = (
             "chiral_sp3_center_dissolved_by_bond_order_change_sp3_to_sp2"
-            "; chirality treated as derived property of the bond-order"
-            " edit, settled by executor sanitize; post-execution"
-            " stereo-state homology check applied (mismatch ->"
-            " stereo_derived_mismatch reject)")
+            "; element domain: C only (non-carbon tetrahedral centers"
+            " such as P/S/Si are NOT dissolvable, they stay"
+            " stereo_edit_unsupported); post-execution homology check"
+            " on two axes — assigned tetrahedral label must equal the"
+            " rhs declaration (CHI_UNSPECIFIED) AND the atom must be"
+            " absent from the executed product's RDKit"
+            " FindPotentialStereo potential-stereocenter list"
+            " (unspecified entries included, atom-axis types only);"
+            " mismatch -> stereo_derived_mismatch reject")
     return {"status": "compiled", "spec": spec, "diagnostics": {
         "record_id": record_id, "target_smiles": target,
         "n_alignments": len(compiled_per_match),

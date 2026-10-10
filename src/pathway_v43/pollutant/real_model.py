@@ -214,6 +214,13 @@ def execution_graph_payload(substrate_smiles: str,
     - ``graph_hash``:图内容哈希(同底物同图 ⇒ 同 hash);
     - ``capability``:{atomtool_version, edit_protocol_version,
       unsupported: [charge_edits, stereo_edits, aromatic_bond_tokens]}。
+      **scope 注记(R1,mimo r33 采纳条件 S6)**:该 unsupported 描述
+      的是**模型侧 novel 编辑协议面**(执行器确无立体 op,对
+      novel 编辑仍然为真);编译侧 stereo 消解
+      (S5b-stereo-dissolution-1,元素域限碳,经既有键级 op 编译,
+      不经模型提议)存在且以 spec 的
+      ``stereo_dissolution_applied`` 机读披露——两属不同协议面,
+      防全系统级误读。
 
     渲染/解析失败 ⇒ 空 dict(调用方如实携带空载荷;模型引用未知 ID
     在执行侧结构化拒,不伪造)。edit order 按 single/double/triple 实际
@@ -280,6 +287,9 @@ def execution_graph_payload(substrate_smiles: str,
         "capability": {
             "atomtool_version": ATOMTOOL_VERSION,
             "edit_protocol_version": EDIT_PROTOCOL_VERSION,
+            # scope:模型侧 novel 编辑协议面无立体 op;编译侧碳消解
+            # (S5b-stereo-dissolution-1)经键级 op 编译并以
+            # stereo_dissolution_applied 披露,不在此 capability 面
             "unsupported": ["charge_edits", "stereo_edits",
                             "aromatic_bond_tokens"],
         },

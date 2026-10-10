@@ -101,8 +101,10 @@ gate 不放宽、等价映射合并、触顶诚实拒、product_set_mismatch 0/2
 - 加成/生成分支全组分枚举:旧实现在首个可容纳 donor 的产物组分后
   break(丢后续组分的候选对应);现全部组分在预算内枚举,候选映射
   交由编译 + 产物多重集 gate + 落位纪律全映射评估(W-V2.3 同源);
-- stereo 消解在公共编译器侧实施(s5b-compiler-2;本模块零判据改动,
-  通道产出的 stereo_edit_unsupported 事件面由消解谓词收敛)。
+- stereo 消解在公共编译器侧实施(s5b-compiler-3,2026-10-10 R1 收口
+  S5B-V4B-01 后版本:消解元素域收窄为碳 + 执行后复核双轴;本模块
+  零判据改动,通道产出的 stereo_edit_unsupported 事件面由消解谓词
+  收敛)。
 """
 
 from __future__ import annotations

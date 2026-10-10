@@ -604,7 +604,9 @@ def test_w1_duplicate_state_ref_single_schedule_entry(tmp_path) -> None:
 
 def test_compiler_version_registered() -> None:
     # W-V4b:s5b-compiler-2(stereo 消解;公共编译判据链行为变化)
-    assert S5B_COMPILER_VERSION == "s5b-compiler-2"
+    # → R1(2026-10-10,S5B-V4B-01):s5b-compiler-3(消解元素域收窄
+    # 为碳 + 执行后复核双轴;公共编译判据链行为变化)
+    assert S5B_COMPILER_VERSION == "s5b-compiler-3"
     # 变换提取:map 号联结可重放(同输入同变化表)
     t1 = extract_mapped_transform(
         "[CH3:1][CH2:2][OH:3]", "[CH3:1][CH:2]=[O:3]")
