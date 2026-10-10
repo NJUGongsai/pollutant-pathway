@@ -379,13 +379,21 @@ def build_run_input(question: dict, *, batch_tag: str,
 
 # W4 池策略版本(冻结候选配置:raw 预算/池宽/阈值/补位/融合规则;
 # 变化 ⇒ 升版本 ⇒ 新身份)
+# s5b-pool-policy-3(W-V4.1-R1,2026-10-10,Codex v4 复审 S5B-V4-01
+# 回修):corpus 通道供给面许可变化——component-with-co-substrate
+# 候选在 find_corpus_recorded_exact 编译前结构化 unsupported
+# (s5b-corpus-retrieval-2),不再入池。**池成员变化 ⇒ 按既有身份
+# 规则升版**(corpus 通道池成员收缩:组分级 spec 归零,整串/whole
+# spec 不变);EAWAG 候选序/引擎 lookup 序仍零变化,corpus 候选
+# 追加在后;同净反应签名去重/失败补位/池宽/融合语义不变;
+# corpus_channel 消融开关语义不变(生产默认 True)。
 # s5b-pool-policy-2(W-V4.1,2026-10-10):recorded 精确源通道新增
 # corpus_v1(RHEA/enviPath)直通供给(find_corpus_recorded_exact;
 # 用户六决策 ①②③)——EAWAG 候选序保持引擎 lookup 序零变化,corpus
 # 候选按(tier strict→cn, 整串→组分, 行号)序**追加在后**;同净反应
 # 签名去重/失败补位/池宽语义不变;corpus_channel 参数仅供消融对照
 # (生产默认 True;False=纯 EAWAG 面,池深前后对照探针用)。
-S5B_POOL_POLICY_VERSION = "s5b-pool-policy-2"
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-3"
 S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
 S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
 S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)
@@ -417,7 +425,10 @@ def default_pool_provider(config: V43Config | None, *,
        strict exact 在前(引擎 lookup 置顶序),CN candidate 次之 ——
        两级都不越模型选择,只供给候选;
     1b. **corpus recorded 直通**(W-V4.1,``recorded_source.find_corpus_
-       recorded_exact``;s5b-pool-policy-2 新增,决策 ①②③):RHEA/
+       recorded_exact``;s5b-pool-policy-2 新增,决策 ①②③;
+       **s5b-pool-policy-3(W-V4.1-R1)**:component-with-co-substrate
+       候选编译前结构化 unsupported,池成员收缩为整串/whole spec,
+       检索层共用许可规则见 s5b-corpus-retrieval-2):RHEA/
        enviPath 主语料候选按(tier strict→cn、整串→组分、行号)序
        **追加在 EAWAG 候选之后**(EAWAG 面零变化,单变量归因);
        corpus 身份缺失/哈希不符 ⇒ fail-closed 抛错(不静默降级);

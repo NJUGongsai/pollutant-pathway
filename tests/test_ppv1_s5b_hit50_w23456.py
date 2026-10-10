@@ -610,7 +610,8 @@ def test_w4_pool_provider_backfill_and_order(tmp_path) -> None:
     assert specs[0]["compile"]["merged_source_keys"] == ["tpl-good2"]
     diag = provider.last_diagnostics
     assert diag["pool_policy_version"] == S5B_POOL_POLICY_VERSION
-    # W-V4.1:s5b-pool-policy-2(corpus 直通通道升版;EAWAG 面不变)
+    # W-V4.1-R1:s5b-pool-policy-3(corpus 通道许可收缩升版;EAWAG
+    # 面不变;池融合/补位语义不变)
     assert diag["compile_failure_histogram"].get(
         "charge_edit_unsupported") == 3
     assert diag["n_unique_net_reactions"] == 1
@@ -994,8 +995,8 @@ def test_w6_r5_defaults_one_logical_and_1490_cap() -> None:
 
 def test_versions_registered() -> None:
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-1"
-    # W-V4.1:池策略升版(corpus 直通供给通道;s5b-pool-policy-2)
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-2"
+    # W-V4.1-R1:池策略升版(corpus 通道共底物许可收缩;s5b-pool-policy-3)
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-3"
     assert S5B_RANK_POLICY_VERSION == "s5b-rank-policy-1"
     assert S5B_POOL_RAW_TOP == 24
     assert "approved" in PREREG_APPROVAL_APPROVED_STATUSES

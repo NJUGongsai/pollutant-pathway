@@ -50,7 +50,19 @@ enviPath 主语料(corpus_v1.jsonl,43,177 行)接入 recorded 直通供给
   检索口径),其余组分诚实声明为共底物/条件参与物(co_substrates,
   不静默丢弃、不冒充单底物反应);整串(单组分 donor 全串)语义下
   该声明退化为空集;
-- **编译按完整净产物集合核**:donor 侧(整串或匹配组分)→ 记录全量
+- **W-V4.1-R1(S5b-corpus-retrieval-2,2026-10-10,Codex v4 复审
+  S5B-V4-01 回修)**:没有已经审定且**实际消费**的共底物参与物/
+  原子来源语义时,**有共底物的 component 记录一律不送单组分 LHS
+  编译**——编译前结构化 unsupported(``corpus_cosubstrate_
+  participants_unsupported``,保留源行/方向/共底物声明/可追溯拒因),
+  不产 spec、不产 event。该共用许可规则在本入口(``find_corpus_
+  recorded_exact``)生效,消费方(builder 池/公开链)拿不到坏 spec;
+  不按元素/角色/可锚性/方向/具体分子设例外(键合有机共底物原子经
+  add_atom 折成"新增原子"的通道整体关闭;断连辅因子同样在编译前
+  拒,不再依赖编译层 new_atom_placement_incomplete 兜底)。显式
+  共底物参与物设计(声明式拷贝/gate 扩展)属后续独立设计轮,先
+  规则级方案送化学评审,不借本轮放宽产物多重集 gate。
+- **编译按完整净产物集合核**:donor 侧(整串)→ 记录全量
   product_components,走同一 ``compile_recorded_reaction`` 推断映射
   + 产物多重集 gate(共底物↔共产物对应判据属设计件,不本轮实现,
   交付书登记待复审);
@@ -94,7 +106,10 @@ RECORDED_SOURCE_VERSION = "s5b-recorded-source-1"
 # 冻结依据:TASK_V43_PPV1_S5B_HIT50_V4_DRAFT_2026-10-10 §10 用户裁定
 # ①(CN 检索 + strict 编译核)②(组分级 + 共底物声明)③(双向保留 +
 # 通配拒因)。判据零新增:检索/分层/编译全部同源复用现行实现。
-CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-1"
+# W-V4.1-R1(2026-10-10,Codex v4 复审 S5B-V4-01 回修):版本升
+# s5b-corpus-retrieval-2 ——共底物 component 许可变化(编译前结构化
+# unsupported);分层/通配/映射/provenance 语义零变化。
+CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-2"
 CORPUS_RETRIEVAL_SEMANTICS = {
     "version": CORPUS_RETRIEVAL_VERSION,
     "substrate_retrieval_scope": "cn_identity_wide",
@@ -102,11 +117,24 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "matched_side_strict_identity == substrate_strict_identity "
         "-> recorded_strict_exact; cn_equal_strict_differs "
         "-> recorded_cn_candidate (no strict promotion)"),
-    "donor_side_semantics":
-        "component_level_with_co_substrate_declaration",
+    "donor_side_semantics": (
+        "component_level_with_co_substrate_declaration;"
+        " component candidates with non-empty co_substrates are "
+        "structured-unsupported BEFORE compilation "
+        "(corpus_cosubstrate_participants_unsupported)"),
+    "cosubstrate_permission": (
+        "no approved and consumed co-substrate participant / "
+        "atom-source semantics exists; records with co-substrates "
+        "must NOT be sent to single-component-LHS compilation and "
+        "must not be granted usable pool specs; no element/role/"
+        "anchorability/direction/molecule exceptions; full "
+        "explicit-participant design is a future independent "
+        "reviewed plan (codex v4 review S5B-V4-01 / task book "
+        "1.3, 4.2, 4.7; mimo r30 R2-2 honest-refusal branch)"),
     "whole_string_semantics": (
         "single_component_donor_or_exact_whole_string_cn_match;"
-        " co_substrate declaration degenerates to empty set"),
+        " co_substrate declaration degenerates to empty set;"
+        " whole records compile with the FULL donor string as lhs"),
     "wildcard_policy": "row_level_unsupported_wildcard_atom_reject",
     "master_direction_policy": (
         "both_direction_rows_retained_per_row_writing; "
@@ -118,7 +146,8 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "record_level_existence_disclosure; missing -> "
         "corpus_provenance_missing structured reject"),
     "frozen_by": (
-        "TASK_V43_PPV1_S5B_HIT50_V4 §10 decisions 1/2/3, 2026-10-10"),
+        "TASK_V43_PPV1_S5B_HIT50_V4 §10 decisions 1/2/3, 2026-10-10"
+        "; W-V4.1-R1 rework: codex v4 review 2026-10-10 §4.3/§8"),
 }
 
 # 推断映射的子结构同构枚举上限(触顶 ⇒ 歧义披露拒绝,不静默取首解)
@@ -705,15 +734,23 @@ def find_corpus_recorded_exact(
       (kind=whole,co_substrates 空);多组分 donor ⇒ 组分
       (kind=component,**其余组分声明为共底物/条件参与物**,
       co_substrates 携带组分 SMILES + 严格身份;不静默丢弃);
+    - **W-V4.1-R1 共底物许可(S5B-V4-01 回修)**:kind=component 且
+      co_substrates 非空 ⇒ **编译前结构化 unsupported**
+      (``corpus_cosubstrate_participants_unsupported``;保留源行
+      record_key/方向/共底物声明/可追溯拒因 detail)。共用许可规则
+      在本入口生效——builder 池与公开链从源头拿不到坏 spec(不出现
+      "builder 单口过滤而 find 仍返回可用坏 spec"的分裂);不按元素/
+      角色/可锚性/方向/具体分子设例外(可锚有机/不可锚辅因子/未知
+      角色/同根 LR/RL 全覆盖);
     - 行级拒因(W 决策③+负控 ⑧⑨⑩):通配行 unsupported_wildcard_
       atom;原生映射冒充 corpus_native_mapping_claimed(corpus_v1 全
       库无原生映射,mapping_origin=inferred 强制);provenance 缺
       corpus_provenance_missing;无产物 record_missing_or_incomplete
       ——全部计数入 compile_failure_histogram(检索面统计仍全量);
-    - 编译(**完整净产物集合核**):匹配侧(donor 整串或组分)→
-      记录全量产物,走同一 ``compile_recorded_reaction``(推断映射/
-      产物多重集 gate/歧义披露,判据零改动);spec 附加 corpus 元数据
-      (source_type/master_id/direction/ec/匹配语义/共底物声明);
+    - 编译(**完整净产物集合核**):整串 donor → 记录全量产物,走
+      同一 ``compile_recorded_reaction``(推断映射/产物多重集 gate/
+      歧义披露,判据零改动);spec 附加 corpus 元数据(source_type/
+      master_id/direction/ec/匹配语义/共底物声明=空集);
     - 方向(W 决策③):按**各自行书写**编译(donor_A→product_B;
       direction 为记录声明);master 双行均保留为候选(双方向分层
       引用);同一 master 多行命中仅诊断披露(同净反应双槽由池侧
@@ -815,7 +852,7 @@ def find_corpus_recorded_exact(
     ordered_matches.sort(key=lambda m: (m[0], m[1], m[2], m[3]))
     # ---- 逐候选编译(判据零改动;同 max_reactions 截断语义) ----
     candidates: list[dict] = []
-    n_strict = n_cn = 0
+    n_strict = n_cn = n_cosub_unsupported = 0
     for (tier_rank, _kind_rank, _line_no, _rep_idx, i, kind,
          matched_side, co_comps) in ordered_matches:
         if len(candidates) >= int(max_reactions):
@@ -827,6 +864,45 @@ def find_corpus_recorded_exact(
             n_strict += 1
         else:
             n_cn += 1
+        # ---- W-V4.1-R1:共底物 component 编译前许可(S5B-V4-01) ----
+        # 没有已审定且实际消费的共底物参与物/原子来源语义 ⇒ 有共底物
+        # 的 component 记录不送单组分 LHS 编译:结构化 unsupported
+        # (保留源行/方向/共底物声明/可追溯拒因),不产 spec、不产
+        # event。共用许可规则在本入口生效(builder 池/公开链从源头
+        # 拿不到坏 spec);不按元素/角色/可锚性/方向/具体分子设例外
+        # ——可锚有机共底物(键合原子经 add_atom 折成"新增原子")与
+        # 不可锚断连辅因子同根同拒,LR/RL 双方向全覆盖。唯一放行
+        # 证明 = 显式共底物参与物语义经独立设计+化学评审落地并实际
+        # 消费(mimo r30 R2-2 诚实拒分支;Codex v4 复审 §4.3 最低
+        # 收口;不搭车放宽产物多重集 gate、不改 AtomTool/冻结判据)。
+        if kind == "component" and co_comps:
+            reason = "corpus_cosubstrate_participants_unsupported"
+            failure_hist[reason] = failure_hist.get(reason, 0) + 1
+            n_cosub_unsupported += 1
+            candidates.append(_corpus_candidate(
+                record, tier, kind, matched_side, co_comps,
+                compile_spec=None, compile_status="unsupported",
+                compile_reason=reason, compile_detail={
+                    "record_key": record["record_key"],
+                    "line_no": record["line_no"],
+                    "donor_A_smiles": record["donor_A_smiles"],
+                    "direction": record["direction"],
+                    "master_id": record["master_id"],
+                    "matched_component": matched_side,
+                    "co_substrates": [
+                        {"smiles": str(c),
+                         "strict_identity": _strict_of(str(c))}
+                        for c in co_comps],
+                    "products": list(record["products"]),
+                    "permission_note": (
+                        "no approved and consumed co-substrate "
+                        "participant/atom-source semantics; component "
+                        "record with co-substrates is not sent to "
+                        "single-component-LHS compilation (no usable "
+                        "pool spec, no event); full explicit-participant"
+                        " design is a future independent reviewed plan"),
+                }))
+            continue
         products = list(record["products"])
         try:
             compiled = compile_recorded_reaction(
@@ -866,7 +942,10 @@ def find_corpus_recorded_exact(
                     "_as_substrate(W-V4.1 决策②;共底物↔共产物对应"
                     "判据属设计件待复审;不静默丢弃、不冒充单底物反应)"
                     if co_comps else
-                    "empty_set_whole_string_semantics"),
+                    "empty_set_whole_string_semantics"
+                    "(corpus-retrieval-2:component-with-co-substrate "
+                    "records are rejected before compilation; compiled "
+                    "specs are whole-string lhs only)"),
                 "provenance_sha256": record["provenance_sha256"],
             }
         candidates.append(_corpus_candidate(
@@ -886,6 +965,7 @@ def find_corpus_recorded_exact(
         "n_failure_events": sum(failure_hist.values()),
         "n_strict_exact": n_strict,
         "n_cn_candidate": n_cn,
+        "n_cosubstrate_participants_unsupported": n_cosub_unsupported,
         "n_master_multirow": len(multirow),
         "master_multirow_examples": dict(list(multirow.items())[:8]),
         "compile_failure_histogram": dict(sorted(failure_hist.items())),
