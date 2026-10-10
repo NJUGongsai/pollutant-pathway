@@ -85,6 +85,15 @@ core(`normalize_cost_guard_config`:CLI `budget`/`load_budget_guard`/
   llm_client.py 两共享 adapter,逐文件 SHA 见
   `/tmp/s5b_v3r2_impl/legacy_identity_r2.json`);R1 语义批按其当时代码
   身份解读,不回写;
+  【v3-R3 订正 2026-10-10,R2 正链复审 §5】本处 `cd683e…` 聚合
+  算法未确认、与公开函数
+  `pathway_v43.storage.run_identity.code_identity('legacy_v43')`
+  (排序 k:v 换行聚合)不相容,不能当部署身份(复审观察 R2 公开
+  聚合实际为 `b0d4e9bc…`,父 `e4b934e9…`,仅两 adapter 字节变)。
+  新发车登记必须用实际公开聚合实测值:R3 修复后实测为
+  `279d9bc19bad25e51b7c23ee276da95151a8f25cf598b9dc3642b508d817c4bb`
+  (52 文件;见 `/tmp/s5b_v3r3_impl/legacy_identity_r3.json`),
+  勿沿用本处 `cd683e…` 与任何旧值;
 - **不变面**:TPM 滑窗/429 冷却/HTTP max_calls/40 在途/1 logical/
   format0/RPM 全部不动(`test_other_gates_untouched_with_cost_guard`
   及 178/258 定向绿在案);`cost_snapshot` 维持 raw 只读披露(披露
@@ -219,6 +228,10 @@ r2_cost 新增);`python -B -p no:cacheprovider
 - 冻结三 SHA 工作树复核逐字节一致:
   `7fd35aabdb4d2d5b67b0bf58693dab6f8765ad872efedf5f886503c4907064e4`、
   `6e046e2970a102c63e693cebb81f2564b5d79fea1a6e7a776b0fc00c09662610`、
+  【v3-R3 订正 2026-10-10,R2 正链复审 §5】上一行为复制笔误:冻结
+  记录实际完整值为
+  `6e046e2970a102c63e693cebb81f2564b5d79fea1b6e7a776b0fc00c09662610`
+  (见 R2 复审 §6 全值);冻结文件本身未改,旧主审/永久证据不回写;
   `971ad00f42fc56915bad3724300759aa86552bf08199f8335c7f0286b40d588d`;
 - 冻结判据/scorer 匹配/排序/(created_at,event_id)/S5B_PASS_LINES
   零触碰(本轮改动 = 金额守卫三子案 + 配套注释/测试,全部 fail-closed
