@@ -247,8 +247,11 @@ def test_wv3_stereo_dissolution_boundary_now_compiles() -> None:
         record_id="wv3-neg-cr")
     assert out_cr["status"] == "unsupported"
     assert out_cr["reason"] == "stereo_edit_unsupported"
-    # 手性声明底物(显式氢):执行价态墙,诚实 execution_failed
-    # (不冒充消解;AtomTool 层配合属待复审最小改动面)
+    # 手性声明底物(显式氢):v4b 时代曾撞执行器价态墙(execution_
+    # failed 诚实拒);hwall 轮(2026-10-11)按 v4b §十.1 登记 +
+    # mimo r33 S3 条款实施 AtomTool 显式氢记账放宽(v43-atomtool-2),
+    # 与隐式氢底物同口径编译(父 HEAD 上 compiled ⇒ 红,翻转证明;
+    # 价态墙负控面迁至 tests/test_ppv1_s5b_hwall.py)
     out_chiral = compile_donor_template(
         mapped_lhs=str(ref.mapped_lhs or ""),
         mapped_rhs=str(ref.mapped_rhs or ""),
@@ -256,5 +259,6 @@ def test_wv3_stereo_dissolution_boundary_now_compiles() -> None:
         substrate_smiles="C[C@H](O)c1ccccc1",
         record_id="env:EAWAG-BBD:bt0002#r0032-chiral",
         mapping_origin="native", key_prefix="tpl")
-    assert out_chiral["status"] == "unsupported"
-    assert out_chiral["reason"] == "execution_failed"
+    assert out_chiral["status"] == "compiled", out_chiral
+    assert out_chiral["spec"]["expectation"]["target_smiles"] == \
+        "CC(=O)c1ccccc1"

@@ -60,7 +60,7 @@ ATOM_ID_RE = re.compile(
     r"(?:_(?P<cip>[RS]))?\b"
 )
 
-ATOMTOOL_VERSION = "v43-atomtool-1"
+ATOMTOOL_VERSION = "v43-atomtool-2"
 
 # 编辑协议 v2(Phase C 任务书 §4/C2):新增 change_bond_order;add_atom
 # 必须显式给 new_atom_id(元素须与 ID 内嵌元素一致);废除 remove_atom。
@@ -84,6 +84,9 @@ _BOND_TOKENS = {
     "double": Chem.BondType.DOUBLE,
     "triple": Chem.BondType.TRIPLE,
 }
+# 键级序数(凯库勒空间):change_bond_order 端点括号显式氢按级差消耗
+# (显式氢记账放宽,见 execute_edits docstring)
+_BOND_ORDER_N = {"single": 1, "double": 2, "triple": 3}
 _ELEMENT_RE = re.compile(r"^[A-Z][a-z]?$")
 
 
@@ -406,6 +409,13 @@ def execute_edits(current: MoleculeRender, edits: list) -> dict:
     暂时不满足完整价态(事务内暂存),但每步前提必须成立,最终 sanitize
     必须成功。旧原子 ID 不消失、不变元素;新增原子按 new_atom_id 入图。
     失败 fail-closed,拒因带操作索引 edit[i]。
+
+    显式氢记账语义(mimo r33 S3 条款落字):change_bond_order 的键级
+    **升高**伴随变化键端点的括号显式氢按级差消耗 —— 键级升高 + 显式
+    氢消耗 = 脱氢记账语义(执行器记账,非反应机制声明;与隐式氢原子
+    由 sanitize 自动重算同口径,消除括号原子 noImplicit 固定记账的
+    执行器价态墙假阴性)。存量不足截 0,真实超价仍由 sanitize 诚实拒;
+    图中独立 H 原子(含同位素)与非氢原子价态检查不在此放宽面。
     """
     mol = Chem.MolFromSmiles(current.smiles)
     if mol is None:
@@ -473,6 +483,24 @@ def execute_edits(current: MoleculeRender, edits: list) -> dict:
                     f"{a1}~{a2}:to_{to}:{tag}")
                 continue
             bond.SetBondType(target_type)
+            # 显式氢记账放宽(2026-10-11,v4b 交付书 §十.1 登记 + mimo
+            # r33 S3 条款批准的最小改动):键级升高伴随**变化键两端点**
+            # 的括号显式氢(numExplicitHs,noImplicit 记账)按级差消耗
+            # ——脱氢记账语义,与隐式氢原子同口径(隐式 H 由 sanitize
+            # 按剩余价自动重算,括号原子固定记账才有此价态墙)。只动
+            # numExplicitHs、只在端点、只在键级**升高**时消耗(存量不足
+            # 截 0,真实超价仍由 sanitize 诚实拒);凯库勒空间外的键级
+            # 词(芳香 fallback)不在此面;图中独立 H 原子(含同位素
+            # [2H])是真实图原子不在记账面;form/break 路径与非氢原子
+            # 价态检查零触碰。
+            have_n, to_n = _BOND_ORDER_N.get(have), _BOND_ORDER_N.get(to)
+            if have_n is not None and to_n is not None and to_n > have_n:
+                for endpoint in (a1, a2):
+                    end_atom = rw.GetAtomWithIdx(id_to_idx[endpoint])
+                    n_h = end_atom.GetNumExplicitHs()
+                    if n_h:
+                        end_atom.SetNumExplicitHs(
+                            max(0, n_h - (to_n - have_n)))
         elif op == "add_atom":
             element = str(edit.get("element", ""))
             new_id = str(edit.get("new_atom_id", ""))

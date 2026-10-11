@@ -51,12 +51,16 @@ mismatch 拒);spec 机读诊断 stereo_dissolution_applied(语义串
 - 负控族(r28 反例**标签变化形态**全拒,r33 S1-a 限定;同标签
   断/成键残留见交付书登记,不在本轮):纯立体翻转(无键级变化)、
   stereo_created(lhs 无声明→rhs 有声明)、SN2 型配体交换、非碳
-  四面体中心(P/S 反例族)、手性声明底物显式氢价态墙(execution
-  诚实拒);
+  四面体中心(P/S 反例族);手性声明底物显式氢价态墙已按 v4b
+  §十.1 登记 + mimo r33 S3 条款在 hwall 轮(v43-atomtool-2)放宽
+  ——本文件旧负控翻转为正控(见
+  test_p1_chiral_substrate_dissolution_now_compiles),价态墙
+  负控面迁至 tests/test_ppv1_s5b_hwall.py;
 - 同源复核负控:执行产物立体状态 ≠ rhs 声明(残留标签轴/潜在
   中心轴)⇒ stereo_derived_mismatch 结构化拒(monkeypatch 执行器
   返回残留标签/潜在中心产物的机读证明;真实化学路径下标签轴为
-  防御性——显式氢价态墙先行;潜在中心轴在碳面由谓词结构性保证,
+  防御性——hwall 放宽后显式氢随键级升高由执行器记账消耗,隐性
+  标签由 sanitize 清理;潜在中心轴在碳面由谓词结构性保证,
   双轴为执行器行为漂移防御)。
 
 **P2 推断映射深层门(S5b-recorded-infer-2)**:
@@ -286,25 +290,30 @@ def test_p1_non_tetrahedral_and_aromatic_centers_not_dissolved() -> None:
     assert out["reason"] == "stereo_edit_unsupported"
 
 
-def test_p1_chiral_substrate_valence_wall_honest_reject() -> None:
-    """负控(显式氢价态墙):底物带手性声明([C@H] 括号氢)时,
-    single→double 键级变化使显式价超限 ⇒ 执行器 sanitize 诚实拒
-    (execution_failed;不冒充消解、不动 AtomTool——最小改动面
-    待复审,见交付书)。"""
+def test_p1_chiral_substrate_dissolution_now_compiles() -> None:
+    """正控(原负控翻转,2026-10-11 hwall 轮):底物带手性声明
+    ([C@H] 括号氢)的消解型模板,single→double 后显式价超限曾撞
+    执行器价态墙(本测试旧形态:execution_failed 诚实拒;v4b 交付
+    书 §十.1 登记 + mimo r33 S3"执行器记账假阴性,非化学边界,
+    列下轮优先"条款)。本轮按登记实施 AtomTool 显式氢记账放宽
+    (v43-atomtool-2):键级升高伴随端点括号显式氢按级差消耗(脱氢
+    记账语义),手性声明底物与隐式氢底物同口径编译;父 HEAD 上
+    compiled ⇒ 红(翻转证明)。负控面(真实超价仍拒/显式氢不可洗
+    非法编辑/同位素 H 不动)见 tests/test_ppv1_s5b_hwall.py。"""
     out = compile_donor_template(
         mapped_lhs=_LHS, mapped_rhs=_RHS, center_atoms=[2, 3],
         substrate_smiles="C[C@H](O)Cl", record_id="v4b-p1-chiral")
-    assert out["status"] == "unsupported"
-    assert out["reason"] == "execution_failed"
-    assert any("sanitize_failed" in r for r in
-               (out.get("detail") or {}).get("reasons") or [])
+    assert out["status"] == "compiled", out
+    assert out["spec"]["expectation"]["target_smiles"] == _KETONE
+    assert out["spec"]["compile"]["stereo_dissolution_applied"] == [2]
 
 
 def test_p1_post_execution_homology_mismatch_rejects(monkeypatch) -> None:
     """同源复核负控(E2-③ 机读证明):执行产物在该 map 的立体状态
     ≠ rhs 声明(UNSPECIFIED)⇒ 结构化 stereo_derived_mismatch 拒
     (monkeypatch 执行器返回残留四面体标签的产物;真实化学路径下
-    该门为防御性——显式氢走价态墙,隐性标签由 sanitize 清理)。"""
+    该门为防御性——hwall 轮后显式氢随键级升高由执行器记账消耗,
+    隐性标签由 sanitize 清理)。"""
     import pathway_v43.pollutant.s5b_compiler as compiler_mod
 
     real_execute = compiler_mod.execute_edits
@@ -314,8 +323,8 @@ def test_p1_post_execution_homology_mismatch_rejects(monkeypatch) -> None:
         if result.get("ok"):
             # 防御门证明:把执行产物映射 SMILES 整体替换为"消解原子
             # (map 2)仍带四面体标签"的形态(真实化学路径下 sp2 原子
-            # 的无效标签会被 MolToSmiles 清理/价态墙先行,此门为
-            # E2-③ 要求的机读核)
+            # 的无效标签会被 MolToSmiles 清理/hwall 轮后显式氢随键级
+            # 升高由执行器记账消耗,此门为 E2-③ 要求的机读核)
             result["product_mapped_smiles"] = \
                 "[CH3:1][C@H:2]([OH:3])[Cl:4]"
         return result

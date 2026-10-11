@@ -349,3 +349,104 @@ corpus 编译成功题数 16、检索面 199 strict 修前修后不变)。
 
 本轮实施期真实模型费用:**0 CNY / 0 次调用**(全轮零网络、
 零判分 LLM;漏斗/池深/G01/父红绿全部离线)。
+
+---
+
+# 附:hwall 补充节(2026-10-11)—— §十.1 登记项实施收口(S5b-hwall-1)
+
+> 本节为 §十.1"AtomTool 显式氢价态墙最小改动面"登记的实施交付,
+> 追加不改上方任何既有内容。授权链 = 本交付书 §十.1 登记 + mimo r33
+> S3-b/S3-4(唯一推荐项:"不是化学边界而是执行器记账限制,列下轮
+> 优先",采纳条件 ①②③)+ 主会话派工任务书。开工基线 HEAD =
+> `59db0dac`(D2-R3 收口;工作树跟踪文件干净,评审侧未跟踪文档不动)。
+
+## 十三.1 修法一句话与落点
+
+- **修法**:`services/atom_tool.execute_edits` 的 change_bond_order
+  分支在键级**升高**时,变化键**两端点**的括号显式氢
+  (numExplicitHs,noImplicit 记账)按级差消耗(存量不足截 0)
+  ——与隐式氢原子同口径(隐式 H 由 sanitize 按剩余价自动重算,
+  括号原子固定记账才有此墙),消除执行器价态墙假阴性;
+- **落点行号**:`atom_tool.py` 版本 `:63`;键级序数常量
+  `_BOND_ORDER_N` `:87-89`;execute_edits docstring 脱氢记账语义段
+  `:413-418`(mimo 条款 ③ 落字);放宽块 `:486-503`(SetBondType
+  后,核心记账 5 行);
+- **版本**:`ATOMTOOL_VERSION` v43-atomtool-1→**v43-atomtool-2**
+  (执行器语义变化由版本承载);`EDIT_PROTOCOL_VERSION` 线协议零
+  改动维持 v43-editproto-2(不变量测试钉死);编译器/recorded-
+  source/池策略版本零变化(检索/编译判据链零触碰,§六表零改动);
+- **mimo r33 采纳条件逐条兑现**:①只动 numExplicitHs——图中独立
+  H 原子(含同位素 [2H])是真实图原子,零触碰(负控
+  `test_hwall_isotope_h_separate_atom_still_wall`);②负控含"真实
+  超价仍拒"(clamp/季碳无 H/form_bond/醚 O 四件)+"novel 通道全量
+  重跑"(全量 not slow 2061/0 单次;novel 家族
+  edit_protocol/phase_c/r2/r4/r5 全绿);③语义落字(docstring
+  "键级升高 + 显式氢消耗 = 脱氢记账语义(执行器记账,非反应机制
+  声明)")。
+
+## 十三.2 EAWAG 离线漏斗前后(298 题零模型;沿 §五探针法,仅 EAWAG 通道)
+
+- 探针 `/tmp/s5b_s5b_hwall/funnel_eawag.py`(`find_recorded_exact`,
+  max_reactions=24;只读 run_inputs `substrate_smiles` 批准字段);
+  BEFORE = 父 HEAD `59db0dac` 隔离 worktree
+  `/private/tmp/s5b_hwall_before_wt`(`V3_CODE_ROOT` 指向仓外正本
+  只读),AFTER = 仓内工作树;证据
+  `/tmp/s5b_s5b_hwall/{funnel_before,funnel_after}.json`(逐记录);
+- **恢复 5/5 全部命中**:§十.1 登记的 5 例 execution_failed
+  (`bt0002#r1147` 甾体 strict + `bt0002#r0032` ×4)修后**全部
+  compiled**;execution_failed 8→3(回到 v4b 前基线 3,其余 3 例
+  与本墙无关零变化);**编译成功题数 72→77(+5)**——题级恢复 =
+  登记自估"约 4-5"的上限 5;层级:strict_exact 3 qid + cn_candidate
+  2 qid,"恢复 strict 层消解面"兑现;
+- **单变量证明**:其余全部拒因直方图逐项相同
+  (no_structure_correspondence 69 / product_set_mismatch 33 /
+  charge_edit 42 / stereo_edit_unsupported 32 / no_alignment 17 /
+  new_atom_charge 14 / aromatic 3 / partial_dearom 3 / ambiguous 1 /
+  placement 1);n_qids_strict 147 不变;墙钟 1116.5s→1127.1s
+  (+1.0%,噪声级)。全部数字为检索/编译面聚合计数,不冒充命中数;
+  298 题域,不外推 dev。
+
+## 十三.3 正负控清单(tests/test_ppv1_s5b_hwall.py,12 测试)
+
+- **正控 6**(EAWAG 实盘形态的合成同构 + 真实授权语料形态):
+  执行器层括号氢手性底物 single→double(双对映体书写)、级差记账
+  (single→triple 每端点按级差耗 2 H)、非端点立体中心零触碰、
+  recorded 通道 strict 形态(1-苯乙醇双对映体)、甾体多手性中心
+  r1147 实盘同构(仅 17-醇中心消解)、production 层 novel 同根
+  (reaction_center_match + strict_target_match 均 True);
+- **负控 5**:clamp 真实超价(1 H 撞 triple 截 0 后仍拒)、季碳
+  无 H 墙完整、form_bond 不在放宽面(显式氢不可洗非法编辑)、
+  同位素 [2H] 独立图原子墙完整(条款 ①)、醚 O 非氢原子价态越界;
+  **不变量 1**:EDIT_PROTOCOL_VERSION 不变(父同绿);
+- **既有负控零回退**:w1 g9 六价碳、edit_protocol O 超价全绿;
+  **既有边界负控授权翻转 2 处**:v4b
+  `test_p1_chiral_substrate_valence_wall_honest_reject` →
+  `test_p1_chiral_substrate_dissolution_now_compiles`、v3_wv3
+  手性子例 execution_failed → compiled(翻转证明 = 父 HEAD 红,
+  与 v4b 轮翻转 v3 边界负控同一先例模式)。
+
+## 十三.4 四组回归
+
+| 组 | 结果 |
+|---|---|
+| 定向 | s5b 全家(w1/w23456/wv1-wv6/v4_wv41/v4b/hwall/cosub_d2/runtime/pairing/rework_l01/v3r1-3 cost+scope)+ atomtool/donor/analog×3/edit/conservation/s3b_production 共 25 文件 = **479 passed / 0 failed** |
+| 全量 | `pytest tests/ -q -m "not slow"` = **2061 passed / 0 failed / 16 deselected**(= 基线 2049 + 本轮 12 新测试;353 s) |
+| G01 隔离 | `/private/tmp/safe_g01_s5b_hwall.py`(沿 …v4b→v4b_r1→cosub_d2→r1→r2→r3→**hwall** 血统:路径 allowlist、输入 SHA 前后全量复验、改动集 vs D2-R3 G01 输入集脚本强制双向核对) = **exit 0;2050 passed / 10 skipped / 17 deselected**(310 s;= D2-R3 2038 + 本轮 12,精确兑现;改动集强制核对通过:3 换字节 + 1 新增 + 0 缺失,与披露逐项一致;实际 HEAD `59db0dac`+dirty=true 记录于 preparation.json;7 个游离 .pyc 如实记录[同前轮模式]) |
+| 父红绿 | 新/改测试字节覆盖到父 HEAD `59db0dac` 隔离 worktree = **9 红 / 29 绿**:红 = hwall 7(6 行为红:执行器双对映体/级差/非端点/recorded/甾体/production,父上全部 `sanitize_failed:AtomValenceException`/`execution_failed` 如实撞墙 + 1 版本字面量红 v43-atomtool-1≠2)+ v4b 翻转正控 1 + v3_wv3 翻转正控 1;绿 = 全部负控(clamp/季碳/form_bond/同位素/非氢/协议版本不变量)与 v4b/v3_wv3 未改测试(逐失败原因存 /tmp/s5b_s5b_hwall/parent_red_green/) |
+
+## 十三.5 金标边界自查与成本
+
+- 金标/题面/封存逐题 run 零读取;漏斗只读 run_inputs
+  `substrate_smiles`(批准字段,沿 §五先例);语料消费 = 仓内授权
+  资产包只读;判分零 LLM;合成夹具与真实 298 金标零重叠(W2
+  夹具纪律);探针产物留 /tmp 易失目录;BEFORE 探针在隔离 worktree
+  执行(基线快照只读),AFTER 探针在仓内工作树(实际 HEAD+dirty
+  如实记录);
+- 实施期真实模型费用:**0 CNY / 0 次调用**(零网络、零判分 LLM);
+  不 push;
+- 待复审残留:①影响面 = 全部编辑执行路径(含 novel 通道)——
+  放宽语义已由 §十三.3 负控族钉死边界,但按 §十.1 既有登记仍属
+  "独立红绿与复审"范围,交主会话复审;②本节落账后,298 两通道
+  池成员预期再变(EAWAG +5 题入池;analog 侧同净反应合并面待新批
+  实测),池策略版本未升——池成员变化由 code_identity 文件哈希
+  自动入账,如需池策略版本语义化升版由复审裁定(不预支)。
