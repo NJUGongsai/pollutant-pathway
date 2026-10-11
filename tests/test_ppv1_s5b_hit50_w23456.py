@@ -994,11 +994,12 @@ def test_w6_r5_defaults_one_logical_and_1490_cap() -> None:
 # ================================================================ 版本
 
 def test_versions_registered() -> None:
-    # W-V4b:s5b-recorded-source-2(推断映射预算/枚举面扩展)
-    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-2"
-    # W-V4b:池策略升版(池成员变化:recorded 两通道编译面扩大;
-    # 配置本身零变化;s5b-pool-policy-4)
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-4"
+    # W-D2:s5b-recorded-source-3(union gate 扩展:可选参数
+    # declared_copies/record_products;缺省路径字节等价)
+    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
+    # W-D2:池策略升版(池成员变化:corpus component 共底物整组分
+    # 拷贝子集重新入池;配置本身零变化;s5b-pool-policy-5)
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-5"
     assert S5B_RANK_POLICY_VERSION == "s5b-rank-policy-1"
     assert S5B_POOL_RAW_TOP == 24
     assert "approved" in PREREG_APPROVAL_APPROVED_STATUSES

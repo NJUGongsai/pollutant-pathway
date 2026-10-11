@@ -169,10 +169,18 @@ def net_reaction_signature(spec: dict) -> tuple:
     - 同净产物集合 + step_scope(net_reaction)⇒ 同一独特净反应槽;
       不同反应/条件/角色不会只因主产物或 CN 一样被误并(签名取全部
       产物组分的**严格**身份,电荷/立体/组分差异都改变签名);
-    - 解析失败按原始串兜底(确定性,不猜;不可解析串不同即不同槽)。
+    - 解析失败按原始串兜底(确定性,不猜;不可解析串不同即不同槽);
+    - **W-D2(s5b-corpus-retrieval-3 消费面)**:spec 携带
+      declared_copy_components(声明式拷贝组分)时,拷贝组分进签名
+      ——净反应签名含共底物贡献,corpus 拷贝型 spec 与整串/其他
+      通道 spec 同净反应时合并留痕不双占槽(设计 §四.3.5/PC-3);
+      无拷贝字段的 spec 签名**逐字节不变**(EAWAG/整串路径零影响;
+      编译判据零触碰,版本维持 s5b-compiler-3)。
     """
     parts = [str(spec.get("product_smiles") or "")] + \
-        [str(c) for c in (spec.get("coproducts") or [])]
+        [str(c) for c in (spec.get("coproducts") or [])] + \
+        [str(e.get("smiles")) for e in
+         (spec.get("declared_copy_components") or [])]
 
     def _ident(s: str) -> str:
         try:

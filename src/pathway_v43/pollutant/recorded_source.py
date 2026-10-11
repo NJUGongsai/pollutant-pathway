@@ -85,6 +85,54 @@ corpus_v1_path/corpus_v1_sha256(env_asset_root.resolve_and_verify
 锚定,无需新哈希机制);sha 锚定后逐行回读,实际 sha ≠ 身份记录 ⇒
 corpus_hash_mismatch fail-closed(源 hash 篡改负控同款)。
 
+W-D2(S5b-corpus-retrieval-3 + S5b-recorded-source-3,2026-10-10,
+共底物参与物显式语义 D2 编译实现轮;权威 = 设计书
+S5B_COSUBSTRATE_PARTICIPANT_SEMANTICS_DESIGN_2026-10-10.md 全文
+[含 §12 T-1~T-5 处置记录] + mimo r32 回应 16 条修改建议与
+NC-8..12/PC-4/5 控件矩阵 + r31 措辞护栏):
+
+- **事件表示(设计 §四 方案 a)**:component-with-cosubstrate 候选
+  (现行被 s5b-corpus-retrieval-2 许可规则拦的面)按**原子归属三
+  分类**(设计 §五.1:A-可溯/B-可溯/不可归属)重新供给——
+  * **整组分拷贝子集**解锁:B 进事件反应物侧参与物(role=
+    cosubstrate、系数 unknown),B 来源**整组分**产物声明式拷贝
+    (不执行、中心 unknown、来源记录字段完整、身份 = 记录产物组
+    分严格身份经 ``strict_identity_of`` 同源派生 state_id);
+    ``expectation.target_smiles`` = 可执行子集(A 原子全部可溯);
+    拷贝组分**不进** edits/alignment/expectation 通道;
+  * **键合融合子集保守拒**(``cosubstrate_bonded_contribution_
+    unsupported``;覆盖同根 LR/RL、可锚/不可锚、有机/辅因子、未
+    知角色、配平/不配平,无例外——NC-1/NC-2;四轴子标签
+    R32-CS2-3);
+  * **不可归属原子保守拒**(``cosubstrate_atom_source_
+    unattributable``;T-3 主会话默认档 + mimo r32 CS3 已裁
+    R32-CS3-1——拒因子带 ``mapping_fallback: true|false`` 分列
+    bond-diff 回退映射伪影 vs 源数据真缺);
+  * 可执行子集为空 ⇒ ``cosubstrate_no_executable_product_subset``
+    (R32-CS2-4/NC-8);B SMILES 不可解析 ⇒ ``cosubstrate_
+    unparseable``(NC-6);
+- **union gate 扩展**(设计 §五.3 落点子选项 i + R32-CS3-2):
+  ``compile_recorded_reaction`` 新增可选参数 ``declared_copies``/
+  ``record_products``(缺省 None ⇒ **EAWAG/整串路径行为字节等价**
+  ——无拷贝分支零触碰);扩展语义 = 执行组分多重集 ∪ 声明拷贝
+  组分多重集 == 记录产物多重集(严格身份、多重集、同源
+  ``strict_identity_of`` 键空间统一 + 裸键/严格键一致性披露);
+  拷贝身份 ≠ 记录产物组分 ⇒ ``declared_copy_mismatch``(NC-4);
+  并集不齐 ⇒ ``product_set_mismatch`` 沿用;
+- **add_atom 伪装机器断言**(设计 §五.2.5/NC-3):component 候选
+  产出的 spec 其 edits 中出现任何 ``add_atom`` ⇒ 结构化拒
+  (``cosubstrate_executable_add_atom_regression_guard``)——
+  规则 2/3 已结构性排除 B 原子进编辑通道,该断言防未来实现漂移;
+- **NC-12 批级熔断(钉死)**:本通道事件在现行 P1 参与物集合
+  语义下**结构性无 strict 通路**(T-1 不立项 ⇒ 事件恒 partial;
+  合成批 e2e 断言 matched_strict == 0,出数即红);
+- **诚实预期(写入交付书)**:本通道对 hit@1 预期贡献 = 0;解锁
+  的是诚实 partial 供给 + 审计链完整性 + T-1 立项后的机读基础;
+- **EAWAG 面/整串面/公共编译判据零回退**:find_recorded_exact 与
+  compile_recorded_reaction 缺省路径字节等价(负控断言回归);
+  r31 措辞护栏(add_atom 伪装禁令范围 = 记录已声明的共底物;
+  EAWAG 隐式书写不在禁令内)逐字保持。
+
 W-V4b(S5b-recorded-infer-2,2026-10-10,编译墙深层修复轮):推断
 映射公共判据链的**枚举预算与枚举面扩展**(判据零放宽——产物多重集
 gate 不放宽、等价映射合并、触顶诚实拒、product_set_mismatch 0/28
@@ -111,17 +159,18 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import Counter
 from functools import lru_cache
 
 from rdkit import Chem, RDLogger
 
 from ..domain.identity import cn_identity
-from .chemstate import strict_identity_of
+from .chemstate import build_chemical_state, strict_identity_of
 from .s5b_compiler import S5bCompileError, compile_donor_template
 
 RDLogger.DisableLog("rdApp.*")
 
-RECORDED_SOURCE_VERSION = "s5b-recorded-source-2"
+RECORDED_SOURCE_VERSION = "s5b-recorded-source-3"
 
 # ---- W-V4.1:corpus 直通检索语义冻结登记(§1 硬条款;开工先于接线)----
 # 冻结依据:TASK_V43_PPV1_S5B_HIT50_V4_DRAFT_2026-10-10 §10 用户裁定
@@ -130,7 +179,13 @@ RECORDED_SOURCE_VERSION = "s5b-recorded-source-2"
 # W-V4.1-R1(2026-10-10,Codex v4 复审 S5B-V4-01 回修):版本升
 # s5b-corpus-retrieval-2 ——共底物 component 许可变化(编译前结构化
 # unsupported);分层/通配/映射/provenance 语义零变化。
-CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-2"
+# W-D2(2026-10-10,共底物参与物显式语义 D2 编译实现轮):版本升
+# s5b-corpus-retrieval-3 ——component-with-cosubstrate 许可从
+# "一律编译前拒"改为**三分类守门三分支**(整组分拷贝子集有条件
+# 放行 / 键合融合保守拒 / 不可归属保守拒;原子归属 = 编译器内部
+# 规则,不进事件协议)。检索宽/分层/通配/映射/provenance/双向
+# 语义零变化;整串(whole)语义零变化。
+CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-3"
 CORPUS_RETRIEVAL_SEMANTICS = {
     "version": CORPUS_RETRIEVAL_VERSION,
     "substrate_retrieval_scope": "cn_identity_wide",
@@ -140,18 +195,55 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "-> recorded_cn_candidate (no strict promotion)"),
     "donor_side_semantics": (
         "component_level_with_co_substrate_declaration;"
-        " component candidates with non-empty co_substrates are "
-        "structured-unsupported BEFORE compilation "
-        "(corpus_cosubstrate_participants_unsupported)"),
+        " D2: component candidates with non-empty co_substrates "
+        "pass the atomic-attribution three-way classification "
+        "(A-traceable / B-traceable / unattributable) before "
+        "compilation; whole-component-copy subset is re-supplied "
+        "with explicit cosubstrate participants and declared-copy "
+        "product components; bonded-fusion subset and "
+        "unattributable-atom subset remain structured-rejected"),
     "cosubstrate_permission": (
-        "no approved and consumed co-substrate participant / "
-        "atom-source semantics exists; records with co-substrates "
-        "must NOT be sent to single-component-LHS compilation and "
-        "must not be granted usable pool specs; no element/role/"
-        "anchorability/direction/molecule exceptions; full "
-        "explicit-participant design is a future independent "
-        "reviewed plan (codex v4 review S5B-V4-01 / task book "
-        "1.3, 4.2, 4.7; mimo r30 R2-2 honest-refusal branch)"),
+        "D2 (s5b-corpus-retrieval-3, approved by mimo r32 "
+        "conditional pass + design book DS-1 section 12 T-1..T-5 "
+        "default dispositions): whole-component-copy events are "
+        "CHEMICALLY HONEST partial supply under current P1 "
+        "participant-set semantics (cosubstrate declared on the "
+        "reactant side => superset => matched_participant_coverage"
+        "_partial; structurally no strict path, NC-12 batch fuse "
+        "asserts matched_strict == 0); bonded-fusion contribution "
+        "is conservatively rejected with no exceptions "
+        "(cosubstrate_bonded_contribution_unsupported; NC-1/NC-2); "
+        "unattributable atoms are conservatively rejected with "
+        "mapping_fallback split disclosure "
+        "(cosubstrate_atom_source_unattributable; mimo r32 "
+        "R32-CS3-1); tier counts below are retrieval-candidate "
+        "counts including precompile rejected, not compiled/supply "
+        "counts"),
+    "cosubstrate_event_semantics": (
+        "participants: A (reactant, primary_substrate, coefficient "
+        "unknown) + each declared B (reactant, cosubstrate, "
+        "coefficient unknown) + executable products (principal/ "
+        "coproduct) + each B-derived whole product component "
+        "(product, coproduct role; component_source="
+        "record_declared_copy in the provenance layer, not the "
+        "participant计量 layer); participant_list_status = "
+        "declared_complete (T-2 main-session default); declared "
+        "copies carry center=unknown (criterion 5: no mapping => "
+        "unknown, R5 retain_conditional), never verified, never "
+        "executed; expectation covers the executable subset only"),
+    "union_gate_semantics": (
+        "D2 (s5b-recorded-source-3, optional parameter on the "
+        "shared compile_recorded_reaction; default None keeps the "
+        "EAWAG/whole path byte-equivalent): executed component "
+        "multiset UNION declared-copy component multiset == "
+        "recorded product multiset, strict_identity_of key space "
+        "unified on both sides (R32-CS3-2) with bare-key/strict-"
+        "key consistency disclosure; copy identity != recorded "
+        "product component => declared_copy_mismatch; union "
+        "incomplete => product_set_mismatch; the gate is an "
+        "identity-transcription check, NOT an element/charge "
+        "balance verification (stoichiometry axis stays unknown "
+        "per criterion 2; R32-CS1-2 wording)"),
     "whole_string_semantics": (
         "single_component_donor_or_exact_whole_string_cn_match;"
         " co_substrate declaration degenerates to empty set;"
@@ -168,7 +260,10 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "corpus_provenance_missing structured reject"),
     "frozen_by": (
         "TASK_V43_PPV1_S5B_HIT50_V4 §10 decisions 1/2/3, 2026-10-10"
-        "; W-V4.1-R1 rework: codex v4 review 2026-10-10 §4.3/§8"),
+        "; W-V4.1-R1 rework: codex v4 review 2026-10-10 §4.3/§8; "
+        "W-D2: S5B_COSUBSTRATE_PARTICIPANT_SEMANTICS_DESIGN_"
+        "2026-10-10.md (DS-1 design_approved_with_conditions) + "
+        "mimo r32 16-condition pass, 2026-10-10"),
 }
 
 # 推断映射的子结构同构枚举上限(触顶 ⇒ 歧义披露拒绝,不静默取首解)
@@ -669,6 +764,336 @@ def _executed_components_strict(target_smiles: str) -> list:
     return out
 
 
+def _executed_components_strict_unified(target_smiles: str) -> list:
+    """执行侧组件的**统一键空间**提取(R32-CS3-2;仅扩展 gate 用)。
+
+    与 ``_record_products_strict`` 同一事实源(``strict_identity_of``
+    = ``_identity_key`` CX 规范键);与现行裸 ``Chem.MolToSmiles``
+    键空间的差异由调用方做一致性披露(裸键/严格键分歧计数,不静默
+    吞)。缺省路径(无 declared_copies)不调用本函数——EAWAG/整串
+    路径行为字节等价。
+    """
+    out: list = []
+    try:
+        mol = Chem.MolFromSmiles(target_smiles or "")
+    except Exception:
+        return [None]
+    if mol is None:
+        return [None]
+    for frag in Chem.GetMolFrags(mol, asMols=True,
+                                  sanitizeFrags=True):
+        try:
+            out.append(strict_identity_of(Chem.MolToSmiles(frag)))
+        except Exception:
+            out.append(None)
+    return out
+
+
+def _element_counts(mol) -> dict:
+    """分子元素计数(不含隐式 H——归属判定是重原子图层面;隐式 H
+    不进原子归属,读码推断按 RDKit 图语义,待执行核对已在设计书
+    §五.1 落字)。"""
+    counts: dict = {}
+    for atom in mol.GetAtoms():
+        sym = atom.GetSymbol()
+        if sym == "H":
+            continue
+        counts[sym] = counts.get(sym, 0) + 1
+    return counts
+
+
+def _formula_counts_all(smiles: str) -> dict | None:
+    """全元素计数(含隐式/显式 H;分子式配平代理口径,系数按 1 记
+    且 unknown——非配平核验,诊断披露用)。不可解析 ⇒ None。"""
+    mol = Chem.MolFromSmiles(str(smiles or ""))
+    if mol is None:
+        return None
+    counts: dict = {}
+    for atom in mol.GetAtoms():
+        sym = atom.GetSymbol()
+        if sym == "H":
+            counts["H"] = counts.get("H", 0) + 1
+        else:
+            counts[sym] = counts.get(sym, 0) + 1
+            h = atom.GetTotalNumHs()
+            if h:
+                counts["H"] = counts.get("H", 0) + h
+    return counts
+
+
+# B 类别代理标签(碳数零否;非化学生物角色规则——CO2 含碳归
+# organic_like、铵无碳归 balance_like 的已知失真如实钉死;Codex v4
+# 复审 §6 订正在案,只作诊断分栏不作判据)
+def _cosubstrate_b_class(co_comps: list[str]) -> str:
+    for comp in co_comps:
+        mol = Chem.MolFromSmiles(str(comp))
+        if mol is None:
+            continue
+        if any(a.GetSymbol() == "C" for a in mol.GetAtoms()):
+            return "organic_like"
+    return "balance_like"
+
+
+def _classify_cosubstrate_candidate(
+        *, matched_side: str, co_comps: list[str],
+        products: list[str]) -> dict:
+    """原子归属三分类守门(设计 §五.1/§五.2;编译器内部规则,**不进
+    事件协议**——选项 b 已降级为守门基底层)。
+
+    对 component 候选(LHS=A,记录产物 = 全量产物组分的并集)在
+    推断映射(同源 ``infer_reaction_mapping``,判据单一来源)上把
+    产物并集原子分为:
+    - **A-可溯**:donor_to_union 映射覆盖的并集原子(new_union 补集);
+    - **B-可溯**:new_union 中可归属某共底物组分 B 的原子(元素
+      包含 + any-bond 子结构对应,预算沿用映射枚举纪律);
+    - **不可归属**:new_union 中既不能归属 A 也不能归属任何 B 的
+      原子(记录已声明 B 仍缺来源 ⇒ 源数据问题,R3-2 正交轴)。
+
+    返回 {status, executable_products, copy_products, mapping_
+    fallback, detail};status:
+    - ``split``:存在候选映射使产物组分干净二分(可执行子集原子
+      全部 A-可溯;拷贝组分断连且原子全部 B-可溯)——放行到
+      ``compile_recorded_reaction`` 扩展分支;
+    - ``bonded``:键合融合形态(同组分混 A-可溯与 B-可溯原子,或
+      B 原子键合进 A 骨架/多 B 骨架并)⇒ 保守拒
+      ``cosubstrate_bonded_contribution_unsupported``(拒因四轴
+      子标签 R32-CS2-3 进 detail);
+    - ``unattributable``:new_union 原子不可归属 ⇒ 保守拒
+      ``cosubstrate_atom_source_unattributable``(T-3 主会话默认档
+      子选项 i;mimo r32 R32-CS3-1 已裁;detail 带 mapping_
+      fallback 分列);
+    - ``no_mapping``/``truncated``/``unparseable``/
+      ``no_executable_subset``:前置失败(与编译层同源理由)。
+
+    确定性:按 ``infer_reaction_mapping`` 枚举序取**首个干净二分**
+    映射;无可二分映射时按首映射证据定拒因(bonded 优先于
+    unattributable——结构性拒因优先,子标签随 detail 披露)。
+    """
+    detail: dict = {}
+    # NC-6:B SMILES 不可解析 ⇒ 候选级结构化拒(不猜不清洗)
+    b_mols: list = []
+    for comp in co_comps:
+        mol = Chem.MolFromSmiles(str(comp))
+        if mol is None:
+            return {"status": "unparseable", "detail": {
+                "co_substrate_smiles": str(comp)}}
+        b_mols.append(mol)
+    union = Chem.MolFromSmiles(".".join(str(p) for p in products))
+    if union is None:
+        return {"status": "no_mapping", "detail": {
+            "note": "record products unparseable"}}
+    frag_atom_sets = [
+        set(f) for f in Chem.GetMolFrags(union, asMols=False)]
+    try:
+        mappings = infer_reaction_mapping(matched_side, products)
+    except RecordedSourceError:
+        return {"status": "no_mapping", "detail": {
+            "note": "donor/products unparseable at mapping"}}
+    if not mappings:
+        return {"status": "no_mapping", "detail": {}}
+    if mappings[0].get("truncated"):
+        return {"status": "truncated", "detail": {}}
+
+    def _attribute_to_single_b(product_smiles: str) -> str | None:
+        """整组分归属:断连组分(原子全部 new)可整体对应到**单一** B
+        (元素包含 + any-bond 子结构对应,预算沿用映射枚举纪律;多 B
+        并合 ⇒ None 由调用方按骨架并拒)。组分串经展平后为单片段,
+        直接解析(与 union 片段同图)。"""
+        comp_mol = Chem.MolFromSmiles(str(product_smiles))
+        if comp_mol is None:
+            return None
+        comp_elems = _element_counts(comp_mol)
+        try:
+            query = _any_bond_query(comp_mol)
+        except Exception:
+            query = None
+        for b_mol in b_mols:
+            b_elems = _element_counts(b_mol)
+            if any(comp_elems.get(e, 0) > b_elems.get(e, 0)
+                   for e in comp_elems):
+                continue
+            if query is not None and b_mol.HasSubstructMatch(
+                    query, useChirality=False):
+                return "copy"
+        return None
+
+    b_all_elems: dict = {}
+    for b_mol in b_mols:
+        for e, n in _element_counts(b_mol).items():
+            b_all_elems[e] = b_all_elems.get(e, 0) + n
+
+    for mapping in mappings:
+        covered = set(mapping["donor_to_union"].values())
+        new_atoms = set(mapping["new_union"])
+        executable: list[str] = []
+        copies: list[str] = []
+        bonded_components: list[str] = []
+        unattributable = False
+        clean = True
+        for frag_atoms, product in zip(frag_atom_sets, products):
+            comp_new = frag_atoms & new_atoms
+            if not comp_new:
+                executable.append(str(product))
+                continue
+            comp_cov = frag_atoms - comp_new
+            if comp_cov:
+                # 同组分混 A-可溯与 new 原子 ⇒ 键合融合(设计 §五.2.3)
+                clean = False
+                bonded_components.append(str(product))
+                continue
+            # 全 new 原子的断连组分:归属单一 B ⇒ 拷贝;否则不可归属
+            # (元素超出 A∪B)或多 B 骨架并(键合融合子形态)
+            comp_mol = Chem.MolFromSmiles(str(product))
+            comp_elems = (_element_counts(comp_mol)
+                          if comp_mol is not None else {})
+            if any(e not in b_all_elems for e in comp_elems):
+                clean = False
+                unattributable = True
+                continue
+            if _attribute_to_single_b(str(product)) == "copy":
+                copies.append(str(product))
+            else:
+                # 元素可归 B 并集但非单一 B 对应 ⇒ 骨架并(B-B 融合)
+                clean = False
+                bonded_components.append(str(product))
+        if clean:
+            if not executable:
+                # R32-CS2-4/NC-8:可执行子集为空(不得产空 expectation
+                # 事件、不得把整产物集降级为拷贝绕行)
+                return {"status": "no_executable_subset",
+                        "executable_products": [],
+                        "copy_products": copies,
+                        "mapping_fallback":
+                            "n_bond_diff" in mapping,
+                        "detail": {
+                            "copy_products": copies[:8],
+                            "note": "no A-traceable executable product "
+                                    "subset (pure record transcription "
+                                    "must not impersonate prediction)"}}
+            return {"status": "split",
+                    "executable_products": executable,
+                    "copy_products": copies,
+                    "mapping_fallback": "n_bond_diff" in mapping,
+                    "detail": {
+                        "n_mappings": len(mappings),
+                        "chosen_mapping_fallback":
+                            "n_bond_diff" in mapping}}
+    # ---- 无干净二分映射:按首映射证据定拒因(确定性) ----
+    first = mappings[0]
+    new_atoms = set(first["new_union"])
+    bonded: list[str] = []
+    unattr_products: list[str] = []
+    # 每个键合组分的 (new 原子数, 是否混 A-可溯原子) —— bonded_kind
+    # 子标签代理(R32-CS2-3):混 A 组分 new==1 ⇒ single_atom_
+    # insertion;混 A 组分 new>1 ⇒ group_transfer;全 new 非单一 B
+    # 对应 ⇒ skeleton_merge
+    bonded_axes: list[dict] = []
+    for frag_atoms, product in zip(frag_atom_sets, products):
+        comp_new = frag_atoms & new_atoms
+        if not comp_new:
+            continue
+        comp_cov = frag_atoms - comp_new
+        if comp_cov:
+            bonded.append(str(product))
+            bonded_axes.append({
+                "product": str(product)[:80],
+                "n_new_atoms": len(comp_new),
+                "mixed_with_a_traceable": True,
+                "bonded_kind": ("single_atom_insertion"
+                                if len(comp_new) == 1
+                                else "group_transfer")})
+            continue
+        comp_mol = Chem.MolFromSmiles(str(product))
+        comp_elems = (_element_counts(comp_mol)
+                      if comp_mol is not None else {})
+        if any(e not in b_all_elems for e in comp_elems):
+            unattr_products.append(str(product))
+        else:
+            bonded.append(str(product))
+            bonded_axes.append({
+                "product": str(product)[:80],
+                "n_new_atoms": len(comp_new),
+                "mixed_with_a_traceable": False,
+                "bonded_kind": "skeleton_merge"})
+    # 分子式配平三态 + B 身份在产物 + B 类别(R32-CS2-3 四轴子标签)
+    lhs_f: dict = {}
+    rhs_f: dict = {}
+    for s in [matched_side] + [str(c) for c in co_comps]:
+        fc = _formula_counts_all(s)
+        if fc is None:
+            continue
+        for e, n in fc.items():
+            lhs_f[e] = lhs_f.get(e, 0) + n
+    for s in [str(p) for p in products]:
+        fc = _formula_counts_all(s)
+        if fc is None:
+            continue
+        for e, n in fc.items():
+            rhs_f[e] = rhs_f.get(e, 0) + n
+    if lhs_f == rhs_f:
+        balance_status = "balanced(coefficients=1,unknown)"
+    elif any(rhs_f[e] > lhs_f.get(e, 0) for e in rhs_f):
+        balance_status = "products_excess"
+    else:
+        balance_status = "reactants_excess"
+    b_stricts = {_strict_of(str(c)) for c in co_comps}
+    p_stricts = {_strict_of(str(p)) for p in products}
+    detail.update({
+        "bonded_products": bonded[:8],
+        "unattributable_products": unattr_products[:8],
+        "mapping_fallback": "n_bond_diff" in first,
+        "bonded_kind_axes": {
+            "per_component": bonded_axes[:8],
+            "record_balance_status": balance_status,
+            "b_class": _cosubstrate_b_class(co_comps),
+            "b_identity_in_products": bool(b_stricts & p_stricts),
+        },
+        "note": (
+            "bonded-fusion conservative reject: execution graph = "
+            "render(substrate) (frozen 0d.1 chain), B is not in the "
+            "execution graph; the only way to express B-bonded atoms "
+            "in products is the add_atom channel, which r30 R2-2 "
+            "forbids unconditionally (including declared sources; "
+            "'disguise' strictly means the undeclared form per r31 "
+            "R31-1 wording guard); known lost chemistry classes "
+            "(mimo r32 R32-CS2-2): declared-water hydrolysis/"
+            "hydration, declared-O2 bonded oxygen insertion "
+            "(monooxygenase/hydroxylase-type), transferase-type "
+            "group transfer into substrate products; oxidase-type "
+            "(disconnected H2O2 product) and dehydrogenase-type "
+            "(disconnected cofactor pair) are NOT in the loss face; "
+            "no exceptions over LR/RL, anchorability, organic/"
+            "cofactor, unknown role, balanced/unbalanced"),
+    })
+    if bonded:
+        return {"status": "bonded", "executable_products": [],
+                "copy_products": [], "mapping_fallback":
+                    "n_bond_diff" in first, "detail": detail}
+    return {"status": "unattributable", "executable_products": [],
+            "copy_products": [], "mapping_fallback":
+                "n_bond_diff" in first, "detail": detail}
+
+
+def _flatten_product_entries(products: list[str]) -> list[str]:
+    """产物条目展平到**组分**粒度(设计 §五.3:多重集比较的单位是
+    组分;记录条目含 "." 的罕见形态(实测 186/43,177 行)统一展平,
+    保证扩展 gate 两侧(执行片段/拷贝组分/记录组分)同粒度;不可
+    解析条目原样透传——后续 union 解析失败 ⇒ 诚实拒,不猜)。"""
+    flat: list[str] = []
+    for p in products:
+        s = str(p)
+        mol = Chem.MolFromSmiles(s)
+        if mol is None or "." not in s:
+            flat.append(s)
+            continue
+        frags = Chem.GetMolFrags(mol, asMols=True, sanitizeFrags=True)
+        if not frags:
+            flat.append(s)
+            continue
+        flat.extend(Chem.MolToSmiles(f) for f in frags)
+    return flat
+
+
 # ---------------------------------------------------------------- 主入口
 
 
@@ -789,14 +1214,24 @@ def find_corpus_recorded_exact(
       (kind=whole,co_substrates 空);多组分 donor ⇒ 组分
       (kind=component,**其余组分声明为共底物/条件参与物**,
       co_substrates 携带组分 SMILES + 严格身份;不静默丢弃);
-    - **W-V4.1-R1 共底物许可(S5B-V4-01 回修)**:kind=component 且
-      co_substrates 非空 ⇒ **编译前结构化 unsupported**
-      (``corpus_cosubstrate_participants_unsupported``;保留源行
-      record_key/方向/共底物声明/可追溯拒因 detail)。共用许可规则
-      在本入口生效——builder 池与公开链从源头拿不到坏 spec(不出现
-      "builder 单口过滤而 find 仍返回可用坏 spec"的分裂);不按元素/
-      角色/可锚性/方向/具体分子设例外(可锚有机/不可锚辅因子/未知
-      角色/同根 LR/RL 全覆盖);
+    - **W-V4.1-R1 共底物许可(S5B-V4-01 回修;corpus-retrieval-2
+      历史行为)**:kind=component 且 co_substrates 非空 ⇒ 编译前
+      结构化 unsupported(单一类目 ``corpus_cosubstrate_
+      participants_unsupported``,298 题面实测 1,323)。
+      **W-D2(s5b-corpus-retrieval-3,现行行为)**:该许可升级为
+      **原子归属三分类守门三分支**——整组分拷贝子集放行(B 进
+      事件反应物侧参与物 role=cosubstrate、系数 unknown;B 来源
+      整组分产物声明式拷贝、中心 unknown、不执行;participants/
+      states/event_contract 随 spec 装配,消费见 production.
+      prepare_hypothesis)、键合融合子集保守拒(``cosubstrate_
+      bonded_contribution_unsupported``,四轴子标签)、不可归属
+      原子保守拒(``cosubstrate_atom_source_unattributable``,
+      mapping_fallback 分列)、可执行子集空拒(NC-8)、B 不可解析
+      拒(NC-6);守门在本入口生效——builder 池与公开链从源头拿
+      不到坏 spec(不出现"builder 单口过滤而 find 仍返回可用坏
+      spec"的分裂);拒因不按元素/角色/可锚性/方向/具体分子设
+      例外(可锚有机/不可锚辅因子/未知角色/同根 LR/RL 全覆盖);
+      add_atom 伪装机器断言(NC-3)随编译成功路径兜底;
     - 行级拒因(W 决策③+负控 ⑧⑨⑩):通配行 unsupported_wildcard_
       atom;原生映射冒充 corpus_native_mapping_claimed(corpus_v1 全
       库无原生映射,mapping_origin=inferred 强制);provenance 缺
@@ -907,7 +1342,10 @@ def find_corpus_recorded_exact(
     ordered_matches.sort(key=lambda m: (m[0], m[1], m[2], m[3]))
     # ---- 逐候选编译(判据零改动;同 max_reactions 截断语义) ----
     candidates: list[dict] = []
-    n_strict = n_cn = n_cosub_unsupported = 0
+    n_strict = n_cn = 0
+    n_cosub_compiled = 0        # D2:三分支放行并编译成功的拷贝型 spec
+    n_cosub_rejected = 0        # D2:三分支守门拒(component 面)
+    cosub_b_class: Counter = Counter()  # D2 T-4:B 类别代理剖面
     for (tier_rank, _kind_rank, _line_no, _rep_idx, i, kind,
          matched_side, co_comps) in ordered_matches:
         if len(candidates) >= int(max_reactions):
@@ -931,32 +1369,243 @@ def find_corpus_recorded_exact(
         # 消费(mimo r30 R2-2 诚实拒分支;Codex v4 复审 §4.3 最低
         # 收口;不搭车放宽产物多重集 gate、不改 AtomTool/冻结判据)。
         if kind == "component" and co_comps:
-            reason = "corpus_cosubstrate_participants_unsupported"
+            # ---- W-D2(s5b-corpus-retrieval-3):共底物 component 三分
+            # 支守门(原子归属三分类 → 拷贝放行 / 键合拒 / 不可归属拒;
+            # 设计书 §四 方案 a + §五 全部规则 + mimo r32 十六条)。
+            # 拒因类目迁移:corpus_cosubstrate_participants_unsupported
+            # (corpus-retrieval-2 单类,298 面实测 1,323)分裂为下列
+            # 结构化子类——迁移是通道开放不是错误修复(R31-6 禁句
+            # 沿用;编译成功子集从拒因直方图消失 = 放行不是消失,其
+            # 计数由 n_cosubstrate_component_compiled 承接)。
+            # T-4:B 类别代理剖面(碳数零否;非化学生物角色规则,
+            # CO2 含碳归 organic_like、铵无碳归 balance_like 的已知
+            # 失真钉死——Codex v4 复审 §6;只作诊断分栏不作判据)
+            cosub_b_class[_cosubstrate_b_class(co_comps)] += 1
+            flat_products = _flatten_product_entries(
+                list(record["products"]))
+            try:
+                cls = _classify_cosubstrate_candidate(
+                    matched_side=matched_side, co_comps=co_comps,
+                    products=flat_products)
+            except RecordedSourceError as exc:
+                reason = str(exc.detail.get("kind")
+                             or "record_unparseable")
+                failure_hist[reason] = failure_hist.get(reason, 0) + 1
+                n_cosub_rejected += 1
+                candidates.append(_corpus_candidate(
+                    record, tier, kind, matched_side, co_comps,
+                    compile_spec=None, compile_status="unsupported",
+                    compile_reason=reason, compile_detail={
+                        "record_key": record["record_key"],
+                        "line_no": record["line_no"],
+                        "donor_A_smiles": record["donor_A_smiles"],
+                        "direction": record["direction"],
+                        "master_id": record["master_id"],
+                        "matched_component": matched_side,
+                        "co_substrates": [
+                            {"smiles": str(c),
+                             "strict_identity": _strict_of(str(c))}
+                            for c in co_comps],
+                        "products": list(record["products"]),
+                        "permission_note": (
+                            "D2 structured reject (classification "
+                            "input failure); declared co-substrates "
+                            "retained for traceability; REBUILDING a "
+                            "usable pool spec from this detail "
+                            "violates the permission boundary (r31 "
+                            "R31-8)"),
+                    }))
+                continue
+            status = str(cls.get("status"))
+            if status == "split":
+                compiled = None
+                try:
+                    compiled = compile_recorded_reaction(
+                        substrate_smiles=substrate,
+                        donor_smiles=matched_side,
+                        products=list(cls["executable_products"]),
+                        record_id=record["record_key"],
+                        declared_copies=list(cls["copy_products"]),
+                        record_products=flat_products)
+                except RecordedSourceError as exc:
+                    reason = str(exc.detail.get("kind")
+                                 or "record_unparseable")
+                    failure_hist[reason] = failure_hist.get(
+                        reason, 0) + 1
+                    n_cosub_rejected += 1
+                    candidates.append(_corpus_candidate(
+                        record, tier, kind, matched_side, co_comps,
+                        compile_spec=None,
+                        compile_status="unsupported",
+                        compile_reason=reason, compile_detail={
+                            "record_key": record["record_key"],
+                            "line_no": record["line_no"],
+                            "donor_A_smiles": record["donor_A_smiles"],
+                            "direction": record["direction"],
+                            "master_id": record["master_id"],
+                            "matched_component": matched_side,
+                            "co_substrates": [
+                                {"smiles": str(c),
+                                 "strict_identity": _strict_of(str(c))}
+                                for c in co_comps],
+                            "products": list(record["products"]),
+                            "permission_note": (
+                                "D2 structured reject (cosubstrate "
+                                "component split branch); declared "
+                                "co-substrates retained for "
+                                "traceability; REBUILDING a usable "
+                                "pool spec from this detail violates "
+                                "the permission boundary (r31 R31-8)"),
+                        }))
+                    continue
+                if compiled.get("status") != "compiled":
+                    reason = str(compiled.get("reason") or "unknown")
+                    failure_hist[reason] = failure_hist.get(
+                        reason, 0) + 1
+                    n_cosub_rejected += 1
+                    reject_detail = dict(compiled.get("detail") or {})
+                    reject_detail.update({
+                        "record_key": record["record_key"],
+                        "line_no": record["line_no"],
+                        "donor_A_smiles": record["donor_A_smiles"],
+                        "direction": record["direction"],
+                        "master_id": record["master_id"],
+                        "matched_component": matched_side,
+                        "co_substrates": [
+                            {"smiles": str(c),
+                             "strict_identity": _strict_of(str(c))}
+                            for c in co_comps],
+                        "products": list(record["products"]),
+                        "mapping_fallback": bool(
+                            cls.get("mapping_fallback")),
+                        "permission_note": (
+                            "D2 structured reject (cosubstrate "
+                            "component split branch; compile-layer "
+                            "reason on the executable subset); "
+                            "declared co-substrates retained for "
+                            "traceability; REBUILDING a usable pool "
+                            "spec from this detail violates the "
+                            "permission boundary (r31 R31-8)"),
+                    })
+                    candidates.append(_corpus_candidate(
+                        record, tier, kind, matched_side, co_comps,
+                        compile_spec=None,
+                        compile_status="unsupported",
+                        compile_reason=reason,
+                        compile_detail=reject_detail))
+                    continue
+                spec = compiled.get("spec")
+                # ---- NC-3(设计 §五.2.5):add_atom 伪装机器断言 ——
+                # 拷贝/键合已被结构性排除,component 候选产出的 spec
+                # 的 edits 不得含任何 add_atom(防未来实现漂移,触发
+                # 即结构化拒)。
+                if any(str(e.get("op")) == "add_atom"
+                       for e in spec.get("edits") or []):
+                    reason = ("cosubstrate_executable_add_atom_"
+                              "regression_guard")
+                    failure_hist[reason] = failure_hist.get(
+                        reason, 0) + 1
+                    n_cosub_rejected += 1
+                    candidates.append(_corpus_candidate(
+                        record, tier, kind, matched_side, co_comps,
+                        compile_spec=None,
+                        compile_status="unsupported",
+                        compile_reason=reason, compile_detail={
+                            "record_key": record["record_key"],
+                            "line_no": record["line_no"],
+                            "donor_A_smiles": record["donor_A_smiles"],
+                            "direction": record["direction"],
+                            "master_id": record["master_id"],
+                            "matched_component": matched_side,
+                            "co_substrates": [
+                                {"smiles": str(c),
+                                 "strict_identity": _strict_of(str(c))}
+                                for c in co_comps],
+                            "products": list(record["products"]),
+                            "note": ("executable-subset spec must not "
+                                     "contain add_atom edits (B atoms "
+                                     "must never enter products via "
+                                     "the add_atom channel; r30 R2-2 "
+                                     "unconditional)"),
+                        }))
+                    continue
+                spec = dict(spec)
+                try:
+                    _attach_cosubstrate_spec_fields(
+                        spec, substrate_smiles=substrate,
+                        record=record, matched_side=matched_side,
+                        co_comps=co_comps,
+                        record_products_flat=flat_products,
+                        copy_products=list(cls["copy_products"]))
+                except _ChemStateBuildFailure as exc:
+                    reason = str(exc.detail.get("kind"))
+                    failure_hist[reason] = failure_hist.get(
+                        reason, 0) + 1
+                    n_cosub_rejected += 1
+                    candidates.append(_corpus_candidate(
+                        record, tier, kind, matched_side, co_comps,
+                        compile_spec=None,
+                        compile_status="unsupported",
+                        compile_reason=reason,
+                        compile_detail=dict(exc.detail)))
+                    continue
+                n_cosub_compiled += 1
+                candidates.append(_corpus_candidate(
+                    record, tier, kind, matched_side, co_comps,
+                    compile_spec=spec,
+                    compile_status=str(compiled.get("status")),
+                    compile_reason="",
+                    compile_detail=dict(compiled.get("detail") or {})))
+                continue
+            reason_map = {
+                "bonded": "cosubstrate_bonded_contribution_unsupported",
+                "unattributable":
+                    "cosubstrate_atom_source_unattributable",
+                "unparseable": "cosubstrate_unparseable",
+                "no_mapping": "no_structure_correspondence",
+                "truncated": "mapping_enumeration_truncated",
+                "no_executable_subset":
+                    "cosubstrate_no_executable_product_subset",
+            }
+            reason = reason_map.get(status, "cosubstrate_unsupported")
             failure_hist[reason] = failure_hist.get(reason, 0) + 1
-            n_cosub_unsupported += 1
+            n_cosub_rejected += 1
+            if reason == "cosubstrate_atom_source_unattributable":
+                # R32-CS3-1:不可归属拒因子 mapping_fallback 分列
+                # (bond-diff 回退映射伪影 vs 源记录真实缺原子,两类
+                # 计数分列,不得合并为"源数据不配平"单一结论)
+                fb_key = ("cosubstrate_unattributable_"
+                          "mapping_fallback_"
+                          + ("true" if cls.get("mapping_fallback")
+                             else "false"))
+                failure_hist[fb_key] = failure_hist.get(fb_key, 0) + 1
+            detail = dict(cls.get("detail") or {})
+            detail.update({
+                "record_key": record["record_key"],
+                "line_no": record["line_no"],
+                "donor_A_smiles": record["donor_A_smiles"],
+                "direction": record["direction"],
+                "master_id": record["master_id"],
+                "matched_component": matched_side,
+                "co_substrates": [
+                    {"smiles": str(c),
+                     "strict_identity": _strict_of(str(c))}
+                    for c in co_comps],
+                "products": list(record["products"]),
+                "mapping_fallback": bool(cls.get("mapping_fallback")),
+                "permission_note": (
+                    "D2 structured reject (s5b-corpus-retrieval-3): "
+                    "the component record's co-substrate contribution "
+                    "is NOT compilable under the current execution "
+                    "contract; declared co-substrates and record "
+                    "products are retained here for traceability; "
+                    "REBUILDING a usable pool spec from this detail "
+                    "violates the permission boundary (r31 R31-8)"),
+            })
             candidates.append(_corpus_candidate(
                 record, tier, kind, matched_side, co_comps,
                 compile_spec=None, compile_status="unsupported",
-                compile_reason=reason, compile_detail={
-                    "record_key": record["record_key"],
-                    "line_no": record["line_no"],
-                    "donor_A_smiles": record["donor_A_smiles"],
-                    "direction": record["direction"],
-                    "master_id": record["master_id"],
-                    "matched_component": matched_side,
-                    "co_substrates": [
-                        {"smiles": str(c),
-                         "strict_identity": _strict_of(str(c))}
-                        for c in co_comps],
-                    "products": list(record["products"]),
-                    "permission_note": (
-                        "no approved and consumed co-substrate "
-                        "participant/atom-source semantics; component "
-                        "record with co-substrates is not sent to "
-                        "single-component-LHS compilation (no usable "
-                        "pool spec, no event); full explicit-participant"
-                        " design is a future independent reviewed plan"),
-                }))
+                compile_reason=reason, compile_detail=detail))
             continue
         products = list(record["products"])
         try:
@@ -993,14 +1642,22 @@ def find_corpus_recorded_exact(
                      "strict_identity": _strict_of(str(c))}
                     for c in co_comps],
                 "co_substrate_semantics": (
+                    # R31-5 死分支注记:component-with-cosubstrate 候选
+                    # 在上方 D2 分支处理完毕(放行/守门拒),不再到达
+                    # 本 whole 编译路径——本第一分支自 corpus-retrieval-3
+                    # 起不可达,保留字符串防读码者据旧语义复活组分路径。
                     "declared_conditional_participants_not_consumed"
-                    "_as_substrate(W-V4.1 决策②;共底物↔共产物对应"
-                    "判据属设计件待复审;不静默丢弃、不冒充单底物反应)"
+                    "_as_substrate(W-V4.1 决策②历史语义;UNREACHABLE "
+                    "since corpus-retrieval-3: component-with-"
+                    "co-substrate candidates are handled by the D2 "
+                    "three-branch gate above and never reach the "
+                    "whole-string compile path)"
                     if co_comps else
                     "empty_set_whole_string_semantics"
-                    "(corpus-retrieval-2:component-with-co-substrate "
-                    "records are rejected before compilation; compiled "
-                    "specs are whole-string lhs only)"),
+                    "(corpus-retrieval-3:component-with-co-substrate "
+                    "candidates pass the D2 atomic-attribution gate "
+                    "above; whole-string compiled specs carry empty "
+                    "co-substrate declaration)"),
                 "provenance_sha256": record["provenance_sha256"],
             }
         candidates.append(_corpus_candidate(
@@ -1011,6 +1668,19 @@ def find_corpus_recorded_exact(
             compile_detail=dict(compiled.get("detail") or {})))
     multirow = {mid: sorted(rows) for mid, rows in n_master_rows.items()
                 if len(rows) > 1}
+    # ---- T-4 供给诊断分层(W-D2 机读;R31-4/R32-CS5-3 标签纪律)----
+    # 拒因直方图迁移披露:corpus_cosubstrate_participants_unsupported
+    # (corpus-retrieval-2 单类)分裂为 cosubstrate_bonded_contribution_
+    # unsupported / cosubstrate_atom_source_unattributable(+mapping_
+    # fallback 分列键)/ cosubstrate_unparseable / cosubstrate_no_
+    # executable_product_subset / cosubstrate_executable_add_atom_
+    # regression_guard + 可执行子集编译层拒因;编译成功子集从直方图
+    # 消失 = 放行不是消失,其计数由 n_cosubstrate_component_compiled
+    # 承接(R32-CS5-4 迁移承接句)。
+    n_cosub_face = n_cosub_compiled + n_cosub_rejected
+    cosub_reject_split = {
+        k: v for k, v in sorted(failure_hist.items())
+        if k.startswith("cosubstrate_")}
     return {"candidates": candidates, "diagnostics": {
         "corpus_retrieval_version": CORPUS_RETRIEVAL_VERSION,
         "corpus_retrieval_semantics": dict(CORPUS_RETRIEVAL_SEMANTICS),
@@ -1020,11 +1690,210 @@ def find_corpus_recorded_exact(
         "n_failure_events": sum(failure_hist.values()),
         "n_strict_exact": n_strict,
         "n_cn_candidate": n_cn,
-        "n_cosubstrate_participants_unsupported": n_cosub_unsupported,
+        # R31-4 计数标签进数据(文档标签不替代机读标签)
+        "tier_count_semantics": (
+            "retrieval_candidates_including_precompile_rejected; "
+            "not compiled/supply counts"),
+        "n_cosubstrate_component_candidates": n_cosub_face,
+        "n_cosubstrate_component_compiled": n_cosub_compiled,
+        "n_cosubstrate_component_rejected": n_cosub_rejected,
+        "cosubstrate_supply_labels": {
+            "count_unit": "question_x_candidate_entries(raw_top 截断后)",
+            "count_basis": "retrieval_face",
+            "cosubstrate_reject_split": cosub_reject_split,
+            "cosubstrate_class_profile": {
+                "count_unit": "question_x_candidate_entries",
+                "label": ("碳数零否代理,非化学生物角色规则"
+                          "(CO2 含碳归 organic_like、铵无碳归 "
+                          "balance_like 的已知失真;Codex v4 复审 "
+                          "§6)——只作诊断分栏不作判据"),
+                **{k: v for k, v in sorted(
+                    cosub_b_class.items())}},
+            "migration_note": (
+                "corpus_cosubstrate_participants_unsupported (v2, "
+                "298-face measured 1323) splits into the "
+                "cosubstrate_* categories above; the split is a "
+                "channel opening, not an error fix (R31-6 headline "
+                "ban applies); compiled-successful candidates leave "
+                "the reject histogram = released, not vanished; the "
+                "successor count is n_cosubstrate_component_compiled"),
+            "expected_match_semantics": (
+                "n_cosubstrate_component_compiled counts compiled "
+                "SPECS at the retrieval layer, not events; the event "
+                "count is downstream and partial-matching under "
+                "current P1 (structurally no strict path, NC-12)"),
+        },
         "n_master_multirow": len(multirow),
         "master_multirow_examples": dict(list(multirow.items())[:8]),
         "compile_failure_histogram": dict(sorted(failure_hist.items())),
+        "compile_failure_histogram_labels": {
+            "includes_precompile_permission_rejects": True,
+            "count_unit": "events(candidates;含编译前守门拒,非编译"
+                          "尝试失败直方图的净面)",
+        },
     }}
+
+
+class _ChemStateBuildFailure(RuntimeError):
+    """D2:B/拷贝组分状态构建失败(结构化;kind 进拒因)。"""
+
+    def __init__(self, message: str, detail: dict | None = None):
+        super().__init__(message)
+        self.detail = detail or {}
+
+
+def _build_state_or_fail(smiles: str, *, record_key: str,
+                         kind: str,
+                         extra_refs: dict | None = None) -> dict:
+    """同源 state 构建(严格身份内容寻址;失败 ⇒ 结构化拒不猜)。
+
+    返回 {state_ref, smiles}——state_id = ``build_chemical_state``
+    同源派生(结构内容寻址,与 production.prepare_hypothesis 重建
+    同 ID;origin/source_refs 不进身份)。"""
+    try:
+        state = build_chemical_state(
+            str(smiles), "source_product",
+            [{"record": str(record_key), **(extra_refs or {})}])
+    except Exception as exc:
+        raise _ChemStateBuildFailure(
+            f"cosubstrate spec state build failed:{kind}",
+            {"kind": kind, "smiles": str(smiles)[:200],
+             "record_key": str(record_key),
+             "reason": f"{type(exc).__name__}:{str(exc)[:200]}"}) from exc
+    return {"state_ref": state.state_id, "smiles": str(smiles)}
+
+
+def _attach_cosubstrate_spec_fields(
+        spec: dict, *, substrate_smiles: str, record: dict,
+        matched_side: str, co_comps: list[str],
+        record_products_flat: list[str],
+        copy_products: list[str]) -> None:
+    """W-D2:cosubstrate component spec 的参与物/状态/事件契约装配
+    (设计 §四.3 事件形状细则;**协议层零新发明**——role 复用既有
+    枚举,系数全 unknown,来源进 provenance 层不混入计量层)。
+
+    - participants 显式列表(production.prepare_hypothesis 的
+      ``spec["participants"]`` 覆盖路径;H02/H03 契约由构造层校验):
+      A(reactant/primary_substrate)+ 逐个 B(reactant/cosubstrate)
+      + 主产物(principal_product)+ 可执行其余组分(coproduct)
+      + 逐个拷贝组分(product/coproduct;component_source 进
+      declared_copy_components 披露,**不进 Participant 字段**);
+    - ``participant_list_status=declared_complete``(T-2 主会话默认
+      档:参与物清单完整度声明,不描述计量/配平完整性——R32-CS1-3
+      措辞,stoichiometry 恒 unknown);
+    - co_substrate_states(B 状态装配)+ declared_copy_components
+      (拷贝组分机读披露:component_source=record_declared_copy +
+      record_key/provenance_sha256 + execution_status=declared_
+      not_executed;R32-CS1-1:身份轴 = 记录声明可核,生成轴 =
+      未执行,两轴不得合并成"已生成/已核实");
+    - cosubstrate_event_contract:NC-10 事件级端到端不变量的记录侧
+      输入(production.prepare_hypothesis 消费并断言)。
+    """
+    record_key = str(record["record_key"])
+    refs_meta = {"record": record_key,
+                 "provenance_sha256": str(record["provenance_sha256"]
+                                          or "")}
+    substrate_entry = _build_state_or_fail(
+        substrate_smiles, record_key=record_key,
+        kind="cosubstrate_unparseable")
+    # B 状态(声明共底物;NC-6 已在分类前置拒,此处构建失败 = CX
+    # 守卫/工厂拒绝,同样结构化拒)
+    b_entries: list[dict] = []
+    for b in co_comps:
+        entry = _build_state_or_fail(str(b), record_key=record_key,
+                                     kind="cosubstrate_unparseable")
+        b_entries.append({
+            "smiles": str(b), "state_ref": entry["state_ref"],
+            "source_ref": record_key,
+            "strict_identity": _strict_of(str(b)),
+        })
+    # 拷贝组分状态(设计 §四.3.2:SMILES 不可解析 ⇒ 候选级结构化拒)
+    copy_entries: list[dict] = []
+    for c in copy_products:
+        entry = _build_state_or_fail(
+            str(c), record_key=record_key,
+            kind="copy_component_unparseable",
+            extra_refs={"component_source": "record_declared_copy"})
+        copy_entries.append({
+            "smiles": str(c), "state_ref": entry["state_ref"],
+            "component_source": "record_declared_copy",
+            "record_key": record_key,
+            "provenance_sha256": str(
+                record["provenance_sha256"] or ""),
+            "execution_status": "declared_not_executed",
+        })
+    principal_entry = _build_state_or_fail(
+        str(spec["product_smiles"]), record_key=record_key,
+        kind="copy_component_unparseable")
+    coproduct_entries = [
+        _build_state_or_fail(str(c), record_key=record_key,
+                             kind="copy_component_unparseable")
+        for c in (spec.get("coproducts") or [])]
+
+    def _participant(state_ref: str, side: str, role: str) -> dict:
+        return {"state_ref": str(state_ref), "side": side,
+                "role": role, "coefficient": None,
+                "coefficient_status": "unknown"}
+
+    participants: list[dict] = [
+        _participant(substrate_entry["state_ref"], "reactant",
+                     "primary_substrate")]
+    participants.extend(
+        _participant(e["state_ref"], "reactant", "cosubstrate")
+        for e in b_entries)
+    participants.append(_participant(
+        principal_entry["state_ref"], "product", "principal_product"))
+    participants.extend(
+        _participant(e["state_ref"], "product", "coproduct")
+        for e in coproduct_entries)
+    participants.extend(
+        _participant(e["state_ref"], "product", "coproduct")
+        for e in copy_entries)
+    spec["participants"] = participants
+    spec["participant_list_status"] = "declared_complete"
+    spec["co_substrate_states"] = b_entries
+    spec["declared_copy_components"] = copy_entries
+    spec["cosubstrate_event_contract"] = {
+        "record_key": record_key,
+        "co_substrates": [
+            {"smiles": str(b), "strict_identity": _strict_of(str(b))}
+            for b in co_comps],
+        "record_products": list(record_products_flat),
+        "copy_state_refs": [e["state_ref"] for e in copy_entries],
+        "co_substrate_state_refs": [e["state_ref"] for e in b_entries],
+        "invariant_note": (
+            "NC-10 (r32 R32-CS3-3): record-declared co-substrate "
+            "strict identities MUST be a subset of the event "
+            "reactant-side cosubstrate state_refs AND the record "
+            "product multiset MUST equal the event product-participant "
+            "multiset (executed UNION declared-copy components); "
+            "asserted at production.prepare_hypothesis before the "
+            "event is submitted; spec-layer gate pass does NOT "
+            "substitute the event-layer check"),
+    }
+    # corpus 元数据块(component 分支;whole 分支沿用下方主路径)
+    spec["corpus"] = {
+        "corpus_retrieval_version": CORPUS_RETRIEVAL_VERSION,
+        "source_type": record["source_type"],
+        "record_key": record_key,
+        "master_id": record["master_id"],
+        "direction": record["direction"],
+        "ec": record["ec"],
+        "donor_match_kind": "component",
+        "matched_component": str(matched_side),
+        "co_substrates": [
+            {"smiles": str(b), "strict_identity": _strict_of(str(b))}
+            for b in co_comps],
+        "co_substrate_semantics": (
+            "declared_explicit_participants(D2/corpus-retrieval-3:"
+            "B 进事件反应物侧 role=cosubstrate;B 来源整组分产物"
+            "声明式拷贝 record_declared_copy,中心 unknown,不执行;"
+            "键合融合/不可归属子集结构化拒;事件在现行 P1 下判"
+            "matched_participant_coverage_partial,结构性无 strict "
+            "通路——NC-12 批级熔断)"),
+        "record_products": list(record_products_flat),
+        "provenance_sha256": record["provenance_sha256"],
+    }
 
 
 def _corpus_candidate(record: dict, tier: str, kind: str,
@@ -1064,6 +1933,8 @@ def _corpus_candidate(record: dict, tier: str, kind: str,
 def compile_recorded_reaction(
     *, substrate_smiles: str, donor_smiles: str,
     products: list[str], record_id: str,
+    declared_copies: list[str] | None = None,
+    record_products: list[str] | None = None,
 ) -> dict:
     """库记录(donor + 完整净产物集合)→ PPV1 池 spec(推断映射)。
 
@@ -1077,6 +1948,22 @@ def compile_recorded_reaction(
     - 中心 = 推断变换的变化原子(键变化端点 + 新增/离去;推断映射的
       反应中心,非机制证据);
     - mapping_origin=inferred(spec 与诊断如实标注)。
+
+    **W-D2(S5b-recorded-source-3,可选参数;设计 §五.3 落点子选项
+    i)**:``declared_copies`` + ``record_products``(corpus component
+    共底物拷贝路径专用)⇒ 在既有最终门之上追加 **union gate**:
+    执行组分多重集 ∪ 声明拷贝组分多重集 == 记录(全量)产物多重集
+    (严格身份、多重集、``strict_identity_of`` 键空间两侧统一
+    R32-CS3-2 + 裸键/严格键一致性披露);拷贝身份 ≠ 记录产物组分
+    ⇒ declared_copy_mismatch(NC-4);并集不齐 ⇒ product_set_
+    mismatch 语义沿用;拷贝不可解析 ⇒ copy_component_unparseable。
+    **缺省 None ⇒ 扩展分支零触碰(EAWAG/整串路径行为字节等价,
+    负控断言回归)**;gate 是组分身份完整转写核对,**不是**元素/
+    电荷配平核验(配平轴状态恒为判据二 unknown,系数全 unknown;
+    R32-CS1-2 措辞)。``products`` 参数在扩展模式下 = 可执行子集
+    (A 原子全部可溯的产物组分);扩展模式在可复现 spec 中优先选
+    无 add_atom 编辑者(可执行子集原子全部 A-可溯 ⇒ 结构上不应有
+    新原子;防御性选择,不改变缺省路径行为)。
     """
     mappings = infer_reaction_mapping(donor_smiles, products)
     if not mappings:
@@ -1143,6 +2030,17 @@ def compile_recorded_reaction(
             spec["spec"]["expectation"]["target_smiles"])) == recorded]
     if reproducible:
         chosen = reproducible[0]
+        if declared_copies is not None:
+            # W-D2 防御性选择:可执行子集原子全部 A-可溯 ⇒ 结构上
+            # 不应出现 add_atom 编辑;等价可复现 spec 中优先选无
+            # add_atom 者(缺省路径选首逻辑不动 ⇒ 字节等价)。
+            no_add = [
+                spec for spec in reproducible
+                if not any(str(e.get("op")) == "add_atom"
+                           for e in (spec["spec"].get("edits")
+                                     or []))]
+            if no_add:
+                chosen = no_add[0]
     elif len(targets) > 1:
         return {"status": "unsupported", "reason": "ambiguous_mapping",
                 "detail": {"record_id": record_id,
@@ -1166,6 +2064,86 @@ def compile_recorded_reaction(
                            "note": ("执行产物组分与库记录净产物集合不一致"
                                     "(离去组分缺行/过滤缺失/对应错误;"
                                     "不冒充完整 record)")}}
+    declared_copy_info: dict = {}
+    if declared_copies is not None:
+        # ---- W-D2(s5b-recorded-source-3):union gate 扩展(设计 §五
+        # .3;**收窄式扩展**——多一道拷贝核对,不是放宽)。缺省路径
+        # 不进入本分支(EAWAG/整串行为字节等价)。
+        copies_flat = _flatten_product_entries(list(declared_copies))
+        record_flat = _flatten_product_entries(
+            list(record_products or []))
+        copies_strict = _record_products_strict(copies_flat)
+        if any(x is None for x in copies_strict):
+            return {"status": "unsupported",
+                    "reason": "copy_component_unparseable",
+                    "detail": {"record_id": record_id,
+                               "declared_copies": copies_flat[:8]}}
+        copies_sorted = sorted(x for x in copies_strict if x)
+        recorded_full = sorted(
+            x for x in _record_products_strict(record_flat) if x)
+        # NC-4:拷贝身份必须是记录产物组分(多重集包含;身份 ≠ 记录
+        # ⇒ declared_copy_mismatch,防"拷贝串被换")
+        copies_counter = Counter(copies_sorted)
+        record_counter = Counter(recorded_full)
+        if copies_counter - record_counter:
+            return {"status": "unsupported",
+                    "reason": "declared_copy_mismatch",
+                    "detail": {"record_id": record_id,
+                               "declared_copy_components":
+                                   copies_sorted[:8],
+                               "recorded_components": recorded_full[:8],
+                               "note": ("声明拷贝组分身份与库记录产物"
+                                        "组分不一致(拷贝只认 strict "
+                                        "identity;cn 派生/篡改串拒,"
+                                        "NC-11)")}}
+        # ---- union gate:执行 ∪ 声明拷贝 == 记录全量产物(多重集) ----
+        # 两侧键空间统一到 strict_identity_of(R32-CS3-2;执行侧现行
+        # 裸 MolToSmiles 键仅留作一致性披露对照,不再作比较键)
+        executed_unified = _executed_components_strict_unified(
+            spec["expectation"]["target_smiles"])
+        union_sorted = sorted(
+            x for x in executed_unified + copies_sorted
+            if x is not None)
+        if union_sorted != recorded_full:
+            return {"status": "unsupported",
+                    "reason": "product_set_mismatch",
+                    "detail": {"record_id": record_id,
+                               "executed_union_declared_components":
+                                   union_sorted[:8],
+                               "recorded_components": recorded_full[:8],
+                               "note": ("执行组分 ∪ 声明拷贝组分 与库记录"
+                                        "全量净产物集合不一致(拷贝缺失/"
+                                        "对应错误;不冒充完整 record;"
+                                        "W-D2 union gate)")}}
+        # 键空间一致性披露(裸键 vs strict 键;分歧不吞、如实计数)
+        bare_keys = sorted(_executed_components_strict(
+            spec["expectation"]["target_smiles"]))
+        strict_keys = sorted(
+            x for x in executed_unified if x is not None)
+        divergent = [f"{b}!={s}" for b, s in zip(bare_keys, strict_keys)
+                     if b != s] if len(bare_keys) == len(strict_keys) \
+            else ["length_mismatch"]
+        declared_copy_info = {
+            "n_declared_copies": len(copies_flat),
+            "declared_copy_strict_identities": copies_sorted[:8],
+            "execution_status": "declared_not_executed",
+            "union_gate": ("executed_components_multiset UNION "
+                           "declared_copy_components_multiset == "
+                           "recorded_products_multiset (strict "
+                           "identity, same-source strict_identity_of)"),
+            "key_space_consistency": {
+                "n_components": len(strict_keys),
+                "n_divergent": len(divergent),
+                "divergent_examples": divergent[:4],
+                "note": ("bare MolToSmiles vs strict_identity_of key "
+                         "agreement on executed components (R32-CS3-2 "
+                         "consistency disclosure; divergence is "
+                         "disclosed, never silently swallowed)"),
+            },
+            "verified_product_set_scope": (
+                "executed_union_declared_copies(非元素/电荷配平核验;"
+                "配平轴恒 unknown,判据二;R32-CS1-2)"),
+        }
     spec = dict(spec)
     spec.pop("coefficient", None)  # 库记录无配平系数 ⇒ unknown
     spec["compile"] = dict(spec.get("compile") or {})
@@ -1179,6 +2157,10 @@ def compile_recorded_reaction(
         # 对应;非机制证据)
         "n_bond_diff": int(chosen.get("n_bond_diff") or 0),
     })
+    if declared_copy_info:
+        spec["compile"]["declared_copies"] = declared_copy_info
+        spec["compile"]["record_products_full"] = (
+            list(record_products or []))
     chosen = dict(chosen)
     chosen["spec"] = spec
     return chosen

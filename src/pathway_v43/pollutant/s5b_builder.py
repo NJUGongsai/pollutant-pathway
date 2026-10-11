@@ -379,6 +379,19 @@ def build_run_input(question: dict, *, batch_tag: str,
 
 # W4 池策略版本(冻结候选配置:raw 预算/池宽/阈值/补位/融合规则;
 # 变化 ⇒ 升版本 ⇒ 新身份)
+# s5b-pool-policy-5(W-D2,2026-10-10,共底物参与物显式语义 D2 编译
+# 实现轮):池**成员**变化 ⇒ 按既有身份规则升版——corpus component
+# -with-co-substrate 候选中的**整组分拷贝子集**经原子归属三分类
+# 守门(s5b-corpus-retrieval-3)重新入池(spec 携带显式 participants/
+# co_substrate_states/declared_copy_components/cosubstrate_event_
+# contract;事件级 NC-10 不变量在 production.prepare_hypothesis);
+# 键合融合/不可归属/不可解析/空可执行子集仍守门拒。**池策略配置
+# 本身零变化**(raw 预算/池宽/阈值/补位/融合/去重/EAWAG 候选序/
+# corpus_channel 语义全部不动);新入池 spec 在现行 P1 参与物集合
+# 语义下事件恒 matched_participant_coverage_partial(结构性无
+# strict 通路,NC-12 批级熔断;hit@1 预期贡献 = 0,诚实预期落字);
+# 同净反应签名去重含拷贝组分(net_reaction_signature W-D2 扩展,
+# 与整串/其他通道同净反应合并留痕不双占槽)。
 # s5b-pool-policy-4(W-V4b,2026-10-10,编译墙深层修复轮):池**成员**
 # 变化 ⇒ 按既有身份规则升版——recorded 直通两通道(EAWAG + corpus
 # 整串)的编译面因公共编译判据链修复而扩大(s5b-compiler-2 stereo
@@ -400,7 +413,7 @@ def build_run_input(question: dict, *, batch_tag: str,
 # 候选按(tier strict→cn, 整串→组分, 行号)序**追加在后**;同净反应
 # 签名去重/失败补位/池宽语义不变;corpus_channel 参数仅供消融对照
 # (生产默认 True;False=纯 EAWAG 面,池深前后对照探针用)。
-S5B_POOL_POLICY_VERSION = "s5b-pool-policy-4"
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-5"
 S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
 S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
 S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)
@@ -435,7 +448,12 @@ def default_pool_provider(config: V43Config | None, *,
        recorded_exact``;s5b-pool-policy-2 新增,决策 ①②③;
        **s5b-pool-policy-3(W-V4.1-R1)**:component-with-co-substrate
        候选编译前结构化 unsupported,池成员收缩为整串/whole spec,
-       检索层共用许可规则见 s5b-corpus-retrieval-2):RHEA/
+       检索层共用许可规则见 s5b-corpus-retrieval-2;
+       **s5b-pool-policy-5(W-D2)**:component-with-co-substrate 候选
+       经原子归属三分类守门(s5b-corpus-retrieval-3)——整组分拷贝
+       子集重新入池(spec 携带显式参与物/拷贝声明;事件恒 partial,
+       结构性无 strict 通路,NC-12 熔断;hit@1 预期贡献 = 0),
+       键合融合/不可归属子集守门拒不入池):RHEA/
        enviPath 主语料候选按(tier strict→cn、整串→组分、行号)序
        **追加在 EAWAG 候选之后**(EAWAG 面零变化,单变量归因);
        corpus 身份缺失/哈希不符 ⇒ fail-closed 抛错(不静默降级);
@@ -482,6 +500,7 @@ def default_pool_provider(config: V43Config | None, *,
         compile_failures: dict[str, int] = {}
         n_recorded_strict = n_recorded_cn = 0
         n_corpus_strict = n_corpus_cn = 0
+        n_cosub_specs = 0          # W-D2:共底物声明型池供给 spec 数
 
         def _record_compiled(spec: dict) -> None:
             ordered.append(spec)
@@ -529,6 +548,8 @@ def default_pool_provider(config: V43Config | None, *,
                     _record_failure(str(cand.get("compile_reason")
                                         or "recorded_compile_failed"))
                     continue
+                if spec.get("cosubstrate_event_contract") is not None:
+                    n_cosub_specs += 1
                 _record_compiled(spec)
             diagnostics.update({
                 "corpus_diagnostics": dict(
@@ -622,6 +643,23 @@ def default_pool_provider(config: V43Config | None, *,
             "n_recorded_cn_candidate": n_recorded_cn,
             "n_corpus_strict_exact": n_corpus_strict,
             "n_corpus_cn_candidate": n_corpus_cn,
+            # W-D2(T-4/R32-CS5-3):共底物拷贝型池供给计数 + 计数标签
+            # 进数据(文档标签不替代机读标签;R31-4 纪律覆盖拆分后
+            # 新类目)。n_cosubstrate_declared_specs 计**池供给 spec 数**
+            # (承接拒因直方图消失的放行计数),事件数在其下游、
+            # 判分后 partial 命中数须另以 n_cosubstrate_partial_
+            # matches 披露(带 partial 语义标签,不与 hit 混列)。
+            "n_cosubstrate_declared_specs": n_cosub_specs,
+            "cosubstrate_pool_labels": {
+                "count_unit": "pool_specs(去重后、截断前)",
+                "count_basis": "supply_face",
+                "expected_match_semantics": (
+                    "pool specs, not events; cosubstrate-declared "
+                    "events match matched_participant_coverage_partial "
+                    "under current P1 (structurally no strict path, "
+                    "NC-12 batch fuse; hit@1 expected contribution "
+                    "= 0)"),
+            },
             "n_analog_compiled": len(analog_specs),
             "n_unique_net_reactions": len(merged),
             "n_pool_returned": min(len(merged), int(max_pool)),

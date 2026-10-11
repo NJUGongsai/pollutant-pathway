@@ -49,7 +49,7 @@ from .audit import (
     check_edit_against_donor,
     decide_admission,
 )
-from .chemstate import build_chemical_state
+from .chemstate import build_chemical_state, strict_identity_of
 from .events import (
     build_expansion_plan,
     build_pathway_event,
@@ -170,8 +170,26 @@ def prepare_hypothesis(
     - requirements:必要要求 dict 列表(build_hypothesis 契约);
     - dependencies:依赖 spec 列表(H04,经 build_cyclic_dependency);
     - participants:可选显式参与物覆盖(系数/角色;默认底物 1 + 主
-      产物 1 + 共同产物逐条,系数按声明或 unknown)。
-    返回 {hypothesis, states, product_states, tool_inputs, spec_digest}。
+      产物 1 + 共同产物逐条,系数按声明或 unknown);
+    - **W-D2 共底物字段(s5b-corpus-retrieval-3 消费面;spec 携带
+      co_substrate_states / declared_copy_components 时激活,其余
+      spec 路径行为零变化)**:
+      * ``co_substrate_states``:[{smiles, state_ref, source_ref}]
+        ——B 状态经同源 build_product_state 重建(严格身份内容
+        寻址;声明 state_ref 与重建 ID 不一致 ⇒ 拒);
+      * ``declared_copy_components``:[{smiles, state_ref,
+        component_source=record_declared_copy, record_key,
+        provenance_sha256}] ——拷贝组分状态(与 coproduct 同轨的
+        产物状态;component_source 非法 ⇒ 拒);
+      * ``cosubstrate_event_contract``:{record_key, co_substrates,
+        record_products, copy_state_refs} ——NC-10 事件级端到端
+        不变量的记录侧输入(本函数消费并断言:声明共底物 ⊆ 事件
+        reactant 侧 cosubstrate 参与物 ∧ 记录产物多重集 == 事件
+        产物参与物多重集 ∧ 拷贝组分全部被引用 ∧ 拷贝不进执行期望
+        NC-9;任一不满足 ⇒ 零事件零提交);
+      * participants 必须显式(共底物语义不进缺省装配)。
+    返回 {hypothesis, states, product_states, tool_inputs,
+    spec_digest, hypothesis_dict, cosubstrate_disclosure}。
     """
     if not isinstance(spec, dict):
         raise ProductionContractError(
@@ -206,6 +224,68 @@ def prepare_hypothesis(
     dependencies = [
         build_cyclic_dependency(d)
         for d in (spec.get("dependencies") or [])]
+    # ---- W-D2(S5b-corpus-retrieval-3 消费面):共底物参与物状态装配
+    # + NC-10 事件级端到端不变量(mimo r32 R32-CS3-3;设计 §四.3)。
+    # 仅当 spec 携带 D2 共底物字段时激活(其余 spec 路径行为零变化):
+    # B 与拷贝组分状态经同源 build_product_state 构建(严格身份内容
+    # 寻址,与 recorded_source 装配期同 state_id);NC-10 断言在假设
+    # 构造前执行——任一不满足 ⇒ ProductionContractError(零事件/零
+    # 提交;spec 层 gate 通过不替代事件层核对)。
+    co_sub_entries = [dict(e) for e in
+                      (spec.get("co_substrate_states") or [])]
+    copy_entries = [dict(e) for e in
+                    (spec.get("declared_copy_components") or [])]
+    cosub_disclosure: dict | None = None
+    b_states: dict = {}
+    copy_states: dict = {}
+    if co_sub_entries or copy_entries:
+        contract = spec.get("cosubstrate_event_contract")
+        if not isinstance(contract, dict) or not isinstance(
+                contract.get("record_products"), list):
+            raise ProductionContractError(
+                "共底物 spec 缺 cosubstrate_event_contract(NC-10 事件"
+                "级不变量需要记录侧声明;record_products 必填)",
+                {"kind": "cosubstrate_contract_missing"})
+        participants_spec = spec.get("participants")
+        if not isinstance(participants_spec, list) or not participants_spec:
+            raise ProductionContractError(
+                "共底物 spec 必须显式声明 participants(B 与拷贝组分"
+                "装配契约;缺省装配不覆盖共底物语义)",
+                {"kind": "cosubstrate_participants_required"})
+        for e in co_sub_entries:
+            state = build_product_state(
+                str(e.get("smiles") or ""),
+                source_refs=[{"record": str(
+                    e.get("source_ref") or "corpus")}])
+            declared_ref = str(e.get("state_ref") or state.state_id)
+            if declared_ref != state.state_id:
+                raise ProductionContractError(
+                    "共底物状态引用与重建身份不一致(不得以其他分子"
+                    "冒充该状态)",
+                    {"kind": "cosubstrate_state_ref_mismatch",
+                     "declared_state_ref": declared_ref,
+                     "rebuilt_state_id": state.state_id})
+            b_states[state.state_id] = state
+        for e in copy_entries:
+            if str(e.get("component_source")) != "record_declared_copy":
+                raise ProductionContractError(
+                    "拷贝组分 component_source 非法(只认 record_"
+                    "declared_copy;R32-CS1-1 机读标签)",
+                    {"kind": "cosubstrate_copy_source_invalid",
+                     "component_source": str(e.get("component_source"))})
+            state = build_product_state(
+                str(e.get("smiles") or ""),
+                source_refs=[{
+                    "record": str(e.get("record_key") or "corpus"),
+                    "component_source": "record_declared_copy"}])
+            declared_ref = str(e.get("state_ref") or state.state_id)
+            if declared_ref != state.state_id:
+                raise ProductionContractError(
+                    "拷贝组分状态引用与重建身份不一致",
+                    {"kind": "cosubstrate_state_ref_mismatch",
+                     "declared_state_ref": declared_ref,
+                     "rebuilt_state_id": state.state_id})
+            copy_states[state.state_id] = state
     participants_spec = spec.get("participants")
     if participants_spec is not None:
         participants = [
@@ -247,6 +327,17 @@ def prepare_hypothesis(
               product_state.state_id: product_state}
     for state in coproduct_states:
         states[state.state_id] = state
+    product_states_out = [product_state] + coproduct_states
+    if b_states or copy_states:
+        # ---- 状态映射扩(B 与拷贝组分;设计 §四.3:拷贝产物 state
+        # 与 coproduct 同轨——0e.5 followup 消费链照池宽纪律)----
+        states.update(b_states)
+        states.update(copy_states)
+        product_states_out.extend(
+            copy_states[k] for k in sorted(copy_states))
+        cosub_disclosure = _check_cosubstrate_event_invariant(
+            spec, participants=participants, states=states,
+            b_states=b_states, copy_states=copy_states)
     tool_inputs = {
         "edits": list(spec["edits"]),
         "donor": dict(spec["donor"]),
@@ -256,11 +347,163 @@ def prepare_hypothesis(
     return {
         "hypothesis": hypothesis,
         "states": states,
-        "product_states": [product_state] + coproduct_states,
+        "product_states": product_states_out,
         "dependencies": dependencies,
         "tool_inputs": tool_inputs,
         "spec_digest": content_hash(spec),
         "hypothesis_dict": hypothesis.to_dict(),
+        "cosubstrate_disclosure": cosub_disclosure,
+    }
+
+
+def _check_cosubstrate_event_invariant(
+        spec: dict, *, participants: list, states: dict,
+        b_states: dict, copy_states: dict) -> dict:
+    """NC-10 事件级端到端不变量(mimo r32 R32-CS3-3 必加;事件提交
+    前断言,任一不满足 ⇒ ProductionContractError ⇒ 零事件/零提交):
+
+    1. 记录声明的全部共底物严格身份 ⊆ 事件 reactant 侧 cosubstrate
+       state_refs 的状态严格身份(spec 层 gate 通过不替代事件层核对
+       —— B 与拷贝同丢会退化回 A→P 可 exact 的 R2-2 禁形态,且
+       add_atom 负控对零产物贡献 B 空转,此不变量是唯一事件层闸);
+    2. 记录产物多重集 == 事件产物参与物多重集(执行组分 ∪ 声明拷贝
+       组分);
+    3. 全部参与物 state_ref 可解析(装配不得静默丢参与物);
+    4. 拷贝组分全部被产物侧参与物引用且 component_source 机读标签
+       在位(R32-CS1-1:身份轴 = 记录声明可核,生成轴 = 未执行,
+       两轴不得合并成"已生成/已核实");
+    5. NC-9:拷贝组分不得出现在 expectation.target_smiles 的组分集
+       (拷贝不进执行期望;edits/alignment 通道由编译器结构性排除
+       + NC-3 断言)。
+
+    返回机读披露字典(随生产报告 artifact 落盘):declared_copy_
+    components + expectation_covered_state_refs + coproduct_
+    participants 字段说明(R32-CS1-1/CS5-2:"按 role 聚合,不表示
+    执行覆盖")。
+    """
+    contract = spec.get("cosubstrate_event_contract") or {}
+    record_products = [str(p) for p in
+                       (contract.get("record_products") or [])]
+    # ---- (3) 参与物状态可解析 ----
+    unresolved = sorted({str(p.state_ref) for p in participants
+                         if p.state_ref not in states})
+    if unresolved:
+        raise ProductionContractError(
+            "共底物事件参与物引用了未装配的状态(装配不得静默丢"
+            "参与物;NC-10 前置)",
+            {"kind": "cosubstrate_participant_state_unresolved",
+             "unresolved_state_refs": unresolved[:8]})
+    # ---- (1) 声明共底物 ⊆ reactant 侧 cosubstrate 参与物 ----
+    reactant_cosub_ids = {
+        states[p.state_ref].smiles_isomeric for p in participants
+        if p.side == "reactant" and p.role == "cosubstrate"}
+    declared_b = set()
+    for e in contract.get("co_substrates") or []:
+        try:
+            ident = strict_identity_of(str(e.get("smiles")))
+        except Exception as exc:
+            raise ProductionContractError(
+                "记录侧共底物声明不可解析(NC-10 契约输入失败)",
+                {"kind": "cosubstrate_contract_unparseable",
+                 "smiles": str(e.get("smiles"))[:200],
+                 "reason": str(exc)[:200]}) from exc
+        if ident is not None:
+            declared_b.add(ident)
+    missing_b = sorted(declared_b - reactant_cosub_ids)
+    if missing_b:
+        raise ProductionContractError(
+            "NC-10 事件级不变量违反:记录声明的共底物未全部进入事件"
+            " reactant 侧 cosubstrate 参与物(记录保真违例;B 与拷贝"
+            " 同丢会退化回可 exact 的假单步形态)",
+            {"kind": "cosubstrate_event_invariant_violation",
+             "axis": "declared_cosubstrates_subset",
+             "missing_strict_identities": missing_b[:8],
+             "event_reactant_cosubstrate_identities":
+                 sorted(reactant_cosub_ids)[:8]})
+    # ---- (2) 记录产物多重集 == 事件产物参与物多重集 ----
+    product_ids = sorted(
+        states[p.state_ref].smiles_isomeric for p in participants
+        if p.side == "product")
+    recorded_ids: list = []
+    for p in record_products:
+        try:
+            recorded_ids.append(strict_identity_of(p))
+        except Exception:
+            recorded_ids.append(None)
+    recorded_sorted = sorted(x for x in recorded_ids if x is not None)
+    if any(x is None for x in recorded_ids) or \
+            product_ids != recorded_sorted:
+        raise ProductionContractError(
+            "NC-10 事件级不变量违反:事件产物参与物多重集 != 记录产物"
+            "多重集(执行组分 ∪ 声明拷贝组分必须等于记录全量)",
+            {"kind": "cosubstrate_event_invariant_violation",
+             "axis": "record_products_multiset",
+             "event_product_identities": product_ids[:8],
+             "recorded_product_identities": recorded_sorted[:8]})
+    # ---- (4) 拷贝组分被产物侧引用 + 机读标签在位 ----
+    product_refs = {str(p.state_ref) for p in participants
+                    if p.side == "product"}
+    untracked_copies = sorted(set(copy_states) - product_refs)
+    if untracked_copies:
+        raise ProductionContractError(
+            "NC-10 事件级不变量违反:拷贝组分未被事件产物侧参与物"
+            "引用(拷贝组分是声明参与物,不得静默丢弃)",
+            {"kind": "cosubstrate_event_invariant_violation",
+             "axis": "declared_copy_components_tracked",
+             "untracked_copy_state_refs": untracked_copies[:8]})
+    # ---- (5) NC-9:拷贝不得进执行期望 ----
+    target = str((spec.get("expectation") or {}).get("target_smiles")
+                 or "")
+    from rdkit import Chem as _Chem
+    target_mol = _Chem.MolFromSmiles(target) if target else None
+    target_ids: set = set()
+    if target_mol is not None:
+        for frag in _Chem.GetMolFrags(target_mol, asMols=True,
+                                      sanitizeFrags=True):
+            try:
+                target_ids.add(strict_identity_of(
+                    _Chem.MolToSmiles(frag)))
+            except Exception:
+                pass
+    copy_ids = {s.smiles_isomeric for s in copy_states.values()}
+    leaked = sorted(copy_ids & target_ids)
+    if leaked:
+        raise ProductionContractError(
+            "NC-9 违例:拷贝组分出现在 expectation.target_smiles 执行"
+            "期望内(拷贝组分不经执行通道;设计 §四.3.4 禁止事项)",
+            {"kind": "cosubstrate_copy_in_expectation",
+             "leaked_strict_identities": leaked[:8]})
+    # ---- 机读披露(R32-CS1-1/CS5-2;进数据不进文档) ----
+    expectation_covered = [
+        p.state_ref for p in participants
+        if p.side == "product" and p.state_ref not in copy_states]
+    return {
+        "declared_copy_components": [
+            {"state_ref": str(e.get("state_ref")),
+             "smiles": str(e.get("smiles")),
+             "component_source": "record_declared_copy",
+             "record_key": str(e.get("record_key")),
+             "provenance_sha256": str(e.get("provenance_sha256")),
+             "execution_status": "declared_not_executed",
+             "center_status": "unknown"}
+            for e in (spec.get("declared_copy_components") or [])],
+        "co_substrate_state_refs": sorted(b_states),
+        "expectation_covered_state_refs": expectation_covered,
+        "coproduct_participants_field_note": (
+            "coproduct_participants aggregates by role and does NOT "
+            "indicate execution coverage; declared-copy components "
+            "are declared_not_executed with center=unknown (identity "
+            "axis = record-declared and verifiable; formation axis = "
+            "not executed; the two axes must not be merged into "
+            "'generated/verified')"),
+        "invariant": "checked(NC-10: declared cosubstrates subset-of "
+                     "event reactant cosubstate refs AND record "
+                     "product multiset == event product participant "
+                     "multiset)",
+        "stoichiometry_status": (
+            "unknown(coefficients all unknown;participant_list_status"
+            "=declared_complete describes list completeness only, "
+            "NOT stoichiometric/balance completeness — R32-CS1-3)"),
     }
 
 
@@ -428,6 +671,11 @@ def expand_hypothesis_production(
         if isinstance(payload.get("event"), object) and                 not isinstance(payload.get("event"), (dict, list, str, int,
                                                        float, bool, type(None))):
             payload["event"] = None  # 事件权威在公共 store;报告只带 event_id
+        # W-D2(R32-CS1-1/CS5-2):共底物披露随事件输出(机器可核对的
+        # 执行覆盖面 + 拷贝组分声明;无共底物 spec ⇒ 零字段零变化)
+        if prepared.get("cosubstrate_disclosure") is not None:
+            payload["cosubstrate_disclosure"] = prepared[
+                "cosubstrate_disclosure"]
         if ledger.artifact_store is not None and task_key:
             ledger.artifact_store.write(
                 task_key, "production_report", payload)

@@ -249,18 +249,30 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
     """§1 冻结登记(开工先于接线):检索语义版本 + 池策略升版 +
     EAWAG 通道身份零变化(单变量归因前提)。
     W-V4.1-R1:corpus-retrieval-1→2(共底物 component 许可变化)、
-    pool-policy-2→3(池成员变化:组分级 spec 收缩)。"""
-    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-2"
+    pool-policy-2→3(池成员变化:组分级 spec 收缩)。
+    W-D2:corpus-retrieval-2→3(三分类守门三分支:整组分拷贝放行/
+    键合拒/不可归属拒)、pool-policy-4→5(池成员变化:拷贝子集重新
+    入池)、recorded-source-2→3(union gate 扩展:可选参数,缺省
+    路径字节等价)。"""
+    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-3"
     sem = dict(CORPUS_RETRIEVAL_SEMANTICS)
     assert sem["substrate_retrieval_scope"] == "cn_identity_wide"
-    # R1:组分级+共底物声明,且 component-with-co-substrate 编译前拒
+    # D2:组分级+共底物声明,component 候选过原子归属三分类守门
     assert "component_level_with_co_substrate_declaration" in \
         sem["donor_side_semantics"]
-    assert "structured-unsupported BEFORE compilation" in \
+    assert "atomic-attribution three-way classification" in \
         sem["donor_side_semantics"]
+    # D2:共底物事件语义(诚实 partial;结构性无 strict 通路)
     assert sem["cosubstrate_permission"].startswith(
-        "no approved and consumed co-substrate participant")
-    assert "no element/role/" in sem["cosubstrate_permission"]
+        "D2 (s5b-corpus-retrieval-3")
+    assert "no strict path, NC-12 batch fuse" in \
+        sem["cosubstrate_permission"]
+    assert "cosubstrate_bonded_contribution_unsupported" in \
+        sem["cosubstrate_permission"]
+    # D2:union gate 语义(键空间同源;非配平核验)
+    assert "strict_identity_of" in sem["union_gate_semantics"]
+    assert "NOT an element/charge balance" in \
+        sem["union_gate_semantics"]
     assert "FULL donor string as lhs" in sem["whole_string_semantics"]
     assert "no strict promotion" in sem["tier_rule"]
     assert sem["wildcard_policy"] == (
@@ -268,12 +280,12 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
     assert "both_direction_rows_retained" in sem[
         "master_direction_policy"]
     assert "native" in sem["mapping_policy"]
-    # 池策略升版(W-V4b:池成员变化——recorded 两通道编译面因公共
-    # 编译判据链修复扩大;池策略配置零变化;cosubstrate 许可零触碰)
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-4"
-    # EAWAG recorded 源身份:W-V4b 升版(推断映射预算/枚举面扩展;
-    # find_recorded_exact 检索/分层语义不变)
-    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-2"
+    # 池策略升版(W-D2:池成员变化——corpus component 共底物整组分
+    # 拷贝子集重新入池;池策略配置零变化)
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-5"
+    # recorded 公共源身份:W-D2 升版(union gate 扩展,可选参数;
+    # EAWAG/整串缺省路径行为字节等价)
+    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
 
 
 # ================================================================ 正控族
@@ -315,10 +327,12 @@ def test_wv41_whole_string_strict_compiles_and_executes(tmp_path) -> None:
 
 
 def test_wv41_component_co_substrate_honest_unsupported(tmp_path) -> None:
-    """R1 负控(组分级+共底物声明,决策②收口):底物=donor 组分 1,
-    水组分声明为共底物(不静默丢弃)——**没有已审定且实际消费的共底物
-    参与物/原子来源语义 ⇒ 编译前结构化 unsupported**(不产 spec/不产
-    event;新 component 水解如实拒,不给无机器证据的同类例外)。
+    """R1 负控(W-D2 修订:拒因迁移):底物=donor 组分 1,水组分声明
+    为共底物(不静默丢弃)。**已声明水的水解 = 键合形态**(r32 CS2-2
+    点名损失类目:水的氧以键合形式落入酸/醇类含 A 原子组分 ⇒ 混合
+    组分)⇒ 三分类守门拒 ``cosubstrate_bonded_contribution_unsupported``
+    (拒因从 corpus-retrieval-2 的 corpus_cosubstrate_participants_
+    unsupported 迁移;零 spec/零 event 保持)。
 
     拒因与声明完整可追溯:源行 record_key/行号/donor 整串、方向、
     master、共底物声明(SMILES+严格身份)、记录产物。旧行为(把水
@@ -335,11 +349,11 @@ def test_wv41_component_co_substrate_honest_unsupported(tmp_path) -> None:
     # 共底物声明:其余组分(水)诚实列出,不冒充单底物反应
     assert [c["smiles"] for c in cand["co_substrates"]] == ["O"]
     assert cand["co_substrates"][0]["strict_identity"] == "O"
-    # R1:编译前结构化 unsupported——零 spec、零坏 event 供给
+    # D2:三分类守门拒(键合形态)——零 spec、零坏 event 供给
     assert cand["compile"] is None
     assert cand["compile_status"] == "unsupported"
     assert cand["compile_reason"] == \
-        "corpus_cosubstrate_participants_unsupported"
+        "cosubstrate_bonded_contribution_unsupported"
     detail = cand["compile_detail"]
     assert detail["record_key"].startswith("rhea:90003@L")
     assert detail["line_no"] >= 1
@@ -348,13 +362,13 @@ def test_wv41_component_co_substrate_honest_unsupported(tmp_path) -> None:
     assert detail["master_id"] == "90002"
     assert [c["smiles"] for c in detail["co_substrates"]] == ["O"]
     assert detail["products"] == ["CC(=O)O", "CCO"]
-    assert "no approved and consumed" in detail["permission_note"]
+    assert "REBUILDING a usable pool spec" in detail["permission_note"]
     # 检索面分层计数 + 专用拒因计数(逐层注明,不冒充编译数)
     d = out["diagnostics"]
     assert d["n_strict_exact"] >= 1
-    assert d["n_cosubstrate_participants_unsupported"] >= 1
+    assert d["n_cosubstrate_component_rejected"] >= 1
     assert d["compile_failure_histogram"][
-        "corpus_cosubstrate_participants_unsupported"] >= 1
+        "cosubstrate_bonded_contribution_unsupported"] >= 1
     # 池层:共用许可在 find 入口生效 ⇒ 组分级候选不产池槽
     provider = default_pool_provider(None, engine=engine)
     pool = [s for s in provider(_SUB) if s.get("corpus")]
@@ -363,11 +377,12 @@ def test_wv41_component_co_substrate_honest_unsupported(tmp_path) -> None:
 
 def test_wv41_rl_row_follows_own_writing_both_directions_supply(
         tmp_path) -> None:
-    """决策③ 双向保留(R1 修订):master 90005 的 LR(裂解)整串行
-    照旧编译供给(底物=donor 全串 CCOCC ⇒ whole,co_substrates 空);
-    RL 行(缩合,底物=乙醇组分)命中检索面、按本行书写引用——但
-    **组分带共底物(乙基)⇒ 编译前结构化 unsupported**(R1 收口:
-    乙醇→CCOCC 单底物事件=共底物原子折成新增原子,不供给)。"""
+    """决策③ 双向保留(R1 修订;W-D2 拒因迁移):master 90005 的
+    LR(裂解)整串行照旧编译供给(底物=donor 全串 CCOCC ⇒ whole,
+    co_substrates 空);RL 行(缩合,底物=乙醇组分)命中检索面、按
+    本行书写引用——**组分带共底物(乙基)且键合进产物 ⇒ 三分类
+    守门拒 cosubstrate_bonded_contribution_unsupported**(D2:
+    乙醇→CCOCC 单底物事件=共底物原子折成新增原子,仍不供给)。"""
     engine = _CorpusEngine(tmp_path)
     # 整串底物 → LR 行(裂解):whole 正控保持
     out_lr = find_corpus_recorded_exact(
@@ -383,7 +398,7 @@ def test_wv41_rl_row_follows_own_writing_both_directions_supply(
                   + lr[0]["compile"]["coproducts"]) == \
         sorted(["CCO", "CC"])
     # 组分底物(乙醇)→ RL 行(缩合):检索面命中、本行书写引用,
-    # R1 共底物许可 ⇒ 编译前拒(可锚有机共底物,方向声明保留)
+    # D2 三分类守门 ⇒ 键合形态拒(可锚有机共底物,方向声明保留)
     out_rl = find_corpus_recorded_exact(
         substrate_smiles=_SUB_RL, engine=engine)
     rl = [c for c in out_rl["candidates"]
@@ -396,7 +411,7 @@ def test_wv41_rl_row_follows_own_writing_both_directions_supply(
     assert [c["smiles"] for c in rl[0]["co_substrates"]] == ["CC"]
     assert rl[0]["compile"] is None
     assert rl[0]["compile_reason"] == \
-        "corpus_cosubstrate_participants_unsupported"
+        "cosubstrate_bonded_contribution_unsupported"
     assert rl[0]["compile_detail"]["direction"] == "RL"
     assert rl[0]["compile_detail"]["donor_A_smiles"] == "CCO.CC"
     # 酯水解 master 90002 的 RL 行:底物=酸侧组分,检索面命中、按
@@ -411,27 +426,29 @@ def test_wv41_rl_row_follows_own_writing_both_directions_supply(
             assert c["matched_component"] == "CC(=O)O"
             assert c["compile"] is None
             assert c["compile_reason"] == \
-                "corpus_cosubstrate_participants_unsupported"
+                "cosubstrate_bonded_contribution_unsupported"
 
 
 def test_wv41_cosubstrate_component_reject_family(tmp_path) -> None:
-    """R1 负控族(Codex v4 §4.3/§8.4 全形态):有共底物的 component
-    记录,不问元素/角色/可锚性/方向/是否配平/底物是否恒等——一律
-    编译前结构化 unsupported(零 spec/零 event),拒因可追溯;同批
-    整串/whole 多组分正控照旧编译。
+    """R1 负控族(W-D2 修订:三分类守门后的拒因分布):有共底物的
+    component 记录——**键合融合形态守门拒**(bonded;零 spec/零
+    event)、**辅因子对形态放行为诚实 partial 供给**(91003 = PC-1
+    形态,完整控件见 tests/test_ppv1_s5b_cosub_d2.py)、**底物恒等
+    仅共组分变化 ⇒ 可执行子集 transform_no_change 编译拒**(设计
+    §八.2 既定行为)。同批整串/whole 多组分正控照旧编译。
 
-    覆盖:同根 LR/RL 双方向、可锚有机共底物(键合,父 HEAD 可编译
-    =真行为红)、不可锚断连辅因子(吡啶样)、不同元素共底物(S)、
-    未知角色(苯)、配平增强(乙烯酮,父 HEAD 可编译)、仅共组分
-    变化(底物恒等)、重复组分(CCO.CCO);正控 = whole 氧化 +
-    whole 多组分(CCO.CC 整串)。"""
+    覆盖:同根 LR/RL 双方向、可锚有机共底物(键合)、不同元素共底
+    物(S)、未知角色(苯)、配平增强(乙烯酮)、仅共组分变化(底
+    物恒等)、重复组分(CCO.CCO);正控 = whole 氧化 + whole 多组
+    分(CCO.CC 整串)+ 辅因子对拷贝型(91003)。"""
     rows = [
         # 负控:同根 LR/RL(可锚有机共底物 CC;两方向各自成行)
         _rhea_row("rhea:91001", "91000", "LR", "CCO.CC",
                   ["CCO", "CC"], "CCOCC", ["CCOCC"]),
         _rhea_row("rhea:91002", "91000", "RL", "CCO.CC",
                   ["CCO", "CC"], "CCOCC", ["CCOCC"]),
-        # 负控:不可锚断连辅因子(吡啶共底物;产物氢化吡啶断连)
+        # 正控(D2 PC-1 形态):不可锚断连辅因子(吡啶共底物;
+        # 产物氢化吡啶断连整组分 ⇒ 声明式拷贝放行)
         _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
                   ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
                   ["CC=O", "C1CCNCC1"]),
@@ -442,10 +459,11 @@ def test_wv41_cosubstrate_component_reject_family(tmp_path) -> None:
         _rhea_row("rhea:91005", "91003", "LR", "CCO.c1ccccc1",
                   ["CCO", "c1ccccc1"], "CCOc1ccccc1",
                   ["CCOc1ccccc1"]),
-        # 负控:配平增强(乙烯酮;左右元素/氢数相同,父 HEAD 可编译)
+        # 负控:配平增强(乙烯酮;左右元素/氢数相同,配平不可自救)
         _rhea_row("rhea:91006", "91004", "LR", "CCO.C=C=O",
                   ["CCO", "C=C=O"], "CCOC(C)=O", ["CCOC(C)=O"]),
-        # 负控:底物恒等、仅共组分变化(CC → C=C;底物 CCO 双侧恒等)
+        # 负控:底物恒等、仅共组分变化(CC → C=C;底物 CCO 双侧恒
+        # 等)⇒ 可执行子集 CCO→CCO = transform_no_change 编译拒
         _rhea_row("rhea:91007", "91005", "LR", "CCO.CC",
                   ["CCO", "CC"], "CCO.C=C", ["CCO", "C=C"]),
         # 负控:重复组分(CCO.CCO → CCOCC;第二当量乙醇也是共底物)
@@ -459,44 +477,75 @@ def test_wv41_cosubstrate_component_reject_family(tmp_path) -> None:
                   ["CCO", "CC"], "CCOCC", ["CCOCC"]),
     ]
     engine = _CorpusEngine(tmp_path, corpus_rows=rows)
-    # ---- 负控族:组分底物(乙醇)⇒ 全部 component 候选编译前拒 ----
+    # ---- 族分布:组分底物(乙醇)⇒ 键合拒 7 + 编译层拒 1 + 放行 1 ----
     out = find_corpus_recorded_exact(
         substrate_smiles="CCO", engine=engine)
     comp = [c for c in out["candidates"]
             if c["donor_match_kind"] == "component"]
-    rejected = {c["record_id"] for c in comp}
-    # 91012 对底物 CCO 同样是 component(带 CC 共底物)⇒ 一并拒;
-    # 同一行对底物 "CCO.CC" 才是 whole 正控(下方验证)
+    rejected = {c["record_id"] for c in comp
+                if c["compile"] is None}
+    # 91012 对底物 CCO 同样是 component(带 CC 共底物,键合)⇒ 拒;
+    # 同一行对底物 "CCO.CC" 才是 whole 正控(下方验证);91003(辅
+    # 因子对)D2 放行;91007 底物恒等 ⇒ transform_no_change 编译拒
     assert rejected == {
-        "rhea:91001", "rhea:91002", "rhea:91003", "rhea:91004",
-        "rhea:91005", "rhea:91006", "rhea:91007", "rhea:91008",
+        "rhea:91001", "rhea:91002", "rhea:91004", "rhea:91005",
+        "rhea:91006", "rhea:91007", "rhea:91008",
         "rhea:91012"}, sorted(rejected)
+    reason_by_id = {c["record_id"]: c["compile_reason"]
+                    for c in comp}
+    assert reason_by_id["rhea:91001"] == \
+        "cosubstrate_bonded_contribution_unsupported"
+    assert reason_by_id["rhea:91002"] == \
+        "cosubstrate_bonded_contribution_unsupported"
+    assert reason_by_id["rhea:91004"] == \
+        "cosubstrate_bonded_contribution_unsupported"
+    assert reason_by_id["rhea:91005"] == \
+        "cosubstrate_bonded_contribution_unsupported"
+    assert reason_by_id["rhea:91006"] == \
+        "cosubstrate_bonded_contribution_unsupported"
+    assert reason_by_id["rhea:91008"] == \
+        "cosubstrate_bonded_contribution_unsupported"
+    assert reason_by_id["rhea:91012"] == \
+        "cosubstrate_bonded_contribution_unsupported"
+    # 底物恒等仅共组分变化:可执行子集零变化 ⇒ 编译层拒(设计 §八.2)
+    assert reason_by_id["rhea:91007"] == "transform_no_change"
     for c in comp:
-        assert c["compile"] is None
-        assert c["compile_status"] == "unsupported"
-        assert c["compile_reason"] == \
-            "corpus_cosubstrate_participants_unsupported"
-        # 拒因可追溯:源行/方向/共底物声明/记录产物全保留
-        d = c["compile_detail"]
-        assert d["record_key"].startswith(c["record_id"] + "@L")
-        assert d["donor_A_smiles"] == ".".join(
-            [c["matched_component"]] +
-            [x["smiles"] for x in c["co_substrates"]])
-        assert d["direction"] in ("LR", "RL", None)
-        assert d["master_id"]
-        assert d["products"]
-        assert d["permission_note"].startswith(
-            "no approved and consumed")
+        if c["compile"] is None:
+            assert c["compile_status"] == "unsupported"
+            # 拒因可追溯:源行/方向/共底物声明/记录产物全保留
+            d = c["compile_detail"]
+            assert d["record_key"].startswith(c["record_id"] + "@L")
+            assert d["donor_A_smiles"] == ".".join(
+                [c["matched_component"]] +
+                [x["smiles"] for x in c["co_substrates"]])
+            assert d["direction"] in ("LR", "RL", None)
+            assert d["master_id"]
+            assert d["products"]
+    # 91003(辅因子对)D2 放行:拷贝型 spec 参与物形态
+    compiled_91003 = next(c for c in comp
+                          if c["record_id"] == "rhea:91003")
+    assert compiled_91003["compile"] is not None
+    spec03 = compiled_91003["compile"]
+    assert spec03["product_smiles"] == "CC=O"
+    assert [e["smiles"] for e in spec03["declared_copy_components"]] \
+        == ["C1CCNCC1"]
+    assert any(p["role"] == "cosubstrate"
+               for p in spec03["participants"])
     # 同根 LR/RL 双方向全覆盖(两行各成候选,同因同拒)
     dirs = {c["record_id"]: c["direction"]
             for c in comp if c["record_id"] in
             ("rhea:91001", "rhea:91002")}
     assert dirs == {"rhea:91001": "LR", "rhea:91002": "RL"}
-    # 可锚/不可锚/元素/角色/配平/恒等/重复:拒因无例外(单一类目)
+    # 拒因分布计数(T-4 迁移披露:键合 7 + 编译层 1;放行 1 由
+    # n_cosubstrate_component_compiled 承接)
     d = out["diagnostics"]
-    assert d["n_cosubstrate_participants_unsupported"] == 9
+    assert d["n_cosubstrate_component_candidates"] == 9
+    assert d["n_cosubstrate_component_rejected"] == 8
+    assert d["n_cosubstrate_component_compiled"] == 1
     assert d["compile_failure_histogram"][
-        "corpus_cosubstrate_participants_unsupported"] == 9
+        "cosubstrate_bonded_contribution_unsupported"] == 7
+    assert d["compile_failure_histogram"][
+        "transform_no_change"] == 1
     # ---- 正控:整串(whole)照旧编译(合法供给保持) ----
     whole = [c for c in out["candidates"]
              if c["donor_match_kind"] == "whole"]
@@ -513,11 +562,14 @@ def test_wv41_cosubstrate_component_reject_family(tmp_path) -> None:
     assert multi["rhea:91012"]["compile"] is not None
     spec = multi["rhea:91012"]["compile"]
     assert [spec["product_smiles"]] + spec["coproducts"] == ["CCOCC"]
-    # 池层共用许可:组分候选零槽,整串/whole 正常供给
+    # 池层:whole + 拷贝型 component 供给(键合/恒等零槽)
     provider = default_pool_provider(None, engine=engine)
     pool = provider("CCO")
     rec_keys = [s["key"] for s in pool]
-    assert rec_keys == ["rec-rhea:91011@L9"], rec_keys
+    assert rec_keys == ["rec-rhea:91011@L9",
+                        "rec-rhea:91003@L3"], rec_keys
+    assert provider.last_diagnostics["n_cosubstrate_declared_specs"] \
+        == 1
 
 
 def test_wv41_real_corpus_asset_retrieval(tmp_path) -> None:
@@ -553,13 +605,14 @@ def test_wv41_real_corpus_asset_retrieval(tmp_path) -> None:
     assert c["master_id"] == "10000"
     assert c["ec"] == "3.5.1.50"
     assert [x["smiles"] for x in c["co_substrates"]] == ["O"]
-    # R1:新 component 水解也缺参与物规则 ⇒ 如实拒并披露(不给无
-    # 机器证据的同类例外);拒因编译前、可追溯(源行/方向/水声明)
+    # D2:已声明水的水解 = 键合形态(r32 CS2-2 点名损失类目:水氧
+    # 键合落入含 A 原子的产物组分)⇒ 三分类守门拒;拒因编译前、
+    # 可追溯(源行/方向/水声明)
     assert c["compile"] is None
     assert c["compile_reason"] == \
-        "corpus_cosubstrate_participants_unsupported"
+        "cosubstrate_bonded_contribution_unsupported"
     assert c["compile_detail"]["co_substrates"][0]["smiles"] == "O"
-    assert d["n_cosubstrate_participants_unsupported"] >= 1
+    assert d["n_cosubstrate_component_rejected"] >= 1
     # mapping_origin 全部 inferred(全库无原生映射)
     for cand in out["candidates"]:
         if cand["compile"] is not None:
@@ -776,7 +829,7 @@ def test_wv41_pool_corpus_appended_after_eawag(tmp_path) -> None:
          "product_smiles": "CC=O", "reac_id": "r0001"},
     ]
     corpus_rows = [
-        # L1:component 行(带 CC 共底物)——R1 许可 ⇒ 不入池
+        # L1:component 行(带 CC 共底物,键合融合)——D2 守门 ⇒ 不入池
         _rhea_row("rhea:90006", "90005", "RL", "CCO.CC",
                   ["CCO", "CC"], "CCOCC", ["CCOCC"]),
         # L2:整串行(单组分 donor)——合法供给
@@ -791,15 +844,16 @@ def test_wv41_pool_corpus_appended_after_eawag(tmp_path) -> None:
     # EAWAG 在前(引擎序),corpus 整串追加在后;component 行零槽
     assert keys == ["rec-btX#r0001", "rec-rhea:90008@L2"], keys
     diag = provider.last_diagnostics
-    assert diag["pool_policy_version"] == "s5b-pool-policy-4"
+    assert diag["pool_policy_version"] == "s5b-pool-policy-5"
     assert diag["n_recorded_strict_exact"] == 1
     assert diag["n_corpus_strict_exact"] == 2  # 检索分层(strict 层 2 行)
     assert "corpus_diagnostics" in diag
     assert diag["corpus_diagnostics"]["corpus_retrieval_version"] == \
         CORPUS_RETRIEVAL_VERSION
-    # 共用许可在 find 入口生效:component 行不产池槽,拒因入直方图
+    # 守门在 find 入口生效:component 行不产池槽,拒因入直方图
+    # (D2 迁移:键合形态守门拒)
     assert diag["compile_failure_histogram"][
-        "corpus_cosubstrate_participants_unsupported"] == 1
+        "cosubstrate_bonded_contribution_unsupported"] == 1
     # corpus spec 携带整串语义(共底物声明=空集)
     corpus_spec = pool[1]
     assert corpus_spec["corpus"]["co_substrates"] == []
@@ -833,7 +887,7 @@ def test_wv41_pool_corpus_all_unsupported_honest_empty(tmp_path) -> None:
     assert diag["n_corpus_cn_candidate"] == 1
     assert diag["compile_failure_histogram"].get(
         "stereo_edit_unsupported") == 1
-    # R1:共底物候选全拒 ⇒ 同样诚实空池(拒因 = 编译前许可,非编译层)
+    # R1/D2:共底物候选键合形态全拒 ⇒ 同样诚实空池(守门拒,非编译层)
     corpus_rows2 = [
         _rhea_row("rhea:90006", "90005", "RL", "CCO.CC",
                   ["CCO", "CC"], "CCOCC", ["CCOCC"]),
@@ -846,7 +900,7 @@ def test_wv41_pool_corpus_all_unsupported_honest_empty(tmp_path) -> None:
     diag2 = provider2.last_diagnostics
     assert diag2["n_corpus_strict_exact"] == 1  # 检索分层仍如实计数
     assert diag2["compile_failure_histogram"].get(
-        "corpus_cosubstrate_participants_unsupported") == 1
+        "cosubstrate_bonded_contribution_unsupported") == 1
 
 
 def test_wv41_eawag_hydrolysis_capability_preserved(tmp_path) -> None:

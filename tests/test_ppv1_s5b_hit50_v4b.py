@@ -636,17 +636,22 @@ def test_v4b_versions_registered() -> None:
     元素域收窄为碳 + 执行后复核双轴,公共编译判据链行为变化);
     recorded-source-2 / pool-policy-4 / corpus-retrieval-2 **维持**
     (recorded 侧零判据改动;池成员零变化——碳消解唯一 298 槽
-    bt0002#r0032 保留、非碳反例不在语料,复审 §4 拒例零收紧面)。"""
+    bt0002#r0032 保留、非碳反例不在语料,复审 §4 拒例零收紧面)。
+    W-D2(共底物参与物语义):recorded-source-2→3(union gate 可选
+    参数扩展)、pool-policy-4→5(拷贝子集重新入池)、corpus-
+    retrieval-2→3(三分类守门)——s5b-compiler-3 维持(编译判据
+    零触碰;net_reaction_signature 拷贝扩展对无拷贝 spec 逐字节
+    不变);EAWAG/整串缺省路径行为字节等价(负控见 cosub_d2 族)。"""
     from pathway_v43.pollutant.recorded_source import (
         RECORDED_SOURCE_VERSION,
     )
     from pathway_v43.pollutant.s5b_builder import S5B_POOL_POLICY_VERSION
 
     assert S5B_COMPILER_VERSION == "s5b-compiler-3"
-    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-2"
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-4"
+    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-5"
     from pathway_v43.pollutant.recorded_source import (
         CORPUS_RETRIEVAL_VERSION,
     )
 
-    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-2"
+    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-3"
