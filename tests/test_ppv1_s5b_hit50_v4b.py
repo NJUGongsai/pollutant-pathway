@@ -654,4 +654,4 @@ def test_v4b_versions_registered() -> None:
         CORPUS_RETRIEVAL_VERSION,
     )
 
-    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-3"
+    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-4"

@@ -254,7 +254,7 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
     键合拒/不可归属拒)、pool-policy-4→5(池成员变化:拷贝子集重新
     入池)、recorded-source-2→3(union gate 扩展:可选参数,缺省
     路径字节等价)。"""
-    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-3"
+    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-4"
     sem = dict(CORPUS_RETRIEVAL_SEMANTICS)
     assert sem["substrate_retrieval_scope"] == "cn_identity_wide"
     # D2:组分级+共底物声明,component 候选过原子归属三分类守门
@@ -262,11 +262,21 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
         sem["donor_side_semantics"]
     assert "atomic-attribution three-way classification" in \
         sem["donor_side_semantics"]
-    # D2:共底物事件语义(诚实 partial;结构性无 strict 通路)
+    # D2:共底物事件语义(诚实 partial;W-D2-R1:NC-12 范围限定到
+    # 当前 root-only 参考构建口径;合法完整 B/copy 参考可 strict)
     assert sem["cosubstrate_permission"].startswith(
-        "D2 (s5b-corpus-retrieval-3")
-    assert "no strict path, NC-12 batch fuse" in \
+        "D2 (s5b-corpus-retrieval-4")
+    assert "no strict path under the CURRENT " in \
         sem["cosubstrate_permission"]
+    assert "ROOT-ONLY (B/copy-stripped) reference" in \
+        sem["cosubstrate_permission"]
+    assert "NC-12 batch fuse" in \
+        sem["cosubstrate_permission"]
+    # W-D2-R1:NC-10 触发条件挂记录侧单一声明来源(S5B-D2-01)
+    assert "RECORD-SIDE single" in \
+        sem["cosubstrate_event_semantics"]
+    assert "can NOT disable the guard" in \
+        sem["cosubstrate_event_semantics"]
     assert "cosubstrate_bonded_contribution_unsupported" in \
         sem["cosubstrate_permission"]
     # D2:union gate 语义(键空间同源;非配平核验)

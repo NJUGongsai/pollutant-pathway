@@ -75,10 +75,17 @@ from ..services.atom_tool import execute_edits, render
 SEARCH_PRODUCTION_VERSION = "ppv1-search-production-2"
 # -2(S5a 回修 r3,2026-10-09,复审 R3 §4 S5A-05):load_context 首消费
 # 增加引用绑定核验 —— H07+from_dict 完成后、实际消费前,请求
-# context_ref 必须等于恢复载荷 context_id;旧 ctx: 存储键下的自洽
-# 新身份(重算 selfhash/重封 H07 均不豁免)⇒ 结构化拒。冻结判据四
+# context_ref 必须等于恢复载荷 context_id;旧 ctx: 存储键下的自洽新
+# 身份(重算 selfhash/重封 H07 均不豁免)⇒ 结构化拒。冻结判据四
 # "重建半边"的兑现:合法新内容新 ID 存新地址沿新引用,旧引用不复用。
 # production 链其余行为零变化。-1 报告按既有版本门策略消费。
+# W-D2-R1(2026-10-11,S5B-D2-01 回修;Codex D2 复审 §4/§8):
+# prepare_hypothesis 的 NC-10 触发条件改挂记录侧单一声明来源
+# (_cosubstrate_record_declaration;装配数组可删不再能关闭守卫)。
+# 本语义差异按 D2 的登记面登记为 s5b-corpus-retrieval-4(共底物
+# 事件契约消费语义;recorded_source.py 版本注释)——search-production
+# 版本维持 -2(该契约自 D2 起即由 corpus-retrieval 语义块承载,不
+# 硬升无关契约;复审 §7"按既有版本身份规则登记差异")。
 CONTEXT_ARTIFACT_NAME = "path_context"
 
 # admission 处置与驱动语义的映射(expand/retain_conditional ⇒ 事件可
@@ -171,23 +178,27 @@ def prepare_hypothesis(
     - dependencies:依赖 spec 列表(H04,经 build_cyclic_dependency);
     - participants:可选显式参与物覆盖(系数/角色;默认底物 1 + 主
       产物 1 + 共同产物逐条,系数按声明或 unknown);
-    - **W-D2 共底物字段(s5b-corpus-retrieval-3 消费面;spec 携带
-      co_substrate_states / declared_copy_components 时激活,其余
-      spec 路径行为零变化)**:
+    - **W-D2 共底物字段(s5b-corpus-retrieval-3 消费面;**W-D2-R1
+      (S5B-D2-01 回修):激活条件 = 记录侧单一声明来源(contract 为
+      dict 或 corpus 块声明 B/copy),装配数组非空与否不参与判定**;
+      两处声明均无的 spec 路径行为零变化)**:
       * ``co_substrate_states``:[{smiles, state_ref, source_ref}]
         ——B 状态经同源 build_product_state 重建(严格身份内容
-        寻址;声明 state_ref 与重建 ID 不一致 ⇒ 拒);
+        寻址;声明 state_ref 与重建 ID 不一致 ⇒ 拒);声明在位时
+        该数组缺失/null/非 list ⇒ 结构化拒(不静默归一成空列表,
+        不降级成无共底物缺省装配);
       * ``declared_copy_components``:[{smiles, state_ref,
         component_source=record_declared_copy, record_key,
         provenance_sha256}] ——拷贝组分状态(与 coproduct 同轨的
-        产物状态;component_source 非法 ⇒ 拒);
+        产物状态;component_source 非法 ⇒ 拒;数组形状契约同上);
       * ``cosubstrate_event_contract``:{record_key, co_substrates,
         record_products, copy_state_refs} ——NC-10 事件级端到端
-        不变量的记录侧输入(本函数消费并断言:声明共底物 ⊆ 事件
-        reactant 侧 cosubstrate 参与物 ∧ 记录产物多重集 == 事件
-        产物参与物多重集 ∧ 拷贝组分全部被引用 ∧ 拷贝不进执行期望
-        NC-9;任一不满足 ⇒ 零事件零提交);
-      * participants 必须显式(共底物语义不进缺省装配)。
+        不变量的记录侧输入(本函数消费并断言:声明共底物(contract
+        ∪ corpus 合并)⊆ 事件 reactant 侧 cosubstrate 参与物 ∧
+        记录产物多重集 == 事件产物参与物多重集 ∧ 拷贝组分全部被
+        引用 ∧ 拷贝不进执行期望 NC-9;任一不满足 ⇒ 零事件零提交);
+      * participants 必须显式(共底物语义不进缺省装配——记录侧声明
+        在位时省略 participants ⇒ 拒,不得默认装配 A→P)。
     返回 {hypothesis, states, product_states, tool_inputs,
     spec_digest, hypothesis_dict, cosubstrate_disclosure}。
     """
@@ -226,11 +237,50 @@ def prepare_hypothesis(
         for d in (spec.get("dependencies") or [])]
     # ---- W-D2(S5b-corpus-retrieval-3 消费面):共底物参与物状态装配
     # + NC-10 事件级端到端不变量(mimo r32 R32-CS3-3;设计 §四.3)。
-    # 仅当 spec 携带 D2 共底物字段时激活(其余 spec 路径行为零变化):
-    # B 与拷贝组分状态经同源 build_product_state 构建(严格身份内容
-    # 寻址,与 recorded_source 装配期同 state_id);NC-10 断言在假设
-    # 构造前执行——任一不满足 ⇒ ProductionContractError(零事件/零
-    # 提交;spec 层 gate 通过不替代事件层核对)。
+    # ---- W-D2-R1(S5B-D2-01 回修,2026-10-11;Codex D2 复审 §4/§8):
+    # 触发条件改挂**记录侧单一声明来源**(_cosubstrate_record_
+    # declaration:contract 为 dict 或 corpus 块声明 B/copy)——
+    # 不由可删的装配数组是否非空决定。声明在 ⇒ 装配数组缺失/null/
+    # 非 list 先结构化拒(不静默 or-[] 归一)、participants 必须显式
+    # (缺省装配不覆盖共底物语义)、NC-10 断言无条件执行(旧条件
+    # b_states/copy_states 双空即跳过,是四反例绕过根因)。B 与拷贝
+    # 状态经同源 build_product_state 构建(严格身份内容寻址,与
+    # recorded_source 装配期同 state_id);任一不满足 ⇒
+    # ProductionContractError(零事件/零提交;spec 层 gate 通过不
+    # 替代事件层核对)。适用入口(runflow decide 池条目/decide novel
+    # 提案/expand 重放与公开 resume)全部经本单一构建源共用同一
+    # 核验,不在各入口复制不同规则。合法旁观 B 的 copy=[](数组
+    # 在位、类型合法)不拒。
+    declaration = _cosubstrate_record_declaration(spec)
+    if declaration is not None:
+        contract = spec.get("cosubstrate_event_contract")
+        if not isinstance(contract, dict) or not isinstance(
+                contract.get("record_products"), list):
+            raise ProductionContractError(
+                "共底物 spec 缺 cosubstrate_event_contract(NC-10 事件"
+                "级不变量需要记录侧声明;record_products 必填)",
+                {"kind": "cosubstrate_contract_missing",
+                 "declaration_sources": declaration["sources"]})
+        participants_spec = spec.get("participants")
+        if not isinstance(participants_spec, list) or not participants_spec:
+            raise ProductionContractError(
+                "共底物 spec 必须显式声明 participants(B 与拷贝组分"
+                "装配契约;缺省装配不覆盖共底物语义)",
+                {"kind": "cosubstrate_participants_required",
+                 "declaration_sources": declaration["sources"]})
+        for field in ("co_substrate_states",
+                      "declared_copy_components"):
+            value = spec.get(field)
+            if not isinstance(value, list):
+                raise ProductionContractError(
+                    "共底物 spec 的装配数组缺失/null/非 list(记录侧"
+                    "已声明 B/copy ⇒ 装配数组必须显式在位;静默归一成"
+                    "空列表 = 删字段关闭 NC-10 的 S5B-D2-01 绕过形态,"
+                    "不得降级成无共底物缺省装配)",
+                    {"kind": "cosubstrate_assembly_missing",
+                     "field": field,
+                     "value_type": type(value).__name__,
+                     "declaration_sources": declaration["sources"]})
     co_sub_entries = [dict(e) for e in
                       (spec.get("co_substrate_states") or [])]
     copy_entries = [dict(e) for e in
@@ -238,20 +288,7 @@ def prepare_hypothesis(
     cosub_disclosure: dict | None = None
     b_states: dict = {}
     copy_states: dict = {}
-    if co_sub_entries or copy_entries:
-        contract = spec.get("cosubstrate_event_contract")
-        if not isinstance(contract, dict) or not isinstance(
-                contract.get("record_products"), list):
-            raise ProductionContractError(
-                "共底物 spec 缺 cosubstrate_event_contract(NC-10 事件"
-                "级不变量需要记录侧声明;record_products 必填)",
-                {"kind": "cosubstrate_contract_missing"})
-        participants_spec = spec.get("participants")
-        if not isinstance(participants_spec, list) or not participants_spec:
-            raise ProductionContractError(
-                "共底物 spec 必须显式声明 participants(B 与拷贝组分"
-                "装配契约;缺省装配不覆盖共底物语义)",
-                {"kind": "cosubstrate_participants_required"})
+    if declaration is not None:
         for e in co_sub_entries:
             state = build_product_state(
                 str(e.get("smiles") or ""),
@@ -328,16 +365,20 @@ def prepare_hypothesis(
     for state in coproduct_states:
         states[state.state_id] = state
     product_states_out = [product_state] + coproduct_states
-    if b_states or copy_states:
+    if declaration is not None:
         # ---- 状态映射扩(B 与拷贝组分;设计 §四.3:拷贝产物 state
-        # 与 coproduct 同轨——0e.5 followup 消费链照池宽纪律)----
+        # 与 coproduct 同轨——0e.5 followup 消费链照池宽纪律)。
+        # W-D2-R1:本块改由记录侧声明触发(旧条件 b_states or
+        # copy_states 在两侧同删时静默跳过 NC-10,即 S5B-D2-01)。
+        # ----
         states.update(b_states)
         states.update(copy_states)
         product_states_out.extend(
             copy_states[k] for k in sorted(copy_states))
         cosub_disclosure = _check_cosubstrate_event_invariant(
             spec, participants=participants, states=states,
-            b_states=b_states, copy_states=copy_states)
+            b_states=b_states, copy_states=copy_states,
+            declaration=declaration)
     tool_inputs = {
         "edits": list(spec["edits"]),
         "donor": dict(spec["donor"]),
@@ -356,16 +397,71 @@ def prepare_hypothesis(
     }
 
 
+def _cosubstrate_record_declaration(spec: dict) -> dict | None:
+    """记录侧单一声明来源(W-D2-R1/S5B-D2-01 回修,2026-10-11;Codex
+    D2 复审 §4/§8)——NC-10 触发条件的唯一判定函数。
+
+    共底物语义适用性 = spec 携带**记录侧声明**:
+    ``cosubstrate_event_contract`` 为 dict,或 ``corpus`` 块声明
+    B/copy(co_substrates 非空或 record_products 非空列表——只有 D2
+    component 分支装配的 corpus 块携带这些字段;whole/EAWAG spec 两处
+    均无声明)。**装配数组(co_substrate_states/declared_copy_
+    components)是否非空不参与判定**——同一记录把 B 与拷贝两侧同时
+    删/置空/置 null/省略后,旧触发条件静默关闭守卫、缺省装配退化回
+    A→P,即复审四反例(strip_both_empty/missing/null、all_arrays_
+    missing_participants_default)的绕过形态。
+
+    返回 None = 两处记录侧声明均不在 ⇒ 非 D2 共底物 spec(其余 spec
+    路径行为零变化);返回 dict = {declared_b_smiles(contract ∪
+    corpus 合并去重保序), sources, contract_declared_b,
+    corpus_declared_b}——合并集喂 NC-10 轴 1(声明共底物 ⊆ 事件
+    reactant 侧 cosubstrate 参与物):contract 单侧被清空而 corpus
+    仍声明 B 时,守卫不得失效(声明来源两处任一在位即约束)。
+    """
+    contract = spec.get("cosubstrate_event_contract")
+    corpus = spec.get("corpus")
+    contract_present = isinstance(contract, dict)
+    corpus_b: list[str] = []
+    corpus_declared = False
+    if isinstance(corpus, dict):
+        corpus_b = [str(e.get("smiles")) for e in
+                    (corpus.get("co_substrates") or [])
+                    if isinstance(e, dict) and e.get("smiles")]
+        corpus_products = corpus.get("record_products")
+        corpus_declared = bool(corpus_b) or (
+            isinstance(corpus_products, list) and bool(corpus_products))
+    if not contract_present and not corpus_declared:
+        return None
+    contract_b: list[str] = []
+    if contract_present:
+        contract_b = [str(e.get("smiles")) for e in
+                      (contract.get("co_substrates") or [])
+                      if isinstance(e, dict) and e.get("smiles")]
+    sources = (["cosubstrate_event_contract"] if contract_present else []
+               ) + (["corpus"] if corpus_declared else [])
+    return {
+        "declared_b_smiles": list(
+            dict.fromkeys(contract_b + corpus_b)),
+        "sources": sources,
+        "contract_declared_b": contract_b,
+        "corpus_declared_b": corpus_b,
+    }
+
+
 def _check_cosubstrate_event_invariant(
         spec: dict, *, participants: list, states: dict,
-        b_states: dict, copy_states: dict) -> dict:
+        b_states: dict, copy_states: dict,
+        declaration: dict) -> dict:
     """NC-10 事件级端到端不变量(mimo r32 R32-CS3-3 必加;事件提交
     前断言,任一不满足 ⇒ ProductionContractError ⇒ 零事件/零提交):
 
     1. 记录声明的全部共底物严格身份 ⊆ 事件 reactant 侧 cosubstrate
        state_refs 的状态严格身份(spec 层 gate 通过不替代事件层核对
        —— B 与拷贝同丢会退化回 A→P 可 exact 的 R2-2 禁形态,且
-       add_atom 负控对零产物贡献 B 空转,此不变量是唯一事件层闸);
+       add_atom 负控对零产物贡献 B 空转,此不变量是唯一事件层闸;
+       W-D2-R1:声明共底物集 = contract ∪ corpus 记录侧单一声明来源
+       合并(_cosubstrate_record_declaration),contract 单侧清空
+       不关闭本轴);
     2. 记录产物多重集 == 事件产物参与物多重集(执行组分 ∪ 声明拷贝
        组分);
     3. 全部参与物 state_ref 可解析(装配不得静默丢参与物);
@@ -394,18 +490,21 @@ def _check_cosubstrate_event_invariant(
             {"kind": "cosubstrate_participant_state_unresolved",
              "unresolved_state_refs": unresolved[:8]})
     # ---- (1) 声明共底物 ⊆ reactant 侧 cosubstrate 参与物 ----
+    # W-D2-R1:声明集 = 记录侧单一声明来源合并(contract ∪ corpus;
+    # _cosubstrate_record_declaration 已去重保序)——contract 单侧
+    # 被清空而 corpus 仍声明 B 时,本轴不得失效。
     reactant_cosub_ids = {
         states[p.state_ref].smiles_isomeric for p in participants
         if p.side == "reactant" and p.role == "cosubstrate"}
     declared_b = set()
-    for e in contract.get("co_substrates") or []:
+    for smiles in declaration["declared_b_smiles"]:
         try:
-            ident = strict_identity_of(str(e.get("smiles")))
+            ident = strict_identity_of(str(smiles))
         except Exception as exc:
             raise ProductionContractError(
                 "记录侧共底物声明不可解析(NC-10 契约输入失败)",
                 {"kind": "cosubstrate_contract_unparseable",
-                 "smiles": str(e.get("smiles"))[:200],
+                 "smiles": str(smiles)[:200],
                  "reason": str(exc)[:200]}) from exc
         if ident is not None:
             declared_b.add(ident)
@@ -488,6 +587,14 @@ def _check_cosubstrate_event_invariant(
              "center_status": "unknown"}
             for e in (spec.get("declared_copy_components") or [])],
         "co_substrate_state_refs": sorted(b_states),
+        "declaration_sources": list(declaration["sources"]),
+        "trigger_semantics": (
+            "W-D2-R1 (S5B-D2-01): NC-10 applicability is decided by the "
+            "record-side single declaration source (cosubstrate_event_"
+            "contract dict OR corpus block declaring B/copy); assembly "
+            "arrays being missing/null/empty cannot disable the guard "
+            "and participants omission cannot default to plain A->P "
+            "assembly"),
         "expectation_covered_state_refs": expectation_covered,
         "coproduct_participants_field_note": (
             "coproduct_participants aggregates by role and does NOT "
@@ -499,7 +606,8 @@ def _check_cosubstrate_event_invariant(
         "invariant": "checked(NC-10: declared cosubstrates subset-of "
                      "event reactant cosubstate refs AND record "
                      "product multiset == event product participant "
-                     "multiset)",
+                     "multiset; declared-B set = contract UNION corpus "
+                     "record-side declaration, W-D2-R1)",
         "stoichiometry_status": (
             "unknown(coefficients all unknown;participant_list_status"
             "=declared_complete describes list completeness only, "

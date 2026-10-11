@@ -1,5 +1,6 @@
-"""PPV1 S5b 共底物参与物语义 D2 编译实现轮测试族
-(S5b-corpus-retrieval-3 / s5b-recorded-source-3 / s5b-pool-policy-5)。
+"""PPV1 S5b 共底物参与物语义 D2 编译实现轮测试族 + D2-R1 回修
+(S5b-corpus-retrieval-4(W-D2-R1,S5B-D2-01)/ s5b-recorded-source-3 /
+s5b-pool-policy-5)。
 
 权威链:设计书 S5B_COSUBSTRATE_PARTICIPANT_SEMANTICS_DESIGN_2026-10-10.md
 (方案 a + §五 原子三分类守门 + §五.3 union gate 扩展 + §12 T-1~T-5
@@ -18,11 +19,19 @@
 - NC-8 可执行子集为空 ⇒ 结构化拒(防御分支;公共枚举下不可达,
   映射注入验证拒因名——A 的像必落于 A-可溯组分);
 - NC-9 拷贝注入 expectation ⇒ 拒;
-- NC-10 事件级端到端不变量(B 与拷贝同丢的退化 spec ⇒ prepare 拒);
+- NC-10 事件级端到端不变量(B 与拷贝同丢的退化 spec ⇒ prepare 拒;
+  W-D2-R1/S5B-D2-01 回修:触发条件改挂记录侧单一声明来源——四反例
+  strip_both_empty/strip_both_missing/strip_both_null/all_arrays_
+  missing_participants_default(装配数组两侧同删/置空/置 null/省略
+  + participants 删减/省略,contract/corpus 声明保留)均首消费
+  结构化拒,装配数组非空与否不再能关闭守卫;corpus-only 声明
+  (contract 删除、corpus 保留)同样拒);
 - NC-11 拷贝身份 cn 派生(立体异构)⇒ declared_copy_mismatch(拷贝
   只认 strict);
-- NC-12 批级熔断:本通道事件 matched_strict 恒 == 0(结构性不变量,
-  出数即红;e2e 合成批断言);
+- NC-12 批级熔断:本通道事件 matched_strict 恒 == 0(W-D2-R1 范围
+  限定:仅对当前剥除 B/copy 的 root-only 参考构建口径成立,合法
+  完整 B/copy 参考可 strict、非漂移;e2e 合成批断言 + 完整参考
+  正控);
 - PC-1 辅因子对型(CCO.c1ccncc1→CC=O+C1CCNCC1):编译成功 + 参与
   物形态 + 事件 partial(断言具体桶);元素账 unknown 非已配平
   (该例按氢计不配平:乙醇→乙醛释 2H、吡啶→哌啶需 6H,差 4H;
@@ -65,7 +74,10 @@ from pathway_v43.pollutant.recorded_source import (  # noqa: E402
     reset_corpus_cache,
     reset_library_cache,
 )
-from pathway_v43.pollutant.runflow import start_ppv1_run  # noqa: E402
+from pathway_v43.pollutant.runflow import (  # noqa: E402
+    resume_ppv1_run,
+    start_ppv1_run,
+)
 from pathway_v43.pollutant.s5b_builder import (  # noqa: E402
     S5B_POOL_POLICY_VERSION,
     build_question_batch,
@@ -156,8 +168,14 @@ _SUB_PENTANAMIDE = "CCOC(C)=O"     # 乙酸乙酯(水解 component 面)
 
 def test_d2_versions_registered() -> None:
     """D2 版本登记(既有身份规则:许可/池成员/gate 扩展三处升版;
-    EAWAG/整串语义键保持)。"""
-    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-3"
+    EAWAG/整串语义键保持)。
+
+    W-D2-R1(S5B-D2-01 回修,2026-10-11;Codex D2 复审 §4/§8):
+    corpus-retrieval-3→4——NC-10 触发条件改挂记录侧单一声明来源
+    (共底物事件契约消费语义;spec 装配/检索/编译行为零变化)。
+    recorded-source-3 / pool-policy-5 维持(compile 判据与池成员
+    零触碰)。"""
+    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-4"
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
     assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-5"
 
@@ -436,6 +454,324 @@ def test_d2_nc10_event_invariant_degenerate_spec_rejected(tmp_path) -> None:
         "cosubstrate_event_invariant_violation"
 
 
+# ================================================== W-D2-R1(S5B-D2-01 回修)
+
+def _strip_both_sides(spec: dict, form: str) -> dict:
+    """Codex D2 复审 §4.2 四反例的装配层删字段形态(同记录把 B 参与
+    物与拷贝状态**两侧同时**删/置空/置 null;contract/corpus 记录侧
+    声明保留——不改写成另一反应,不做全库协同改写)。
+
+    form 取 strip_both_empty / strip_both_missing / strip_both_null
+    (剥掉前缀后为 empty/missing/null)。"""
+    copyrefs = {e["state_ref"]
+                for e in spec.get("declared_copy_components") or []}
+    spec["participants"] = [
+        p for p in spec["participants"]
+        if p["role"] != "cosubstrate"
+        and p["state_ref"] not in copyrefs]
+    kind = form[len("strip_both_"):] if form.startswith(
+        "strip_both_") else form
+    if kind == "missing":
+        spec.pop("co_substrate_states", None)
+        spec.pop("declared_copy_components", None)
+    elif kind == "null":
+        spec["co_substrate_states"] = None
+        spec["declared_copy_components"] = None
+    else:
+        spec["co_substrate_states"] = []
+        spec["declared_copy_components"] = []
+    return spec
+
+
+@pytest.mark.parametrize("form,expected_kind,expected_axis", [
+    # 四反例之一:两侧装配数组置 [](数组形状合法)⇒ 进同一 NC-10
+    # 守卫,轴 1(声明共底物 ⊆ reactant cosubstrate)拒
+    ("strip_both_empty", "cosubstrate_event_invariant_violation",
+     "declared_cosubstrates_subset"),
+    # 四反例之二:两侧装配键删除 ⇒ 记录侧声明在位而装配数组缺失,
+    # 先结构化拒(不静默 or-[] 归一)
+    ("strip_both_missing", "cosubstrate_assembly_missing", None),
+    # 四反例之三:两侧装配键置 null ⇒ 同上结构化拒
+    ("strip_both_null", "cosubstrate_assembly_missing", None),
+])
+def test_d2_nc10_r1_double_strip_forms_rejected(
+        tmp_path, form, expected_kind, expected_axis) -> None:
+    """NC-10 W-D2-R1(S5B-D2-01,Codex D2 复审 §4.2 四反例):记录侧
+    声明(contract/corpus)保留时,B 参与物与拷贝状态两侧同删/置空/
+    置 null 不能关闭守卫——首消费(prepare_hypothesis)结构化拒;
+    触发条件挂记录侧单一声明来源,装配数组非空与否不参与判定。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine, out, comp = _find_component(tmp_path, rows)
+    spec = comp[0]["compile"]
+    assert spec is not None
+    from pathway_v43.pollutant.production import build_product_state
+
+    tampered = _strip_both_sides(
+        json.loads(json.dumps(spec)), form)
+    # 记录侧声明保全核验(反例只删装配层,不改声明)
+    assert isinstance(
+        tampered.get("cosubstrate_event_contract"), dict)
+    assert tampered["corpus"]["co_substrates"]
+    substrate_state = build_product_state(
+        "CCO", source_refs=[{"record": "d2-r1-" + form}])
+    with pytest.raises(ProductionContractError) as exc_info:
+        prepare_hypothesis(
+            tampered, parent_path_id="pp-d2-r1-" + form,
+            substrate_state=substrate_state)
+    assert exc_info.value.detail["kind"] == expected_kind
+    if expected_axis is not None:
+        assert exc_info.value.detail["axis"] == expected_axis
+
+
+def test_d2_nc10_r1_all_arrays_missing_participants_default_rejected(
+        tmp_path) -> None:
+    """NC-10 W-D2-R1 四反例之四(all_arrays_missing_participants_
+    default):装配数组与 participants 均省略(企图回落到缺省 A→P
+    装配),contract/corpus 声明保留 ⇒ 首消费结构化拒——共底物语义
+    不进缺省装配(不得默认降级成 A→P 可 exact 形态)。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine, out, comp = _find_component(tmp_path, rows)
+    spec = comp[0]["compile"]
+    assert spec is not None
+    from pathway_v43.pollutant.production import build_product_state
+
+    tampered = _strip_both_sides(
+        json.loads(json.dumps(spec)), "missing")
+    tampered.pop("participants")
+    substrate_state = build_product_state(
+        "CCO", source_refs=[{"record": "d2-r1-default"}])
+    with pytest.raises(ProductionContractError) as exc_info:
+        prepare_hypothesis(
+            tampered, parent_path_id="pp-d2-r1-default",
+            substrate_state=substrate_state)
+    assert exc_info.value.detail["kind"] == \
+        "cosubstrate_participants_required"
+
+
+def test_d2_nc10_r1_corpus_only_declaration_rejected(tmp_path) -> None:
+    """NC-10 W-D2-R1 声明来源守卫:contract 整个删除而 corpus 块仍
+    声明 B/copy(两侧装配数组同删、participants 删减)⇒ 记录侧单一
+    声明来源仍判适用 ⇒ 缺契约输入先结构化拒(声明来源两处任一在位
+    即触发;删除声明本身不是放行通道)。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine, out, comp = _find_component(tmp_path, rows)
+    spec = comp[0]["compile"]
+    assert spec is not None
+    from pathway_v43.pollutant.production import build_product_state
+
+    tampered = _strip_both_sides(
+        json.loads(json.dumps(spec)), "missing")
+    tampered.pop("cosubstrate_event_contract")
+    substrate_state = build_product_state(
+        "CCO", source_refs=[{"record": "d2-r1-corpusonly"}])
+    with pytest.raises(ProductionContractError) as exc_info:
+        prepare_hypothesis(
+            tampered, parent_path_id="pp-d2-r1-corpusonly",
+            substrate_state=substrate_state)
+    assert exc_info.value.detail["kind"] == \
+        "cosubstrate_contract_missing"
+    assert exc_info.value.detail["declaration_sources"] == ["corpus"]
+
+
+def test_d2_nc10_r1_contract_b_emptied_corpus_merge_guards(
+        tmp_path) -> None:
+    """NC-10 W-D2-R1 合并声明集:contract.co_substrates 被清空而
+    corpus 仍声明 B(装配两侧同删 + participants 删减)⇒ 轴 1 的
+    声明共底物集 = contract ∪ corpus 合并 ⇒ 仍拒(contract 单侧
+    清空不关闭守卫)。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine, out, comp = _find_component(tmp_path, rows)
+    spec = comp[0]["compile"]
+    assert spec is not None
+    from pathway_v43.pollutant.production import build_product_state
+
+    tampered = _strip_both_sides(
+        json.loads(json.dumps(spec)), "empty")
+    tampered["cosubstrate_event_contract"]["co_substrates"] = []
+    substrate_state = build_product_state(
+        "CCO", source_refs=[{"record": "d2-r1-bmerge"}])
+    with pytest.raises(ProductionContractError) as exc_info:
+        prepare_hypothesis(
+            tampered, parent_path_id="pp-d2-r1-bmerge",
+            substrate_state=substrate_state)
+    assert exc_info.value.detail["kind"] == \
+        "cosubstrate_event_invariant_violation"
+    assert exc_info.value.detail["axis"] == "declared_cosubstrates_subset"
+
+
+def test_d2_nc10_r1_bystander_zero_copy_not_rejected(tmp_path) -> None:
+    """NC-10 W-D2-R1 正控(不以全面拒绝换通过):合法旁观 B 的
+    copy=[](装配数组在位、类型合法、记录产物多重集 == 事件产物
+    多重集)不拒——记录侧声明触发的守卫按声明核验,不因数组为空
+    而拒。"""
+    rows = [
+        _rhea_row("rhea:91004", "91002", "LR", "CCO.CC",
+                  ["CCO", "CC"], "CC=O", ["CC=O"]),
+    ]
+    engine, out, comp = _find_component(tmp_path, rows)
+    spec = comp[0]["compile"]
+    assert spec is not None
+    from pathway_v43.pollutant.production import build_product_state
+
+    assert spec["declared_copy_components"] == []
+    substrate_state = build_product_state(
+        "CCO", source_refs=[{"record": "d2-r1-bystander"}])
+    prepared = prepare_hypothesis(
+        spec, parent_path_id="pp-d2-r1-bystander",
+        substrate_state=substrate_state)
+    assert prepared["cosubstrate_disclosure"] is not None
+    assert prepared["cosubstrate_disclosure"]["declaration_sources"] == \
+        ["cosubstrate_event_contract", "corpus"]
+
+
+@pytest.mark.parametrize("form,expected_kind", [
+    ("strip_both_empty", "cosubstrate_event_invariant_violation"),
+    ("strip_both_missing", "cosubstrate_assembly_missing"),
+    ("strip_both_null", "cosubstrate_assembly_missing"),
+])
+def test_d2_nc10_r1_public_start_resume_reject(
+        tmp_path, form, expected_kind) -> None:
+    """NC-10 W-D2-R1 首提与恢复入口(公开链):四反例经 plan 池 spec
+    进 start_ppv1_run(runflow decide 首提)与 resume_ppv1_run(同一
+    scripted 模型身份)⇒ 双入口 run_error 均为结构化拒因、零事件/
+    零事件提交;逐表如实登记先行合法 root 检索/认领/预算账(不伪称
+    全表零写)。恢复与首提共用 prepare_hypothesis 单一构建源的同一
+    核验(不在各入口复制不同规则)。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine = _CorpusEngine(tmp_path, rows)
+    provider = default_pool_provider(None, engine=engine)
+    questions = tmp_path / "questions.jsonl"
+    questions.write_text(json.dumps({
+        "qid": "d2-r1-" + form, "substrate_smiles": "CCO",
+        "products_smiles": ["CC=O"],
+    }) + "\n", encoding="utf-8")
+    manifest = build_question_batch(
+        questions, tmp_path / "batch", batch_tag="d2-r1-" + form,
+        pool_provider=provider, provider_kind="scripted",
+        synthetic_review=True)
+    run_input = json.loads(
+        (tmp_path / "batch" / "run_inputs" /
+         ("d2-r1-" + form + ".json")).read_text(encoding="utf-8"))
+    plan = json.loads(json.dumps(run_input["plan"]))
+    _strip_both_sides(plan["pools"]["CCO"][0], form)
+    model = ScriptedRealModelAdapter(
+        strategy="first_pool", model_id="d2-model-r1-" + form)
+    summary = start_ppv1_run(
+        config=resolve_config(), runs_root=tmp_path / "runs",
+        run_id=run_input["run_id"], smiles="CCO", plan=plan,
+        model=model, profile_policy=_PROFILE)
+    assert summary["counts"]["events"] == 0
+    start_error = summary["stop"]["run_error"]
+    assert start_error["error"] == "ProductionContractError"
+    assert start_error["kind"] == expected_kind
+    import sqlite3
+
+    run_id = run_input["run_id"]
+    conn = sqlite3.connect(
+        str(tmp_path / "runs" / run_id / "pollutant.sqlite"))
+    conn.row_factory = sqlite3.Row
+    counts = {
+        t: conn.execute(
+            f"SELECT COUNT(*) AS n FROM {t}").fetchone()["n"]
+        for t in ("events", "search_commit_records",
+                  "event_appearance_links", "hypotheses",
+                  "search_actions", "states", "budget_reservations")}
+    conn.close()
+    # 零坏 event/相关事件提交(事件/提交/事件外观/假设全零)
+    assert counts["events"] == 0
+    assert counts["search_commit_records"] == 1  # 仅 run 注册行
+    assert counts["event_appearance_links"] == 0
+    assert counts["hypotheses"] == 0
+    # 先行合法账如实披露(root 检索/认领/预算/底物状态——不伪称
+    # 全表零写;预注册拒因前已发生的合法写入)
+    assert counts["search_actions"] >= 2
+    assert counts["states"] >= 1
+    assert counts["budget_reservations"] >= 3
+    # ---- 恢复入口:同一 scripted 模型身份的公开 resume 也拒 ----
+    resume = resume_ppv1_run(
+        config=resolve_config(), runs_root=tmp_path / "runs",
+        run_id=run_id, model=model)
+    resume_error = resume["stop"]["run_error"]
+    assert resume_error["error"] == "ProductionContractError"
+    assert resume_error["kind"] == expected_kind
+    conn = sqlite3.connect(
+        str(tmp_path / "runs" / run_id / "pollutant.sqlite"))
+    conn.row_factory = sqlite3.Row
+    after = {t: conn.execute(
+        f"SELECT COUNT(*) AS n FROM {t}").fetchone()["n"]
+        for t in ("events", "search_commit_records",
+                  "event_appearance_links", "hypotheses")}
+    conn.close()
+    assert after["events"] == 0
+    assert after["search_commit_records"] == counts[
+        "search_commit_records"]
+    assert after["event_appearance_links"] == 0
+    assert after["hypotheses"] == 0
+
+
+def test_d2_nc10_r1_public_start_participants_default_rejected(
+        tmp_path) -> None:
+    """NC-10 W-D2-R1 四反例之四的公开链形态(装配数组 + participants
+    均省略):start 首提结构化拒(cosubstrate_participants_required,
+    缺省装配不覆盖共底物语义)、零事件;resume 同拒。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine = _CorpusEngine(tmp_path, rows)
+    provider = default_pool_provider(None, engine=engine)
+    questions = tmp_path / "questions.jsonl"
+    questions.write_text(json.dumps({
+        "qid": "d2-r1-default", "substrate_smiles": "CCO",
+        "products_smiles": ["CC=O"],
+    }) + "\n", encoding="utf-8")
+    build_question_batch(
+        questions, tmp_path / "batch", batch_tag="d2-r1-default",
+        pool_provider=provider, provider_kind="scripted",
+        synthetic_review=True)
+    run_input = json.loads(
+        (tmp_path / "batch" / "run_inputs" /
+         "d2-r1-default.json").read_text(encoding="utf-8"))
+    plan = json.loads(json.dumps(run_input["plan"]))
+    _strip_both_sides(plan["pools"]["CCO"][0], "missing")
+    plan["pools"]["CCO"][0].pop("participants")
+    model = ScriptedRealModelAdapter(
+        strategy="first_pool", model_id="d2-model-r1-default")
+    summary = start_ppv1_run(
+        config=resolve_config(), runs_root=tmp_path / "runs",
+        run_id=run_input["run_id"], smiles="CCO", plan=plan,
+        model=model, profile_policy=_PROFILE)
+    assert summary["counts"]["events"] == 0
+    assert summary["stop"]["run_error"]["kind"] == \
+        "cosubstrate_participants_required"
+    resume = resume_ppv1_run(
+        config=resolve_config(), runs_root=tmp_path / "runs",
+        run_id=run_input["run_id"], model=model)
+    assert resume["stop"]["run_error"]["kind"] == \
+        "cosubstrate_participants_required"
+
+
 def test_d2_nc11_copy_identity_cn_derived_rejected() -> None:
     """NC-11:拷贝身份用 cn 派生(电荷归一/立体盲)⇒ 必须
     declared_copy_mismatch 拒——拷贝只认 strict。立体异构拷贝(CN 同
@@ -641,6 +977,17 @@ def test_d2_pc3_pool_signature_merges_copy_channel(tmp_path) -> None:
     assert len(sig_with) == 2  # (CC=O, piperidine)
     plain = {"product_smiles": "CC=O", "coproducts": []}
     assert net_reaction_signature(plain) == ("CC=O",)
+    # W-D2-R1(Codex D2 复审 §6 P2-3)计数标签精度:
+    # n_cosubstrate_declared_specs 计**去重后池槽**(3 来源 spec
+    # 同签名合并成 2 槽 ⇒ 计 2,与 count_unit"去重后、截断前"一致;
+    # 修前在去重前递增会计 3);去重前编译候选数在
+    # corpus_diagnostics.n_cosubstrate_component_compiled(=3)
+    diag = provider.last_diagnostics
+    assert diag["n_cosubstrate_declared_specs"] == 2
+    assert diag["cosubstrate_pool_labels"]["count_unit"] == \
+        "pool_specs(去重后、截断前)"
+    assert diag["corpus_diagnostics"][
+        "n_cosubstrate_component_compiled"] == 3
 
 
 def test_d2_pc2_whole_and_eawag_zero_regression(tmp_path) -> None:
@@ -685,15 +1032,17 @@ def test_d2_e2e_cosubstrate_event_partial_and_batch_fuse(tmp_path) -> None:
     """端到端(零真实模型):builder(corpus 拷贝型接线池)→ runflow
     decide(scripted first_pool)→ 公共链执行 → 事件提交 → 判分。
 
-    断言(设计 §一.4 + NC-12 批级熔断):
+    断言(设计 §一.4 + NC-12 批级熔断,W-D2-R1 范围限定):
     - 事件参与物(原生 sqlite):反应物 = {底物, 共底物},产物 =
       {可执行主产物, 声明拷贝组分}(拷贝组分 = 声明参与物,来源在
       provenance 层);
     - NC-10 不变量通过(事件提交本身即证明;production_report 携带
       共底物披露);
-    - **NC-12 批级熔断:本通道 matched_strict 恒 == 0**;边匹配落
+    - **NC-12 批级熔断(W-D2-R1 范围限定):当前剥除 B/copy 的
+      root-only 参考构建口径下 matched_strict 恒 == 0**;边匹配落
       matched_participant_coverage_partial(具体桶),非 strict、非
-      unmatched;
+      unmatched;合法完整 B/copy 参考允许 strict 的正控另见
+      test_d2_nc12_r1_complete_reference_strict_allowed;
     - 生产报告携带 cosubstrate_disclosure(拷贝组分机读披露 +
       expectation 覆盖 refs + coproduct_participants 字段说明)。"""
     rows = [
@@ -787,7 +1136,9 @@ def test_d2_e2e_cosubstrate_event_partial_and_batch_fuse(tmp_path) -> None:
     node_matches = match_reference_nodes(graph, payload)
     edge_matches = match_reference_edges(graph, payload, node_matches)
     statuses = {e["match_status"] for e in edge_matches}
-    # NC-12:本通道 matched_strict 恒 == 0(出数即红)
+    # NC-12(W-D2-R1 范围限定):当前剥除 B/copy 的 root-only 参考
+    # 构建口径下本通道 matched_strict 恒 == 0(出数即红;完整参考
+    # 正控另测,不为守 0 改 evaluation)
     assert "matched_strict" not in statuses, statuses
     # 具体桶:partial(不是 unmatched/structure_only)
     assert statuses == {"matched_participant_coverage_partial"}, statuses
@@ -810,3 +1161,98 @@ def test_d2_e2e_cosubstrate_event_partial_and_batch_fuse(tmp_path) -> None:
     # 不在本断言范围(partial 不进 hit;NC-12 已在边级断言)
     _ = (evaluate_scientific, preregistration,
          native_export_reader_from_ledger)
+
+
+def test_d2_nc12_r1_complete_reference_strict_allowed(tmp_path) -> None:
+    """NC-12 W-D2-R1 范围限定正控(Codex D2 复审 §5 reference_
+    control 口径):**合法完整 B/copy 参考**(root-only 图 + B
+    cosubstrate 节点 + copy coproduct 节点,validate_reference_graph
+    通过)下,同一声明事件可合法 matched_strict——这不是漂移、不是
+    熔断违例;NC-12 的 matched_strict==0 只对当前剥除 B/copy 的
+    root-only 参考构建口径成立(判分尺子零改动,不为守 0 改
+    evaluation)。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine = _CorpusEngine(tmp_path, rows)
+    provider = default_pool_provider(None, engine=engine)
+    questions = tmp_path / "questions.jsonl"
+    questions.write_text(json.dumps({
+        "qid": "d2-nc12-full", "substrate_smiles": "CCO",
+        "products_smiles": ["CC=O"],
+    }) + "\n", encoding="utf-8")
+    manifest = build_question_batch(
+        questions, tmp_path / "batch", batch_tag="d2-nc12-full",
+        pool_provider=provider, provider_kind="scripted",
+        synthetic_review=True)
+    entry = manifest["entries"][0]
+    run_input = json.loads(
+        (tmp_path / "batch" / "run_inputs" / "d2-nc12-full.json"
+         ).read_text(encoding="utf-8"))
+    model = ScriptedRealModelAdapter(
+        strategy="first_pool", model_id="d2-model-nc12")
+    summary = start_ppv1_run(
+        config=resolve_config(), runs_root=tmp_path / "runs",
+        run_id=run_input["run_id"], smiles="CCO",
+        plan=run_input["plan"], model=model,
+        profile_policy=dict(
+            _PROFILE, search_limits=dict(
+                _PROFILE["search_limits"],
+                max_real_model_requests=4)))
+    assert summary["counts"]["events"] == 1
+    run_id = run_input["run_id"]
+    runs_root = tmp_path / "runs"
+    from pathway_v43.pollutant.native_export import read_native_export
+    from pathway_v43.pollutant.reference_graph import (
+        validate_reference_graph,
+    )
+    from pathway_v43.pollutant.search import SearchLedger
+    from pathway_v43.pollutant.store import PollutantPathwayStore
+    from pathway_v43.storage.artifact_store import ArtifactStore
+
+    store = PollutantPathwayStore(runs_root / run_id /
+                                  "pollutant.sqlite")
+    ledger = SearchLedger(store, ArtifactStore(runs_root, run_id),
+                          run_id)
+    payload = read_native_export(
+        ledger, runs_root / run_id,
+        summary["native_export"]["export_digest"])["payload"]
+    from pathway_v43.pollutant.evaluation import (
+        match_reference_edges,
+        match_reference_nodes,
+    )
+    graph = json.loads(
+        (tmp_path / "batch" / "reference_graphs" /
+         (entry["reference_graph_id"] + ".json")).read_text(
+             encoding="utf-8"))
+    # 完整参考 = root-only 图 + B(cosubstrate)节点 + 拷贝(coproduct)
+    # 节点,边端点同扩;经冻结 schema 校验(不手拼无校验图)
+    fullref = json.loads(json.dumps(graph))
+    from_node = json.loads(json.dumps(fullref["nodes"][0]))
+    to_node = json.loads(json.dumps(fullref["nodes"][1]))
+    from_node.update(node_id="d2-B", occurrence_id="d2-B-occurrence",
+                     structure_smiles="c1ccncc1",
+                     structure_identity_scope="strict_structure",
+                     # 参考图 role 枚举无 cosubstrate(事件协议侧角色);
+                     # 完整参考用合法枚举 unknown(Codex reference_control
+                     # 同口径)
+                     role="unknown")
+    to_node.update(node_id="d2-copy",
+                   occurrence_id="d2-copy-occurrence",
+                   structure_smiles="C1CCNCC1",
+                   structure_identity_scope="strict_structure",
+                   role="coproduct")
+    fullref["nodes"] += [from_node, to_node]
+    fullref["edges"][0]["from_node_ids"].append("d2-B")
+    fullref["edges"][0]["to_node_ids"].append("d2-copy")
+    validate_reference_graph(fullref)
+    # 同一事件:root-only 参考 partial(既有口径);完整 B/copy 参考
+    # 允许 strict(合法,非漂移)——NC-12 熔断仅限定前一口径
+    root_statuses = {e["match_status"] for e in match_reference_edges(
+        graph, payload, match_reference_nodes(graph, payload))}
+    full_statuses = {e["match_status"] for e in match_reference_edges(
+        fullref, payload, match_reference_nodes(fullref, payload))}
+    assert root_statuses == {"matched_participant_coverage_partial"}
+    assert full_statuses == {"matched_strict"}, full_statuses

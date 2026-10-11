@@ -388,8 +388,10 @@ def build_run_input(question: dict, *, batch_tag: str,
 # 键合融合/不可归属/不可解析/空可执行子集仍守门拒。**池策略配置
 # 本身零变化**(raw 预算/池宽/阈值/补位/融合/去重/EAWAG 候选序/
 # corpus_channel 语义全部不动);新入池 spec 在现行 P1 参与物集合
-# 语义下事件恒 matched_participant_coverage_partial(结构性无
-# strict 通路,NC-12 批级熔断;hit@1 预期贡献 = 0,诚实预期落字);
+# 语义下事件恒 matched_participant_coverage_partial(W-D2-R1 范围
+# 限定:结构性无 strict 通路仅对当前剥除 B/copy 的 root-only 参考
+# 构建口径成立——NC-12 批级熔断按该参考范围限定;合法完整 B/copy
+# 参考可 strict,非漂移;hit@1 预期贡献 = 0,诚实预期落字);
 # 同净反应签名去重含拷贝组分(net_reaction_signature W-D2 扩展,
 # 与整串/其他通道同净反应合并留痕不双占槽)。
 # s5b-pool-policy-4(W-V4b,2026-10-10,编译墙深层修复轮):池**成员**
@@ -548,8 +550,6 @@ def default_pool_provider(config: V43Config | None, *,
                     _record_failure(str(cand.get("compile_reason")
                                         or "recorded_compile_failed"))
                     continue
-                if spec.get("cosubstrate_event_contract") is not None:
-                    n_cosub_specs += 1
                 _record_compiled(spec)
             diagnostics.update({
                 "corpus_diagnostics": dict(
@@ -637,6 +637,14 @@ def default_pool_provider(config: V43Config | None, *,
                 continue
             signature_of[sig] = spec
             merged.append(spec)
+            # W-D2-R1(Codex D2 复审 §6 P2-3 计数标签精度):
+            # n_cosubstrate_declared_specs 计**去重后池槽**——旧实现
+            # 在去重前递增,3 来源 spec 经同净反应签名合并成 2 槽时
+            # 计 3,与 count_unit 标签"去重后"不符。去重前的编译
+            # 候选数由 corpus_diagnostics.n_cosubstrate_component_
+            # compiled 承接(检索层口径,含被池侧合并的候选)。
+            if spec.get("cosubstrate_event_contract") is not None:
+                n_cosub_specs += 1
         diagnostics.update({
             "pool_policy_version": S5B_POOL_POLICY_VERSION,
             "n_recorded_strict_exact": n_recorded_strict,
@@ -645,20 +653,33 @@ def default_pool_provider(config: V43Config | None, *,
             "n_corpus_cn_candidate": n_corpus_cn,
             # W-D2(T-4/R32-CS5-3):共底物拷贝型池供给计数 + 计数标签
             # 进数据(文档标签不替代机读标签;R31-4 纪律覆盖拆分后
-            # 新类目)。n_cosubstrate_declared_specs 计**池供给 spec 数**
-            # (承接拒因直方图消失的放行计数),事件数在其下游、
+            # 新类目)。n_cosubstrate_declared_specs 计**去重后池供给
+            # spec 数**(W-D2-R1 修正:去重后、截断前——去重前编译
+            # 候选数见 corpus_diagnostics.n_cosubstrate_component_
+            # compiled;不凭本字段计算命中或池净槽),事件数在其下游、
             # 判分后 partial 命中数须另以 n_cosubstrate_partial_
             # matches 披露(带 partial 语义标签,不与 hit 混列)。
             "n_cosubstrate_declared_specs": n_cosub_specs,
             "cosubstrate_pool_labels": {
                 "count_unit": "pool_specs(去重后、截断前)",
                 "count_basis": "supply_face",
+                "count_precision_note": (
+                    "W-D2-R1: counted AFTER same-net-reaction signature "
+                    "dedup and BEFORE max_pool truncation; pre-dedup "
+                    "compiled candidate counts live in "
+                    "corpus_diagnostics.n_cosubstrate_component_compiled "
+                    "(retrieval face); do not derive hit counts or net "
+                    "pool slots from this field"),
                 "expected_match_semantics": (
                     "pool specs, not events; cosubstrate-declared "
                     "events match matched_participant_coverage_partial "
-                    "under current P1 (structurally no strict path, "
-                    "NC-12 batch fuse; hit@1 expected contribution "
-                    "= 0)"),
+                    "under current P1 (no strict path under the "
+                    "CURRENT ROOT-ONLY (B/copy-stripped) reference "
+                    "construction scope — NC-12 batch fuse scoped to "
+                    "that reference construction only; a legal "
+                    "complete B/copy reference may legitimately match "
+                    "strict, which is not drift; hit@1 expected "
+                    "contribution = 0)"),
             },
             "n_analog_compiled": len(analog_specs),
             "n_unique_net_reactions": len(merged),

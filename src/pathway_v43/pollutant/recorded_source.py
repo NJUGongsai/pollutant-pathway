@@ -185,7 +185,17 @@ RECORDED_SOURCE_VERSION = "s5b-recorded-source-3"
 # 放行 / 键合融合保守拒 / 不可归属保守拒;原子归属 = 编译器内部
 # 规则,不进事件协议)。检索宽/分层/通配/映射/provenance/双向
 # 语义零变化;整串(whole)语义零变化。
-CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-3"
+# W-D2-R1(2026-10-11,Codex D2 复审 §4/§8 唯一 P1 S5B-D2-01 回修):
+# 版本升 s5b-corpus-retrieval-4 ——**共底物事件契约消费语义变更**
+# (spec 装配/检索/编译行为零变化):production.prepare_hypothesis
+# 的 NC-10 触发条件改挂记录侧单一声明来源(cosubstrate_event_
+# contract 为 dict 或 corpus 块声明 B/copy;装配数组缺失/null/空、
+# participants 删减/省略不再能关闭守卫或默认降级 A→P——四反例
+# strip_both_empty/missing/null、all_arrays_missing_participants_
+# default 首消费结构化拒,零坏 event/相关提交);NC-12 熔断加
+# 参考范围限定(仅当前剥除 B/copy 的 root-only 参考构建口径下
+# matched_strict 恒 0;合法完整 B/copy 参考可 strict,不是漂移)。
+CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-4"
 CORPUS_RETRIEVAL_SEMANTICS = {
     "version": CORPUS_RETRIEVAL_VERSION,
     "substrate_retrieval_scope": "cn_identity_wide",
@@ -203,15 +213,21 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "product components; bonded-fusion subset and "
         "unattributable-atom subset remain structured-rejected"),
     "cosubstrate_permission": (
-        "D2 (s5b-corpus-retrieval-3, approved by mimo r32 "
-        "conditional pass + design book DS-1 section 12 T-1..T-5 "
-        "default dispositions): whole-component-copy events are "
-        "CHEMICALLY HONEST partial supply under current P1 "
+        "D2 (s5b-corpus-retrieval-4 after W-D2-R1 rework of the "
+        "Codex D2 review sole P1 S5B-D2-01; originally approved by "
+        "mimo r32 conditional pass + design book DS-1 section 12 "
+        "T-1..T-5 default dispositions): whole-component-copy events "
+        "are CHEMICALLY HONEST partial supply under current P1 "
         "participant-set semantics (cosubstrate declared on the "
         "reactant side => superset => matched_participant_coverage"
-        "_partial; structurally no strict path, NC-12 batch fuse "
-        "asserts matched_strict == 0); bonded-fusion contribution "
-        "is conservatively rejected with no exceptions "
+        "_partial; structurally no strict path under the CURRENT "
+        "ROOT-ONLY (B/copy-stripped) reference construction scope — "
+        "NC-12 batch fuse asserts matched_strict == 0 for that scope "
+        "only; a legal complete B/copy reference may legitimately "
+        "match the same declared event strict, which is NOT drift "
+        "and must NOT be masked by editing the evaluator); "
+        "bonded-fusion contribution is conservatively rejected with "
+        "no exceptions "
         "(cosubstrate_bonded_contribution_unsupported; NC-1/NC-2); "
         "unattributable atoms are conservatively rejected with "
         "mapping_fallback split disclosure "
@@ -220,10 +236,22 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "counts including precompile rejected, not compiled/supply "
         "counts"),
     "cosubstrate_event_semantics": (
-        "participants: A (reactant, primary_substrate, coefficient "
-        "unknown) + each declared B (reactant, cosubstrate, "
-        "coefficient unknown) + executable products (principal/ "
-        "coproduct) + each B-derived whole product component "
+        "W-D2-R1 (s5b-corpus-retrieval-4, S5B-D2-01): NC-10 "
+        "applicability is decided by the RECORD-SIDE single "
+        "declaration source (spec.cosubstrate_event_contract being "
+        "a dict OR spec.corpus block declaring B/copy) inside "
+        "production.prepare_hypothesis; the assembly arrays "
+        "(co_substrate_states / declared_copy_components) being "
+        "missing/null/empty, or participants being reduced/omitted, "
+        "can NOT disable the guard nor default the spec to plain "
+        "A->P assembly (first-consumption structured reject, zero "
+        "bad events; legal bystander B with copy=[] is not "
+        "rejected); the declared-B set for the subset axis is the "
+        "contract UNION corpus merged declaration. participants: "
+        "A (reactant, primary_substrate, coefficient unknown) + "
+        "each declared B (reactant, cosubstrate, coefficient "
+        "unknown) + executable products (principal/coproduct) + "
+        "each B-derived whole product component "
         "(product, coproduct role; component_source="
         "record_declared_copy in the provenance layer, not the "
         "participant计量 layer); participant_list_status = "
@@ -263,7 +291,9 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "; W-V4.1-R1 rework: codex v4 review 2026-10-10 §4.3/§8; "
         "W-D2: S5B_COSUBSTRATE_PARTICIPANT_SEMANTICS_DESIGN_"
         "2026-10-10.md (DS-1 design_approved_with_conditions) + "
-        "mimo r32 16-condition pass, 2026-10-10"),
+        "mimo r32 16-condition pass, 2026-10-10; W-D2-R1: codex D2 "
+        "review 2026-10-11 §4/§8 sole P1 S5B-D2-01 rework (NC-10 "
+        "record-side-declaration trigger), 2026-10-11"),
 }
 
 # 推断映射的子结构同构枚举上限(触顶 ⇒ 歧义披露拒绝,不静默取首解)
@@ -1862,8 +1892,15 @@ def _attach_cosubstrate_spec_fields(
         "copy_state_refs": [e["state_ref"] for e in copy_entries],
         "co_substrate_state_refs": [e["state_ref"] for e in b_entries],
         "invariant_note": (
-            "NC-10 (r32 R32-CS3-3): record-declared co-substrate "
-            "strict identities MUST be a subset of the event "
+            "NC-10 (r32 R32-CS3-3; W-D2-R1/s5b-corpus-retrieval-4): "
+            "applicability is owned by the RECORD-SIDE single "
+            "declaration source (this contract being a dict OR the "
+            "spec corpus block declaring B/copy) — assembly arrays "
+            "missing/null/empty or participants reduced/omitted can "
+            "NOT disable the guard nor default to plain A->P "
+            "assembly (first-consumption structured reject); record-"
+            "declared co-substrate strict identities (contract "
+            "UNION corpus merged) MUST be a subset of the event "
             "reactant-side cosubstrate state_refs AND the record "
             "product multiset MUST equal the event product-participant "
             "multiset (executed UNION declared-copy components); "
