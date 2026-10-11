@@ -1,5 +1,5 @@
-"""PPV1 S5b 共底物参与物语义 D2 编译实现轮测试族 + D2-R1/D2-R2 回修
-(S5b-corpus-retrieval-5(W-D2-R2,S5B-D2-01 产物侧残余)/
+"""PPV1 S5b 共底物参与物语义 D2 编译实现轮测试族 + D2-R1/D2-R2/D2-R3 回修
+(S5b-corpus-retrieval-6(W-D2-R3,S5B-D2-01 最后残余)/
 s5b-recorded-source-3 / s5b-pool-policy-5)。
 
 权威链:设计书 S5B_COSUBSTRATE_PARTICIPANT_SEMANTICS_DESIGN_2026-10-10.md
@@ -33,6 +33,15 @@ s5b-recorded-source-3 / s5b-pool-policy-5)。
   而分歧 ⇒ 首次消费结构化拒(cosubstrate_record_products_divergent;
   contract 收缩/corpus 收缩/缺/重复同根覆盖,不以被收缩一侧作新
   全量),无第二来源合法路径不全面拒绝);
+  W-D2-R3/S5B-D2-01 最后残余回修(Codex D2-R2 复审 §4.2/§4.3/§8):
+  第二产物声明存在性/格式消费——corpus.record_products 键在位而
+  null/string/dict/bool 等非 list ⇒ 坏声明首消费结构化拒
+  (cosubstrate_corpus_record_products_corrupt;字段/类型/原因/原始
+  坏值保全),不得以 isinstance(list) 为存在判定静默降级成合法单
+  来源;键不在位 = 字段确未声明的单来源合法默认路径(不全面拒
+  绝);空 list 仍是有效声明按既有多重集比较(不当缺省);记录侧
+  声明入口同根覆盖(键在位即声明;在位而缺 contract ⇒ 缺契约拒,
+  不回落 plain A→P 缺省装配);
 - NC-11 拷贝身份 cn 派生(立体异构)⇒ declared_copy_mismatch(拷贝
   只认 strict);
 - NC-12 批级熔断:本通道事件 matched_strict 恒 == 0(W-D2-R1 范围
@@ -180,9 +189,15 @@ def test_d2_versions_registered() -> None:
     W-D2-R1(S5B-D2-01 回修,2026-10-11;Codex D2 复审 §4/§8):
     corpus-retrieval-3→4——NC-10 触发条件改挂记录侧单一声明来源
     (共底物事件契约消费语义;spec 装配/检索/编译行为零变化)。
+    W-D2-R2(2026-10-11;Codex D2-R1 复审 §4.2/§4.3/§8):
+    corpus-retrieval-4→5——记录产物同源权威消费语义。
+    W-D2-R3(2026-10-11;Codex D2-R2 复审 §4.2/§4.3/§8):
+    corpus-retrieval-5→6——第二产物声明存在性/格式消费语义(键
+    在位而非 list ⇒ 坏声明首消费结构化拒,不当单来源降级;spec
+    装配/检索/编译行为零变化)。
     recorded-source-3 / pool-policy-5 维持(compile 判据与池成员
     零触碰)。"""
-    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-5"
+    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-6"
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
     assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-5"
 
@@ -1186,6 +1201,445 @@ def test_d2_nc10_r2_public_novel_shrink_rejected(tmp_path) -> None:
         rf.prepare_hypothesis = original_prepare
     assert prepare_calls and prepare_calls[0]["success"]
     assert summary_legal["counts"]["events"] == 1
+
+
+# ================================================== W-D2-R3(第二产物声明在位损坏)
+
+_CORRUPT_SHAPES = {
+    "null": None,
+    "string": "CC=O.C1CCNCC1",
+    "dict": {"0": "CC=O", "1": "C1CCNCC1"},
+    "bool": False,
+}
+
+
+def _corrupt_corpus_record_products(spec: dict, shape: str) -> dict:
+    """Codex D2-R2 复审 §4.2 四坏形状反例:沿 R2 产物收缩反例
+    (contract.record_products 收缩成 ['CC=O']、copy 装配清空、对应
+    产物参与物删除)后,把**仍在位**的 corpus.record_products 值改坏
+    类型(null/string/dict/bool)。corpus 其他字段(B 声明、record_
+    key/provenance、同义产物声明)与 contract/装配/期望均保留——
+    不是重写整条记录,不做全库协同改写。"""
+    _shrink_contract_products(spec, "keep_copyrefs")
+    spec["corpus"]["record_products"] = _CORRUPT_SHAPES[shape]
+    return spec
+
+
+@pytest.mark.parametrize("shape,expected_type", [
+    ("null", "NoneType"), ("string", "str"),
+    ("dict", "dict"), ("bool", "bool")])
+def test_d2_nc10_r3_corpus_corrupt_second_declaration_rejected(
+        tmp_path, shape, expected_type) -> None:
+    """NC-10 W-D2-R3(S5B-D2-01 最后残余,Codex D2-R2 复审 §4.2 四坏
+    形状):第二产物声明键在位而值非 list ⇒ 坏声明**首次消费结构化
+    拒**(kind=cosubstrate_corpus_record_products_corrupt;detail 披露
+    字段/类型/原因并**保全原始坏值**),不得以 isinstance(list) 为
+    存在判定把类型错误解释成"没有第二来源"降级成合法单来源后仍提交
+    缺记录产物的事件。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine, out, comp = _find_component(tmp_path, rows)
+    spec = comp[0]["compile"]
+    assert spec is not None
+    from pathway_v43.pollutant.production import build_product_state
+
+    tampered = _corrupt_corpus_record_products(
+        json.loads(json.dumps(spec)), shape)
+    # 坏 spec 保全核验:键在位、值即坏形状;corpus 其余声明不动
+    assert "record_products" in tampered["corpus"]
+    assert tampered["corpus"]["record_products"] == _CORRUPT_SHAPES[shape]
+    assert tampered["corpus"]["co_substrates"]
+    assert tampered["corpus"]["record_key"]
+    substrate_state = build_product_state(
+        "CCO", source_refs=[{"record": "d2-r3-" + shape}])
+    with pytest.raises(ProductionContractError) as exc_info:
+        prepare_hypothesis(
+            tampered, parent_path_id="pp-d2-r3-" + shape,
+            substrate_state=substrate_state)
+    detail = exc_info.value.detail
+    assert detail["kind"] == "cosubstrate_corpus_record_products_corrupt"
+    assert detail["axis"] == "record_products_multiset_same_source"
+    # 字段/类型/原因逐项披露(复审 §4.3 最低收口要求)
+    assert detail["field"] == "corpus.record_products"
+    assert detail["declared_value_type"] == expected_type
+    assert detail["reason"] == "second_declaration_present_but_not_list"
+    # 坏声明保全:原始坏值进 detail(不清洗不重算)
+    assert detail["corpus_record_products_raw"] == _CORRUPT_SHAPES[shape]
+    assert detail["declaration_sources"] == \
+        ["cosubstrate_event_contract", "corpus"]
+
+
+def test_d2_nc10_r3_declaration_entrance_controls(tmp_path) -> None:
+    """NC-10 W-D2-R3 同根规则的**声明入口**控制(在位性判定不在守卫
+    主体处被绕过):
+
+    - 负控:corpus.record_products 在位坏形状且 contract 整个删除、
+      corpus 不声明 B ⇒ 记录侧单一声明来源仍判适用(键在位即声明)
+      ⇒ 缺契约先结构化拒(不当缺省回落 plain A→P 装配);
+    - 负控:空 list 是**有效声明**(按既有多重集比较产生分歧拒),
+      不是缺省的"未声明";
+    - 正控:corpus 键不在位(字段确未声明)⇒ 单来源合法默认路径照旧
+      (由 W-D2-R2 test_d2_nc10_r2_same_source_controls 正控族保持,
+      此处直连复核 record_products_sources 单来源)。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine, out, comp = _find_component(tmp_path, rows)
+    spec = comp[0]["compile"]
+    assert spec is not None
+    from pathway_v43.pollutant.production import build_product_state
+
+    substrate_state = build_product_state(
+        "CCO", source_refs=[{"record": "d2-r3-entrance"}])
+
+    # 负控:键在位(坏形状)+ 无 contract + 无 B 声明 ⇒ 缺契约拒
+    # (声明入口不当缺省;坏形状不解释成"corpus 未声明")
+    no_contract = json.loads(json.dumps(spec))
+    no_contract.pop("cosubstrate_event_contract")
+    no_contract["corpus"]["record_products"] = None
+    no_contract["corpus"]["co_substrates"] = []
+    with pytest.raises(ProductionContractError) as exc_missing:
+        prepare_hypothesis(
+            no_contract, parent_path_id="pp-d2-r3-entrance-missing",
+            substrate_state=substrate_state)
+    assert exc_missing.value.detail["kind"] == \
+        "cosubstrate_contract_missing"
+    assert exc_missing.value.detail["declaration_sources"] == ["corpus"]
+
+    # 负控:空 list 是有效声明(多重集比较分歧拒,不当缺省)
+    empty_list = json.loads(json.dumps(spec))
+    empty_list["corpus"]["record_products"] = []
+    with pytest.raises(ProductionContractError) as exc_empty:
+        prepare_hypothesis(
+            empty_list, parent_path_id="pp-d2-r3-entrance-empty",
+            substrate_state=substrate_state)
+    assert exc_empty.value.detail["kind"] == \
+        "cosubstrate_record_products_divergent"
+
+    # 正控:corpus 键不在位 ⇒ 单来源合法默认路径照旧
+    single = json.loads(json.dumps(spec))
+    single["corpus"].pop("record_products")
+    prepared = prepare_hypothesis(
+        single, parent_path_id="pp-d2-r3-entrance-single",
+        substrate_state=substrate_state)
+    assert prepared["cosubstrate_disclosure"][
+        "record_products_sources"] == ["cosubstrate_event_contract"]
+
+
+@pytest.mark.parametrize("shape", ["null", "string", "dict", "bool"])
+def test_d2_nc10_r3_public_start_resume_corrupt_rejected(
+        tmp_path, shape) -> None:
+    """NC-10 W-D2-R3 四坏形状案的公开链(plan 池 spec 进 start_
+    ppv1_run / resume_ppv1_run 同一 scripted 模型身份):prepare/公开
+    消费结构化拒(cosubstrate_corpus_record_products_corrupt)、
+    **零坏 event/零相关事件提交**;先行合法账逐表如实(不伪称全表
+    零写);resume 同 kind 再拒、事件面零增行(恢复幂等不等于坏事件
+    已消失)。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine = _CorpusEngine(tmp_path, rows)
+    provider = default_pool_provider(None, engine=engine)
+    questions = tmp_path / "questions.jsonl"
+    questions.write_text(json.dumps({
+        "qid": "d2-r3-" + shape, "substrate_smiles": "CCO",
+        "products_smiles": ["CC=O"],
+    }) + "\n", encoding="utf-8")
+    build_question_batch(
+        questions, tmp_path / "batch", batch_tag="d2-r3-" + shape,
+        pool_provider=provider, provider_kind="scripted",
+        synthetic_review=True)
+    run_input = json.loads(
+        (tmp_path / "batch" / "run_inputs" /
+         ("d2-r3-" + shape + ".json")).read_text(encoding="utf-8"))
+    plan = json.loads(json.dumps(run_input["plan"]))
+    _corrupt_corpus_record_products(
+        plan["pools"]["CCO"][0], shape)
+    model = ScriptedRealModelAdapter(
+        strategy="first_pool", model_id="d2-model-r3-" + shape)
+    summary = start_ppv1_run(
+        config=resolve_config(), runs_root=tmp_path / "runs",
+        run_id=run_input["run_id"], smiles="CCO", plan=plan,
+        model=model, profile_policy=_PROFILE)
+    assert summary["counts"]["events"] == 0
+    start_error = summary["stop"]["run_error"]
+    assert start_error["error"] == "ProductionContractError"
+    assert start_error["kind"] == \
+        "cosubstrate_corpus_record_products_corrupt"
+    import sqlite3
+
+    run_id = run_input["run_id"]
+    conn = sqlite3.connect(
+        str(tmp_path / "runs" / run_id / "pollutant.sqlite"))
+    conn.row_factory = sqlite3.Row
+    counts = {
+        t: conn.execute(
+            f"SELECT COUNT(*) AS n FROM {t}").fetchone()["n"]
+        for t in ("events", "search_commit_records",
+                  "event_appearance_links", "hypotheses",
+                  "search_actions", "states", "budget_reservations")}
+    # 零坏 event/相关事件提交(事件/提交/事件外观/假设全零;提交表
+    # 仅 run 注册行)
+    assert counts["events"] == 0
+    event_committed = conn.execute(
+        "SELECT COUNT(*) AS n FROM search_commit_records WHERE"
+        " commit_kind = 'event_committed'").fetchone()["n"]
+    assert event_committed == 0
+    assert counts["search_commit_records"] == 1  # 仅 run 注册行
+    assert counts["event_appearance_links"] == 0
+    assert counts["hypotheses"] == 0
+    # 先行合法账如实披露(预注册拒因前已发生的合法写入)
+    assert counts["search_actions"] >= 2
+    assert counts["states"] >= 1
+    assert counts["budget_reservations"] >= 3
+    conn.close()
+    # ---- 恢复入口:同一 scripted 模型身份的公开 resume 也拒 ----
+    resume = resume_ppv1_run(
+        config=resolve_config(), runs_root=tmp_path / "runs",
+        run_id=run_id, model=model)
+    resume_error = resume["stop"]["run_error"]
+    assert resume_error["error"] == "ProductionContractError"
+    assert resume_error["kind"] == \
+        "cosubstrate_corpus_record_products_corrupt"
+    conn = sqlite3.connect(
+        str(tmp_path / "runs" / run_id / "pollutant.sqlite"))
+    conn.row_factory = sqlite3.Row
+    after = {t: conn.execute(
+        f"SELECT COUNT(*) AS n FROM {t}").fetchone()["n"]
+        for t in ("events", "search_commit_records",
+                  "event_appearance_links", "hypotheses")}
+    conn.close()
+    assert after["events"] == 0
+    assert after["search_commit_records"] == counts[
+        "search_commit_records"]
+    assert after["event_appearance_links"] == 0
+    assert after["hypotheses"] == 0
+
+
+def test_d2_nc10_r3_public_novel_corrupt_rejected(tmp_path) -> None:
+    """NC-10 W-D2-R3 四坏形状的公开 novel 同根案:novel 池外提案携带
+    坏 spec(contract 收缩 + corpus.record_products 坏形状)经共享
+    decide 入口首消费 ⇒ 结构化拒记入 novel_rejections(W5 逐条容错,
+    不洗成 run 级失败)、零坏 event;同一 novel 入口对合法 spec 仍
+    提交(不以全面拒绝换通过)。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine = _CorpusEngine(tmp_path, rows)
+    provider = default_pool_provider(None, engine=engine)
+    questions = tmp_path / "questions.jsonl"
+    questions.write_text(json.dumps({
+        "qid": "d2-r3-novel", "substrate_smiles": "CCO",
+        "products_smiles": ["CC=O"],
+    }) + "\n", encoding="utf-8")
+    build_question_batch(
+        questions, tmp_path / "batch", batch_tag="d2-r3-novel",
+        pool_provider=provider, provider_kind="scripted",
+        synthetic_review=True)
+    run_input = json.loads(
+        (tmp_path / "batch" / "run_inputs" /
+         "d2-r3-novel.json").read_text(encoding="utf-8"))
+    base_spec = run_input["plan"]["pools"]["CCO"][0]
+    bad_spec = _corrupt_corpus_record_products(
+        json.loads(json.dumps(base_spec)), "null")
+
+    import pathway_v43.pollutant.runflow as rf
+
+    original_prepare = rf.prepare_hypothesis
+    prepare_calls: list[dict] = []
+
+    def traced_prepare(in_spec, **kw):
+        try:
+            result = original_prepare(in_spec, **kw)
+            prepare_calls.append({"success": True})
+            return result
+        except Exception as exc:
+            prepare_calls.append({
+                "success": False,
+                "kind": (getattr(exc, "detail", None) or {}).get(
+                    "kind")})
+            raise
+
+    plan = {"pools": {}, "model": {"provider_kind": "scripted"}}
+    responses = [json.dumps({
+        "proposals": [{
+            "hypothesis_id": "d2-r3-novel-bad",
+            "proposal_context": {
+                "reference_hypothesis_ids": [],
+                "output_origin": "novel_outside_pool"},
+            "reaction_spec": bad_spec}],
+        "rank_hypotheses": ["d2-r3-novel-bad"]})]
+    model = ScriptedRealModelAdapter(
+        strategy="responses", responses=responses,
+        model_id="d2-model-r3-novel")
+    rf.prepare_hypothesis = traced_prepare
+    try:
+        summary = start_ppv1_run(
+            config=resolve_config(), runs_root=tmp_path / "runs",
+            run_id=run_input["run_id"], smiles="CCO", plan=plan,
+            model=model, profile_policy=_PROFILE)
+    finally:
+        rf.prepare_hypothesis = original_prepare
+    # 首消费结构化拒(novel 入口经 prepare_hypothesis 单一构建源)
+    assert prepare_calls and not prepare_calls[0]["success"]
+    assert prepare_calls[0]["kind"] == \
+        "cosubstrate_corpus_record_products_corrupt"
+    assert summary["counts"]["events"] == 0
+    import sqlite3
+
+    run_id = run_input["run_id"]
+    conn = sqlite3.connect(
+        str(tmp_path / "runs" / run_id / "pollutant.sqlite"))
+    conn.row_factory = sqlite3.Row
+    n_events = conn.execute(
+        "SELECT COUNT(*) AS n FROM events").fetchone()["n"]
+    n_hypotheses = conn.execute(
+        "SELECT COUNT(*) AS n FROM hypotheses").fetchone()["n"]
+    conn.close()
+    assert n_events == 0
+    assert n_hypotheses == 0
+    # 同一 novel 入口的合法正控(不以全面拒绝换通过)
+    legal_spec = json.loads(json.dumps(base_spec))
+    prepare_calls.clear()
+    responses_legal = [json.dumps({
+        "proposals": [{
+            "hypothesis_id": "d2-r3-novel-legal",
+            "proposal_context": {
+                "reference_hypothesis_ids": [],
+                "output_origin": "novel_outside_pool"},
+            "reaction_spec": legal_spec}],
+        "rank_hypotheses": ["d2-r3-novel-legal"]})]
+    model_legal = ScriptedRealModelAdapter(
+        strategy="responses", responses=responses_legal,
+        model_id="d2-model-r3-novel")
+    questions2 = tmp_path / "questions2.jsonl"
+    questions2.write_text(json.dumps({
+        "qid": "d2-r3-novel-legal", "substrate_smiles": "CCO",
+        "products_smiles": ["CC=O"],
+    }) + "\n", encoding="utf-8")
+    build_question_batch(
+        questions2, tmp_path / "batch2", batch_tag="d2-r3-novel-legal",
+        pool_provider=provider, provider_kind="scripted",
+        synthetic_review=True)
+    run_input2 = json.loads(
+        (tmp_path / "batch2" / "run_inputs" /
+         "d2-r3-novel-legal.json").read_text(encoding="utf-8"))
+    plan2 = {"pools": {}, "model": {"provider_kind": "scripted"}}
+    rf.prepare_hypothesis = traced_prepare
+    try:
+        summary_legal = start_ppv1_run(
+            config=resolve_config(), runs_root=tmp_path / "runs2",
+            run_id=run_input2["run_id"], smiles="CCO", plan=plan2,
+            model=model_legal, profile_policy=_PROFILE)
+    finally:
+        rf.prepare_hypothesis = original_prepare
+    assert prepare_calls and prepare_calls[0]["success"]
+    assert summary_legal["counts"]["events"] == 1
+
+
+def test_d2_nc10_r3_expand_guard_corrupt_shared_rejected(
+        tmp_path) -> None:
+    """NC-10 W-D2-R3 适用 expand 入口的共享守卫控制(**防御注入,如
+    实标明**:持久 run 输入里的 spec 合法;守卫在 prepare 边界被注入
+    坏形状以验证 expand 入口与池/novel 共用同一构建源同一判据——
+    不拆后续身份门)。池 spec 合法 ⇒ decide 首消费通过;expand 路由
+    的 prepare 边界注入坏 spec ⇒ 共享守卫结构化拒(cosubstrate_
+    corpus_record_products_corrupt)、零坏 event 提交。"""
+    rows = [
+        _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
+                  ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",
+                  ["CC=O", "C1CCNCC1"]),
+    ]
+    engine = _CorpusEngine(tmp_path, rows)
+    provider = default_pool_provider(None, engine=engine)
+    questions = tmp_path / "questions.jsonl"
+    questions.write_text(json.dumps({
+        "qid": "d2-r3-expand", "substrate_smiles": "CCO",
+        "products_smiles": ["CC=O"],
+    }) + "\n", encoding="utf-8")
+    build_question_batch(
+        questions, tmp_path / "batch", batch_tag="d2-r3-expand",
+        pool_provider=provider, provider_kind="scripted",
+        synthetic_review=True)
+    run_input = json.loads(
+        (tmp_path / "batch" / "run_inputs" /
+         "d2-r3-expand.json").read_text(encoding="utf-8"))
+    base_spec = run_input["plan"]["pools"]["CCO"][0]
+
+    import inspect
+
+    import pathway_v43.pollutant.runflow as rf
+
+    original_prepare = rf.prepare_hypothesis
+    prepare_calls: list[dict] = []
+
+    def traced_prepare(in_spec, **kw):
+        route = next(
+            (f.function for f in inspect.stack()
+             if f.function in ("_run_decide", "_run_expand")),
+            "other")
+        value = json.loads(json.dumps(in_spec))
+        if route == "_run_expand":
+            # 防御注入(边界注入,非持久产物损坏):expand 路由首消费
+            # 前把共享 prepare 的输入换成坏形状
+            _corrupt_corpus_record_products(value, "dict")
+        try:
+            result = original_prepare(value, **kw)
+            prepare_calls.append({"route": route, "success": True})
+            return result
+        except Exception as exc:
+            prepare_calls.append({
+                "route": route, "success": False,
+                "kind": (getattr(exc, "detail", None) or {}).get(
+                    "kind")})
+            raise
+
+    plan = json.loads(json.dumps(run_input["plan"]))
+    model = ScriptedRealModelAdapter(
+        strategy="first_pool", model_id="d2-model-r3-expand")
+    rf.prepare_hypothesis = traced_prepare
+    try:
+        summary = start_ppv1_run(
+            config=resolve_config(), runs_root=tmp_path / "runs",
+            run_id=run_input["run_id"], smiles="CCO", plan=plan,
+            model=model, profile_policy=_PROFILE)
+    finally:
+        rf.prepare_hypothesis = original_prepare
+    routes = [(c["route"], c["success"], c.get("kind"))
+              for c in prepare_calls]
+    # decide 路由(合法池 spec)通过;expand 路由(注入坏形状)共享
+    # 守卫拒
+    assert ("_run_decide", True, None) in routes
+    expand_calls = [c for c in routes if c[0] == "_run_expand"]
+    assert expand_calls and expand_calls[0][1] is False
+    assert expand_calls[0][2] == \
+        "cosubstrate_corpus_record_products_corrupt"
+    assert summary["counts"]["events"] == 0
+    assert summary["stop"]["run_error"]["kind"] == \
+        "cosubstrate_corpus_record_products_corrupt"
+    import sqlite3
+
+    run_id = run_input["run_id"]
+    conn = sqlite3.connect(
+        str(tmp_path / "runs" / run_id / "pollutant.sqlite"))
+    conn.row_factory = sqlite3.Row
+    n_events = conn.execute(
+        "SELECT COUNT(*) AS n FROM events").fetchone()["n"]
+    event_committed = conn.execute(
+        "SELECT COUNT(*) AS n FROM search_commit_records WHERE"
+        " commit_kind = 'event_committed'").fetchone()["n"]
+    conn.close()
+    assert n_events == 0
+    assert event_committed == 0
 
 
 def test_d2_nc11_copy_identity_cn_derived_rejected() -> None:

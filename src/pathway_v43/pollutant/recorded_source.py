@@ -208,7 +208,21 @@ RECORDED_SOURCE_VERSION = "s5b-recorded-source-3"
 # bystander_cosubstrates(旁观 unknown 注记)、record_products_
 # sources;本文件每 spec co_substrate_semantics 残句(NC-12 无范围
 # 限定 + 旧版本标签 retrieval-3)同步为当前口径。
-CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-5"
+# W-D2-R3(2026-10-11,S5B-D2-01 最后残余;Codex D2-R2 复审
+# §4.2/§4.3/§8):版本升 s5b-corpus-retrieval-6 ——**第二产物声明
+# 的存在性/格式消费语义变更**(spec 装配/检索/编译行为零变化):
+# corpus.record_products 键在位而值为 null/string/dict/bool 等
+# 非 list ⇒ 坏声明,production 首次消费结构化拒(kind=
+# cosubstrate_corpus_record_products_corrupt,detail 披露字段/类型/
+# 原因并保全原始坏值),不以 isinstance(list) 为存在判定把类型错
+# 误静默解释成"没有第二来源"降级成合法单来源;键不在位(字段确
+# 未声明)⇒ 单来源合法默认路径维持;空 list 仍按有效声明走既有多
+# 重集比较;contract 侧既有 list 门不退回。记录侧声明入口同步:
+# corpus 块 record_products 键在位即构成记录侧声明(_cosubstrate_
+# record_declaration),在位而缺 contract ⇒ 缺契约拒,不当缺省回
+# 落 plain A→P。两处单来源正控(无 corpus 块/corpus 本来缺键)
+# 保持可提交完整事件。
+CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-6"
 CORPUS_RETRIEVAL_SEMANTICS = {
     "version": CORPUS_RETRIEVAL_VERSION,
     "substrate_retrieval_scope": "cn_identity_wide",
@@ -226,8 +240,9 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "product components; bonded-fusion subset and "
         "unattributable-atom subset remain structured-rejected"),
     "cosubstrate_permission": (
-        "D2 (s5b-corpus-retrieval-5 after W-D2-R1/W-D2-R2 rework of "
-        "the Codex D2/D2-R1 review sole P1 S5B-D2-01; originally "
+        "D2 (s5b-corpus-retrieval-6 after W-D2-R1/W-D2-R2/W-D2-R3 "
+        "rework of the Codex D2/D2-R1/D2-R2 review sole P1 "
+        "S5B-D2-01; originally "
         "approved by mimo r32 conditional pass + design book DS-1 "
         "section 12 T-1..T-5 default dispositions): whole-component-"
         "copy events are CHEMICALLY HONEST partial supply under "
@@ -273,7 +288,22 @@ CORPUS_RETRIEVAL_SEMANTICS = {
         "dual-source divergence is a first-consumption structured "
         "reject (cosubstrate_record_products_divergent; the shrunk "
         "side must NOT become the new full set); single-source "
-        "legal paths keep the existing contract. participants: "
+        "legal paths keep the existing contract. W-D2-R3 "
+        "(s5b-corpus-retrieval-6, S5B-D2-01 last remainder, Codex "
+        "D2-R2 review sections 4.2/4.3/8): the existence of the "
+        "SECOND product declaration is decided by the KEY being in "
+        "place, NOT by isinstance(list) — corpus.record_products "
+        "present with a null/string/dict/bool (non-list) value is a "
+        "CORRUPT declaration and gets a first-consumption structured "
+        "reject (cosubstrate_corpus_record_products_corrupt; field/"
+        "type/reason and the raw bad value preserved in the detail), "
+        "never silently downgraded to a legal single source; a key-"
+        "absent corpus block stays the legitimate undeclared "
+        "single-source default path; an empty list stays a VALID "
+        "declaration compared by the existing multiset; an in-place "
+        "corpus record_products key also counts as a record-side "
+        "declaration for NC-10 applicability (contract then "
+        "required, no plain A->P fallback). participants: "
         "A (reactant, primary_substrate, coefficient unknown) + "
         "each declared B (reactant, cosubstrate, coefficient "
         "unknown) + executable products (principal/coproduct) + "
@@ -1921,10 +1951,11 @@ def _attach_cosubstrate_spec_fields(
         "copy_state_refs": [e["state_ref"] for e in copy_entries],
         "co_substrate_state_refs": [e["state_ref"] for e in b_entries],
         "invariant_note": (
-            "NC-10 (r32 R32-CS3-3; W-D2-R1+W-D2-R2/"
-            "s5b-corpus-retrieval-5): applicability is owned by the "
+            "NC-10 (r32 R32-CS3-3; W-D2-R1+W-D2-R2+W-D2-R3/"
+            "s5b-corpus-retrieval-6): applicability is owned by the "
             "RECORD-SIDE single declaration source (this contract "
-            "being a dict OR the spec corpus block declaring B/copy) "
+            "being a dict OR the spec corpus block declaring B/copy "
+            "or carrying an in-place record_products key, W-D2-R3) "
             "— assembly arrays missing/null/empty or participants "
             "reduced/omitted can NOT disable the guard nor default "
             "to plain A->P assembly (first-consumption structured "
@@ -1941,7 +1972,14 @@ def _attach_cosubstrate_spec_fields(
             "strict_identity_of-keyed multiset BEFORE the axis-2 "
             "comparison — dual-source divergence (a shrunk side) "
             "is a structured reject and must NOT become the new "
-            "full set; asserted at production.prepare_hypothesis "
+            "full set; W-D2-R3: the second declaration's existence "
+            "is decided by the corpus record_products KEY being in "
+            "place — a non-list in-place value is a corrupt "
+            "declaration with a first-consumption structured reject "
+            "(cosubstrate_corpus_record_products_corrupt), never a "
+            "silent single-source downgrade; a key-absent corpus "
+            "block is the legitimate undeclared default; asserted "
+            "at production.prepare_hypothesis "
             "before the event is submitted; spec-layer gate pass "
             "does NOT substitute the event-layer check"),
     }
@@ -1959,9 +1997,9 @@ def _attach_cosubstrate_spec_fields(
             {"smiles": str(b), "strict_identity": _strict_of(str(b))}
             for b in co_comps],
         "co_substrate_semantics": (
-            "declared_explicit_participants(D2/corpus-retrieval-5,"
-            "W-D2-R2 同步旧 retrieval-3 标签:B 进事件反应物侧 "
-            "role=cosubstrate;B 来源整组分产物声明式拷贝 "
+            "declared_explicit_participants(D2/corpus-retrieval-6,"
+            "W-D2-R2 同步旧 retrieval-3 标签,W-D2-R3 升版:B 进事件"
+            "反应物侧 role=cosubstrate;B 来源整组分产物声明式拷贝 "
             "record_declared_copy,中心 unknown,不执行;键合融合/"
             "不可归属子集结构化拒;事件在现行 P1 下判 matched_"
             "participant_coverage_partial,结构性无 strict 通路"
@@ -1969,7 +2007,10 @@ def _attach_cosubstrate_spec_fields(
             "——NC-12 批级熔断按该参考范围限定,合法完整 B/copy "
             "参考可 strict 非漂移;记录产物两处声明(contract/"
             "corpus)首次消费按 strict 键多重集核同源一致性,"
-            "分歧结构化拒——W-D2-R2)"),
+            "分歧结构化拒——W-D2-R2;corpus 侧 record_products 键"
+            "在位而非 list ⇒ 坏声明首消费结构化拒,不以类型错误"
+            "当'没有第二来源',键不在位才是单来源合法默认路径"
+            "——W-D2-R3)"),
         "record_products": list(record_products_flat),
         "provenance_sha256": record["provenance_sha256"],
     }

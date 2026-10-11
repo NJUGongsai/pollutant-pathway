@@ -254,7 +254,7 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
     键合拒/不可归属拒)、pool-policy-4→5(池成员变化:拷贝子集重新
     入池)、recorded-source-2→3(union gate 扩展:可选参数,缺省
     路径字节等价)。"""
-    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-5"
+    assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-6"
     sem = dict(CORPUS_RETRIEVAL_SEMANTICS)
     assert sem["substrate_retrieval_scope"] == "cn_identity_wide"
     # D2:组分级+共底物声明,component 候选过原子归属三分类守门
@@ -265,7 +265,7 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
     # D2:共底物事件语义(诚实 partial;W-D2-R1:NC-12 范围限定到
     # 当前 root-only 参考构建口径;合法完整 B/copy 参考可 strict)
     assert sem["cosubstrate_permission"].startswith(
-        "D2 (s5b-corpus-retrieval-5")
+        "D2 (s5b-corpus-retrieval-6")
     assert "no strict path under the CURRENT " in \
         sem["cosubstrate_permission"]
     assert "ROOT-ONLY (B/copy-stripped) reference" in \

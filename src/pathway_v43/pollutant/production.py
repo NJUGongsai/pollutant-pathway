@@ -41,6 +41,8 @@ execution_ok=False;缺/歧义映射;strict 目标偏离;proof 更改/跨假设
 
 from __future__ import annotations
 
+import json
+
 from .audit import (
     AuditContractError,
     AdmissionPolicy,
@@ -101,6 +103,22 @@ SEARCH_PRODUCTION_VERSION = "ppv1-search-production-2"
 # 注记)/record_products_sources(实际消费的声明来源)。消费语义
 # 差异按登记面升版 s5b-corpus-retrieval-5(recorded_source.py 版本
 # 注释);search-production 维持 -2。
+# W-D2-R3(2026-10-11,S5B-D2-01 最后残余;Codex D2-R2 复审
+# §4.2/§4.3/§8):第二产物声明的**存在性与格式消费**分开"字段确
+# 未声明"与"字段在位但损坏"——corpus.record_products 键在位而值
+# 为 null/string/dict/bool 等非 list ⇒ 坏声明,首次消费结构化拒
+# (kind=cosubstrate_corpus_record_products_corrupt;detail 披露
+# 字段/类型/原因并保全原始坏值),不得以 isinstance(list) 作为
+# 是否存在的判定把类型错误静默解释成"没有第二来源"降级成合法
+# 单来源;键不在位(无第二声明处)⇒ 单来源合法默认路径维持。
+# 同根同规则覆盖记录侧声明入口(_cosubstrate_record_declaration:
+# corpus 块带 record_products 键即在位声明——空 list 是有效声明,
+# 与非 list 坏形状同样不当缺省;在位而缺 contract ⇒ 缺契约拒,
+# 不是回落 plain A→P)。contract 侧既有 list 门(cosubstrate_
+# contract_missing)不退回;有效 list 继续走 strict 身份多重集同
+# 源核验,重复组分保留意义。消费语义差异按登记面升版
+# s5b-corpus-retrieval-6(recorded_source.py 版本注释);search-
+# production 维持 -2。
 CONTEXT_ARTIFACT_NAME = "path_context"
 
 # admission 处置与驱动语义的映射(expand/retain_conditional ⇒ 事件可
@@ -422,13 +440,22 @@ def _cosubstrate_record_declaration(spec: dict) -> dict | None:
 
     共底物语义适用性 = spec 携带**记录侧声明**:
     ``cosubstrate_event_contract`` 为 dict,或 ``corpus`` 块声明
-    B/copy(co_substrates 非空或 record_products 非空列表——只有 D2
+    B/copy(co_substrates 非空或**record_products 键在位**——只有 D2
     component 分支装配的 corpus 块携带这些字段;whole/EAWAG spec 两处
     均无声明)。**装配数组(co_substrate_states/declared_copy_
     components)是否非空不参与判定**——同一记录把 B 与拷贝两侧同时
     删/置空/置 null/省略后,旧触发条件静默关闭守卫、缺省装配退化回
     A→P,即复审四反例(strip_both_empty/missing/null、all_arrays_
     missing_participants_default)的绕过形态。
+
+    W-D2-R3(S5B-D2-01 最后残余;Codex D2-R2 复审 §4.2/§4.3/§8):
+    corpus 侧产物声明的存在性 = **键在位**,不是"是 list 且非空"
+    ——键在位而值为空 list(有效声明,按多重集比较)或 null/非
+    list 坏形状(进守卫后由轴 0 首次消费结构化拒披露)都构成记录
+    侧声明,不得把类型错误解释成"corpus 未声明"而静默回落 plain
+    A→P 缺省装配(同根规则的声明入口;守卫主体在
+    _check_cosubstrate_event_invariant 轴 0)。键不在位 = 字段确未
+    声明 ⇒ 该侧不声明。
 
     返回 None = 两处记录侧声明均不在 ⇒ 非 D2 共底物 spec(其余 spec
     路径行为零变化);返回 dict = {declared_b_smiles(contract ∪
@@ -446,9 +473,10 @@ def _cosubstrate_record_declaration(spec: dict) -> dict | None:
         corpus_b = [str(e.get("smiles")) for e in
                     (corpus.get("co_substrates") or [])
                     if isinstance(e, dict) and e.get("smiles")]
-        corpus_products = corpus.get("record_products")
+        # W-D2-R3:键在位即声明(空 list/坏形状不当缺省;坏形状由
+        # 守卫轴 0 首次消费结构化拒披露,不在此处清洗或解释)。
         corpus_declared = bool(corpus_b) or (
-            isinstance(corpus_products, list) and bool(corpus_products))
+            "record_products" in corpus)
     if not contract_present and not corpus_declared:
         return None
     contract_b: list[str] = []
@@ -495,7 +523,8 @@ def _check_cosubstrate_event_invariant(
     前断言,任一不满足 ⇒ ProductionContractError ⇒ 零事件/零提交):
 
     0. **同源权威消费(W-D2-R2,S5B-D2-01 产物侧残余;Codex D2-R1
-       复审 §4.2/§4.3)**:适用记录在多处声明同一产物
+       复审 §4.2/§4.3;W-D2-R3 补存在性/格式消费,Codex D2-R2 复审
+       §4.2/§4.3/§8)**:适用记录在多处声明同一产物
        (contract.record_products 与 corpus.record_products——
        recorded_source 装配期同一列表生成)时,首次消费先按既有
        strict_identity_of 键空间以**多重集**核对两处声明一致性
@@ -503,10 +532,17 @@ def _check_cosubstrate_event_invariant(
        strict 键规范);双来源在位而分歧 ⇒ 首次消费结构化拒
        (kind=cosubstrate_record_products_divergent)——不得选被改
        的一侧作为新全量,不重算新身份洗掉坏声明;坏输入保全
-       (detail 披露两侧多重集)。无第二来源的合法默认路径按既有
-       契约处理(单来源 = contract 侧),不全面拒绝;不另开化学
-       比较器,不重扫语料,不要求抵抗全库协同改写(两侧同被改后
-       无历史证据可判别的形态不在本契约内);
+       (detail 披露两侧多重集)。**第二产物声明的存在性 = 键在位**
+       (W-D2-R3):corpus.record_products 键在位而值为 null/string/
+       dict/bool 等非 list ⇒ 坏声明,首次消费结构化拒(kind=
+       cosubstrate_corpus_record_products_corrupt,detail 披露字段/
+       类型/原因并保全原始坏值),不得以 isinstance(list) 为是否
+       存在的判定把类型错误解释成"没有第二来源"静默降级成合法单
+       来源;键不在位(字段确未声明)⇒ 单来源 = contract 侧,合法
+       默认路径按既有契约处理,不全面拒绝;空 list 是有效声明按
+       既有多重集比较,不当缺省。无第二来源的合法默认路径不全面
+       拒绝;不另开化学比较器,不重扫语料,不要求抵抗全库协同
+       改写(两侧同被改后无历史证据可判别的形态不在本契约内);
     1. 记录声明的全部共底物严格身份 ⊆ 事件 reactant 侧 cosubstrate
        state_refs 的状态严格身份(spec 层 gate 通过不替代事件层核对
        —— B 与拷贝同丢会退化回 A→P 可 exact 的 R2-2 禁形态,且
@@ -535,13 +571,41 @@ def _check_cosubstrate_event_invariant(
     contract = spec.get("cosubstrate_event_contract") or {}
     # ---- (0) 同源权威消费(W-D2-R2;记录产物多处声明的首次消费)----
     # contract.record_products 在 prepare 的 contract-missing 检查后
-    # 必为 list;corpus 侧 record_products 仅当为 list 时构成第二声明
-    # 处(whole/EAWAG spec 的 corpus 块不带该键 ⇒ 单来源默认路径)。
+    # 必为 list;corpus 侧 record_products 的存在性 = **键在位**
+    # (W-D2-R3,S5B-D2-01 最后残余;Codex D2-R2 复审 §4.2/§4.3/§8):
+    # whole/EAWAG spec 的 corpus 块不带该键 ⇒ 字段确未声明的单来源
+    # 合法默认路径;键在位而值非 list ⇒ 坏声明首消费结构化拒,不以
+    # isinstance(list) 为存在判定静默降级成单来源。
     contract_products = contract.get("record_products")
     corpus_block = spec.get("corpus")
+    corpus_products_key_present = (
+        isinstance(corpus_block, dict)
+        and "record_products" in corpus_block)
     corpus_products = (corpus_block.get("record_products")
-                       if isinstance(corpus_block, dict) else None)
+                       if corpus_products_key_present else None)
     record_products_sources = ["cosubstrate_event_contract"]
+    if corpus_products_key_present and \
+            not isinstance(corpus_products, list):
+        # 坏声明保全(不清洗不重算):detail 披露字段/类型/原因与
+        # 原始值(JSON 安全化;不可序列化时截断 repr 兜底)。
+        try:
+            preserved_declaration = json.loads(
+                json.dumps(corpus_products))
+        except (TypeError, ValueError):
+            preserved_declaration = repr(corpus_products)[:200]
+        raise ProductionContractError(
+            "NC-10 记录产物第二声明处在位损坏:corpus.record_products"
+            " 键在位而值非 list(字段明确在位而损坏;不得把类型错误"
+            "解释成'没有第二来源'降级成合法单来源;坏声明保全,不"
+            "清洗不重算新身份)",
+            {"kind": "cosubstrate_corpus_record_products_corrupt",
+             "axis": "record_products_multiset_same_source",
+             "field": "corpus.record_products",
+             "declared_value_type": type(corpus_products).__name__,
+             "reason": "second_declaration_present_but_not_list",
+             "corpus_record_products_raw": preserved_declaration,
+             "declaration_sources": ["cosubstrate_event_contract",
+                                     "corpus"]})
     if isinstance(contract_products, list) and \
             isinstance(corpus_products, list):
         contract_keys = _record_products_multiset_keys(contract_products)
@@ -690,7 +754,12 @@ def _check_cosubstrate_event_invariant(
         "trigger_semantics": (
             "W-D2-R1 (S5B-D2-01): NC-10 applicability is decided by the "
             "record-side single declaration source (cosubstrate_event_"
-            "contract dict OR corpus block declaring B/copy); assembly "
+            "contract dict OR corpus block declaring B/copy; the corpus "
+            "record_products KEY being in place is a declaration, "
+            "W-D2-R3 — an empty list is a valid declaration and a "
+            "non-list value is a corrupt declaration that gets a "
+            "first-consumption structured reject, neither is treated "
+            "as undeclared); assembly "
             "arrays being missing/null/empty cannot disable the guard "
             "and participants omission cannot default to plain A->P "
             "assembly"),
@@ -721,8 +790,17 @@ def _check_cosubstrate_event_invariant(
                      "multiset; declared-B set = contract UNION corpus "
                      "record-side declaration, W-D2-R1; record product "
                      "authority = same-source multiset verification "
-                     "across contract AND corpus declarations before "
-                     "the axis-2 comparison, W-D2-R2)",
+                     "across the declarations ACTUALLY consumed "
+                     "(record_products_sources above; contract AND "
+                     "corpus when both are in-place lists, W-D2-R2) "
+                     "before the axis-2 comparison; an in-place second "
+                     "declaration whose value is not a list is a "
+                     "first-consumption structured reject "
+                     "(cosubstrate_corpus_record_products_corrupt) and "
+                     "never reaches this checked disclosure, W-D2-R3; "
+                     "a corpus block whose record_products key is "
+                     "absent is a legitimate single-source path, not "
+                     "a verified second source)",
         "stoichiometry_status": (
             "unknown(coefficients all unknown;participant_list_status"
             "=declared_complete describes list completeness only, "
