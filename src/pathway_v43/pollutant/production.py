@@ -86,6 +86,21 @@ SEARCH_PRODUCTION_VERSION = "ppv1-search-production-2"
 # 事件契约消费语义;recorded_source.py 版本注释)——search-production
 # 版本维持 -2(该契约自 D2 起即由 corpus-retrieval 语义块承载,不
 # 硬升无关契约;复审 §7"按既有版本身份规则登记差异")。
+# W-D2-R2(2026-10-11,S5B-D2-01 产物侧残余;Codex D2-R1 复审
+# §4.2/§4.3/§8):NC-10 的记录产物权威改为**同源权威消费**——记录
+# 装配在 contract.record_products 与 corpus.record_products 两处
+# 声明同一产物(recorded_source 同一列表生成);首次消费先按既有
+# strict_identity_of 键空间以**多重集**核对两处声明一致性(重复
+# 组分保留意义,不用集合并集隐藏分歧;合法同义表示按 strict 键
+# 规范),双来源在位而分歧 ⇒ 首次消费结构化拒(kind=
+# cosubstrate_record_products_divergent;坏声明保全,不以被收缩的
+# 一侧作新全量,不重算新身份洗掉);无第二来源(corpus 块不带
+# record_products 列表)⇒ 单来源合法默认路径按既有契约处理,不全
+# 面拒绝。配套 P2 落字:披露新增 consumer_discipline(消费者联读
+# 生产报告义务与禁句)/bystander_cosubstrates(旁观型 unknown 机读
+# 注记)/record_products_sources(实际消费的声明来源)。消费语义
+# 差异按登记面升版 s5b-corpus-retrieval-5(recorded_source.py 版本
+# 注释);search-production 维持 -2。
 CONTEXT_ARTIFACT_NAME = "path_context"
 
 # admission 处置与驱动语义的映射(expand/retain_conditional ⇒ 事件可
@@ -196,7 +211,11 @@ def prepare_hypothesis(
         不变量的记录侧输入(本函数消费并断言:声明共底物(contract
         ∪ corpus 合并)⊆ 事件 reactant 侧 cosubstrate 参与物 ∧
         记录产物多重集 == 事件产物参与物多重集 ∧ 拷贝组分全部被
-        引用 ∧ 拷贝不进执行期望 NC-9;任一不满足 ⇒ 零事件零提交);
+        引用 ∧ 拷贝不进执行期望 NC-9;任一不满足 ⇒ 零事件零提交;
+        **W-D2-R2:记录产物在 contract 与 corpus 两处声明时,首次
+        消费先按 strict 身份键多重集核同源一致性,分歧 ⇒ 结构化拒
+        (cosubstrate_record_products_divergent),不以被收缩一侧作
+        新全量;单来源(无第二声明处)合法路径按既有契约处理**);
       * participants 必须显式(共底物语义不进缺省装配——记录侧声明
         在位时省略 participants ⇒ 拒,不得默认装配 A→P)。
     返回 {hypothesis, states, product_states, tool_inputs,
@@ -448,6 +467,26 @@ def _cosubstrate_record_declaration(spec: dict) -> dict | None:
     }
 
 
+def _record_products_multiset_keys(products: list) -> list:
+    """记录产物声明多重集键(W-D2-R2,S5B-D2-01 产物侧残余;Codex
+    D2-R1 复审 §4.2/§4.3)。
+
+    每个组分取**既有 strict_identity_of 严格身份键**(与 state_id/
+    NC-10 其余轴同一事实源——合法同义表示按 strict 键规范,不另开
+    化学比较器);不可解析条目以原始串为键保守参与比对(等值只在
+    两侧同为该不可解析串时成立;解析面失败仍由轴 2 的 any-None
+    拒绝承接,本函数不新增解析判据)。返回排序键列表——**重复组分
+    保留**(多重集语义),不用集合并集隐藏分歧。"""
+    keys: list = []
+    for p in products:
+        raw = str(p)
+        try:
+            keys.append(strict_identity_of(raw))
+        except Exception:
+            keys.append("unparseable:" + raw)
+    return sorted(keys)
+
+
 def _check_cosubstrate_event_invariant(
         spec: dict, *, participants: list, states: dict,
         b_states: dict, copy_states: dict,
@@ -455,6 +494,19 @@ def _check_cosubstrate_event_invariant(
     """NC-10 事件级端到端不变量(mimo r32 R32-CS3-3 必加;事件提交
     前断言,任一不满足 ⇒ ProductionContractError ⇒ 零事件/零提交):
 
+    0. **同源权威消费(W-D2-R2,S5B-D2-01 产物侧残余;Codex D2-R1
+       复审 §4.2/§4.3)**:适用记录在多处声明同一产物
+       (contract.record_products 与 corpus.record_products——
+       recorded_source 装配期同一列表生成)时,首次消费先按既有
+       strict_identity_of 键空间以**多重集**核对两处声明一致性
+       (重复组分保留意义,不用集合并集隐藏分歧;合法同义表示按
+       strict 键规范);双来源在位而分歧 ⇒ 首次消费结构化拒
+       (kind=cosubstrate_record_products_divergent)——不得选被改
+       的一侧作为新全量,不重算新身份洗掉坏声明;坏输入保全
+       (detail 披露两侧多重集)。无第二来源的合法默认路径按既有
+       契约处理(单来源 = contract 侧),不全面拒绝;不另开化学
+       比较器,不重扫语料,不要求抵抗全库协同改写(两侧同被改后
+       无历史证据可判别的形态不在本契约内);
     1. 记录声明的全部共底物严格身份 ⊆ 事件 reactant 侧 cosubstrate
        state_refs 的状态严格身份(spec 层 gate 通过不替代事件层核对
        —— B 与拷贝同丢会退化回 A→P 可 exact 的 R2-2 禁形态,且
@@ -463,7 +515,7 @@ def _check_cosubstrate_event_invariant(
        合并(_cosubstrate_record_declaration),contract 单侧清空
        不关闭本轴);
     2. 记录产物多重集 == 事件产物参与物多重集(执行组分 ∪ 声明拷贝
-       组分);
+       组分;**W-D2-R2:记录产物权威在轴 0 同源核验后消费**);
     3. 全部参与物 state_ref 可解析(装配不得静默丢参与物);
     4. 拷贝组分全部被产物侧参与物引用且 component_source 机读标签
        在位(R32-CS1-1:身份轴 = 记录声明可核,生成轴 = 未执行,
@@ -475,11 +527,41 @@ def _check_cosubstrate_event_invariant(
     返回机读披露字典(随生产报告 artifact 落盘):declared_copy_
     components + expectation_covered_state_refs + coproduct_
     participants 字段说明(R32-CS1-1/CS5-2:"按 role 聚合,不表示
-    执行覆盖")。
+    执行覆盖")。W-D2-R2 披露新增:record_products_sources(轴 0
+    实际消费/核验的声明来源)、consumer_discipline(消费者联读
+    生产报告义务与禁句,Codex D2-R1 复审 §5 P2-1)、bystander_
+    cosubstrates(旁观型 B 的 unknown 机读注记,P2-2)。
     """
     contract = spec.get("cosubstrate_event_contract") or {}
-    record_products = [str(p) for p in
-                       (contract.get("record_products") or [])]
+    # ---- (0) 同源权威消费(W-D2-R2;记录产物多处声明的首次消费)----
+    # contract.record_products 在 prepare 的 contract-missing 检查后
+    # 必为 list;corpus 侧 record_products 仅当为 list 时构成第二声明
+    # 处(whole/EAWAG spec 的 corpus 块不带该键 ⇒ 单来源默认路径)。
+    contract_products = contract.get("record_products")
+    corpus_block = spec.get("corpus")
+    corpus_products = (corpus_block.get("record_products")
+                       if isinstance(corpus_block, dict) else None)
+    record_products_sources = ["cosubstrate_event_contract"]
+    if isinstance(contract_products, list) and \
+            isinstance(corpus_products, list):
+        contract_keys = _record_products_multiset_keys(contract_products)
+        corpus_keys = _record_products_multiset_keys(corpus_products)
+        if contract_keys != corpus_keys:
+            raise ProductionContractError(
+                "NC-10 记录产物声明同源分歧:contract 与 corpus 两处"
+                "声明同一记录的产物,首次消费按 strict 身份多重集核对"
+                "不一致(不得以被收缩的一侧作新全量;坏声明保全,不"
+                "重算新身份洗掉;同根覆盖 contract 单侧收缩与 corpus "
+                "单侧收缩)",
+                {"kind": "cosubstrate_record_products_divergent",
+                 "axis": "record_products_multiset_same_source",
+                 "declaration_sources": ["cosubstrate_event_contract",
+                                         "corpus"],
+                 "contract_product_identities": contract_keys[:8],
+                 "corpus_product_identities": corpus_keys[:8]})
+        record_products_sources = ["cosubstrate_event_contract",
+                                   "corpus"]
+    record_products = [str(p) for p in (contract_products or [])]
     # ---- (3) 参与物状态可解析 ----
     unresolved = sorted({str(p.state_ref) for p in participants
                          if p.state_ref not in states})
@@ -576,6 +658,22 @@ def _check_cosubstrate_event_invariant(
     expectation_covered = [
         p.state_ref for p in participants
         if p.side == "product" and p.state_ref not in copy_states]
+    # P2-2(Codex D2-R1 复审 §5;W-D2-R2 落字):旁观型 B 机读注记——
+    # 声明 B 无同身份产物侧对应不等于已消耗/催化作用已证;系数与
+    # 消耗方向保持 unknown(不新开字段协议,披露层注记)。
+    product_id_set = set(product_ids)
+    bystander_cosubstrates = [
+        {"state_ref": str(ref), "smiles": str(state.smiles_isomeric),
+         "consumption_status": "unknown",
+         "note": ("declared co-substrate with no identity-preserving "
+                  "product-side counterpart in this event; the record "
+                  "declaration does NOT prove consumption or a "
+                  "catalytic role; consumption/catalysis and "
+                  "coefficient stay unknown; any B-derived declared "
+                  "copy component carries its own "
+                  "declared_not_executed status")}
+        for ref, state in sorted(b_states.items())
+        if state.smiles_isomeric not in product_id_set]
     return {
         "declared_copy_components": [
             {"state_ref": str(e.get("state_ref")),
@@ -588,6 +686,7 @@ def _check_cosubstrate_event_invariant(
             for e in (spec.get("declared_copy_components") or [])],
         "co_substrate_state_refs": sorted(b_states),
         "declaration_sources": list(declaration["sources"]),
+        "record_products_sources": list(record_products_sources),
         "trigger_semantics": (
             "W-D2-R1 (S5B-D2-01): NC-10 applicability is decided by the "
             "record-side single declaration source (cosubstrate_event_"
@@ -596,6 +695,19 @@ def _check_cosubstrate_event_invariant(
             "and participants omission cannot default to plain A->P "
             "assembly"),
         "expectation_covered_state_refs": expectation_covered,
+        "consumer_discipline": (
+            "downstream consumer obligations (W-D2-R2, Codex D2-R1 "
+            "review section 5 P2-1): role=coproduct does NOT indicate "
+            "executed generation; execution coverage MUST be read "
+            "jointly with the same-batch production report "
+            "(expectation_covered_state_refs + per-component "
+            "execution_status), never from role alone; "
+            "identity-consistent-with-record, formation-not-executed "
+            "and stoichiometry-unknown are separate columns and must "
+            "not be merged; banned claims: 'all atoms have sources' "
+            "and 'copy generated/verified' must NOT be asserted from "
+            "this disclosure"),
+        "bystander_cosubstrates": bystander_cosubstrates,
         "coproduct_participants_field_note": (
             "coproduct_participants aggregates by role and does NOT "
             "indicate execution coverage; declared-copy components "
@@ -607,7 +719,10 @@ def _check_cosubstrate_event_invariant(
                      "event reactant cosubstate refs AND record "
                      "product multiset == event product participant "
                      "multiset; declared-B set = contract UNION corpus "
-                     "record-side declaration, W-D2-R1)",
+                     "record-side declaration, W-D2-R1; record product "
+                     "authority = same-source multiset verification "
+                     "across contract AND corpus declarations before "
+                     "the axis-2 comparison, W-D2-R2)",
         "stoichiometry_status": (
             "unknown(coefficients all unknown;participant_list_status"
             "=declared_complete describes list completeness only, "
