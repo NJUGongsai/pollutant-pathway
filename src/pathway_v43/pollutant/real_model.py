@@ -50,6 +50,12 @@ from ..adapters.llm_client import (
     real_provider_env,
 )
 from ..domain.models import now_iso, stable_id
+from .controlled_vocab import (
+    ALIGNMENT_STATUS_RESOLVED,
+    BOND_ORDER_ALTERNATION,
+    EDIT_OPS,
+    OUTPUT_ORIGIN_NOVEL_OUTSIDE_POOL,
+)
 from .search import PROVIDER_KIND_REAL
 
 S5B_REAL_MODEL_VERSION = "s5b-real-model-1"
@@ -76,7 +82,28 @@ class RealModelNotConfigured(RuntimeError):
 # ⇒ 身份变化 ⇒ resume 拒)。规则级表述,不含金标不含题面。
 # W5(S5b):任务改成中性"酶促单步转化"(不偏 degradation);一次至多
 # 8 个不同净反应;短协议示例教合法 ID/自动锚定/单步/完整组分/unknown。
-_PROPOSALS_SYSTEM_PROMPT = """You are a hypothesis proposer for a deterministic enzymatic single-step transformation search system (PPV1).
+# F3(受控词表单一来源,2026-10-11):提示词的**词表声明段**改为由
+# controlled_vocab(执行器/权威模块既有常量)拼接生成,不再手写 ——
+# 防 57ea99b4 aromatic 事故型漂移再犯(提示词手写键级词表混入
+# "aromatic"、执行器 _BOND_TOKENS 只认凯库勒三词,模型照提示词
+# 规范输出 to_order=aromatic、执行器 KeyError 整题崩溃)。
+# 渲染字节与手写版逐字节相同(PROPOSALS_PROMPT_VERSION = 基线
+# 8da11cb7 冻结值,64 位 hex 锚点见 tests/test_controlled_vocab_ci.py
+# 的哈希稳定断言),批身份/resume 语义零影响;执行器词表演进 ⇒
+# 拼接结果变 ⇒ 内容哈希变 ⇒ 自动升版走既有流程,不静默漂移。
+#
+# 生成位(受控词表声明,单一来源 = controlled_vocab):
+# - edits 四操作:EDIT_OPS(顺序 = 渲染顺序,内容身份一部分);
+# - from_order/to_order 枚举:BOND_ORDER_ALTERNATION(凯库勒三词);
+# - output_origin:OUTPUT_ORIGIN_NOVEL_OUTSIDE_POOL(runflow 默认同值);
+# - alignment.status 示范:ALIGNMENT_STATUS_RESOLVED(audit 词表成员)。
+# 规则文本(Rules 段)与 Example 段中的操作/键级词是叙述实例,保持
+# 字面量,由 CI 检测器(提示词提取 ↔ 执行器词表双向 diff,tests/
+# test_controlled_vocab_ci.py)兜底同步。
+_OP_BREAK, _OP_FORM, _OP_CHANGE, _OP_ADD = EDIT_OPS
+
+# 静态段(不含词表声明位;与手写版逐字节一致)
+_PROMPT_STATIC_1 = """You are a hypothesis proposer for a deterministic enzymatic single-step transformation search system (PPV1).
 
 Your ONLY job: return ONE JSON object proposing net reaction hypotheses for one substrate. The task is neutral: propose plausible enzymatic single-step transformations (oxidation, reduction, group transfer, hydrolysis, cleavage, isomerization, or ligation) that the substrate's functional groups support. You never write databases, never claim recorded status, never score anything, never invent EC numbers or reaction conditions. Downstream deterministic code parses, audits and scores your proposals. When you are not sure a transformation is chemically supported, abstain (unknown is legal and honest).
 
@@ -92,24 +119,21 @@ Output contract (strict JSON, no markdown fences, no commentary, no long reasoni
       "hypothesis_id": "<new stable id you invent, e.g. novel-1>",
       "proposal_context": {
         "reference_hypothesis_ids": ["<pool ids you relied on; may be empty>"],
-        "output_origin": "novel_outside_pool"
-      },
+"""
+
+_PROMPT_STATIC_2 = """      },
       "reaction_spec": {
         "product_smiles": "<main product SMILES>",
         "coproducts": ["<coproduct SMILES; optional>"],
         "edits": [
-          {"op": "break_bond", "atom1": "<id>", "atom2": "<id>"}
-          | {"op": "form_bond", "atom1": "<id>", "atom2": "<id>"}
-          | {"op": "change_bond_order", "atom1": "<id>", "atom2": "<id>",
-             "from_order": "single|double|triple",
-             "to_order": "single|double|triple"}
-          | {"op": "add_atom", "element": "<element symbol>",
-             "new_atom_id": "<id>", "atom1": "<anchor id>"}
-        ],
+"""
+
+_PROMPT_STATIC_3 = """        ],
         "donor": {"center_atom_ids": ["<atom ids of the reaction center, donor side>"]},
         "alignment": {
-          "status": "resolved",
-          "donor_to_current": {"<donor atom id>": "<current atom id>"},
+"""
+
+_PROMPT_STATIC_4 = """          "donor_to_current": {"<donor atom id>": "<current atom id>"},
           "ref": "<your alignment reference, e.g. a source reaction id or self-declared>"
         },
         "expectation": {"target_smiles": "<expected product SMILES>"}
@@ -132,6 +156,33 @@ Rules:
 Example (ethanol CCO, atom ids S_C_1 S_C_2 S_O_1, bonds S_C_1~S_C_2 single, S_C_2~S_O_1 single):
 {"proposals": [{"hypothesis_id": "novel-1", "proposal_context": {"reference_hypothesis_ids": [], "output_origin": "novel_outside_pool"}, "reaction_spec": {"product_smiles": "CC=O", "edits": [{"op": "change_bond_order", "atom1": "S_C_2", "atom2": "S_O_1", "from_order": "single", "to_order": "double"}], "donor": {"center_atom_ids": ["S_C_2", "S_O_1"]}, "alignment": {"status": "resolved", "donor_to_current": {"S_C_2": "S_C_2", "S_O_1": "S_O_1"}, "ref": "self-declared-alcohol-oxidation"}, "expectation": {"target_smiles": "CC=O"}}}], "rank_hypotheses": ["novel-1"]}
 """
+
+# 词表声明段(生成位;f-string 静态部分与手写版逐字节一致)
+_PROMPT_SEGMENT_OUTPUT_ORIGIN = \
+    f'        "output_origin": "{OUTPUT_ORIGIN_NOVEL_OUTSIDE_POOL}"\n'
+
+_PROMPT_SEGMENT_EDITS = (
+    f'          {{"op": "{_OP_BREAK}", "atom1": "<id>", "atom2": "<id>"}}\n'
+    f'          | {{"op": "{_OP_FORM}", "atom1": "<id>", "atom2": "<id>"}}\n'
+    f'          | {{"op": "{_OP_CHANGE}", "atom1": "<id>", "atom2": "<id>",\n'
+    f'             "from_order": "{BOND_ORDER_ALTERNATION}",\n'
+    f'             "to_order": "{BOND_ORDER_ALTERNATION}"}}\n'
+    f'          | {{"op": "{_OP_ADD}", "element": "<element symbol>",\n'
+    f'             "new_atom_id": "<id>", "atom1": "<anchor id>"}}\n'
+)
+
+_PROMPT_SEGMENT_ALIGNMENT_STATUS = \
+    f'          "status": "{ALIGNMENT_STATUS_RESOLVED}",\n'
+
+_PROPOSALS_SYSTEM_PROMPT = (
+    _PROMPT_STATIC_1
+    + _PROMPT_SEGMENT_OUTPUT_ORIGIN
+    + _PROMPT_STATIC_2
+    + _PROMPT_SEGMENT_EDITS
+    + _PROMPT_STATIC_3
+    + _PROMPT_SEGMENT_ALIGNMENT_STATUS
+    + _PROMPT_STATIC_4
+)
 
 PROPOSALS_PROMPT_VERSION = hashlib.sha256(
     _PROPOSALS_SYSTEM_PROMPT.encode("utf-8")).hexdigest()
