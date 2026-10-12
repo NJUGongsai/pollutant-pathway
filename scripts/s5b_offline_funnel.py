@@ -28,7 +28,9 @@
   C 去重折叠损失      全部 parsed 候选被 dedup_rejections 折叠
   D 调度落选          候选止步 deferred(alternatives_budget/selection_cap)/blocked，未执行
   E 执行失败          selected 候选全部 method_failed（production status=method_failed）
-  F 准入拒绝          production 有 admission rejected/deferred 且未转正（本两批未出现，保留判据）
+  F 准入拒绝          admission disposition reject/defer 且未转正（枚举对齐
+                      audit.py ADMISSION_REJECT/ADMISSION_DEFER；T7 修复前读
+                      错枚举 rejected/deferred 且无分支，F 恒 0 不可作证据）
   G 预算截断          stop_reason=budget_limit 且 selected 候选未展开（selected > 提交+method_failed）
   H 已提交不匹配      有提交事件但题级 uncovered（逐事件归因=T3）
   I 其他/unknown      以上拼不出，诚实标注
@@ -50,7 +52,7 @@ BUCKET_DESC = {
     "C": "去重折叠损失(dedup 吞全部)",
     "D": "调度落选(deferred alternatives_budget/selection_cap 或 blocked)",
     "E": "执行失败(method_failed)",
-    "F": "准入拒绝(admission rejected/deferred 未转正)",
+    "F": "准入拒绝(admission reject/defer 未转正)",
     "G": "预算截断(budget_limit 且 selected 未展开)",
     "H": "已提交但不匹配(逐事件归因=T3)",
     "I": "其他/unknown",
@@ -192,8 +194,10 @@ def extract_funnel(case, payload, man_entry, mrow):
             if chk.get("status") == "unknown":
                 audit_unknown_checks += 1
     f["admission_dispositions"] = {str(k): v for k, v in dispositions.items()}
+    # 准入枚举权威：audit.py ADMISSION_REJECT="reject"/ADMISSION_DEFER="defer"
+    # （T7 勘误：原读 rejected/deferred 属另一层 production status，非准入枚举）
     f["admission_rejected_or_deferred"] = int(
-        dispositions.get("rejected", 0) + dispositions.get("deferred", 0))
+        dispositions.get("reject", 0) + dispositions.get("defer", 0))
     f["method_failed_productions"] = method_failed_productions
     f["events_created_flag"] = created_true
     f["events_created_other"] = created_other
@@ -228,6 +232,13 @@ def classify(f):
     if f["no_local_candidate"]:
         return "A", "outcome no_local_candidate"
     if f["selected"] > 0:
+        # F（准入拒绝）按最深到达阶段插在 E 前：准入在执行之后，
+        # 候选走到 reject/defer 即已过执行层；执行失败与准入拒并存的
+        # 歧义由交集标志（has_method_failed / has_admission_reject_or_defer）
+        # 承载，不在此硬归第二原因。
+        if f["admission_rejected_or_deferred"] > 0 and f["events_created_flag"] == 0:
+            return "F", (f"admission reject/defer={f['admission_rejected_or_deferred']}"
+                         f" 未转正 (created={f['events_created_flag']})")
         if f["method_failed_productions"] > 0 and f["events_created_flag"] == 0:
             return "E", (f"method_failed productions={f['method_failed_productions']}"
                          f"/selected={f['selected']}")
@@ -303,6 +314,7 @@ def intersect_flags(f):
         "has_dedup_rejections": f["dedup_rejections"] > 0,
         "has_novel_rejections": f["novel_rejections"] > 0,
         "has_method_failed": f["method_failed_outcomes"] > 0,
+        "has_admission_reject_or_defer": f["admission_rejected_or_deferred"] > 0,
         "has_alternatives_budget_defer": f["alternatives_budget_deferrals"] > 0,
         "has_depth_deferrals": f["depth_deferrals"] > 0,
         "run_failed": f["run_failed"],
@@ -399,7 +411,8 @@ def main():
         "flag_counts_uncovered": {},
     }
     flags_all = ["has_pool_compile_fails", "has_dedup_rejections", "has_novel_rejections",
-                 "has_method_failed", "has_alternatives_budget_defer", "has_depth_deferrals",
+                 "has_method_failed", "has_admission_reject_or_defer",
+                 "has_alternatives_budget_defer", "has_depth_deferrals",
                  "run_failed", "no_local_candidate"]
     for flag in flags_all:
         inter["flag_counts_uncovered"][flag] = sum(
