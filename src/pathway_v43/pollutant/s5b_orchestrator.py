@@ -1,5 +1,5 @@
 """S5b 编排器 —— 298 题逐 qid 驱动 PPV1 run(40 路并发;断点续跑;
-契约登记 s5b-orchestrator-2)。
+契约登记 s5b-orchestrator-3)。
 
 职责与边界:
 
@@ -30,22 +30,46 @@
 
 冒烟/全量同一入口:``--limit N`` / ``--qids`` 取冻结注册序前 N 题
 (段 1/2 冒烟 = 正式批次前缀,同一批根同一身份续跑,不借冒烟改配置)。
+
+**s5b-orchestrator-3(2026-10-12,HPC 多作业分片适配)**:R4 单协调者
+flock 从"整批根一把锁"改为**白名单域锁**(``batch_root/coord/`` 下逐
+qid 一把 flock;同 qid 双协调者结构化拒、不相交 qid 白名单多协调者
+并发放行)——同一批根上多个 sbatch 分片作业各持不相交 qids 白名单
+并发执行,批级闸门(RPM/TPM/max_calls/在途/金额帽)仍经
+``FileRateGate`` 跨进程共享。并发写盘加两道保守硬化:orchestration
+冻结副本的"读-比对-写"在短 flock(``orchestration.lock``)内串行
+(关首写竞态:分片同时首跑不同参时后到者必读到先到者副本 ⇒ 冲突拒,
+不再有静默双写窗口);progress/batch_report/orchestration/profile_
+policy 落盘改原子 replace(tmp 名含 pid,分片并发写同一文件不互踩
+半截)。**版本语义**:协调契约变化由版本承载;既有 s5b-orchestrator-2
+批根(如 chenyu s5b_298_20261009_batch2)的 orchestration.json
+``orchestrator_version`` 与本版不一致 ⇒ 续跑按预注册纪律拒(改参
+须新批根);HPC 首批本来就是新批根,不受影响。**跨节点部署注意**:
+qid 白名单锁/闸门锁/driver.lock 全部依赖 flock;死亡占位回收
+(``reclaim_dead_placeholders``)按本机 pid 判死,分片作业跨节点时
+他节点在途 worker 会被误判死(在途帽放松、金额侧保守不漏)——
+首批分片建议约束到同一节点(scripts/hpc/ 部署 runbook 同口径)。
 """
 
 from __future__ import annotations
 
 import fcntl
+import hashlib
 import json
 import os
+import re
+import resource
 import subprocess
 import sys
+import threading
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 from ..adapters.rate_gate import FileRateGate, normalize_cost_guard_config
 from ..domain.models import now_iso
 
-S5B_ORCHESTRATOR_VERSION = "s5b-orchestrator-2"
+S5B_ORCHESTRATOR_VERSION = "s5b-orchestrator-3"
 
 # 批根金额守卫机器配置文件(S5B-V3-02;由 s5b_cli budget 落盘,
 # 发车时冻结进 orchestration.json 与闸门状态;60 CNY 帽默认)
@@ -100,6 +124,136 @@ class S5bOrchestratorError(RuntimeError):
     def __init__(self, message: str, detail: dict | None = None):
         super().__init__(message)
         self.detail = detail or {}
+
+
+# ---------------------------------------------------------------- 白名单域锁
+
+
+def _qid_lock_name(qid: str) -> str:
+    """qid → 协调锁文件名(消毒 + 短哈希;qid→文件名单射)。
+
+    - 文件名安全字符集消毒(``[^A-Za-z0-9._-]`` → ``_``,截 60);
+    - 追加 qid 原值的 sha256 前 8 位 ⇒ 不同 qid 必得不同文件名
+      (消毒碰撞被哈希区分;同 qid 必同名,锁域判定不依赖消毒)。
+    """
+    safe = re.sub(r"[^A-Za-z0-9._-]", "_", str(qid))[:60] or "qid"
+    digest = hashlib.sha256(str(qid).encode("utf-8")).hexdigest()[:8]
+    return f"{safe}-{digest}.lock"
+
+
+class _WhitelistCoordinatorLocks:
+    """R4(v3):白名单域协调者锁 —— 逐 qid 一把 flock。
+
+    语义(s5b-orchestrator-3;替代 v2 的整批根单把 coord.lock):
+
+    - **同 qid 互斥**:另一协调者已持某 qid 的锁 ⇒ 本次获取在该 qid
+      处结构化拒(kind=s5b_coordinator_active;先到先得,fail-fast
+      先于任何 worker 派发),已获部分全部释放(不留半套锁);
+    - **不同 qid 放行**:不相交 qid 白名单的多个协调者并发持有各自
+      的锁(HPC sbatch 分片;批级闸门仍跨进程共享);
+    - flock 是权威(崩溃 OS 自动释放,新协调者可接管);锁文件内容
+      只写持有者 pid/时间披露,写失败不影响锁;
+    - 获取按 qid 排序序进行(确定性;LOCK_NB 无死锁环:失败即回滚
+      全部已获取锁)。
+
+    v2 兼容:旧批根的遗留 ``coord.lock`` 空文件不再被读写(锁域
+    迁移;旧批根本就按 orchestration.json 版本比对拒续跑)。
+    """
+
+    def __init__(self, batch_root: Path, qids: list[str]):
+        self.batch_root = Path(batch_root)
+        # 去重(保序):同 qid 重复进白名单 ⇒ flock 同文件二次打开
+        # 自冲突,必须去重后锁;执行语义同集合
+        self.qids = list(dict.fromkeys(str(q) for q in qids))
+        self.lock_dir = self.batch_root / "coord"
+        self._handles: dict[str, object] = {}
+
+    def acquire(self) -> None:
+        if not self.qids:
+            return  # 空白名单不取锁(上游空清单已拒;防御保持)
+        self.lock_dir.mkdir(parents=True, exist_ok=True)
+        for qid in sorted(self.qids):
+            path = self.lock_dir / _qid_lock_name(qid)
+            fh = open(path, "a+", encoding="utf-8")
+            try:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as exc:
+                fh.close()
+                self.release()
+                raise S5bOrchestratorError(
+                    "qid 已被另一活动协调者持有(白名单域单协调者纪律:"
+                    "同 qid 双协调者结构化拒;不相交 qid 分片放行;"
+                    "flock 是权威,崩溃 OS 自动释放,新协调者可接管)",
+                    {"kind": "s5b_coordinator_active",
+                     "batch_root": str(self.batch_root),
+                     "conflicting_qid": qid,
+                     "requested_qids": sorted(self.qids),
+                     "acquired_qids": sorted(self._handles),
+                     "pid": os.getpid()}) from exc
+            self._handles[qid] = fh
+            try:  # 披露写失败不影响锁(锁域只认 flock)
+                fh.seek(0)
+                fh.truncate()
+                fh.write(f"pid={os.getpid()} qid={qid} "
+                         f"acquired_at={now_iso()}\n")
+                fh.flush()
+            except OSError:
+                pass
+
+    def release(self) -> None:
+        for qid, fh in list(self._handles.items()):
+            try:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+            except OSError:
+                pass
+            try:
+                fh.close()
+            except OSError:
+                pass
+            self._handles.pop(qid, None)
+
+    def __enter__(self) -> "_WhitelistCoordinatorLocks":
+        self.acquire()
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.release()
+
+
+@contextmanager
+def _short_flock(path: Path):
+    """短临界区互斥(阻塞 flock;用于 orchestration.json 读-比对-写
+    的串行化)。持有时长毫秒级,阻塞等待无饥饿风险;无其他锁嵌套。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fh = open(path, "a+", encoding="utf-8")
+    try:
+        fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        yield fh
+    finally:
+        try:
+            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+        except OSError:
+            pass
+        fh.close()
+
+
+def _check_lock_fd_headroom(n_locks: int, workers: int) -> None:
+    """qid 锁 fd 余量预检(fail-closed:不足 ⇒ 结构化拒,不在获取
+    中途裸抛 OSError(EMFILE))。逐 qid 一把锁 fd + worker 管道
+    (每 worker ~3 fd)+ 常规开销。Linux 缺省软限 1024 对 298 题
+    + 40 worker 够用;更小软限(如 macOS 256 跑全量)给出可行动
+    的 ulimit 提示(HPC 作业脚本已设 ulimit -n 4096)。"""
+    soft, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
+    needed = int(n_locks) + 3 * max(1, int(workers)) + 16
+    if needed > int(soft):
+        raise S5bOrchestratorError(
+            f"qid 白名单锁 fd 余量不足:需 ~{needed}(锁 {n_locks} + "
+            f"worker 管道 + 开销)> RLIMIT_NOFILE 软限 {soft};先 "
+            f"ulimit -n 4096 再发车(fail-closed,不中途裸崩)",
+            {"kind": "s5b_lock_fd_headroom_insufficient",
+             "n_locks": int(n_locks), "workers": int(workers),
+             "rlimit_nofile_soft": int(soft),
+             "needed_estimate": needed})
 
 
 # ---------------------------------------------------------------- 环境注入
@@ -294,15 +448,23 @@ def run_s5b_batch(
     - batch_root 必须已由 s5b_builder 构建(batch_manifest.json 在);
     - profile_policy / gate 参数在**发车时**写冻结副本
       (``orchestration.json``)——同批根续跑时原样复用(改参 ⇒ 拒,
-      一致性沿预注册纪律);
-    - **R4:单协调者 flock**(batch_root/coord.lock;双协调者结构化
-      拒 —— 与 run 级 driver.lock 并存,不冲突);死亡未封存恢复只有
-      一份最终 case、一次评分(评分在协调者锁内执行);
+      一致性沿预注册纪律);**v3:读-比对-写在 orchestration.lock
+      短临界区内串行**(分片同时首跑时后到者必读到先到者副本,无静默
+      双写窗口);``qids``/``question_limit`` 不进冻结副本(分片白
+      名单属于执行域,不属于冻结参数域——**所有分片仍须同参发车**,
+      不同参后到者按冲突拒);
+    - **R4(v3):白名单域 flock**(``batch_root/coord/`` 逐 qid 一锁;
+      同 qid 双协调者结构化拒,不相交 qid 白名单分片并发放行 ——
+      与 run 级 driver.lock 并存,不冲突);死亡未封存恢复只有一份
+      最终 case(每 qid 的终态 case 由 worker 原子落盘;汇总在各自
+      协调者锁内执行,全批判分由调用方在全部分片终态后单次 score);
     - **R5:worker_total_timeout** 0=禁用(首批默认,沿现政策;非正值
       不得隐式 kill 而少跑题);正值 = monotonic 总时限 + terminate/
       grace/kill + 死亡占位对账;**负值配置拒**;stderr 独立有界日志/
       主动 drain(防 PIPE 阻塞);
-    - 返回批报告 dict(同时落盘 batch_report.json + progress.json)。
+    - 返回批报告 dict(同时落盘 batch_report.json + progress.json;
+      分片模式下两文件为**最后写盘分片的视角**,全批视角用
+      ``summarize_batch``/score,progress 轮询同理)。
     """
     batch_root = Path(batch_root)
     runs_root = Path(runs_root)
@@ -328,7 +490,10 @@ def run_s5b_batch(
             raise S5bOrchestratorError(
                 f"指定 qid 不在冻结注册序内:{unknown[:5]}(不猜题)",
                 {"kind": "s5b_qid_not_registered", "unknown": unknown})
-        order = wanted
+        # v3:白名单去重(保序)—— qid 锁按集合域互斥,重复项即同 qid
+        # 自冲突;执行/报告按唯一 qid 集合(旧行为重复项会产生重复
+        # 报告行,顺带消除)
+        order = list(dict.fromkeys(wanted))
     else:
         order = registration
     if question_limit is not None:
@@ -368,24 +533,25 @@ def run_s5b_batch(
         "frozen_at": now_iso(),
     }
     orch_path = batch_root / "orchestration.json"
-    if orch_path.is_file():
-        existing = json.loads(orch_path.read_text(encoding="utf-8"))
-        comparable = {k: existing.get(k) for k in frozen
-                      if k != "frozen_at"}
-        if comparable != {k: frozen[k] for k in frozen
-                          if k != "frozen_at"}:
-            raise S5bOrchestratorError(
-                "同批根的编排参数与既有冻结副本不一致(改参须新批根;"
-                "预注册纪律:首跑不可因中途结果改写)", {
-                    "kind": "s5b_orchestration_conflict",
-                    "batch_root": str(batch_root)})
-    else:
-        orch_path.write_text(
-            json.dumps(frozen, ensure_ascii=False, sort_keys=True,
-                       indent=1) + "\n", encoding="utf-8")
-    (batch_root / "profile_policy.json").write_text(
-        json.dumps(frozen["profile_policy"], ensure_ascii=False,
-                   sort_keys=True, indent=1) + "\n", encoding="utf-8")
+    # v3:读-比对-写在短 flock 内串行(分片同时首跑:后到者必读到
+    # 先到者副本再比对 ⇒ 参数不一致按冲突拒,无"双双见缺文件双写"
+    # 的静默窗口);落盘原子 replace(tmp 含 pid,分片并发写不互踩)
+    with _short_flock(batch_root / "orchestration.lock"):
+        if orch_path.is_file():
+            existing = json.loads(orch_path.read_text(encoding="utf-8"))
+            comparable = {k: existing.get(k) for k in frozen
+                          if k != "frozen_at"}
+            if comparable != {k: frozen[k] for k in frozen
+                              if k != "frozen_at"}:
+                raise S5bOrchestratorError(
+                    "同批根的编排参数与既有冻结副本不一致(改参须新批根;"
+                    "预注册纪律:首跑不可因中途结果改写;分片须同参发车)",
+                    {"kind": "s5b_orchestration_conflict",
+                     "batch_root": str(batch_root)})
+        else:
+            _write_json(orch_path, frozen)
+        _write_json(batch_root / "profile_policy.json",
+                    frozen["profile_policy"])
     # ---- 批级闸门(状态文件持久;worker 客户端经 env 装载同门;
     # R2:参数首消费核对 —— 状态文件冻结参数与构造参数一致才可用;
     # S5B-V3-02:金额守卫配置随闸门冻结,worker 侧从状态文件装配) ----
@@ -396,21 +562,12 @@ def run_s5b_batch(
         cost_guard=budget_guard)
     gate.verify_config()
     gate_dir = str(batch_root / "gate")
-    # ---- R4:单协调者 flock(与 run 级 driver.lock 并存;双协调者拒) ----
-    coord_lock_path = batch_root / "coord.lock"
-    coord_lock_path.parent.mkdir(parents=True, exist_ok=True)
-    coord_fh = open(coord_lock_path, "a+", encoding="utf-8")
+    # ---- R4(v3):白名单域 flock(逐 qid 一锁;同 qid 双协调者拒、
+    # 不相交白名单分片放行;与 run 级 driver.lock 并存不冲突) ----
+    _check_lock_fd_headroom(len(order), workers)
+    locks = _WhitelistCoordinatorLocks(batch_root, order)
+    locks.acquire()
     try:
-        try:
-            fcntl.flock(coord_fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except OSError as exc:
-            raise S5bOrchestratorError(
-                "批根已有活动协调者(单协调者纪律:双协调者结构化拒 —— "
-                "flock 是权威;崩溃 OS 自动释放,新协调者可接管;评分/"
-                "汇总在协调者锁内执行,死亡未封存恢复只有一份最终 case)",
-                {"kind": "s5b_coordinator_active",
-                 "batch_root": str(batch_root),
-                 "pid": os.getpid()}) from exc
         return _run_batch_loop(
             batch_root=batch_root, runs_root=runs_root, manifest=manifest,
             order=order, env_file=env_file, workers=workers,
@@ -418,11 +575,7 @@ def run_s5b_batch(
             worker_timeout_s=worker_timeout_s, poll_s=poll_s,
             started_at_wall=time.time())
     finally:
-        try:
-            fcntl.flock(coord_fh.fileno(), fcntl.LOCK_UN)
-        except OSError:
-            pass
-        coord_fh.close()
+        locks.release()
 
 
 def _run_batch_loop(*, batch_root: Path, runs_root: Path,
@@ -531,7 +684,8 @@ def _run_batch_loop(*, batch_root: Path, runs_root: Path,
     report["gate"] = gate_state
     report["worker_timeout_s"] = worker_timeout_s
     report["coordinator"] = {"pid": os.getpid(),
-                             "lock": str(batch_root / "coord.lock")}
+                             "lock_domain": str(batch_root / "coord"),
+                             "qids_n": len(order)}
     report["wall_clock_s"] = round(time.time() - started_at, 1)
     _write_json(batch_root / "batch_report.json", report)
     return report
@@ -637,10 +791,21 @@ def _write_progress(batch_root: Path, order: list[str],
 
 
 def _write_json(path: Path, payload: dict) -> None:
+    """原子落盘 JSON(v3:tmp 名含 pid+线程标识 + os.replace)。
+
+    分片协调者并发写同一信息文件(progress/batch_report/
+    orchestration/profile_policy)时:tmp 互不重名、replace 原子换入
+    ⇒ 磁盘上只见完整旧/新 JSON 之一,不互踩半截(单协调者语义
+    不变,只是并发硬化;跨进程分片靠 pid 区分,同进程多线程
+    分片靠线程标识区分);进程被杀留下的 ``*.tmp`` 是无害残片
+    (下一次写盘不读它)。"""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
+    tmp = path.with_name(
+        f"{path.name}.{os.getpid()}-{threading.get_ident()}.tmp")
+    tmp.write_text(
         json.dumps(payload, ensure_ascii=False, sort_keys=True,
                    indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
 
 
 # ---------------------------------------------------------------- 汇总
