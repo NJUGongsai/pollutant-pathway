@@ -379,6 +379,15 @@ def build_run_input(question: dict, *, batch_tag: str,
 
 # W4 池策略版本(冻结候选配置:raw 预算/池宽/阈值/补位/融合规则;
 # 变化 ⇒ 升版本 ⇒ 新身份)
+# s5b-pool-policy-6(T1a,2026-10-12,池层逐候选谱系诊断):**池成员与
+# 池策略配置零变化**(raw 预算/池宽/阈值/补位/融合/去重/三通道候选
+# 序/截断位置全部不动;控制流零改动)——可观测性变化升版:池构建
+# 诊断从聚合计数升为逐候选明细行(``pool_diagnostics.candidates``,
+# 每候选一行:channel/record_key/outcome/reason/merged_into/pool_
+# rank/signature_head;compiled/compile_rejected/merged_into/pool_
+# truncated 四态与既有聚合计数逐项闭合)。run_inputs/plan.pools
+# 冻结内容字节不变(诊断只进 batch_manifest 条目,追加字段向后
+# 兼容;既有聚合字段零变化)。
 # s5b-pool-policy-5(W-D2,2026-10-10,共底物参与物显式语义 D2 编译
 # 实现轮):池**成员**变化 ⇒ 按既有身份规则升版——corpus component
 # -with-co-substrate 候选中的**整组分拷贝子集**经原子归属三分类
@@ -415,12 +424,13 @@ def build_run_input(question: dict, *, batch_tag: str,
 # 候选按(tier strict→cn, 整串→组分, 行号)序**追加在后**;同净反应
 # 签名去重/失败补位/池宽语义不变;corpus_channel 参数仅供消融对照
 # (生产默认 True;False=纯 EAWAG 面,池深前后对照探针用)。
-S5B_POOL_POLICY_VERSION = "s5b-pool-policy-5"
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-6"
 S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
 S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
 S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)
 S5B_POOL_FALLBACK_THRESHOLD = 0.40  # 输入侧条件降阈值(不足时)
 S5B_POOL_MIN_UNIQUE = 3         # 独特候选不足该数才降阈值
+S5B_POOL_DIAG_SIG_HEAD_TOKENS = 4   # T1a:candidates 行签名头截取 token 数
 
 
 def _net_reaction_signature(spec: dict) -> tuple:
@@ -485,17 +495,47 @@ def default_pool_provider(config: V43Config | None, *,
     config/engine 为 None(测试/无资产)⇒ 对应通道关闭(空池 + 模型
     novel 提案仍合法:S3B-05)。**零金标消费**:只看 substrate_smiles。
     provider.last_diagnostics 记录最近一次调用的通道/编译/去重诊断
-    (build_question_batch 落 manifest 条目)。
+    (build_question_batch 落 manifest 条目)。s5b-pool-policy-6(T1a,
+    2026-10-12)起含逐候选谱系行 ``candidates``:每候选(编译成功/
+    失败/被并/被截断)一行,纯诊断追加 —— 池成员/控制流/run_inputs
+    字节零变化。
     """
     diagnostics: dict = {}
 
     def provider(substrate_smiles: str) -> list[dict]:
         substrate = str(substrate_smiles)
         diagnostics.clear()
+        # ---- T1a(s5b-pool-policy-6):逐候选谱系行(纯诊断,零控制流) ----
+        # 每候选一行:三通道产出点记 compiled/compile_rejected;去重/
+        # 截断段回填 merged_into/pool_rank/pool_truncated。行不进 spec
+        # 本体(池载荷/run_inputs 字节零污染),经 row_by_spec 以 spec
+        # 对象 id 关联(编译成功行与 spec 一一对应;行 schema 见版本
+        # 注释 s5b-pool-policy-6)。
+        candidate_rows: list[dict] = []
+        row_by_spec: dict[int, dict] = {}
+
+        def _signature_head(spec: dict) -> list[str]:
+            return [str(tok) for tok in _net_reaction_signature(spec)
+                    ][:int(S5B_POOL_DIAG_SIG_HEAD_TOKENS)]
+
+        def _diag_row(channel: str, record_key: str, outcome: str, *,
+                      reason: str | None = None,
+                      merged_into: str | None = None,
+                      pool_rank: int | None = None,
+                      signature_head: list[str] | None = None) -> dict:
+            row: dict = {"channel": channel, "record_key": record_key,
+                         "outcome": outcome, "reason": reason,
+                         "merged_into": merged_into,
+                         "pool_rank": pool_rank,
+                         "signature_head": signature_head}
+            candidate_rows.append(row)
+            return row
+
         if config is None and engine is None:
             diagnostics.update({
                 "pool_policy_version": S5B_POOL_POLICY_VERSION,
-                "channels": [], "note": "无 config/engine:空池(novel 合法)"})
+                "channels": [], "candidates": [],
+                "note": "无 config/engine:空池(novel 合法)"})
             return []
         ordered: list[dict] = []   # (编译成功的 spec,按融合序)
         seen_keys: set[str] = set()
@@ -523,12 +563,22 @@ def default_pool_provider(config: V43Config | None, *,
                     n_recorded_strict += 1
                 else:
                     n_recorded_cn += 1
+                # T1a:候选定位键(EAWAG 行取 record_id;spec key =
+                # rec-<rid>,closure 用)
+                cand_key = str(cand.get("record_key")
+                               or cand.get("record_id") or "")
                 spec = cand.get("compile")
                 if spec is None:
-                    _record_failure(str(cand.get("compile_reason")
-                                        or "recorded_compile_failed"))
+                    fail_reason = str(cand.get("compile_reason")
+                                      or "recorded_compile_failed")
+                    _record_failure(fail_reason)
+                    _diag_row("recorded", cand_key, "compile_rejected",
+                              reason=fail_reason)
                     continue
                 _record_compiled(spec)
+                row_by_spec[id(spec)] = _diag_row(
+                    "recorded", cand_key, "compiled",
+                    signature_head=_signature_head(spec))
             diagnostics.update({
                 "recorded_diagnostics": dict(
                     exact.get("diagnostics") or {})})
@@ -545,12 +595,22 @@ def default_pool_provider(config: V43Config | None, *,
                     n_corpus_strict += 1
                 else:
                     n_corpus_cn += 1
+                # T1a:候选定位键(corpus 行取 record_key(行级唯一;
+                # spec key = rec-<record_key>);缺省回退 record_id)
+                cand_key = str(cand.get("record_key")
+                               or cand.get("record_id") or "")
                 spec = cand.get("compile")
                 if spec is None:
-                    _record_failure(str(cand.get("compile_reason")
-                                        or "recorded_compile_failed"))
+                    fail_reason = str(cand.get("compile_reason")
+                                      or "recorded_compile_failed")
+                    _record_failure(fail_reason)
+                    _diag_row("corpus", cand_key, "compile_rejected",
+                              reason=fail_reason)
                     continue
                 _record_compiled(spec)
+                row_by_spec[id(spec)] = _diag_row(
+                    "corpus", cand_key, "compiled",
+                    signature_head=_signature_head(spec))
             diagnostics.update({
                 "corpus_diagnostics": dict(
                     corpus_exact.get("diagnostics") or {})})
@@ -577,6 +637,8 @@ def default_pool_provider(config: V43Config | None, *,
                     if not template_elements_fit(
                             str(ref.mapped_lhs or ""), substrate):
                         _record_failure("no_alignment")
+                        _diag_row("analog", f"tpl-{ref.record_id}",
+                                  "compile_rejected", reason="no_alignment")
                         diagnostics["analog_pregate_skipped"] = \
                             int(diagnostics.get("analog_pregate_skipped",
                                                 0)) + 1
@@ -593,7 +655,10 @@ def default_pool_provider(config: V43Config | None, *,
                             f"corpus-template:{ref.record_id}"),
                         key_prefix="tpl")
                     if out.get("status") != "compiled":
-                        _record_failure(str(out.get("reason")))
+                        fail_reason = str(out.get("reason"))
+                        _record_failure(fail_reason)
+                        _diag_row("analog", f"tpl-{ref.record_id}",
+                                  "compile_rejected", reason=fail_reason)
                         continue
                     spec = dict(out["spec"])
                     spec["key"] = f"tpl-{ref.record_id}"
@@ -602,6 +667,9 @@ def default_pool_provider(config: V43Config | None, *,
                         f"analog-template:{ref.record_id}")
                     spec["coefficient"] = 1
                     analog_specs.append(spec)
+                    row_by_spec[id(spec)] = _diag_row(
+                        "analog", str(spec["key"]), "compiled",
+                        signature_head=_signature_head(spec))
 
             refs = resolver.templates_similar_to(
                 substrate, threshold=threshold, top_k=raw_top)
@@ -634,6 +702,13 @@ def default_pool_provider(config: V43Config | None, *,
                 first = signature_of[sig]
                 first.setdefault("compile", {}).setdefault(
                     "merged_source_keys", []).append(str(spec["key"]))
+                # T1a:被并候选行回填(指向幸存 key;与 merged_source_
+                # keys 闭合;signature_head 按行 schema 仅 compiled 非空)
+                merged_row = row_by_spec.get(id(spec))
+                if merged_row is not None:
+                    merged_row["outcome"] = "merged_into"
+                    merged_row["merged_into"] = str(first["key"])
+                    merged_row["signature_head"] = None
                 continue
             signature_of[sig] = spec
             merged.append(spec)
@@ -645,6 +720,15 @@ def default_pool_provider(config: V43Config | None, *,
             # compiled 承接(检索层口径,含被池侧合并的候选)。
             if spec.get("cosubstrate_event_contract") is not None:
                 n_cosub_specs += 1
+        # ---- T1a:截断前排序位回填(1 基;超出池宽 ⇒ pool_truncated;
+        # 排序/截断本身零改动,只读 merged 序) ----
+        for rank, spec in enumerate(merged, start=1):
+            rank_row = row_by_spec.get(id(spec))
+            if rank_row is not None:
+                rank_row["pool_rank"] = rank
+                if rank > int(max_pool):
+                    rank_row["outcome"] = "pool_truncated"
+                    rank_row["signature_head"] = None
         diagnostics.update({
             "pool_policy_version": S5B_POOL_POLICY_VERSION,
             "n_recorded_strict_exact": n_recorded_strict,
@@ -686,6 +770,9 @@ def default_pool_provider(config: V43Config | None, *,
             "n_pool_returned": min(len(merged), int(max_pool)),
             "compile_failure_histogram": dict(
                 sorted(compile_failures.items())),
+            # T1a:逐候选谱系行(追加字段,向后兼容;行 schema 见
+            # s5b-pool-policy-6 版本注释)
+            "candidates": candidate_rows,
         })
         return merged[:int(max_pool)]
 

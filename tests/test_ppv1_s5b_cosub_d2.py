@@ -195,11 +195,12 @@ def test_d2_versions_registered() -> None:
     corpus-retrieval-5→6——第二产物声明存在性/格式消费语义(键
     在位而非 list ⇒ 坏声明首消费结构化拒,不当单来源降级;spec
     装配/检索/编译行为零变化)。
-    recorded-source-3 / pool-policy-5 维持(compile 判据与池成员
-    零触碰)。"""
+    recorded-source-3 维持(compile 判据零触碰)。
+    T1a(2026-10-12):pool-policy-5→6(池诊断逐候选化 candidates;
+    池成员/compile 判据零触碰,断言随轮更新)。"""
     assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-6"
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-5"
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-6"
 
 
 # ================================================================ 负控族(NC)

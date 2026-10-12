@@ -375,6 +375,9 @@ REGISTERED_LITERAL_SINKS: frozenset[tuple[str, str]] = frozenset({
     ("native_result.py", "deferred"),
     ("path_context.py", "recorded"), ("path_context.py", "unknown"),
     ("pool_audit.py", "unknown"),
+    # T1a(2026-10-12,s5b-pool-policy-6):pool_diagnostics.candidates
+    # 行的 channel 字段自变量("recorded";corpus/analog 非受控词)
+    ("s5b_builder.py", "recorded"),
     ("production.py", "coproduct"), ("production.py", "cosubstrate"),
     ("production.py", "deferred"), ("production.py", "method_failed"),
     ("production.py", "primary_substrate"),

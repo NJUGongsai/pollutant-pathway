@@ -658,7 +658,8 @@ def test_v4b_versions_registered() -> None:
 
     assert S5B_COMPILER_VERSION == "s5b-compiler-3"
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-5"
+    # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-6"
     from pathway_v43.pollutant.recorded_source import (
         CORPUS_RETRIEVAL_VERSION,
     )
