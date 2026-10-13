@@ -187,6 +187,35 @@ POLLUTANT_PATHWAY_S5B_HIT50_V3_CODEX_REVIEW §4.1;**仅 data_scope
   ``score_s5b_batch``(判分首消费,同判据异常包装 s5b_data_scope_
   invalid);合法正控保持:显式 real(配 prereg 批准门)、显式
   synthetic、完全缺省(合成夹具默认语义)。
+
+ppv1-criteria-v2(T-1 判分面参与物集合比较豁免,2026-10-13;预注册
+docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md,
+状态 preregistration_pending_final_confirmation;上游 = teacher T-1
+裁定 b 档 + mimo r36 九条件 + CS2c 补证 N1''=13 + 冻结拍板包):
+
+- **作用轴唯一**:`match_reference_edges` 的逐侧参与物集合比较
+  (reactants==from_states ∧ products==to_states);生成侧零改动;
+- **豁免缺省关**:`criteria_version` keyword-only 参数缺省
+  ``ppv1-criteria-v1`` ⇒ 豁免代码零执行、输出零新键(既有判分行为
+  字节不变);显式传 ``ppv1-criteria-v2`` 才启用(新批次经预注册);
+- **方向限定清单**:产物侧 H₂O/H⁺/Pi/PPi 四类全收,反应物侧仅
+  H₂O/H⁺(磷酰化机制判别子保护;r28 A2 原裁维持非推翻);判定键 =
+  cn 身份哈希集(sha256 前 16 位版本化);
+- **三谓词 fail-closed**:①记录已声明(payload 内
+  event→hypothesis→provenance_refs→provenance_records.record_equation
+  声明链;判不了=unknown=不豁免)②元素可追溯(P/O 计数账照抄补证
+  脚本口径,"无中生水"拦截)③cn 身份成员;任一不过/unknown ⇒ 该
+  extras 维持比较;
+- **完备二分+单归属**:每条 extras(身份+侧+角色)恰一个 tier
+  (``v1_exempt`` / ``not_exempt_maintains_partial``);T1′ 档未实施
+  ⇒ 未声明多余产物维持 partial(明字常量,不理解为"应实施 T1′");
+- **机器挡板**:豁免变体零碳断言(含碳身份禁入豁免构造;CO₂/HCO₃⁻
+  为登记的 v2 known gap)+ 辅因子硬拒绝表(正面清单语义,NAD(P)/
+  ATP/CoA/FAD/THF/O₂/NH₃/T1′ 恒不忽略族绝不豁免)+ 豁免身份 ∩
+  COMPLETION_LICENSED_IDENTITIES = ∅;
+- **披露**:豁免发生时逐边机读 ``exempted_participants``;v2 批级
+  ``criteria_v2`` 汇总块含参考侧 v1 身份监控(应为 0,非 0 = 退出
+  条件信号)。v1 headline 口径不变直到新批次生效。
 """
 
 from __future__ import annotations
@@ -243,6 +272,11 @@ except ImportError:  # pragma: no cover —— 环境异常时 fail-closed
     aggregate_environment_fit = None  # type: ignore[assignment]
     build_condition_fact = None  # type: ignore[assignment]
     build_requirement = None  # type: ignore[assignment]
+
+try:  # ppv1-criteria-v2:判据三许可集交集守卫的事实源(audit 无环)
+    from .audit import COMPLETION_LICENSED_IDENTITIES
+except ImportError:  # pragma: no cover —— 环境异常时 fail-closed
+    COMPLETION_LICENSED_IDENTITIES = frozenset()  # type: ignore[assignment]
 
 # ---- §12 状态枚举与程序可发子集 ----
 
@@ -798,6 +832,479 @@ def check_leakage(split_manifest: dict,
     }
 
 
+# ---------------------------------------------------------------- ppv1-criteria-v2:T-1 豁免常量与谓词
+#
+# 预注册:docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md
+# (§一 清单/§二 三谓词/§三 完备二分/§四 机器挡板/§五 披露/§六 版本)。
+# 纪律:豁免缺省关(v1)⇒ 本节运行期函数零调用、输出零新键;判定键 =
+# cn 身份(非族签名;补证已验签名≡cn 本批零漂移);fail-closed。
+
+PPV1_CRITERIA_V1 = "ppv1-criteria-v1"
+PPV1_CRITERIA_V2 = "ppv1-criteria-v2"
+PPV1_CRITERIA_VERSIONS = frozenset({PPV1_CRITERIA_V1, PPV1_CRITERIA_V2})
+PPV1_CRITERIA_V2_PREREGISTRATION_DOC = (
+    "docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md")
+
+# ---- 完备二分的恰好两个 tier(mimo r36 条件 5;单归属断言见运行期) ----
+CRITERIA_TIER_V1_EXEMPT = "v1_exempt"
+CRITERIA_TIER_NOT_EXEMPT = "not_exempt_maintains_partial"
+CRITERIA_TIERS = frozenset({CRITERIA_TIER_V1_EXEMPT,
+                            CRITERIA_TIER_NOT_EXEMPT})
+# T1′ 档未实施 ⇒ 未声明多余产物维持 partial(明字常量;mimo r36 M3.4:
+# 不得理解为"应当实施 T1′ 以补齐二分")
+CRITERIA_T1P_NOT_IMPLEMENTED_NOTE = (
+    "T1'(coproduct_ignore_tier)未实施:未声明多余产物不进任何忽略档,"
+    "恒维持 partial(not_exempt_maintains_partial);完备二分 = "
+    "v1_exempt | not_exempt_maintains_partial,无第三态")
+
+# ---- 方向限定版豁免清单(§一;变体组照抄 CS2c 补证脚本 V1_VARIANTS) ----
+# 显式 SMILES 列名仅为裁定已列名的规则常量;判定键 = cn 身份收敛键。
+_CRITERIA_V2_EXEMPT_VARIANTS = {
+    "v1:H2O": ("O", "[OH-]", "[OH3+]"),
+    "v1:H+": ("[H+]",),
+    "v1:Pi": ("OP(=O)(O)O", "[O-]P(=O)(O)O", "[O-]P(=O)([O-])O",
+              "[O-]P(=O)([O-])[O-]"),
+    "v1:PPi": ("O=P(O)(O)OP(=O)(O)O", "[O-]P(=O)(O)OP(=O)(O)[O-]",
+               "[O-]P(=O)([O-])OP(=O)([O-])[O-]",
+               "O=P([O-])([O-])OP(=O)([O-])([O-])"),
+}
+# mimo r36 条件 1/M1:产物侧四类全收;反应物侧仅 H₂O/H⁺(Pi/PPi 作
+# 反应物是磷酰化机制成分,A+PPi→A-P+Pi 与 A+Pi→A-P 不可塌缩)。
+CRITERIA_V2_EXEMPT_FAMILIES_PRODUCT = ("v1:H2O", "v1:H+", "v1:Pi",
+                                       "v1:PPi")
+CRITERIA_V2_EXEMPT_FAMILIES_REACTANT = ("v1:H2O", "v1:H+")
+
+# ---- 机器挡板:辅因子硬拒绝表(mimo r36 条件 1 附;正面清单语义 +
+# 常量测试 + 合成负控钉死;进比较面绝不豁免) ----
+CRITERIA_V2_NEVER_EXEMPT_FAMILIES = (
+    "NAD(P)+/NAD(P)H", "ATP/ADP/AMP", "CoA", "FAD/FMN", "THF",
+    "O2", "NH3", "CN-", "SCN-", "H2O2", "NH2OH", "NO",
+)
+# known gap(mimo r36 M1 末,预注册 §十.1):含碳身份构造非法断言把
+# r28 A2 曾建议白名单的 CO₂/HCO₃⁻/CO₃²⁻ 挡在豁免面外 —— 登记为 v2
+# 未来冲突点,不静默重开。
+
+
+def _build_criteria_v2_identity_sets() -> dict:
+    """导入期构建豁免身份集(收敛断言 + 零碳断言 + 许可集交集断言)。
+
+    fail-closed:cn 身份工具缺席(identity 导入回退 None)⇒ 返回空集
+    并置工具可用旗 False(resolve_criteria_version 对 v2 结构化拒);
+    任何收敛/零碳/交集断言失败 ⇒ 导入期 RuntimeError(不静默带病
+    上线)。变体组与判定口径 = CS2c 补证脚本 identity_checks 同源
+    (其验证结论:四类各自收敛单一 cn 键、cn 幂等、Uncharger 往返
+    稳定、与许可集交集 ∅)。"""
+    empty = {
+        "available": False,
+        "by_family": {},
+        "product": frozenset(),
+        "reactant": frozenset(),
+        "all": frozenset(),
+        "sha256_16_by_cn": {},
+        "family_by_cn": {},
+    }
+    if cn_identity is None:  # pragma: no cover —— 环境异常 fail-closed
+        return empty
+    try:
+        from rdkit import Chem as _Chem, RDLogger as _RDLogger
+        _RDLogger.DisableLog("rdApp.*")
+    except ImportError:  # pragma: no cover —— 环境异常 fail-closed
+        return empty
+    by_family: dict[str, str] = {}
+    for family, variants in _CRITERIA_V2_EXEMPT_VARIANTS.items():
+        cns = {cn_identity(v) for v in variants}
+        if len(cns) != 1 or None in cns:
+            raise RuntimeError(
+                f"ppv1-criteria-v2 豁免身份变体未收敛单一 cn 键:"
+                f"{family}(导入期 fail-closed,不静默带病上线)")
+        key = next(iter(cns))
+        # 机器挡板:含碳身份禁入豁免构造(零碳断言;CO₂/HCO₃⁻ known gap)
+        mol = _Chem.MolFromSmiles(key)
+        if mol is None or any(a.GetSymbol() == "C" for a in mol.GetAtoms()):
+            raise RuntimeError(
+                f"ppv1-criteria-v2 豁免身份构造非法(含碳或不可解析):"
+                f"{family} -> {key!r}(导入期 fail-closed)")
+        by_family[family] = key
+    product = frozenset(by_family[f] for f in
+                        CRITERIA_V2_EXEMPT_FAMILIES_PRODUCT)
+    reactant = frozenset(by_family[f] for f in
+                         CRITERIA_V2_EXEMPT_FAMILIES_REACTANT)
+    all_ids = product | reactant
+    # 判据三边界:豁免身份与 completion-licensed 集合无交集
+    # (H⁺ 不得与 [H]/[H][H] 合流;常量测试另行钉死)
+    overlap = sorted(all_ids & set(COMPLETION_LICENSED_IDENTITIES))
+    if overlap:
+        raise RuntimeError(
+            f"ppv1-criteria-v2 豁免身份与 COMPLETION_LICENSED_IDENTITIES "
+            f"交集非空:{overlap}(导入期 fail-closed)")
+    return {
+        "available": True,
+        "by_family": by_family,
+        "product": product,
+        "reactant": reactant,
+        "all": all_ids,
+        "sha256_16_by_cn": {
+            key: hashlib.sha256(key.encode("utf-8")).hexdigest()[:16]
+            for key in all_ids},
+        "family_by_cn": {v: k for k, v in by_family.items()},
+    }
+
+
+_CRITERIA_V2_IDENTITIES = _build_criteria_v2_identity_sets()
+
+
+def resolve_criteria_version(raw_value: str) -> str:
+    """判据版本严格解析(fail-closed;评测/判分入口共用同一判据)。
+
+    非 {ppv1-criteria-v1, ppv1-criteria-v2} 一律结构化拒(不猜、不
+    静默归一);v2 请求而身份工具缺席 ⇒ 拒(v2 无法判定,宁可不开)。"""
+    if raw_value not in PPV1_CRITERIA_VERSIONS:
+        raise EvaluationContractError(
+            f"criteria_version 非法:{raw_value!r}(允许 "
+            f"{sorted(PPV1_CRITERIA_VERSIONS)};缺省 {PPV1_CRITERIA_V1} = "
+            "豁免关;ppv1-criteria-v2 为 teacher T-1 裁定豁免口径,"
+            "显式启用)", {"kind": "criteria_version_invalid",
+                         "value": raw_value,
+                         "allowed": sorted(PPV1_CRITERIA_VERSIONS)})
+    if raw_value == PPV1_CRITERIA_V2 and \
+            not _CRITERIA_V2_IDENTITIES["available"]:
+        raise EvaluationContractError(
+            "criteria_version=ppv1-criteria-v2 而 cn 身份工具/身份集"
+            "不可用(fail-closed:v2 判据无法评估,不降级不猜测)", {
+                "kind": "criteria_v2_identity_tools_unavailable"})
+    return raw_value
+
+
+def _criteria_state_cn(states: dict[str, dict], state_id: str) -> str | None:
+    """状态 cn 身份:导出行声明值优先,缺失时同源工具重推导
+    (与 match_reference_nodes 同一事实源);不可解析 ⇒ None。"""
+    row = states.get(state_id)
+    if not isinstance(row, dict):
+        return None
+    declared = str(row.get("cn_identity") or "")
+    if declared:
+        return declared
+    try:
+        return cn_identity(str(row.get("smiles_isomeric") or ""))
+    except Exception:  # noqa: BLE001 —— 不可解析按 None(fail-closed)
+        return None
+
+
+def _criteria_element_count(smiles: str, element: str) -> int | None:
+    """元素原子计数(补证脚本 elem_sig 的 O/P 轴;解析失败 ⇒ None)。"""
+    if not smiles:
+        return None
+    try:
+        from rdkit import Chem as _Chem, RDLogger as _RDLogger
+    except ImportError:  # pragma: no cover —— 环境异常 fail-closed
+        return None
+    _RDLogger.DisableLog("rdApp.*")
+    mol = _Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return None
+    return sum(1 for a in mol.GetAtoms() if a.GetSymbol() == element)
+
+
+# pred1 声明链状态(v2 消费契约,预注册 §二.1;生成侧发射器未装配属
+# known gap —— 链缺席/悬空/不可解析一律 unknown = 不豁免)
+_CRITERIA_V2_DECLARATION_KEY = "record_equation"
+_CRITERIA_V2_DECL_RESOLVED = "resolved"
+_CRITERIA_V2_DECL_NO_CHAIN = "no_chain"
+_CRITERIA_V2_DECL_UNRESOLVED = "unresolved"
+_CRITERIA_V2_DECL_UNPARSEABLE = "unparseable"
+
+
+def _criteria_declaration_sides(payload: dict, hypothesis_id: str) -> tuple[
+        dict[str, set], dict[str, set], str]:
+    """pred1 执法链:event→hypothesis→provenance_refs→
+    provenance_records 行 payload 的 ``record_equation`` 声明。
+
+    消费契约(判分侧定义,预注册 §二.1)::record_equation = 
+    ``{"reactants": [{"smiles": str, "role": str?}…],
+    "products": […]}``;逐条目 cn_identity。声明条目 role 缺省 =
+    通配(记录方程通常无角色信息);带 role 时按身份+侧+角色绑定。
+
+    返回 (反应物声明 {cn: roles}, 产物声明 {cn: roles}, status):
+    status ∈ resolved | no_chain(无 refs)| unresolved(refs 存在但
+    无可解析方程)| unparseable(任一段不可解析 —— 与补证脚本
+    bad>0 ⇒ unknown 同口径,fail-closed)。"""
+    import json as _json
+    react_declared: dict[str, set] = {}
+    prod_declared: dict[str, set] = {}
+    hyp = _hypothesis_payloads(payload).get(str(hypothesis_id or "")) or {}
+    refs = [str(x) for x in hyp.get("provenance_refs") or []]
+    if not refs:
+        return react_declared, prod_declared, _CRITERIA_V2_DECL_NO_CHAIN
+    rows: dict[str, dict] = {}
+    for row in payload.get("provenance_records") or []:
+        body = row.get("payload")
+        if isinstance(body, str):
+            try:
+                body = _json.loads(body)
+            except (ValueError, TypeError):
+                body = None
+        if isinstance(body, dict):
+            rows[str(row.get("record_id"))] = body
+    resolved = False
+    unparseable = False
+    for ref in refs:
+        body = rows.get(ref)
+        if body is None:
+            unparseable = True  # 悬空引用:链不可判(fail-closed)
+            continue
+        equation = body.get(_CRITERIA_V2_DECLARATION_KEY)
+        if not isinstance(equation, dict):
+            unparseable = True
+            continue
+        side_tables = (("reactants", react_declared),
+                       ("products", prod_declared))
+        ok = True
+        for side_key, table in side_tables:
+            entries = equation.get(side_key)
+            if not isinstance(entries, list):
+                ok = False
+                break
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    ok = False
+                    break
+                smiles = str(entry.get("smiles") or "")
+                role = entry.get("role")
+                cn = cn_identity(smiles) if smiles else None
+                if cn is None:
+                    ok = False
+                    break
+                table.setdefault(cn, set()).add(
+                    None if role in (None, "") else str(role))
+            if not ok:
+                break
+        if ok:
+            resolved = True
+        else:
+            unparseable = True
+    if unparseable:
+        return react_declared, prod_declared, _CRITERIA_V2_DECL_UNPARSEABLE
+    if resolved:
+        return react_declared, prod_declared, _CRITERIA_V2_DECL_RESOLVED
+    return react_declared, prod_declared, _CRITERIA_V2_DECL_UNRESOLVED
+
+
+def _pred1_record_declared(declared: dict[str, set], status: str,
+                           cn: str | None, role) -> str:
+    """①记录已声明(身份+侧+角色绑定;判不了=unknown,fail-closed)。"""
+    if status != _CRITERIA_V2_DECL_RESOLVED:
+        return "unknown"
+    roles = declared.get(cn) if cn is not None else None
+    if roles is None:
+        return "false"
+    if None in roles or (role is not None and str(role) in roles):
+        return "true"
+    return "false"  # 已声明但角色不符 ⇒ 该身份+侧+角色未声明
+
+
+def evaluate_participant_exemption(payload: dict, event_body: dict,
+                                   states: dict[str, dict], *,
+                                   hypothesis_id: str,
+                                   from_states: set[str],
+                                   to_states: set[str]) -> dict:
+    """ppv1-criteria-v2 三谓词评审(纯函数;测试/重算对照可复用)。
+
+    对单个事件按预注册 §二/§三执行:逐 extra 实例(身份+侧+角色)
+    单归属恰一个 tier;事件级元素账照抄补证脚本口径(P/O 计数级,
+    "无中生水"拦截);**不完备豁免(任一 extras 非 v1_exempt)⇒
+    维持 superset/partial**;partial_subset 形态不适用(缺物种豁免
+    救不了,eligible=False)。
+
+    返回::
+
+        {"eligible": bool,           # superset 形态且存在 extras
+         "all_exempt": bool,         # 全部 extras v1_exempt(可升 exact)
+         "declaration_status": str,  # pred1 声明链状态(仅 eligible)
+         "element_accounts": dict|None,  # P/O 三账(仅 eligible)
+         "occurrences": [            # 逐实例(确定性排序;单归属)
+             {"state_ref", "side", "role", "exempt_family",
+              "identity_sha256_16"|None, "tier",
+              "pred1_record_declared", "pred2_element_traceable",
+              "pred3_cn_identity_member"}…],
+         "exempted_participants": […],  # 披露子集(仅 v1_exempt 实例;
+                                         # 身份仅披露族标签+版本化哈希,
+                                         # 零结构外带)}
+    """
+    idents = _CRITERIA_V2_IDENTITIES
+    participants = [p for p in (event_body or {}).get("participants") or []
+                    if isinstance(p, dict)]
+    reactants = {str(p.get("state_ref")) for p in participants
+                 if str(p.get("side")) == "reactant"}
+    products = {str(p.get("state_ref")) for p in participants
+                if str(p.get("side")) == "product"}
+    base = {
+        "eligible": False, "all_exempt": False,
+        "declaration_status": None, "element_accounts": None,
+        "occurrences": [], "exempted_participants": [],
+    }
+    if not (from_states <= reactants and to_states <= products):
+        return base  # 非 superset 形态(含 partial_subset):豁免不适用
+    r_extra = sorted(reactants - from_states)
+    p_extra = sorted(products - to_states)
+    if not r_extra and not p_extra:
+        return base  # 已 exact,豁免评审不适用
+    # ---- pred1 声明链(事件→假设→provenance 回溯;一次解析双侧共用)
+    # hypothesis_id 取自事件行顶层(导出行结构权威位,与匹配引擎的
+    # hypothesis 反查同一来源,不另立判据) ----
+    react_declared, prod_declared, decl_status = \
+        _criteria_declaration_sides(payload, hypothesis_id)
+    # ---- 事件级元素账(照抄补证脚本口径;O/P 计数级) ----
+    # 非豁免侧 = 该侧参与物 cn 不在该侧豁免集(供给);豁免簿记需求 =
+    # 该侧 extras 中落豁免集者的 O/P 合计。任一涉及状态不可解析 ⇒
+    # 账 unknown(fail-closed,不造数)。
+    account_unknown = False
+
+    def _elem_total(state_ids: list[str], element: str) -> int | None:
+        nonlocal account_unknown
+        total = 0
+        for sid in state_ids:
+            row = states.get(sid) or {}
+            smiles = str(row.get("smiles_isomeric") or "")
+            n = _criteria_element_count(smiles, element)
+            if n is None:
+                account_unknown = True
+                return None
+            total += n
+        return total
+
+    react_nonexempt = [s for s in sorted(reactants)
+                       if _criteria_state_cn(states, s)
+                       not in idents["reactant"]]
+    prod_nonexempt = [s for s in sorted(products)
+                      if _criteria_state_cn(states, s)
+                      not in idents["product"]]
+    p_in = _elem_total(react_nonexempt, "P")
+    o_in = _elem_total(react_nonexempt, "O")
+    o_out = _elem_total(prod_nonexempt, "O")
+    o_book_react = _elem_total(
+        [s for s in r_extra
+         if _criteria_state_cn(states, s) in idents["reactant"]], "O")
+    o_book_prod = _elem_total(
+        [s for s in p_extra
+         if _criteria_state_cn(states, s) in idents["product"]], "O")
+    p_book_prod = _elem_total(
+        [s for s in p_extra
+         if _criteria_state_cn(states, s) in idents["product"]], "P")
+    if account_unknown:
+        p_account = o_account_prod = o_account_react = "unknown"
+    else:
+        p_account = ("not_applicable" if p_book_prod == 0 else
+                     ("pass" if p_in >= p_book_prod else "fail"))
+        o_account_prod = ("not_applicable" if o_book_prod == 0 else
+                          ("pass" if o_in >= o_book_prod else "fail"))
+        o_account_react = ("not_applicable" if o_book_react == 0 else
+                           ("pass" if o_out - o_in <= o_book_react
+                            else "fail"))
+    element_accounts = {
+        "P": p_account, "O_product_side": o_account_prod,
+        "O_reactant_side": o_account_react,
+        "P_supply_nonexempt_react": p_in,
+        "O_supply_nonexempt_react": o_in,
+        "O_products_nonexempt": o_out,
+        "O_demand_exempt_react_extras": o_book_react,
+        "O_demand_exempt_prod_extras": o_book_prod,
+        "P_demand_exempt_prod_extras": p_book_prod,
+        "counting_basis": ("计数级追溯(供给≥需求),不证明键级机制来源;"
+                           "照抄 CS2c 补证脚本口径;unknown=fail-closed"),
+    }
+
+    # ---- 逐实例三谓词 + 单归属 tier(身份+侧+角色;确定性排序) ----
+    occurrences: list[dict] = []
+    seen_keys: set[tuple] = set()
+    ordered = sorted(participants,
+                     key=lambda p: (str(p.get("state_ref")),
+                                    str(p.get("side")),
+                                    str(p.get("role"))))
+    for p in ordered:
+        state_ref = str(p.get("state_ref"))
+        side = str(p.get("side"))
+        role = p.get("role")
+        role_key = None if role in (None, "") else str(role)
+        if side not in ("reactant", "product"):
+            continue  # 非 reactant/product 侧参与物不进集合比较轴
+        if side == "reactant" and state_ref not in r_extra:
+            continue
+        if side == "product" and state_ref not in p_extra:
+            continue
+        key = (state_ref, side, role_key)
+        if key in seen_keys:
+            continue  # 同(身份+侧+角色)重复条目按单实例评审
+        seen_keys.add(key)
+        cn = _criteria_state_cn(states, state_ref)
+        family = idents["family_by_cn"].get(cn)
+        permitted = (idents["product"] if side == "product"
+                     else idents["reactant"])
+        member = cn is not None and cn in permitted
+        if not member:
+            # 方向不许可/身份不在豁免集 ⇒ 完备二分右侧,谓词不评审
+            occurrences.append({
+                "state_ref": state_ref, "side": side, "role": role_key,
+                "exempt_family": None, "identity_sha256_16": None,
+                "tier": CRITERIA_TIER_NOT_EXEMPT,
+                "pred1_record_declared": None,
+                "pred2_element_traceable": None,
+                "pred3_cn_identity_member": False,
+            })
+            continue
+        pred1 = _pred1_record_declared(
+            react_declared if side == "reactant" else prod_declared,
+            decl_status, cn, role_key)
+        if family == "v1:H+":
+            # H⁺ 无 O/P 涉及(预注册 §二.2:按"豁免实例涉及的 O/P"语义
+            # not_applicable 记过;与补证脚本 inst_pass 字面差异已披露,
+            # 本批 H⁺ 实例 0)
+            pred2 = "not_applicable"
+        elif side == "product":
+            pred2 = ("pass" if p_account != "fail"
+                     and o_account_prod == "pass" else "fail")
+        else:
+            pred2 = ("pass" if o_account_react == "pass" else "fail")
+        pred3 = True  # cn ∈ 该侧豁免集即成员(判定键同源)
+        tier = (CRITERIA_TIER_V1_EXEMPT
+                if pred1 == "true" and pred2 in ("pass", "not_applicable")
+                and pred3 else CRITERIA_TIER_NOT_EXEMPT)
+        occurrences.append({
+            "state_ref": state_ref, "side": side, "role": role_key,
+            "exempt_family": family,
+            "identity_sha256_16": idents["sha256_16_by_cn"].get(cn),
+            "tier": tier,
+            "pred1_record_declared": pred1,
+            "pred2_element_traceable": pred2,
+            "pred3_cn_identity_member": pred3,
+        })
+    # ---- 单归属断言:每实例恰一个合法 tier(结构性保证 + 显式断言) ----
+    assert len(occurrences) == len(seen_keys), \
+        "ppv1-criteria-v2 单归属违例:实例键去重后数量不一致"
+    assert all(o["tier"] in CRITERIA_TIERS and
+               sum(1 for t in CRITERIA_TIERS if t == o["tier"]) == 1
+               for o in occurrences), \
+        "ppv1-criteria-v2 单归属违例:tier 非法或缺标签"
+    all_exempt = bool(occurrences) and all(
+        o["tier"] == CRITERIA_TIER_V1_EXEMPT for o in occurrences) and \
+        all(a in ("pass", "not_applicable")
+            for a in (p_account, o_account_prod, o_account_react))
+    exempted = [
+        {k: o[k] for k in ("state_ref", "side", "role", "exempt_family",
+                           "identity_sha256_16", "tier",
+                           "pred1_record_declared",
+                           "pred2_element_traceable",
+                           "pred3_cn_identity_member")}
+        for o in occurrences if o["tier"] == CRITERIA_TIER_V1_EXEMPT]
+    return {
+        "eligible": True,
+        "all_exempt": all_exempt,
+        "declaration_status": decl_status,
+        "element_accounts": element_accounts,
+        "occurrences": occurrences,
+        "exempted_participants": exempted if all_exempt else [],
+    }
+
+
 # ---------------------------------------------------------------- 匹配引擎
 
 
@@ -830,6 +1337,19 @@ def _event_participants(event_row: dict) -> list[dict]:
             body = {}
     return [p for p in (body or {}).get("participants") or []
             if isinstance(p, dict)]
+
+
+def _event_payload_body(event_row: dict) -> dict:
+    """事件行 payload 解析为 dict(ppv1-criteria-v2 评审消费;
+    与 _event_participants 同一解析语义,不另立判据)。"""
+    body = event_row.get("payload")
+    if isinstance(body, str):
+        import json as _json
+        try:
+            body = _json.loads(body)
+        except (ValueError, TypeError):
+            body = {}
+    return body or {}
 
 
 def _hypothesis_payloads(payload: dict) -> dict[str, dict]:
@@ -945,7 +1465,9 @@ def match_reference_nodes(reference_graph: dict,
 
 
 def match_reference_edges(reference_graph: dict, payload: dict,
-                          node_matches: list[dict]) -> list[dict]:
+                          node_matches: list[dict], *,
+                          criteria_version: str = PPV1_CRITERIA_V1) -> list[
+        dict]:
     """参考边匹配(确定性;step_scope 分轴;备选不合并;共同产物不被
     报告 K 删除)。
 
@@ -971,8 +1493,17 @@ def match_reference_edges(reference_graph: dict, payload: dict,
     - 事件级共同产物参与物完整计数(报告 K/展开宽度不删 C,S5-03);
     - 合法 exact、superset/partial 覆盖披露、共同产物、独立备选
       保持(不新增角色/系数/计量门;系数状态由参考图声明、评测
-      侧仅披露不比较)。
+      侧仅披露不比较);
+    - **ppv1-criteria-v2(teacher T-1 裁定;缺省 v1 = 豁免关、本函数
+      行为与 ppv1-evaluation-5 字节一致)**:``criteria_version=
+      ppv1-criteria-v2`` 时对 superset 失配事件按预注册三谓词做参与
+      物豁免评审 —— 全部 extras(两侧)v1_exempt ⇒ 该事件升 exact
+      (进 matched_strict)并逐边机读 ``exempted_participants``;
+      任一 extras 非 v1_exempt(T1′ 未实施 ⇒ 未声明多余产物恒
+      partial)⇒ 维持 superset。豁免只在集合比较轴,身份键/节点
+      匹配/step_scope 判定零触碰。
     """
+    resolve_criteria_version(criteria_version)
     states = _export_states(payload)
     strict_by_node: dict[str, set[str]] = {}
     node_status_by_id: dict[str, str] = {}
@@ -1043,6 +1574,32 @@ def match_reference_edges(reference_graph: dict, payload: dict,
                 event_scope = str(hypothesis.get("step_scope")
                                   or "unknown")
                 ref_scope = str(edge.get("step_scope") or "unknown")
+                # 参与物覆盖(proposed 规则:参考声明完整清单时,
+                # 精确 = 事件参与物集合与参考节点集合两侧相等;
+                # 事件多出共同产物等 ⇒ 超集;缺声明参与物 ⇒ 部分
+                # —— 两种非精确覆盖均单独披露,不计严格匹配)
+                coverage = (
+                    "exact" if reactants == from_states
+                    and products == to_states
+                    else ("superset" if
+                          from_states <= reactants
+                          and to_states <= products
+                          else "partial_subset"))
+                # ---- ppv1-criteria-v2 豁免评审(缺省 v1:本块零执行,
+                # item 字段集与 ppv1-evaluation-5 完全一致=字节不变)----
+                exempt_review = None
+                if criteria_version == PPV1_CRITERIA_V2 and \
+                        coverage == "superset":
+                    exempt_review = evaluate_participant_exemption(
+                        payload, _event_payload_body(event), states,
+                        hypothesis_id=str(event.get("hypothesis_id") or ""),
+                        from_states=from_states, to_states=to_states)
+                    if exempt_review["all_exempt"]:
+                        # 全部 extras(两侧)v1_exempt ⇒ 升 exact;
+                        # 逐边机读披露(预注册 §五);T1′ 未实施 ⇒
+                        # 任一未声明多余产物即维持 partial(fail 方向
+                        # 保守,完备二分右侧)
+                        coverage = "exact"
                 item = {
                     "event_id": str(event.get("event_id")),
                     "event_step_scope": event_scope,
@@ -1055,18 +1612,12 @@ def match_reference_edges(reference_graph: dict, payload: dict,
                         str(p.get("state_ref")) for p
                         in _event_participants(event)
                         if str(p.get("role")) == "coproduct"}),
-                    # 参与物覆盖(proposed 规则:参考声明完整清单时,
-                    # 精确 = 事件参与物集合与参考节点集合两侧相等;
-                    # 事件多出共同产物等 ⇒ 超集;缺声明参与物 ⇒ 部分
-                    # —— 两种非精确覆盖均单独披露,不计严格匹配)
-                    "participant_coverage": (
-                        "exact" if reactants == from_states
-                        and products == to_states
-                        else ("superset" if
-                              from_states <= reactants
-                              and to_states <= products
-                              else "partial_subset")),
+                    "participant_coverage": coverage,
                 }
+                if exempt_review is not None and \
+                        exempt_review["all_exempt"]:
+                    item["exempted_participants"] = \
+                        exempt_review["exempted_participants"]
                 if item["step_scope_consistent"]:
                     if item["participant_coverage"] == "exact":
                         exact_events.append(item)
@@ -2150,6 +2701,7 @@ def evaluate_scientific(
     reference_graphs: dict[str, dict] | None = None,
     native_export_reader=None,
     preregistration: dict | None = None,
+    criteria_version: str = PPV1_CRITERIA_V1,
 ) -> dict:
     """正式评测主流程(§11;确定性、可重放、零 LLM)。
 
@@ -2159,8 +2711,15 @@ def evaluate_scientific(
     - 导出缺席/读取失败 ⇒ 样本级 ``scoring_status`` 披露,不冒充
       已评(S5-28);
     - prereg TBD ⇒ ``pending_preregistration``(S5-23;评测器永不发
-      evaluated_*)。
+      evaluated_*);
+    - **ppv1-criteria-v2**:`criteria_version` 缺省 v1 = 豁免关(既有
+      行为字节不变,输出零新键);显式 v2 = T-1 判分面豁免启用
+      (teacher 裁定;预注册
+      ``docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md``),
+      输出附 ``criteria_v2`` 批级汇总块(豁免计数 + 参考侧 v1 身份
+      监控,应为 0;非 0 = 退出条件信号)。
     """
+    resolve_criteria_version(criteria_version)
     evaluation_input = validate_evaluation_input(evaluation_input)
     split_manifest = validate_split_manifest(
         evaluation_input.get("split_manifest"))
@@ -2430,8 +2989,9 @@ def evaluate_scientific(
             continue
         payload = export_payloads[pairing_info["consumed_export_digest"]]
         node_matches = match_reference_nodes(graph, payload)
-        edge_matches = match_reference_edges(graph, payload,
-                                             node_matches)
+        edge_matches = match_reference_edges(
+            graph, payload, node_matches,
+            criteria_version=criteria_version)
         conditions = classify_sample_conditions(graph, payload)
         endpoint_checks = check_endpoint_claims(
             payload.get("endpoint_record") or {},
@@ -2627,6 +3187,61 @@ def evaluate_scientific(
         },
         "status": status,
     }
+    # ---- ppv1-criteria-v2 批级汇总(仅 v2;v1 缺省零新键=字节不变) ----
+    # 豁免披露计数 + 参考侧 v1 身份监控(mimo r36 条件 4:应为 0,
+    # 非 0 = 退出条件信号;预注册 §五)。
+    if criteria_version == PPV1_CRITERIA_V2:
+        edges_with_exemption = 0
+        events_exempted = 0
+        occurrence_count = 0
+        family_counts: dict[str, int] = {}
+        for sample in sample_results:
+            for entry in sample["predicted_edge_matches"]:
+                exempted_events = [
+                    ev for ev in entry.get("matched_events") or []
+                    if ev.get("exempted_participants")]
+                if exempted_events:
+                    edges_with_exemption += 1
+                for ev in exempted_events:
+                    events_exempted += 1
+                    for occ in ev["exempted_participants"]:
+                        occurrence_count += 1
+                        family = str(occ.get("exempt_family") or "")
+                        family_counts[family] = \
+                            family_counts.get(family, 0) + 1
+        reference_v1_nodes = 0
+        reference_v1_graphs: list[str] = []
+        for graph_id, graph in sorted(graphs.items()):
+            node_hits = 0
+            for node in graph.get("nodes") or []:
+                node_cn = cn_identity(str(node.get("structure_smiles")
+                                          or ""))
+                if node_cn is not None and node_cn in \
+                        _CRITERIA_V2_IDENTITIES["all"]:
+                    node_hits += 1
+            if node_hits:
+                reference_v1_graphs.append(graph_id)
+            reference_v1_nodes += node_hits
+        output["criteria_v2"] = {
+            "criteria_version": PPV1_CRITERIA_V2,
+            "preregistration_doc": PPV1_CRITERIA_V2_PREREGISTRATION_DOC,
+            "exemption_enabled": True,
+            "edges_with_exemption": edges_with_exemption,
+            "events_exempted_strict": events_exempted,
+            "exempted_participant_occurrences": occurrence_count,
+            "exempted_family_counts": dict(sorted(
+                family_counts.items())),
+            "reference_side_v1_identity_nodes": reference_v1_nodes,
+            "reference_side_v1_identity_graphs": reference_v1_graphs,
+            "reference_side_v1_identity_signal": (
+                "EXIT_CONDITION_SIGNAL_nonzero" if reference_v1_nodes
+                else "ok"),
+            "t1p_tier_note": CRITERIA_T1P_NOT_IMPLEMENTED_NOTE,
+            "dual_caliber_note": (
+                "ppv1-criteria-v1(豁免关)恒为 headline 直到新批次按"
+                "预注册以 v2 出数;本块为 v2 口径敏感性披露,post-hoc;"
+                "旧批零回写"),
+        }
     output["output_sha256"] = hashlib.sha256(
         canonical_json(output).encode("utf-8")).hexdigest()
     return output

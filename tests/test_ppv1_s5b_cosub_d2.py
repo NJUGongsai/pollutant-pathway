@@ -47,7 +47,9 @@ s5b-recorded-source-3 / s5b-pool-policy-5)。
 - NC-12 批级熔断:本通道事件 matched_strict 恒 == 0(W-D2-R1 范围
   限定:仅对当前剥除 B/copy 的 root-only 参考构建口径成立,合法
   完整 B/copy 参考可 strict、非漂移;e2e 合成批断言 + 完整参考
-  正控);
+  正控;**ppv1-criteria-v2 前提域重写 2026-10-13:恒 0 收窄为
+  "未获豁免披露的 matched_strict 恒 0"——判分侧豁免生效时获豁免
+  披露的合法 strict 不触发熔断;本通道缺省 v1 口径断言不变**);
 - PC-1 辅因子对型(CCO.c1ccncc1→CC=O+C1CCNCC1):编译成功 + 参与
   物形态 + 事件 partial(断言具体桶);元素账 unknown 非已配平
   (该例按氢计不配平:乙醇→乙醛释 2H、吡啶→哌啶需 6H,差 4H;
@@ -1916,6 +1918,14 @@ def test_d2_e2e_cosubstrate_event_partial_and_batch_fuse(tmp_path) -> None:
       matched_participant_coverage_partial(具体桶),非 strict、非
       unmatched;合法完整 B/copy 参考允许 strict 的正控另见
       test_d2_nc12_r1_complete_reference_strict_allowed;
+      **ppv1-criteria-v2 前提域重写(2026-10-13,预注册
+      docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md,
+      旧文字保留非删除)**:恒 0 收窄为"**未获豁免披露的**本通道
+      matched_strict 恒 0"——判分侧 criteria_version=
+      ppv1-criteria-v2 豁免生效时,获豁免披露(逐边
+      exempted_participants)的合法 strict 不触发熔断;本测试仍以
+      缺省 v1 口径断言(豁免关),v2 豁免形态另见
+      tests/test_ppv1_criteria_v2_exemption.py;
     - 生产报告携带 cosubstrate_disclosure(拷贝组分机读披露 +
       expectation 覆盖 refs + coproduct_participants 字段说明)。"""
     rows = [
@@ -2011,7 +2021,10 @@ def test_d2_e2e_cosubstrate_event_partial_and_batch_fuse(tmp_path) -> None:
     statuses = {e["match_status"] for e in edge_matches}
     # NC-12(W-D2-R1 范围限定):当前剥除 B/copy 的 root-only 参考
     # 构建口径下本通道 matched_strict 恒 == 0(出数即红;完整参考
-    # 正控另测,不为守 0 改 evaluation)
+    # 正控另测,不为守 0 改 evaluation)。
+    # ppv1-criteria-v2 前提域重写(2026-10-13):恒 0 = **未获豁免
+    # 披露的** matched_strict 恒 0——本断言在缺省 v1(豁免关)下
+    # 断言不变;v2 豁免生效时获豁免披露的合法 strict 不属违例。
     assert "matched_strict" not in statuses, statuses
     # 具体桶:partial(不是 unmatched/structure_only)
     assert statuses == {"matched_participant_coverage_partial"}, statuses
@@ -2043,7 +2056,9 @@ def test_d2_nc12_r1_complete_reference_strict_allowed(tmp_path) -> None:
     通过)下,同一声明事件可合法 matched_strict——这不是漂移、不是
     熔断违例;NC-12 的 matched_strict==0 只对当前剥除 B/copy 的
     root-only 参考构建口径成立(判分尺子零改动,不为守 0 改
-    evaluation)。"""
+    evaluation)。ppv1-criteria-v2 前提域重写(2026-10-13)补充:
+    完整参考 strict 与 v2 豁免披露 strict 是两条合法 strict 通路,
+    熔断恒 0 均收窄为"未获豁免披露的 matched_strict"。"""
     rows = [
         _rhea_row("rhea:91003", "91001", "LR", "CCO.c1ccncc1",
                   ["CCO", "c1ccncc1"], "CC=O.C1CCNCC1",

@@ -126,6 +126,13 @@ NC-8..12/PC-4/5 控件矩阵 + r31 措辞护栏):
 - **NC-12 批级熔断(钉死)**:本通道事件在现行 P1 参与物集合
   语义下**结构性无 strict 通路**(T-1 不立项 ⇒ 事件恒 partial;
   合成批 e2e 断言 matched_strict == 0,出数即红);
+  **ppv1-criteria-v2 前提域重写(2026-10-13,teacher T-1 裁定 +
+  预注册 docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md;
+  旧文字保留非删除)**:上述恒 0 前提域收窄为"**未获豁免披露的**
+  本通道 matched_strict 恒 0"——判分侧 criteria_version=
+  ppv1-criteria-v2 豁免生效时,获豁免披露(逐边
+  exempted_participants)的合法 strict 不触发熔断;生成侧本文件
+  判据与行为零改动,本条仅为措辞同步;
 - **诚实预期(写入交付书)**:本通道对 hit@1 预期贡献 = 0;解锁
   的是诚实 partial 供给 + 审计链完整性 + T-1 立项后的机读基础;
 - **EAWAG 面/整串面/公共编译判据零回退**:find_recorded_exact 与

@@ -359,10 +359,13 @@ REGISTERED_LITERAL_SINKS: frozenset[tuple[str, str]] = frozenset({
     ("endpoint.py", "failed"), ("endpoint.py", "incomplete"),
     ("endpoint.py", "product"), ("endpoint.py", "unknown"),
     ("evaluation.py", "coproduct"), ("evaluation.py", "failed"),
+    # ppv1-criteria-v2(2026-10-13):声明链状态字面量
+    # _CRITERIA_V2_DECL_RESOLVED = "resolved"(与对齐状态词表同词形、
+    # 不同语义域;按 T11 维护规则显式登记)
     ("evaluation.py", "pending"), ("evaluation.py", "product"),
     ("evaluation.py", "reactant"), ("evaluation.py", "real"),
-    ("evaluation.py", "scripted"), ("evaluation.py", "submitted"),
-    ("evaluation.py", "unknown"),
+    ("evaluation.py", "resolved"), ("evaluation.py", "scripted"),
+    ("evaluation.py", "submitted"), ("evaluation.py", "unknown"),
     ("events.py", "deferred"), ("events.py", "expanded"),
     ("events.py", "not_tracked"), ("events.py", "unknown"),
     ("hypothesis.py", "coproduct"), ("hypothesis.py", "cosubstrate"),

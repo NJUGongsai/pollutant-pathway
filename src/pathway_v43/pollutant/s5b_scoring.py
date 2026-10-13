@@ -57,10 +57,12 @@ from pathlib import Path
 
 from ..domain.identity import cn_identity
 from .evaluation import (
+    PPV1_CRITERIA_V1,
     PPV1_EVALUATION_VERSION,
     EvaluationContractError,
     evaluate_scientific,
     native_export_reader_from_ledger,
+    resolve_criteria_version,
     resolve_data_scope,
 )
 from .profile import (
@@ -189,6 +191,7 @@ def score_s5b_batch(
     preregistration: dict | None = None,
     caliber_policy: dict | None = None,
     domain_tag: str = "298",
+    criteria_version: str = PPV1_CRITERIA_V1,
 ) -> dict:
     """判分主入口:逐 qid evaluate_scientific → 双口径聚合 → 报告落盘。
 
@@ -197,9 +200,17 @@ def score_s5b_batch(
       approved)——评测器既有门(real ∧ 未批准 ⇒ 拒);
     - 失败题(无导出)不进 native_path_exports ⇒ 评测器按 qid 缺配
       not_evaluated(留分母算未命中);
+    - **ppv1-criteria-v2**:`criteria_version` 缺省 v1 = 豁免关(既有
+      判分行为不变,metrics 零新键);显式 v2 = T-1 豁免口径
+      (teacher 裁定;评测/判分经 ``resolve_criteria_version`` 同一
+      判据,fail-closed),聚合附 ``criteria_v2`` 块(评测器批级
+      汇总透传:豁免计数 + 参考侧 v1 身份监控);v1 headline 不变;
     - 返回完整聚合 dict;metrics.json / report.md / report_plain.md
       落批根。
     """
+    # ---- ppv1-criteria-v2:判据版本首消费校验(与评测器同一判据
+    # resolve_criteria_version;非 v1/v2 一律 S5bScoringError) ----
+    resolve_criteria_version(criteria_version)
     # ---- S5B-V3-01:判分入口严格 data_scope 校验(先于任何批文件装载;
     # 与评测首消费共用 resolve_data_scope 同一判据,异常包装为本契约
     # S5bScoringError;CLI choices 不代 API 校验 —— 本函数是公开
@@ -319,7 +330,8 @@ def score_s5b_batch(
     output = evaluate_scientific(
         evaluation_input, reference_graphs=graphs,
         native_export_reader=reader,
-        preregistration=normalize_preregistration(prereg))
+        preregistration=normalize_preregistration(prereg),
+        criteria_version=criteria_version)
     # ---- W-V6.1(mimo r27 判断面一附条件;§9-④ 程序门,随 v3 交付
     # 工程落地):评分聚合前落程序检查 —— data_scope=real ∧ 任一
     # pairing basis 非 qid_strict ⇒ S5bScoringError(结构化、机器可读
@@ -526,6 +538,10 @@ def score_s5b_batch(
             (output.get("coverage_report") or {}).get("pairing")
             or {}).get("bases_by_graph") or {},
     }
+    # ---- ppv1-criteria-v2:评测器批级汇总透传(仅 v2;v1 缺省
+    # metrics 零新键 = 既有判分产物字节不变) ----
+    if output.get("criteria_v2") is not None:
+        aggregate["criteria_v2"] = output["criteria_v2"]
     aggregate["confidence_intervals"] = _confidence_intervals(
         per_qid, entries, denominator)
     metrics_path = batch_root / "metrics.json"
