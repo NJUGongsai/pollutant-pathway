@@ -379,6 +379,36 @@ def build_run_input(question: dict, *, batch_tag: str,
 
 # W4 池策略版本(冻结候选配置:raw 预算/池宽/阈值/补位/融合规则;
 # 变化 ⇒ 升版本 ⇒ 新身份)
+# s5b-pool-policy-7(C 线,2026-10-14,共底物伴生供给;设计书
+# C_COSUB_SUPPLY_DESIGN_PREREG_2026-10-14.md 冻结条款 + 实施任务书
+# TASK_C_COSUB_IMPL_2026-10-14.md 落地):池**成员**变化 ⇒ 按既有身份
+# 规则升版——analog 通道对齐前置门(template_elements_fit)拒的候选,
+# 按**语义 a(伴生供给)**计算伴生供给(s5b-analog-cosub-supply-1):
+# 模板 lhs 组分按「与底物最大 Tanimoto(Morgan r2 b2048 立体盲,与
+# analog 检索同参数)= 主反应物」判主(与 noalign 归因探针 main_idx
+# 同口径;并列取后位,同源实现),缺失共底物 + 多余主反应物份数
+# (**精确多重集**,lhs 组分序;2 H₂O ≠ 1 H₂O)并入底物侧重过元素门
+# 后编译;主反应物 cn 不可解析 ⇒ 不供给(fail-closed,防"对齐到供给
+# 主副本"错形;锚面实测 0 行);**裸通配袋**(组分身份恰为 *)不供给
+# (35 行维持现状 no_alignment 拦截;[H]*[H]/*C=O 等含通配原子的
+# 具体小分子组分不属 wildcard 袋,按自身身份供给并披露——设计书
+# 45/35=48/38 扣 3 裸通配行口径)。编译成功的供给候选带**完整声明面**:
+# spec participants 显式(reactant/primary_substrate + reactant/
+# cosubstrate 逐供给组分 + product/principal_product + product/
+# coproduct)+ co_substrate_states + declared_copy_components(空
+# 数组,合法声明)+ cosubstrate_event_contract(NC-10 复用 corpus
+# 消费面,production.prepare_hypothesis 事件级断言;record_products
+# 轴 = 执行净产物全量——analog 产物执行派生不复制 donor rhs,W1 #2)
+# + record_equation/record_equation_ref(pred1 消费契约发射源,
+# criteria-v2 预注册 §二.1;内容 = 模板记录原样两侧去 map 组分,
+# 精确多重集)。**spectator 披露**:未被模板变换消费的供给组分(map
+# 全保留且不涉任何键/电荷/手性变化且身份两侧净零)逐条在
+# co_substrate_states[].spectator/consumption_status 标记,不静默。
+# **池策略配置本身零变化**(raw 预算/池宽/阈值/补位/融合/去重/候选
+# 序/截断位置全部不动——单变量=共底物伴生供给)。供给救援失败的
+# 候选维持既有 no_alignment 口径;供给过门后编译失败的候选按真实
+# 拒因计数(不再计 no_alignment;该类行本次实际消耗了编译预算)。
+# 诊断追加 analog_cosub_supply_* 计数(向后兼容追加字段)。
 # s5b-pool-policy-6(T1a,2026-10-12,池层逐候选谱系诊断):**池成员与
 # 池策略配置零变化**(raw 预算/池宽/阈值/补位/融合/去重/三通道候选
 # 序/截断位置全部不动;控制流零改动)——可观测性变化升版:池构建
@@ -424,13 +454,17 @@ def build_run_input(question: dict, *, batch_tag: str,
 # 候选按(tier strict→cn, 整串→组分, 行号)序**追加在后**;同净反应
 # 签名去重/失败补位/池宽语义不变;corpus_channel 参数仅供消融对照
 # (生产默认 True;False=纯 EAWAG 面,池深前后对照探针用)。
-S5B_POOL_POLICY_VERSION = "s5b-pool-policy-6"
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-7"
 S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
 S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
 S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)
 S5B_POOL_FALLBACK_THRESHOLD = 0.40  # 输入侧条件降阈值(不足时)
 S5B_POOL_MIN_UNIQUE = 3         # 独特候选不足该数才降阈值
 S5B_POOL_DIAG_SIG_HEAD_TOKENS = 4   # T1a:candidates 行签名头截取 token 数
+
+# C 线共底物伴生供给登记面(语义 a;设计书 §二/§三.5;探针参考
+# reports/ppv1_s5b/c_probe_cosubgate_2026-10-14/unlock_sim.py)
+S5B_ANALOG_COSUB_SUPPLY_VERSION = "s5b-analog-cosub-supply-1"
 
 
 def _net_reaction_signature(spec: dict) -> tuple:
@@ -439,6 +473,393 @@ def _net_reaction_signature(spec: dict) -> tuple:
     from .s5b_compiler import net_reaction_signature
 
     return net_reaction_signature(spec)
+
+
+# ---------------------------------------------------------------- 共底物伴生供给
+# (C 线,s5b-analog-cosub-supply-1;语义 a;实现口径与探针
+# unlock_sim.py 逐条对齐,差异处如实注明)
+
+
+def _cosub_strip_map(smiles: str) -> str:
+    """单组分去 atom map 并 canonical(与探针 strip_map 同口径;
+    解析失败返回原文)。"""
+    from rdkit import Chem, RDLogger
+
+    RDLogger.DisableLog("rdApp.*")
+    mol = Chem.MolFromSmiles(str(smiles or ""))
+    if mol is None:
+        return str(smiles or "")
+    for atom in mol.GetAtoms():
+        atom.SetAtomMapNum(0)
+    try:
+        return Chem.MolToSmiles(mol)
+    except Exception:
+        return str(smiles or "")
+
+
+def _cosub_heavy_count(smiles: str) -> int:
+    """重原子数(main 检索 fallback;解析失败 = -1,同归因探针)。"""
+    from rdkit import Chem, RDLogger
+
+    RDLogger.DisableLog("rdApp.*")
+    mol = Chem.MolFromSmiles(str(smiles or ""))
+    return mol.GetNumHeavyAtoms() if mol is not None else -1
+
+
+def _cosub_tanimoto_to_substrate(component_smiles: str,
+                                 substrate_fp) -> float | None:
+    """组分↔底物 Tanimoto(Morgan r2 b2048 立体盲;与 analog 检索
+    SIMILARITY_FP_* 同参数;任一端不可解析 ⇒ None)。"""
+    from rdkit import Chem, DataStructs, RDLogger
+    from rdkit.Chem import rdMolDescriptors
+
+    from ..services.analog_source import (
+        SIMILARITY_FP_BITS,
+        SIMILARITY_FP_CHIRALITY,
+        SIMILARITY_FP_RADIUS,
+    )
+
+    RDLogger.DisableLog("rdApp.*")
+    mol = Chem.MolFromSmiles(str(component_smiles or ""))
+    if mol is None or substrate_fp is None:
+        return None
+    try:
+        fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(
+            mol, SIMILARITY_FP_RADIUS, nBits=SIMILARITY_FP_BITS,
+            useChirality=SIMILARITY_FP_CHIRALITY)
+        return DataStructs.TanimotoSimilarity(fp, substrate_fp)
+    except Exception:
+        return None
+
+
+def _substrate_fingerprint(substrate_smiles: str):
+    """底物检索指纹(与 analog_source._reactant_fingerprint 同参数;
+    失败 ⇒ None)。"""
+    from rdkit import Chem, RDLogger
+    from rdkit.Chem import rdMolDescriptors
+
+    from ..services.analog_source import (
+        SIMILARITY_FP_BITS,
+        SIMILARITY_FP_CHIRALITY,
+        SIMILARITY_FP_RADIUS,
+    )
+
+    RDLogger.DisableLog("rdApp.*")
+    mol = Chem.MolFromSmiles(str(substrate_smiles or ""))
+    if mol is None:
+        return None
+    try:
+        return rdMolDescriptors.GetMorganFingerprintAsBitVect(
+            mol, SIMILARITY_FP_RADIUS, nBits=SIMILARITY_FP_BITS,
+            useChirality=SIMILARITY_FP_CHIRALITY)
+    except Exception:
+        return None
+
+
+def analog_cosub_supply(*, mapped_lhs: str, mapped_rhs: str,
+                        substrate_smiles: str) -> dict:
+    """语义 a(伴生供给)供给计算(纯函数;不编译不执行)。
+
+    规则(设计书 §二;探针 unlock_sim.py 语义 a 同口径):
+    - 主反应物 = 模板 lhs 组分中与底物 Tanimoto 最大者(并列取后
+      位,与归因探针 max((sim, idx)) 一致;全不可解析时回退重原子
+      数最大,并列取先位);
+    - 供给 = lhs 组分(精确多重集,组分序)中 cn 身份 ≠ 主身份者 +
+      主身份多余份数(第 2 份起);2 H₂O ≠ 1 H₂O;
+    - 主反应物 cn 不可解析 ⇒ 不供给(fail-closed:无法判主时供给会
+      退化成"对齐到供给主副本"的错形;归因锚面实测 0 行,如实披露);
+    - 供给组分含**裸通配**(组分身份恰为 ``*``,模板通配占位;RDKit
+      通配匹配伪影)⇒ status=wildcard_blocked(登记不供给,维持现状
+      拦截;锚面 3 行裸通配拦)。含通配原子的**具体小分子组分**
+      ([H]*[H] / *C=O 等)不属 wildcard 袋——按其自身身份供给并
+      披露(机制信息类,与探针 §3/§4 及设计书 45/35=48/38 扣 3
+      口径一致);
+    - 无可供给组分(纯主单组分袋)⇒ status=no_supply。
+
+    返回::
+
+        {"status": "no_supply" | "wildcard_blocked" | "supply",
+         "supply": [(mapped_comp, stripped_comp), …],  # lhs 组分序
+         "main_idx": int, "main_copies": int,
+         "main_cn": str | None}
+    """
+    from ..domain.identity import cn_identity
+
+    lhs_comps = [c for c in str(mapped_lhs or "").split(".") if c]
+    if len(lhs_comps) <= 1:
+        return {"status": "no_supply", "supply": [], "main_idx": -1,
+                "main_copies": 0, "main_cn": None}
+    stripped = [_cosub_strip_map(c) for c in lhs_comps]
+    sub_fp = _substrate_fingerprint(substrate_smiles)
+    pair_sims = [(sim, idx) for idx, comp in enumerate(stripped)
+                 if (sim := _cosub_tanimoto_to_substrate(
+                     comp, sub_fp)) is not None]
+    if pair_sims:
+        main_idx = max(pair_sims)[1]      # 并列取后位(归因探针同口径)
+    else:
+        main_idx = max(range(len(stripped)),
+                       key=lambda i: _cosub_heavy_count(stripped[i]))
+    main_cn = cn_identity(stripped[main_idx]) \
+        if stripped[main_idx] else None
+    if main_cn is None:
+        return {"status": "no_supply", "supply": [], "main_idx": main_idx,
+                "main_copies": 0, "main_cn": None}
+    supply: list[tuple[str, str]] = []
+    seen_main = 0
+    for mapped_comp, stripped_comp in zip(lhs_comps, stripped):
+        comp_cn = cn_identity(stripped_comp) if stripped_comp else None
+        if comp_cn == main_cn:
+            seen_main += 1
+            if seen_main > 1:
+                supply.append((mapped_comp, stripped_comp))
+            continue
+        supply.append((mapped_comp, stripped_comp))
+    if not supply:
+        return {"status": "no_supply", "supply": [], "main_idx": main_idx,
+                "main_copies": seen_main, "main_cn": main_cn}
+    if any(stripped_comp == "*" for _mc, stripped_comp in supply):
+        return {"status": "wildcard_blocked", "supply": supply,
+                "main_idx": main_idx, "main_copies": seen_main,
+                "main_cn": main_cn}
+    return {"status": "supply", "supply": supply, "main_idx": main_idx,
+            "main_copies": seen_main, "main_cn": main_cn}
+
+
+def _cosub_supply_spectators(mapped_lhs: str, mapped_rhs: str,
+                             supply: list[tuple[str, str]]) -> list[bool]:
+    """供给组分 spectator 判定(设计书 §三.5:未被模板变换消费的
+    供给组分逐条披露,不得静默)。
+
+    返回与 ``supply`` **同序对齐的布尔列表**(同去 map 身份的重复
+    供给组分按模板袋位置逐条区分,不按键折叠)。判定:
+
+    - 组分全部 map 号 ∈ 保留集(lhs∩rhs),不涉任何键变化/电荷变化/
+      手性变化/元素变化,且该组分去 map 身份出现在 rhs 组分身份多重
+      集(两侧净零)⇒ spectator(簿记过路;机制身份两侧净零 = 内部
+      不一致的机制声明,逐条披露不删);
+    - 其余 ⇒ 非 spectator(被变换消费;consumption 保持 unknown 不猜)。
+    判定失败(模板侧解析异常)⇒ 全部 False(fail-open 只对坏输入,
+    坏输入由编译层结构化拒;不静默断言旁观)。
+    """
+    from rdkit import Chem, RDLogger
+
+    RDLogger.DisableLog("rdApp.*")
+    out: list[bool] = [False for _mc, _sc in supply]
+    try:
+        from ..domain.identity import cn_identity
+
+        lhs = Chem.MolFromSmiles(str(mapped_lhs or ""))
+        rhs = Chem.MolFromSmiles(str(mapped_rhs or ""))
+        if lhs is None or rhs is None:
+            return out
+        lhs_maps = {a.GetAtomMapNum() for a in lhs.GetAtoms()
+                    if a.GetAtomMapNum()}
+        rhs_maps = {a.GetAtomMapNum() for a in rhs.GetAtoms()
+                    if a.GetAtomMapNum()}
+        retained = lhs_maps & rhs_maps
+        map_to_lhs_idx = {a.GetAtomMapNum(): a.GetIdx()
+                          for a in lhs.GetAtoms() if a.GetAtomMapNum()}
+        map_to_rhs_idx = {a.GetAtomMapNum(): a.GetIdx()
+                          for a in rhs.GetAtoms() if a.GetAtomMapNum()}
+
+        def bond_table(mol) -> dict:
+            table = {}
+            for bond in mol.GetBonds():
+                ni = bond.GetBeginAtom().GetAtomMapNum()
+                nj = bond.GetEndAtom().GetAtomMapNum()
+                if ni and nj:
+                    table[frozenset((ni, nj))] = str(bond.GetBondType())
+            return table
+
+        lb, rb = bond_table(lhs), bond_table(rhs)
+        touched_maps = {m for pair in set(lb) | set(rb)
+                        if lb.get(pair) != rb.get(pair)
+                        for m in pair}
+        altered_maps = set(touched_maps)
+        for num in retained:
+            la = lhs.GetAtomWithIdx(map_to_lhs_idx[num])
+            ra = rhs.GetAtomWithIdx(map_to_rhs_idx[num])
+            if la.GetFormalCharge() != ra.GetFormalCharge() \
+                    or la.GetChiralTag() != ra.GetChiralTag() \
+                    or la.GetSymbol() != ra.GetSymbol():
+                altered_maps.add(num)
+        rhs_mol = Chem.MolFromSmiles(
+            _cosub_strip_map(str(mapped_rhs or "")))
+        rhs_identities = set()
+        if rhs_mol is not None:
+            for frag in Chem.GetMolFrags(rhs_mol, asMols=True,
+                                         sanitizeFrags=True):
+                frag_cn = cn_identity(Chem.MolToSmiles(frag))
+                if frag_cn is not None:
+                    rhs_identities.add(frag_cn)
+        for index, (mapped_comp, stripped_comp) in enumerate(supply):
+            comp_mol = Chem.MolFromSmiles(str(mapped_comp or ""))
+            if comp_mol is None:
+                continue
+            comp_maps = {a.GetAtomMapNum() for a in comp_mol.GetAtoms()
+                         if a.GetAtomMapNum()}
+            comp_cn = cn_identity(stripped_comp) if stripped_comp else None
+            untouched = bool(comp_maps) and comp_maps <= retained \
+                and not (comp_maps & altered_maps)
+            out[index] = bool(
+                untouched and comp_cn is not None
+                and comp_cn in rhs_identities)
+    except Exception:
+        return [False for _mc, _sc in supply]
+    return out
+
+
+def analog_record_equation(mapped_lhs: str, mapped_rhs: str) -> dict:
+    """模板记录方程声明(pred1 消费契约形态,criteria-v2 预注册
+    §二.1:``{"reactants": [{"smiles", "role"?}…], "products": […]}``)。
+
+    内容 = 模板记录**原样两侧**去 map 组分(精确多重集,组分序);
+    role 缺省(记录方程无角色信息,消费侧按通配)。供给源=声明源=
+    模板记录,pred1 证据含义 = "记录声明了它"(防自我背书误读,
+    设计书 §三.5)。
+    """
+    lhs_comps = [_cosub_strip_map(c)
+                 for c in str(mapped_lhs or "").split(".") if c]
+    rhs_comps = [_cosub_strip_map(c)
+                 for c in str(mapped_rhs or "").split(".") if c]
+    return {
+        "reactants": [{"smiles": c} for c in lhs_comps],
+        "products": [{"smiles": c} for c in rhs_comps],
+    }
+
+
+def _attach_analog_cosub_supply_fields(
+        spec: dict, *, record_key: str, substrate_smiles: str,
+        supply: list[tuple[str, str]], spectators: list[bool],
+        record_equation: dict,
+        execution_input_smiles: str) -> None:
+    """C 线伴生供给候选的声明面装配(与 corpus 通道
+    recorded_source._attach_cosubstrate_spec_fields 同源机制;协议层
+    零新发明:role 复用既有枚举,系数全 unknown,NC-10 复用
+    production.prepare_hypothesis 事件级消费面)。
+
+    - participants 显式(reactant/primary_substrate + reactant/
+      cosubstrate 逐供给组分(精确多重集,重复参与物经
+      normalize_participants 保留歧义不合并)+ product/principal_
+      product + product/coproduct);
+    - participant_list_status=declared_complete(参与物清单完整度
+      声明;计量/配平完整性不描述,系数恒 unknown);
+    - co_substrate_states(供给组分状态装配,同源 build_chemical_
+      state 严格身份内容寻址,prepare 重建同 ID)+ 逐条 spectator/
+      consumption_status 披露;
+    - declared_copy_components = [](空数组 = 合法声明;analog 通道
+      无"声明未执行"拷贝组分——产物全部执行派生);
+    - cosubstrate_event_contract:NC-10 事件级不变量输入;
+      record_products 轴 = **执行净产物全量**(analog 通道产物执行
+      派生、不复制 donor rhs,W1 #2;与记录方程的模板记录两侧是
+      两个不同声明面,后者只服务 pred1 记录声明,不进 NC-10 计量
+      轴);
+    - record_equation + record_equation_ref(pred1 消费契约发射源;
+      ref 确定性 = analog-supply:<record_key>,同模板同方程 ⇒ 幂等)。
+    """
+    from .chemstate import build_chemical_state, strict_identity_of
+
+    def _state_ref(smiles: str) -> str:
+        state = build_chemical_state(
+            str(smiles), "source_product", [{"record": record_key}])
+        return str(state.state_id)
+
+    def _strict(smiles: str) -> str:
+        ident = strict_identity_of(str(smiles))
+        return str(ident) if ident is not None else str(smiles)
+
+    substrate_ref = _state_ref(substrate_smiles)
+
+    def _participant(state_ref: str, side: str, role: str) -> dict:
+        return {"state_ref": str(state_ref), "side": side,
+                "role": role, "coefficient": None,
+                "coefficient_status": "unknown"}
+
+    b_entries: list[dict] = []
+    for index, (_mapped_comp, stripped_comp) in enumerate(supply):
+        is_spectator = bool(spectators[index])
+        b_entries.append({
+            "smiles": str(stripped_comp),
+            "state_ref": _state_ref(stripped_comp),
+            "source_ref": record_key,
+            "strict_identity": _strict(stripped_comp),
+            "supply_index": index,
+            "spectator": is_spectator,
+            "consumption_status": ("spectator_pass_through"
+                                   if is_spectator else "unknown"),
+        })
+    product_refs = [(_state_ref(str(spec["product_smiles"])),
+                     "principal_product")]
+    product_refs.extend(
+        (_state_ref(str(c)), "coproduct")
+        for c in (spec.get("coproducts") or []))
+    participants = [_participant(substrate_ref, "reactant",
+                                 "primary_substrate")]
+    participants.extend(
+        _participant(e["state_ref"], "reactant", "cosubstrate")
+        for e in b_entries)
+    participants.extend(
+        _participant(ref, "product", role)
+        for ref, role in product_refs)
+    spec["participants"] = participants
+    spec["participant_list_status"] = "declared_complete"
+    spec["co_substrate_states"] = b_entries
+    spec["declared_copy_components"] = []
+    spec["cosubstrate_event_contract"] = {
+        "record_key": record_key,
+        "co_substrates": [
+            {"smiles": str(stripped_comp),
+             "strict_identity": _strict(stripped_comp)}
+            for stripped_comp in dict.fromkeys(
+                sc for _mc, sc in supply)],
+        "record_products": [str(spec["product_smiles"])]
+        + [str(c) for c in (spec.get("coproducts") or [])],
+        "copy_state_refs": [],
+        "co_substrate_state_refs": [e["state_ref"] for e in b_entries],
+        "invariant_note": (
+            "NC-10 (W-D2 corpus consumer surface reused; "
+            "s5b-analog-cosub-supply-1): applicability is owned by the "
+            "record-side single declaration source (this contract as "
+            "the dict; no corpus block on analog specs); declared "
+            "companion co-substrates MUST be a subset of the event "
+            "reactant-side cosubstrate state_refs AND record_products "
+            "(the EXECUTED net product set — analog products are "
+            "execution-derived, not donor-copied, W1 #2) MUST equal "
+            "the event product-participant multiset; asserted at "
+            "production.prepare_hypothesis before the event is "
+            "submitted; spec-layer gate pass does NOT substitute the "
+            "event-layer check"),
+        "supply_semantics": {
+            "version": S5B_ANALOG_COSUB_SUPPLY_VERSION,
+            "supply_rule": ("semantics_a_companion_supply: template-bag "
+                            "co-substrates + extra main copies join the "
+                            "candidate net reaction as companion "
+                            "participants (exact multiset, lhs component "
+                            "order; 2 H2O != 1 H2O)"),
+            "main_detection": ("max Tanimoto(component, substrate), ties "
+                               "to the later component (noalign "
+                               "attribution main_idx caliber); unparseable "
+                               "main cn -> no supply (fail-closed)"),
+            "spectator_disclosure": (
+                "co_substrate_states[].spectator/consumption_status; "
+                "spectator = supplied component untouched by the "
+                "template transformation with net-zero identity across "
+                "both sides; disclosed per item, never silent"),
+            "wildcard_bags": ("bare '*' components not supplied "
+                              "(registered, not defined; status stays "
+                              "no_alignment); wildcard-atom-containing "
+                              "concrete components ([H]*[H], *C=O, …) "
+                              "are supplied under their own identity "
+                              "and disclosed (constrained tier)"),
+            "record_equation_ref": f"analog-supply:{record_key}",
+        },
+    }
+    spec["record_equation"] = record_equation
+    spec["record_equation_ref"] = f"analog-supply:{record_key}"
+    # 执行输入显式声明(伴生供给参与执行:edits 对底物+供给编译,
+    # 运行期执行/审计须渲染同一输入;production.prepare_hypothesis
+    # 首消费核验组分严格身份多重集 == 底物 ⊕ 声明供给,fail-closed)
+    spec["execution_input_smiles"] = str(execution_input_smiles)
 
 
 def default_pool_provider(config: V43Config | None, *,
@@ -499,6 +920,12 @@ def default_pool_provider(config: V43Config | None, *,
     2026-10-12)起含逐候选谱系行 ``candidates``:每候选(编译成功/
     失败/被并/被截断)一行,纯诊断追加 —— 池成员/控制流/run_inputs
     字节零变化。
+    s5b-pool-policy-7(C 线,2026-10-14):W-V3 前置门拒的 analog 候选
+    按**语义 a 伴生供给**救援(analog_cosub_supply;模板袋共底物并
+    入底物侧重过门编译,声明面 = participants/co_substrate_states/
+    declared_copy_components/cosubstrate_event_contract/record_
+    equation;wildcard 袋不供给;救援失败维持 no_alignment 原口径;
+    池宽/阈值/排序/融合序零变化——单变量=共底物伴生供给)。
     """
     diagnostics: dict = {}
 
@@ -628,6 +1055,15 @@ def default_pool_provider(config: V43Config | None, *,
                     template_elements_fit,
                 )
 
+                def _finish_analog_spec(out: dict, record_id) -> dict:
+                    spec = dict(out["spec"])
+                    spec["key"] = f"tpl-{record_id}"
+                    spec["transformation_ref"] = str(record_id)
+                    spec["origin_group_key"] = (
+                        f"analog-template:{record_id}")
+                    spec["coefficient"] = 1
+                    return spec
+
                 for ref in refs:
                     # ---- W-V3(S5b-pool-pregate-1):对齐必要条件前置 ----
                     # 模板 lhs 元素 ⊄ 底物 ⇒ 编译必 no_alignment(同源
@@ -636,12 +1072,94 @@ def default_pool_provider(config: V43Config | None, *,
                     # 计数含前置拒;诊断另计 analog_pregate_skipped)
                     if not template_elements_fit(
                             str(ref.mapped_lhs or ""), substrate):
-                        _record_failure("no_alignment")
-                        _diag_row("analog", f"tpl-{ref.record_id}",
-                                  "compile_rejected", reason="no_alignment")
-                        diagnostics["analog_pregate_skipped"] = \
-                            int(diagnostics.get("analog_pregate_skipped",
-                                                0)) + 1
+                        # ---- C 线(s5b-pool-policy-7):语义 a 伴生供给
+                        # 救援——前置门拒的候选按模板袋伴生供给重过门
+                        # (单变量=共底物伴生供给;救援不适用/仍不过门
+                        # 维持既有 no_alignment 口径,零漂移;wildcard
+                        # 袋不供给,维持拦截)
+                        supply = analog_cosub_supply(
+                            mapped_lhs=str(ref.mapped_lhs or ""),
+                            mapped_rhs=str(ref.mapped_rhs or ""),
+                            substrate_smiles=substrate)
+                        sub_supplied = substrate
+                        supply_rescued = False
+                        if supply["status"] == "wildcard_blocked":
+                            diagnostics["analog_cosub_supply_"
+                                         "wildcard_blocked"] = int(
+                                diagnostics.get(
+                                    "analog_cosub_supply_"
+                                    "wildcard_blocked", 0)) + 1
+                        elif supply["status"] == "supply":
+                            sub_supplied = substrate + "." + ".".join(
+                                sc for _mc, sc in supply["supply"])
+                            if template_elements_fit(
+                                    str(ref.mapped_lhs or ""), sub_supplied):
+                                diagnostics["analog_cosub_supply_"
+                                             "compile_attempted"] = int(
+                                    diagnostics.get(
+                                        "analog_cosub_supply_"
+                                        "compile_attempted", 0)) + 1
+                                out = compile_donor_template(
+                                    mapped_lhs=str(ref.mapped_lhs or ""),
+                                    mapped_rhs=str(ref.mapped_rhs or ""),
+                                    center_atoms=[int(x) for x in
+                                                  (ref.center_atoms
+                                                   or [])],
+                                    substrate_smiles=sub_supplied,
+                                    record_id=str(ref.record_id or "tpl"),
+                                    mapping_origin="native",
+                                    alignment_ref=(
+                                        f"corpus-template:"
+                                        f"{ref.record_id}"),
+                                    key_prefix="tpl")
+                                if out.get("status") == "compiled":
+                                    spec = _finish_analog_spec(
+                                        out, ref.record_id)
+                                    _attach_analog_cosub_supply_fields(
+                                        spec,
+                                        record_key=str(spec["key"]),
+                                        substrate_smiles=substrate,
+                                        supply=supply["supply"],
+                                        spectators=_cosub_supply_spectators(
+                                            str(ref.mapped_lhs or ""),
+                                            str(ref.mapped_rhs or ""),
+                                            supply["supply"]),
+                                    record_equation=analog_record_equation(
+                                        str(ref.mapped_lhs or ""),
+                                        str(ref.mapped_rhs or "")),
+                                    execution_input_smiles=sub_supplied)
+                                    analog_specs.append(spec)
+                                    row_by_spec[id(spec)] = _diag_row(
+                                        "analog", str(spec["key"]),
+                                        "compiled",
+                                        signature_head=_signature_head(
+                                            spec))
+                                    diagnostics["analog_cosub_supply_"
+                                                "rescued"] = int(
+                                        diagnostics.get(
+                                            "analog_cosub_supply_"
+                                            "rescued", 0)) + 1
+                                    supply_rescued = True
+                                else:
+                                    # 供给过门后编译失败:按真实拒因计数
+                                    #(本次实际消耗编译预算,不再计
+                                    # no_alignment——失败原因如实披露)
+                                    fail_reason = str(out.get("reason"))
+                                    _record_failure(fail_reason)
+                                    _diag_row(
+                                        "analog",
+                                        f"tpl-{ref.record_id}",
+                                        "compile_rejected",
+                                        reason=fail_reason)
+                                    supply_rescued = True  # 已处置
+                        if not supply_rescued:
+                            _record_failure("no_alignment")
+                            _diag_row("analog", f"tpl-{ref.record_id}",
+                                      "compile_rejected",
+                                      reason="no_alignment")
+                            diagnostics["analog_pregate_skipped"] = \
+                                int(diagnostics.get("analog_pregate_skipped",
+                                                    0)) + 1
                         continue
                     out = compile_donor_template(
                         mapped_lhs=str(ref.mapped_lhs or ""),
@@ -660,12 +1178,7 @@ def default_pool_provider(config: V43Config | None, *,
                         _diag_row("analog", f"tpl-{ref.record_id}",
                                   "compile_rejected", reason=fail_reason)
                         continue
-                    spec = dict(out["spec"])
-                    spec["key"] = f"tpl-{ref.record_id}"
-                    spec["transformation_ref"] = str(ref.record_id)
-                    spec["origin_group_key"] = (
-                        f"analog-template:{ref.record_id}")
-                    spec["coefficient"] = 1
+                    spec = _finish_analog_spec(out, ref.record_id)
                     analog_specs.append(spec)
                     row_by_spec[id(spec)] = _diag_row(
                         "analog", str(spec["key"]), "compiled",
@@ -764,12 +1277,33 @@ def default_pool_provider(config: V43Config | None, *,
                     "complete B/copy reference may legitimately match "
                     "strict, which is not drift; hit@1 expected "
                     "contribution = 0)"),
+                "policy7_supply_note": (
+                    "s5b-pool-policy-7: analog companion-supply specs "
+                    "(co_substrate_states + cosubstrate_event_contract + "
+                    "record_equation) join n_cosubstrate_declared_specs; "
+                    "under criteria-v2 with a resolvable declaration "
+                    "chain (provenance_records.record_equation), "
+                    "bookkeeping-extra events may rise to exact "
+                    "(v1_exempt tier); the unlock face is a compile "
+                    "face, NOT a hit prediction"),
             },
             "n_analog_compiled": len(analog_specs),
             "n_unique_net_reactions": len(merged),
             "n_pool_returned": min(len(merged), int(max_pool)),
             "compile_failure_histogram": dict(
                 sorted(compile_failures.items())),
+            # C 线(s5b-pool-policy-7):伴生供给诊断(追加字段,向后
+            # 兼容;rescued = 供给过门且编译成功入池的候选数;
+            # compile_attempted = 供给过门后实际发起的编译次数(成功
+            # 与失败都计;失败拒因进 compile_failure_histogram,不再计
+            # no_alignment);wildcard_blocked = wildcard 袋维持拦截数)
+            "analog_cosub_supply_version": S5B_ANALOG_COSUB_SUPPLY_VERSION,
+            "analog_cosub_supply_rescued": int(
+                diagnostics.get("analog_cosub_supply_rescued", 0)),
+            "analog_cosub_supply_compile_attempted": int(
+                diagnostics.get("analog_cosub_supply_compile_attempted", 0)),
+            "analog_cosub_supply_wildcard_blocked": int(
+                diagnostics.get("analog_cosub_supply_wildcard_blocked", 0)),
             # T1a:逐候选谱系行(追加字段,向后兼容;行 schema 见
             # s5b-pool-policy-6 版本注释)
             "candidates": candidate_rows,

@@ -293,7 +293,8 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
     # 池策略升版(W-D2:池成员变化——corpus component 共底物整组分
     # 拷贝子集重新入池;池策略配置零变化)
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-6"
+    # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-7"
     # recorded 公共源身份:W-D2 升版(union gate 扩展,可选参数;
     # EAWAG/整串缺省路径行为字节等价)
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
@@ -856,7 +857,8 @@ def test_wv41_pool_corpus_appended_after_eawag(tmp_path) -> None:
     assert keys == ["rec-btX#r0001", "rec-rhea:90008@L2"], keys
     diag = provider.last_diagnostics
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
-    assert diag["pool_policy_version"] == "s5b-pool-policy-6"
+    # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
+    assert diag["pool_policy_version"] == "s5b-pool-policy-7"
     assert diag["n_recorded_strict_exact"] == 1
     assert diag["n_corpus_strict_exact"] == 2  # 检索分层(strict 层 2 行)
     assert "corpus_diagnostics" in diag

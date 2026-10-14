@@ -1000,7 +1000,8 @@ def test_versions_registered() -> None:
     # W-D2:池策略升版(池成员变化:corpus component 共底物整组分
     # 拷贝子集重新入池;配置本身零变化;s5b-pool-policy-5)
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-6"
+    # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-7"
     assert S5B_RANK_POLICY_VERSION == "s5b-rank-policy-1"
     assert S5B_POOL_RAW_TOP == 24
     assert "approved" in PREREG_APPROVAL_APPROVED_STATUSES

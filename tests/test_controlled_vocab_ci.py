@@ -413,6 +413,10 @@ REGISTERED_LITERAL_SINKS: frozenset[tuple[str, str]] = frozenset({
     ("runflow.py", "novel_outside_pool"), ("runflow.py", "pending"),
     ("runflow.py", "product"), ("runflow.py", "rejected"),
     ("runflow.py", "unknown"),
+    # C 线(s5b-analog-cosub-supply-1,2026-10-14):伴生供给声明面装配的
+    # 参与物角色字面量(与 recorded_source.py 同词表,复用 corpus 消费面)
+    ("s5b_builder.py", "coproduct"), ("s5b_builder.py", "cosubstrate"),
+    ("s5b_builder.py", "primary_substrate"),
     ("s5b_builder.py", "principal_product"), ("s5b_builder.py", "product"),
     ("s5b_builder.py", "reactant"), ("s5b_builder.py", "real"),
     ("s5b_builder.py", "unknown"),

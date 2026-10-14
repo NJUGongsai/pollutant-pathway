@@ -64,6 +64,7 @@ from .path_context import (
     PathContext,
     SUPPORT_AXIS_INITIAL_SUPPLY,
 )
+from .profile import PPV1_PROVENANCE_SCHEMA_VERSION
 from .search import (
     COMMIT_KIND_EVENT,
     SearchContractError,
@@ -71,6 +72,7 @@ from .search import (
     SearchLedger,
     read_search_artifact,
 )
+from ..domain.identity import cn_identity
 from ..domain.models import content_hash
 from ..services.atom_tool import execute_edits, render
 
@@ -187,6 +189,139 @@ def build_cyclic_dependency(spec: dict) -> Dependency:
         status=status,
         source_refs=tuple(str(r) for r in (spec.get("source_refs") or [])),
         resolution_log=tuple(resolution_log))
+
+
+def _verify_execution_input(spec: dict, *, substrate_state,
+                            co_sub_entries: list[dict]) -> str | None:
+    """C 线(s5b-analog-cosub-supply-1)执行输入首消费核验。
+
+    spec 声明 ``execution_input_smiles``(伴生供给候选:edits 对底物
+    +供给编译,运行期执行/审计渲染同一输入)⇒ 核验其组分严格身份
+    多重集 == 底物 ⊕ 声明供给(精确多重集;不验字符串拼写,验分子
+    内容——渲染 ID 由分子内容确定)。声明在而键缺失/形状坏/多重集
+    不等 ⇒ ProductionContractError(零事件/零提交)。无声明(键不在)
+    ⇒ None = 既有路径零变化(corpus 旁观 B 不参与执行,无此键)。
+    """
+    declared = spec.get("execution_input_smiles")
+    if declared is None:
+        return None
+    if not isinstance(declared, str) or not declared.strip():
+        raise ProductionContractError(
+            "execution_input_smiles 在位但非法(必须非空 str)",
+            {"kind": "execution_input_invalid",
+             "value_type": type(declared).__name__})
+    from rdkit import Chem as _Chem
+
+    mol = _Chem.MolFromSmiles(declared)
+    if mol is None:
+        raise ProductionContractError(
+            "execution_input_smiles 不可解析(执行输入声明带病;fail-"
+            "closed,不以不可渲染输入进执行)",
+            {"kind": "execution_input_unparseable",
+             "smiles": declared[:200]})
+    declared_components = [_Chem.MolToSmiles(frag)
+                           for frag in _Chem.GetMolFrags(
+                               mol, asMols=True, sanitizeFrags=True)]
+    try:
+        declared_keys = sorted(strict_identity_of(c)
+                               for c in declared_components)
+        required_keys = sorted(
+            [strict_identity_of(substrate_state.smiles_isomeric)]
+            + [strict_identity_of(str(e.get("smiles") or ""))
+               for e in co_sub_entries])
+    except Exception as exc:  # noqa: BLE001 —— 身份失败 = 声明带病
+        raise ProductionContractError(
+            "执行输入/声明的供给组分严格身份失败(声明带病;fail-closed)",
+            {"kind": "execution_input_identity_failed",
+             "reason": str(exc)[:200]}) from exc
+    if declared_keys != required_keys:
+        raise ProductionContractError(
+            "执行输入多重集 != 底物 ⊕ 声明供给(伴生供给执行契约;"
+            "不得以其他分子冒充执行输入)",
+            {"kind": "execution_input_multiset_mismatch",
+             "declared_component_identities": declared_keys[:8],
+             "required_component_identities": required_keys[:8]})
+    return declared
+
+
+def _record_equation_provenance(spec: dict) -> dict | None:
+    """C 线声明链发射输入(s5b-analog-cosub-supply-1,2026-10-14;
+    pred1 消费契约 = ppv1-criteria-v2 预注册 §二.1)。
+
+    spec 携带 ``record_equation``(记录方程声明)与
+    ``record_equation_ref``(provenance record_id)**成对**声明 ⇒
+    返回 {record_id, payload};hypothesis.provenance_refs = [ref] 且
+    事件提交前 ``ledger.store.put_provenance`` 落同行 —— 判分侧
+    pred1 链(event → hypothesis.provenance_refs → payload.
+    provenance_records 行 → 行 payload.record_equation)可解析。
+
+    fail-closed:任一在位而不成对、形状非法(reactants/products 非
+    非空 list、条目缺 smiles)、或任一条目 cn_identity 不可解析 ⇒
+    结构化拒(不发射不可核声明 —— 判分侧对不可解析声明按 unknown
+    fail-closed,发射侧同口径,不让声明链带病上线)。
+    返回 None = 无声明(既有路径零变化,provenance_refs 保持 [])。
+    """
+    ref = spec.get("record_equation_ref")
+    equation = spec.get("record_equation")
+    if ref is None and equation is None:
+        return None
+    if not isinstance(ref, str) or not ref:
+        raise ProductionContractError(
+            "record_equation_ref 在位但非法(必须非空 str;声明链引用"
+            "不得悬空)",
+            {"kind": "record_equation_ref_invalid",
+             "value_type": type(ref).__name__})
+    if not isinstance(equation, dict):
+        raise ProductionContractError(
+            "record_equation_ref 在位而 record_equation 缺失/非 dict"
+            "(声明成对契约;缺方程 = 声明链带病,拒)",
+            {"kind": "record_equation_missing",
+             "record_equation_ref": ref})
+    normalized: dict[str, list] = {}
+    for side in ("reactants", "products"):
+        entries = equation.get(side)
+        if not isinstance(entries, list) or not entries:
+            raise ProductionContractError(
+                f"record_equation.{side} 缺失/非 list/为空(消费契约"
+                "要求两侧非空条目表;fail-closed)",
+                {"kind": "record_equation_side_invalid",
+                 "record_equation_ref": ref, "side": side})
+        side_entries: list[dict] = []
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                raise ProductionContractError(
+                    f"record_equation.{side}[{index}] 非 dict(条目契约:"
+                    "{'smiles': str, 'role'?: str})",
+                    {"kind": "record_equation_entry_invalid",
+                     "record_equation_ref": ref, "side": side,
+                     "index": index})
+            smiles = str(entry.get("smiles") or "")
+            if not smiles or cn_identity(smiles) is None:
+                raise ProductionContractError(
+                    f"record_equation.{side}[{index}] smiles 缺失或不可"
+                    "解析(判分侧 cn_identity 逐条目消费;不可解析声明"
+                    "= 全事件 unknown fail-closed,发射侧不发射带病条目)",
+                    {"kind": "record_equation_entry_unparseable",
+                     "record_equation_ref": ref, "side": side,
+                     "index": index, "smiles": smiles[:200]})
+            item: dict = {"smiles": smiles}
+            role = entry.get("role")
+            if role not in (None, ""):
+                item["role"] = str(role)
+            side_entries.append(item)
+        normalized[side] = side_entries
+    payload = {
+        "schema_version": PPV1_PROVENANCE_SCHEMA_VERSION,
+        "record_id": ref,
+        "record_equation": normalized,
+        "declaration_source": "analog_template_record",
+        "record_key": str((spec.get("cosubstrate_event_contract")
+                           or {}).get("record_key") or ""),
+        "evidence_meaning": (
+            "pred1 = 'the record declared it' (supply source = "
+            "declaration source = template record; no self-endorsement)"),
+    }
+    return {"record_id": ref, "payload": payload}
 
 
 def prepare_hypothesis(
@@ -386,6 +521,12 @@ def prepare_hypothesis(
                 coefficient=None, coefficient_status="unknown"))
     requirements = [
         dict(r) for r in (spec.get("requirements") or [])]
+    # ---- C 线声明链发射输入(s5b-analog-cosub-supply-1;pred1 消费
+    # 契约 criteria-v2 预注册 §二.1):spec 携带 record_equation/
+    # record_equation_ref 成对声明 ⇒ provenance_refs 进假设身份,
+    # 发射载荷随 prepared 交给提交段(put_provenance 先于事件提交)。
+    # 无声明 spec ⇒ provenance_refs 保持 [](假设身份/载荷零变化)。
+    record_equation_provenance = _record_equation_provenance(spec)
     hypothesis = build_hypothesis(
         parent_path_id=parent_path_id,
         substrate_state_ref=substrate_state.state_id,
@@ -396,12 +537,28 @@ def prepare_hypothesis(
         transformation_ref=transformation_ref,
         requirements=requirements,
         dependency_refs=[d.dependency_id for d in dependencies],
+        provenance_refs=(
+            [record_equation_provenance["record_id"]]
+            if record_equation_provenance is not None else None),
         origin_group_key=str(spec.get("origin_group_key") or ""))
     states = {substrate_state.state_id: substrate_state,
               product_state.state_id: product_state}
     for state in coproduct_states:
         states[state.state_id] = state
     product_states_out = [product_state] + coproduct_states
+    if declaration is not None:
+        # ---- C 线(s5b-analog-cosub-supply-1)执行输入首消费核验:
+        # 伴生供给参与执行 —— edits 对底物+供给编译,运行期执行/审计
+        # 必须渲染同一输入。spec 声明 execution_input_smiles 时,其
+        # 组分严格身份多重集必须 == 底物 ⊕ 声明供给(精确多重集,
+        # 防以其他分子冒充执行输入);声明在而核验不过 ⇒ 结构化拒
+        #(零事件/零提交)。核验通过 ⇒ 执行输入随 tool_inputs 下传
+        #(expand 段按声明渲染;无声明路径零变化)。----
+        execution_input = _verify_execution_input(
+            spec, substrate_state=substrate_state,
+            co_sub_entries=co_sub_entries)
+    else:
+        execution_input = None
     if declaration is not None:
         # ---- 状态映射扩(B 与拷贝组分;设计 §四.3:拷贝产物 state
         # 与 coproduct 同轨——0e.5 followup 消费链照池宽纪律)。
@@ -422,6 +579,8 @@ def prepare_hypothesis(
         "alignment": dict(spec["alignment"]),
         "expectation": dict(spec["expectation"]),
     }
+    if execution_input is not None:
+        tool_inputs["execution_input_smiles"] = execution_input
     return {
         "hypothesis": hypothesis,
         "states": states,
@@ -431,6 +590,9 @@ def prepare_hypothesis(
         "spec_digest": content_hash(spec),
         "hypothesis_dict": hypothesis.to_dict(),
         "cosubstrate_disclosure": cosub_disclosure,
+        # C 线(s5b-analog-cosub-supply-1):记录方程发射载荷(提交段
+        # put_provenance 消费;None = 无声明,既有路径零变化)
+        "record_equation_provenance": record_equation_provenance,
     }
 
 
@@ -982,8 +1144,14 @@ def expand_hypothesis_production(
                 task_key, "production_report", payload)
         return payload
 
+    # ---- C 线(s5b-analog-cosub-supply-1):执行输入 = prepare 段
+    # 首消费核验过的声明(伴生供给:edits 对底物+供给编译,渲染同一
+    # 输入;无声明 ⇒ 裸底物,既有行为逐字节不变)----
+    execution_input_smiles = str(
+        tool_inputs.get("execution_input_smiles")
+        or substrate_state.smiles_isomeric)
     execution = execute_atomtool_expansion(
-        substrate_smiles=substrate_state.smiles_isomeric,
+        substrate_smiles=execution_input_smiles,
         tool_inputs=tool_inputs)
     if not execution["execution_ok"]:
         # 执行失败:方法失败(不是契约异常;不伪装成功工具结果)。
@@ -1052,6 +1220,22 @@ def expand_hypothesis_production(
             raise SearchCrashInjection(
                 "bundle 已写、事件未提交(B3 注入点)",
                 {"action_id": action_id, "task_key": task_key})
+    # ---- C 线声明链发射(run 期,worker 事件提交路径;
+    # s5b-analog-cosub-supply-1;pred1 消费契约 = criteria-v2 预注册
+    # §二.1):prepared 携带记录方程发射载荷时,事件提交前先把来源记
+    # 录方程落 provenance_records(公共 store writer 幂等;声明内容 =
+    # 候选装配时的模板记录方程,同一数据源不另造)。行先于事件存在
+    # ⇒ 提交后声明链 event → hypothesis.provenance_refs → provenance
+    # _records 行(record_id 匹配)→ record_equation 可解析;无声明
+    # 路径零调用(既有行为逐字节不变)。deferred/rejected 不发射
+    #(声明链只对提交事件可消费)。
+    record_equation_provenance = prepared.get(
+        "record_equation_provenance")
+    if record_equation_provenance is not None:
+        ledger.store.put_provenance(
+            str(record_equation_provenance["record_id"]),
+            ledger.run_id or "",
+            dict(record_equation_provenance["payload"]))
     submitted = ledger.submit_action_event(
         action_id, event, report_projection=report_projection.to_dict(),
         expansion_plan=expansion_plan.to_dict(), states=states_dicts,

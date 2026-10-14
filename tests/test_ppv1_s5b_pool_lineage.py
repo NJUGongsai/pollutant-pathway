@@ -374,8 +374,9 @@ def test_run_inputs_byte_equivalent_and_free_of_diagnostics(
 
 def test_pool_policy_version_bumped() -> None:
     """不变量:版本承载 —— 池诊断从聚合升为逐候选 ⇒ 语义化升版
-    s5b-pool-policy-5 → s5b-pool-policy-6。"""
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-6"
+    s5b-pool-policy-5 → s5b-pool-policy-6;C 线(2026-10-14)池成员
+    变化(analog 共底物伴生供给)⇒ s5b-pool-policy-7。"""
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-7"
     assert S5B_POOL_POLICY_VERSION != "s5b-pool-policy-5"
 
 
@@ -404,11 +405,17 @@ def test_aggregate_fields_unchanged_and_row_schema(
     specs = provider(_SUB)
     diag = provider.last_diagnostics
     # 聚合键集:既有键全在;新增键只有 candidates(条件键如实,不裁剪)
+    # s5b-pool-policy-7(C 线,2026-10-14)追加 analog_cosub_supply_*
+    # 计数(向后兼容追加;既有键与语义零变化)
     assert _PREEXISTING_AGGREGATE_KEYS <= set(diag)
     assert set(diag) - _PREEXISTING_AGGREGATE_KEYS <= {
         "recorded_diagnostics", "corpus_diagnostics",
         "analog_threshold", "analog_threshold_dropped",
-        "analog_pregate_skipped"}
+        "analog_pregate_skipped",
+        "analog_cosub_supply_version",
+        "analog_cosub_supply_rescued",
+        "analog_cosub_supply_compile_attempted",
+        "analog_cosub_supply_wildcard_blocked"}
     assert diag["pool_policy_version"] == S5B_POOL_POLICY_VERSION
     rows = diag["candidates"]
     assert rows

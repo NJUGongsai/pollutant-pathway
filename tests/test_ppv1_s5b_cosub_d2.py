@@ -202,7 +202,10 @@ def test_d2_versions_registered() -> None:
     池成员/compile 判据零触碰,断言随轮更新)。"""
     assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-6"
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-6"
+    # T1a(2026-10-12):pool-policy-5→6(池诊断逐候选化 candidates;
+    # 池成员/compile 判据零触碰,断言随轮更新)。
+    # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7。
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-7"
 
 
 # ================================================================ 负控族(NC)
