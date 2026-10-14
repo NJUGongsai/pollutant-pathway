@@ -855,3 +855,159 @@ def test_native_build_rejects_state_without_appearances(
         build_native_result(ledger, endpoint_record=endpoint)
     assert exc.value.detail["kind"] == "native_result_state_unverifiable"
     assert exc.value.detail["state_id"] == "cs-ghost"
+
+
+# ------------------------------------------------ 完整出现集合核验(P1fix2,
+# criteria-v2 终裁余项 2026-10-14:appearance 形状/state_id 绑定/
+# appearance_hash 内容绑定的官方首次消费闭合)
+
+def _participant_o2_fixture(tmp_path: Path, run_id: str):
+    """终判探针参与物夹具同构:O₂ 为已存事件 coproduct;公共 put_state
+    追加两条合法、不同 source_refs 的出现(共 3 条 appearance);返回
+    (ledger, sid, rows, target_hash) —— target_hash 为第二条(可腐蚀)
+    出现行的旧内容哈希。"""
+    from pathway_v43.pollutant.chemstate import (
+        STRUCTURE_ORIGIN_SOURCE_PRODUCT,
+        build_chemical_state,
+    )
+    plan = {"pools": {"CCO": [
+        spec("B", "CC=O", "donor-B", coproducts=["O=O"]),
+        spec("C", "CC=O", "donor-C")]},
+        "schedule_budget": {"max_select": 1},
+        "endpoint_evidence": [mineralization_evidence()]}
+    start(tmp_path, run_id, plan)
+    runs_root = tmp_path / "runs"
+    ledger = ledger_for(runs_root, run_id)
+    state1 = build_chemical_state(
+        "O=O", STRUCTURE_ORIGIN_SOURCE_PRODUCT,
+        source_refs=[{"synthetic": "first"}]).to_dict()
+    state2 = build_chemical_state(
+        "O=O", STRUCTURE_ORIGIN_SOURCE_PRODUCT,
+        source_refs=[{"synthetic": "second"}]).to_dict()
+    assert state1["state_id"] == state2["state_id"]
+    ledger.store.put_state(state1)
+    ledger.store.put_state(state2)
+    sid = state1["state_id"]
+    rows = ledger.conn.execute(
+        "SELECT appearance_hash, payload FROM state_appearances"
+        " WHERE state_id = ? ORDER BY rowid", (sid,)).fetchall()
+    assert len(rows) == 3
+    target = next(row for row in rows if json.loads(row["payload"]).get(
+        "source_refs") == [{"synthetic": "second"}])
+    return ledger, sid, rows, target["appearance_hash"]
+
+
+def test_native_build_multi_appearance_legal_export_and_replay(
+        tmp_path: Path) -> None:
+    """P1fix2 合法正控(终判探针同构):参与物 O₂ 共 3 条合法出现 ——
+    官方链首次消费完整导出 3 条、digest 可复现(验证纯只读);公共
+    submit_event 重放幂等(created=False)。合法数据零行为差。"""
+    from pathway_v43.pollutant.search import _event_from_row
+
+    ledger, sid, rows, _ = _participant_o2_fixture(
+        tmp_path, "p1fix2legal")
+    endpoint = read_run_endpoint(ledger, ledger.run_id)
+    native = build_native_result(ledger, endpoint_record=endpoint)
+    exported = [row for row in native["state_appearances"]
+                if row["state_id"] == sid]
+    assert len(exported) == 3
+    native2 = build_native_result(ledger, endpoint_record=endpoint)
+    assert native["content_digest"] == native2["content_digest"]
+    event_row = next(
+        row for row in ledger.store.list_events("p1fix2legal")
+        if sid in json.loads(row["payload"])["participant_state_refs"])
+    event = _event_from_row(event_row)
+    replay = ledger.store.submit_event(
+        event, states=[], hypothesis_dict=None,
+        report_projection=ledger.store.report_projection(event.event_id),
+        expansion_plan=ledger.store.expansion_plan(event.event_id))
+    assert replay["created"] is False
+
+
+def test_native_build_rejects_appearance_payload_not_object(
+        tmp_path: Path) -> None:
+    """P1fix2 主反例(终判 [] 主例同构):参与物 O₂ 第二条出现的
+    payload 单点腐蚀为 [](SQL state_id/旧 hash/语义块/事件均不动;
+    同 state 仍有两条合法 dict 出现)—— 官方首次消费结构化拒绝
+    (kind=native_result_appearance_corrupt,reason=payload_not_
+    object),不再静默跳过后继续进入聚合载荷与导出;底层内容⇄哈希
+    失配事实经 store 单一验证源附入 detail(appearance_hash_matches
+    =False,与同库重放 appearance_hash_corrupt 同结论,可追溯)。"""
+    from pathway_v43.pollutant.native_result import NativeResultContractError
+
+    ledger, sid, rows, target_hash = _participant_o2_fixture(
+        tmp_path, "p1fix2shape")
+    ledger.conn.execute(
+        "UPDATE state_appearances SET payload = '[]'"
+        " WHERE state_id = ? AND appearance_hash = ?", (sid, target_hash))
+    ledger.conn.commit()
+    endpoint = read_run_endpoint(ledger, ledger.run_id)
+    with pytest.raises(NativeResultContractError) as exc:
+        build_native_result(ledger, endpoint_record=endpoint)
+    assert exc.value.detail["kind"] == "native_result_appearance_corrupt"
+    assert exc.value.detail["reason"] == "payload_not_object"
+    assert exc.value.detail["payload_kind"] == "list"
+    assert exc.value.detail["state_id"] == sid
+    assert exc.value.detail["appearance_hash"] == target_hash
+    assert exc.value.detail["appearance_hash_matches"] is False
+
+
+def test_native_build_rejects_appearance_hash_mismatch(
+        tmp_path: Path) -> None:
+    """P1fix2 旁证(终判错绑 state_id 同构):出现 payload 的 state_id
+    改成 cs-unrelated、旧 appearance_hash 列不动 —— 首次消费经 store
+    同源哈希判据拒绝(reason=appearance_hash_mismatch;底层 kind=
+    appearance_hash_corrupt 与同库公共重放一致,不另立判据)。"""
+    from pathway_v43.pollutant.native_result import NativeResultContractError
+
+    ledger, sid, rows, target_hash = _participant_o2_fixture(
+        tmp_path, "p1fix2hash")
+    payload = json.loads(next(
+        row["payload"] for row in rows
+        if row["appearance_hash"] == target_hash))
+    bad = dict(payload, state_id="cs-unrelated")
+    ledger.conn.execute(
+        "UPDATE state_appearances SET payload = ?"
+        " WHERE state_id = ? AND appearance_hash = ?",
+        (json.dumps(bad, sort_keys=True), sid, target_hash))
+    ledger.conn.commit()
+    endpoint = read_run_endpoint(ledger, ledger.run_id)
+    with pytest.raises(NativeResultContractError) as exc:
+        build_native_result(ledger, endpoint_record=endpoint)
+    assert exc.value.detail["kind"] == "native_result_appearance_corrupt"
+    assert exc.value.detail["reason"] == "appearance_hash_mismatch"
+    assert exc.value.detail["appearance_error_kind"] == \
+        "appearance_hash_corrupt"
+    assert exc.value.detail["appearance_error_detail"]["state_id"] == sid
+    assert exc.value.detail["appearance_error_detail"][
+        "appearance_hash"] == target_hash
+
+
+def test_native_build_rejects_appearance_state_id_binding(
+        tmp_path: Path) -> None:
+    """P1fix2 绑定拒绝(重签腐蚀):payload state_id 改错 **且** hash
+    列同步重算 —— 内容⇄哈希判据不再能单独拦截,首次消费核 state_id
+    绑定(出现载荷身份与行键/语义块一致;store._split_state_payload
+    写入侧不变式)结构化拒绝(reason=state_id_binding_mismatch),
+    坏权威记录不得被重新包装为正式结果。"""
+    from pathway_v43.pollutant.native_result import NativeResultContractError
+
+    ledger, sid, rows, target_hash = _participant_o2_fixture(
+        tmp_path, "p1fix2bind")
+    payload = json.loads(next(
+        row["payload"] for row in rows
+        if row["appearance_hash"] == target_hash))
+    bad = dict(payload, state_id="cs-unrelated")
+    ledger.conn.execute(
+        "UPDATE state_appearances SET payload = ?, appearance_hash = ?"
+        " WHERE state_id = ? AND appearance_hash = ?",
+        (json.dumps(bad, sort_keys=True), content_hash(bad), sid,
+         target_hash))
+    ledger.conn.commit()
+    endpoint = read_run_endpoint(ledger, ledger.run_id)
+    with pytest.raises(NativeResultContractError) as exc:
+        build_native_result(ledger, endpoint_record=endpoint)
+    assert exc.value.detail["kind"] == "native_result_appearance_corrupt"
+    assert exc.value.detail["reason"] == "state_id_binding_mismatch"
+    assert exc.value.detail["state_id"] == sid
+    assert exc.value.detail["payload_state_id"] == "cs-unrelated"

@@ -461,6 +461,31 @@ def _semantic_conflict_detail(existing: dict, semantic: dict) -> list[str]:
                   if existing.get(k) != semantic.get(k))
 
 
+def _verify_appearance_content_hash(state_id: str, appearance_hash: str,
+                                    payload, message: str = "",
+                                    event_id: str | None = None) -> None:
+    """appearance 行内容⇄appearance_hash 绑定校验(**单一验证源**;
+    criteria-v2 P1fix2 回修,2026-10-14)。
+
+    判据唯一:`content_hash(载荷解析对象) == appearance_hash 列` ——
+    收集阶段复用核(_collect_state_writes,R7-02/R8)、重放
+    (_verify_stored_appearances / _verify_event_appearance_manifest)
+    与官方链首次消费(native_result._validate_native_state_rows)全部
+    经本函数,不各自实现第二套哈希判据。不一致 ⇒ Ppv1LedgerCorrupt
+    (appearance_hash_corrupt):不静默丢弃坏行、不重算新哈希洗损坏。
+    message 由调用方传入(各入口原文保持);event_id 仅重放/首提侧
+    附带(首次消费侧无事件语境,缺省不写该键)。
+    """
+    if content_hash(payload) != appearance_hash:
+        raise Ppv1LedgerCorrupt(
+            message or f"状态 {state_id} 的出现记录内容与哈希不一致(损坏)",
+            {"table": "state_appearances",
+             "kind": "appearance_hash_corrupt",
+             "state_id": state_id,
+             "appearance_hash": appearance_hash,
+             **({"event_id": event_id} if event_id is not None else {})})
+
+
 # hypothesis 载荷排序归一键(R3-08/R3-09 存储侧;与 build_hypothesis 的
 # hypothesis_id 计算同语义:requirements/assumptions/dependency_refs 排序
 # 后入 id,participants 顺序保留 —— 顺序参与 id 语义,不归一)。
@@ -1150,22 +1175,21 @@ class PollutantPathwayStore:
             pending_semantics[sid] = semantic
             appearance_hash = content_hash(appearance)
             # R7-02/R8:supplied SID 的既存同 hash 出现行立即核内容
-            # (首提/重放共用;行不存在 ⇒ 新增,合法)
+            # (首提/重放共用;行不存在 ⇒ 新增,合法)。内容⇄哈希判据经
+            # _verify_appearance_content_hash 单一验证源(P1fix2)。
             existing_row = self.conn.execute(
                 "SELECT payload FROM state_appearances WHERE state_id = ?"
                 " AND appearance_hash = ?", (sid, appearance_hash)
             ).fetchone()
-            if existing_row is not None and content_hash(
-                    json.loads(existing_row["payload"])) != \
-                    appearance_hash:
-                raise Ppv1LedgerCorrupt(
-                    f"{eid} 复用既存出现行(状态 {sid} 的同 hash 出现)"
-                    "内容与哈希不一致(损坏;显式重给有效载荷不能证明"
-                    "被复用行有效,不自动覆盖修库,零写入)",
-                    {"event_id": eid, "table": "state_appearances",
-                     "kind": "appearance_hash_corrupt",
-                     "state_id": sid,
-                     "appearance_hash": appearance_hash})
+            if existing_row is not None:
+                _verify_appearance_content_hash(
+                    sid, appearance_hash,
+                    json.loads(existing_row["payload"]),
+                    message=(f"{eid} 复用既存出现行(状态 {sid} 的同 hash"
+                             " 出现)内容与哈希不一致(损坏;显式重给有效"
+                             "载荷不能证明被复用行有效,不自动覆盖修库,"
+                             "零写入)"),
+                    event_id=eid)
             appearance_writes.append((
                 sid, appearance_hash,
                 json.dumps(appearance, ensure_ascii=False, sort_keys=True)))
@@ -1341,7 +1365,9 @@ class PollutantPathwayStore:
         """已存 appearance 行内容 hash 复算 + 本事件期望出现集合(R3-10)。
 
         - 每个参与物 state 的全部出现行:重算 content_hash(payload) ==
-          appearance_hash 列(raw 被改而 hash 未变 ⇒ 损坏);
+          appearance_hash 列(raw 被改而 hash 未变 ⇒ 损坏;判据经
+          _verify_appearance_content_hash 单一验证源,与收集阶段/
+          首次消费共用);
         - 随事务提供的每个 state:其出现内容(原始串/来源/保真/refs)的
           期望哈希须仍存在对应行 —— "有一条同物种出现"不能代替完整集合
           (删本事件 prod-A 只留无关 prod-B ⇒ 期望集合不完整 ⇒ 损坏)。
@@ -1352,15 +1378,11 @@ class PollutantPathwayStore:
                 "SELECT appearance_hash, payload FROM state_appearances"
                 " WHERE state_id = ?", (ref,)).fetchall()
             for r in rows:
-                if content_hash(json.loads(r["payload"])) != \
-                        r["appearance_hash"]:
-                    raise Ppv1LedgerCorrupt(
-                        f"重放 {eid} 发现状态 {ref} 的出现记录内容与哈希"
-                        "不一致(损坏)",
-                        {"event_id": eid, "table": "state_appearances",
-                         "kind": "appearance_hash_corrupt",
-                         "state_id": ref,
-                         "appearance_hash": r["appearance_hash"]})
+                _verify_appearance_content_hash(
+                    ref, r["appearance_hash"], json.loads(r["payload"]),
+                    message=(f"重放 {eid} 发现状态 {ref} 的出现记录内容"
+                             "与哈希不一致(损坏)"),
+                    event_id=eid)
         for state_dict in states:
             _, appearance = _split_state_payload(state_dict)
             sid = state_dict["state_id"]
@@ -1429,14 +1451,11 @@ class PollutantPathwayStore:
                      "kind": "event_appearance_manifest_entry_missing",
                      "state_id": sid,
                      "appearance_hash": appearance_hash})
-            if content_hash(json.loads(row["payload"])) != appearance_hash:
-                raise Ppv1LedgerCorrupt(
-                    f"重放 {eid} 发现已存状态 {sid} 的出现记录内容与哈希"
-                    "不一致(损坏)",
-                    {"event_id": eid, "table": "state_appearances",
-                     "kind": "appearance_hash_corrupt",
-                     "state_id": sid,
-                     "appearance_hash": appearance_hash})
+            _verify_appearance_content_hash(
+                sid, appearance_hash, json.loads(row["payload"]),
+                message=(f"重放 {eid} 发现已存状态 {sid} 的出现记录内容"
+                         "与哈希不一致(损坏)"),
+                event_id=eid)
         # R5-05:清单覆盖完整性——state_id 集合必须恰好等于本事件
         # derived_refs(缩成非空子集仍是损坏;权威断言不补账)
         manifest_sids = {str(entry.get("state_id", ""))

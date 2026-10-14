@@ -93,18 +93,31 @@ def _rows_sorted(rows: list, key_fields: tuple) -> list[dict]:
 def _validate_native_state_rows(states: list[dict],
                                 appearances: list[dict]) -> None:
     """原生构建的状态身份闭合(官方链对持久 states 权威的**首次消费**;
-    criteria-v2 P1 回修,2026-10-14)。
+    criteria-v2 P1 回修,2026-10-14;P1fix2 同日扩为完整出现集合核验)。
 
-    共用 ChemicalState 事实重算**单一验证源**(ChemicalState.from_dict
-    ⇒ validate_state_object,与恢复入口/audit 直接 states 消费/公共
-    writer store._verify_state_payload_facts 同源,不另立判据):
-    states 行载荷是语义块、state_appearances 行载荷是出现块
-    (store._split_state_payload 拆分的两侧),按 store 同源出现字段
-    清单反向拼回完整 state dict,逐 (语义, 出现) 对过 from_dict 重推
+    **完整 appearance 集合核验(P1fix2)**:对进入聚合载荷的全部
+    state_appearances 行(不区分其 state 是否还有其他合法出现)逐行核
+    三件事 —— ①**对象形状**:非 dict 载荷 ⇒ 结构化拒绝(不静默跳过;
+    不再允许"同 state 还有一条合法 dict"掩护坏权威记录继续进入
+    native_result 与导出);②**appearance_hash 内容绑定**:经 store
+    `_verify_appearance_content_hash` 单一验证源(与写入收集阶段/
+    重放同一判据,不另立标准、不重算新哈希洗损坏);③**state_id
+    绑定**:出现载荷内 state_id 与行键/语义块一致(store.
+    _split_state_payload 写入侧把 state_id 放进 appearance 的身份
+    绑定,首消费闭环核验)。任一失败 ⇒ NativeResultContractError
+    结构化拒绝、链在构建处截断(persist/export/reader/evaluator 不
+    执行),底层损坏信息(kind/detail)原样保全可追溯。
+
+    **(语义, 出现) 逐对事实重算**(P1 原闭合,保持):states 行载荷是
+    语义块、state_appearances 行载荷是出现块(store._split_state_
+    payload 拆分的两侧),按 store 同源出现字段清单反向拼回完整
+    state dict,逐 (语义, 出现) 对过 ChemicalState.from_dict
+    (**单一验证源**:与恢复入口/audit 直接 states 消费/公共 writer
+    store._verify_state_payload_facts 同源,不另立判据)重推
     state_id/formal_charge/cn_identity/立体/同位素事实与 raw→strict
     身份。任一对不一致(SQLite 载荷单点腐蚀绕过 writer 的情形在内)
-    ⇒ NativeResultContractError 结构化拒绝,不静默略过、不清洗后
-    继续 —— 已损坏权威 state 不得被官方链重新包装为当前载荷。
+    ⇒ 结构化拒绝,不静默略过、不清洗后继续 —— 已损坏权威 state 不得
+    被官方链重新包装为当前载荷。
 
     - 零出现记录的 state 同拒(store 无合法路径只写语义块不写出现;
       无法验证身份即不授信,fail-closed 不猜);
@@ -114,13 +127,59 @@ def _validate_native_state_rows(states: list[dict],
       (语义, 出现) 对;本验证纯只读,不修改聚合载荷(native_result
       digest 不变)。
     """
-    from .store import _STATE_APPEARANCE_FIELDS  # 拆分字段同源;延迟防环
+    from .store import (_STATE_APPEARANCE_FIELDS,  # 拆分字段同源;延迟防环
+                        Ppv1LedgerCorrupt,
+                        _verify_appearance_content_hash)
     by_state: dict[str, list[dict]] = {}
     for app_row in appearances:
+        sid_row = str(app_row.get("state_id"))
+        app_hash = str(app_row.get("appearance_hash") or "")
         app_payload = app_row.get("payload")
-        if isinstance(app_payload, dict):
-            by_state.setdefault(str(app_row.get("state_id")), []).append(
-                app_payload)
+        if not isinstance(app_payload, dict):
+            # ① 对象形状:非 dict 载荷 = 损坏权威出现记录,结构化拒绝
+            # (不静默跳过)。底层内容⇄哈希绑定事实经同一验证源核出后
+            # 原样附入 detail(与重放侧同结论,可追溯)。
+            try:
+                _verify_appearance_content_hash(sid_row, app_hash,
+                                                app_payload)
+                hash_ok = True
+            except Ppv1LedgerCorrupt:
+                hash_ok = False
+            raise NativeResultContractError(
+                f"原生结果聚合的出现记录载荷损坏:{sid_row}(载荷非对象;"
+                "完整出现集合首次消费核验 —— 不静默跳过、不清洗后继续,"
+                "已损坏权威出现记录不得被重新包装为正式结果)",
+                {"kind": "native_result_appearance_corrupt",
+                 "state_id": sid_row,
+                 "reason": "payload_not_object",
+                 "payload_kind": type(app_payload).__name__,
+                 "appearance_hash": app_hash,
+                 "appearance_hash_matches": hash_ok})
+        # ② appearance_hash 内容绑定(写入/重放/首消费共用单一验证源)
+        try:
+            _verify_appearance_content_hash(sid_row, app_hash, app_payload)
+        except Ppv1LedgerCorrupt as exc:
+            raise NativeResultContractError(
+                f"原生结果聚合的出现记录内容与哈希不一致:{sid_row}"
+                "(官方链首次消费与 store 写入/重放共用同一哈希判据;"
+                "底层 kind/detail 原样保全)",
+                {"kind": "native_result_appearance_corrupt",
+                 "state_id": sid_row,
+                 "reason": "appearance_hash_mismatch",
+                 "appearance_error_kind": exc.detail.get("kind"),
+                 "appearance_error_detail": exc.detail}) from exc
+        # ③ state_id 绑定:出现载荷身份与行键/语义块一致
+        # (_split_state_payload 写入侧不变式;哈希被重签时由此拦截)
+        if app_payload.get("state_id") != sid_row:
+            raise NativeResultContractError(
+                f"原生结果聚合的出现记录 state_id 绑定不一致:{sid_row}"
+                "(出现载荷的 state_id 与行键/语义块必须一致;损坏权威"
+                "出现记录不得被重新包装为正式结果)",
+                {"kind": "native_result_appearance_corrupt",
+                 "state_id": sid_row,
+                 "reason": "state_id_binding_mismatch",
+                 "payload_state_id": app_payload.get("state_id")})
+        by_state.setdefault(sid_row, []).append(app_payload)
     for row in states:
         sid = str(row.get("state_id"))
         semantic = row.get("payload")
@@ -237,9 +296,11 @@ def build_native_result(ledger, *, endpoint_record: dict) -> dict:
             "SELECT state_id, appearance_hash, payload, created_at FROM"
             " state_appearances ORDER BY state_id, appearance_hash"
         ).fetchall(), ("state_id", "appearance_hash"))
-    # ---- 状态身份闭合(官方链首次消费;P1 2026-10-14):语义/出现
-    # 逐对共用 ChemicalState.from_dict 事实重算,坏源 state 在原生
-    # 构建处结构化拒绝(单点腐蚀绕过 writer 不得被重新包装) ----
+    # ---- 状态身份闭合(官方链首次消费;P1 2026-10-14 / P1fix2 同日):
+    # 完整出现集合逐行核形状/state_id 绑定/内容⇄哈希(与 store 写入/
+    # 重放共用单一验证源),语义/出现逐对共用 ChemicalState.from_dict
+    # 事实重算;坏源 state/appearance 在原生构建处结构化拒绝(单点
+    # 腐蚀绕过 writer 不得被重新包装) ----
     _validate_native_state_rows(states, appearances)
 
     # ---- 假设/事件/投影/计划(完整事实;报告与展开分列) ----
