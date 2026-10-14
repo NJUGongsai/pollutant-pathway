@@ -213,10 +213,15 @@ def _verify_budget_guard(batch_root: Path, model,
     """S5B-V3-02:real 批 worker 侧金额守卫核对(先于传输)。
 
     返回 None = 通过;返回 dict = 结构化拒(失败题留分母,零发送):
-    - 无闸门(bypass 协调器)⇒ budget_guard_missing;
+    - 无闸门(bypass 协调者)⇒ budget_guard_missing;
     - 闸门无金额配置 ⇒ budget_guard_missing;
     - 闸门配置 config_sha256 ≠ 批根 budget_guard.json ⇒
-      budget_guard_mismatch(不静默混用两套价格/帽)。
+      budget_guard_mismatch(不静默混用两套价格/帽);
+    - **P4c no-cap(2026-10-12 用户决定)**:闸门无金额配置而批根有
+      合法 ``budget_no_cap.json`` 标记 ⇒ **通过**(金额检查显式跳过;
+      调用数门/速率门/并发门在闸门照常生效;同判据
+      ``load_budget_no_cap_marker``,坏标记 fail-closed 拒,标记+
+      数值闸门并存 ⇒ mismatch 拒)。
     scripted 桩路径不经本核对(网络 0;provider_kind≠real)。"""
     if provider_kind != "real":
         return None
@@ -236,12 +241,37 @@ def _verify_budget_guard(batch_root: Path, model,
             "error": f"闸门金额守卫配置坏形状:{exc}"[:300],
             "detail": dict(getattr(exc, "detail", {}) or {}),
         }
-    if cost_config is None:
+    from pathway_v43.pollutant.s5b_orchestrator import (
+        load_budget_no_cap_marker,
+    )
+
+    try:
+        no_cap_marker = load_budget_no_cap_marker(batch_root)
+    except Exception as exc:  # noqa: BLE001 —— 坏标记 fail-closed 先拒
         return {
-            "failure_kind": "budget_guard_missing",
-            "error": ("闸门状态无金额守卫配置(real 批每次付费发送前"
-                      "必须原子预留;未经 s5b_cli budget 冻结 ⇒ 先拒)"),
-            "detail": {"kind": "budget_guard_missing"},
+            "failure_kind": "budget_guard_invalid",
+            "error": f"批级 no-cap 标记坏形状:{exc}"[:300],
+            "detail": dict(getattr(exc, "detail", {}) or {}),
+        }
+    if cost_config is None:
+        if no_cap_marker is None:
+            return {
+                "failure_kind": "budget_guard_missing",
+                "error": ("闸门状态无金额守卫配置(real 批每次付费发送前"
+                          "必须原子预留;未经 s5b_cli budget 冻结 ⇒ 先拒)"),
+                "detail": {"kind": "budget_guard_missing"},
+            }
+        # P4c:no-cap 显式标记在案(用户决定)⇒ 金额检查跳过;调用数门
+        # (gate.max_calls)/速率门/并发门不受影响;usage(token/调用数)
+        # 照记(s5b_real_calls.jsonl 账本/批报告 account)。
+        return None
+    if no_cap_marker is not None:
+        return {
+            "failure_kind": "budget_guard_mismatch",
+            "error": ("闸门含数值金额配置而批根带 no-cap 标记(互斥冲突;"
+                      "单一事实源破裂,先于传输拒,零发送)"),
+            "detail": {"kind": "budget_guard_mismatch",
+                       "no_cap_marker": no_cap_marker.get("marker")},
         }
     from pathway_v43.pollutant.s5b_orchestrator import (
         S5B_BUDGET_GUARD_FILE,

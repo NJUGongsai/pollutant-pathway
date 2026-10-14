@@ -18,6 +18,13 @@
   区内先原子预留,余额不足先于传输拒;失败/超时/未知 usage/孤儿不
   释放可能已付金额;结算幂等;不自动升帽。HTTP1490/1logical/
   format0/40 在途等其他门保持不变;
+- **P4c no-cap 显式标记(2026-10-12 用户决定)**:批预算文件缺失
+  且批根有合法 ``budget_no_cap.json``(v44-budget-no-cap-1,用户
+  决定原文+日期)⇒ 金额检查跳过放行;**只跳金额**——调用数门/
+  速率门/并发门/stub 检出照常;数值守卫与标记并存 ⇒ 结构化拒
+  (互斥);坏标记 fail-closed 不当缺席(防标记成为绕守卫口子);
+  worker 侧 ``_verify_budget_guard`` 同判据(单一验证源
+  ``load_budget_no_cap_marker``);
 - **断点续跑**:已完成 qid(终态 case 文件)SKIP;无 case 文件的
   qid 复跑(run 已存在 ⇒ resume_ppv1_run 幂等续跑;不存在 ⇒ start);
 - 逐题终态落盘 ``cases/<qid>.json``(stop_reason/endpoint/调用/usage/
@@ -387,6 +394,100 @@ def write_case_atomic(path: Path, payload: dict) -> None:
 
 # ---------------------------------------------------------------- 金额守卫
 
+# P4c(2026-10-12 用户决定):批级金额守卫的**显式 no-cap 标记文件**
+# (与 budget_guard.json 互斥)。用户对本任务决定"无预算帽/不考虑
+# 价格"⇒ 批预算文件缺失时,须落本标记(带用户决定原文与日期)守卫
+# 才放行金额检查跳过;**调用数门(gate_max_calls)/速率门(RPM/TPM)
+# /并发门照常生效;token bound 照记**。数值守卫路径逐字节不变
+# (budget_guard.json 在 ⇒ 行为与 P4a 完全一致;两文件并存 ⇒ 结构化
+# 拒,禁止 catch-all 混用)。
+# BUDGET_MODE_NO_CAP:v44 参考实现从 v44_task_budget 导入;v43 无
+# 任务级账本模块,本处本地定义(值与 v44 逐字一致)。
+BUDGET_MODE_NO_CAP = "no_monetary_cap_user_decision"
+S5B_BUDGET_NO_CAP_FILE = "budget_no_cap.json"
+S5B_BUDGET_NO_CAP_SCHEMA = "v44-budget-no-cap-1"
+
+
+def no_cap_marker_string(user_decision_date: str) -> str:
+    """结构化标记串(用户决定日期入标记;发车器/CLI/装载器共用)。"""
+    return f"{BUDGET_MODE_NO_CAP}_{user_decision_date}"
+
+
+def load_budget_no_cap_marker(batch_root: str | Path) -> dict | None:
+    """装载并校验批级 no-cap 显式标记(v44-budget-no-cap-1;P4c)。
+
+    - 文件缺席 ⇒ ``None``(合法:数值守卫模式或 scripted 批);
+    - 坏 JSON/非对象/schema 未知/mode 不符/日期非法/marker 不符/
+      决定原文空 ⇒ ``S5bOrchestratorError``
+      (kind=s5b_budget_no_cap_marker_invalid;fail-closed —— 坏标记
+      **不静默当缺席**,否则标记路径成为绕过守卫的口子);
+    - 返回归一标记对象(schema/budget_mode/user_decision_date/
+      user_decision_record/marker)。调用方(run_s5b_batch/worker
+      _verify_budget_guard/CLI budget)共用本判据,不各写一套。
+
+    边界:本标记**只授权跳过金额检查**;调用数门、速率门、并发门、
+    stub 检出、单 attempt token bound 记录均不受影响。与
+    budget_guard.json 并存由调用方结构化拒(互斥,见 run_s5b_batch)。"""
+    import re as _re
+
+    path = Path(batch_root) / S5B_BUDGET_NO_CAP_FILE
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记不可读:{path}({exc};fail-closed,不静默"
+            "当缺席 —— 标记是金额守卫跳过的唯一授权来源)", {
+                "kind": "s5b_budget_no_cap_marker_invalid",
+                "reason": "unreadable_json", "path": str(path)}) from exc
+    if not isinstance(raw, dict) or \
+            str(raw.get("schema") or "") != S5B_BUDGET_NO_CAP_SCHEMA:
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记 schema 未知:{path}(期望 "
+            f"{S5B_BUDGET_NO_CAP_SCHEMA};fail-closed 不猜迁移)", {
+                "kind": "s5b_budget_no_cap_marker_invalid",
+                "reason": "schema_unknown", "path": str(path),
+                "schema": (raw or {}).get("schema")
+                if isinstance(raw, dict) else None})
+    budget_mode = str(raw.get("budget_mode") or "")
+    if budget_mode != BUDGET_MODE_NO_CAP:
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记 budget_mode 非法:{budget_mode!r}(须 "
+            f"{BUDGET_MODE_NO_CAP!r})", {
+                "kind": "s5b_budget_no_cap_marker_invalid",
+                "reason": "budget_mode_invalid", "path": str(path),
+                "budget_mode": budget_mode})
+    date = str(raw.get("user_decision_date") or "")
+    if not _re.match(r"^\d{4}-\d{2}-\d{2}$", date):
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记用户决定日期非法:{date!r}(须 YYYY-MM-DD)",
+            {"kind": "s5b_budget_no_cap_marker_invalid",
+             "reason": "user_decision_date_invalid",
+             "path": str(path), "user_decision_date": date})
+    marker = str(raw.get("marker") or "")
+    if marker != no_cap_marker_string(date):
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记 marker 不符:{marker!r}(须 "
+            f"{no_cap_marker_string(date)!r};标记须绑定用户决定日期)",
+            {"kind": "s5b_budget_no_cap_marker_invalid",
+             "reason": "marker_mismatch", "path": str(path),
+             "marker": marker})
+    if not str(raw.get("user_decision_record") or "").strip():
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记缺用户决定原文:{path}(用户决定是跳过"
+            "金额守卫的合法性来源,不凭空缺省)", {
+                "kind": "s5b_budget_no_cap_marker_invalid",
+                "reason": "user_decision_record_missing",
+                "path": str(path)})
+    return {
+        "schema": S5B_BUDGET_NO_CAP_SCHEMA,
+        "budget_mode": BUDGET_MODE_NO_CAP,
+        "user_decision_date": date,
+        "user_decision_record": str(raw.get("user_decision_record")),
+        "marker": marker,
+    }
+
 
 def load_budget_guard(batch_root: str | Path) -> dict | None:
     """装载并校验批根金额守卫机器配置(S5B-V3-02)。
@@ -507,18 +608,34 @@ def run_s5b_batch(
     # 60 CNY 帽 + 当日价 + 输入保守界 + 输出上限;缺席/坏形状 ⇒
     # 结构化拒(余额守卫不能事后补);scripted 批网络 0,配置可选
     # (存在则同样冻结生效)。
+    # P4c(2026-10-12 用户决定):批预算文件缺失时,显式 no-cap 标记
+    # (budget_no_cap.json,带用户决定原文与日期)在案 ⇒ 金额检查跳过
+    # 放行——**只跳金额**:调用数门(gate_max_calls)/速率门/并发门
+    # 照常;数值守卫与标记并存 ⇒ 结构化拒(互斥,禁 catch-all 混用);
+    # 无守卫亦无标记 ⇒ 原拒绝不变。
     provider_kind = str(manifest.get("provider_kind") or "real")
     budget_guard = load_budget_guard(batch_root)
-    if provider_kind == "real" and budget_guard is None:
+    no_cap_marker = load_budget_no_cap_marker(batch_root)
+    if budget_guard is not None and no_cap_marker is not None:
         raise S5bOrchestratorError(
-            f"real 批缺金额守卫机器配置 {batch_root / S5B_BUDGET_GUARD_FILE}"
-            "(S5B-V3-02:60 CNY 硬帽 + 当日价 + 输入保守界 + 输出上限"
-            "先于传输冻结;先用 s5b_cli budget 落盘,不猜默认价格、"
-            "不自动升帽)", {
-                "kind": "s5b_budget_guard_missing",
-                "batch_root": str(batch_root),
-                "expected_file": S5B_BUDGET_GUARD_FILE,
-                "default_cap_cny": S5B_DEFAULT_BUDGET_CAP_CNY})
+            f"批根同时存在数值金额守卫与 no-cap 标记:{batch_root}"
+            "(互斥:两文件并存 = 混用通道,先于传输拒;改模式须新批根)",
+            {"kind": "s5b_budget_mode_conflict",
+             "batch_root": str(batch_root),
+             "budget_guard_file": S5B_BUDGET_GUARD_FILE,
+             "no_cap_marker_file": S5B_BUDGET_NO_CAP_FILE,
+             "no_cap_marker": no_cap_marker.get("marker")})
+    if provider_kind == "real" and budget_guard is None:
+        if no_cap_marker is None:
+            raise S5bOrchestratorError(
+                f"real 批缺金额守卫机器配置 {batch_root / S5B_BUDGET_GUARD_FILE}"
+                "(S5B-V3-02:60 CNY 硬帽 + 当日价 + 输入保守界 + 输出上限"
+                "先于传输冻结;先用 s5b_cli budget 落盘,不猜默认价格、"
+                "不自动升帽)", {
+                    "kind": "s5b_budget_guard_missing",
+                    "batch_root": str(batch_root),
+                    "expected_file": S5B_BUDGET_GUARD_FILE,
+                    "default_cap_cny": S5B_DEFAULT_BUDGET_CAP_CNY})
     # ---- 发车参数冻结(同批根续跑复用;变更拒绝) ----
     frozen = {
         "orchestrator_version": S5B_ORCHESTRATOR_VERSION,
@@ -573,7 +690,9 @@ def run_s5b_batch(
             order=order, env_file=env_file, workers=workers,
             gate_dir=gate_dir, gate=gate, python_bin=python_bin,
             worker_timeout_s=worker_timeout_s, poll_s=poll_s,
-            started_at_wall=time.time())
+            started_at_wall=time.time(),
+            budget_mode=(no_cap_marker or {}).get("budget_mode")
+            or "numeric")
     finally:
         locks.release()
 
@@ -582,8 +701,13 @@ def _run_batch_loop(*, batch_root: Path, runs_root: Path,
                     manifest: dict, order: list, env_file,
                     workers: int, gate_dir: str, gate: FileRateGate,
                     python_bin, worker_timeout_s: float, poll_s: float,
-                    started_at_wall: float) -> dict:
-    """执行主循环(协调者锁内;R4 validated case / R5 超时纪律)。"""
+                    started_at_wall: float,
+                    budget_mode: str = "numeric") -> dict:
+    """执行主循环(协调者锁内;R4 validated case / R5 超时纪律)。
+
+    ``budget_mode``:P4c 披露字段进批终态报告(numeric = budget_guard
+    .json 冻结;no_monetary_cap_user_decision = 显式 no-cap 标记,
+    金额检查跳过、调用数门照常;标记文件本身是结构化记录)。"""
     env = _worker_env(env_file, gate_dir)
     py = python_bin or sys.executable
 
@@ -682,6 +806,10 @@ def _run_batch_loop(*, batch_root: Path, runs_root: Path,
     report["skipped_already_terminal"] = skipped
     report["failed_qids"] = failures
     report["gate"] = gate_state
+    # P4c 披露:本批金额守卫模式(numeric = budget_guard.json 冻结;
+    # no_monetary_cap_user_decision = 显式标记,金额检查跳过、调用数
+    # 门照常;标记文件本身是结构化记录)
+    report["budget_mode"] = budget_mode
     report["worker_timeout_s"] = worker_timeout_s
     report["coordinator"] = {"pid": os.getpid(),
                              "lock_domain": str(batch_root / "coord"),

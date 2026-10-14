@@ -28,6 +28,10 @@ python -m pathway_v43.pollutant.s5b_cli score \
   当日价 + 输入保守界 + 输出上限;real 批 run 前必须已落盘——发送前
   原子预留、余额不足先于传输拒、失败/未知 usage 不释放、不自动升帽;
   同价同步写 price_snapshot.json 保持单一价格来源);
+  **P4c:--budget-mode no_monetary_cap_user_decision** = 显式登记
+  用户"无金额帽"决定(落 budget_no_cap.json 标记,带决定原文/日期;
+  与数值守卫互斥)——金额检查跳过,调用数门/速率门照常,费用不计价
+  如实报;
 - run:40 路编排(断点续跑;已完成 qid SKIP;进度轮询看
   <批根>/progress.json);
 - score:封存答卷后的零 LLM 判分(金标此时进判分进程;双口径报告)。
@@ -53,10 +57,15 @@ from pathway_v43.pollutant.s5b_builder import (  # noqa: E402
 )
 from pathway_v43.pollutant.s5b_orchestrator import (  # noqa: E402
     S5B_BUDGET_GUARD_FILE,
+    S5B_BUDGET_NO_CAP_FILE,
+    S5B_BUDGET_NO_CAP_SCHEMA,
     S5B_DEFAULT_BUDGET_CAP_CNY,
     S5B_DEFAULT_GATE_MAX_CALLS,
     S5B_DEFAULT_WORKERS,
+    BUDGET_MODE_NO_CAP,
     load_budget_guard,
+    load_budget_no_cap_marker,
+    no_cap_marker_string,
     run_s5b_batch,
     summarize_batch,
 )
@@ -147,17 +156,37 @@ def cmd_budget(args: argparse.Namespace) -> int:
     - 五数值字段(cap/input 价/output 价/输入保守界/输出上限)冻结
       进机器配置;派生 per_attempt_bound_cny 与 config_sha256 可核验;
     - 同值重复执行幂等;**改值拒绝**(改参须新批根,预注册纪律);
-    - 同价同步写 price_snapshot.json(汇总口径单一来源,防两价源漂移)。
+    - 同价同步写 price_snapshot.json(汇总口径单一来源,防两价源漂移);
+    - **P4c no-cap 模式**(``--budget-mode no_monetary_cap_user_decision
+      --user-decision-date YYYY-MM-DD --user-decision-record <用户决定
+      原文>``):落 ``budget_no_cap.json`` 显式标记(与 budget_guard.json
+      互斥;数值金额参数不得同给;同决定幂等、改决定须新批根);金额
+      检查跳过、**调用数门/速率门照常**;不写 price_snapshot(无价)。
     """
     root = Path(args.batch_root)
+    if str(args.budget_mode or "") == BUDGET_MODE_NO_CAP:
+        return _cmd_budget_no_cap(args, root)
+    if args.input_per_mtok is None or args.output_per_mtok is None:
+        _emit({
+            "command": "budget", "ok": False,
+            "error": ("数值模式必填 --input-per-mtok / --output-per-mtok"
+                      "(当日价,元/Mtok;或改用 --budget-mode "
+                      f"{BUDGET_MODE_NO_CAP} 显式登记用户无金额帽决定)"),
+        })
+        return 2
+    cap_cny = (S5B_DEFAULT_BUDGET_CAP_CNY if args.cap_cny is None
+               else float(args.cap_cny))
+    input_tokens_bound = (30000 if args.input_tokens_bound is None
+                          else int(args.input_tokens_bound))
+    max_output_tokens = (8192 if args.max_output_tokens is None
+                         else int(args.max_output_tokens))
     raw = {
         "schema": "s5b-budget-guard-1",
-        "cap_cny": float(args.cap_cny),
+        "cap_cny": cap_cny,
         "input_per_mtok": float(args.input_per_mtok),
         "output_per_mtok": float(args.output_per_mtok),
-        "input_tokens_conservative_bound":
-            int(args.input_tokens_bound),
-        "max_output_tokens": int(args.max_output_tokens),
+        "input_tokens_conservative_bound": input_tokens_bound,
+        "max_output_tokens": max_output_tokens,
         "currency": args.currency,
         "recorded_at": _now_iso(),
         "note": ("S5B-V3-02 批级金额硬帽机器配置:每次可能付费的发送"
@@ -215,6 +244,102 @@ def cmd_budget(args: argparse.Namespace) -> int:
             "cap_cny", "input_per_mtok", "output_per_mtok",
             "input_tokens_conservative_bound", "max_output_tokens",
             "per_attempt_bound_cny", "config_sha256")},
+    })
+    return 0
+
+
+def _cmd_budget_no_cap(args: argparse.Namespace, root: Path) -> int:
+    """P4c:落盘批级金额守卫显式 no-cap 标记(用户决定;互斥守卫)。"""
+    import re
+
+    date = str(args.user_decision_date or "").strip()
+    record = str(args.user_decision_record or "").strip()
+    if not record or not date:
+        _emit({
+            "command": "budget", "ok": False,
+            "error": ("no-cap 模式必填 --user-decision-record(用户决定"
+                      "原文)与 --user-decision-date(YYYY-MM-DD;用户决定"
+                      "是跳过金额守卫的合法性来源,不凭空缺省)"),
+        })
+        return 2
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
+        _emit({"command": "budget", "ok": False,
+               "error": f"--user-decision-date 非法:{date!r}(须 YYYY-MM-DD)"})
+        return 2
+    for flag, value in (
+            ("--cap-cny", args.cap_cny),
+            ("--input-per-mtok", args.input_per_mtok),
+            ("--output-per-mtok", args.output_per_mtok),
+            ("--input-tokens-bound", args.input_tokens_bound),
+            ("--max-output-tokens", args.max_output_tokens)):
+        if value is not None:
+            _emit({
+                "command": "budget", "ok": False,
+                "error": (f"no-cap 模式不接收数值金额参数({flag}={value};"
+                          "有数值就该走数值模式,模式矛盾拒)"),
+            })
+            return 2
+    marker_path = root / S5B_BUDGET_NO_CAP_FILE
+    marker_path.parent.mkdir(parents=True, exist_ok=True)
+    # 互斥:既有数值守卫 ⇒ 模式变更须新批根(不静默切换)
+    if (root / S5B_BUDGET_GUARD_FILE).is_file():
+        _emit({
+            "command": "budget", "ok": False,
+            "error": (f"批根已有数值金额守卫 {S5B_BUDGET_GUARD_FILE}"
+                      "(改 no-cap 模式须新批根;预注册纪律:模式不静默"
+                      "切换)"),
+        })
+        return 3
+    try:
+        existing = load_budget_no_cap_marker(root)
+    except Exception as exc:  # noqa: BLE001 —— 坏标记按冲突处理
+        _emit({"command": "budget", "ok": False,
+               "error": f"既有 no-cap 标记坏形状:{exc}"[:300]})
+        return 2
+    if existing is not None:
+        if str(existing.get("user_decision_date")) != date or \
+                str(existing.get("user_decision_record")) != record:
+            _emit({
+                "command": "budget", "ok": False,
+                "error": ("批根已有不同 no-cap 决定记录(用户决定原文/"
+                          "日期首写冻结,不可改;改决定须新批根)"),
+                "existing_user_decision_date":
+                    existing.get("user_decision_date"),
+                "requested_user_decision_date": date,
+            })
+            return 3
+        _emit({
+            "command": "budget", "ok": True, "path": str(marker_path),
+            "budget_mode": BUDGET_MODE_NO_CAP,
+            "marker": existing.get("marker"),
+            "idempotent": True,
+            "note": ("同决定幂等:标记已在案(金额检查跳过;调用数门"
+                     "gate_max_calls/速率门照常;不写价格快照)"),
+        })
+        return 0
+    payload = {
+        "schema": S5B_BUDGET_NO_CAP_SCHEMA,
+        "budget_mode": BUDGET_MODE_NO_CAP,
+        "user_decision_date": date,
+        "user_decision_record": record,
+        "marker": no_cap_marker_string(date),
+        "recorded_at": _now_iso(),
+        "note": ("P4c(2026-10-12 用户决定)批级金额守卫显式 no-cap 标记:"
+                 "金额检查跳过、金额预约/结算不启用;调用数门"
+                 "(gate_max_calls)/速率门(RPM/TPM)/并发门照常生效;"
+                 "known usage(token/调用数)照记;无帽≠无限制;与 "
+                 "budget_guard.json 互斥,不写价格快照(无价)"),
+    }
+    marker_path.write_text(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=1)
+        + "\n", encoding="utf-8")
+    _emit({
+        "command": "budget", "ok": True, "path": str(marker_path),
+        "budget_mode": BUDGET_MODE_NO_CAP,
+        "marker": payload["marker"],
+        "user_decision_date": date,
+        "note": ("no-cap 标记落盘:金额检查跳过(用户决定原文在案);"
+                 "调用数门/速率门照常;费用不计价如实报;不写价格快照"),
     })
     return 0
 
@@ -355,20 +480,32 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_price)
 
     p = sub.add_parser(
-        "budget", help="冻结批级金额硬帽机器配置(S5B-V3-02 发车硬门)")
+        "budget", help="冻结批级金额硬帽机器配置(S5B-V3-02 发车硬门;"
+                       "或 --budget-mode 显式登记用户 no-cap 决定)")
     p.add_argument("--batch-root", required=True)
-    p.add_argument("--cap-cny", type=float,
-                   default=S5B_DEFAULT_BUDGET_CAP_CNY,
-                   help="批级金额硬帽(CNY;默认 60;不自动升帽)")
-    p.add_argument("--input-per-mtok", type=float, required=True,
-                   help="当日输入价(元/Mtok;与 price 同源)")
-    p.add_argument("--output-per-mtok", type=float, required=True,
-                   help="当日输出价(元/Mtok;与 price 同源)")
-    p.add_argument("--input-tokens-bound", type=int, default=30000,
-                   help="单次请求输入 tokens 保守上界(发车当日定稿)")
-    p.add_argument("--max-output-tokens", type=int, default=8192,
-                   help="请求体输出 token 上限(随请求发送,提供者侧可核)")
+    p.add_argument("--cap-cny", type=float, default=None,
+                   help="批级金额硬帽(CNY;缺省 60;不自动升帽)")
+    p.add_argument("--input-per-mtok", type=float, default=None,
+                   help="当日输入价(元/Mtok;数值模式必填;与 price 同源)")
+    p.add_argument("--output-per-mtok", type=float, default=None,
+                   help="当日输出价(元/Mtok;数值模式必填;与 price 同源)")
+    p.add_argument("--input-tokens-bound", type=int, default=None,
+                   help="单次请求输入 tokens 保守上界(发车当日定稿;"
+                        "缺省 30000)")
+    p.add_argument("--max-output-tokens", type=int, default=None,
+                   help="请求体输出 token 上限(随请求发送,提供者侧可核;"
+                        "缺省 8192)")
     p.add_argument("--currency", default="CNY")
+    p.add_argument("--budget-mode", default=None,
+                   choices=(BUDGET_MODE_NO_CAP,),
+                   help=("P4c:显式 no-cap 模式(用户决定无金额帽)—— 落 "
+                         f"{S5B_BUDGET_NO_CAP_FILE} 标记;金额检查跳过,"
+                         "调用数门/速率门照常;须给 --user-decision-date"
+                         "/--user-decision-record;与数值参数互斥"))
+    p.add_argument("--user-decision-date", default=None,
+                   help="no-cap 模式:用户决定日期(YYYY-MM-DD)")
+    p.add_argument("--user-decision-record", default=None,
+                   help="no-cap 模式:用户决定原文(逐字登记,不凭空缺省)")
     p.set_defaults(func=cmd_budget)
 
     p = sub.add_parser("run", help="40 路编排(断点续跑)")
