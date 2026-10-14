@@ -1,6 +1,30 @@
 # ppv1-criteria-v2 预注册：T-1 判分面参与物集合比较豁免（2026-10-13）
 
-> 状态：**preregistration_pending_final_confirmation**（交 CC 最终确认读；按任务书 §4.1 与代码同轮交付，不阻塞实施）。
+> 状态：**effective_2026-10-14**（CC 拍板「放行」=生效；chain13 起
+> 新批次按本预注册以 v2 出数；旧批零回写、v1 恒为旧批 headline）。
+> **生效登记（2026-10-14）**：CC 终拍「放行」。评审链全录：正链
+> Codex 判据级复审（会话 01a13833…）→不放行（P1 cn 腐蚀+P2 tier
+> 计数）→修复 `7e7855c`→终判 R1（原 P1/P2 正式关闭；新同合同
+> P1=appearance 首次消费漏验）→P1fix2 `dda852b`→R2 复审**建议放行**
+> （本地代审，报告
+> docs/POLLUTANT_PATHWAY_CRITERIA_V2_FINAL_DECISION_R2_2026-10-14.md；
+> 证据 docs/review_evidence/criteria_v2_final_r2_local_2026-10-14/）
+> +通道 C（tokeasy）复审曾放行+主会核对全过。**边界如实登记**：R2
+> 为本地代审（不替代正链终裁权）——正链额度窗口内可做一次复核
+> 确认（AGENTS 放行类轮次允许事后正链复核；不阻塞生效，CC 已终拍）。
+> 生效语义：headline 自 chain13（首个按 v2 预注册出数的新批次）起
+> 为 v2 口径；既有批次只读、零回写；双口径并列披露纪律（老师
+> 2026-10-13 批复附加要求 1）持续有效。
+> **确认读记录（2026-10-14，v2 确认窗口）**：CC 指令"v2 预注册 开干"=
+> 最终确认。确认读核对项：①预注册条款 vs 实现 84a9eb4 逐项在位
+> （豁免身份集四类 cn 键/三入口 criteria_version keyword 缺省 v1/
+> 三谓词/完备二分单归属/辅因子硬拒绝表/零碳断言/∩许可集=∅断言）；
+> ②新测试 16 件在位；③字节不变性独立佐证 = hpc2 双口径重判的跨树
+> v1 复现守门逐位一致（v43 代码 v1 ≡ v44 树官方判分，A/B 两臂）；
+> ④approval_source = teacher 批复
+> docs/TEACHER_REPLY_PPV1_T1_FREEZE_APPROVAL_2026-10-13.md
+> （SHA256 `76c4f7d2…`，三项全批）；⑤CO₂/HCO₃⁻ known gap 与批复
+> 附加要求 2 对齐（v2.1/v3 消解前 CO₂ 书写豁免不上线）。
 > 上位链：teacher 裁定 docs/TEACHER_DECISION_PPV1_T1_COSUBSTRATE_TIER_2026-10-12.md（b 档）→ CS2c 探针 analysis/cs2c_exemption_probe.md（N1=16）→ mimo r36 docs/mimo_ppv1_chem_review_response_r36.md（九条件）→ CS2c 补证 reports/ppv1_s5b/chain12_s5b_298_v4b_20261012/analysis/cs2c_side_predicates.md（N1''=13）→ 冻结前拍板包 docs/TEACHER_T1_FREEZE_DECISION_PACKAGE_2026-10-13.md（CC 拍板"冻结+授权实施"）。
 > 题域标签：**298 / RHEA 通用酶学 / 已见题**；本预注册全部数字为判分面模拟（13 题），≠实施后成绩；headline 恒为现行 v1 口径直到新批次出数。
 > 实施位置：判分侧（evaluation.py 参与物集合比较轴 + s5b_scoring 版本承载）；**生成侧零改动**。
