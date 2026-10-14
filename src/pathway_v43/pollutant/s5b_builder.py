@@ -836,6 +836,15 @@ def _attach_analog_cosub_supply_fields(
                             "candidate net reaction as companion "
                             "participants (exact multiset, lhs component "
                             "order; 2 H2O != 1 H2O)"),
+            "direction_limitation_note": (
+                "supply does NOT filter by side: both-side components are "
+                "supplied as declared (H2O/H+ both sides; Pi/PPi product "
+                "side as declared by the record) — the exemption-side "
+                "direction limitation (reactant side H2O/H+ only, "
+                "phosphorylation discriminator) is owned by the frozen "
+                "evaluation face (evaluation.py PPV1_CRITERIA_V2 exemption "
+                "sets, cf. evaluation.py:201,871-875), not by this supply "
+                "layer"),
             "main_detection": ("max Tanimoto(component, substrate), ties "
                                "to the later component (noalign "
                                "attribution main_idx caliber); unparseable "
