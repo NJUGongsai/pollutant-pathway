@@ -1551,6 +1551,13 @@ def match_reference_edges(reference_graph: dict, payload: dict,
         exact_events: list[dict] = []
         coverage_mismatch_events: list[dict] = []
         structure_only_events: list[dict] = []
+        # 批级 tier 单归属计数的逐边累加器(仅 v2 随边披露;occurrences
+        # 双 tier 只在本函数评审点完整存在,输出只保留 v1_exempt 披露
+        # 子集 —— 批级两 tier 计数须从此处随边带出,P2 2026-10-14;
+        # 双键恒在 = 完备二分,零计数也披露)
+        edge_tier_counts: dict[str, int] = {
+            CRITERIA_TIER_V1_EXEMPT: 0,
+            CRITERIA_TIER_NOT_EXEMPT: 0}
         if not required_node_gaps and (not from_ids or from_states) \
                 and (to_ids and to_states):
             # 参考侧声明了 from/to 节点但严格匹配集为空 ⇒ 不产生候选
@@ -1594,6 +1601,10 @@ def match_reference_edges(reference_graph: dict, payload: dict,
                         payload, _event_payload_body(event), states,
                         hypothesis_id=str(event.get("hypothesis_id") or ""),
                         from_states=from_states, to_states=to_states)
+                    for occ in exempt_review["occurrences"]:
+                        tier = str(occ.get("tier") or "")
+                        edge_tier_counts[tier] = \
+                            edge_tier_counts.get(tier, 0) + 1
                     if exempt_review["all_exempt"]:
                         # 全部 extras(两侧)v1_exempt ⇒ 升 exact;
                         # 逐边机读披露(预注册 §五);T1′ 未实施 ⇒
@@ -1656,6 +1667,10 @@ def match_reference_edges(reference_graph: dict, payload: dict,
                 "完整事件保留共同产物参与物(报告 K/展开宽度不删除;"
                 "S5-03);同父备选反应各自独立(不合并为单反应,S5-02)"),
         }
+        if criteria_version == PPV1_CRITERIA_V2:
+            # 逐边 tier 计数(机器披露;批级块由此汇总;v1 零新键)
+            entry["criteria_v2_tier_counts"] = dict(
+                sorted(edge_tier_counts.items()))
         out.append(entry)
     return out
 
@@ -3188,13 +3203,18 @@ def evaluate_scientific(
         "status": status,
     }
     # ---- ppv1-criteria-v2 批级汇总(仅 v2;v1 缺省零新键=字节不变) ----
-    # 豁免披露计数 + 参考侧 v1 身份监控(mimo r36 条件 4:应为 0,
-    # 非 0 = 退出条件信号;预注册 §五)。
+    # 豁免披露计数 + 两 tier 单归属计数(预注册 §五;failed/mixed review
+    # 不保留在 matched-edge 输出,右侧计数无法从输出重建 ⇒ 由逐边
+    # criteria_v2_tier_counts 随边带出汇总,P2 2026-10-14)+ 参考侧
+    # v1 身份监控(mimo r36 条件 4:应为 0,非 0 = 退出条件信号)。
     if criteria_version == PPV1_CRITERIA_V2:
         edges_with_exemption = 0
         events_exempted = 0
         occurrence_count = 0
         family_counts: dict[str, int] = {}
+        criteria_tier_counts: dict[str, int] = {
+            CRITERIA_TIER_V1_EXEMPT: 0,
+            CRITERIA_TIER_NOT_EXEMPT: 0}
         for sample in sample_results:
             for entry in sample["predicted_edge_matches"]:
                 exempted_events = [
@@ -3209,6 +3229,12 @@ def evaluate_scientific(
                         family = str(occ.get("exempt_family") or "")
                         family_counts[family] = \
                             family_counts.get(family, 0) + 1
+                for tier, n in (entry.get("criteria_v2_tier_counts")
+                                or {}).items():
+                    assert tier in CRITERIA_TIERS, \
+                        (f"ppv1-criteria-v2 批级 tier 单归属计数遇非法 "
+                         f"tier:{tier!r}(完备二分恰两 tier)")
+                    criteria_tier_counts[tier] += int(n)
         reference_v1_nodes = 0
         reference_v1_graphs: list[str] = []
         for graph_id, graph in sorted(graphs.items()):
@@ -3228,6 +3254,7 @@ def evaluate_scientific(
             "exemption_enabled": True,
             "edges_with_exemption": edges_with_exemption,
             "events_exempted_strict": events_exempted,
+            "tier_counts": dict(sorted(criteria_tier_counts.items())),
             "exempted_participant_occurrences": occurrence_count,
             "exempted_family_counts": dict(sorted(
                 family_counts.items())),

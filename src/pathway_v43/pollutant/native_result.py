@@ -55,6 +55,7 @@ from __future__ import annotations
 import json
 
 from ..domain.models import content_hash, stable_id
+from .chemstate import ChemicalState, ChemicalStateError
 from .profile import PPV1_NATIVE_RESULT_VERSION
 from .search import SearchArtifactIntegrityError, read_search_artifact
 
@@ -87,6 +88,68 @@ def _rows_sorted(rows: list, key_fields: tuple) -> list[dict]:
         out.append(item)
     return sorted(out, key=lambda d: tuple(
         str(d.get(f) or "") for f in key_fields))
+
+
+def _validate_native_state_rows(states: list[dict],
+                                appearances: list[dict]) -> None:
+    """原生构建的状态身份闭合(官方链对持久 states 权威的**首次消费**;
+    criteria-v2 P1 回修,2026-10-14)。
+
+    共用 ChemicalState 事实重算**单一验证源**(ChemicalState.from_dict
+    ⇒ validate_state_object,与恢复入口/audit 直接 states 消费/公共
+    writer store._verify_state_payload_facts 同源,不另立判据):
+    states 行载荷是语义块、state_appearances 行载荷是出现块
+    (store._split_state_payload 拆分的两侧),按 store 同源出现字段
+    清单反向拼回完整 state dict,逐 (语义, 出现) 对过 from_dict 重推
+    state_id/formal_charge/cn_identity/立体/同位素事实与 raw→strict
+    身份。任一对不一致(SQLite 载荷单点腐蚀绕过 writer 的情形在内)
+    ⇒ NativeResultContractError 结构化拒绝,不静默略过、不清洗后
+    继续 —— 已损坏权威 state 不得被官方链重新包装为当前载荷。
+
+    - 零出现记录的 state 同拒(store 无合法路径只写语义块不写出现;
+      无法验证身份即不授信,fail-closed 不猜);
+    - CN-only 态走 validate_state_object 专用未知事实契约(不重推导
+      结构);
+    - 合法数据零行为差:put_state 写前已用同源验证核过每个
+      (语义, 出现) 对;本验证纯只读,不修改聚合载荷(native_result
+      digest 不变)。
+    """
+    from .store import _STATE_APPEARANCE_FIELDS  # 拆分字段同源;延迟防环
+    by_state: dict[str, list[dict]] = {}
+    for app_row in appearances:
+        app_payload = app_row.get("payload")
+        if isinstance(app_payload, dict):
+            by_state.setdefault(str(app_row.get("state_id")), []).append(
+                app_payload)
+    for row in states:
+        sid = str(row.get("state_id"))
+        semantic = row.get("payload")
+        apps = by_state.get(sid) or []
+        if not isinstance(semantic, dict) or not apps:
+            raise NativeResultContractError(
+                f"原生结果聚合的状态载荷不可验证:{sid}(语义块非对象"
+                "或零出现记录;store 无合法路径只写语义不写出现 —— "
+                "fail-closed 拒绝,不猜不清洗)",
+                {"kind": "native_result_state_unverifiable",
+                 "state_id": sid,
+                 "semantic_is_object": isinstance(semantic, dict),
+                 "appearance_count": len(apps)})
+        for app in apps:
+            joined = dict(semantic)
+            for k in _STATE_APPEARANCE_FIELDS:
+                if k in app:
+                    joined[k] = app[k]
+            try:
+                ChemicalState.from_dict(joined)
+            except ChemicalStateError as exc:
+                raise NativeResultContractError(
+                    f"原生结果聚合的状态身份/事实重算不一致:{sid}"
+                    "(官方链首次消费共源闭合;已损坏权威 state 不得被"
+                    "重新包装为正式结果;底层 kind/detail 原样保全)",
+                    {"kind": "native_result_state_corrupt",
+                     "state_id": sid,
+                     "state_error_kind": exc.detail.get("kind"),
+                     "state_error_detail": exc.detail}) from exc
 
 
 def artifact_reference_index(ledger) -> list[dict]:
@@ -174,6 +237,10 @@ def build_native_result(ledger, *, endpoint_record: dict) -> dict:
             "SELECT state_id, appearance_hash, payload, created_at FROM"
             " state_appearances ORDER BY state_id, appearance_hash"
         ).fetchall(), ("state_id", "appearance_hash"))
+    # ---- 状态身份闭合(官方链首次消费;P1 2026-10-14):语义/出现
+    # 逐对共用 ChemicalState.from_dict 事实重算,坏源 state 在原生
+    # 构建处结构化拒绝(单点腐蚀绕过 writer 不得被重新包装) ----
+    _validate_native_state_rows(states, appearances)
 
     # ---- 假设/事件/投影/计划(完整事实;报告与展开分列) ----
     hypotheses = _rows_sorted(

@@ -683,3 +683,109 @@ def test_scoring_side_carries_criteria_version_default_v1() -> None:
     assert sig.parameters["criteria_version"].default == PPV1_CRITERIA_V1
     assert sig.parameters["criteria_version"].kind == \
         inspect.Parameter.KEYWORD_ONLY
+
+
+# ---------------------------------------------------------------- 批级 tier
+# 单归属计数(P2 回修,criteria-v2 复审 2026-10-14:预注册 §五 批级
+# criteria_v2 块补两 tier 计数;occurrences 双 tier 只在评审点完整
+# 存在,输出仅保留 v1_exempt 披露子集 ⇒ 逐边 criteria_v2_tier_counts
+# 随边带出、批级 tier_counts 汇总闭合)
+
+def test_per_edge_criteria_v2_tier_counts_both_tiers() -> None:
+    """逐边 tier 计数:v1_exempt 边(声明水豁免升 exact)记 v1_exempt=1;
+    not_exempt 边(无中生水 pred2 fail 维持 partial)记
+    not_exempt_maintains_partial=1;v1 缺省零新键。"""
+    graph = _make_graph("CCO", "CC=O")
+    payload_ok = _make_payload(
+        "CCO", "CC=O", extras=(("cs-x", "product", WATER),),
+        declared_equation=_water_declared("CCO", "CC=O"))
+    v2 = _run_match(graph, payload_ok, PPV1_CRITERIA_V2)
+    assert v2[0]["criteria_v2_tier_counts"] == {
+        "not_exempt_maintains_partial": 0, "v1_exempt": 1}
+    assert v2[0]["matched_events"][0]["exempted_participants"][0][
+        "tier"] == CRITERIA_TIER_V1_EXEMPT
+    graph_dn = _make_graph("CC", "CC=O")  # 乙烷底物:O 供给 0
+    payload_dn = _make_payload(
+        "CC", "CC=O", extras=(("cs-x", "product", WATER),),
+        declared_equation={"reactants": [{"smiles": "CC"}],
+                           "products": [{"smiles": "CC=O"},
+                                        {"smiles": WATER}]})
+    v2_dn = _run_match(graph_dn, payload_dn, PPV1_CRITERIA_V2)
+    assert v2_dn[0]["criteria_v2_tier_counts"] == {
+        "not_exempt_maintains_partial": 1, "v1_exempt": 0}
+    assert v2_dn[0]["match_status"] == \
+        "matched_participant_coverage_partial"
+    v1 = _run_match(graph, payload_ok, PPV1_CRITERIA_V1)
+    assert "criteria_v2_tier_counts" not in json.dumps(v1)
+
+
+def test_batch_criteria_v2_tier_counts_real_chain_closure(
+        tmp_path: Path) -> None:
+    """真实链批级闭合:合成 run(CCO→CC=O+[H][H] 共同产物)对不含
+    H₂ 节点的参考图 ⇒ superset 豁免评审 ⇒ H₂ 不在豁免集 ⇒
+    批级 tier_counts = {v1_exempt:0, not_exempt_maintains_partial:1},
+    且批级 == 逐边 criteria_v2_tier_counts 之和(单归属闭合);
+    v1 缺省零新键(criteria_v2 块与逐边键全无)。"""
+    from pathway_v43.config import resolve_config
+    from pathway_v43.pollutant.evaluation import \
+        native_export_reader_from_ledger
+    from pathway_v43.pollutant.search import SearchLedger
+    from pathway_v43.pollutant.store import PollutantPathwayStore
+    from pathway_v43.storage.artifact_store import ArtifactStore
+    from pathway_v43.storage.run_identity import (
+        PROFILE_POLLUTANT_PATHWAY_V1)
+    from pathway_v43.workflow.runner import start_run
+    from test_ppv1_s4a_endpoint import spec
+
+    run_id = "p2tier"
+    plan = {"pools": {"CCO": [
+        spec("B", "CC=O", "donor-B", coproducts=["[H][H]"])]},
+        "schedule_budget": {"max_select": 1}}
+    out = start_run(
+        config=resolve_config(), runs_root=tmp_path / "runs",
+        run_id=run_id, smiles="CCO", max_depth=3, max_expansions=10,
+        max_frontier_width=2, finder=object(), scripted=True,
+        profile=PROFILE_POLLUTANT_PATHWAY_V1, ppv1_plan=plan)
+    runs_root = tmp_path / "runs"
+    digest = out["native_export"]["export_digest"]
+    graph = _make_graph("CCO", "CC=O")
+    store = PollutantPathwayStore(
+        runs_root / run_id / "pollutant.sqlite")
+    ledger = SearchLedger(
+        store, ArtifactStore(runs_root, run_id), run_id)
+    reader = native_export_reader_from_ledger(ledger, runs_root / run_id)
+
+    def _input() -> dict:
+        inp = synth_evaluation_input(
+            domain="298", graphs=[graph],
+            split_manifest=synth_split_manifest(
+                graph_id="rg-crit2", group_ids=["sg-a"]),
+            exports=[{"run_id": run_id, "export_digest": digest}])
+        inp["run_identity"]["run_id"] = run_id
+        return inp
+
+    out2 = evaluate_scientific(
+        _input(), reference_graphs={
+            graph["reference_graph_id"]: graph},
+        native_export_reader=reader, criteria_version=PPV1_CRITERIA_V2)
+    block = out2["criteria_v2"]
+    assert set(block["tier_counts"]) == set(CRITERIA_TIERS)
+    assert block["tier_counts"] == {
+        "not_exempt_maintains_partial": 1, "v1_exempt": 0}
+    # 单归属闭合:批级 == 全部逐边计数之和
+    edge_sum: dict[str, int] = {}
+    for sample in out2["sample_results"]:
+        for entry in sample["predicted_edge_matches"]:
+            for tier, n in entry["criteria_v2_tier_counts"].items():
+                assert tier in CRITERIA_TIERS
+                edge_sum[tier] = edge_sum.get(tier, 0) + n
+    assert edge_sum == block["tier_counts"]
+    # v1 缺省:零新键(块与逐边键全无)
+    out1 = evaluate_scientific(
+        _input(), reference_graphs={
+            graph["reference_graph_id"]: graph},
+        native_export_reader=reader, criteria_version=PPV1_CRITERIA_V1)
+    assert "criteria_v2" not in out1
+    dumped = json.dumps(out1)
+    assert "criteria_v2_tier_counts" not in dumped
+    assert "tier_counts" not in dumped

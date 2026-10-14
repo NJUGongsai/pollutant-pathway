@@ -768,3 +768,90 @@ def test_native_export_v3_projection_conflict_preserves(
     assert excinfo.value.detail["kind"] == "v3_projection_conflict"
     assert path.read_bytes() == b"{}\n"  # 保全(不覆盖)
     path.write_bytes(original)
+
+
+# ------------------------------------------------ 状态身份闭合(P1 回修,
+# criteria-v2 复审 2026-10-14:官方链对持久 states 权威的首次消费)
+
+def test_native_build_rejects_source_corrupted_state_cn(
+        tmp_path: Path) -> None:
+    """P1 负控(与 Codex 探针同构):合法 O₂ state 落账后,SQLite
+    states.payload 的 cn_identity 单点腐蚀(O=O→O;结构/state_id/
+    schema 不动)—— 官方链首次消费(原生构建 build_native_result)
+    共用 ChemicalState.from_dict 事实重算拒绝(kind=
+    native_result_state_corrupt,底层 state_fact_rederivation_mismatch
+    原样保全),不再被重新包装为正式结果;恢复入口 from_dict 同拒
+    (既有行为对照)。合法正控:同链不腐蚀时构建通过且 state 进
+    聚合载荷(digest 可复现)。"""
+    from pathway_v43.pollutant.chemstate import (
+        STRUCTURE_ORIGIN_SOURCE_PRODUCT,
+        ChemicalState,
+        ChemicalStateError,
+        build_chemical_state,
+    )
+    from pathway_v43.pollutant.native_result import NativeResultContractError
+
+    runs_root, out = _full_fixture(tmp_path, "p1fix")
+    ledger = ledger_for(runs_root, "p1fix")
+    endpoint = read_run_endpoint(ledger, ledger.run_id)
+
+    # ---- 合法正控:当前权威构建通过(O₂ 未落账时);digest 可复现 ----
+    native_pos = build_native_result(ledger, endpoint_record=endpoint)
+    native_pos2 = build_native_result(ledger, endpoint_record=endpoint)
+    assert native_pos["content_digest"] == native_pos2["content_digest"]
+
+    # ---- 落合法 O₂ state(出现层齐全)并进聚合载荷 ----
+    state = build_chemical_state(
+        "O=O", STRUCTURE_ORIGIN_SOURCE_PRODUCT).to_dict()
+    ledger.store.put_state(state)
+    native_with = build_native_result(ledger, endpoint_record=endpoint)
+    assert any(row["state_id"] == state["state_id"]
+               for row in native_with["states"])
+
+    # ---- 恢复入口对照:from_dict 对腐蚀载荷同源拒绝(既有行为) ----
+    with pytest.raises(ChemicalStateError) as exc_fd:
+        ChemicalState.from_dict(dict(state, cn_identity="O"))
+    assert exc_fd.value.detail["kind"] == \
+        "state_fact_rederivation_mismatch"
+
+    # ---- 单点腐蚀:只改 SQLite 语义块 cn_identity(O=O→O) ----
+    row = ledger.conn.execute(
+        "SELECT payload FROM states WHERE state_id = ?",
+        (state["state_id"],)).fetchone()
+    semantic = json.loads(row["payload"])
+    assert semantic["cn_identity"] == "O=O"
+    semantic["cn_identity"] = "O"
+    ledger.conn.execute(
+        "UPDATE states SET payload = ? WHERE state_id = ?",
+        (json.dumps(semantic, sort_keys=True), state["state_id"]))
+    ledger.conn.commit()
+
+    # ---- 官方链首次消费(原生构建)拒绝;底层结构化 detail 保全 ----
+    with pytest.raises(NativeResultContractError) as exc:
+        build_native_result(ledger, endpoint_record=endpoint)
+    assert exc.value.detail["kind"] == "native_result_state_corrupt"
+    assert exc.value.detail["state_id"] == state["state_id"]
+    assert exc.value.detail["state_error_kind"] == \
+        "state_fact_rederivation_mismatch"
+    assert exc.value.detail["state_error_detail"]["mismatches"][
+        "cn_identity"]["provided"] == "O"
+
+
+def test_native_build_rejects_state_without_appearances(
+        tmp_path: Path) -> None:
+    """P1 边界:store 无合法路径只写语义块不写出现;直接 SQL 注入的
+    零出现 state 在首次消费 fail-closed 拒绝(不可验证即不授信)。"""
+    from pathway_v43.pollutant.native_result import NativeResultContractError
+
+    runs_root, out = _full_fixture(tmp_path, "p1noapp")
+    ledger = ledger_for(runs_root, "p1noapp")
+    endpoint = read_run_endpoint(ledger, ledger.run_id)
+    ledger.conn.execute(
+        "INSERT INTO states (state_id, payload, created_at)"
+        " VALUES (?, ?, ?)",
+        ("cs-ghost", json.dumps({"state_id": "cs-ghost"}), "2026-01-01"))
+    ledger.conn.commit()
+    with pytest.raises(NativeResultContractError) as exc:
+        build_native_result(ledger, endpoint_record=endpoint)
+    assert exc.value.detail["kind"] == "native_result_state_unverifiable"
+    assert exc.value.detail["state_id"] == "cs-ghost"
