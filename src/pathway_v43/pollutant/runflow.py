@@ -876,7 +876,9 @@ class _Driver:
         model_note: dict = {}
         if self.plan.get("model"):
             try:
-                model_note = self._model_proposals(receipt, prepared_entries)
+                model_note = self._model_proposals(
+                    receipt, prepared_entries,
+                    substrate_profile=substrate_profile)
             except SearchBudgetExhausted as exc:
                 # 真实 provider 额度 0(默认):登记被拒 ⇒ 网络发送被
                 # 阻止;decide 记方法失败,搜索按预算原因停止 ——
@@ -1137,7 +1139,8 @@ class _Driver:
             step_edge_ref=hypothesis_id)
 
     def _model_proposals(self, receipt: dict,
-                         prepared_entries: list) -> dict:
+                         prepared_entries: list, *,
+                         substrate_profile=None) -> dict:
         """scripted 模型 proposals[] 协议(网络 0;真实 provider 默认
         off —— 登记被预算拒绝,网络发送被阻止)。novel 池外提案
         (S3B-05)须携带 reaction_spec 完整反应内容,由调用方构造独立
@@ -1148,7 +1151,8 @@ class _Driver:
         provider(登记→sent→complete→responded/failed→同一确定性解析
         器);格式反馈轮的重试响应同样经真实 fetch(反馈请求已由
         register_format_feedback_round 登记并占额)。其余路径(含
-        scripted/无 model)行为不变。"""
+        scripted/无 model)行为不变。substrate_profile 穿参给
+        _call_real_fetch(候选证据卡底物级在线档案值)。"""
         action_id = receipt["action_id"]
         attempt_id = (receipt.get("attempt_refs") or [""])[0]
         allowed = {prepared["hypothesis"].hypothesis_id
@@ -1156,7 +1160,8 @@ class _Driver:
         real_fetch = self._real_fetch_entry()
         if real_fetch is not None:
             fetched = self._call_real_fetch(
-                real_fetch, receipt, prepared_entries)
+                real_fetch, receipt, prepared_entries,
+                substrate_profile=substrate_profile)
             response = fetched["response_text"]
             request = fetched["request"]
         else:
@@ -1210,7 +1215,8 @@ class _Driver:
                         feedback_request=feedback,
                         feedback_error={
                             "kind": kind,
-                            "response_excerpt": str(response)})
+                            "response_excerpt": str(response)},
+                        substrate_profile=substrate_profile)
                     retry = retry_fetched["response_text"]
                 else:
                     retry = self._next_model_response()
@@ -1262,11 +1268,22 @@ class _Driver:
 
     def _call_real_fetch(self, fetch, receipt: dict, prepared_entries,
                          *, feedback_request: dict | None = None,
-                         feedback_error: dict | None = None) -> dict:
+                         feedback_error: dict | None = None,
+                         substrate_profile=None) -> dict:
         """真实取响应一步(登记→sent→complete→记账;错误包装为
-        PPV1RunError 结构化失败,失败题留分母,不吞)。"""
+        PPV1RunError 结构化失败,失败题留分母,不吞)。
+
+        候选证据卡(Plan v1 §2.1;设计书 EVIDENCE_CARD_DESIGN_NOTE_
+        2026-10-15):池条目携带 ``evidence`` 子对象 + 载荷顶层
+        ``substrate_evidence``——candidate_evidence 纯函数,只读
+        spec/prepared/底物 RDKit 计算,池/检索/判分零触碰;decide 与
+        格式反馈轮共用本入口(证据一致)。"""
         payload = receipt.get("payload") or {}
         substrate_smiles = str(payload.get("substrate_smiles") or "")
+        from .candidate_evidence import (
+            candidate_evidence_payload,
+            substrate_evidence_payload,
+        )
         from .real_model import execution_graph_payload, \
             substrate_atom_id_map
         pool_entries = [
@@ -1275,7 +1292,9 @@ class _Driver:
              "transformation_ref": str(spec.get("transformation_ref")
                                        or ""),
              "coproducts": [str(c) for c in (spec.get("coproducts")
-                                             or [])]}
+                                             or [])],
+             "evidence": candidate_evidence_payload(
+                 spec=spec, prepared=prepared)}
             for _key, spec, prepared in prepared_entries]
         prompt_payload = {
             "substrate_smiles": substrate_smiles,
@@ -1284,6 +1303,9 @@ class _Driver:
             # W5:同一执行图载荷(与 W1 编译器/execute_edits 同一事实源;
             # 模型不自猜 RDKit 解析/Kekulé)
             "execution_graph": execution_graph_payload(substrate_smiles),
+            # 候选证据卡底物级(官能团/参考描述符/在线档案值;纯函数)
+            "substrate_evidence": substrate_evidence_payload(
+                substrate_smiles, substrate_profile=substrate_profile),
         }
         try:
             return fetch(

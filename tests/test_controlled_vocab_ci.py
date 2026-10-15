@@ -56,6 +56,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -152,22 +153,34 @@ def _assert_prompt_vocab_sync(prompt: str) -> None:
 
 # ---------------------------------------------------------------- T1 哈希
 
-# 基线 8da11cb7(手写提示词版)的 sha256 —— 单一来源拼接改造后渲染
-# 字节必须逐字节不变(设计红线:PROPOSALS_PROMPT_VERSION 是内容哈希,
-# 升版 = 批身份变化;本改造不升版)。此后任何词表演进改变拼接结果 ⇒
-# 本断言红 ⇒ 显式决定升版,不静默漂移。
-BASELINE_PROMPT_SHA256_8DA11CB7 = (
+# 基线 sha256 —— PROPOSALS_PROMPT_VERSION 是内容哈希,升版 = 批身份
+# 变化。历史锚点:e28b5342b003...(8da11cb7 手写版基线,4360 字节)。
+# 候选证据卡轮(2026-10-15,Plan v1 §2.1;no-cap 轮先例):提示词新增
+# "Candidate evidence notes" 规则段(证据字段语义/unknown 处理/描述符
+# 纪律),显式升版为新基线 13698065db70...(5380 字节);词表声明段
+# (生成位)未触碰。本断言钉新基线防静默漂移;旧→新变化由
+# test_t1_prompt_version_moved_from_legacy_baseline 另行钉住。
+BASELINE_PROMPT_SHA256_EVIDENCE_CARD_1 = (
+    "13698065db70a6dc6fd7f2b56929b0e7c91279f8efb9e17f6fd6884ee63558ea")
+BASELINE_PROMPT_BYTES = 5380
+LEGACY_BASELINE_PROMPT_SHA256_8DA11CB7 = (
     "e28b5342b0036a6af0893ca310045bed9d0e9d8bfc85f3d21c880e9a7917b962")
-BASELINE_PROMPT_BYTES = 4360
 
 
 def test_t1_prompt_hash_stable_to_baseline() -> None:
-    """单一来源拼接改造不升版:提示词字节与基线 8da11cb7 一致。"""
-    assert PROPOSALS_PROMPT_VERSION == BASELINE_PROMPT_SHA256_8DA11CB7, (
-        "提示词内容哈希漂移:单一来源拼接的渲染字节与基线 8da11cb7 "
-        "不一致 —— 若为有意的词表演进,须显式升 PROPOSALS_PROMPT_"
-        "VERSION 并重跑批身份影响评估,不得静默漂移")
+    """提示词字节与候选证据卡轮新基线一致(防静默漂移)。"""
+    assert PROPOSALS_PROMPT_VERSION == BASELINE_PROMPT_SHA256_EVIDENCE_CARD_1, (
+        "提示词内容哈希漂移:渲染字节与候选证据卡轮基线 "
+        "13698065db70 不一致 —— 若为有意的词表演进,须显式升 "
+        "PROPOSALS_PROMPT_VERSION 并重跑批身份影响评估,不得静默漂移")
     assert len(PROMPT.encode("utf-8")) == BASELINE_PROMPT_BYTES
+
+
+def test_t1_prompt_version_moved_from_legacy_baseline() -> None:
+    """证据卡轮显式升版断言:新哈希 != 8da11cb7 旧基线(批身份变化)。"""
+    assert PROPOSALS_PROMPT_VERSION != LEGACY_BASELINE_PROMPT_SHA256_8DA11CB7
+    assert PROPOSALS_PROMPT_VERSION == hashlib.sha256(
+        PROMPT.encode("utf-8")).hexdigest()
 
 
 # ------------------------------------------------- T2-T8 提示词双向同步
@@ -347,6 +360,10 @@ REGISTERED_LITERAL_SINKS: frozenset[tuple[str, str]] = frozenset({
     ("atom_tool.py", "change_bond_order"), ("atom_tool.py", "double"),
     ("atom_tool.py", "form_bond"), ("atom_tool.py", "remove_bond"),
     ("atom_tool.py", "single"), ("atom_tool.py", "triple"),
+    # 候选证据卡(candidate-evidence-1→-2 P1 修复轮升版,2026-10-15):
+    # 缺失事实的字面 unknown 占位(设计书 §二缺失语义;禁止空串/null
+    # 冒充;升版理由见交付书 P1 修复轮节)
+    ("candidate_evidence.py", "unknown"),
     # audit.py(对齐状态校验 + 编辑词消费)
     ("audit.py", "add_atom"), ("audit.py", "ambiguous"),
     ("audit.py", "break_bond"), ("audit.py", "change_bond_order"),

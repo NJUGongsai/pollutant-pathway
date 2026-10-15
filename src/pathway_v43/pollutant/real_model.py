@@ -50,6 +50,7 @@ from ..adapters.llm_client import (
     real_provider_env,
 )
 from ..domain.models import now_iso, stable_id
+from .candidate_evidence import CANDIDATE_EVIDENCE_SCHEMA_VERSION
 from .controlled_vocab import (
     ALIGNMENT_STATUS_RESOLVED,
     BOND_ORDER_ALTERNATION,
@@ -153,6 +154,14 @@ Rules:
 - abstention is legal and honest: {"proposals": [], "rank_hypotheses": []}.
 - one JSON object only; no extra keys that are not in the contract above.
 
+Candidate evidence notes (deterministic system-computed context):
+- each pool entry may carry an "evidence" object (edit summary, participant roles, alignment quality, compile diagnostics, source reference), and the payload may carry a "substrate_evidence" object (functional-group hits, element counts, molecular formula, computed descriptors such as partial charges) plus a "candidate_evidence_schema_version" field.
+- these fields are informational context computed by the system; they do not change the output contract above.
+- a value of the placeholder token unknown means the fact is not available in this system: treat it as not available and never guess or invent a value for it (this applies in particular to anything the rules above already forbid inventing).
+- functional-group hits and computed descriptors (for example partial charges) are reference context only: they are not assigned reaction sites and are not proof by themselves; the provided execution graph remains the only editable structure fact.
+"""
+
+_PROMPT_STATIC_5 = """
 Example (ethanol CCO, atom ids S_C_1 S_C_2 S_O_1, bonds S_C_1~S_C_2 single, S_C_2~S_O_1 single):
 {"proposals": [{"hypothesis_id": "novel-1", "proposal_context": {"reference_hypothesis_ids": [], "output_origin": "novel_outside_pool"}, "reaction_spec": {"product_smiles": "CC=O", "edits": [{"op": "change_bond_order", "atom1": "S_C_2", "atom2": "S_O_1", "from_order": "single", "to_order": "double"}], "donor": {"center_atom_ids": ["S_C_2", "S_O_1"]}, "alignment": {"status": "resolved", "donor_to_current": {"S_C_2": "S_C_2", "S_O_1": "S_O_1"}, "ref": "self-declared-alcohol-oxidation"}, "expectation": {"target_smiles": "CC=O"}}}], "rank_hypotheses": ["novel-1"]}
 """
@@ -182,6 +191,7 @@ _PROPOSALS_SYSTEM_PROMPT = (
     + _PROMPT_STATIC_3
     + _PROMPT_SEGMENT_ALIGNMENT_STATUS
     + _PROMPT_STATIC_4
+    + _PROMPT_STATIC_5
 )
 
 PROPOSALS_PROMPT_VERSION = hashlib.sha256(
@@ -192,7 +202,7 @@ def build_proposals_user_payload(
         *, substrate_smiles: str, atom_id_map: dict[str, str],
         pool_entries: list[dict], feedback_error: dict | None = None,
         execution_graph: dict | None = None,
-) -> str:
+        substrate_evidence: dict | None = None) -> str:
     """组 proposals 请求的用户载荷(JSON 文本;确定性,零金标)。
 
     - substrate_smiles:题面底物;
@@ -203,6 +213,12 @@ def build_proposals_user_payload(
       事实源)产生;模型不自猜 RDKit 解析/Kekulé;
     - pool_entries:[{hypothesis_id, product_smiles, transformation_ref,
       coproducts}]——冻结池候选(检索来源,不含金标);
+    - **evidence(候选证据卡,Plan v1 §2.1)**:池条目可携带 ``evidence``
+      子对象(candidate_evidence.candidate_evidence_payload 产物,在线
+      事实;缺席 ⇒ 该条目不渲染 evidence 键,载荷与既有路径逐字节同);
+    - **substrate_evidence(底物档案卡)**:candidate_evidence.
+      substrate_evidence_payload 产物(在位 ⇒ 载荷另携带
+      ``candidate_evidence_schema_version``;缺席 ⇒ 两键都不渲染);
     - feedback_error:格式反馈轮携带上一轮错误类别与摘录(有界修复)。
     """
     payload = {
@@ -210,15 +226,23 @@ def build_proposals_user_payload(
         "substrate_atom_id_map": {
             str(k): str(v) for k, v in sorted(atom_id_map.items())},
         "pool_hypotheses": [
-            {"hypothesis_id": str(e.get("hypothesis_id")),
-             "product_smiles": str(e.get("product_smiles")),
-             "transformation_ref": str(e.get("transformation_ref")),
-             "coproducts": [str(c) for c in (e.get("coproducts") or [])]}
+            dict(
+                {"hypothesis_id": str(e.get("hypothesis_id")),
+                 "product_smiles": str(e.get("product_smiles")),
+                 "transformation_ref": str(e.get("transformation_ref")),
+                 "coproducts": [str(c) for c in
+                                (e.get("coproducts") or [])]},
+                **({"evidence": dict(e["evidence"])}
+                   if isinstance(e.get("evidence"), dict) else {}))
             for e in (pool_entries or [])],
         "protocol_version": S5B_REAL_MODEL_VERSION,
     }
     if execution_graph:
         payload["execution_graph"] = dict(execution_graph)
+    if isinstance(substrate_evidence, dict) and substrate_evidence:
+        payload["substrate_evidence"] = dict(substrate_evidence)
+        payload["candidate_evidence_schema_version"] = \
+            CANDIDATE_EVIDENCE_SCHEMA_VERSION
     if feedback_error:
         payload["format_feedback"] = {
             "error_kind": str(feedback_error.get("kind") or ""),
@@ -704,7 +728,10 @@ class RealModelAdapter:
                     prompt_payload.get("pool_entries") or []),
                 feedback_error=feedback_error,
                 execution_graph=dict(
-                    prompt_payload.get("execution_graph") or {}) or None),
+                    prompt_payload.get("execution_graph") or {}) or None,
+                substrate_evidence=dict(
+                    prompt_payload.get("substrate_evidence") or {})
+                or None),
             idempotency_key=stable_id(
                 "s5b", run_id, action_id, request_key),
         )
