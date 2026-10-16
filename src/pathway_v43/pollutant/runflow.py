@@ -126,6 +126,7 @@ from .hypothesis import HypothesisContractError
 from .model_protocol import (
     FEEDBACK_ELIGIBLE,
     ModelProtocolError,
+    latest_format_feedback_round,
     parse_model_proposals,
     register_format_feedback_round,
 )
@@ -521,7 +522,7 @@ class _Driver:
 
     def __init__(self, ledger: SearchLedger, plan: dict, run_id: str,
                  worker_id: str, crash_after: str | None = None,
-                 model=None) -> None:
+                 model=None, evidence_card_enabled: bool = True) -> None:
         self.ledger = ledger
         self.store = ledger.store
         self.plan = plan or {}
@@ -532,6 +533,9 @@ class _Driver:
         # real=RealModelAdapter —— 只在 provider_kind=real 且对象实现
         # ppv1_real_fetch 时改"取响应"一步,其余行为逐字节不变)
         self.model = model
+        # chain14:批级证据卡开关(A/B 唯一差分变量;消费点 =
+        # _call_real_fetch,false ⇒ 载荷回到证据卡实施前四字段形状)
+        self.evidence_card_enabled = bool(evidence_card_enabled)
         self.refusals: list[dict] = []
         self.run_error: dict | None = None
         self.empty_pool_retrievals = 0
@@ -1189,25 +1193,59 @@ class _Driver:
             if kind in FEEDBACK_ELIGIBLE:
                 # 有界格式反馈(默认 0 轮 ⇒ 反馈被预算拒 ⇒ 结构失败
                 # 保持;每轮持久记录输入/错误类别/反馈版本/次数)
-                try:
-                    feedback = register_format_feedback_round(
+                # chain14 P1-1(2026-10-16 Codex 代审回修):反馈轮沿
+                # **实际 provider_kind** 登记(与 decide 登记同源
+                # self.model_provider_kind)—— 旧实现硬编码 SCRIPTED 而
+                # 反馈响应随后走 real fetch ⇒ real 批反馈首发不占每题
+                # 额度,组合路径(首发失败→重试→反馈首发→反馈重试)
+                # 实发 4 次只预约 3 次,每题预算被旁路。沿实际 kind
+                # 登记 ⇒ 全部真实发送共用每题预算,第 4 次发送前被
+                # register_model_request 即时占额拦截(拒绝优先于 HTTP)。
+                # chain14 P1-2 余项(2026-10-16 复核 §⑤.1):真实取响应
+                # 路径先查并**复用同一错误来源既有反馈轮**(原请求键/
+                # 原轮次;resume 重入的崩溃窗口里其完整响应已落盘未
+                # 消费)—— 行状态机在 ppv1_real_fetch:responded+完整
+                # blob ⇒ R3 零调用重放;failed ⇒ 唯一重试终态链核验后
+                # 零调用消费;坏 blob/错身份 ⇒ 维持拒绝。不得先分配新
+                # 轮、不为恢复另发付费请求、不重算新键掩盖坏记录;
+                # 无既有轮才走新轮登记(轮数/每题预算判据不变,预算
+                # 第 4 次发送前拒保持;purpose 被篡改的坏行由查找面
+                # 结构化拒,不以新轮登记绕过)。
+                # chain14 P1-2 收口轮(2026-10-16 第四轮,findings §三):
+                # 复用之前统一核验原登记身份/内容/执行引用(所有状态
+                # 分支共用一套判据,核验门在 latest_format_feedback_
+                # round 内)—— 计数>0 却查不到应有原行 ⇒ 结构化拒
+                # (不返回 None 走新登记另发);payload_hash 按同源确定
+                # 性重算核验(载荷无时间戳,不以重新生成内容身份洗掉
+                # 坏记录)。
+                if real_fetch is not None:
+                    feedback = latest_format_feedback_round(
                         self.ledger, run_id=self.run_id,
                         action_id=action_id, attempt_id=attempt_id,
-                        error=exc, response_excerpt=str(response),
-                        provider_kind=PROVIDER_KIND_SCRIPTED)
-                except SearchBudgetExhausted as feedback_exhausted:
-                    # 反馈轮超上限(或策略 0):结构失败保持,不以反馈
-                    # 重试到通过 —— 升级为结构失败(不是真实请求预算
-                    # 的资源拒绝路径)
-                    note["format_feedback_exhausted"] = {
-                        "kind": feedback_exhausted.detail.get("kind")}
-                    raise PPV1RunError(
-                        "模型响应结构失败(格式反馈耗尽或策略 0 轮;"
-                        "结构失败保持,不以反馈改分子再试到通过)",
-                        {"kind": "model_structure_failure",
-                         "error_kind": kind,
-                         "feedback_kind":
-                             feedback_exhausted.detail.get("kind")})                         from feedback_exhausted
+                        provider_kind=self.model_provider_kind,
+                        error=exc, response_excerpt=str(response))
+                else:
+                    feedback = None
+                if feedback is None:
+                    try:
+                        feedback = register_format_feedback_round(
+                            self.ledger, run_id=self.run_id,
+                            action_id=action_id, attempt_id=attempt_id,
+                            error=exc, response_excerpt=str(response),
+                            provider_kind=self.model_provider_kind)
+                    except SearchBudgetExhausted as feedback_exhausted:
+                        # 反馈轮超上限(或策略 0):结构失败保持,不以反馈
+                        # 重试到通过 —— 升级为结构失败(不是真实请求预算
+                        # 的资源拒绝路径)
+                        note["format_feedback_exhausted"] = {
+                            "kind": feedback_exhausted.detail.get("kind")}
+                        raise PPV1RunError(
+                            "模型响应结构失败(格式反馈耗尽或策略 0 轮;"
+                            "结构失败保持,不以反馈改分子再试到通过)",
+                            {"kind": "model_structure_failure",
+                             "error_kind": kind,
+                             "feedback_kind":
+                                 feedback_exhausted.detail.get("kind")})                         from feedback_exhausted
                 note["format_feedback_round"] = feedback["request_id"]
                 if real_fetch is not None:
                     retry_fetched = self._call_real_fetch(
@@ -1277,7 +1315,14 @@ class _Driver:
         2026-10-15):池条目携带 ``evidence`` 子对象 + 载荷顶层
         ``substrate_evidence``——candidate_evidence 纯函数,只读
         spec/prepared/底物 RDKit 计算,池/检索/判分零触碰;decide 与
-        格式反馈轮共用本入口(证据一致)。"""
+        格式反馈轮共用本入口(证据一致)。
+
+        chain14 批级开关(A/B 唯一差分变量;预注册 CHAIN14_EVIDENCE_
+        AB_PREREG_2026-10-15):``evidence_card_enabled=false``(A 臂
+        对照)⇒ 池条目不带 ``evidence`` 子对象、不传 ``substrate_
+        evidence`` ⇒ 载荷 = 证据卡实施前四字段形状(逐字节兼容;系统
+        提示词两臂同版,PROPOSALS_PROMPT_VERSION 不变);true(B 臂)
+        ⇒ 现行 candidate-evidence-2 行为。"""
         payload = receipt.get("payload") or {}
         substrate_smiles = str(payload.get("substrate_smiles") or "")
         from .candidate_evidence import (
@@ -1293,8 +1338,9 @@ class _Driver:
                                        or ""),
              "coproducts": [str(c) for c in (spec.get("coproducts")
                                              or [])],
-             "evidence": candidate_evidence_payload(
+             **({"evidence": candidate_evidence_payload(
                  spec=spec, prepared=prepared)}
+                if self.evidence_card_enabled else {})}
             for _key, spec, prepared in prepared_entries]
         prompt_payload = {
             "substrate_smiles": substrate_smiles,
@@ -1303,10 +1349,13 @@ class _Driver:
             # W5:同一执行图载荷(与 W1 编译器/execute_edits 同一事实源;
             # 模型不自猜 RDKit 解析/Kekulé)
             "execution_graph": execution_graph_payload(substrate_smiles),
-            # 候选证据卡底物级(官能团/参考描述符/在线档案值;纯函数)
-            "substrate_evidence": substrate_evidence_payload(
-                substrate_smiles, substrate_profile=substrate_profile),
         }
+        if self.evidence_card_enabled:
+            # 候选证据卡底物级(官能团/参考描述符/在线档案值;纯函数;
+            # 开关 off ⇒ 键不渲染,载荷与实施前逐字节同)
+            prompt_payload["substrate_evidence"] = \
+                substrate_evidence_payload(
+                    substrate_smiles, substrate_profile=substrate_profile)
         try:
             return fetch(
                 ledger=self.ledger, run_id=self.run_id,
@@ -1665,16 +1714,37 @@ def _v3_projection_summary(v3_out: dict, v3_payload: dict) -> dict:
     }
 
 
-def _strategy_block(limits: dict) -> dict:
+def _strategy_block(limits: dict, *,
+                    evidence_card_enabled: bool = True) -> dict:
     """PPV1 策略块(身份记录用;搜索预算事实源是 search_limits ——
-    **不从 model 派生任何真实请求预算**)。"""
+    **不从 model 派生任何真实请求预算**)。
+
+    chain14(2026-10-15):批级证据卡开关入策略块 = run 身份记录;
+    resume 侧以保存身份同判据核对(见 resume_ppv1_run 的
+    evidence_card_flag_mismatch 门)。"""
     return {
         "max_depth": int(limits["max_search_depth"]),
         "max_expansions": int(limits["max_total_search_actions"]),
         "max_frontier_width": int(limits["max_product_expansion_width"]),
         "max_llm_calls": 0,
         "max_proposals": 0,
+        "evidence_card_enabled": bool(evidence_card_enabled),
     }
+
+
+def _resolve_evidence_card_flag(value) -> bool:
+    """chain14 证据卡开关归一(None ⇒ True = 现行行为;非 bool ⇒
+    结构化拒,不猜)。批级冻结值由 worker 侧 load_evidence_card_flag
+    装载后显式传入;直连调用方缺省沿证据卡实施后行为(on)。"""
+    if value is None:
+        return True
+    if not isinstance(value, bool):
+        raise PPV1RunError(
+            f"证据卡开关非法值:{value!r}(须 true/false;A/B 唯一差分"
+            "变量非法值 fail-closed 拒,不猜)",
+            {"kind": "evidence_card_flag_invalid",
+             "value": repr(value)})
+    return bool(value)
 
 
 def _prediction_block(model) -> dict:
@@ -1695,6 +1765,7 @@ def start_ppv1_run(
     plan: dict | None = None,
     model=None,
     profile_policy: dict | None = None,
+    evidence_card_enabled: bool | None = None,
     scripted: bool = False,
     crash_after: str | None = None,
 ) -> dict:
@@ -1731,9 +1802,14 @@ def start_ppv1_run(
         limits = policy_block["search_limits"]
         asset_identity = (scripted_asset_identity() if scripted
                           else retrieval_asset_identity(config))
+        # chain14:证据卡开关归一(非 bool 拒;None = 现行行为 on)并
+        # 入策略身份块(resume 侧同判据核对)
+        evidence_flag = _resolve_evidence_card_flag(evidence_card_enabled)
         identity = build_run_identity(
             run_id=run_id, root_smiles=smiles, root_cn=_cn_of(smiles),
-            strategy=_strategy_block(limits), asset_identity=asset_identity,
+            strategy=_strategy_block(
+                limits, evidence_card_enabled=evidence_flag),
+            asset_identity=asset_identity,
             v3_code_identity=v3_code_identity(config.v3_code_root),
             prediction=_prediction_block(model),
             profile=PROFILE_POLLUTANT_PATHWAY_V1,
@@ -1755,7 +1831,8 @@ def start_ppv1_run(
         # ---- S3B-01:计划持久化为冻结输入来源(此后驱动只消费冻结) ----
         _persist_frozen_plan(artifacts, plan or {})
         driver = _Driver(ledger, plan or {}, run_id, _worker_id(run_id),
-                         crash_after=crash_after, model=model)
+                         crash_after=crash_after, model=model,
+                         evidence_card_enabled=evidence_flag)
         root_path = driver.root_path_id
         task_key = decision_task_key(
             run_id=run_id, parent_path_id=root_path,
@@ -1781,6 +1858,7 @@ def start_ppv1_run(
         endpoint_out = _derive_endpoint_and_native_result(
             ledger, report, driver)
         summary = _summary(store, run_id, report, resumed=False)
+        summary["evidence_card_enabled"] = evidence_flag
         summary["driver_session"] = dict(session.info)
         summary["endpoint"] = endpoint_summary_fields(endpoint_out["record"])
         summary["endpoint_record_payload_hash"] = endpoint_out["record"][
@@ -1798,6 +1876,7 @@ def resume_ppv1_run(
     run_id: str,
     plan: dict | None = None,
     model=None,
+    evidence_card_enabled: bool | None = None,
     crash_after: str | None = None,
 ) -> dict:
     """PPV1 独立 resume(身份核对 → 执行会话互斥 → 冻结输入核对 →
@@ -1865,6 +1944,21 @@ def resume_ppv1_run(
         profile=PROFILE_POLLUTANT_PATHWAY_V1,
         profile_policy=profile_kwargs or None)
     check_resume_identity(saved, current)
+    # ---- chain14:证据卡开关与 run 启动时同判据核对(A/B 唯一差分
+    # 变量;同 run 两段载荷口径必须一致 —— 差异须显式新 run/新批)。
+    # 前代身份无该键 ⇒ 按现行行为(on)兼容读取。 ----
+    evidence_flag = _resolve_evidence_card_flag(evidence_card_enabled)
+    saved_flag = (saved.get("strategy") or {}).get(
+        "evidence_card_enabled")
+    if saved_flag is None:
+        saved_flag = True
+    if saved_flag != evidence_flag:
+        raise PPV1RunError(
+            "resume 的证据卡开关与 run 启动时不一致(A/B 唯一差分变量"
+            "不得中途换臂;差异须显式新 run/新批登记)",
+            {"kind": "evidence_card_flag_mismatch",
+             "run_id": run_id, "saved": saved_flag,
+             "current": evidence_flag})
     run_dir = runs_root / run_id
     with _DriverSession(run_dir) as session:
         store = PollutantPathwayStore(run_dir / "pollutant.sqlite")
@@ -1905,7 +1999,8 @@ def resume_ppv1_run(
                      "证据保全;合法独立任务继续")
             isolated.append({**failure, "isolation": out})
         driver = _Driver(ledger, frozen_plan, run_id, _worker_id(run_id),
-                         crash_after=crash_after, model=model)
+                         crash_after=crash_after, model=model,
+                         evidence_card_enabled=evidence_flag)
         report = driver.drive()
         # ---- S4a:endpoint 四分账派生(恢复后按当前事实重派生;重复
         # resume 同事实 ⇒ 同 payload_hash 幂等,不重复写 event/
@@ -1913,6 +2008,7 @@ def resume_ppv1_run(
         endpoint_out = _derive_endpoint_and_native_result(
             ledger, report, driver)
         summary = _summary(store, run_id, report, resumed=True)
+        summary["evidence_card_enabled"] = evidence_flag
         summary["recovery"] = {
             "actions": recovery.get("actions"),
             "pending_requests": recovery.get("pending_requests"),

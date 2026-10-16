@@ -29,6 +29,7 @@ reaction_spec ⇒ json_field 格式错误(可进有界反馈;无足够内容不�
 | 1 | parse_model_proposals | 模型响应文本(脚本/恢复) | JSON 解析(失败 ⇒ 结构失败,非格式反馈);proposals[] 形状契约(dict/list/字段);允许 ID 集(池内假设引用须 ∈ 冻结池);novel 必须带 proposal_context(reference_hypothesis_ids/output_origin 明示,不伪造来源)**与 reaction_spec(完整反应内容;缺 ⇒ json_field 错误)**;空列表/弃权合法;rank 引稳定 ID 且须在提案集内;解析结果只是提案,不是 recorded 状态 |
 | 2 | classify_format_error | 解析失败的错误分类 | 仅 json_field/json_type/allowed_id/syntax 四类可进格式反馈;not_json ⇒ structure_unparseable(记结构失败,零反馈轮) |
 | 3 | register_format_feedback_round | 反馈轮计数(持久事实源)+ 错误载荷 | model_requests 行(purpose=format_feedback;scripted/fake 网络 0;real 走 register_model_request 即时占额 —— 传入模型对象不自动补预算);轮数 = 同 action 的既有 format_feedback 请求数,超 max_format_feedback_rounds ⇒ 结构化拒(结构失败保持,不以反馈重试到通过);每轮持久记录输入/错误类别/反馈版本/次数 |
+| 4 | latest_format_feedback_round(P1-2 余项,2026-10-16;收口轮同日) | resume 重入反馈分支的既有轮查找(先复用后新登记) | **复用前统一身份核验门(所有状态分支共用一套判据)**:最新轮 = 第 rounds_used 轮,request_id 由原登记键确定性重算(同键复算,不是换键);**计数>0 却查不到应有原行 ⇒ 结构化拒(不返回 None 走新登记,不以新键洗坏记录)**;查到行后逐列核 purpose/run_id/action_id/attempt_id/provider_kind/retry_of 与原登记及本调用一致,**payload_hash 按同源确定性重算核验(登记载荷无时间戳,时间由 model_requests.created_at 承载)**;任一不符 ⇒ feedback_round_identity_corrupt 结构化拒(坏记录保全,不分配新轮掩盖);行状态机消费(responded⇒R3 重放/failed⇒唯一重试终态链/registered⇒补首发)在 ppv1_real_fetch(消费已核验行) |
 
 计数语义(与 S3a 十上限的关系,任务书 §5.3):格式反馈轮数是**同任务
 JSON 修复轮数**,不是 hypothesis 语义 attempt —— 不占/不改写
@@ -42,7 +43,7 @@ from __future__ import annotations
 
 import json
 
-from ..domain.models import now_iso
+from ..domain.models import content_hash, stable_id
 from .profile import (
     FORMAT_FEEDBACK_POLICY_VERSION,
     validate_frozen_format_feedback_policy,
@@ -261,11 +262,137 @@ def feedback_policy_from_ledger(ledger: SearchLedger,
 def format_feedback_rounds_used(ledger: SearchLedger,
                                 action_id: str) -> int:
     """同 action 已发生的格式反馈轮数(持久事实源 = model_requests
-    行;不是内存计数,内存重置仍从记录复算)。"""
+    行;不是内存计数,内存重置仍从记录复算)。
+
+    chain14 transport 重试(2026-10-15):``retry_of != ''`` 的行是既有
+    轮的传输重试(同轮的第二次 HTTP 逻辑尝试),不是新的一轮 —— 计数
+    排除,反馈轮预算语义不变(传输重试不越 max_format_feedback_
+    rounds)。"""
     row = ledger.conn.execute(
         "SELECT COUNT(*) FROM model_requests WHERE action_id = ? AND"
-        " purpose = ?", (action_id, PURPOSE_FORMAT_FEEDBACK)).fetchone()
+        " purpose = ? AND retry_of = ''",
+        (action_id, PURPOSE_FORMAT_FEEDBACK)).fetchone()
     return int(row[0])
+
+
+def latest_format_feedback_round(
+    ledger: SearchLedger,
+    *,
+    run_id: str,
+    action_id: str,
+    attempt_id: str,
+    provider_kind: str,
+    error: ModelProtocolError,
+    response_excerpt: str,
+) -> dict | None:
+    """同 action 最新一轮格式反馈的登记行(无轮 ⇒ None;复用前统一
+    身份核验,任一不符 ⇒ 结构化拒)。
+
+    chain14 P1-2 余项(2026-10-16 复核 §⑤.1):resume 重入反馈分支时
+    **先查既有轮** —— 有轮 ⇒ 复用该行(原请求键
+    ``format-feedback:{action}:{round}``,不分配新轮、不为恢复另发
+    付费请求),其未消费的完整响应经 ppv1_real_fetch 行状态机零调用
+    消费(responded+完整 blob ⇒ R3 重放;failed ⇒ 唯一重试终态链;
+    registered ⇒ 补首发;坏 blob/错身份 ⇒ 维持拒绝)。无既有轮才走
+    新轮登记(register_format_feedback_round 的轮数/每题预算判据
+    不变 —— 预算第 4 次发送前拒保持)。
+
+    **P1-2 收口轮(2026-10-16 第四轮,findings §三)**:复用之前
+    **统一核验原登记身份/内容/执行引用**,由所有适用状态分支共用
+    (本门在 ppv1_real_fetch 状态机之前一次性闭合,responded/sent/
+    registered/failed 消费的均为已核验行)。判据清单(全或无;任一
+    不符 ⇒ ``feedback_round_identity_corrupt`` 结构化拒,坏记录
+    保全,不分配新轮掩盖、不重算新键):
+
+    1. **原键确定性重算**:轮序由持久计数承载(format_feedback_
+       rounds_used,retry_of='' 行)⇒ 最新轮 = 第 rounds_used 轮,
+       其 request_id 由原登记键 (action, round) 重算 —— 同键复算,
+       不是换键;跨 attempt/跨通道不跨源复用(request_id 派生输入
+       含两者);
+    2. **计数>0 却查不到应有原行 ⇒ 结构化拒**:原行 request_id 被
+       改坏(键缺失)时不返回 None —— 返回 None 会让调用侧走新轮
+       登记(rounds_used+1 构成新键)另发一次并洗掉坏记录;结构化
+       拒绝维持原状(零新增调用、零新轮);
+    3. **逐列身份一致**:查到行的 purpose/run_id/action_id/
+       attempt_id/provider_kind/retry_of 必须与原登记事实(即本
+       调用身份:同一 run/action/attempt/通道;反馈轮首发行
+       retry_of='')逐列一致 —— 存储行被改坏后原参数查找仍命中
+       (request_id 列未被改),列比对揭示篡改;
+    4. **payload_hash 同源确定性重算核验**:反馈登记载荷只含同源
+       可重算内容(版本/轮次/错误类别/错误明细/响应摘录;登记时间
+       由 model_requests.created_at 承载,不在载荷内 ⇒ 无
+       recorded_at 可重算冒充),按本调用当前解析错误与重放响应
+       重算 content_hash 并与存储 payload_hash 比对 —— 原行
+       payload_hash 被改坏、或原登记并非本次错误/响应 ⇒ 拒(不以
+       重新生成内容身份洗掉坏记录)。
+
+    行状态机消费(responded⇒R3 重放/failed⇒唯一重试终态链/
+    registered⇒补首发)在 ppv1_real_fetch。"""
+    rounds_used = format_feedback_rounds_used(ledger, action_id)
+    if rounds_used <= 0:
+        return None
+
+    def _reject(reason: str, message: str, **extra) -> None:
+        raise ModelProtocolError(
+            message,
+            {"kind": "feedback_round_identity_corrupt",
+             "reason": reason, "rounds_used": rounds_used, **extra})
+
+    request_id = stable_id(
+        "sreq", str(run_id), str(attempt_id), str(provider_kind),
+        f"format-feedback:{action_id}:{rounds_used}")
+    row = ledger.conn.execute(
+        "SELECT * FROM model_requests WHERE request_id = ?",
+        (request_id,)).fetchone()
+    if row is None:
+        # 判据 2:计数>0 却查不到应有原行 ⇒ 结构化拒(不返回 None 走
+        # 新登记 —— 那会以 rounds_used+1 另配新轮/新键洗掉坏记录;
+        # 维持原状:零新增调用、零新轮、坏行保全)
+        _reject(
+            "original_row_missing",
+            f"格式反馈轮计数 {rounds_used}>0 但按原登记键重算的请求"
+            f"{request_id} 查不到原行(原行 request_id 被改坏/键缺失;"
+            "结构化拒,不返回无轮、不分配新轮另发、不重算新键掩盖;"
+            "坏记录保全)")
+    feedback = dict(row)
+    conflicts: dict = {}
+    purpose = str(feedback.get("purpose") or "")
+    if purpose != PURPOSE_FORMAT_FEEDBACK:
+        conflicts["purpose"] = purpose
+    if str(feedback.get("run_id") or "") != str(run_id):
+        conflicts["run_id"] = str(feedback.get("run_id") or "")
+    if str(feedback.get("action_id") or "") != str(action_id):
+        conflicts["action_id"] = str(feedback.get("action_id") or "")
+    if str(feedback.get("attempt_id") or "") != str(attempt_id):
+        conflicts["attempt_id"] = str(feedback.get("attempt_id") or "")
+    if str(feedback.get("provider_kind") or "") != str(provider_kind):
+        conflicts["provider_kind"] = str(feedback.get("provider_kind") or "")
+    if str(feedback.get("retry_of") or "") != "":
+        conflicts["retry_of"] = str(feedback.get("retry_of") or "")
+    expected_payload = {
+        "feedback_version": FORMAT_FEEDBACK_POLICY_VERSION,
+        "model_protocol_version": MODEL_PROTOCOL_VERSION,
+        "round": rounds_used,
+        "error_kind": str(error.detail.get("kind") or ""),
+        "error_detail": dict(error.detail),
+        "response_excerpt": str(response_excerpt)[:2000],
+    }
+    stored_hash = str(feedback.get("payload_hash") or "")
+    if stored_hash != content_hash(expected_payload):
+        conflicts["payload_hash"] = stored_hash
+    if conflicts:
+        # 判据 3/4:逐列身份或原登记内容与本调用不符 ⇒ 结构化拒
+        # (purpose 被篡改且仍被计数排除的旧路径由同键重登记撞
+        # S3A-04 同键身份冲突兜底,不掩盖)
+        _reject(
+            "identity_conflict",
+            f"格式反馈轮 {feedback.get('request_id')} 复用前统一身份"
+            f"核验失败({sorted(conflicts)};原登记身份/内容/执行引用"
+            "与本调用不一致;坏记录保全,不分配新轮掩盖、不重算新键、"
+            "不重新生成内容身份,维持拒绝)",
+            request_id=str(feedback.get("request_id") or ""),
+            conflicts=conflicts)
+    return feedback
 
 
 def register_format_feedback_round(
@@ -317,6 +444,12 @@ def register_format_feedback_round(
              "max": max_rounds, "used": rounds_used,
              "policy_version": FORMAT_FEEDBACK_POLICY_VERSION})
     round_index = rounds_used + 1
+    # P1-2 收口轮(2026-10-16 findings §三):载荷只含**同源确定性
+    # 可重算**内容(版本/轮次/错误类别/错误明细/响应摘录)—— 登记时间
+    # 由 model_requests.created_at 持久承载,不入载荷 ⇒ payload_hash
+    # 可在复用前按本调用事实重算核验(latest_format_feedback_round
+    # 判据 4),不存在"以新 recorded_at 重新生成 payload 冒充原内容"
+    # 的面。同键幂等(S3A-04 r3)因此对完好行也逐列可核。
     payload = {
         "feedback_version": FORMAT_FEEDBACK_POLICY_VERSION,
         "model_protocol_version": MODEL_PROTOCOL_VERSION,
@@ -324,7 +457,6 @@ def register_format_feedback_round(
         "error_kind": kind,
         "error_detail": dict(error.detail),
         "response_excerpt": str(response_excerpt)[:2000],
-        "recorded_at": now_iso(),
     }
     return ledger.register_model_request(
         run_id=run_id, action_id=action_id, attempt_id=attempt_id,

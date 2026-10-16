@@ -49,7 +49,7 @@ from ..adapters.llm_client import (
     OpenAICompatibleClient,
     real_provider_env,
 )
-from ..domain.models import now_iso, stable_id
+from ..domain.models import content_hash, now_iso, stable_id
 from .candidate_evidence import CANDIDATE_EVIDENCE_SCHEMA_VERSION
 from .controlled_vocab import (
     ALIGNMENT_STATUS_RESOLVED,
@@ -57,7 +57,7 @@ from .controlled_vocab import (
     EDIT_OPS,
     OUTPUT_ORIGIN_NOVEL_OUTSIDE_POOL,
 )
-from .search import PROVIDER_KIND_REAL
+from .search import PROVIDER_KIND_REAL, SearchBudgetExhausted
 
 S5B_REAL_MODEL_VERSION = "s5b-real-model-1"
 
@@ -67,6 +67,34 @@ S5B_DEFAULT_MAX_HTTP_RETRIES = DEFAULT_MAX_HTTP_RETRIES
 
 # 逐调用账本文件名(run 目录内;gitignored runs 根)
 S5B_CALL_ACCOUNT_FILE = "s5b_real_calls.jsonl"
+
+# ---- chain14 transport 自动重试(2026-10-15 预注册拍板 2;双臂共享
+# 卫生件,不构成 A/B 差分变量)----
+# 语义:真实调用的**首发传输失败** ⇒ 自动重试 1 次(每逻辑调用至多
+# 1 次);重试是**显式新 request**(新 request_key ⇒ 新 request_id +
+# 消耗剩余每题额度;retry_of 记来源请求;Idempotency-Key 随新键派生
+# ⇒ 真发新 HTTP 请求),不是同 request 复发(生命周期禁复发);每次
+# HTTP 尝试 = 一次 issued 请求,经同一预算/gate 诚实占额(每题
+# max_real_model_requests 语义不变);重试后仍败 ⇒ 按现行失败语义
+# 上抛(第二次失败为该逻辑调用终态,失败题留分母,零静默吞)。
+# 重试触发族 = 服务端不稳(TRANSPORT_RETRYABLE_ERROR_KINDS)。
+# **设计取舍(如实登记,排障表"重试与预算/gate 冲突"项)**:
+# - timeout **不重试**:首发可能仍在服务端处理中(重发双计费风险),
+#   且最多再挂一个 timeout 时长(3600s×2 每题,wall-clock 不可控);
+# - rate_limited_exhausted **不重试**:429 有界退避已在传输层完成
+#   (既有语义"仅 HTTP 429 走同一 request 冻结有界传输重试");
+# - forbidden_permanent(401/403/402 鉴权/付费停止)与 gate/预算资源拒
+#   (forbidden_stopped_by_gate/budget_*)**不重试**:资源拒绝与付费
+#   停止不是传输不稳,重发违背费用纪律;
+# - sent-无-blob 悬空(orphan_sent_without_blob)与 blob 持久化失败
+#   (blob_persistence_failed)**不重试**:前者是崩溃恢复保守态(响应
+#   可能已收到,重发有双计费风险),后者本地盘故障非传输不稳。
+S5B_TRANSPORT_RETRY_MAX = 1
+TRANSPORT_RETRYABLE_ERROR_KINDS = frozenset(
+    {"transport_error", "empty_response"})
+# 重试请求 request_key = 来源 request_id + 后缀(request_id 全局唯一
+# ⇒ decide 重试与反馈轮重试互不碰撞;S5B_TRANSPORT_RETRY_MAX=1 ⇒ 只此一档)
+TRANSPORT_RETRY_KEY_SUFFIX = ":transport-retry-1"
 
 
 class RealModelNotConfigured(RuntimeError):
@@ -157,7 +185,10 @@ Rules:
 Candidate evidence notes (deterministic system-computed context):
 - each pool entry may carry an "evidence" object (edit summary, participant roles, alignment quality, compile diagnostics, source reference), and the payload may carry a "substrate_evidence" object (functional-group hits, element counts, molecular formula, computed descriptors such as partial charges) plus a "candidate_evidence_schema_version" field.
 - these fields are informational context computed by the system; they do not change the output contract above.
-- a value of the placeholder token unknown means the fact is not available in this system: treat it as not available and never guess or invent a value for it (this applies in particular to anything the rules above already forbid inventing).
+- a value of the placeholder token unknown means the fact is not available in this system: treat it as not available and never guess or invent a value for it (this applies in particular to anything the rules above already forbid inventing); an unknown field is not negative evidence about that hypothesis and is not by itself a reason to abstain.
+- the edit summary is a deterministic ledger of graph operations already recorded for that pool entry — executor bookkeeping, not a mechanism, catalytic cycle, or proton/electron balance; hydrogen changes are implicit in the execution graph and not counted in bond tallies.
+- role unknown means the role was not assigned to a present species (not a missing fact); coefficient unknown means stoichiometry unrecorded, not unbalanced; the participant list may be partial — check participant_list_status.
+- charges are computed on the substrate as drawn (protonation/tautomer form as given); environment and active site are not modeled.
 - functional-group hits and computed descriptors (for example partial charges) are reference context only: they are not assigned reaction sites and are not proof by themselves; the provided execution graph remains the only editable structure fact.
 """
 
@@ -604,6 +635,10 @@ class RealModelAdapter:
              额度,**禁止孤儿自动新 logical 请求**(R5:题级/适配层
              新 logical retry 0;未知费用不凭空退款);
            - registered/空 ⇒ 首发;
+           - **failed**(chain14 P1-2):沿「来源→唯一重试终态」链核验
+             (唯一后继 + 身份/payload 逐列一致 + request_id 可由确定性
+             重试键复现)后零调用消费既有重试成功响应;链不成立/blob
+             缺失篡改 ⇒ 维持拒绝(不补调用、不重算新键);
            - 其他状态 ⇒ 生命周期拒绝(request_not_consumable);
         3. 首发:``record_request_sent`` → ``complete``(Idempotency-
            Key=请求稳定 ID;429/闸门/付费停止语义全在客户端内);
@@ -706,12 +741,190 @@ class RealModelAdapter:
                     "error_kind": "orphan_sent_without_blob",
                     "error_message": "sent-without-complete-blob",
                     "kind": "real_model_transport_failure"})
+        if status == "failed":
+            # ---- chain14 P1-2(2026-10-16 Codex 代审回修):来源 failed
+            # ⇒ 沿「来源→唯一重试终态」链消费既有成功响应(零新增调用)。
+            # 首发 transport 失败后自动重试成功、崩溃发生在取响应完成与
+            # 解析之间 ⇒ resume 以同 request_key 重入时来源行已 failed
+            # —— 旧实现直接 request_not_consumable 拒掉,连**已完整落盘
+            # blob 的重试成功响应**也一起挡住(可验证的成功响应不可
+            # 重放)。消费前提(全或无):恰好一个后继(retry_of=来源)
+            # 且其 run/action/attempt/provider/purpose/payload 与本调用
+            # 身份逐列一致、request_id 可由确定性重试键重算复现;状态
+            # responded(或 sent+有效完整 blob ⇒ 先闭合 sent→responded)
+            # 才零调用消费既有 blob。唯一性破坏/身份不符/状态非终态/
+            # blob 缺失篡改 ⇒ 维持拒绝(request_not_consumable/
+            # replay_unavailable;不补调用、不重算新键掩盖坏记录、禁止
+            # 为恢复另发付费请求)。 ----
+            return self._consume_retry_success_via_chain(
+                ledger=ledger, run_id=run_id, action_id=action_id,
+                attempt_id=attempt_id, provider_kind=provider_kind,
+                purpose=purpose, feedback_error=feedback_error,
+                prompt_payload=prompt_payload, request=request, row=row)
         if status not in ("registered", ""):
             raise RealModelNotConfigured(
                 f"请求 {request_id} 状态 {status} 不可消费(生命周期拒绝;"
                 "同键幂等复用须 registered)", {
                     "request_id": request_id, "status": status,
                     "kind": "request_not_consumable"})
+        # ---- 首发 + chain14 transport 自动重试(双臂共享;每逻辑调用
+        # 至多 1 次;重试=显式新 request 经同一预算/gate 诚实占额) ----
+        try:
+            return self._send_and_settle(
+                ledger=ledger, run_id=run_id, action_id=action_id,
+                request=request, request_key=request_key, purpose=purpose,
+                feedback_error=feedback_error,
+                prompt_payload=prompt_payload)
+        except RealModelTransportFailure as first_failure:
+            retried = self._transport_retry(
+                ledger=ledger, run_id=run_id, action_id=action_id,
+                attempt_id=attempt_id, provider_kind=provider_kind,
+                request_key=request_key, purpose=purpose,
+                feedback_error=feedback_error,
+                prompt_payload=prompt_payload,
+                first_failure=first_failure)
+            if retried is not None:
+                return retried
+            raise
+
+    def _consume_retry_success_via_chain(
+            self, *, ledger, run_id: str, action_id: str, attempt_id: str,
+            provider_kind: str, purpose: str, feedback_error: dict | None,
+            prompt_payload: dict, request: dict, row) -> dict:
+        """chain14 P1-2:来源 failed ⇒ 沿「来源→唯一重试终态」链零调用
+        消费既有成功响应(不新增付费调用;不以重算新键掩盖坏记录)。
+
+        身份核验面(逐列,全或无;任一不符 ⇒ 维持拒绝):
+        - 唯一性:恰好一个显式重试后继(retry_of = 来源 request_id);
+          零个(未重试/非重试族失败)或多个 ⇒ 拒;
+        - request_id 可复现:后继 request_id 必须等于由确定性重试键
+          (来源 request_id + TRANSPORT_RETRY_KEY_SUFFIX)重算的
+          stable_id —— 换键/重算新键的后继不认(防洗坏记录);
+        - 逐列一致:run/action/attempt/provider/purpose 与来源行及本
+          调用参数一致(retry 沿来源身份登记;purpose 以**来源行**为锚
+          —— 反馈轮 fetch 调用面 purpose 参数是通道标签,行值才是
+          登记事实;错身份后继拒);
+        - payload 一致:后继 payload_hash 须等于按本调用确定性重算的
+          重试登记 payload(prompt digest + 来源 purpose + feedback
+          标记 + 重试档位;prompt 载荷变更 = 身份变更 ⇒ 拒);
+        - 终态:后继 responded(消费)/ sent+有效完整 blob(先闭合
+          sent→responded 再消费);registered/failed/枚举外 ⇒ 拒;
+        - blob:``_load_response_blob`` 校验(版本/引用/SHA/字节/字符);
+          缺失/篡改 ⇒ replay_unavailable 拒,不补调用。"""
+        request_id = str(row["request_id"])
+        retry_key = f"{request_id}{TRANSPORT_RETRY_KEY_SUFFIX}"
+        source_purpose = str(row["purpose"])
+        successors = ledger.conn.execute(
+            "SELECT * FROM model_requests WHERE retry_of = ?"
+            " ORDER BY request_id", (request_id,)).fetchall()
+
+        def _reject(kind: str, message: str, **extra) -> None:
+            raise RealModelNotConfigured(message, {
+                "request_id": request_id,
+                "source_status": str(row["status"]),
+                "kind": kind, **extra})
+
+        if len(successors) != 1:
+            _reject(
+                "request_not_consumable",
+                f"请求 {request_id} 已 failed 且无唯一重试成功后继"
+                f"(后继数={len(successors)};来源→重试终态链不成立;"
+                "维持拒绝,不补调用、不重算新键)",
+                retry_successor_count=len(successors))
+        s = successors[0]
+        s_request_id = str(s["request_id"])
+        conflicts: dict = {}
+        if str(s["run_id"]) != str(row["run_id"]) or \
+                str(s["run_id"]) != str(run_id):
+            conflicts["run_id"] = str(s["run_id"])
+        if str(s["action_id"]) != str(row["action_id"]) or \
+                str(s["action_id"]) != str(action_id):
+            conflicts["action_id"] = str(s["action_id"])
+        if str(s["attempt_id"]) != str(row["attempt_id"]) or \
+                str(s["attempt_id"]) != str(attempt_id):
+            conflicts["attempt_id"] = str(s["attempt_id"])
+        if str(s["provider_kind"]) != str(row["provider_kind"]) or \
+                str(s["provider_kind"]) != str(provider_kind):
+            conflicts["provider_kind"] = str(s["provider_kind"])
+        if str(s["purpose"]) != str(row["purpose"]):
+            conflicts["purpose"] = str(s["purpose"])
+        if s_request_id != stable_id(
+                "sreq", run_id, attempt_id, provider_kind, retry_key):
+            conflicts["request_id_not_derivable_from_retry_key"] = \
+                s_request_id
+        expected_payload = {
+            "prompt_digest": hashlib.sha256(
+                json.dumps(prompt_payload, ensure_ascii=False,
+                           sort_keys=True).encode("utf-8")
+            ).hexdigest(),
+            "purpose": source_purpose,
+            "feedback": bool(feedback_error),
+            "transport_retry_attempt": S5B_TRANSPORT_RETRY_MAX,
+        }
+        if str(s["payload_hash"]) != content_hash(expected_payload):
+            conflicts["payload_hash"] = str(s["payload_hash"])
+        if conflicts:
+            _reject(
+                "request_not_consumable",
+                f"重试后继 {s_request_id} 身份与来源/本调用不符"
+                "(来源→重试终态链核验失败;错身份不消费,维持拒绝,"
+                "不补调用、不重算新键掩盖坏记录)",
+                retry_request_id=s_request_id, conflicts=conflicts)
+        s_status = str(s["status"])
+        blob = self._load_response_blob(s_request_id)
+        if s_status == "sent" and blob is not None:
+            # sent + 有效完整 blob:blob 先于 responded 落盘的崩溃窗口
+            # —— 闭合为 responded 后零调用消费(与来源 sent 同判据)
+            ledger.record_request_response(
+                s_request_id, response_ref=f"s5b-blob:{s_request_id}")
+            self._append_account({
+                "request_id": s_request_id, "request_key": retry_key,
+                "purpose": source_purpose, "retry_of": request_id,
+                "status": "recovered_sent_to_responded_via_blob",
+                "note": "retry sent + valid blob: crash window closed "
+                        "(P1-2 source-failed chain)",
+            })
+            s_status = "responded"
+        if s_status != "responded" or blob is None:
+            _reject(
+                "replay_unavailable" if s_status == "responded"
+                else "request_not_consumable",
+                f"重试后继 {s_request_id} 状态 {s_status} 不可消费"
+                "(重试终态非 responded 或响应 blob 缺失/篡改/校验失败;"
+                "不能授可重放,维持拒绝,不补调用)",
+                retry_request_id=s_request_id, retry_status=s_status)
+        self._append_account({
+            "request_id": s_request_id, "request_key": retry_key,
+            "purpose": source_purpose, "retry_of": request_id,
+            "status": "replayed_from_blob",
+            "note": "source-failed + unique verified retry terminal "
+                    "responded: zero-call consumption of existing blob "
+                    "(P1-2 chain; NO new paid call)",
+        })
+        return {
+            "request": dict(request),
+            "response_text": str(blob["content"]),
+            "call": {
+                "request_id": s_request_id, "request_key": retry_key,
+                "purpose": source_purpose, "ok": True, "replayed": True,
+                "error_kind": "", "elapsed_s": 0.0, "http_attempts": [],
+                "usage": {}, "usage_unknown": True,
+                "response_chars": int(blob.get("chars") or 0),
+                "note": "P1-2 retry-chain blob replay(零调用;费用已在"
+                        "重试首发记账)",
+            },
+        }
+
+    def _send_and_settle(self, *, ledger, run_id: str, action_id: str,
+                         request: dict, request_key: str, purpose: str,
+                         feedback_error: dict | None,
+                         prompt_payload: dict) -> dict:
+        """一次**已登记**请求的发送与结算(首发与 transport 重试共用
+        同一结算序;record_request_sent → complete → blob → responded/
+        failed + 逐调用记账)。传输失败 ⇒ mark_request_failed + 占额 +
+        RealModelTransportFailure 上抛(失败题留分母;是否重试由调用方
+        _transport_retry 裁定,本方法不做裁定)。"""
+        request_id = str(request["request_id"])
         ledger.record_request_sent(request_id)
         self._append_account({
             "request_id": request_id, "request_key": request_key,
@@ -742,7 +955,9 @@ class RealModelAdapter:
             "ok": bool(response.ok),
             "error_kind": str(response.error_kind or ""),
             # W5 费用字段:input/visible content/billed output/reasoning
-            # (provider 若有)/usage unknown 与延迟分开列示
+            # (provider 若有)/usage unknown 与延迟分开列示;
+            # http_attempts 逐 HTTP 尝试留痕(chain14:重试后两请求各
+            # 自携带,合计 = 该逻辑调用的全部 HTTP 尝试)
             "elapsed_s": round(float(response.elapsed_s or 0.0), 3),
             "http_attempts": [
                 {k: v for k, v in (a or {}).items()}
@@ -812,6 +1027,83 @@ class RealModelAdapter:
                     "kind": "real_model_transport_failure"})
         return {"request": dict(request), "response_text":
                 str(response.raw_text or ""), "call": call_record}
+
+    def _transport_retry(self, *, ledger, run_id: str, action_id: str,
+                         attempt_id: str, provider_kind: str,
+                         request_key: str, purpose: str,
+                         feedback_error: dict | None,
+                         prompt_payload: dict,
+                         first_failure: "RealModelTransportFailure",
+                         ) -> dict | None:
+        """chain14 transport 自动重试裁定(双臂共享;每逻辑调用至多 1 次)。
+
+        返回 None = 不重试(调用方按**原失败语义**上抛):
+        - 首败 error_kind 不在传输不稳族(TRANSPORT_RETRYABLE_ERROR_
+          KINDS)—— timeout/429 耗尽/鉴权付费停止/gate 与预算资源拒/
+          blob 持久化失败/悬空不重试(取舍见模块头登记);
+        - 重试登记被每题预算拒(SearchBudgetExhausted;每次尝试诚实
+          占额,每题 max_real_model_requests 语义不变)—— 原传输失败
+          语义保持,预算拒不掩盖原失败、不升格为预算失败。
+        否则登记显式重试请求(新 request_key ⇒ 新 request_id;retry_of
+        记来源;payload 标记 transport_retry_attempt)并走同一结算序;
+        重试仍败 ⇒ 同一传输失败语义上抛(第二次失败为终态,零静默吞)。
+        """
+        detail = dict(getattr(first_failure, "detail", {}) or {})
+        first_request_id = str(detail.get("request_id") or "")
+        if str(detail.get("error_kind") or "") not in \
+                TRANSPORT_RETRYABLE_ERROR_KINDS:
+            return None
+        # 重试请求键取**来源 request_id**(全局唯一):decide 重试与
+        # 格式反馈轮重试互不碰撞(同 action 的两支重试各挂各的来源);
+        # 重试行 purpose 沿**来源行**(如实继承被重试请求的通道面 ——
+        # 反馈轮重试仍是 format_feedback 行;轮数计数由 retry_of 过滤
+        # 承载,见 model_protocol.format_feedback_rounds_used)。
+        retry_key = f"{first_request_id}{TRANSPORT_RETRY_KEY_SUFFIX}"
+        source_row = ledger.conn.execute(
+            "SELECT purpose FROM model_requests WHERE request_id = ?",
+            (first_request_id,)).fetchone()
+        retry_purpose = str(source_row["purpose"]) \
+            if source_row is not None else str(purpose)
+        try:
+            retry_request = ledger.register_model_request(
+                run_id=run_id, action_id=action_id, attempt_id=attempt_id,
+                provider_kind=provider_kind, request_key=retry_key,
+                purpose=retry_purpose, payload={
+                    "prompt_digest": hashlib.sha256(
+                        json.dumps(prompt_payload, ensure_ascii=False,
+                                   sort_keys=True).encode("utf-8")
+                        ).hexdigest(),
+                    "purpose": retry_purpose,
+                    "feedback": bool(feedback_error),
+                    "transport_retry_attempt": S5B_TRANSPORT_RETRY_MAX,
+                }, retry_of=first_request_id)
+        except SearchBudgetExhausted:
+            # 每题剩余额度不足以登记重试:原传输失败语义保持(重试不越
+            # 每题 3 请求上限语义;如实留痕,不改判原失败)
+            self._append_account({
+                "request_id": first_request_id, "request_key": request_key,
+                "purpose": purpose,
+                "status": "transport_retry_budget_refused",
+                "note": ("transport retry registration refused by "
+                         "per-problem budget (max_real_model_requests "
+                         "semantics unchanged); original transport "
+                         "failure stands"),
+            })
+            return None
+        self._append_account({
+            "request_id": str(retry_request["request_id"]),
+            "request_key": retry_key, "purpose": retry_purpose,
+            "status": "transport_retry_issued",
+            "retry_of": first_request_id,
+            "note": ("chain14 transport auto-retry (shared by both A/B "
+                     "arms; at most 1 per logical call; each attempt = "
+                     "one issued request, honestly budgeted)"),
+        })
+        return self._send_and_settle(
+            ledger=ledger, run_id=run_id, action_id=action_id,
+            request=retry_request, request_key=retry_key,
+            purpose=retry_purpose,
+            feedback_error=feedback_error, prompt_payload=prompt_payload)
 
 
 class RealModelTransportFailure(RuntimeError):

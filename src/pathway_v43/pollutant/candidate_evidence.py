@@ -44,7 +44,7 @@ UNKNOWN = "unknown"
 
 CANDIDATE_EVIDENCE_SCHEMA_VERSION = "candidate-evidence-2"
 # 底物描述符表版本（SMARTS 表/极值窗口等计算口径演进 ⇒ 显式升版）
-CANDIDATE_EVIDENCE_DESCRIPTOR_VERSION = "candidate-evidence-descr-1"
+CANDIDATE_EVIDENCE_DESCRIPTOR_VERSION = "candidate-evidence-descr-2"
 
 # 每类官能团最多渲染的命中条数（有界载荷;超出只计 n_hits,截断确定）
 _MAX_MATCHES_PER_CLASS = 8
@@ -60,10 +60,10 @@ _FUNCTIONAL_GROUP_TABLE: tuple[tuple[str, str], ...] = (
     ("amide", "[CX3](=O)[NX3]"),
     ("ketone", "[#6][CX3](=O)[#6]"),
     ("aldehyde", "[CX3H1](=O)[#6]"),
-    ("hydroxyl_oh", "[OX2H][#6]"),
+    ("hydroxyl_oh", "[OX2H][#6;!$(C=[OX1])]"),
     ("ether", "[OD2]([#6])[#6]"),
-    ("amine_primary", "[NX3;H2][#6]"),
-    ("amine_secondary", "[NX3;H1][#6]"),
+    ("amine_primary", "[NX3;H2;!$(NC=[OX1])][#6]"),
+    ("amine_secondary", "[NX3;H1;!$(NC=[OX1])][#6]"),
     ("amine_tertiary", "[NX3;H0;!$(NC=[OX1])]([#6])([#6])[#6]"),
     ("nitrile", "[NX1]#[CX2]"),
     ("nitro", "[$([NX3](=O)=O),$([NX3+](=O)[O-])][#6]"),

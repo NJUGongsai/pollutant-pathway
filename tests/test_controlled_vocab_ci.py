@@ -157,12 +157,12 @@ def _assert_prompt_vocab_sync(prompt: str) -> None:
 # 变化。历史锚点:e28b5342b003...(8da11cb7 手写版基线,4360 字节)。
 # 候选证据卡轮(2026-10-15,Plan v1 §2.1;no-cap 轮先例):提示词新增
 # "Candidate evidence notes" 规则段(证据字段语义/unknown 处理/描述符
-# 纪律),显式升版为新基线 13698065db70...(5380 字节);词表声明段
+# 纪律),显式升版为新基线 13698065db70→mimo 修正案四句补丁(2026-10-16)→fe9eaf77...({n} 字节);词表声明段
 # (生成位)未触碰。本断言钉新基线防静默漂移;旧→新变化由
 # test_t1_prompt_version_moved_from_legacy_baseline 另行钉住。
 BASELINE_PROMPT_SHA256_EVIDENCE_CARD_1 = (
-    "13698065db70a6dc6fd7f2b56929b0e7c91279f8efb9e17f6fd6884ee63558ea")
-BASELINE_PROMPT_BYTES = 5380
+    "fe9eaf770deb19f8c6eec9aee14febe83f6b2d47f53e1c60002bb808eb3b0f4e")
+BASELINE_PROMPT_BYTES = 6123
 LEGACY_BASELINE_PROMPT_SHA256_8DA11CB7 = (
     "e28b5342b0036a6af0893ca310045bed9d0e9d8bfc85f3d21c880e9a7917b962")
 

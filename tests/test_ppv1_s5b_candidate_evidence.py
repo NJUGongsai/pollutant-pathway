@@ -599,3 +599,33 @@ def test_full_chain_gasteiger_nonfinite_negative_and_finite_positive(
             assert charges["min"] <= charges["mean"] <= charges["max"]
             assert charges["min"] < 0 and charges["max"] > 0
             assert isinstance(charges["min"], float)
+
+
+def test_functional_group_smarts_caliber_amide_vs_amine() -> None:
+    """mimo 修正案(2026-10-16):amine_primary/secondary 补酰胺排除(同 tertiary
+    先例口径)——酰胺 N 不再误标 amine;普通一级/二级胺(含苯胺)不受影响。"""
+    from pathway_v43.pollutant.candidate_evidence import (
+        substrate_evidence_payload,
+    )
+    def _classes(smi):
+        return {r["class"] for r in
+                substrate_evidence_payload(smi)["functional_groups"]}
+    assert "amine_primary" not in _classes("CC(=O)N")
+    assert "amine_secondary" not in _classes("CC(=O)NC")
+    assert "amine_primary" in _classes("CCN")
+    assert "amine_primary" in _classes("Nc1ccccc1")
+
+
+def test_functional_group_smarts_caliber_carboxyl_oh_excluded() -> None:
+    """mimo 修正案(2026-10-16):hydroxyl_oh 排除羧酸自身 -OH(酸+醇双标签
+    最贵误导面);醇羟基不受影响(乙醇/乳酸醇臂)。"""
+    from pathway_v43.pollutant.candidate_evidence import (
+        substrate_evidence_payload,
+    )
+    def _rows(smi):
+        return {r["class"]: r["n_hits"] for r in
+                substrate_evidence_payload(smi)["functional_groups"]}
+    assert "hydroxyl_oh" not in _rows("CC(=O)O")
+    assert _rows("CCO").get("hydroxyl_oh") == 1
+    assert _rows("CC(O)C(=O)O").get("hydroxyl_oh") == 1  # 乳酸:仅醇 OH
+    assert _rows("CC(O)C(=O)O").get("carboxylic_acid") == 1

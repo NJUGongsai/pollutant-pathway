@@ -38,12 +38,19 @@ def worker_main(argv: list[str] | None = None) -> int:
     parser.add_argument("--batch-root", required=True)
     parser.add_argument("--runs-root", required=True)
     parser.add_argument("--qid", required=True)
+    parser.add_argument(
+        "--evidence-card-flag", choices=["true", "false"], default=None,
+        help="可信批上下文显式传预期开关(协调者派发恒传,取冻结副本"
+             "同值;缺席 = 手动/测试直连路径,显式进手动模式)")
     parser.add_argument("--fail-fast-env-check", action="store_true",
                         help="只做凭证存在性检查(冒烟段 0 前置)")
     args = parser.parse_args(argv)
     batch_root = Path(args.batch_root)
     runs_root = Path(args.runs_root)
     qid = str(args.qid)
+    expected_flag = ({"true": True, "false": False}
+                     [args.evidence_card_flag]
+                     if args.evidence_card_flag is not None else None)
     sys.path.insert(0, str(_repo_src_path(batch_root)))
 
     from pathway_v43.config import resolve_config
@@ -68,6 +75,67 @@ def worker_main(argv: list[str] | None = None) -> int:
     profile_policy = json.loads(
         (batch_root / "profile_policy.json").read_text(encoding="utf-8"))
     import os
+
+    # ---- chain14:批级证据卡开关(worker 侧同判据核对;先于任何
+    # run 启动/发送)。单一验证源 load_evidence_card_flag:冻结副本
+    # 缺键/坏值 ⇒ 结构化失败 case(fail-closed,不当缺省)。
+    # chain14 P1-4(2026-10-16 Codex 代审回修):可信批上下文(协调者
+    # 派发,--evidence-card-flag 显式传预期 bool)下**冻结副本必须在位
+    # 且同值** —— 缺席=拒(evidence_card_frozen_copy_missing,不回退;
+    # 旧实现 None→True 让"已冻结 A 丢副本"静默变 B 错账),同值核过
+    # 才放行;换臂(预期≠冻结副本)=拒(evidence_card_flag_mismatch)。
+    # 手动/测试直连路径(未传预期值)且副本缺席 ⇒ 显式进手动模式
+    # (现行行为 on;case 以 evidence_card_mode 披露,不冒充冻结批)。 ----
+    from pathway_v43.pollutant.s5b_orchestrator import (
+        load_evidence_card_flag,
+    )
+
+    try:
+        frozen_flag = load_evidence_card_flag(batch_root)
+    except Exception as exc:  # noqa: BLE001 —— 冻结副本缺键/坏值先拒
+        _write_case(batch_root, {
+            "qid": qid, "run_id": run_id, "status": "failed",
+            "failure_kind": "evidence_card_flag_invalid",
+            "error": f"批级证据卡开关装载失败:{exc}"[:300],
+            "detail": dict(getattr(exc, "detail", {}) or {}),
+        })
+        return 5
+    evidence_card_mode = "frozen_batch"
+    if expected_flag is not None:
+        # 可信批上下文:预期 bool 由协调者从冻结参数显式传入
+        if frozen_flag is None:
+            _write_case(batch_root, {
+                "qid": qid, "run_id": run_id, "status": "failed",
+                "failure_kind": "evidence_card_frozen_copy_missing",
+                "error": ("可信批上下文预期开关已显式传入而批根冻结副本"
+                          "缺席(orchestration.json 不在;已冻结 A/B 丢副本"
+                          "≠手动批,缺席=拒不回退 —— P1-4 fail-closed)"),
+                "detail": {"kind": "evidence_card_frozen_copy_missing",
+                           "expected_evidence_card_enabled":
+                               bool(expected_flag)},
+            })
+            return 5
+        if frozen_flag != expected_flag:
+            _write_case(batch_root, {
+                "qid": qid, "run_id": run_id, "status": "failed",
+                "failure_kind": "evidence_card_flag_mismatch",
+                "error": ("可信批上下文预期开关与冻结副本不一致(换臂拒;"
+                          "A/B 唯一差分变量中途换臂禁止)"),
+                "detail": {"kind": "evidence_card_flag_mismatch",
+                           "expected_evidence_card_enabled":
+                               bool(expected_flag),
+                           "frozen_evidence_card_enabled":
+                               bool(frozen_flag)},
+            })
+            return 5
+        evidence_card_enabled = frozen_flag
+    elif frozen_flag is None:
+        # 手动/测试直连路径(无协调者、无冻结副本):显式进手动模式,
+        # 现行行为 on(case 披露,不冒充冻结批)
+        evidence_card_enabled = True
+        evidence_card_mode = "manual_no_frozen_copy"
+    else:
+        evidence_card_enabled = frozen_flag
 
     stub_path = os.environ.get("S5B_MODEL_STUB_SCRIPT")
     if stub_path:
@@ -146,14 +214,19 @@ def worker_main(argv: list[str] | None = None) -> int:
     run_dir = runs_root / run_id
     try:
         if (run_dir / "run_identity.json").is_file():
+            # chain14 P1-3(2026-10-16 Codex 代审回修):resume 签名无
+            # profile_policy 参数 —— 旧实现传 profile_policy=None 使
+            # 合法中断 run 被TypeError 写成失败终态。profile 策略在
+            # start 时已冻结进 run 身份,resume 只核对不重传。
             summary = resume_ppv1_run(
                 config=config, runs_root=runs_root, run_id=run_id,
-                model=model, profile_policy=None)
+                model=model, evidence_card_enabled=evidence_card_enabled)
         else:
             summary = start_ppv1_run(
                 config=config, runs_root=runs_root, run_id=run_id,
                 smiles=str(run_input["substrate_smiles"]), plan=plan,
-                model=model, profile_policy=profile_policy)
+                model=model, profile_policy=profile_policy,
+                evidence_card_enabled=evidence_card_enabled)
     except RunAlreadyExists as exc:  # 并发同 run 罕见:失败补位
         _write_case(batch_root, {
             "qid": qid, "run_id": run_id, "status": "failed",
@@ -169,7 +242,10 @@ def worker_main(argv: list[str] | None = None) -> int:
             "failure_kind": str(detail.get("kind") or
                                 type(exc).__name__),
             "error": f"{type(exc).__name__}: {exc}"[:400],
+            "evidence_card_enabled": bool(evidence_card_enabled),
+            "evidence_card_mode": evidence_card_mode,
             "model_calls": _count_model_calls(run_dir),
+            "model_call_retries": _count_model_retries(run_dir),
             "usage": _usage_summary(run_dir),
         })
         return 4
@@ -188,7 +264,13 @@ def worker_main(argv: list[str] | None = None) -> int:
             (summary.get("native_export") or {}).get("export_digest")
             or ""),
         "counts": dict(summary.get("counts") or {}),
+        # chain14 披露:本 run 消费的证据卡开关(A/B 唯一差分变量)+
+        # 开关装载模式(冻结批同值核过 / 手动无冻结副本显式披露)+
+        # transport 重试计数(每次 HTTP 尝试 = 一次 issued 请求)
+        "evidence_card_enabled": bool(evidence_card_enabled),
+        "evidence_card_mode": evidence_card_mode,
         "model_calls": _count_model_calls(run_dir),
+        "model_call_retries": _count_model_retries(run_dir),
         "usage": _usage_summary(run_dir),
     })
     return 0
@@ -325,6 +407,25 @@ def _count_model_calls(run_dir: Path) -> int:
         try:
             row = conn.execute(
                 "SELECT COUNT(*) FROM model_requests").fetchone()
+            return int(row[0] or 0)
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        return 0
+
+
+def _count_model_retries(run_dir: Path) -> int:
+    """chain14:transport 重试计数(model_requests 中 retry_of != ''
+    的行;每次重试 = 一次显式新 issued 请求,诚实计数)。"""
+    db = run_dir / "pollutant.sqlite"
+    if not db.is_file():
+        return 0
+    try:
+        conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*) FROM model_requests WHERE"
+                " retry_of != ''").fetchone()
             return int(row[0] or 0)
         finally:
             conn.close()

@@ -124,6 +124,75 @@ TERMINAL_CASE_STATUSES = frozenset({"completed", "failed"})
 # 非正值不得隐式 kill 而少跑题
 S5B_CASE_SCHEMA_VERSION = "s5b-case-1"
 
+# ---- chain14 批级证据卡开关(2026-10-15 预注册;A/B 唯一差分变量)----
+# 机制(沿 chain13「3 调用预算」profile_policy 发车覆盖先例):经
+# run_s5b_batch 的批级参数发车覆盖,冻结进 orchestration.json(批身份
+# 含该键;同批根续跑改参即拒 —— 既有冻结副本比对天然覆盖);消费点在
+# runflow._call_real_fetch(false ⇒ 载荷回到证据卡实施前四字段形状,
+# 逐字节兼容;true ⇒ 现行 candidate-evidence-2 行为;系统提示词两臂
+# 同版,PROPOSALS_PROMPT_VERSION 不变)。
+# fail-closed 语义:发车参数非法值(非 bool)⇒ 结构化拒;**冻结副本
+# 缺键/坏值不当缺省**(load_evidence_card_flag,worker/run 侧同判据
+# 单一来源,防开关成为静默改臂口子);参数缺席(None)⇒ 现行行为
+# (True,证据卡实施后的缺省)——A/B 两臂发车恒显式传值(发车脚本
+# 写死 a=false/b=true),缺省值只为既有直连调用方兼容保留。
+S5B_EVIDENCE_CARD_FLAG_KEY = "evidence_card_enabled"
+
+
+def normalize_evidence_card_flag(value) -> bool:
+    """发车参数归一(None ⇒ 现行行为 True;非 bool ⇒ 结构化拒)。"""
+    if value is None:
+        return True
+    if not isinstance(value, bool):
+        raise S5bOrchestratorError(
+            f"批级证据卡开关非法值:{value!r}(须 true/false;A/B 臂发车"
+            "恒显式传值,非法值 fail-closed 拒,不猜)", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "value": repr(value)})
+    return value
+
+
+def load_evidence_card_flag(batch_root: str | Path) -> bool | None:
+    """装载批级证据卡开关(单一验证源;orchestrator 归一与 worker/run
+    侧核对共用本判据,不各写一套)。
+
+    - orchestration.json 缺席 ⇒ ``None``(合法:批根未经协调者冻结
+      —— 手动 worker/测试直连路径;调用方决定回退语义);
+    - 在场但不可解析 / 缺 ``evidence_card_enabled`` 键 / 值非 bool ⇒
+      ``S5bOrchestratorError``(kind=s5b_evidence_card_flag_invalid;
+      fail-closed —— 冻结副本缺键/坏值不当缺省,沿 no-cap 坏标记
+      不当缺席先例)。
+    """
+    path = Path(batch_root) / "orchestration.json"
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批根 orchestration.json 不可读(证据卡开关装载 fail-closed,"
+            f"不静默当缺省):{path}({exc})", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "reason": "unreadable_orchestration",
+                "path": str(path)}) from exc
+    if not isinstance(raw, dict) or \
+            S5B_EVIDENCE_CARD_FLAG_KEY not in raw:
+        raise S5bOrchestratorError(
+            f"批根冻结 orchestration.json 缺 {S5B_EVIDENCE_CARD_FLAG_KEY}"
+            f" 键:{path}(冻结副本缺键不当缺省 —— 前代批根/被改写副本"
+            "一律拒;A/B 臂身份必须显式在案)", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "reason": "flag_key_missing", "path": str(path)})
+    value = raw[S5B_EVIDENCE_CARD_FLAG_KEY]
+    if not isinstance(value, bool):
+        raise S5bOrchestratorError(
+            f"批根冻结 orchestration.json 的 {S5B_EVIDENCE_CARD_FLAG_KEY}"
+            f" 非法:{value!r}(须 true/false;fail-closed 不猜)", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "reason": "flag_value_invalid", "path": str(path),
+                "value": repr(value)})
+    return value
+
 
 class S5bOrchestratorError(RuntimeError):
     """编排器契约违反(结构化 fail-closed)。"""
@@ -320,7 +389,8 @@ def is_terminal(case: dict | None) -> bool:
 
 
 def validate_case(case: dict | None, qid: str, *,
-                  expected_run_id: str = "") -> dict:
+                  expected_run_id: str = "",
+                  expected_evidence_card: bool | None = None) -> dict:
     """R4:validated case reader —— 校验后才可 SKIP/汇总/评分。
 
     校验面(坏 case ⇒ 结构化拒,不当终态消费):
@@ -332,7 +402,20 @@ def validate_case(case: dict | None, qid: str, *,
       不写正式 completed**(env check 落 ``cases/env_check/`` 另文件,
       主 cases/ 下的 env_check_only 行 ⇒ 拒,不算终态);
     - export_digest:completed 时须为字符串(可空 = 失败导出的诚实
-      空串;非字符串类型拒)。
+      空串;非字符串类型拒);
+    - **chain14 P1-4(2026-10-16 Codex 代审回修)**:同源开关核对
+      (expected_evidence_card 给出时)——case 披露的
+      ``evidence_card_enabled`` 与批冻结开关不一致 ⇒
+      evidence_card_flag_mismatch 拒(skip/汇总接纳前核,防"实际 on
+      而批报告 off"的错账终态被接纳)。
+      **P1-4 余项(2026-10-16 复核 §⑤.2)严格化**:expected 明确时
+      completed **必须有键 + 严格 bool + 同值**(缺键
+      evidence_card_flag_missing / 非严格 bool(含 null/字符串/数字)
+      evidence_card_flag_not_bool / 错臂 mismatch ⇒ 全拒 —— 旧实现
+      只核"有键且非 null"且先 ``bool()`` 强转,删字段/置 null/字串
+      可绕过接纳门);失败(及非完成)case **披露了才核**(严格
+      bool + 同值),缺键豁免保留(合法 run 前早失败可继续缺字段
+      —— worker 早失败路径本就不写该键)。
     返回 {ok, reasons, status}。
     """
     reasons: list[str] = []
@@ -355,11 +438,34 @@ def validate_case(case: dict | None, qid: str, *,
     if status == "completed" and not isinstance(
             case.get("export_digest"), str):
         reasons.append("export_digest_not_string")
+    if expected_evidence_card is not None:
+        expected_flag = bool(expected_evidence_card)
+        if status == "completed":
+            # P1-4 余项(2026-10-16 复核 §⑤.2):completed 必须有键 +
+            # 严格 bool + 同值(缺键/null/非 bool/错臂全拒;不以
+            # bool() 强转当类型校验 —— "on"/1 等真值不是合法披露)
+            if "evidence_card_enabled" not in case:
+                reasons.append("evidence_card_flag_missing")
+            elif not isinstance(case.get("evidence_card_enabled"), bool):
+                reasons.append("evidence_card_flag_not_bool")
+            elif case.get("evidence_card_enabled") != expected_flag:
+                reasons.append("evidence_card_flag_mismatch")
+        elif "evidence_card_enabled" in case:
+            # 失败/非完成 case:披露了才核(严格 bool + 同值);缺键
+            # 豁免保留(合法 run 前早失败可继续缺字段 —— worker 早
+            # 失败路径不写该键);null/字串等非严格 bool 披露 = 坏
+            # 披露,拒
+            disclosed = case.get("evidence_card_enabled")
+            if not isinstance(disclosed, bool):
+                reasons.append("evidence_card_flag_not_bool")
+            elif disclosed != expected_flag:
+                reasons.append("evidence_card_flag_mismatch")
     return {"ok": not reasons, "reasons": reasons, "status": status}
 
 
 def read_validated_case(batch_root: Path, qid: str, *,
                         expected_run_id: str = "",
+                        expected_evidence_card: bool | None = None,
                         strict: bool = True) -> dict | None:
     """读取 + R4 校验;strict=True 时坏 case ⇒ S5bOrchestratorError
     (fail-closed,SKIP/汇总/评分前拒);strict=False 返回 None(诊断
@@ -367,7 +473,8 @@ def read_validated_case(batch_root: Path, qid: str, *,
     case = read_case(batch_root, qid)
     if case is None:
         return None
-    verdict = validate_case(case, qid, expected_run_id=expected_run_id)
+    verdict = validate_case(case, qid, expected_run_id=expected_run_id,
+                            expected_evidence_card=expected_evidence_card)
     if not verdict["ok"]:
         if strict:
             raise S5bOrchestratorError(
@@ -538,6 +645,7 @@ def run_s5b_batch(
     gate_tpm: int = S5B_DEFAULT_GATE_TPM,
     gate_max_calls: int = S5B_DEFAULT_GATE_MAX_CALLS,
     profile_policy: dict | None = None,
+    evidence_card_enabled: bool | None = None,
     question_limit: int | None = None,
     qids: list[str] | None = None,
     poll_s: float = 10.0,
@@ -637,6 +745,9 @@ def run_s5b_batch(
                     "expected_file": S5B_BUDGET_GUARD_FILE,
                     "default_cap_cny": S5B_DEFAULT_BUDGET_CAP_CNY})
     # ---- 发车参数冻结(同批根续跑复用;变更拒绝) ----
+    # chain14:证据卡开关归一(非 bool 拒)后冻结 —— 批身份含该键;
+    # 同批根改参即拒由既有冻结副本比对天然覆盖(A/B 唯一差分变量)。
+    evidence_card_flag = normalize_evidence_card_flag(evidence_card_enabled)
     frozen = {
         "orchestrator_version": S5B_ORCHESTRATOR_VERSION,
         "workers": int(workers),
@@ -646,6 +757,7 @@ def run_s5b_batch(
         "gate_max_calls": int(gate_max_calls),
         "budget_guard": budget_guard,
         "profile_policy": profile_policy or S5B_DEFAULT_PROFILE_POLICY,
+        "evidence_card_enabled": evidence_card_flag,
         "runs_root": str(runs_root),
         "frozen_at": now_iso(),
     }
@@ -691,6 +803,7 @@ def run_s5b_batch(
             gate_dir=gate_dir, gate=gate, python_bin=python_bin,
             worker_timeout_s=worker_timeout_s, poll_s=poll_s,
             started_at_wall=time.time(),
+            evidence_card_enabled=evidence_card_flag,
             budget_mode=(no_cap_marker or {}).get("budget_mode")
             or "numeric")
     finally:
@@ -702,18 +815,24 @@ def _run_batch_loop(*, batch_root: Path, runs_root: Path,
                     workers: int, gate_dir: str, gate: FileRateGate,
                     python_bin, worker_timeout_s: float, poll_s: float,
                     started_at_wall: float,
+                    evidence_card_enabled: bool = True,
                     budget_mode: str = "numeric") -> dict:
     """执行主循环(协调者锁内;R4 validated case / R5 超时纪律)。
 
     ``budget_mode``:P4c 披露字段进批终态报告(numeric = budget_guard
     .json 冻结;no_monetary_cap_user_decision = 显式 no-cap 标记,
-    金额检查跳过、调用数门照常;标记文件本身是结构化记录)。"""
+    金额检查跳过、调用数门照常;标记文件本身是结构化记录)。
+    ``evidence_card_enabled``:chain14 A/B 唯一差分变量披露(冻结值
+    原样进批终态报告,per-case 披露由 worker 侧同判据装载)。"""
     env = _worker_env(env_file, gate_dir)
     py = python_bin or sys.executable
 
     def _terminal_case(qid: str) -> dict | None:
+        # chain14 P1-4(2026-10-16 Codex 代审回修):skip/收割/派发接纳
+        # 前核对 case 披露开关与批冻结开关同源同值(错臂终态不接纳)
         return read_validated_case(
-            batch_root, qid, expected_run_id=_run_id_of(manifest, qid))
+            batch_root, qid, expected_run_id=_run_id_of(manifest, qid),
+            expected_evidence_card=evidence_card_enabled)
 
     pending = [q for q in order if _terminal_case(q) is None]
     skipped = len(order) - len(pending)
@@ -772,11 +891,15 @@ def _run_batch_loop(*, batch_root: Path, runs_root: Path,
             if _terminal_case(qid) is not None:
                 continue
             run_id = _run_id_of(manifest, qid)
+            # chain14 P1-4:可信批上下文显式传预期开关(协调者从冻结
+            # 参数派发;worker 要求冻结副本在位+同值,缺席=拒不回退)
             cmd = [
                 py, "-B", "-m", "pathway_v43.pollutant.s5b_worker",
                 "--batch-root", str(batch_root),
                 "--runs-root", str(runs_root),
                 "--qid", qid,
+                "--evidence-card-flag",
+                "true" if evidence_card_enabled else "false",
             ]
             proc = subprocess.Popen(
                 cmd, env=env, stdout=subprocess.DEVNULL,
@@ -810,6 +933,22 @@ def _run_batch_loop(*, batch_root: Path, runs_root: Path,
     # no_monetary_cap_user_decision = 显式标记,金额检查跳过、调用数
     # 门照常;标记文件本身是结构化记录)
     report["budget_mode"] = budget_mode
+    # chain14 披露:本批证据卡开关(A/B 唯一差分变量)。P1-4 回修:
+    # 报告开关从**冻结副本同源装载**(不再直写协调者内存参数)——
+    # 副本缺席/装载失败/与冻结参数不一致 ⇒ 结构化拒(fail-closed,
+    # 不写"实际 on 而报告 off"的错账报告)
+    reported_flag = load_evidence_card_flag(batch_root)
+    if reported_flag != evidence_card_enabled:
+        raise S5bOrchestratorError(
+            "批报告前核对失败:冻结副本证据卡开关与协调者冻结参数不一致"
+            "(副本被改写/丢失;fail-closed,不写错账报告)", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "reason": "frozen_copy_mismatch_at_report",
+                "batch_root": str(batch_root),
+                "frozen_copy_flag": (None if reported_flag is None
+                                     else bool(reported_flag)),
+                "coordinator_flag": bool(evidence_card_enabled)})
+    report["evidence_card_enabled"] = bool(reported_flag)
     report["worker_timeout_s"] = worker_timeout_s
     report["coordinator"] = {"pid": os.getpid(),
                              "lock_domain": str(batch_root / "coord"),
@@ -957,16 +1096,22 @@ def summarize_batch(batch_root: str | Path,
         order = list(manifest.get("registration_order") or [])
     entries = {str(e.get("qid")): e
                for e in manifest.get("entries") or []}
+    # chain14 P1-4:汇总接纳前核对 case 披露开关与批冻结开关同源同值
+    # (冻结副本缺席 = 手动批,不核;在场但被改写/坏值由装载器拒)
+    frozen_flag = load_evidence_card_flag(batch_root)
     rows: list[dict] = []
     n_completed = n_failed = 0
     calls_total = 0
+    retries_total = 0
     usage_known = {"input_tokens": 0, "output_tokens": 0,
                    "total_tokens": 0}
     usage_missing_calls = 0
     for qid in order:
-        # R4:汇总前校验(坏 case fail-closed,不静默计终态)
+        # R4:汇总前校验(坏 case fail-closed,不静默计终态;P1-4 同源
+        # 开关核对随行)
         case = read_validated_case(
-            batch_root, qid, expected_run_id=_run_id_of(manifest, qid))
+            batch_root, qid, expected_run_id=_run_id_of(manifest, qid),
+            expected_evidence_card=frozen_flag)
         if case is None and read_case(batch_root, qid) is not None:
             # 存在但校验失败/非终态:read_validated_case strict 已抛;
             # 到这里说明非终态(部分写入)—— 按 pending 处理
@@ -978,6 +1123,9 @@ def summarize_batch(batch_root: str | Path,
             n_failed += 1
         calls = int((case or {}).get("model_calls") or 0)
         calls_total += calls
+        # chain14:transport 重试计数披露(每次 HTTP 尝试 = 一次 issued
+        # 请求;重试行 retry_of != '',诚实计数不释放)
+        retries_total += int((case or {}).get("model_call_retries") or 0)
         usage = (case or {}).get("usage") or {}
         if usage.get("present"):
             usage_known["input_tokens"] += int(
@@ -1016,6 +1164,7 @@ def summarize_batch(batch_root: str | Path,
         "cases": rows,
         "account": {
             "model_calls_total": calls_total,
+            "model_call_retries_total": retries_total,
             "usage_known": dict(usage_known),
             "usage_missing_calls": usage_missing_calls,
             "usage_status": (
