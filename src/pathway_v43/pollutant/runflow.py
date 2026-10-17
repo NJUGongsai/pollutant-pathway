@@ -914,6 +914,9 @@ class _Driver:
         # 错;不能 catch-all 把损坏洗成方法失败)。
         novel_by_key: dict[str, dict] = {}
         novel_rejections: list[dict] = []
+        # T-F 回修(Codex P1,2026-10-17):novel 自报 ID 与池逻辑 key 合法
+        # 同名时两表按字串查会错读来源 ⇒ 条目进入继承计算须带来源身份
+        novel_entry_idx: set[int] = set()
         # W5:共同 prevalidation —— 同一 render 事实源逐条 validate_edits
         # (坏引用/未知 op/非法 ID 在 decide 层逐条拒,不留到执行层)
         from ..services.atom_tool import render as _render, \
@@ -959,6 +962,7 @@ class _Driver:
                     "reason": str(exc)[:200]})
                 continue
             prepared_entries.append((novel_key, reaction_spec, prepared))
+            novel_entry_idx.add(len(prepared_entries) - 1)
             novel_by_key[novel_key] = proposal
         if novel_rejections:
             model_note["novel_rejections"] = novel_rejections
@@ -998,46 +1002,54 @@ class _Driver:
         #   store 公共 writer 忠实记录)。
         from .s5b_compiler import net_reaction_signature
 
-        # W3 位次继承(s5b-rank-policy-2):被折叠者声明位次优于幸存者
-        # (或幸存者无声明位次)⇒ 幸存者继承;继承事实逐条落
-        # dedup_rejections(folded_model_rank/rank_inherited),不静默
+        # W3 位次继承(s5b-rank-policy-2;Codex 回修 2026-10-17 P1):
+        # 声明位次查表按**条目来源**分流——池条目读 rank_by_key(池逻辑
+        # 键表),novel 条目读 model_rank_by_id(模型原始 ID 表);两表
+        # 命名空间不同,novel 自报 ID 与池 key 合法同名时按字串优先级
+        # 查表会错读来源(反例:首位 novel 被读成池条目位次,继承失效)
         model_rank_by_id_pre = {
             str(k): int(v)
             for k, v in (model_note.get("model_rank_by_id")
                          or {}).items()}
 
-        def _declared_rank(k: str):
+        def _declared_rank(entry_idx: int, k: str):
+            if entry_idx in novel_entry_idx:
+                return model_rank_by_id_pre.get(k)
             if k in (rank_by_key or {}):
                 return int(rank_by_key[k])
-            return model_rank_by_id_pre.get(k)
+            return None
 
         dedup_rejections: list[dict] = []
-        dedup_by_signature: dict[tuple, str] = {}
+        dedup_by_signature: dict[tuple, tuple] = {}   # sig -> (key, idx)
         deduped_entries: list = []
-        best_folded_rank: dict[str, tuple] = {}  # survivor -> (rank, 折叠者)
-        for entry in prepared_entries:
+        best_folded_rank: dict[str, tuple] = {}  # survivor -> (rank, 折叠者, idx, 来源)
+        for entry_idx, entry in enumerate(prepared_entries):
             key, spec, _prepared = entry
             signature = net_reaction_signature(spec)
             if signature in dedup_by_signature:
-                survivor = dedup_by_signature[signature]
-                folded_rank = _declared_rank(key)
+                survivor, survivor_idx = dedup_by_signature[signature]
+                folded_source = ("novel" if entry_idx in novel_entry_idx
+                                 else "pool")
+                folded_rank = _declared_rank(entry_idx, key)
                 if survivor in best_folded_rank:
                     survivor_rank: int | None = best_folded_rank[
                         survivor][0]
                 else:
-                    survivor_rank = _declared_rank(survivor)
+                    survivor_rank = _declared_rank(survivor_idx, survivor)
                 inherit = folded_rank is not None and (
                     survivor_rank is None or folded_rank < survivor_rank)
                 if inherit:
-                    best_folded_rank[survivor] = (folded_rank, key)
+                    best_folded_rank[survivor] = (
+                        folded_rank, key, entry_idx, folded_source)
                 dedup_rejections.append({
                     "logical_proposal_id": key,
+                    "folded_entry_source": folded_source,
                     "merged_into": survivor,
                     "signature": [str(x) for x in signature][:6],
                     "folded_model_rank": folded_rank,
                     "rank_inherited": bool(inherit)})
                 continue
-            dedup_by_signature[signature] = key
+            dedup_by_signature[signature] = (key, entry_idx)
             deduped_entries.append(entry)
         prepared_entries = deduped_entries
         if dedup_rejections:
@@ -1054,17 +1066,19 @@ class _Driver:
             if key in novel_by_key:
                 if key in model_rank_by_id_pre:
                     model_rank_by_key[key] = model_rank_by_id_pre[key]
-        # W3 位次继承落地:幸存者取 min(自身声明位次,被折叠者最优位次)
+        # W3 位次继承落地:幸存者取 min(自身声明位次,被折叠者最优位次);
+        # 来源身份入披露(model_rank_inherited_from="来源:ID")
         inherited_from_by_key: dict[str, str] = {}
         survivor_keys = {key for key, _, _ in prepared_entries}
-        for survivor, (folded_rank, folded_key) in \
+        for survivor, (folded_rank, folded_key, _fidx, folded_source) in \
                 best_folded_rank.items():
             if survivor not in survivor_keys:
                 continue
             current = model_rank_by_key.get(survivor)
             if current is None or folded_rank < current:
                 model_rank_by_key[survivor] = folded_rank
-                inherited_from_by_key[survivor] = folded_key
+                inherited_from_by_key[survivor] = \
+                    f"{folded_source}:{folded_key}"
         ranked_keys = [k for k, _ in sorted(
             model_rank_by_key.items(), key=lambda kv: (kv[1], kv[0]))]
         effective_rank_by_key: dict[str, int] = {}

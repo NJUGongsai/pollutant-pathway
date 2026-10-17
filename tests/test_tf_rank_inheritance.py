@@ -85,10 +85,10 @@ def _pool_prepared_id(run_id, spec):
     return prepared["hypothesis"].hypothesis_id
 
 
-def _response(novel_spec, pool_ref_ids, ranked_ids):
+def _response(novel_spec, pool_ref_ids, ranked_ids, novel_id="novel:1"):
     proposals = [{"hypothesis_id": pid} for pid in pool_ref_ids]
     proposals.append({
-        "hypothesis_id": "novel:1",
+        "hypothesis_id": novel_id,
         "proposal_context": {"reference_hypothesis_ids": [],
                               "output_origin": "novel_outside_pool"},
         "reaction_spec": novel_spec})
@@ -150,7 +150,7 @@ def test_fx1_unranked_survivor_inherits_rank(tmp_path) -> None:
     e = _entries(tmp_path, run_id)
     assert set(e) == {"A", "B"}                       # novel:1 被折叠
     assert e["B"]["model_rank"] == 1                  # 继承 novel 位次
-    assert e["B"]["model_rank_inherited_from"] == "novel:1"
+    assert e["B"]["model_rank_inherited_from"] == "novel:novel:1"
     assert e["B"]["rank_basis"] == "model_selection"
     assert e["B"]["effective_rank"] == 1              # 模型首位先执行
     assert e["A"]["model_rank"] == 2
@@ -189,8 +189,76 @@ def test_fx2_folded_better_rank_inherits(tmp_path) -> None:
     _run(tmp_path, run_id, resp)
     e = _entries(tmp_path, run_id)
     assert e["B"]["model_rank"] == 1
-    assert e["B"]["model_rank_inherited_from"] == "novel:1"
+    assert e["B"]["model_rank_inherited_from"] == "novel:novel:1"
     assert e["A"]["rank_basis"] == "deterministic_fallback"
+
+
+# ---------------- Codex 回修固定矩阵（同名合法输入，2026-10-17） ----------------
+
+def test_collision_novel_id_other_pool_key(tmp_path) -> None:
+    """矩阵①：novel 自报 ID="A"（撞**另一**池 key），折入池 B。
+    v1 查表 bug：declared_rank 先查池表把 novel 位次 1 错读成池 A 的 2。
+    修复后：novel 位次 1 正确进入幸存者 B ⇒ 模型首选反应第一执行。"""
+    run_id = "tf-fix-col1"
+    a_id = _pool_prepared_id(run_id, SPEC_A)
+    resp = _response(NOVEL_O, [a_id], ["A", a_id], novel_id="A")
+    _run(tmp_path, run_id, resp)
+    e = _entries(tmp_path, run_id)
+    assert set(e) == {"A", "B"}
+    assert e["B"]["model_rank"] == 1
+    assert e["B"]["model_rank_inherited_from"] == "novel:A"
+    assert e["B"]["effective_rank"] == 1              # 首选反应先执行
+    assert e["A"]["model_rank"] == 2
+    assert e["A"]["effective_rank"] == 2
+    dd = _decide_dedup(tmp_path, run_id)
+    assert len(dd) == 1
+    assert dd[0]["logical_proposal_id"] == "A"        # novel（与池 A 同名）
+    assert dd[0]["folded_entry_source"] == "novel"    # 来源可辨（Q2）
+    assert dd[0]["merged_into"] == "B"
+    assert dd[0]["folded_model_rank"] == 1            # 读对 novel 自己的 1
+    assert dd[0]["rank_inherited"] is True
+
+
+def test_collision_novel_id_survivor_key(tmp_path) -> None:
+    """矩阵②：novel 自报 ID="B"（撞**幸存**池 key），折入池 B（自身位次 2）。
+    修复后：两个不同来源的位次（novel=1 / 池=2）正确比较 ⇒ 继承 1。"""
+    run_id = "tf-fix-col2"
+    b_id = _pool_prepared_id(run_id, SPEC_B)
+    resp = _response(NOVEL_O, [b_id], ["B", b_id], novel_id="B")
+    _run(tmp_path, run_id, resp)
+    e = _entries(tmp_path, run_id)
+    assert set(e) == {"A", "B"}
+    assert e["B"]["model_rank"] == 1                  # min(novel 1, 池 2)
+    assert e["B"]["model_rank_inherited_from"] == "novel:B"
+    assert e["B"]["rank_basis"] == "model_selection"
+    assert e["A"]["rank_basis"] == "deterministic_fallback"
+    dd = _decide_dedup(tmp_path, run_id)
+    assert dd[0]["folded_model_rank"] == 1            # 不是池 B 的 2
+    assert dd[0]["folded_entry_source"] == "novel"
+    assert dd[0]["merged_into"] == "B"
+
+
+def test_same_name_novel_survives_v1_identity_selfcheck(tmp_path) -> None:
+    """同根自检（Codex 建议非新门）：novel ID="A" 且**幸存**（签名互异）。
+    同名双条目为既有 v1 身份行为：池 A 的位次占 model_rank_by_key 字串槽，
+    novel 自身位次被 backfill 跳过（key 已在表中）⇒ 两条 "A" 同位次同生效。
+    本轮不修（身份合并属另一工单），登记现状防回归漂移。"""
+    run_id = "tf-fix-same-surv"
+    a_id = _pool_prepared_id(run_id, SPEC_A)
+    resp = _response(NOVEL_C, [a_id], ["A", a_id], novel_id="A")
+    _run(tmp_path, run_id, resp)
+    db = tmp_path / "runs" / run_id / "pollutant.sqlite"
+    conn = sqlite3.connect(str(db))
+    rows = [json.loads(p) for _, _, _, p in conn.execute(
+        "SELECT action_id, action_kind, status, payload "
+        "FROM search_actions")]
+    conn.close()
+    same = [p for p in rows
+            if isinstance(p, dict) and p.get("logical_proposal_id") == "A"]
+    assert len(same) == 2                              # 池 A + novel A 双条目
+    assert all(p["model_rank"] == 2 for p in same)     # 池位次占槽（v1 现状）
+    assert all(p["rank_basis"] == "model_selection" for p in same)
+    assert _decide_dedup(tmp_path, run_id) == []       # 不折叠
 
 
 def test_fx3_no_fold_baseline_unchanged(tmp_path) -> None:
