@@ -1022,6 +1022,7 @@ class _Driver:
         dedup_rejections: list[dict] = []
         dedup_by_signature: dict[tuple, tuple] = {}   # sig -> (key, idx)
         deduped_entries: list = []
+        deduped_indices: list[int] = []   # 幸存条目的原索引(来源身份随行)
         best_folded_rank: dict[str, tuple] = {}  # survivor -> (rank, 折叠者, idx, 来源)
         for entry_idx, entry in enumerate(prepared_entries):
             key, spec, _prepared = entry
@@ -1051,6 +1052,7 @@ class _Driver:
                 continue
             dedup_by_signature[signature] = (key, entry_idx)
             deduped_entries.append(entry)
+            deduped_indices.append(entry_idx)
         prepared_entries = deduped_entries
         if dedup_rejections:
             model_note["dedup_rejections"] = dedup_rejections
@@ -1059,11 +1061,16 @@ class _Driver:
             if str(k) in {key for key, _, _ in prepared_entries}}
         # W3:novel 条目的模型位次从原始 ID 表补回(novel 键 = 模型
         # 自报 hypothesis_id;池条目键 = 池 key —— 两个命名空间都按
-        # 模型 rank 原位次收录,不因来源排后)
-        for key, _spec, _prepared in prepared_entries:
+        # 模型 rank 原位次收录,不因来源排后)。
+        # T-F 回修二(Codex 复审 2026-10-17,原 P1 余项):补回按**真实
+        # 条目来源**(原索引随幸存条目保留)——池条目与已折叠 novel 同名
+        # 时,旧判据 key in novel_by_key 会把折叠 novel 的位次误补给
+        # 未排名池条目;不得在去重后重新 enumerate 套用去重前索引。
+        for entry_idx, (key, _spec, _prepared) in zip(
+                deduped_indices, prepared_entries):
             if key in model_rank_by_key:
                 continue
-            if key in novel_by_key:
+            if entry_idx in novel_entry_idx:
                 if key in model_rank_by_id_pre:
                     model_rank_by_key[key] = model_rank_by_id_pre[key]
         # W3 位次继承落地:幸存者取 min(自身声明位次,被折叠者最优位次);

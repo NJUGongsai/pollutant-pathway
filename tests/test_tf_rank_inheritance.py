@@ -238,6 +238,41 @@ def test_collision_novel_id_survivor_key(tmp_path) -> None:
     assert dd[0]["merged_into"] == "B"
 
 
+def test_collision_unranked_pool_steals_folded_rank(tmp_path) -> None:
+    """复审余项（Codex 最小输入）：两池**均未排名**，novel ID="A"（撞
+    未排名池 A）折入池 B。bug：补回按 key in novel_by_key 把折叠 novel
+    的位次 1 误补给池 A ⇒ A 偷一位、首选反应仍第二。修复后：池 A 不补
+    （fallback），B 继承 1，CCOO 先提交。"""
+    run_id = "tf-fix-col3"
+    resp = _response(NOVEL_O, [], ["A"], novel_id="A")
+    _run(tmp_path, run_id, resp)
+    e = _entries(tmp_path, run_id)
+    assert set(e) == {"A", "B"}
+    assert e["A"]["model_rank"] is None            # 池 A 未被误补给位次
+    assert e["A"]["rank_basis"] == "deterministic_fallback"
+    assert e["A"]["effective_rank"] == 2
+    assert e["B"]["model_rank"] == 1
+    assert e["B"]["model_rank_inherited_from"] == "novel:A"
+    assert e["B"]["effective_rank"] == 1           # 首选反应第一执行
+    dd = _decide_dedup(tmp_path, run_id)
+    assert dd[0]["folded_entry_source"] == "novel"
+    assert dd[0]["folded_model_rank"] == 1
+
+
+def test_unranked_no_collision_positive_control(tmp_path) -> None:
+    """上例的无撞名对照（严格单变量）：novel ID="novel:A"，其余全同。
+    两池未排名 ⇒ A fallback、B 继承 1，CCOO 先提交。"""
+    run_id = "tf-fix-col3-ctl"
+    resp = _response(NOVEL_O, [], ["novel:A"], novel_id="novel:A")
+    _run(tmp_path, run_id, resp)
+    e = _entries(tmp_path, run_id)
+    assert e["A"]["model_rank"] is None
+    assert e["A"]["rank_basis"] == "deterministic_fallback"
+    assert e["B"]["model_rank"] == 1
+    assert e["B"]["model_rank_inherited_from"] == "novel:novel:A"
+    assert e["B"]["effective_rank"] == 1
+
+
 def test_same_name_novel_survives_v1_identity_selfcheck(tmp_path) -> None:
     """同根自检（Codex 建议非新门）：novel ID="A" 且**幸存**（签名互异）。
     同名双条目为既有 v1 身份行为：池 A 的位次占 model_rank_by_key 字串槽，
