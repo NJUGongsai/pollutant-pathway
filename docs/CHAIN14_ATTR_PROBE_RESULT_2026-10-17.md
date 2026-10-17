@@ -52,3 +52,7 @@ PYTHONDONTWRITEBYTECODE=1 /Users/cc/miniconda3/envs/depending43/bin/python \
 ```
 
 （seed=20261017；置换检验固定种子可重放；前置数据=双臂 synced/runs 298+298 目录）
+
+## 七、P2 用语收窄（Codex v2 设计审 2026-10-18 勘误注记）
+
+本报告 §一/§四 的证据强度用语按 Codex 设计审 P2 收窄：**15:2 为整卡 on/off 干预下第一名来源构成翻转**（足以重议 source 面的呈现设计，**未隔离 source 字段因果**——删卡内 source 后顶层 transformation_ref 记录号仍可见）；§二 的 10/14 行数更多（p=0.078）为**待试方向**，非完整度因果证明；机制乙未获支持不得表述为位点锚获证。数字本身不变，仅表述边界收窄。
