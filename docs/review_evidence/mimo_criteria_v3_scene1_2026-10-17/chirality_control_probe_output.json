@@ -1,0 +1,40 @@
+{
+  "default_arm_removeSp3Stereo_True": {
+    "L/D-丙氨酸(α-手性+酰胺互变模板)": {
+      "equal": true,
+      "canon": "CC(N)C(=O)O"
+    },
+    "L/D-乳酸(α-手性+酮烯醇模板)": {
+      "equal": true,
+      "canon": "CC(O)C(=O)O"
+    },
+    "手性中心远离互变体系": {
+      "equal": false,
+      "canon": "F[C@H](Cl)Br"
+    }
+  },
+  "stereo_keep_arm_removeSp3Stereo_False": {
+    "L/D-丙氨酸(α-手性+酰胺互变模板)": {
+      "equal": false,
+      "canon": "C[C@H](N)C(=O)O"
+    },
+    "L/D-乳酸(α-手性+酮烯醇模板)": {
+      "equal": false,
+      "canon": "C[C@H](O)C(=O)O"
+    },
+    "手性中心远离互变体系": {
+      "equal": false,
+      "canon": "F[C@H](Cl)Br"
+    }
+  },
+  "true_tautomer_poscontrol_2-hydroxypyridine_vs_2-pyridone": {
+    "default_arm_equal": true,
+    "keep_arm_equal": true
+  },
+  "verdict": {
+    "默认臂手性负控": "失败（L/D 塌缩 2/2，远离互变体系的手性保住）",
+    "立体保留臂手性负控": "通过（0 塌缩）",
+    "真互变正控": "两臂均救回",
+    "对档 B 的含义": "按 mimo Q2 准入闸门，默认配置不得进 strict；立体保留臂通过闸门"
+  }
+}
