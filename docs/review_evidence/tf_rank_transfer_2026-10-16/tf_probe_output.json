@@ -1,0 +1,1101 @@
+{
+ "probe": "tf_probe_rank_transfer.py",
+ "domain_tag": "298=RHEA 通用酶学/已见题",
+ "scope": "只读独立复算：synced 一手 payload/metrics + attr JSON；不复用 rank_audit.py；零金标零题面零模型零网络",
+ "inputs": {
+  "sync": "/Volumes/CC/Enzyme_Agent/dependingv43/reports/ppv1_s5b/chain13_glm/synced",
+  "attr_sha256": "738e8d0c72d0304c77a8ad223c99ef6577340ef5e8cf3f2c3382ec3e593913bc",
+  "audit_sha256": "a60adc46e4d9f012eb2c068c0f653a0e0c20324d9ff1d0f368a0cb6b2f04bcfc",
+  "metrics_sha256": "f2e5003c4bc2de08d34a0d145cceae4a93a0f2565fd5add15f3dc37a805f524e"
+ },
+ "aggregates": {
+  "n_questions": 298,
+  "n_payload_found": 298,
+  "n_payload_missing": 0,
+  "n_questions_with_dedup": 2,
+  "n_dedup_fold_events": 3,
+  "n_folds_of_model_first": 0,
+  "n_folds_where_folded_is_rank1": 0,
+  "n_folds_with_unranked_survivor": 0,
+  "n_folds_with_fallback_survivor": 0,
+  "n_folds_survivor_effective_rank_gt_folded_rank": 3,
+  "n_questions_with_fallback_entries": 3,
+  "n_fallback_entries": 3,
+  "n_questions_with_gt1_scheduled_decide": 0,
+  "unresolved_declared_ids": {
+   "n_questions_with_unresolved": 32,
+   "n_ids": 64,
+   "class_tally": {
+    "novel_prevalidation_failed": 30,
+    "dedup_folded": 2
+   },
+   "id_class_tally": {
+    "novel_prevalidation_failed": 61,
+    "dedup_folded": 3
+   },
+   "n_unexplained_ids": 0,
+   "detail": [
+    {
+     "qid": "RXNG_06453c845d47850051bcfd724563cb54382a18401a838e932bcd111f4609bc52",
+     "ids": [
+      "novel-6"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_1450598a449ab6e370e375052c6593aa2aed4f9c275592b7cc768f3b6c7e6ea2",
+     "ids": [
+      "novel-1",
+      "novel-2",
+      "novel-3",
+      "novel-4",
+      "novel-5"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_164844b4b76b8ac5477595bb93d376ba7bfb3ac5d31abc4f096c9ea3d196364b",
+     "ids": [
+      "novel-5"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_16560019e952c8daec04b2e44ad1db7ac46aff14645c5ca96127deb688726ef3",
+     "ids": [
+      "novel-3"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_1ad8c653ea1b4320985d7e6d75ef95d222112c0175c639eda3a03bbcfdd30871",
+     "ids": [
+      "novel-2",
+      "novel-3",
+      "novel-4"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_208874cbe2e550f5885e5c562659d1c5134d67e4dcd560189dac53c6ecd83f27",
+     "ids": [
+      "novel-3"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_248f2d715a3471556017397234086fe6736180782dba757cc9458b8e9d5b4481",
+     "ids": [
+      "novel-6"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_2579ae3ecc63b2677829ff39f5890a30436586ff24b2f8d3184dc0814d24262c",
+     "ids": [
+      "novel-4"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_31299a2c77ec97998ff6c2d057a92d5bf9e80d5ef08e71cdfb8fc473cf906fba",
+     "ids": [
+      "novel-1",
+      "novel-3",
+      "novel-4",
+      "novel-5",
+      "novel-6"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_33315ca374c56103d8d2e0495e043a8f697adc3a84c231c62722272ad6d56e91",
+     "ids": [
+      "novel-1"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_36c4cbdc87ef3561010ba009b8d44c16f2c2a080c62291cd21e1b71f78e82595",
+     "ids": [
+      "novel-3",
+      "novel-4",
+      "novel-5",
+      "novel-6",
+      "novel-7"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_3cb4b536b81d61c752d70e92a894d2571a5e27442446d4ec1a12d34e65759b74",
+     "ids": [
+      "novel-3"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_45d8d90fa8ccd5c3b22a7a15aa6bb45c6e622e0091caa6ad462692b4d92d5182",
+     "ids": [
+      "novel-2"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_4c2cd0c3e1c5a7e5a513769b4e70044a8d5cbfebda52bd2a6bb4c7d21004af16",
+     "ids": [
+      "novel-2",
+      "novel-3",
+      "novel-4"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_50e0f19bd85dcaf65f33eb601ae9d2cdb869a91fcb25e12f47d7abbbe2402f5b",
+     "ids": [
+      "novel-3"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_59a61f5ced676149aaad318749d845aa01a843e00b444a824c8702187d798995",
+     "ids": [
+      "novel-4"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_5d62b57e8f2b22f7af2326332bb2a1cba66b836554eda6d5ffc548942daa1890",
+     "ids": [
+      "novel-4"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_66ce382cbf38b1a59736c67cc9bd203ae04214a7a7fe4ef913a0c0f61dc03177",
+     "ids": [
+      "novel-8"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_87e7556b1089084c54a74ec250da4783425a2bcab67f6dd3482b3866276945c9",
+     "ids": [
+      "novel-3",
+      "novel-4"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_891c844ebaa81c83111bf26f7e4e45e6c6a3568c4bf1513384d266fdefe1fb08",
+     "ids": [
+      "novel-2"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+     "ids": [
+      "novel-1",
+      "novel-2",
+      "novel-5"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_98c9304514ba1568e6d0baa6978eadacb26cffd79c972de049282f1c47f372ae",
+     "ids": [
+      "novel-1",
+      "novel-2",
+      "novel-3"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_9ae16215eb3dbb20f6fc680789b0c38e540e7019af847f42e216f1031cccb48f",
+     "ids": [
+      "novel-1"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_9b313824f01c1f962f16d11881e7702fdf819f6651542af37b5ae3189498ecaf",
+     "ids": [
+      "novel-5"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_a401c95418f5ee54961cc1f417f34526e92b56d02e63e227f545f14abd990c32",
+     "ids": [
+      "novel-2"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_a69bf0d2eb730bd15d042004c9ca13d3bc7896b5fbf8d8a20a76e2cc64c96252",
+     "ids": [
+      "novel-4"
+     ],
+     "classes": [
+      "dedup_folded"
+     ]
+    },
+    {
+     "qid": "RXNG_c9ee5eb0c5f911d80c6586a23575b4ce128c59608d4203618cfb40803f4a5aaa",
+     "ids": [
+      "novel-3",
+      "novel-6"
+     ],
+     "classes": [
+      "dedup_folded"
+     ]
+    },
+    {
+     "qid": "RXNG_cc87d036f89aefeb441daebda4b31c3cee21438d1c6c6b7974f9cd98a1af85ac",
+     "ids": [
+      "novel-1",
+      "novel-2",
+      "novel-3",
+      "novel-4",
+      "novel-5"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_d6c4161ded1251a4d9f3fd799262728acfd00e06d690706b5a675ee356098183",
+     "ids": [
+      "novel-1",
+      "novel-2",
+      "novel-4",
+      "novel-5"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_e7f836a4e6e7ae2e4a1fe639385cab807b35ba46410a79b4629fe623dc6542dc",
+     "ids": [
+      "novel-pcp-O-methylation",
+      "novel-pcp-O-sulfation",
+      "novel-pcp-dechlorhydroxy-para"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_ebe7683e257c82706f7433e6ab17a8fe29445c9b5a43199e1cddb77721541650",
+     "ids": [
+      "novel-5"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    },
+    {
+     "qid": "RXNG_f6ac633af28cf463b1b95ac73d6bf6384dd247a2ab7e068939785f8537393ad0",
+     "ids": [
+      "novel-5",
+      "novel-6"
+     ],
+     "classes": [
+      "novel_prevalidation_failed"
+     ]
+    }
+   ]
+  },
+  "transfer_tally": {
+   "model_first_is_first_event": 277,
+   "no_first_event": 13,
+   "no_model_first_entry_in_pool": 7,
+   "first_event_is_other_candidate": 1
+  },
+  "microsecond_collision": {
+   "total_events": 1443,
+   "n_pairs": 0,
+   "n_questions_with_collision": 0
+  },
+  "fold_detail": [
+   {
+    "folded_logical_proposal_id": "novel-4",
+    "merged_into": "novel-2",
+    "folded_declared_rank": 4,
+    "folded_has_expand_action": false,
+    "survivor_declared_rank": 2,
+    "survivor_effective_rank": 2,
+    "survivor_rank_basis": "model_selection",
+    "survivor_has_expand_action": true,
+    "folded_is_model_first": false,
+    "folded_is_rank1_in_declared_table": false
+   },
+   {
+    "folded_logical_proposal_id": "novel-3",
+    "merged_into": "novel-1",
+    "folded_declared_rank": 2,
+    "folded_has_expand_action": false,
+    "survivor_declared_rank": 1,
+    "survivor_effective_rank": 1,
+    "survivor_rank_basis": "model_selection",
+    "survivor_has_expand_action": true,
+    "folded_is_model_first": false,
+    "folded_is_rank1_in_declared_table": false
+   },
+   {
+    "folded_logical_proposal_id": "novel-6",
+    "merged_into": "novel-4",
+    "folded_declared_rank": 5,
+    "folded_has_expand_action": false,
+    "survivor_declared_rank": 4,
+    "survivor_effective_rank": 3,
+    "survivor_rank_basis": "model_selection",
+    "survivor_has_expand_action": true,
+    "folded_is_model_first": false,
+    "folded_is_rank1_in_declared_table": false
+   }
+  ],
+  "compaction_shifts": {
+   "n_entries_in_fold_questions": 7,
+   "n_effective_lt_declared": 3,
+   "n_effective_eq_declared": 4,
+   "n_effective_gt_declared": 0
+  },
+  "build_side_merges": {
+   "n_questions_with_build_side_merge": 41,
+   "n_build_side_merge_events": 50,
+   "n_questions_with_both_sides": 0,
+   "detail": [
+    {
+     "qid": "RXNG_03ebc970515b44b852ed443ee83382e42fc7f9187577ff9d5a3b9d718af93014",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:85608@L37131",
+       "merged_source_keys": [
+        "tpl-rhea:85608",
+        "tpl-rhea:85604"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_08d3aa8a02eec3c1781990d03e1392cd369679bedd64a422046232d0cd2296cd",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:14570@L2751",
+       "merged_source_keys": [
+        "tpl-rhea:14570"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-rhea:56586@L22740",
+       "merged_source_keys": [
+        "tpl-rhea:56586"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_0c352348a848d6e24b845830cb6babf521bf976fe5e1029b3140e1917eb0545a",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:54366@L21652",
+       "merged_source_keys": [
+        "tpl-rhea:54366"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_0faafc67fe7e556d248ded924e03447f18741e52c7d970f978b98df45788e88b",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0001#r0022",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0022"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_13a2ae2bccf3ed3e996d9c27b0a9826891ec28ed41d44749d1dc9ccfbb93da6d",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0001#r0291",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0291",
+        "tpl-env:EAWAG-BBD:bt0001#r0267"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_1450598a449ab6e370e375052c6593aa2aed4f9c275592b7cc768f3b6c7e6ea2",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0001#r0771",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0771",
+        "tpl-env:EAWAG-BBD:bt0001#r0267"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_1529326185deb8aaef6b237d68ae703df957b9036b039004e1bb76c177633ca7",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:80448@L34585",
+       "merged_source_keys": [
+        "tpl-rhea:80448",
+        "tpl-rhea:80384"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-bt0001#r0400",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0400",
+        "tpl-env:EAWAG-BBD:bt0001#r0267"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_1677ce9fc6cf6ff8bff33991d65718954f9a353a2c3029a63b7f2d7d9deb509a",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0001#r0213",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0213",
+        "tpl-env:EAWAG-BBD:bt0001#r0267"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-rhea:80440@L34581",
+       "merged_source_keys": [
+        "tpl-rhea:80440",
+        "tpl-rhea:80384"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_169bc7967a891bd80495c35fc206518a4b4964ec0153a0073fe56c52beee4510",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0107#r0227",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0107#r0227"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_1894b4ecb3fee23e101a77b70e5996a0e93954d49349f2fc9115899890c3a0cb",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0002#r0165",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r0165"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_1de92ec1009b92e9e4ce562dfa4a90e9b1fedcaeff78bc996e3584a44909bdba",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:56938@L22914",
+       "merged_source_keys": [
+        "tpl-rhea:56938"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-bt0002#r1147",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r1147"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_1eba3a0e9758a34a8748492031b9339a2d0980143cc6f336d112d760607fc0f5",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-EAWAG-SOIL:8997f0b0-21d8-49ff-b156-ef1a43b31f66#b6970d9d-6715-4846-a290-5dfc9ae97133",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-SOIL:b6970d9d-6715-4846-a290-5dfc9ae97133"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_248f2d715a3471556017397234086fe6736180782dba757cc9458b8e9d5b4481",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0002#r0032",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r0032"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_249b9956c0b5dbbc13be57918505bbe232fbd60505da0630bb61f3cc82b13414",
+     "merges": [
+      {
+       "logical_proposal_id": "tpl-env:EAWAG-BBD:bt0217#r0034",
+       "merged_source_keys": [
+        "tpl-rhea:21605"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_2d49e9455f2fbba4e4c580c010c7fb0eb86107775f1f0fc984a7a6e29c376f02",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:80384@L34553",
+       "merged_source_keys": [
+        "tpl-rhea:80384"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-bt0001#r0267",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0267"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_44411841cda1c108064d3585ea3a8366c70e6a76dd5c64454867840b87cad9de",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0001#r0267",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0267"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-rhea:80384@L34553",
+       "merged_source_keys": [
+        "tpl-rhea:80384"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_5048373ef70a1d04f5813f05b8dcb98761ee149e81262b4bc91999d1fe03a234",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0002#r0032",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r0032"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_586a0fd75f89f515d3a77da6709d95308e579f666baf2553549b115d427009e1",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0001#r1433",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r1433"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_5975a922b68a221f176a56c087ab88e848001c36178a6cc25f33f4811d8d8aa9",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0002#r0032",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r0032"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_675fcec2d1552c0ef169b8605574e80939f28d2cdf408449c531930d084994a3",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0216#r0248",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0216#r0248"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_74e2fc6a3bb573c21891eeeb5019a2c2695ce82412a3a5b3940b5d626d4a3c6e",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0216#r0248",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0216#r0248"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_76682d9fbce33d2481da6b5d74a0f8eb2cf94b45bfb4c72af75a29c26c5107a9",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:19247@L4970",
+       "merged_source_keys": [
+        "tpl-rhea:19247"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_7d50e87f7587671bf324e00f7ceb582150344ed1d4b32fe2d70dcc6da40c1184",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0217#r0034",
+       "merged_source_keys": [
+        "rec-rhea:21605@L6095",
+        "tpl-env:EAWAG-BBD:bt0217#r0034",
+        "tpl-rhea:21605"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_801ac588c61c3c5476552a4c241dc6a6f9be2edb187fe58adf3cc860d2be7bf8",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0002#r0165",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r0165"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_87e7556b1089084c54a74ec250da4783425a2bcab67f6dd3482b3866276945c9",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0002#r0032",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r0032"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_8dce8a33d8bd39029f2f9025f9a209245921cf2308df3c8ff8ab28b4967a5dc9",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:27403@L8466",
+       "merged_source_keys": [
+        "tpl-rhea:27403"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_94c56325db7601a057d9a18d360de59373b7e6cb3b051a62f3adc89a9443b8e4",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0217#r0034",
+       "merged_source_keys": [
+        "rec-rhea:21605@L6095",
+        "tpl-env:EAWAG-BBD:bt0217#r0034",
+        "tpl-rhea:21605"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_96836273fb2c376cc96985d7ab5b3f35566778d7b9778ea812534ecbecc2a180",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:27544@L8536",
+       "merged_source_keys": [
+        "tpl-rhea:27544"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-rhea:27540@L8534",
+       "merged_source_keys": [
+        "tpl-rhea:27540"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_a16ff40c1385e2c4cc07b4ace93a2227e8591a3180bf3021eb698227a76d047f",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:31296@L10347",
+       "merged_source_keys": [
+        "tpl-rhea:31296"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_a275c5200849ef8a1f8b8fae5945c33d92484a4cc96f7d670e84e3319a542939",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:85612@L37133",
+       "merged_source_keys": [
+        "tpl-rhea:85612"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_a6762b71c7b3daeb2120076a862d1667a5e908cd148b173564048f9b5109de95",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0002#r0165",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r0165"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_a7dee9850bac7296891f42b4352affca25ac03f0d560630a8e0ee4b1e25084f0",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:80448@L34585",
+       "merged_source_keys": [
+        "tpl-rhea:80448",
+        "tpl-rhea:80384"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-bt0001#r0400",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0400",
+        "tpl-env:EAWAG-BBD:bt0001#r0267"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_aa8e13bac8ce91d6eed362493978ab7ece72e5f0fed372df8cff4aff83410ceb",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:85612@L37133",
+       "merged_source_keys": [
+        "tpl-rhea:85612"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_b6f489e004c832de0dae5019a51ed15e568cb7840b654493901b4a67bd114008",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0002#r0032",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0002#r0032"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_b7929329a72350f5ad663e82f9cb1991938358927634c1cd2f92662534351599",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0037#r0304",
+       "merged_source_keys": [
+        "rec-rhea:19246@L4969",
+        "tpl-env:EAWAG-BBD:bt0037#r0304",
+        "tpl-rhea:19246"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_b978fd0b540c4b52d0b90b504c8479c5fdb89291e40f9ab008f2639964bdd9b3",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:80380@L34551",
+       "merged_source_keys": [
+        "tpl-rhea:80380"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_c2fb10b79767bb786aa8d6e5df177fd580acbde9eb229e4fa70cfb34db5fe7ff",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:80381@L34552",
+       "merged_source_keys": [
+        "tpl-rhea:80381"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_c698e3f2b73a85989b56668d7bbfa53131662a32718f5cc9dcb1a6743f03fc8f",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-bt0001#r0267",
+       "merged_source_keys": [
+        "tpl-env:EAWAG-BBD:bt0001#r0267"
+       ]
+      },
+      {
+       "logical_proposal_id": "rec-rhea:80384@L34553",
+       "merged_source_keys": [
+        "tpl-rhea:80384"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_eee01aeed9ebd1a309bf0101c26028efe9714583e293dec8411b78ef30c22aa6",
+     "merges": [
+      {
+       "logical_proposal_id": "tpl-env:EAWAG-BBD:bt0217#r0034",
+       "merged_source_keys": [
+        "tpl-rhea:21605"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_eef21424b5618ccc4baa3abeb2758eb22cee36c04a8d4d9faee303885d60c9f9",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:43937@L16529",
+       "merged_source_keys": [
+        "tpl-rhea:43937"
+       ]
+      }
+     ]
+    },
+    {
+     "qid": "RXNG_f30855a0ac0fa9188f6a03b5fea6cbb2bc9b84a9bc445a6a00efe39354aa7744",
+     "merges": [
+      {
+       "logical_proposal_id": "rec-rhea:85664@L37159",
+       "merged_source_keys": [
+        "tpl-rhea:85664"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "report_projection_surface": {
+   "n_projections": 1443,
+   "n_with_dedup_notes": 0,
+   "n_report_rank_none_slots": 14
+  }
+ },
+ "groups": {
+  "lost_to_rank_gt1_8": {
+   "n": 8,
+   "n_missing_payload": 0,
+   "n_model_first_is_first_event": 8,
+   "transfer_tally": {
+    "model_first_is_first_event": 8
+   },
+   "n_model_first_folded": 0
+  },
+  "strict_rank_gt1": {
+   "n": 32,
+   "n_missing_payload": 0,
+   "n_model_first_is_first_event": 32,
+   "transfer_tally": {
+    "model_first_is_first_event": 32
+   },
+   "n_model_first_folded": 0
+  },
+  "strict_rank_gt1_qids": [
+   "RXNG_0657c0389a4433d0430304db1237a429b7d20825f79db036f8ea31cd92007cab",
+   "RXNG_082f4c1a26d9afd06f2e3df45d35e104240397107d648b7609c4c7b3a2c2caad",
+   "RXNG_0c352348a848d6e24b845830cb6babf521bf976fe5e1029b3140e1917eb0545a",
+   "RXNG_18a3c06e4220c1a530075b3f0b9d365dd5aa2f68496fbcdbe4d81415e43c2737",
+   "RXNG_22901c4d6f4185e1be0346f43411bad2baec0ebd625b0ba8f9113b4b165e37ca",
+   "RXNG_2d49e9455f2fbba4e4c580c010c7fb0eb86107775f1f0fc984a7a6e29c376f02",
+   "RXNG_327db08d6f8d857107335c9b93256f59ecf98816586e3eaaa0b29c730e82e33d",
+   "RXNG_330b8f55167f5f3f0c79f6897e558fe3dc4ce17aaaf95ef6a11170c68f4d604b",
+   "RXNG_4c2cd0c3e1c5a7e5a513769b4e70044a8d5cbfebda52bd2a6bb4c7d21004af16",
+   "RXNG_4edd9216055562472c483b0b1691ae06b8762b7c6ff9ff5d320f7d24866597b6",
+   "RXNG_582fbbca387fa0bbd3be4f47052966cdca4c22a73cfbaa0debe845080dbd34e1",
+   "RXNG_5876dc9dadf845f4625ac53438a0dc58c915cc4c93caadbae847a1bede5bd02a",
+   "RXNG_5d15fc190935315f1a0b19f3b357e581c6b2113a407fab693c107742232b31ff",
+   "RXNG_5e86f7ef4c770cc1dc4581ef5126bd8fc57098d86d8d86fc87108d6fcb77aa63",
+   "RXNG_61667af8d9ca47750a9dd276e1dc6bf6d136e9b5bff4ed6138ab13904feea2cb",
+   "RXNG_675fcec2d1552c0ef169b8605574e80939f28d2cdf408449c531930d084994a3",
+   "RXNG_89d590ba43e2be155ab13c36ab0456f3d843f10232bdf4453963cdbcf7d0dd00",
+   "RXNG_8dce8a33d8bd39029f2f9025f9a209245921cf2308df3c8ff8ab28b4967a5dc9",
+   "RXNG_94c56325db7601a057d9a18d360de59373b7e6cb3b051a62f3adc89a9443b8e4",
+   "RXNG_a685d0ed38678a36959c49c1524739c09cb0c5dd518f338c35493a1af4a17bf6",
+   "RXNG_a7dee9850bac7296891f42b4352affca25ac03f0d560630a8e0ee4b1e25084f0",
+   "RXNG_a7f229a532310d0e117ab03c654302d6c53374768ef4fcfc5cc369bc57d8a729",
+   "RXNG_b978fd0b540c4b52d0b90b504c8479c5fdb89291e40f9ab008f2639964bdd9b3",
+   "RXNG_baa4bda400eaa4056d68e79e7da08a7fcb970e37aabcc87013e8a5d870592fdf",
+   "RXNG_c745f0a1d65aeafcfcf6e86d6f722ff8558a713771fd09eaafe3bee44b0fba7f",
+   "RXNG_cddca61c61d63bcee7754b1d9a44b9c64aca7a85ecf340604e71e53126e5bfd5",
+   "RXNG_d30a28d0eca9e1703f1939e734213afd2c1d733799080752e1ec908daefa69fc",
+   "RXNG_d7656c5f483c6fc47cf8bee05acb7584140c31471009aa6eff684ee389dcc6a0",
+   "RXNG_e97de46f27c02383bafd7ba488371c677aeea1da91e131ea42a66a1cfce4362b",
+   "RXNG_fb86653f3fe39cec2d99b3e697fde95f497d8b38883b5831d8bbcac3ff76aca3",
+   "RXNG_fc90885a446192fc4209fc6cd1006c8d7400ae365399f6262f05b736670b824e",
+   "RXNG_fee48640c910421420d43baabbfee92ac6f0f9977a347b8f1079ed4e759c210d"
+  ]
+ },
+ "recalc_from_metrics": {
+  "hit1_v2": 87,
+  "strict_v2": 119
+ },
+ "compare_with_p0_audit": {
+  "audit_meta_head_expected": "461844e",
+  "closure_table_sum_298": 298,
+  "n_dedup_fold_events": {
+   "probe": 3,
+   "audit": 3
+  },
+  "n_dedup_fold_of_model_first": {
+   "probe": 0,
+   "audit": 0
+  },
+  "n_questions_with_dedup_rejections": {
+   "probe": 2,
+   "audit": 2
+  },
+  "microsecond_collision": {
+   "probe": {
+    "total_events": 1443,
+    "n_pairs": 0,
+    "n_questions_with_collision": 0
+   },
+   "audit": {
+    "total_events": 1443,
+    "n_pairs": 0,
+    "n_questions_with_collision": 0
+   }
+  },
+  "focus1_n": {
+   "probe": 8,
+   "audit": 8
+  },
+  "focus1_all_first": {
+   "probe": 8,
+   "audit": 8
+  },
+  "focus2_n": {
+   "probe": 32,
+   "audit": 32
+  },
+  "focus2_all_first": {
+   "probe": 32,
+   "audit": 32
+  },
+  "audit_qid_set_vs_probe": {
+   "audit_rows": 298,
+   "probe_rows": 298,
+   "same_set": true
+  },
+  "strict_v2_recalc": {
+   "probe": 119,
+   "audit": 119
+  },
+  "hit1_v2_recalc": {
+   "probe": 87,
+   "audit": 87
+  }
+ },
+ "fold_detail": [
+  {
+   "folded_logical_proposal_id": "novel-4",
+   "merged_into": "novel-2",
+   "folded_declared_rank": 4,
+   "folded_has_expand_action": false,
+   "survivor_declared_rank": 2,
+   "survivor_effective_rank": 2,
+   "survivor_rank_basis": "model_selection",
+   "survivor_has_expand_action": true,
+   "folded_is_model_first": false,
+   "folded_is_rank1_in_declared_table": false
+  },
+  {
+   "folded_logical_proposal_id": "novel-3",
+   "merged_into": "novel-1",
+   "folded_declared_rank": 2,
+   "folded_has_expand_action": false,
+   "survivor_declared_rank": 1,
+   "survivor_effective_rank": 1,
+   "survivor_rank_basis": "model_selection",
+   "survivor_has_expand_action": true,
+   "folded_is_model_first": false,
+   "folded_is_rank1_in_declared_table": false
+  },
+  {
+   "folded_logical_proposal_id": "novel-6",
+   "merged_into": "novel-4",
+   "folded_declared_rank": 5,
+   "folded_has_expand_action": false,
+   "survivor_declared_rank": 4,
+   "survivor_effective_rank": 3,
+   "survivor_rank_basis": "model_selection",
+   "survivor_has_expand_action": true,
+   "folded_is_model_first": false,
+   "folded_is_rank1_in_declared_table": false
+  }
+ ]
+}

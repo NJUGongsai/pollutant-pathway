@@ -201,8 +201,11 @@ FROZEN_PLAN_VERSION = "ppv1-frozen-plan-1"
 FROZEN_PLAN_TASK_KEY = "run-plan"
 FROZEN_PLAN_ARTIFACT = "frozen_plan"
 # W3:统一选择排序规则版本("模型选择"与"确定性 fallback"两个版本化
-# 规则;显式 rank 先于 fallback;novel 不因来源排后;净反应签名去重)
-S5B_RANK_POLICY_VERSION = "s5b-rank-policy-1"
+# 规则;显式 rank 先于 fallback;novel 不因来源排后;净反应签名去重)。
+# v2(2026-10-17,T-F 合成验证证实的修复):同签名折叠时被折叠者的声明
+# 位次优于幸存者(或幸存者无声明位次)⇒ 幸存者继承该位次并逐条披露
+# (模型对净反应的偏好不因表示重复丢失;v1 该位次被静默丢弃)
+S5B_RANK_POLICY_VERSION = "s5b-rank-policy-2"
 
 
 class PPV1RunError(RuntimeError):
@@ -995,17 +998,44 @@ class _Driver:
         #   store 公共 writer 忠实记录)。
         from .s5b_compiler import net_reaction_signature
 
+        # W3 位次继承(s5b-rank-policy-2):被折叠者声明位次优于幸存者
+        # (或幸存者无声明位次)⇒ 幸存者继承;继承事实逐条落
+        # dedup_rejections(folded_model_rank/rank_inherited),不静默
+        model_rank_by_id_pre = {
+            str(k): int(v)
+            for k, v in (model_note.get("model_rank_by_id")
+                         or {}).items()}
+
+        def _declared_rank(k: str):
+            if k in (rank_by_key or {}):
+                return int(rank_by_key[k])
+            return model_rank_by_id_pre.get(k)
+
         dedup_rejections: list[dict] = []
         dedup_by_signature: dict[tuple, str] = {}
         deduped_entries: list = []
+        best_folded_rank: dict[str, tuple] = {}  # survivor -> (rank, 折叠者)
         for entry in prepared_entries:
             key, spec, _prepared = entry
             signature = net_reaction_signature(spec)
             if signature in dedup_by_signature:
+                survivor = dedup_by_signature[signature]
+                folded_rank = _declared_rank(key)
+                if survivor in best_folded_rank:
+                    survivor_rank: int | None = best_folded_rank[
+                        survivor][0]
+                else:
+                    survivor_rank = _declared_rank(survivor)
+                inherit = folded_rank is not None and (
+                    survivor_rank is None or folded_rank < survivor_rank)
+                if inherit:
+                    best_folded_rank[survivor] = (folded_rank, key)
                 dedup_rejections.append({
                     "logical_proposal_id": key,
-                    "merged_into": dedup_by_signature[signature],
-                    "signature": [str(x) for x in signature][:6]})
+                    "merged_into": survivor,
+                    "signature": [str(x) for x in signature][:6],
+                    "folded_model_rank": folded_rank,
+                    "rank_inherited": bool(inherit)})
                 continue
             dedup_by_signature[signature] = key
             deduped_entries.append(entry)
@@ -1018,16 +1048,23 @@ class _Driver:
         # W3:novel 条目的模型位次从原始 ID 表补回(novel 键 = 模型
         # 自报 hypothesis_id;池条目键 = 池 key —— 两个命名空间都按
         # 模型 rank 原位次收录,不因来源排后)
-        model_rank_by_id = {
-            str(k): int(v)
-            for k, v in (model_note.get("model_rank_by_id")
-                         or {}).items()}
         for key, _spec, _prepared in prepared_entries:
             if key in model_rank_by_key:
                 continue
             if key in novel_by_key:
-                if key in model_rank_by_id:
-                    model_rank_by_key[key] = model_rank_by_id[key]
+                if key in model_rank_by_id_pre:
+                    model_rank_by_key[key] = model_rank_by_id_pre[key]
+        # W3 位次继承落地:幸存者取 min(自身声明位次,被折叠者最优位次)
+        inherited_from_by_key: dict[str, str] = {}
+        survivor_keys = {key for key, _, _ in prepared_entries}
+        for survivor, (folded_rank, folded_key) in \
+                best_folded_rank.items():
+            if survivor not in survivor_keys:
+                continue
+            current = model_rank_by_key.get(survivor)
+            if current is None or folded_rank < current:
+                model_rank_by_key[survivor] = folded_rank
+                inherited_from_by_key[survivor] = folded_key
         ranked_keys = [k for k, _ in sorted(
             model_rank_by_key.items(), key=lambda kv: (kv[1], kv[0]))]
         effective_rank_by_key: dict[str, int] = {}
@@ -1086,6 +1123,7 @@ class _Driver:
                 "model_rank": (
                     int(model_rank_by_key[key])
                     if key in model_rank_by_key else None),
+                "model_rank_inherited_from": inherited_from_by_key.get(key),
                 "effective_rank": rank,
                 "rank_basis": rank_basis_by_key.get(key, ""),
                 "rank_policy_version": S5B_RANK_POLICY_VERSION,

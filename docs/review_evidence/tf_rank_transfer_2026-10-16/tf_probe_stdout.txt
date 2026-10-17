@@ -1,0 +1,31 @@
+== T-F 位次传递核查 · 只读独立复算 ==
+题数 298(payload 命中 298 / 缺失 0)
+fold: 题数=2 事件数=3 其中被折叠者=模型首位 0 / =rank1 0
+fold 幸存者: 无声明 rank 0 / fallback 0 / 声明位次优于被折叠者 3
+fallback 候选: 题数=3 条目数=3
+折叠题内条目位次紧凑化: {"n_entries_in_fold_questions": 7, "n_effective_lt_declared": 3, "n_effective_eq_declared": 4, "n_effective_gt_declared": 0}
+池装配(build)侧折叠: {"n_questions_with_build_side_merge": 41, "n_build_side_merge_events": 50, "n_questions_with_both_sides": 0}
+报告投影面: {"n_projections": 1443, "n_with_dedup_notes": 0, "n_report_rank_none_slots": 14}
+  qid=RXNG_a69bf0d2eb7 条目(声明→生效): [('novel-1', 1, 1, 'model_selection'), ('novel-2', 2, 2, 'model_selection'), ('novel-3', 3, 3, 'model_selection')]
+  qid=RXNG_c9ee5eb0c5f 条目(声明→生效): [('novel-1', 1, 1, 'model_selection'), ('novel-2', 3, 2, 'model_selection'), ('novel-4', 4, 3, 'model_selection'), ('novel-5', 6, 4, 'model_selection')]
+多 scheduled decide 的题数 0
+声明位次 ID 去向闭合: {"n_questions_with_unresolved": 32, "n_ids": 64, "class_tally": {"novel_prevalidation_failed": 30, "dedup_folded": 2}, "id_class_tally": {"novel_prevalidation_failed": 61, "dedup_folded": 3}, "n_unexplained_ids": 0}
+transfer tally {'model_first_is_first_event': 277, 'no_first_event': 13, 'no_model_first_entry_in_pool': 7, 'first_event_is_other_candidate': 1}
+微秒碰撞 {'total_events': 1443, 'n_pairs': 0, 'n_questions_with_collision': 0}
+组① lost_to_rank_gt1 {'n': 8, 'n_missing_payload': 0, 'n_model_first_is_first_event': 8, 'n_model_first_folded': 0}
+组② strict rank>1 {'n': 32, 'n_missing_payload': 0, 'n_model_first_is_first_event': 32, 'n_model_first_folded': 0}
+metrics 复算 hit@1=87 strict=119
+-- 与 P0② 审计产物对照 --
+  audit_meta_head_expected                "461844e"
+  closure_table_sum_298                   298
+  n_dedup_fold_events                    MATCH {"probe": 3, "audit": 3}
+  n_dedup_fold_of_model_first            MATCH {"probe": 0, "audit": 0}
+  n_questions_with_dedup_rejections      MATCH {"probe": 2, "audit": 2}
+  microsecond_collision                  MATCH {"probe": {"total_events": 1443, "n_pairs": 0, "n_questions_with_collision": 0}, "audit": {"total_events": 1443, "n_pairs": 0, "n_questions_with_collision": 0}}
+  focus1_n                               MATCH {"probe": 8, "audit": 8}
+  focus1_all_first                       MATCH {"probe": 8, "audit": 8}
+  focus2_n                               MATCH {"probe": 32, "audit": 32}
+  focus2_all_first                       MATCH {"probe": 32, "audit": 32}
+  audit_qid_set_vs_probe                  {"audit_rows": 298, "probe_rows": 298, "same_set": true}
+  strict_v2_recalc                       MATCH {"probe": 119, "audit": 119}
+  hit1_v2_recalc                         MATCH {"probe": 87, "audit": 87}

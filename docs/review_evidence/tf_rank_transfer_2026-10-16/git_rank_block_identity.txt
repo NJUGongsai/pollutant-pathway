@@ -1,0 +1,48 @@
+# 证据 · rank 传递代码块在两版 HEAD 间逐字节同一
+
+## 目的
+P0② rank 审计(R6)产出于 HEAD 461844e;本核查在当前 HEAD 3440ca7 上核验
+「位次传递/去重折叠」代码块是否被后续提交改动过(判据同源的前置条件)。
+
+## 命令与输出
+```
+$ git log --oneline 461844e..HEAD
+3440ca7 chain14 证据卡 A/B 发车物+四轮回修(2026-10-15/16): Codex 终审放行
+b4b89dc ppv1 候选证据卡实施+P1 修复(2026-10-15): Plan v1 §2.1 P0 落地(候选集冻结, 只改唯一 decide 调用信息表达)
+
+$ git diff --stat 461844e..HEAD -- src/pathway_v43/pollutant/{runflow,queue,search,events,s5b_scoring}.py
+ src/pathway_v43/pollutant/runflow.py | 180 +++++++++++++++++++++++++++++------
+ 1 file changed, 149 insertions(+), 31 deletions(-)
+
+$ git show 461844e:src/pathway_v43/pollutant/runflow.py | sed -n "979,1092p" > old_rank_block.txt
+$ sed -n "985,1098p" src/pathway_v43/pollutant/runflow.py > new_rank_block.txt
+$ diff old_rank_block.txt new_rank_block.txt
+(无差异 exit 0)
+
+$ shasum -a 256 old_rank_block.txt new_rank_block.txt
+d6f3984af2901fa682e739bd53d93a6a01830131e94a7a4adcb4adfd7e23e7aa  /tmp/multica-task-1743981616/old_rank_block.txt
+d6f3984af2901fa682e739bd53d93a6a01830131e94a7a4adcb4adfd7e23e7aa  /tmp/multica-task-1743981616/new_rank_block.txt
+
+$ git diff --numstat 461844e..HEAD -- AGENTS.md  (说明:非本次改动)
+```
+
+结论:该代码块(旧 979–1092 == 新 985–1098)两版 sha256 相同、diff 空 ⇒
+审计所读的位次传递逻辑在 HEAD 3440ca7 上未被后续提交改动。
+runflow.py 在两版之间有其它改动(+149/−31),但 hunk 边界不覆盖该区间。
+
+## 附:工作树状态(收尾核对)
+```
+$ git status --porcelain | grep -v "^??"
+ M AGENTS.md
+$ git diff --numstat AGENTS.md   # 工作树(未提交)
+241	0	AGENTS.md
+$ git diff AGENTS.md | head -3
+diff --git a/AGENTS.md b/AGENTS.md
+index ee54988..f964fc9 100644
+--- a/AGENTS.md
+$ git status --porcelain -- src tests | wc -l   # src/tests 改动数
+       0
+```
+说明:工作树唯一已跟踪改动是 AGENTS.md(+241/−0),内容为 daemon 自动注入的
+MULTICA-RUNTIME 块(文件末追加,含 'BEGIN MULTICA-RUNTIME (auto-managed'
+标记),在任务开始前即已存在;本核查未写入该文件。src/、tests/ 零改动。

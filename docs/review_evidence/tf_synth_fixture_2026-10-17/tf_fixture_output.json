@@ -1,0 +1,170 @@
+{
+  "domain": "纯构造合成输入（零金标零题面）",
+  "code_head": "(登记见 README)",
+  "fixtures": {
+    "fx1": {
+      "run_id": "tf-fx1",
+      "width": 2,
+      "ranked_ids": [
+        "novel:1",
+        "hyp_cb4605a24c1b0454e32a"
+      ],
+      "pool_prepared_ids": {
+        "A": "hyp_cb4605a24c1b0454e32a",
+        "B": "hyp_1a4f42871e3964ff2632"
+      },
+      "summary": {
+        "events": 2
+      },
+      "entries": [
+        {
+          "action_id": "sact_0d704469d1fcb86360e2",
+          "action_kind": "expand_hypothesis",
+          "status": "done",
+          "logical_proposal_id": "A",
+          "model_rank": 2,
+          "effective_rank": 1,
+          "rank_basis": "model_selection"
+        },
+        {
+          "action_id": "sact_c768376678df2208b80d",
+          "action_kind": "expand_hypothesis",
+          "status": "done",
+          "logical_proposal_id": "B",
+          "model_rank": null,
+          "effective_rank": 2,
+          "rank_basis": "deterministic_fallback"
+        }
+      ],
+      "n_actions": 8,
+      "n_events": 2
+    },
+    "fx1b": {
+      "run_id": "tf-fx1b",
+      "width": 1,
+      "ranked_ids": [
+        "novel:1",
+        "hyp_fc9445820f9cda45d4e6"
+      ],
+      "pool_prepared_ids": {
+        "A": "hyp_fc9445820f9cda45d4e6",
+        "B": "hyp_49b62c3d1f255cc590a2"
+      },
+      "summary": {
+        "events": 2
+      },
+      "entries": [
+        {
+          "action_id": "sact_94006ba6ab46a7e366f1",
+          "action_kind": "expand_hypothesis",
+          "status": "done",
+          "logical_proposal_id": "A",
+          "model_rank": 2,
+          "effective_rank": 1,
+          "rank_basis": "model_selection"
+        },
+        {
+          "action_id": "sact_022d19c2e9d323713036",
+          "action_kind": "expand_hypothesis",
+          "status": "done",
+          "logical_proposal_id": "B",
+          "model_rank": null,
+          "effective_rank": 2,
+          "rank_basis": "deterministic_fallback"
+        }
+      ],
+      "n_actions": 8,
+      "n_events": 2
+    },
+    "fx2": {
+      "run_id": "tf-fx2",
+      "width": 2,
+      "ranked_ids": [
+        "novel:1",
+        "hyp_4d91a01b92903cb2909f"
+      ],
+      "pool_prepared_ids": {
+        "A": "hyp_d15ce1ea22e5031b2cc3",
+        "B": "hyp_4d91a01b92903cb2909f"
+      },
+      "summary": {
+        "events": 2
+      },
+      "entries": [
+        {
+          "action_id": "sact_82314acd376322122c52",
+          "action_kind": "expand_hypothesis",
+          "status": "done",
+          "logical_proposal_id": "B",
+          "model_rank": 2,
+          "effective_rank": 1,
+          "rank_basis": "model_selection"
+        },
+        {
+          "action_id": "sact_ad01d051aa8a7329d518",
+          "action_kind": "expand_hypothesis",
+          "status": "done",
+          "logical_proposal_id": "A",
+          "model_rank": null,
+          "effective_rank": 2,
+          "rank_basis": "deterministic_fallback"
+        }
+      ],
+      "n_actions": 8,
+      "n_events": 2
+    },
+    "fx3": {
+      "run_id": "tf-fx3",
+      "width": 2,
+      "ranked_ids": [
+        "novel:1",
+        "hyp_e5e00f1f2c206a2e40cd"
+      ],
+      "pool_prepared_ids": {
+        "A": "hyp_e5e00f1f2c206a2e40cd",
+        "B": "hyp_fbf85a618b0de39cda9c"
+      },
+      "summary": {
+        "events": 2
+      },
+      "entries": [
+        {
+          "action_id": "sact_915ceb9b6cff07562b3d",
+          "action_kind": "expand_hypothesis",
+          "status": "done",
+          "logical_proposal_id": "novel:1",
+          "model_rank": 1,
+          "effective_rank": 1,
+          "rank_basis": "model_selection"
+        },
+        {
+          "action_id": "sact_4d1a9aa3cad75d7d8d4a",
+          "action_kind": "expand_hypothesis",
+          "status": "done",
+          "logical_proposal_id": "A",
+          "model_rank": 2,
+          "effective_rank": 2,
+          "rank_basis": "model_selection"
+        },
+        {
+          "action_id": "sact_2f5e5257cdb12d3143f8",
+          "action_kind": "expand_hypothesis",
+          "status": "deferred",
+          "logical_proposal_id": "B",
+          "model_rank": null,
+          "effective_rank": 3,
+          "rank_basis": "deterministic_fallback"
+        }
+      ],
+      "n_actions": 9,
+      "n_events": 2
+    }
+  },
+  "signature_precheck": {
+    "A": [
+      "CC=O"
+    ],
+    "B_eq_novelO": true,
+    "C_distinct": true
+  }
+}
