@@ -24,7 +24,7 @@ T-H=「**D1/E1 收口后一批跑完**」的付费批（预注册 hit@1 35–40%
 | 6 | E1b（T-D-A/B criteria-v3 档 A） | ⏳ **复核待回件**（请求稿已备） | 同上 |
 | 7 | 提交（D1.2/E1a/E1b） | ⏳ 待 5/6 回件后**同轮提交**（复核建议；拆提交须按提交态补测） | 回件后 ≤1 小时 |
 | 8 | **P2-CHEM-FORWARD**（「有锚新增无来源」判据对账） | 📝 **草案已出**（`docs/T_H_P2_CHEM_FORWARD_DRAFT_2026-10-20.md`） | **CC/评审判三选一**（推荐 A 披露） |
-| 9 | **P3-IDENT**（批级 compiler 版本键） | 📝 方案已定（builder 池诊断加 `compiler_version` 键+沿 C1 偏差窗口登记） | 归 E1a 回修轮顺带（builder 属其文件面） |
+| 9 | **P3-IDENT**（批级 compiler 版本键）+ P3-LABEL（route 注记动态化） | ✅ **已落地**（2026-10-20：builder 批诊断加 `compiler_version` 键（空池+主管线两处）+ 注记 f-string 动态化 + pool_lineage 键集/断言同步；诚实标注=**postdates E1a 复审锁定 sha（builder 463b42e2→新值）**，零判据变化，T-H 门请您/评审确认） | 随 T-H 门确认 |
 | 10 | 预注册（本文件 §2 骨架） | 📝 骨架已出 | CC 确认/改写后拍板 |
 | 11 | 付费+HPC 发车 | ⏳ | CC（发车物=任务书，回件后我即出） |
 
@@ -68,7 +68,8 @@ T-H=「**D1/E1 收口后一批跑完**」的付费批（预注册 hit@1 35–40%
 - [ ] E1a/E1b 复核放行（或回修闭合）；
 - [ ] 三单提交完成（耦合提交或按提交态补测后拆提交）+ 发车 commit sha 登记；
 - [ ] P2-CHEM-FORWARD：CC 拍板（A 披露/B 另轮/C 排除）并落字；
-- [ ] P3-IDENT：批级 `compiler_version` 键落地（含断言）；
+- [x] P3-IDENT：批级 `compiler_version` 键落地（含断言；2026-10-20）——注：该键为**版本上下文键**，
+      后续对拍探针的排除集宜纳入（沿 C1 偏差窗口先例）；另 P3-LABEL 注记动态化同批落地；
 - [ ] 预注册经 CC 确认（approval_source 登记）；
 - [ ] HPC 环境检查（乌镇/曙光通道、sbatch 脚本快照、节点 /tmp 纪律沿既有机坑合集）；
 - [ ] 费用口径与批根路径确认。

@@ -60,6 +60,9 @@
 1. **P3-IDENT**：批级 diagnostics 无活 compiler 版本键（spec 级 `compile.compiler_version` 在位），
    policy-9 将横跨 compiler-4/5 两世代——**建议 T-H 付费批发车前补齐批级 `compiler_version` 键**
    （沿 C1 偏差窗口先例登记）；顺带更正 C2 轮报告「批产物无编译器版本」表述（spec 级实为在位）。
+   **✅ 2026-10-20 已落地**：builder 批诊断（主管线+空池两处）加 `compiler_version` 键 +
+   pool_lineage 键集/断言同步 + route 注记动态化（P3-LABEL 同批）；**该 delta postdates E1a 复审
+   文件锁定（builder `463b42e2`→新值），零判据变化，随 T-H 门确认（诚实登记）**。
 2. **P3-COMMIT**：`test_ppv1_s5b_hit50_v4b.py` 断言文件含 D1.2（compiler-5）与并行 T-E
    （policy-9/source-4）双工作流足迹——**提交时 D1.2 与 T-D/T-E 耦合提交或断言拆行**，避免
    单变量归因窗口（提交步骤执行时落实）。

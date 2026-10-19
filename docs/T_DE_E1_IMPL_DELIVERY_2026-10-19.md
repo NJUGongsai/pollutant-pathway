@@ -2,9 +2,11 @@
 
 > 交付=`docs/TASK_T_DE_E1_IMPL_2026-10-19.md`（v2）的实施；生效口径=FROZEN_V3 +
 > Codex 两轮设计复审终口径（`docs/T_E_RUN_IDENTITY_DESIGN_CODEX_{REVIEW,REREVIEW}_2026-10-19.md`）。
-> 复审状态：**E1a / E1b 实施复审待回件**（请求稿 `docs/T_DE_E1A_REVIEW_REQUEST_2026-10-19.md`、
-> `docs/T_DE_E1B_REVIEW_REQUEST_2026-10-19.md`；Codex 正常通道额度断流期 ⇒ CC 手动发送/代审，
-> provenance 如实标注）。**复审放行后随轮分账提交（E1a 一提交、E1b 一提交）；本交付书随回件补终判**。
+> 复审状态：**E1a / E1b 实施复审均已回件=放行（P0/P1/P2=0；E1a P3×4、E1b P3×3；代 Codex 通道）**
+> ——报告 `docs/T_DE_E1A_CODEX_REVIEW_2026-10-19.md`、`docs/T_DE_E1B_CODEX_REVIEW_2026-10-19.md`
+> （证据各在其 `docs/review_evidence/` 目录，REVIEW_MANIFEST 索引；按惯例未跟踪）。**已随轮提交
+> （提交面与 D1.2 耦合，沿 P3-COMMIT；提交 `d758845`）**。⚠ 提交后 T-H 前置 delta（P3-IDENT/
+> P3-LABEL）另随提交，postdates E1a 锁定（builder `463b42e2`→新值），零判据变化、T-H 门确认。
 > 题域标签：**298 = RHEA 通用酶学 / 已见题（post-hoc）**；探针 ≠ 预注册 ≠ 成绩。
 
 ## 1. 交付构成

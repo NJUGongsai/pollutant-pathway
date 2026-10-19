@@ -453,8 +453,12 @@ def test_aggregate_fields_unchanged_and_row_schema(
         "record_side_form_norm_version",
         "record_side_form_norm_param_sha256",
         "record_side_form_norm_route_binding_note",
-        "record_side_form_norm_coverage_limitation"}
+        "record_side_form_norm_coverage_limitation",
+        # P3-IDENT(D1.2 二轮复审登记,T-H 前置 2026-10-20):批级
+        # 活编译器版本键(向后兼容追加;既有键与语义零变化)
+        "compiler_version"}
     assert diag["pool_policy_version"] == S5B_POOL_POLICY_VERSION
+    assert diag["compiler_version"] == "s5b-compiler-5"
     rows = diag["candidates"]
     assert rows
     for row in rows:

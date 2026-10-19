@@ -46,6 +46,10 @@ from .reference_graph import (
     reference_graph_sha256,
     validate_reference_graph,
 )
+# P3-IDENT(D1.2 二轮复审登记,T-H 付费批前前置):批级诊断暴露
+# **活编译器版本**——policy-9 横跨 compiler-4/5 世代,spec 级
+# compile.compiler_version 已在位,批级补同源键(无循环依赖)
+from .s5b_compiler import S5B_COMPILER_VERSION
 
 S5B_BUILDER_VERSION = "s5b-builder-1"
 
@@ -1194,6 +1198,8 @@ def default_pool_provider(config: V43Config | None, *,
         if config is None and engine is None:
             diagnostics.update({
                 "pool_policy_version": S5B_POOL_POLICY_VERSION,
+                # P3-IDENT:T-H 前置批级活编译器版本键
+                "compiler_version": S5B_COMPILER_VERSION,
                 "channels": [], "candidates": [],
                 "note": "无 config/engine:空池(novel 合法)"})
             return []
@@ -1668,6 +1674,11 @@ def default_pool_provider(config: V43Config | None, *,
                     rank_row["signature_head"] = None
         diagnostics.update({
             "pool_policy_version": S5B_POOL_POLICY_VERSION,
+            # ---- P3-IDENT(D1.2 二轮复审登记,T-H 前置) ----
+            # 批级**活编译器版本**键:policy-9 横跨 compiler-4/5
+            # 世代;spec 级 compile.compiler_version 已在位,批级
+            # 补同源键(供批内容世代判定/偏差窗口登记)
+            "compiler_version": S5B_COMPILER_VERSION,
             # ---- T-E(E1a):记录侧形式归一机读绑定(批级) ----
             # 版本 + 参数指纹(算子/实参/序列化/短路/事务/RDKit;设计
             # §3.2/§3.3);route 版本注释的解读上下文随输入域改变 ⇒
@@ -1737,7 +1748,7 @@ def default_pool_provider(config: V43Config | None, *,
                     "routing facts are frozen per baseline (same-input "
                     "commitment); admission is decided by the "
                     "center-anchor helper on the frozen input only "
-                    "(compiler s5b-compiler-4). F5 reject -> structured "
+                    f"(compiler {S5B_COMPILER_VERSION}). F5 reject -> structured "
                     "no_alignment (budget-saving only, same reason the "
                     "compiler would emit); F5 defer (broken transform / "
                     "empty center / truncated) -> compile as usual and "
