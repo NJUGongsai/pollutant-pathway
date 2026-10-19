@@ -386,13 +386,15 @@ def build_run_input(question: dict, *, batch_tag: str,
 # 按**语义 a(伴生供给)**计算伴生供给(s5b-analog-cosub-supply-1):
 # 模板 lhs 组分按「与底物最大 Tanimoto(Morgan r2 b2048 立体盲,与
 # analog 检索同参数)= 主反应物」判主(与 noalign 归因探针 main_idx
-# 同口径;并列取后位,同源实现),缺失共底物 + 多余主反应物份数
-# (**精确多重集**,lhs 组分序;2 H₂O ≠ 1 H₂O)并入底物侧重过元素门
-# 后编译;主反应物 cn 不可解析 ⇒ 不供给(fail-closed,防"对齐到供给
-# 主副本"错形;锚面实测 0 行);**裸通配袋**(组分身份恰为 *)不供给
-# (35 行维持现状 no_alignment 拦截;[H]*[H]/*C=O 等含通配原子的
-# 具体小分子组分不属 wildcard 袋,按自身身份供给并披露——设计书
-# 45/35=48/38 扣 3 裸通配行口径)。编译成功的供给候选带**完整声明面**:
+# 同口径;并列取后位,同源实现),扣除**选定 main_idx 位置那一份**
+# 后其余组分(**精确多重集**,lhs 组分序;2 H₂O ≠ 1 H₂O;同 CN 的
+# 相反立体结构不互换——REAUDIT P1-BUILD-01 回修,2026-10-19)并入
+# 底物侧重过元素门后编译;主反应物 cn 不可解析 ⇒ 不供给(fail-closed,
+# 防"对齐到供给主副本"错形;锚面实测 0 行);**wildcard 袋整袋不供给**
+# (P2-WILDCARD-01 回修,2026-10-19:裸 * 与 [H]*[H]/*C=O 等含未定义
+# dummy 原子组分走同一判据 `_cosub_has_wildcard_atom`,status=
+# wildcard_blocked;恢复冻结设计"本轮登记不供给、定义另行拍板"边界,
+# 收窄须 CC 授权词)。编译成功的供给候选带**完整声明面**:
 # spec participants 显式(reactant/primary_substrate + reactant/
 # cosubstrate 逐供给组分 + product/principal_product + product/
 # coproduct)+ co_substrate_states + declared_copy_components(空
@@ -506,6 +508,25 @@ def _cosub_heavy_count(smiles: str) -> int:
     return mol.GetNumHeavyAtoms() if mol is not None else -1
 
 
+def _cosub_has_wildcard_atom(stripped_component: str) -> bool:
+    """组分是否含**未定义 dummy 原子(P2-WILDCARD-01 回修,2026-10-19:
+    冻结边界“wildcard 袋本轮不供给、定义另行拍板”的判据面——裸 ``*``
+    与 [H]*[H] / *C=O 等含 dummy 原子组分同属未定义通配,统一拦截;
+    此前仅拦裸 ``*``、放行具体小分子组分是未授权的收窄,已回退;
+    收窄须 CC 授权词)。解析失败回退串面 ``*`` 探测(坏组分由编译层
+    结构化拒,此处不猜结构)。"""
+    from rdkit import Chem, RDLogger
+
+    RDLogger.DisableLog("rdApp.*")
+    text = str(stripped_component or "")
+    if not text:
+        return False
+    mol = Chem.MolFromSmiles(text)
+    if mol is None:
+        return "*" in text
+    return any(atom.GetAtomicNum() == 0 for atom in mol.GetAtoms())
+
+
 def _cosub_tanimoto_to_substrate(component_smiles: str,
                                  substrate_fp) -> float | None:
     """组分↔底物 Tanimoto(Morgan r2 b2048 立体盲;与 analog 检索
@@ -564,16 +585,21 @@ def analog_cosub_supply(*, mapped_lhs: str, mapped_rhs: str,
     - 主反应物 = 模板 lhs 组分中与底物 Tanimoto 最大者(并列取后
       位,与归因探针 max((sim, idx)) 一致;全不可解析时回退重原子
       数最大,并列取先位);
-    - 供给 = lhs 组分(精确多重集,组分序)中 cn 身份 ≠ 主身份者 +
-      主身份多余份数(第 2 份起);2 H₂O ≠ 1 H₂O;
+    - 供给 = lhs 组分(精确多重集,组分序)**扣除选定 ``main_idx``
+      位置那一份**后的全体(P1-BUILD-01 回修,2026-10-19:按**位置**
+      扣除,不是删"第一份同 CN"——CN 是归一身份键,同 CN 的相反
+      立体结构不得互换;其余 mapped lhs 组分按**原序原样保留**;
+      两份完全同结构仍恰供一份。同一规则贯通供给/spectator/声明
+      装配——三处均按本返回值原序消费,不另造份数判据);
     - 主反应物 cn 不可解析 ⇒ 不供给(fail-closed:无法判主时供给会
       退化成"对齐到供给主副本"的错形;归因锚面实测 0 行,如实披露);
-    - 供给组分含**裸通配**(组分身份恰为 ``*``,模板通配占位;RDKit
-      通配匹配伪影)⇒ status=wildcard_blocked(登记不供给,维持现状
-      拦截;锚面 3 行裸通配拦)。含通配原子的**具体小分子组分**
-      ([H]*[H] / *C=O 等)不属 wildcard 袋——按其自身身份供给并
-      披露(机制信息类,与探针 §3/§4 及设计书 45/35=48/38 扣 3
-      口径一致);
+    - 供给组分含**未定义 dummy 原子** ⇒ 整袋不供给 status=
+      wildcard_blocked(P2-WILDCARD-01 回修,2026-10-19:恢复冻结设计
+      "wildcard 袋本轮不供给、定义另行拍板"的边界——裸 ``*`` 与
+      [H]*[H] / *C=O 等含通配原子组分走**同一条**判据
+      (`_cosub_has_wildcard_atom`);此前只阻裸 ``*``、让具体小分子
+      组分按自身身份供给/披露是未授权的收窄,收窄须 CC 授权词;
+      锚面 75 行 dummy 袋整袋拦截,其中 35 行裸通配);
     - 无可供给组分(纯主单组分袋)⇒ status=no_supply。
 
     返回::
@@ -605,24 +631,27 @@ def analog_cosub_supply(*, mapped_lhs: str, mapped_rhs: str,
         return {"status": "no_supply", "supply": [], "main_idx": main_idx,
                 "main_copies": 0, "main_cn": None}
     supply: list[tuple[str, str]] = []
-    seen_main = 0
-    for mapped_comp, stripped_comp in zip(lhs_comps, stripped):
+    main_copies = 0
+    for index, (mapped_comp, stripped_comp) in enumerate(
+            zip(lhs_comps, stripped)):
         comp_cn = cn_identity(stripped_comp) if stripped_comp else None
         if comp_cn == main_cn:
-            seen_main += 1
-            if seen_main > 1:
-                supply.append((mapped_comp, stripped_comp))
+            main_copies += 1
+        if index == main_idx:
+            # 扣除**选定主位那一份**(P1-BUILD-01:位置扣除,不是第一份
+            # 同 CN;其余组分含同 CN 的其他份按原序原样保留)
             continue
         supply.append((mapped_comp, stripped_comp))
     if not supply:
         return {"status": "no_supply", "supply": [], "main_idx": main_idx,
-                "main_copies": seen_main, "main_cn": main_cn}
-    if any(stripped_comp == "*" for _mc, stripped_comp in supply):
+                "main_copies": main_copies, "main_cn": main_cn}
+    if any(_cosub_has_wildcard_atom(stripped_comp)
+           for _mc, stripped_comp in supply):
         return {"status": "wildcard_blocked", "supply": supply,
-                "main_idx": main_idx, "main_copies": seen_main,
+                "main_idx": main_idx, "main_copies": main_copies,
                 "main_cn": main_cn}
     return {"status": "supply", "supply": supply, "main_idx": main_idx,
-            "main_copies": seen_main, "main_cn": main_cn}
+            "main_copies": main_copies, "main_cn": main_cn}
 
 
 def _cosub_supply_spectators(mapped_lhs: str, mapped_rhs: str,
@@ -832,10 +861,13 @@ def _attach_analog_cosub_supply_fields(
         "supply_semantics": {
             "version": S5B_ANALOG_COSUB_SUPPLY_VERSION,
             "supply_rule": ("semantics_a_companion_supply: template-bag "
-                            "co-substrates + extra main copies join the "
-                            "candidate net reaction as companion "
-                            "participants (exact multiset, lhs component "
-                            "order; 2 H2O != 1 H2O)"),
+                            "co-substrates join the candidate net reaction "
+                            "as companion participants (exact multiset, "
+                            "lhs component order; the copy at the selected "
+                            "main_idx position is deducted and all other "
+                            "mapped lhs components are kept as-is in "
+                            "original order — REAUDIT P1-BUILD-01; "
+                            "2 H2O != 1 H2O)"),
             "direction_limitation_note": (
                 "supply does NOT filter by side: both-side components are "
                 "supplied as declared (H2O/H+ both sides; Pi/PPi product "
@@ -854,12 +886,13 @@ def _attach_analog_cosub_supply_fields(
                 "spectator = supplied component untouched by the "
                 "template transformation with net-zero identity across "
                 "both sides; disclosed per item, never silent"),
-            "wildcard_bags": ("bare '*' components not supplied "
-                              "(registered, not defined; status stays "
-                              "no_alignment); wildcard-atom-containing "
-                              "concrete components ([H]*[H], *C=O, …) "
-                              "are supplied under their own identity "
-                              "and disclosed (constrained tier)"),
+            "wildcard_bags": ("any supplied component containing an "
+                              "undefined dummy atom (bare '*', [H]*[H], "
+                              "*C=O, …) blocks the whole bag "
+                              "(status=wildcard_blocked; registered, not "
+                              "defined; frozen boundary restored per "
+                              "REAUDIT P2-WILDCARD-01 — any narrowing "
+                              "requires an explicit CC authorization)"),
             "record_equation_ref": f"analog-supply:{record_key}",
         },
     }

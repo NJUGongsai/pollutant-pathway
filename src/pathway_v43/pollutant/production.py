@@ -199,15 +199,24 @@ def _verify_execution_input(spec: dict, *, substrate_state,
     +供给编译,运行期执行/审计渲染同一输入)⇒ 核验其组分严格身份
     多重集 == 底物 ⊕ 声明供给(精确多重集;不验字符串拼写,验分子
     内容——渲染 ID 由分子内容确定)。声明在而键缺失/形状坏/多重集
-    不等 ⇒ ProductionContractError(零事件/零提交)。无声明(键不在)
-    ⇒ None = 既有路径零变化(corpus 旁观 B 不参与执行,无此键)。
+    不等 ⇒ ProductionContractError(零事件/零提交)。**键在位即声明
+    (P3-INPUT-01 回修,2026-10-19)**:键在位而值为 null/非 str/空串
+    是坏声明 —— 结构化拒并披露形状(detail.value_type),不得当
+    "未声明"静默回落裸底物执行(旧行为把 null 与键缺失同归 None,
+    合成供给 spec 置 null 时 prepare 接受、执行层回裸底物后以
+    KeyError 深埋失败;注释早已承诺坏声明结构化拒,回修对齐)。
+    键**不在位** ⇒ None = 无声明兼容边界(corpus 旁观 B 不参与执行,
+    无此键;既有路径零变化)。
     """
-    declared = spec.get("execution_input_smiles")
-    if declared is None:
+    if "execution_input_smiles" not in spec:
         return None
-    if not isinstance(declared, str) or not declared.strip():
+    declared = spec.get("execution_input_smiles")
+    if declared is None or not isinstance(declared, str) \
+            or not declared.strip():
         raise ProductionContractError(
-            "execution_input_smiles 在位但非法(必须非空 str)",
+            "execution_input_smiles 在位但非法(必须非空 str;键在位含 "
+            "null/坏形状 = 声明带病,fail-closed——不得当未声明静默"
+            "回落裸底物执行)",
             {"kind": "execution_input_invalid",
              "value_type": type(declared).__name__})
     from rdkit import Chem as _Chem
@@ -1209,18 +1218,7 @@ def expand_hypothesis_production(
         not_tracked=[], reasons=plan_reasons)
     states_dicts = [s.to_dict() for s in states.values()]
     hypothesis_dict = hypothesis.to_dict()
-    if write_bundle:
-        ledger.write_commit_bundle(
-            action_id=action_id, attempt_id=attempt_id, event=event,
-            report_projection=report_projection.to_dict(),
-            expansion_plan=expansion_plan.to_dict(),
-            states=states_dicts, hypothesis_dict=hypothesis_dict,
-            task_key=task_key)
-        if crash_after == "bundle_written":
-            raise SearchCrashInjection(
-                "bundle 已写、事件未提交(B3 注入点)",
-                {"action_id": action_id, "task_key": task_key})
-    # ---- C 线声明链发射(run 期,worker 事件提交路径;
+    # ---- C 线声明链发射载荷(run 期,worker 事件提交路径;
     # s5b-analog-cosub-supply-1;pred1 消费契约 = criteria-v2 预注册
     # §二.1):prepared 携带记录方程发射载荷时,事件提交前先把来源记
     # 录方程落 provenance_records(公共 store writer 幂等;声明内容 =
@@ -1229,8 +1227,25 @@ def expand_hypothesis_production(
     # _records 行(record_id 匹配)→ record_equation 可解析;无声明
     # 路径零调用(既有行为逐字节不变)。deferred/rejected 不发射
     #(声明链只对提交事件可消费)。
+    # P1-RUN-01 回修(2026-10-19):发射载荷**随可恢复 bundle 一并
+    # 持久化**(write_commit_bundle 新增参数;无声明 bundle 不带该键,
+    # 非 C bundle 字节零变化)—— B3 恢复在首次消费时核验并幂等发射
+    # 后再提交,来源未写/写异常时恢复补发射、内容冲突时拒绝提交,
+    # 声明链不得悬空、不得沿冲突旧方程提交。
     record_equation_provenance = prepared.get(
         "record_equation_provenance")
+    if write_bundle:
+        ledger.write_commit_bundle(
+            action_id=action_id, attempt_id=attempt_id, event=event,
+            report_projection=report_projection.to_dict(),
+            expansion_plan=expansion_plan.to_dict(),
+            states=states_dicts, hypothesis_dict=hypothesis_dict,
+            task_key=task_key,
+            record_equation_provenance=record_equation_provenance)
+        if crash_after == "bundle_written":
+            raise SearchCrashInjection(
+                "bundle 已写、事件未提交(B3 注入点)",
+                {"action_id": action_id, "task_key": task_key})
     if record_equation_provenance is not None:
         ledger.store.put_provenance(
             str(record_equation_provenance["record_id"]),

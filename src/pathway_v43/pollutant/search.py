@@ -125,10 +125,10 @@ artifact 校验、低层提交恢复协议、停止原因、四崩溃/H05–H08/
 | 5 | register_model_request | 请求载荷+执行引用 | 同键异身份内容冲突(S3A-04;已有 row 复用对照 stored/incoming 全部身份列,r3;**存储状态枚举核**,r4);action 须 claimed、attempt 归属且 open;真实 provider 预登记即时占额 |
 | 6 | record_request_sent/response/failed | 请求状态迁移 | 状态机(**失败口正面限定 registered/sent 来源 + 未知状态结构化拒**,r4)+ 执行引用闭合(run 绑定 + expand 必要 attempt,r3)+ **新 status 写入前严格冻结块校验**(r4) |
 | 7 | submit_action_event | PathwayEvent(冻结身份) | 沿 action 冻结 run/parent/hypothesis/context;经公共 store.submit_event(不绕过首消费验证);done 复用前经提交权威+记录+引用核验,**返回真实已完成 event 或明确冲突**(r3) |
-| 8 | write_commit_bundle | 事件+投影+计划+states+假设 | 事件身份冻结到 action + task_key 绑定(S3A-01);不可覆盖 |
+| 8 | write_commit_bundle | 事件+投影+计划+states+假设(+记录方程发射载荷) | 事件身份冻结到 action + task_key 绑定(S3A-01);不可覆盖;记录方程发射载荷键在位即随 bundle 持久化(缺失=写入侧兼容边界,P1-RUN-01) |
 | 9 | complete_action | 认领所有权+事件/引用权威 | 事件类 outcome:非空/存在/身份冻结/完整账权威+附随内容同源核验;attempt/预约**必要集合完整性(r4)+行级内容**核验(r3);已有 commit 复用同样核记录归属/kind/适用引用+完整引用(r3);幂等复用同样核验(S3A-02) |
 | 10 | defer_action | 认领所有权+未执行事实 | 先核未执行(事件/请求/attempt 执行证据 ⇒ 拒);引用行**必要集合完整性(r4)+行级内容**核验(r3);合法未执行释放预约、abandon attempt、registered 请求转 abandoned(S3A-03) |
-| 11 | recover_run | 持久权威记录 | **先严格核冻结策略块**(r3);B4/done 经 complete/_verify_commit_event 完整权威+记录+引用;B3 经 bundle 身份+**事件提交前必要集合+引用前置核验**(r4)+公共 writer;B1 核引用行;pending 请求逐行同源守卫(r3)+**状态枚举外行结构化披露**(r4);损坏保全失败(H07/H08) |
+| 11 | recover_run | 持久权威记录 | **先严格核冻结策略块**(r3);B4/done 经 complete/_verify_commit_event 完整权威+记录+引用;B3 经 bundle 身份+**事件提交前必要集合+引用前置核验**(r4)+记录方程载荷内容核(P1-RUN-01 追修:refs 非空 ⇒ 载荷缺失/损坏/不符亦拒)+公共 writer;B1 核引用行;pending 请求逐行同源守卫(r3)+**状态枚举外行结构化披露**(r4);损坏保全失败(H07/H08) |
 | 12 | budget_snapshot / stop_report | 持久记录派生值 | _limits 严格冻结块校验(r3);内存重置仍从记录复算;stop 披露 claimed/open attempt(S3A-05) |
 
 预算账表(十上限的预约/consume/release 边界;持久行为事实源):
@@ -164,7 +164,13 @@ artifact 校验、低层提交恢复协议、停止原因、四崩溃/H05–H08/
 - **B3** 输出 artifact 已写、事件未提交:先验版本/hash/身份(H07)与
   事件↔action 完整身份绑定(S3A-01),再消费同一 output/attempt 完成
   —— 不重发请求、不把草稿当事件;artifact 不可反序列化/hash 不符/
-  身份错绑 ⇒ 完整性错误、保全原文件、不覆盖;
+  身份错绑 ⇒ 完整性错误、保全原文件、不覆盖;**C 线 bundle 携带
+  记录方程发射载荷时(P1-RUN-01 回修),事件提交前先核验并幂等发射
+  同源 provenance(来源未写/写异常恢复补发射;载荷坏/引用不绑定/
+  内容冲突 ⇒ 拒绝提交、保全 bundle、零事件/零提交/零消费);
+  假设 provenance_refs 非空(声明链要求记录方程)时恢复侧兜底
+  (P1-RUN-01 追修):载荷缺失/损坏/与 refs 不符(发射后链仍不可
+  解析)同样拒绝提交 —— 写入侧不强制、恢复侧不得先提交后留悬空链**;
 - **B4** 事件已提交、队列/后续状态未完整:由完整权威记录(事件行 +
   认领/预约/attempt 行 + 提交记录)确定恢复,事件/预算不重复;提交
   事实与 ledger 不一致 ⇒ 保全失败(H08;完整事件账权威核验在补账前)。
@@ -205,7 +211,11 @@ from .profile import (
     validate_frozen_search_limits,
     validate_search_limits,
 )
-from .store import PollutantPathwayStore
+from .store import (
+    Ppv1EventConflict,
+    Ppv1ObjectSchemaError,
+    PollutantPathwayStore,
+)
 
 # ---- W-V1(S5b-submit-order-1):提交序贯彻调度序 ----
 #
@@ -2091,6 +2101,7 @@ class SearchLedger:
         self, *, action_id: str, attempt_id: str, event: PathwayEvent,
         report_projection: dict, expansion_plan: dict, states: list[dict],
         hypothesis_dict: dict | None, task_key: str,
+        record_equation_provenance: dict | None = None,
     ) -> dict:
         """写提交捆绑 artifact(事件提交前的输出落盘;B3 输入)。
 
@@ -2101,7 +2112,19 @@ class SearchLedger:
         - artifact 先写(不可覆盖:同键异内容 ArtifactConflict);
         - “有文件”不等于事件已提交 —— 提交事实以事件行 + 提交记录
           为准,恢复按 B3 消费同一 output;
-        - 载荷含版本与冻结身份(恢复先验版本/hash/身份再消费)。
+        - 载荷含版本与冻结身份(恢复先验版本/hash/身份再消费);
+        - **P1-RUN-01 回修(2026-10-19,C 线)**:``record_equation_
+          provenance``(记录方程声明链发射载荷 {record_id, payload})
+          随 bundle 持久化 —— B3 恢复在首次消费时核验并幂等发射后
+          再提交(悬空引用/内容冲突不得提交);None ⇒ 键不写,
+          非 C bundle 载荷字节零变化。
+        - **写入侧兼容边界(P1-RUN-01 追修,2026-10-19)**:本口
+          **不强制**发射载荷在位的调用方传参(hypothesis_dict 带
+          refs 而载荷缺失仍写得进,bundle 字节即"缺方程载荷"形态);
+          「refs 非空 ⇒ 载荷必须齐备」的兜底在 **B3 恢复门**
+          (`_emit_bundle_record_equation`:缺/坏/不符 ⇒ 拒绝提交,
+          零事件/零提交/零消费)——防御纵深:写入侧兼容、恢复侧
+          不得先提交后留无法解析的声明链。
         """
         if self.artifact_store is None:
             raise SearchContractError(
@@ -2151,6 +2174,12 @@ class SearchLedger:
             "hypothesis_dict": hypothesis_dict,
             "task_key": task_key,
         }
+        if record_equation_provenance is not None:
+            # P1-RUN-01(C 线):记录方程发射载荷随 bundle 持久化;B3
+            # 恢复核验并幂等发射后再提交(键只在在位时写,非 C
+            # bundle 载荷逐字节不变)
+            payload["record_equation_provenance"] = \
+                record_equation_provenance
         return self.artifact_store.write(
             task_key, "search_commit_bundle", payload)
 
@@ -3172,6 +3201,10 @@ class SearchLedger:
           先核必要 attempt/预约引用行级内容(S3A-02 r3:坏链 0 event/
           commit/consume)与版本/hash/身份(S3A-01:事件完整身份冻结
           到 action)再消费同一 output/attempt 完成(不重发请求);
+          **C 线 bundle 带记录方程发射载荷(P1-RUN-01 回修):提交前
+          核验并幂等发射同源 provenance —— 来源未写/写异常补发射,
+          载荷坏/refs 不绑定/内容冲突 ⇒ 拒绝提交(零事件/零提交/
+          零消费,保全 bundle)**;
           artifact 损坏或身份错绑 ⇒ H07 完整性错误、保全原文件(报告
           披露,不抛出中断其余 action 的恢复);
         - claimed 无 artifact/无事件 ⇒ B1:读冻结 action/attempt/预约
@@ -3343,6 +3376,36 @@ class SearchLedger:
                 # "事后"发现) ----
                 self._verify_action_references(
                     a, where="b3_precheck")
+                # ---- C 线(P1-RUN-01 回修,2026-10-19):记录方程声明链
+                # **先核验/幂等发射再提交** —— bundle 携带发射载荷时,
+                # 恢复在事件提交前把同源记录方程落 provenance_records
+                # (公共 writer 幂等:来源未写/写异常在恢复补发射;同
+                # 内容重复写仍一行);核验不过(载荷形状/引用绑定坏)
+                # 或内容冲突(同 ref 已有不同方程)⇒ 拒绝提交,不带
+                # 悬空引用、不沿冲突旧方程,保全 bundle、零事件/零
+                # 提交/零消费(与 H07 同形,resume 侧隔离不重执行)。
+                # 追修(2026-10-19):假设 provenance_refs 非空时**载荷
+                # 必须齐备**(缺方程载荷/坏/与 refs 不符 ⇒ 同形拒)——
+                # 无 refs 且无载荷(非 C bundle)⇒ 零调用零变化。 ----
+                emission_error = None
+                try:
+                    self._emit_bundle_record_equation(a, bundle)
+                except (Ppv1EventConflict, Ppv1ObjectSchemaError,
+                        SearchArtifactIntegrityError) as exc:
+                    emission_error = exc
+                if emission_error is not None:
+                    entry["boundary"] = (
+                        "B3_artifact_written_event_uncommitted")
+                    entry["disposition"] = {
+                        "error": type(emission_error).__name__,
+                        "kind": (emission_error.detail or {}).get("kind"),
+                        "note": ("记录方程声明链核验/幂等发射未通过"
+                                 "(含载荷缺失/损坏/与 refs 不符):"
+                                 "拒绝提交(不沿冲突旧方程、不带悬空"
+                                 "引用);bundle 保全,零事件/零提交/"
+                                 "零消费")}
+                    report["actions"].append(entry)
+                    continue
                 # ---- B3:验版本/身份后消费同一 output/attempt ----
                 event_payload = bundle["payload"]["event"]
                 event = PathwayEvent(
@@ -3584,6 +3647,137 @@ class SearchLedger:
                 {"kind": "bundle_event_identity_mismatch",
                  "rederived": rederived,
                  "bundle_event_id": event_payload.get("event_id")})
+
+    def _emit_bundle_record_equation(self, action_row, bundle) -> dict | None:
+        """B3 恢复的记录方程声明链闭合(P1-RUN-01 回修,2026-10-19;
+        追修 2026-10-19 补**载荷内容校验**;C 线 s5b-analog-cosub-
+        supply-1)。
+
+        bundle 的假设 ``provenance_refs`` 非空 ⇒ 声明链要求记录方程,
+        恢复提交事件**之前**必须核验并**幂等发射**同源记录方程,
+        且发射后链可解析(不得先提交后留无法解析的声明链):
+
+        - **载荷缺失**(公开导入口/旧版无载荷首次写入:refs 非空而
+          ``record_equation_provenance`` 键不在位/null)⇒ 结构化拒
+          (``bundle_record_equation_emission_missing``)—— 写入侧
+          兼容边界(缺参数不强制)的恢复侧兜底;
+        - **假设载荷形状核**:``hypothesis_dict`` 必须 dict/null(合法
+          公共调用方在假设已先落账时用 None)⇒ 非法形状拒
+          (``bundle_hypothesis_dict_invalid``;不让原始 AttributeError
+          冒泡中断整个恢复);
+        - **载荷形状核**:record_id 非空 str、payload 为 dict ⇒ 否
+          则拒(``..._emission_invalid``);
+        - **与 refs 绑定核**:record_id 必须属于 refs(否则
+          ``..._ref_unbound``);且发射后每个 ref 必须可解析 ——
+          refs 存在既非本发射、又无在位行的悬空引用 ⇒ 拒
+          (``..._refs_uncovered``);
+        - **载荷内容核**:``payload.record_equation`` 须过判分侧
+          消费契约逐条目解析(不可解析 ⇒ ``..._payload_unparseable``)
+          —— 与链可解析性**同源判据**(直接调用判分侧
+          ``evaluation._criteria_declaration_sides`` 合成"发射后"
+          链状态,status 非 resolved 即拒;延迟导入避免
+          search→evaluation→native_export→search 模块循环);
+        - **幂等发射**:``store.put_provenance`` 同内容重复写 = 一行、
+          来源未写 = 补一行;同 ref 已有**不同内容** ⇒ Ppv1EventConflict
+          原样上抛(调用侧拒绝提交 —— 恢复不得沿冲突旧方程提交事件)。
+
+        返回载荷 dict(已核验发射);refs 为空且无载荷(None)⇒
+        None = 既有非 C bundle 零调用零变化。
+        """
+        payload = (bundle or {}).get("payload") or {}
+        raw_hypothesis = payload.get("hypothesis_dict")
+        if raw_hypothesis is not None \
+                and not isinstance(raw_hypothesis, dict):
+            # 载荷损坏(形状非法;合法形态 = dict 或 None——后者由既有
+            # 公共调用方在假设已先落账时使用)⇒ 结构化拒,不让原始
+            # AttributeError 冒泡中断整个恢复
+            raise SearchArtifactIntegrityError(
+                "commit bundle hypothesis_dict 形状非法(非 dict/null;"
+                "载荷损坏 ⇒ 拒,不发射不提交,保全 bundle 零消费)",
+                {"kind": "bundle_hypothesis_dict_invalid",
+                 "action_id": action_row["action_id"],
+                 "value_type": type(raw_hypothesis).__name__})
+        hypothesis_dict = raw_hypothesis or {}
+        refs = [str(r) for r in
+                (hypothesis_dict.get("provenance_refs") or [])]
+        emission = payload.get("record_equation_provenance")
+        if emission is None:
+            if not refs:
+                # 无 refs 声明链(非 C bundle)⇒ 零调用零变化
+                return None
+            raise SearchArtifactIntegrityError(
+                "commit bundle 缺记录方程发射载荷而假设 provenance_"
+                "refs 非空(声明链要求记录方程;B3 不得提交后留悬空"
+                "链 ⇒ 拒;写入侧兼容、恢复侧兜底,与 H07 同形零消费,"
+                "保全 bundle)",
+                {"kind": "bundle_record_equation_emission_missing",
+                 "action_id": action_row["action_id"],
+                 "provenance_refs": sorted(set(refs))[:4]})
+        record_id = emission.get("record_id") \
+            if isinstance(emission, dict) else None
+        emission_payload = emission.get("payload") \
+            if isinstance(emission, dict) else None
+        if not isinstance(record_id, str) or not record_id \
+                or not isinstance(emission_payload, dict):
+            raise SearchArtifactIntegrityError(
+                "commit bundle 记录方程发射载荷形状非法(record_id "
+                "非空 str + payload dict;坏载荷不发射不提交,保全"
+                "bundle 零消费)",
+                {"kind": "bundle_record_equation_emission_invalid",
+                 "action_id": action_row["action_id"]})
+        refs_set = set(refs)
+        if record_id not in refs_set:
+            raise SearchArtifactIntegrityError(
+                "commit bundle 记录方程发射载荷与假设 provenance_refs "
+                "不绑定(bundle 内部不一致 ⇒ 拒;不发射未引用载荷、不"
+                "允许悬空引用提交,保全 bundle 零消费)",
+                {"kind": "bundle_record_equation_ref_unbound",
+                 "action_id": action_row["action_id"],
+                 "record_id": record_id,
+                 "provenance_refs": sorted(refs_set)[:4]})
+        # ---- 追修:载荷内容/覆盖核(判分侧消费契约同源判据)----
+        # 合成"发射后"链状态(本发射 + 其余 ref 的既存行)过判分侧
+        # 解析器:status 必须 resolved —— 载荷坏/悬空(含多 refs 未
+        # 全覆盖)⇒ unparseable ⇒ 拒,不带病发射、不提交。
+        from .evaluation import (  # 延迟导入(见 docstring 循环说明)
+            _CRITERIA_V2_DECL_RESOLVED,
+            _criteria_declaration_sides,
+        )
+        missing_rows = sorted(
+            r for r in refs_set
+            if r != record_id and self.store.get_provenance(r) is None)
+        rows = [{"record_id": record_id, "payload": emission_payload}]
+        for ref in sorted(refs_set - {record_id} - set(missing_rows)):
+            rows.append({"record_id": ref,
+                         "payload": self.store.get_provenance(ref)})
+        hyp_id = str(hypothesis_dict.get("hypothesis_id") or "")
+        _react, _prod, status = _criteria_declaration_sides({
+            "hypotheses": [{"hypothesis_id": hyp_id,
+                            "payload": hypothesis_dict}],
+            "provenance_records": rows}, hyp_id)
+        if missing_rows:
+            raise SearchArtifactIntegrityError(
+                "commit bundle 记录方程声明链 refs 缺覆盖(假设 refs "
+                "存在既非本发射、又无在位 provenance 行的悬空引用 ⇒ "
+                "发射后链仍不可解析;拒,不发射不提交,保全 bundle "
+                "零消费)",
+                {"kind": "bundle_record_equation_refs_uncovered",
+                 "action_id": action_row["action_id"],
+                 "record_id": record_id,
+                 "uncovered_refs": missing_rows[:4],
+                 "declaration_status": status})
+        if status != _CRITERIA_V2_DECL_RESOLVED:
+            raise SearchArtifactIntegrityError(
+                "commit bundle 记录方程载荷内容核不过(payload.record_"
+                "equation 未过判分侧消费契约逐条目解析 ⇒ 发射后声明"
+                "链仍不可解析;拒,不发射不提交,保全 bundle 零消费)",
+                {"kind": "bundle_record_equation_payload_unparseable",
+                 "action_id": action_row["action_id"],
+                 "record_id": record_id,
+                 "declaration_status": status})
+        self.store.put_provenance(record_id, self.run_id or "",
+                                  dict(emission_payload))
+        return emission
 
 
 # ---- 便捷驱动入口(合成/scripted 夹具用;不是生产 runner) ----
