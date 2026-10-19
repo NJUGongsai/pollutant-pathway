@@ -78,6 +78,33 @@ sp3→sp2 消解**——消解谓词钉死(全部条件须满足):
 版本:s5b-compiler-3(R1:消解许可收窄 + 复核双轴扩展,公共编译
 判据链行为变化)。编译失败一律返回 ``{"status": "unsupported",
 "reason": <稳定机读码>, "detail": {...}}``,不抛裸异常、不吞 Exception。
+
+版本 s5b-compiler-4(T-G Step C2 重刀,R2' 解耦接线,2026-10-19):
+**对齐从「全供体映射反应物整侧子结构匹配」放宽为中心锚定匹配**
+(L1 变键/电荷/手性原子+新增原子保留锚;L2 两壳层:壳1=变键原子
+邻域重原子边、壳2=邻域原子(N1)自身入射键集合;L3 其余差异豁免、
+逐行机读披露)。规则落地:
+
+- 中心查询与编译层中心枚举**共用同一实现**(``build_center_query`` /
+  ``enumerate_center_alignments``);builder 侧准入 helper
+  ``center_anchor_probe``(F5)复用同源查询构造;
+- **歧义硬规则(D-1 收严)**:全部语义允许候选 M(=两壳层完整命中
+  且预算未截断的全部匹配)**全量**执行冻结编辑段,按净产物目标归并
+  ——唯一目标 ⇒ compiled(取确定性 prefer 序首个;度全等子集 G 优先,
+  prefer 只作排序不裁量准入);**≥2 个不同可执行目标 ⇒ 结构化
+  ``ambiguous_alignment`` 拒绝(必须,机读 ``competing_targets`` 只
+  补充)**;被 prefer 排序靠后的非全等候选不得跳过;
+- **预算截断诚实处置**:M 枚举触 ``_COMPILE_ALIGNMENT_LIMIT`` ⇒
+  结构化 ``alignment_limit_exceeded`` 拒 + 未核范围机读披露
+  (``truncation_axis``/``n_matches_at_limit``),不得称唯一目标已证;
+- 中心为空变换(无 L1:removed-only 等)⇒ ``center_empty:*`` 结构化
+  拒(D-3 登记:删除型中心定义另轮);
+- L3 披露(``spec.compile.c2_l3_disclosure``):豁免原子/边数、异
+  元素/手性/电荷旗标、H 计数差旗标(纯 H 差异 L2 不可见轴,如实
+  披露;H 数不纳入查询,与判读 v3.2 H± 豁免同盲区);
+- ``template_elements_fit`` 判据**原样保留**,角色降级为 builder
+  侧路由真源(F1:决定是否尝试供给);**编译层准入=中心可落位**
+  (与中心枚举同源),整侧元素账不再是编译的必要条件。
 """
 
 from __future__ import annotations
@@ -95,12 +122,16 @@ from ..services.atom_tool import (
 
 RDLogger.DisableLog("rdApp.*")
 
-S5B_COMPILER_VERSION = "s5b-compiler-3"
+S5B_COMPILER_VERSION = "s5b-compiler-4"
 
 # 对齐枚举显式上限(超过 ⇒ truncated,不得把截断集合当唯一对齐;
 # 与 donor_applicability._ALIGNMENT_ENUM_LIMIT 同纪律,独立常量:
 # 编译入口预算更小 —— 池编译是每题逐模板调用)
 _COMPILE_ALIGNMENT_LIMIT = 64
+
+# 中心查询壳层数(T-G C2:两壳层强读法 L2;壳1=变键原子邻域重原子边,
+# 壳2=邻域原子(N1)自身的入射键集合亦须命中)
+_CENTER_QUERY_SHELL = 2
 
 # 推断映射(recorded 源,无原生映射)的枚举上限:超过 ⇒ 歧义披露拒绝
 _INFER_ENUM_LIMIT = 200
@@ -136,16 +167,25 @@ def _unsupported(reason: str, detail: dict | None = None) -> dict:
 
 
 def template_elements_fit(mapped_lhs: str, substrate_smiles: str) -> bool:
-    """对齐必要条件(W-V3:S5b-pool-pregate-1;同源前置门)。
+    """模板 lhs 元素多重集 ⊆ 当前底物元素多重集(**判据原样保留**)。
 
-    模板 lhs 的元素多重集 ⊆ 当前底物元素多重集 ⇒ **对齐的必要条件**
-    (不满足 ⇒ 编译必 ``no_alignment``:lhs 原子在底物中不存在)。
-    满足不保证对齐成功(键连通性/部分覆盖仍由 ``compile_donor_template``
-    的完整子结构匹配判定)—— 本 helper 只做前置省编译预算,**判据
-    单一来源:编译层 no_alignment 的必要条件,不新增第二套判据**。
+    **角色(s5b-compiler-4 / T-G C2 R2' 起)——builder 侧路由真源(F1),
+    不再是编译层准入判据**:
 
-    解析失败 ⇒ True(前置门不拒编译层会拒的东西;fail-open 只对
-    坏输入,坏输入仍由编译层结构化拒)。
+    - builder(``default_pool_provider`` analog 通道)用本 verdict 决定
+      **是否尝试伴生供给**(过 ⇒ 直编分支不加袋;拒 ⇒ 供给分支),
+      即「路由真源」;该位置判据一字不改、原样冻结;
+    - **编译层准入 = 中心可落位**(``center_anchor_probe`` /
+      ``enumerate_center_alignments`` 的中心锚定匹配,判据单一来源
+      与中心枚举同源)—— 整侧元素账不再是对齐的必要条件;本 helper
+      在 builder 侧仍**只省预算/定路由**,不再承诺「不满足 ⇒ 编译必
+      no_alignment」的单向蕴含(中心命中可编译而元素账短,这正是
+      C2 647 面收益的来源);
+    - 轻刀选项 B(改本函数判据为「主份元素 ⊆ 底物⊕袋」)= 另轮,且
+      会改 F1 路由真源 ⇒ 与 R2' 互斥(同一函数、同一版本键内不得
+      同时接线)。
+
+    解析失败 ⇒ True(路由门不额外拦坏输入;坏输入由编译层结构化拒)。
     """
     try:
         lhs = Chem.MolFromSmiles(str(mapped_lhs or ""))
@@ -175,7 +215,8 @@ def net_reaction_signature(spec: dict) -> tuple:
       ——净反应签名含共底物贡献,corpus 拷贝型 spec 与整串/其他
       通道 spec 同净反应时合并留痕不双占槽(设计 §四.3.5/PC-3);
       无拷贝字段的 spec 签名**逐字节不变**(EAWAG/整串路径零影响;
-      编译判据零触碰,版本维持 s5b-compiler-3)。
+      编译判据零触碰——W-D2 当期版本为 s5b-compiler-3,后续
+      s5b-compiler-4(T-G C2)仍不触碰本函数)。
     """
     parts = [str(spec.get("product_smiles") or "")] + \
         [str(c) for c in (spec.get("coproducts") or [])] + \
@@ -477,26 +518,273 @@ def _chiral_token(atom) -> str:
     return str(tag)
 
 
-# ---------------------------------------------------------------- 对齐枚举
+# ---------------------------------------------------------------- 中心锚定对齐
+# (T-G Step C2 重刀,s5b-compiler-4;R2' 解耦接线:builder F5 准入 helper
+#  与编译层中心枚举共用本节实现——判据单一来源,不得各自另建)
 
 
 def _atom_id_for_idx(current, idx: int) -> str | None:
     return current.idx_atom_map.get(int(idx))
 
 
-def enumerate_template_alignments(lhs_mol, substrate_arom):
-    """donor(lhs 芳香形)→ 当前底物(芳香形)全部子结构匹配(有界)。
+def l1_maps_of_transform(transform: dict) -> list[int]:
+    """L1 集合 = 变键边两端 map(**限 lhs 侧存在者**)∪ 电荷/手性变化
+    map ∪ 新增原子的保留锚(其 rhs 邻接保留原子)。判读 v3.2:中心=
+    变键原子;电荷/手性变化原子亦为被编辑原子(编辑层结构化
+    unsupported 保持不变,中心须落位);「两端原子**在执行输入中须
+    存在**」⇒ 新增原子自身的 map(rhs 独有)不入 L1(其存在性由
+    ``_place_new_atoms`` 落位链负责,不由查询要求)。消解开的手性
+    map 必然是变键边端点(消解谓词要求 ≥1 键级变化落在该原子),
+    已由 bond_changes 覆盖。"""
+    l1: set[int] = set()
+    lhs_maps = set(transform["lhs"].maps)
+    for ch in transform["bond_changes"]:
+        for x in (int(ch["map1"]), int(ch["map2"])):
+            if x in lhs_maps:
+                l1.add(x)
+    for m in (transform.get("charge_changed_maps") or []):
+        l1.add(int(m))
+    for m in (transform.get("stereo_changed_maps") or []):
+        l1.add(int(m))
+    added = set(transform["added_maps"])
+    if added:
+        rhs = transform["rhs"]
+        for b in rhs.mol.GetBonds():
+            ni = b.GetBeginAtom().GetAtomMapNum()
+            nj = b.GetEndAtom().GetAtomMapNum()
+            for x, y in ((ni, nj), (nj, ni)):
+                if x in added and y and y not in added:
+                    l1.add(int(y))
+    return sorted(l1)
 
-    与 donor_applicability.enumerate_alignments 同纪律但**全供体匹配**
-    (编译要求完整模板落位,中心子图回退属评估层策略,不属编译层):
-    uniquify=False、useChirality=False、显式 maxMatches。返回
-    (matches, truncated):matches = [{lhs_idx: current_idx}, …]。
+
+def center_empty_reason(transform: dict) -> str:
+    """无 L1 的变换形态机读码(D-3:删除型中心定义另轮,本刀结构化拒)。
+    与 no_alignment「中心不落位」机读区分(§8.1-6 披露义务)。"""
+    kinds = []
+    if transform.get("removed_maps"):
+        kinds.append("removed_only")
+    if transform.get("charge_changed_maps"):
+        kinds.append("charge_only")
+    if transform.get("stereo_changed_maps"):
+        kinds.append("stereo_only")
+    if transform.get("stereo_dissolved_maps"):
+        kinds.append("stereo_dissolved_only")
+    if transform.get("added_maps"):
+        kinds.append("added_without_anchor")
+    return "center_empty:" + ("+".join(kinds) or "unclassified")
+
+
+def _center_keep_atoms(lhs_mol, l1_idx: set[int], shell: int):
+    """中心查询的原子/键保留集(同位移植探针原型;L2 两壳层强读法)。
+
+    - 壳1(L1 入射键):``near`` = L1 原子;``keep_atoms`` 并 L1 与
+      其入射键全部端点(邻域原子元素级在查询中原样保留);
+    - 壳2:``near`` 再并 L1 的直接邻居(N1),``keep_atoms`` 再并
+      与 near 相连的全部键端点(N1 自身入射键集合亦须命中;N1 的
+      外围重边按「至少一端在 near」进入查询);
+    - 键集 = 至少一端落在 ``near`` 且两端均保留的 lhs 键(键级原样;
+      芳香键按芳香语义参与匹配——芳香正向要求,非原子旗标精确
+      双向断言,见 §8.1-7 披露口径)。
+    返回 ``(near, keep_atoms, keep_bonds)``(lhs 原子 idx 空间)。
     """
+    near: set[int] = set(l1_idx)
+    keep_atoms: set[int] = set(l1_idx)
+    if shell >= 2:
+        d1: set[int] = set()
+        for b in lhs_mol.GetBonds():
+            i, j = b.GetBeginAtomIdx(), b.GetEndAtomIdx()
+            if i in near or j in near:
+                d1.add(i)
+                d1.add(j)
+        near |= d1
+        for b in lhs_mol.GetBonds():
+            i, j = b.GetBeginAtomIdx(), b.GetEndAtomIdx()
+            if i in near or j in near:
+                keep_atoms.add(i)
+                keep_atoms.add(j)
+    else:
+        for b in lhs_mol.GetBonds():
+            i, j = b.GetBeginAtomIdx(), b.GetEndAtomIdx()
+            if i in near or j in near:
+                keep_atoms.add(i)
+                keep_atoms.add(j)
+    keep_bonds = []
+    for b in lhs_mol.GetBonds():
+        i, j = b.GetBeginAtomIdx(), b.GetEndAtomIdx()
+        if (i in near or j in near) and i in keep_atoms \
+                and j in keep_atoms:
+            keep_bonds.append((i, j, b.GetBondType()))
+    return near, keep_atoms, keep_bonds
+
+
+def build_center_query(lhs_mol, lhs_maps: dict, l1_maps: list[int],
+                       shell: int = _CENTER_QUERY_SHELL):
+    """中心查询 = 重原子骨架(元素 + 芳香旗标 + 键级)。
+
+    与判读 v3.2 修订 1「比较前强制规范化;中心只比重原子骨架;L2 =
+    变键原子其他重原子边(缺失侧)」同构:**不复制 H 数/形式电荷/
+    noImplicit**(H± 与质子化按 v3.2 豁免;电荷变化由编辑层判)。
+    L1 原子即使无键(孤立离子)也入查询。
+    返回 ``(query_mol, {map_no: query_idx})``;qidx 覆盖**全部命中
+    查询的 lhs map**(L1 与壳层原子——映射覆盖 = 查询覆盖,L3 不映射,
+    由 c2_l3_disclosure 披露),编辑段消费 L1 端点(全部含于其中)。
+    """
+    l1_idx = {int(lhs_maps[int(m)]) for m in l1_maps
+              if int(m) in lhs_maps}
+    _near, keep_atoms, keep_bonds = _center_keep_atoms(lhs_mol, l1_idx,
+                                                       shell)
+    rw = Chem.RWMol()
+    idx_map: dict[int, int] = {}
+    for old in sorted(keep_atoms):
+        src = lhs_mol.GetAtomWithIdx(old)
+        na = Chem.Atom(src.GetAtomicNum())
+        na.SetIsAromatic(src.GetIsAromatic())
+        idx_map[old] = rw.AddAtom(na)
+    for i, j, bt in keep_bonds:
+        rw.AddBond(idx_map[i], idx_map[j], bt)
+    q = rw.GetMol()
+    qidx_of_map = {int(m): idx_map[int(lhs_maps[int(m)])]
+                   for m in lhs_maps
+                   if int(lhs_maps[int(m)]) in idx_map}
+    return q, qidx_of_map
+
+
+def enumerate_center_alignments(lhs_mol, lhs_maps, l1_maps, substrate_arom,
+                                shell: int = _CENTER_QUERY_SHELL):
+    """中心锚定对齐枚举(有界;s5b-compiler-4 替换全供体匹配)。
+
+    返回 ``(matches, qidx_of_map, truncated)``:matches = RDKit 信封
+    序的命中元组(确定性;uniquify=False、useChirality=False、显式
+    maxMatches);truncated = 命中数触 ``_COMPILE_ALIGNMENT_LIMIT``
+    (截断集合不得当唯一对齐;调用方结构化拒 + 未核披露)。
+    """
+    q, qidx_of_map = build_center_query(lhs_mol, lhs_maps, l1_maps,
+                                        shell=shell)
     matches = substrate_arom.GetSubstructMatches(
-        lhs_mol, uniquify=False, useChirality=False,
+        q, uniquify=False, useChirality=False,
         maxMatches=_COMPILE_ALIGNMENT_LIMIT)
-    out = [{d: c for d, c in enumerate(m)} for m in matches]
-    return out, len(matches) >= _COMPILE_ALIGNMENT_LIMIT
+    return list(matches), qidx_of_map, \
+        len(matches) >= _COMPILE_ALIGNMENT_LIMIT
+
+
+def center_anchor_probe(mapped_lhs: str, mapped_rhs: str,
+                        substrate_smiles: str) -> dict:
+    """F5 中心准入 helper(R2' 解耦接线;builder 侧调用)。
+
+    与编译层中心枚举**共用同一实现**(``build_center_query``/
+    ``enumerate_center_alignments``):对**已冻结执行输入**(F4)判定
+    「中心可落位」。返回::
+
+        {"status": "present" | "absent" | "defer",
+         "reason": <机读码>, "detail": {...},
+         "compiler_version": S5B_COMPILER_VERSION}
+
+    语义(与编译层拒因同源;「省预算不改结果口径」不变量):
+
+    - ``absent``(中心查询零命中)⇒ 编译层必 ``no_alignment`` ——
+      唯一可短路的拒;builder 直接记 no_alignment、不发编译;
+    - ``defer``(变换提取异常 / 中心为空 / 截断 / 底物不可解析)⇒
+      编译层将给**其它**稳定拒因(或截断拒),不得冒名 no_alignment
+      ——builder 照常发编译,由编译层如实出因;
+    - ``present`` ⇒ 送编译(F5 只判准入,不保证编译/编辑层通过)。
+    """
+    try:
+        transform = extract_mapped_transform(mapped_lhs, mapped_rhs)
+    except S5bCompileError as exc:
+        return {"status": "defer", "reason": exc.reason,
+                "detail": {"stage": "transform"},
+                "compiler_version": S5B_COMPILER_VERSION}
+    except Exception as exc:  # noqa: BLE001 —— 与编译层同形如实披露
+        return {"status": "defer",
+                "reason": f"internal_error:{type(exc).__name__}",
+                "detail": {"stage": "transform"},
+                "compiler_version": S5B_COMPILER_VERSION}
+    l1_maps = l1_maps_of_transform(transform)
+    if not l1_maps:
+        return {"status": "defer", "reason": center_empty_reason(transform),
+                "detail": {"stage": "center"},
+                "compiler_version": S5B_COMPILER_VERSION}
+    try:
+        _current, arom, _kek = _current_base(substrate_smiles)
+    except S5bCompileError as exc:
+        return {"status": "defer", "reason": exc.reason,
+                "detail": {"stage": "substrate"},
+                "compiler_version": S5B_COMPILER_VERSION}
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "defer",
+                "reason": f"internal_error:{type(exc).__name__}",
+                "detail": {"stage": "substrate"},
+                "compiler_version": S5B_COMPILER_VERSION}
+    matches, _qidx, truncated = enumerate_center_alignments(
+        transform["lhs"].mol, transform["lhs"].maps, l1_maps, arom)
+    if truncated:
+        return {"status": "defer", "reason": "alignment_limit_exceeded",
+                "detail": {"stage": "align",
+                           "n_matches_at_limit": len(matches),
+                           "truncation_axis": "center_match_enumeration"},
+                "compiler_version": S5B_COMPILER_VERSION}
+    if not matches:
+        return {"status": "absent", "reason": "no_alignment",
+                "detail": {"stage": "align", "center_presence_matches": 0},
+                "compiler_version": S5B_COMPILER_VERSION}
+    return {"status": "present", "reason": "",
+            "detail": {"stage": "align",
+                       "center_presence_matches": len(matches)},
+            "compiler_version": S5B_COMPILER_VERSION}
+
+
+def _l3_disclosure(lhs_mol, lhs_maps: dict, l1_maps: list[int],
+                   match, qidx_of_map: dict, substrate_arom,
+                   shell: int = _CENTER_QUERY_SHELL) -> dict:
+    """L3 豁免面逐行机读披露(交付义务:未披露=不发货;§3.2 风险 3)。
+
+    - 豁免原子 = lhs 中不在中心查询保留集的原子(map 号清单);
+    - 豁免边数 = 至少一端豁免的 lhs 键数;
+    - 异元素/手性/电荷旗标 = 豁免原子是否含非碳元素、四面体手性
+      标签、形式电荷;
+    - **H 计数差旗标**(§8.1-2):被匹配原子(查询覆盖)的模板 H 总数
+      与目标 H 总数不一致 ⇒ True(纯 H 差异 L2 不可见的如实披露轴;
+      本刀不把 H 纳入查询)。
+    """
+    l1_idx = {int(lhs_maps[int(m)]) for m in l1_maps
+              if int(m) in lhs_maps}
+    _near, keep_atoms, _kb = _center_keep_atoms(lhs_mol, l1_idx, shell)
+    exempt_maps: list[int] = []
+    has_hetero = has_chir = has_charge = False
+    for m, idx in lhs_maps.items():
+        if int(idx) in keep_atoms:
+            continue
+        exempt_maps.append(int(m))
+        atom = lhs_mol.GetAtomWithIdx(int(idx))
+        if atom.GetAtomicNum() not in (1, 6):
+            has_hetero = True
+        if atom.GetChiralTag() not in (Chem.ChiralType.CHI_UNSPECIFIED,):
+            has_chir = True
+        if atom.GetFormalCharge() != 0:
+            has_charge = True
+    n_exempt_bonds = 0
+    for b in lhs_mol.GetBonds():
+        i, j = b.GetBeginAtomIdx(), b.GetEndAtomIdx()
+        if i not in keep_atoms or j not in keep_atoms:
+            n_exempt_bonds += 1
+    n_h_diff = 0
+    for m, qi in qidx_of_map.items():
+        t_idx = match[qi]
+        a_tpl = lhs_mol.GetAtomWithIdx(int(lhs_maps[int(m)]))
+        a_tgt = substrate_arom.GetAtomWithIdx(int(t_idx))
+        if a_tpl.GetTotalNumHs() != a_tgt.GetTotalNumHs():
+            n_h_diff += 1
+    return {
+        "exempt_atoms_maps": sorted(exempt_maps),
+        "n_exempt_atoms": len(exempt_maps),
+        "n_exempt_bonds": n_exempt_bonds,
+        "has_hetero_element": has_hetero,
+        "has_chirality": has_chir,
+        "has_charge": has_charge,
+        "h_count_diff": n_h_diff > 0,
+        "n_h_count_diff_atoms": n_h_diff,
+    }
 
 
 # ---------------------------------------------------------------- 编辑编译
@@ -931,16 +1219,66 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
     lhs, rhs = transform["lhs"], transform["rhs"]
     current, arom, kek = _current_base(substrate_smiles)
 
-    # ---- 对齐枚举(有界;等价映射合并,竞争目标 ambiguous) ----
-    matches, truncated = enumerate_template_alignments(lhs.mol, arom)
+    # ---- 中心锚定对齐枚举(s5b-compiler-4;有界;预算截断结构化拒) ----
+    # 中心查询 = L1 骨架 + L2 两壳层(§3.2 定义);整侧元素账不再是
+    # 必要条件(降为 builder 路由真源 F1 的省预算面,见
+    # template_elements_fit docstring)。
+    l1_maps = l1_maps_of_transform(transform)
+    if not l1_maps:
+        # 中心为空变换(removed-only 等):本刀不定义删除型中心(D-3
+        # 登记);结构化拒并与 no_alignment 机读区分(§8.1-6)。
+        return _unsupported(center_empty_reason(transform), {
+            "record_id": record_id,
+            "note": "无 L1(无变键/电荷/手性原子与新增锚);删除型"
+                    "中心定义另轮(D-3),本刀不猜"})
+    matches, qidx_of_map, truncated = enumerate_center_alignments(
+        lhs.mol, lhs.maps, l1_maps, arom)
     if not matches:
         return _unsupported("no_alignment", {
             "record_id": record_id,
-            "note": "当前底物不含完整供体反应物(类比迁移无落位)"})
+            "center_presence_matches": 0,
+            "note": "执行输入不含中心查询(L1 骨架+L2 两壳层)"
+                    "(中心不可落位)"})
     if truncated:
+        # 预算截断诚实处置(§3.2 风险 5/D-2):不得称唯一目标已证;
+        # 未核范围机读披露(截断轴 + 触限命中数)。
         return _unsupported("alignment_limit_exceeded", {
             "record_id": record_id,
-            "n_matches_at_limit": len(matches)})
+            "n_matches_at_limit": len(matches),
+            "truncation_axis": "center_match_enumeration",
+            "unverified_matches": None,
+            "note": "中心命中枚举触 _COMPILE_ALIGNMENT_LIMIT;候选"
+                    "核验被截断,未核范围不视为无歧义(默认结构化拒)"})
+
+    # 度核(模板 L1 重原子度 = 目标位点重原子度)+ prefer 确定性排序:
+    # prefer 只排序不裁量准入(G⊆M 均为语义允许候选;G 优先消歧,
+    # G 空回退全体)——被排序靠后的非全等候选不得跳过(M 全量核验)。
+    tpl_heavy_deg: dict[int, int] = {}
+    for m in l1_maps:
+        idx = lhs.maps.get(int(m))
+        if idx is None:
+            continue
+        tpl_heavy_deg[int(m)] = sum(
+            1 for n in lhs.mol.GetAtomWithIdx(int(idx)).GetNeighbors()
+            if n.GetAtomicNum() > 1)
+
+    def _deg_ok(match) -> bool:
+        for map_no, need in tpl_heavy_deg.items():
+            qi = qidx_of_map.get(int(map_no))
+            if qi is None:
+                continue
+            tgt = match[qi]
+            deg = sum(1 for n in arom.GetAtomWithIdx(int(tgt))
+                      .GetNeighbors() if n.GetAtomicNum() > 1)
+            if deg != need:
+                return False
+        return True
+
+    deg_flags = [_deg_ok(m) for m in matches]
+    prefer_used = ("degree_matched_subset" if any(deg_flags)
+                   else "fallback_all_presence")
+    order = [i for i, ok in enumerate(deg_flags) if ok] + \
+        [i for i, ok in enumerate(deg_flags) if not ok]
 
     center_map_nums = ([int(x) for x in (center_atoms or [])]
                        if center_atoms else list(lhs.maps))
@@ -952,6 +1290,9 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
             f"中心 map 号不在供体 lhs 侧:{bad_centers}(中心是供体侧"
             "原子;新增原子由编译自动并入中心,不由调用方声明)",
             {"bad_center_maps": bad_centers})
+    # 显式声明的中心原子须全部可落位(部分缺 ⇒ 该对齐不可判,skip;
+    # 与基线 skip 语义一致);声明为空时不额外要求(基线同:全映射)。
+    required_center = [int(x) for x in (center_atoms or [])]
     # 新增原子(rhs 独有 map)由编译自动并入中心与对齐(新原子变化
     # 属供体变换自身;D_<map> → S_<Elem>_N<n> 映射值)
     added_maps = [int(x) for x in transform["added_maps"]]
@@ -960,21 +1301,23 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
                         (transform.get("stereo_dissolved_maps") or [])]
     compiled_per_match: list[dict] = []
     seen_targets: dict[str, dict] = {}
-    for match in matches:
+    # ---- M 全候选等价核验(歧义硬规则 D-1):被 prefer 排序靠后的
+    # 非全等候选不得跳过;按净产物目标归并,≥2 个不同可执行目标 ⇒
+    # 结构化 ambiguous_alignment(披露只补充不替代)。
+    for order_i in order:
+        match = matches[order_i]
         map_to_current_id: dict[int, str] = {}
-        for map_no, lhs_idx in lhs.maps.items():
-            cur_idx = match.get(lhs_idx)
-            if cur_idx is None:
-                continue
-            atom_id = _atom_id_for_idx(current, cur_idx)
+        skip = False
+        for map_no, qi in qidx_of_map.items():
+            atom_id = _atom_id_for_idx(current, match[qi])
             if atom_id is None:
-                raise S5bCompileError(
-                    "internal:current_id_missing",
-                    "对齐原子的当前渲染 ID 缺失(渲染/对齐索引错位)",
-                    {"map_no": map_no})
+                skip = True
+                break
             map_to_current_id[int(map_no)] = str(atom_id)
-        # 中心原子须全部有映射(部分缺 ⇒ 该对齐不可判)
-        missing_center = [m for m in center_map_nums
+        if skip or not map_to_current_id:
+            continue
+        # 中心原子须全部有映射(部分缺 ⇒ 该对齐不可判;与基线同)
+        missing_center = [m for m in required_center
                           if m not in map_to_current_id]
         if missing_center:
             continue
@@ -1018,7 +1361,9 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
         compiled_per_match.append({"target": target, "reason": "",
                                    "edits": edits,
                                    "map_to_current_id": map_to_current_id,
-                                   "execution": execution})
+                                   "execution": execution,
+                                   "degree_matched": bool(deg_flags[order_i]),
+                                   "match": match})
         if target not in seen_targets:
             seen_targets[target] = compiled_per_match[-1]
     if not compiled_per_match or all(
@@ -1030,18 +1375,27 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
             {"record_id": record_id,
              "reasons": (first_fail or {}).get("reasons", [])[:8]})
     if len(seen_targets) > 1:
+        # 歧义硬拒(必须):全部语义允许候选 M(含被 prefer 排序靠后的
+        # 非全等候选)已全量核验;不同可执行目标 ⇒ 结构化拒。
         return _unsupported("ambiguous_alignment", {
             "record_id": record_id,
             "competing_targets": sorted(seen_targets)[:8],
             "n_alignments": len(compiled_per_match),
-            "note": "对称对齐给出不同目标(不取首个;等价映射才合并)"})
-    # 全部成功对齐共享同一目标 ⇒ 等价映射合并(取首个确定性对齐的
-    # edits —— 同目标下编辑路径可能不同但净效应一致,执行验证已过)
+            "n_targets": len(seen_targets),
+            "all_matches_verified": True,
+            "note": "全部语义允许候选(M)等价核验给出不同目标"
+                    "(不取首个;等价映射才合并;prefer 只排序不裁量)"})
+    # 全部成功对齐共享同一目标 ⇒ 等价映射合并(取 prefer 序首个确定性
+    # 对齐的 edits —— 同目标下编辑路径可能不同但净效应一致,执行验证
+    # 已过;度全等子集 G 优先)
     chosen = next(e for e in compiled_per_match if e["target"] is not None)
     target = chosen["target"]
     execution = chosen["execution"]
     map_to_current_id = chosen["map_to_current_id"]
     edits = chosen["edits"]
+    # L3 豁免面机读披露(选定对齐;未披露=不发货)
+    l3_disclosure = _l3_disclosure(lhs.mol, lhs.maps, l1_maps,
+                                   chosen["match"], qidx_of_map, arom)
 
     # ---- donor 命名空间 + alignment(W1 #3;新增原子并入映射值与中心) ----
     donor_to_current = {f"D_{map_no}": map_to_current_id[map_no]
@@ -1079,6 +1433,22 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
             "n_equivalent_alignments": len(compiled_per_match),
             "truncated": truncated,
             "template_center_maps": [int(x) for x in center_map_nums],
+            # ---- T-G C2(compiler-4)机读字段(冻结项③) ----
+            "alignment_scope": "center_anchored_l1_l2_shell2",
+            "alignment_semantics": (
+                "center query = L1 (bond-change/charge/stereo atoms + "
+                "added-atom anchors) heavy-atom skeleton + L2 two shells "
+                "(shell1 = L1 incident bonds, shell2 = N1 atoms' own "
+                "incident bond sets); L3 differences exempt and disclosed "
+                "(c2_l3_disclosure); aromatic matching is a positive "
+                "requirement on aromatic bonds, NOT an exact bidirectional "
+                "atom-flag equality (see 8.1-7); H counts and formal "
+                "charges are not part of the query"),
+            "center_presence_matches": len(matches),
+            "prefer_ordering": prefer_used,
+            "all_matches_verified": True,
+            "unverified_matches": 0,
+            "c2_l3_disclosure": l3_disclosure,
         },
     }
     if stereo_dissolved:

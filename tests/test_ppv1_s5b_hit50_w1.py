@@ -330,9 +330,21 @@ def test_g7_aromatic_resonance_no_spurious_change_and_dearomatize() -> None:
     execution = execute_edits(render("Cc1ccccc1", "S"), spec["edits"])
     assert execution["ok"] is True
     assert execution["product_smiles"] == "O=C(O)c1ccccc1"
-    # 环键零编辑(芳香共振不算键差):编辑不触及环上 6 个原子间键
-    ring_ids = {spec["alignment"]["donor_to_current"][f"D_{m}"]
-                for m in (6, 7, 8, 9, 10, 11)}
+    # 环键零编辑(芳香共振不算键差):编辑不触及环上 6 个原子间键。
+    # T-G C2(2026-10-19)起为中心锚定对齐:donor_to_current 只覆盖
+    # 中心查询命中原子(本形环远端 3 原子在 L3 豁免面,由
+    # spec.compile.c2_l3_disclosure 披露),环原子集合改从**底物
+    # 渲染**取(与映射覆盖解耦,判据不弱于原式)。
+    from rdkit import Chem as _Chem
+
+    from pathway_v43.services.atom_tool import render as _render
+
+    _current = _render("Cc1ccccc1", "S")
+    _arom = _Chem.MolFromSmiles("Cc1ccccc1")
+    ring_ids = {_current.idx_atom_map[a.GetIdx()]
+                for a in _arom.GetAtoms() if a.GetIsAromatic()}
+    _l3 = spec["compile"].get("c2_l3_disclosure") or {}
+    assert _l3.get("n_exempt_atoms", 0) >= 3  # 远端环原子 L3 披露在位
     for edit in spec["edits"]:
         if edit["op"] == "change_bond_order":
             pair = {edit["atom1"], edit["atom2"]}
@@ -366,9 +378,17 @@ def test_g8_unmapped_donor_benzene_current_toluene() -> None:
     execution = execute_edits(render("Cc1ccccc1", "S"), spec["edits"])
     assert execution["ok"] is True
     assert execution["product_smiles"] == "OCc1ccccc1"
-    # 环零编辑(芳香共振不算键差):编辑不触及环内键
-    ring_ids = {spec["alignment"]["donor_to_current"][f"D_{m}"]
-                for m in (1, 2, 3, 4, 5, 6)}
+    # 环零编辑(芳香共振不算键差):编辑不触及环内键。
+    # T-G C2 起同组 7:环原子集合从**底物渲染**取(中心锚定对齐下
+    # donor_to_current 只覆盖中心查询命中原子;L3 豁免面披露)。
+    from rdkit import Chem as _Chem
+
+    from pathway_v43.services.atom_tool import render as _render
+
+    _current = _render("Cc1ccccc1", "S")
+    _arom = _Chem.MolFromSmiles("Cc1ccccc1")
+    ring_ids = {_current.idx_atom_map[a.GetIdx()]
+                for a in _arom.GetAtoms() if a.GetIsAromatic()}
     for edit in spec["edits"]:
         if edit["op"] == "change_bond_order":
             pair = {edit["atom1"], edit["atom2"]}
@@ -606,7 +626,8 @@ def test_compiler_version_registered() -> None:
     # W-V4b:s5b-compiler-2(stereo 消解;公共编译判据链行为变化)
     # → R1(2026-10-10,S5B-V4B-01):s5b-compiler-3(消解元素域收窄
     # 为碳 + 执行后复核双轴;公共编译判据链行为变化)
-    assert S5B_COMPILER_VERSION == "s5b-compiler-3"
+    # T-G C2(2026-10-19):重刀中心锚定对齐(s5b-compiler-4:中心匹配+M 全候选等价核验+歧义硬拒)⇒ 4
+    assert S5B_COMPILER_VERSION == "s5b-compiler-4"
     # 变换提取:map 号联结可重放(同输入同变化表)
     t1 = extract_mapped_transform(
         "[CH3:1][CH2:2][OH:3]", "[CH3:1][CH:2]=[O:3]")

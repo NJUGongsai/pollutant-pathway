@@ -456,7 +456,25 @@ def build_run_input(question: dict, *, batch_tag: str,
 # 候选按(tier strict→cn, 整串→组分, 行号)序**追加在后**;同净反应
 # 签名去重/失败补位/池宽语义不变;corpus_channel 参数仅供消融对照
 # (生产默认 True;False=纯 EAWAG 面,池深前后对照探针用)。
-S5B_POOL_POLICY_VERSION = "s5b-pool-policy-7"
+# s5b-pool-policy-8(T-G Step C2 重刀 R2',2026-10-19):池**成员**
+# 变化 ⇒ 按既有身份规则升版——**路由/准入解耦接线**(设计
+# T_G_C2_DESIGN_FROZEN_R2P_2026-10-19.md §3.2 真源表 F1-F5):
+# **F1-F4 路由真源照基线冻结、判据一字不改**(F1 旧整侧元素门只作
+# 路由;F2 伴生供给原样;F3 wildcard 拦截原样且先于 F5 与直编;
+# F4 执行输入 = F1 过⇒raw / F1拒∧supply⇒加袋 / no_supply⇒raw),
+# **F5 改为中心 helper(center_anchor_probe,与 s5b-compiler-4 中心
+# 枚举同源)只对 F4 已冻结输入判准入**:F5 不过 ⇒ 结构化
+# no_alignment(省预算不改结果口径,编译层同源必拒);F5 defer(变换
+# 异常/空中心/截断)⇒ 照常发编译、由编译层如实出因;F5 过 ⇒ 编译
+# (no_supply 与 F5 过面为新增可达)。编译层对齐口径变化 =
+# s5b-compiler-4(中心锚定匹配+M 全候选等价核验+歧义硬拒+L3 披露);
+# **池策略配置本身零变化**(raw 预算/池宽/阈值/补位/融合/去重/候选
+# 序/截断位置全部不动);供给策略/执行输入策略零变化(同输入承诺;
+# 原型「全 supply 件加袋」直调不入账)。诊断追加:
+# ``analog_route_truth_version``/``analog_center_admission_*`` 计数 +
+# 逐候选行 route/execution_input_source/execution_input_sha256/f5/
+# light_gap_coverable_by_bag(轻刀 A 披露;F1 判据零改动)。
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-8"
 S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
 S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
 S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)
@@ -467,6 +485,11 @@ S5B_POOL_DIAG_SIG_HEAD_TOKENS = 4   # T1a:candidates 行签名头截取 token �
 # C 线共底物伴生供给登记面(语义 a;设计书 §二/§三.5;探针参考
 # reports/ppv1_s5b/c_probe_cosubgate_2026-10-14/unlock_sim.py)
 S5B_ANALOG_COSUB_SUPPLY_VERSION = "s5b-analog-cosub-supply-1"
+
+# T-G C2 R2' 路由真源版本(F1/F2/F3/F4 事实的单一来源版本;冻结项③
+# 机读字段:门判据版本/路由真源版本/执行输入来源与 F4 哈希/供给清单/
+# F5 判定输入与结果)
+S5B_ANALOG_ROUTE_VERSION = "s5b-analog-route-f1f4-1"
 
 
 def _net_reaction_signature(spec: dict) -> tuple:
@@ -652,6 +675,48 @@ def analog_cosub_supply(*, mapped_lhs: str, mapped_rhs: str,
                 "main_cn": main_cn}
     return {"status": "supply", "supply": supply, "main_idx": main_idx,
             "main_copies": main_copies, "main_cn": main_cn}
+
+
+def _elem_multiset(smiles: str) -> dict | None:
+    """元素多重集(解析失败 ⇒ None)。轻刀 A 归因披露用(纯读)。"""
+    from rdkit import Chem, RDLogger
+
+    RDLogger.DisableLog("rdApp.*")
+    mol = Chem.MolFromSmiles(str(smiles or ""))
+    if mol is None:
+        return None
+    out: dict = {}
+    for a in mol.GetAtoms():
+        out[a.GetSymbol()] = out.get(a.GetSymbol(), 0) + 1
+    return out
+
+
+def _light_gap_coverable_by_bag(mapped_lhs: str, substrate_smiles: str,
+                                supply: dict) -> bool | None:
+    """轻刀 A(T-G C2 选项 A)归因披露:主组分元素缺口可否被袋元素覆盖
+    (「主组分元素 ⊆ 底物⊕袋元素」判据的**只读**归因;F1 判据零改动)。
+
+    仅对 F1 拒候选计算(non-applicable ⇒ None);主组分不可判/不可解析
+    ⇒ None(不猜)。袋取 analog_cosub_supply 已算出的 supply 清单
+    (wildcard 袋同样按清单计算,路由状态另行记数披露)。"""
+    main_idx = int(supply.get("main_idx", -1))
+    lhs_comps = [c for c in str(mapped_lhs or "").split(".") if c]
+    if main_idx < 0 or main_idx >= len(lhs_comps):
+        return None
+    main_elems = _elem_multiset(_cosub_strip_map(lhs_comps[main_idx]))
+    sub_elems = _elem_multiset(substrate_smiles)
+    if main_elems is None or sub_elems is None:
+        return None
+    bag_elems: dict = {}
+    for _mc, sc in (supply.get("supply") or []):
+        comp = _elem_multiset(sc)
+        if comp is None:
+            return None
+        for e, n in comp.items():
+            bag_elems[e] = bag_elems.get(e, 0) + n
+    deficit = {e: n - sub_elems.get(e, 0) for e, n in main_elems.items()
+               if n > sub_elems.get(e, 0)}
+    return all(n <= bag_elems.get(e, 0) for e, n in deficit.items())
 
 
 def _cosub_supply_spectators(mapped_lhs: str, mapped_rhs: str,
@@ -968,6 +1033,20 @@ def default_pool_provider(config: V43Config | None, *,
     declared_copy_components/cosubstrate_event_contract/record_
     equation;wildcard 袋不供给;救援失败维持 no_alignment 原口径;
     池宽/阈值/排序/融合序零变化——单变量=共底物伴生供给)。
+    s5b-pool-policy-8(T-G C2 重刀 R2',2026-10-19):**路由/准入解耦
+    接线**——F1-F4 路由真源照基线冻结(**判据一字不改**:F1 旧整侧
+    元素门只作路由决定是否尝试供给;F2 analog_cosub_supply 原样;
+    F3 wildcard 拦截原样且**先于 F5 与直编**;F4 执行输入 = F1 过⇒
+    raw / F1拒∧supply⇒加袋 / no_supply⇒raw);**准入改由 F5 中心
+    helper**(``center_anchor_probe``,与 s5b-compiler-4 中心锚定
+    枚举同源;入参=同一个 F4 串)在三个位置判定:直编分支(前门位,
+    F1 过)、供给后二次门位、供给分支 no_supply 编译前;**F5 不过⇒
+    结构化 no_alignment(省预算不改结果口径)且不发编译;F5 defer⇒
+    发编译由编译层如实出因**(变换异常/空中心/截断);F5 过⇒编译
+    (no_supply-F5 过面为新增可达,漂移逐行披露)。轻刀 A:逐候选
+    追加 ``light_gap_coverable_by_bag`` 归因披露(F1 判据零改动)。
+    **池策略配置本身零变化**(raw 预算/池宽/阈值/补位/融合/去重/
+    候选序/截断位置全部不动);供给/执行输入策略零变化(同输入承诺)。
     """
     diagnostics: dict = {}
 
@@ -991,12 +1070,32 @@ def default_pool_provider(config: V43Config | None, *,
                       reason: str | None = None,
                       merged_into: str | None = None,
                       pool_rank: int | None = None,
-                      signature_head: list[str] | None = None) -> dict:
+                      signature_head: list[str] | None = None,
+                      route: str | None = None,
+                      execution_input_source: str | None = None,
+                      execution_input_sha256: str | None = None,
+                      f5: str | None = None,
+                      light_gap_coverable_by_bag: bool | None = None) -> dict:
+            # T-G C2(R2',s5b-pool-policy-8)追加路由/准入机读字段(冻结
+            # 项③):route=F1..F4 路由分层标签("direct_raw"/"supplied"/
+            # "no_supply_raw"/"wildcard_blocked");execution_input_source
+            # =执行输入来源(raw/supplied);execution_input_sha256=F4
+            # 冻结输入哈希(同输入对拍锚);f5=中心准入判定结果
+            # ("pass"/"reject"/"defer");light_gap_coverable_by_bag=
+            # 轻刀 A 归因披露(主组分元素缺口可否被袋元素覆盖;仅
+            # F1 拒候选适用,判据零改动)。非 analog 通道行这些键为
+            # None(向后兼容追加,行 schema v2)。
             row: dict = {"channel": channel, "record_key": record_key,
                          "outcome": outcome, "reason": reason,
                          "merged_into": merged_into,
                          "pool_rank": pool_rank,
-                         "signature_head": signature_head}
+                         "signature_head": signature_head,
+                         "route": route,
+                         "execution_input_source": execution_input_source,
+                         "execution_input_sha256": execution_input_sha256,
+                         "f5": f5,
+                         "light_gap_coverable_by_bag":
+                             light_gap_coverable_by_bag}
             candidate_rows.append(row)
             return row
 
@@ -1092,10 +1191,49 @@ def default_pool_provider(config: V43Config | None, *,
             resolver = AnalogSourceResolver(config)
 
             def _compile_analog_refs(refs) -> None:
+                # ---- T-G C2 R2'(s5b-pool-policy-8):路由/准入解耦接线 ----
+                # F1..F4 = 基线路由真源(**判据一字不改,原样冻结**):
+                #   F1 旧整侧元素门(template_elements_fit)=只作路由,
+                #     决定是否尝试供给/是否进直编分支;
+                #   F2 analog_cosub_supply =供给状态/清单(原样);
+                #   F3 wildcard 拦截 =记数+1、不供给、不编译(原样;
+                #     **先于 F5 与直编**——raw 中心命中不得跳过);
+                #   F4 执行输入 =F1 过⇒raw;F1 拒∧supply⇒加袋;
+                #     F1 拒∧no_supply⇒raw(逐候选冻结,不得被 F5 反改)。
+                # F5 = 中心 helper(center_anchor_probe,**与编译层中心
+                #   枚举同源**)只对 F4 已冻结输入判准入:
+                #   不过(absent)⇒ 结构化 no_alignment(省预算不改结果
+                #   口径;编译层同源必拒);defer(变换异常/空中心/截断)
+                #   ⇒ 照常发编译,由编译层如实出因。
+                # 轻刀 A:仅附加披露字段(_diag_row 的
+                #   light_gap_coverable_by_bag),F1 判据零改动。
                 from .s5b_compiler import (
+                    center_anchor_probe,
                     compile_donor_template,
                     template_elements_fit,
                 )
+
+                def _input_hash(f4: str) -> str:
+                    return hashlib.sha256(f4.encode("utf-8")).hexdigest()
+
+                def _f5_gate(lhs: str, rhs: str, f4: str) -> dict:
+                    probe = center_anchor_probe(lhs, rhs, f4)
+                    diagnostics["analog_center_admission_checked"] = int(
+                        diagnostics.get(
+                            "analog_center_admission_checked", 0)) + 1
+                    if probe["status"] == "absent":
+                        diagnostics["analog_center_admission_skipped"] = int(
+                            diagnostics.get(
+                                "analog_center_admission_skipped", 0)) + 1
+                    elif probe["status"] == "defer":
+                        diagnostics["analog_center_admission_deferred"] = \
+                            int(diagnostics.get(
+                                "analog_center_admission_deferred", 0)) + 1
+                    return probe
+
+                def _f5_row_value(probe: dict) -> str:
+                    return {"present": "pass", "absent": "reject",
+                            "defer": "defer"}[probe["status"]]
 
                 def _finish_analog_spec(out: dict, record_id) -> dict:
                     spec = dict(out["spec"])
@@ -1106,125 +1244,172 @@ def default_pool_provider(config: V43Config | None, *,
                     spec["coefficient"] = 1
                     return spec
 
-                for ref in refs:
-                    # ---- W-V3(S5b-pool-pregate-1):对齐必要条件前置 ----
-                    # 模板 lhs 元素 ⊄ 底物 ⇒ 编译必 no_alignment(同源
-                    # helper template_elements_fit;判据单一来源,前置
-                    # 只省编译预算,不改池成员/失败原因口径——no_alignment
-                    # 计数含前置拒;诊断另计 analog_pregate_skipped)
-                    if not template_elements_fit(
-                            str(ref.mapped_lhs or ""), substrate):
-                        # ---- C 线(s5b-pool-policy-7):语义 a 伴生供给
-                        # 救援——前置门拒的候选按模板袋伴生供给重过门
-                        # (单变量=共底物伴生供给;救援不适用/仍不过门
-                        # 维持既有 no_alignment 口径,零漂移;wildcard
-                        # 袋不供给,维持拦截)
-                        supply = analog_cosub_supply(
-                            mapped_lhs=str(ref.mapped_lhs or ""),
-                            mapped_rhs=str(ref.mapped_rhs or ""),
-                            substrate_smiles=substrate)
-                        sub_supplied = substrate
-                        supply_rescued = False
-                        if supply["status"] == "wildcard_blocked":
-                            diagnostics["analog_cosub_supply_"
-                                         "wildcard_blocked"] = int(
-                                diagnostics.get(
-                                    "analog_cosub_supply_"
-                                    "wildcard_blocked", 0)) + 1
-                        elif supply["status"] == "supply":
-                            sub_supplied = substrate + "." + ".".join(
-                                sc for _mc, sc in supply["supply"])
-                            if template_elements_fit(
-                                    str(ref.mapped_lhs or ""), sub_supplied):
-                                diagnostics["analog_cosub_supply_"
-                                             "compile_attempted"] = int(
-                                    diagnostics.get(
-                                        "analog_cosub_supply_"
-                                        "compile_attempted", 0)) + 1
-                                out = compile_donor_template(
-                                    mapped_lhs=str(ref.mapped_lhs or ""),
-                                    mapped_rhs=str(ref.mapped_rhs or ""),
-                                    center_atoms=[int(x) for x in
-                                                  (ref.center_atoms
-                                                   or [])],
-                                    substrate_smiles=sub_supplied,
-                                    record_id=str(ref.record_id or "tpl"),
-                                    mapping_origin="native",
-                                    alignment_ref=(
-                                        f"corpus-template:"
-                                        f"{ref.record_id}"),
-                                    key_prefix="tpl")
-                                if out.get("status") == "compiled":
-                                    spec = _finish_analog_spec(
-                                        out, ref.record_id)
-                                    _attach_analog_cosub_supply_fields(
-                                        spec,
-                                        record_key=str(spec["key"]),
-                                        substrate_smiles=substrate,
-                                        supply=supply["supply"],
-                                        spectators=_cosub_supply_spectators(
-                                            str(ref.mapped_lhs or ""),
-                                            str(ref.mapped_rhs or ""),
-                                            supply["supply"]),
-                                    record_equation=analog_record_equation(
-                                        str(ref.mapped_lhs or ""),
-                                        str(ref.mapped_rhs or "")),
-                                    execution_input_smiles=sub_supplied)
-                                    analog_specs.append(spec)
-                                    row_by_spec[id(spec)] = _diag_row(
-                                        "analog", str(spec["key"]),
-                                        "compiled",
-                                        signature_head=_signature_head(
-                                            spec))
-                                    diagnostics["analog_cosub_supply_"
-                                                "rescued"] = int(
-                                        diagnostics.get(
-                                            "analog_cosub_supply_"
-                                            "rescued", 0)) + 1
-                                    supply_rescued = True
-                                else:
-                                    # 供给过门后编译失败:按真实拒因计数
-                                    #(本次实际消耗编译预算,不再计
-                                    # no_alignment——失败原因如实披露)
-                                    fail_reason = str(out.get("reason"))
-                                    _record_failure(fail_reason)
-                                    _diag_row(
-                                        "analog",
-                                        f"tpl-{ref.record_id}",
-                                        "compile_rejected",
-                                        reason=fail_reason)
-                                    supply_rescued = True  # 已处置
-                        if not supply_rescued:
-                            _record_failure("no_alignment")
-                            _diag_row("analog", f"tpl-{ref.record_id}",
-                                      "compile_rejected",
-                                      reason="no_alignment")
-                            diagnostics["analog_pregate_skipped"] = \
-                                int(diagnostics.get("analog_pregate_skipped",
-                                                    0)) + 1
-                        continue
-                    out = compile_donor_template(
+                def _compile_at(f4: str, ref) -> dict:
+                    return compile_donor_template(
                         mapped_lhs=str(ref.mapped_lhs or ""),
                         mapped_rhs=str(ref.mapped_rhs or ""),
                         center_atoms=[int(x) for x in
                                       (ref.center_atoms or [])],
-                        substrate_smiles=substrate,
+                        substrate_smiles=f4,
                         record_id=str(ref.record_id or "tpl"),
                         mapping_origin="native",
                         alignment_ref=(
                             f"corpus-template:{ref.record_id}"),
                         key_prefix="tpl")
+
+                def _emit_rejected(ref, route: str, input_source: str,
+                                   f4: str, f5_value: str,
+                                   light_gap: bool | None,
+                                   reason: str) -> None:
+                    _record_failure(reason)
+                    _diag_row("analog", f"tpl-{ref.record_id}",
+                              "compile_rejected", reason=reason,
+                              route=route,
+                              execution_input_source=input_source,
+                              execution_input_sha256=_input_hash(f4),
+                              f5=f5_value,
+                              light_gap_coverable_by_bag=light_gap)
+
+                for ref in refs:
+                    lhs = str(ref.mapped_lhs or "")
+                    rhs = str(ref.mapped_rhs or "")
+                    # ---- F1(路由真源;判据原样,只决定分支) ----
+                    gate_raw = template_elements_fit(lhs, substrate)
+                    if gate_raw:
+                        # ---- 直编分支:进入条件 = F1 过(不得用中心
+                        # 命中);F4 = raw;F5 只判准入 ----
+                        f5 = _f5_gate(lhs, rhs, substrate)
+                        early = None
+                        if f5["status"] == "absent":
+                            _emit_rejected(
+                                ref, "direct_raw", "raw", substrate,
+                                "reject", early, "no_alignment")
+                            continue
+                        out = _compile_at(substrate, ref)
+                        if out.get("status") != "compiled":
+                            _emit_rejected(
+                                ref, "direct_raw", "raw", substrate,
+                                _f5_row_value(f5), early,
+                                str(out.get("reason")))
+                            continue
+                        spec = _finish_analog_spec(out, ref.record_id)
+                        analog_specs.append(spec)
+                        row_by_spec[id(spec)] = _diag_row(
+                            "analog", str(spec["key"]), "compiled",
+                            signature_head=_signature_head(spec),
+                            route="direct_raw",
+                            execution_input_source="raw",
+                            execution_input_sha256=_input_hash(substrate),
+                            f5=_f5_row_value(f5),
+                            light_gap_coverable_by_bag=early)
+                        continue
+                    # ---- F1 拒:F2 供给(原样)→ F3 拦截 → F4 → F5 ----
+                    supply = analog_cosub_supply(mapped_lhs=lhs,
+                                                 mapped_rhs=rhs,
+                                                 substrate_smiles=substrate)
+                    light_gap = _light_gap_coverable_by_bag(
+                        lhs, substrate, supply)
+                    if supply["status"] == "wildcard_blocked":
+                        # ---- F3(C1 边界冻结):记数+1、不供给、不编译;
+                        # **先于 F5 与直编**——raw/中心命中不得解除 ----
+                        diagnostics["analog_cosub_supply_"
+                                     "wildcard_blocked"] = int(
+                            diagnostics.get(
+                                "analog_cosub_supply_"
+                                "wildcard_blocked", 0)) + 1
+                        _emit_rejected(ref, "wildcard_blocked", None,
+                                       substrate, "not_evaluated",
+                                       light_gap, "no_alignment")
+                        diagnostics["analog_pregate_skipped"] = \
+                            int(diagnostics.get("analog_pregate_skipped",
+                                                0)) + 1
+                        continue
+                    if supply["status"] == "supply":
+                        # F4 = 加袋串(冻结);F5 在 supplied 输入上判定
+                        sub_supplied = substrate + "." + ".".join(
+                            sc for _mc, sc in supply["supply"])
+                        f5 = _f5_gate(lhs, rhs, sub_supplied)
+                        if f5["status"] == "absent":
+                            _emit_rejected(ref, "supplied", "supplied",
+                                           sub_supplied, "reject",
+                                           light_gap, "no_alignment")
+                            diagnostics["analog_pregate_skipped"] = \
+                                int(diagnostics.get(
+                                    "analog_pregate_skipped", 0)) + 1
+                            continue
+                        diagnostics["analog_cosub_supply_"
+                                     "compile_attempted"] = int(
+                            diagnostics.get(
+                                "analog_cosub_supply_"
+                                "compile_attempted", 0)) + 1
+                        out = _compile_at(sub_supplied, ref)
+                        if out.get("status") == "compiled":
+                            spec = _finish_analog_spec(out, ref.record_id)
+                            _attach_analog_cosub_supply_fields(
+                                spec,
+                                record_key=str(spec["key"]),
+                                substrate_smiles=substrate,
+                                supply=supply["supply"],
+                                spectators=_cosub_supply_spectators(
+                                    str(ref.mapped_lhs or ""),
+                                    str(ref.mapped_rhs or ""),
+                                    supply["supply"]),
+                                record_equation=analog_record_equation(
+                                    str(ref.mapped_lhs or ""),
+                                    str(ref.mapped_rhs or "")),
+                                execution_input_smiles=sub_supplied)
+                            analog_specs.append(spec)
+                            row_by_spec[id(spec)] = _diag_row(
+                                "analog", str(spec["key"]), "compiled",
+                                signature_head=_signature_head(spec),
+                                route="supplied",
+                                execution_input_source="supplied",
+                                execution_input_sha256=_input_hash(
+                                    sub_supplied),
+                                f5=_f5_row_value(f5),
+                                light_gap_coverable_by_bag=light_gap)
+                            diagnostics["analog_cosub_supply_"
+                                        "rescued"] = int(
+                                diagnostics.get(
+                                    "analog_cosub_supply_"
+                                    "rescued", 0)) + 1
+                        else:
+                            # 供给过门后编译失败:按真实拒因计数
+                            #(本次实际消耗编译预算,不再计
+                            # no_alignment——失败原因如实披露)
+                            _emit_rejected(ref, "supplied", "supplied",
+                                           sub_supplied,
+                                           _f5_row_value(f5), light_gap,
+                                           str(out.get("reason")))
+                        continue
+                    # ---- F2 = no_supply:F4 = raw,准入在 raw 上判定;
+                    # F5 不过 ⇒ 承接既有 no_alignment 口径;F5 不过以外
+                    # (present/defer)⇒ 发编译(新增可达面,如实记账) ----
+                    f5 = _f5_gate(lhs, rhs, substrate)
+                    if f5["status"] == "absent":
+                        _emit_rejected(ref, "no_supply_raw", "raw",
+                                       substrate, "reject", light_gap,
+                                       "no_alignment")
+                        diagnostics["analog_pregate_skipped"] = \
+                            int(diagnostics.get("analog_pregate_skipped",
+                                                0)) + 1
+                        continue
+                    out = _compile_at(substrate, ref)
                     if out.get("status") != "compiled":
-                        fail_reason = str(out.get("reason"))
-                        _record_failure(fail_reason)
-                        _diag_row("analog", f"tpl-{ref.record_id}",
-                                  "compile_rejected", reason=fail_reason)
+                        _emit_rejected(ref, "no_supply_raw", "raw",
+                                       substrate, _f5_row_value(f5),
+                                       light_gap, str(out.get("reason")))
                         continue
                     spec = _finish_analog_spec(out, ref.record_id)
                     analog_specs.append(spec)
                     row_by_spec[id(spec)] = _diag_row(
                         "analog", str(spec["key"]), "compiled",
-                        signature_head=_signature_head(spec))
+                        signature_head=_signature_head(spec),
+                        route="no_supply_raw",
+                        execution_input_source="raw",
+                        execution_input_sha256=_input_hash(substrate),
+                        f5=_f5_row_value(f5),
+                        light_gap_coverable_by_bag=light_gap)
 
             refs = resolver.templates_similar_to(
                 substrate, threshold=threshold, top_k=raw_top)
@@ -1328,6 +1513,18 @@ def default_pool_provider(config: V43Config | None, *,
                     "bookkeeping-extra events may rise to exact "
                     "(v1_exempt tier); the unlock face is a compile "
                     "face, NOT a hit prediction"),
+                "policy8_route_note": (
+                    "s5b-pool-policy-8 (T-G C2 R2' F1-F5 decoupled "
+                    "wiring): supply/execution-input/C1 interception "
+                    "routing facts are frozen per baseline (same-input "
+                    "commitment); admission is decided by the "
+                    "center-anchor helper on the frozen input only "
+                    "(compiler s5b-compiler-4). F5 reject -> structured "
+                    "no_alignment (budget-saving only, same reason the "
+                    "compiler would emit); F5 defer (broken transform / "
+                    "empty center / truncated) -> compile as usual and "
+                    "report the compiler's honest reason. Pool policy "
+                    "configuration itself unchanged"),
             },
             "n_analog_compiled": len(analog_specs),
             "n_unique_net_reactions": len(merged),
@@ -1346,6 +1543,17 @@ def default_pool_provider(config: V43Config | None, *,
                 diagnostics.get("analog_cosub_supply_compile_attempted", 0)),
             "analog_cosub_supply_wildcard_blocked": int(
                 diagnostics.get("analog_cosub_supply_wildcard_blocked", 0)),
+            # T-G C2(R2',s5b-pool-policy-8):路由真源版本 + 中心准入
+            # (F5)计数(追加字段,向后兼容;checked = F5 判定次数;
+            # skipped = F5 不过(absent)省预算跳过数;deferred = F5
+            # 无法判(变换异常/空中心/截断)转交编译层数)
+            "analog_route_truth_version": S5B_ANALOG_ROUTE_VERSION,
+            "analog_center_admission_checked": int(
+                diagnostics.get("analog_center_admission_checked", 0)),
+            "analog_center_admission_skipped": int(
+                diagnostics.get("analog_center_admission_skipped", 0)),
+            "analog_center_admission_deferred": int(
+                diagnostics.get("analog_center_admission_deferred", 0)),
             # T1a:逐候选谱系行(追加字段,向后兼容;行 schema 见
             # s5b-pool-policy-6 版本注释)
             "candidates": candidate_rows,

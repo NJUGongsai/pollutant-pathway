@@ -595,7 +595,11 @@ def test_p2_addition_branch_enumerates_all_components() -> None:
     comp_b = any(all(u >= 3 for u in img) for img in images)
     assert comp_a and comp_b, images
     # 判据不放宽:跨组分新原子无锚 ⇒ 编译诚实拒(产物多重集/落位
-    # 纪律评估;不因枚举面扩大而放行)
+    # 纪律评估;不因枚举面扩大而放行)。T-G C2(s5b-compiler-4,
+    # 中心锚定对齐):L1 限 lhs 侧存在原子(「两端原子在执行输入中
+    # 须存在」)⇒ 全新增组分无保留锚 ⇒ 中心为空,结构化
+    # center_empty:added_without_anchor 拒(结局不变:仍拒、零入池;
+    # 删除型/空锚中心定义按 D-3 登记另轮)。
     out = compile_recorded_reaction(
         substrate_smiles="CCO", donor_smiles="CCO",
         products=["CCO", "CCO"], record_id="v4b-p2-addall")
@@ -603,7 +607,8 @@ def test_p2_addition_branch_enumerates_all_components() -> None:
     assert out["reason"] in ("new_atom_unanchorable",
                              "transform_no_change",
                              "new_atom_placement_incomplete",
-                             "product_set_mismatch")
+                             "product_set_mismatch",
+                             "center_empty:added_without_anchor")
 
 
 def test_p2_no_correspondence_and_gates_unchanged() -> None:
@@ -656,11 +661,13 @@ def test_v4b_versions_registered() -> None:
     )
     from pathway_v43.pollutant.s5b_builder import S5B_POOL_POLICY_VERSION
 
-    assert S5B_COMPILER_VERSION == "s5b-compiler-3"
+    # T-G C2(2026-10-19):重刀中心锚定对齐(s5b-compiler-4:中心匹配+M 全候选等价核验+歧义硬拒)⇒ 4
+    assert S5B_COMPILER_VERSION == "s5b-compiler-4"
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
     # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-7"
+    # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
     from pathway_v43.pollutant.recorded_source import (
         CORPUS_RETRIEVAL_VERSION,
     )

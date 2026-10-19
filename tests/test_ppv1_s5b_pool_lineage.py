@@ -252,9 +252,12 @@ def test_compile_rejected_rows_close_with_histogram(
     keys = {(r["channel"], r["reason"]) for r in rejects}
     assert ("recorded", "no_structure_correspondence") in keys
     assert ("analog", "charge_edit_unsupported") in keys
-    # W-V3 pregate 前置拒:同口径计 no_alignment(与 _record_failure
-    # 同点留痕)
-    assert ("analog", "no_alignment") in keys
+    # T-G C2(R2',2026-10-19):F1 拒候选的拒因口径——旧 pregate 恒记
+    # no_alignment(不编译);R2' 起 F5 不过面维持 no_alignment、
+    # F5 defer(坏模板/空中心/截断)转编译层如实出因。本夹具的
+    # 「含 N 模板」rhs 不可解析 ⇒ 真实拒因 rhs_unparseable(理由
+    # 迁移、结局不变:仍拒、仍不入池)。
+    assert ("analog", "rhs_unparseable") in keys
     for row in rejects:
         assert row["merged_into"] is None
         assert row["pool_rank"] is None
@@ -376,7 +379,8 @@ def test_pool_policy_version_bumped() -> None:
     """不变量:版本承载 —— 池诊断从聚合升为逐候选 ⇒ 语义化升版
     s5b-pool-policy-5 → s5b-pool-policy-6;C 线(2026-10-14)池成员
     变化(analog 共底物伴生供给)⇒ s5b-pool-policy-7。"""
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-7"
+    # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
     assert S5B_POOL_POLICY_VERSION != "s5b-pool-policy-5"
 
 
@@ -384,7 +388,12 @@ def test_pool_policy_version_bumped() -> None:
 
 
 _ROW_SCHEMA_KEYS = {"channel", "record_key", "outcome", "reason",
-                    "merged_into", "pool_rank", "signature_head"}
+                    "merged_into", "pool_rank", "signature_head",
+                    # T-G C2(R2',s5b-pool-policy-8)追加路由/准入五键
+                    # (行 schema v2;非 analog 通道行为 None)
+                    "route", "execution_input_source",
+                    "execution_input_sha256", "f5",
+                    "light_gap_coverable_by_bag"}
 
 # 既有无条件聚合键(s5b-pool-policy-5 时代已在;candidates 之外零新增)
 _PREEXISTING_AGGREGATE_KEYS = {
@@ -415,12 +424,18 @@ def test_aggregate_fields_unchanged_and_row_schema(
         "analog_cosub_supply_version",
         "analog_cosub_supply_rescued",
         "analog_cosub_supply_compile_attempted",
-        "analog_cosub_supply_wildcard_blocked"}
+        "analog_cosub_supply_wildcard_blocked",
+        # T-G C2(2026-10-19):R2' 路由真源版本 + F5 中心准入计数
+        # (向后兼容追加;既有键与语义零变化)
+        "analog_route_truth_version",
+        "analog_center_admission_checked",
+        "analog_center_admission_skipped",
+        "analog_center_admission_deferred"}
     assert diag["pool_policy_version"] == S5B_POOL_POLICY_VERSION
     rows = diag["candidates"]
     assert rows
     for row in rows:
-        # 行 schema:七键精确,无多余键
+        # 行 schema:十二键精确,无多余键(T-G C2 起 v2 五键追加)
         assert set(row) == _ROW_SCHEMA_KEYS
         assert row["outcome"] in ("compiled", "compile_rejected",
                                   "merged_into", "pool_truncated")

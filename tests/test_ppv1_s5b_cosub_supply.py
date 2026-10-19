@@ -315,7 +315,8 @@ def test_concrete_wildcard_bag_not_supplied_pool_level(monkeypatch) -> None:
 
 def test_pool_policy_version_carrier(monkeypatch) -> None:
     """版本承载:policy-7 + 供给登记面 + 诊断键在位。"""
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-7"
+    # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
     assert S5B_ANALOG_COSUB_SUPPLY_VERSION == "s5b-analog-cosub-supply-1"
     _supply_spec(monkeypatch, _TPL_LHS_1W, _TPL_RHS_1W)
 

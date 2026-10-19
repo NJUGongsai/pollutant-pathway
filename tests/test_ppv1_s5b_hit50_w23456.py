@@ -1001,7 +1001,8 @@ def test_versions_registered() -> None:
     # 拷贝子集重新入池;配置本身零变化;s5b-pool-policy-5)
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
     # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-7"
+    # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
     # T-F 位次继承(2026-10-17):折叠位次继承升版
     assert S5B_RANK_POLICY_VERSION == "s5b-rank-policy-2"
     assert S5B_POOL_RAW_TOP == 24
