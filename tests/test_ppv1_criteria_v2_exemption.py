@@ -276,7 +276,13 @@ def test_criteria_constants_and_membership_guards() -> None:
     """判据版本常量 + 豁免四类 cn 收敛 + 版本化哈希 + 三重挡板。"""
     assert PPV1_CRITERIA_V1 == "ppv1-criteria-v1"
     assert PPV1_CRITERIA_V2 == "ppv1-criteria-v2"
-    assert PPV1_CRITERIA_VERSIONS == {PPV1_CRITERIA_V1, PPV1_CRITERIA_V2}
+    # 版本断言同步(T-D/E E1b,2026-10-19):白名单新增
+    # ppv1-criteria-v3(= T-D-A/B 披露轴;v3 承载 v2 判分语义,
+    # 见 tests/test_ppv1_criteria_v3.py;本文件 v2 断言面不变)
+    from pathway_v43.pollutant.evaluation import PPV1_CRITERIA_V3
+    assert PPV1_CRITERIA_V3 == "ppv1-criteria-v3"
+    assert PPV1_CRITERIA_VERSIONS == {PPV1_CRITERIA_V1, PPV1_CRITERIA_V2,
+                                      PPV1_CRITERIA_V3}
     assert resolve_criteria_version(PPV1_CRITERIA_V1) == PPV1_CRITERIA_V1
     assert resolve_criteria_version(PPV1_CRITERIA_V2) == PPV1_CRITERIA_V2
     # 豁免四类变体组各自收敛单一 cn 键(与 CS2c 补证 §5 同结论)

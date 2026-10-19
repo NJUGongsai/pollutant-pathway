@@ -205,11 +205,16 @@ def score_s5b_batch(
       (teacher 裁定;评测/判分经 ``resolve_criteria_version`` 同一
       判据,fail-closed),聚合附 ``criteria_v2`` 块(评测器批级
       汇总透传:豁免计数 + 参考侧 v1 身份监控);v1 headline 不变;
+    - **ppv1-criteria-v3**:显式 v3 = T-D-A/B 披露轴(档 A;承载
+      v2 判分语义)经同一 ``resolve_criteria_version`` 判据启用;
+      聚合附 ``criteria_v3`` 块透传(分臂计数/单归属/双满足/碳酸
+      体系排除/参数指纹/恒空 ``tautomer_promoted_nodes``);
+      **不授 strict、不进 hit@1**;v1/v2 缺省零新键;
     - 返回完整聚合 dict;metrics.json / report.md / report_plain.md
       落批根。
     """
-    # ---- ppv1-criteria-v2:判据版本首消费校验(与评测器同一判据
-    # resolve_criteria_version;非 v1/v2 一律 S5bScoringError) ----
+    # ---- 判据版本首消费校验(v1/v2/v3 同一判据
+    # resolve_criteria_version;白名单外值一律结构化拒) ----
     resolve_criteria_version(criteria_version)
     # ---- S5B-V3-01:判分入口严格 data_scope 校验(先于任何批文件装载;
     # 与评测首消费共用 resolve_data_scope 同一判据,异常包装为本契约
@@ -538,10 +543,15 @@ def score_s5b_batch(
             (output.get("coverage_report") or {}).get("pairing")
             or {}).get("bases_by_graph") or {},
     }
-    # ---- ppv1-criteria-v2:评测器批级汇总透传(仅 v2;v1 缺省
-    # metrics 零新键 = 既有判分产物字节不变) ----
+    # ---- ppv1-criteria-v2:评测器批级汇总透传(启用豁免口径时;v1
+    # 缺省 metrics 零新键 = 既有判分产物字节不变;v3 承载 v2 语义,
+    # 块内容与 v2 逐位一致) ----
     if output.get("criteria_v2") is not None:
         aggregate["criteria_v2"] = output["criteria_v2"]
+    # ---- ppv1-criteria-v3:批级披露块透传(仅 v3;档 A 只披露,不授
+    # strict、不进 hit@1;v1/v2 缺省零新键) ----
+    if output.get("criteria_v3") is not None:
+        aggregate["criteria_v3"] = output["criteria_v3"]
     aggregate["confidence_intervals"] = _confidence_intervals(
         per_qid, entries, denominator)
     metrics_path = batch_root / "metrics.json"

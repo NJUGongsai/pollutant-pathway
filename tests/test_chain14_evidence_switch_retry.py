@@ -1043,7 +1043,37 @@ def test_worker_resume_after_public_interruption_recovers(
             crash_after="after_request_registered")
     assert (runs_root / run_id / "run_identity.json").is_file()
     assert not (batch_root / "cases" / "SYNTH-C14-1.json").exists()
-    # 公共 worker 恢复路径:协调者派发 worker → resume 同臂续跑
+    # T-E/E1a(s5b-build-identity-1)负控:该 run 经由**公开未绑定路径**
+    # (scripted start 直呼)创建,无 build_origin 来源记录 ⇒ 受控批
+    # worker 恢复首消费 fail-closed 拒(run_build_origin_mismatch/
+    # missing;失败题留分母、零发送;既存 run 保全不改)
+    run_s5b_batch(
+        batch_root, runs_root=runs_root, workers=1, poll_s=0.05,
+        gate_max_calls=50, evidence_card_enabled=False)
+    case = json.loads(
+        (batch_root / "cases" / "SYNTH-C14-1.json").read_text())
+    assert case["status"] == "failed"
+    assert case["failure_kind"] == "run_build_origin_mismatch"
+    assert case["detail"]["kind"] == "missing"
+    assert (runs_root / run_id / "run_identity.json").is_file()
+    # 模拟原 worker 在 start 前已落 ledger 的中断态(worker 路径先写
+    # ledger 再 start;此处按已核旁块/输入重建同一记录)⇒ 恢复同核
+    # verified_existing,公共 worker 恢复路径正常续跑
+    from pathway_v43.storage.build_identity import (
+        prepare_build_origin,
+        verify_batch_build_identity,
+    )
+
+    verified = verify_batch_build_identity(
+        batch_root=batch_root, qid="SYNTH-C14-1", run_id=run_id,
+        run_input_bytes=(
+            batch_root / "run_inputs" / "SYNTH-C14-1.json").read_bytes())
+    origin = prepare_build_origin(
+        batch_root=batch_root, qid="SYNTH-C14-1", run_id=run_id,
+        verified=verified, resume=False)
+    assert origin["mode"] == "persisted_new"
+    # 清掉负控失败 case(编排器对终态 case 跳过派发;恢复须重新派发)
+    (batch_root / "cases" / "SYNTH-C14-1.json").unlink()
     report = run_s5b_batch(
         batch_root, runs_root=runs_root, workers=1, poll_s=0.05,
         gate_max_calls=50, evidence_card_enabled=False)
@@ -1053,6 +1083,7 @@ def test_worker_resume_after_public_interruption_recovers(
     assert case.get("failure_kind") != "TypeError"
     assert case["evidence_card_enabled"] is False  # 同臂
     assert case["evidence_card_mode"] == "frozen_batch"
+    assert case["build_origin_mode"] == "verified_existing"
     assert report["n_completed"] == 1 and report["n_failed"] == 0
 
 

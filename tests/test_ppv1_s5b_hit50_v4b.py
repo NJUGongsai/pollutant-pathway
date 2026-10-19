@@ -662,12 +662,13 @@ def test_v4b_versions_registered() -> None:
     from pathway_v43.pollutant.s5b_builder import S5B_POOL_POLICY_VERSION
 
     # T-G C2(2026-10-19):重刀中心锚定对齐(s5b-compiler-4:中心匹配+M 全候选等价核验+歧义硬拒)⇒ 4
-    assert S5B_COMPILER_VERSION == "s5b-compiler-4"
-    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
+    # T-G D1.2(2026-10-19):确定性模板补映射(transform_no_change 唯一触发点;公共编译面行为变化)⇒ 5
+    assert S5B_COMPILER_VERSION == "s5b-compiler-5"
+    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-4"
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
     # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
     # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-9"
     from pathway_v43.pollutant.recorded_source import (
         CORPUS_RETRIEVAL_VERSION,
     )

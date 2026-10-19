@@ -105,10 +105,31 @@ sp3→sp2 消解**——消解谓词钉死(全部条件须满足):
 - ``template_elements_fit`` 判据**原样保留**,角色降级为 builder
   侧路由真源(F1:决定是否尝试供给);**编译层准入=中心可落位**
   (与中心枚举同源),整侧元素账不再是编译的必要条件。
+
+版本 s5b-compiler-5(T-G Step D1.2 确定性模板补映射,2026-10-19):
+**transform_no_change 唯一触发面上的映射完整性修复**——成因 =
+模板改动基团未带 map 号(半映射键不进键差表 ⇒ 提取层判「无净
+变化」);新增 ``complete_template_mapping``(v0 规则,D1 探针
+``patch_v0``/``unmapped_components``/``pair_components`` 逐字移植,
+来源见函数 docstring)规则级补全这些 map 号,补映射后**用 remapped
+串原样跑后续全部逻辑**(中心/对齐/编辑判据一字不改)。纪律:
+
+- **触发面只限 transform_no_change**:其它拒因路径零触碰,输出
+  逐字节不变(版本键除外);
+- 零化学判断:**只补 map 号**,不改结构/元素/立体;双侧解析失败
+  或补映射后仍无净变化 ⇒ **原拒因原样**(不静默改口径);
+- 幂等(对已补串再调用 = 无操作)与确定性(同输入两次调用逐字节
+  同;RDKit canonical 写回,确定性与 RDKit 版本绑定,已登记);
+- **机读披露**:补映射生效的 compiled spec 追加
+  ``spec["template_remap"]``(applied/rule_version/n_new_maps);
+  补映射路径拒因 detail 同形披露(applied=false = 未应用
+  [no_gap/fail_closed],applied=true = 触发未果);非 tnc 路径
+  无新增键。
 """
 
 from __future__ import annotations
 
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 
 from rdkit import Chem, RDLogger
@@ -122,7 +143,11 @@ from ..services.atom_tool import (
 
 RDLogger.DisableLog("rdApp.*")
 
-S5B_COMPILER_VERSION = "s5b-compiler-4"
+S5B_COMPILER_VERSION = "s5b-compiler-5"
+
+# 模板补映射规则版本(T-G Step D1.2;规则级、零化学判断:只补
+# transform_no_change 成因上的缺失 map 号;见 complete_template_mapping)
+S5B_TEMPLATE_REMAP_VERSION = "template-remap-1"
 
 # 对齐枚举显式上限(超过 ⇒ truncated,不得把截断集合当唯一对齐;
 # 与 donor_applicability._ALIGNMENT_ENUM_LIMIT 同纪律,独立常量:
@@ -371,6 +396,184 @@ def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str) -> dict:
         # stereo_changed;执行后同源复核见 _compile_donor_template_impl)
         "stereo_dissolved_maps": stereo_dissolved,
     }
+
+
+# ---------------------------------------------------------------- 模板补映射
+# (T-G Step D1.2,s5b-compiler-5;规则级零化学判断:模板改动基团未带
+#  map 号 ⇒ 半映射键不进键差表 ⇒ 提取层判「无净变化」;本节的确定性
+#  补映射只补编号,不改结构/元素/立体)
+
+
+def _remap_unmapped_components(mol) -> list[dict]:
+    """未映射原子(map=0)的连通分量(仅经未映射原子相连)。
+
+    逐字移植 D1 探针 ``d1_probe.py::unmapped_components``(2026-10-19
+    设计轮;行号见 TASK_T_G_D1_REMAP_IMPL_2026-10-19.md §1.1)。分量
+    签名 =(元素多重集,**边界原子元素及其映射邻居 map 号集合的排序
+    元组**);``attach_maps`` = 边界原子接触到的映射端 map 号集合。
+    """
+    atoms = list(mol.GetAtoms())
+    unmapped = [a.GetIdx() for a in atoms if a.GetAtomMapNum() == 0]
+    if not unmapped:
+        return []
+    parent = {i: i for i in unmapped}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(x, y):
+        rx, ry = find(x), find(y)
+        if rx != ry:
+            parent[max(rx, ry)] = min(rx, ry)
+
+    for b in mol.GetBonds():
+        i, j = b.GetBeginAtomIdx(), b.GetEndAtomIdx()
+        if i in parent and j in parent:
+            union(i, j)
+    groups: dict[int, list[int]] = defaultdict(list)
+    for i in unmapped:
+        groups[find(i)].append(i)
+    comps = []
+    for root in sorted(groups, key=lambda r: min(groups[r])):
+        idxs = sorted(groups[root])
+        idx_set = set(idxs)
+        elems = Counter(atoms[i].GetSymbol() for i in idxs)
+        n_internal_bonds = sum(
+            1 for b in mol.GetBonds()
+            if b.GetBeginAtomIdx() in idx_set and b.GetEndAtomIdx() in idx_set)
+        cyclic = n_internal_bonds >= len(idxs)
+        boundary = []
+        attach_maps: set[int] = set()
+        for i in idxs:
+            nb_maps = sorted(
+                atoms[n.GetIdx()].GetAtomMapNum() for n in atoms[i].GetNeighbors()
+                if atoms[n.GetIdx()].GetAtomMapNum() > 0)
+            if nb_maps:
+                boundary.append((atoms[i].GetSymbol(), tuple(nb_maps)))
+                attach_maps.update(nb_maps)
+        signature = (tuple(sorted(elems.items())), tuple(sorted(boundary)))
+        comps.append({"atoms": idxs, "n_atoms": len(idxs),
+                      "elements": dict(elems), "cyclic": cyclic,
+                      "signature": signature,
+                      "attach_maps": sorted(attach_maps)})
+    return comps
+
+
+def _remap_pair_components(comps_l: list[dict], comps_r: list[dict]) -> dict:
+    """按签名跨侧配对(计数配对:签名相同取两侧 min 计数先配为
+    matched;lhs 余量 ⇒ removed、rhs 余量 ⇒ added)。
+
+    逐字移植 D1 探针 ``d1_probe.py::pair_components``。签名内配对
+    按分量枚举序(确定性);**matched 不处理**(v0 无对应规则——
+    签名只证「元素+附着点」相同,不证化学对应;D1 探针实测 17 件
+    0 件需要)。
+    """
+    cl = Counter(c["signature"] for c in comps_l)
+    cr = Counter(c["signature"] for c in comps_r)
+    removed, added, matched = [], [], []
+    paired_left: dict = defaultdict(list)
+    for c in comps_l:
+        paired_left[c["signature"]].append(c)
+    paired_right: dict = defaultdict(list)
+    for c in comps_r:
+        paired_right[c["signature"]].append(c)
+    for sig in sorted(set(cl) | set(cr), key=repr):
+        n_pair = min(cl.get(sig, 0), cr.get(sig, 0))
+        for k in range(n_pair):
+            matched.append((paired_left[sig][k], paired_right[sig][k]))
+        for k in range(n_pair, cl.get(sig, 0)):
+            removed.append(paired_left[sig][k])
+        for k in range(n_pair, cr.get(sig, 0)):
+            added.append(paired_right[sig][k])
+    return {"removed": removed, "added": added, "matched": matched}
+
+
+def complete_template_mapping(mapped_lhs: str, mapped_rhs: str) -> dict:
+    """确定性模板补映射 v0(规则级;T-G Step D1.2,s5b-compiler-5)。
+
+    移植来源:D1 探针 ``reports/ppv1_s5b/t_g_fix_2026-10-19/d1_probe/
+    d1_probe.py`` 的设计轮 v0 干跑原型 ``patch_v0``(2026-10-19;
+    依据 ``docs/TASK_T_G_D1_PROBE_2026-10-19.md``),配套
+    ``unmapped_components``/``pair_components`` 逐字移植为上方两个
+    私有 helper(仅工业化命名,规则一字不改)。规则版本:
+    ``S5B_TEMPLATE_REMAP_VERSION``。
+
+    规则(零化学判断,只补 map 号):
+
+    1. 双侧解析失败 ⇒ ``fail_closed``(不改串;调用方按原拒因原样
+       处置);
+    2. 未映射原子(map==0)按「仅经未映射原子相连」求连通分量;
+       分量签名 =(元素多重集,边界原子元素及其映射邻居 map 号集合
+       的排序元组);
+    3. 按签名跨侧配对(计数配对;同签名先配 → matched;lhs 余量 ⇒
+       removed、rhs 余量 ⇒ added;matched **不处理**——签名不证
+       化学对应,v0 无对应规则);
+    4. removed 分量原子 → 新 map 号写回 **lhs 侧**;added 对称写回
+       **rhs 侧**;新号从 ``max(双侧现有 map 号 ∪ {0}) + 1`` 起,
+       按原子索引排序确定性递增;写回用 ``Chem.MolToSmiles``
+       (canonical,含既有 map 号;确定性与 RDKit 版本绑定,已登记);
+       仅被改侧 canonical 化,另一侧原串保留;
+    5. 返回 ``{"status": "remapped"|"no_gap"|"fail_closed",
+       "mapped_lhs", "mapped_rhs", "n_new_maps", "rule_version"}``
+       (``remapped`` = 至少一个原子获新号;``no_gap`` = 无缺口或
+       仅有不处理的 matched 分量,串原样返回;``fail_closed`` =
+       解析失败/写回异常,串原样返回)。
+
+    幂等:对已补串再调用 = ``no_gap`` 原样返回(获号原子不再是未
+    映射原子,残留未映射分量只可能是不处理的 matched)。确定性:
+    同输入两次调用逐字节同(无随机源,排序全部显式 key)。本函数
+    **不**验证补映射后变换可提取(调用方复跑 ``extract_mapped_
+    transform`` 决定「如实迁移/原样 tnc」)。
+    """
+    mol_l = Chem.MolFromSmiles(str(mapped_lhs or ""))
+    mol_r = Chem.MolFromSmiles(str(mapped_rhs or ""))
+    if mol_l is None or mol_r is None:
+        return {"status": "fail_closed", "reason": "side_unparseable",
+                "mapped_lhs": mapped_lhs, "mapped_rhs": mapped_rhs,
+                "n_new_maps": 0,
+                "rule_version": S5B_TEMPLATE_REMAP_VERSION}
+    comps_l = _remap_unmapped_components(mol_l)
+    comps_r = _remap_unmapped_components(mol_r)
+    pairing = _remap_pair_components(comps_l, comps_r)
+    rem_atoms = sorted(i for c in pairing["removed"] for i in c["atoms"])
+    add_atoms = sorted(i for c in pairing["added"] for i in c["atoms"])
+    if not rem_atoms and not add_atoms:
+        return {"status": "no_gap", "reason": "",
+                "mapped_lhs": mapped_lhs, "mapped_rhs": mapped_rhs,
+                "n_new_maps": 0,
+                "rule_version": S5B_TEMPLATE_REMAP_VERSION}
+    all_maps = [a.GetAtomMapNum() for a in mol_l.GetAtoms()
+                if a.GetAtomMapNum() > 0]
+    all_maps += [a.GetAtomMapNum() for a in mol_r.GetAtoms()
+                 if a.GetAtomMapNum() > 0]
+    all_maps = [m for m in all_maps if m]
+    counter = (max(all_maps) if all_maps else 0) + 1
+    new_lhs, new_rhs = mapped_lhs, mapped_rhs
+    try:
+        if rem_atoms:
+            m2 = Chem.Mol(mol_l)
+            for i in rem_atoms:
+                m2.GetAtomWithIdx(i).SetAtomMapNum(counter)
+                counter += 1
+            new_lhs = Chem.MolToSmiles(m2)
+        if add_atoms:
+            m3 = Chem.Mol(mol_r)
+            for i in add_atoms:
+                m3.GetAtomWithIdx(i).SetAtomMapNum(counter)
+                counter += 1
+            new_rhs = Chem.MolToSmiles(m3)
+    except Exception as exc:  # noqa: BLE001 —— 与探针 v0 同形 fail-closed
+        return {"status": "fail_closed", "reason": f"{type(exc).__name__}",
+                "mapped_lhs": mapped_lhs, "mapped_rhs": mapped_rhs,
+                "n_new_maps": 0,
+                "rule_version": S5B_TEMPLATE_REMAP_VERSION}
+    return {"status": "remapped", "reason": "",
+            "mapped_lhs": new_lhs, "mapped_rhs": new_rhs,
+            "n_new_maps": len(rem_atoms) + len(add_atoms),
+            "rule_version": S5B_TEMPLATE_REMAP_VERSION}
 
 
 _TETRAHEDRAL_TAGS = (
@@ -688,6 +891,11 @@ def center_anchor_probe(mapped_lhs: str, mapped_rhs: str,
       编译层将给**其它**稳定拒因(或截断拒),不得冒名 no_alignment
       ——builder 照常发编译,由编译层如实出因;
     - ``present`` ⇒ 送编译(F5 只判准入,不保证编译/编辑层通过)。
+
+    **T-G Step D1.2(s5b-compiler-5)注**:tnc 件(defer)可能经编译层
+    确定性补映射(``complete_template_mapping``)后**编译成功**——
+    F5 不感知补映射、defer 语义保持「由编译层如实出因」,**出因以
+    编译层为准**(本 helper 不做 remap 探测,避免双口径)。
     """
     try:
         transform = extract_mapped_transform(mapped_lhs, mapped_rhs)
@@ -1196,19 +1404,77 @@ def compile_donor_template(
     - product_smiles = 中心所在组分(主产物);coproducts = 其余组分
       (离去组分/共产物,完整净产物集合入参与物);
     - alignment.ref/mapping_origin:原生映射 vs 推断映射如实标注。
+
+    **T-G Step D1.2(s5b-compiler-5)——transform_no_change 唯一补映射
+    触发点**(本包装层;``_compile_donor_template_impl`` 内判据一字
+    不改):入口先做一次 pre-flight 提取,仅当拒因为
+    ``transform_no_change`` 时调用 ``complete_template_mapping``
+    (确定性补 map 号);补映射生效 ⇒ **用 remapped 串原样跑后续
+    全部逻辑**(中心/对齐/编辑);补映射未生效(no_gap/fail_closed)
+    ⇒ 原拒因原样;补映射后提取给出其它拒因 ⇒ 如实迁移。**其它拒因
+    路径零触碰**(pre-flight 非 tnc 异常立即重抛,输出与改前逐字节
+    同)。机读披露:补映射生效的 compiled spec 追加
+    ``spec["template_remap"]``;补映射路径拒因 detail 同形披露
+    (applied=false 区分「未应用」;非 tnc 路径无新增键)。
     """
+    remap: dict | None = None
+    lhs_used, rhs_used = mapped_lhs, mapped_rhs
     try:
-        return _compile_donor_template_impl(
-            mapped_lhs=mapped_lhs, mapped_rhs=mapped_rhs,
+        # ---- T-G Step D1.2:tnc 唯一触发点(pre-flight) ----
+        # pre-flight 提取同时起「其它拒因零触碰」闸门作用;impl 内对
+        # remapped 串按既有流程重跑提取(同一事实源、确定性、无副作用;
+        # 非 tnc 路径 = 两次纯解析,输出逐字节不变)。
+        try:
+            extract_mapped_transform(mapped_lhs, mapped_rhs)
+        except S5bCompileError as exc:
+            if exc.reason != "transform_no_change":
+                raise  # 其它拒因零触碰(逐字节不变)
+            remap = complete_template_mapping(mapped_lhs, mapped_rhs)
+            if remap["status"] != "remapped":
+                # no_gap/fail_closed ⇒ 原拒因原样(不改口径;拒因
+                # detail 附 template_remap applied=false 披露)
+                raise
+            lhs_used, rhs_used = remap["mapped_lhs"], remap["mapped_rhs"]
+            try:
+                extract_mapped_transform(lhs_used, rhs_used)
+            except S5bCompileError as exc2:
+                if exc2.reason != "transform_no_change":
+                    raise  # 如实迁移(补映射后的新拒因)
+                raise exc  # 仍无净变化 ⇒ 原样 tnc(防御;v0 不可达)
+        out = _compile_donor_template_impl(
+            mapped_lhs=lhs_used, mapped_rhs=rhs_used,
             center_atoms=center_atoms,
             substrate_smiles=substrate_smiles, record_id=record_id,
             mapping_origin=mapping_origin, alignment_ref=alignment_ref,
             key_prefix=key_prefix, render_name=render_name)
+        if remap is not None:
+            disclosure = _template_remap_disclosure(remap)
+            if out.get("status") == "compiled":
+                out["spec"]["template_remap"] = disclosure
+            elif isinstance(out.get("detail"), dict):
+                out["detail"]["template_remap"] = disclosure
+        return out
     except S5bCompileError as exc:
-        return _unsupported(exc.reason, dict(exc.detail))
+        detail = dict(exc.detail)
+        if remap is not None and "template_remap" not in detail:
+            # 补映射路径拒因(触发未果;或未应用)同形披露
+            detail["template_remap"] = _template_remap_disclosure(remap)
+        return _unsupported(exc.reason, detail)
     except Exception as exc:  # noqa: BLE001 —— 内部错误如实披露,不吞
         return _unsupported("internal_error", {
             "error": f"{type(exc).__name__}:{str(exc)[:300]}"})
+
+
+def _template_remap_disclosure(remap: dict) -> dict:
+    """补映射机读披露(compiled spec / 拒因 detail 同形)。
+
+    ``applied`` = 补映射是否生效(``remapped``);false 区分
+    「未应用」(no_gap/fail_closed ⇒ 原拒因原样),true 为「触发
+    未果」(补映射已生效但后续层仍拒)。
+    """
+    return {"applied": remap.get("status") == "remapped",
+            "rule_version": S5B_TEMPLATE_REMAP_VERSION,
+            "n_new_maps": int(remap.get("n_new_maps") or 0)}
 
 
 def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,

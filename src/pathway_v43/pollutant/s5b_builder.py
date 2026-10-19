@@ -474,7 +474,21 @@ def build_run_input(question: dict, *, batch_tag: str,
 # ``analog_route_truth_version``/``analog_center_admission_*`` 计数 +
 # 逐候选行 route/execution_input_source/execution_input_sha256/f5/
 # light_gap_coverable_by_bag(轻刀 A 披露;F1 判据零改动)。
-S5B_POOL_POLICY_VERSION = "s5b-pool-policy-8"
+# s5b-pool-policy-9(T-E/E1a,2026-10-19,记录侧形式归一):池**成员/
+# 诊断面**变化 ⇒ 按既有身份规则升版——记录侧(donor/products/共底物
+# 组分/analog mapped 侧)经统一形式归一算子(record-side-formnorm-1,
+# Uncharger 默认构造逐组分;实跑短路)后进入**实际消费域**(分类/
+# 编译/装配/NC-10 两处声明;matched_component 与 analog
+# record_equation 保 raw 来源例外);未归一(not_applicable)行逐字节
+# 零漂移(短路直通)。**池策略配置本身零变化**(raw 预算/池宽/阈值/
+# 补位/融合/去重/候选序/截断位置全部不动);路由算法(F1-F4 分支公式)
+# 零改动,但**路由结果可变**(输入域改变);compiler 判据零改动
+# (E1 不改编译判据)。诊断追加:批级 record_side_form_norm_version/
+# _param_sha256 + 逐候选(全形态行)record_side_form_norm(三值)与
+# record_side_form_norm_trace(原子级 trace/风险交集;审计字段单独
+# 验收,不作版本键排除)。底物侧未处理 = 覆盖限制(逐批披露,见
+# diagnostics.record_side_form_norm_coverage_limitation)。
+S5B_POOL_POLICY_VERSION = "s5b-pool-policy-9"
 S5B_POOL_RAW_TOP = 24           # raw 检索预算(每通道)
 S5B_POOL_MAX = 8                # 最终可用池宽(独特净反应槽)
 S5B_POOL_THRESHOLD = 0.45       # 相似度阈值(首轮)
@@ -969,6 +983,74 @@ def _attach_analog_cosub_supply_fields(
     spec["execution_input_smiles"] = str(execution_input_smiles)
 
 
+def _formnorm_version() -> str:
+    from .recorded_source import RECORD_SIDE_FORMNORM_VERSION
+    return RECORD_SIDE_FORMNORM_VERSION
+
+
+def _formnorm_param_sha256() -> str:
+    from .recorded_source import RECORD_SIDE_FORMNORM_PARAM_SHA256
+    return RECORD_SIDE_FORMNORM_PARAM_SHA256
+
+
+def _analog_formnorm_fields(*, tx: dict, record_key: str,
+                            asset_sha256: str, risk: dict | None = None,
+                            unknown_reason: str | None = None
+                            ) -> tuple[str, dict]:
+    """T-E(E1a):analog 候选归一 (三值, trace)(首事务持有;全形态行)。
+
+    ``record_equation`` 保 raw 来源例外(设计 §1.2/Q3)——trace 的
+    ``source_fields`` 逐行标明;风险交集按同源中心查询坐标(lhs 轴 ∩
+    改动原子 map;rhs 另列)。无法追溯 ⇒ unknown + 机读原因。
+    """
+    from .recorded_source import build_formnorm_trace
+
+    trace = build_formnorm_trace(
+        channel="analog", asset_sha256=str(asset_sha256 or ""),
+        record_key=str(record_key),
+        matched_side_or_component={
+            "donor_match_kind": "analog_template",
+            "matched_side_index": None},
+        transaction=tx, risk=risk,
+        source_fields={
+            "record_equation":
+                "raw_source_fidelity(analog pred1 contract; the "
+                "normalized consumption view + trace are disclosed "
+                "here instead)",
+            "matched_component": "not_applicable_for_analog_channel"})
+    if risk is None and str(tx.get("status")) == "applied":
+        trace["risk_status"] = "unknown"
+        trace["risk_reason"] = str(
+            unknown_reason or "alignment_not_reached")
+        trace["human_review_required"] = True
+    return str(tx.get("status")), trace
+
+
+def analog_formnorm_risk(*, lhs: str, rhs: str, f4: str,
+                         tx: dict | None) -> dict | None:
+    """analog 风险交集(改动原子 map ∩ 实际消费中心查询 map)。"""
+    from .recorded_source import formnorm_alignment_intersection
+
+    if str((tx or {}).get("status")) != "applied":
+        return None
+    changes = list((tx or {}).get("changes") or [])
+    if not changes:
+        return None
+    chg_lhs: set[int] = set()
+    chg_rhs: set[int] = set()
+    for ch in changes:
+        m = ch.get("original_map")
+        if not m:
+            continue
+        if str(ch.get("side")) == "lhs":
+            chg_lhs.add(int(m))
+        elif str(ch.get("side")) == "rhs":
+            chg_rhs.add(int(m))
+    return formnorm_alignment_intersection(
+        str(lhs), str(rhs), str(f4),
+        changed_lhs_maps=chg_lhs, changed_rhs_maps=chg_rhs)
+
+
 def default_pool_provider(config: V43Config | None, *,
                            max_pool: int = S5B_POOL_MAX,
                            raw_top: int = S5B_POOL_RAW_TOP,
@@ -1075,7 +1157,9 @@ def default_pool_provider(config: V43Config | None, *,
                       execution_input_source: str | None = None,
                       execution_input_sha256: str | None = None,
                       f5: str | None = None,
-                      light_gap_coverable_by_bag: bool | None = None) -> dict:
+                      light_gap_coverable_by_bag: bool | None = None,
+                      record_side_form_norm: str | None = None,
+                      record_side_form_norm_trace: dict | None = None) -> dict:
             # T-G C2(R2',s5b-pool-policy-8)追加路由/准入机读字段(冻结
             # 项③):route=F1..F4 路由分层标签("direct_raw"/"supplied"/
             # "no_supply_raw"/"wildcard_blocked");execution_input_source
@@ -1085,6 +1169,11 @@ def default_pool_provider(config: V43Config | None, *,
             # 轻刀 A 归因披露(主组分元素缺口可否被袋元素覆盖;仅
             # F1 拒候选适用,判据零改动)。非 analog 通道行这些键为
             # None(向后兼容追加,行 schema v2)。
+            # T-E(E1a,s5b-pool-policy-9)追加逐候选归一审计(全形态
+            # compiled/compile_rejected/merged_into/pool_truncated 行
+            # 均保留):record_side_form_norm=三值标量;
+            # record_side_form_norm_trace=原子级 trace(复审 §4.2 最小
+            # schema;新增审计字段单独验收,不当版本键整块排除)。
             row: dict = {"channel": channel, "record_key": record_key,
                          "outcome": outcome, "reason": reason,
                          "merged_into": merged_into,
@@ -1095,7 +1184,10 @@ def default_pool_provider(config: V43Config | None, *,
                          "execution_input_sha256": execution_input_sha256,
                          "f5": f5,
                          "light_gap_coverable_by_bag":
-                             light_gap_coverable_by_bag}
+                             light_gap_coverable_by_bag,
+                         "record_side_form_norm": record_side_form_norm,
+                         "record_side_form_norm_trace":
+                             record_side_form_norm_trace}
             candidate_rows.append(row)
             return row
 
@@ -1141,12 +1233,20 @@ def default_pool_provider(config: V43Config | None, *,
                                       or "recorded_compile_failed")
                     _record_failure(fail_reason)
                     _diag_row("recorded", cand_key, "compile_rejected",
-                              reason=fail_reason)
+                              reason=fail_reason,
+                              record_side_form_norm=str(
+                                  cand.get("record_side_form_norm") or ""),
+                              record_side_form_norm_trace=cand.get(
+                                  "record_side_form_norm_trace"))
                     continue
                 _record_compiled(spec)
                 row_by_spec[id(spec)] = _diag_row(
                     "recorded", cand_key, "compiled",
-                    signature_head=_signature_head(spec))
+                    signature_head=_signature_head(spec),
+                    record_side_form_norm=str(
+                        cand.get("record_side_form_norm") or ""),
+                    record_side_form_norm_trace=cand.get(
+                        "record_side_form_norm_trace"))
             diagnostics.update({
                 "recorded_diagnostics": dict(
                     exact.get("diagnostics") or {})})
@@ -1173,12 +1273,20 @@ def default_pool_provider(config: V43Config | None, *,
                                       or "recorded_compile_failed")
                     _record_failure(fail_reason)
                     _diag_row("corpus", cand_key, "compile_rejected",
-                              reason=fail_reason)
+                              reason=fail_reason,
+                              record_side_form_norm=str(
+                                  cand.get("record_side_form_norm") or ""),
+                              record_side_form_norm_trace=cand.get(
+                                  "record_side_form_norm_trace"))
                     continue
                 _record_compiled(spec)
                 row_by_spec[id(spec)] = _diag_row(
                     "corpus", cand_key, "compiled",
-                    signature_head=_signature_head(spec))
+                    signature_head=_signature_head(spec),
+                    record_side_form_norm=str(
+                        cand.get("record_side_form_norm") or ""),
+                    record_side_form_norm_trace=cand.get(
+                        "record_side_form_norm_trace"))
             diagnostics.update({
                 "corpus_diagnostics": dict(
                     corpus_exact.get("diagnostics") or {})})
@@ -1244,10 +1352,12 @@ def default_pool_provider(config: V43Config | None, *,
                     spec["coefficient"] = 1
                     return spec
 
-                def _compile_at(f4: str, ref) -> dict:
+                def _compile_at(f4: str, ref, lhs_view: str,
+                                rhs_view: str) -> dict:
+                    # T-E(E1a):编译入参 = 归一视体(raw ref 不得再传编译)
                     return compile_donor_template(
-                        mapped_lhs=str(ref.mapped_lhs or ""),
-                        mapped_rhs=str(ref.mapped_rhs or ""),
+                        mapped_lhs=str(lhs_view or ""),
+                        mapped_rhs=str(rhs_view or ""),
                         center_atoms=[int(x) for x in
                                       (ref.center_atoms or [])],
                         substrate_smiles=f4,
@@ -1260,19 +1370,57 @@ def default_pool_provider(config: V43Config | None, *,
                 def _emit_rejected(ref, route: str, input_source: str,
                                    f4: str, f5_value: str,
                                    light_gap: bool | None,
-                                   reason: str) -> None:
+                                   reason: str,
+                                   formnorm: tuple | None = None) -> None:
                     _record_failure(reason)
+                    fn_status, fn_trace = formnorm or (None, None)
                     _diag_row("analog", f"tpl-{ref.record_id}",
                               "compile_rejected", reason=reason,
                               route=route,
                               execution_input_source=input_source,
                               execution_input_sha256=_input_hash(f4),
                               f5=f5_value,
-                              light_gap_coverable_by_bag=light_gap)
+                              light_gap_coverable_by_bag=light_gap,
+                              record_side_form_norm=fn_status,
+                              record_side_form_norm_trace=fn_trace)
 
                 for ref in refs:
-                    lhs = str(ref.mapped_lhs or "")
-                    rhs = str(ref.mapped_rhs or "")
+                    raw_lhs = str(ref.mapped_lhs or "")
+                    raw_rhs = str(ref.mapped_rhs or "")
+                    # ---- T-E(E1a):for-ref 起点建「归一视体」(设计
+                    # §1.1/复审 §4.3):该循环内全部记录侧消费者
+                    # (F1/F2/F3/F5/编译/spectators/light_gap)读视体;
+                    # record_equation 保 raw 来源例外(Q3终裁);
+                    # **raw ref 不得再传编译**;mapped_lhs 全消费域 =
+                    # tx.values[0]。
+                    from .recorded_source import (
+                        normalize_record_side_transaction,
+                        stamp_formnorm_spec_keys,
+                    )
+
+                    tx = normalize_record_side_transaction([
+                        {"side": "lhs", "field": "mapped_lhs",
+                         "entry_index": 0, "smiles": raw_lhs},
+                        {"side": "rhs", "field": "mapped_rhs",
+                         "entry_index": 0, "smiles": raw_rhs}])
+                    lhs = str(tx["values"][0])
+                    rhs = str(tx["values"][1])
+                    fn_status = str(tx["status"])
+
+                    def _fn(risk=None, unknown_reason=None):
+                        return _analog_formnorm_fields(
+                            tx=tx, record_key=f"tpl-{ref.record_id}",
+                            asset_sha256=str(
+                                getattr(ref, "asset_sha256", "") or ""),
+                            risk=risk, unknown_reason=unknown_reason)
+
+                    def _fn_risk(f4_for_risk, f5_probe):
+                        if fn_status != "applied" or \
+                                f5_probe.get("status") != "present":
+                            return None
+                        return analog_formnorm_risk(
+                            lhs=lhs, rhs=rhs, f4=f4_for_risk, tx=tx)
+
                     # ---- F1(路由真源;判据原样,只决定分支) ----
                     gate_raw = template_elements_fit(lhs, substrate)
                     if gate_raw:
@@ -1283,16 +1431,28 @@ def default_pool_provider(config: V43Config | None, *,
                         if f5["status"] == "absent":
                             _emit_rejected(
                                 ref, "direct_raw", "raw", substrate,
-                                "reject", early, "no_alignment")
+                                "reject", early, "no_alignment",
+                                formnorm=_fn(risk=None,
+                                             unknown_reason="no_alignment"))
                             continue
-                        out = _compile_at(substrate, ref)
+                        risk = _fn_risk(substrate, f5)
+                        out = _compile_at(substrate, ref, lhs, rhs)
                         if out.get("status") != "compiled":
+                            reason = str(out.get("reason"))
                             _emit_rejected(
                                 ref, "direct_raw", "raw", substrate,
-                                _f5_row_value(f5), early,
-                                str(out.get("reason")))
+                                _f5_row_value(f5), early, reason,
+                                formnorm=_fn(
+                                    risk=risk,
+                                    unknown_reason=f"compile_reject:{reason}"))
                             continue
                         spec = _finish_analog_spec(out, ref.record_id)
+                        fn_status_s, fn_trace = _fn(
+                            risk=risk,
+                            unknown_reason="compile_reject:unknown")
+                        if fn_status_s == "applied":
+                            stamp_formnorm_spec_keys(spec, {
+                                "status": "applied", "trace": fn_trace})
                         analog_specs.append(spec)
                         row_by_spec[id(spec)] = _diag_row(
                             "analog", str(spec["key"]), "compiled",
@@ -1301,7 +1461,9 @@ def default_pool_provider(config: V43Config | None, *,
                             execution_input_source="raw",
                             execution_input_sha256=_input_hash(substrate),
                             f5=_f5_row_value(f5),
-                            light_gap_coverable_by_bag=early)
+                            light_gap_coverable_by_bag=early,
+                            record_side_form_norm=fn_status_s,
+                            record_side_form_norm_trace=fn_trace)
                         continue
                     # ---- F1 拒:F2 供给(原样)→ F3 拦截 → F4 → F5 ----
                     supply = analog_cosub_supply(mapped_lhs=lhs,
@@ -1319,7 +1481,11 @@ def default_pool_provider(config: V43Config | None, *,
                                 "wildcard_blocked", 0)) + 1
                         _emit_rejected(ref, "wildcard_blocked", None,
                                        substrate, "not_evaluated",
-                                       light_gap, "no_alignment")
+                                       light_gap, "no_alignment",
+                                       formnorm=_fn(
+                                           unknown_reason=(
+                                               "wildcard_blocked:not_"
+                                               "consumed_by_alignment")))
                         diagnostics["analog_pregate_skipped"] = \
                             int(diagnostics.get("analog_pregate_skipped",
                                                 0)) + 1
@@ -1332,17 +1498,20 @@ def default_pool_provider(config: V43Config | None, *,
                         if f5["status"] == "absent":
                             _emit_rejected(ref, "supplied", "supplied",
                                            sub_supplied, "reject",
-                                           light_gap, "no_alignment")
+                                           light_gap, "no_alignment",
+                                           formnorm=_fn(
+                                               unknown_reason="no_alignment"))
                             diagnostics["analog_pregate_skipped"] = \
                                 int(diagnostics.get(
                                     "analog_pregate_skipped", 0)) + 1
                             continue
+                        risk = _fn_risk(sub_supplied, f5)
                         diagnostics["analog_cosub_supply_"
                                      "compile_attempted"] = int(
                             diagnostics.get(
                                 "analog_cosub_supply_"
                                 "compile_attempted", 0)) + 1
-                        out = _compile_at(sub_supplied, ref)
+                        out = _compile_at(sub_supplied, ref, lhs, rhs)
                         if out.get("status") == "compiled":
                             spec = _finish_analog_spec(out, ref.record_id)
                             _attach_analog_cosub_supply_fields(
@@ -1351,13 +1520,18 @@ def default_pool_provider(config: V43Config | None, *,
                                 substrate_smiles=substrate,
                                 supply=supply["supply"],
                                 spectators=_cosub_supply_spectators(
-                                    str(ref.mapped_lhs or ""),
-                                    str(ref.mapped_rhs or ""),
-                                    supply["supply"]),
+                                    lhs, rhs, supply["supply"]),
                                 record_equation=analog_record_equation(
                                     str(ref.mapped_lhs or ""),
                                     str(ref.mapped_rhs or "")),
                                 execution_input_smiles=sub_supplied)
+                            fn_status_s, fn_trace = _fn(
+                                risk=risk,
+                                unknown_reason="compile_reject:unknown")
+                            if fn_status_s == "applied":
+                                stamp_formnorm_spec_keys(spec, {
+                                    "status": "applied",
+                                    "trace": fn_trace})
                             analog_specs.append(spec)
                             row_by_spec[id(spec)] = _diag_row(
                                 "analog", str(spec["key"]), "compiled",
@@ -1367,7 +1541,9 @@ def default_pool_provider(config: V43Config | None, *,
                                 execution_input_sha256=_input_hash(
                                     sub_supplied),
                                 f5=_f5_row_value(f5),
-                                light_gap_coverable_by_bag=light_gap)
+                                light_gap_coverable_by_bag=light_gap,
+                                record_side_form_norm=fn_status_s,
+                                record_side_form_norm_trace=fn_trace)
                             diagnostics["analog_cosub_supply_"
                                         "rescued"] = int(
                                 diagnostics.get(
@@ -1377,10 +1553,16 @@ def default_pool_provider(config: V43Config | None, *,
                             # 供给过门后编译失败:按真实拒因计数
                             #(本次实际消耗编译预算,不再计
                             # no_alignment——失败原因如实披露)
+                            reason = str(out.get("reason"))
                             _emit_rejected(ref, "supplied", "supplied",
                                            sub_supplied,
                                            _f5_row_value(f5), light_gap,
-                                           str(out.get("reason")))
+                                           reason,
+                                           formnorm=_fn(
+                                               risk=risk,
+                                               unknown_reason=(
+                                                   "compile_reject:"
+                                                   + reason)))
                         continue
                     # ---- F2 = no_supply:F4 = raw,准入在 raw 上判定;
                     # F5 不过 ⇒ 承接既有 no_alignment 口径;F5 不过以外
@@ -1389,18 +1571,31 @@ def default_pool_provider(config: V43Config | None, *,
                     if f5["status"] == "absent":
                         _emit_rejected(ref, "no_supply_raw", "raw",
                                        substrate, "reject", light_gap,
-                                       "no_alignment")
+                                       "no_alignment",
+                                       formnorm=_fn(
+                                           unknown_reason="no_alignment"))
                         diagnostics["analog_pregate_skipped"] = \
                             int(diagnostics.get("analog_pregate_skipped",
                                                 0)) + 1
                         continue
-                    out = _compile_at(substrate, ref)
+                    risk = _fn_risk(substrate, f5)
+                    out = _compile_at(substrate, ref, lhs, rhs)
                     if out.get("status") != "compiled":
+                        reason = str(out.get("reason"))
                         _emit_rejected(ref, "no_supply_raw", "raw",
                                        substrate, _f5_row_value(f5),
-                                       light_gap, str(out.get("reason")))
+                                       light_gap, reason,
+                                       formnorm=_fn(
+                                           risk=risk,
+                                           unknown_reason=(
+                                               "compile_reject:" + reason)))
                         continue
                     spec = _finish_analog_spec(out, ref.record_id)
+                    fn_status_s, fn_trace = _fn(
+                        risk=risk, unknown_reason="compile_reject:unknown")
+                    if fn_status_s == "applied":
+                        stamp_formnorm_spec_keys(spec, {
+                            "status": "applied", "trace": fn_trace})
                     analog_specs.append(spec)
                     row_by_spec[id(spec)] = _diag_row(
                         "analog", str(spec["key"]), "compiled",
@@ -1409,7 +1604,9 @@ def default_pool_provider(config: V43Config | None, *,
                         execution_input_source="raw",
                         execution_input_sha256=_input_hash(substrate),
                         f5=_f5_row_value(f5),
-                        light_gap_coverable_by_bag=light_gap)
+                        light_gap_coverable_by_bag=light_gap,
+                        record_side_form_norm=fn_status_s,
+                        record_side_form_norm_trace=fn_trace)
 
             refs = resolver.templates_similar_to(
                 substrate, threshold=threshold, top_k=raw_top)
@@ -1471,6 +1668,27 @@ def default_pool_provider(config: V43Config | None, *,
                     rank_row["signature_head"] = None
         diagnostics.update({
             "pool_policy_version": S5B_POOL_POLICY_VERSION,
+            # ---- T-E(E1a):记录侧形式归一机读绑定(批级) ----
+            # 版本 + 参数指纹(算子/实参/序列化/短路/事务/RDKit;设计
+            # §3.2/§3.3);route 版本注释的解读上下文随输入域改变 ⇒
+            # **路由算法未改(分支公式一字不动),但路由结果可变**
+            # (Q8 终裁;不得写成"路由结果不变")。
+            "record_side_form_norm_version": _formnorm_version(),
+            "record_side_form_norm_param_sha256": _formnorm_param_sha256(),
+            "record_side_form_norm_route_binding_note": (
+                "s5b-analog-route-f1f4-1 expresses the F1-F4 branch "
+                "formulas; the ALGORITHM is unchanged by T-E, but "
+                "routing RESULTS may change because the input domain "
+                "changed (record-side form normalization). Do not "
+                "phrase this as 'routing results unchanged'."),
+            "record_side_form_norm_coverage_limitation": (
+                "substrate side NOT treated (FROZEN_V3 C-1 shipping "
+                "caliber; the source attribution arm only explains the "
+                "64 alignment recoveries). This is a COVERAGE "
+                "LIMITATION disclosed per batch: normalizing the "
+                "record side alone must not be claimed to be free of "
+                "misjudgment; actual products are still verified by "
+                "the unchanged strict criteria."),
             "n_recorded_strict_exact": n_recorded_strict,
             "n_recorded_cn_candidate": n_recorded_cn,
             "n_corpus_strict_exact": n_corpus_strict,
@@ -1661,6 +1879,31 @@ def build_question_batch(
     (root / "split_manifest.json").write_text(
         json.dumps(split_manifest, ensure_ascii=False, sort_keys=True,
                    indent=1) + "\n", encoding="utf-8")
+    # ---- T-E(E1a §1.5):批根唯一权威 build 身份旁块 ----
+    # (代码聚合 + pool/source/formnorm 版本与参数指纹 + route/
+    #  compiler/RDKit + 源资产身份 + 逐 qid/run_id 输入原始字节 sha;
+    #  manifest 只放引用/摘要;首消费核对在 worker,见 storage/
+    #  build_identity.py)
+    from ..storage.build_identity import (
+        write_batch_build_identity,
+    )
+
+    run_input_paths = {
+        e["qid"]: (e["run_id"], inputs_dir / f"{e['qid']}.json")
+        for e in entries}
+    build_identity_payload = write_batch_build_identity(
+        root, run_input_paths=run_input_paths)
+    build_identity_ref = {
+        "file": "build_identity.json",
+        "schema_version": str(
+            (build_identity_payload.get("schema") or {}).get(
+                "schema_version") or ""),
+        "build_identity_fingerprint": str(
+            build_identity_payload.get("build_identity_fingerprint")
+            or ""),
+        "note": ("唯一权威旁块在批根(build_identity.json);本清单只放"
+                 "引用/摘要,不复制可独立变更的同内容权威块(复审 §4.1)"),
+    }
     questions_sha = _file_sha256(questions_path)
     manifest = {
         "s5b_builder_version": S5B_BUILDER_VERSION,
@@ -1671,6 +1914,9 @@ def build_question_batch(
         "provider_kind": provider_kind,
         "registration_order": [e["qid"] for e in entries],
         "entries": entries,
+        # T-E(E1a §1.5):批 build 身份旁块引用/摘要(权威内容在批根
+        # build_identity.json;worker 首消费核对读旁块)
+        "build_identity_ref": build_identity_ref,
         "gold_policy": (
             "参考图/题面承载物只落本 gitignored 根;本清单零金标取值;"
             "判分时金标才进入判分进程(s5b_scoring;零 LLM)"),

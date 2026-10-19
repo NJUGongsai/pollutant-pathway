@@ -251,7 +251,19 @@ def test_compile_rejected_rows_close_with_histogram(
     # 拒因短码逐项在位(三通道 × 三拒因面)
     keys = {(r["channel"], r["reason"]) for r in rejects}
     assert ("recorded", "no_structure_correspondence") in keys
-    assert ("analog", "charge_edit_unsupported") in keys
+    # T-E/E1a(s5b-pool-policy-9):bad1 模板 rhs 的 [O-:3] 阴离子经
+    # 记录侧形式归一(Uncharger 逐组分;实跑短路)被中和 ⇒ 变换消失
+    # ⇒ 拒因由 charge_edit_unsupported 迁移为 transform_no_change
+    # (仍拒、仍不入池;归一事件 applied 随行披露 —— 理由迁移,结局
+    # 不变;map 号在归一输出中逐原子保留)。
+    assert ("analog", "transform_no_change") in keys
+    bad1 = next(r for r in rejects if r["record_key"] == "tpl-bad1")
+    assert bad1["record_side_form_norm"] == "applied"
+    trace = bad1["record_side_form_norm_trace"]
+    assert trace["status"] == "applied"
+    assert trace["source_ref"]["channel"] == "analog"
+    assert trace["source_ref"]["record_key"] == "tpl-bad1"
+    assert trace["changes"] and trace["atom_correspondence"]
     # T-G C2(R2',2026-10-19):F1 拒候选的拒因口径——旧 pregate 恒记
     # no_alignment(不编译);R2' 起 F5 不过面维持 no_alignment、
     # F5 defer(坏模板/空中心/截断)转编译层如实出因。本夹具的
@@ -380,7 +392,9 @@ def test_pool_policy_version_bumped() -> None:
     s5b-pool-policy-5 → s5b-pool-policy-6;C 线(2026-10-14)池成员
     变化(analog 共底物伴生供给)⇒ s5b-pool-policy-7。"""
     # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
+    # T-E/E1a(2026-10-19):记录侧形式归一(池成员/诊断面变化;路由
+    # 算法未改但路由结果可变)⇒ 9
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-9"
     assert S5B_POOL_POLICY_VERSION != "s5b-pool-policy-5"
 
 
@@ -393,7 +407,10 @@ _ROW_SCHEMA_KEYS = {"channel", "record_key", "outcome", "reason",
                     # (行 schema v2;非 analog 通道行为 None)
                     "route", "execution_input_source",
                     "execution_input_sha256", "f5",
-                    "light_gap_coverable_by_bag"}
+                    "light_gap_coverable_by_bag",
+                    # T-E/E1a(s5b-pool-policy-9):逐候选归一三值 +
+                    # 原子级 trace(全形态行;审计字段单独验收)
+                    "record_side_form_norm", "record_side_form_norm_trace"}
 
 # 既有无条件聚合键(s5b-pool-policy-5 时代已在;candidates 之外零新增)
 _PREEXISTING_AGGREGATE_KEYS = {
@@ -430,7 +447,13 @@ def test_aggregate_fields_unchanged_and_row_schema(
         "analog_route_truth_version",
         "analog_center_admission_checked",
         "analog_center_admission_skipped",
-        "analog_center_admission_deferred"}
+        "analog_center_admission_deferred",
+        # T-E/E1a(2026-10-19,s5b-pool-policy-9):记录侧形式归一
+        # 批级机读绑定(版本+指纹+路由绑定注记+覆盖限制披露)
+        "record_side_form_norm_version",
+        "record_side_form_norm_param_sha256",
+        "record_side_form_norm_route_binding_note",
+        "record_side_form_norm_coverage_limitation"}
     assert diag["pool_policy_version"] == S5B_POOL_POLICY_VERSION
     rows = diag["candidates"]
     assert rows

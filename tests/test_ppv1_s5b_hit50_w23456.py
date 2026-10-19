@@ -612,8 +612,19 @@ def test_w4_pool_provider_backfill_and_order(tmp_path) -> None:
     assert diag["pool_policy_version"] == S5B_POOL_POLICY_VERSION
     # W-V4.1-R1:s5b-pool-policy-3(corpus 通道许可收缩升版;EAWAG
     # 面不变;池融合/补位语义不变)
+    # T-E/E1a(s5b-pool-policy-9):bad1/bad2/bad3 模板 rhs [O-:3] 阴离子
+    # 经记录侧形式归一(Uncharger 逐组分)被中和 ⇒ 变换消失 ⇒ 拒因由
+    # charge_edit_unsupported 迁移为 transform_no_change(3 条;仍拒、
+    # 失败补位与去重语义不变);归一事件 applied 随行披露(全形态行)。
     assert diag["compile_failure_histogram"].get(
-        "charge_edit_unsupported") == 3
+        "transform_no_change") == 3
+    bad_rows = [r for r in diag["candidates"]
+                if r["outcome"] == "compile_rejected"]
+    assert len(bad_rows) == 3
+    assert {r["record_side_form_norm"] for r in bad_rows} == {"applied"}
+    for r in bad_rows:
+        tr = r["record_side_form_norm_trace"]
+        assert tr["status"] == "applied" and tr["changes"]
     assert diag["n_unique_net_reactions"] == 1
     # 检索序保留:输出序 = 编译成功序(相似度降序),非 key 字典序
 
@@ -996,13 +1007,13 @@ def test_w6_r5_defaults_one_logical_and_1490_cap() -> None:
 def test_versions_registered() -> None:
     # W-D2:s5b-recorded-source-3(union gate 扩展:可选参数
     # declared_copies/record_products;缺省路径字节等价)
-    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
+    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-4"
     # W-D2:池策略升版(池成员变化:corpus component 共底物整组分
     # 拷贝子集重新入池;配置本身零变化;s5b-pool-policy-5)
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
     # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
     # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-9"
     # T-F 位次继承(2026-10-17):折叠位次继承升版
     assert S5B_RANK_POLICY_VERSION == "s5b-rank-policy-2"
     assert S5B_POOL_RAW_TOP == 24

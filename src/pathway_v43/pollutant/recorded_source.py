@@ -169,7 +169,9 @@ import json
 from collections import Counter
 from functools import lru_cache
 
+import rdkit
 from rdkit import Chem, RDLogger
+from rdkit.Chem.MolStandardize import rdMolStandardize
 
 from ..domain.identity import cn_identity
 from .chemstate import build_chemical_state, strict_identity_of
@@ -177,7 +179,15 @@ from .s5b_compiler import S5bCompileError, compile_donor_template
 
 RDLogger.DisableLog("rdApp.*")
 
-RECORDED_SOURCE_VERSION = "s5b-recorded-source-3"
+# W-D2 → T-E(E1a,2026-10-19):版本升 s5b-recorded-source-4 ——
+# **公共 compile 默认输入的核验域与 spec 改变**(记录侧形式归一面:
+# compile_recorded_reaction 入口对全部记录侧入参施加同一归一算子,
+# 归一实际发生的候选 spec 条件追加审计五键;未 applied 行原字节不变)。
+# 设计依据:docs/T_E_RUN_IDENTITY_DESIGN_DRAFT_2026-10-19.md v2 +
+# Codex 二轮复审(§4.1/§4.2/§4.3 为最终口径);语义权威
+# docs/POOL... FROZEN_V3 §5(C-1/C-5)。source-3 不能静默解释成已有
+# 归一(设计 §3.3 定案),故同批升号。
+RECORDED_SOURCE_VERSION = "s5b-recorded-source-4"
 
 # ---- W-V4.1:corpus 直通检索语义冻结登记(§1 硬条款;开工先于接线)----
 # 冻结依据:TASK_V43_PPV1_S5B_HIT50_V4_DRAFT_2026-10-10 §10 用户裁定
@@ -388,6 +398,490 @@ _INFER_BOND_DIFF_LIMIT = 2
 # (298 题面 EAWAG/corpus 整串 donor 键数实测上界见交付书;升档后
 # 触顶率实测披露)。无望组合(fast-fail 前置必要条件)不再占用预算。
 _INFER_BOND_DIFF_CALL_LIMIT = 8192
+
+# ================================================================
+# T-E(E1a,2026-10-19):记录侧形式归一(record-side form normalization)
+# ================================================================
+# 语义权威:FROZEN_V3 §5(C-1/C-5)。工程口径:设计稿 v2 §1.1/§1.3/
+# §3.1/§3.2/§4 与 Codex 二轮复审 §4.1/§4.2/§4.3(最终,优先于简写)。
+# 单一实现源:三通道(recorded/corpus/analog)共用本模块算子,不得各写
+# 一套(AGENTS「实施先列入口,再修同一规则」)。
+#
+# - 算子 = 默认 ``rdMolStandardize.Uncharger()``(默认构造;**不传任何
+#   关键字**——``neutralize=...`` 在该版本不存在,传即 ArgumentError);
+#   构造器三默认参数 ``canonicalOrder=True, force=False,
+#   protonationOnly=False`` 为签名实测登记值;实例层不可自省(仅
+#   ``uncharge/unchargeInPlace``)按不可读项单列(设计 §3.2/Q9);
+# - 逐组分施加:``GetMolFrags(asMols=True)`` 逐组分在独立新 Mol 上
+#   ``uncharge`` → ``MolToSmiles``(保留 atom map 与立体)→ 按输入
+#   组分序点号重接(**禁用来源快照的 strip_map 缓存污染路径**——前置 1
+#   实证该路径丢映射号,19 行受影响);
+# - 短路 = **先实际运行算子**,再按同一原子对应核 q/H(总 H 口径
+#   ``GetTotalNumHs(includeNeighbors=True)``,并分列显式/隐式/邻接 H
+#   原子及同位素来源)、重原子图、键、map、同位素、立体**均未变**才认
+#   「成功无操作」并直通原串(禁止「电荷向量不变便足矣」强断言);
+# - 三值(applied/not_applicable/failed)按**提交事务状态**判定,不按
+#   净电荷、不按字符串比较;applied 输出允许保留永久电荷(内盐反例);
+# - 事务单位 = 一次候选消费视体(``normalize_record_side_transaction``):
+#   任一分量失败 ⇒ **全部回原始**(all-or-nothing;保 None/空列表/
+#   顺序/重数的既有区别由调用方维持);
+# - 幂等:成功域双遍字节固定点(第二遍无新增改动);failed 域确定性
+#   重现 failed 且原串不变。
+
+RECORD_SIDE_FORMNORM_VERSION = "record-side-formnorm-1"
+
+_RECORD_SIDE_FORMNORM_PARAM_SPEC = {
+    "operator": "rdMolStandardize.Uncharger",
+    "constructor_call": "Uncharger()",
+    # 构造器签名实测三默认值(canonicalOrder/force/protonationOnly);
+    # 实例层不可自省 ⇒ 单列 unavailable(不以文档语义替代环境验证)。
+    "constructor_defaults_from_signature": {
+        "canonicalOrder": True,
+        "force": False,
+        "protonationOnly": False,
+    },
+    "instance_introspection": "unavailable",
+    "application": (
+        "per-component(GetMolFrags,asMols=True)-> per-component "
+        "operator -> MolToSmiles(isomeric; map/stereo preserved) -> "
+        "'.' rejoin in input component order"),
+    "serialization": (
+        "MolToSmiles default(isomericSmiles=True); no cross-component "
+        "sorting; successful no-op passes through the original string "
+        "verbatim (component-order and duplicate fidelity preserved)"),
+    "noop_rule": (
+        "run the default operator for real first; declare successful "
+        "no-op (passthrough original string) only when per-atom "
+        "correspondence shows q/H/heavy-atom graph/bonds/map/isotopes/"
+        "stereo all unchanged"),
+    "transaction": (
+        "one candidate consumption view atomic commit (any component "
+        "failure reverts every field to the original string)"),
+    "rdkit_version": str(rdkit.__version__),
+}
+
+
+def _canonical_json_sha256(obj) -> str:
+    return hashlib.sha256(json.dumps(
+        obj, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+RECORD_SIDE_FORMNORM_PARAM_SHA256 = _canonical_json_sha256(
+    _RECORD_SIDE_FORMNORM_PARAM_SPEC)
+
+# 算子实例(fresh per module import;默认构造,不传关键字;批内复用)
+_FORMS_UNCHARGER = rdMolStandardize.Uncharger()
+
+_FORMNORM_H_TOTAL_DEF = "GetTotalNumHs(includeNeighbors=True)"
+
+
+def _formnorm_atom_state(mol, idx: int) -> dict:
+    """单原子状态行(同原子对应核的键;含 H 分列与邻接 H 同位素)。"""
+    a = mol.GetAtomWithIdx(int(idx))
+    neighbor_h = tuple(sorted(
+        (int(n.GetIdx()), int(n.GetIsotope() or 0))
+        for n in a.GetNeighbors() if n.GetAtomicNum() == 1))
+    return {
+        "atomic_num": int(a.GetAtomicNum()),
+        "formal_charge": int(a.GetFormalCharge()),
+        "total_hs": int(a.GetTotalNumHs(includeNeighbors=True)),
+        "explicit_hs": int(a.GetNumExplicitHs()),
+        "implicit_hs": int(a.GetNumImplicitHs()),
+        "is_aromatic": bool(a.GetIsAromatic()),
+        "map_num": int(a.GetAtomMapNum()),
+        "isotope": int(a.GetIsotope() or 0),
+        "chiral_tag": str(a.GetChiralTag()),
+        "neighbor_h_atoms": neighbor_h,
+    }
+
+
+def _formnorm_bond_rows(mol) -> tuple:
+    rows = []
+    for b in mol.GetBonds():
+        rows.append((int(b.GetBeginAtomIdx()), int(b.GetEndAtomIdx()),
+                     str(b.GetBondType()), bool(b.GetIsAromatic()),
+                     str(b.GetStereo())))
+    return tuple(rows)
+
+
+def _formnorm_h_breakdown(mol, idx: int) -> dict:
+    """H 分列(前后值由调用方配对;显式/隐式/邻接 H 原子+同位素)。"""
+    st = _formnorm_atom_state(mol, idx)
+    return {
+        "total": st["total_hs"],
+        "explicit": st["explicit_hs"],
+        "implicit": st["implicit_hs"],
+        "neighbor_h_atoms": [
+            {"idx": i, "isotope": iso} for i, iso in st["neighbor_h_atoms"]],
+    }
+
+
+def normalize_record_side_smiles(smi) -> dict:
+    """记录侧单串形式归一算子(逐组分 Uncharger + 实跑短路)。
+
+    返回::
+
+        {"status": "applied" | "not_applicable" | "failed",
+         "normalized": str,          # applied=归一串; 其余=原串
+         "reason": str | None,       # failed 的机读原因
+         "changes": [...],           # applied: 被改原子逐行(源坐标)
+         "atom_correspondence": [...]}  # applied: 源坐标→归一坐标/map
+
+    短路纪律(设计 §4.1):**先实际运行算子**,再按同一原子对应核
+    q/H/重原子图/键/map/同位素/立体全部未变 ⇒ 成功无操作,原串直通。
+    组分序/重复份数保输入序(GetMolFrags 首现序),不跨组分排序。
+    """
+    original = str(smi)
+    if not original:
+        return {"status": "failed", "reason": "empty_string",
+                "normalized": original, "changes": [],
+                "atom_correspondence": []}
+    try:
+        mol = Chem.MolFromSmiles(original)
+    except Exception:  # noqa: BLE001 —— 不可解析 = 事务失败(回原始)
+        mol = None
+    if mol is None:
+        return {"status": "failed", "reason": "component_unparseable",
+                "normalized": original, "changes": [],
+                "atom_correspondence": []}
+    try:
+        frags = Chem.GetMolFrags(mol, asMols=True, sanitizeFrags=True)
+    except Exception:  # noqa: BLE001
+        frags = None
+    if not frags:
+        return {"status": "failed", "reason": "component_split_error",
+                "normalized": original, "changes": [],
+                "atom_correspondence": []}
+    any_change = False
+    serialized: list[str] = []
+    changes: list[dict] = []
+    correspondence: list[dict] = []
+    for fi, frag in enumerate(frags):
+        try:
+            un = _FORMS_UNCHARGER.uncharge(Chem.Mol(frag))
+        except Exception:  # noqa: BLE001 —— 算子异常 = 事务失败
+            return {"status": "failed", "reason": "operator_exception",
+                    "normalized": original, "changes": [],
+                    "atom_correspondence": []}
+        if un is None:
+            return {"status": "failed", "reason": "operator_exception",
+                    "normalized": original, "changes": [],
+                    "atom_correspondence": []}
+        n_atoms = int(frag.GetNumAtoms())
+        same_graph = bool(
+            int(un.GetNumAtoms()) == n_atoms
+            and all(frag.GetAtomWithIdx(i).GetAtomicNum()
+                    == un.GetAtomWithIdx(i).GetAtomicNum()
+                    for i in range(n_atoms)))
+        if not same_graph:
+            # 重原子图/原子数改变(非预期形态):如实记结构变更行,
+            # 不猜测重排后 idx 对应(设计 §1.3 atom_correspondence)。
+            any_change = True
+            serialized.append(Chem.MolToSmiles(un))
+            changes.append({
+                "fragment_index": int(fi), "source_atom_index": None,
+                "structural_change": {
+                    "before_atoms": n_atoms,
+                    "after_atoms": int(un.GetNumAtoms()),
+                    "reason": "heavy_atom_graph_changed"},
+                "charge_before": None, "charge_after": None,
+                "hydrogen_before": None, "hydrogen_after": None})
+            continue
+        atom_changed: list[int] = []
+        for i in range(n_atoms):
+            if _formnorm_atom_state(frag, i) != _formnorm_atom_state(un, i):
+                atom_changed.append(i)
+        bond_changed = _formnorm_bond_rows(frag) != _formnorm_bond_rows(un)
+        if atom_changed or bond_changed:
+            any_change = True
+            for i in atom_changed:
+                src_map = int(frag.GetAtomWithIdx(i).GetAtomMapNum())
+                norms = _formnorm_atom_state(un, i)
+                src_st = _formnorm_atom_state(frag, i)
+                changes.append({
+                    "fragment_index": int(fi),
+                    "source_atom_index": int(i),
+                    "original_map": (src_map or None),
+                    "charge_before": int(src_st["formal_charge"]),
+                    "charge_after": int(norms["formal_charge"]),
+                    "hydrogen_before": int(src_st["total_hs"]),
+                    "hydrogen_after": int(norms["total_hs"]),
+                    "hydrogen_detail": {
+                        "definition": _FORMNORM_H_TOTAL_DEF,
+                        "explicit_before": int(src_st["explicit_hs"]),
+                        "explicit_after": int(norms["explicit_hs"]),
+                        "implicit_before": int(src_st["implicit_hs"]),
+                        "implicit_after": int(norms["implicit_hs"]),
+                        "neighbor_h_before": [
+                            {"idx": j, "isotope": iso}
+                            for j, iso in src_st["neighbor_h_atoms"]],
+                        "neighbor_h_after": [
+                            {"idx": j, "isotope": iso}
+                            for j, iso in norms["neighbor_h_atoms"]]}})
+                correspondence.append({
+                    "fragment_index": int(fi),
+                    "source_atom_index": int(i),
+                    "original_map": (src_map or None),
+                    "normalized_atom_index": int(i),
+                    "generated_map": (int(norms["map_num"]) or None)})
+            if bond_changed and not atom_changed:
+                changes.append({
+                    "fragment_index": int(fi),
+                    "source_atom_index": None,
+                    "structural_change": {
+                        "reason": "bond_state_changed"},
+                    "charge_before": None, "charge_after": None,
+                    "hydrogen_before": None, "hydrogen_after": None})
+            serialized.append(Chem.MolToSmiles(un))
+        else:
+            serialized.append(Chem.MolToSmiles(un))
+    if not any_change:
+        # 成功无操作:原串直通(字节不变;含非 canonical 输入)
+        return {"status": "not_applicable", "reason": None,
+                "normalized": original, "changes": [],
+                "atom_correspondence": []}
+    return {"status": "applied", "reason": None,
+            "normalized": ".".join(serialized),
+            "changes": changes, "atom_correspondence": correspondence}
+
+
+def normalize_record_side_transaction(entries: list[dict]) -> dict:
+    """一次候选消费视体的原子事务(全 or 无;设计 §4.2/Q7)。
+
+    ``entries`` = ``[{"side","field","entry_index","smiles"}, ...]`` 有序
+    列表(顺序=消费序;重复项按位保留)。任一分量 failed ⇒ 全部回原始
+    (failed);无任何 applied ⇒ not_applicable(全原串);否则 applied
+    (逐串:应用串=归一串,无操作串=原串)。
+    """
+    per_entry: list[dict] = []
+    failed = False
+    failed_reason: str | None = None
+    any_applied = False
+    for e in entries:
+        r = normalize_record_side_smiles(e.get("smiles"))
+        per_entry.append(r)
+        if r["status"] == "failed":
+            failed = True
+            failed_reason = str(r.get("reason") or "unknown")
+            break
+        if r["status"] == "applied":
+            any_applied = True
+    fields: list[dict] = []
+    changes: list[dict] = []
+    correspondence: list[dict] = []
+    if failed:
+        for e in entries:
+            fields.append({
+                "side": str(e["side"]), "field": str(e["field"]),
+                "entry_index": int(e["entry_index"]),
+                "status": "failed"})
+        return {"status": "failed", "reason": failed_reason,
+                "values": [str(e.get("smiles")) for e in entries],
+                "fields": fields, "changes": [], "atom_correspondence": [],
+                "revert": "all_or_nothing_full_revert_to_original"}
+    status = "applied" if any_applied else "not_applicable"
+    values: list[str] = []
+    for e, r in zip(entries, per_entry):
+        fields.append({
+            "side": str(e["side"]), "field": str(e["field"]),
+            "entry_index": int(e["entry_index"]),
+            "status": str(r["status"])})
+        values.append(str(r["normalized"]) if status == "applied"
+                      else str(e.get("smiles")))
+        if r["status"] == "applied":
+            for ch in r["changes"]:
+                changes.append({
+                    "side": str(e["side"]), "field": str(e["field"]),
+                    "entry_index": int(e["entry_index"]), **ch})
+            for cp in r["atom_correspondence"]:
+                correspondence.append({
+                    "side": str(e["side"]), "field": str(e["field"]),
+                    "entry_index": int(e["entry_index"]), **cp})
+    return {"status": status, "reason": None, "values": values,
+            "fields": fields, "changes": changes,
+            "atom_correspondence": correspondence,
+            "revert": None}
+
+
+def record_side_form_norm_trace_ref(trace: dict) -> str:
+    """同候选 trace 规范内容的确定性 sha256(必须能回到相应诊断行)。"""
+    return _canonical_json_sha256(trace)
+
+
+# T-E 审计五键(applied 成功 spec 的 compile 条件追加;顶层标量,不嵌套)
+FORMS_SPEC_KEYS = (
+    "record_side_form_norm",
+    "record_side_form_norm_version",
+    "record_side_form_norm_param_sha256",
+    "record_side_form_norm_trace_ref",
+    "verification_domain")
+
+
+def stamp_formnorm_spec_keys(spec: dict, formnorm: dict) -> bool:
+    """applied 时把审计五键写入 ``spec["compile"]``(幂等;未 applied 不写)。
+
+    返回是否写入。五键 = 复审 §4.2 最小 schema 原样:
+    ``record_side_form_norm="applied"``、版本、参数指纹、trace_ref、
+    ``verification_domain="normalized_record_side"``(证明域:只证明
+    消费态归一记录域,不授原始资产完整离子身份)。
+    """
+    if str(formnorm.get("status")) != "applied":
+        return False
+    trace = formnorm.get("trace") or {}
+    spec["compile"] = dict(spec.get("compile") or {})
+    spec["compile"].update({
+        "record_side_form_norm": "applied",
+        "record_side_form_norm_version": RECORD_SIDE_FORMNORM_VERSION,
+        "record_side_form_norm_param_sha256":
+            RECORD_SIDE_FORMNORM_PARAM_SHA256,
+        "record_side_form_norm_trace_ref":
+            str(formnorm.get("trace_ref")
+                or record_side_form_norm_trace_ref(trace)),
+        "verification_domain": "normalized_record_side",
+    })
+    return True
+
+
+def formnorm_alignment_intersection(
+        mapped_lhs: str, mapped_rhs: str, substrate_smiles: str,
+        *, changed_lhs_maps: set[int],
+        changed_rhs_maps: set[int]) -> dict:
+    """「过度对齐风险」交集的只读同源披露(设计 §1.3/复审 §4.2)。
+
+    消费原子 = 中心查询(L1+壳层)实际覆盖的 lhs map 集(与编译层
+    ``build_center_query``/``enumerate_center_alignments`` 同源);交集
+    = 该集合 ∩ 同坐标 lhs 改动原子 map(源坐标),rhs 另列(不并入)。
+    无法追溯/无匹配/截断 ⇒ 状态 ``unknown`` 及机读原因(禁伪填 absent)。
+    """
+    out = {
+        "matching_scope": "center_l1_l2",
+        "consumed_query_maps": None,
+        "alignment_status": None,
+        "lhs_changed_maps": sorted(int(m) for m in changed_lhs_maps),
+        "lhs_intersection_maps": None,
+        "rhs_changed_maps": sorted(int(m) for m in changed_rhs_maps),
+        "rhs_intersection": "separate_not_intersected_with_lhs",
+        "risk_status": "unknown",
+        "risk_reason": None,
+        "note": ("intersection uses the actually consumed center query "
+                 "(L1+L2 shell, same source as the compiler); it is a "
+                 "disclosure signal, not a mechanism proof"),
+    }
+    if not changed_lhs_maps and not changed_rhs_maps:
+        out["risk_status"] = "not_applicable"
+        out["risk_reason"] = "no_applied_change"
+        return out
+    try:
+        from .s5b_compiler import (
+            build_center_query,
+            center_anchor_probe,
+            extract_mapped_transform,
+            l1_maps_of_transform,
+        )
+
+        probe = center_anchor_probe(mapped_lhs, mapped_rhs,
+                                    substrate_smiles)
+        out["alignment_status"] = str(probe.get("status"))
+        if probe.get("status") != "present":
+            out["risk_status"] = "unknown"
+            out["risk_reason"] = ("alignment_%s:%s" % (
+                probe.get("status"), probe.get("reason") or ""))
+            return out
+        transform = extract_mapped_transform(mapped_lhs, mapped_rhs)
+        l1_maps = l1_maps_of_transform(transform)
+        if not l1_maps:
+            out["risk_status"] = "unknown"
+            out["risk_reason"] = "center_empty"
+            return out
+        _q, qidx_of_map = build_center_query(
+            transform["lhs"].mol, transform["lhs"].maps, l1_maps)
+        consumed = sorted(int(m) for m in qidx_of_map.keys())
+        out["consumed_query_maps"] = consumed
+        inter = sorted(set(consumed) & {int(m) for m in changed_lhs_maps})
+        out["lhs_intersection_maps"] = inter
+        if inter:
+            out["risk_status"] = "present"
+            out["risk_reason"] = "changed_lhs_atoms_consumed_by_query"
+        else:
+            out["risk_status"] = "absent"
+            out["risk_reason"] = "verified_empty_intersection"
+    except S5bCompileError as exc:
+        out["risk_status"] = "unknown"
+        out["risk_reason"] = f"transform_error:{exc.reason}"
+    except Exception as exc:  # noqa: BLE001 —— 无法追溯 ⇒ unknown
+        out["risk_status"] = "unknown"
+        out["risk_reason"] = f"trace_error:{type(exc).__name__}"
+    return out
+
+
+def build_formnorm_trace(
+        *, channel: str, asset_sha256: str, record_key: str,
+        matched_side_or_component: dict, transaction: dict,
+        source_fields: dict | None = None,
+        risk: dict | None = None,
+        extra: dict | None = None) -> dict:
+    """逐候选 trace 装配(复审 §4.2 最小 schema;全形态行共用)。
+
+    ``transaction`` = ``normalize_record_side_transaction`` 的返回;
+    ``matched_side_or_component`` = 侧/组分定位(不能只靠 record_key——
+    同记录可多匹配侧);``source_fields`` = raw 来源例外标注(如
+    ``{"record_equation": "raw_source_fidelity"}``)。
+    """
+    trace = {
+        "source_ref": {
+            "channel": str(channel),
+            "asset_sha256": str(asset_sha256 or ""),
+            "record_key": str(record_key),
+            "matched_side_or_component":
+                dict(matched_side_or_component or {}),
+        },
+        "source_fields": dict(source_fields or {
+            "record_equation": "raw_source_fidelity",
+            "matched_component": "raw_source_fidelity",
+        }),
+        "status": str(transaction.get("status")),
+        "version": RECORD_SIDE_FORMNORM_VERSION,
+        "param_sha256": RECORD_SIDE_FORMNORM_PARAM_SHA256,
+        "fields": list(transaction.get("fields") or []),
+        "changes": list(transaction.get("changes") or []),
+        "atom_correspondence":
+            list(transaction.get("atom_correspondence") or []),
+        "matching_scope": None,
+        "intersection": None,
+        "risk_status": "unknown",
+        "risk_reason": None,
+        "human_review_required": False,
+    }
+    if transaction.get("status") == "failed":
+        trace["failure_reason"] = str(transaction.get("reason") or "")
+        trace["revert"] = str(transaction.get("revert") or "")
+        trace["risk_status"] = "not_applicable"
+        trace["risk_reason"] = "transaction_failed_full_revert"
+    elif transaction.get("status") == "not_applicable":
+        trace["risk_status"] = "not_applicable"
+        trace["risk_reason"] = "no_applied_change"
+    if risk is not None:
+        trace["matching_scope"] = risk.get("matching_scope")
+        trace["intersection"] = {
+            "lhs": {
+                "changed_maps": risk.get("lhs_changed_maps"),
+                "consumed_query_maps": risk.get("consumed_query_maps"),
+                "intersection_maps": risk.get("lhs_intersection_maps"),
+            },
+            "rhs": {
+                "changed_maps": risk.get("rhs_changed_maps"),
+                "intersection": risk.get("rhs_intersection"),
+            },
+        }
+        trace["risk_status"] = str(risk.get("risk_status"))
+        trace["risk_reason"] = str(risk.get("risk_reason") or "")
+    if trace["risk_status"] in ("present", "unknown") \
+            and transaction.get("status") == "applied":
+        trace["human_review_required"] = True
+    if extra:
+        trace.update(dict(extra))
+    return trace
 
 # 每进程库索引缓存(1.4MB 文本;hash 锚定后复用)
 _LIBRARY_CACHE: dict = {}
@@ -1193,6 +1687,87 @@ def _flatten_product_entries(products: list[str]) -> list[str]:
 # ---------------------------------------------------------------- 主入口
 
 
+def _compile_formnorm_risk(artifacts: dict, donor_eff: str,
+                           products_eff: list[str], substrate_smiles: str,
+                           tx: dict) -> dict | None:
+    """把事务 changes(源坐标)接到编译映射的 map 坐标,计算风险交集。
+
+    lhs:donor 串内原子 idx(GetMolFrags 组分偏移 + 组分内 idx)→
+    ``donor_map`` 生成 map;rhs:products 串并集坐标(逐条目/逐组分偏移)
+    → ``union_map``。copies/full_products 侧不在对齐坐标系内,如实计数。
+    坐标不可建立 ⇒ 返回 None(调用方按 unknown 处理,不伪填 absent)。
+    """
+    try:
+        donor_map = dict(artifacts.get("donor_map") or {})
+        donor_mol = Chem.MolFromSmiles(str(donor_eff))
+        if donor_mol is None:
+            return None
+        d_frags = Chem.GetMolFrags(donor_mol, asMols=True,
+                                   sanitizeFrags=True)
+        donor_offsets: list[int] = []
+        acc = 0
+        for f in d_frags:
+            donor_offsets.append(acc)
+            acc += int(f.GetNumAtoms())
+        u_offsets: dict[int, list[int]] = {}
+        for i, p in enumerate(products_eff):
+            pm = Chem.MolFromSmiles(str(p))
+            if pm is None:
+                return None
+            offs = []
+            acc = 0
+            for f in Chem.GetMolFrags(pm, asMols=True, sanitizeFrags=True):
+                offs.append(acc)
+                acc += int(f.GetNumAtoms())
+            u_offsets[int(i)] = offs
+        changed_lhs: set[int] = set()
+        changed_rhs: set[int] = set()
+        unmapped_lhs = 0
+        outside = 0
+        for ch in tx.get("changes") or []:
+            side = str(ch.get("side") or "")
+            fi = ch.get("fragment_index")
+            si = ch.get("source_atom_index")
+            ei = int(ch.get("entry_index") or 0)
+            if side == "lhs" and fi is not None and si is not None:
+                if int(fi) < len(donor_offsets):
+                    didx = donor_offsets[int(fi)] + int(si)
+                    m = donor_map.get(didx)
+                    if m:
+                        changed_lhs.add(int(m))
+                    else:
+                        unmapped_lhs += 1
+                else:
+                    outside += 1
+            elif side == "rhs" and fi is not None and si is not None:
+                offs = u_offsets.get(ei)
+                if offs and int(fi) < len(offs):
+                    # 并集坐标:逐条目累计偏移(条目组分先现序)
+                    base = 0
+                    for j in range(ei):
+                        base += sum(
+                            int(f.GetNumAtoms()) for f in Chem.GetMolFrags(
+                                Chem.MolFromSmiles(str(products_eff[j])),
+                                asMols=True, sanitizeFrags=True))
+                    changed_rhs.add(base + offs[int(fi)] + int(si))
+                else:
+                    # 编译侧产物入参 ≠ 事务侧条目清单(如 corpus split
+                    # 分片的可执行子集)⇒ 坐标不可建立,如实计数
+                    outside += 1
+            else:
+                outside += 1
+        risk = formnorm_alignment_intersection(
+            str(artifacts.get("mapped_lhs") or ""),
+            str(artifacts.get("mapped_rhs") or ""),
+            str(substrate_smiles),
+            changed_lhs_maps=changed_lhs, changed_rhs_maps=changed_rhs)
+        risk["lhs_changed_atoms_without_generated_map"] = int(unmapped_lhs)
+        risk["changes_outside_alignment_coordinates"] = int(outside)
+        return risk
+    except Exception:  # noqa: BLE001 —— 坐标不可建立 ⇒ unknown
+        return None
+
+
 def find_recorded_exact(
     *, substrate_smiles: str, engine,
     max_reactions: int = 24,
@@ -1217,6 +1792,7 @@ def find_recorded_exact(
         return {"candidates": [], "diagnostics": {
             "kind": "engine_error", "error": str(raw.get("error"))}}
     index = load_library_index(engine)
+    library_sha = _library_identity(engine)["library_sha256"]
     substrate_strict = _strict_of(substrate_smiles)
     substrate_cn = cn_identity(str(substrate_smiles))
     candidates: list[dict] = []
@@ -1252,10 +1828,20 @@ def find_recorded_exact(
                 substrate_smiles=str(substrate_smiles),
                 donor_smiles=record["donor_smiles"],
                 products=list(record["products"]),
-                record_id=rid)
+                record_id=rid,
+                formnorm_source_ref={
+                    "channel": "recorded",
+                    "asset_sha256": library_sha,
+                    "record_key": rid,
+                    "matched_side_or_component": {
+                        "donor_match_kind": "whole",
+                        "matched_side_index": None,
+                        "matched_side": record["donor_smiles"]},
+                })
             if compiled.get("status") != "compiled":
                 reason = str(compiled.get("reason") or "unknown")
                 failure_hist[reason] = failure_hist.get(reason, 0) + 1
+            fn = dict(compiled.get("formnorm") or {})
             candidates.append({
                 "record_id": rid,
                 "tier": tier,
@@ -1271,9 +1857,16 @@ def find_recorded_exact(
                 "compile_status": str(compiled.get("status")),
                 "compile_reason": str(compiled.get("reason") or ""),
                 "compile_detail": dict(compiled.get("detail") or {}),
+                # T-E(E1a):逐候选归一三值 + 全形态 trace(含编译拒行)
+                "record_side_form_norm": str(
+                    fn.get("status") or "unknown"),
+                "record_side_form_norm_trace": fn.get("trace"),
             })
     return {"candidates": candidates, "diagnostics": {
         "recorded_source_version": RECORDED_SOURCE_VERSION,
+        "record_side_form_norm_version": RECORD_SIDE_FORMNORM_VERSION,
+        "record_side_form_norm_param_sha256":
+            RECORD_SIDE_FORMNORM_PARAM_SHA256,
         "n_lookup_rows": len(raw.get("lookup") or []),
         "n_reactions": len(seen_rids),
         "n_strict_exact": n_strict,
@@ -1290,6 +1883,82 @@ def _strict_of(smiles: str) -> str | None:
 
 
 # ---------------------------------------------------------------- W-V4.1 主入口
+
+
+def corpus_formnorm_view(*, matched_side_raw: str, co_comps_raw: list[str],
+                         products_raw: list[str]) -> dict:
+    """corpus 候选统一消费视体(候选识别后、分类前;设计 §1.2/§3.1)。
+
+    事务 = 该候选记录侧全量(matched 侧 + 共底物组分 + 全量产物);
+    任一分量失败 ⇒ 全部回原始。返回值:视体字符串 + 首事务(status/tx)。
+    来源例外(matched_component raw)由调用方另保,不在本视体内。
+    """
+    entries: list[dict] = [{
+        "side": "lhs", "field": "donor_side", "entry_index": 0,
+        "smiles": str(matched_side_raw)}]
+    for i, c in enumerate(list(co_comps_raw or [])):
+        entries.append({
+            "side": "lhs", "field": "co_substrates", "entry_index": int(i),
+            "smiles": str(c)})
+    for i, p in enumerate(list(products_raw or [])):
+        entries.append({
+            "side": "rhs", "field": "products", "entry_index": int(i),
+            "smiles": str(p)})
+    tx = normalize_record_side_transaction(entries)
+    n_co = len(list(co_comps_raw or []))
+    return {
+        "status": str(tx["status"]),
+        "tx": tx,
+        "donor": str(tx["values"][0]),
+        "co_substrates": [str(v) for v in tx["values"][1:1 + n_co]],
+        "products": [str(v) for v in tx["values"][1 + n_co:]],
+    }
+
+
+def corpus_formnorm_fields(
+        *, view: dict, record: dict, kind: str, rep_idx, corpus_sha: str,
+        compile_block: dict | None = None,
+        products_for_risk: list[str] | None = None,
+        substrate=None, unknown_reason: str | None = None,
+        extra: dict | None = None) -> tuple[str, dict]:
+    """corpus 候选的 (三值, trace) 装配(全形态行共用;首事务持有)。
+
+    trace 的 risk 交集:applied 且编译产物存在 mapping_artifacts 时按
+    同源坐标计算(lhs 轴为主;rhs 在坐标对齐时另列,否则如实计数);
+    否则 unknown + 机读原因(禁伪填 absent)。二次进入公共 compile 的
+    局部 not_applicable 不覆盖首事务 applied(复审 §4.3)。
+    """
+    risk = None
+    if view.get("status") == "applied":
+        art = (compile_block or {}).get("mapping_artifacts")
+        if art:
+            risk = _compile_formnorm_risk(
+                art, str(view.get("donor") or ""),
+                list(products_for_risk or []), str(substrate or ""),
+                view["tx"])
+    trace = build_formnorm_trace(
+        channel="corpus", asset_sha256=str(corpus_sha or ""),
+        record_key=str(record.get("record_key") or ""),
+        matched_side_or_component={
+            "donor_match_kind": str(kind),
+            "matched_side_index": (int(rep_idx)
+                                   if kind == "component"
+                                   and rep_idx is not None else None)},
+        transaction=view["tx"], risk=risk, extra=extra)
+    if risk is None and view.get("status") == "applied":
+        trace["risk_status"] = "unknown"
+        trace["risk_reason"] = str(
+            unknown_reason or "compile_reject:alignment_not_reached")
+        trace["human_review_required"] = True
+    # 来源例外标注(设计 §1.2/§5.1):matched_component 保 raw;
+    # record_equation 为 analog 侧例外(此处不适用,仍逐行标注域)
+    trace["source_fields"] = {
+        "matched_component": "raw_source_fidelity(consumption view + "
+                             "trace disclosed here; NOT a post-"
+                             "normalization strict identity claim)",
+        "record_equation": "not_applicable_for_corpus_channel",
+    }
+    return str(view.get("status")), trace
 
 
 def find_corpus_recorded_exact(
@@ -1453,6 +2122,19 @@ def find_corpus_recorded_exact(
             n_strict += 1
         else:
             n_cn += 1
+        # ---- T-E(E1a):候选识别后、分类前 —— 建立统一消费视体 ----
+        # (设计 §1.2/§3.1;贯穿分类→编译→装配→NC-10 两处声明;
+        #  matched_component 保 raw 来源面,视体供实际消费域)
+        raw_matched_side = str(matched_side)
+        raw_co_comps = [str(c) for c in co_comps]
+        view = corpus_formnorm_view(
+            matched_side_raw=raw_matched_side,
+            co_comps_raw=raw_co_comps,
+            products_raw=list(record["products"]))
+        matched_side = str(view["donor"])
+        co_comps = list(view["co_substrates"])
+        products_view = list(view["products"])
+        corpus_sha = str(index["corpus_v1_sha256"])
         # ---- W-V4.1-R1:共底物 component 编译前许可(S5B-V4-01) ----
         # 没有已审定且实际消费的共底物参与物/原子来源语义 ⇒ 有共底物
         # 的 component 记录不送单组分 LHS 编译:结构化 unsupported
@@ -1478,7 +2160,7 @@ def find_corpus_recorded_exact(
             # 失真钉死——Codex v4 复审 §6;只作诊断分栏不作判据)
             cosub_b_class[_cosubstrate_b_class(co_comps)] += 1
             flat_products = _flatten_product_entries(
-                list(record["products"]))
+                list(products_view))
             try:
                 cls = _classify_cosubstrate_candidate(
                     matched_side=matched_side, co_comps=co_comps,
@@ -1488,6 +2170,10 @@ def find_corpus_recorded_exact(
                              or "record_unparseable")
                 failure_hist[reason] = failure_hist.get(reason, 0) + 1
                 n_cosub_rejected += 1
+                fn_status, fn_trace = corpus_formnorm_fields(
+                    view=view, record=record, kind=kind, rep_idx=_rep_idx,
+                    corpus_sha=corpus_sha,
+                    unknown_reason=f"classification_reject:{reason}")
                 candidates.append(_corpus_candidate(
                     record, tier, kind, matched_side, co_comps,
                     compile_spec=None, compile_status="unsupported",
@@ -1497,7 +2183,7 @@ def find_corpus_recorded_exact(
                         "donor_A_smiles": record["donor_A_smiles"],
                         "direction": record["direction"],
                         "master_id": record["master_id"],
-                        "matched_component": matched_side,
+                        "matched_component": raw_matched_side,
                         "co_substrates": [
                             {"smiles": str(c),
                              "strict_identity": _strict_of(str(c))}
@@ -1510,7 +2196,10 @@ def find_corpus_recorded_exact(
                             "usable pool spec from this detail "
                             "violates the permission boundary (r31 "
                             "R31-8)"),
-                    }))
+                    },
+                    matched_component_raw=raw_matched_side,
+                    formnorm_status=fn_status,
+                    formnorm_trace=fn_trace))
                 continue
             status = str(cls.get("status"))
             if status == "split":
@@ -1522,13 +2211,24 @@ def find_corpus_recorded_exact(
                         products=list(cls["executable_products"]),
                         record_id=record["record_key"],
                         declared_copies=list(cls["copy_products"]),
-                        record_products=flat_products)
+                        record_products=flat_products,
+                        formnorm_source_ref={
+                            "channel": "corpus",
+                            "asset_sha256": corpus_sha,
+                            "record_key": record["record_key"],
+                            "matched_side_or_component": {
+                                "donor_match_kind": kind,
+                                "matched_side_index": _rep_idx}})
                 except RecordedSourceError as exc:
                     reason = str(exc.detail.get("kind")
                                  or "record_unparseable")
                     failure_hist[reason] = failure_hist.get(
                         reason, 0) + 1
                     n_cosub_rejected += 1
+                    fn_status, fn_trace = corpus_formnorm_fields(
+                        view=view, record=record, kind=kind,
+                        rep_idx=_rep_idx, corpus_sha=corpus_sha,
+                        unknown_reason=f"compile_error:{reason}")
                     candidates.append(_corpus_candidate(
                         record, tier, kind, matched_side, co_comps,
                         compile_spec=None,
@@ -1539,7 +2239,7 @@ def find_corpus_recorded_exact(
                             "donor_A_smiles": record["donor_A_smiles"],
                             "direction": record["direction"],
                             "master_id": record["master_id"],
-                            "matched_component": matched_side,
+                            "matched_component": raw_matched_side,
                             "co_substrates": [
                                 {"smiles": str(c),
                                  "strict_identity": _strict_of(str(c))}
@@ -1552,7 +2252,10 @@ def find_corpus_recorded_exact(
                                 "traceability; REBUILDING a usable "
                                 "pool spec from this detail violates "
                                 "the permission boundary (r31 R31-8)"),
-                        }))
+                        },
+                        matched_component_raw=raw_matched_side,
+                        formnorm_status=fn_status,
+                        formnorm_trace=fn_trace))
                     continue
                 if compiled.get("status") != "compiled":
                     reason = str(compiled.get("reason") or "unknown")
@@ -1566,7 +2269,7 @@ def find_corpus_recorded_exact(
                         "donor_A_smiles": record["donor_A_smiles"],
                         "direction": record["direction"],
                         "master_id": record["master_id"],
-                        "matched_component": matched_side,
+                        "matched_component": raw_matched_side,
                         "co_substrates": [
                             {"smiles": str(c),
                              "strict_identity": _strict_of(str(c))}
@@ -1583,12 +2286,23 @@ def find_corpus_recorded_exact(
                             "spec from this detail violates the "
                             "permission boundary (r31 R31-8)"),
                     })
+                    fn_status, fn_trace = corpus_formnorm_fields(
+                        view=view, record=record, kind=kind,
+                        rep_idx=_rep_idx, corpus_sha=corpus_sha,
+                        compile_block=dict(
+                            compiled.get("formnorm") or {}),
+                        products_for_risk=[],
+                        substrate=substrate,
+                        unknown_reason=f"compile_reject:{reason}")
                     candidates.append(_corpus_candidate(
                         record, tier, kind, matched_side, co_comps,
                         compile_spec=None,
                         compile_status="unsupported",
                         compile_reason=reason,
-                        compile_detail=reject_detail))
+                        compile_detail=reject_detail,
+                        matched_component_raw=raw_matched_side,
+                        formnorm_status=fn_status,
+                        formnorm_trace=fn_trace))
                     continue
                 spec = compiled.get("spec")
                 # ---- NC-3(设计 §五.2.5):add_atom 伪装机器断言 ——
@@ -1602,6 +2316,17 @@ def find_corpus_recorded_exact(
                     failure_hist[reason] = failure_hist.get(
                         reason, 0) + 1
                     n_cosub_rejected += 1
+                    fn_status, fn_trace = corpus_formnorm_fields(
+                        view=view, record=record, kind=kind,
+                        rep_idx=_rep_idx, corpus_sha=corpus_sha,
+                        compile_block=dict(
+                            compiled.get("formnorm") or {}),
+                        products_for_risk=[],
+                        substrate=substrate,
+                        unknown_reason=(
+                            "compile_reject:"
+                            "cosubstrate_executable_add_atom_"
+                            "regression_guard"))
                     candidates.append(_corpus_candidate(
                         record, tier, kind, matched_side, co_comps,
                         compile_spec=None,
@@ -1612,7 +2337,7 @@ def find_corpus_recorded_exact(
                             "donor_A_smiles": record["donor_A_smiles"],
                             "direction": record["direction"],
                             "master_id": record["master_id"],
-                            "matched_component": matched_side,
+                            "matched_component": raw_matched_side,
                             "co_substrates": [
                                 {"smiles": str(c),
                                  "strict_identity": _strict_of(str(c))}
@@ -1623,13 +2348,16 @@ def find_corpus_recorded_exact(
                                      "must never enter products via "
                                      "the add_atom channel; r30 R2-2 "
                                      "unconditional)"),
-                        }))
+                        },
+                        matched_component_raw=raw_matched_side,
+                        formnorm_status=fn_status,
+                        formnorm_trace=fn_trace))
                     continue
                 spec = dict(spec)
                 try:
                     _attach_cosubstrate_spec_fields(
                         spec, substrate_smiles=substrate,
-                        record=record, matched_side=matched_side,
+                        record=record, matched_side=raw_matched_side,
                         co_comps=co_comps,
                         record_products_flat=flat_products,
                         copy_products=list(cls["copy_products"]))
@@ -1638,20 +2366,57 @@ def find_corpus_recorded_exact(
                     failure_hist[reason] = failure_hist.get(
                         reason, 0) + 1
                     n_cosub_rejected += 1
+                    fn_status, fn_trace = corpus_formnorm_fields(
+                        view=view, record=record, kind=kind,
+                        rep_idx=_rep_idx, corpus_sha=corpus_sha,
+                        compile_block=dict(
+                            compiled.get("formnorm") or {}),
+                        products_for_risk=[],
+                        substrate=substrate,
+                        unknown_reason=f"assembly_failure:{reason}")
                     candidates.append(_corpus_candidate(
                         record, tier, kind, matched_side, co_comps,
                         compile_spec=None,
                         compile_status="unsupported",
                         compile_reason=reason,
-                        compile_detail=dict(exc.detail)))
+                        compile_detail=dict(exc.detail),
+                        matched_component_raw=raw_matched_side,
+                        formnorm_status=fn_status,
+                        formnorm_trace=fn_trace))
                     continue
                 n_cosub_compiled += 1
+                fn_status, fn_trace = corpus_formnorm_fields(
+                    view=view, record=record, kind=kind,
+                    rep_idx=_rep_idx, corpus_sha=corpus_sha,
+                    compile_block=dict(compiled.get("formnorm") or {}),
+                    products_for_risk=[],
+                    substrate=substrate)
+                # T-E:applied 视体 ⇒ 五键条件追加(首事务持有;二次
+                # 进入公共 compile 的局部 not_applicable 不覆盖——复审
+                # §4.3)。matched 来源例外另披露消费态(component 分支)
+                if fn_status == "applied":
+                    if isinstance(spec.get("corpus"), dict):
+                        spec["corpus"][
+                            "matched_component_consumption_view"] = \
+                            str(view["donor"])
+                        spec["corpus"]["matched_component_disclosure"] = (
+                            "raw matched_component kept for source "
+                            "fidelity; the normalized consumption "
+                            "view above is disclosed alongside its "
+                            "trace (pool diagnostics record_side_form_"
+                            "norm_trace); it is NOT a post-"
+                            "normalization strict identity claim")
+                    stamp_formnorm_spec_keys(spec, {
+                        "status": "applied", "trace": fn_trace})
                 candidates.append(_corpus_candidate(
                     record, tier, kind, matched_side, co_comps,
                     compile_spec=spec,
                     compile_status=str(compiled.get("status")),
                     compile_reason="",
-                    compile_detail=dict(compiled.get("detail") or {})))
+                    compile_detail=dict(compiled.get("detail") or {}),
+                    matched_component_raw=raw_matched_side,
+                    formnorm_status=fn_status,
+                    formnorm_trace=fn_trace))
                 continue
             reason_map = {
                 "bonded": "cosubstrate_bonded_contribution_unsupported",
@@ -1682,7 +2447,7 @@ def find_corpus_recorded_exact(
                 "donor_A_smiles": record["donor_A_smiles"],
                 "direction": record["direction"],
                 "master_id": record["master_id"],
-                "matched_component": matched_side,
+                "matched_component": raw_matched_side,
                 "co_substrates": [
                     {"smiles": str(c),
                      "strict_identity": _strict_of(str(c))}
@@ -1698,25 +2463,47 @@ def find_corpus_recorded_exact(
                     "REBUILDING a usable pool spec from this detail "
                     "violates the permission boundary (r31 R31-8)"),
             })
+            fn_status, fn_trace = corpus_formnorm_fields(
+                view=view, record=record, kind=kind, rep_idx=_rep_idx,
+                corpus_sha=corpus_sha,
+                unknown_reason=f"classification_reject:{reason}")
             candidates.append(_corpus_candidate(
                 record, tier, kind, matched_side, co_comps,
                 compile_spec=None, compile_status="unsupported",
-                compile_reason=reason, compile_detail=detail))
+                compile_reason=reason, compile_detail=detail,
+                matched_component_raw=raw_matched_side,
+                formnorm_status=fn_status,
+                formnorm_trace=fn_trace))
             continue
-        products = list(record["products"])
+        products = list(products_view)
         try:
             compiled = compile_recorded_reaction(
                 substrate_smiles=substrate,
                 donor_smiles=matched_side,
                 products=products,
-                record_id=record["record_key"])
+                record_id=record["record_key"],
+                formnorm_source_ref={
+                    "channel": "corpus",
+                    "asset_sha256": corpus_sha,
+                    "record_key": record["record_key"],
+                    "matched_side_or_component": {
+                        "donor_match_kind": kind,
+                        "matched_side_index": (
+                            _rep_idx if kind == "component" else None)}})
         except RecordedSourceError as exc:
             reason = str(exc.detail.get("kind") or "record_unparseable")
             failure_hist[reason] = failure_hist.get(reason, 0) + 1
+            fn_status, fn_trace = corpus_formnorm_fields(
+                view=view, record=record, kind=kind, rep_idx=_rep_idx,
+                corpus_sha=corpus_sha,
+                unknown_reason=f"compile_error:{reason}")
             candidates.append(_corpus_candidate(
                 record, tier, kind, matched_side, co_comps,
                 compile_spec=None, compile_status="unsupported",
-                compile_reason=reason, compile_detail={}))
+                compile_reason=reason, compile_detail={},
+                matched_component_raw=raw_matched_side,
+                formnorm_status=fn_status,
+                formnorm_trace=fn_trace))
             continue
         if compiled.get("status") != "compiled":
             reason = str(compiled.get("reason") or "unknown")
@@ -1732,7 +2519,7 @@ def find_corpus_recorded_exact(
                 "direction": record["direction"],
                 "ec": record["ec"],
                 "donor_match_kind": kind,
-                "matched_component": matched_side,
+                "matched_component": raw_matched_side,
                 "co_substrates": [
                     {"smiles": str(c),
                      "strict_identity": _strict_of(str(c))}
@@ -1756,12 +2543,33 @@ def find_corpus_recorded_exact(
                     "co-substrate declaration)"),
                 "provenance_sha256": record["provenance_sha256"],
             }
+        fn_status, fn_trace = corpus_formnorm_fields(
+            view=view, record=record, kind=kind, rep_idx=_rep_idx,
+            corpus_sha=corpus_sha,
+            compile_block=dict(compiled.get("formnorm") or {}),
+            products_for_risk=products_view,
+            substrate=substrate,
+            unknown_reason=str(compiled.get("reason") or "unknown"))
+        if spec is not None and fn_status == "applied":
+            spec["corpus"]["matched_component_consumption_view"] = \
+                str(view["donor"])
+            spec["corpus"]["matched_component_disclosure"] = (
+                "raw matched_component kept for source fidelity; the "
+                "normalized consumption view above is disclosed "
+                "alongside its trace (pool diagnostics record_side_"
+                "form_norm_trace); it is NOT a post-normalization "
+                "strict identity claim")
+            stamp_formnorm_spec_keys(spec, {
+                "status": "applied", "trace": fn_trace})
         candidates.append(_corpus_candidate(
             record, tier, kind, matched_side, co_comps,
             compile_spec=spec,
             compile_status=str(compiled.get("status")),
             compile_reason=str(compiled.get("reason") or ""),
-            compile_detail=dict(compiled.get("detail") or {})))
+            compile_detail=dict(compiled.get("detail") or {}),
+            matched_component_raw=raw_matched_side,
+            formnorm_status=fn_status,
+            formnorm_trace=fn_trace))
     multirow = {mid: sorted(rows) for mid, rows in n_master_rows.items()
                 if len(rows) > 1}
     # ---- T-4 供给诊断分层(W-D2 机读;R31-4/R32-CS5-3 标签纪律)----
@@ -1780,6 +2588,9 @@ def find_corpus_recorded_exact(
     return {"candidates": candidates, "diagnostics": {
         "corpus_retrieval_version": CORPUS_RETRIEVAL_VERSION,
         "corpus_retrieval_semantics": dict(CORPUS_RETRIEVAL_SEMANTICS),
+        "record_side_form_norm_version": RECORD_SIDE_FORMNORM_VERSION,
+        "record_side_form_norm_param_sha256":
+            RECORD_SIDE_FORMNORM_PARAM_SHA256,
         "corpus_v1_sha256": index["corpus_v1_sha256"],
         "corpus_n_rows": index["n_rows"],
         "n_matched_rows": len(row_state),
@@ -2026,15 +2837,26 @@ def _attach_cosubstrate_spec_fields(
 def _corpus_candidate(record: dict, tier: str, kind: str,
                       matched_side: str, co_comps: list[str],
                       *, compile_spec, compile_status: str,
-                      compile_reason: str, compile_detail: dict) -> dict:
-    """corpus 候选条目(find_recorded_exact 同构 + corpus 特有字段)。"""
+                      compile_reason: str, compile_detail: dict,
+                      matched_component_raw: str | None = None,
+                      formnorm_status: str | None = None,
+                      formnorm_trace: dict | None = None) -> dict:
+    """corpus 候选条目(find_recorded_exact 同构 + corpus 特有字段)。
+
+    T-E(E1a):``matched_side``/``co_comps`` = **消费视体**域;
+    ``matched_component`` 保 **raw 来源**面(来源例外,设计 §1.2/Q4);
+    逐候选追加 ``record_side_form_norm``(三值)+ trace(全形态行)。
+    """
+    raw_matched = (str(matched_component_raw)
+                   if matched_component_raw is not None
+                   else str(matched_side))
     return {
         "record_id": record["record_id"],
         "record_key": record["record_key"],
         "tier": tier,
         "donor_smiles": matched_side,
         "donor_match_kind": kind,
-        "matched_component": matched_side,
+        "matched_component": raw_matched,
         "co_substrates": [
             {"smiles": str(c), "strict_identity": _strict_of(str(c))}
             for c in co_comps],
@@ -2054,6 +2876,10 @@ def _corpus_candidate(record: dict, tier: str, kind: str,
         "compile_status": compile_status,
         "compile_reason": compile_reason,
         "compile_detail": compile_detail,
+        "record_side_form_norm": (str(formnorm_status)
+                                  if formnorm_status is not None
+                                  else "unknown"),
+        "record_side_form_norm_trace": formnorm_trace,
     }
 
 
@@ -2062,6 +2888,8 @@ def compile_recorded_reaction(
     products: list[str], record_id: str,
     declared_copies: list[str] | None = None,
     record_products: list[str] | None = None,
+    formnorm_source_ref: dict | None = None,
+    formnorm_trace_extra: dict | None = None,
 ) -> dict:
     """库记录(donor + 完整净产物集合)→ PPV1 池 spec(推断映射)。
 
@@ -2075,6 +2903,17 @@ def compile_recorded_reaction(
     - 中心 = 推断变换的变化原子(键变化端点 + 新增/离去;推断映射的
       反应中心,非机制证据);
     - mapping_origin=inferred(spec 与诊断如实标注)。
+
+    **T-E(E1a,2026-10-19)**:函数入口对全部记录侧入参(donor_smiles/
+    products/declared_copies/record_products 全量)施加同一记录侧形式
+    归一算子(``normalize_record_side_transaction``;事务=一次候选消费
+    视体,任一分量失败 ⇒ 全部回原始)。未 applied ⇒ 下游字节不变;
+    applied ⇒ 成功 spec 条件追加审计五键(``stamp_formnorm_spec_keys``)
+    且 ``verified_product_set`` 只证明**消费态归一记录域**产品集
+    (不授原始资产完整离子身份)。返回值追加 ``formnorm`` 块(三值 +
+    事务明细 + trace + 风险交集披露);``formnorm_source_ref``/
+    ``formnorm_trace_extra`` 供调用方注入候选级来源锚(缺省 = 直呼
+    口径,诚实标注)。
 
     **W-D2(S5b-recorded-source-3,可选参数;设计 §五.3 落点子选项
     i)**:``declared_copies`` + ``record_products``(corpus component
@@ -2092,17 +2931,90 @@ def compile_recorded_reaction(
     无 add_atom 编辑者(可执行子集原子全部 A-可溯 ⇒ 结构上不应有
     新原子;防御性选择,不改变缺省路径行为)。
     """
-    mappings = infer_reaction_mapping(donor_smiles, products)
+    # ---- T-E(E1a):记录侧形式归一(单一算子;事务=一次候选消费视体) ----
+    formnorm_entries: list[dict] = [{
+        "side": "lhs", "field": "donor_smiles", "entry_index": 0,
+        "smiles": str(donor_smiles)}]
+    for i, p in enumerate(list(products or [])):
+        formnorm_entries.append({
+            "side": "rhs", "field": "products", "entry_index": int(i),
+            "smiles": str(p)})
+    n_declared = 0
+    if declared_copies is not None:
+        for i, c in enumerate(list(declared_copies)):
+            formnorm_entries.append({
+                "side": "copies", "field": "declared_copies",
+                "entry_index": int(i), "smiles": str(c)})
+            n_declared += 1
+    if record_products is not None:
+        for i, c in enumerate(list(record_products)):
+            formnorm_entries.append({
+                "side": "full_products", "field": "record_products",
+                "entry_index": int(i), "smiles": str(c)})
+    formnorm_tx = normalize_record_side_transaction(formnorm_entries)
+    donor_eff = str(formnorm_tx["values"][0])
+    n_products = len(list(products or []))
+    products_eff = [str(v) for v in
+                    formnorm_tx["values"][1:1 + n_products]]
+    copies_eff = ([str(v) for v in
+                   formnorm_tx["values"][1 + n_products:
+                                          1 + n_products + n_declared]]
+                  if declared_copies is not None else None)
+    record_products_eff = (
+        [str(v) for v in formnorm_tx["values"][1 + n_products + n_declared:]]
+        if record_products is not None else None)
+    formnorm_block: dict = {
+        "status": str(formnorm_tx["status"]),
+        "version": RECORD_SIDE_FORMNORM_VERSION,
+        "param_sha256": RECORD_SIDE_FORMNORM_PARAM_SHA256,
+        "transaction": formnorm_tx,
+        "trace": None, "trace_ref": None, "risk": None,
+    }
+    formnorm_src = dict(formnorm_source_ref or {
+        "channel": "direct_compile_call",
+        "asset_sha256": "",
+        "record_key": str(record_id),
+        "matched_side_or_component": {"direct_compile_call": True},
+    })
+
+    def _fn_ret(payload: dict) -> dict:
+        # 全形态行:任何返回路径都带 trace(三值 + 变更明细 + 风险;
+        # 未走到对齐 ⇒ unknown + 机读拒因,禁伪填 absent)
+        if formnorm_block.get("trace") is None:
+            extra = dict(formnorm_trace_extra or {})
+            if formnorm_block["status"] == "applied":
+                extra.setdefault("risk_reason", "compile_reject:"
+                                 + str(payload.get("reason")
+                                       or "unsupported"))
+                extra.setdefault("human_review_required", True)
+            formnorm_block["trace"] = build_formnorm_trace(
+                channel=str(formnorm_src.get("channel") or ""),
+                asset_sha256=str(formnorm_src.get("asset_sha256") or ""),
+                record_key=str(formnorm_src.get("record_key")
+                               or record_id),
+                matched_side_or_component=dict(
+                    formnorm_src.get("matched_side_or_component") or {}),
+                transaction=formnorm_tx,
+                risk=formnorm_block.get("risk"),
+                extra=extra or None)
+            formnorm_block["trace_ref"] = record_side_form_norm_trace_ref(
+                formnorm_block["trace"])
+        payload["formnorm"] = formnorm_block
+        return payload
+
+    mappings = infer_reaction_mapping(donor_eff, products_eff)
     if not mappings:
-        return {"status": "unsupported", "reason": "no_structure_correspondence",
-                "detail": {"record_id": record_id}}
+        return _fn_ret({"status": "unsupported",
+                        "reason": "no_structure_correspondence",
+                        "detail": {"record_id": record_id}})
     if mappings[0].get("truncated"):
-        return {"status": "unsupported",
-                "reason": "mapping_enumeration_truncated",
-                "detail": {"record_id": record_id,
-                           "note": "结构同构枚举触顶(歧义不可闭合,拒绝)"}}
+        return _fn_ret({"status": "unsupported",
+                        "reason": "mapping_enumeration_truncated",
+                        "detail": {"record_id": record_id,
+                                   "note": "结构同构枚举触顶(歧义不可闭合,拒绝)"}})
     compiled_specs: list[dict] = []
     reasons: set[str] = set()
+    mapping_artifacts: dict[int, dict] = {}
     for mapping in mappings:
         donor_to_union = mapping["donor_to_union"]
         new_union = mapping["new_union"]
@@ -2114,11 +3026,12 @@ def compile_recorded_reaction(
         n_donor = donor_map and max(donor_map.values()) or 0
         for k, u_idx in enumerate(sorted(new_union)):
             union_map[u_idx] = n_donor + 1 + k
-        donor_mol = Chem.MolFromSmiles(donor_smiles)
-        union_mol = Chem.MolFromSmiles(".".join(products))
+        donor_mol = Chem.MolFromSmiles(donor_eff)
+        union_mol = Chem.MolFromSmiles(".".join(products_eff))
         if donor_mol is None or union_mol is None:
-            return {"status": "unsupported", "reason":
-                    "record_unparseable", "detail": {"record_id": record_id}}
+            return _fn_ret({"status": "unsupported", "reason":
+                            "record_unparseable",
+                            "detail": {"record_id": record_id}})
         mapped_lhs = _mapped_copy(donor_mol, donor_map)
         mapped_rhs = _mapped_copy(union_mol, union_map)
         # 中心 = 变化原子(键变化端点 + 新增 + 离去)
@@ -2132,19 +3045,22 @@ def compile_recorded_reaction(
         if out.get("status") == "compiled":
             out = dict(out)
             out["n_bond_diff"] = int(mapping.get("n_bond_diff") or 0)
+            mapping_artifacts[id(out)] = {
+                "mapped_lhs": mapped_lhs, "mapped_rhs": mapped_rhs,
+                "donor_map": dict(donor_map)}
             compiled_specs.append(out)
         else:
             reasons.add(str(out.get("reason")))
     if not compiled_specs:
-        return {"status": "unsupported",
-                "reason": (sorted(reasons)[0] if reasons
-                           else "no_compilable_mapping"),
-                "detail": {"record_id": record_id,
-                           "all_reasons": sorted(reasons)[:8]}}
+        return _fn_ret({"status": "unsupported",
+                        "reason": (sorted(reasons)[0] if reasons
+                                   else "no_compilable_mapping"),
+                        "detail": {"record_id": record_id,
+                                   "all_reasons": sorted(reasons)[:8]}})
     targets = {spec["spec"]["expectation"]["target_smiles"]
                for spec in compiled_specs}
     recorded = sorted(x for x in
-                      _record_products_strict(products) if x)
+                      _record_products_strict(products_eff) if x)
     # ---- W-V2.3:产物多重集 gate 在**全部候选映射**上评估,择产物集
     # 可复现者(存在至少一个映射使 executed 组分多重集 == 库记录产物
     # 多重集;等价映射同集合并、确定性选首 —— 选首是工程事实,不是
@@ -2169,13 +3085,14 @@ def compile_recorded_reaction(
             if no_add:
                 chosen = no_add[0]
     elif len(targets) > 1:
-        return {"status": "unsupported", "reason": "ambiguous_mapping",
-                "detail": {"record_id": record_id,
-                           "competing_targets": sorted(targets)[:8],
-                           "n_mappings": len(mappings),
-                           "n_reproducible": 0,
-                           "note": ("全部候选映射无一复现库记录净产物集合"
-                                    "(歧义不可闭合,拒绝)")}}
+        return _fn_ret({"status": "unsupported",
+                        "reason": "ambiguous_mapping",
+                        "detail": {"record_id": record_id,
+                                   "competing_targets": sorted(targets)[:8],
+                                   "n_mappings": len(mappings),
+                                   "n_reproducible": 0,
+                                   "note": ("全部候选映射无一复现库记录净产物集合"
+                                            "(歧义不可闭合,拒绝)")}})
     else:
         chosen = compiled_specs[0]
     spec = chosen["spec"]
@@ -2183,28 +3100,28 @@ def compile_recorded_reaction(
     executed = sorted(_executed_components_strict(
         spec["expectation"]["target_smiles"]))
     if executed != recorded:
-        return {"status": "unsupported",
-                "reason": "product_set_mismatch",
-                "detail": {"record_id": record_id,
-                           "executed_components": executed[:8],
-                           "recorded_components": recorded[:8],
-                           "note": ("执行产物组分与库记录净产物集合不一致"
-                                    "(离去组分缺行/过滤缺失/对应错误;"
-                                    "不冒充完整 record)")}}
+        return _fn_ret({"status": "unsupported",
+                        "reason": "product_set_mismatch",
+                        "detail": {"record_id": record_id,
+                                   "executed_components": executed[:8],
+                                   "recorded_components": recorded[:8],
+                                   "note": ("执行产物组分与库记录净产物集合不一致"
+                                            "(离去组分缺行/过滤缺失/对应错误;"
+                                            "不冒充完整 record)")}})
     declared_copy_info: dict = {}
     if declared_copies is not None:
         # ---- W-D2(s5b-recorded-source-3):union gate 扩展(设计 §五
         # .3;**收窄式扩展**——多一道拷贝核对,不是放宽)。缺省路径
         # 不进入本分支(EAWAG/整串行为字节等价)。
-        copies_flat = _flatten_product_entries(list(declared_copies))
+        copies_flat = _flatten_product_entries(list(copies_eff or []))
         record_flat = _flatten_product_entries(
-            list(record_products or []))
+            list(record_products_eff or []))
         copies_strict = _record_products_strict(copies_flat)
         if any(x is None for x in copies_strict):
-            return {"status": "unsupported",
-                    "reason": "copy_component_unparseable",
-                    "detail": {"record_id": record_id,
-                               "declared_copies": copies_flat[:8]}}
+            return _fn_ret({"status": "unsupported",
+                            "reason": "copy_component_unparseable",
+                            "detail": {"record_id": record_id,
+                                       "declared_copies": copies_flat[:8]}})
         copies_sorted = sorted(x for x in copies_strict if x)
         recorded_full = sorted(
             x for x in _record_products_strict(record_flat) if x)
@@ -2213,16 +3130,16 @@ def compile_recorded_reaction(
         copies_counter = Counter(copies_sorted)
         record_counter = Counter(recorded_full)
         if copies_counter - record_counter:
-            return {"status": "unsupported",
-                    "reason": "declared_copy_mismatch",
-                    "detail": {"record_id": record_id,
-                               "declared_copy_components":
-                                   copies_sorted[:8],
-                               "recorded_components": recorded_full[:8],
-                               "note": ("声明拷贝组分身份与库记录产物"
-                                        "组分不一致(拷贝只认 strict "
-                                        "identity;cn 派生/篡改串拒,"
-                                        "NC-11)")}}
+            return _fn_ret({"status": "unsupported",
+                            "reason": "declared_copy_mismatch",
+                            "detail": {"record_id": record_id,
+                                       "declared_copy_components":
+                                           copies_sorted[:8],
+                                       "recorded_components": recorded_full[:8],
+                                       "note": ("声明拷贝组分身份与库记录产物"
+                                                "组分不一致(拷贝只认 strict "
+                                                "identity;cn 派生/篡改串拒,"
+                                                "NC-11)")}})
         # ---- union gate:执行 ∪ 声明拷贝 == 记录全量产物(多重集) ----
         # 两侧键空间统一到 strict_identity_of(R32-CS3-2;执行侧现行
         # 裸 MolToSmiles 键仅留作一致性披露对照,不再作比较键)
@@ -2232,16 +3149,16 @@ def compile_recorded_reaction(
             x for x in executed_unified + copies_sorted
             if x is not None)
         if union_sorted != recorded_full:
-            return {"status": "unsupported",
-                    "reason": "product_set_mismatch",
-                    "detail": {"record_id": record_id,
-                               "executed_union_declared_components":
-                                   union_sorted[:8],
-                               "recorded_components": recorded_full[:8],
-                               "note": ("执行组分 ∪ 声明拷贝组分 与库记录"
-                                        "全量净产物集合不一致(拷贝缺失/"
-                                        "对应错误;不冒充完整 record;"
-                                        "W-D2 union gate)")}}
+            return _fn_ret({"status": "unsupported",
+                            "reason": "product_set_mismatch",
+                            "detail": {"record_id": record_id,
+                                       "executed_union_declared_components":
+                                           union_sorted[:8],
+                                       "recorded_components": recorded_full[:8],
+                                       "note": ("执行组分 ∪ 声明拷贝组分 与库记录"
+                                                "全量净产物集合不一致(拷贝缺失/"
+                                                "对应错误;不冒充完整 record;"
+                                                "W-D2 union gate)")}})
         # 键空间一致性披露(裸键 vs strict 键;分歧不吞、如实计数)
         bare_keys = sorted(_executed_components_strict(
             spec["expectation"]["target_smiles"]))
@@ -2271,12 +3188,35 @@ def compile_recorded_reaction(
                 "executed_union_declared_copies(非元素/电荷配平核验;"
                 "配平轴恒 unknown,判据二;R32-CS1-2)"),
         }
+    # ---- T-E(E1a):applied 行的对齐风险交集披露(只读同源;不改判据) ----
+    _artifacts = mapping_artifacts.get(id(chosen)) or {}
+    formnorm_block["mapping_artifacts"] = ({
+        "mapped_lhs": _artifacts.get("mapped_lhs"),
+        "mapped_rhs": _artifacts.get("mapped_rhs"),
+        "donor_map": _artifacts.get("donor_map"),
+    } if _artifacts else None)
+    if formnorm_tx["status"] == "applied":
+        formnorm_block["risk"] = _compile_formnorm_risk(
+            _artifacts, donor_eff, products_eff, substrate_smiles,
+            formnorm_tx)
+    formnorm_block["trace"] = build_formnorm_trace(
+        channel=str(formnorm_src.get("channel") or ""),
+        asset_sha256=str(formnorm_src.get("asset_sha256") or ""),
+        record_key=str(formnorm_src.get("record_key") or record_id),
+        matched_side_or_component=dict(
+            formnorm_src.get("matched_side_or_component") or {}),
+        transaction=formnorm_tx,
+        risk=formnorm_block["risk"],
+        extra=formnorm_trace_extra,
+    )
+    formnorm_block["trace_ref"] = record_side_form_norm_trace_ref(
+        formnorm_block["trace"])
     spec = dict(spec)
     spec.pop("coefficient", None)  # 库记录无配平系数 ⇒ unknown
     spec["compile"] = dict(spec.get("compile") or {})
     spec["compile"].update({
         "mapping_origin": "inferred",
-        "record_products": list(products),
+        "record_products": list(products_eff),
         "verified_product_set": True,
         "n_mappings": len(mappings),
         "n_equivalent_mappings": len(compiled_specs),
@@ -2287,10 +3227,12 @@ def compile_recorded_reaction(
     if declared_copy_info:
         spec["compile"]["declared_copies"] = declared_copy_info
         spec["compile"]["record_products_full"] = (
-            list(record_products or []))
+            list(record_products_eff or []))
+    # T-E:applied 成功 spec 条件追加审计五键(未 applied 原字节不变)
+    stamp_formnorm_spec_keys(spec, formnorm_block)
     chosen = dict(chosen)
     chosen["spec"] = spec
-    return chosen
+    return _fn_ret(chosen)
 
 
 def _changed_maps(mapped_lhs: str, mapped_rhs: str) -> list[int]:

@@ -67,9 +67,8 @@ def worker_main(argv: list[str] | None = None) -> int:
     )
     from pathway_v43.workflow.runner import RunAlreadyExists  # noqa: F401
 
-    run_input = json.loads(
-        (batch_root / "run_inputs" / f"{qid}.json").read_text(
-            encoding="utf-8"))
+    run_input_bytes = (batch_root / "run_inputs" / f"{qid}.json").read_bytes()
+    run_input = json.loads(run_input_bytes.decode("utf-8"))
     run_id = str(run_input["run_id"])
     plan = dict(run_input.get("plan") or {})
     profile_policy = json.loads(
@@ -138,6 +137,47 @@ def worker_main(argv: list[str] | None = None) -> int:
         evidence_card_enabled = frozen_flag
 
     stub_path = os.environ.get("S5B_MODEL_STUB_SCRIPT")
+    # ---- T-E(E1a §1.5):build 身份 / 输入字节首消费核对 + run 来源
+    # 绑定(在创建 run、driver 开始与任何付费调用之前;fail-closed)。
+    # 受控批(旁块在位或 manifest 声明引用)⇒ 缺失/损坏/版本/内容/
+    # 输入字节不符全部拒(失败题留分母、零发送、不建 run);旧批无
+    # 旁块 ⇒ 显式 legacy 模式披露(不冒充受控批)。核对通过后把
+    # {build_identity_fingerprint, run_input_sha256, qid, run_id} 唯一
+    # 不可覆盖地持久化到批侧 ledger(build_origin/<qid>.json);
+    # 既存来源先读并核(缺/坏/不符 ⇒ 拒并保全原记录);落盘失败 ⇒
+    # 不得继续调用。case 只作摘要(权威在 ledger 与批根旁块)。 ----
+    from pathway_v43.storage.build_identity import (
+        BuildIdentityError,
+        prepare_build_origin,
+        verify_batch_build_identity,
+    )
+
+    try:
+        build_verified = verify_batch_build_identity(
+            batch_root=batch_root, qid=qid, run_id=run_id,
+            run_input_bytes=run_input_bytes)
+    except BuildIdentityError as exc:
+        _write_case(batch_root, {
+            "qid": qid, "run_id": run_id, "status": "failed",
+            "failure_kind": exc.failure_kind,
+            "error": f"build 身份/输入字节首消费核对失败:{exc}"[:300],
+            "detail": dict(exc.detail),
+        })
+        return 5
+    try:
+        build_origin = prepare_build_origin(
+            batch_root=batch_root, qid=qid, run_id=run_id,
+            verified=build_verified,
+            resume=(runs_root / run_id
+                    / "run_identity.json").is_file())
+    except BuildIdentityError as exc:
+        _write_case(batch_root, {
+            "qid": qid, "run_id": run_id, "status": "failed",
+            "failure_kind": exc.failure_kind,
+            "error": f"run 来源记录核验/持久化失败:{exc}"[:300],
+            "detail": dict(exc.detail),
+        })
+        return 5
     if stub_path:
         # scripted 模型桩(测试/冒烟:与真实适配器同一取响应调用序;
         # provider_kind 按 plan 注册 ⇒ scripted 网络 0、不占真实额度;
@@ -244,6 +284,10 @@ def worker_main(argv: list[str] | None = None) -> int:
             "error": f"{type(exc).__name__}: {exc}"[:400],
             "evidence_card_enabled": bool(evidence_card_enabled),
             "evidence_card_mode": evidence_card_mode,
+            "build_identity_mode": str(build_verified.get("mode") or ""),
+            "build_identity_fingerprint": str(
+                build_verified.get("build_identity_fingerprint") or ""),
+            "build_origin_mode": str(build_origin.get("mode") or ""),
             "model_calls": _count_model_calls(run_dir),
             "model_call_retries": _count_model_retries(run_dir),
             "usage": _usage_summary(run_dir),
@@ -269,6 +313,12 @@ def worker_main(argv: list[str] | None = None) -> int:
         # transport 重试计数(每次 HTTP 尝试 = 一次 issued 请求)
         "evidence_card_enabled": bool(evidence_card_enabled),
         "evidence_card_mode": evidence_card_mode,
+        # T-E(E1a §1.5)摘要(case 只作摘要;权威在批根旁块 +
+        # build_origin ledger;核对/持久化在 run 创建与任何调用之前)
+        "build_identity_mode": str(build_verified.get("mode") or ""),
+        "build_identity_fingerprint": str(
+            build_verified.get("build_identity_fingerprint") or ""),
+        "build_origin_mode": str(build_origin.get("mode") or ""),
         "model_calls": _count_model_calls(run_dir),
         "model_call_retries": _count_model_retries(run_dir),
         "usage": _usage_summary(run_dir),

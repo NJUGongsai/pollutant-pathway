@@ -295,10 +295,10 @@ def test_wv41_semantics_frozen_and_versions_registered() -> None:
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
     # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
     # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-9"
     # recorded 公共源身份:W-D2 升版(union gate 扩展,可选参数;
     # EAWAG/整串缺省路径行为字节等价)
-    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
+    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-4"
 
 
 # ================================================================ 正控族
@@ -860,7 +860,7 @@ def test_wv41_pool_corpus_appended_after_eawag(tmp_path) -> None:
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
     # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7
     # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
-    assert diag["pool_policy_version"] == "s5b-pool-policy-8"
+    assert diag["pool_policy_version"] == "s5b-pool-policy-9"
     assert diag["n_recorded_strict_exact"] == 1
     assert diag["n_corpus_strict_exact"] == 2  # 检索分层(strict 层 2 行)
     assert "corpus_diagnostics" in diag

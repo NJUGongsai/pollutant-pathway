@@ -201,12 +201,12 @@ def test_d2_versions_registered() -> None:
     T1a(2026-10-12):pool-policy-5→6(池诊断逐候选化 candidates;
     池成员/compile 判据零触碰,断言随轮更新)。"""
     assert CORPUS_RETRIEVAL_VERSION == "s5b-corpus-retrieval-6"
-    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-3"
+    assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-4"
     # T1a(2026-10-12):pool-policy-5→6(池诊断逐候选化 candidates;
     # 池成员/compile 判据零触碰,断言随轮更新)。
     # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7。
     # T-G C2(2026-10-19):重刀 R2' 路由/准入解耦接线 + s5b-compiler-4 中心锚定对齐(池成员变化)⇒ 8
-    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-8"
+    assert S5B_POOL_POLICY_VERSION == "s5b-pool-policy-9"
 
 
 # ================================================================ 负控族(NC)

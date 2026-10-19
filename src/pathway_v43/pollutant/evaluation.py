@@ -216,11 +216,36 @@ docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md,
 - **披露**:豁免发生时逐边机读 ``exempted_participants``;v2 批级
   ``criteria_v2`` 汇总块含参考侧 v1 身份监控(应为 0,非 0 = 退出
   条件信号)。v1 headline 口径不变直到新批次生效。
+
+ppv1-criteria-v3(T-D-A/B 判分侧披露轴,2026-10-19;生效口径
+``docs/POLLUTANT_PATHWAY_CRITERIA_FROZEN_V3_2026-10-19.md``):
+
+- **档 A 只披露**:A 轴(互变异构归一;双臂:默认臂〔互变中心立体
+  容忍,手性负控已实测 FAIL 的敏感性披露臂,不具 strict 准入〕与
+  候选主臂〔sp3 立体保留;档 B 未来唯一候选,本轮未解锁〕)+ B 轴
+  (质子化归一;默认单启用 Uncharger 臂,ChargeParent 臂仅并列
+  敏感性披露)在参考节点 ``structure_identity_scope==
+  "strict_structure"`` 的 cn_only 配对上**只产出披露**
+  (``criteria_v3_normalized_identity``,节点级)与批级
+  ``criteria_v3`` 汇总块;**不授 strict、不进 hit@1**;
+  ``tautomer_promoted_nodes`` 恒空(档 B 未解锁,D03);
+- **互变归一禁改判分**:``match_status``/严格档/S5A-01 许可门
+  零改动;封顶节点如实给 ``applicable=false``(机读原因);
+- **正交承载**:v3 承载 v2 参与物比较豁免判分路径(逐位不变;
+  N3/N7);豁免缺省关仍旧(v1 零新键、字节不变);
+- **fail-closed 无第三态**:任一侧不可解析/算子异常 ⇒ 不授归一
+  相等 + 逐臂机读原因;单归属 A→B(``single_attribution``);
+  B-6 碳酸体系闭集逐对象排除(``carbonate_system_exclusion``);
+- **参数指纹**(§3 条 3/§8):分臂实际生效参数(含实测默认值)+
+  双臂差异 diff + transforms 文件哈希(本构建以原子库 sha256 替代
+  登记并披露)+ RDKit 版本串 → sha256;v3 请求而引擎/指纹不可得
+  ⇒ 结构化拒(``criteria_v3_engine_unavailable``,不降级)。
 """
 
 from __future__ import annotations
 
 import hashlib
+from functools import lru_cache
 from pathlib import Path
 
 from ..domain.models import canonical_json, content_hash
@@ -841,7 +866,11 @@ def check_leakage(split_manifest: dict,
 
 PPV1_CRITERIA_V1 = "ppv1-criteria-v1"
 PPV1_CRITERIA_V2 = "ppv1-criteria-v2"
-PPV1_CRITERIA_VERSIONS = frozenset({PPV1_CRITERIA_V1, PPV1_CRITERIA_V2})
+# ppv1-criteria-v3(T-D-A/B 判分侧披露轴;token 在此登记以便白名单前置
+# 构造;语义权威 = FROZEN_V3,常量与实现见下文 criteria-v3 段)
+PPV1_CRITERIA_V3 = "ppv1-criteria-v3"
+PPV1_CRITERIA_VERSIONS = frozenset({PPV1_CRITERIA_V1, PPV1_CRITERIA_V2,
+                                    PPV1_CRITERIA_V3})
 PPV1_CRITERIA_V2_PREREGISTRATION_DOC = (
     "docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md")
 
@@ -956,23 +985,796 @@ _CRITERIA_V2_IDENTITIES = _build_criteria_v2_identity_sets()
 def resolve_criteria_version(raw_value: str) -> str:
     """判据版本严格解析(fail-closed;评测/判分入口共用同一判据)。
 
-    非 {ppv1-criteria-v1, ppv1-criteria-v2} 一律结构化拒(不猜、不
-    静默归一);v2 请求而身份工具缺席 ⇒ 拒(v2 无法判定,宁可不开)。"""
+    非 {ppv1-criteria-v1, ppv1-criteria-v2, ppv1-criteria-v3} 一律
+    结构化拒(不猜、不静默归一);v2 请求而身份工具缺席 ⇒ 拒(v2 无法
+    判定,宁可不开);v3 请求而 RDKit 归一引擎/参数指纹不可得 ⇒ 拒
+    (v3 判据无法评估且不得留空指纹上线)。"""
     if raw_value not in PPV1_CRITERIA_VERSIONS:
         raise EvaluationContractError(
             f"criteria_version 非法:{raw_value!r}(允许 "
             f"{sorted(PPV1_CRITERIA_VERSIONS)};缺省 {PPV1_CRITERIA_V1} = "
             "豁免关;ppv1-criteria-v2 为 teacher T-1 裁定豁免口径,"
-            "显式启用)", {"kind": "criteria_version_invalid",
-                         "value": raw_value,
-                         "allowed": sorted(PPV1_CRITERIA_VERSIONS)})
+            "ppv1-criteria-v3 为 T-D-A/B 披露轴口径,均显式启用)", {
+                "kind": "criteria_version_invalid",
+                "value": raw_value,
+                "allowed": sorted(PPV1_CRITERIA_VERSIONS)})
     if raw_value == PPV1_CRITERIA_V2 and \
             not _CRITERIA_V2_IDENTITIES["available"]:
         raise EvaluationContractError(
             "criteria_version=ppv1-criteria-v2 而 cn 身份工具/身份集"
             "不可用(fail-closed:v2 判据无法评估,不降级不猜测)", {
                 "kind": "criteria_v2_identity_tools_unavailable"})
+    if raw_value == PPV1_CRITERIA_V3:
+        registry = _criteria_v3_arm_registry()
+        if not registry.get("available"):
+            raise EvaluationContractError(
+                "criteria_version=ppv1-criteria-v3 而 RDKit 归一引擎/"
+                "参数指纹不可得(fail-closed:v3 判据无法评估,不降级、"
+                "不留空指纹、不猜测)", {
+                    "kind": "criteria_v3_engine_unavailable",
+                    "unavailable_reason": registry.get(
+                        "unavailable_reason")})
     return raw_value
+
+
+# ---------------------------------------------------------------- ppv1-criteria-v3:T-D-A/B 披露轴
+#
+# 生效口径(唯一语义权威):docs/POLLUTANT_PATHWAY_CRITERIA_FROZEN_V3_2026-10-19.md
+# (§4.2 A-1..A-8 / §4.3 B-1..B-7 / §4.4 C1-C3 / §6 / §8 / §10 / §11)。
+# 纪律(硬性):
+# - **档 A 只披露**:A/B 轴归一相等只产出披露(不授 strict、不进
+#   hit@1);`tautomer_promoted_nodes` 本轮恒空(档 B 未解锁,D03);
+# - **判分侧互变归一禁改**:match_reference_nodes 的 match_status /
+#   strict 判定与 S5A-01 许可门零改动;本轴不越过封顶节点;
+# - **适用面(A-1)**:仅参考节点 `structure_identity_scope ==
+#   "strict_structure"` 的 cn_only 配对;其余沿用 V1 封顶;
+# - **无静默路径(B 轴)**:ChargeParent 臂仅并列敏感性披露;
+#   碳酸体系闭集(B-6)逐对象排除并落机读原因;
+# - **fail-closed 无第三态**:任一侧不可解析/算子异常 ⇒ 不授归一
+#   相等 + 逐臂机读原因;单归属断言(A→B);
+# - 缺省 v1/v2:本节运行期函数零调用、输出零新键(字节不变)。
+
+PPV1_CRITERIA_V3_FROZEN_DOC = (
+    "docs/POLLUTANT_PATHWAY_CRITERIA_FROZEN_V3_2026-10-19.md")
+
+# 档位(A-4):本轮唯一启用档 = 披露档;档 B = 未来解锁门槛(本轮未解锁)
+CRITERIA_V3_TIER_DISCLOSURE_ONLY = "disclosure_only"
+CRITERIA_V3_TIER_B_STATUS = "locked_not_unlocked_this_round"
+CRITERIA_V3_DISCLOSURE_ONLY_NOTE = (
+    "档 A(仅披露轴,本轮唯一启用):A/B 轴归一相等只产出披露档,"
+    "不授 strict、不进 hit@1;档 B(判据档提升)为未来解锁门槛,"
+    "本轮未解锁(D03)——tautomer_promoted_nodes 恒无")
+
+# A 轴双臂(A-2/A-3/A-6;双臂独立保存、分开报数,不得混报)
+CRITERIA_V3_TAUTOMER_ARM_DEFAULT = "default"
+CRITERIA_V3_TAUTOMER_ARM_STEREO_PRESERVING = "stereo_preserving"
+CRITERIA_V3_TAUTOMER_ARMS = (CRITERIA_V3_TAUTOMER_ARM_DEFAULT,
+                             CRITERIA_V3_TAUTOMER_ARM_STEREO_PRESERVING)
+CRITERIA_V3_TAUTOMER_PRIMARY_ARM = \
+    CRITERIA_V3_TAUTOMER_ARM_STEREO_PRESERVING
+CRITERIA_V3_DEFAULT_ARM_STRICT_ELIGIBLE = False
+CRITERIA_V3_DEFAULT_ARM_NOTE = (
+    "默认臂 = 「互变归一(互变中心立体容忍)」:手性负控已实测 FAIL"
+    "(合成对照),登记为敏感性披露臂,不具 strict 准入;其布尔无论"
+    "如何都不进任何档 B 路径")
+CRITERIA_V3_PRIMARY_ARM_NOTE = (
+    "候选主臂(sp3 立体保留)= 档 B 未来唯一候选(本轮未解锁);"
+    "removeBondStereo 保持默认 true ⇒ 键/E-Z 立体仍可能被擦除,"
+    "属未核范围")
+
+# B 轴(B-1/B-2/B-5):默认单启用 Uncharger 臂;ChargeParent 臂仅并列
+# 敏感性披露(不作默认、无静默路径)
+CRITERIA_V3_PROTONATION_ARM_UNCHARGER = "uncharger"
+CRITERIA_V3_PROTONATION_ARM_CHARGE_PARENT = "charge_parent"
+CRITERIA_V3_PROTONATION_ARMS = (CRITERIA_V3_PROTONATION_ARM_UNCHARGER,
+                                CRITERIA_V3_PROTONATION_ARM_CHARGE_PARENT)
+CRITERIA_V3_PROTONATION_ENABLED_ARM = \
+    CRITERIA_V3_PROTONATION_ARM_UNCHARGER
+CRITERIA_V3_CHARGE_PARENT_SENSITIVITY_NOTE = (
+    "ChargeParent 臂仅并列敏感性披露(不合并判据;合并即掩两臂差异)")
+
+# 归一来源字段(A-6;逐臂机读)
+CRITERIA_V3_NORMALIZATION_SOURCES = {
+    CRITERIA_V3_TAUTOMER_ARM_DEFAULT: "tautomer_enumerator_default_v1",
+    CRITERIA_V3_TAUTOMER_ARM_STEREO_PRESERVING:
+        "tautomer_enumerator_stereo_preserving_v1",
+    CRITERIA_V3_PROTONATION_ARM_UNCHARGER: "uncharger_default_v1",
+    CRITERIA_V3_PROTONATION_ARM_CHARGE_PARENT: "charge_parent_v1",
+}
+
+# B-6 碳酸体系特定物种(闭集;含仅质子化写法变异经同算子落回同集合者;
+# 增删 = 判据版本升号,禁止静默扩围;非"所有含碳对")
+CRITERIA_V3_CARBONATE_SYSTEM_SPECIES = ("O=C=O", "O=C(O)[O-]",
+                                        "O=C([O-])[O-]")
+CRITERIA_V3_CARBONATE_EXCLUSION_REASON = "carbonate_system_exclusion"
+CRITERIA_V3_CARBONATE_SET_NOTE = (
+    "B-6 硬边界:碳酸体系特定物种闭集(CO₂/HCO₃⁻/CO₃²⁻ 及仅质子化"
+    "写法变异,经 B-1 同算子归一后落回同集合者);两侧均命中 ⇒ 该"
+    "配对逐对象排除,机读原因 = carbonate_system_exclusion;"
+    "非'所有含碳对',与 V2 零碳断言同向保守,不重开 V2 裁定")
+
+# 叙事纪律(修订记录 v2 条 8 / §3.7):芳香 0 题固定句;单批不宣称稳定
+CRITERIA_V3_AROMATIC_REPR_NOTE = (
+    "AROMATIC-REPR 轴本轮未实施/未启用:该轴覆盖未证;对外表述"
+    "必须附「本批 AROMATIC-REPR=0,该轴未启用、覆盖未证」,"
+    "禁用「三类表示差已覆盖」类表述")
+CRITERIA_V3_SINGLE_BATCH_NOTE = (
+    "单批不宣称稳定:全部数字来自单批 post-hoc 已见题,不得据此"
+    "宣称泛化能力或'机制成立'")
+CRITERIA_V3_MEASUREMENT_NOTE = (
+    "A/B 属判据修正类 ⇒ 只能表述「测量修正」,禁止表述为系统能力"
+    "提升(§9 叙事纪律)")
+CRITERIA_V3_PAIR_ATTRIBUTION_ORDER = ("tautomer", "protonation", "none")
+
+# 失败原因(机读码;fail-closed 无第三态)
+CRITERIA_V3_REASON_UNPARSEABLE = "structure_unparseable"
+CRITERIA_V3_REASON_EMPTY_SIDE = "empty_side"
+CRITERIA_V3_REASON_EMPTY_TAUTOMER = "tautomer_canonicalize_empty"
+
+_CRITERIA_V3_ARM_ORDER = (
+    CRITERIA_V3_TAUTOMER_ARM_DEFAULT,
+    CRITERIA_V3_TAUTOMER_ARM_STEREO_PRESERVING,
+    CRITERIA_V3_PROTONATION_ARM_UNCHARGER,
+    CRITERIA_V3_PROTONATION_ARM_CHARGE_PARENT,
+)
+
+
+def _criteria_v3_sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _criteria_exemption_enabled(criteria_version: str) -> bool:
+    """参与物集合比较豁免判分路径是否启用(单一事实源)。
+
+    v2 = 豁免口径本身;v3 = **承载 v2 判分语义**(正交性:N3/N7 ——
+    v3 启用时 V2 tier 计数同 payload 与 v2 逐位一致)并叠加 T-D-A/B
+    披露轴;v1 = 豁免关(零新键、字节不变)。"""
+    return criteria_version in (PPV1_CRITERIA_V2, PPV1_CRITERIA_V3)
+
+
+def _criteria_v3_canonical_fingerprint(payload: dict) -> str:
+    """参数指纹(§3 条 3/R03/§8):sha256(canonical_json(env+params),
+    ensure_ascii=True)——与前置 1 重算登记口径逐臂一致。"""
+    import json as _json
+    return _criteria_v3_sha256_text(_json.dumps(
+        payload, ensure_ascii=True, sort_keys=True,
+        separators=(",", ":")))
+
+
+def _criteria_v3_sha256_file(path: Path) -> str | None:
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
+@lru_cache(maxsize=1)
+def _criteria_v3_arm_registry() -> dict:
+    """V3 算子/参数登记 + 分臂指纹(fail-closed;不可自省面单列登记)。
+
+    指纹口径(FROZEN_V3 §3 条 3/§8)=
+    sha256(canonical_json({"env": 环境, "params": 该臂实际生效参数})):
+
+    - 各臂**实际生效**参数(含未显式设置项的实测默认有效值:
+      ``tautomerRemoveIsotopicHs`` / ``tautomerReassignStereo`` /
+      ``maxRestarts``)——由 CleanupParameters/TautomerEnumerator
+      getter 实测读出,不以文档语义替代;
+    - 双臂差异逐项 diff(default vs stereo_preserving,单列登记);
+    - ``transforms`` 文件哈希:本 RDKit 构建无 ``tautomerTransforms.in``
+      (数据嵌于 libRDKitMolStandardize)⇒ 以原子库
+      libRDKitMolStandardize / rdMolStandardize.so 的 sha256 **替代
+      登记并披露**(存在真实文件时直接哈希该文件);
+    - RDKit 版本串(含 build/python)。
+
+    任一必需事实不可得 ⇒ ``available=False`` + 原因(不猜、不留空
+    指纹;resolve_criteria_version 对 v3 结构化拒)。
+    """
+    try:
+        import rdkit as _rdkit_pkg
+        from rdkit import rdBase as _rdBase
+        from rdkit.Chem.MolStandardize import rdMolStandardize as _rms
+    except ImportError as exc:  # pragma: no cover —— 环境异常 fail-closed
+        return {"available": False,
+                "unavailable_reason": f"rdkit_import_error:{type(exc).__name__}",
+                "environment": {}, "arms": {}, "dual_arm_diff": {},
+                "carbonate_system": {}}
+    import sys as _sys
+    pkg = Path(_rdkit_pkg.__file__).parent
+    dylib_sha = _criteria_v3_sha256_file(
+        pkg / ".dylibs" / "libRDKitMolStandardize.1.dylib")
+    so_sha = _criteria_v3_sha256_file(
+        pkg / "Chem" / "MolStandardize" / "rdMolStandardize.so")
+    cp = _rms.CleanupParameters()
+    cp.maxTransforms = 1000
+    cp.maxTautomers = 1000
+    cp.tautomerRemoveSp3Stereo = True
+    cp.tautomerRemoveBondStereo = True
+    enumerator_default = _rms.TautomerEnumerator(cp)
+    cp_keep = _rms.CleanupParameters()
+    cp_keep.maxTransforms = 1000
+    cp_keep.maxTautomers = 1000
+    cp_keep.tautomerRemoveSp3Stereo = False
+    cp_keep.tautomerRemoveBondStereo = True
+    enumerator_keep = _rms.TautomerEnumerator(cp_keep)
+    transforms_file = str(getattr(cp, "tautomerTransformsFile", "") or "")
+    if transforms_file and Path(transforms_file).is_file():
+        transforms_descriptor = (
+            f"sha256:{_criteria_v3_sha256_file(Path(transforms_file))}"
+            f" (path={transforms_file})")
+    elif dylib_sha and so_sha:
+        transforms_descriptor = (
+            f"absent (RDKit {_rdBase.rdkitVersion} 数据嵌于 "
+            "libRDKitMolStandardize; CleanupParameters."
+            f"tautomerTransformsFile={transforms_file!r})")
+    else:  # pragma: no cover —— 环境异常 fail-closed
+        return {"available": False,
+                "unavailable_reason": "transforms_fingerprint_unavailable",
+                "environment": {}, "arms": {}, "dual_arm_diff": {},
+                "carbonate_system": {}}
+    environment = {
+        "rdkit_version": _rdBase.rdkitVersion,
+        "rdkit_build": _rdBase.rdkitBuild,
+        "python": _sys.version.split()[0],
+        "tautomerTransforms_file": transforms_descriptor,
+        "libRDKitMolStandardize_sha256": dylib_sha,
+        "rdMolStandardize_so_sha256": so_sha,
+    }
+    arm_a_default_params = {
+        "source": "FROZEN_V3 / 来源分类脚本同参",
+        "write_path": ("CleanupParameters() + 显式写 maxTransforms/"
+                       "maxTautomers/tautomerRemoveSp3Stereo/"
+                       "tautomerRemoveBondStereo"),
+        "maxTransforms": enumerator_default.GetMaxTransforms(),
+        "maxTautomers": enumerator_default.GetMaxTautomers(),
+        "tautomerRemoveSp3Stereo_effective":
+            enumerator_default.GetRemoveSp3Stereo(),
+        "tautomerRemoveBondStereo_effective":
+            enumerator_default.GetRemoveBondStereo(),
+        "tautomerRemoveIsotopicHs_effective": cp.tautomerRemoveIsotopicHs,
+        "tautomerReassignStereo_effective":
+            enumerator_default.GetReassignStereo(),
+        "maxRestarts_effective": cp.maxRestarts,
+        "tautomerScoreVersion": str(
+            enumerator_default.tautomerScoreVersion),
+        "compare": "Canonicalize() -> Chem.MolToSmiles (canonical isomeric)",
+    }
+    arm_a_keep_params = dict(arm_a_default_params)
+    arm_a_keep_params.update({
+        "tautomerRemoveSp3Stereo_effective":
+            enumerator_keep.GetRemoveSp3Stereo(),
+        "tautomerRemoveBondStereo_effective":
+            enumerator_keep.GetRemoveBondStereo(),
+        "note": "候选主臂: removeSp3Stereo=False; removeBondStereo "
+                "保持默认 true（未核范围）",
+    })
+    arm_b_uncharger_params = {
+        "source": "FROZEN_V3 / 来源分类脚本同参（protonation OR 之一）",
+        "api": "rdMolStandardize.Uncharger() 默认构造；逐组分施加后点号重接",
+        "neutralize": "default (构造未显式传参; 本 RDKit build 无 getter "
+                      "可 introspection)",
+        "compare": "canonical isomeric SMILES（保留立体）",
+    }
+    arm_b_charge_parent_params = {
+        "source": "FROZEN_V3（仅敏感性披露）",
+        "api": "rdMolStandardize.ChargeParent(mol, params=None, "
+               "skipStandardize=False)；逐组分后点号重接",
+        "compare": "canonical isomeric SMILES（保留立体）",
+    }
+    params_by_arm = {
+        CRITERIA_V3_TAUTOMER_ARM_DEFAULT: arm_a_default_params,
+        CRITERIA_V3_TAUTOMER_ARM_STEREO_PRESERVING: arm_a_keep_params,
+        CRITERIA_V3_PROTONATION_ARM_UNCHARGER: arm_b_uncharger_params,
+        CRITERIA_V3_PROTONATION_ARM_CHARGE_PARENT:
+            arm_b_charge_parent_params,
+    }
+    arms: dict[str, dict] = {}
+    for arm in _CRITERIA_V3_ARM_ORDER:
+        params = params_by_arm[arm]
+        arms[arm] = {
+            "params": dict(params),
+            "param_sha256": _criteria_v3_canonical_fingerprint(
+                {"env": environment, "params": params}),
+        }
+    # 双臂差异逐项 diff(A 轴两臂;R03)
+    keys = sorted(set(arm_a_default_params) | set(arm_a_keep_params))
+    dual_arm_diff = {
+        key: {"default": arm_a_default_params.get(key),
+              "stereo_preserving": arm_a_keep_params.get(key)}
+        for key in keys
+        if arm_a_default_params.get(key) != arm_a_keep_params.get(key)
+    }
+    # B-6 闭集指纹:集合定义 + 识别算子参数纳入批级指纹
+    carbonate = _criteria_v3_carbonate_system_forms()
+    return {
+        "available": True,
+        "unavailable_reason": None,
+        "environment": environment,
+        "arms": arms,
+        "dual_arm_diff": dual_arm_diff,
+        "carbonate_system": carbonate,
+    }
+
+
+@lru_cache(maxsize=1)
+def _criteria_v3_carbonate_system_forms() -> dict:
+    """B-6 闭集机读形态:三物种经 B-1 同算子归一后的 canonical SMILES。
+
+    三物种(CO₂/HCO₃⁻/CO₃²⁻)经 Uncharger 默认算子归一后落回两规范形
+    (CO₂ 与碳酸),即"含其仅质子化写法变异落回同集合者"(*机读登记*)。"""
+    try:
+        from rdkit import Chem as _Chem
+        from rdkit.Chem.MolStandardize import rdMolStandardize as _rms
+    except ImportError:  # pragma: no cover —— 环境异常 fail-closed
+        return {"available": False, "species": [],
+                "normalized_forms_sorted": [], "sha256": None}
+    uncharger = _rms.Uncharger()
+    forms: set[str] = set()
+    for species in CRITERIA_V3_CARBONATE_SYSTEM_SPECIES:
+        mol = _Chem.MolFromSmiles(species)
+        if mol is None:  # pragma: no cover —— 常量自身不可解析
+            return {"available": False, "species": [],
+                    "normalized_forms_sorted": [], "sha256": None}
+        forms.add(_Chem.MolToSmiles(uncharger.uncharge(mol)))
+    return {
+        "available": True,
+        "species": list(CRITERIA_V3_CARBONATE_SYSTEM_SPECIES),
+        "normalized_forms_sorted": sorted(forms),
+        "sha256": _criteria_v3_sha256_text("\n".join(sorted(forms))),
+    }
+
+
+@lru_cache(maxsize=1)
+def _criteria_v3_enumerators() -> dict:
+    """A 轴两臂枚举器 + B 轴算子(fail-closed:不可用 ⇒ available False)。"""
+    try:
+        from rdkit.Chem.MolStandardize import rdMolStandardize as _rms
+    except ImportError:  # pragma: no cover —— 环境异常 fail-closed
+        return {"available": False}
+    cp_default = _rms.CleanupParameters()
+    cp_default.maxTransforms = 1000
+    cp_default.maxTautomers = 1000
+    cp_default.tautomerRemoveSp3Stereo = True
+    cp_default.tautomerRemoveBondStereo = True
+    cp_keep = _rms.CleanupParameters()
+    cp_keep.maxTransforms = 1000
+    cp_keep.maxTautomers = 1000
+    cp_keep.tautomerRemoveSp3Stereo = False
+    cp_keep.tautomerRemoveBondStereo = True
+    return {
+        "available": True,
+        "tautomer_default": _rms.TautomerEnumerator(cp_default),
+        "tautomer_stereo_preserving": _rms.TautomerEnumerator(cp_keep),
+        "uncharger": _rms.Uncharger(),
+        "charge_parent": _rms.ChargeParent,
+    }
+
+
+def _criteria_v3_arm_param_sha256(arm: str) -> str | None:
+    registry = _criteria_v3_arm_registry()
+    entry = (registry.get("arms") or {}).get(arm) or {}
+    return entry.get("param_sha256")
+
+
+def _criteria_v3_tautomer_canonical(smi: str,
+                                    arm: str) -> tuple[str | None,
+                                                      str | None]:
+    """A 轴单侧归一(逐臂):Canonicalize → canonical isomeric SMILES。
+
+    fail-closed:不可解析/算子异常/空结果 ⇒ (None, 机读原因)。"""
+    from rdkit import Chem as _Chem, RDLogger as _RDLogger
+    _RDLogger.DisableLog("rdApp.*")
+    if not smi:
+        return None, CRITERIA_V3_REASON_UNPARSEABLE
+    mol = _Chem.MolFromSmiles(smi)
+    if mol is None:
+        return None, CRITERIA_V3_REASON_UNPARSEABLE
+    engines = _criteria_v3_enumerators()
+    if not engines.get("available"):  # pragma: no cover —— fail-closed
+        return None, "tautomer_enumerator_unavailable"
+    key = ("tautomer_default" if arm == CRITERIA_V3_TAUTOMER_ARM_DEFAULT
+           else "tautomer_stereo_preserving")
+    enumerator = engines.get(key)
+    try:
+        out = enumerator.Canonicalize(mol)
+    except Exception as exc:  # noqa: BLE001 —— fail-closed
+        return None, f"tautomer_operator_error:{type(exc).__name__}"
+    if out is None:
+        return None, CRITERIA_V3_REASON_EMPTY_TAUTOMER
+    try:
+        return _Chem.MolToSmiles(out), None
+    except Exception as exc:  # noqa: BLE001 —— fail-closed
+        return None, f"smiles_serialization_error:{type(exc).__name__}"
+
+
+def _criteria_v3_protonation_side(smi: str,
+                                  arm: str) -> tuple[str | None,
+                                                    str | None]:
+    """B 轴单侧归一(逐组分 → 点号重接 → canonical isomeric,保留立体)。
+
+    fail-closed:任一组分不可解析/算子异常 ⇒ (None, 机读原因);
+    不使用 cn_identity 立体盲口径(B-1)。"""
+    from rdkit import Chem as _Chem, RDLogger as _RDLogger
+    _RDLogger.DisableLog("rdApp.*")
+    components = [c for c in str(smi or "").split(".") if c]
+    if not components:
+        return None, CRITERIA_V3_REASON_EMPTY_SIDE
+    engines = _criteria_v3_enumerators()
+    if not engines.get("available"):  # pragma: no cover —— fail-closed
+        return None, f"{arm}_operator_unavailable"
+    out: list[str] = []
+    for component in components:
+        mol = _Chem.MolFromSmiles(component)
+        if mol is None:
+            return None, CRITERIA_V3_REASON_UNPARSEABLE
+        try:
+            if arm == CRITERIA_V3_PROTONATION_ARM_UNCHARGER:
+                normalized = engines["uncharger"].uncharge(mol)
+            else:
+                normalized = engines["charge_parent"](mol)
+        except Exception as exc:  # noqa: BLE001 —— fail-closed
+            return None, f"{arm}_operator_error:{type(exc).__name__}"
+        if normalized is None:  # pragma: no cover —— fail-closed
+            return None, f"{arm}_empty_result"
+        out.append(_Chem.MolToSmiles(normalized))
+    return ".".join(out), None
+
+
+def _criteria_v3_carbonate_hits(canonical: str | None) -> dict:
+    """单侧是否命中 B-6 闭集(与 B-1 同算子归一后的 canonical SMILES)。
+
+    tri-state:命中 True / 未命中 False / 不可判定(该侧归一失败)
+    None —— 禁伪填 absent(§B-6/R05 机读规则)。"""
+    if canonical is None:
+        return {"hit": None, "status": "unknown"}
+    forms = set(_criteria_v3_carbonate_system_forms()[
+        "normalized_forms_sorted"] or [])
+    if not forms:  # pragma: no cover —— 环境异常 fail-closed
+        return {"hit": None, "status": "unknown"}
+    hit = canonical in forms
+    return {"hit": hit, "status": "in_set" if hit else "not_in_set"}
+
+
+def criteria_v3_normalized_identity_pair(ref_smi: str,
+                                         pred_smi: str) -> dict:
+    """逐配对 A/B 双轴披露(纯函数;档 A 只披露;fail-closed 无第三态)。
+
+    返回机读披露(零结构串:
+    仅布尔/臂名/来源/指纹/原因码/计数——配对本体的结构串不落披露):
+
+    - ``original_match_status``:原状态(本轴只在 cn_only 配对适用);
+    - ``tautomer``:双臂各自布尔(``normalized_identity_axis_default``
+      / ``normalized_identity_axis_stereo_preserving``)+ 逐臂
+      ``tautomer_arm`` / ``normalization_source`` /
+      ``tautomer_param_sha256`` / 失败原因(A-6);
+    - ``protonation``:Uncharger 臂(默认启用)+ ChargeParent 臂
+      (并列敏感性);B-6 闭集命中 ⇒ 两侧均命中时逐对象排除并落
+      ``carbonate_system_exclusion``;
+    - ``single_attribution``:A→B 单归属(tautomer/protonation/none);
+      ``double_satisfied``:双轴布尔(任臂)*均* 为真(披露,不静默吞);
+    - ``strict_promotion``:恒 False(档 A;档 B 未解锁)。
+    """
+    registry = _criteria_v3_arm_registry()
+    arms_meta = registry.get("arms") or {}
+    tautomer: dict = {"arms": {}, "any_arm_granted": False,
+                      "primary_arm": CRITERIA_V3_TAUTOMER_PRIMARY_ARM,
+                      "strict_promotion": False}
+    for arm in CRITERIA_V3_TAUTOMER_ARMS:
+        ref_canonical, ref_reason = _criteria_v3_tautomer_canonical(
+            ref_smi, arm)
+        pred_canonical, pred_reason = _criteria_v3_tautomer_canonical(
+            pred_smi, arm)
+        granted = (ref_canonical is not None and pred_canonical is not None
+                   and ref_canonical == pred_canonical)
+        reason = ref_reason or pred_reason or None
+        if granted:
+            reason = None
+        arm_row = {
+            "tautomer_arm": arm,
+            "normalization_source":
+                CRITERIA_V3_NORMALIZATION_SOURCES[arm],
+            "tautomer_param_sha256":
+                (arms_meta.get(arm) or {}).get("param_sha256"),
+            "normalized_identity_axis": granted,
+            "reason": reason,
+            "strict_eligible": False,
+        }
+        if arm == CRITERIA_V3_TAUTOMER_ARM_DEFAULT:
+            arm_row["strict_eligible"] = \
+                CRITERIA_V3_DEFAULT_ARM_STRICT_ELIGIBLE
+            arm_row["strict_eligible_note"] = CRITERIA_V3_DEFAULT_ARM_NOTE
+            arm_row["normalized_identity_axis_default"] = granted
+        else:
+            arm_row["tier_b_candidate"] = True
+            arm_row["tier_b_status"] = CRITERIA_V3_TIER_B_STATUS
+            arm_row["strict_eligible_note"] = CRITERIA_V3_PRIMARY_ARM_NOTE
+            arm_row["normalized_identity_axis_stereo_preserving"] = granted
+        tautomer["arms"][arm] = arm_row
+        tautomer["any_arm_granted"] = tautomer["any_arm_granted"] or granted
+    tautomer["normalized_identity_axis_default"] = tautomer["arms"][
+        CRITERIA_V3_TAUTOMER_ARM_DEFAULT]["normalized_identity_axis"]
+    tautomer["normalized_identity_axis_stereo_preserving"] = \
+        tautomer["arms"][CRITERIA_V3_TAUTOMER_ARM_STEREO_PRESERVING][
+            "normalized_identity_axis"]
+    tautomer["any_arm_granted"] = (
+        tautomer["normalized_identity_axis_default"]
+        or tautomer["normalized_identity_axis_stereo_preserving"])
+    tautomer["strict_promotion"] = False
+    tautomer["strict_promotion_note"] = CRITERIA_V3_DISCLOSURE_ONLY_NOTE
+
+    protonation: dict = {
+        "arms": {},
+        "enabled_arm": CRITERIA_V3_PROTONATION_ENABLED_ARM,
+        "carbonate_system_exclusion": False,
+        "exclusion_reason": None,
+        "strict_promotion": False,
+    }
+    uncharger_canonicals: dict[str, str | None] = {}
+    for arm in CRITERIA_V3_PROTONATION_ARMS:
+        ref_canonical, ref_reason = _criteria_v3_protonation_side(
+            ref_smi, arm)
+        pred_canonical, pred_reason = _criteria_v3_protonation_side(
+            pred_smi, arm)
+        if arm == CRITERIA_V3_PROTONATION_ARM_UNCHARGER:
+            uncharger_canonicals = {"ref": ref_canonical,
+                                    "pred": pred_canonical}
+        granted = (ref_canonical is not None and pred_canonical is not None
+                   and ref_canonical == pred_canonical)
+        reason = ref_reason or pred_reason or None
+        if granted:
+            reason = None
+        arm_row = {
+            "enabled":
+                arm == CRITERIA_V3_PROTONATION_ENABLED_ARM,
+            "sensitivity_only":
+                arm == CRITERIA_V3_PROTONATION_ARM_CHARGE_PARENT,
+            "normalization_source":
+                CRITERIA_V3_NORMALIZATION_SOURCES[arm],
+            "param_sha256": (arms_meta.get(arm) or {}).get("param_sha256"),
+            "normalized_identity_axis": granted,
+            "reason": reason,
+        }
+        arm_row["normalized_identity_axis_" + arm] = granted
+        if arm == CRITERIA_V3_PROTONATION_ARM_CHARGE_PARENT:
+            arm_row["note"] = CRITERIA_V3_CHARGE_PARENT_SENSITIVITY_NOTE
+        protonation["arms"][arm] = arm_row
+    # B-6 碳酸体系闭集(同一 Uncharger 归一 canonical 复用;tri-state,
+    # 不可判定如实 unknown,禁伪填)
+    ref_carbonate = _criteria_v3_carbonate_hits(uncharger_canonicals["ref"])
+    pred_carbonate = _criteria_v3_carbonate_hits(
+        uncharger_canonicals["pred"])
+    carbonate_excluded = bool(ref_carbonate["hit"] is True
+                              and pred_carbonate["hit"] is True)
+    protonation["carbonate_system_exclusion"] = carbonate_excluded
+    if ref_carbonate["hit"] is None or pred_carbonate["hit"] is None:
+        carbonate_status = "unknown"
+    elif carbonate_excluded:
+        carbonate_status = "excluded"
+    else:
+        carbonate_status = "not_excluded"
+    protonation["carbonate_system_check"] = {
+        "reference_side": ref_carbonate["status"],
+        "predicted_side": pred_carbonate["status"],
+        "status": carbonate_status,
+    }
+    if carbonate_excluded:
+        # 逐对象排除:两臂全覆盖(含敏感性臂),机读原因
+        protonation["exclusion_reason"] = \
+            CRITERIA_V3_CARBONATE_EXCLUSION_REASON
+        for arm, arm_row in protonation["arms"].items():
+            arm_row["normalized_identity_axis"] = False
+            arm_row["normalized_identity_axis_" + arm] = False
+            arm_row["reason"] = CRITERIA_V3_CARBONATE_EXCLUSION_REASON
+    protonation["any_arm_granted"] = any(
+        row["normalized_identity_axis"]
+        for row in protonation["arms"].values())
+
+    # 单归属 A→B(B-5):一条配对最多挂一个归一轴标签;双满足按 A 取先
+    if tautomer["any_arm_granted"]:
+        single_attribution = "tautomer"
+    elif protonation["any_arm_granted"]:
+        single_attribution = "protonation"
+    else:
+        single_attribution = "none"
+    return {
+        "original_match_status": "cn_only",
+        "tautomer": tautomer,
+        "protonation": protonation,
+        "single_attribution": single_attribution,
+        "double_satisfied": bool(tautomer["any_arm_granted"]
+                                 and protonation["any_arm_granted"]),
+        "strict_promotion": False,
+        "strict_promotion_note": CRITERIA_V3_DISCLOSURE_ONLY_NOTE,
+    }
+
+
+def criteria_v3_aggregate_pair_blocks(pair_blocks: list[dict]) -> dict:
+    """逐配对披露块 → 批级分列计数(档 A;单归属 + 双满足披露)。"""
+    counts = {
+        "pairs_total": len(pair_blocks),
+        "tautomer_normalized_pairs_default": 0,
+        "tautomer_normalized_pairs_stereo_preserving": 0,
+        "protonation_normalized_pairs_uncharger": 0,
+        "protonation_normalized_pairs_charge_parent": 0,
+        "single_attribution_counts": {"tautomer": 0, "protonation": 0,
+                                      "none": 0},
+        "double_satisfied_pairs": 0,
+        "carbonate_system_excluded_pairs": 0,
+        "fail_closed_pairs": 0,
+        "strict_promoted_pairs": 0,
+    }
+    for block in pair_blocks:
+        tautomer = block.get("tautomer") or {}
+        protonation = block.get("protonation") or {}
+        t_arms = tautomer.get("arms") or {}
+        b_arms = protonation.get("arms") or {}
+        if (t_arms.get(CRITERIA_V3_TAUTOMER_ARM_DEFAULT) or {}).get(
+                "normalized_identity_axis"):
+            counts["tautomer_normalized_pairs_default"] += 1
+        if (t_arms.get(
+                CRITERIA_V3_TAUTOMER_ARM_STEREO_PRESERVING) or {}).get(
+                "normalized_identity_axis"):
+            counts["tautomer_normalized_pairs_stereo_preserving"] += 1
+        if (b_arms.get(CRITERIA_V3_PROTONATION_ARM_UNCHARGER) or {}).get(
+                "normalized_identity_axis"):
+            counts["protonation_normalized_pairs_uncharger"] += 1
+        if (b_arms.get(
+                CRITERIA_V3_PROTONATION_ARM_CHARGE_PARENT) or {}).get(
+                "normalized_identity_axis"):
+            counts["protonation_normalized_pairs_charge_parent"] += 1
+        attribution = str(block.get("single_attribution") or "none")
+        assert attribution in CRITERIA_V3_PAIR_ATTRIBUTION_ORDER, \
+            (f"ppv1-criteria-v3 单归属标签非法:{attribution!r}"
+             f"(A->B 无第三态;允许 {CRITERIA_V3_PAIR_ATTRIBUTION_ORDER})")
+        counts["single_attribution_counts"][attribution] += 1
+        if block.get("double_satisfied"):
+            counts["double_satisfied_pairs"] += 1
+        if protonation.get("carbonate_system_exclusion"):
+            counts["carbonate_system_excluded_pairs"] += 1
+        if block.get("strict_promotion"):
+            counts["strict_promoted_pairs"] += 1
+        if _criteria_v3_pair_failed(block):
+            counts["fail_closed_pairs"] += 1
+    # 单归属断言:三标签计数之和 == 配对数(无第三态)
+    assert sum(counts["single_attribution_counts"].values()) == \
+        counts["pairs_total"], \
+        "ppv1-criteria-v3 单归属违例:标签计数之和 != 配对数(无第三态)"
+    assert counts["strict_promoted_pairs"] == 0, \
+        ("ppv1-criteria-v3 档 A 违例:出现 strict 提升(跃升档 B 未解锁)"
+         )
+    return counts
+
+
+def _criteria_v3_pair_failed(block: dict) -> bool:
+    """配对是否存在 fail-closed 原因(不可解析/算子异常)。"""
+    for axis in ("tautomer", "protonation"):
+        for row in ((block.get(axis) or {}).get("arms") or {}).values():
+            reason = str(row.get("reason") or "")
+            if reason and reason != CRITERIA_V3_CARBONATE_EXCLUSION_REASON:
+                return True
+    return False
+
+
+def _criteria_v3_node_disclosure(node_entry: dict,
+                                 states: dict[str, dict],
+                                 reference_smiles: str) -> dict:
+    """节点级 V3 披露块(match_reference_nodes 内消费;档 A 只披露)。
+
+    适用面(A-1):仅 ``structure_identity_scope == "strict_structure"``
+    参考节点的 cn_only 配对;其余如实给 ``applicable=false`` 机读原因
+    (N4 负控:S5A-01 封顶不得越过)。"""
+    scope_permits_strict = node_entry.get("reference_identity_scope") == \
+        "strict_structure"
+    pair_state_ids = list(node_entry.get("cn_only_state_ids") or [])
+    reason: str | None = None
+    applicable = True
+    if node_entry.get("match_status") == "reference_structure_unparseable":
+        applicable, reason = False, "reference_structure_unparseable"
+    elif not scope_permits_strict:
+        applicable, reason = False, "identity_scope_cap"
+    elif node_entry.get("match_status") != "cn_only":
+        applicable, reason = False, "match_status_not_cn_only"
+    elif not pair_state_ids:
+        applicable, reason = False, "no_cn_only_pair"
+    block = {
+        "criteria_version": PPV1_CRITERIA_V3,
+        "tier": CRITERIA_V3_TIER_DISCLOSURE_ONLY,
+        "original_match_status": node_entry.get("match_status"),
+        "reference_identity_scope":
+            node_entry.get("reference_identity_scope"),
+        "applicable": applicable,
+        "not_applicable_reason": reason,
+        "strict_promotion": False,
+        "strict_promotion_note": CRITERIA_V3_DISCLOSURE_ONLY_NOTE,
+        "tautomer_promoted_nodes": [],
+        "tautomer_promoted_nodes_note": (
+            "档 B 未解锁(D03)⇒ 本轮恒无;仅档 A 披露"),
+        "axis_pairs": [],
+        "axis_pair_counts": {},
+    }
+    if not applicable:
+        block["axis_pair_counts"] = criteria_v3_aggregate_pair_blocks([])
+        return block
+    pairs: list[dict] = []
+    for state_id in sorted(pair_state_ids):
+        state = states.get(state_id) or {}
+        pair_block = criteria_v3_normalized_identity_pair(
+            reference_smiles, str(state.get("smiles_isomeric") or ""))
+        pair_block = {"state_id": state_id, **pair_block}
+        pairs.append(pair_block)
+    block["axis_pairs"] = pairs
+    block["axis_pair_counts"] = criteria_v3_aggregate_pair_blocks(pairs)
+    return block
+
+
+def _criteria_v3_batch_block(sample_results: list[dict]) -> dict:
+    """批级 V3 汇总块(评测器输出;§8 承载面)。
+
+    聚合所有样本的节点级披露块:分臂计数 + 单归属 + 双满足 +
+    碳酸体系排除 + 恒空 ``tautomer_promoted_nodes`` + 参数指纹登记
+    (失败题留分母,其节点块缺席 = 未评,不伪填)。"""
+    node_blocks: list[dict] = []
+    for sample in sample_results or []:
+        for entry in sample.get("predicted_node_matches") or []:
+            block = entry.get("criteria_v3_normalized_identity")
+            if isinstance(block, dict):
+                node_blocks.append(block)
+    pairs = [pair for block in node_blocks
+             for pair in block.get("axis_pairs") or []]
+    counts = criteria_v3_aggregate_pair_blocks(pairs)
+    promoted: list[dict] = []
+    for block in node_blocks:
+        promoted.extend(block.get("tautomer_promoted_nodes") or [])
+    registry = _criteria_v3_arm_registry()
+    assert not promoted, \
+        "ppv1-criteria-v3 档 A 违例:tautomer_promoted_nodes 非空(档 B 未解锁)"
+    return {
+        "criteria_version": PPV1_CRITERIA_V3,
+        "frozen_doc": PPV1_CRITERIA_V3_FROZEN_DOC,
+        "tier": CRITERIA_V3_TIER_DISCLOSURE_ONLY,
+        "tier_b_status": CRITERIA_V3_TIER_B_STATUS,
+        "disclosure_only_note": CRITERIA_V3_DISCLOSURE_ONLY_NOTE,
+        "measurement_correction_note": CRITERIA_V3_MEASUREMENT_NOTE,
+        "strict_promotion": False,
+        "hit_at_1_effect": "none",
+        "tautomer_normalized_pairs_default":
+            counts["tautomer_normalized_pairs_default"],
+        "tautomer_normalized_pairs_stereo_preserving":
+            counts["tautomer_normalized_pairs_stereo_preserving"],
+        "protonation_normalized_pairs_uncharger":
+            counts["protonation_normalized_pairs_uncharger"],
+        "protonation_normalized_pairs_charge_parent":
+            counts["protonation_normalized_pairs_charge_parent"],
+        "single_attribution_counts": counts["single_attribution_counts"],
+        "double_satisfied_pairs": counts["double_satisfied_pairs"],
+        "carbonate_system_excluded_pairs":
+            counts["carbonate_system_excluded_pairs"],
+        "carbonate_system_exclusion_reason":
+            CRITERIA_V3_CARBONATE_EXCLUSION_REASON,
+        "carbonate_system_set": CRITERIA_V3_CARBONATE_SET_NOTE,
+        "carbonate_system_sha256": (
+            registry.get("carbonate_system") or {}).get("sha256"),
+        "axis_pairs_total": counts["pairs_total"],
+        "fail_closed_pairs": counts["fail_closed_pairs"],
+        "axis_nodes_total": len(node_blocks),
+        "axis_nodes_not_applicable": sum(
+            1 for block in node_blocks if not block.get("applicable")),
+        "tautomer_promoted_nodes": promoted,
+        "param_registry": {
+            "environment": registry.get("environment"),
+            "arms": {arm: (registry.get("arms") or {}).get(arm)
+                     for arm in _CRITERIA_V3_ARM_ORDER},
+            "dual_arm_diff": registry.get("dual_arm_diff"),
+        },
+        "aromatic_repr_note": CRITERIA_V3_AROMATIC_REPR_NOTE,
+        "single_batch_note": CRITERIA_V3_SINGLE_BATCH_NOTE,
+        "exemption_subsumption_note": (
+            "V3 承载 V2 判分语义(参与物集合比较豁免路径不变;N3/N7 "
+            "正交性断言:V2 tier 计数同 payload 与 v2 逐位一致)"),
+        "dual_caliber_note": (
+            "ppv1-criteria-v1(豁免关)恒为 headline;本块为 v3 口径"
+            "敏感性披露,post-hoc;旧批零回写;判分侧互变归一不进 "
+            "strict/hit@1"),
+    }
 
 
 def _criteria_state_cn(states: dict[str, dict], state_id: str) -> str | None:
@@ -1367,7 +2169,9 @@ def _hypothesis_payloads(payload: dict) -> dict[str, dict]:
 
 
 def match_reference_nodes(reference_graph: dict,
-                          payload: dict) -> list[dict]:
+                          payload: dict, *,
+                          criteria_version: str = PPV1_CRITERIA_V1) -> list[
+        dict]:
     """参考节点匹配(确定性;严格身份 vs CN 旁证分轴;distinct
     occurrence 不按 CN/首现合并)。
 
@@ -1386,8 +2190,15 @@ def match_reference_nodes(reference_graph: dict,
       标签或有限图;
     - 每条 occurrence 独立条目(同结构不同 occurrence 不合并,S5-04);
     - 预测侧 occurrence 计数(state_appearances/事件参与)如实披露
-      (两档基数不同,不可跨档比较)。
+      (两档基数不同,不可跨档比较);
+    - **ppv1-criteria-v3(T-D-A/B 披露轴,显式启用)**:v3 时对
+      ``structure_identity_scope=="strict_structure"`` 参考节点的
+      cn_only 配对**仅**追加披露块 ``criteria_v3_normalized_identity``
+      (A 轴双臂布尔 / B 轴单启用臂 + 敏感性臂 / 单归属 / 碳酸体系
+      排除;档 A **只披露**);``match_status``、严格档与 S5A-01 封顶
+      **零改动**(不授 strict、不进 hit@1);缺省 v1/v2 零新键。
     """
+    resolve_criteria_version(criteria_version)
     states = _export_states(payload)
     appearance_counts: dict[str, int] = {}
     for row in payload.get("state_appearances") or []:
@@ -1422,6 +2233,10 @@ def match_reference_nodes(reference_graph: dict,
             entry["match_status_note"] = (
                 "参考图结构不可解析 ⇒ 该节点不参与匹配(样本按坏输入"
                 "披露,不静默删除)")
+            if criteria_version == PPV1_CRITERIA_V3:
+                entry["criteria_v3_normalized_identity"] = \
+                    _criteria_v3_node_disclosure(
+                        entry, states, str(node.get("structure_smiles")))
             out.append(entry)
             continue
         ref_cn = cn_identity(str(node.get("structure_smiles")))
@@ -1460,6 +2275,11 @@ def match_reference_nodes(reference_graph: dict,
                         "不授 strict_structure、不进边严格匹配与严格指标"
                         "(S5A-01;冻结稿 §0 旁证不叠加升格)"),
                 }
+        if criteria_version == PPV1_CRITERIA_V3:
+            # 档 A 披露轴(仅追加披露块;match_status 与封顶零改动)
+            entry["criteria_v3_normalized_identity"] = \
+                _criteria_v3_node_disclosure(
+                    entry, states, str(node.get("structure_smiles")))
         out.append(entry)
     return out
 
@@ -1501,7 +2321,8 @@ def match_reference_edges(reference_graph: dict, payload: dict,
       (进 matched_strict)并逐边机读 ``exempted_participants``;
       任一 extras 非 v1_exempt(T1′ 未实施 ⇒ 未声明多余产物恒
       partial)⇒ 维持 superset。豁免只在集合比较轴,身份键/节点
-      匹配/step_scope 判定零触碰。
+      匹配/step_scope 判定零触碰(**v3 承载同一条路径**:启用
+      v3 时本函数行为与 v2 逐位一致,N3/N7 正交性断言)。
     """
     resolve_criteria_version(criteria_version)
     states = _export_states(payload)
@@ -1595,7 +2416,7 @@ def match_reference_edges(reference_graph: dict, payload: dict,
                 # ---- ppv1-criteria-v2 豁免评审(缺省 v1:本块零执行,
                 # item 字段集与 ppv1-evaluation-5 完全一致=字节不变)----
                 exempt_review = None
-                if criteria_version == PPV1_CRITERIA_V2 and \
+                if _criteria_exemption_enabled(criteria_version) and \
                         coverage == "superset":
                     exempt_review = evaluate_participant_exemption(
                         payload, _event_payload_body(event), states,
@@ -1667,7 +2488,7 @@ def match_reference_edges(reference_graph: dict, payload: dict,
                 "完整事件保留共同产物参与物(报告 K/展开宽度不删除;"
                 "S5-03);同父备选反应各自独立(不合并为单反应,S5-02)"),
         }
-        if criteria_version == PPV1_CRITERIA_V2:
+        if _criteria_exemption_enabled(criteria_version):
             # 逐边 tier 计数(机器披露;批级块由此汇总;v1 零新键)
             entry["criteria_v2_tier_counts"] = dict(
                 sorted(edge_tier_counts.items()))
@@ -2732,7 +3553,12 @@ def evaluate_scientific(
       (teacher 裁定;预注册
       ``docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md``),
       输出附 ``criteria_v2`` 批级汇总块(豁免计数 + 参考侧 v1 身份
-      监控,应为 0;非 0 = 退出条件信号)。
+      监控,应为 0;非 0 = 退出条件信号);
+    - **ppv1-criteria-v3**:显式 v3 = T-D-A/B 披露轴(档 A)启用并
+      承载 v2 豁免判分语义;节点级附 ``criteria_v3_normalized_identity``
+      披露块、批级附 ``criteria_v3`` 汇总块(分臂计数/单归属/双满足/
+      碳酸体系排除/参数指纹/恒空 ``tautomer_promoted_nodes``);
+      **不授 strict、不进 hit@1**;v1/v2 缺省零新键。
     """
     resolve_criteria_version(criteria_version)
     evaluation_input = validate_evaluation_input(evaluation_input)
@@ -3003,7 +3829,8 @@ def evaluate_scientific(
             sample_results.append(sample)
             continue
         payload = export_payloads[pairing_info["consumed_export_digest"]]
-        node_matches = match_reference_nodes(graph, payload)
+        node_matches = match_reference_nodes(
+            graph, payload, criteria_version=criteria_version)
         edge_matches = match_reference_edges(
             graph, payload, node_matches,
             criteria_version=criteria_version)
@@ -3202,12 +4029,14 @@ def evaluate_scientific(
         },
         "status": status,
     }
-    # ---- ppv1-criteria-v2 批级汇总(仅 v2;v1 缺省零新键=字节不变) ----
+    # ---- ppv1-criteria-v2 批级汇总(启用豁免口径时输出:v2 与 v3;
+    # v1 缺省零新键=字节不变) ----
     # 豁免披露计数 + 两 tier 单归属计数(预注册 §五;failed/mixed review
     # 不保留在 matched-edge 输出,右侧计数无法从输出重建 ⇒ 由逐边
     # criteria_v2_tier_counts 随边带出汇总,P2 2026-10-14)+ 参考侧
     # v1 身份监控(mimo r36 条件 4:应为 0,非 0 = 退出条件信号)。
-    if criteria_version == PPV1_CRITERIA_V2:
+    # v3 = 承载 v2 判分语义(N3/N7 正交性;块内容逐位同 v2)。
+    if _criteria_exemption_enabled(criteria_version):
         edges_with_exemption = 0
         events_exempted = 0
         occurrence_count = 0
@@ -3269,6 +4098,12 @@ def evaluate_scientific(
                 "预注册以 v2 出数;本块为 v2 口径敏感性披露,post-hoc;"
                 "旧批零回写"),
         }
+    # ---- ppv1-criteria-v3 批级汇总(仅 v3;v1/v2 缺省零新键) ----
+    # 分臂计数 + 单归属 + 双满足 + 碳酸体系排除 + 恒空
+    # tautomer_promoted_nodes + 参数指纹登记(§8 承载面;档 A 只披露,
+    # 不授 strict、不进 hit@1)。
+    if criteria_version == PPV1_CRITERIA_V3:
+        output["criteria_v3"] = _criteria_v3_batch_block(sample_results)
     output["output_sha256"] = hashlib.sha256(
         canonical_json(output).encode("utf-8")).hexdigest()
     return output

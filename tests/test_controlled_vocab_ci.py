@@ -421,6 +421,13 @@ REGISTERED_LITERAL_SINKS: frozenset[tuple[str, str]] = frozenset({
     ("recorded_source.py", "principal_product"),
     ("recorded_source.py", "product"), ("recorded_source.py", "reactant"),
     ("recorded_source.py", "unknown"),
+    # T-E/E1a(s5b-pool-policy-9,2026-10-19):记录侧形式归一 —— 三值
+    # 状态标量("failed" 见 record-side-formnorm 事务/算子状态;
+    # 同词异义保守面按本测试族既有登记),"recorded" 见归一 trace
+    # source_ref.channel,"unavailable" 见算子实例不可自省登记值
+    ("recorded_source.py", "failed"),
+    ("recorded_source.py", "recorded"),
+    ("recorded_source.py", "unavailable"),
     ("reference_graph.py", "coproduct"),
     ("reference_graph.py", "principal_product"),
     ("reference_graph.py", "unknown"),
