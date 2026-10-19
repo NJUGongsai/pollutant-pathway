@@ -236,6 +236,15 @@ chain12 no_alignment 分层归因（`S5B_COMPILE_FUNNEL_DECISION_MEMO_2026-10-13
 
 ### Step D1 ⚙ D 线交集探针 + 模板映射完整性刀（先探针，后定刀）
 
+> **2026-10-19 晚执行状态：D1.1 探针已完成**（任务书 `docs/TASK_T_G_D1_PROBE_2026-10-19.md`，
+> 产物 `reports/ppv1_s5b/t_g_fix_2026-10-19/d1_probe/`）：**交集 0/17 坐实**（15 env 资产无覆盖；
+> 2 rhea 在 rxnmapper 输入集内但被其自身 QC 拒）；全框 tnc=732（38.8%；env 608、rhea 124），
+> 其中 116 件 rhea=退化空模板（无未映射缺口，非本刀对象）；干跑 v0 补映射：17/17、全框 616/732
+> 提取层救回。**定刀=确定性重映射工单（不接线）**，实施中：任务书
+> `docs/TASK_T_G_D1_REMAP_IMPL_2026-10-19.md`（compiler-5 + `complete_template_mapping`
+> 条件触发（仅 tnc）+ 披露 + 分档重放 + 负控）。注：任务书 §0.4/C2 锚读数为 compiler-3 口径，
+> R2'（compiler-4）后 155 子集为 62+66、56 pass 为 22+17（tnc 轴不变）——见 D1 探针任务书 §5 订正。
+
 - **现状修正（侦察发现）**：D 现设计书主体（扩检索三件套）对本靶面**不直接对症**——对 A 通道，
   真对口的子面是「模板映射不完整（transform_no_change）」17 件（EAWAG 15 + RHEA 2），
   其修复机制=**给模板改动原子补 map 号/补全半映射键**（确定性重映射），而非往检索宇宙加新模板。
@@ -251,6 +260,15 @@ chain12 no_alignment 分层归因（`S5B_COMPILE_FUNNEL_DECISION_MEMO_2026-10-13
 - ⚑ teacher 裁定依赖：无新裁定；袋化措辞若涉及豁免族口径同 Step C2 注。
 
 ### Step E1 ⚑ 表示层接入（FROZEN_V3 执行：T-E 主刀 + T-D 披露轴）
+
+> **2026-10-19 晚执行状态：两前置已完成/在飞**——前置 1（来源批次只读重算）**已完成**：
+> 任务书 `docs/TASK_T_DE_E1_PRE1_RECOMPUTE_2026-10-19.md`，产物
+> `reports/ppv1_s5b/t_de_e1_2026-10-19/pre1_recompute/`；**全硬锚 PASS**（P3 64/27、
+> P4 现行口径 10/7 零位移、N8/N9/N1/N2 全过、T-D 43 题分臂：默认臂 14/14、立体保留臂
+> 13/14、P2 两臂各 6/6、双满足 0）。前置 2（run 身份/缓存闭合设计）**已完成并送 Codex 复审**：
+> `docs/T_E_RUN_IDENTITY_DESIGN_DRAFT_2026-10-19.md` +
+> `docs/T_E_RUN_IDENTITY_DESIGN_REVIEW_REQUEST_2026-10-19.md`。实施任务书
+> `docs/TASK_T_DE_E1_IMPL_2026-10-19.md`（draft_v1，待复审裁定钉死）。
 
 - **前置子任务（FROZEN_V3 §11 缺口，必须先闭）**：
   1. **来源批次逐行只读重算**（缺口 5）：T-E 82 行/31 题 的对齐恢复账、T-D 14/6 题的
