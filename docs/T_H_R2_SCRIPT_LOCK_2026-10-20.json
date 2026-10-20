@@ -1,0 +1,19 @@
+{
+  "schema": "t-h-r2-operation-lock-1",
+  "source_commit": "c360e7428a9b765636922282f27c65e917071460",
+  "scope": "操作入口与依赖，不改科学判据/原审批；HPC r2 build/run/score前逐项核sha",
+  "files": {
+    "scripts/hpc/sbatch_th_netcheck.sh": "553212cb37d6949f714a883456a4a519cce14fc4db1d938bb85a6307145f32fc",
+    "scripts/hpc/sbatch_th_build.sh": "9c0180d665a343ac39ad2c977b368f8c41e55a2a3a868254d41883b49df8512e",
+    "scripts/hpc/sbatch_th_run.sh": "7005409120c890742e4ac0085d165378a4d601a181ae85460f4b993d4280eefe",
+    "scripts/hpc/sbatch_th_score.sh": "3617759929e682177d038f908cdc0b78f8e7ad8fa49099099520dafd42b39a64",
+    "scripts/hpc/th_run_wrapper.py": "61a18f51edb727e0a9e648bf62e89deed7da36f629e09b008f20a37fd432d4c3",
+    "scripts/hpc/th_operations.py": "4f2fe987b1864b663b10718762fd75dadbcda920f98b52880278d1e8062220f0",
+    "scripts/hpc/chain13_run_wrapper.py": "d56597fcfc7810c24c52602430ebaaa54d1c6c4682a494d233610106111cb445",
+    "scripts/hpc/chain13_gate.py": "59b5fbc68bb332eeac93a4c9ac2a6aebd82dacc5d5aca1616ffd8815357ed84e"
+  },
+  "scientific_source_sha256": {
+    "src/pathway_v43/pollutant/s5b_compiler.py": "f917762bf9ec43d70b85ef3740ab7f22b866b42c06a1461ec336882eb2685dfc",
+    "src/pathway_v43/pollutant/evaluation.py": "37c092310d34d9f417234ccacd508942b3ce3edef640c73ab94022fd8dc75ad8"
+  }
+}
