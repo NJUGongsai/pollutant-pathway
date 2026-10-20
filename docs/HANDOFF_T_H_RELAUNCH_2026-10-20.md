@@ -1,9 +1,10 @@
 # HANDOFF — T-H 修复后重启（2026-10-20 晨，交新窗口零上下文接手）
 
 > **2026-10-20 本轮接续状态**：两源码 delta 已有限范围复核通过并提交 `c360e74`（104 项独立合成回归）；
-> T-H 操作链已补齐 V3 三版保留、零 CX／恢复一次／二败停、提交前意图和作业号防重复。
+> T-H 操作链已补齐并提交 `04b94cb`：V3 三版保留、零 CX／恢复一次／二败停、提交前意图和作业号防重复；8 件锁定脚本与原批准四件已部署核 SHA。
 > **接续改用 `docs/T_H_R2_OPERATIONS_2026-10-20.md` 的自包含命令与 `docs/T_H_R2_SCRIPT_LOCK_2026-10-20.json` SHA 清单**。
-> 远端 netcheck `46954668` 已 COMPLETED／Exit0，compiler-6／v3 available 已独立核；r2 尚待新 build（约 66 分钟）。
+> 远端 netcheck `46954668` 已 COMPLETED／Exit0，compiler-6／v3 available 已独立核；**r2 build `46954982` 已提交，2026-10-20 09:51:47（北京时间）实测 RUNNING（wzhcnormal/f02r3n02）**，尚未完成，未 run/score。
+> 接续 heartbeat=`t-h-r2`（主会话已创建，15 分钟查状态、不变静默）；opsstate=`/work/home/aclhl3hbth/ppv1_hpc/operations/t_h_s5b_298_20261020r2.json`；执行与下一步见 `docs/T_H_RELAUNCH_EXECUTION_2026-10-20.md` §7。
 > 下方“源码未提交／待 CC 复核”及旧双版 score 步骤为本窗口此前快照，当前以本段和操作补充为准；原审批和旧事故批不改。
 
 > 写给：下一个窗口。本窗口按 CC 指令完成 T-H 发车→冒烟事故→修复（compiler-6 身份自洽门），
