@@ -615,6 +615,23 @@ def export_native_result(ledger, native_result: dict,
             "排序;export_digest = content_hash(本 manifest 去掉"
             " export_digest 键);同事实+同版本+同策略 ⇒ 同字节"),
     }
+    # ---- P0b/D-6 可选诊断块绑定(contract §3) ----
+    # 只在原生结果带 `declared_vs_executed` 时新增 manifest 键;关闭
+    # (无块)时 manifest 字节与基线一致。该绑定是可选块的内部完整性
+    # 锚,不是新的导出硬门:普通 read_native_export 不因块存在与否
+    # 改变结果;显式消费走 read_declared_vs_executed()。
+    diagnostic_block = native_result.get("declared_vs_executed")
+    if isinstance(diagnostic_block, dict):
+        core["diagnostic_bindings"] = {
+            "declared_vs_executed": {
+                "schema": str(diagnostic_block.get("schema") or ""),
+                "version": diagnostic_block.get("version"),
+                "rule_version": str(
+                    diagnostic_block.get("rule_version") or ""),
+                "n_events": diagnostic_block.get("n_events"),
+                "digest": content_hash(diagnostic_block),
+            }
+        }
     export_digest = content_hash(core)
     manifest = dict(core)
     manifest["export_digest"] = export_digest
@@ -652,6 +669,98 @@ def list_native_exports(run_dir: str | Path) -> list[str]:
 
 
 # ---------------------------------------------------------------- 读取(首消费)
+
+
+def read_declared_vs_executed(payload: dict,
+                              manifest: dict | None = None) -> dict | None:
+    """显式消费 P0b/D-6 可选诊断块(不改变普通导出读取语义)。
+
+    - 无块 ⇒ 返回 None(开关关闭的合法形态);
+    - 有块 ⇒ 校验自有 schema/version、n_events 与 events 计数闭合;
+      若给出 manifest,再核 `diagnostic_bindings.declared_vs_executed`
+      的 schema/version/digest 绑定。
+    fail-closed 抛 NativeExportContractError;不改任何文件。
+    """
+    from .production import (
+        P0B_D6_DIAGNOSTIC_SCHEMA,
+        P0B_D6_DIAGNOSTIC_VERSION,
+    )
+
+    block = (payload or {}).get("declared_vs_executed")
+    if block is None:
+        return None
+    if not isinstance(block, dict):
+        raise NativeExportContractError(
+            "P0b/D-6 诊断块形状非法(非对象;不猜迁移)",
+            {"kind": "export_diagnostic_corrupt",
+             "check": "declared_vs_executed_shape"})
+    if str(block.get("schema") or "") != P0B_D6_DIAGNOSTIC_SCHEMA:
+        raise NativeExportContractError(
+            f"P0b/D-6 诊断块 schema 未知:{block.get('schema')!r}",
+            {"kind": "export_version_unknown",
+             "check": "declared_vs_executed_schema"})
+    try:
+        version = int(block.get("version"))
+    except (TypeError, ValueError):
+        version = -1
+    if version != P0B_D6_DIAGNOSTIC_VERSION:
+        raise NativeExportContractError(
+            f"P0b/D-6 诊断块版本未知:{block.get('version')!r}",
+            {"kind": "export_version_unknown",
+             "check": "declared_vs_executed_version"})
+    events = block.get("events")
+    if not isinstance(events, list) or \
+            block.get("n_events") != len(events):
+        raise NativeExportContractError(
+            "P0b/D-6 诊断块事件计数不闭合(n_events != len(events))",
+            {"kind": "export_diagnostic_corrupt",
+             "check": "declared_vs_executed_n_events"})
+    counts = block.get("counts") or {}
+    from .hypothesis import PARTICIPANT_ROLE_UNKNOWN as _UNKNOWN_TOKEN
+    if set(counts) != {"consistent", "inconsistent", _UNKNOWN_TOKEN,
+                       "not_applicable"}:
+        raise NativeExportContractError(
+            "P0b/D-6 诊断块四态键不闭合(不洗成通过)",
+            {"kind": "export_diagnostic_corrupt",
+             "check": "declared_vs_executed_counts_keys",
+             "count_keys": sorted(str(k) for k in counts)})
+    try:
+        total = sum(int(counts.get(k) or 0) for k in (
+            "consistent", "inconsistent", _UNKNOWN_TOKEN,
+            "not_applicable"))
+    except (TypeError, ValueError):
+        total = -1
+    if total != len(events):
+        raise NativeExportContractError(
+            "P0b/D-6 诊断块四态计数不闭合(不洗成通过)",
+            {"kind": "export_diagnostic_corrupt",
+             "check": "declared_vs_executed_counts",
+             "counts": counts, "n_events": len(events)})
+    if manifest is not None:
+        binding = ((manifest.get("diagnostic_bindings") or {})
+                   .get("declared_vs_executed"))
+        if not isinstance(binding, dict):
+            raise NativeExportContractError(
+                "导出 manifest 缺 P0b/D-6 诊断块绑定(块在而绑定不在;"
+                "不猜默认)",
+                {"kind": "export_reference_mismatch",
+                 "check": "diagnostic_binding_present"})
+        if str(binding.get("digest") or "") != content_hash(block):
+            raise NativeExportContractError(
+                "P0b/D-6 诊断块内容与 manifest 绑定 digest 不符"
+                "(完整性失败;不重算洗白)",
+                {"kind": "export_reference_mismatch",
+                 "check": "diagnostic_binding_digest"})
+        if str(binding.get("schema") or "") != str(block.get("schema")) \
+                or binding.get("version") != block.get("version") \
+                or str(binding.get("rule_version") or "") != \
+                str(block.get("rule_version") or ""):
+            raise NativeExportContractError(
+                "P0b/D-6 诊断块 schema/version/rule_version 与 manifest "
+                "绑定不符",
+                {"kind": "export_reference_mismatch",
+                 "check": "diagnostic_binding_identity"})
+    return block
 
 
 def read_native_export(ledger, run_dir: str | Path, export_digest: str,

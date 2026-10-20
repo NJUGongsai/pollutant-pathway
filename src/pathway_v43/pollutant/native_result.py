@@ -56,8 +56,16 @@ import json
 
 from ..domain.models import content_hash, stable_id
 from .chemstate import ChemicalState, ChemicalStateError
+from .hypothesis import (
+    PARTICIPANT_ROLE_UNKNOWN as _UNKNOWN_TOKEN,
+    PARTICIPANT_SIDE_PRODUCT as _PRODUCT_SIDE,
+)
 from .profile import PPV1_NATIVE_RESULT_VERSION
-from .search import SearchArtifactIntegrityError, read_search_artifact
+from .search import (
+    ATTEMPT_STATUS_RECORDED as _RECORDED_TOKEN,
+    SearchArtifactIntegrityError,
+    read_search_artifact,
+)
 
 NATIVE_RESULT_TASK_KEY = "run-native-result"
 NATIVE_RESULT_ARTIFACT = "native_result"
@@ -276,13 +284,20 @@ def artifact_reference_index(ledger) -> list[dict]:
         e["task_key"], e["name"], e["source_action_id"]))
 
 
-def build_native_result(ledger, *, endpoint_record: dict) -> dict:
+def build_native_result(ledger, *, endpoint_record: dict,
+                        include_declared_vs_executed: bool | None = None) -> dict:
     """从持久权威聚合原生结果对象(确定性;S4a 对象底座)。
 
     endpoint_record 必须是已通过首消费校验的记录(调用方经
     read_run_endpoint/consume_run_endpoint 取得;过期记录不得包装
     成正式结果)。构建纯只读;落盘为派生 artifact(键含 digest,
     不可变,重复生成同内容幂等)。
+
+    ``include_declared_vs_executed``(P0b/D-6,默认 None = 读环境开关
+    ``PPV1_P0B_D6_DIAGNOSTICS``,默认关闭):开启时在 payload 顶层
+    新增可选 ``declared_vs_executed`` 诊断块;关闭时不新增任何键,
+    载荷与基线逐字节等价。诊断块不参与 admission/排序/评分,也不
+    改变任何既有字段。
     """
     store = ledger.store
     conn = ledger.conn
@@ -550,9 +565,285 @@ def build_native_result(ledger, *, endpoint_record: dict) -> dict:
         "endpoint_record": endpoint_record,
         "event_ids": event_ids,
     }
+    # ---- P0b/D-6 旁路披露(可选;默认关闭 ⇒ payload 零新增键) ----
+    if include_declared_vs_executed is None:
+        from .production import p0b_d6_diagnostics_enabled
+        include_declared_vs_executed = p0b_d6_diagnostics_enabled()
+    if include_declared_vs_executed:
+        payload["declared_vs_executed"] = declared_vs_executed_block(payload)
     digest = content_hash(payload)
     payload["content_digest"] = digest
     return payload
+
+
+# ---------------------------------------------------------------- P0b/D-6 派生
+
+
+def _p0b_d6_event_body(event: dict) -> dict | None:
+    """事件载荷:合法对象返回 dict;缺失/非对象/解析失败返回 None。
+
+    ``None`` 表示“装配资料不可用”,与合法空对象/空参与物区分;调用方
+    不得用 ``or []`` 归一成“已知为空”(R2)。
+    """
+    if not isinstance(event, dict):
+        return None
+    body = event.get("payload")
+    if isinstance(body, str):
+        try:
+            body = json.loads(body)
+        except (ValueError, TypeError):
+            return None
+    return body if isinstance(body, dict) else None
+
+
+def _p0b_d6_product_participants(
+        body: dict | None, state_smiles: dict[str, str],
+) -> tuple[list[str] | None, list[str] | None]:
+    """(产物侧 state_ref 列表, 对应结构列表)。
+
+    缺失/坏类型参与物 ⇒ 两个返回值均为 ``None``(装配不可用);合法空
+    列表 ⇒ ``([], [])``(已核为空)。产物侧引用存在但状态结构缺失/为空
+    ⇒ 结构列表为 ``None``(结构轴不可用),引用列表仍保留。
+    """
+    if body is None:
+        return None, None
+    participants = body.get("participants")
+    if not isinstance(participants, list):
+        return None, None
+    refs: list[str] = []
+    for participant in participants:
+        if not isinstance(participant, dict):
+            return None, None
+        if str(participant.get("side")) != _PRODUCT_SIDE:
+            continue
+        ref = str(participant.get("state_ref") or "")
+        if not ref:
+            return None, None
+        refs.append(ref)
+    values = [state_smiles.get(ref) for ref in refs]
+    if any(not isinstance(value, str) or not value for value in values):
+        return refs, None
+    return refs, values
+
+
+def _p0b_d6_action_payload(action: dict) -> dict:
+    payload = (action or {}).get("payload")
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except (ValueError, TypeError):
+            payload = {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _p0b_d6_origin(logical_id: str) -> str:
+    """origin 与既有字段同源(contract §1.1):logical_proposal_id 前缀。"""
+    lid = str(logical_id or "")
+    if not lid:
+        return _UNKNOWN_TOKEN
+    if lid.startswith("rec-"):
+        return _RECORDED_TOKEN
+    if lid.startswith("tpl-"):
+        return "template"
+    return "novel"
+
+
+def derive_declared_vs_executed(
+    payload: dict,
+    *,
+    qid_by_run_id: dict[str, str] | None = None,
+) -> list[dict]:
+    """从原生结果 payload 派生逐事件声明 vs 执行披露(纯只读)。
+
+    与生产链共用 ``production.build_declaration_disclosure /
+    reconcile_declared_vs_executed`` 单一来源;不重跑执行、不写任何
+    事实。事件序 = ``(created_at, event_id)``(与冻结 scorer 的候选序
+    一致)。输出禁止包含 SMILES/结构正文。
+    """
+    from .controlled_vocab import (
+        PRODUCTION_REPORT_STATUS_SUBMITTED as _SUBMITTED_STATUS,
+    )
+    from .production import (
+        build_declaration_disclosure,
+        reconcile_declared_vs_executed,
+    )
+
+    payload = payload if isinstance(payload, dict) else {}
+    qid_by_run_id = (
+        qid_by_run_id if isinstance(qid_by_run_id, dict) else {})
+    run_id = str(payload.get("run_id") or "")
+    state_smiles: dict[str, str] = {}
+    for state in payload.get("states") or []:
+        if not isinstance(state, dict):
+            continue
+        sp = state.get("payload")
+        if isinstance(sp, str):
+            try:
+                sp = json.loads(sp)
+            except (ValueError, TypeError):
+                sp = {}
+        if not isinstance(sp, dict):
+            sp = {}
+        sid = str(state.get("state_id") or sp.get("state_id") or "")
+        if sid:
+            state_smiles[sid] = str(sp.get("smiles_isomeric") or "")
+    actions = {}
+    for action in payload.get("search_actions") or []:
+        if not isinstance(action, dict):
+            continue
+        action_id = str(action.get("action_id") or "")
+        if action_id:
+            actions[action_id] = action
+    reports: dict[str, list[tuple[dict, dict]]] = {}
+    for report in payload.get("audit_production_reports") or []:
+        if not isinstance(report, dict):
+            continue
+        pp = report.get("production_payload")
+        if isinstance(pp, str):
+            try:
+                pp = json.loads(pp)
+            except (ValueError, TypeError):
+                pp = None
+        # 只有可用对象载荷才算“报告在位”;缺失/坏类型保留为来源缺失。
+        if not isinstance(pp, dict) or not pp:
+            continue
+        eid = str(pp.get("event_id")
+                  or (((pp.get("event") or {})
+                       if isinstance(pp.get("event"), dict) else {})
+                      .get("event_id") or ""))
+        if eid:
+            reports.setdefault(eid, []).append((report, pp))
+    for items in reports.values():
+        items.sort(key=lambda item: (
+            str(item[1].get("status") or ""),
+            str(item[0].get("action_id") or "")))
+    events = sorted(
+        payload.get("events") or [],
+        key=lambda e: (str((e or {}).get("created_at") or ""),
+                       str((e or {}).get("event_id") or "")))
+    rows: list[dict] = []
+    for ordinal, event in enumerate(events, 1):
+        event = event if isinstance(event, dict) else {}
+        eid = str(event.get("event_id") or "")
+        body = _p0b_d6_event_body(event)
+        product_refs, product_smiles = _p0b_d6_product_participants(
+            body, state_smiles)
+        chosen = None
+        for report, pp in reports.get(eid) or []:
+            if str(pp.get("status") or "") == _SUBMITTED_STATUS:
+                chosen = (report, pp)
+                break
+        if chosen is None and reports.get(eid):
+            chosen = reports[eid][0]
+        report_present = chosen is not None
+        report, pp = chosen if chosen is not None else ({}, {})
+        action = actions.get(str(report.get("action_id") or "")) or {}
+        action_payload = _p0b_d6_action_payload(action)
+        spec = action_payload.get("spec")
+        disclosure = build_declaration_disclosure(spec)
+        origin = _p0b_d6_origin(
+            str(action_payload.get("logical_proposal_id") or ""))
+        execution_raw = pp.get("execution") if report_present else None
+        execution = (execution_raw
+                     if isinstance(execution_raw, dict) and execution_raw
+                     else None)
+        tool_inputs = ((execution or {}).get("tool_inputs")
+                       if isinstance(execution, dict) else None)
+        tool_inputs = tool_inputs if isinstance(tool_inputs, dict) else {}
+        tool_expectation = tool_inputs.get("expectation")
+        tool_expectation = (tool_expectation
+                            if isinstance(tool_expectation, dict) else {})
+        tool_target = tool_expectation.get("target_smiles")
+        expectation_invalid = (
+            "expectation" in tool_inputs
+            and (not isinstance(tool_inputs.get("expectation"), dict)
+                 or (tool_target is not None
+                     and not isinstance(tool_target, str))))
+        expectation_target = (
+            tool_target if isinstance(tool_target, str) and tool_target
+            else str(disclosure.get("expectation_target") or ""))
+        projection = (pp.get("report_projection") or {}) \
+            if isinstance(pp.get("report_projection"), dict) else {}
+        projection_ranks = projection.get("product_ranks")
+        projection_ranks = (
+            projection_ranks if isinstance(projection_ranks, list) else [])
+        center_evidence = (
+            execution.get("center_evidence")
+            if isinstance(execution, dict) else None)
+        center_evidence = (
+            center_evidence if isinstance(center_evidence, dict) else {})
+        row = reconcile_declared_vs_executed(
+            disclosure,
+            execution=execution,
+            event_product_refs=product_refs,
+            event_product_smiles=product_smiles,
+            expectation_target=expectation_target,
+            expectation_invalid=expectation_invalid,
+            projection_ranks=projection_ranks,
+            state_smiles_by_ref=state_smiles,
+            audit_center=center_evidence,
+            origin=origin,
+            production_report_present=report_present,
+        )
+        row["ordinal"] = ordinal
+        row["event_id_prefix"] = eid[:20]
+        row["run_id_prefix"] = run_id[:20]
+        row["qid_prefix"] = str(
+            qid_by_run_id.get(run_id) or "")[:20]
+        rows.append(row)
+    return rows
+
+
+def declared_vs_executed_block(
+    payload: dict,
+    *,
+    qid_by_run_id: dict[str, str] | None = None,
+) -> dict:
+    """顶层披露块(schema/version/counts/events;contract §2)。"""
+    from .production import (
+        P0B_D6_DIAGNOSTIC_SCHEMA,
+        P0B_D6_DIAGNOSTIC_VERSION,
+        P0B_D6_IDENTITY_VERSION,
+        P0B_D6_RULE_VERSION,
+    )
+
+    rows = derive_declared_vs_executed(
+        payload, qid_by_run_id=qid_by_run_id)
+    counts = {"consistent": 0, "inconsistent": 0, _UNKNOWN_TOKEN: 0,
+              "not_applicable": 0}
+    by_origin: dict[str, dict[str, int]] = {}
+    for row in rows:
+        status = str(row.get("status") or "")
+        if status in counts:
+            counts[status] += 1
+        origin = str(row.get("origin") or _UNKNOWN_TOKEN)
+        bucket = by_origin.setdefault(origin, {
+            "consistent": 0, "inconsistent": 0, _UNKNOWN_TOKEN: 0,
+            "not_applicable": 0})
+        if status in bucket:
+            bucket[status] += 1
+    return {
+        "schema": P0B_D6_DIAGNOSTIC_SCHEMA,
+        "version": P0B_D6_DIAGNOSTIC_VERSION,
+        "rule_version": P0B_D6_RULE_VERSION,
+        "identity_version": P0B_D6_IDENTITY_VERSION,
+        "universe": "submitted events in native result payload",
+        "n_events": len(rows),
+        "counts": counts,
+        "by_origin": {k: dict(sorted(v.items()))
+                      for k, v in sorted(by_origin.items())},
+        "events": rows,
+    }
+
+
+def strip_declared_vs_executed(payload: dict,
+                               *, keep_content_digest: bool = False) -> dict:
+    """剔除可选诊断块(零漂移比较/证据用;不修改入参)。"""
+    out = {k: v for k, v in (payload or {}).items()
+           if k != "declared_vs_executed"}
+    if not keep_content_digest:
+        out.pop("content_digest", None)
+    return out
 
 
 def persist_native_result(ledger, native_result: dict) -> dict:

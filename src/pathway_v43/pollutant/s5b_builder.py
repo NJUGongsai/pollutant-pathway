@@ -53,6 +53,25 @@ from .s5b_compiler import S5B_COMPILER_VERSION
 
 S5B_BUILDER_VERSION = "s5b-builder-1"
 
+# P0b/D-6 旁路披露(P0 冻结合同,p0b-declared-vs-executed-1):
+# 装配器(analog 共底物/池条目)只把**编译执行已派生**的产物拆分保留并
+# 补齐参与物;它不重新声明产物。该标签只被诊断层读取,不改变 spec、
+# 装配结果或任何持久身份。见 docs/T_H_P0B_D6_CONTRACT_2026-10-20.md §1.6。
+P0B_D6_ASSEMBLED_DECLARATION_BOUNDARY = {
+    "principal_product": "execution_derived",
+    "coproducts": "execution_derived",
+    "copy_components": "record_declared_not_executed",
+    "event_participants": "assembly",
+    "basis": "builder_assembly_preserves_compile_split: assembled specs "
+             "reuse the compiler-derived product/coproduct split; "
+             "record-declared copy components stay declared_not_executed",
+}
+
+
+def assembled_declaration_boundary() -> dict:
+    """装配链声明边界(纯常量副本;诊断层单一来源,不参与装配)。"""
+    return dict(P0B_D6_ASSEMBLED_DECLARATION_BOUNDARY)
+
 # 仓内唯一允许的输出根(gitignored;.gitignore 由本批同步登记)
 S5B_GITIGNORED_REPO_ROOT = "reports/ppv1_s5b"
 

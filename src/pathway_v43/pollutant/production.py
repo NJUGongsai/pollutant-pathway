@@ -42,6 +42,8 @@ execution_ok=False;缺/歧义映射;strict 目标偏离;proof 更改/跨假设
 from __future__ import annotations
 
 import json
+import os
+from collections import Counter
 
 from .audit import (
     AuditContractError,
@@ -1271,3 +1273,770 @@ def expand_hypothesis_production(
         report_projection=report_projection.to_dict(),
         child_depth=child_depth,
         parent_search_revision=int(parent_search_revision))
+
+
+# ---------------------------------------------------------------- P0b/D-6 旁路披露
+#
+# 冻结合同:docs/T_H_P0B_D6_CONTRACT_2026-10-20.md。
+# 纯诊断:只读既有 spec/执行报告/事件参与物,不写事件/状态/action,
+# 不改变 admission、候选、排序或评分。默认关闭;关闭时本段不产生任何
+# 输出,原生结果 payload 与基线逐字节等价。
+
+P0B_D6_DIAGNOSTIC_SCHEMA = "p0b-declared-vs-executed-1"
+# v2(2026-10-21 回修):装配轴改共同多重集/交集计数;copy 被引用严格核
+# state_ref(结构对应另列);立体子类改用保留同位素的“去立体”代理,
+# 仅代理相同不能证明只剩立体差时输出诚实未细分子类。字段结构与枚举
+# 有增补 ⇒ 块内版本升 2/规则版本 reconcile-2;不升全局导出/原生版本。
+P0B_D6_DIAGNOSTIC_VERSION = 2
+P0B_D6_RULE_VERSION = "p0b-d6-reconcile-2"
+P0B_D6_IDENTITY_VERSION = (
+    "chemstate.strict_identity_of (CXSMILES chemical-fact subset; "
+    "dot-split component multiset)")
+P0B_D6_SWITCH_ENV = "PPV1_P0B_D6_DIAGNOSTICS"
+_P0B_D6_SWITCH_ON = frozenset({"1", "true", "yes", "on"})
+
+# 阻断型 unknown 的冻结枚举顺序(contract §1.10;第一个命中即
+# unknown_reason,全部命中进 unknown_reasons)。
+P0B_D6_BLOCKING_UNKNOWN_ORDER = (
+    "missing_production_report",
+    "missing_spec",
+    "missing_declared_principal",
+    "missing_executed_product",
+    "execution_not_verified",
+    "principal_unparseable",
+    "executed_unparseable",
+    "declared_coproduct_unparseable",
+    "declared_copy_unparseable",
+    "expectation_unparseable",
+    "copy_source_unverified",
+    "component_boundary_unknown",
+    "event_assembly_unavailable",
+)
+P0B_D6_NONBLOCKING_UNKNOWN = frozenset({
+    "origin_unknown", "principal_attribution_unknown"})
+
+# 主产物归属之外的可比较轴(派生输出用;不扩容)。
+_P0B_D6_PROOF_SCOPE = {
+    "scope": "event_local_execution_vs_declaration",
+    "verified_range": (
+        "declared generated components vs this event's recorded "
+        "execution.result fragments; copy and event assembly checked "
+        "only where the recorded fields exist"),
+    "proves": [
+        "under the frozen strict identity, whether the declared principal "
+        "product is present in this event's recorded execution fragments",
+        "whether declared generated components are present on the side "
+        "determined by the frozen execution/assembly boundary",
+        "whether copy components stayed outside execution and inside the "
+        "event product side",
+    ],
+    "does_not_prove": [
+        "reaction mechanism or enzymatic/biological feasibility",
+        "reference/gold answer correctness",
+        "reaction balance or stoichiometric completeness",
+        "candidate ranking, pool quality or scoring semantics",
+        "that a consistent event is chemically correct",
+        "that an inconsistent event is a chemically wrong answer",
+    ],
+}
+
+
+def p0b_d6_diagnostics_enabled(environ=None) -> bool:
+    """诊断开关(默认关闭;contract §3)。"""
+    env = os.environ if environ is None else environ
+    value = str((env or {}).get(P0B_D6_SWITCH_ENV) or "").strip().lower()
+    return value in _P0B_D6_SWITCH_ON
+
+
+def p0b_d6_component_keys(structure: str) -> list[str]:
+    """严格身份组分多重集(既有 chemstate.strict_identity_of 单一来源;
+    按 '.' 拆分,重复组分保留)。解析失败按既有异常上抛。"""
+    parts = [p for p in str(structure or "").split(".") if p]
+    if not parts:
+        raise ProductionContractError(
+            "P0b/D-6 诊断:结构为空",
+            {"kind": "p0b_d6_empty_structure"})
+    return sorted(strict_identity_of(p) for p in parts)
+
+
+def p0b_d6_flat_component_keys(structure: str) -> list[str]:
+    """**仅披露**的非异构代理键(erases stereo *and* isotope)。
+
+    不能证明“只剩立体差”:同位素或其它异构事实的差异也会在该代理下
+    消失。立体子类判定必须用 ``p0b_d6_nonstereo_component_keys``;本
+    代理只用于诚实标注“比结构差更弱、但不能细分”的差异。
+    """
+    from rdkit import Chem
+
+    parts = [p for p in str(structure or "").split(".") if p]
+    if not parts:
+        raise ProductionContractError(
+            "P0b/D-6 诊断:结构为空",
+            {"kind": "p0b_d6_empty_structure"})
+    out = []
+    for part in parts:
+        mol = Chem.MolFromSmiles(part)
+        if mol is None:
+            raise ProductionContractError(
+                "P0b/D-6 诊断:非异构代理键解析失败",
+                {"kind": "p0b_d6_unparseable_structure"})
+        out.append(Chem.MolToSmiles(mol, isomericSmiles=False))
+    return sorted(out)
+
+
+def p0b_d6_nonstereo_component_keys(structure: str) -> list[str]:
+    """去立体但**保留同位素及其它化学事实**的代理键(R3)。
+
+    先 ``Chem.RemoveStereochemistry``(四面体/双键/增强立体)再按既有
+    ``strict_identity_of`` 规范化;同位素、电荷、连接与其它 CX 事实全部
+    保留。只有在 strict 不等而该代理相等时,才可判“只剩立体差”。
+    """
+    from rdkit import Chem
+
+    parts = [p for p in str(structure or "").split(".") if p]
+    if not parts:
+        raise ProductionContractError(
+            "P0b/D-6 诊断:结构为空",
+            {"kind": "p0b_d6_empty_structure"})
+    out = []
+    for part in parts:
+        mol = Chem.MolFromSmiles(part)
+        if mol is None:
+            raise ProductionContractError(
+                "P0b/D-6 诊断:去立体代理键解析失败",
+                {"kind": "p0b_d6_unparseable_structure"})
+        Chem.RemoveStereochemistry(mol)
+        out.append(strict_identity_of(
+            Chem.MolToSmiles(mol, isomericSmiles=True)))
+    return sorted(out)
+
+
+def _p0b_d6_keys(structure: str) -> tuple[list[str] | None,
+                                          list[str] | None,
+                                          list[str] | None, str | None]:
+    """(strict 多重集, 去立体代理多重集, 非异构代理多重集, 错误类名)。"""
+    try:
+        return (p0b_d6_component_keys(structure),
+                p0b_d6_nonstereo_component_keys(structure),
+                p0b_d6_flat_component_keys(structure), None)
+    except Exception as exc:  # noqa: BLE001 —— 诊断层如实记 unknown
+        return None, None, None, type(exc).__name__
+
+
+def _p0b_d6_subset(left: list[str], right: list[str]) -> bool:
+    """多重集包含 left ⊆ right。"""
+    return all(right.count(k) >= n for k, n in Counter(left).items())
+
+
+def _p0b_d6_missing(left: list[str], right: list[str]) -> int:
+    return sum((Counter(left) - Counter(right)).values())
+
+
+def _p0b_d6_covered(left: list[str], right: list[str]) -> int:
+    """共同多重集交集计数(同一出现只计一次,不无限复用)。"""
+    return sum((Counter(left) & Counter(right)).values())
+
+
+def _p0b_d6_relation(left: list[str], right: list[str]) -> str:
+    """声明多重集 vs 执行多重集的关系(命名以 left=declared,
+    right=executed 为准)。"""
+    if left == right:
+        return "equal"
+    left_missing = _p0b_d6_missing(left, right)
+    right_missing = _p0b_d6_missing(right, left)
+    if left_missing and not right_missing:
+        # 执行侧全部在声明内,声明多出组分 ⇒ executed ⊆ declared
+        return "executed_subset_declared"
+    if right_missing and not left_missing:
+        # 声明侧全部在执行内,执行多出组分 ⇒ declared ⊆ executed
+        return "declared_subset_executed"
+    if left_missing and right_missing:
+        return "overlap" if set(left) & set(right) else "disjoint"
+    return "equal"
+
+
+def build_declaration_disclosure(spec) -> dict:
+    """从既有 spec 抽取声明轴(纯读;不写 spec、不改身份)。
+
+    返回内部结构(含 SMILES,仅供诊断计算;对外输出禁止落结构正文)。
+    ``compiled`` 只表示 spec 是否带既有 ``compile`` 块;origin 的解析在
+    原生聚合层按 logical_proposal_id 完成(contract §1.1/§1.6)。
+
+    字段类型非法不被静默归一成“已核为空”:``*_invalid`` 标记让共用
+    核验源输出对应 unknown(``principal_unparseable`` /
+    ``declared_coproduct_unparseable`` / ``declared_copy_unparseable`` /
+    ``expectation_unparseable``),与“明确空声明”区分。
+    """
+    spec = spec if isinstance(spec, dict) else {}
+    principal_raw = spec.get("product_smiles")
+    principal_invalid = (
+        principal_raw is not None and not isinstance(principal_raw, str))
+    principal = principal_raw if isinstance(principal_raw, str) else ""
+
+    coproducts_raw = spec.get("coproducts")
+    coproducts_invalid = (
+        coproducts_raw is not None
+        and not isinstance(coproducts_raw, (list, tuple)))
+    coproducts = [] if coproducts_invalid else [
+        str(c) for c in (coproducts_raw or []) if str(c)]
+
+    copies_raw = spec.get("declared_copy_components")
+    copies_invalid = (
+        copies_raw is not None
+        and not isinstance(copies_raw, (list, tuple)))
+    copies = []
+    if not copies_invalid:
+        for item in copies_raw or []:
+            if not isinstance(item, dict):
+                copies_invalid = True
+                break
+            copies.append(dict(item))
+
+    expectation_raw = spec.get("expectation")
+    expectation_invalid = (
+        expectation_raw is not None
+        and not isinstance(expectation_raw, dict))
+    target_raw = ((expectation_raw or {}).get("target_smiles")
+                  if isinstance(expectation_raw, dict) else None)
+    expectation_target_invalid = (
+        target_raw is not None and not isinstance(target_raw, str))
+    expectation_target = (
+        target_raw if isinstance(target_raw, str) else "")
+
+    return {
+        "spec_present": bool(isinstance(spec, dict) and spec),
+        "principal": principal,
+        "principal_invalid": bool(principal_invalid),
+        "coproducts": coproducts,
+        "coproducts_invalid": bool(coproducts_invalid),
+        "copies": copies,
+        "copies_invalid": bool(copies_invalid),
+        "compiled": isinstance(spec.get("compile"), dict),
+        "expectation_target": expectation_target,
+        "expectation_invalid": bool(
+            expectation_invalid or expectation_target_invalid),
+    }
+
+
+def reconcile_declared_vs_executed(
+    disclosure: dict,
+    *,
+    execution: dict | None,
+    event_product_refs: list[str] | None,
+    event_product_smiles: list[str] | None,
+    expectation_target: str = "",
+    expectation_invalid: bool = False,
+    projection_ranks: list[dict] | None = None,
+    state_smiles_by_ref: dict[str, str] | None = None,
+    audit_center: dict | None = None,
+    origin: str = "unknown",
+    production_report_present: bool = True,
+) -> dict:
+    """单事件声明 vs 执行对账(纯函数;contract §1.3–§1.9)。
+
+    ``event_product_refs``/``event_product_smiles`` 为 ``None`` 表示事件
+    装配侧不可用(与“空列表”区分);需要装配比较时记 unknown。
+    ``production_report_present``/spec 在位等来源事实也参与适用性判定:
+    来源缺失先保全阻断型 unknown,只有双方**确知为空**才 ``not_applicable``。
+    """
+    disclosure = disclosure if isinstance(disclosure, dict) else {}
+    execution_present = isinstance(execution, dict) and bool(execution)
+    execution = execution if isinstance(execution, dict) else {}
+    result = execution.get("result")
+    result = result if isinstance(result, dict) else {}
+    state_smiles_by_ref = (
+        state_smiles_by_ref if isinstance(state_smiles_by_ref, dict) else {})
+    projection_ranks = (
+        projection_ranks if isinstance(projection_ranks, list) else [])
+    projection_ranks = [x for x in projection_ranks if isinstance(x, dict)]
+    audit_center = audit_center if isinstance(audit_center, dict) else {}
+    origin = str(origin or "unknown")
+    if event_product_refs is not None \
+            and not isinstance(event_product_refs, list):
+        event_product_refs = None
+    if event_product_smiles is not None \
+            and not isinstance(event_product_smiles, list):
+        event_product_smiles = None
+
+    principal = str(disclosure.get("principal") or "")
+    coproducts = [str(c) for c in (disclosure.get("coproducts") or [])]
+    copies = [dict(c) for c in (disclosure.get("copies") or [])
+              if isinstance(c, dict)]
+    compiled = bool(disclosure.get("compiled"))
+    executed = str(result.get("product_smiles") or "")
+    exec_ok = bool(execution.get("execution_ok")) and bool(result.get("ok"))
+    spec_present = bool(disclosure.get("spec_present"))
+
+    blocking: list[str] = []
+    nonblocking: list[str] = []
+    reason_codes: list[str] = []
+
+    def add_blocking(code: str) -> None:
+        if code not in blocking:
+            blocking.append(code)
+
+    # ---- 阻断型 unknown(冻结顺序) ----
+    # R2:来源缺失/坏类型先保全 unknown,不得在聚合入口归一成“已知为空”。
+    if not production_report_present:
+        add_blocking("missing_production_report")
+    if not spec_present:
+        add_blocking("missing_spec")
+    if disclosure.get("principal_invalid"):
+        add_blocking("principal_unparseable")
+    if disclosure.get("coproducts_invalid"):
+        add_blocking("declared_coproduct_unparseable")
+    if disclosure.get("copies_invalid"):
+        add_blocking("declared_copy_unparseable")
+    if disclosure.get("expectation_invalid") or expectation_invalid:
+        add_blocking("expectation_unparseable")
+    if not execution_present:
+        add_blocking("execution_not_verified")
+    elif not exec_ok:
+        add_blocking("execution_not_verified")
+
+    if origin == "unknown":
+        nonblocking.append("origin_unknown")
+
+    # ---- 适用性(contract §1.7/R2):只有来源在位、执行已核且声明与
+    # 执行**确知为空**才 not_applicable;来源缺失/未核先保留 unknown。 ----
+    known_empty = (
+        not principal and not executed and not coproducts and not copies
+        and production_report_present and spec_present
+        and execution_present and exec_ok
+        and not (disclosure.get("principal_invalid")
+                 or disclosure.get("coproducts_invalid")
+                 or disclosure.get("copies_invalid")
+                 or disclosure.get("expectation_invalid")
+                 or expectation_invalid))
+    if known_empty and not blocking:
+        row = _p0b_d6_row_skeleton(
+            disclosure, execution, event_product_refs, origin,
+            audit_center)
+        row["applicability"] = "not_applicable"
+        row["status"] = "not_applicable"
+        row["component_relation"]["relation"] = "unknown"
+        row["proof_scope"]["unverified_ranges"] = []
+        row["unknown_reason"] = None
+        row["unknown_reasons"] = list(nonblocking)
+        return row
+
+    # missing_* 只在“非确知为空”时才是阻断项;否则 above returns.
+    if not principal:
+        add_blocking("missing_declared_principal")
+    if execution_present and exec_ok and not executed:
+        add_blocking("missing_executed_product")
+
+    # ---- 边界(contract §1.6) ----
+    if compiled:
+        from .s5b_compiler import compiled_declaration_boundary
+        boundary = compiled_declaration_boundary()
+    elif origin == "novel":
+        from .s5b_builder import assembled_declaration_boundary
+        base = assembled_declaration_boundary()
+        boundary = {
+            "principal_product": "model_declared",
+            "coproducts": "assembly_declared",
+            "copy_components": base["copy_components"],
+            "event_participants": "assembly",
+            "basis": (
+                "novel_spec_no_compile_block: principal/coproducts are "
+                "model-declared; execution only supports the principal; "
+                "coproducts are carried by event assembly"),
+        }
+    else:
+        boundary = {
+            "principal_product": "unknown",
+            "coproducts": "unknown",
+            "copy_components": "unknown",
+            "event_participants": "assembly",
+            "basis": "spec_compile_absent_and_origin_not_novel",
+        }
+        add_blocking("component_boundary_unknown")
+
+    # ---- 解析(任一失败 ⇒ unknown,不洗成 consistent) ----
+    principal_keys = principal_nonstereo = principal_nonisomeric = None
+    if principal:
+        (principal_keys, principal_nonstereo, principal_nonisomeric,
+         err) = _p0b_d6_keys(principal)
+        if err is not None:
+            add_blocking("principal_unparseable")
+    executed_keys = executed_nonstereo = executed_nonisomeric = None
+    if executed:
+        (executed_keys, executed_nonstereo, executed_nonisomeric,
+         err) = _p0b_d6_keys(executed)
+        if err is not None:
+            add_blocking("executed_unparseable")
+    coproduct_keys: list[str] = []
+    if coproducts:
+        for item in coproducts:
+            keys, _nonstereo, _nonisomeric, err = _p0b_d6_keys(item)
+            if err is not None:
+                add_blocking("declared_coproduct_unparseable")
+                break
+            coproduct_keys.extend(keys or [])
+    copy_keys: list[str] = []
+    copy_keys_complete = True
+    if copies:
+        for entry in copies:
+            if str(entry.get("component_source") or "") != \
+                    "record_declared_copy":
+                add_blocking("copy_source_unverified")
+            keys, _nonstereo, _nonisomeric, err = _p0b_d6_keys(
+                str(entry.get("smiles") or ""))
+            if err is not None:
+                add_blocking("declared_copy_unparseable")
+                copy_keys_complete = False
+                continue
+            copy_keys.extend(keys or [])
+    expectation_keys = None
+    expectation_present = bool(str(expectation_target or ""))
+    if expectation_present:
+        expectation_keys, _nonstereo, _nonisomeric, err = _p0b_d6_keys(
+            str(expectation_target))
+        if err is not None:
+            add_blocking("expectation_unparseable")
+            expectation_keys = None
+
+    # ---- 装配侧(需要时才核;缺字段/坏类型 ⇒ unknown,空列表才是已核为空) ----
+    assembly_keys: list[str] | None = None
+    need_assembly = bool(
+        copies
+        or (coproducts and boundary.get("coproducts")
+            == "assembly_declared"))
+    if event_product_refs is None or event_product_smiles is None:
+        if need_assembly:
+            add_blocking("event_assembly_unavailable")
+    else:
+        assembly_keys = []
+        assembly_bad = False
+        for smi in event_product_smiles:
+            if not isinstance(smi, str) or not smi:
+                assembly_bad = True
+                break
+            keys, _nonstereo, _nonisomeric, err = _p0b_d6_keys(smi)
+            if err is not None:
+                assembly_bad = True
+                break
+            assembly_keys.extend(keys or [])
+        if assembly_bad:
+            # contract §1.10:只有“需要装配侧比较”时,不可解析才阻断;
+            # 否则仅把结构轴披露置 None,不把无关事件洗成 unknown。
+            if need_assembly:
+                add_blocking("event_assembly_unavailable")
+            assembly_keys = None
+
+    # ---- 归属(contract §1.3;不可映射只记非阻断 unknown) ----
+    attribution = {
+        "basis": "none", "attributed": False,
+        "matches_declared": None, "state_ref_prefix": ""}
+    rank1 = next((x for x in projection_ranks
+                  if x.get("report_rank") == 1), None)
+    attr_keys = None
+    attr_ref = ""
+    if rank1 is not None:
+        ref = str(rank1.get("state_ref") or "")
+        attr_ref = ref
+        attribution["basis"] = "report_projection.product_ranks[report_rank=1]"
+        attribution["state_ref_prefix"] = ref[:20]
+        smi = state_smiles_by_ref.get(ref)
+        if smi:
+            attr_keys, _nonstereo, _nonisomeric, err = _p0b_d6_keys(
+                str(smi))
+            if err is None and attr_keys is not None:
+                attribution["attributed"] = True
+    if not attribution["attributed"]:
+        nonblocking.append("principal_attribution_unknown")
+    elif principal_keys is not None:
+        if len(attr_keys or []) == 1 and len(principal_keys) == 1:
+            attribution["matches_declared"] = (
+                attr_keys == principal_keys)
+        else:
+            # 多组分主产物:归属只到单状态,记忆为未判定(不冒充相等)
+            attribution["matches_declared"] = None
+
+    # ---- 关系与 copy(仅在两侧可解析时) ----
+    declared_generated = sorted(
+        (principal_keys or []) + coproduct_keys)
+    relation = "unknown"
+    principal_in_executed = None
+    principal_nonstereo_in_executed = None
+    principal_flat_in_executed = None
+    principal_nonisomeric_in_executed = None
+    declared_missing_from_executed = None
+    executed_extra = None
+    if principal_keys is not None and executed_keys is not None:
+        relation = _p0b_d6_relation(declared_generated, executed_keys)
+        principal_in_executed = _p0b_d6_subset(
+            principal_keys, executed_keys)
+        if principal_nonstereo is not None \
+                and executed_nonstereo is not None:
+            principal_nonstereo_in_executed = _p0b_d6_subset(
+                principal_nonstereo, executed_nonstereo)
+        if principal_nonisomeric is not None \
+                and executed_nonisomeric is not None:
+            principal_nonisomeric_in_executed = _p0b_d6_subset(
+                principal_nonisomeric, executed_nonisomeric)
+            # 兼容字段:旧“非异构代理”(stereo+isotope 均擦除),仅披露
+            principal_flat_in_executed = principal_nonisomeric_in_executed
+        declared_missing_from_executed = _p0b_d6_missing(
+            declared_generated, executed_keys)
+        executed_extra = _p0b_d6_missing(
+            executed_keys, declared_generated)
+
+    copy_in_executed = None
+    copy_in_expectation = None
+    copy_in_event = None
+    copy_structure_in_event = None
+    copy_refs_present = None
+    if copies:
+        copy_in_executed = bool(
+            executed_keys is not None and any(
+                k in executed_keys for k in copy_keys))
+        copy_in_expectation = bool(
+            expectation_keys is not None and any(
+                k in expectation_keys for k in copy_keys))
+        if event_product_refs is not None:
+            # R1:合法性严格按声明的 state_ref;结构对应另作披露轴。
+            ref_set = {str(r) for r in event_product_refs}
+            copy_refs = [str(e.get("state_ref") or "") for e in copies]
+            copy_refs_present = sum(
+                1 for ref in copy_refs if ref and ref in ref_set)
+            copy_in_event = all(
+                bool(ref) and ref in ref_set for ref in copy_refs)
+        if assembly_keys is not None:
+            copy_structure_in_event = (
+                bool(copy_keys)
+                and _p0b_d6_subset(copy_keys, assembly_keys)
+                if copy_keys_complete else False)
+
+    # ---- 不一致(contract §1.9;顺序冻结) ----
+    subclass = None
+    if principal_in_executed is False:
+        if principal_nonstereo_in_executed:
+            # 去立体代理(保留同位素)仍相等 ⇒ 只剩立体差
+            subclass = "principal_stereo_only"
+            reason_codes.append("principal_stereo_only_diff")
+        elif principal_nonisomeric_in_executed:
+            # 旧非异构代理相等但去立体代理不等 ⇒ 立体/同位素/其它
+            # 异构事实的差异未细分;诚实标注,不沿用 stereo_only 强义。
+            subclass = "principal_isomeric_unspecified"
+            reason_codes.append("principal_isomeric_unspecified_diff")
+        else:
+            subclass = "principal_absent"
+            reason_codes.append("principal_absent_from_executed")
+    elif compiled and principal_keys is not None \
+            and executed_keys is not None \
+            and not _p0b_d6_subset(declared_generated, executed_keys):
+        subclass = "declared_component_absent_from_executed"
+        reason_codes.append("declared_component_absent_from_executed")
+    elif (not compiled and coproducts and origin == "novel"
+          and assembly_keys is not None and principal_keys is not None):
+        # R1:装配轴用共同多重集(声明生成组分整体),重复份数不得复用。
+        if not _p0b_d6_subset(declared_generated, assembly_keys):
+            subclass = "declared_coproduct_missing_from_event"
+            reason_codes.append("declared_coproduct_missing_from_event")
+    if subclass is None and copies:
+        if copy_in_event is False:
+            reason_codes.append("copy_missing_from_event")
+        if copy_in_executed:
+            reason_codes.append("copy_executed")
+        if copy_in_expectation:
+            reason_codes.append("copy_in_expectation")
+        if any(r in reason_codes for r in (
+                "copy_missing_from_event", "copy_executed",
+                "copy_in_expectation")):
+            subclass = "copy_contract_violation"
+    if subclass is None and expectation_keys is not None \
+            and principal_keys is not None \
+            and not _p0b_d6_subset(principal_keys, expectation_keys):
+        subclass = "expectation_contradiction"
+        reason_codes.append("expectation_not_declared_principal")
+    if subclass is None and attribution["attributed"] \
+            and attribution["matches_declared"] is False:
+        subclass = "assembly_contradiction"
+        reason_codes.append("projection_main_not_declared_principal")
+    if subclass is None and attribution["attributed"] \
+            and event_product_refs is not None and attr_ref:
+        if attr_ref not in {str(r) for r in event_product_refs}:
+            subclass = "assembly_contradiction"
+            reason_codes.append("projection_main_missing_from_event")
+
+    blocking = [c for c in P0B_D6_BLOCKING_UNKNOWN_ORDER if c in blocking]
+    status = "unknown" if blocking else (
+        "inconsistent" if subclass else "consistent")
+    if status != "inconsistent":
+        subclass = None
+
+    row = _p0b_d6_row_skeleton(
+        disclosure, execution, event_product_refs, origin, audit_center)
+    row["applicability"] = "applicable"
+    row["status"] = status
+    row["inconsistency_subclass"] = subclass
+    row["reason_codes"] = reason_codes
+    row["unknown_reason"] = blocking[0] if blocking else None
+    row["unknown_reasons"] = blocking + [
+        c for c in nonblocking if c not in blocking]
+    row["declared"] = {
+        "principal_present": bool(principal),
+        "principal_multi_component": bool(
+            principal_keys is not None and len(principal_keys) > 1),
+        "principal_components": (
+            len(principal_keys) if principal_keys is not None else None),
+        "coproduct_components": (
+            len(coproduct_keys) if coproducts else 0),
+        "copy_components": len(copies),
+        "generated_components_multiset_size": (
+            len(declared_generated) if principal_keys is not None else None),
+        "sources": ["product_smiles", "coproducts"],
+    }
+    row["executed"] = {
+        "verified": bool(exec_ok and executed),
+        "components": (
+            len(executed_keys) if executed_keys is not None else None),
+        "source": "production_report.execution.result.product_smiles",
+    }
+    row["component_relation"] = {
+        "relation": relation,
+        "principal_in_executed": principal_in_executed,
+        # 去立体(保留同位素)代理:仅在 True 时支持 principal_stereo_only
+        "principal_nonstereo_in_executed": principal_nonstereo_in_executed,
+        # 兼容字段:旧非异构代理(擦除立体+同位素),仅披露,不能证明立体子类
+        "principal_flat_in_executed": principal_flat_in_executed,
+        "principal_nonisomeric_in_executed":
+            principal_nonisomeric_in_executed,
+        "declared_missing_from_executed": declared_missing_from_executed,
+        "executed_extra": executed_extra,
+        "boundary": _p0b_d6_boundary_label(
+            boundary, compiled=compiled, origin=origin, copies=bool(copies),
+            coproducts=bool(coproducts)),
+    }
+    row["principal_attribution"] = attribution
+    row["copy"] = {
+        "applicable": bool(copies),
+        "n": len(copies),
+        "source": "record_declared_copy",
+        "execution_status": "declared_not_executed",
+        # 合法性轴:严格按声明的 state_ref 是否被事件产物侧引用
+        "in_event_products": copy_in_event,
+        # 另一披露轴:结构(多重集)是否出现在事件产物侧;不替代引用轴
+        "structure_in_event_products": copy_structure_in_event,
+        "in_expectation": copy_in_expectation,
+        "in_executed": copy_in_executed,
+    }
+    row["expectation"] = {
+        "present": expectation_present,
+        "principal_present": (
+            _p0b_d6_subset(principal_keys, expectation_keys)
+            if (principal_keys is not None
+                and expectation_keys is not None) else None),
+    }
+    row["assembly"] = {
+        "event_product_components": (
+            len(assembly_keys) if assembly_keys is not None else None),
+        # 共同多重集交集计数(同一出现只计一次)
+        "declared_generated_present": (
+            _p0b_d6_covered(declared_generated, assembly_keys)
+            if assembly_keys is not None and principal_keys is not None
+            else None),
+        "copies_present": (
+            _p0b_d6_covered(copy_keys, assembly_keys)
+            if (assembly_keys is not None and copies
+                and copy_keys_complete) else None),
+        "copy_refs_present": copy_refs_present,
+    }
+    row["proof_scope"]["unverified_ranges"] = list(blocking)
+    return row
+
+
+def _p0b_d6_row_skeleton(disclosure, execution, event_product_refs,
+                         origin, audit_center) -> dict:
+    center = audit_center or {}
+    return {
+        "schema": P0B_D6_DIAGNOSTIC_SCHEMA,
+        "version": P0B_D6_DIAGNOSTIC_VERSION,
+        "rule_version": P0B_D6_RULE_VERSION,
+        "identity_version": P0B_D6_IDENTITY_VERSION,
+        "ordinal": 0,
+        "qid_prefix": "",
+        "event_id_prefix": "",
+        "run_id_prefix": "",
+        "origin": str(origin or "unknown"),
+        "origin_basis": "logical_proposal_id_prefix",
+        "applicability": "applicable",
+        "status": "consistent",
+        "inconsistency_subclass": None,
+        "reason_codes": [],
+        "unknown_reason": None,
+        "unknown_reasons": [],
+        "declared": {
+            "principal_present": bool(disclosure.get("principal")),
+            "principal_multi_component": None,
+            "principal_components": None,
+            "coproduct_components": len(disclosure.get("coproducts") or []),
+            "copy_components": len(disclosure.get("copies") or []),
+            "generated_components_multiset_size": None,
+            "sources": ["product_smiles", "coproducts"],
+        },
+        "executed": {
+            "verified": False,
+            "components": None,
+            "source": "production_report.execution.result.product_smiles",
+        },
+        "component_relation": {
+            "relation": "unknown",
+            "principal_in_executed": None,
+            "principal_nonstereo_in_executed": None,
+            "principal_flat_in_executed": None,
+            "principal_nonisomeric_in_executed": None,
+            "declared_missing_from_executed": None,
+            "executed_extra": None,
+            "boundary": "unknown",
+        },
+        "principal_attribution": {
+            "basis": "none", "attributed": False,
+            "matches_declared": None, "state_ref_prefix": ""},
+        "copy": {
+            "applicable": bool(disclosure.get("copies")),
+            "n": len(disclosure.get("copies") or []),
+            "source": "record_declared_copy",
+            "execution_status": "declared_not_executed",
+            "in_event_products": None,
+            "structure_in_event_products": None,
+            "in_expectation": None,
+            "in_executed": None,
+        },
+        "expectation": {"present": False, "principal_present": None},
+        "assembly": {
+            "event_product_components": (
+                len(event_product_refs)
+                if event_product_refs is not None else None),
+            "declared_generated_present": None,
+            "copies_present": None,
+            "copy_refs_present": None,
+        },
+        "audit_cross_ref": {
+            "center_match": center.get("center_match"),
+            "strict_target_match": center.get("strict_target_match"),
+            "declaration_mismatch": center.get("declaration_mismatch"),
+            "proof_scope": center.get("proof_scope"),
+        },
+        "proof_scope": {
+            **{k: (list(v) if isinstance(v, list) else v)
+               for k, v in _P0B_D6_PROOF_SCOPE.items()},
+            "unverified_ranges": [],
+        },
+    }
+
+
+def _p0b_d6_boundary_label(boundary: dict, *, compiled: bool, origin: str,
+                           copies: bool, coproducts: bool) -> str:
+    """声明生成组分的边界标签(contract §1.6;只披露轴向)。"""
+    if boundary.get("principal_product") == "unknown":
+        return "unknown"
+    if compiled:
+        return "mixed" if copies else "execution_derived"
+    if origin == "novel":
+        if copies or coproducts:
+            return "mixed"
+        return "model_declared"
+    return "unknown"

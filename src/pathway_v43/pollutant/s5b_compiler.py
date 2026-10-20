@@ -150,10 +150,31 @@ from ..services.atom_tool import (
     render,
     validate_edits,
 )
+from .hypothesis import (
+    PARTICIPANT_ROLE_PRINCIPAL_PRODUCT as _PRINCIPAL_PRODUCT_ROLE,
+)
 
 RDLogger.DisableLog("rdApp.*")
 
 S5B_COMPILER_VERSION = "s5b-compiler-6"
+
+# P0b/D-6 旁路披露(P0 冻结合同,p0b-declared-vs-executed-1):
+# 编译器产出的 spec 里 product_smiles/coproducts/expectation 由**同一次
+# 离线执行**派生 —— 该边界标签只被诊断层读取,不改变 spec 内容、
+# 编译判据或任何持久身份。见 docs/T_H_P0B_D6_CONTRACT_2026-10-20.md §1.6。
+P0B_D6_COMPILED_DECLARATION_BOUNDARY = {
+    _PRINCIPAL_PRODUCT_ROLE: "execution_derived",
+    "coproducts": "execution_derived",
+    "copy_components": "record_declared_not_executed",
+    "event_participants": "assembly",
+    "basis": "spec.compile_present: principal/coproducts split from the "
+             "same offline execution; expectation is its executed target",
+}
+
+
+def compiled_declaration_boundary() -> dict:
+    """编译链声明边界(纯常量副本;诊断层单一来源,不参与编译)。"""
+    return dict(P0B_D6_COMPILED_DECLARATION_BOUNDARY)
 
 # 产物侧身份自洽门(T-H 部署轮 2026-10-20;见
 # _product_components_identity_problem):编译产物任一组分不可经
