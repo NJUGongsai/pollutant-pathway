@@ -6,6 +6,9 @@
 > 远端 netcheck `46954668` 已 COMPLETED／Exit0，compiler-6／v3 available 已独立核；**r2 build `46954982` 已提交，2026-10-20 09:51:47（北京时间）实测 RUNNING（wzhcnormal/f02r3n02）**，尚未完成，未 run/score。
 > 接续 heartbeat=`t-h-r2`（主会话已创建，15 分钟查状态、不变静默）；opsstate=`/work/home/aclhl3hbth/ppv1_hpc/operations/t_h_s5b_298_20261020r2.json`；执行与下一步见 `docs/T_H_RELAUNCH_EXECUTION_2026-10-20.md` §7。
 > 下方“源码未提交／待 CC 复核”及旧双版 score 步骤为本窗口此前快照，当前以本段和操作补充为准；原审批和旧事故批不改。
+> **2026-10-20 终态**：r2 全链完成——build `46954982` / run `46958084` / score `46969374` 均 COMPLETED 0:0，298/298、failed=0、zero_cx=true；
+> 结果 v1 hit@1 **84（28.19%）** / v2（headline）**89（29.87%）**，未达预注册 35–40%，<32% 强制逐桶回查已完成（对 chain13 v2 净 +2）；
+> 批根已封存（`th_sealed.json` sha `424f81ad…883e9a`，目录 555/文件 444，零可写；runs 根不封）；结果见 `docs/T_H_RESULT_2026-10-20.md`（+`_PLAIN`）；**未 push**。
 
 > 写给：下一个窗口。本窗口按 CC 指令完成 T-H 发车→冒烟事故→修复（compiler-6 身份自洽门），
 > **修复待 CC 复核**；复核放行后新窗口**见放行即自动续跑**发车链（CC 2026-10-20 拍板）。
@@ -26,10 +29,12 @@
 | 2 | T-H 预注册+付费+HPC | ✅ **CC 已签字**（2026-10-20：预注册定稿+付费/HPC 指令；no-cap 沿 chain13/14 先例） |
 | 3 | T-H 发车（第一次） | ⚠️ **冒烟事故停批**：netcheck/build 全过；run 在 smoke10 抓到 CX 身份守卫杀题（21/298 题 0 调用即死）⇒ 主动 scancel（费用仅 10 次请求）。档案 `docs/T_H_SMOKE_INCIDENT_2026-10-20.md` |
 | 4 | 修复（CC 拍板 A=编译层自洽门） | ✅ 实现+验证全绿（定向 69/全量 2299-0/真面分判 21 拒 529 过零误伤）；**未提交**（§4） |
-| 5 | 修复复核 | ⏳ **等 CC**（请求稿 `docs/T_H_DEPLOY_FIX2_REVIEW_REQUEST_2026-10-20.md`；放行落 `docs/T_H_DEPLOY_FIX2_REVIEW_2026-10-20.md`） |
-| 6 | T-H 重启（r2 批根） | ⏳ 见放行即按 §3 续跑 |
+| 5 | 修复复核 | ✅ **复核已放行**（`docs/T_H_DEPLOY_FIX2_REVIEW_2026-10-20.md`） |
+| 6 | T-H 重启（r2 批根） | ✅ **r2 完成**：build/run/score 三作业 COMPLETED，298/298、零 CX；已封存；结果见 `docs/T_H_RESULT_2026-10-20.md` |
 
 ## 3. 续跑步骤（见放行后照此执行，命令级）
+
+**本文件 §3 已于 2026-10-20 15:40 执行完毕，保留为历史操作底稿。**
 
 **前置自检**：`docs/T_H_DEPLOY_FIX2_REVIEW_2026-10-20.md` 存在且终判定=**放行**（若「需修正」
 ⇒ 按其清单修完再回到本节；无文件 ⇒ 停，提醒 CC 复核）。
