@@ -628,7 +628,7 @@ def test_compiler_version_registered() -> None:
     # 为碳 + 执行后复核双轴;公共编译判据链行为变化)
     # T-G C2(2026-10-19):重刀中心锚定对齐(s5b-compiler-4:中心匹配+M 全候选等价核验+歧义硬拒)⇒ 4
     # T-G D1.2(2026-10-19):确定性模板补映射(transform_no_change 唯一触发点;公共编译面行为变化)⇒ 5
-    assert S5B_COMPILER_VERSION == "s5b-compiler-5"
+    assert S5B_COMPILER_VERSION == "s5b-compiler-6"
     # 变换提取:map 号联结可重放(同输入同变化表)
     t1 = extract_mapped_transform(
         "[CH3:1][CH2:2][OH:3]", "[CH3:1][CH:2]=[O:3]")

@@ -1180,8 +1180,37 @@ def _criteria_v3_arm_registry() -> dict:
                 "carbonate_system": {}}
     import sys as _sys
     pkg = Path(_rdkit_pkg.__file__).parent
-    dylib_sha = _criteria_v3_sha256_file(
-        pkg / ".dylibs" / "libRDKitMolStandardize.1.dylib")
+    # 引擎 C++ 库定位——平台化（T-H 部署轮修复,2026-10-20）:macOS wheel
+    # 在 ``pkg/.dylibs/*.dylib``;Linux conda 在 ``$prefix/lib/*.so*``;
+    # Linux pip wheel 在 ``site-packages/rdkit.libs/*.so*``。原版仅查
+    # macOS 路径 ⇒ Linux 上 dylib_sha=None ⇒ v3 判据被 fail-closed
+    # （HPC venv/rdkit 2026.03.5 实测）。语义不变:仍以引擎原子库
+    # 实文件 sha256 替代登记 **tautomerTransformsFile 缺席** 之指纹。
+    import glob as _glob
+    import sysconfig as _sysconfig
+    dylib_candidates = [
+        pkg / ".dylibs" / "libRDKitMolStandardize.1.dylib",
+    ]
+    _roots = [Path(_sys.prefix) / "lib",
+              Path(_sysconfig.get_paths().get("purelib") or "."),
+              pkg.parent]
+    # conda 布局锚:rdkit 包位在 ``<env>/lib/pythonX.Y/site-packages/rdkit``
+    # ⇒ C++ 库在 ``<env>/lib/`` = pkg.parents[2](再兜一层 parents[3])
+    if len(pkg.parents) >= 3:
+        _roots.append(pkg.parents[2])
+    if len(pkg.parents) >= 4:
+        _roots.append(pkg.parents[3] / "lib")
+    for _root in _roots:
+        for _pat in ("libRDKitMolStandardize*.so*",
+                     "rdkit.libs/libRDKitMolStandardize*.so*"):
+            dylib_candidates += [Path(p) for p in
+                                 sorted(_glob.glob(str(_root / _pat)))]
+    dylib_sha, dylib_path = None, None
+    for _cand in dylib_candidates:
+        _s = _criteria_v3_sha256_file(_cand)
+        if _s:
+            dylib_sha, dylib_path = _s, str(_cand)
+            break
     so_sha = _criteria_v3_sha256_file(
         pkg / "Chem" / "MolStandardize" / "rdMolStandardize.so")
     cp = _rms.CleanupParameters()

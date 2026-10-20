@@ -458,7 +458,7 @@ def test_aggregate_fields_unchanged_and_row_schema(
         # 活编译器版本键(向后兼容追加;既有键与语义零变化)
         "compiler_version"}
     assert diag["pool_policy_version"] == S5B_POOL_POLICY_VERSION
-    assert diag["compiler_version"] == "s5b-compiler-5"
+    assert diag["compiler_version"] == "s5b-compiler-6"
     rows = diag["candidates"]
     assert rows
     for row in rows:

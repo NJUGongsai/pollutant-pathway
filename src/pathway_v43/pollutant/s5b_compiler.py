@@ -125,6 +125,16 @@ sp3→sp2 消解**——消解谓词钉死(全部条件须满足):
   补映射路径拒因 detail 同形披露(applied=false = 未应用
   [no_gap/fail_closed],applied=true = 触发未果);非 tnc 路径
   无新增键。
+
+版本 s5b-compiler-6(T-H 部署轮 2026-10-20):**产物侧身份自洽门**
+——编译产物任一组分不可经 chemstate 工厂表示(未登记 CX 类/自由基
+退化片段等)⇒ 结构化拒 ``product_component_identity_invalid``,不入
+池。成因:D1.2 补映射使产物侧含游离退化片段(如 `[N+]`,RDKit 产出
+裸 ``|0|`` 未登记 CX 块)的记录首次编译入池,worker decide 段在模型
+调用前构建全部池 spec 产物态时 fail-closed ⇒ 整题 0 调用失败
+(2026-10-20 实测 21/298 题)。门判据=chemstate 构建单一来源,不引入
+化学判断;``_compile_donor_template_impl`` 内判据零改动(包装层
+gate,沿 D1.2 tnc gate 同模式)。
 """
 
 from __future__ import annotations
@@ -143,7 +153,12 @@ from ..services.atom_tool import (
 
 RDLogger.DisableLog("rdApp.*")
 
-S5B_COMPILER_VERSION = "s5b-compiler-5"
+S5B_COMPILER_VERSION = "s5b-compiler-6"
+
+# 产物侧身份自洽门(T-H 部署轮 2026-10-20;见
+# _product_components_identity_problem):编译产物任一组分不可经
+# chemstate 工厂表示 ⇒ 结构化拒 product_component_identity_invalid
+S5B_PRODUCT_IDENTITY_GATE_VERSION = "product-identity-gate-1"
 
 # 模板补映射规则版本(T-G Step D1.2;规则级、零化学判断:只补
 # transform_no_change 成因上的缺失 map 号;见 complete_template_mapping)
@@ -1447,6 +1462,27 @@ def compile_donor_template(
             substrate_smiles=substrate_smiles, record_id=record_id,
             mapping_origin=mapping_origin, alignment_ref=alignment_ref,
             key_prefix=key_prefix, render_name=render_name)
+        # ---- T-H 部署轮(s5b-compiler-6):产物侧身份自洽门 ----
+        # 编译产物任一组分不可经 chemstate 工厂表示(未登记 CX 类/自由基
+        # 退化片段等)⇒ 结构化拒,不得入池——否则 worker 的 decide 段在
+        # 模型调用前对全部池 spec 构建产物态时 fail-closed,整题 0 调用
+        # 即失败(2026-10-20 实测 21/298 题;成因=D1.2 补映射使产物侧含
+        # 游离退化片段的记录首次编译入池)。判据单一来源=chemstate 构建,
+        # 不引入化学判断;仅要求「编译器产物必可被管线消费」自洽。
+        if out.get("status") == "compiled":
+            problem = _product_components_identity_problem(out["spec"])
+            if problem is not None:
+                rejected = _unsupported(
+                    "product_component_identity_invalid", {
+                        "record_id": record_id,
+                        "invalid_components": problem["invalid_components"],
+                        "note": "编译产物侧存在身份不可表示的组分"
+                                "(chemstate 同源判据 fail-closed);"
+                                "入池会令 worker 在模型调用前整题失败"})
+                if remap is not None:
+                    rejected["detail"]["template_remap"] = \
+                        _template_remap_disclosure(remap)
+                return rejected
         if remap is not None:
             disclosure = _template_remap_disclosure(remap)
             if out.get("status") == "compiled":
@@ -1463,6 +1499,40 @@ def compile_donor_template(
     except Exception as exc:  # noqa: BLE001 —— 内部错误如实披露,不吞
         return _unsupported("internal_error", {
             "error": f"{type(exc).__name__}:{str(exc)[:300]}"})
+
+
+def _product_components_identity_problem(spec: dict) -> dict | None:
+    """编译产物侧全组分身份可表示核验(T-H 部署轮机器自洽门)。
+
+    - 判据单一来源:``chemstate.build_chemical_state``(origin=
+      ``source_product``)对 spec 的 ``product_smiles`` 与全部
+      ``coproducts`` 逐一构建;任一组分抛出(ChemicalStateError 等)
+      ⇒ 返回 ``{"invalid_components": [...]}``;
+    - 全过 ⇒ ``None``。不引入化学判断:未登记 CX 类/退化片段属
+      **机器**可表示性,与管线其余消费面同源(fail-closed);
+    - 触发者以 ``product_component_identity_invalid`` 结构化拒
+      (包装层;``_compile_donor_template_impl`` 内判据零改动)。
+    """
+    from .chemstate import build_chemical_state
+    comps = [str(spec.get("product_smiles") or "")]
+    comps += [str(c) for c in (spec.get("coproducts") or [])]
+    bad: list[dict] = []
+    for c in comps:
+        if not c:
+            continue
+        try:
+            build_chemical_state(c, "source_product",
+                                 [{"record": "compile-gate"}])
+        except Exception as exc:  # noqa: BLE001 —— fail-closed 结构化拒
+            detail = getattr(exc, "detail", None)
+            kind = (str(detail.get("kind") or "")
+                    if isinstance(detail, dict) else "")
+            bad.append({"component": c,
+                        "kind": kind,
+                        "error": f"{type(exc).__name__}: {str(exc)[:200]}"})
+    if bad:
+        return {"invalid_components": bad}
+    return None
 
 
 def _template_remap_disclosure(remap: dict) -> dict:

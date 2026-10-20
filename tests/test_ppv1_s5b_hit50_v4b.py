@@ -663,7 +663,8 @@ def test_v4b_versions_registered() -> None:
 
     # T-G C2(2026-10-19):重刀中心锚定对齐(s5b-compiler-4:中心匹配+M 全候选等价核验+歧义硬拒)⇒ 4
     # T-G D1.2(2026-10-19):确定性模板补映射(transform_no_change 唯一触发点;公共编译面行为变化)⇒ 5
-    assert S5B_COMPILER_VERSION == "s5b-compiler-5"
+    # T-H 部署轮(2026-10-20):产物侧身份自洽门(product_component_identity_invalid 新拒因;公共编译面行为变化)⇒ 6
+    assert S5B_COMPILER_VERSION == "s5b-compiler-6"
     assert RECORDED_SOURCE_VERSION == "s5b-recorded-source-4"
     # T1a(2026-10-12):池诊断逐候选化(candidates)⇒ policy-6
     # C 线(2026-10-14):池成员变化(analog 共底物伴生供给)⇒ 7

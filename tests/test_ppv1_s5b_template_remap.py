@@ -3,7 +3,7 @@
 依据:docs/TASK_T_G_D1_REMAP_IMPL_2026-10-19.md §2(规则级合成 /
 编译级合成 / 回归 smoke)+ D1 探针结论(reports/ppv1_s5b/
 t_g_fix_2026-10-19/d1_probe/;交集 0/17,干跑 17/17 提取层救回)。
-版本承载:s5b-compiler-5(transform_no_change 唯一触发点;公共编译
+版本承载:s5b-compiler-5→6(T-H 部署轮身份自洽门后;transform_no_change 唯一触发点;公共编译
 面行为变化)+ 规则版本 template-remap-1。
 
 控件矩阵(纯合成、零 LLM、零网络;不含题面/金标):
@@ -222,7 +222,7 @@ def test_compile_tnc_synthetic_remaps_to_compiled() -> None:
     assert spec["expectation"]["target_smiles"] == "C.CCO"
     assert spec["product_smiles"] == "C"
     assert spec["coproducts"] == ["CCO"]
-    assert spec["compile"]["compiler_version"] == "s5b-compiler-5"
+    assert spec["compile"]["compiler_version"] == "s5b-compiler-6"
 
 
 def test_compile_remap_applied_later_layer_stable_reject() -> None:
@@ -329,6 +329,7 @@ def test_regression_nontnc_paths_zero_new_keys() -> None:
 
 
 def test_versions_registered() -> None:
-    """版本登记:s5b-compiler-5(补映射接线)+ template-remap-1(规则)。"""
-    assert S5B_COMPILER_VERSION == "s5b-compiler-5"
+    """版本登记:s5b-compiler-6(补映射接线+产物侧身份自洽门)+
+    template-remap-1(规则)。"""
+    assert S5B_COMPILER_VERSION == "s5b-compiler-6"
     assert S5B_TEMPLATE_REMAP_VERSION == "template-remap-1"
