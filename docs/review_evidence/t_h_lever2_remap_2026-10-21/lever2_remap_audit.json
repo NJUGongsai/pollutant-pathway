@@ -1,0 +1,6712 @@
+{
+ "provenance": {
+  "batch_tag": "t_h_s5b_298_20261020r2",
+  "domain_tag": "298=RHEA 通用酶学/已见题；本审计不外推",
+  "nature": "只读诊断；零模型调用、零新批次、零金标/reference_graphs 内容、零结构正文输出",
+  "local_source_sha256": {
+   "reports/ppv1_s5b/t_h_2026-10-20/r2/metrics.json": "ceb9e72ea34d14ee95d2432b44ccce3c82b2d935fa0f5333de2d8a890cb0c7f6",
+   "reports/ppv1_s5b/t_h_2026-10-20/r2/p2_face_measure.json": "ac267feff5d592154ac105925e63bfab716d4053ac7bec5a1d53d08013a2fede",
+   "reports/ppv1_s5b/t_h_2026-10-20/r2/batch_report.json": "475d65dbaa227ea6f4f73fd4c015ff5efc22a5ae8bf1d0d59b5ce9cde74726a8",
+   "docs/review_evidence/t_h_r2_loss_attr_2026-10-20/r2_run_meta.json": "3bc4c0097c2989428626dc3cff14b1c28ddcea12bc7490435d4ffd8ab481e298",
+   "docs/review_evidence/t_h_p0_2026-10-20/p0d_supply_funnel.json": "54c605298cfb4d6816e8a7bfea58de500c29512eed50aec5a6c58edf1499cc21",
+   "docs/review_evidence/t_h_lever2_remap_2026-10-21/new_candidate_meta.json": "08a17a06cdc1cfe084b5958f5648281e6884c1d7ed9413170a7744b0bdd6b18c",
+   "docs/review_evidence/t_h_lever2_remap_2026-10-21/old_candidate_meta.json": "8b6efc8249309dc4a35aafc2c08bcd47977cc99c0b88422b16f13858e236b998"
+  },
+  "hpc_read_only_sha256": {
+   "~/ppv1_hpc/batch/t_h_s5b_298_20261020r2/batch_manifest.json": "640249d087be61b7725b4aa3d940aad664733d43831841ae7b43815f53c1006e",
+   "~/ppv1_hpc/batch/t_h_s5b_298_20261020/batch_manifest.json": "773228e17f730bfaf04c18bc1c1af13d14f1a434efae8a5aa3409fcc1be68966",
+   "~/ppv1_hpc/batch/t_h_s5b_298_20261020/degenerate_fragment_face_v2.json": "4b344e49dab6789d7420adeac4d675c7ac2c27067ff75a05bef0eb040e678cf0",
+   "~/ppv1_hpc/batch/t_h_s5b_298_20261020r2/build_identity.json": "49a1d86a02ce9182a90a3fb5b7535bda28d59f7aa51d2662ca4bd7bda41583e2"
+  },
+  "definitions": {
+   "S17": "p2_face_measure.by_qid[q].remap>0 and add==0",
+   "S41": "attribution category unmatched_nonempty_other AND old.anyof_rank=None AND q in p2 remap face",
+   "overlap": "S17 ∩ S41",
+   "dominant_gate": "identity_gate if q in 21 cop qids and product_component_identity_invalid>0; else category of the single largest compile_rejected reason (tie: element_mismatch > enumeration_truncation > no_alignment > other)",
+   "decisive_stage": "post_compile_match_coverage if new pool>0; survivor_hit if v2 strict rank1",
+   "fixability_gate": "gate-level triage only; not a hit-recovery promise",
+   "fixability_qid": "unknown for every loss row because all pools are non-empty and there is no same-question A/B"
+  },
+  "unknown": [
+   "候选级/事件级金标匹配：无逐候选正确性，不能证明哪条候选被误拒",
+   "remap 化学有效性：p2_face_measure 只是披露分母，不是化学判据",
+   "同题非 remap 对照/A-B：因果 unknown，只能给关联",
+   "身份门拒绝的那 1 条 spec 是否含正确候选：unknown",
+   "old width_cap 是否切掉了正确产物：unknown",
+   "把主拒因修掉后 hit@1 能回收多少：unknown（无收益估计）"
+  ]
+ },
+ "sets": {
+  "S17": [
+   "RXNG_05c5a15c9d9660934089ddb44878d6948631f098f8aad096ce2ff6efb531442f",
+   "RXNG_0a2c91bde7717cf85c38b9985ccf61aad518c710f0f5ebb84676fc5ebf19503e",
+   "RXNG_15a597617bc29ae0a35d56b81b9347ea386bb349a6b10d249664b34a22081099",
+   "RXNG_167dfdcc8dd009e80e713dc3b71286e691b0332aaea4d6fdb203ffc5cfe7b100",
+   "RXNG_2b9dd28e603c64b7e8e219e1f6feb7cc6b14e7210ffa7228428698edd89bb563",
+   "RXNG_37e263634a3387350c0c20777dc629506d9212d1471ea97440a86c567f69a06c",
+   "RXNG_45d8d90fa8ccd5c3b22a7a15aa6bb45c6e622e0091caa6ad462692b4d92d5182",
+   "RXNG_65c761ceea29494e1e9e711664f3e7f234006f510c0c81f3708af0a1f9de592a",
+   "RXNG_7beff0374166b8b994c181bb6a685f3e12d2fbc8c847e7d511d453b62cc407b4",
+   "RXNG_8ee93e3c64f8c72d087c22ab2e3acdcf27740966fb1e187a37869c5b70acd3dd",
+   "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+   "RXNG_94539b62f7f3a9fed030818f5c33a9c96c7ca2dd9094831e29bbcbcd828a4c9d",
+   "RXNG_b98e5b272c2d164a709c3c809d23e49c62798cc0103db823e900f1e3b4740970",
+   "RXNG_d23a924f72135e2b9cae0628023bbb18e1d5e0787c8579b723fc38e2e8b89003",
+   "RXNG_d6c4161ded1251a4d9f3fd799262728acfd00e06d690706b5a675ee356098183",
+   "RXNG_e7f836a4e6e7ae2e4a1fe639385cab807b35ba46410a79b4629fe623dc6542dc",
+   "RXNG_fc8720410441f3734707f90bef06cb93ff4fd40416f2d99d4b1c276aa5e18660"
+  ],
+  "S41": [
+   "RXNG_036534a3cd44ca02a8ea600357cdfc927dfb425471464464c89234af8d762bab",
+   "RXNG_05c5a15c9d9660934089ddb44878d6948631f098f8aad096ce2ff6efb531442f",
+   "RXNG_06453c845d47850051bcfd724563cb54382a18401a838e932bcd111f4609bc52",
+   "RXNG_0657c0389a4433d0430304db1237a429b7d20825f79db036f8ea31cd92007cab",
+   "RXNG_103c84009b441fd0510268b3f8fe1b522ed9a4ce12d4210bcc90e3eedfcbe4e7",
+   "RXNG_11e08d7a2a44e0f1b72f6e25e03fbb7fdbd60deb2e2c9894fb49bf20ea95be51",
+   "RXNG_1a5528f34b65ce23dd087b4a15bb2b254fb592ace2dacae6e4bfbc6941b849d4",
+   "RXNG_22901c4d6f4185e1be0346f43411bad2baec0ebd625b0ba8f9113b4b165e37ca",
+   "RXNG_2a1a5bf6480dae350d31196dfa5545dbd7d106bee1b8588ad9d74cca9d2327cf",
+   "RXNG_2e31a4648b682922068278f04ccb3738e51f478e14d600eaf016f0e54a3616f8",
+   "RXNG_330df242afd7597dc85f5232af68565f95477402b60ca19c9b26449c2632ead0",
+   "RXNG_39a545f6bb4275c8f05e7201c70649b763b1e20c92c878bf0b34364a3761c39d",
+   "RXNG_3d58685aebce44376b74102596b979baa8aeaac74e31da59b4b15a8c96277858",
+   "RXNG_46c6b17b0697244ba89550472db43c404698d4b568785554ea603b5ef8e4dddd",
+   "RXNG_4ec68aa8196aac55358f9bfe4b506519fab0f5cfbb4e46c90b7147a2cd429c3d",
+   "RXNG_50e0f19bd85dcaf65f33eb601ae9d2cdb869a91fcb25e12f47d7abbbe2402f5b",
+   "RXNG_5876dc9dadf845f4625ac53438a0dc58c915cc4c93caadbae847a1bede5bd02a",
+   "RXNG_72d2660c0f1baf912c667f15f5ad58ef6406448c85e668995fdbc9191a88288a",
+   "RXNG_75674c48e707b721ced2a8612c4784122f60a4c67b74deaa72b9682598ddf0dc",
+   "RXNG_76160d33bf9fbe76239b3961f0d08428e0ba23b1171c464eb9ff8083bdb2c24c",
+   "RXNG_7bd87d4003757022ec3259374973dc5ef894b91478cdf84607298ba14f9ab34c",
+   "RXNG_7beff0374166b8b994c181bb6a685f3e12d2fbc8c847e7d511d453b62cc407b4",
+   "RXNG_891c844ebaa81c83111bf26f7e4e45e6c6a3568c4bf1513384d266fdefe1fb08",
+   "RXNG_89b8bce798e20b8a265b94e1bead35a7fd06c5064466ab19fcfd334e53f4cd92",
+   "RXNG_94539b62f7f3a9fed030818f5c33a9c96c7ca2dd9094831e29bbcbcd828a4c9d",
+   "RXNG_a319f41e077ece4bc363bdc71eee4b29972365bd4c619a8513e7b47ed41ed089",
+   "RXNG_a401c95418f5ee54961cc1f417f34526e92b56d02e63e227f545f14abd990c32",
+   "RXNG_ae3a789f9c20b0de721f9c9a53a3afeae5b85f46dc7a81e9a4b2bd58ad2c5093",
+   "RXNG_aefef2f58e31e2feb6d07e43d4076cd899a7e02d6262fec3adbfd6e1f28b8df7",
+   "RXNG_b98e5b272c2d164a709c3c809d23e49c62798cc0103db823e900f1e3b4740970",
+   "RXNG_cd29a6432c26d7c36f48177893c68e8d960a5c9cb06ecc6e4e906c4f6cabddac",
+   "RXNG_d239738da046bbba2614ae6a8a825a86467b33634df6d0e63711cd7e53b71d3e",
+   "RXNG_d6c4161ded1251a4d9f3fd799262728acfd00e06d690706b5a675ee356098183",
+   "RXNG_d89bf895ae389645b4e9093af44229ee9dc6640542295acf14ce58610d6894fd",
+   "RXNG_e7f836a4e6e7ae2e4a1fe639385cab807b35ba46410a79b4629fe623dc6542dc",
+   "RXNG_eb7a8583af6d03346241770acb03e5fa6e3f5c5369c548476388d33fcb38768f",
+   "RXNG_ef027adac9a95fc7ea69f8452c5c9f124595e2648bc0e06ceb507fc96a4e735e",
+   "RXNG_f6ac633af28cf463b1b95ac73d6bf6384dd247a2ab7e068939785f8537393ad0",
+   "RXNG_fb86653f3fe39cec2d99b3e697fde95f497d8b38883b5831d8bbcac3ff76aca3",
+   "RXNG_fc8720410441f3734707f90bef06cb93ff4fd40416f2d99d4b1c276aa5e18660",
+   "RXNG_fd4e0bad9fcb62a9191cb4fc66f1fe30dc7a94dced3bc57adbd633f674f12978"
+  ],
+  "overlap": [
+   "RXNG_05c5a15c9d9660934089ddb44878d6948631f098f8aad096ce2ff6efb531442f",
+   "RXNG_7beff0374166b8b994c181bb6a685f3e12d2fbc8c847e7d511d453b62cc407b4",
+   "RXNG_94539b62f7f3a9fed030818f5c33a9c96c7ca2dd9094831e29bbcbcd828a4c9d",
+   "RXNG_b98e5b272c2d164a709c3c809d23e49c62798cc0103db823e900f1e3b4740970",
+   "RXNG_d6c4161ded1251a4d9f3fd799262728acfd00e06d690706b5a675ee356098183",
+   "RXNG_e7f836a4e6e7ae2e4a1fe639385cab807b35ba46410a79b4629fe623dc6542dc",
+   "RXNG_fc8720410441f3734707f90bef06cb93ff4fd40416f2d99d4b1c276aa5e18660"
+  ],
+  "union": [
+   "RXNG_036534a3cd44ca02a8ea600357cdfc927dfb425471464464c89234af8d762bab",
+   "RXNG_05c5a15c9d9660934089ddb44878d6948631f098f8aad096ce2ff6efb531442f",
+   "RXNG_06453c845d47850051bcfd724563cb54382a18401a838e932bcd111f4609bc52",
+   "RXNG_0657c0389a4433d0430304db1237a429b7d20825f79db036f8ea31cd92007cab",
+   "RXNG_0a2c91bde7717cf85c38b9985ccf61aad518c710f0f5ebb84676fc5ebf19503e",
+   "RXNG_103c84009b441fd0510268b3f8fe1b522ed9a4ce12d4210bcc90e3eedfcbe4e7",
+   "RXNG_11e08d7a2a44e0f1b72f6e25e03fbb7fdbd60deb2e2c9894fb49bf20ea95be51",
+   "RXNG_15a597617bc29ae0a35d56b81b9347ea386bb349a6b10d249664b34a22081099",
+   "RXNG_167dfdcc8dd009e80e713dc3b71286e691b0332aaea4d6fdb203ffc5cfe7b100",
+   "RXNG_1a5528f34b65ce23dd087b4a15bb2b254fb592ace2dacae6e4bfbc6941b849d4",
+   "RXNG_22901c4d6f4185e1be0346f43411bad2baec0ebd625b0ba8f9113b4b165e37ca",
+   "RXNG_2a1a5bf6480dae350d31196dfa5545dbd7d106bee1b8588ad9d74cca9d2327cf",
+   "RXNG_2b9dd28e603c64b7e8e219e1f6feb7cc6b14e7210ffa7228428698edd89bb563",
+   "RXNG_2e31a4648b682922068278f04ccb3738e51f478e14d600eaf016f0e54a3616f8",
+   "RXNG_330df242afd7597dc85f5232af68565f95477402b60ca19c9b26449c2632ead0",
+   "RXNG_37e263634a3387350c0c20777dc629506d9212d1471ea97440a86c567f69a06c",
+   "RXNG_39a545f6bb4275c8f05e7201c70649b763b1e20c92c878bf0b34364a3761c39d",
+   "RXNG_3d58685aebce44376b74102596b979baa8aeaac74e31da59b4b15a8c96277858",
+   "RXNG_45d8d90fa8ccd5c3b22a7a15aa6bb45c6e622e0091caa6ad462692b4d92d5182",
+   "RXNG_46c6b17b0697244ba89550472db43c404698d4b568785554ea603b5ef8e4dddd",
+   "RXNG_4ec68aa8196aac55358f9bfe4b506519fab0f5cfbb4e46c90b7147a2cd429c3d",
+   "RXNG_50e0f19bd85dcaf65f33eb601ae9d2cdb869a91fcb25e12f47d7abbbe2402f5b",
+   "RXNG_5876dc9dadf845f4625ac53438a0dc58c915cc4c93caadbae847a1bede5bd02a",
+   "RXNG_65c761ceea29494e1e9e711664f3e7f234006f510c0c81f3708af0a1f9de592a",
+   "RXNG_72d2660c0f1baf912c667f15f5ad58ef6406448c85e668995fdbc9191a88288a",
+   "RXNG_75674c48e707b721ced2a8612c4784122f60a4c67b74deaa72b9682598ddf0dc",
+   "RXNG_76160d33bf9fbe76239b3961f0d08428e0ba23b1171c464eb9ff8083bdb2c24c",
+   "RXNG_7bd87d4003757022ec3259374973dc5ef894b91478cdf84607298ba14f9ab34c",
+   "RXNG_7beff0374166b8b994c181bb6a685f3e12d2fbc8c847e7d511d453b62cc407b4",
+   "RXNG_891c844ebaa81c83111bf26f7e4e45e6c6a3568c4bf1513384d266fdefe1fb08",
+   "RXNG_89b8bce798e20b8a265b94e1bead35a7fd06c5064466ab19fcfd334e53f4cd92",
+   "RXNG_8ee93e3c64f8c72d087c22ab2e3acdcf27740966fb1e187a37869c5b70acd3dd",
+   "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+   "RXNG_94539b62f7f3a9fed030818f5c33a9c96c7ca2dd9094831e29bbcbcd828a4c9d",
+   "RXNG_a319f41e077ece4bc363bdc71eee4b29972365bd4c619a8513e7b47ed41ed089",
+   "RXNG_a401c95418f5ee54961cc1f417f34526e92b56d02e63e227f545f14abd990c32",
+   "RXNG_ae3a789f9c20b0de721f9c9a53a3afeae5b85f46dc7a81e9a4b2bd58ad2c5093",
+   "RXNG_aefef2f58e31e2feb6d07e43d4076cd899a7e02d6262fec3adbfd6e1f28b8df7",
+   "RXNG_b98e5b272c2d164a709c3c809d23e49c62798cc0103db823e900f1e3b4740970",
+   "RXNG_cd29a6432c26d7c36f48177893c68e8d960a5c9cb06ecc6e4e906c4f6cabddac",
+   "RXNG_d239738da046bbba2614ae6a8a825a86467b33634df6d0e63711cd7e53b71d3e",
+   "RXNG_d23a924f72135e2b9cae0628023bbb18e1d5e0787c8579b723fc38e2e8b89003",
+   "RXNG_d6c4161ded1251a4d9f3fd799262728acfd00e06d690706b5a675ee356098183",
+   "RXNG_d89bf895ae389645b4e9093af44229ee9dc6640542295acf14ce58610d6894fd",
+   "RXNG_e7f836a4e6e7ae2e4a1fe639385cab807b35ba46410a79b4629fe623dc6542dc",
+   "RXNG_eb7a8583af6d03346241770acb03e5fa6e3f5c5369c548476388d33fcb38768f",
+   "RXNG_ef027adac9a95fc7ea69f8452c5c9f124595e2648bc0e06ceb507fc96a4e735e",
+   "RXNG_f6ac633af28cf463b1b95ac73d6bf6384dd247a2ab7e068939785f8537393ad0",
+   "RXNG_fb86653f3fe39cec2d99b3e697fde95f497d8b38883b5831d8bbcac3ff76aca3",
+   "RXNG_fc8720410441f3734707f90bef06cb93ff4fd40416f2d99d4b1c276aa5e18660",
+   "RXNG_fd4e0bad9fcb62a9191cb4fc66f1fe30dc7a94dced3bc57adbd633f674f12978"
+  ]
+ },
+ "summary": {
+  "sets": {
+   "S17_remap_only": 17,
+   "S41_old_anyof_none_remap": 41,
+   "overlap": 7,
+   "union_unique": 51,
+   "rows_58": 58,
+   "unique_loss_qids": 50,
+   "unique_hit_survivors": 1
+  },
+  "status_counts": {
+   "S17": {
+    "unmatched_required_node_uncovered": 9,
+    "matched_participant_coverage_partial": 7,
+    "matched_strict": 1
+   },
+   "S41": {
+    "unmatched_required_node_uncovered": 41
+   },
+   "union": {
+    "unmatched_required_node_uncovered": 43,
+    "matched_participant_coverage_partial": 7,
+    "matched_strict": 1
+   }
+  },
+  "death_cause": {
+   "58_rows": {
+    "identity_gate": 13,
+    "element_mismatch": 8,
+    "no_alignment": 31,
+    "n/a (hit)": 1,
+    "other": 4,
+    "enumeration_truncation": 1
+   },
+   "57_loss_rows": {
+    "identity_gate": 13,
+    "element_mismatch": 8,
+    "no_alignment": 31,
+    "other": 4,
+    "enumeration_truncation": 1
+   },
+   "51_unique": {
+    "no_alignment": 28,
+    "identity_gate": 10,
+    "other": 4,
+    "element_mismatch": 7,
+    "enumeration_truncation": 1,
+    "n/a (hit)": 1
+   },
+   "50_unique_loss": {
+    "no_alignment": 28,
+    "identity_gate": 10,
+    "other": 4,
+    "element_mismatch": 7,
+    "enumeration_truncation": 1
+   }
+  },
+  "fixability_gate": {
+   "58_rows": {
+    "需新契约": 53,
+    "n/a (hit)": 1,
+    "unknown": 1,
+    "可修": 3
+   },
+   "57_loss_rows": {
+    "需新契约": 53,
+    "unknown": 1,
+    "可修": 3
+   },
+   "51_unique": {
+    "需新契约": 46,
+    "unknown": 1,
+    "可修": 3,
+    "n/a (hit)": 1
+   },
+   "50_unique_loss": {
+    "需新契约": 46,
+    "unknown": 1,
+    "可修": 3
+   }
+  },
+  "fixability_qid": {
+   "58_rows": {
+    "unknown": 57,
+    "n/a (hit@1)": 1
+   },
+   "57_loss_rows": {
+    "unknown": 57
+   }
+  },
+  "decisive_stage": {
+   "58_rows": {
+    "post_compile_match_coverage": 57,
+    "survivor_hit": 1
+   },
+   "unique": {
+    "post_compile_match_coverage": 50,
+    "survivor_hit": 1
+   }
+  },
+  "identity_gate": {
+   "unique_qids": 10,
+   "rows_58": 13,
+   "pool_delta_minus1": 9,
+   "pool_delta_0": 1,
+   "identity_reject_total": 17
+  },
+  "pool": {
+   "unique_pool_new_dist": {
+    "4": 4,
+    "2": 13,
+    "1": 21,
+    "3": 11,
+    "8": 2
+   },
+   "unique_pool_old_dist": {
+    "4": 4,
+    "3": 15,
+    "2": 14,
+    "1": 16,
+    "8": 2
+   },
+   "unique_pool_delta_dist": {
+    "0": 42,
+    "-1": 9
+   },
+   "unique_empty_new_pool": 0,
+   "unique_with_analog_compiled": 51,
+   "unique_without_recorded_candidates": 9,
+   "unique_without_corpus_candidates": 11
+  },
+  "old_caliber": {
+   "S41_old_anyof_none": 41,
+   "S41_old_n_candidates_min": 3,
+   "S41_old_n_candidates_max": 16,
+   "S41_old_n_candidates_zero": 0,
+   "S41_width_capped": 13,
+   "S17_old_anyof_none": 7,
+   "S17_unmatched_with_old_none": 7,
+   "S17_unmatched_with_old_present": 2
+  },
+  "secondary_enum": {
+   "width_capped_unique_qids": 14,
+   "width_capped_58_rows": 15,
+   "mapping_enumeration_truncated_unique_qids": 12,
+   "pool_truncated_unique_qids": 2,
+   "pool_truncated_58_rows": 2,
+   "pool_truncated_candidate_rows": 3,
+   "mapping_enumeration_candidate_rows": 22,
+   "width_capped_products_sum": 30,
+   "any_enum_signal_unique_qids": 25
+  },
+  "native": {
+   "completed": 51,
+   "model_calls_1": 51,
+   "events_dist": {
+    "8": 9,
+    "6": 11,
+    "3": 5,
+    "7": 11,
+    "4": 10,
+    "2": 1,
+    "5": 4
+   },
+   "method_failed_qids": [
+    "RXNG_a401c95418f5"
+   ],
+   "audit_violated_qids": [
+    "RXNG_103c84009b44",
+    "RXNG_11e08d7a2a44",
+    "RXNG_2a1a5bf6480d",
+    "RXNG_3d58685aebce",
+    "RXNG_46c6b17b0697",
+    "RXNG_4ec68aa8196a",
+    "RXNG_50e0f19bd85d",
+    "RXNG_75674c48e707",
+    "RXNG_7bd87d400375",
+    "RXNG_89b8bce798e2",
+    "RXNG_aefef2f58e31",
+    "RXNG_cd29a6432c26",
+    "RXNG_eb7a8583af6d",
+    "RXNG_ef027adac9a9"
+   ],
+   "run_error_nonempty": []
+  },
+  "p0d": {
+   "unique_in_no_recorded_prefixes": 0,
+   "no_recorded_anchor_193": 193,
+   "candidate_rows": 5319,
+   "compiled": 531,
+   "compile_rejected": 4311,
+   "no_alignment_total": 1585,
+   "no_alignment_f5_reject": 864,
+   "no_alignment_f5_defer_compiler": 543,
+   "no_alignment_not_f5": 178
+  },
+  "reject_totals_51_unique": {
+   "no_structure_correspondence": 39,
+   "execution_failed": 19,
+   "mapping_enumeration_truncated": 22,
+   "cosubstrate_bonded_contribution_unsupported": 97,
+   "new_atom_placement_incomplete": 25,
+   "no_alignment": 290,
+   "transform_no_change": 16,
+   "ambiguous_alignment": 33,
+   "stereo_edit_unsupported": 21,
+   "no_compilable_alignment": 3,
+   "product_component_identity_invalid": 17,
+   "charge_edit_unsupported": 96,
+   "partial_dearomatization_inconsistent": 15,
+   "product_set_mismatch": 21,
+   "ambiguous_mapping": 1,
+   "aromatic_new_bond_unsupported": 4
+  },
+  "reject_category_totals_51_unique": {
+   "element_mismatch": 92,
+   "other": 278,
+   "enumeration_truncation": 56,
+   "no_alignment": 293
+  }
+ },
+ "rows_58": [
+  {
+   "qid": "RXNG_05c5a15c9d9660934089ddb44878d6948631f098f8aad096ce2ff6efb531442f",
+   "qid_prefix": "RXNG_05c5a15c9d96",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 1,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "pass": 11
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "no_alignment": 8,
+    "other": 11,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "no_alignment": 7,
+    "no_compilable_alignment": 1,
+    "product_component_identity_invalid": 1,
+    "charge_edit_unsupported": 11,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 8,
+    "novel": 4,
+    "deferred": 8,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 1
+  },
+  {
+   "qid": "RXNG_0a2c91bde7717cf85c38b9985ccf61aad518c710f0f5ebb84676fc5ebf19503e",
+   "qid_prefix": "RXNG_0a2c91bde771",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 14,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 6,
+   "top_reject_f5": {
+    "pass": 6
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "no_alignment": 5,
+    "element_mismatch": 2,
+    "other": 6
+   },
+   "reject_reason_counts": {
+    "no_alignment": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 6
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 14,
+    "novel": 6,
+    "deferred": 14,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 2
+  },
+  {
+   "qid": "RXNG_15a597617bc29ae0a35d56b81b9347ea386bb349a6b10d249664b34a22081099",
+   "qid_prefix": "RXNG_15a597617bc2",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 3,
+   "old_n_candidates": 12,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_structure_correspondence",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 1,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 12,
+    "novel": 6,
+    "deferred": 12,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 3
+  },
+  {
+   "qid": "RXNG_167dfdcc8dd009e80e713dc3b71286e691b0332aaea4d6fdb203ffc5cfe7b100",
+   "qid_prefix": "RXNG_167dfdcc8dd0",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "corpus": 1,
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "product_set_mismatch",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 1,
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 6,
+    "novel": 1,
+    "deferred": 6,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 4
+  },
+  {
+   "qid": "RXNG_2b9dd28e603c64b7e8e219e1f6feb7cc6b14e7210ffa7228428698edd89bb563",
+   "qid_prefix": "RXNG_2b9dd28e603c",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 3,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "corpus": 1,
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "product_set_mismatch",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 1,
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 6,
+    "novel": 2,
+    "deferred": 6,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 5
+  },
+  {
+   "qid": "RXNG_37e263634a3387350c0c20777dc629506d9212d1471ea97440a86c567f69a06c",
+   "qid_prefix": "RXNG_37e263634a33",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 5,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 2,
+   "top_reject_f5": {
+    "defer": 1,
+    "reject": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 2,
+    "no_alignment": 2
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 7,
+    "novel": 3,
+    "deferred": 7,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 6
+  },
+  {
+   "qid": "RXNG_45d8d90fa8ccd5c3b22a7a15aa6bb45c6e622e0091caa6ad462692b4d92d5182",
+   "qid_prefix": "RXNG_45d8d90fa8cc",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "corpus": 1,
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "product_set_mismatch",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 1,
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 8,
+    "novel": 2,
+    "deferred": 8,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 7
+  },
+  {
+   "qid": "RXNG_65c761ceea29494e1e9e711664f3e7f234006f510c0c81f3708af0a1f9de592a",
+   "qid_prefix": "RXNG_65c761ceea29",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 3,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 1,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "pass": 10
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "element_mismatch": 4,
+    "other": 11,
+    "enumeration_truncation": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 3,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1,
+    "product_component_identity_invalid": 1,
+    "charge_edit_unsupported": 10,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 10,
+    "novel": 6,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 8
+  },
+  {
+   "qid": "RXNG_7beff0374166b8b994c181bb6a685f3e12d2fbc8c847e7d511d453b62cc407b4",
+   "qid_prefix": "RXNG_7beff0374166",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 2,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 5,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "no_alignment": 9,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 9,
+    "novel": 3,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 9
+  },
+  {
+   "qid": "RXNG_8ee93e3c64f8c72d087c22ab2e3acdcf27740966fb1e187a37869c5b70acd3dd",
+   "qid_prefix": "RXNG_8ee93e3c64f8",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_strict",
+   "v2_rank": 1,
+   "is_hit": true,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 2,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 5,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "no_alignment": 9,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "n/a (hit)",
+   "fixability_gate": "n/a (hit)",
+   "fixability_qid": "n/a (hit@1)",
+   "decisive_stage": "survivor_hit",
+   "native": {
+    "events": 7,
+    "reportable": 10,
+    "novel": 4,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 10
+  },
+  {
+   "qid": "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+   "qid_prefix": "RXNG_93d3a3ef9b71",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 11,
+   "old_width_capped_products": 3,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 2,
+   "top_reject_f5": {
+    "defer": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 5,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 2,
+    "charge_edit_unsupported": 2,
+    "no_alignment": 2,
+    "no_compilable_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 14,
+    "novel": 4,
+    "deferred": 14,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 11
+  },
+  {
+   "qid": "RXNG_94539b62f7f3a9fed030818f5c33a9c96c7ca2dd9094831e29bbcbcd828a4c9d",
+   "qid_prefix": "RXNG_94539b62f7f3",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 3,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "defer": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "execution_failed": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 12
+  },
+  {
+   "qid": "RXNG_b98e5b272c2d164a709c3c809d23e49c62798cc0103db823e900f1e3b4740970",
+   "qid_prefix": "RXNG_b98e5b272c2d",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 2,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 5,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "no_alignment": 9,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 10,
+    "novel": 4,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 13
+  },
+  {
+   "qid": "RXNG_d23a924f72135e2b9cae0628023bbb18e1d5e0787c8579b723fc38e2e8b89003",
+   "qid_prefix": "RXNG_d23a924f7213",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 3,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 12,
+   "top_reject_f5": {
+    "defer": 8,
+    "reject": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 3,
+    "enumeration_truncation": 5,
+    "no_alignment": 12
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 2,
+    "cosubstrate_bonded_contribution_unsupported": 3,
+    "mapping_enumeration_truncated": 2,
+    "ambiguous_alignment": 3,
+    "no_alignment": 12
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 7,
+    "novel": 4,
+    "deferred": 7,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 14
+  },
+  {
+   "qid": "RXNG_d6c4161ded1251a4d9f3fd799262728acfd00e06d690706b5a675ee356098183",
+   "qid_prefix": "RXNG_d6c4161ded12",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 6,
+   "top_reject_f5": {
+    "pass": 6
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "no_alignment": 5,
+    "element_mismatch": 2,
+    "other": 6
+   },
+   "reject_reason_counts": {
+    "no_alignment": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 6
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 9,
+    "novel": 4,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 15
+  },
+  {
+   "qid": "RXNG_e7f836a4e6e7ae2e4a1fe639385cab807b35ba46410a79b4629fe623dc6542dc",
+   "qid_prefix": "RXNG_e7f836a4e6e7",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_structure_correspondence",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 1,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 10,
+    "novel": 5,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 16
+  },
+  {
+   "qid": "RXNG_fc8720410441f3734707f90bef06cb93ff4fd40416f2d99d4b1c276aa5e18660",
+   "qid_prefix": "RXNG_fc8720410441",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 5,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 6,
+   "top_reject_f5": {
+    "pass": 6
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "no_alignment": 5,
+    "element_mismatch": 2,
+    "other": 6
+   },
+   "reject_reason_counts": {
+    "no_alignment": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 6
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 5,
+    "novel": 2,
+    "deferred": 5,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 17
+  },
+  {
+   "qid": "RXNG_036534a3cd44ca02a8ea600357cdfc927dfb425471464464c89234af8d762bab",
+   "qid_prefix": "RXNG_036534a3cd44",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 4,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 14,
+   "old_width_capped_products": 4,
+   "old_pool": 4,
+   "new_pool": 4,
+   "pool_delta": 0,
+   "compiled_new": 4,
+   "compiled_new_channels": {
+    "analog": 4
+   },
+   "compiled_old": 4,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 7,
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 10,
+    "enumeration_truncation": 2,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "execution_failed": 3,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 10,
+    "transform_no_change": 4,
+    "ambiguous_alignment": 1,
+    "stereo_edit_unsupported": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 18,
+    "novel": 4,
+    "deferred": 18,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 18
+  },
+  {
+   "qid": "RXNG_05c5a15c9d9660934089ddb44878d6948631f098f8aad096ce2ff6efb531442f",
+   "qid_prefix": "RXNG_05c5a15c9d96",
+   "block": "S41",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 1,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "pass": 11
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "no_alignment": 8,
+    "other": 11,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "no_alignment": 7,
+    "no_compilable_alignment": 1,
+    "product_component_identity_invalid": 1,
+    "charge_edit_unsupported": 11,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 8,
+    "novel": 4,
+    "deferred": 8,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 19
+  },
+  {
+   "qid": "RXNG_06453c845d47850051bcfd724563cb54382a18401a838e932bcd111f4609bc52",
+   "qid_prefix": "RXNG_06453c845d47",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 2,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 4,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 2
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "partial_dearomatization_inconsistent": 3,
+    "cosubstrate_bonded_contribution_unsupported": 3,
+    "no_alignment": 9,
+    "execution_failed": 2,
+    "ambiguous_alignment": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 12,
+    "novel": 5,
+    "deferred": 12,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 20
+  },
+  {
+   "qid": "RXNG_0657c0389a4433d0430304db1237a429b7d20825f79db036f8ea31cd92007cab",
+   "qid_prefix": "RXNG_0657c0389a44",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 4,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": null,
+   "top_reject_n": 0,
+   "top_reject_f5": {},
+   "top_reject_category": null,
+   "reject_category_counts": {},
+   "reject_reason_counts": {},
+   "pool_truncated_n": 0,
+   "death_cause": "other",
+   "fixability_gate": "unknown",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 4,
+    "novel": 2,
+    "deferred": 4,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 21
+  },
+  {
+   "qid": "RXNG_103c84009b441fd0510268b3f8fe1b522ed9a4ce12d4210bcc90e3eedfcbe4e7",
+   "qid_prefix": "RXNG_103c84009b44",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 3,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "None": 1,
+    "pass": 10
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "other": 12,
+    "enumeration_truncation": 1,
+    "no_alignment": 8,
+    "element_mismatch": 2
+   },
+   "reject_reason_counts": {
+    "charge_edit_unsupported": 11,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1,
+    "no_alignment": 8,
+    "product_component_identity_invalid": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 13,
+    "novel": 4,
+    "deferred": 13,
+    "violated": 2,
+    "method_failed": 0
+   },
+   "row_id": 22
+  },
+  {
+   "qid": "RXNG_11e08d7a2a44e0f1b72f6e25e03fbb7fdbd60deb2e2c9894fb49bf20ea95be51",
+   "qid_prefix": "RXNG_11e08d7a2a44",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 2
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 12,
+   "top_reject_f5": {
+    "defer": 8,
+    "reject": 3,
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 14,
+    "enumeration_truncation": 3,
+    "no_alignment": 12
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 11,
+    "mapping_enumeration_truncated": 3,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 12,
+    "transform_no_change": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 7,
+    "novel": 4,
+    "deferred": 7,
+    "violated": 2,
+    "method_failed": 0
+   },
+   "row_id": 23
+  },
+  {
+   "qid": "RXNG_1a5528f34b65ce23dd087b4a15bb2b254fb592ace2dacae6e4bfbc6941b849d4",
+   "qid_prefix": "RXNG_1a5528f34b65",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 4,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 7,
+    "defer": 2,
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "stereo_edit_unsupported": 5,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 10
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 4,
+    "novel": 3,
+    "deferred": 4,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 24
+  },
+  {
+   "qid": "RXNG_22901c4d6f4185e1be0346f43411bad2baec0ebd625b0ba8f9113b4b165e37ca",
+   "qid_prefix": "RXNG_22901c4d6f41",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 8,
+   "add": 7,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 16,
+   "old_width_capped_products": 0,
+   "old_pool": 8,
+   "new_pool": 8,
+   "pool_delta": 0,
+   "compiled_new": 8,
+   "compiled_new_channels": {
+    "analog": 8
+   },
+   "compiled_old": 8,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "new_atom_placement_incomplete",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "defer": 3
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "element_mismatch": 3,
+    "other": 4,
+    "no_alignment": 2
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "product_set_mismatch": 2,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 3,
+    "no_alignment": 2
+   },
+   "pool_truncated_n": 1,
+   "death_cause": "other",
+   "fixability_gate": "可修",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 16,
+    "novel": 2,
+    "deferred": 18,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 25
+  },
+  {
+   "qid": "RXNG_2a1a5bf6480dae350d31196dfa5545dbd7d106bee1b8588ad9d74cca9d2327cf",
+   "qid_prefix": "RXNG_2a1a5bf6480d",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 5,
+    "other": 11,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 3,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 5,
+    "no_alignment": 10,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 6,
+    "novel": 4,
+    "deferred": 6,
+    "violated": 1,
+    "method_failed": 0
+   },
+   "row_id": 26
+  },
+  {
+   "qid": "RXNG_2e31a4648b682922068278f04ccb3738e51f478e14d600eaf016f0e54a3616f8",
+   "qid_prefix": "RXNG_2e31a4648b68",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 11,
+   "old_width_capped_products": 1,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "new_atom_placement_incomplete",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "defer": 1
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "other": 1
+   },
+   "reject_reason_counts": {
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "other",
+   "fixability_gate": "可修",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 12,
+    "novel": 7,
+    "deferred": 12,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 27
+  },
+  {
+   "qid": "RXNG_330df242afd7597dc85f5232af68565f95477402b60ca19c9b26449c2632ead0",
+   "qid_prefix": "RXNG_330df242afd7",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 1,
+   "old_pool": 4,
+   "new_pool": 4,
+   "pool_delta": 0,
+   "compiled_new": 4,
+   "compiled_new_channels": {
+    "analog": 4
+   },
+   "compiled_old": 4,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 8,
+    "defer": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "enumeration_truncation": 1,
+    "other": 7,
+    "no_alignment": 11
+   },
+   "reject_reason_counts": {
+    "ambiguous_mapping": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 6,
+    "no_compilable_alignment": 1,
+    "no_alignment": 10
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 28
+  },
+  {
+   "qid": "RXNG_39a545f6bb4275c8f05e7201c70649b763b1e20c92c878bf0b34364a3761c39d",
+   "qid_prefix": "RXNG_39a545f6bb42",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 13,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "reject": 2,
+    "defer": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 2,
+    "no_alignment": 3
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 13,
+    "novel": 5,
+    "deferred": 13,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 29
+  },
+  {
+   "qid": "RXNG_3d58685aebce44376b74102596b979baa8aeaac74e31da59b4b15a8c96277858",
+   "qid_prefix": "RXNG_3d58685aebce",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 3,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 1,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 7,
+   "top_reject_f5": {
+    "reject": 3,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "enumeration_truncation": 1,
+    "no_alignment": 7,
+    "element_mismatch": 1,
+    "other": 2
+   },
+   "reject_reason_counts": {
+    "mapping_enumeration_truncated": 1,
+    "no_alignment": 7,
+    "product_component_identity_invalid": 1,
+    "charge_edit_unsupported": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 2,
+    "reportable": 3,
+    "novel": 3,
+    "deferred": 3,
+    "violated": 1,
+    "method_failed": 0
+   },
+   "row_id": 30
+  },
+  {
+   "qid": "RXNG_46c6b17b0697244ba89550472db43c404698d4b568785554ea603b5ef8e4dddd",
+   "qid_prefix": "RXNG_46c6b17b0697",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 3,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 1,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 9,
+    "novel": 3,
+    "deferred": 9,
+    "violated": 2,
+    "method_failed": 0
+   },
+   "row_id": 31
+  },
+  {
+   "qid": "RXNG_4ec68aa8196aac55358f9bfe4b506519fab0f5cfbb4e46c90b7147a2cd429c3d",
+   "qid_prefix": "RXNG_4ec68aa8196a",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 5,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 5,
+    "other": 11,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 3,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 5,
+    "no_alignment": 10,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 5,
+    "novel": 2,
+    "deferred": 5,
+    "violated": 1,
+    "method_failed": 0
+   },
+   "row_id": 32
+  },
+  {
+   "qid": "RXNG_50e0f19bd85dcaf65f33eb601ae9d2cdb869a91fcb25e12f47d7abbbe2402f5b",
+   "qid_prefix": "RXNG_50e0f19bd85d",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 2
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 12,
+   "top_reject_f5": {
+    "defer": 8,
+    "reject": 3,
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 14,
+    "enumeration_truncation": 3,
+    "no_alignment": 12
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 11,
+    "mapping_enumeration_truncated": 3,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 12,
+    "transform_no_change": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 7,
+    "novel": 4,
+    "deferred": 7,
+    "violated": 2,
+    "method_failed": 0
+   },
+   "row_id": 33
+  },
+  {
+   "qid": "RXNG_5876dc9dadf845f4625ac53438a0dc58c915cc4c93caadbae847a1bede5bd02a",
+   "qid_prefix": "RXNG_5876dc9dadf8",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "element_mismatch": 1,
+    "no_alignment": 10,
+    "enumeration_truncation": 5
+   },
+   "reject_reason_counts": {
+    "charge_edit_unsupported": 5,
+    "no_structure_correspondence": 1,
+    "no_alignment": 10,
+    "ambiguous_alignment": 5,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 6,
+    "novel": 5,
+    "deferred": 6,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 34
+  },
+  {
+   "qid": "RXNG_72d2660c0f1baf912c667f15f5ad58ef6406448c85e668995fdbc9191a88288a",
+   "qid_prefix": "RXNG_72d2660c0f1b",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 4,
+   "top_reject_f5": {
+    "defer": 1,
+    "reject": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 2,
+    "no_alignment": 4
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 4
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 9,
+    "novel": 4,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 35
+  },
+  {
+   "qid": "RXNG_75674c48e707b721ced2a8612c4784122f60a4c67b74deaa72b9682598ddf0dc",
+   "qid_prefix": "RXNG_75674c48e707",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 4,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "mapping_enumeration_truncated",
+   "top_reject_n": 2,
+   "top_reject_f5": {
+    "None": 2
+   },
+   "top_reject_category": "enumeration_truncation",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 2,
+    "other": 2,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "mapping_enumeration_truncated": 2,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 1,
+    "charge_edit_unsupported": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "enumeration_truncation",
+   "fixability_gate": "可修",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 4,
+    "novel": 3,
+    "deferred": 4,
+    "violated": 1,
+    "method_failed": 0
+   },
+   "row_id": 36
+  },
+  {
+   "qid": "RXNG_76160d33bf9fbe76239b3961f0d08428e0ba23b1171c464eb9ff8083bdb2c24c",
+   "qid_prefix": "RXNG_76160d33bf9f",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 4,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "defer": 9,
+    "reject": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "no_alignment": 11,
+    "enumeration_truncation": 3
+   },
+   "reject_reason_counts": {
+    "stereo_edit_unsupported": 4,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 11,
+    "ambiguous_alignment": 3,
+    "execution_failed": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 4,
+    "novel": 3,
+    "deferred": 4,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 37
+  },
+  {
+   "qid": "RXNG_7bd87d4003757022ec3259374973dc5ef894b91478cdf84607298ba14f9ab34c",
+   "qid_prefix": "RXNG_7bd87d400375",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 5,
+   "top_reject_f5": {
+    "reject": 2,
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 1,
+    "other": 3,
+    "no_alignment": 5
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 2,
+    "no_alignment": 5,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 8,
+    "novel": 6,
+    "deferred": 8,
+    "violated": 1,
+    "method_failed": 0
+   },
+   "row_id": 38
+  },
+  {
+   "qid": "RXNG_7beff0374166b8b994c181bb6a685f3e12d2fbc8c847e7d511d453b62cc407b4",
+   "qid_prefix": "RXNG_7beff0374166",
+   "block": "S41",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 2,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 5,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "no_alignment": 9,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 9,
+    "novel": 3,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 39
+  },
+  {
+   "qid": "RXNG_891c844ebaa81c83111bf26f7e4e45e6c6a3568c4bf1513384d266fdefe1fb08",
+   "qid_prefix": "RXNG_891c844ebaa8",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 13,
+   "old_width_capped_products": 3,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 4,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 2
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "partial_dearomatization_inconsistent": 3,
+    "cosubstrate_bonded_contribution_unsupported": 3,
+    "no_alignment": 9,
+    "execution_failed": 2,
+    "ambiguous_alignment": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 16,
+    "novel": 5,
+    "deferred": 16,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 40
+  },
+  {
+   "qid": "RXNG_89b8bce798e20b8a265b94e1bead35a7fd06c5064466ab19fcfd334e53f4cd92",
+   "qid_prefix": "RXNG_89b8bce798e2",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 11,
+   "old_width_capped_products": 3,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "defer": 1,
+    "reject": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 4,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 3,
+    "transform_no_change": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 14,
+    "novel": 5,
+    "deferred": 14,
+    "violated": 1,
+    "method_failed": 0
+   },
+   "row_id": 41
+  },
+  {
+   "qid": "RXNG_94539b62f7f3a9fed030818f5c33a9c96c7ca2dd9094831e29bbcbcd828a4c9d",
+   "qid_prefix": "RXNG_94539b62f7f3",
+   "block": "S41",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 3,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "defer": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "execution_failed": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 42
+  },
+  {
+   "qid": "RXNG_a319f41e077ece4bc363bdc71eee4b29972365bd4c619a8513e7b47ed41ed089",
+   "qid_prefix": "RXNG_a319f41e077e",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 5,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "partial_dearomatization_inconsistent",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 2,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "execution_failed": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 5,
+    "novel": 5,
+    "deferred": 5,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 43
+  },
+  {
+   "qid": "RXNG_a401c95418f5ee54961cc1f417f34526e92b56d02e63e227f545f14abd990c32",
+   "qid_prefix": "RXNG_a401c95418f5",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 1,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "reject": 7,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 4,
+    "other": 12,
+    "no_alignment": 11
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "mapping_enumeration_truncated": 3,
+    "cosubstrate_bonded_contribution_unsupported": 3,
+    "execution_failed": 3,
+    "no_alignment": 11,
+    "stereo_edit_unsupported": 2,
+    "transform_no_change": 4,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 10,
+    "novel": 4,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 1
+   },
+   "row_id": 44
+  },
+  {
+   "qid": "RXNG_ae3a789f9c20b0de721f9c9a53a3afeae5b85f46dc7a81e9a4b2bd58ad2c5093",
+   "qid_prefix": "RXNG_ae3a789f9c20",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 3,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 7,
+    "defer": 2,
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "stereo_edit_unsupported": 5,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 10
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 3,
+    "novel": 3,
+    "deferred": 3,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 45
+  },
+  {
+   "qid": "RXNG_aefef2f58e31e2feb6d07e43d4076cd899a7e02d6262fec3adbfd6e1f28b8df7",
+   "qid_prefix": "RXNG_aefef2f58e31",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 3,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_structure_correspondence",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "execution_failed": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 7,
+    "novel": 4,
+    "deferred": 7,
+    "violated": 1,
+    "method_failed": 0
+   },
+   "row_id": 46
+  },
+  {
+   "qid": "RXNG_b98e5b272c2d164a709c3c809d23e49c62798cc0103db823e900f1e3b4740970",
+   "qid_prefix": "RXNG_b98e5b272c2d",
+   "block": "S41",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 2,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 5,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "no_alignment": 9,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 10,
+    "novel": 4,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 47
+  },
+  {
+   "qid": "RXNG_cd29a6432c26d7c36f48177893c68e8d960a5c9cb06ecc6e4e906c4f6cabddac",
+   "qid_prefix": "RXNG_cd29a6432c26",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 3,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 1,
+   "old_pool": 4,
+   "new_pool": 4,
+   "pool_delta": 0,
+   "compiled_new": 4,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 3
+   },
+   "compiled_old": 4,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "element_mismatch": 1,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "partial_dearomatization_inconsistent": 1,
+    "no_alignment": 3
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 2,
+    "method_failed": 0
+   },
+   "row_id": 48
+  },
+  {
+   "qid": "RXNG_d239738da046bbba2614ae6a8a825a86467b33634df6d0e63711cd7e53b71d3e",
+   "qid_prefix": "RXNG_d239738da046",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "reject": 2,
+    "defer": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 2,
+    "no_alignment": 3
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 8,
+    "novel": 3,
+    "deferred": 8,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 49
+  },
+  {
+   "qid": "RXNG_d6c4161ded1251a4d9f3fd799262728acfd00e06d690706b5a675ee356098183",
+   "qid_prefix": "RXNG_d6c4161ded12",
+   "block": "S41",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 6,
+   "top_reject_f5": {
+    "pass": 6
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "no_alignment": 5,
+    "element_mismatch": 2,
+    "other": 6
+   },
+   "reject_reason_counts": {
+    "no_alignment": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 6
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 9,
+    "novel": 4,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 50
+  },
+  {
+   "qid": "RXNG_d89bf895ae389645b4e9093af44229ee9dc6640542295acf14ce58610d6894fd",
+   "qid_prefix": "RXNG_d89bf895ae38",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 14,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 15,
+   "top_reject_f5": {
+    "None": 2,
+    "pass": 13
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "other": 15,
+    "element_mismatch": 3,
+    "enumeration_truncation": 2,
+    "no_alignment": 4
+   },
+   "reject_reason_counts": {
+    "charge_edit_unsupported": 15,
+    "no_structure_correspondence": 3,
+    "ambiguous_alignment": 2,
+    "no_alignment": 4
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "other",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 14,
+    "novel": 7,
+    "deferred": 14,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 51
+  },
+  {
+   "qid": "RXNG_e7f836a4e6e7ae2e4a1fe639385cab807b35ba46410a79b4629fe623dc6542dc",
+   "qid_prefix": "RXNG_e7f836a4e6e7",
+   "block": "S41",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_structure_correspondence",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 1,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 10,
+    "novel": 5,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 52
+  },
+  {
+   "qid": "RXNG_eb7a8583af6d03346241770acb03e5fa6e3f5c5369c548476388d33fcb38768f",
+   "qid_prefix": "RXNG_eb7a8583af6d",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 5,
+    "other": 11,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 3,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 5,
+    "no_alignment": 10,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 6,
+    "novel": 3,
+    "deferred": 6,
+    "violated": 1,
+    "method_failed": 0
+   },
+   "row_id": 53
+  },
+  {
+   "qid": "RXNG_ef027adac9a95fc7ea69f8452c5c9f124595e2648bc0e06ceb507fc96a4e735e",
+   "qid_prefix": "RXNG_ef027adac9a9",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 3,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 1,
+   "old_pool": 4,
+   "new_pool": 4,
+   "pool_delta": 0,
+   "compiled_new": 4,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 3
+   },
+   "compiled_old": 4,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "element_mismatch": 1,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "partial_dearomatization_inconsistent": 1,
+    "no_alignment": 3
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 2,
+    "method_failed": 0
+   },
+   "row_id": 54
+  },
+  {
+   "qid": "RXNG_f6ac633af28cf463b1b95ac73d6bf6384dd247a2ab7e068939785f8537393ad0",
+   "qid_prefix": "RXNG_f6ac633af28c",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "element_mismatch": 1,
+    "no_alignment": 10,
+    "enumeration_truncation": 5
+   },
+   "reject_reason_counts": {
+    "charge_edit_unsupported": 5,
+    "no_structure_correspondence": 1,
+    "no_alignment": 10,
+    "ambiguous_alignment": 5,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 9,
+    "novel": 5,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 55
+  },
+  {
+   "qid": "RXNG_fb86653f3fe39cec2d99b3e697fde95f497d8b38883b5831d8bbcac3ff76aca3",
+   "qid_prefix": "RXNG_fb86653f3fe3",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 8,
+   "add": 7,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 14,
+   "old_width_capped_products": 0,
+   "old_pool": 8,
+   "new_pool": 8,
+   "pool_delta": 0,
+   "compiled_new": 8,
+   "compiled_new_channels": {
+    "analog": 8
+   },
+   "compiled_old": 8,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 8,
+   "top_reject_f5": {
+    "defer": 8
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 5,
+    "other": 1,
+    "no_alignment": 8
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 4,
+    "product_set_mismatch": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 8
+   },
+   "pool_truncated_n": 2,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 14,
+    "novel": 4,
+    "deferred": 18,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 56
+  },
+  {
+   "qid": "RXNG_fc8720410441f3734707f90bef06cb93ff4fd40416f2d99d4b1c276aa5e18660",
+   "qid_prefix": "RXNG_fc8720410441",
+   "block": "S41",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 5,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 6,
+   "top_reject_f5": {
+    "pass": 6
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "no_alignment": 5,
+    "element_mismatch": 2,
+    "other": 6
+   },
+   "reject_reason_counts": {
+    "no_alignment": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 6
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 5,
+    "novel": 2,
+    "deferred": 5,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 57
+  },
+  {
+   "qid": "RXNG_fd4e0bad9fcb62a9191cb4fc66f1fe30dc7a94dced3bc57adbd633f674f12978",
+   "qid_prefix": "RXNG_fd4e0bad9fcb",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 3,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "not_evaluated": 1,
+    "reject": 7,
+    "defer": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 9,
+    "other": 25,
+    "enumeration_truncation": 4,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 9,
+    "aromatic_new_bond_unsupported": 4,
+    "execution_failed": 5,
+    "mapping_enumeration_truncated": 3,
+    "cosubstrate_bonded_contribution_unsupported": 9,
+    "transform_no_change": 2,
+    "stereo_edit_unsupported": 4,
+    "no_alignment": 10,
+    "ambiguous_alignment": 1,
+    "charge_edit_unsupported": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 12,
+    "novel": 3,
+    "deferred": 12,
+    "violated": 0,
+    "method_failed": 0
+   },
+   "row_id": 58
+  }
+ ],
+ "unique_rows": [
+  {
+   "qid": "RXNG_036534a3cd44ca02a8ea600357cdfc927dfb425471464464c89234af8d762bab",
+   "qid_prefix": "RXNG_036534a3cd44",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 4,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 14,
+   "old_width_capped_products": 4,
+   "old_pool": 4,
+   "new_pool": 4,
+   "pool_delta": 0,
+   "compiled_new": 4,
+   "compiled_new_channels": {
+    "analog": 4
+   },
+   "compiled_old": 4,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 7,
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 10,
+    "enumeration_truncation": 2,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "execution_failed": 3,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 10,
+    "transform_no_change": 4,
+    "ambiguous_alignment": 1,
+    "stereo_edit_unsupported": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 18,
+    "novel": 4,
+    "deferred": 18,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_05c5a15c9d9660934089ddb44878d6948631f098f8aad096ce2ff6efb531442f",
+   "qid_prefix": "RXNG_05c5a15c9d96",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 1,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "pass": 11
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "no_alignment": 8,
+    "other": 11,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "no_alignment": 7,
+    "no_compilable_alignment": 1,
+    "product_component_identity_invalid": 1,
+    "charge_edit_unsupported": 11,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 8,
+    "novel": 4,
+    "deferred": 8,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_06453c845d47850051bcfd724563cb54382a18401a838e932bcd111f4609bc52",
+   "qid_prefix": "RXNG_06453c845d47",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 2,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 4,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 2
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "partial_dearomatization_inconsistent": 3,
+    "cosubstrate_bonded_contribution_unsupported": 3,
+    "no_alignment": 9,
+    "execution_failed": 2,
+    "ambiguous_alignment": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 12,
+    "novel": 5,
+    "deferred": 12,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_0657c0389a4433d0430304db1237a429b7d20825f79db036f8ea31cd92007cab",
+   "qid_prefix": "RXNG_0657c0389a44",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 4,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": null,
+   "top_reject_n": 0,
+   "top_reject_f5": {},
+   "top_reject_category": null,
+   "reject_category_counts": {},
+   "reject_reason_counts": {},
+   "pool_truncated_n": 0,
+   "death_cause": "other",
+   "fixability_gate": "unknown",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 4,
+    "novel": 2,
+    "deferred": 4,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_0a2c91bde7717cf85c38b9985ccf61aad518c710f0f5ebb84676fc5ebf19503e",
+   "qid_prefix": "RXNG_0a2c91bde771",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 14,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 6,
+   "top_reject_f5": {
+    "pass": 6
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "no_alignment": 5,
+    "element_mismatch": 2,
+    "other": 6
+   },
+   "reject_reason_counts": {
+    "no_alignment": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 6
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 14,
+    "novel": 6,
+    "deferred": 14,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_103c84009b441fd0510268b3f8fe1b522ed9a4ce12d4210bcc90e3eedfcbe4e7",
+   "qid_prefix": "RXNG_103c84009b44",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 3,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "None": 1,
+    "pass": 10
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "other": 12,
+    "enumeration_truncation": 1,
+    "no_alignment": 8,
+    "element_mismatch": 2
+   },
+   "reject_reason_counts": {
+    "charge_edit_unsupported": 11,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1,
+    "no_alignment": 8,
+    "product_component_identity_invalid": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 13,
+    "novel": 4,
+    "deferred": 13,
+    "violated": 2,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_11e08d7a2a44e0f1b72f6e25e03fbb7fdbd60deb2e2c9894fb49bf20ea95be51",
+   "qid_prefix": "RXNG_11e08d7a2a44",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 2
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 12,
+   "top_reject_f5": {
+    "defer": 8,
+    "reject": 3,
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 14,
+    "enumeration_truncation": 3,
+    "no_alignment": 12
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 11,
+    "mapping_enumeration_truncated": 3,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 12,
+    "transform_no_change": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 7,
+    "novel": 4,
+    "deferred": 7,
+    "violated": 2,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_15a597617bc29ae0a35d56b81b9347ea386bb349a6b10d249664b34a22081099",
+   "qid_prefix": "RXNG_15a597617bc2",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 3,
+   "old_n_candidates": 12,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_structure_correspondence",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 1,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 12,
+    "novel": 6,
+    "deferred": 12,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_167dfdcc8dd009e80e713dc3b71286e691b0332aaea4d6fdb203ffc5cfe7b100",
+   "qid_prefix": "RXNG_167dfdcc8dd0",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "corpus": 1,
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "product_set_mismatch",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 1,
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 6,
+    "novel": 1,
+    "deferred": 6,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_1a5528f34b65ce23dd087b4a15bb2b254fb592ace2dacae6e4bfbc6941b849d4",
+   "qid_prefix": "RXNG_1a5528f34b65",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 4,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 7,
+    "defer": 2,
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "stereo_edit_unsupported": 5,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 10
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 4,
+    "novel": 3,
+    "deferred": 4,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_22901c4d6f4185e1be0346f43411bad2baec0ebd625b0ba8f9113b4b165e37ca",
+   "qid_prefix": "RXNG_22901c4d6f41",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 8,
+   "add": 7,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 16,
+   "old_width_capped_products": 0,
+   "old_pool": 8,
+   "new_pool": 8,
+   "pool_delta": 0,
+   "compiled_new": 8,
+   "compiled_new_channels": {
+    "analog": 8
+   },
+   "compiled_old": 8,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "new_atom_placement_incomplete",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "defer": 3
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "element_mismatch": 3,
+    "other": 4,
+    "no_alignment": 2
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "product_set_mismatch": 2,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 3,
+    "no_alignment": 2
+   },
+   "pool_truncated_n": 1,
+   "death_cause": "other",
+   "fixability_gate": "可修",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 16,
+    "novel": 2,
+    "deferred": 18,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_2a1a5bf6480dae350d31196dfa5545dbd7d106bee1b8588ad9d74cca9d2327cf",
+   "qid_prefix": "RXNG_2a1a5bf6480d",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 5,
+    "other": 11,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 3,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 5,
+    "no_alignment": 10,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 6,
+    "novel": 4,
+    "deferred": 6,
+    "violated": 1,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_2b9dd28e603c64b7e8e219e1f6feb7cc6b14e7210ffa7228428698edd89bb563",
+   "qid_prefix": "RXNG_2b9dd28e603c",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 3,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "corpus": 1,
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "product_set_mismatch",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 1,
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 6,
+    "novel": 2,
+    "deferred": 6,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_2e31a4648b682922068278f04ccb3738e51f478e14d600eaf016f0e54a3616f8",
+   "qid_prefix": "RXNG_2e31a4648b68",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 11,
+   "old_width_capped_products": 1,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "new_atom_placement_incomplete",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "defer": 1
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "other": 1
+   },
+   "reject_reason_counts": {
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "other",
+   "fixability_gate": "可修",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 12,
+    "novel": 7,
+    "deferred": 12,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_330df242afd7597dc85f5232af68565f95477402b60ca19c9b26449c2632ead0",
+   "qid_prefix": "RXNG_330df242afd7",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 1,
+   "old_pool": 4,
+   "new_pool": 4,
+   "pool_delta": 0,
+   "compiled_new": 4,
+   "compiled_new_channels": {
+    "analog": 4
+   },
+   "compiled_old": 4,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 8,
+    "defer": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "enumeration_truncation": 1,
+    "other": 7,
+    "no_alignment": 11
+   },
+   "reject_reason_counts": {
+    "ambiguous_mapping": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 6,
+    "no_compilable_alignment": 1,
+    "no_alignment": 10
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_37e263634a3387350c0c20777dc629506d9212d1471ea97440a86c567f69a06c",
+   "qid_prefix": "RXNG_37e263634a33",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 5,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 2,
+   "top_reject_f5": {
+    "defer": 1,
+    "reject": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 2,
+    "no_alignment": 2
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 7,
+    "novel": 3,
+    "deferred": 7,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_39a545f6bb4275c8f05e7201c70649b763b1e20c92c878bf0b34364a3761c39d",
+   "qid_prefix": "RXNG_39a545f6bb42",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 13,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "reject": 2,
+    "defer": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 2,
+    "no_alignment": 3
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 13,
+    "novel": 5,
+    "deferred": 13,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_3d58685aebce44376b74102596b979baa8aeaac74e31da59b4b15a8c96277858",
+   "qid_prefix": "RXNG_3d58685aebce",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 3,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 1,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 7,
+   "top_reject_f5": {
+    "reject": 3,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "enumeration_truncation": 1,
+    "no_alignment": 7,
+    "element_mismatch": 1,
+    "other": 2
+   },
+   "reject_reason_counts": {
+    "mapping_enumeration_truncated": 1,
+    "no_alignment": 7,
+    "product_component_identity_invalid": 1,
+    "charge_edit_unsupported": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 2,
+    "reportable": 3,
+    "novel": 3,
+    "deferred": 3,
+    "violated": 1,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_45d8d90fa8ccd5c3b22a7a15aa6bb45c6e622e0091caa6ad462692b4d92d5182",
+   "qid_prefix": "RXNG_45d8d90fa8cc",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "corpus": 1,
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "product_set_mismatch",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 1,
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 8,
+    "novel": 2,
+    "deferred": 8,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_46c6b17b0697244ba89550472db43c404698d4b568785554ea603b5ef8e4dddd",
+   "qid_prefix": "RXNG_46c6b17b0697",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 3,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 1,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 9,
+    "novel": 3,
+    "deferred": 9,
+    "violated": 2,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_4ec68aa8196aac55358f9bfe4b506519fab0f5cfbb4e46c90b7147a2cd429c3d",
+   "qid_prefix": "RXNG_4ec68aa8196a",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 5,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 5,
+    "other": 11,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 3,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 5,
+    "no_alignment": 10,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 5,
+    "novel": 2,
+    "deferred": 5,
+    "violated": 1,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_50e0f19bd85dcaf65f33eb601ae9d2cdb869a91fcb25e12f47d7abbbe2402f5b",
+   "qid_prefix": "RXNG_50e0f19bd85d",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 2
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 12,
+   "top_reject_f5": {
+    "defer": 8,
+    "reject": 3,
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 14,
+    "enumeration_truncation": 3,
+    "no_alignment": 12
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 11,
+    "mapping_enumeration_truncated": 3,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 12,
+    "transform_no_change": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 7,
+    "novel": 4,
+    "deferred": 7,
+    "violated": 2,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_5876dc9dadf845f4625ac53438a0dc58c915cc4c93caadbae847a1bede5bd02a",
+   "qid_prefix": "RXNG_5876dc9dadf8",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "element_mismatch": 1,
+    "no_alignment": 10,
+    "enumeration_truncation": 5
+   },
+   "reject_reason_counts": {
+    "charge_edit_unsupported": 5,
+    "no_structure_correspondence": 1,
+    "no_alignment": 10,
+    "ambiguous_alignment": 5,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 6,
+    "novel": 5,
+    "deferred": 6,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_65c761ceea29494e1e9e711664f3e7f234006f510c0c81f3708af0a1f9de592a",
+   "qid_prefix": "RXNG_65c761ceea29",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 3,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 1,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "pass": 10
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "element_mismatch": 4,
+    "other": 11,
+    "enumeration_truncation": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 3,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1,
+    "product_component_identity_invalid": 1,
+    "charge_edit_unsupported": 10,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 10,
+    "novel": 6,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_72d2660c0f1baf912c667f15f5ad58ef6406448c85e668995fdbc9191a88288a",
+   "qid_prefix": "RXNG_72d2660c0f1b",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 4,
+   "top_reject_f5": {
+    "defer": 1,
+    "reject": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 2,
+    "no_alignment": 4
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 4
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 9,
+    "novel": 4,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_75674c48e707b721ced2a8612c4784122f60a4c67b74deaa72b9682598ddf0dc",
+   "qid_prefix": "RXNG_75674c48e707",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 4,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "mapping_enumeration_truncated",
+   "top_reject_n": 2,
+   "top_reject_f5": {
+    "None": 2
+   },
+   "top_reject_category": "enumeration_truncation",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 2,
+    "other": 2,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "mapping_enumeration_truncated": 2,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 1,
+    "charge_edit_unsupported": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "enumeration_truncation",
+   "fixability_gate": "可修",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 4,
+    "novel": 3,
+    "deferred": 4,
+    "violated": 1,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_76160d33bf9fbe76239b3961f0d08428e0ba23b1171c464eb9ff8083bdb2c24c",
+   "qid_prefix": "RXNG_76160d33bf9f",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 4,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "defer": 9,
+    "reject": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "no_alignment": 11,
+    "enumeration_truncation": 3
+   },
+   "reject_reason_counts": {
+    "stereo_edit_unsupported": 4,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 11,
+    "ambiguous_alignment": 3,
+    "execution_failed": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 4,
+    "novel": 3,
+    "deferred": 4,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_7bd87d4003757022ec3259374973dc5ef894b91478cdf84607298ba14f9ab34c",
+   "qid_prefix": "RXNG_7bd87d400375",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 5,
+   "top_reject_f5": {
+    "reject": 2,
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 1,
+    "other": 3,
+    "no_alignment": 5
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "mapping_enumeration_truncated": 1,
+    "cosubstrate_bonded_contribution_unsupported": 2,
+    "no_alignment": 5,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 8,
+    "novel": 6,
+    "deferred": 8,
+    "violated": 1,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_7beff0374166b8b994c181bb6a685f3e12d2fbc8c847e7d511d453b62cc407b4",
+   "qid_prefix": "RXNG_7beff0374166",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 2,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 5,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "no_alignment": 9,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 9,
+    "novel": 3,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_891c844ebaa81c83111bf26f7e4e45e6c6a3568c4bf1513384d266fdefe1fb08",
+   "qid_prefix": "RXNG_891c844ebaa8",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 13,
+   "old_width_capped_products": 3,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 4,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 2
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "partial_dearomatization_inconsistent": 3,
+    "cosubstrate_bonded_contribution_unsupported": 3,
+    "no_alignment": 9,
+    "execution_failed": 2,
+    "ambiguous_alignment": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 16,
+    "novel": 5,
+    "deferred": 16,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_89b8bce798e20b8a265b94e1bead35a7fd06c5064466ab19fcfd334e53f4cd92",
+   "qid_prefix": "RXNG_89b8bce798e2",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 11,
+   "old_width_capped_products": 3,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "defer": 1,
+    "reject": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 4,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 1,
+    "no_alignment": 3,
+    "transform_no_change": 2
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 14,
+    "novel": 5,
+    "deferred": 14,
+    "violated": 1,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_8ee93e3c64f8c72d087c22ab2e3acdcf27740966fb1e187a37869c5b70acd3dd",
+   "qid_prefix": "RXNG_8ee93e3c64f8",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_strict",
+   "v2_rank": 1,
+   "is_hit": true,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 2,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 5,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "no_alignment": 9,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "n/a (hit)",
+   "fixability_gate": "n/a (hit)",
+   "fixability_qid": "n/a (hit@1)",
+   "decisive_stage": "survivor_hit",
+   "native": {
+    "events": 7,
+    "reportable": 10,
+    "novel": 4,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+   "qid_prefix": "RXNG_93d3a3ef9b71",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "matched_participant_coverage_partial",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 1,
+   "old_n_candidates": 11,
+   "old_width_capped_products": 3,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 2,
+   "top_reject_f5": {
+    "defer": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 5,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "new_atom_placement_incomplete": 2,
+    "charge_edit_unsupported": 2,
+    "no_alignment": 2,
+    "no_compilable_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 14,
+    "novel": 4,
+    "deferred": 14,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_94539b62f7f3a9fed030818f5c33a9c96c7ca2dd9094831e29bbcbcd828a4c9d",
+   "qid_prefix": "RXNG_94539b62f7f3",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 3,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "defer": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "execution_failed": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_a319f41e077ece4bc363bdc71eee4b29972365bd4c619a8513e7b47ed41ed089",
+   "qid_prefix": "RXNG_a319f41e077e",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 5,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "partial_dearomatization_inconsistent",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 2,
+    "no_alignment": 1
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "execution_failed": 1,
+    "no_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 5,
+    "novel": 5,
+    "deferred": 5,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_a401c95418f5ee54961cc1f417f34526e92b56d02e63e227f545f14abd990c32",
+   "qid_prefix": "RXNG_a401c95418f5",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 1,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 11,
+   "top_reject_f5": {
+    "reject": 7,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "enumeration_truncation": 4,
+    "other": 12,
+    "no_alignment": 11
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "mapping_enumeration_truncated": 3,
+    "cosubstrate_bonded_contribution_unsupported": 3,
+    "execution_failed": 3,
+    "no_alignment": 11,
+    "stereo_edit_unsupported": 2,
+    "transform_no_change": 4,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 10,
+    "novel": 4,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 1
+   }
+  },
+  {
+   "qid": "RXNG_ae3a789f9c20b0de721f9c9a53a3afeae5b85f46dc7a81e9a4b2bd58ad2c5093",
+   "qid_prefix": "RXNG_ae3a789f9c20",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 3,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 7,
+    "defer": 2,
+    "not_evaluated": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "stereo_edit_unsupported": 5,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 10
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 3,
+    "novel": 3,
+    "deferred": 3,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_aefef2f58e31e2feb6d07e43d4076cd899a7e02d6262fec3adbfd6e1f28b8df7",
+   "qid_prefix": "RXNG_aefef2f58e31",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 3,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_structure_correspondence",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "execution_failed": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 7,
+    "novel": 4,
+    "deferred": 7,
+    "violated": 1,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_b98e5b272c2d164a709c3c809d23e49c62798cc0103db823e900f1e3b4740970",
+   "qid_prefix": "RXNG_b98e5b272c2d",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "recorded": 2,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 9,
+   "top_reject_f5": {
+    "reject": 5,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 5,
+    "no_alignment": 9,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 1,
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "no_alignment": 9,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 7,
+    "reportable": 10,
+    "novel": 4,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_cd29a6432c26d7c36f48177893c68e8d960a5c9cb06ecc6e4e906c4f6cabddac",
+   "qid_prefix": "RXNG_cd29a6432c26",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 3,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 1,
+   "old_pool": 4,
+   "new_pool": 4,
+   "pool_delta": 0,
+   "compiled_new": 4,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 3
+   },
+   "compiled_old": 4,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "element_mismatch": 1,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "partial_dearomatization_inconsistent": 1,
+    "no_alignment": 3
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 2,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_d239738da046bbba2614ae6a8a825a86467b33634df6d0e63711cd7e53b71d3e",
+   "qid_prefix": "RXNG_d239738da046",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 2,
+   "add": 2,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 8,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 2,
+   "pool_delta": 0,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "analog": 2
+   },
+   "compiled_old": 2,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "reject": 2,
+    "defer": 1
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 2,
+    "no_alignment": 3
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 4,
+    "reportable": 8,
+    "novel": 3,
+    "deferred": 8,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_d23a924f72135e2b9cae0628023bbb18e1d5e0787c8579b723fc38e2e8b89003",
+   "qid_prefix": "RXNG_d23a924f7213",
+   "block": "S17",
+   "sets": "S17",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": 3,
+   "old_n_candidates": 7,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 12,
+   "top_reject_f5": {
+    "defer": 8,
+    "reject": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 2,
+    "other": 3,
+    "enumeration_truncation": 5,
+    "no_alignment": 12
+   },
+   "reject_reason_counts": {
+    "partial_dearomatization_inconsistent": 2,
+    "cosubstrate_bonded_contribution_unsupported": 3,
+    "mapping_enumeration_truncated": 2,
+    "ambiguous_alignment": 3,
+    "no_alignment": 12
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 7,
+    "novel": 4,
+    "deferred": 7,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_d6c4161ded1251a4d9f3fd799262728acfd00e06d690706b5a675ee356098183",
+   "qid_prefix": "RXNG_d6c4161ded12",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 6,
+   "top_reject_f5": {
+    "pass": 6
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "no_alignment": 5,
+    "element_mismatch": 2,
+    "other": 6
+   },
+   "reject_reason_counts": {
+    "no_alignment": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 6
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 9,
+    "novel": 4,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_d89bf895ae389645b4e9093af44229ee9dc6640542295acf14ce58610d6894fd",
+   "qid_prefix": "RXNG_d89bf895ae38",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 14,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 15,
+   "top_reject_f5": {
+    "None": 2,
+    "pass": 13
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "other": 15,
+    "element_mismatch": 3,
+    "enumeration_truncation": 2,
+    "no_alignment": 4
+   },
+   "reject_reason_counts": {
+    "charge_edit_unsupported": 15,
+    "no_structure_correspondence": 3,
+    "ambiguous_alignment": 2,
+    "no_alignment": 4
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "other",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 14,
+    "novel": 7,
+    "deferred": 14,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_e7f836a4e6e7ae2e4a1fe639385cab807b35ba46410a79b4629fe623dc6542dc",
+   "qid_prefix": "RXNG_e7f836a4e6e7",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_structure_correspondence",
+   "top_reject_n": 1,
+   "top_reject_f5": {
+    "None": 1
+   },
+   "top_reject_category": "element_mismatch",
+   "reject_category_counts": {
+    "element_mismatch": 1,
+    "other": 1,
+    "enumeration_truncation": 1
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "ambiguous_alignment": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "element_mismatch",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 10,
+    "novel": 5,
+    "deferred": 10,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_eb7a8583af6d03346241770acb03e5fa6e3f5c5369c548476388d33fcb38768f",
+   "qid_prefix": "RXNG_eb7a8583af6d",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 6,
+   "old_width_capped_products": 0,
+   "old_pool": 3,
+   "new_pool": 2,
+   "pool_delta": -1,
+   "compiled_new": 2,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 1
+   },
+   "compiled_old": 3,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 5,
+    "other": 11,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 3,
+    "cosubstrate_bonded_contribution_unsupported": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 5,
+    "no_alignment": 10,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 5,
+    "reportable": 6,
+    "novel": 3,
+    "deferred": 6,
+    "violated": 1,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_ef027adac9a95fc7ea69f8452c5c9f124595e2648bc0e06ceb507fc96a4e735e",
+   "qid_prefix": "RXNG_ef027adac9a9",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 3,
+   "add": 3,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 10,
+   "old_width_capped_products": 1,
+   "old_pool": 4,
+   "new_pool": 4,
+   "pool_delta": 0,
+   "compiled_new": 4,
+   "compiled_new_channels": {
+    "recorded": 1,
+    "analog": 3
+   },
+   "compiled_old": 4,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 3,
+   "top_reject_f5": {
+    "defer": 3
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 1,
+    "element_mismatch": 1,
+    "no_alignment": 3
+   },
+   "reject_reason_counts": {
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "partial_dearomatization_inconsistent": 1,
+    "no_alignment": 3
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 11,
+    "novel": 4,
+    "deferred": 11,
+    "violated": 2,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_f6ac633af28cf463b1b95ac73d6bf6384dd247a2ab7e068939785f8537393ad0",
+   "qid_prefix": "RXNG_f6ac633af28c",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 0,
+   "old_pool": 1,
+   "new_pool": 1,
+   "pool_delta": 0,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 1,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "reject": 6,
+    "defer": 4
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "other": 6,
+    "element_mismatch": 1,
+    "no_alignment": 10,
+    "enumeration_truncation": 5
+   },
+   "reject_reason_counts": {
+    "charge_edit_unsupported": 5,
+    "no_structure_correspondence": 1,
+    "no_alignment": 10,
+    "ambiguous_alignment": 5,
+    "new_atom_placement_incomplete": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 9,
+    "novel": 5,
+    "deferred": 9,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_fb86653f3fe39cec2d99b3e697fde95f497d8b38883b5831d8bbcac3ff76aca3",
+   "qid_prefix": "RXNG_fb86653f3fe3",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 8,
+   "add": 7,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 14,
+   "old_width_capped_products": 0,
+   "old_pool": 8,
+   "new_pool": 8,
+   "pool_delta": 0,
+   "compiled_new": 8,
+   "compiled_new_channels": {
+    "analog": 8
+   },
+   "compiled_old": 8,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 8,
+   "top_reject_f5": {
+    "defer": 8
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 5,
+    "other": 1,
+    "no_alignment": 8
+   },
+   "reject_reason_counts": {
+    "no_structure_correspondence": 4,
+    "product_set_mismatch": 1,
+    "cosubstrate_bonded_contribution_unsupported": 1,
+    "no_alignment": 8
+   },
+   "pool_truncated_n": 2,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 8,
+    "reportable": 14,
+    "novel": 4,
+    "deferred": 18,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_fc8720410441f3734707f90bef06cb93ff4fd40416f2d99d4b1c276aa5e18660",
+   "qid_prefix": "RXNG_fc8720410441",
+   "block": "S17",
+   "sets": "S17+S41",
+   "is_overlap": true,
+   "remap": 1,
+   "add": 0,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 5,
+   "old_width_capped_products": 0,
+   "old_pool": 2,
+   "new_pool": 1,
+   "pool_delta": -1,
+   "compiled_new": 1,
+   "compiled_new_channels": {
+    "analog": 1
+   },
+   "compiled_old": 2,
+   "idgate": true,
+   "identity_reject_n": 2,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "charge_edit_unsupported",
+   "top_reject_n": 6,
+   "top_reject_f5": {
+    "pass": 6
+   },
+   "top_reject_category": "other",
+   "reject_category_counts": {
+    "no_alignment": 5,
+    "element_mismatch": 2,
+    "other": 6
+   },
+   "reject_reason_counts": {
+    "no_alignment": 5,
+    "product_component_identity_invalid": 2,
+    "charge_edit_unsupported": 6
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "identity_gate",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 3,
+    "reportable": 5,
+    "novel": 2,
+    "deferred": 5,
+    "violated": 0,
+    "method_failed": 0
+   }
+  },
+  {
+   "qid": "RXNG_fd4e0bad9fcb62a9191cb4fc66f1fe30dc7a94dced3bc57adbd633f674f12978",
+   "qid_prefix": "RXNG_fd4e0bad9fcb",
+   "block": "S41",
+   "sets": "S41",
+   "is_overlap": false,
+   "remap": 1,
+   "add": 1,
+   "v2_status": "unmatched_required_node_uncovered",
+   "v2_rank": null,
+   "is_hit": false,
+   "old_anyof_rank": null,
+   "old_n_candidates": 9,
+   "old_width_capped_products": 3,
+   "old_pool": 3,
+   "new_pool": 3,
+   "pool_delta": 0,
+   "compiled_new": 3,
+   "compiled_new_channels": {
+    "analog": 3
+   },
+   "compiled_old": 3,
+   "idgate": false,
+   "identity_reject_n": 0,
+   "p0d_no_recorded": false,
+   "top_reject_reason": "no_alignment",
+   "top_reject_n": 10,
+   "top_reject_f5": {
+    "not_evaluated": 1,
+    "reject": 7,
+    "defer": 2
+   },
+   "top_reject_category": "no_alignment",
+   "reject_category_counts": {
+    "element_mismatch": 9,
+    "other": 25,
+    "enumeration_truncation": 4,
+    "no_alignment": 10
+   },
+   "reject_reason_counts": {
+    "product_set_mismatch": 9,
+    "aromatic_new_bond_unsupported": 4,
+    "execution_failed": 5,
+    "mapping_enumeration_truncated": 3,
+    "cosubstrate_bonded_contribution_unsupported": 9,
+    "transform_no_change": 2,
+    "stereo_edit_unsupported": 4,
+    "no_alignment": 10,
+    "ambiguous_alignment": 1,
+    "charge_edit_unsupported": 1
+   },
+   "pool_truncated_n": 0,
+   "death_cause": "no_alignment",
+   "fixability_gate": "需新契约",
+   "fixability_qid": "unknown",
+   "decisive_stage": "post_compile_match_coverage",
+   "native": {
+    "events": 6,
+    "reportable": 12,
+    "novel": 3,
+    "deferred": 12,
+    "violated": 0,
+    "method_failed": 0
+   }
+  }
+ ]
+}

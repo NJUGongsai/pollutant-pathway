@@ -1,0 +1,15 @@
+T-H lever2 remap audit summary (metadata only)
+sets: {'S17_remap_only': 17, 'S41_old_anyof_none_remap': 41, 'overlap': 7, 'union_unique': 51, 'rows_58': 58, 'unique_loss_qids': 50, 'unique_hit_survivors': 1}
+death_cause 58 rows: {'identity_gate': 13, 'element_mismatch': 8, 'no_alignment': 31, 'n/a (hit)': 1, 'other': 4, 'enumeration_truncation': 1}
+death_cause 57 loss rows: {'identity_gate': 13, 'element_mismatch': 8, 'no_alignment': 31, 'other': 4, 'enumeration_truncation': 1}
+death_cause 51 unique: {'no_alignment': 28, 'identity_gate': 10, 'other': 4, 'element_mismatch': 7, 'enumeration_truncation': 1, 'n/a (hit)': 1}
+death_cause 50 unique loss: {'no_alignment': 28, 'identity_gate': 10, 'other': 4, 'element_mismatch': 7, 'enumeration_truncation': 1}
+fixability_gate 57 loss rows: {'需新契约': 53, 'unknown': 1, '可修': 3}
+fixability_gate 50 unique loss: {'需新契约': 46, 'unknown': 1, '可修': 3}
+fixability_qid 57 loss rows: {'unknown': 57}
+identity_gate: {'unique_qids': 10, 'rows_58': 13, 'pool_delta_minus1': 9, 'pool_delta_0': 1, 'identity_reject_total': 17}
+pool: {'unique_pool_new_dist': {4: 4, 2: 13, 1: 21, 3: 11, 8: 2}, 'unique_pool_old_dist': {4: 4, 3: 15, 2: 14, 1: 16, 8: 2}, 'unique_pool_delta_dist': {0: 42, -1: 9}, 'unique_empty_new_pool': 0, 'unique_with_analog_compiled': 51, 'unique_without_recorded_candidates': 9, 'unique_without_corpus_candidates': 11}
+old_caliber: {'S41_old_anyof_none': 41, 'S41_old_n_candidates_min': 3, 'S41_old_n_candidates_max': 16, 'S41_old_n_candidates_zero': 0, 'S41_width_capped': 13, 'S17_old_anyof_none': 7, 'S17_unmatched_with_old_none': 7, 'S17_unmatched_with_old_present': 2}
+secondary_enum: {'width_capped_unique_qids': 14, 'width_capped_58_rows': 15, 'mapping_enumeration_truncated_unique_qids': 12, 'pool_truncated_unique_qids': 2, 'pool_truncated_58_rows': 2, 'pool_truncated_candidate_rows': 3, 'mapping_enumeration_candidate_rows': 22, 'width_capped_products_sum': 30, 'any_enum_signal_unique_qids': 25}
+native: {'completed': 51, 'model_calls_1': 51, 'events_dist': {8: 9, 6: 11, 3: 5, 7: 11, 4: 10, 2: 1, 5: 4}, 'method_failed_qids': ['RXNG_a401c95418f5'], 'audit_violated_qids': ['RXNG_103c84009b44', 'RXNG_11e08d7a2a44', 'RXNG_2a1a5bf6480d', 'RXNG_3d58685aebce', 'RXNG_46c6b17b0697', 'RXNG_4ec68aa8196a', 'RXNG_50e0f19bd85d', 'RXNG_75674c48e707', 'RXNG_7bd87d400375', 'RXNG_89b8bce798e2', 'RXNG_aefef2f58e31', 'RXNG_cd29a6432c26', 'RXNG_eb7a8583af6d', 'RXNG_ef027adac9a9'], 'run_error_nonempty': []}
+p0d: {'unique_in_no_recorded_prefixes': 0, 'no_recorded_anchor_193': 193, 'candidate_rows': 5319, 'compiled': 531, 'compile_rejected': 4311, 'no_alignment_total': 1585, 'no_alignment_f5_reject': 864, 'no_alignment_f5_defer_compiler': 543, 'no_alignment_not_f5': 178}

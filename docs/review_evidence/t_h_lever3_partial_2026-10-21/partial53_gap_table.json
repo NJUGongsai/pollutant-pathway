@@ -1,0 +1,2638 @@
+{
+ "provenance": {
+  "batch_tag": "t_h_s5b_298_20261020r2",
+  "domain_tag": "298=RHEA 通用酶学/已见题（post-hoc）；本表不外推",
+  "nature": "只读诊断；零模型调用、零新批次、零金标/reference_graphs 内容、零结构正文输出",
+  "source_sha256": {
+   "reports/ppv1_s5b/t_h_2026-10-20/r2/metrics.json": "ceb9e72ea34d14ee95d2432b44ccce3c82b2d935fa0f5333de2d8a890cb0c7f6",
+   "reports/ppv1_s5b/t_h_2026-10-20/r2/metrics.json.v1": "680a64e9bd30a46c4cbd1d6376cd57c9fabfe24589e6d1eda90c8f4b1afdf968",
+   "partial53_meta.json": "7bfaf7d112909a13de815fadebf49ec679d3bc9105ce4b2120e142b1f7ad634c"
+  },
+  "classification_rule": {
+   "priority": [
+    "missing_principal_product",
+    "extra_principal_product",
+    "cofactor_extra",
+    "undeclared_coproduct",
+    "bookkeeping_unexempt",
+    "other"
+   ],
+   "missing_principal_product": "任一覆盖事件 missing_roles 含 principal_product",
+   "extra_principal_product": "任一事件 extras 含 principal_product",
+   "cofactor_extra": "任一事件 extras 含无 exempt_family 的 cosubstrate",
+   "undeclared_coproduct": "任一事件 extras 含无 exempt_family 的 coproduct",
+   "bookkeeping_unexempt": "其余事件 extras 仅含带 exempt_family 的簿记类（H2O/H+/PPi 等），但 tier 仍 not_exempt",
+   "destination": {
+    "可修": "存在下一批声明/补链修复面；不承诺转化题数",
+    "待裁定": "辅因子类，化学必要性需送师姐评审",
+    "放弃": "当前证据下不进入下一批修复面；不是永久否定"
+   }
+  }
+ },
+ "summary": {
+  "closed": 53,
+  "total_targets": 53,
+  "category_counts": {
+   "missing_principal_product": 8,
+   "extra_principal_product": 3,
+   "cofactor_extra": 5,
+   "undeclared_coproduct": 21,
+   "bookkeeping_unexempt": 16,
+   "other": 0
+  },
+  "destination_counts": {
+   "可修": 37,
+   "待裁定": 5,
+   "放弃": 11
+  },
+  "coverage_form_counts": {
+   "superset": 45,
+   "partial_subset+superset": 2,
+   "partial_subset": 6
+  },
+  "t1_declaration_qid_counts": {
+   "resolved": 3,
+   "no_chain": 41,
+   "mixed": 3,
+   "none": 6
+  },
+  "t1_any_status_qid_counts": {
+   "any_no_chain": 43,
+   "any_resolved": 5,
+   "any_none": 8
+  },
+  "t1_eligible_qid_counts": {
+   "all_true": 45,
+   "any_true": 47,
+   "any_false": 8
+  },
+  "t1_all_exempt_qids": 0,
+  "pool_size_zero_qids": 12,
+  "promoted_v1_partial_to_v2_strict": {
+   "n": 5,
+   "qid_prefixes": [
+    "RXNG_3b8991e91ab5f",
+    "RXNG_5e9b5672eb145",
+    "RXNG_7652a03dff72d",
+    "RXNG_8dce8a33d8bd3",
+    "RXNG_8f29c4de07a9e"
+   ],
+   "overlap_with_partial53": []
+  },
+  "unknown": [
+   "转化题数 unknown：没有候选级/事件级金标匹配，也没有同题 A/B；本表只分类缺口面。",
+   "可修 ≠ 可兑现：可修只表示存在下一批修复面，不承诺 strict 转化。",
+   "缺主产物类的真实可修性 unknown：当前事件没有该主产物，无法从覆盖元数据判断是生成失败还是投影截断。",
+   "辅因子类的化学必要性 unknown：需化学评审，本文不写判据结论。"
+  ],
+  "t1_occurrence_tier_totals": {
+   "not_exempt_maintains_partial": 60,
+   "v1_exempt": 4
+  }
+ },
+ "rows": [
+  {
+   "row_id": 1,
+   "qid": "RXNG_03ebc970515b44b852ed443ee83382e42fc7f9187577ff9d5a3b9d718af93014",
+   "qid_prefix": "RXNG_03ebc970515b4",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "resolved",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1,
+     "v1_exempt": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "已有链但未全豁免（resolved，occurrence 仍 not_exempt）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 2,
+   "qid": "RXNG_04d8e54db1cf2eee180ad272d26d804a4525d2abeb3d2d7d5faa713e713d710b",
+   "qid_prefix": "RXNG_04d8e54db1cf2",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 3,
+   "qid": "RXNG_08d3aa8a02eec3c1781990d03e1392cd369679bedd64a422046232d0cd2296cd",
+   "qid_prefix": "RXNG_08d3aa8a02eec",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 3,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 4,
+   "qid": "RXNG_09a6f7180b392540b2e092f76d9a35424816119e2b3b2d1bd7384ea4a7478d5c",
+   "qid_prefix": "RXNG_09a6f7180b392",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 5,
+   "qid": "RXNG_0a2c91bde7717cf85c38b9985ccf61aad518c710f0f5ebb84676fc5ebf19503e",
+   "qid_prefix": "RXNG_0a2c91bde7717",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 7,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 6,
+   "qid": "RXNG_0ab7c126b56b87641946bcb273ee05744436dd09255df0aa183d6cff3a9d4048",
+   "qid_prefix": "RXNG_0ab7c126b56b8",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:PPi",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:PPi": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 7,
+   "qid": "RXNG_0eda0ec3a41b2c3acfd65b9fb04c98769602f4e7fcc9d41e156cfa5d020f1d7a",
+   "qid_prefix": "RXNG_0eda0ec3a41b2",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "cofactor_extra",
+   "gap_category_zh": "辅因子类多余反应物",
+   "destination": "待裁定",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 8,
+   "qid": "RXNG_0f02d5d2f47173ff20d001f5b9d3c2250b588913504dbe21b6a6c316eb2bec9a",
+   "qid_prefix": "RXNG_0f02d5d2f4717",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 9,
+   "qid": "RXNG_13141108d9e6fff229c829769312b0278c4b29eef400ff00fc4035bbb0d3181b",
+   "qid_prefix": "RXNG_13141108d9e6f",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 10,
+   "qid": "RXNG_15a597617bc29ae0a35d56b81b9347ea386bb349a6b10d249664b34a22081099",
+   "qid_prefix": "RXNG_15a597617bc29",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 7,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 11,
+   "qid": "RXNG_164844b4b76b8ac5477595bb93d376ba7bfb3ac5d31abc4f096c9ea3d196364b",
+   "qid_prefix": "RXNG_164844b4b76b8",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 3,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "partial_subset",
+    "superset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "missing_principal_product",
+   "gap_category_zh": "缺主产物",
+   "destination": "放弃",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 2
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H+",
+     "n": 1
+    }
+   ],
+   "missing_roles": [
+    {
+     "role": "principal_product",
+     "n": 2
+    }
+   ],
+   "t1": {
+    "declaration_status": "mixed(None,resolved)",
+    "eligible_any": true,
+    "eligible_all": false,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1,
+     "v1_exempt": 2
+    },
+    "exempt_families": {
+     "v1:H+": 2,
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "主缺口为缺主产物；T-1 不能补缺失产物（覆盖层先挡）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 12,
+   "qid": "RXNG_167dfdcc8dd009e80e713dc3b71286e691b0332aaea4d6fdb203ffc5cfe7b100",
+   "qid_prefix": "RXNG_167dfdcc8dd00",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "cofactor_extra",
+   "gap_category_zh": "辅因子类多余反应物",
+   "destination": "待裁定",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "v1:H+",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 3
+    },
+    "exempt_families": {
+     "v1:H+": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 13,
+   "qid": "RXNG_1692948d4ad5bd73360199106ccafb1453bb51acb6268b5033e58604c9578999",
+   "qid_prefix": "RXNG_1692948d4ad5b",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "extra_principal_product",
+   "gap_category_zh": "多声明主产物",
+   "destination": "放弃",
+   "extras": [
+    {
+     "side": "product",
+     "role": "principal_product",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 14,
+   "qid": "RXNG_20b83d4f65520d2ec49187322a3daefed3465f394d3c2c4b2639fb5f64a86817",
+   "qid_prefix": "RXNG_20b83d4f65520",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 15,
+   "qid": "RXNG_21ed83a680e54ef6741935a58d8f25e9fbde2714dd60c0793d731d875750bfc0",
+   "qid_prefix": "RXNG_21ed83a680e54",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "cofactor_extra",
+   "gap_category_zh": "辅因子类多余反应物",
+   "destination": "待裁定",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 16,
+   "qid": "RXNG_2579ae3ecc63b2677829ff39f5890a30436586ff24b2f8d3184dc0814d24262c",
+   "qid_prefix": "RXNG_2579ae3ecc63b",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "extra_principal_product",
+   "gap_category_zh": "多声明主产物",
+   "destination": "放弃",
+   "extras": [
+    {
+     "side": "product",
+     "role": "principal_product",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 17,
+   "qid": "RXNG_2a805c8fc232e6b0c279dbb3d18d113fe2ffedfef5528573a60f251c0a879196",
+   "qid_prefix": "RXNG_2a805c8fc232e",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 4,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "partial_subset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "missing_principal_product",
+   "gap_category_zh": "缺主产物",
+   "destination": "放弃",
+   "extras": [],
+   "missing_roles": [
+    {
+     "role": "principal_product",
+     "n": 3
+    }
+   ],
+   "t1": {
+    "declaration_status": "none",
+    "eligible_any": false,
+    "eligible_all": false,
+    "all_exempt_any": false,
+    "tier_counts": {},
+    "exempt_families": {}
+   },
+   "t1_relation": "主缺口为缺主产物；T-1 不能补缺失产物（覆盖层先挡）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 18,
+   "qid": "RXNG_2b9dd28e603c64b7e8e219e1f6feb7cc6b14e7210ffa7228428698edd89bb563",
+   "qid_prefix": "RXNG_2b9dd28e603c6",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 19,
+   "qid": "RXNG_32293b693909ff88460f19bea98475ede7ae1cb8985ae0725062be223a21d388",
+   "qid_prefix": "RXNG_32293b693909f",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 3,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 20,
+   "qid": "RXNG_342929a68971758490b6292971d5a8033406a644ad57b2065c4a9baf381bfffc",
+   "qid_prefix": "RXNG_342929a689717",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 21,
+   "qid": "RXNG_37e263634a3387350c0c20777dc629506d9212d1471ea97440a86c567f69a06c",
+   "qid_prefix": "RXNG_37e263634a338",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 22,
+   "qid": "RXNG_445673c6693414a3aff38a620382912906a6a1edf06bc6a5a2fcc8f385523482",
+   "qid_prefix": "RXNG_445673c669341",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 23,
+   "qid": "RXNG_45d8d90fa8ccd5c3b22a7a15aa6bb45c6e622e0091caa6ad462692b4d92d5182",
+   "qid_prefix": "RXNG_45d8d90fa8ccd",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "cofactor_extra",
+   "gap_category_zh": "辅因子类多余反应物",
+   "destination": "待裁定",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "v1:H+",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 3
+    },
+    "exempt_families": {
+     "v1:H+": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 24,
+   "qid": "RXNG_4f47ef5ad741ca620b4702f3c908f418524cbc821c091926a623c067748dd6f4",
+   "qid_prefix": "RXNG_4f47ef5ad741c",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:PPi",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:PPi": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 25,
+   "qid": "RXNG_51cb56fdbce6b6017ac0fecaa443f823b9ecbca4bad77f842c8c4d7661a87a4b",
+   "qid_prefix": "RXNG_51cb56fdbce6b",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 26,
+   "qid": "RXNG_531caa559d3dda2ef2cda50e266100c4422c650526cfa5fec3f9b6b2d8c25be4",
+   "qid_prefix": "RXNG_531caa559d3dd",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 27,
+   "qid": "RXNG_5727b6273dcf6031a1c4f52e4ddf59706a95f5b94787f406a911104f8b277e61",
+   "qid_prefix": "RXNG_5727b6273dcf6",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "v1:H+",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H+",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "mixed(no_chain,resolved)",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2,
+     "v1_exempt": 1
+    },
+    "exempt_families": {
+     "v1:H+": 3
+    }
+   },
+   "t1_relation": "混合状态（部分事件有链/已判定，部分无链）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 28,
+   "qid": "RXNG_654cc41cad1160a9152a56bd41cc3ff515af2e909142aa463031c0896c87a6e8",
+   "qid_prefix": "RXNG_654cc41cad116",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 5,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "resolved",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "已有链但未全豁免（resolved，occurrence 仍 not_exempt）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 29,
+   "qid": "RXNG_66271eac90b08ad3268e5296699a435d0eb0864357cc7ddee59a434b721911bb",
+   "qid_prefix": "RXNG_66271eac90b08",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 30,
+   "qid": "RXNG_6d4d3e2fa5ade734cb7eea19622240a4c99690896fdc08db79441c394769dcf4",
+   "qid_prefix": "RXNG_6d4d3e2fa5ade",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 31,
+   "qid": "RXNG_6f0eea09ebe3729bb4067e8a75c3f62fb5f70aaeae957e7ecd16a8b2394278a9",
+   "qid_prefix": "RXNG_6f0eea09ebe37",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 32,
+   "qid": "RXNG_7fab823b3a4e8b6a451483052f1c289151952774a86c8ce31939bff50aeb98bd",
+   "qid_prefix": "RXNG_7fab823b3a4e8",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 33,
+   "qid": "RXNG_8d9fa8b67a68df3d23d1753ae15a463c9cf3376b2b4269a09949e7b75fbc86a3",
+   "qid_prefix": "RXNG_8d9fa8b67a68d",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 34,
+   "qid": "RXNG_8e87765558aab9758c28a2969c3dca0b1ff8068d4a25b416534e9ada9a1d7b08",
+   "qid_prefix": "RXNG_8e87765558aab",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 3,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "partial_subset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "missing_principal_product",
+   "gap_category_zh": "缺主产物",
+   "destination": "放弃",
+   "extras": [],
+   "missing_roles": [
+    {
+     "role": "principal_product",
+     "n": 2
+    }
+   ],
+   "t1": {
+    "declaration_status": "none",
+    "eligible_any": false,
+    "eligible_all": false,
+    "all_exempt_any": false,
+    "tier_counts": {},
+    "exempt_families": {}
+   },
+   "t1_relation": "主缺口为缺主产物；T-1 不能补缺失产物（覆盖层先挡）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 35,
+   "qid": "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+   "qid_prefix": "RXNG_93d3a3ef9b712",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "partial_subset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "missing_principal_product",
+   "gap_category_zh": "缺主产物",
+   "destination": "放弃",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 2
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H+",
+     "n": 1
+    }
+   ],
+   "missing_roles": [
+    {
+     "role": "principal_product",
+     "n": 2
+    }
+   ],
+   "t1": {
+    "declaration_status": "none",
+    "eligible_any": false,
+    "eligible_all": false,
+    "all_exempt_any": false,
+    "tier_counts": {},
+    "exempt_families": {}
+   },
+   "t1_relation": "主缺口为缺主产物；T-1 不能补缺失产物（覆盖层先挡）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 36,
+   "qid": "RXNG_96836273fb2c376cc96985d7ab5b3f35566778d7b9778ea812534ecbecc2a180",
+   "qid_prefix": "RXNG_96836273fb2c3",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 5,
+   "n_candidate_events": 8,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "partial_subset",
+    "superset"
+   ],
+   "n_coverage_events": 3,
+   "gap_category": "missing_principal_product",
+   "gap_category_zh": "缺主产物",
+   "destination": "放弃",
+   "extras": [
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "",
+     "n": 2
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "principal_product",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [
+    {
+     "role": "principal_product",
+     "n": 2
+    }
+   ],
+   "t1": {
+    "declaration_status": "mixed(None,no_chain)",
+    "eligible_any": true,
+    "eligible_all": false,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "主缺口为缺主产物；T-1 不能补缺失产物（覆盖层先挡）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 37,
+   "qid": "RXNG_9c383e61351d8b93f412d42de548bf42daee0e225258200230abad5be9cd688d",
+   "qid_prefix": "RXNG_9c383e61351d8",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 7,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 38,
+   "qid": "RXNG_a275c5200849ef8a1f8b8fae5945c33d92484a4cc96f7d670e84e3319a542939",
+   "qid_prefix": "RXNG_a275c5200849e",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 39,
+   "qid": "RXNG_a69f41ef39c4a709a585e1fa680a82e3904fc0f65ddba824f3882b1ace120aef",
+   "qid_prefix": "RXNG_a69f41ef39c4a",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 40,
+   "qid": "RXNG_adab6b3244395805321cc92df0a69e120b9a77d9f6d2003a2ea606a3e2115b89",
+   "qid_prefix": "RXNG_adab6b3244395",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 41,
+   "qid": "RXNG_b34d5882f63b2bca8233d83fdf0b8f4029b9480607be024986565a22672cc33b",
+   "qid_prefix": "RXNG_b34d5882f63b2",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "partial_subset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "missing_principal_product",
+   "gap_category_zh": "缺主产物",
+   "destination": "放弃",
+   "extras": [],
+   "missing_roles": [
+    {
+     "role": "principal_product",
+     "n": 2
+    }
+   ],
+   "t1": {
+    "declaration_status": "none",
+    "eligible_any": false,
+    "eligible_all": false,
+    "all_exempt_any": false,
+    "tier_counts": {},
+    "exempt_families": {}
+   },
+   "t1_relation": "主缺口为缺主产物；T-1 不能补缺失产物（覆盖层先挡）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 42,
+   "qid": "RXNG_b6e5b278012c2fc36dd78beceffd2fecaccf65dbda15d15665b2ec0c966d0f3a",
+   "qid_prefix": "RXNG_b6e5b278012c2",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 2,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 43,
+   "qid": "RXNG_c01c97cb2e52814d859babc180a11eef019e0405771b405c6f4ba3284ddc9a80",
+   "qid_prefix": "RXNG_c01c97cb2e528",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:PPi",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:PPi": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 44,
+   "qid": "RXNG_c2fb10b79767bb786aa8d6e5df177fd580acbde9eb229e4fa70cfb34db5fe7ff",
+   "qid_prefix": "RXNG_c2fb10b79767b",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 6,
+   "n_candidate_events": 8,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "cofactor_extra",
+   "gap_category_zh": "辅因子类多余反应物",
+   "destination": "待裁定",
+   "extras": [
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 45,
+   "qid": "RXNG_c8836aa26b6039a7ea85b672904361352b5ef67ac7cc665dd698b687361af66b",
+   "qid_prefix": "RXNG_c8836aa26b603",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 7,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 46,
+   "qid": "RXNG_c9ee5eb0c5f911d80c6586a23575b4ce128c59608d4203618cfb40803f4a5aaa",
+   "qid_prefix": "RXNG_c9ee5eb0c5f91",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 2
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 47,
+   "qid": "RXNG_cee619845b65292d8c899a70944cd062541a65902f978454a1bb00e21cd05962",
+   "qid_prefix": "RXNG_cee619845b652",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 48,
+   "qid": "RXNG_d6da5d9aa4780df58fad988bc885c7d4f58da4f365634d7efc39a34f83b00f5f",
+   "qid_prefix": "RXNG_d6da5d9aa4780",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 3,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "partial_subset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "missing_principal_product",
+   "gap_category_zh": "缺主产物",
+   "destination": "放弃",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 3
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H+",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "principal_product",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [
+    {
+     "role": "principal_product",
+     "n": 2
+    }
+   ],
+   "t1": {
+    "declaration_status": "none",
+    "eligible_any": false,
+    "eligible_all": false,
+    "all_exempt_any": false,
+    "tier_counts": {},
+    "exempt_families": {}
+   },
+   "t1_relation": "主缺口为缺主产物；T-1 不能补缺失产物（覆盖层先挡）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 49,
+   "qid": "RXNG_eabc2bf0bfa38d7017254413b48ab72b2f4f5e4d6c804ce36887f7885277649b",
+   "qid_prefix": "RXNG_eabc2bf0bfa38",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 2,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "partial_subset"
+   ],
+   "n_coverage_events": 2,
+   "gap_category": "missing_principal_product",
+   "gap_category_zh": "缺主产物",
+   "destination": "放弃",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:H+",
+     "n": 1
+    },
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [
+    {
+     "role": "principal_product",
+     "n": 2
+    }
+   ],
+   "t1": {
+    "declaration_status": "none",
+    "eligible_any": false,
+    "eligible_all": false,
+    "all_exempt_any": false,
+    "tier_counts": {},
+    "exempt_families": {}
+   },
+   "t1_relation": "主缺口为缺主产物；T-1 不能补缺失产物（覆盖层先挡）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 50,
+   "qid": "RXNG_ef18f4fd48f1b2c82c62425960a39804d12fbb72379ee9db11a3cd64872ae8fb",
+   "qid_prefix": "RXNG_ef18f4fd48f1b",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 0,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 51,
+   "qid": "RXNG_f2044d5f4d637b4101af41c10e44b40618eac6ab6fb0eae8688a059417fb5200",
+   "qid_prefix": "RXNG_f2044d5f4d637",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 1,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "bookkeeping_unexempt",
+   "gap_category_zh": "簿记类未获豁免",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "v1:PPi",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {
+     "v1:PPi": 1
+    }
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 52,
+   "qid": "RXNG_f30855a0ac0fa9188f6a03b5fea6cbb2bc9b84a9bc445a6a00efe39354aa7744",
+   "qid_prefix": "RXNG_f30855a0ac0fa",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 3,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "extra_principal_product",
+   "gap_category_zh": "多声明主产物",
+   "destination": "放弃",
+   "extras": [
+    {
+     "side": "product",
+     "role": "principal_product",
+     "exempt_family": "",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "no_chain",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 1
+    },
+    "exempt_families": {}
+   },
+   "t1_relation": "链未闭合（no_chain），T-1 无法判定",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  },
+  {
+   "row_id": 53,
+   "qid": "RXNG_fc90885a446192fc4209fc6cd1006c8d7400ae365399f6262f05b736670b824e",
+   "qid_prefix": "RXNG_fc90885a44619",
+   "v2_status": "matched_participant_coverage_partial",
+   "pool_size": 5,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "coverage_forms": [
+    "superset"
+   ],
+   "n_coverage_events": 1,
+   "gap_category": "undeclared_coproduct",
+   "gap_category_zh": "未声明副产物",
+   "destination": "可修",
+   "extras": [
+    {
+     "side": "product",
+     "role": "coproduct",
+     "exempt_family": "",
+     "n": 1
+    },
+    {
+     "side": "reactant",
+     "role": "cosubstrate",
+     "exempt_family": "v1:H2O",
+     "n": 1
+    }
+   ],
+   "missing_roles": [],
+   "t1": {
+    "declaration_status": "resolved",
+    "eligible_any": true,
+    "eligible_all": true,
+    "all_exempt_any": false,
+    "tier_counts": {
+     "not_exempt_maintains_partial": 2
+    },
+    "exempt_families": {
+     "v1:H2O": 1
+    }
+   },
+   "t1_relation": "已有链但未全豁免（resolved，occurrence 仍 not_exempt）",
+   "evidence_fields": [
+    "M.main.match_status",
+    "C.coverage_mismatch_events[].participant_coverage",
+    "C.coverage_mismatch_events[].extras[]",
+    "C.coverage_mismatch_events[].missing_roles[]",
+    "C.coverage_mismatch_events[].t1_review.{eligible,all_exempt,declaration_status}",
+    "C.coverage_mismatch_events[].t1_review.occurrences[].tier"
+   ]
+  }
+ ]
+}

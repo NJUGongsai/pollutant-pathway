@@ -1,0 +1,38 @@
+T-H teacher lever 3 — 53 partial coverage-gap classification (teacher four-class view)
+Domain: 298 (RHEA general enzymology, seen questions, post-hoc)
+Batch: t_h_s5b_298_20261020r2 (sealed, read-only)
+Date: 2026-10-21
+Set: lever3_partial_classify.py (structural view) + build_lever3_partial.py (metadata crosswalk) + merge_lever3_views.py (teacher-facing table)
+
+Closure: 53/53 rows; class/destination unknown = 0.
+
+Primary class (teacher wording):
+  bookkeeping_exempt  16  (identity in H2O/H+/Pi/PPi family; the full v2 predicate gate did not pass inside the 53)
+  cofactor             5  (non-exempt cosubstrate or >=30-heavy N+P/S species; chemistry to sister)
+  structural_near      7  (missing reference principal product has same formula or same >=6-heavy scaffold as an event-side participant; identity-normalization candidate, not a proven conversion)
+  other               25  (21 undeclared coproduct, 3 extra principal product, 1 missing-other)
+  unknown              0
+
+Destination:
+  fixable (可修)          44 = 16 bookkeeping + 7 structural_near + 21 undeclared coproduct
+  pending_cofactor (待裁定)  5 = 5 cofactor
+  abandon (放弃)            4 = 3 extra principal product + 1 missing-other
+  unknown                 0
+
+Metadata-role crosswalk (does not decide destinations):
+  {'missing_principal_product': 8, 'extra_principal_product': 3, 'cofactor_extra': 5, 'undeclared_coproduct': 21, 'bookkeeping_unexempt': 16, 'other': 0}
+  The two views differ on exactly 7 qids; all other 46 agree.
+
+Coverage forms: {'superset': 45, 'partial_subset+superset': 2, 'partial_subset': 6}
+Pool=0 partial qids: 12/53 (coverage events still come from novel proposals; partial is not the same as an empty pool).
+
+T-1 relation:
+  all_exempt=true 0/53; declaration {'resolved': 3, 'no_chain': 41, 'mixed': 3, 'none': 6}; occurrence tiers {'not_exempt_maintains_partial': 60, 'v1_exempt': 4}.
+  The five redeemed qids (metrics v1 partial -> v2 strict rank 1) are outside the 53. 16 rows remain in the bookkeeping family but did not pass the full v2 predicate gate.
+
+Component totals:
+  exempt-family extras 37; cofactor/cosubstrate extras 10; same-identity wrong-side extras 4; other extras 39; missing reference nodes 17 (near 11 / other 6 / unknown 0).
+
+Conversion expectation: not written. 53 is a pool count; full-switch upper bound +53 is an upper bound only, not a promised conversion. "Fixable" means a next-batch fix surface exists, not that strict conversion is achieved. Cofactor chemistry is not adjudicated here.
+
+Evidence: table_53.md (teacher four-class rows), table_53_metadata.md (role crosswalk), lever3_partial_table.json, partial53_gap_table.json, partial53_meta.json, provenance.json, SHA256SUMS.

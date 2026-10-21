@@ -1,0 +1,88 @@
+{
+ "schema": "t-h-lever3-partial-provenance-1",
+ "generated_at_utc": "2026-10-21T08:20:02Z",
+ "domain_tag": "298",
+ "batch": "t_h_s5b_298_20261020r2",
+ "git_head": "11aeeafded1b41185f24de49767933709aad49db",
+ "git_branch": "v4.3",
+ "python": "3.11.16",
+ "rdkit": "2026.03.6",
+ "commands": [
+  "/Users/cc/miniconda3/envs/depending43/bin/python docs/review_evidence/t_h_lever3_partial_2026-10-21/lever3_partial_classify.py --batch-root /tmp/t_h_p0_r2/scoring --runs-root /tmp/t_h_p0_r2/runs --out-dir docs/review_evidence/t_h_lever3_partial_2026-10-21",
+  "python3 docs/review_evidence/t_h_lever3_partial_2026-10-21/build_lever3_partial.py",
+  "python3 docs/review_evidence/t_h_lever3_partial_2026-10-21/merge_lever3_views.py"
+ ],
+ "inputs": {
+  "teacher_task_doc": {
+   "path": "/Users/cc/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_qk5jsfujj0xr22_2320/msg/file/2026-10/TEACHER_TASK_PPV1_TOP3_LEVERS_DETAIL_2026-10-20(1).md",
+   "sha256": "792bcc635b0eb2dd017c52d0b966812e97240794769bf87f4692bf749ac6207e"
+  },
+  "p0c_scoring_gaps": {
+   "path": "/Volumes/CC/Enzyme_Agent/dependingv43/docs/review_evidence/t_h_p0_2026-10-20/p0c_scoring_gaps.json",
+   "sha256": "4bf843bb3bf0c7b1a4b5ee7b8361789109edba8b32a608f7e447659521088d5e"
+  },
+  "loss_attribution": {
+   "path": "/Volumes/CC/Enzyme_Agent/dependingv43/docs/T_H_R2_HIT1_LOSS_ATTRIBUTION_2026-10-20.md",
+   "sha256": "c57fefcaabb9ef24f7d5727695d052a5ceb106ea286398df291c3fc3f93203bc"
+  },
+  "criteria_frozen_v3": {
+   "path": "/Volumes/CC/Enzyme_Agent/dependingv43/docs/POLLUTANT_PATHWAY_CRITERIA_FROZEN_V3_2026-10-19.md",
+   "sha256": "3ba34873a2bb2136947d81215be8ae4514322a6816d1c0bad576f3aa897a3ba0"
+  },
+  "criteria_v2_prereg": {
+   "path": "/Volumes/CC/Enzyme_Agent/dependingv43/docs/POLLUTANT_PATHWAY_CRITERIA_V2_PREREGISTRATION_2026-10-13.md",
+   "sha256": "10c31fee80f1bf3c84b76e9fd07c1a2f550f205d0a04fef84f11267cf085c9b5"
+  },
+  "metrics_v1": {
+   "path": "/Volumes/CC/Enzyme_Agent/dependingv43/reports/ppv1_s5b/t_h_2026-10-20/r2/metrics.json.v1",
+   "sha256": "680a64e9bd30a46c4cbd1d6376cd57c9fabfe24589e6d1eda90c8f4b1afdf968"
+  },
+  "metrics_v2": {
+   "path": "/Volumes/CC/Enzyme_Agent/dependingv43/reports/ppv1_s5b/t_h_2026-10-20/r2/metrics.json.v2",
+   "sha256": "ceb9e72ea34d14ee95d2432b44ccce3c82b2d935fa0f5333de2d8a890cb0c7f6"
+  },
+  "batch_manifest": {
+   "path": "/tmp/t_h_p0_r2/scoring/batch_manifest.json",
+   "sha256": "8170e6bf59bcd6a08283a3356ab9afe47029f2d7084821129834b9dd6028c9e8"
+  },
+  "staged_batch_root": {
+   "path": "/tmp/t_h_p0_r2/scoring",
+   "sha256": "unknown_directory"
+  },
+  "staged_runs_root": {
+   "path": "/tmp/t_h_p0_r2/runs",
+   "sha256": "unknown_directory"
+  }
+ },
+ "outputs": [
+  "table_53.md",
+  "table_53_metadata.md",
+  "summary.txt",
+  "summary_metadata.txt",
+  "lever3_partial_table.json",
+  "partial53_gap_table.json",
+  "partial53_meta.json",
+  "lever3_partial_classify.py",
+  "build_lever3_partial.py",
+  "merge_lever3_views.py",
+  "provenance.json",
+  "SHA256SUMS"
+ ],
+ "red_lines": {
+  "zero_model_calls": true,
+  "zero_new_batches": true,
+  "reference_graph_consumed_only_inside_frozen_evaluator": true,
+  "no_gold_or_reference_structure_text_emitted": true,
+  "no_smiles_or_structure_text_emitted": true,
+  "no_sealed_batch_or_main_tree_write": true,
+  "no_git_push": true
+ },
+ "notes": [
+  "Primary view is the teacher four-class wording (bookkeeping / cofactor / structural-near / other); the metadata role view is kept as a crosswalk and does not decide destinations.",
+  "Reference graphs are consumed only inside the frozen evaluator (match_reference_nodes / match_reference_edges); the diagnostic script does not read reference structure_smiles or state_identity text and emits no structure text.",
+  "Missing reference nodes are proxied by their strict-matched candidate states, which are candidate outputs; only formula/scaffold relations are computed in-process and only class labels/counts are written.",
+  "The two views differ on exactly 7 qids: missing principal product with a same-formula / same-Murcko-scaffold event-side participant is reclassified from abandon to structural-near (fixable face). One remaining missing-node qid has no near proxy and stays abandon.",
+  "P0-C 45/6/2 is an event-shape grouping; this table uses per-event two-sided set deltas and does not treat it as missing-only proof.",
+  "No conversion expectation is written: 44 fixable is a repair-face count, not a promised strict conversion."
+ ]
+}

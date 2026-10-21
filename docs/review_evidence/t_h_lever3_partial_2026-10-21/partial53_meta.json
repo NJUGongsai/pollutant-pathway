@@ -1,0 +1,3978 @@
+{
+ "provenance": {
+  "batch_tag": "t_h_s5b_298_20261020r2",
+  "domain_tag": "298=RHEA 通用酶学/已见题（post-hoc）；本表不外推",
+  "nature": "只读诊断；零模型调用、零新批次、零金标/reference_graphs 内容、零结构正文输出",
+  "source_all_qid_meta_sha256": "b1cf5f39b592bd9bd8fd214c5710726b5b6c415538cafed82d290026e60d891e",
+  "source_qid_sets_sha256": "b78dcf61cfd063062d46d4bf1172109b3b13861d2d2b88e7a3d73248b091a8bc",
+  "metrics_sha256": "ceb9e72ea34d14ee95d2432b44ccce3c82b2d935fa0f5333de2d8a890cb0c7f6",
+  "metrics_v1_sha256": "680a64e9bd30a46c4cbd1d6376cd57c9fabfe24589e6d1eda90c8f4b1afdf968",
+  "note": "partial53_meta.json 是从 evaluator 只读重跑产物 levers_meta_all_v4.json 抽取的 53 题元数据；只保留 qid/状态/池/覆盖缺口/节点缺口，不含 SMILES、结构正文、题面或金标。",
+  "generated_at": "2026-10-21T08:07:14.354734+00:00"
+ },
+ "n": 53,
+ "qids": [
+  "RXNG_03ebc970515b44b852ed443ee83382e42fc7f9187577ff9d5a3b9d718af93014",
+  "RXNG_04d8e54db1cf2eee180ad272d26d804a4525d2abeb3d2d7d5faa713e713d710b",
+  "RXNG_08d3aa8a02eec3c1781990d03e1392cd369679bedd64a422046232d0cd2296cd",
+  "RXNG_09a6f7180b392540b2e092f76d9a35424816119e2b3b2d1bd7384ea4a7478d5c",
+  "RXNG_0a2c91bde7717cf85c38b9985ccf61aad518c710f0f5ebb84676fc5ebf19503e",
+  "RXNG_0ab7c126b56b87641946bcb273ee05744436dd09255df0aa183d6cff3a9d4048",
+  "RXNG_0eda0ec3a41b2c3acfd65b9fb04c98769602f4e7fcc9d41e156cfa5d020f1d7a",
+  "RXNG_0f02d5d2f47173ff20d001f5b9d3c2250b588913504dbe21b6a6c316eb2bec9a",
+  "RXNG_13141108d9e6fff229c829769312b0278c4b29eef400ff00fc4035bbb0d3181b",
+  "RXNG_15a597617bc29ae0a35d56b81b9347ea386bb349a6b10d249664b34a22081099",
+  "RXNG_164844b4b76b8ac5477595bb93d376ba7bfb3ac5d31abc4f096c9ea3d196364b",
+  "RXNG_167dfdcc8dd009e80e713dc3b71286e691b0332aaea4d6fdb203ffc5cfe7b100",
+  "RXNG_1692948d4ad5bd73360199106ccafb1453bb51acb6268b5033e58604c9578999",
+  "RXNG_20b83d4f65520d2ec49187322a3daefed3465f394d3c2c4b2639fb5f64a86817",
+  "RXNG_21ed83a680e54ef6741935a58d8f25e9fbde2714dd60c0793d731d875750bfc0",
+  "RXNG_2579ae3ecc63b2677829ff39f5890a30436586ff24b2f8d3184dc0814d24262c",
+  "RXNG_2a805c8fc232e6b0c279dbb3d18d113fe2ffedfef5528573a60f251c0a879196",
+  "RXNG_2b9dd28e603c64b7e8e219e1f6feb7cc6b14e7210ffa7228428698edd89bb563",
+  "RXNG_32293b693909ff88460f19bea98475ede7ae1cb8985ae0725062be223a21d388",
+  "RXNG_342929a68971758490b6292971d5a8033406a644ad57b2065c4a9baf381bfffc",
+  "RXNG_37e263634a3387350c0c20777dc629506d9212d1471ea97440a86c567f69a06c",
+  "RXNG_445673c6693414a3aff38a620382912906a6a1edf06bc6a5a2fcc8f385523482",
+  "RXNG_45d8d90fa8ccd5c3b22a7a15aa6bb45c6e622e0091caa6ad462692b4d92d5182",
+  "RXNG_4f47ef5ad741ca620b4702f3c908f418524cbc821c091926a623c067748dd6f4",
+  "RXNG_51cb56fdbce6b6017ac0fecaa443f823b9ecbca4bad77f842c8c4d7661a87a4b",
+  "RXNG_531caa559d3dda2ef2cda50e266100c4422c650526cfa5fec3f9b6b2d8c25be4",
+  "RXNG_5727b6273dcf6031a1c4f52e4ddf59706a95f5b94787f406a911104f8b277e61",
+  "RXNG_654cc41cad1160a9152a56bd41cc3ff515af2e909142aa463031c0896c87a6e8",
+  "RXNG_66271eac90b08ad3268e5296699a435d0eb0864357cc7ddee59a434b721911bb",
+  "RXNG_6d4d3e2fa5ade734cb7eea19622240a4c99690896fdc08db79441c394769dcf4",
+  "RXNG_6f0eea09ebe3729bb4067e8a75c3f62fb5f70aaeae957e7ecd16a8b2394278a9",
+  "RXNG_7fab823b3a4e8b6a451483052f1c289151952774a86c8ce31939bff50aeb98bd",
+  "RXNG_8d9fa8b67a68df3d23d1753ae15a463c9cf3376b2b4269a09949e7b75fbc86a3",
+  "RXNG_8e87765558aab9758c28a2969c3dca0b1ff8068d4a25b416534e9ada9a1d7b08",
+  "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+  "RXNG_96836273fb2c376cc96985d7ab5b3f35566778d7b9778ea812534ecbecc2a180",
+  "RXNG_9c383e61351d8b93f412d42de548bf42daee0e225258200230abad5be9cd688d",
+  "RXNG_a275c5200849ef8a1f8b8fae5945c33d92484a4cc96f7d670e84e3319a542939",
+  "RXNG_a69f41ef39c4a709a585e1fa680a82e3904fc0f65ddba824f3882b1ace120aef",
+  "RXNG_adab6b3244395805321cc92df0a69e120b9a77d9f6d2003a2ea606a3e2115b89",
+  "RXNG_b34d5882f63b2bca8233d83fdf0b8f4029b9480607be024986565a22672cc33b",
+  "RXNG_b6e5b278012c2fc36dd78beceffd2fecaccf65dbda15d15665b2ec0c966d0f3a",
+  "RXNG_c01c97cb2e52814d859babc180a11eef019e0405771b405c6f4ba3284ddc9a80",
+  "RXNG_c2fb10b79767bb786aa8d6e5df177fd580acbde9eb229e4fa70cfb34db5fe7ff",
+  "RXNG_c8836aa26b6039a7ea85b672904361352b5ef67ac7cc665dd698b687361af66b",
+  "RXNG_c9ee5eb0c5f911d80c6586a23575b4ce128c59608d4203618cfb40803f4a5aaa",
+  "RXNG_cee619845b65292d8c899a70944cd062541a65902f978454a1bb00e21cd05962",
+  "RXNG_d6da5d9aa4780df58fad988bc885c7d4f58da4f365634d7efc39a34f83b00f5f",
+  "RXNG_eabc2bf0bfa38d7017254413b48ab72b2f4f5e4d6c804ce36887f7885277649b",
+  "RXNG_ef18f4fd48f1b2c82c62425960a39804d12fbb72379ee9db11a3cd64872ae8fb",
+  "RXNG_f2044d5f4d637b4101af41c10e44b40618eac6ab6fb0eae8688a059417fb5200",
+  "RXNG_f30855a0ac0fa9188f6a03b5fea6cbb2bc9b84a9bc445a6a00efe39354aa7744",
+  "RXNG_fc90885a446192fc4209fc6cd1006c8d7400ae365399f6262f05b736670b824e"
+ ],
+ "per_qid": [
+  {
+   "qid": "RXNG_03ebc970515b44b852ed443ee83382e42fc7f9187577ff9d5a3b9d718af93014",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_0f03450b563",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_fcd912e7966c5006dd75",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 2,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "resolved",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "pass",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 1,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 1,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H2O",
+        "tier": "v1_exempt",
+        "pred1": "true",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_04d8e54db1cf2eee180ad272d26d804a4525d2abeb3d2d7d5faa713e713d710b",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_b1b544a50fe",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_75db8a9738e3c2152dd6",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_08d3aa8a02eec3c1781990d03e1392cd369679bedd64a422046232d0cd2296cd",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_0dfc10dfaf3",
+   "pool_size": 3,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_42adb455d332fd408e1b",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_09a6f7180b392540b2e092f76d9a35424816119e2b3b2d1bd7384ea4a7478d5c",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_bf9aeae5d86",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_5fa83f62583315c5890d",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 2
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 0,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_0a2c91bde7717cf85c38b9985ccf61aad518c710f0f5ebb84676fc5ebf19503e",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_6f06b37ba70",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 7,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_418c6910c9e2204442a1",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_0ab7c126b56b87641946bcb273ee05744436dd09255df0aa183d6cff3a9d4048",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_252b6bf82ff",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_7c1ffeb249fbfe6825ca",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:PPi"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "pass",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 3,
+       "O_supply_nonexempt_react": 13,
+       "O_products_nonexempt": 7,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 7,
+       "P_demand_exempt_prod_extras": 2,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:PPi",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_0eda0ec3a41b2c3acfd65b9fb04c98769602f4e7fcc9d41e156cfa5d020f1d7a",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_53182f1fd0f",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_f37eda17469d8a4bedee",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 2,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 5,
+       "O_products_nonexempt": 5,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_0f02d5d2f47173ff20d001f5b9d3c2250b588913504dbe21b6a6c316eb2bec9a",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_05115988103",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_70be13226ac5e6ad3038",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_13141108d9e6fff229c829769312b0278c4b29eef400ff00fc4035bbb0d3181b",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_2f767285f46",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_b28f76e032997985863e",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 3,
+       "O_products_nonexempt": 5,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_15a597617bc29ae0a35d56b81b9347ea386bb349a6b10d249664b34a22081099",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_bf4aae68ff2",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 7,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_d4077b92fb255822d8d9",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 1,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_164844b4b76b8ac5477595bb93d376ba7bfb3ac5d31abc4f096c9ea3d196364b",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_06217e71fa9",
+   "pool_size": 3,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_821398047092cdbd8020",
+     "participant_coverage": "partial_subset",
+     "n_participants": 5,
+     "n_extra": 3,
+     "n_missing": 2,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [
+      "principal_product",
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 4
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    },
+    {
+     "event_id": "ppev_a1c4aefc79d429954b2c",
+     "participant_coverage": "superset",
+     "n_participants": 6,
+     "n_extra": 2,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": "v1:H2O"
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H+"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 2,
+      "product:principal_product": 1,
+      "product:coproduct": 3
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "resolved",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "pass",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 3,
+       "O_demand_exempt_react_extras": 1,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H2O",
+        "tier": "v1_exempt",
+        "pred1": "true",
+        "pred2": "pass",
+        "pred3": true
+       },
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H+",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "false",
+        "pred2": "not_applicable",
+        "pred3": true
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H+",
+        "tier": "v1_exempt",
+        "pred1": "true",
+        "pred2": "not_applicable",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_167dfdcc8dd009e80e713dc3b71286e691b0332aaea4d6fdb203ffc5cfe7b100",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_7b27a754f2d",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_2f0cb64235e0db9800e0",
+     "participant_coverage": "superset",
+     "n_participants": 5,
+     "n_extra": 3,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": "v1:H+"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 2,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 2,
+       "O_supply_nonexempt_react": 16,
+       "O_products_nonexempt": 16,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H+",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "not_applicable",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_1692948d4ad5bd73360199106ccafb1453bb51acb6268b5033e58604c9578999",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_0a90ab017f3",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_c9df2634747490b3951f",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "principal_product",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 3,
+       "O_products_nonexempt": 4,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "principal_product",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_20b83d4f65520d2ec49187322a3daefed3465f394d3c2c4b2639fb5f64a86817",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_1e0cf4d9dd0",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_58940c1ac54a1af250ce",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_21ed83a680e54ef6741935a58d8f25e9fbde2714dd60c0793d731d875750bfc0",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_c0afdb13f92",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_7b5c7592d066436b78f9",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 2,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 5,
+       "O_products_nonexempt": 5,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_2579ae3ecc63b2677829ff39f5890a30436586ff24b2f8d3184dc0814d24262c",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_5365e3172e7",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_51f24a3081ec7e86c467",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "principal_product",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "principal_product",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    },
+    {
+     "event_id": "ppev_f30600b2ac8f5f8e847c",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "fail",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "fail",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_2a805c8fc232e6b0c279dbb3d18d113fe2ffedfef5528573a60f251c0a879196",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_9f600e087a3",
+   "pool_size": 4,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_cc1af7f6a5931931fa7d",
+     "participant_coverage": "partial_subset",
+     "n_participants": 2,
+     "n_extra": 0,
+     "n_missing": 1,
+     "extras": [],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    },
+    {
+     "event_id": "ppev_f3be618f904b2c6b5f0b",
+     "participant_coverage": "partial_subset",
+     "n_participants": 2,
+     "n_extra": 0,
+     "n_missing": 1,
+     "extras": [],
+     "missing_roles": [
+      "principal_product",
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_2b9dd28e603c64b7e8e219e1f6feb7cc6b14e7210ffa7228428698edd89bb563",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_a90bc2e0d88",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_7d42364c7c9f1192152c",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_32293b693909ff88460f19bea98475ede7ae1cb8985ae0725062be223a21d388",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_a54b51b2ea2",
+   "pool_size": 3,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_b0c43c750175f882741f",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_342929a68971758490b6292971d5a8033406a644ad57b2065c4a9baf381bfffc",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_425b963f029",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_f4678bfb5c0c5bb0aacf",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_37e263634a3387350c0c20777dc629506d9212d1471ea97440a86c567f69a06c",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_ebe8204bc52",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_17c8ba938121c684fc80",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 2
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_445673c6693414a3aff38a620382912906a6a1edf06bc6a5a2fcc8f385523482",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_4e0ee927261",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_1b928b9703e277739408",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_45d8d90fa8ccd5c3b22a7a15aa6bb45c6e622e0091caa6ad462692b4d92d5182",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_bd5e4f4f4b3",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_63196da9a5e84ab0ddd7",
+     "participant_coverage": "superset",
+     "n_participants": 5,
+     "n_extra": 3,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": "v1:H+"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 2,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 2,
+       "O_supply_nonexempt_react": 16,
+       "O_products_nonexempt": 16,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H+",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "not_applicable",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_4f47ef5ad741ca620b4702f3c908f418524cbc821c091926a623c067748dd6f4",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_7a7709f901a",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_43832f8d8db35e25840e",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:PPi"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "pass",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 3,
+       "O_supply_nonexempt_react": 13,
+       "O_products_nonexempt": 7,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 7,
+       "P_demand_exempt_prod_extras": 2,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:PPi",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_51cb56fdbce6b6017ac0fecaa443f823b9ecbca4bad77f842c8c4d7661a87a4b",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_744367be94a",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_aaa511ce2300830e4903",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_531caa559d3dda2ef2cda50e266100c4422c650526cfa5fec3f9b6b2d8c25be4",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_c98d8ffe9a0",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_714aa2a56745af72357a",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 3,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_5727b6273dcf6031a1c4f52e4ddf59706a95f5b94787f406a911104f8b277e61",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_e8b4d799128",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_a233b972ad8662e6e17d",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": "v1:H+"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 4,
+       "O_products_nonexempt": 4,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H+",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "not_applicable",
+        "pred3": true
+       }
+      ]
+     }
+    },
+    {
+     "event_id": "ppev_e016de1d30494139f57d",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H+"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 2
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "resolved",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 4,
+       "O_products_nonexempt": 4,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H+",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "false",
+        "pred2": "not_applicable",
+        "pred3": true
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H+",
+        "tier": "v1_exempt",
+        "pred1": "true",
+        "pred2": "not_applicable",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_654cc41cad1160a9152a56bd41cc3ff515af2e909142aa463031c0896c87a6e8",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_7d1c16fe812",
+   "pool_size": 5,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_0069285a429b3b2fab2e",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 2,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 2,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "resolved",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "fail",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 1,
+       "O_products_nonexempt": 3,
+       "O_demand_exempt_react_extras": 1,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "true",
+        "pred2": "fail",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_66271eac90b08ad3268e5296699a435d0eb0864357cc7ddee59a434b721911bb",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_f5c8b4998a8",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_69c5148c18a524288b52",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 2,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 3
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 3,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_6d4d3e2fa5ade734cb7eea19622240a4c99690896fdc08db79441c394769dcf4",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_7eb65d8baa3",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_660dc6e02688a9ea0c79",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_6f0eea09ebe3729bb4067e8a75c3f62fb5f70aaeae957e7ecd16a8b2394278a9",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_2790a9db9c7",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_8e421daba6640fb4acb7",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_7fab823b3a4e8b6a451483052f1c289151952774a86c8ce31939bff50aeb98bd",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_581cfca86ad",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_f9b6cc6ee7ed5773e774",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 3,
+       "O_supply_nonexempt_react": 17,
+       "O_products_nonexempt": 18,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_8d9fa8b67a68df3d23d1753ae15a463c9cf3376b2b4269a09949e7b75fbc86a3",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_9a221f52917",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_02fc3ab60389dc79d53f",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_8e87765558aab9758c28a2969c3dca0b1ff8068d4a25b416534e9ada9a1d7b08",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_3698df98ba5",
+   "pool_size": 3,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_6872233153291d20a197",
+     "participant_coverage": "partial_subset",
+     "n_participants": 2,
+     "n_extra": 0,
+     "n_missing": 1,
+     "extras": [],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    },
+    {
+     "event_id": "ppev_68f090c6a8c3998fead1",
+     "participant_coverage": "partial_subset",
+     "n_participants": 2,
+     "n_extra": 0,
+     "n_missing": 1,
+     "extras": [],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_93d3a3ef9b712f2d29ca4080a7300eae7ac2f4dfde8e9c22e6b07df7c6b51ace",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_6e6dfb4aee4",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_1da2ee4e0fb8e67b9dff",
+     "participant_coverage": "partial_subset",
+     "n_participants": 5,
+     "n_extra": 3,
+     "n_missing": 1,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 6
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    },
+    {
+     "event_id": "ppev_71a029348bb686f22c1e",
+     "participant_coverage": "partial_subset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 1,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H+"
+      }
+     ],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 3,
+      "product:principal_product": 1,
+      "product:coproduct": 3
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_96836273fb2c376cc96985d7ab5b3f35566778d7b9778ea812534ecbecc2a180",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_383d7fb8176",
+   "pool_size": 5,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 8,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_5432eacc0fbd160e1915",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 2,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    },
+    {
+     "event_id": "ppev_66ff5f4ff8f09aa65df8",
+     "participant_coverage": "partial_subset",
+     "n_participants": 4,
+     "n_extra": 2,
+     "n_missing": 1,
+     "extras": [
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    },
+    {
+     "event_id": "ppev_d7b0162a45ac54b78838",
+     "participant_coverage": "partial_subset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 1,
+     "extras": [
+      {
+       "role": "principal_product",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_9c383e61351d8b93f412d42de548bf42daee0e225258200230abad5be9cd688d",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_78d552dd138",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 7,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_4bcad22bb17f4e357e56",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 6,
+       "O_products_nonexempt": 5,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_a275c5200849ef8a1f8b8fae5945c33d92484a4cc96f7d670e84e3319a542939",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_d861156c54e",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_b32a92656352836519ca",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 1,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_a69f41ef39c4a709a585e1fa680a82e3904fc0f65ddba824f3882b1ace120aef",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_66dc35de0c5",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_b3fc13e727d8be54a738",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_adab6b3244395805321cc92df0a69e120b9a77d9f6d2003a2ea606a3e2115b89",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_58cb09c3477",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_3c25a3e92872081187ed",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "fail",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 1,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "fail",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_b34d5882f63b2bca8233d83fdf0b8f4029b9480607be024986565a22672cc33b",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_b49a5a855bf",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_c69825612d95a2d18688",
+     "participant_coverage": "partial_subset",
+     "n_participants": 2,
+     "n_extra": 0,
+     "n_missing": 1,
+     "extras": [],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    },
+    {
+     "event_id": "ppev_ed54415d32f18d25bb6e",
+     "participant_coverage": "partial_subset",
+     "n_participants": 2,
+     "n_extra": 0,
+     "n_missing": 1,
+     "extras": [],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_b6e5b278012c2fc36dd78beceffd2fecaccf65dbda15d15665b2ec0c966d0f3a",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_f95112c27e3",
+   "pool_size": 2,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_d210589b46e653044946",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_c01c97cb2e52814d859babc180a11eef019e0405771b405c6f4ba3284ddc9a80",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_4eff06128d8",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_9f7ad950622b0e1dab38",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:PPi"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "pass",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 3,
+       "O_supply_nonexempt_react": 13,
+       "O_products_nonexempt": 7,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 7,
+       "P_demand_exempt_prod_extras": 2,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:PPi",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_c2fb10b79767bb786aa8d6e5df177fd580acbde9eb229e4fa70cfb34db5fe7ff",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_583831390f4",
+   "pool_size": 6,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 8,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_538a4a0c5542db070fc3",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 2,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 5,
+       "O_products_nonexempt": 5,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_c8836aa26b6039a7ea85b672904361352b5ef67ac7cc665dd698b687361af66b",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_1f16d61b2ad",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 7,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_739895a71ce5cf88e36f",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 4,
+       "O_products_nonexempt": 6,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_c9ee5eb0c5f911d80c6586a23575b4ce128c59608d4203618cfb40803f4a5aaa",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_4f001ae3227",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 4,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_7f070b899a4009798681",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 9,
+       "O_products_nonexempt": 9,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    },
+    {
+     "event_id": "ppev_820ef9bc80184da8a043",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 9,
+       "O_products_nonexempt": 10,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_cee619845b65292d8c899a70944cd062541a65902f978454a1bb00e21cd05962",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_0e69d949ddf",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 5,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_fd466c1c5f9cdf9e5935",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 0,
+       "O_products_nonexempt": 1,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_d6da5d9aa4780df58fad988bc885c7d4f58da4f365634d7efc39a34f83b00f5f",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_c4658bb40f2",
+   "pool_size": 3,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_9a0ce8bc59288bc89d22",
+     "participant_coverage": "partial_subset",
+     "n_participants": 6,
+     "n_extra": 4,
+     "n_missing": 1,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 6
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    },
+    {
+     "event_id": "ppev_e53403d23d7059358ea9",
+     "participant_coverage": "partial_subset",
+     "n_participants": 5,
+     "n_extra": 3,
+     "n_missing": 1,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H+"
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": ""
+      },
+      {
+       "role": "principal_product",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 3,
+      "product:principal_product": 1,
+      "product:coproduct": 3
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_eabc2bf0bfa38d7017254413b48ab72b2f4f5e4d6c804ce36887f7885277649b",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_390ee1ffdf7",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 2,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_6f8bf4d13e397a9eef6d",
+     "participant_coverage": "partial_subset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 1,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:H+"
+      }
+     ],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 2,
+      "product:principal_product": 1,
+      "product:coproduct": 2
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    },
+    {
+     "event_id": "ppev_7f1e5b336ce1254d4e57",
+     "participant_coverage": "partial_subset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 1,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [
+      "principal_product"
+     ],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": false,
+      "all_exempt": false,
+      "declaration_status": null,
+      "element_accounts": null,
+      "occurrences": []
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_ef18f4fd48f1b2c82c62425960a39804d12fbb72379ee9db11a3cd64872ae8fb",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_fd70375ca82",
+   "pool_size": 0,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 3,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_1cfd0d5efc27880ca74b",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 9,
+       "O_products_nonexempt": 9,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_f2044d5f4d637b4101af41c10e44b40618eac6ab6fb0eae8688a059417fb5200",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_7e08815d87f",
+   "pool_size": 1,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_f0556e1ba2aa2bc4f4c3",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": "v1:PPi"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "pass",
+       "O_product_side": "pass",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 3,
+       "O_supply_nonexempt_react": 13,
+       "O_products_nonexempt": 7,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 7,
+       "P_demand_exempt_prod_extras": 2,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": "v1:PPi",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "unknown",
+        "pred2": "pass",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_f30855a0ac0fa9188f6a03b5fea6cbb2bc9b84a9bc445a6a00efe39354aa7744",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_44c962c05aa",
+   "pool_size": 3,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_7a815d8ded14579993c6",
+     "participant_coverage": "superset",
+     "n_participants": 3,
+     "n_extra": 1,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "principal_product",
+       "side": "product",
+       "exempt_family": ""
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "no_chain",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "not_applicable",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 1,
+       "O_products_nonexempt": 2,
+       "O_demand_exempt_react_extras": 0,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "principal_product",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  },
+  {
+   "qid": "RXNG_fc90885a446192fc4209fc6cd1006c8d7400ae365399f6262f05b736670b824e",
+   "run_id": "t-h-s5b-298-20261020r2-s5br_4ffb22bdd57",
+   "pool_size": 5,
+   "scoring_status": "scored",
+   "edge_status": "matched_participant_coverage_partial",
+   "rank": null,
+   "n_candidate_events": 6,
+   "n_matched_events": 0,
+   "matched_event_ids": [],
+   "coverage_mismatch_events": [
+    {
+     "event_id": "ppev_d6e06748a96bf683b98d",
+     "participant_coverage": "superset",
+     "n_participants": 4,
+     "n_extra": 2,
+     "n_missing": 0,
+     "extras": [
+      {
+       "role": "coproduct",
+       "side": "product",
+       "exempt_family": ""
+      },
+      {
+       "role": "cosubstrate",
+       "side": "reactant",
+       "exempt_family": "v1:H2O"
+      }
+     ],
+     "missing_roles": [],
+     "participant_roles": {
+      "reactant:primary_substrate": 1,
+      "reactant:cosubstrate": 2,
+      "product:principal_product": 1,
+      "product:coproduct": 1
+     },
+     "exempted_participants": 0,
+     "t1_review": {
+      "eligible": true,
+      "all_exempt": false,
+      "declaration_status": "resolved",
+      "element_accounts": {
+       "P": "not_applicable",
+       "O_product_side": "not_applicable",
+       "O_reactant_side": "fail",
+       "P_supply_nonexempt_react": 0,
+       "O_supply_nonexempt_react": 1,
+       "O_products_nonexempt": 3,
+       "O_demand_exempt_react_extras": 1,
+       "O_demand_exempt_prod_extras": 0,
+       "P_demand_exempt_prod_extras": 0,
+       "counting_basis": "计数级追溯(供给≥需求),不证明键级机制来源;照抄 CS2c 补证脚本口径;unknown=fail-closed"
+      },
+      "occurrences": [
+       {
+        "side": "product",
+        "role": "coproduct",
+        "exempt_family": null,
+        "tier": "not_exempt_maintains_partial",
+        "pred1": null,
+        "pred2": null,
+        "pred3": false
+       },
+       {
+        "side": "reactant",
+        "role": "cosubstrate",
+        "exempt_family": "v1:H2O",
+        "tier": "not_exempt_maintains_partial",
+        "pred1": "true",
+        "pred2": "fail",
+        "pred3": true
+       }
+      ]
+     }
+    }
+   ],
+   "required_node_gaps": [],
+   "endpoint_stop_reason": "budget_limit"
+  }
+ ]
+}
