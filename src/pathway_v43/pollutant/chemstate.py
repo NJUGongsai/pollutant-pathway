@@ -700,7 +700,11 @@ def build_chemical_state(
         base_fidelity[k] = v
     resolved_fidelity = _validate_fidelity(base_fidelity, origin)
     identity = _identity_key(mol)
-    cn = _legacy_cn_identity(structure) or ""
+    # CN 与身份键同源(去原子映射号):原子映射号不属于分子身份,若从
+    # 原始串算 CN,带映射号的输入会得到含 ":n" 的 canonical SMILES,
+    # 与 validate_state_object/store writer 从 smiles_isomeric 重推的
+    # CN 分裂(2026-10-26 诊断 B:state_fact_rederivation_mismatch)。
+    cn = _legacy_cn_identity(identity) or ""
     return ChemicalState(
         state_id=stable_id("cs", identity),
         structure_smiles_raw=structure,
