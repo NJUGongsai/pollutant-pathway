@@ -3,7 +3,7 @@
 #
 # 用法：
 #   bash scripts/hpc/nb_ssh.sh "<command>"                # 在 notebook 上执行命令
-#   bash scripts/hpc/nb_ssh.sh --put <local> <remote>     # 上传单个文件（cat 管道，不在 HPC 落暂存）
+#   bash scripts/hpc/nb_ssh.sh --put <local> <remote>     # 上传单个文件（两跳 scp，经 HPC /tmp 暂存后即删）
 #
 # 事实依据（2026-10-26 实测，docs/NOTEBOOK_ENV_FACTS_2026-10-26.md §5）：
 #   - notebook 密钥 id_ed25519_nb 不在本机 ~/.ssh/，在 HPC 的
@@ -101,7 +101,18 @@ main() {
             local lf=${1:-} rf=${2:-}
             [ -n "$lf" ] && [ -n "$rf" ] || die "--put 需要 <local> <remote> 两个参数"
             [ -f "$lf" ] || die "本地文件不存在: $lf"
-            cat "$lf" | _twohop "cat > $(_shq "$rf")"
+            # 两跳 scp：本机 → HPC /tmp 暂存 → notebook → 删暂存。
+            # 不要用 `cat "$lf" | _twohop "cat > ..."`：内层 `>` 会被 HPC 侧 shell
+            # 抢先解释，文件写到跳板机（2026-10-26 实测 Permission denied）。
+            local staging
+            staging="/tmp/nb_put_$$_$(basename "$lf")"
+            scp -i "$NB_HPC_KEY" -P "$NB_HPC_PORT" \
+                -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=20 \
+                "$lf" "${NB_HPC_USER}@${NB_HPC_HOST}:${staging}"
+            ssh -i "$NB_HPC_KEY" -p "$NB_HPC_PORT" \
+                -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=20 \
+                "${NB_HPC_USER}@${NB_HPC_HOST}" \
+                "scp -i ~/.ssh/id_ed25519_nb -P ${NB_PORT} -o StrictHostKeyChecking=no -o BatchMode=yes $(_shq "$staging") ${NB_USER}@${NB_HOST}:$(_shq "$rf") && rm -f $(_shq "$staging")"
             ;;
         *)
             printf '%s' "$mode" | _twohop "bash -s"
