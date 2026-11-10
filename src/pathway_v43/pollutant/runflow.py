@@ -116,7 +116,7 @@ from ..storage.run_identity import (
     write_run_identity,
 )
 from .audit import AuditContractError
-from .chemstate import ChemicalStateError, build_chemical_state
+from .chemstate import ChemicalStateError, build_chemical_state, strict_identity_of
 from .endpoint import (
     derive_run_endpoint,
     endpoint_summary_fields,
@@ -617,6 +617,261 @@ def _isolated_recovery_actions(recovery: dict) -> list[dict]:
     return out
 
 
+def consensus_and_smart_backfill(
+    *,
+    substrate_state,
+    parent_ctx,
+    pool_specs: list[dict],
+    prepared_entries: list[tuple[str, dict, dict]],
+    deduped_indices: list[int],
+    novel_entry_idx: set[int],
+    blind_idx_set: set[int],
+    ranked_keys: list[str],
+    retained_keys: list[str],
+    pre_dedup_novel_stricts: set[str] | None = None,
+    derive_branch_ctx_fn=None,
+    s5_supplement_gate_max_s1d: int = 2,
+    s5_super_consensus_score: float = 115.0,
+    s5_max_supplements: int = 2,
+    target_slots: int = 5,
+) -> dict:
+    """v44-Next 决策与核验后置层：跨源独立共识升位 (Consensus Boost) + 智能门控尾部回填 (Smart-Gated Backfill)。
+
+    所有进入排序与尾部回填的候选均须通过正规 `prepare_hypothesis` + RDKit `execute_atomtool_expansion`
+    + 11 项 `audit_hypothesis` + `decide_admission` 核验。
+    """
+    from .audit import audit_hypothesis, decide_admission
+    from .chemstate import strict_identity_of
+    from .production import ADMISSION_SUBMITTABLE, execute_atomtool_expansion
+
+    pool_principal_stricts = {
+        strict_identity_of(str(s.get("product_smiles") or ""))
+        for s in (pool_specs or [])
+        if str(s.get("product_smiles") or "").strip()
+    }
+    pool_principal_stricts.discard("")
+    novel_stricts = set(pre_dedup_novel_stricts or set())
+
+    verified_by_key: dict[str, bool] = {}
+    prod_strict_by_key: dict[str, str] = {}
+    prior_score_by_key: dict[str, float] = {}
+    is_supp_by_key: dict[str, bool] = {}
+    orig_idx_by_key: dict[str, int] = {}
+    consensus_boost_by_key: dict[str, bool] = {}
+
+    model_selected_set = set(ranked_keys) | set(retained_keys)
+
+    for orig_idx, (key, spec, prepared) in zip(deduped_indices, prepared_entries):
+        orig_idx_by_key[key] = int(orig_idx)
+        p_smi = str(spec.get("product_smiles") or "")
+        p_strict = strict_identity_of(p_smi) if p_smi else ""
+        prod_strict_by_key[key] = p_strict
+        c_meta = spec.get("compile") or {}
+        p_score = float(
+            spec.get("s5_prior_score")
+            if spec.get("s5_prior_score") is not None
+            else (c_meta.get("s5_prior_score") or 0.0)
+        )
+        prior_score_by_key[key] = p_score
+        is_supp = bool(
+            spec.get("is_gated_supplement")
+            if spec.get("is_gated_supplement") is not None
+            else c_meta.get("is_gated_supplement", False)
+        )
+        is_supp_by_key[key] = is_supp
+
+        # 执行 RDKit 工具展开与 11 项 audit_hypothesis 核验
+        admitted_ok = False
+        try:
+            exec_out = execute_atomtool_expansion(
+                substrate_smiles=substrate_state.smiles_isomeric,
+                tool_inputs=prepared["tool_inputs"],
+            )
+            if exec_out.get("execution_ok"):
+                ctx_for_audit = parent_ctx
+                if (
+                    derive_branch_ctx_fn is not None
+                    and (spec.get("requirements") or spec.get("dependencies") or spec.get("assumptions"))
+                ):
+                    ctx_for_audit = derive_branch_ctx_fn(
+                        parent_ctx, prepared, prepared["hypothesis"].hypothesis_id
+                    )
+                audit_rep = audit_hypothesis(
+                    prepared["hypothesis"],
+                    run_id="v44-precheck",
+                    states=prepared["states"],
+                    context=ctx_for_audit,
+                    center_evidence=exec_out["center_evidence"],
+                )
+                disposition, _reasons = decide_admission(audit_rep)
+                if disposition in ADMISSION_SUBMITTABLE:
+                    admitted_ok = True
+        except Exception:
+            admitted_ok = False
+        verified_by_key[key] = admitted_ok
+
+        # 跨源独立共识判定：
+        # 1) 模型合法提案（盲写/novel 或模型首推/显式选中的池外一致主产物）与候选池主产物 strict_identity_of 一致；
+        # 2) 或池事件具备 s5_prior_score >= s5_super_consensus_score（跨 >= 2 独立源共识）
+        src_fams = set(spec.get("source_families") or c_meta.get("source_families") or [])
+        is_novel_or_blind = (orig_idx in novel_entry_idx) or (orig_idx in blind_idx_set) or (p_strict in novel_stricts)
+        model_pool_consensus = bool(
+            admitted_ok
+            and p_strict
+            and p_strict in pool_principal_stricts
+            and (
+                is_novel_or_blind
+                or (key in ranked_keys[:1])
+                or (key in model_selected_set and len(src_fams) >= 2)
+            )
+        )
+        super_prior_consensus = bool(
+            admitted_ok
+            and p_score >= float(s5_super_consensus_score)
+            and (len(src_fams) >= 2 or spec.get("s5_prior_tier") == "HIGH_CONSENSUS")
+        )
+        is_boost = bool(model_pool_consensus or super_prior_consensus)
+        consensus_boost_by_key[key] = is_boost
+        if is_boost:
+            spec["consensus_boost"] = True
+
+    # 1. 整理模型主推合法事件序列（共识升位优先保位）
+    raw_model_order = list(ranked_keys) + [k for k in retained_keys if k not in ranked_keys]
+    verified_model_picks = [k for k in raw_model_order if verified_by_key.get(k, False)]
+    boosted_model_picks = [k for k in verified_model_picks if consensus_boost_by_key.get(k, False)]
+    normal_model_picks = [k for k in verified_model_picks if not consensus_boost_by_key.get(k, False)]
+    ordered_model_picks = boosted_model_picks + normal_model_picks
+
+    # 2. 候选池中通过核验的预编译事件（按共识升位 -> 化学先验分降序 -> 原始池序）
+    n_s1d_templates = sum(1 for s in (pool_specs or []) if not s.get("is_gated_supplement"))
+    verified_pool_keys = [
+        key
+        for orig_idx, (key, _spec, _prep) in zip(deduped_indices, prepared_entries)
+        if orig_idx < len(pool_specs or []) and verified_by_key.get(key, False)
+    ]
+    verified_pool_keys.sort(
+        key=lambda k: (
+            0 if consensus_boost_by_key.get(k, False) else 1,
+            -prior_score_by_key.get(k, 0.0),
+            orig_idx_by_key.get(k, 9999),
+        )
+    )
+
+    sparse_gate = n_s1d_templates <= int(s5_supplement_gate_max_s1d)
+    super_consensus_gate = any(
+        prior_score_by_key.get(k, 0.0) >= float(s5_super_consensus_score)
+        for k in verified_pool_keys
+    )
+    underfilled_gate = len(ordered_model_picks) < int(target_slots)
+    smart_gate_triggered = bool(sparse_gate or super_consensus_gate or underfilled_gate)
+
+    # 筛选门控高先验补充项（最多 s5_max_supplements 条）
+    gated_supp_keys: list[str] = []
+    if sparse_gate or super_consensus_gate:
+        for k in verified_pool_keys:
+            if len(gated_supp_keys) >= int(s5_max_supplements):
+                break
+            if (
+                is_supp_by_key.get(k, False)
+                or prior_score_by_key.get(k, 0.0) >= float(s5_super_consensus_score)
+                or (sparse_gate and prior_score_by_key.get(k, 0.0) >= 70.0)
+            ):
+                gated_supp_keys.append(k)
+
+    # 3. 组装前 target_slots (5) 槽位：
+    # 保留模型验证通过的前序主推事件 (Slots 1..3)，尾部槽位由门控高先验 S5/S1d 事件确定性回填
+    selected_top_keys: list[str] = []
+    kept_stricts: set[str] = set()
+    backfilled_keys: list[str] = []
+
+    def _try_add(cand_k: str, *, is_backfill: bool = False) -> bool:
+        if len(selected_top_keys) >= int(target_slots):
+            return False
+        if cand_k in selected_top_keys:
+            return False
+        st = prod_strict_by_key.get(cand_k, "")
+        if st and st in kept_stricts:
+            return False
+        selected_top_keys.append(cand_k)
+        if st:
+            kept_stricts.add(st)
+        if is_backfill and cand_k not in ordered_model_picks:
+            backfilled_keys.append(cand_k)
+        return True
+
+    if gated_supp_keys and (sparse_gate or super_consensus_gate):
+        base_primary_slots = max(1, min(3, int(target_slots) - len(gated_supp_keys)))
+        for k in ordered_model_picks[:base_primary_slots]:
+            _try_add(k, is_backfill=False)
+        novel_supps = [
+            k for k in gated_supp_keys
+            if k not in selected_top_keys and prod_strict_by_key.get(k, "") not in kept_stricts
+        ]
+        # 若部分门控补充项已在前序主推槽中，把空出的槽位优先还给模型第 4/5 槽
+        rem_cursor = base_primary_slots
+        novel_supp_stricts = {prod_strict_by_key.get(k, "") for k in novel_supps}
+        while (
+            len(selected_top_keys) + len(novel_supps) < int(target_slots)
+            and rem_cursor < len(ordered_model_picks)
+        ):
+            cand_m = ordered_model_picks[rem_cursor]
+            rem_cursor += 1
+            if prod_strict_by_key.get(cand_m, "") not in novel_supp_stricts:
+                _try_add(cand_m, is_backfill=False)
+        for k in novel_supps:
+            _try_add(k, is_backfill=(k not in ordered_model_picks))
+    else:
+        for k in ordered_model_picks:
+            _try_add(k, is_backfill=False)
+
+    # 若仍不足 target_slots (5) 条，先补剩余模型主推，再按化学先验分从候选池确定性回填至最多 5 条
+    for k in ordered_model_picks:
+        if len(selected_top_keys) >= int(target_slots):
+            break
+        _try_add(k, is_backfill=False)
+    if smart_gate_triggered and len(selected_top_keys) < int(target_slots):
+        for k in verified_pool_keys:
+            if len(selected_top_keys) >= int(target_slots):
+                break
+            _try_add(k, is_backfill=True)
+
+    # 4. 生成重排后的 effective_rank_by_key 与 rank_basis_by_key
+    effective_rank_by_key: dict[str, int] = {}
+    rank_basis_by_key: dict[str, str] = {}
+    next_rank = 1
+    for k in selected_top_keys:
+        effective_rank_by_key[k] = next_rank
+        rank_basis_by_key[k] = (
+            "model_selection" if k in ranked_keys else "deterministic_fallback"
+        )
+        next_rank += 1
+    for _idx, (k, _spec, _prep) in zip(deduped_indices, prepared_entries):
+        if k in effective_rank_by_key:
+            continue
+        if verified_by_key.get(k, False):
+            effective_rank_by_key[k] = next_rank
+            rank_basis_by_key[k] = (
+                "model_selection" if k in ranked_keys else "deterministic_fallback"
+            )
+            next_rank += 1
+    for _idx, (k, _spec, _prep) in zip(deduped_indices, prepared_entries):
+        if k in effective_rank_by_key:
+            continue
+        effective_rank_by_key[k] = next_rank
+        rank_basis_by_key[k] = "deterministic_fallback"
+        next_rank += 1
+
+    return {
+        "effective_rank_by_key": effective_rank_by_key,
+        "rank_basis_by_key": rank_basis_by_key,
+        "consensus_boost_by_key": consensus_boost_by_key,
+        "backfilled_keys": backfilled_keys,
+        "selected_top_keys": selected_top_keys,
+        "smart_gate_triggered": smart_gate_triggered,
+        "n_s1d_templates": n_s1d_templates,
+    }
+
+
 class _Driver:
     """一次驱动会话(进程内;恢复后新实例从持久记录继续;消费冻结
     计划输入)。"""
@@ -625,7 +880,12 @@ class _Driver:
                  worker_id: str, crash_after: str | None = None,
                  model=None, evidence_card_enabled: bool = True,
                  evidence_card_version: str | None = None,
-                 novel_protocol: str | None = None) -> None:
+                 novel_protocol: str | None = None,
+                 enable_smart_gated_backfill: bool = False,
+                 s5_supplement_gate_max_s1d: int = 2,
+                 s5_super_consensus_score: float = 115.0,
+                 s5_max_supplements: int = 2,
+                 backfill_target_events: int = 5) -> None:
         self.ledger = ledger
         self.store = ledger.store
         self.plan = plan or {}
@@ -650,6 +910,24 @@ class _Driver:
         self.novel_protocol = _resolve_novel_protocol(novel_protocol)
         self.format_feedback_policy_version = \
             format_feedback_policy_version_for(self.novel_protocol)
+        preset_norm = str(self.plan.get("preset") or "").strip().lower().replace("_", "-")
+        self.enable_smart_gated_backfill = bool(
+            enable_smart_gated_backfill
+            or self.plan.get("enable_smart_gated_backfill")
+            or preset_norm == "v44-next"
+        )
+        self.s5_supplement_gate_max_s1d = int(
+            self.plan.get("s5_supplement_gate_max_s1d", s5_supplement_gate_max_s1d)
+        )
+        self.s5_super_consensus_score = float(
+            self.plan.get("s5_super_consensus_score", s5_super_consensus_score)
+        )
+        self.s5_max_supplements = int(
+            self.plan.get("s5_max_supplements", s5_max_supplements)
+        )
+        self.backfill_target_events = int(
+            self.plan.get("backfill_target_events", backfill_target_events)
+        )
         self.refusals: list[dict] = []
         self.run_error: dict | None = None
         self.empty_pool_retrievals = 0
@@ -1317,6 +1595,16 @@ class _Driver:
                     _er, _epos = earliest_pool_rank_by_id[_epid]
                     retention_by_idx[_eidx] = (1, int(_er), int(_epos), _eidx)
 
+        pre_dedup_novel_stricts: set[str] = set()
+        if self.enable_smart_gated_backfill:
+            for _pidx, (_pkey, _pspec, _pprep) in enumerate(prepared_entries):
+                if _pidx in novel_entry_idx or _pidx in blind_idx_set:
+                    _psmi = str(_pspec.get("product_smiles") or "").strip()
+                    if _psmi:
+                        _pst = strict_identity_of(_psmi)
+                        if _pst:
+                            pre_dedup_novel_stricts.add(_pst)
+
         dedup_rejections: list[dict] = []
         dedup_by_signature: dict[tuple, tuple] = {}   # sig -> (key, idx)
         deduped_entries: list = []
@@ -1461,6 +1749,52 @@ class _Driver:
                             effective_rank_by_key[_k] = _r + 1
                     effective_rank_by_key[_best_blind] = _selectable
                     model_note["blind_slot_reserved"] = _best_blind
+
+        consensus_boost_by_key: dict[str, bool] = {}
+        backfilled_key_set: set[str] = set()
+        effective_schedule_budget = self.plan.get("schedule_budget")
+        if self.enable_smart_gated_backfill:
+            backfill_out = consensus_and_smart_backfill(
+                substrate_state=substrate,
+                parent_ctx=parent_ctx,
+                pool_specs=specs,
+                prepared_entries=prepared_entries,
+                deduped_indices=deduped_indices,
+                novel_entry_idx=novel_entry_idx,
+                blind_idx_set=blind_idx_set,
+                ranked_keys=ranked_keys,
+                retained_keys=[k for _rt, k in retained_candidates],
+                pre_dedup_novel_stricts=pre_dedup_novel_stricts,
+                derive_branch_ctx_fn=self._derive_branch_context,
+                s5_supplement_gate_max_s1d=self.s5_supplement_gate_max_s1d,
+                s5_super_consensus_score=self.s5_super_consensus_score,
+                s5_max_supplements=self.s5_max_supplements,
+                target_slots=self.backfill_target_events,
+            )
+            effective_rank_by_key = backfill_out["effective_rank_by_key"]
+            rank_basis_by_key = backfill_out["rank_basis_by_key"]
+            consensus_boost_by_key = backfill_out["consensus_boost_by_key"]
+            backfilled_key_set = set(backfill_out["backfilled_keys"])
+            boosted_list = [
+                k for k, v in consensus_boost_by_key.items() if v
+            ]
+            if boosted_list:
+                model_note["consensus_boost_keys"] = boosted_list
+            if backfill_out["backfilled_keys"]:
+                model_note["smart_gated_backfill_keys"] = list(
+                    backfill_out["backfilled_keys"]
+                )
+            model_note["smart_gate_triggered"] = bool(
+                backfill_out["smart_gate_triggered"]
+            )
+            if effective_schedule_budget is None and backfill_out["selected_top_keys"]:
+                effective_schedule_budget = {
+                    "max_select": min(
+                        int(self.backfill_target_events),
+                        len(backfill_out["selected_top_keys"]),
+                    )
+                }
+
         entries: list[dict] = []
         expand_depth = substrate_depth + 1
         for index, (key, spec, prepared) in enumerate(prepared_entries):
@@ -1509,6 +1843,13 @@ class _Driver:
                 "rank_basis": rank_basis_by_key.get(key, ""),
                 "rank_policy_version": S5B_RANK_POLICY_VERSION,
             }
+            if self.enable_smart_gated_backfill:
+                entry_payload["consensus_boost"] = bool(
+                    consensus_boost_by_key.get(key, False)
+                )
+                entry_payload["smart_gated_backfill"] = bool(
+                    key in backfilled_key_set
+                )
             if key in novel_by_key:
                 entry_payload["proposal_context"] = dict(
                     novel_by_key[key].get("proposal_context") or {})
@@ -1527,7 +1868,7 @@ class _Driver:
             pool=entries, policy_version=receipt["policy_version"],
             depth=expand_depth,
             source_event_id=str(payload.get("source_event_id") or ""),
-            budget=self.plan.get("schedule_budget"))
+            budget=effective_schedule_budget)
         _complete_action(
             self.ledger, receipt["action_id"], worker_id=self.worker_id,
             outcome={"kind": OUTCOME_KIND_SCHEDULED,
@@ -3426,15 +3767,18 @@ def _resolve_evidence_card_flag(value) -> bool:
 
 
 def _resolve_evidence_card_version(value) -> str | None:
-    """P2 证据卡版本归一：None/"v1" ⇒ None（旧路径）；"v1card" ⇒
-    "v1card"（v2 prompt + v1 卡）；"v2" ⇒ "v2"；其它值 fail-closed
-    （拼错不静默落回 v1/其它模式）。"""
+    """P2 证据卡版本归一：None/"v1" ⇒ None（旧路径）；"none"/"off" ⇒
+    "none"（v44-Next 显式禁用证据卡）；"v1card" ⇒ "v1card"（v2 prompt
+    + v1 卡）；"v2" ⇒ "v2"；其它值 fail-closed（拼错不静默落回
+    v1/其它模式）。"""
     if value in (None, "v1"):
         return None
+    if value in ("none", "off"):
+        return "none"
     if value in ("v1card", "v2"):
         return str(value)
     raise PPV1RunError(
-        f"证据卡版本非法值:{value!r}(须 None/v1/v1card/v2;非法值 "
+        f"证据卡版本非法值:{value!r}(须 None/v1/none/v1card/v2;非法值 "
         "fail-closed 拒,不猜)",
         {"kind": "evidence_card_version_invalid",
          "value": repr(value)})
@@ -3516,6 +3860,12 @@ def start_ppv1_run(
     evidence_card_enabled: bool | None = None,
     evidence_card_version: str | None = None,
     novel_protocol: str | None = None,
+    preset: str | None = None,
+    enable_smart_gated_backfill: bool = False,
+    s5_supplement_gate_max_s1d: int = 2,
+    s5_super_consensus_score: float = 115.0,
+    s5_max_supplements: int = 2,
+    backfill_target_events: int = 5,
     scripted: bool = False,
     crash_after: str | None = None,
 ) -> dict:
@@ -3539,16 +3889,55 @@ def start_ppv1_run(
     if (run_dir / "run_identity.json").is_file():
         from ..workflow.runner import RunAlreadyExists
         raise RunAlreadyExists(run_id, run_dir)
+    effective_preset = str(
+        preset or (plan or {}).get("preset") or ""
+    ).strip().lower().replace("_", "-")
+    is_v44_next = effective_preset == "v44-next"
+    eff_evcard_version_arg = (
+        evidence_card_version
+        if evidence_card_version is not None
+        else (
+            (plan or {}).get("evidence_card_version")
+            if (plan or {}).get("evidence_card_version") is not None
+            else ("none" if is_v44_next else None)
+        )
+    )
     # chain14/P2:开关与版本先归一（非法值/未定义组合在创建 run 目录
     # 前结构化拒，不留空 run 目录阻塞同 id 重试；合法输入行为不变）
-    evidence_flag = _resolve_evidence_card_flag(evidence_card_enabled)
     evidence_version = _resolve_evidence_card_version(
-        evidence_card_version)
+        eff_evcard_version_arg)
+    if evidence_version == "none":
+        if evidence_card_enabled is True:
+            raise PPV1RunError(
+                "evidence_card_version=none 与 evidence_card_enabled=true 冲突",
+                {"kind": "evidence_card_flag_conflict",
+                 "evidence_card_version": "none",
+                 "evidence_card_enabled": True})
+        evidence_flag = False
+        evidence_version = None
+    elif is_v44_next and evidence_card_enabled is None and evidence_version is None:
+        evidence_flag = False
+    else:
+        evidence_flag = _resolve_evidence_card_flag(evidence_card_enabled)
     _require_v1card_evidence(evidence_version, evidence_flag)
+    eff_backfill = bool(
+        enable_smart_gated_backfill
+        or (plan or {}).get("enable_smart_gated_backfill")
+        or is_v44_next
+    )
     # EXP1:novel 协议先归一(非法值在建目录前拒);profile_policy 若显式
     # 声明同键必须同值(不得以 profile_policy 绕过 start 参数换臂)
     protocol = _resolve_novel_protocol(novel_protocol)
     policy_kwargs = dict(profile_policy or {})
+    if eff_backfill:
+        raw_sl = dict(policy_kwargs.get("search_limits") or {})
+        if "max_alternative_hypotheses_per_parent" not in raw_sl:
+            raw_sl["max_alternative_hypotheses_per_parent"] = max(
+                5, int(backfill_target_events)
+            )
+        if "max_total_search_actions" not in raw_sl:
+            raw_sl["max_total_search_actions"] = 12
+        policy_kwargs["search_limits"] = raw_sl
     declared_protocol = policy_kwargs.pop("novel_protocol", None)
     if declared_protocol is not None and \
             str(declared_protocol) != protocol:
@@ -3605,7 +3994,12 @@ def start_ppv1_run(
                          crash_after=crash_after, model=model,
                          evidence_card_enabled=evidence_flag,
                          evidence_card_version=evidence_version,
-                         novel_protocol=raw_protocol_to_pass)
+                         novel_protocol=raw_protocol_to_pass,
+                         enable_smart_gated_backfill=eff_backfill,
+                         s5_supplement_gate_max_s1d=s5_supplement_gate_max_s1d,
+                         s5_super_consensus_score=s5_super_consensus_score,
+                         s5_max_supplements=s5_max_supplements,
+                         backfill_target_events=backfill_target_events)
         root_path = driver.root_path_id
         task_key = decision_task_key(
             run_id=run_id, parent_path_id=root_path,
@@ -3656,6 +4050,12 @@ def resume_ppv1_run(
     evidence_card_enabled: bool | None = None,
     evidence_card_version: str | None = None,
     novel_protocol: str | None = None,
+    preset: str | None = None,
+    enable_smart_gated_backfill: bool = False,
+    s5_supplement_gate_max_s1d: int = 2,
+    s5_super_consensus_score: float = 115.0,
+    s5_max_supplements: int = 2,
+    backfill_target_events: int = 5,
     crash_after: str | None = None,
 ) -> dict:
     """PPV1 独立 resume(身份核对 → 执行会话互斥 → 冻结输入核对 →
@@ -3717,9 +4117,30 @@ def resume_ppv1_run(
     # P2：先归一见版本与开关，再重建 prediction（v2 prompt 哈希必须
     # 与保存身份一致，否则 check_resume_identity 拒绝）。版本切换检查
     # 先于身份重建，给调用方结构化错误而不是笼统的身份不符。
+    effective_preset = str(
+        preset or (plan or {}).get("preset") or ""
+    ).strip().lower().replace("_", "-")
+    is_v44_next = effective_preset == "v44-next"
+    eff_evcard_version_arg = (
+        evidence_card_version
+        if evidence_card_version is not None
+        else ("none" if is_v44_next else None)
+    )
     evidence_version = _resolve_evidence_card_version(
-        evidence_card_version)
-    evidence_flag = _resolve_evidence_card_flag(evidence_card_enabled)
+        eff_evcard_version_arg)
+    if evidence_version == "none":
+        if evidence_card_enabled is True:
+            raise PPV1RunError(
+                "evidence_card_version=none 与 evidence_card_enabled=true 冲突",
+                {"kind": "evidence_card_flag_conflict",
+                 "evidence_card_version": "none",
+                 "evidence_card_enabled": True})
+        evidence_flag = False
+        evidence_version = None
+    elif is_v44_next and evidence_card_enabled is None and evidence_version is None:
+        evidence_flag = False
+    else:
+        evidence_flag = _resolve_evidence_card_flag(evidence_card_enabled)
     _require_v1card_evidence(evidence_version, evidence_flag)
     # EXP1:novel 协议同臂核对(旧 run 身份块无该键 ⇒ atom_edit;中途
     # 换臂 ⇒ 结构化拒,在建 prediction/身份前给明确原因)
@@ -3823,7 +4244,14 @@ def resume_ppv1_run(
                          crash_after=crash_after, model=model,
                          evidence_card_enabled=evidence_flag,
                          evidence_card_version=evidence_version,
-                         novel_protocol=saved_profile_block.get("novel_protocol"))
+                         novel_protocol=saved_profile_block.get("novel_protocol"),
+                         enable_smart_gated_backfill=bool(
+                             enable_smart_gated_backfill or is_v44_next
+                         ),
+                         s5_supplement_gate_max_s1d=s5_supplement_gate_max_s1d,
+                         s5_super_consensus_score=s5_super_consensus_score,
+                         s5_max_supplements=s5_max_supplements,
+                         backfill_target_events=backfill_target_events)
         report = driver.drive()
         # ---- S4a:endpoint 四分账派生(恢复后按当前事实重派生;重复
         # resume 同事实 ⇒ 同 payload_hash 幂等,不重复写 event/

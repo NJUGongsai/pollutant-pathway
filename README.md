@@ -57,6 +57,7 @@
 
 | 功能 | 说明 |
 |---|---|
+| `v44-next` 架构预设（`--preset v44-next`） | 一键开启 `S1d+S5` 规则入池编译（含离去基团/共产物自动推导）、无证据卡精简提示词与跨源共识智能回填（见 `docs/architecture/V44_NEXT_ARCHITECTURE_2026-11-10.md`） |
 | product-first 核验反馈（B） | 模型先写产物，程序反推编译并把核验结果反馈给模型，最多 3 轮 |
 | 先盲写再看池（C″） | 先不给候选池让模型盲写，再合并池候选，配合 product-first 反馈 |
 | RetroRules 通道 | `--retro-channel`，需另行准备 RetroRules 数据 |

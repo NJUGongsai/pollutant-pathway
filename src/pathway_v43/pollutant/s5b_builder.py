@@ -378,7 +378,10 @@ def s5b_run_id(qid: str, batch_tag: str) -> str:
 
 def build_run_input(question: dict, *, batch_tag: str,
                     pools: dict[str, list[dict]],
-                    provider_kind: str = "real") -> dict:
+                    provider_kind: str = "real",
+                    preset: str | None = None,
+                    evidence_card_version: str | None = None,
+                    enable_smart_gated_backfill: bool = False) -> dict:
     """每 qid 一条 PPV1 run 输入(根底物=substrate;无人工条件注入)。
 
     plan.pools = pool_provider 对该底物的检索结果(底物侧,零金标);
@@ -387,15 +390,26 @@ def build_run_input(question: dict, *, batch_tag: str,
     """
     qid = str(question["qid"])
     substrate = str(question["substrate_smiles"])
+    plan: dict = {
+        "pools": {substrate: [dict(s) for s in pools.get(substrate)
+                              or []]},
+        "model": {"provider_kind": provider_kind},
+    }
+    preset_norm = str(preset or "").strip().lower().replace("_", "-")
+    if preset_norm == "v44-next":
+        plan["preset"] = "v44-next"
+        plan["evidence_card_version"] = str(evidence_card_version or "none")
+        plan["enable_smart_gated_backfill"] = True
+    else:
+        if evidence_card_version is not None:
+            plan["evidence_card_version"] = str(evidence_card_version)
+        if enable_smart_gated_backfill:
+            plan["enable_smart_gated_backfill"] = True
     return {
         "qid": qid,
         "run_id": s5b_run_id(qid, batch_tag),
         "substrate_smiles": substrate,
-        "plan": {
-            "pools": {substrate: [dict(s) for s in pools.get(substrate)
-                                  or []]},
-            "model": {"provider_kind": provider_kind},
-        },
+        "plan": plan,
         "note": (
             "S5b run 输入:根底物=题面 substrate_smiles;无人工条件注入"
             "(condition_facts 空);池 = 底物侧确定性检索(零金标消费)"),
@@ -1104,7 +1118,15 @@ def default_pool_provider(config: V43Config | None, *,
                            retro_dataset: str = "rhea",
                            retro_radii: tuple[int, ...] | set[int] | None = None,
                            retro_retrieval_mode: str = "hybrid",
-                           retro_ranking_mode: str = "append"):
+                           retro_ranking_mode: str = "append",
+                           enable_s5_hybrid_pool: bool = False,
+                           s5_supplement_gate_max_s1d: int = 2,
+                           s5_supplement_min_prior_score: float = 70.0,
+                           s5_super_consensus_score: float = 115.0,
+                           s5_max_supplements: int = 2,
+                           s5_include_rr: bool = False,
+                           domain: str = "298",
+                           preset: str | None = None):
     """真实跑的缺省池供给(W4:编译后补位 + 有界输入侧动态检索;零金标)。
 
     通道与融合(顺序即池序;冻结配置):
@@ -1175,6 +1197,16 @@ def default_pool_provider(config: V43Config | None, *,
     **池策略配置本身零变化**(raw 预算/池宽/阈值/补位/融合/去重/
     候选序/截断位置全部不动);供给/执行输入策略零变化(同输入承诺)。
     """
+    preset_norm = str(preset or "").strip().lower().replace("_", "-")
+    if preset_norm == "v44-next":
+        enable_s5_hybrid_pool = True
+        if max_pool == S5B_POOL_MAX:
+            max_pool = S1D_POOL_MAX
+        if threshold == S5B_POOL_THRESHOLD:
+            threshold = S1D_POOL_THRESHOLD
+        if fallback_threshold == S5B_POOL_FALLBACK_THRESHOLD:
+            fallback_threshold = S1D_POOL_FALLBACK_THRESHOLD
+
     diagnostics: dict = {}
 
     def provider(substrate_smiles: str) -> list[dict]:
@@ -1236,7 +1268,7 @@ def default_pool_provider(config: V43Config | None, *,
             candidate_rows.append(row)
             return row
 
-        if config is None and engine is None:
+        if config is None and engine is None and not enable_s5_hybrid_pool:
             diagnostics.update({
                 "pool_policy_version": S5B_POOL_POLICY_VERSION,
                 # P3-IDENT:T-H 前置批级活编译器版本键
@@ -1833,6 +1865,62 @@ def default_pool_provider(config: V43Config | None, *,
             # compiled 承接(检索层口径,含被池侧合并的候选)。
             if spec.get("cosubstrate_event_contract") is not None:
                 n_cosub_specs += 1
+
+        if enable_s5_hybrid_pool:
+            from ..services.s5_hybrid_choice import build_s5_hybrid_pool_entries
+
+            base_s1d_slice = merged[: int(max_pool)]
+            hybrid_entries = build_s5_hybrid_pool_entries(
+                substrate,
+                s1d_specs=base_s1d_slice,
+                domain=str(domain or "298"),
+                include_env=True,
+                include_rr=bool(s5_include_rr),
+                s5_supplement_gate_max_s1d=int(s5_supplement_gate_max_s1d),
+                s5_supplement_min_prior_score=float(s5_supplement_min_prior_score),
+                s5_super_consensus_score=float(s5_super_consensus_score),
+                s5_max_supplements=int(s5_max_supplements),
+                max_pool=int(max_pool),
+                include_s1d_in_return=True,
+            )
+            # 将先验标注与新增 S5 门控补充条目同步回 merged
+            new_merged: list[dict] = []
+            for h_spec in hybrid_entries:
+                if not h_spec.get("is_gated_supplement"):
+                    # 原有 S1d 条目:保留原对象引用以维持 row_by_spec 关联,就地更新先验字段
+                    sig = _net_reaction_signature(h_spec)
+                    orig_spec = signature_of.get(sig)
+                    if orig_spec is not None:
+                        for k_meta in (
+                            "s5_prior_score",
+                            "s5_prior_tier",
+                            "reaction_class_12",
+                            "source_families",
+                            "is_gated_supplement",
+                            "compile",
+                        ):
+                            if k_meta in h_spec:
+                                orig_spec[k_meta] = h_spec[k_meta]
+                        new_merged.append(orig_spec)
+                    else:
+                        new_merged.append(h_spec)
+                else:
+                    sig = _net_reaction_signature(h_spec)
+                    if sig in signature_of:
+                        continue
+                    signature_of[sig] = h_spec
+                    row_by_spec[id(h_spec)] = _diag_row(
+                        "s5_hybrid",
+                        str(h_spec["key"]),
+                        "compiled",
+                        signature_head=_signature_head(h_spec),
+                    )
+                    new_merged.append(h_spec)
+            for tail_spec in merged[len(base_s1d_slice) :]:
+                if tail_spec not in new_merged:
+                    new_merged.append(tail_spec)
+            merged = new_merged
+
         # ---- T1a:截断前排序位回填(1 基;超出池宽 ⇒ pool_truncated;
         # 排序/截断本身零改动,只读 merged 序) ----
         for rank, spec in enumerate(merged, start=1):
@@ -1994,6 +2082,14 @@ def build_question_batch(
     question_limit: int | None = None,
     synthetic_review: bool = False,
     domain: str = "298",
+    preset: str | None = None,
+    enable_s5_hybrid_pool: bool = False,
+    s5_supplement_gate_max_s1d: int = 2,
+    s5_supplement_min_prior_score: float = 70.0,
+    s5_super_consensus_score: float = 115.0,
+    s5_max_supplements: int = 2,
+    evidence_card_version: str | None = None,
+    enable_smart_gated_backfill: bool = False,
 ) -> dict:
     """构建题卷批:参考图 + run 输入 + split 清单 + 批次清单。
 
@@ -2020,8 +2116,22 @@ def build_question_batch(
     inputs_dir = root / "run_inputs"
     graphs_dir.mkdir(parents=True, exist_ok=True)
     inputs_dir.mkdir(parents=True, exist_ok=True)
-    provider = pool_provider if pool_provider is not None \
-        else default_pool_provider(None)
+    preset_norm = str(preset or "").strip().lower().replace("_", "-")
+    if pool_provider is not None:
+        provider = pool_provider
+    elif preset_norm == "v44-next" or enable_s5_hybrid_pool:
+        provider = default_pool_provider(
+            None,
+            enable_s5_hybrid_pool=bool(enable_s5_hybrid_pool or preset_norm == "v44-next"),
+            s5_supplement_gate_max_s1d=s5_supplement_gate_max_s1d,
+            s5_supplement_min_prior_score=s5_supplement_min_prior_score,
+            s5_super_consensus_score=s5_super_consensus_score,
+            s5_max_supplements=s5_max_supplements,
+            domain=domain,
+            preset=preset,
+        )
+    else:
+        provider = default_pool_provider(None)
     entries: list[dict] = []
     for record in questions:
         qid = str(record["qid"])
@@ -2044,7 +2154,10 @@ def build_question_batch(
         pool_diag = dict(getattr(provider, "last_diagnostics", None) or {})
         run_input = build_run_input(
             record, batch_tag=batch_tag, pools=pools,
-            provider_kind=provider_kind)
+            provider_kind=provider_kind,
+            preset=preset,
+            evidence_card_version=evidence_card_version,
+            enable_smart_gated_backfill=enable_smart_gated_backfill)
         input_path = inputs_dir / f"{qid}.json"
         input_path.write_text(
             json.dumps(run_input, ensure_ascii=False, sort_keys=True,

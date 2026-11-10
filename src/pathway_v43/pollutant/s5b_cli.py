@@ -83,6 +83,17 @@ def _emit(payload: dict) -> None:
 def cmd_build(args: argparse.Namespace) -> int:
     from pathway_v43.config import resolve_config
 
+    preset = getattr(args, "preset", None)
+    preset_norm = str(preset or "").strip().lower().replace("_", "-")
+    enable_s5_hybrid = bool(
+        getattr(args, "enable_s5_hybrid_pool", False) or preset_norm == "v44-next"
+    )
+    no_evcard = bool(getattr(args, "no_evidence_card", False) or preset_norm == "v44-next")
+    evcard_version = "none" if no_evcard else None
+    enable_backfill = bool(
+        getattr(args, "enable_smart_gated_backfill", False) or preset_norm == "v44-next"
+    )
+
     pool_provider = None
     if args.pool_mode == "template":
         config = resolve_config(args.v3_code_root, args.assets_root)
@@ -109,22 +120,55 @@ def cmd_build(args: argparse.Namespace) -> int:
                 "retro_ranking_mode": str(
                     getattr(args, "retro_ranking_mode", "append")),
             }
-        if getattr(args, "pool_profile", "s0") == "s1d":
+        s5_kwargs: dict = {}
+        if enable_s5_hybrid:
+            s5_kwargs = {
+                "enable_s5_hybrid_pool": True,
+                "s5_supplement_gate_max_s1d": int(
+                    getattr(args, "s5_supplement_gate_max_s1d", 2)
+                ),
+                "s5_supplement_min_prior_score": float(
+                    getattr(args, "s5_supplement_min_prior_score", 70.0)
+                ),
+                "s5_super_consensus_score": float(
+                    getattr(args, "s5_super_consensus_score", 115.0)
+                ),
+                "s5_max_supplements": int(
+                    getattr(args, "s5_max_supplements", 2)
+                ),
+                "domain": str(getattr(args, "domain", "298")),
+                "preset": preset,
+            }
+        if getattr(args, "pool_profile", "s0") == "s1d" or preset_norm == "v44-next":
             s1d_max = 16 if args.max_pool == 8 else args.max_pool
             s1d_thr = 0.25 if args.pool_threshold == 0.45 else args.pool_threshold
             pool_provider = s1d_pool_provider(
                 config, max_pool=s1d_max, threshold=s1d_thr,
-                engine=engine, **retro_kwargs)
+                engine=engine, **retro_kwargs, **s5_kwargs)
         else:
             pool_provider = default_pool_provider(
                 config, max_pool=args.max_pool, threshold=args.pool_threshold,
-                engine=engine, **retro_kwargs)
+                engine=engine, **retro_kwargs, **s5_kwargs)
     manifest = build_question_batch(
         args.questions, args.batch_root, batch_tag=args.batch_tag,
         pool_provider=pool_provider,
         provider_kind=args.provider_kind,
         question_limit=args.limit,
-        domain=args.domain)
+        domain=args.domain,
+        preset=preset,
+        enable_s5_hybrid_pool=enable_s5_hybrid,
+        s5_supplement_gate_max_s1d=int(
+            getattr(args, "s5_supplement_gate_max_s1d", 2)
+        ),
+        s5_supplement_min_prior_score=float(
+            getattr(args, "s5_supplement_min_prior_score", 70.0)
+        ),
+        s5_super_consensus_score=float(
+            getattr(args, "s5_super_consensus_score", 115.0)
+        ),
+        s5_max_supplements=int(getattr(args, "s5_max_supplements", 2)),
+        evidence_card_version=evcard_version,
+        enable_smart_gated_backfill=enable_backfill)
     _emit({
         "command": "build", "ok": True,
         "batch_root": str(Path(args.batch_root).resolve()),
@@ -507,6 +551,31 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--domain", default="298",
                    help="题域标签(参考图 domain 字段);取值域见 "
                         "reference_graph.DOMAINS;缺省 298 保持历史口径")
+    p.add_argument("--preset", choices=("v44-next",), default=None,
+                   help="v44-next 一键预设:自动开启 S1d(pool_threshold=0.25,"
+                        "max_pool=16) + enable_s5_hybrid_pool=True + "
+                        "evidence_card_version=none + "
+                        "enable_smart_gated_backfill=True")
+    p.add_argument("--enable-s5-hybrid-pool", action="store_true",
+                   default=False,
+                   help="开启 S5(enviPath+EAWAG+可选RetroRules)智能门控扩池"
+                        "与化学先验排序(默认关闭)")
+    p.add_argument("--s5-supplement-gate-max-s1d", type=int, default=2,
+                   help="触发 S5 门控补池的最大 S1d 模板数(缺省 2)")
+    p.add_argument("--s5-supplement-min-prior-score", type=float,
+                   default=70.0,
+                   help="稀疏池门控下 S5 补充候选最低化学先验分(缺省 70.0)")
+    p.add_argument("--s5-super-consensus-score", type=float,
+                   default=115.0,
+                   help="跨源超高共识 S5 候选阈值(缺省 115.0)")
+    p.add_argument("--s5-max-supplements", type=int, default=2,
+                   help="每题最多补充的 S5 规则候选槽位数(缺省 2)")
+    p.add_argument("--no-evidence-card", action="store_true",
+                   default=False,
+                   help="禁用 v1card 证据卡注入(对应消融验证涨分的 ABL-1')")
+    p.add_argument("--enable-smart-gated-backfill", action="store_true",
+                   default=False,
+                   help="开启共识升位与智能门控尾部回填(默认关闭)")
     p.set_defaults(func=cmd_build)
 
     p = sub.add_parser("approve", help="落预注册批准记录(发车硬门)")
