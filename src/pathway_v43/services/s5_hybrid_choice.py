@@ -212,6 +212,12 @@ def compute_chemical_prior_score(
        - dev-298（通用酶学）：优先高相似类比/recorded 与 RetroRules r=6,4 高频代谢规则。
     3. 惩罚微小裂解碎片（如单碳/双原子脱离物被误选为主产物）与过小半径 r=2 的孤立噪声。
     """
+    dom_norm = str(domain or "").strip().lower()
+    if dom_norm in ("298", "dev-298", "dev298", "rhea"):
+        domain_eff = "dev-298"
+    else:
+        domain_eff = "biosysmodb121"
+
     score = 0.0
 
     # 1. 独立来源家族共识数（把 rr_rhea 与 rr_mnx 归为 rr 家族，envipath 与 eawag 归为 env 家族）
@@ -252,7 +258,7 @@ def compute_chemical_prior_score(
 
     # 3. S5-env 环境降解规则贡献
     if cand.env_rule_ids:
-        env_base = 42.0 if domain == "biosysmodb121" else 28.0
+        env_base = 42.0 if domain_eff == "biosysmodb121" else 28.0
         n_env = len(cand.env_rule_ids)
         score += env_base + 4.5 * math.log1p(cand.env_freq_sum) + 3.0 * min(n_env, 5)
         if "eawag" in cand.source_families and "envipath" in cand.source_families:
@@ -262,12 +268,12 @@ def compute_chemical_prior_score(
     if cand.rr_rule_ids:
         rmax = cand.rr_max_radius
         if rmax >= 6:
-            rr_base = 44.0 if domain == "dev-298" else 34.0
+            rr_base = 44.0 if domain_eff == "dev-298" else 34.0
         elif rmax >= 4:
-            rr_base = 30.0 if domain == "dev-298" else 24.0
+            rr_base = 30.0 if domain_eff == "dev-298" else 24.0
         else:
             # r=2 仅在高频或多规则支持时给中等分，抑制泛化噪声
-            rr_base = 14.0 if domain == "dev-298" else 10.0
+            rr_base = 14.0 if domain_eff == "dev-298" else 10.0
 
         freq_val = cand.rr_freq_sum
         score += rr_base + 3.8 * math.log1p(freq_val) + 1.5 * math.log1p(len(cand.rr_rule_ids))
@@ -843,17 +849,181 @@ def load_s5_rr_rules(
     return out
 
 
+_S5_RR_RESOLVERS_CACHE: dict[tuple[str, str], Any] = {}
+_S5_RR_RXN_CACHE: dict[str, Any] = {}
+
+
+def _enumerate_s5_rr_via_resolver(
+    substrate_smiles: str,
+    mol: Chem.Mol,
+    sub_st: str,
+    *,
+    repo_root: str | Path | None = None,
+    datasets: tuple[str, ...] = ("rhea", "mnx"),
+    radii: tuple[int, ...] = (2, 4, 6),
+) -> tuple[bool, dict[str, dict[str, Any]]]:
+    """优先使用预构建的 PatternFingerprint 索引 (`RetroTemplateResolver`) 执行高速 S5-rr 子结构枚举。
+
+    单题检索+枚举耗时 ~0.07s；若运行在无 RetroRules 索引资产的轻量环境（如公开快照仓单测），
+    自动返回 `(False, {})` 并由上层优雅降级为 TSV 或仅 S5-env。
+    """
+    root = Path(repo_root).resolve() if repo_root is not None else _default_repo_root()
+    radii_set = {int(r) for r in radii}
+    tpl_agg: dict[str, dict[str, Any]] = {}
+    used_any_resolver = False
+
+    for ds in datasets:
+        ds_norm = str(ds).strip().lower()
+        cache_key = (str(root), ds_norm)
+        if cache_key not in _S5_RR_RESOLVERS_CACHE:
+            npz_path = root / f"assets/retrorules/derived/{ds_norm}_retro_index.npz"
+            if not npz_path.exists():
+                _S5_RR_RESOLVERS_CACHE[cache_key] = None
+            else:
+                try:
+                    from pathway_v43.config import resolve_config
+                    from pathway_v43.services.retro_source import RetroTemplateResolver
+
+                    cfg = resolve_config(None, root / "assets")
+                    _S5_RR_RESOLVERS_CACHE[cache_key] = RetroTemplateResolver(
+                        cfg,
+                        dataset=ds_norm,
+                        verify_artifacts=False,
+                        verify_source=False,
+                    )
+                except Exception:
+                    _S5_RR_RESOLVERS_CACHE[cache_key] = None
+
+        resolver = _S5_RR_RESOLVERS_CACHE.get(cache_key)
+        if resolver is None:
+            continue
+        used_any_resolver = True
+        try:
+            hits = resolver.library.search(
+                substrate_smiles,
+                mode="substruct",
+                threshold=0.0,
+                top_k=10000,
+                allowed_radii=radii_set,
+                dedupe_same_lhs=False,
+                require_sanitized=False,
+            )
+        except Exception:
+            continue
+
+        for h in hits:
+            tpl_str = str(h.get("template") or "")
+            if not tpl_str:
+                continue
+            tid = str(h.get("template_id") or f"rr_{ds_norm}")
+            rc = max(len(h.get("reactions") or []), 1)
+            rads = {int(r) for r in (h.get("radii") or [])} & radii_set
+            info = tpl_agg.get(tpl_str)
+            if info is None:
+                tpl_agg[tpl_str] = {
+                    "datasets": {ds_norm},
+                    "radii": set(rads),
+                    "max_rc": rc,
+                    "rule_ids": {f"{ds_norm}:{tid}"},
+                    "primary_rule_id": f"{ds_norm}:{tid}",
+                }
+            else:
+                info["datasets"].add(ds_norm)
+                info["radii"].update(rads)
+                if rc > info["max_rc"]:
+                    info["max_rc"] = rc
+                info["rule_ids"].add(f"{ds_norm}:{tid}")
+
+    if not used_any_resolver:
+        return False, {}
+
+    rr_prod_map: dict[str, dict[str, Any]] = {}
+    for tpl_str, info in tpl_agg.items():
+        try:
+            rxn = _S5_RR_RXN_CACHE.get(tpl_str)
+            if rxn is None and tpl_str not in _S5_RR_RXN_CACHE:
+                rxn = AllChem.ReactionFromSmarts(tpl_str)
+                _S5_RR_RXN_CACHE[tpl_str] = rxn
+            if rxn is None or rxn.GetNumReactantTemplates() != 1:
+                continue
+            ps_list = rxn.RunReactants((mol,), maxProducts=100)
+        except Exception:
+            continue
+
+        fams = {f"rr_{d}" for d in info["datasets"]}
+        rads = info["radii"]
+        rmax = max(rads) if rads else 2
+        rc = int(info["max_rc"])
+        rids = info["rule_ids"]
+        primary_rid = str(info["primary_rule_id"])
+
+        for ps in ps_list[:30]:
+            valid_frags: list[tuple[int, str, str]] = []
+            for p in ps:
+                try:
+                    p2 = _strip_atom_maps(p)
+                    Chem.SanitizeMol(p2)
+                    if any(a.GetAtomicNum() == 0 for a in p2.GetAtoms()):
+                        continue
+                    c_smi = Chem.MolToSmiles(p2, isomericSmiles=True)
+                except Exception:
+                    continue
+                for frag in c_smi.split("."):
+                    frag = frag.strip()
+                    if not frag:
+                        continue
+                    fmol = Chem.MolFromSmiles(frag)
+                    if fmol is None:
+                        continue
+                    ha = fmol.GetNumHeavyAtoms()
+                    fst = k_strict(frag)
+                    if fst and fst != sub_st:
+                        valid_frags.append((ha, frag, fst))
+            if not valid_frags:
+                continue
+            valid_frags.sort(key=lambda x: (-x[0], x[1]))
+            _best_ha, best_prod, best_st = valid_frags[0]
+            coproducts = [frag for _, frag, fst in valid_frags[1:] if fst != best_st]
+
+            rec = rr_prod_map.get(best_st)
+            if rec is None:
+                rec = {
+                    "cand_strict": best_st,
+                    "cand_smiles": best_prod,
+                    "source_families": set(),
+                    "env_rule_ids": set(),
+                    "env_freq_sum": 0,
+                    "rr_rule_ids": set(),
+                    "rr_max_radius": 0,
+                    "rr_freq_sum": 0,
+                    "primary_rule_id": primary_rid,
+                    "coproduct_sets": [],
+                }
+                rr_prod_map[best_st] = rec
+            rec["source_families"].update(fams)
+            new_rids = rids - rec["rr_rule_ids"]
+            if new_rids:
+                rec["rr_rule_ids"].update(new_rids)
+                rec["rr_freq_sum"] += max(1, rc)
+            if rmax > rec["rr_max_radius"]:
+                rec["rr_max_radius"] = rmax
+            if coproducts and coproducts not in rec["coproduct_sets"]:
+                rec["coproduct_sets"].append(coproducts)
+
+    return True, rr_prod_map
+
+
 def enumerate_s5_rules(
     substrate_smiles: str,
     *,
     repo_root: str | Path | None = None,
     include_env: bool = True,
-    include_rr: bool = False,
+    include_rr: bool = True,
     rr_datasets: tuple[str, ...] = ("rhea", "mnx"),
     rr_radii: tuple[int, ...] = (2, 4, 6),
     extra_rules: list[dict[str, Any]] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    """对底物执行 S5-env (enviPath + EAWAG) 与可选 S5-rr 规则枚举。
+    """对底物执行 S5-env (enviPath + EAWAG) 与 S5-rr (RetroRules rhea + METANETX) 规则枚举。
 
     返回按 `cand_strict` 聚合的字典，每项包含 `cand_smiles`、触发规则集、来源家族与同规则副产物片段。
     """
@@ -861,13 +1031,25 @@ def enumerate_s5_rules(
     if mol is None:
         return {}
     sub_st = k_strict(substrate_smiles)
-    sub_ha = max(1, mol.GetNumHeavyAtoms())
 
     rules: list[dict[str, Any]] = []
     if include_env:
         rules.extend(load_s5_env_rules(repo_root))
+
+    rr_from_resolver: dict[str, dict[str, Any]] = {}
+    used_rr_resolver = False
     if include_rr:
-        rules.extend(load_s5_rr_rules(repo_root, datasets=rr_datasets, radii=rr_radii))
+        used_rr_resolver, rr_from_resolver = _enumerate_s5_rr_via_resolver(
+            substrate_smiles,
+            mol,
+            sub_st,
+            repo_root=repo_root,
+            datasets=rr_datasets,
+            radii=rr_radii,
+        )
+        if not used_rr_resolver:
+            rules.extend(load_s5_rr_rules(repo_root, datasets=rr_datasets, radii=rr_radii))
+
     if extra_rules:
         for r in extra_rules:
             rxn = r.get("rxn")
@@ -920,9 +1102,7 @@ def enumerate_s5_rules(
             if not valid_frags:
                 continue
             valid_frags.sort(key=lambda x: (-x[0], x[1]))
-            best_ha, best_prod, best_st = valid_frags[0]
-            if best_ha < 3 or best_ha < sub_ha * 0.25:
-                continue
+            _best_ha, best_prod, best_st = valid_frags[0]
             coproducts = [frag for _, frag, fst in valid_frags[1:] if fst != best_st]
 
             rec = prod_map.get(best_st)
@@ -953,6 +1133,21 @@ def enumerate_s5_rules(
                     rec["rr_max_radius"] = diam
             if coproducts and coproducts not in rec["coproduct_sets"]:
                 rec["coproduct_sets"].append(coproducts)
+
+    # 合并高速 RetroTemplateResolver 产出的 S5-rr 枚举结果
+    for best_st, rr_rec in rr_from_resolver.items():
+        rec = prod_map.get(best_st)
+        if rec is None:
+            prod_map[best_st] = rr_rec
+        else:
+            rec["source_families"].update(rr_rec["source_families"])
+            rec["rr_rule_ids"].update(rr_rec["rr_rule_ids"])
+            rec["rr_freq_sum"] += int(rr_rec["rr_freq_sum"])
+            if int(rr_rec["rr_max_radius"]) > int(rec["rr_max_radius"]):
+                rec["rr_max_radius"] = int(rr_rec["rr_max_radius"])
+            for cops in rr_rec.get("coproduct_sets") or []:
+                if cops and cops not in rec["coproduct_sets"]:
+                    rec["coproduct_sets"].append(cops)
 
     return prod_map
 
@@ -1082,10 +1277,17 @@ def compile_s5_candidate_to_spec(
 ) -> dict[str, Any] | None:
     """将入选的 S5 候选产物通过 `compile_recorded_reaction` 编译为正规可执行的 `ReactionSpec`。
 
-    同时执行 `prepare_hypothesis` 与 `execute_atomtool_expansion` 预检，编译或执行不过的自动剔除。
+    同时执行 `prepare_hypothesis` + `execute_atomtool_expansion` + `audit_hypothesis` (`ADMISSION_SUBMITTABLE`)
+    全链路预检，编译或审计不过的自动剔除。
     """
+    from pathway_v43.pollutant.audit import audit_hypothesis, decide_admission
     from pathway_v43.pollutant.chemstate import build_chemical_state, strict_identity_of
-    from pathway_v43.pollutant.production import execute_atomtool_expansion, prepare_hypothesis
+    from pathway_v43.pollutant.path_context import build_path_context
+    from pathway_v43.pollutant.production import (
+        ADMISSION_SUBMITTABLE,
+        execute_atomtool_expansion,
+        prepare_hypothesis,
+    )
     from pathway_v43.pollutant.recorded_source import compile_recorded_reaction
 
     cand_raw = str(_cand_field(cand, "cand_smiles", "") or _cand_field(cand, "product_smiles", "") or "").strip()
@@ -1104,54 +1306,65 @@ def compile_s5_candidate_to_spec(
     primary_rule = (env_rules[0] if env_rules else (rr_rules[0] if rr_rules else f"s5_{index:02d}"))
     record_id = f"s5-hybrid:{primary_rule}:{index:02d}"
 
-    attempt_product_lists: list[tuple[list[str], str | None]] = [
-        ([cand_iso], cand_iso),
-        ([cand_iso], None),
+    primary_attempts: list[tuple[str, list[str], str | None]] = [
+        (sub_iso, [cand_iso], cand_iso),
     ]
-    for cop_list in (coproduct_sets or []):
+    for cop_list in (coproduct_sets or [])[:2]:
         if cop_list:
-            attempt_product_lists.append(([cand_iso, *cop_list], cand_iso))
-            attempt_product_lists.append(([cand_iso, *cop_list], None))
-    for inferred_cops in _infer_s5_leaving_coproduct_sets(sub_iso, cand_iso):
-        if inferred_cops:
-            attempt_product_lists.append(([cand_iso, *inferred_cops], cand_iso))
+            primary_attempts.append((sub_iso, [cand_iso, *cop_list], cand_iso))
 
-    compiled_spec: dict[str, Any] | None = None
-    for prod_list, novel_p1 in attempt_product_lists:
-        try:
-            res = compile_recorded_reaction(
-                substrate_smiles=sub_iso,
-                donor_smiles=sub_iso,
-                products=prod_list,
-                record_id=record_id,
-                novel_product_first_principal=novel_p1,
-            )
-        except Exception:
-            continue
-        if res.get("status") != "compiled":
-            continue
-        spec = dict(res["spec"])
-        p1_gate = res.get("novel_p1_gate")
-        if isinstance(p1_gate, dict) and p1_gate.get("gate_ok"):
-            if p1_gate.get("compiled_principal"):
-                spec["product_smiles"] = str(p1_gate["compiled_principal"])
-            if p1_gate.get("compiled_coproducts") is not None:
-                spec["coproducts"] = list(p1_gate["compiled_coproducts"])
-            if p1_gate.get("undeclared_coproducts"):
-                spec["undeclared_coproducts"] = list(p1_gate["undeclared_coproducts"])
+    def _try_compile_batch(attempts: list[tuple[str, list[str], str | None]]) -> tuple[dict[str, Any] | None, str]:
+        last_reason = ""
+        for donor_smi, prod_list, novel_p1 in attempts:
+            try:
+                res = compile_recorded_reaction(
+                    substrate_smiles=sub_iso,
+                    donor_smiles=donor_smi,
+                    products=prod_list,
+                    record_id=record_id,
+                    novel_product_first_principal=novel_p1,
+                )
+            except Exception:
+                continue
+            if res.get("status") != "compiled":
+                last_reason = str(res.get("reason") or "")
+                continue
+            spec = dict(res["spec"])
+            p1_gate = res.get("novel_p1_gate")
+            if isinstance(p1_gate, dict) and p1_gate.get("gate_ok"):
+                if p1_gate.get("compiled_coproducts") is not None:
+                    spec["coproducts"] = list(p1_gate["compiled_coproducts"])
+                if p1_gate.get("undeclared_coproducts"):
+                    spec["undeclared_coproducts"] = list(p1_gate["undeclared_coproducts"])
+            else:
+                parts = [str(spec.get("product_smiles") or ""), *[str(c) for c in (spec.get("coproducts") or [])]]
+                non_principal = [
+                    p for p in parts if p and k_strict(p) != cand_iso
+                ]
+                if non_principal:
+                    spec["coproducts"] = non_principal
+            # 固定主产物为 cand_iso（避免记录侧 Uncharger 形式归一将离子态金标候选改写为中性分子导致主产物身份漂移）
+            spec["product_smiles"] = cand_iso
+            return spec, ""
+        return None, last_reason
 
-        # 主产物重指派：确保主产物始终为 cand_iso，其余执行组分为 coproducts
-        parts = [str(spec.get("product_smiles") or ""), *[str(c) for c in (spec.get("coproducts") or [])]]
-        part_stricts = [k_strict(p) for p in parts]
-        if cand_iso not in part_stricts:
-            continue
-        if part_stricts[0] != cand_iso:
-            idx_match = part_stricts.index(cand_iso)
-            spec["product_smiles"] = parts[idx_match]
-            spec["coproducts"] = [parts[0]] + parts[1:idx_match] + parts[idx_match + 1 :]
-
-        compiled_spec = spec
-        break
+    compiled_spec, fail_reason = _try_compile_batch(primary_attempts)
+    if compiled_spec is None and fail_reason in (
+        "",
+        "no_structure_correspondence",
+        "new_atom_placement_incomplete",
+        "product_set_mismatch",
+        "no_alignment",
+    ):
+        inferred_sets = _infer_s5_leaving_coproduct_sets(sub_iso, cand_iso)
+        secondary_attempts: list[tuple[str, list[str], str | None]] = [
+            (sub_iso, [cand_iso], None),
+        ]
+        for inferred_cops in inferred_sets[:2]:
+            if inferred_cops:
+                secondary_attempts.append((sub_iso, [cand_iso, *inferred_cops], cand_iso))
+        secondary_attempts.append((cand_iso, [cand_iso], cand_iso))
+        compiled_spec, _ = _try_compile_batch(secondary_attempts)
 
     if compiled_spec is None:
         return None
@@ -1188,7 +1401,7 @@ def compile_s5_candidate_to_spec(
     )
     compiled_spec["compile"] = compile_meta
 
-    # 验证 RDKit 正规工具执行通过
+    # 验证 RDKit 正规工具执行 + 11 项 audit_hypothesis 准入通过
     try:
         sub_state = build_chemical_state(
             sub_iso, "raw_input", [{"record": f"s5-hybrid:{primary_rule}"}]
@@ -1202,27 +1415,75 @@ def compile_s5_candidate_to_spec(
                 or f"s5-rule:{primary_rule}"
             ),
         )
+        exec_in = str(
+            prepared["tool_inputs"].get("execution_input_smiles") or sub_iso
+        )
         exec_res = execute_atomtool_expansion(
-            substrate_smiles=sub_iso, tool_inputs=prepared["tool_inputs"]
+            substrate_smiles=exec_in, tool_inputs=prepared["tool_inputs"]
         )
         if not exec_res.get("execution_ok"):
             return None
-        raw_prod_str = str(
-            (exec_res.get("result") or {}).get("product_smiles") or ""
+        audit_rep = audit_hypothesis(
+            prepared["hypothesis"],
+            run_id="s5-compile-check",
+            states=prepared["states"],
+            context=build_path_context(condition_facts=[], scenario_ref=""),
+            center_evidence=exec_res["center_evidence"],
         )
-        exec_prods = [p.strip() for p in raw_prod_str.split(".") if p.strip()]
-        exec_stricts = {
-            strict_identity_of(str(p)) for p in exec_prods if str(p).strip()
-        }
+        disp, _reasons = decide_admission(audit_rep)
+        if disp not in ADMISSION_SUBMITTABLE:
+            return None
         spec_principal = strict_identity_of(
             str(compiled_spec.get("product_smiles") or "")
         )
-        if not spec_principal or spec_principal not in exec_stricts:
+        prod_state_stricts = {
+            strict_identity_of(str(st.smiles_isomeric))
+            for st in (prepared.get("product_states") or [])
+            if getattr(st, "smiles_isomeric", "")
+        }
+        if not spec_principal or spec_principal not in prod_state_stricts:
             return None
     except Exception:
         return None
 
     return compiled_spec
+
+
+def _extract_s1d_channels_and_families(spec: dict[str, Any]) -> tuple[set[str], set[str]]:
+    """从 S1d 预编译条目及其合并谱系键提取真实通道集合与来源家族集合。"""
+    channels: set[str] = set()
+    families: set[str] = set()
+    raw_keys = [
+        str(spec.get("key") or ""),
+        *[str(k) for k in ((spec.get("compile") or {}).get("merged_source_keys") or [])],
+    ]
+    for rk in raw_keys:
+        if not rk:
+            continue
+        if rk.startswith("rec-corpus"):
+            channels.add("corpus")
+            families.add("corpus")
+        elif rk.startswith("rec-"):
+            channels.add("recorded")
+            families.add("recorded")
+        elif rk.startswith("tpl-"):
+            channels.add("analog")
+            families.add("analog")
+        elif rk.startswith("retro-"):
+            channels.add("retrorules")
+            families.add("rr_rhea")
+    for ch in (spec.get("selection_channels") or []):
+        ch_s = str(ch).strip().lower()
+        if ch_s in ("recorded", "corpus", "analog"):
+            channels.add(ch_s)
+            families.add(ch_s)
+        elif ch_s in ("envipath", "eawag", "rr_rhea", "rr_mnx"):
+            families.add(ch_s)
+    if not channels:
+        channels.add("analog")
+    if not families:
+        families.add("analog")
+    return channels, families
 
 
 def build_s5_hybrid_pool_entries(
@@ -1231,7 +1492,7 @@ def build_s5_hybrid_pool_entries(
     s1d_specs: list[dict[str, Any]] | None = None,
     domain: str = "298",
     include_env: bool = True,
-    include_rr: bool = False,
+    include_rr: bool = True,
     rr_datasets: tuple[str, ...] = ("rhea", "mnx"),
     rr_radii: tuple[int, ...] = (2, 4, 6),
     extra_rules: list[dict[str, Any]] | None = None,
@@ -1243,12 +1504,15 @@ def build_s5_hybrid_pool_entries(
     include_s1d_in_return: bool = True,
     repo_root: str | Path | None = None,
 ) -> list[dict[str, Any]]:
-    """管线级 S1d + S5 智能门控扩池与化学先验编译入口。
+    """管线级 S1d + S5 (enviPath + EAWAG + RetroRules) 12 大类均衡混合建池与化学先验编译入口。
 
-    1. 对现有 S1d 模板条目与 S5 规则枚举产物统一计算 `compute_chemical_prior_score` 与 12 反应大类标签 `classify_reaction_12class`；
+    1. 对现有 S1d 模板条目与 S5 (`S5-env ∪ S5-rr`) 规则枚举产物统一计算 `compute_chemical_prior_score`
+       与 12 反应大类标签 `classify_reaction_12class`；
     2. 为现有 S1d 条目补充跨源共识先验元数据（若某 S1d 产物同时被 S5 规则命中，自动升位为多源共识）；
-    3. 根据智能门控条件（主池模板数 <= `s5_supplement_gate_max_s1d` 或存在跨源高先验 >= `s5_super_consensus_score`），
-       筛选高先验 S5 补充候选并通过 `compile_recorded_reaction` 编译为正规 `ReactionSpec`（编译不过自动剔除）。
+    3. 按 `rank_and_select_hybrid_pool` (12 大类反应多样性均衡) 选取 Top-`max_pool` (默认 16) 混合候选池，
+       并将排进 Top-16 的 S5 候选编译为正规 `ReactionSpec`（不再因 `len(s1d) > 2` 误挡 S5 入池或限死 2 条）；
+    4. 将智能门控标记 `is_gated_supplement` 与 `s5_prior_score` 写入池条目元数据，仅供 `runflow.py`
+       在模型回答后的未选中尾部槽位（Slots 4–5）回填时使用。
     """
     sub_smi = str(substrate_smiles or "").strip()
     if not sub_smi:
@@ -1273,29 +1537,41 @@ def build_s5_hybrid_pool_entries(
         if not prod_st:
             continue
         s1d_strict_set.add(prod_st)
-        coarse_6, fine_12 = classify_reaction_12class(sub_smi, prod_smi)
-        f_delta = compute_formula_delta_str(sub_smi, prod_smi)
-        ha_ratio = _compute_heavy_atom_ratio(sub_smi, prod_smi)
-        sim_val = float(
+        channels, fams = _extract_s1d_channels_and_families(spec)
+        raw_sim = (
             spec.get("best_similarity")
-            or (spec.get("compile") or {}).get("best_similarity")
-            or 0.45
+            if spec.get("best_similarity") is not None
+            else (spec.get("compile") or {}).get("best_similarity")
         )
-        channels = set(spec.get("selection_channels") or ["analog"])
-        hc = HybridCandidate(
-            cand_strict=prod_st,
-            cand_smiles=prod_smi,
-            sub_smiles=sub_smi,
-            source_families={"analog"},
-            s1d_best_rank=rank_idx,
-            s1d_best_sim=sim_val,
-            s1d_channels=channels,
-            coarse_cat=coarse_6,
-            fine_cat=fine_12,
-            formula_delta=f_delta,
-            heavy_atom_ratio=ha_ratio,
-        )
-        cand_by_strict[prod_st] = hc
+        if raw_sim is not None:
+            sim_val = float(raw_sim)
+        else:
+            sim_val = 1.0 if ("recorded" in channels or "corpus" in channels) else 0.45
+
+        existing_hc = cand_by_strict.get(prod_st)
+        if existing_hc is None:
+            coarse_6, fine_12 = classify_reaction_12class(sub_smi, prod_smi)
+            f_delta = compute_formula_delta_str(sub_smi, prod_smi)
+            ha_ratio = _compute_heavy_atom_ratio(sub_smi, prod_smi)
+            hc = HybridCandidate(
+                cand_strict=prod_st,
+                cand_smiles=prod_smi,
+                sub_smiles=sub_smi,
+                source_families=set(fams),
+                s1d_best_rank=rank_idx,
+                s1d_best_sim=sim_val,
+                s1d_channels=set(channels),
+                coarse_cat=coarse_6,
+                fine_cat=fine_12,
+                formula_delta=f_delta,
+                heavy_atom_ratio=ha_ratio,
+            )
+            cand_by_strict[prod_st] = hc
+        else:
+            existing_hc.source_families.update(fams)
+            existing_hc.s1d_channels.update(channels)
+            if sim_val > existing_hc.s1d_best_sim:
+                existing_hc.s1d_best_sim = sim_val
 
     for prod_st, rec in s5_map.items():
         prod_smi = str(rec["cand_smiles"])
@@ -1332,6 +1608,7 @@ def build_s5_hybrid_pool_entries(
         compute_chemical_prior_score(hc, domain=domain)
 
     annotated_s1d: list[dict[str, Any]] = []
+    s1d_specs_by_strict: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for spec in s1d_specs or []:
         spec_copy = dict(spec)
         prod_st = k_strict(str(spec_copy.get("product_smiles") or ""))
@@ -1356,47 +1633,70 @@ def build_s5_hybrid_pool_entries(
             )
             spec_copy["compile"] = c_meta
         annotated_s1d.append(spec_copy)
+        if prod_st:
+            s1d_specs_by_strict[prod_st].append(spec_copy)
 
-    # 判断智能门控条件：
-    # (a) S1d 主池稀疏 (len(annotated_s1d) <= s5_supplement_gate_max_s1d) -> 允许 prior_score >= s5_supplement_min_prior_score 的 S5 候选
-    # (b) S1d 充足时 -> 仅允许跨源超高共识 S5 候选 (prior_score >= s5_super_consensus_score 且 >=2 独立源家族)
+    # 尾部回填门控标记（仅作用于 runflow.py 尾部空槽回填，不阻挡 S5 候选在建池阶段进入 Top-16 混合池）
     sparse_gate_open = len(annotated_s1d) <= int(s5_supplement_gate_max_s1d)
-    eligible_s5_cands: list[HybridCandidate] = []
-    for prod_st, hc in cand_by_strict.items():
-        if prod_st in s1d_strict_set:
-            continue
-        if sparse_gate_open and float(hc.prior_score) >= float(s5_supplement_min_prior_score):
-            eligible_s5_cands.append(hc)
-        elif float(hc.prior_score) >= float(s5_super_consensus_score) and len(hc.source_families) >= 2:
-            eligible_s5_cands.append(hc)
 
-    # 先按化学先验与反应大类平衡排序所有合格候选，再逐一尝试正规编译，直到收满 s5_max_supplements 条合法 ReactionSpec
-    ranked_s5 = rank_and_select_hybrid_pool(
-        eligible_s5_cands,
-        max_pool=max(len(eligible_s5_cands), int(s5_max_supplements) * 4),
+    all_cands = list(cand_by_strict.values())
+    ranked_top = rank_and_select_hybrid_pool(
+        all_cands,
+        max_pool=int(max_pool),
         class_balanced=True,
+        max_per_class_pass1=3,
     )
+    ranked_top_stricts = {c.cand_strict for c in ranked_top}
+    remaining_cands = sorted(
+        [c for c in all_cands if c.cand_strict not in ranked_top_stricts],
+        key=lambda c: (-c.prior_score, abs(1.0 - c.heavy_atom_ratio), c.cand_strict),
+    )
+    ordered_eval_cands = ranked_top + remaining_cands[:4]
 
+    selected_pool_specs: list[dict[str, Any]] = []
     compiled_supplements: list[dict[str, Any]] = []
-    target_supps = int(s5_max_supplements) if s1d_specs is not None else int(max_pool)
-    for idx, hc in enumerate(ranked_s5, 1):
-        if len(compiled_supplements) >= target_supps:
+    s5_compile_idx = 0
+
+    for hc in ordered_eval_cands:
+        if include_s1d_in_return and len(selected_pool_specs) >= int(max_pool):
             break
+        if not include_s1d_in_return and len(compiled_supplements) >= int(max_pool):
+            break
+
+        if hc.cand_strict in s1d_specs_by_strict:
+            if include_s1d_in_return:
+                primary_s1d = s1d_specs_by_strict[hc.cand_strict][0]
+                if primary_s1d not in selected_pool_specs:
+                    selected_pool_specs.append(primary_s1d)
+            continue
+
+        s5_compile_idx += 1
         rec = s5_map.get(hc.cand_strict, {})
+        is_gated = bool(
+            sparse_gate_open
+            or float(hc.prior_score) >= float(s5_super_consensus_score)
+        )
         spec = compile_s5_candidate_to_spec(
             sub_smi,
             hc,
-            index=idx,
-            is_gated_supplement=True,
+            index=s5_compile_idx,
+            is_gated_supplement=is_gated,
             coproduct_sets=rec.get("coproduct_sets"),
         )
         if spec is not None:
             compiled_supplements.append(spec)
+            if include_s1d_in_return:
+                selected_pool_specs.append(spec)
 
     if not include_s1d_in_return:
         return compiled_supplements[: int(max_pool)]
-    if compiled_supplements and len(annotated_s1d) + len(compiled_supplements) > int(max_pool):
-        keep_s1d = max(0, int(max_pool) - len(compiled_supplements))
-        return (annotated_s1d[:keep_s1d] + compiled_supplements)[: int(max_pool)]
-    return (annotated_s1d + compiled_supplements)[: int(max_pool)]
+
+    # 若 Top-16 仍有剩余空位，用尚未入选的其余 S1d 候选补足
+    for s1d_sp in annotated_s1d:
+        if len(selected_pool_specs) >= int(max_pool):
+            break
+        if s1d_sp not in selected_pool_specs:
+            selected_pool_specs.append(s1d_sp)
+
+    return selected_pool_specs[: int(max_pool)]
 

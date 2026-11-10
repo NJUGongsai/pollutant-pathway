@@ -31,6 +31,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -1124,7 +1125,7 @@ def default_pool_provider(config: V43Config | None, *,
                            s5_supplement_min_prior_score: float = 70.0,
                            s5_super_consensus_score: float = 115.0,
                            s5_max_supplements: int = 2,
-                           s5_include_rr: bool = False,
+                           s5_include_rr: bool = True,
                            domain: str = "298",
                            preset: str | None = None):
     """真实跑的缺省池供给(W4:编译后补位 + 有界输入侧动态检索;零金标)。
@@ -1456,6 +1457,8 @@ def default_pool_provider(config: V43Config | None, *,
                     spec["coefficient"] = 1
                     if similarity is not None:
                         analog_sim_by_id[id(spec)] = float(similarity)
+                        if enable_s5_hybrid_pool:
+                            spec["best_similarity"] = float(similarity)
                     return spec
 
                 def _compile_at(f4: str, ref, lhs_view: str,
@@ -1883,10 +1886,14 @@ def default_pool_provider(config: V43Config | None, *,
                 max_pool=int(max_pool),
                 include_s1d_in_return=True,
             )
-            # 将先验标注与新增 S5 门控补充条目同步回 merged
+            # 将先验标注与新增 S5 混合池条目同步回 merged
             new_merged: list[dict] = []
             for h_spec in hybrid_entries:
-                if not h_spec.get("is_gated_supplement"):
+                is_s5_entry = (
+                    str((h_spec.get("compile") or {}).get("source_kind") or "")
+                    == "s5_hybrid_rule"
+                )
+                if not is_s5_entry:
                     # 原有 S1d 条目:保留原对象引用以维持 row_by_spec 关联,就地更新先验字段
                     sig = _net_reaction_signature(h_spec)
                     orig_spec = signature_of.get(sig)
@@ -1916,7 +1923,7 @@ def default_pool_provider(config: V43Config | None, *,
                         signature_head=_signature_head(h_spec),
                     )
                     new_merged.append(h_spec)
-            for tail_spec in merged[len(base_s1d_slice) :]:
+            for tail_spec in merged:
                 if tail_spec not in new_merged:
                     new_merged.append(tail_spec)
             merged = new_merged
@@ -2048,6 +2055,7 @@ def default_pool_provider(config: V43Config | None, *,
         return merged[:int(max_pool)]
 
     provider.last_diagnostics = diagnostics
+    provider._is_deterministic_default_provider = True
     return provider
 
 
@@ -2133,6 +2141,7 @@ def build_question_batch(
     else:
         provider = default_pool_provider(None)
     entries: list[dict] = []
+    _substrate_pool_cache: dict[str, tuple[list[dict], dict]] = {}
     for record in questions:
         qid = str(record["qid"])
         substrate = str(record["substrate_smiles"])
@@ -2149,9 +2158,21 @@ def build_question_batch(
         graph_path.write_text(
             json.dumps(graph, ensure_ascii=False, sort_keys=True,
                        indent=1) + "\n", encoding="utf-8")
-        pools = {substrate: provider(substrate)}
-        pool_specs = pools[substrate]
-        pool_diag = dict(getattr(provider, "last_diagnostics", None) or {})
+        use_sub_cache = bool(getattr(provider, "_is_deterministic_default_provider", False))
+        if use_sub_cache and substrate in _substrate_pool_cache:
+            cached_specs, cached_diag = _substrate_pool_cache[substrate]
+            pool_specs = copy.deepcopy(cached_specs)
+            pool_diag = copy.deepcopy(cached_diag)
+            pools = {substrate: pool_specs}
+        else:
+            pools = {substrate: provider(substrate)}
+            pool_specs = pools[substrate]
+            pool_diag = dict(getattr(provider, "last_diagnostics", None) or {})
+            if use_sub_cache:
+                _substrate_pool_cache[substrate] = (
+                    copy.deepcopy(pool_specs),
+                    copy.deepcopy(pool_diag),
+                )
         run_input = build_run_input(
             record, batch_tag=batch_tag, pools=pools,
             provider_kind=provider_kind,

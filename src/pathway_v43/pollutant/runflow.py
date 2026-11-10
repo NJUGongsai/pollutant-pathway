@@ -683,8 +683,12 @@ def consensus_and_smart_backfill(
         # 执行 RDKit 工具展开与 11 项 audit_hypothesis 核验
         admitted_ok = False
         try:
+            exec_in = str(
+                prepared["tool_inputs"].get("execution_input_smiles")
+                or substrate_state.smiles_isomeric
+            )
             exec_out = execute_atomtool_expansion(
-                substrate_smiles=substrate_state.smiles_isomeric,
+                substrate_smiles=exec_in,
                 tool_inputs=prepared["tool_inputs"],
             )
             if exec_out.get("execution_ok"):
@@ -735,15 +739,18 @@ def consensus_and_smart_backfill(
         if is_boost:
             spec["consensus_boost"] = True
 
-    # 1. 整理模型主推合法事件序列（共识升位优先保位）
+    # 1. 整理模型主推合法事件序列（100% 保持模型显式给出的排序）
     raw_model_order = list(ranked_keys) + [k for k in retained_keys if k not in ranked_keys]
     verified_model_picks = [k for k in raw_model_order if verified_by_key.get(k, False)]
-    boosted_model_picks = [k for k in verified_model_picks if consensus_boost_by_key.get(k, False)]
-    normal_model_picks = [k for k in verified_model_picks if not consensus_boost_by_key.get(k, False)]
-    ordered_model_picks = boosted_model_picks + normal_model_picks
+    ordered_model_picks = list(verified_model_picks)
 
     # 2. 候选池中通过核验的预编译事件（按共识升位 -> 化学先验分降序 -> 原始池序）
-    n_s1d_templates = sum(1 for s in (pool_specs or []) if not s.get("is_gated_supplement"))
+    n_s1d_templates = sum(
+        1
+        for s in (pool_specs or [])
+        if str((s.get("compile") or {}).get("source_kind") or "") != "s5_hybrid_rule"
+        and not s.get("is_gated_supplement")
+    )
     verified_pool_keys = [
         key
         for orig_idx, (key, _spec, _prep) in zip(deduped_indices, prepared_entries)
@@ -765,7 +772,7 @@ def consensus_and_smart_backfill(
     underfilled_gate = len(ordered_model_picks) < int(target_slots)
     smart_gate_triggered = bool(sparse_gate or super_consensus_gate or underfilled_gate)
 
-    # 筛选门控高先验补充项（最多 s5_max_supplements 条）
+    # 筛选门控高先验补充项（最多 s5_max_supplements 条，用于未满尾部槽位优先回填）
     gated_supp_keys: list[str] = []
     if sparse_gate or super_consensus_gate:
         for k in verified_pool_keys:
@@ -779,7 +786,8 @@ def consensus_and_smart_backfill(
                 gated_supp_keys.append(k)
 
     # 3. 组装前 target_slots (5) 槽位：
-    # 保留模型验证通过的前序主推事件 (Slots 1..3)，尾部槽位由门控高先验 S5/S1d 事件确定性回填
+    # 模型从池内或 novel 显式选中的合法候选 100% 按模型声明序保留在前部；
+    # 尾部空缺槽位优先由门控高先验补充项 (gated_supp_keys) 确定性回填，再由候选池其余高先验合法事件补满至 5 条
     selected_top_keys: list[str] = []
     kept_stricts: set[str] = set()
     backfilled_keys: list[str] = []
@@ -799,36 +807,17 @@ def consensus_and_smart_backfill(
             backfilled_keys.append(cand_k)
         return True
 
-    if gated_supp_keys and (sparse_gate or super_consensus_gate):
-        base_primary_slots = max(1, min(3, int(target_slots) - len(gated_supp_keys)))
-        for k in ordered_model_picks[:base_primary_slots]:
-            _try_add(k, is_backfill=False)
-        novel_supps = [
-            k for k in gated_supp_keys
-            if k not in selected_top_keys and prod_strict_by_key.get(k, "") not in kept_stricts
-        ]
-        # 若部分门控补充项已在前序主推槽中，把空出的槽位优先还给模型第 4/5 槽
-        rem_cursor = base_primary_slots
-        novel_supp_stricts = {prod_strict_by_key.get(k, "") for k in novel_supps}
-        while (
-            len(selected_top_keys) + len(novel_supps) < int(target_slots)
-            and rem_cursor < len(ordered_model_picks)
-        ):
-            cand_m = ordered_model_picks[rem_cursor]
-            rem_cursor += 1
-            if prod_strict_by_key.get(cand_m, "") not in novel_supp_stricts:
-                _try_add(cand_m, is_backfill=False)
-        for k in novel_supps:
-            _try_add(k, is_backfill=(k not in ordered_model_picks))
-    else:
-        for k in ordered_model_picks:
-            _try_add(k, is_backfill=False)
-
-    # 若仍不足 target_slots (5) 条，先补剩余模型主推，再按化学先验分从候选池确定性回填至最多 5 条
     for k in ordered_model_picks:
         if len(selected_top_keys) >= int(target_slots):
             break
         _try_add(k, is_backfill=False)
+
+    if len(selected_top_keys) < int(target_slots):
+        for k in gated_supp_keys:
+            if len(selected_top_keys) >= int(target_slots):
+                break
+            _try_add(k, is_backfill=True)
+
     if smart_gate_triggered and len(selected_top_keys) < int(target_slots):
         for k in verified_pool_keys:
             if len(selected_top_keys) >= int(target_slots):
@@ -1270,11 +1259,21 @@ class _Driver:
         prepared_entries = []
         for index, spec in enumerate(specs):
             key = str(spec.get("key") or f"spec-{index}")
-            prepared = prepare_hypothesis(
-                spec, parent_path_id=receipt["parent_path_id"],
-                substrate_state=substrate,
-                transformation_ref=str(spec.get("transformation_ref")
-                                        or ""))
+            if self.enable_smart_gated_backfill:
+                try:
+                    prepared = prepare_hypothesis(
+                        spec, parent_path_id=receipt["parent_path_id"],
+                        substrate_state=substrate,
+                        transformation_ref=str(spec.get("transformation_ref")
+                                                or ""))
+                except Exception:
+                    continue
+            else:
+                prepared = prepare_hypothesis(
+                    spec, parent_path_id=receipt["parent_path_id"],
+                    substrate_state=substrate,
+                    transformation_ref=str(spec.get("transformation_ref")
+                                            or ""))
             prepared_entries.append((key, spec, prepared))
         model_note: dict = {}
         if self.plan.get("model"):
@@ -1388,7 +1387,7 @@ class _Driver:
         # P1-1 回修(2026-11-06):合并阶段新 novel 的**自报 ID → prepared
         # hypothesis ID** 翻译表(C 臂位次披露用;A/B 臂只登记不使用)。
         novel_prepared_id_by_self_report: dict[str, str] = {}
-        for proposal in novel_items:
+        for novel_idx, proposal in enumerate(novel_items, 1):
             reaction_spec = dict(proposal["reaction_spec"])
             novel_key = str(proposal.get("hypothesis_id") or "")
             origin = str((proposal.get("proposal_context") or {}).get(
@@ -1396,6 +1395,132 @@ class _Driver:
             source_ref_record = str(
                 proposal.get("source_ref_record")
                 or f"novel-model-proposal:{origin}")
+
+            # 池外 novel 双路编译：当开启 v44-next (enable_smart_gated_backfill) 时，
+            # 优先尝试模型给出的 atom_edit 预检 + prepare + execute + audit；
+            # 若 atom_edit 失败或未产主产物，但存在可解析的目标产物 SMILES，自动回退调用
+            # compile_s5_candidate_to_spec 将其编译为合规 ReactionSpec。
+            if self.enable_smart_gated_backfill:
+                prepared = None
+                effective_spec = reaction_spec
+                edit_list = reaction_spec.get("edits") or []
+                edit_ok = bool(edit_list)
+                if edit_ok and _current_render is not None:
+                    verdict = _validate_edits(_current_render, edit_list)
+                    edit_ok = bool(verdict.get("ok"))
+                if edit_ok:
+                    try:
+                        cand_prep = prepare_hypothesis(
+                            reaction_spec,
+                            parent_path_id=receipt["parent_path_id"],
+                            substrate_state=substrate,
+                            transformation_ref=str(
+                                reaction_spec.get("transformation_ref") or ""),
+                            source_refs=[{"record": source_ref_record}])
+                        exec_in = str(
+                            cand_prep["tool_inputs"].get("execution_input_smiles")
+                            or substrate.smiles_isomeric
+                        )
+                        exec_out = execute_atomtool_expansion(
+                            substrate_smiles=exec_in,
+                            tool_inputs=cand_prep["tool_inputs"],
+                        )
+                        if exec_out.get("execution_ok"):
+                            from .audit import audit_hypothesis, decide_admission
+                            from .production import ADMISSION_SUBMITTABLE
+
+                            audit_rep = audit_hypothesis(
+                                cand_prep["hypothesis"],
+                                run_id="v44-novel-check",
+                                states=cand_prep["states"],
+                                context=parent_ctx,
+                                center_evidence=exec_out["center_evidence"],
+                            )
+                            disp, _ = decide_admission(audit_rep)
+                            if disp in ADMISSION_SUBMITTABLE:
+                                prepared = cand_prep
+                    except Exception:
+                        prepared = None
+
+                if prepared is None:
+                    expect_dict = reaction_spec.get("expectation")
+                    expect_smi = (
+                        expect_dict.get("target_smiles")
+                        if isinstance(expect_dict, dict)
+                        else ""
+                    )
+                    exp_prods = reaction_spec.get("expected_products") or proposal.get("expected_products")
+                    first_exp_prod = (
+                        str(exp_prods[0]).strip()
+                        if isinstance(exp_prods, list) and exp_prods
+                        else ""
+                    )
+                    target_prod_smi = str(
+                        reaction_spec.get("product_smiles")
+                        or reaction_spec.get("target_product_smiles")
+                        or expect_smi
+                        or first_exp_prod
+                        or proposal.get("product_smiles")
+                        or proposal.get("target_product_smiles")
+                        or ""
+                    ).strip()
+                    raw_cops = (
+                        reaction_spec.get("coproducts")
+                        or proposal.get("coproducts")
+                        or []
+                    )
+                    cop_sets = (
+                        [[str(c).strip() for c in raw_cops if str(c).strip()]]
+                        if isinstance(raw_cops, list) and raw_cops
+                        else None
+                    )
+                    if target_prod_smi:
+                        from ..services.s5_hybrid_choice import (
+                            compile_s5_candidate_to_spec,
+                        )
+
+                        fb_spec = compile_s5_candidate_to_spec(
+                            substrate.smiles_isomeric,
+                            {"cand_smiles": target_prod_smi},
+                            index=80 + novel_idx,
+                            is_gated_supplement=False,
+                            coproduct_sets=cop_sets,
+                        )
+                        if fb_spec is not None:
+                            fb_spec["key"] = novel_key
+                            fb_spec["transformation_ref"] = str(
+                                reaction_spec.get("transformation_ref")
+                                or fb_spec.get("transformation_ref")
+                                or f"novel-pf:{novel_key}"
+                            )
+                            try:
+                                prepared = prepare_hypothesis(
+                                    fb_spec,
+                                    parent_path_id=receipt["parent_path_id"],
+                                    substrate_state=substrate,
+                                    transformation_ref=str(
+                                        fb_spec.get("transformation_ref") or ""
+                                    ),
+                                    source_refs=[{"record": source_ref_record}],
+                                )
+                                effective_spec = fb_spec
+                            except Exception:
+                                prepared = None
+
+                if prepared is None:
+                    novel_rejections.append({
+                        "hypothesis_id": novel_key,
+                        "kind": "novel_dual_path_compilation_failed",
+                        "reasons": ["atom_edit_and_product_first_fallback_failed"]})
+                    continue
+
+                prepared_entries.append((novel_key, effective_spec, prepared))
+                novel_entry_idx.add(len(prepared_entries) - 1)
+                novel_by_key[novel_key] = proposal
+                novel_prepared_id_by_self_report[novel_key] = str(
+                    prepared["hypothesis"].hypothesis_id)
+                continue
+
             if _current_render is not None:
                 verdict = _validate_edits(
                     _current_render,

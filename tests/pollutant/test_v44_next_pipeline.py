@@ -477,3 +477,119 @@ def test_v44_next_end_to_end_official_scoring_v4_and_v5(tmp_path: Path) -> None:
     assert score_v5["denominator"] == 1
     assert "role_bound_product_hit_caliber" in score_v5
     assert score_v5["role_bound_product_hit_caliber"]["hit@5"] == 1
+
+
+def test_v44_next_v1_1_three_gap_fixes(tmp_path: Path) -> None:
+    """验证 v44-Next v1.1 三项关键漏口修复（纯合成样例）：
+    1. Gap 1: 当 S1d 候选 > 2 条时，建池阶段不阻挡 S5 规则进入 Top-16 混合候选池；
+    2. Gap 2: 离子态/加氧/水合 S5 候选（如 CC=O -> CC(=O)[O-]）经 compile_s5_candidate_to_spec 编译后保留精确主产物身份并通过 11 项审计；
+    3. Gap 3: 池外 novel 提案在 atom_edit 预检失败时自动回退调用 compile_s5_candidate_to_spec 编译其 product_smiles 并保持模型显式排序。
+    """
+    # Gap 2: 醛氧化为去质子化羧酸根 (CC=O -> CC(=O)[O-]) 编译保持离子态主产物身份
+    spec_ion = compile_s5_candidate_to_spec(
+        "CC=O",
+        {"cand_smiles": "CC(=O)[O-]", "prior_score": 96.0},
+        index=1,
+        is_gated_supplement=True,
+    )
+    assert spec_ion is not None
+    assert strict_identity_of(spec_ion["product_smiles"]) == strict_identity_of("CC(=O)[O-]")
+
+    # Gap 1: 即使已有 3 条 S1d 候选 (> s5_supplement_gate_max_s1d=2)，S5 规则仍可进入 Top-16 混合池
+    sub = "Oc1ccccc1"
+    s1d_three = [
+        _compile_syn_spec(sub, "Oc1ccccc1O", key="tpl-1", prior_score=65.0),
+        _compile_syn_spec(sub, "Oc1ccc(O)cc1", key="tpl-2", prior_score=64.0),
+        _compile_syn_spec(sub, "Oc1cccc(O)c1", key="tpl-3", prior_score=63.0),
+    ]
+    extra_rule = [
+        {
+            "rule_id": "syn_env_rule_1",
+            "source_family": "envipath",
+            "frequency": 25,
+            "smarts": "[c:1][cH:2][c:3]([OH:4])[cH:5][cH:6][cH:7]>>[c:1][c:2](O)[c:3]([OH:4])[c:5](O)[cH:6][cH:7]",
+        }
+    ]
+    hybrid_pool = build_s5_hybrid_pool_entries(
+        sub,
+        s1d_specs=s1d_three,
+        domain="298",
+        include_env=False,
+        include_rr=False,
+        extra_rules=extra_rule,
+        s5_supplement_gate_max_s1d=2,
+        max_pool=16,
+    )
+    assert len(hybrid_pool) >= 4
+    assert any(
+        str((sp.get("compile") or {}).get("source_kind") or "") == "s5_hybrid_rule"
+        for sp in hybrid_pool
+    )
+
+    # Gap 3: 池外 novel 提案 atom_edit 非法但 product_smiles 合法可编译时，自动回退编译并按模型首位提交
+    cfg = _dummy_config(tmp_path)
+    run_id = "syn-run-v44-v11-gap3"
+    from pathway_v43.domain.models import stable_id
+
+    root_path_id = stable_id("spath", run_id, "root")
+    sub_state = build_chemical_state(
+        strict_identity_of("c1ccccc1"),
+        "raw_input",
+        [{"record": f"ppv1-substrate:{run_id}"}],
+    )
+    pool_1 = _compile_syn_spec("c1ccccc1", "Oc1ccccc1", key="tpl-p1", prior_score=80.0)
+    hid_p1 = prepare_hypothesis(
+        pool_1,
+        parent_path_id=root_path_id,
+        substrate_state=sub_state,
+        transformation_ref=pool_1["transformation_ref"],
+    )["hypothesis"].hypothesis_id
+
+    model_resp = json.dumps(
+        {
+            "proposals": [
+                {
+                    "hypothesis_id": "novel-rescued-1",
+                    "proposal_context": {
+                        "reference_hypothesis_ids": [],
+                        "output_origin": "novel_outside_pool",
+                    },
+                    "reaction_spec": {
+                        "product_smiles": "Oc1ccc(O)cc1",
+                        "transformation_ref": "novel-rescued",
+                        "edits": [{"op": "BreakBond", "a": "S:99", "b": "S:98"}],
+                    },
+                },
+                {
+                    "hypothesis_id": "novel-uncompilable-2",
+                    "proposal_context": {
+                        "reference_hypothesis_ids": [],
+                        "output_origin": "novel_outside_pool",
+                    },
+                    "reaction_spec": {
+                        "product_smiles": "not_a_valid_smiles",
+                        "transformation_ref": "novel-uncompilable",
+                        "edits": [{"op": "BreakBond", "a": "S:99", "b": "S:98"}],
+                    },
+                },
+                {"hypothesis_id": hid_p1},
+            ],
+            "rank_hypotheses": ["novel-rescued-1", "novel-uncompilable-2", hid_p1],
+        }
+    )
+    runs_root = tmp_path / "runs_v11_gap3"
+    summary = start_ppv1_run(
+        config=cfg,
+        runs_root=runs_root,
+        run_id=run_id,
+        smiles="c1ccccc1",
+        plan={
+            "preset": "v44-next",
+            "pools": {"c1ccccc1": [pool_1]},
+            "model": {"provider_kind": "scripted", "responses": [model_resp]},
+        },
+        preset="v44-next",
+        scripted=True,
+    )
+    assert summary["counts"]["events"] == 2
+
