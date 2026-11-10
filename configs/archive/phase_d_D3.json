@@ -1,0 +1,50 @@
+{
+  "budgets": {
+    "max_depth": 6,
+    "max_expansions": 40,
+    "max_frontier_width": 3,
+    "max_llm_calls": 42,
+    "max_proposals": 40
+  },
+  "budget_rationale": "dev 20 路金标深度分布 2:4,3:4,4:3,5:2,6:2,7:4,8:1;max_depth=6 覆盖 15/20 条路线的完整深度预算(leaf-reached 的结构性上限),expansions=40 为检索预算上限;LLM 调用上限随展开派生(+2)。v4.1/v4.2 历史臂用 depth=12/expands=50 且模型为 deepseek-v4.1-flash,口径不同,比较时须标注。 | Phase D 臂:phase_d_D3",
+  "model_request_params": {
+    "reasoning_effort": "max"
+  },
+  "llm_timeout_s": 300.0,
+  "max_http_retries": 4,
+  "rate": {
+    "rpm": 180,
+    "tpm": 2700000,
+    "max_calls": 1000,
+    "cooldown_cap_s": 60.0,
+    "acquire_timeout_s": 600.0
+  },
+  "batch_cost_cap_cny": 30.0,
+  "provider_price_snapshot": {
+    "model_id": "ZHIPU/GLM-5.3-Flash",
+    "region": "cn-beijing",
+    "input_cny_per_m": 0.8,
+    "output_cny_per_m": 2.8,
+    "cache_read_cny_per_m": 0.23,
+    "rpm": 200,
+    "tpm": 3000000,
+    "source": "help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+    "checked": "2026-09-25",
+    "thinking_billed_as_output": true
+  },
+  "export_policy_overrides": {},
+  "capacity": {
+    "memory_gb_per_worker": 3.0,
+    "min_free_disk_gb": 20.0
+  },
+  "worker_wall_clock_cap_s": 28800,
+  "max_worker_respawns": 2,
+  "poll_interval_s": 10.0,
+  "max_parallel": 20,
+  "prediction_policy_overrides": {
+    "reactant_similar_enabled": true,
+    "reactant_similar_threshold": 0.45,
+    "reactant_similar_top_k": 16,
+    "max_analogy_donor_candidates": 3
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "arm": "s1_dev_E3",
+  "batch_root": "s1_dev_E3",
+  "exam_inputs": "workspaces/dependingv43_s1/exam/dev_questions.jsonl",
+  "budgets": {
+    "max_depth": 1,
+    "max_expansions": 1,
+    "max_frontier_width": 5,
+    "max_llm_calls": 3,
+    "max_proposals": 1
+  },
+  "budget_rationale": "S1 HIT60 dev 基线臂:56 题(B1/BIOSYSMOdb 拆步冻结卷,SHA 8869cd05…,见 reports/phase_s1_hit60/PREREGISTRATION.md §1)单步口径,预算与 EC298 单步重考同口径(max_depth=1/max_expansions=1/width=5/llm_calls=3/proposals=1,任务书 T1 §1.5);reactant_similar=false(类比线封存,任何臂不得打开)。C0=当前行为基线:不发送 temperature(缺省 null)、rank 窗口 8(缺省)。对照臂 = 同版 C0:除预登记差异(reports/phase_s1_hit60/ARM_CONFIG_DIFFS.md)外,三配置逐字段相等。",
+  "model_request_params": {
+    "reasoning_effort": "max"
+  },
+  "llm_timeout_s": 3600.0,
+  "max_http_retries": 4,
+  "rate": {
+    "rpm": 180,
+    "tpm": 2700000,
+    "max_calls": 1000,
+    "cooldown_cap_s": 60.0,
+    "acquire_timeout_s": 600.0
+  },
+  "batch_cost_cap_cny": 6.0,
+  "provider_price_snapshot": {
+    "model_id": "ZHIPU/GLM-5.3-Flash",
+    "region": "cn-beijing",
+    "input_cny_per_m": 0.8,
+    "output_cny_per_m": 2.8,
+    "cache_read_cny_per_m": 0.23,
+    "rpm": 200,
+    "tpm": 3000000,
+    "max_input_tokens": 1048576,
+    "max_output_tokens": 131072,
+    "thinking_billed_as_output": true,
+    "billing_mode": "pay-per-token (按量)",
+    "checked": "2026-09-29",
+    "checked_at_utc": "2026-09-28T17:07:35Z",
+    "source": "https://help.aliyun.com/zh/model-studio/glm-5-3-flash-by-zhipu",
+    "reverified_by_s1_deploy": "2026-09-29 page re-fetch: input 0.8/M, output 2.8/M, cache 0.23/M, RPM 200, TPM 3000000, max_in 1048576, max_out 131072 identical"
+  },
+  "export_policy_overrides": {},
+  "capacity": {
+    "memory_gb_per_worker": 3.0,
+    "min_free_disk_gb": 20.0
+  },
+  "worker_wall_clock_cap_s": 28800,
+  "max_worker_respawns": 2,
+  "poll_interval_s": 10.0,
+  "max_parallel": 20,
+  "prediction_policy_overrides": {
+    "reactant_similar_enabled": false,
+    "reactant_similar_threshold": 0.0,
+    "reactant_similar_top_k": 0,
+    "max_analogy_donor_candidates": 3,
+    "max_candidates_for_ranking": 16
+  },
+  "config_notes": "JSON 无注释,占位说明登记于此(三臂同文):batch_cost_cap_cny=null 与 provider_price_snapshot=null 为部署占位,发车前由部署代理回填(费用上限按 ¥50 总预算与 PREREGISTRATION §2/§5 分摊;价格快照三臂必须同值回填,回填后须在 ARM_CONFIG_DIFFS.md 补登记,否则身份 diff 超出预登记字段);batch_root 为批次根基名,部署代理发车时加时间戳后缀并新建目录(一律新批次根,禁跨身份 resume);exam_inputs 为远端部署位(/usrdata/EnzymeCAGE_data/ 下)的 dev 题卷路径占位,由部署代理放置,勿写本地路径;exam.py 的白名单构造期望 qid/substrate_smiles 字段名,而 dev_questions.jsonl 为 qid/root_smiles,部署代理运行侧转换时须保留三字段白名单口径(qid/root_smiles/root_smiles_sha256)。"
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": "fg-smarts-rules-v1",
+  "provenance": {
+    "source": "Public chemistry textbook & RDKit / Daylight SMARTS functional group definitions (IUPAC Gold Book, Daylight SMARTS Examples, RDKit FunctionalGroups.txt)",
+    "description": "Zero-LLM deterministic functional group SMARTS rule table for reaction-center template retrieval (Phase 2 S3a/S3c)",
+    "gold_free_attestation": "Constructed strictly from general organic/biochemical functional group definitions with zero inspection of exam gold products."
+  },
+  "rules": [
+    {"id": "FG01", "name": "carboxylic_acid", "smarts": "[CX3](=O)[OX2H1,OX1-]"},
+    {"id": "FG02", "name": "ester", "smarts": "[CX3](=O)[OX2H0][#6;!$(C=O)]"},
+    {"id": "FG03", "name": "lactone", "smarts": "[#6;R][CX3;R](=O)[OX2H0;R][#6;R]"},
+    {"id": "FG04", "name": "amide", "smarts": "[CX3](=O)[NX3,NX2]"},
+    {"id": "FG05", "name": "lactam", "smarts": "[#6;R][CX3;R](=O)[NX3;R][#6;R]"},
+    {"id": "FG06", "name": "urea_carbamate", "smarts": "[NX3][CX3](=O)[NX3,OX2]"},
+    {"id": "FG07", "name": "aldehyde", "smarts": "[CX3H1](=O)[#6,H]"},
+    {"id": "FG08", "name": "ketone", "smarts": "[#6][CX3](=O)[#6]"},
+    {"id": "FG09", "name": "imine_oxime", "smarts": "[CX3]([#6,H])([#6,H])=[NX2][#6,OX2,H]"},
+    {"id": "FG10", "name": "nitrile", "smarts": "[NX1]#[CX2][#6]"},
+    {"id": "FG11", "name": "alcohol_primary_secondary", "smarts": "[OX2H1][CX4;H1,H2,H3;!$(C([OX2])[OX2,NX3,SX2])]"},
+    {"id": "FG12", "name": "alcohol_tertiary", "smarts": "[OX2H1][CX4H0]([#6])([#6])[#6]"},
+    {"id": "FG13", "name": "phenol", "smarts": "[OX2H1][c]"},
+    {"id": "FG14", "name": "catechol_vicinal_diol", "smarts": "[OX2H1][#6]~[#6][OX2H1]"},
+    {"id": "FG15", "name": "ether", "smarts": "[OD2]([#6;!$(C=O)])[#6;!$(C=O)]"},
+    {"id": "FG16", "name": "epoxide", "smarts": "[OX2r3]1[#6r3][#6r3]1"},
+    {"id": "FG17", "name": "hemiacetal_acetal", "smarts": "[CX4]([OX2][#6,H])([OX2][#6,H])[#6,H]"},
+    {"id": "FG18", "name": "amine_primary", "smarts": "[NX3H2,NX4+H3][#6;!$(C=[O,S,N])]"},
+    {"id": "FG19", "name": "amine_secondary_tertiary", "smarts": "[NX3H1,NX3H0,NX4+H2,NX4+H1]([#6;!$(C=[O,S,N])])[#6;!$(C=[O,S,N])]"},
+    {"id": "FG20", "name": "nitro", "smarts": "[$([NX3](=O)=O),$([NX3+](=O)[O-])][#6]"},
+    {"id": "FG21", "name": "thiol", "smarts": "[SX2H1][#6]"},
+    {"id": "FG22", "name": "thioether", "smarts": "[SX2]([#6])[#6]"},
+    {"id": "FG23", "name": "sulfoxide_sulfone", "smarts": "[$([SX3](=O)([#6])[#6]),$([SX4](=O)(=O)([#6])[#6])]"},
+    {"id": "FG24", "name": "sulfonate_sulfate", "smarts": "[SX4](=O)(=O)([OX2,OX1-])[#6,OX2]"},
+    {"id": "FG25", "name": "sulfonamide", "smarts": "[SX4](=O)(=O)([NX3,NX2])[#6,NX3]"},
+    {"id": "FG26", "name": "organophosphate", "smarts": "[PX4](=O)([OX2,OX1-,SX2])([OX2,OX1-,SX2])[OX2,OX1-,SX2,#6]"},
+    {"id": "FG27", "name": "halide", "smarts": "[#6][F,Cl,Br,I]"},
+    {"id": "FG28", "name": "alkene_alkyne_aryl_ch", "smarts": "[$([CX3]=[CX3]),$([CX2]#[CX2]),$([cH1])]"}
+  ]
+}

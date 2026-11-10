@@ -1,0 +1,27 @@
+# Python / tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.egg-info/
+.DS_Store
+._*
+
+# Credentials — never commit
+*.env
+.env*
+!.env.example
+
+# Data assets are NOT redistributed (upstream licences unverified).
+# Place them locally; the code verifies every file against assets/MANIFEST.*.
+assets/v3_reactions/
+assets/analog/
+assets/retrorules/raw/
+assets/*.json
+!assets/MANIFEST.json
+
+# Question sets / gold answers / run outputs — never commit
+/questions/
+/reports/
+/runs/
+/data/

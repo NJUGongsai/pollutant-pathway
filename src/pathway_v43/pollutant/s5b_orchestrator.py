@@ -1,0 +1,1884 @@
+"""S5b 编排器 —— 298 题逐 qid 驱动 PPV1 run(40 路并发;断点续跑;
+契约登记 s5b-orchestrator-3)。
+
+职责与边界:
+
+- 逐 qid 驱动完整 PPV1 公共链(start→模型响应→…→endpoint/导出),
+  每题一个独立 run 根 + 独立账本(run 目录 flock 互斥由 runflow 保证);
+- **全局最多 40 个真实请求在途**:批级 FileRateGate(max_in_flight=40,
+  RPM/TPM 滑窗、429 全局冷却、401/403/402 付费停止、批次调用数预算
+  max_calls)+ 至多 40 个并发 worker 进程(每 worker OMP_NUM_THREADS=1,
+  一题一进程,进程级崩溃隔离);
+- **S5B-V3-02 批级金额硬帽(发送前原子预留)**:real 批(付费 HTTP
+  发送)发车前必须已冻结批根 ``budget_guard.json``(60 CNY 帽默认 +
+  当日价 + 输入保守界 + 输出上限;缺席/坏形状 ⇒ 结构化拒,先于任何
+  worker 派发);配置冻结进 ``orchestration.json`` 与闸门状态文件,
+  实际发送链(worker→RealModelAdapter→OpenAICompatibleClient→
+  FileRateGate)每次可能付费的发送尝试(含 HTTP retry)在闸门临界
+  区内先原子预留,余额不足先于传输拒;失败/超时/未知 usage/孤儿不
+  释放可能已付金额;结算幂等;不自动升帽。HTTP1490/1logical/
+  format0/40 在途等其他门保持不变;
+- **P4c no-cap 显式标记(2026-10-12 用户决定)**:批预算文件缺失
+  且批根有合法 ``budget_no_cap.json``(v44-budget-no-cap-1,用户
+  决定原文+日期)⇒ 金额检查跳过放行;**只跳金额**——调用数门/
+  速率门/并发门/stub 检出照常;数值守卫与标记并存 ⇒ 结构化拒
+  (互斥);坏标记 fail-closed 不当缺席(防标记成为绕守卫口子);
+  worker 侧 ``_verify_budget_guard`` 同判据(单一验证源
+  ``load_budget_no_cap_marker``);
+- **断点续跑**:已完成 qid(终态 case 文件)SKIP;无 case 文件的
+  qid 复跑(run 已存在 ⇒ resume_ppv1_run 幂等续跑;不存在 ⇒ start);
+- 逐题终态落盘 ``cases/<qid>.json``(stop_reason/endpoint/调用/usage/
+  费用状态;合法终态补位到 298——失败题留分母、不剔题,失败有单独
+  状态与原因;预算耗尽未作答题同样留分母);
+- 凭证:父进程从 env 文件(沿 ``batch.load_env_file`` 只取 ``V43_LLM_*``
+  键)或当前环境注入 worker 子进程 env;密钥不落盘不打印不入日志;
+- 本模块不执行判分(判分在封存答卷后由 s5b_scoring 走
+  evaluate_scientific;金标只在判分进程进入)。
+
+冒烟/全量同一入口:``--limit N`` / ``--qids`` 取冻结注册序前 N 题
+(段 1/2 冒烟 = 正式批次前缀,同一批根同一身份续跑,不借冒烟改配置)。
+
+**s5b-orchestrator-3(2026-10-12,HPC 多作业分片适配)**:R4 单协调者
+flock 从"整批根一把锁"改为**白名单域锁**(``batch_root/coord/`` 下逐
+qid 一把 flock;同 qid 双协调者结构化拒、不相交 qid 白名单多协调者
+并发放行)——同一批根上多个 sbatch 分片作业各持不相交 qids 白名单
+并发执行,批级闸门(RPM/TPM/max_calls/在途/金额帽)仍经
+``FileRateGate`` 跨进程共享。并发写盘加两道保守硬化:orchestration
+冻结副本的"读-比对-写"在短 flock(``orchestration.lock``)内串行
+(关首写竞态:分片同时首跑不同参时后到者必读到先到者副本 ⇒ 冲突拒,
+不再有静默双写窗口);progress/batch_report/orchestration/profile_
+policy 落盘改原子 replace(tmp 名含 pid,分片并发写同一文件不互踩
+半截)。**版本语义**:协调契约变化由版本承载;既有 s5b-orchestrator-2
+批根(如 remote s5b_298_20261009_batch2)的 orchestration.json
+``orchestrator_version`` 与本版不一致 ⇒ 续跑按预注册纪律拒(改参
+须新批根);HPC 首批本来就是新批根,不受影响。**跨节点部署注意**:
+qid 白名单锁/闸门锁/driver.lock 全部依赖 flock;死亡占位回收
+(``reclaim_dead_placeholders``)按本机 pid 判死,分片作业跨节点时
+他节点在途 worker 会被误判死(在途帽放松、金额侧保守不漏)——
+首批分片建议约束到同一节点(scripts/hpc/ 部署 runbook 同口径)。
+"""
+
+from __future__ import annotations
+
+import fcntl
+import hashlib
+import json
+import os
+import re
+import resource
+import subprocess
+import sys
+import threading
+import time
+from contextlib import contextmanager
+from pathlib import Path
+
+from ..adapters.rate_gate import FileRateGate, normalize_cost_guard_config
+from ..domain.models import now_iso
+
+S5B_ORCHESTRATOR_VERSION = "s5b-orchestrator-3"
+
+# 批根金额守卫机器配置文件(S5B-V3-02;由 s5b_cli budget 落盘,
+# 发车时冻结进 orchestration.json 与闸门状态;60 CNY 帽默认)
+S5B_BUDGET_GUARD_FILE = "budget_guard.json"
+S5B_DEFAULT_BUDGET_CAP_CNY = 60.0
+
+# 批级缺省闸门参数(发车当日按提供者快照刷新;RPM 200/TPM 3M 快照的
+# 保守余量沿老复测口径)
+S5B_DEFAULT_GATE_RPM = 180
+S5B_DEFAULT_GATE_TPM = 2_700_000
+# R5(S5b W6):首批每 qid 最多 1 次 logical 请求 ×(初次 + 4 次 HTTP
+# 重试)= 5 总 HTTP 尝试 ⇒ 298×1×5 = **1490** 理论 gate cap(不盲用
+# 旧 894/600;新配置数值,不声称旧真实 env 也用 4)
+S5B_DEFAULT_GATE_MAX_CALLS = 1490
+S5B_DEFAULT_MAX_IN_FLIGHT = 40
+S5B_DEFAULT_WORKERS = 40
+
+# 预注册单步预算缺省(search_limits 十上限;P1 候选值,冒烟后定型)
+# R5(S5b W6):max_real_model_requests 1(首批每 qid 1 logical;合法
+# deterministic recorded 可 0)—— 题级/适配层新 logical retry 0;
+# 仅 HTTP 429 走同一 request/idempotency key 的冻结有界传输重试;
+# 格式反馈 0(format_feedback 0,不进反馈轮)
+S5B_DEFAULT_PROFILE_POLICY = {
+    "search_limits": {
+        "max_alternative_hypotheses_per_parent": 8,
+        "max_attempts_per_hypothesis": 1,
+        "max_product_expansion_width": 2,
+        "max_search_depth": 1,
+        "max_total_search_actions": 48,
+        "max_scenario_transitions": 0,
+        "max_reopens_per_hypothesis": 0,
+        "max_real_model_requests": 1,
+        "max_retrievals_per_parent": 1,
+        "max_retrievals_total": 8,
+    },
+    "format_feedback_policy": {
+        "max_format_feedback_rounds": 0,
+    },
+}
+
+TERMINAL_CASE_STATUSES = frozenset({"completed", "failed"})
+
+# R5(S5b W6):worker 总时限纪律 —— 0 = 禁用(首批默认,沿现政策);
+# 正值 = monotonic 总时限 + terminate/grace/kill;**负值配置拒**;
+# 非正值不得隐式 kill 而少跑题
+S5B_CASE_SCHEMA_VERSION = "s5b-case-1"
+
+# ---- chain14 批级证据卡开关(2026-10-15 预注册;A/B 唯一差分变量)----
+# 机制(沿 chain13「3 调用预算」profile_policy 发车覆盖先例):经
+# run_s5b_batch 的批级参数发车覆盖,冻结进 orchestration.json(批身份
+# 含该键;同批根续跑改参即拒 —— 既有冻结副本比对天然覆盖);消费点在
+# runflow._call_real_fetch(false ⇒ 载荷回到证据卡实施前四字段形状,
+# 逐字节兼容;true ⇒ 现行 candidate-evidence-2 行为;系统提示词两臂
+# 同版,PROPOSALS_PROMPT_VERSION 不变)。
+# fail-closed 语义:发车参数非法值(非 bool)⇒ 结构化拒;**冻结副本
+# 缺键/坏值不当缺省**(load_evidence_card_flag,worker/run 侧同判据
+# 单一来源,防开关成为静默改臂口子);参数缺席(None)⇒ 现行行为
+# (True,证据卡实施后的缺省)——A/B 两臂发车恒显式传值(发车脚本
+# 写死 a=false/b=true),缺省值只为既有直连调用方兼容保留。
+S5B_EVIDENCE_CARD_FLAG_KEY = "evidence_card_enabled"
+
+# ---- P2 批级证据卡版本(2026-10-21;A/B 唯一差分变量 = 证据卡版本)----
+# 与开关同机制:批级参数发车时冻结进 orchestration.json,**仅当显式
+# 非 None 时写键**;None(旧批)⇒ 冻结副本/报告/case 零新键、逐字节
+# 零漂移。合法值只有 "v1card"(v2 prompt + v1 卡)与 "v2"(完整 v2);
+# 非 None 必须 evidence_card_enabled=true(无证据的 v1card/v2 不在
+# 本批定义内,结构化拒)。装载器是 worker/汇总/报告共用的单一判据:
+# 冻结副本缺键 = 旧批合法;键在场但值非法/开关非 true ⇒ fail-closed。
+S5B_EVIDENCE_CARD_VERSION_KEY = "evidence_card_version"
+S5B_EVIDENCE_CARD_VERSIONS = ("v1card", "v2")
+
+# ---- EXP1 批级 novel 协议开关(2026-11-05;A/B 唯一差分变量组)----
+# 与证据卡开关同机制:批级发车参数冻结进 orchestration.json,**仅
+# 非缺省臂才写键**(atom_edit = 缺省/旧批零新键 ⇒ 旧批根续跑不破)。
+# 装载器语义学版本键:缺键 ⇒ atom_edit(合法旧批),坏值 ⇒ fail-closed;
+# 既有冻结副本无该键而本次请求实验臂 ⇒ 拒(s5b_orchestration_conflict;
+# 不得把旧批静默升级成实验臂)。
+# 预算纪律(预注册 §2/§4.3;2026-11-06 发车前加固:按臂精确相等 + 顶层键校验):
+#   * A 臂 atom_edit:每题真实请求 == 1、反馈轮 == 0;
+#   * B 臂 product_first_feedback:每题真实请求 == 4(1 首发 + 3 反馈)、
+#     反馈轮 == 3;
+#   * C 臂 product_first_feedback_blind_first(2026-11-06):每题真实
+#     请求 == 5(盲写首发 1 + 合并调用 1 + 反馈至多 3)、反馈轮 == 3
+#     (两阶段共用)。
+# 发车侧先校验(不等或顶层错位键 fail-closed),闸门 gate_max_calls 由发车方按
+# 1×/4×/5× 重算(本模块与 profile_policy 解耦,不自动升闸门)。
+S5B_NOVEL_PROTOCOL_KEY = "novel_protocol"
+S5B_NOVEL_PROTOCOLS = ("atom_edit", "product_first_feedback",
+                       "product_first_feedback_blind_first")
+S5B_ATOM_EDIT_EXACT_FEEDBACK_ROUNDS = 0
+S5B_ATOM_EDIT_EXACT_REAL_REQUESTS = 1
+S5B_PRODUCT_FIRST_MAX_FEEDBACK_ROUNDS = 3
+S5B_PRODUCT_FIRST_MAX_REAL_REQUESTS = 4
+S5B_BLIND_FIRST_MAX_REAL_REQUESTS = 5
+S5B_EXACT_MAX_ALTERNATIVE_HYPOTHESES_PER_PARENT = 12
+S5B_EXACT_MAX_TOTAL_SEARCH_ACTIONS = 48
+
+# 各臂精确预算要求:novel_protocol → (max_real_model_requests, max_format_feedback_rounds)
+S5B_ARM_EXACT_BUDGETS: dict[str, tuple[int, int]] = {
+    "atom_edit": (
+        S5B_ATOM_EDIT_EXACT_REAL_REQUESTS,
+        S5B_ATOM_EDIT_EXACT_FEEDBACK_ROUNDS),
+    "product_first_feedback": (
+        S5B_PRODUCT_FIRST_MAX_REAL_REQUESTS,
+        S5B_PRODUCT_FIRST_MAX_FEEDBACK_ROUNDS),
+    "product_first_feedback_blind_first": (
+        S5B_BLIND_FIRST_MAX_REAL_REQUESTS,
+        S5B_PRODUCT_FIRST_MAX_FEEDBACK_ROUNDS),
+}
+
+# 实验臂 → (每题真实请求精确值, 反馈轮精确值);保留既有符号兼容
+S5B_EXPERIMENT_ARM_BUDGET_LIMITS: dict[str, tuple[int, int]] = {
+    "product_first_feedback": (
+        S5B_PRODUCT_FIRST_MAX_REAL_REQUESTS,
+        S5B_PRODUCT_FIRST_MAX_FEEDBACK_ROUNDS),
+    "product_first_feedback_blind_first": (
+        S5B_BLIND_FIRST_MAX_REAL_REQUESTS,
+        S5B_PRODUCT_FIRST_MAX_FEEDBACK_ROUNDS),
+}
+
+# profile_policy 允许的顶层键集合(把 max_real_model_requests /
+# max_format_feedback_rounds 错写在顶层时,在此处结构化拦截)
+S5B_PROFILE_POLICY_ALLOWED_TOP_KEYS = frozenset({
+    "input_preview_policy",
+    "chemical_reproposal",
+    "search_intent",
+    "search_limits",
+    "format_feedback_policy",
+    "novel_protocol",
+})
+
+# ---- D4 批级采样参数冻结(2026-11-06)----
+# 目的:把「这批实际以什么采样参数发送」从"提供者侧不可见默认"变成发车
+# 时冻结的显式事实。与证据卡开关/版本、novel 协议同机制:
+#   * 发车冻结:``run_s5b_batch`` 按发送侧**单一来源**
+#     ``real_model.sampling_params_sent()`` 取快照写进 orchestration.
+#     json 的 ``sampling_params`` 块。当前发送侧不设任何采样参数
+#     (``RealModelAdapter._complete`` 不传 extra_params,采样类键又被
+#     llm_client.FORBIDDEN_REQUEST_PARAM_KEYS 挡在 env/显式
+#     request_params 之外)⇒ 每键 ``provider_default_unset``;将来真设
+#     参数时同函数喂同一合并 dict 即反映实际值(run identity 侧已按
+#     适配器 request_params 自动反映)。
+#   * 装载器(``load_sampling_params``,worker/汇总/报告共用的单一
+#     判据):orchestration.json 缺席 / **无该键 ⇒ None(旧批合法
+#     读取)**;键在场但非对象 / 键集不全 / 含未知键 / 值类型非法
+#     ⇒ fail-closed 拒(坏块不当缺省)。
+#   * 发车侧:既有冻结副本**无该键**而本次要冻结 ⇒ 结构化拒
+#     (``s5b_orchestration_conflict``:D4 之前的批根不得被静默升级成
+#     带采样身份;须新批根)——与 evidence_card_version/novel_protocol
+#     的「在场/缺席本身是批身份」同口径。在场则逐键比对,改值 ⇒ 拒。
+S5B_SAMPLING_PARAMS_KEY = "sampling_params"
+
+
+def normalize_evidence_card_flag(value) -> bool:
+    """发车参数归一(None ⇒ 现行行为 True;非 bool ⇒ 结构化拒)。"""
+    if value is None:
+        return True
+    if not isinstance(value, bool):
+        raise S5bOrchestratorError(
+            f"批级证据卡开关非法值:{value!r}(须 true/false;A/B 臂发车"
+            "恒显式传值,非法值 fail-closed 拒,不猜)", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "value": repr(value)})
+    return value
+
+
+def load_evidence_card_flag(batch_root: str | Path) -> bool | None:
+    """装载批级证据卡开关(单一验证源;orchestrator 归一与 worker/run
+    侧核对共用本判据,不各写一套)。
+
+    - orchestration.json 缺席 ⇒ ``None``(合法:批根未经协调者冻结
+      —— 手动 worker/测试直连路径;调用方决定回退语义);
+    - 在场但不可解析 / 缺 ``evidence_card_enabled`` 键 / 值非 bool ⇒
+      ``S5bOrchestratorError``(kind=s5b_evidence_card_flag_invalid;
+      fail-closed —— 冻结副本缺键/坏值不当缺省,沿 no-cap 坏标记
+      不当缺席先例)。
+    """
+    path = Path(batch_root) / "orchestration.json"
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批根 orchestration.json 不可读(证据卡开关装载 fail-closed,"
+            f"不静默当缺省):{path}({exc})", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "reason": "unreadable_orchestration",
+                "path": str(path)}) from exc
+    if not isinstance(raw, dict) or \
+            S5B_EVIDENCE_CARD_FLAG_KEY not in raw:
+        raise S5bOrchestratorError(
+            f"批根冻结 orchestration.json 缺 {S5B_EVIDENCE_CARD_FLAG_KEY}"
+            f" 键:{path}(冻结副本缺键不当缺省 —— 前代批根/被改写副本"
+            "一律拒;A/B 臂身份必须显式在案)", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "reason": "flag_key_missing", "path": str(path)})
+    value = raw[S5B_EVIDENCE_CARD_FLAG_KEY]
+    if not isinstance(value, bool):
+        raise S5bOrchestratorError(
+            f"批根冻结 orchestration.json 的 {S5B_EVIDENCE_CARD_FLAG_KEY}"
+            f" 非法:{value!r}(须 true/false;fail-closed 不猜)", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "reason": "flag_value_invalid", "path": str(path),
+                "value": repr(value)})
+    return value
+
+
+def normalize_evidence_card_version(value) -> str | None:
+    """P2 发车参数归一:None(旧路径)或 "v1card"/"v2";其它值 fail-closed。
+
+    与 ``_resolve_evidence_card_version``(runflow)不同,这里不接受
+    ``"v1"`` 别名:批级冻结点只允许本批两个真实臂值,拼写错误不得
+    静默落回旧路径(否则 A/B 错臂)。
+    """
+    if value is None:
+        return None
+    if not isinstance(value, str) or value not in S5B_EVIDENCE_CARD_VERSIONS:
+        raise S5bOrchestratorError(
+            f"批级证据卡版本非法值:{value!r}(须 None/v1card/v2;"
+            "A/B 唯一差分变量非法值 fail-closed 拒,不猜)", {
+                "kind": "s5b_evidence_card_version_invalid",
+                "value": repr(value),
+                "allowed": list(S5B_EVIDENCE_CARD_VERSIONS)})
+    return value
+
+
+def require_evidence_card_version_enabled(version: str | None,
+                                          enabled: bool) -> None:
+    """非 None 版本要求证据卡开关 true(无证据的 v1card/v2 未定义)。"""
+    if version is not None and enabled is not True:
+        raise S5bOrchestratorError(
+            f"证据卡版本 {version!r} 要求 evidence_card_enabled=true"
+            f"(实际 {enabled!r};无证据的版本臂未定义,fail-closed)",
+            {"kind": "s5b_evidence_card_version_disabled",
+             "evidence_card_version": version,
+             "evidence_card_enabled": bool(enabled)})
+
+
+def load_evidence_card_version(batch_root: str | Path) -> str | None:
+    """装载批级证据卡版本(单一验证源;orchestrator/worker/汇总共用)。
+
+    - orchestration.json 缺席 / 在场但**无该键** ⇒ ``None``(旧批合法;
+      旧路径零新键);
+    - 键在场:必须是严格字符串且 ∈ {"v1card","v2"},且冻结开关必须
+      为 true ⇒ 否则 ``S5bOrchestratorError``
+      (kind=s5b_evidence_card_version_invalid,fail-closed —— 坏值
+      不当缺省,否则错臂可被静默接纳)。
+    """
+    path = Path(batch_root) / "orchestration.json"
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批根 orchestration.json 不可读(证据卡版本装载 fail-closed):"
+            f"{path}({exc})", {
+                "kind": "s5b_evidence_card_version_invalid",
+                "reason": "unreadable_orchestration",
+                "path": str(path)}) from exc
+    if not isinstance(raw, dict):
+        raise S5bOrchestratorError(
+            f"批根 orchestration.json 非对象(证据卡版本装载 fail-closed):"
+            f"{path}", {
+                "kind": "s5b_evidence_card_version_invalid",
+                "reason": "orchestration_not_object",
+                "path": str(path)})
+    if S5B_EVIDENCE_CARD_VERSION_KEY not in raw:
+        return None  # 旧批(无版本键):合法,零新键
+    value = raw[S5B_EVIDENCE_CARD_VERSION_KEY]
+    if not isinstance(value, str) or value not in S5B_EVIDENCE_CARD_VERSIONS:
+        raise S5bOrchestratorError(
+            f"批根冻结 orchestration.json 的 "
+            f"{S5B_EVIDENCE_CARD_VERSION_KEY} 非法:{value!r}"
+            "(须 v1card/v2;fail-closed 不猜)", {
+                "kind": "s5b_evidence_card_version_invalid",
+                "reason": "version_value_invalid", "path": str(path),
+                "value": repr(value)})
+    enabled = raw.get(S5B_EVIDENCE_CARD_FLAG_KEY)
+    if enabled is not True:
+        raise S5bOrchestratorError(
+            f"批根冻结 {S5B_EVIDENCE_CARD_VERSION_KEY}={value!r} 但 "
+            f"{S5B_EVIDENCE_CARD_FLAG_KEY} 非 true:{enabled!r}"
+            "(无证据的版本臂未定义;fail-closed)", {
+                "kind": "s5b_evidence_card_version_invalid",
+                "reason": "version_requires_enabled", "path": str(path),
+                "evidence_card_version": value,
+                "evidence_card_enabled": enabled})
+    return value
+
+
+class S5bOrchestratorError(RuntimeError):
+    """编排器契约违反(结构化 fail-closed)。"""
+
+    def __init__(self, message: str, detail: dict | None = None):
+        super().__init__(message)
+        self.detail = detail or {}
+
+
+def normalize_novel_protocol(value) -> str:
+    """EXP1 发车参数归一:None ⇒ atom_edit(缺省/旧批);其它值必须在
+    本批两个真实臂值内(fail-closed,拼错不得静默落回 A 臂)。"""
+    if value is None:
+        return S5B_NOVEL_PROTOCOLS[0]
+    if not isinstance(value, str) or value not in S5B_NOVEL_PROTOCOLS:
+        raise S5bOrchestratorError(
+            f"批级 novel 协议非法值:{value!r}(须 None/"
+            f"{'/'.join(S5B_NOVEL_PROTOCOLS)};A/B 唯一差分变量非法值 "
+            "fail-closed 拒,不猜)", {
+                "kind": "s5b_novel_protocol_invalid",
+                "value": repr(value),
+                "allowed": list(S5B_NOVEL_PROTOCOLS)})
+    return value
+
+
+def load_novel_protocol(batch_root: str | Path) -> str:
+    """装载批级 novel 协议(单一验证源;orchestrator/worker 共用)。
+
+    - orchestration.json 缺席 / 在场但**无该键** ⇒ ``atom_edit``
+      (旧批/A 臂合法,零新键);
+    - 键在场:必须是 ``atom_edit`` / ``product_first_feedback`` /
+      ``product_first_feedback_blind_first`` 之一,
+      否则 ``S5bOrchestratorError``
+      (kind=s5b_novel_protocol_invalid,fail-closed —— 坏值不当缺省,
+      否则实验臂可被静默读成 A 臂)。
+    """
+    path = Path(batch_root) / "orchestration.json"
+    if not path.is_file():
+        return S5B_NOVEL_PROTOCOLS[0]
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批根 orchestration.json 不可读(novel 协议装载 fail-closed):"
+            f"{path}({exc})", {
+                "kind": "s5b_novel_protocol_invalid",
+                "reason": "unreadable_orchestration",
+                "path": str(path)}) from exc
+    if not isinstance(raw, dict):
+        raise S5bOrchestratorError(
+            f"批根 orchestration.json 非对象(novel 协议装载 fail-closed):"
+            f"{path}", {
+                "kind": "s5b_novel_protocol_invalid",
+                "reason": "orchestration_not_object",
+                "path": str(path)})
+    if S5B_NOVEL_PROTOCOL_KEY not in raw:
+        return S5B_NOVEL_PROTOCOLS[0]
+    value = raw[S5B_NOVEL_PROTOCOL_KEY]
+    if not isinstance(value, str) or value not in S5B_NOVEL_PROTOCOLS:
+        raise S5bOrchestratorError(
+            f"批根冻结 orchestration.json 的 {S5B_NOVEL_PROTOCOL_KEY} "
+            f"非法:{value!r}(须 {'/'.join(S5B_NOVEL_PROTOCOLS)};"
+            "fail-closed 不猜)", {
+                "kind": "s5b_novel_protocol_invalid",
+                "reason": "protocol_value_invalid", "path": str(path),
+                "value": repr(value)})
+    return value
+
+
+def load_sampling_params(batch_root: str | Path) -> dict | None:
+    """装载批级采样参数冻结块(D4;单一验证源,worker/汇总/报告共用)。
+
+    - orchestration.json 缺席 / 在场但**无该键** ⇒ ``None``
+      (旧批合法读取:键缺席 = D4 之前的批根,不当缺省补值);
+    - 键在场:必须是对象,键集**恰好** = ``real_model.SAMPLING_PARAM_KEYS``
+      (缺键/未知键都拒 —— 冻结块与本案发送侧键集不同 = 另一版代码
+      写的身份),每值须是 ``str``/``int``/``float``/``bool``(非空
+      字符串),不允许 null/对象/数组(嵌套值无法作为"实际发送值"
+      核对)⇒ 否则 ``S5bOrchestratorError``
+      (kind=s5b_sampling_params_invalid,fail-closed —— 坏块不当缺省,
+      也不静默降级成"未发送")。
+    """
+    path = Path(batch_root) / "orchestration.json"
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批根 orchestration.json 不可读(采样参数装载 fail-closed):"
+            f"{path}({exc})", {
+                "kind": "s5b_sampling_params_invalid",
+                "reason": "unreadable_orchestration",
+                "path": str(path)}) from exc
+    if not isinstance(raw, dict):
+        raise S5bOrchestratorError(
+            f"批根 orchestration.json 非对象(采样参数装载 fail-closed):"
+            f"{path}", {
+                "kind": "s5b_sampling_params_invalid",
+                "reason": "orchestration_not_object",
+                "path": str(path)})
+    if S5B_SAMPLING_PARAMS_KEY not in raw:
+        return None  # 旧批(无该键):合法读取,不补值
+    from .real_model import SAMPLING_PARAM_KEYS
+
+    value = raw[S5B_SAMPLING_PARAMS_KEY]
+    if not isinstance(value, dict):
+        raise S5bOrchestratorError(
+            f"批根冻结 {S5B_SAMPLING_PARAMS_KEY} 非对象:"
+            f"{type(value).__name__}(须为采样参数键值对象;fail-closed)", {
+                "kind": "s5b_sampling_params_invalid",
+                "reason": "block_not_object", "path": str(path),
+                "value_type": type(value).__name__})
+    expected = set(SAMPLING_PARAM_KEYS)
+    actual = set(value)
+    if actual != expected:
+        raise S5bOrchestratorError(
+            f"批根冻结 {S5B_SAMPLING_PARAMS_KEY} 键集不符:缺 "
+            f"{sorted(expected - actual)}、多 {sorted(actual - expected)}"
+            "(冻结块键集必须与发送侧键集一致;fail-closed,不补不缺)", {
+                "kind": "s5b_sampling_params_invalid",
+                "reason": "block_keys_mismatch", "path": str(path),
+                "missing": sorted(expected - actual),
+                "unknown": sorted(actual - expected)})
+    for key in SAMPLING_PARAM_KEYS:
+        item = value[key]
+        # bool 是 int 子类:显式放行;数值/字符串保持原值比对
+        if isinstance(item, bool) or isinstance(item, (int, float)):
+            continue
+        if isinstance(item, str) and item:
+            continue
+        raise S5bOrchestratorError(
+            f"批根冻结 {S5B_SAMPLING_PARAMS_KEY}.{key} 非法:"
+            f"{item!r}(须数值/布尔/非空字符串;不认 null/对象/数组;"
+            "fail-closed)", {
+                "kind": "s5b_sampling_params_invalid",
+                "reason": "value_invalid", "path": str(path),
+                "key": key, "value": repr(item)})
+    return {key: value[key] for key in SAMPLING_PARAM_KEYS}
+
+
+def validate_profile_policy(profile_policy: dict | None) -> dict:
+    """校验批级 ``profile_policy`` 结构与顶层键合法性(fail-closed)。
+
+    - ``None`` ⇒ 返回 ``S5B_DEFAULT_PROFILE_POLICY``;
+    - 非 ``dict`` ⇒ 结构化拒(``s5b_product_first_budget_invalid``);
+    - 顶层含未知键(典型错误:把 ``max_real_model_requests`` 或
+      ``max_format_feedback_rounds`` 写在 ``policy`` 顶层而未改嵌套块
+      ``search_limits`` / ``format_feedback_policy``)⇒ 结构化拒;
+    - ``search_limits`` / ``format_feedback_policy`` 若存在必须为 ``dict``。
+    """
+    if profile_policy is None:
+        return S5B_DEFAULT_PROFILE_POLICY
+    if not isinstance(profile_policy, dict):
+        raise S5bOrchestratorError(
+            f"profile_policy 必须是 dict 或 None,得到 "
+            f"{type(profile_policy).__name__}(fail-closed)",
+            {"kind": "s5b_product_first_budget_invalid",
+             "reason": "profile_policy_not_dict",
+             "type": type(profile_policy).__name__})
+    unknown_top = sorted(
+        str(k) for k in profile_policy.keys()
+        if k not in S5B_PROFILE_POLICY_ALLOWED_TOP_KEYS)
+    if unknown_top:
+        raise S5bOrchestratorError(
+            f"profile_policy 含未知或错位顶层键:{unknown_top}"
+            "(预算键须写在嵌套块 search_limits['max_real_model_requests'] "
+            "与 format_feedback_policy['max_format_feedback_rounds'] 中,"
+            f"允许顶层键:{sorted(S5B_PROFILE_POLICY_ALLOWED_TOP_KEYS)})",
+            {"kind": "s5b_product_first_budget_invalid",
+             "reason": "profile_policy_unknown_top_level_keys",
+             "unknown_top_level_keys": unknown_top,
+             "allowed_top_level_keys": sorted(
+                 S5B_PROFILE_POLICY_ALLOWED_TOP_KEYS)})
+    limits_raw = profile_policy.get("search_limits")
+    if limits_raw is not None and not isinstance(limits_raw, dict):
+        raise S5bOrchestratorError(
+            f"profile_policy.search_limits 必须是 dict,得到 "
+            f"{type(limits_raw).__name__}",
+            {"kind": "s5b_product_first_budget_invalid",
+             "reason": "search_limits_not_dict",
+             "type": type(limits_raw).__name__})
+    feedback_raw = profile_policy.get("format_feedback_policy")
+    if feedback_raw is not None and not isinstance(feedback_raw, dict):
+        raise S5bOrchestratorError(
+            f"profile_policy.format_feedback_policy 必须是 dict,得到 "
+            f"{type(feedback_raw).__name__}",
+            {"kind": "s5b_product_first_budget_invalid",
+             "reason": "format_feedback_policy_not_dict",
+             "type": type(feedback_raw).__name__})
+    return profile_policy
+
+
+def validate_product_first_budget(protocol: str,
+                                  profile_policy: dict | None) -> None:
+    """发车预算纪律(预注册 §2/§4.3 D4:按臂精确相等 + 顶层错位键拦截)。
+
+    * A 臂 ``atom_edit``:``max_real_model_requests == 1`` 且
+      ``max_format_feedback_rounds == 0``;
+    * B 臂 ``product_first_feedback``:``max_real_model_requests == 4``
+      (1 首发 + 3 反馈)且 ``max_format_feedback_rounds == 3``;
+    * C 臂 ``product_first_feedback_blind_first``:
+      ``max_real_model_requests == 5``(盲写首发 1 + 合并调用 1 + 反馈至多 3)
+      且 ``max_format_feedback_rounds == 3``(两阶段共用)。
+
+    先经 ``validate_profile_policy`` 拒绝未知/错位顶层键(防把预算键写在
+    ``policy`` 顶层导致嵌套块仍为 1/0 而把 B/C 臂跑成 0 轮反馈),再按臂
+    校验精确相等。不等 ⇒ 结构化拒(``kind=s5b_product_first_budget_invalid``,
+    不改写策略,不自动升/降预算)。"""
+    normalized = normalize_novel_protocol(protocol)
+    policy = validate_profile_policy(profile_policy)
+    if isinstance(profile_policy, dict) and "novel_protocol" in profile_policy:
+        inner_proto = normalize_novel_protocol(
+            profile_policy.get("novel_protocol"))
+        if inner_proto != normalized:
+            raise S5bOrchestratorError(
+                f"profile_policy.novel_protocol({inner_proto!r}) 与批级 "
+                f"novel_protocol({normalized!r}) 不一致(fail-closed)",
+                {"kind": "s5b_product_first_budget_invalid",
+                 "reason": "profile_policy_novel_protocol_mismatch",
+                 "novel_protocol": normalized,
+                 "profile_policy_novel_protocol": inner_proto})
+    expected_requests, expected_rounds = S5B_ARM_EXACT_BUDGETS[normalized]
+    if normalized == "product_first_feedback_blind_first":
+        arm_label = "C 臂(blind_first)"
+    elif normalized == "product_first_feedback":
+        arm_label = "B 臂(product_first_feedback)"
+    else:
+        arm_label = "A 臂(atom_edit)"
+    limits = dict((policy or {}).get("search_limits") or {})
+    feedback = dict((policy or {}).get("format_feedback_policy") or {})
+    rounds = feedback.get("max_format_feedback_rounds")
+    requests = limits.get("max_real_model_requests")
+    if isinstance(rounds, bool) or not isinstance(rounds, int) or (
+            rounds != expected_rounds):
+        raise S5bOrchestratorError(
+            f"{arm_label}反馈轮预算非法:{rounds!r}(必须精确等于 "
+            f"{expected_rounds};预注册 §2/§4.3 D4 按臂精确预算)",
+            {"kind": "s5b_product_first_budget_invalid",
+             "reason": "feedback_rounds_mismatch",
+             "novel_protocol": normalized,
+             "max_format_feedback_rounds": rounds,
+             "expected": expected_rounds,
+             "max_allowed": expected_rounds})
+    if isinstance(requests, bool) or not isinstance(requests, int) or (
+            requests != expected_requests):
+        raise S5bOrchestratorError(
+            f"{arm_label}每题真实请求预算非法:{requests!r}(必须精确等于 "
+            f"{expected_requests}"
+            + (";盲写首发 1 + 合并调用 1 + 反馈 3"
+               if normalized == "product_first_feedback_blind_first"
+               else (f";1 首发 + {expected_rounds} 反馈"
+                     if normalized == "product_first_feedback"
+                     else ";A 臂单次请求 1 + 0 反馈"))
+            + ")",
+            {"kind": "s5b_product_first_budget_invalid",
+             "reason": "real_model_requests_mismatch",
+             "novel_protocol": normalized,
+             "max_real_model_requests": requests,
+             "expected": expected_requests,
+             "max_allowed": expected_requests})
+    alt_max = limits.get("max_alternative_hypotheses_per_parent")
+    tot_actions = limits.get("max_total_search_actions")
+    if profile_policy is not None:
+        if isinstance(alt_max, bool) or not isinstance(alt_max, int) or (
+                alt_max != S5B_EXACT_MAX_ALTERNATIVE_HYPOTHESES_PER_PARENT):
+            raise S5bOrchestratorError(
+                f"{arm_label}每父节点备选上限非法:{alt_max!r}(必须精确等于 "
+                f"{S5B_EXACT_MAX_ALTERNATIVE_HYPOTHESES_PER_PARENT};"
+                "预注册 §2/§3.1 B2 三臂统一宽度 12)",
+                {"kind": "s5b_product_first_budget_invalid",
+                 "reason": "max_alternative_hypotheses_per_parent_mismatch",
+                 "novel_protocol": normalized,
+                 "max_alternative_hypotheses_per_parent": alt_max,
+                 "expected": S5B_EXACT_MAX_ALTERNATIVE_HYPOTHESES_PER_PARENT,
+                 "max_allowed": S5B_EXACT_MAX_ALTERNATIVE_HYPOTHESES_PER_PARENT})
+        if isinstance(tot_actions, bool) or not isinstance(tot_actions, int) or (
+                tot_actions != S5B_EXACT_MAX_TOTAL_SEARCH_ACTIONS):
+            raise S5bOrchestratorError(
+                f"{arm_label}搜索总动作上限非法:{tot_actions!r}(必须精确等于 "
+                f"{S5B_EXACT_MAX_TOTAL_SEARCH_ACTIONS};"
+                "预注册 §2/§3.1 B2 三臂统一动作上限 48)",
+                {"kind": "s5b_product_first_budget_invalid",
+                 "reason": "max_total_search_actions_mismatch",
+                 "novel_protocol": normalized,
+                 "max_total_search_actions": tot_actions,
+                 "expected": S5B_EXACT_MAX_TOTAL_SEARCH_ACTIONS,
+                 "max_allowed": S5B_EXACT_MAX_TOTAL_SEARCH_ACTIONS})
+
+
+# ---------------------------------------------------------------- 白名单域锁
+
+
+def _qid_lock_name(qid: str) -> str:
+    """qid → 协调锁文件名(消毒 + 短哈希;qid→文件名单射)。
+
+    - 文件名安全字符集消毒(``[^A-Za-z0-9._-]`` → ``_``,截 60);
+    - 追加 qid 原值的 sha256 前 8 位 ⇒ 不同 qid 必得不同文件名
+      (消毒碰撞被哈希区分;同 qid 必同名,锁域判定不依赖消毒)。
+    """
+    safe = re.sub(r"[^A-Za-z0-9._-]", "_", str(qid))[:60] or "qid"
+    digest = hashlib.sha256(str(qid).encode("utf-8")).hexdigest()[:8]
+    return f"{safe}-{digest}.lock"
+
+
+class _WhitelistCoordinatorLocks:
+    """R4(v3):白名单域协调者锁 —— 逐 qid 一把 flock。
+
+    语义(s5b-orchestrator-3;替代 v2 的整批根单把 coord.lock):
+
+    - **同 qid 互斥**:另一协调者已持某 qid 的锁 ⇒ 本次获取在该 qid
+      处结构化拒(kind=s5b_coordinator_active;先到先得,fail-fast
+      先于任何 worker 派发),已获部分全部释放(不留半套锁);
+    - **不同 qid 放行**:不相交 qid 白名单的多个协调者并发持有各自
+      的锁(HPC sbatch 分片;批级闸门仍跨进程共享);
+    - flock 是权威(崩溃 OS 自动释放,新协调者可接管);锁文件内容
+      只写持有者 pid/时间披露,写失败不影响锁;
+    - 获取按 qid 排序序进行(确定性;LOCK_NB 无死锁环:失败即回滚
+      全部已获取锁)。
+
+    v2 兼容:旧批根的遗留 ``coord.lock`` 空文件不再被读写(锁域
+    迁移;旧批根本就按 orchestration.json 版本比对拒续跑)。
+    """
+
+    def __init__(self, batch_root: Path, qids: list[str]):
+        self.batch_root = Path(batch_root)
+        # 去重(保序):同 qid 重复进白名单 ⇒ flock 同文件二次打开
+        # 自冲突,必须去重后锁;执行语义同集合
+        self.qids = list(dict.fromkeys(str(q) for q in qids))
+        self.lock_dir = self.batch_root / "coord"
+        self._handles: dict[str, object] = {}
+
+    def acquire(self) -> None:
+        if not self.qids:
+            return  # 空白名单不取锁(上游空清单已拒;防御保持)
+        self.lock_dir.mkdir(parents=True, exist_ok=True)
+        for qid in sorted(self.qids):
+            path = self.lock_dir / _qid_lock_name(qid)
+            fh = open(path, "a+", encoding="utf-8")
+            try:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as exc:
+                fh.close()
+                self.release()
+                raise S5bOrchestratorError(
+                    "qid 已被另一活动协调者持有(白名单域单协调者纪律:"
+                    "同 qid 双协调者结构化拒;不相交 qid 分片放行;"
+                    "flock 是权威,崩溃 OS 自动释放,新协调者可接管)",
+                    {"kind": "s5b_coordinator_active",
+                     "batch_root": str(self.batch_root),
+                     "conflicting_qid": qid,
+                     "requested_qids": sorted(self.qids),
+                     "acquired_qids": sorted(self._handles),
+                     "pid": os.getpid()}) from exc
+            self._handles[qid] = fh
+            try:  # 披露写失败不影响锁(锁域只认 flock)
+                fh.seek(0)
+                fh.truncate()
+                fh.write(f"pid={os.getpid()} qid={qid} "
+                         f"acquired_at={now_iso()}\n")
+                fh.flush()
+            except OSError:
+                pass
+
+    def release(self) -> None:
+        for qid, fh in list(self._handles.items()):
+            try:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+            except OSError:
+                pass
+            try:
+                fh.close()
+            except OSError:
+                pass
+            self._handles.pop(qid, None)
+
+    def __enter__(self) -> "_WhitelistCoordinatorLocks":
+        self.acquire()
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.release()
+
+
+@contextmanager
+def _short_flock(path: Path):
+    """短临界区互斥(阻塞 flock;用于 orchestration.json 读-比对-写
+    的串行化)。持有时长毫秒级,阻塞等待无饥饿风险;无其他锁嵌套。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fh = open(path, "a+", encoding="utf-8")
+    try:
+        fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        yield fh
+    finally:
+        try:
+            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+        except OSError:
+            pass
+        fh.close()
+
+
+def _check_lock_fd_headroom(n_locks: int, workers: int) -> None:
+    """qid 锁 fd 余量预检(fail-closed:不足 ⇒ 结构化拒,不在获取
+    中途裸抛 OSError(EMFILE))。逐 qid 一把锁 fd + worker 管道
+    (每 worker ~3 fd)+ 常规开销。Linux 缺省软限 1024 对 298 题
+    + 40 worker 够用;更小软限(如 macOS 256 跑全量)给出可行动
+    的 ulimit 提示(HPC 作业脚本已设 ulimit -n 4096)。"""
+    soft, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
+    needed = int(n_locks) + 3 * max(1, int(workers)) + 16
+    if needed > int(soft):
+        raise S5bOrchestratorError(
+            f"qid 白名单锁 fd 余量不足:需 ~{needed}(锁 {n_locks} + "
+            f"worker 管道 + 开销)> RLIMIT_NOFILE 软限 {soft};先 "
+            f"ulimit -n 4096 再发车(fail-closed,不中途裸崩)",
+            {"kind": "s5b_lock_fd_headroom_insufficient",
+             "n_locks": int(n_locks), "workers": int(workers),
+             "rlimit_nofile_soft": int(soft),
+             "needed_estimate": needed})
+
+
+# ---------------------------------------------------------------- 环境注入
+
+
+def _model_env(env_file: str | Path | None) -> dict[str, str]:
+    """worker env 的 V43_LLM_* 键(只取模型键;密钥不打印不落盘)。"""
+    env: dict[str, str] = {}
+    if env_file is not None:
+        from ..batch import load_env_file
+
+        loaded = load_env_file(env_file)
+        env.update({k: str(v) for k, v in loaded.items()
+                    if k.startswith("V43_LLM_")})
+    for key, value in os.environ.items():
+        if key.startswith("V43_LLM_"):
+            env[key] = str(value)
+    return env
+
+
+def _worker_env(env_file: str | Path | None,
+                gate_dir: str | Path) -> dict[str, str]:
+    """worker 子进程 env(注入 V43_LLM_* 凭证键;密钥只在子进程内存,
+    不打印不落盘;OMP_NUM_THREADS=1 每进程单线程;PYTHONPATH 含仓 src
+    供 ``python -m pathway_v43.pollutant.s5b_worker`` 解析)。"""
+    env = dict(os.environ)
+    env.update(_model_env(env_file))
+    env["OMP_NUM_THREADS"] = "1"
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    env["V43_LLM_RATE_GATE"] = str(gate_dir)
+    src = str(Path(__file__).resolve().parents[2])
+    env["PYTHONPATH"] = (
+        src + (os.pathsep + env["PYTHONPATH"]
+               if env.get("PYTHONPATH") else ""))
+    return env
+
+
+# ---------------------------------------------------------------- case 状态
+
+
+def case_path(batch_root: Path, qid: str) -> Path:
+    return batch_root / "cases" / f"{qid}.json"
+
+
+def read_case(batch_root: Path, qid: str) -> dict | None:
+    path = case_path(batch_root, qid)
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return None
+
+
+def is_terminal(case: dict | None) -> bool:
+    return bool(case) and str(case.get("status")) in TERMINAL_CASE_STATUSES
+
+
+def validate_case(case: dict | None, qid: str, *,
+                  expected_run_id: str = "",
+                  expected_evidence_card: bool | None = None,
+                  expected_evidence_card_version: str | None = None,
+                  expected_novel_protocol: str | None = None) -> dict:
+    """R4:validated case reader —— 校验后才可 SKIP/汇总/评分。
+
+    校验面(坏 case ⇒ 结构化拒,不当终态消费):
+    - qid 一致(case["qid"] 必须等于请求 qid;外 qid 拒);
+    - run_id 一致(expected 给出时;错 identity 拒);
+    - schema_version = s5b-case-1(worker 落盘时写入;缺/错 ⇒ 拒);
+    - 终态合法性:status ∈ {completed, failed};completed 须携带
+      stop_reason(空 stop_reason 的 completed 拒);**env_check_only
+      不写正式 completed**(env check 落 ``cases/env_check/`` 另文件,
+      主 cases/ 下的 env_check_only 行 ⇒ 拒,不算终态);
+    - export_digest:completed 时须为字符串(可空 = 失败导出的诚实
+      空串;非字符串类型拒);
+    - **chain14 P1-4(2026-10-16 Codex 代审回修)**:同源开关核对
+      (expected_evidence_card 给出时)——case 披露的
+      ``evidence_card_enabled`` 与批冻结开关不一致 ⇒
+      evidence_card_flag_mismatch 拒(skip/汇总接纳前核,防"实际 on
+      而批报告 off"的错账终态被接纳)。
+      **P1-4 余项(2026-10-16 复核 §⑤.2)严格化**:expected 明确时
+      completed **必须有键 + 严格 bool + 同值**(缺键
+      evidence_card_flag_missing / 非严格 bool(含 null/字符串/数字)
+      evidence_card_flag_not_bool / 错臂 mismatch ⇒ 全拒 —— 旧实现
+      只核"有键且非 null"且先 ``bool()`` 强转,删字段/置 null/字串
+      可绕过接纳门);失败(及非完成)case **披露了才核**(严格
+      bool + 同值),缺键豁免保留(合法 run 前早失败可继续缺字段
+      —— worker 早失败路径本就不写该键)。
+    返回 {ok, reasons, status}。
+    """
+    reasons: list[str] = []
+    if not isinstance(case, dict) or not case:
+        return {"ok": False, "reasons": ["case_missing_or_invalid"],
+                "status": ""}
+    status = str(case.get("status") or "")
+    if str(case.get("qid") or "") != str(qid):
+        reasons.append("qid_mismatch")
+    if expected_run_id and str(case.get("run_id") or "") \
+            and str(case.get("run_id")) != str(expected_run_id):
+        reasons.append("run_id_mismatch")
+    if str(case.get("case_schema_version") or "") != S5B_CASE_SCHEMA_VERSION:
+        reasons.append("case_schema_version_missing_or_invalid")
+    if status == "completed" and str(case.get("stop_reason") or "") == "":
+        reasons.append("completed_without_stop_reason")
+    if status == "completed" \
+            and str(case.get("stop_reason") or "") == "env_check_only":
+        reasons.append("env_check_only_is_not_official_completed")
+    if status == "completed" and not isinstance(
+            case.get("export_digest"), str):
+        reasons.append("export_digest_not_string")
+    if expected_evidence_card is not None:
+        expected_flag = bool(expected_evidence_card)
+        if status == "completed":
+            # P1-4 余项(2026-10-16 复核 §⑤.2):completed 必须有键 +
+            # 严格 bool + 同值(缺键/null/非 bool/错臂全拒;不以
+            # bool() 强转当类型校验 —— "on"/1 等真值不是合法披露)
+            if "evidence_card_enabled" not in case:
+                reasons.append("evidence_card_flag_missing")
+            elif not isinstance(case.get("evidence_card_enabled"), bool):
+                reasons.append("evidence_card_flag_not_bool")
+            elif case.get("evidence_card_enabled") != expected_flag:
+                reasons.append("evidence_card_flag_mismatch")
+        elif "evidence_card_enabled" in case:
+            # 失败/非完成 case:披露了才核(严格 bool + 同值);缺键
+            # 豁免保留(合法 run 前早失败可继续缺字段 —— worker 早
+            # 失败路径不写该键);null/字串等非严格 bool 披露 = 坏
+            # 披露,拒
+            disclosed = case.get("evidence_card_enabled")
+            if not isinstance(disclosed, bool):
+                reasons.append("evidence_card_flag_not_bool")
+            elif disclosed != expected_flag:
+                reasons.append("evidence_card_flag_mismatch")
+    # P2:证据卡版本 case 披露核对(按臂期望值)。verexpected 非 None
+    # (v1card/v2 臂)⇒ case 必须披露且严格字符串 + 同值 —— completed
+    # **与失败路径同判据**(§3.4:失败路径同样披露;缺失即契约违反)。
+    # expected 为 None(旧批)⇒ case 不得出现该键(旧批零新键;出现即
+    # 跨臂污染/错账终态,拒)。
+    if expected_evidence_card_version is not None:
+        if "evidence_card_version" not in case:
+            reasons.append("evidence_card_version_missing")
+        elif not isinstance(case.get("evidence_card_version"), str):
+            reasons.append("evidence_card_version_not_string")
+        elif case.get("evidence_card_version") != \
+                expected_evidence_card_version:
+            reasons.append("evidence_card_version_mismatch")
+    elif "evidence_card_version" in case:
+        reasons.append("evidence_card_version_unexpected")
+    # EXP1:novel 协议 case 披露核对(按臂期望值;expected 为 None ⇒
+    # 不核、保持既有调用面逐字节兼容)。实验臂(B/C)⇒ case 必须披露
+    # 且同值;A 臂期望 ⇒ case 不得出现该键(旧臂零新键,出现即跨臂
+    # 污染)。
+    if expected_novel_protocol is not None:
+        expected_protocol = normalize_novel_protocol(
+            expected_novel_protocol)
+        if expected_protocol != S5B_NOVEL_PROTOCOLS[0]:
+            if "novel_protocol" not in case:
+                reasons.append("novel_protocol_missing")
+            elif not isinstance(case.get("novel_protocol"), str):
+                reasons.append("novel_protocol_not_string")
+            elif case.get("novel_protocol") != expected_protocol:
+                reasons.append("novel_protocol_mismatch")
+        elif "novel_protocol" in case:
+            reasons.append("novel_protocol_unexpected")
+    return {"ok": not reasons, "reasons": reasons, "status": status}
+
+
+def read_validated_case(batch_root: Path, qid: str, *,
+                        expected_run_id: str = "",
+                        expected_evidence_card: bool | None = None,
+                        expected_evidence_card_version: str | None = None,
+                        expected_novel_protocol: str | None = None,
+                        strict: bool = True) -> dict | None:
+    """读取 + R4 校验;strict=True 时坏 case ⇒ S5bOrchestratorError
+    (fail-closed,SKIP/汇总/评分前拒);strict=False 返回 None(诊断
+    场景)。合法终态返回 case dict;非终态/缺文件返回 None。"""
+    case = read_case(batch_root, qid)
+    if case is None:
+        return None
+    verdict = validate_case(
+        case, qid, expected_run_id=expected_run_id,
+        expected_evidence_card=expected_evidence_card,
+        expected_evidence_card_version=expected_evidence_card_version,
+        expected_novel_protocol=expected_novel_protocol)
+    if not verdict["ok"]:
+        if strict:
+            raise S5bOrchestratorError(
+                f"case 文件校验失败(qid={qid};SKIP/汇总/评分前拒,"
+                f"不消费坏终态):{verdict['reasons']}", {
+                    "kind": "s5b_case_validation_failed",
+                    "qid": str(qid), "reasons": verdict["reasons"],
+                    "status": verdict["status"]})
+        return None
+    if not is_terminal(case):
+        return None
+    return case
+
+
+def write_case_atomic(path: Path, payload: dict) -> None:
+    """case 原子 replace(R4:tmp + os.replace;半截文件不可见)。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                   indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
+
+
+# ---------------------------------------------------------------- 金额守卫
+
+# P4c(2026-10-12 用户决定):批级金额守卫的**显式 no-cap 标记文件**
+# (与 budget_guard.json 互斥)。用户对本任务决定"无预算帽/不考虑
+# 价格"⇒ 批预算文件缺失时,须落本标记(带用户决定原文与日期)守卫
+# 才放行金额检查跳过;**调用数门(gate_max_calls)/速率门(RPM/TPM)
+# /并发门照常生效;token bound 照记**。数值守卫路径逐字节不变
+# (budget_guard.json 在 ⇒ 行为与 P4a 完全一致;两文件并存 ⇒ 结构化
+# 拒,禁止 catch-all 混用)。
+# BUDGET_MODE_NO_CAP:v44 参考实现从 v44_task_budget 导入;v43 无
+# 任务级账本模块,本处本地定义(值与 v44 逐字一致)。
+BUDGET_MODE_NO_CAP = "no_monetary_cap_user_decision"
+S5B_BUDGET_NO_CAP_FILE = "budget_no_cap.json"
+S5B_BUDGET_NO_CAP_SCHEMA = "v44-budget-no-cap-1"
+
+
+def no_cap_marker_string(user_decision_date: str) -> str:
+    """结构化标记串(用户决定日期入标记;发车器/CLI/装载器共用)。"""
+    return f"{BUDGET_MODE_NO_CAP}_{user_decision_date}"
+
+
+def load_budget_no_cap_marker(batch_root: str | Path) -> dict | None:
+    """装载并校验批级 no-cap 显式标记(v44-budget-no-cap-1;P4c)。
+
+    - 文件缺席 ⇒ ``None``(合法:数值守卫模式或 scripted 批);
+    - 坏 JSON/非对象/schema 未知/mode 不符/日期非法/marker 不符/
+      决定原文空 ⇒ ``S5bOrchestratorError``
+      (kind=s5b_budget_no_cap_marker_invalid;fail-closed —— 坏标记
+      **不静默当缺席**,否则标记路径成为绕过守卫的口子);
+    - 返回归一标记对象(schema/budget_mode/user_decision_date/
+      user_decision_record/marker)。调用方(run_s5b_batch/worker
+      _verify_budget_guard/CLI budget)共用本判据,不各写一套。
+
+    边界:本标记**只授权跳过金额检查**;调用数门、速率门、并发门、
+    stub 检出、单 attempt token bound 记录均不受影响。与
+    budget_guard.json 并存由调用方结构化拒(互斥,见 run_s5b_batch)。"""
+    import re as _re
+
+    path = Path(batch_root) / S5B_BUDGET_NO_CAP_FILE
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记不可读:{path}({exc};fail-closed,不静默"
+            "当缺席 —— 标记是金额守卫跳过的唯一授权来源)", {
+                "kind": "s5b_budget_no_cap_marker_invalid",
+                "reason": "unreadable_json", "path": str(path)}) from exc
+    if not isinstance(raw, dict) or \
+            str(raw.get("schema") or "") != S5B_BUDGET_NO_CAP_SCHEMA:
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记 schema 未知:{path}(期望 "
+            f"{S5B_BUDGET_NO_CAP_SCHEMA};fail-closed 不猜迁移)", {
+                "kind": "s5b_budget_no_cap_marker_invalid",
+                "reason": "schema_unknown", "path": str(path),
+                "schema": (raw or {}).get("schema")
+                if isinstance(raw, dict) else None})
+    budget_mode = str(raw.get("budget_mode") or "")
+    if budget_mode != BUDGET_MODE_NO_CAP:
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记 budget_mode 非法:{budget_mode!r}(须 "
+            f"{BUDGET_MODE_NO_CAP!r})", {
+                "kind": "s5b_budget_no_cap_marker_invalid",
+                "reason": "budget_mode_invalid", "path": str(path),
+                "budget_mode": budget_mode})
+    date = str(raw.get("user_decision_date") or "")
+    if not _re.match(r"^\d{4}-\d{2}-\d{2}$", date):
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记用户决定日期非法:{date!r}(须 YYYY-MM-DD)",
+            {"kind": "s5b_budget_no_cap_marker_invalid",
+             "reason": "user_decision_date_invalid",
+             "path": str(path), "user_decision_date": date})
+    marker = str(raw.get("marker") or "")
+    if marker != no_cap_marker_string(date):
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记 marker 不符:{marker!r}(须 "
+            f"{no_cap_marker_string(date)!r};标记须绑定用户决定日期)",
+            {"kind": "s5b_budget_no_cap_marker_invalid",
+             "reason": "marker_mismatch", "path": str(path),
+             "marker": marker})
+    if not str(raw.get("user_decision_record") or "").strip():
+        raise S5bOrchestratorError(
+            f"批级 no-cap 标记缺用户决定原文:{path}(用户决定是跳过"
+            "金额守卫的合法性来源,不凭空缺省)", {
+                "kind": "s5b_budget_no_cap_marker_invalid",
+                "reason": "user_decision_record_missing",
+                "path": str(path)})
+    return {
+        "schema": S5B_BUDGET_NO_CAP_SCHEMA,
+        "budget_mode": BUDGET_MODE_NO_CAP,
+        "user_decision_date": date,
+        "user_decision_record": str(raw.get("user_decision_record")),
+        "marker": marker,
+    }
+
+
+def load_budget_guard(batch_root: str | Path) -> dict | None:
+    """装载并校验批根金额守卫机器配置(S5B-V3-02)。
+
+    - 文件缺席 ⇒ None(scripted 批合法;real 批由 run_s5b_batch 先拒);
+    - 坏 JSON/坏形状(非对象、schema 未知、非 CNY、数值字段缺失或
+      非正数)⇒ S5bOrchestratorError(kind=s5b_budget_guard_invalid,
+      先于任何 worker 派发/传输;不猜默认价格)。
+
+    归一/派生(per_attempt_bound_cny、config_sha256)与闸门/CLI/worker
+    同源(rate_gate.normalize_cost_guard_config,单一判据)。"""
+    path = Path(batch_root) / S5B_BUDGET_GUARD_FILE
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise S5bOrchestratorError(
+            f"批根金额守卫配置不可读:{path}({exc};发车前 fail-closed,"
+            "不猜默认价格)", {
+                "kind": "s5b_budget_guard_invalid",
+                "reason": "unreadable_json",
+                "path": str(path)}) from exc
+    try:
+        return normalize_cost_guard_config(raw)
+    except ValueError as exc:
+        detail = exc.args[0] if exc.args else {}
+        raise S5bOrchestratorError(
+            f"批根金额守卫配置坏形状:{path}(五数值字段须为正:CNY 帽"
+            "/入价/出价/输入保守界/输出上限;fail-closed,不猜默认)",
+            {"kind": "s5b_budget_guard_invalid",
+             "reason": "invalid_shape",
+             "path": str(path),
+             "detail": detail}) from exc
+
+
+# ---------------------------------------------------------------- 主入口
+
+
+def run_s5b_batch(
+    batch_root: str | Path,
+    *,
+    runs_root: str | Path,
+    env_file: str | Path | None = None,
+    workers: int = S5B_DEFAULT_WORKERS,
+    max_in_flight: int = S5B_DEFAULT_MAX_IN_FLIGHT,
+    gate_rpm: int = S5B_DEFAULT_GATE_RPM,
+    gate_tpm: int = S5B_DEFAULT_GATE_TPM,
+    gate_max_calls: int = S5B_DEFAULT_GATE_MAX_CALLS,
+    profile_policy: dict | None = None,
+    evidence_card_enabled: bool | None = None,
+    evidence_card_version: str | None = None,
+    novel_protocol: str | None = None,
+    question_limit: int | None = None,
+    qids: list[str] | None = None,
+    poll_s: float = 10.0,
+    python_bin: str | None = None,
+    worker_timeout_s: float = 0.0,
+    stop_check=None,
+) -> dict:
+    """40 路编排主循环(父进程;子进程 = 一题一 worker)。
+
+    - batch_root 必须已由 s5b_builder 构建(batch_manifest.json 在);
+    - profile_policy / gate 参数在**发车时**写冻结副本
+      (``orchestration.json``)——同批根续跑时原样复用(改参 ⇒ 拒,
+      一致性沿预注册纪律);**v3:读-比对-写在 orchestration.lock
+      短临界区内串行**(分片同时首跑时后到者必读到先到者副本,无静默
+      双写窗口);``qids``/``question_limit`` 不进冻结副本(分片白
+      名单属于执行域,不属于冻结参数域——**所有分片仍须同参发车**,
+      不同参后到者按冲突拒);
+    - **R4(v3):白名单域 flock**(``batch_root/coord/`` 逐 qid 一锁;
+      同 qid 双协调者结构化拒,不相交 qid 白名单分片并发放行 ——
+      与 run 级 driver.lock 并存,不冲突);死亡未封存恢复只有一份
+      最终 case(每 qid 的终态 case 由 worker 原子落盘;汇总在各自
+      协调者锁内执行,全批判分由调用方在全部分片终态后单次 score);
+    - **R5:worker_total_timeout** 0=禁用(首批默认,沿现政策;非正值
+      不得隐式 kill 而少跑题);正值 = monotonic 总时限 + terminate/
+      grace/kill + 死亡占位对账;**负值配置拒**;stderr 独立有界日志/
+      主动 drain(防 PIPE 阻塞);
+    - ``evidence_card_version``:P2 批级版本(None/v1card/v2)。非 None
+      时冻结进 orchestration.json(仅此时写键;None 旧批零新键),且
+      要求证据卡开关 true;worker argv 透传同值;
+    - ``novel_protocol``:EXP1 批级 novel 协议(None/atom_edit = 缺省
+      A 臂;product_first_feedback = B 臂)。**仅 B 臂写冻结键**(旧批
+      零新键);既有冻结副本无键而本次请求 B 臂 ⇒ 冲突拒(不得把旧批
+      静默升级成 B 臂);B 臂预算纪律先于派发校验(≤4 请求/≤3 轮),
+      worker argv 透传同值,case/报告按同值披露;
+    - ``stop_check``:可选回调 ``(batch_root) -> str | None``,默认
+      ``None``(既有行为完全不变;T-I C6 同一停派发语义)。协调者每轮
+      收割后、下一次派发前调用;返回真值 ⇒ 不再派发新 qid,在途 worker
+      继续到终态并保全;回调异常 ⇒ 结构化 fail-closed
+      (``s5b_stop_check_failed``)。仅 stop_check 非 None 时报告追加
+      ``dispatch_stopped``/``dispatch_stop_reason``(旧批报告零新键)。
+    - 返回批报告 dict(同时落盘 batch_report.json + progress.json;
+      分片模式下两文件为**最后写盘分片的视角**,全批视角用
+      ``summarize_batch``/score,progress 轮询同理)。
+    """
+    batch_root = Path(batch_root)
+    runs_root = Path(runs_root)
+    if float(worker_timeout_s) < 0:
+        raise S5bOrchestratorError(
+            f"worker_timeout_s 非法:{worker_timeout_s}(0=禁用,正值="
+            "monotonic 总时限;负值拒)", {
+                "kind": "s5b_worker_timeout_invalid",
+                "worker_timeout_s": float(worker_timeout_s)})
+    worker_timeout_s = float(worker_timeout_s)
+    manifest_path = batch_root / "batch_manifest.json"
+    if not manifest_path.is_file():
+        raise S5bOrchestratorError(
+            f"批根缺 batch_manifest.json(先跑 s5b_builder):{batch_root}",
+            {"kind": "s5b_batch_manifest_missing",
+             "batch_root": str(batch_root)})
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    registration = list(manifest.get("registration_order") or [])
+    if qids is not None:
+        wanted = [str(q) for q in qids]
+        unknown = [q for q in wanted if q not in registration]
+        if unknown:
+            raise S5bOrchestratorError(
+                f"指定 qid 不在冻结注册序内:{unknown[:5]}(不猜题)",
+                {"kind": "s5b_qid_not_registered", "unknown": unknown})
+        # v3:白名单去重(保序)—— qid 锁按集合域互斥,重复项即同 qid
+        # 自冲突;执行/报告按唯一 qid 集合(旧行为重复项会产生重复
+        # 报告行,顺带消除)
+        order = list(dict.fromkeys(wanted))
+    else:
+        order = registration
+    if question_limit is not None:
+        order = order[:int(question_limit)]
+    if not order:
+        raise S5bOrchestratorError(
+            "空执行清单(零题;fail-closed)", {
+                "kind": "s5b_empty_question_list"})
+    # ---- S5B-V3-02:金额守卫机器配置(先于任何 worker 派发/传输) ----
+    # real 批(将产生付费 HTTP 发送)必须已冻结 budget_guard.json:
+    # 60 CNY 帽 + 当日价 + 输入保守界 + 输出上限;缺席/坏形状 ⇒
+    # 结构化拒(余额守卫不能事后补);scripted 批网络 0,配置可选
+    # (存在则同样冻结生效)。
+    # P4c(2026-10-12 用户决定):批预算文件缺失时,显式 no-cap 标记
+    # (budget_no_cap.json,带用户决定原文与日期)在案 ⇒ 金额检查跳过
+    # 放行——**只跳金额**:调用数门(gate_max_calls)/速率门/并发门
+    # 照常;数值守卫与标记并存 ⇒ 结构化拒(互斥,禁 catch-all 混用);
+    # 无守卫亦无标记 ⇒ 原拒绝不变。
+    provider_kind = str(manifest.get("provider_kind") or "real")
+    budget_guard = load_budget_guard(batch_root)
+    no_cap_marker = load_budget_no_cap_marker(batch_root)
+    if budget_guard is not None and no_cap_marker is not None:
+        raise S5bOrchestratorError(
+            f"批根同时存在数值金额守卫与 no-cap 标记:{batch_root}"
+            "(互斥:两文件并存 = 混用通道,先于传输拒;改模式须新批根)",
+            {"kind": "s5b_budget_mode_conflict",
+             "batch_root": str(batch_root),
+             "budget_guard_file": S5B_BUDGET_GUARD_FILE,
+             "no_cap_marker_file": S5B_BUDGET_NO_CAP_FILE,
+             "no_cap_marker": no_cap_marker.get("marker")})
+    if provider_kind == "real" and budget_guard is None:
+        if no_cap_marker is None:
+            raise S5bOrchestratorError(
+                f"real 批缺金额守卫机器配置 {batch_root / S5B_BUDGET_GUARD_FILE}"
+                "(S5B-V3-02:60 CNY 硬帽 + 当日价 + 输入保守界 + 输出上限"
+                "先于传输冻结;先用 s5b_cli budget 落盘,不猜默认价格、"
+                "不自动升帽)", {
+                    "kind": "s5b_budget_guard_missing",
+                    "batch_root": str(batch_root),
+                    "expected_file": S5B_BUDGET_GUARD_FILE,
+                    "default_cap_cny": S5B_DEFAULT_BUDGET_CAP_CNY})
+    # ---- 发车参数冻结(同批根续跑复用;变更拒绝) ----
+    # chain14:证据卡开关归一(非 bool 拒)后冻结 —— 批身份含该键;
+    # 同批根改参即拒由既有冻结副本比对天然覆盖(A/B 唯一差分变量)。
+    evidence_card_flag = normalize_evidence_card_flag(evidence_card_enabled)
+    evidence_version = normalize_evidence_card_version(evidence_card_version)
+    require_evidence_card_version_enabled(evidence_version,
+                                          evidence_card_flag)
+    # EXP1:novel 协议归一 + B 臂预算纪律(先于任何 worker 派发)
+    protocol = normalize_novel_protocol(novel_protocol)
+    if novel_protocol is not None or (
+            isinstance(profile_policy, dict) and "novel_protocol" in profile_policy):
+        validate_product_first_budget(protocol, profile_policy)
+    # D4:采样参数快照(单一来源 = 发送侧 real_model.sampling_params_sent;
+    # 本函数**只被身份/冻结消费**,不进任何请求载荷)。当前发送侧不设
+    # 任何采样参数 ⇒ 每键 "provider_default_unset"。
+    from .real_model import sampling_params_sent
+
+    frozen = {
+        "orchestrator_version": S5B_ORCHESTRATOR_VERSION,
+        "workers": int(workers),
+        "max_in_flight": int(max_in_flight),
+        "gate_rpm": int(gate_rpm),
+        "gate_tpm": int(gate_tpm),
+        "gate_max_calls": int(gate_max_calls),
+        "budget_guard": budget_guard,
+        "profile_policy": profile_policy or S5B_DEFAULT_PROFILE_POLICY,
+        "evidence_card_enabled": evidence_card_flag,
+        "runs_root": str(runs_root),
+        "frozen_at": now_iso(),
+        S5B_SAMPLING_PARAMS_KEY: sampling_params_sent(),
+    }
+    if evidence_version is not None:
+        # P2:仅非 None 时写键 —— 旧批冻结副本逐字节零漂移
+        frozen[S5B_EVIDENCE_CARD_VERSION_KEY] = evidence_version
+    if protocol != S5B_NOVEL_PROTOCOLS[0]:
+        # EXP1:仅 B 臂写键(A 臂/旧批冻结副本逐字节零漂移)
+        frozen[S5B_NOVEL_PROTOCOL_KEY] = protocol
+    orch_path = batch_root / "orchestration.json"
+    # v3:读-比对-写在短 flock 内串行(分片同时首跑:后到者必读到
+    # 先到者副本再比对 ⇒ 参数不一致按冲突拒,无"双双见缺文件双写"
+    # 的静默窗口);落盘原子 replace(tmp 含 pid,分片并发写不互踩)
+    with _short_flock(batch_root / "orchestration.lock"):
+        if orch_path.is_file():
+            existing = json.loads(orch_path.read_text(encoding="utf-8"))
+            # P2:版本键的「在场/缺席」本身是批身份 —— 旧批(无键)
+            # 续跑不得被升级成版本批;版本批也不得被 None 洗成旧批。
+            if S5B_EVIDENCE_CARD_VERSION_KEY in existing:
+                existing_version = normalize_evidence_card_version(
+                    existing[S5B_EVIDENCE_CARD_VERSION_KEY])
+                if existing_version != evidence_version:
+                    raise S5bOrchestratorError(
+                        "同批根的冻结证据卡版本与本次发车不一致(不得"
+                        "中途换臂;改版本须新批根)", {
+                            "kind": "s5b_orchestration_conflict",
+                            "batch_root": str(batch_root),
+                            "frozen_evidence_card_version":
+                                existing_version,
+                            "requested_evidence_card_version":
+                                evidence_version})
+            elif evidence_version is not None:
+                raise S5bOrchestratorError(
+                    "既有冻结副本是无证据卡版本的旧批,本次却请求版本臂"
+                    "(不得把旧批升级成 P2 臂;须新批根)", {
+                        "kind": "s5b_orchestration_conflict",
+                        "batch_root": str(batch_root),
+                        "requested_evidence_card_version":
+                            evidence_version})
+            # EXP1:armed-novel-protocol 的「在场/缺席」同样是批身份
+            # —— 无键旧批不得被本次请求升级成 B 臂;B 臂批也不得被
+            # atom_edit 请求静默续跑(冻结副本才是权威,错臂先拒)
+            if S5B_NOVEL_PROTOCOL_KEY in existing:
+                existing_protocol = normalize_novel_protocol(
+                    existing[S5B_NOVEL_PROTOCOL_KEY])
+                if existing_protocol != protocol:
+                    raise S5bOrchestratorError(
+                        "同批根的冻结 novel 协议与本次发车不一致(不得"
+                        "中途换臂;改协议须新批根)", {
+                            "kind": "s5b_orchestration_conflict",
+                            "batch_root": str(batch_root),
+                            "frozen_novel_protocol": existing_protocol,
+                            "requested_novel_protocol": protocol})
+            elif protocol != S5B_NOVEL_PROTOCOLS[0]:
+                raise S5bOrchestratorError(
+                    "既有冻结副本是 atom_edit 旧批,本次却请求 EXP1 实验臂"
+                    "(不得把旧批升级成 EXP1 实验臂;须新批根)", {
+                        "kind": "s5b_orchestration_conflict",
+                        "batch_root": str(batch_root),
+                        "requested_novel_protocol": protocol})
+            # D4:采样参数块同样「在场/缺席即身份」—— 无键旧批不得被本
+            # 次发车补写升级(旧批 orchestration.json 只读保全);在场
+            # 则逐键与本次发车快照一致(loader 同时承担坏块 fail-closed)
+            existing_sampling = load_sampling_params(batch_root)
+            if existing_sampling is None:
+                raise S5bOrchestratorError(
+                    "既有冻结副本无采样参数冻结块(sampling_params;D4 之前"
+                    "的批根)而本次发车要求带采样身份:不得把旧批静默升级"
+                    "(旧批根 orchestration.json 只读保全,不补写;须新批根)",
+                    {"kind": "s5b_orchestration_conflict",
+                     "batch_root": str(batch_root),
+                     "reason": "frozen_sampling_params_missing"})
+            if existing_sampling != frozen[S5B_SAMPLING_PARAMS_KEY]:
+                raise S5bOrchestratorError(
+                    "同批根的冻结采样参数与本次发车不一致(采样参数是批"
+                    "身份的一部分;改值须新批根)", {
+                        "kind": "s5b_orchestration_conflict",
+                        "batch_root": str(batch_root),
+                        "frozen_sampling_params": existing_sampling,
+                        "requested_sampling_params":
+                            frozen[S5B_SAMPLING_PARAMS_KEY]})
+            comparable = {k: existing.get(k) for k in frozen
+                          if k != "frozen_at"}
+            if comparable != {k: frozen[k] for k in frozen
+                              if k != "frozen_at"}:
+                raise S5bOrchestratorError(
+                    "同批根的编排参数与既有冻结副本不一致(改参须新批根;"
+                    "预注册纪律:首跑不可因中途结果改写;分片须同参发车)",
+                    {"kind": "s5b_orchestration_conflict",
+                     "batch_root": str(batch_root)})
+        else:
+            _write_json(orch_path, frozen)
+        _write_json(batch_root / "profile_policy.json",
+                    frozen["profile_policy"])
+    # ---- 批级闸门(状态文件持久;worker 客户端经 env 装载同门;
+    # R2:参数首消费核对 —— 状态文件冻结参数与构造参数一致才可用;
+    # S5B-V3-02:金额守卫配置随闸门冻结,worker 侧从状态文件装配) ----
+    gate = FileRateGate(
+        batch_root / "gate", rpm=int(gate_rpm), tpm=int(gate_tpm),
+        max_calls=int(gate_max_calls),
+        max_in_flight=int(max_in_flight),
+        cost_guard=budget_guard)
+    gate.verify_config()
+    gate_dir = str(batch_root / "gate")
+    # ---- R4(v3):白名单域 flock(逐 qid 一锁;同 qid 双协调者拒、
+    # 不相交白名单分片放行;与 run 级 driver.lock 并存不冲突) ----
+    _check_lock_fd_headroom(len(order), workers)
+    locks = _WhitelistCoordinatorLocks(batch_root, order)
+    locks.acquire()
+    try:
+        return _run_batch_loop(
+            batch_root=batch_root, runs_root=runs_root, manifest=manifest,
+            order=order, env_file=env_file, workers=workers,
+            gate_dir=gate_dir, gate=gate, python_bin=python_bin,
+            worker_timeout_s=worker_timeout_s, poll_s=poll_s,
+            started_at_wall=time.time(),
+            evidence_card_enabled=evidence_card_flag,
+            evidence_card_version=evidence_version,
+            novel_protocol=protocol,
+            budget_mode=(no_cap_marker or {}).get("budget_mode")
+            or "numeric", stop_check=stop_check)
+    finally:
+        locks.release()
+
+
+def _run_batch_loop(*, batch_root: Path, runs_root: Path,
+                    manifest: dict, order: list, env_file,
+                    workers: int, gate_dir: str, gate: FileRateGate,
+                    python_bin, worker_timeout_s: float, poll_s: float,
+                    started_at_wall: float,
+                    evidence_card_enabled: bool = True,
+                    evidence_card_version: str | None = None,
+                    novel_protocol: str | None = None,
+                    budget_mode: str = "numeric",
+                    stop_check=None) -> dict:
+    """执行主循环(协调者锁内;R4 validated case / R5 超时纪律)。
+
+    ``budget_mode``:P4c 披露字段进批终态报告(numeric = budget_guard
+    .json 冻结;no_monetary_cap_user_decision = 显式 no-cap 标记,
+    金额检查跳过、调用数门照常;标记文件本身是结构化记录)。
+    ``evidence_card_enabled``:chain14 A/B 唯一差分变量披露(冻结值
+    原样进批终态报告,per-case 披露由 worker 侧同判据装载)。
+    ``evidence_card_version``:P2 版本臂(None 旧批);case 接纳、worker
+    argv、批报告三处按同值核对,None 时三处零新键。
+    ``novel_protocol``:EXP1 novel 协议(None/atom_edit 缺省);B 臂时
+    case 接纳、worker argv、批报告三处同值核对,A 臂三处零新键。
+    ``stop_check``:T-I C6 停派发回调(默认 None 完全不变)。"""
+    env = _worker_env(env_file, gate_dir)
+    py = python_bin or sys.executable
+    protocol = normalize_novel_protocol(novel_protocol)
+
+    def _terminal_case(qid: str) -> dict | None:
+        # chain14 P1-4(2026-10-16 Codex 代审回修):skip/收割/派发接纳
+        # 前核对 case 披露开关与批冻结开关同源同值(错臂终态不接纳)
+        return read_validated_case(
+            batch_root, qid, expected_run_id=_run_id_of(manifest, qid),
+            expected_evidence_card=evidence_card_enabled,
+            expected_evidence_card_version=evidence_card_version,
+            expected_novel_protocol=protocol)
+
+    def _check_stop() -> str:
+        # TI-F1:收割后、下次派发前的运行中停点。默认 None 完全不变。
+        if stop_check is None:
+            return ""
+        try:
+            return str(stop_check(batch_root) or "")
+        except Exception as exc:  # noqa: BLE001 —— fail-closed，不静默派发
+            raise S5bOrchestratorError(
+                f"stop_check 回调失败(fail-closed,停止新派发):{exc}", {
+                    "kind": "s5b_stop_check_failed",
+                    "batch_root": str(batch_root)})
+
+    pending = [q for q in order if _terminal_case(q) is None]
+    skipped = len(order) - len(pending)
+    dispatch_stop_reason = _check_stop()
+    if dispatch_stop_reason:
+        pending.clear()
+    running: dict[str, dict] = {}
+    started_at = time.time()
+    failures: list[str] = []
+    while pending or running:
+        # ---- 收割:进程退出 ⇒ case 文件由 worker 落盘(校验后消费);
+        # 缺失/坏 case ⇒ 失败补位(R4:死亡未封存恢复只有一份最终 case) ----
+        harvested = False
+        for qid in list(running):
+            entry = running[qid]
+            proc: subprocess.Popen = entry["proc"]
+            # ---- R5:正值 worker 总时限(monotonic;terminate/grace/
+            # kill;死亡占位对账;0 = 禁用不 kill) ----
+            if proc.poll() is None and worker_timeout_s > 0 \
+                    and time.monotonic() - entry["started_monotonic"] \
+                    > worker_timeout_s:
+                entry["timeout_killed"] = True
+                proc.terminate()
+                entry["terminated_at"] = time.monotonic()
+            if proc.poll() is None and entry.get("timeout_killed") \
+                    and "terminated_at" in entry \
+                    and time.monotonic() - entry["terminated_at"] > 5.0:
+                proc.kill()  # grace 5s 后强杀
+            if proc.poll() is None:
+                continue
+            running.pop(qid)
+            harvested = True
+            stderr_tail = _drain_stderr(entry)
+            case = _terminal_case(qid)
+            if case is not None:
+                if str(case.get("status")) == "failed":
+                    failures.append(qid)
+            else:
+                # worker 死亡/超时未落合法终态 case:失败补位(留分母;
+                # 下次续跑可 resume 复原;死亡占位由 gate 对账回收)
+                case = {
+                    "qid": qid, "run_id": entry.get("run_id") or "",
+                    "status": "failed",
+                    "case_schema_version": S5B_CASE_SCHEMA_VERSION,
+                    "failure_kind": (
+                        "worker_timeout_killed"
+                        if entry.get("timeout_killed")
+                        else "worker_exit_without_case"),
+                    "returncode": proc.returncode,
+                    "stderr_tail": stderr_tail[-2000:],
+                    "recorded_at": now_iso(),
+                    "note": ("worker 进程退出未落合法终态 case(崩溃/被杀/"
+                             "超时);失败题留 298 分母;重跑本批即 resume"
+                             " 续跑"),
+                }
+                # P2:占位失败 case 同样披露臂身份(版本/开关),否则
+                # 版本臂的 validated case reader 会拒收该终态。
+                case["evidence_card_enabled"] = bool(
+                    evidence_card_enabled)
+                if evidence_card_version is not None:
+                    case["evidence_card_version"] = evidence_card_version
+                if protocol != S5B_NOVEL_PROTOCOLS[0]:
+                    case["novel_protocol"] = protocol
+                write_case_atomic(case_path(batch_root, qid), case)
+                failures.append(qid)
+        # ---- 派发:空槽 + 冻结注册序取下一题(stderr 主动 drain) ----
+        if harvested and not dispatch_stop_reason:
+            dispatch_stop_reason = _check_stop()
+            if dispatch_stop_reason:
+                pending.clear()
+        while pending and not dispatch_stop_reason \
+                and len(running) < max(1, int(workers)):
+            qid = pending.pop(0)
+            if _terminal_case(qid) is not None:
+                continue
+            run_id = _run_id_of(manifest, qid)
+            # chain14 P1-4:可信批上下文显式传预期开关(协调者从冻结
+            # 参数派发;worker 要求冻结副本在位+同值,缺席=拒不回退)
+            cmd = [
+                py, "-B", "-m", "pathway_v43.pollutant.s5b_worker",
+                "--batch-root", str(batch_root),
+                "--runs-root", str(runs_root),
+                "--qid", qid,
+                "--evidence-card-flag",
+                "true" if evidence_card_enabled else "false",
+            ]
+            if evidence_card_version is not None:
+                cmd.extend(["--evidence-card-version",
+                            evidence_card_version])
+            if novel_protocol != S5B_NOVEL_PROTOCOLS[0]:
+                # EXP1:仅实验臂显式透传(A 臂/旧批 argv 逐字节不变)
+                cmd.extend(["--novel-protocol", novel_protocol])
+            proc = subprocess.Popen(
+                cmd, env=env, stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE)
+            # R5:stderr 独立有界日志/主动 drain(防 PIPE 写满阻塞
+            # worker)
+            running[qid] = {
+                "proc": proc, "run_id": run_id,
+                "started_at": now_iso(),
+                "started_monotonic": time.monotonic(),
+                "stderr_tail": []}
+        _drain_all_stderr(running)
+        # R2:父协调者只回收已确认死亡 owner 的占位(无 TTL)
+        try:
+            gate.reclaim_dead_placeholders()
+        except Exception:  # noqa: BLE001 —— 回收失败不阻断主循环(下轮再试)
+            pass
+        _write_progress(batch_root, order, running, pending,
+                        started_at)
+        if running or pending:
+            time.sleep(poll_s)
+    _write_progress(batch_root, order, running, pending, started_at)
+    # ---- 汇总(逐题 case + 闸门状态;协调者锁内单次评分由调用方
+    # 在锁外显式执行 score 命令 —— 本函数只汇总,判分入口在 s5b_cli) ----
+    gate_state = _read_gate_state(batch_root)
+    report = summarize_batch(batch_root, order)
+    report["skipped_already_terminal"] = skipped
+    report["failed_qids"] = failures
+    if stop_check is not None:
+        # 仅显式启用停派发回调时披露(T-I C6);默认 None 保留旧批报告
+        # 零新键(与 P2 旧批逐字节零漂移契约一致)。
+        report["dispatch_stopped"] = bool(dispatch_stop_reason)
+        if dispatch_stop_reason:
+            report["dispatch_stop_reason"] = dispatch_stop_reason
+    report["gate"] = gate_state
+    # P4c 披露:本批金额守卫模式(numeric = budget_guard.json 冻结;
+    # no_monetary_cap_user_decision = 显式标记,金额检查跳过、调用数
+    # 门照常;标记文件本身是结构化记录)
+    report["budget_mode"] = budget_mode
+    # chain14 披露:本批证据卡开关(A/B 唯一差分变量)。P1-4 回修:
+    # 报告开关从**冻结副本同源装载**(不再直写协调者内存参数)——
+    # 副本缺席/装载失败/与冻结参数不一致 ⇒ 结构化拒(fail-closed,
+    # 不写"实际 on 而报告 off"的错账报告)
+    reported_flag = load_evidence_card_flag(batch_root)
+    if reported_flag != evidence_card_enabled:
+        raise S5bOrchestratorError(
+            "批报告前核对失败:冻结副本证据卡开关与协调者冻结参数不一致"
+            "(副本被改写/丢失;fail-closed,不写错账报告)", {
+                "kind": "s5b_evidence_card_flag_invalid",
+                "reason": "frozen_copy_mismatch_at_report",
+                "batch_root": str(batch_root),
+                "frozen_copy_flag": (None if reported_flag is None
+                                     else bool(reported_flag)),
+                "coordinator_flag": bool(evidence_card_enabled)})
+    report["evidence_card_enabled"] = bool(reported_flag)
+    # P2:版本从冻结副本同源装载;None(旧批)不写键,非 None 才写。
+    # 冻结副本被改写/丢失/与协调者参数不一致 ⇒ 结构化拒,不写错账报告。
+    reported_version = load_evidence_card_version(batch_root)
+    if reported_version != evidence_card_version:
+        raise S5bOrchestratorError(
+            "批报告前核对失败:冻结副本证据卡版本与协调者冻结参数不一致"
+            "(副本被改写/丢失;fail-closed,不写错账报告)", {
+                "kind": "s5b_evidence_card_version_invalid",
+                "reason": "frozen_copy_mismatch_at_report",
+                "batch_root": str(batch_root),
+                "frozen_copy_version": reported_version,
+                "coordinator_version": evidence_card_version})
+    if reported_version is not None:
+        report["evidence_card_version"] = reported_version
+    # EXP1:novel 协议从冻结副本同源装载;A 臂(atom_edit)不写键,只在
+    # B 臂披露;副本被改写/与协调者参数不一致 ⇒ 结构化拒
+    reported_protocol = load_novel_protocol(batch_root)
+    if reported_protocol != protocol:
+        raise S5bOrchestratorError(
+            "批报告前核对失败:冻结副本 novel 协议与协调者冻结参数不一致"
+            "(副本被改写/丢失;fail-closed,不写错账报告)", {
+                "kind": "s5b_novel_protocol_invalid",
+                "reason": "frozen_copy_mismatch_at_report",
+                "batch_root": str(batch_root),
+                "frozen_copy_protocol": reported_protocol,
+                "coordinator_protocol": protocol})
+    if reported_protocol != S5B_NOVEL_PROTOCOLS[0]:
+        report["novel_protocol"] = reported_protocol
+    report["worker_timeout_s"] = worker_timeout_s
+    report["coordinator"] = {"pid": os.getpid(),
+                             "lock_domain": str(batch_root / "coord"),
+                             "qids_n": len(order)}
+    report["wall_clock_s"] = round(time.time() - started_at, 1)
+    _write_json(batch_root / "batch_report.json", report)
+    return report
+
+
+def _drain_stderr(entry: dict) -> str:
+    """收割时读尽残留 stderr(有界;返回累计尾部)。"""
+    proc: subprocess.Popen = entry["proc"]
+    tail: list = entry.setdefault("stderr_tail", [])
+    try:
+        chunk = proc.stderr.read() if proc.poll() is not None else None
+    except (OSError, ValueError):
+        chunk = None
+    if chunk:
+        tail.append(chunk.decode("utf-8", errors="replace"))
+    return "".join(tail[-50:])
+
+
+def _drain_all_stderr(running: dict) -> None:
+    """主动 drain 在途 worker 的 stderr(非阻塞;防 PIPE 满)。"""
+    for entry in running.values():
+        proc: subprocess.Popen = entry["proc"]
+        try:
+            import selectors
+
+            sel = selectors.DefaultSelector()
+            sel.register(proc.stderr, selectors.EVENT_READ)
+            ready = sel.select(timeout=0)
+            sel.close()
+            if ready:
+                chunk = proc.stderr.read1(65536) \
+                    if hasattr(proc.stderr, "read1") else None
+                if chunk:
+                    entry.setdefault("stderr_tail", []).append(
+                        chunk.decode("utf-8", errors="replace"))
+                    if len(entry["stderr_tail"]) > 200:
+                        entry["stderr_tail"] = \
+                            entry["stderr_tail"][-100:]
+        except (OSError, ValueError, AttributeError):
+            continue
+
+
+def _run_id_of(manifest: dict, qid: str) -> str:
+    for entry in manifest.get("entries") or []:
+        if str(entry.get("qid")) == str(qid):
+            return str(entry.get("run_id") or "")
+    return ""
+
+
+def _read_gate_state(batch_root: Path) -> dict:
+    path = batch_root / "gate" / "gate.json"
+    if not path.is_file():
+        return {}
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return {"unreadable": True}
+    out = {k: state.get(k) for k in (
+        "total_requests", "total_429", "total_forbidden",
+        "max_calls", "max_in_flight", "peak_in_flight", "stopped")}
+    # S5B-V3-02:金额守卫账本摘要进批报告(已结算/未结算/在途预留/
+    # committed/超帽与拒发计数;只读披露,不改判)
+    if state.get("cost_guard") is not None:
+        cost = state.get("cost") or {}
+        guard = state.get("cost_guard") or {}
+        out["cost_guard"] = {
+            "enabled": True,
+            "cap_cny": guard.get("cap_cny"),
+            "config_sha256": guard.get("config_sha256"),
+            "settled_cny": cost.get("settled_cny"),
+            "unsettled_cny": cost.get("unsettled_cny"),
+            "reserved_cny": cost.get("reserved_cny"),
+            "committed_cny": _round(
+                (cost.get("settled_cny") or 0.0)
+                + (cost.get("unsettled_cny") or 0.0)
+                + (cost.get("reserved_cny") or 0.0)),
+            "send_rejections": cost.get("send_rejections"),
+            "overrun": cost.get("overrun") or None,
+        }
+    return out
+
+
+def _round(value) -> float:
+    return round(float(value or 0.0), 6)
+
+
+def _write_progress(batch_root: Path, order: list[str],
+                    running: dict, pending: list, started_at: float) -> None:
+    cases = {q: read_case(batch_root, q) for q in order}
+    done = sum(1 for c in cases.values() if is_terminal(c))
+    failed = sum(1 for c in cases.values()
+                 if c and str(c.get("status")) == "failed")
+    _write_json(batch_root / "progress.json", {
+        "n_total": len(order),
+        "n_terminal": done,
+        "n_failed": failed,
+        "n_in_flight": len(running),
+        "n_pending": len(pending),
+        "in_flight_qids": sorted(running),
+        "elapsed_s": round(time.time() - started_at, 1),
+        "updated_at": now_iso(),
+    })
+
+
+def _write_json(path: Path, payload: dict) -> None:
+    """原子落盘 JSON(v3:tmp 名含 pid+线程标识 + os.replace)。
+
+    分片协调者并发写同一信息文件(progress/batch_report/
+    orchestration/profile_policy)时:tmp 互不重名、replace 原子换入
+    ⇒ 磁盘上只见完整旧/新 JSON 之一,不互踩半截(单协调者语义
+    不变,只是并发硬化;跨进程分片靠 pid 区分,同进程多线程
+    分片靠线程标识区分);进程被杀留下的 ``*.tmp`` 是无害残片
+    (下一次写盘不读它)。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(
+        f"{path.name}.{os.getpid()}-{threading.get_ident()}.tmp")
+    tmp.write_text(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                   indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
+
+
+# ---------------------------------------------------------------- 汇总
+
+
+def summarize_batch(batch_root: str | Path,
+                    order: list[str] | None = None) -> dict:
+    """逐题 case 汇总(终态/停止原因/调用/usage/费用状态单列)。
+
+    - **R4:validated case reader** —— 校验(qid/run_id/schema/终态/
+      env_check-only 拒)后才汇总;坏 case ⇒ 结构化 fail-closed;
+    - 合法终态补位到全集(order 缺省 = 注册序全集;失败题留分母);
+    - usage 只合计已知(known_usage 小计);任何缺失 ⇒ 总额 unknown;
+    - 价格快照存在(batch_root/price_snapshot.json)⇒ 算 known 小计
+      费用;缺快照 ⇒ cost_status=no_snapshot(不计价,不冒充)。
+    """
+    batch_root = Path(batch_root)
+    manifest = json.loads(
+        (batch_root / "batch_manifest.json").read_text(encoding="utf-8"))
+    if order is None:
+        order = list(manifest.get("registration_order") or [])
+    entries = {str(e.get("qid")): e
+               for e in manifest.get("entries") or []}
+    # chain14 P1-4:汇总接纳前核对 case 披露开关与批冻结开关同源同值
+    # (冻结副本缺席 = 手动批,不核;在场但被改写/坏值由装载器拒)
+    frozen_flag = load_evidence_card_flag(batch_root)
+    frozen_version = load_evidence_card_version(batch_root)
+    # EXP1:novel 协议同源装载(缺键 ⇒ atom_edit;B 臂 case 必须披露)
+    frozen_protocol = load_novel_protocol(batch_root)
+    rows: list[dict] = []
+    n_completed = n_failed = 0
+    calls_total = 0
+    retries_total = 0
+    usage_known = {"input_tokens": 0, "output_tokens": 0,
+                   "total_tokens": 0}
+    usage_missing_calls = 0
+    for qid in order:
+        # R4:汇总前校验(坏 case fail-closed,不静默计终态;P1-4 同源
+        # 开关核对随行)
+        case = read_validated_case(
+            batch_root, qid, expected_run_id=_run_id_of(manifest, qid),
+            expected_evidence_card=frozen_flag,
+            expected_evidence_card_version=frozen_version,
+            expected_novel_protocol=frozen_protocol)
+        if case is None and read_case(batch_root, qid) is not None:
+            # 存在但校验失败/非终态:read_validated_case strict 已抛;
+            # 到这里说明非终态(部分写入)—— 按 pending 处理
+            case = None
+        status = str((case or {}).get("status") or "pending")
+        if status == "completed":
+            n_completed += 1
+        elif status == "failed":
+            n_failed += 1
+        calls = int((case or {}).get("model_calls") or 0)
+        calls_total += calls
+        # chain14:transport 重试计数披露(每次 HTTP 尝试 = 一次 issued
+        # 请求;重试行 retry_of != '',诚实计数不释放)
+        retries_total += int((case or {}).get("model_call_retries") or 0)
+        usage = (case or {}).get("usage") or {}
+        if usage.get("present"):
+            usage_known["input_tokens"] += int(
+                usage.get("input_tokens") or 0)
+            usage_known["output_tokens"] += int(
+                usage.get("output_tokens") or 0)
+            usage_known["total_tokens"] += int(
+                usage.get("total_tokens") or 0)
+        elif calls:
+            usage_missing_calls += calls
+        rows.append({
+            "qid": qid,
+            "run_id": str((entries.get(qid) or {}).get("run_id") or
+                          (case or {}).get("run_id") or ""),
+            "status": status,
+            "stop_reason": str((case or {}).get("stop_reason") or ""),
+            "endpoint_status": str((case or {}).get("endpoint_status")
+                                   or ""),
+            "export_digest": str((case or {}).get("export_digest") or ""),
+            "model_calls": calls,
+            "failure_kind": str((case or {}).get("failure_kind") or ""),
+        })
+    price = _price_snapshot(batch_root)
+    cost_known = None
+    if price:
+        cost_known = round(
+            (usage_known["input_tokens"] * float(price["input_per_mtok"])
+             + usage_known["output_tokens"] *
+             float(price["output_per_mtok"])) / 1_000_000.0, 4)
+    summary = {
+        "s5b_orchestrator_version": S5B_ORCHESTRATOR_VERSION,
+        "n_total": len(order),
+        "n_completed": n_completed,
+        "n_failed": n_failed,
+        "n_pending": len(order) - n_completed - n_failed,
+        "cases": rows,
+        "account": {
+            "model_calls_total": calls_total,
+            "model_call_retries_total": retries_total,
+            "usage_known": dict(usage_known),
+            "usage_missing_calls": usage_missing_calls,
+            "usage_status": (
+                "known" if calls_total and not usage_missing_calls
+                else ("none" if not calls_total else "partial_unknown")),
+            "cost_known_cny": cost_known,
+            "cost_status": (
+                "no_snapshot" if not price else
+                ("known_usage_subtotal" if not usage_missing_calls
+                 else "known_usage_subtotal_with_missing_unknown_total")),
+        },
+        "note": ("失败题留 298 分母、不剔题;usage 缺失保守预留"
+                 "(known-usage 小计与总费用分开);账单回填后核对"),
+        "generated_at": now_iso(),
+    }
+    if frozen_version is not None:
+        # P2 版本臂披露;None(旧批)不写键,零漂移。
+        summary["evidence_card_version"] = frozen_version
+    return summary
+
+
+def _price_snapshot(batch_root: Path) -> dict | None:
+    path = batch_root / "price_snapshot.json"
+    if not path.is_file():
+        return None
+    try:
+        snapshot = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return None
+    if not snapshot.get("input_per_mtok") or \
+            not snapshot.get("output_per_mtok"):
+        return None
+    return snapshot

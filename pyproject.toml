@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pathway-v43"
+version = "0.1.0"
+description = "v4.3 reaction asset wiring: fail-closed manifest verification, read-only v3 engine adapter and analog index loader over this repo's assets/"
+requires-python = ">=3.10"
+dependencies = [
+    "rdkit",
+    "lightgbm",
+    "numpy",
+    "langgraph>=1.2,<2",
+    "langgraph-checkpoint-sqlite>=3.1,<4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: loads the real v3 engine or runs both parity arms (minutes)",
+]

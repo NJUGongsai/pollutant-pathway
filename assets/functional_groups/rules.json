@@ -1,0 +1,142 @@
+{
+  "schema_version": "v1.0",
+  "provenance": {
+    "source": "Standard organic functional group classification (IUPAC Gold Book / DayLight SMARTS / pathway_v43 candidate_evidence._FUNCTIONAL_GROUP_TABLE_V2)",
+    "description": "Zero-LLM functional group SMARTS rule table for candidate template pre-filtering (S3a/S3c)",
+    "gold_free_attestation": "Rules derived solely from public chemical textbook classifications without reference to benchmark target distributions"
+  },
+  "rules": [
+    {
+      "id": "FG01",
+      "name": "carboxylic_acid",
+      "smarts": "[$([CX3H1](=O)[OX2H1,OX1-]),$([CX3](=O)([OX2H1,OX1-])[#6])]",
+      "description": "Carboxylic acid or carboxylate group"
+    },
+    {
+      "id": "FG02",
+      "name": "ester",
+      "smarts": "[CX3](=O)[OX2H0][#6]",
+      "description": "Carboxylic ester"
+    },
+    {
+      "id": "FG03",
+      "name": "amide",
+      "smarts": "[CX3](=O)[NX3]",
+      "description": "Carboxamide"
+    },
+    {
+      "id": "FG04",
+      "name": "ketone",
+      "smarts": "[#6][CX3](=O)[#6]",
+      "description": "Ketone carbonyl"
+    },
+    {
+      "id": "FG05",
+      "name": "aldehyde",
+      "smarts": "[CX3H1](=O)[#6]",
+      "description": "Aldehyde carbonyl"
+    },
+    {
+      "id": "FG06",
+      "name": "hydroxyl_oh",
+      "smarts": "[OX2H][#6;!$(C=[OX1])]",
+      "description": "Alcohol or phenol hydroxyl"
+    },
+    {
+      "id": "FG07",
+      "name": "ether",
+      "smarts": "[OD2]([#6])[#6]",
+      "description": "Dialkyl or alkyl-aryl ether"
+    },
+    {
+      "id": "FG08",
+      "name": "amine_primary",
+      "smarts": "[$([NX3;H2]),$([NX4+;H3]);!$(N[#6]=[O,S,N])][#6]",
+      "description": "Primary amine or ammonium"
+    },
+    {
+      "id": "FG09",
+      "name": "amine_secondary",
+      "smarts": "[$([NX3;H1]),$([NX4+;H2]);!$(N[#6]=[O,S,N])]([#6])[#6]",
+      "description": "Secondary amine"
+    },
+    {
+      "id": "FG10",
+      "name": "amine_tertiary",
+      "smarts": "[$([NX3;H0]),$([NX4+;H1]);!$(N[#6]=[O,S,N])]([#6])([#6])[#6]",
+      "description": "Tertiary amine"
+    },
+    {
+      "id": "FG11",
+      "name": "nitrile",
+      "smarts": "[NX1]#[CX2]",
+      "description": "Nitrile / cyano"
+    },
+    {
+      "id": "FG12",
+      "name": "nitro",
+      "smarts": "[$([NX3](=O)=O),$([NX3+](=O)[O-])][#6]",
+      "description": "Nitro group"
+    },
+    {
+      "id": "FG13",
+      "name": "thiol",
+      "smarts": "[SX2H][#6]",
+      "description": "Thiol / mercaptan"
+    },
+    {
+      "id": "FG14",
+      "name": "sulfide",
+      "smarts": "[SX2]([#6])[#6]",
+      "description": "Thioether / sulfide"
+    },
+    {
+      "id": "FG15",
+      "name": "halide_f",
+      "smarts": "[#6][F]",
+      "description": "Organofluorine"
+    },
+    {
+      "id": "FG16",
+      "name": "halide_cl",
+      "smarts": "[#6][Cl]",
+      "description": "Organochlorine"
+    },
+    {
+      "id": "FG17",
+      "name": "halide_br",
+      "smarts": "[#6][Br]",
+      "description": "Organobromine"
+    },
+    {
+      "id": "FG18",
+      "name": "halide_i",
+      "smarts": "[#6][I]",
+      "description": "Organoiodine"
+    },
+    {
+      "id": "FG19",
+      "name": "alkene",
+      "smarts": "[CX3]=[CX3]",
+      "description": "Alkene double bond"
+    },
+    {
+      "id": "FG20",
+      "name": "alkyne",
+      "smarts": "[CX2]#[CX2]",
+      "description": "Alkyne triple bond"
+    },
+    {
+      "id": "FG21",
+      "name": "arene_ring",
+      "smarts": "c1ccccc1",
+      "description": "Benzene / arene aromatic ring"
+    },
+    {
+      "id": "FG22",
+      "name": "phosphate",
+      "smarts": "[PX4](=O)([OX2H,OX1-,OX2C])([OX2H,OX1-,OX2C])[OX2H,OX1-,OX2C]",
+      "description": "Phosphate ester or free phosphate"
+    }
+  ]
+}

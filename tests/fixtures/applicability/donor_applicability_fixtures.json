@@ -1,0 +1,165 @@
+{
+  "schema_version": "v43-applicability-fixtures-1",
+  "task_kind": "donor_applicability_fixtures",
+  "provenance": "Phase C 任务书 §2 C0:人工审过的供体适用性夹具。不从 298 金标反推;每条含预期适用性、理由与审核者。预期值全部由实施者于 2026-09-28 用 services/donor_applicability 实跑核对后冻结(tests/test_donor_applicability.py 逐条断言)。",
+  "reviewer": "GLM-5.3-Flash (Phase C 实施,人工逐条核对化学预期)",
+  "review_date": "2026-09-28",
+  "categories_note": "expected 取 applicable|inapplicable|ambiguous|unavailable;expected_reasons 为必须出现拒因子串(空列表=无拒因);fixture 无 uncertain 例:标签争议场景(对称合并 vs 竞争)由 F5/F6 两侧钉死,其余场景均可确定性判定。",
+  "synthetic_fixtures": [
+    {
+      "fixture_id": "F1_full_donor_exact",
+      "category": "full_donor_exact",
+      "polarity": "positive",
+      "expected": "applicable",
+      "expected_reasons": [],
+      "target_expectation": "CCCCC=O",
+      "reason": "全供体子图精确匹配:1-丙醇氧化模板(伯醇→醛)整体对齐到 1-戊醇末端,变换完整迁移,目标为戊醛。",
+      "donor": {"record_id": "synthetic:oxid_primary_alcohol", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 1, "mapping_quality": "mapped_bijection", "mapped_lhs": "[CH3:1][CH2:2][CH2:3][OH:4]", "mapped_rhs": "[CH3:1][CH2:2][CH:3]=[O:4]", "center_atoms": [3, 4]},
+      "substrate_smiles": "CCCCCO"
+    },
+    {
+      "fixture_id": "F2_center_match_first_shell_conflict",
+      "category": "center_match_first_shell_conflict",
+      "polarity": "negative",
+      "expected": "inapplicable",
+      "expected_reasons": ["insufficient_hydrogen"],
+      "target_expectation": "",
+      "reason": "中心子图可对齐(叔醇的 C-O 与模板 CH2-OH 元素一致),但一阶邻域冲突:变换要求中心碳失 2 个氢,当前叔碳无氢可用 —— 结构必要条件不满足,拒绝。",
+      "donor": {"record_id": "synthetic:oxid_primary_alcohol", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 1, "mapping_quality": "mapped_bijection", "mapped_lhs": "[CH3:1][CH2:2][OH:3]", "mapped_rhs": "[CH3:1][CH:2]=[O:3]", "center_atoms": [2, 3]},
+      "substrate_smiles": "CC(C)(C)O"
+    },
+    {
+      "fixture_id": "F3_bond_order_mismatch",
+      "category": "bond_order_mismatch",
+      "polarity": "negative",
+      "expected": "inapplicable",
+      "expected_reasons": ["no_alignment"],
+      "target_expectation": "",
+      "reason": "键级不符:乙酰氯分子中唯一的 O-C 位点已是双键(C=O),氧化模板的中心查询携带单键约束,无法对齐 —— 键级不符在枚举处即拒绝(no_alignment)。bond_order_mismatch 检查(对齐后键级复核)由单元测试直接钉住。",
+      "donor": {"record_id": "env:EAWAG-BBD:bt0001#r0002", "index": "analog_corpus_templates", "asset_file": "analog/corpus_templates_v1.jsonl", "asset_sha256": "MUST_MATCH_ASSET_MANIFEST", "line_no": 42112, "mapping_quality": "mapped_bijection", "mapped_lhs": "[OH:1][CH2:2][CH2:3][Cl:4]", "mapped_rhs": "[O:1]=[CH:2][CH2:3][Cl:4]", "center_atoms": [1, 2]},
+      "substrate_smiles": "CC(=O)Cl"
+    },
+    {
+      "fixture_id": "F3v_valence_h_conflict",
+      "category": "valence_charge_conflict",
+      "polarity": "negative",
+      "expected": "inapplicable",
+      "expected_reasons": ["insufficient_hydrogen"],
+      "target_expectation": "",
+      "reason": "价态/氢冲突:酯 O(0 氢)对齐模板羟基 O(1 氢),变换要求 O 失 1 氢而当前无氢可失;若强行氧化将得出 O=CH3 价态崩溃 —— 由氢结算前置检查拒绝。",
+      "donor": {"record_id": "env:EAWAG-BBD:bt0001#r0002", "index": "analog_corpus_templates", "asset_file": "analog/corpus_templates_v1.jsonl", "asset_sha256": "MUST_MATCH_ASSET_MANIFEST", "line_no": 42112, "mapping_quality": "mapped_bijection", "mapped_lhs": "[OH:1][CH2:2][CH2:3][Cl:4]", "mapped_rhs": "[O:1]=[CH:2][CH2:3][Cl:4]", "center_atoms": [1, 2]},
+      "substrate_smiles": "CC(=O)OC"
+    },
+    {
+      "fixture_id": "F4_formal_charge_conflict",
+      "category": "formal_charge_conflict",
+      "polarity": "negative",
+      "expected": "inapplicable",
+      "expected_reasons": ["charge_context_mismatch"],
+      "target_expectation": "",
+      "reason": "形式电荷冲突:乙醇氧化模板中心 O 在供体两侧均为中性,当前底物为醇盐([O-])—— 供体电荷语境不变而当前带电,反应语境失配,拒绝。",
+      "donor": {"record_id": "synthetic:oxid_primary_alcohol", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 1, "mapping_quality": "mapped_bijection", "mapped_lhs": "[CH3:1][CH2:2][OH:3]", "mapped_rhs": "[CH3:1][CH:2]=[O:3]", "center_atoms": [2, 3]},
+      "substrate_smiles": "CC[O-]"
+    },
+    {
+      "fixture_id": "F5_symmetric_equivalent",
+      "category": "symmetric_equivalent",
+      "polarity": "positive",
+      "expected": "applicable",
+      "expected_reasons": [],
+      "target_expectation": "O=CCCO",
+      "reason": "对称位点等价匹配:1,3-丙二醇两端 CH2-OH 等价,同一变换施加到任一端得到同一目标(3-羟基丙醛),按稳定产物合并并保留全部对齐引用(n_equivalent_alignments=2)。",
+      "donor": {"record_id": "synthetic:oxid_primary_alcohol", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 1, "mapping_quality": "mapped_bijection", "mapped_lhs": "[CH3:1][CH2:2][OH:3]", "mapped_rhs": "[CH3:1][CH:2]=[O:3]", "center_atoms": [2, 3]},
+      "substrate_smiles": "OCCCO"
+    },
+    {
+      "fixture_id": "F6_competing_sites",
+      "category": "competing_sites",
+      "polarity": "abstain",
+      "expected": "ambiguous",
+      "expected_reasons": [],
+      "target_expectation": "",
+      "reason": "竞争位点得到不同转化:3-甲基-1,4-丁二醇两端不等价(一端邻接 CH(CH3)),氧化任一端产物不同 —— 标 ambiguous 弃权,不取第一个对齐。",
+      "donor": {"record_id": "synthetic:oxid_primary_alcohol", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 1, "mapping_quality": "mapped_bijection", "mapped_lhs": "[CH3:1][CH2:2][OH:3]", "mapped_rhs": "[CH3:1][CH:2]=[O:3]", "center_atoms": [2, 3]},
+      "substrate_smiles": "OCC(C)CCO"
+    },
+    {
+      "fixture_id": "F7_multiple_donors_competing",
+      "category": "multiple_donors_competing",
+      "polarity": "abstain",
+      "expected": "ambiguous",
+      "expected_reasons": ["multiple_competing_transforms"],
+      "expected_fallback": "multiple_competing_transforms",
+      "target_expectation": "",
+      "reason": "多条供体指向不同变化:同一底物(3-氯-1-丙醇)上,醇氧化供体给氯代醛、氯取代供体给二醇,两条均结构可执行但目标不同 —— 卡级 ambiguous,不得只拿第一个。",
+      "card": {"evidence_id": "E-f7", "retrieval_rank": 1, "mapping_status": "resolved", "mapping_reason": "unique_mapped_template_aligned", "donor_refs": [
+        {"record_id": "synthetic:oxid_primary_alcohol", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 1, "mapping_quality": "mapped_bijection", "mapped_lhs": "[CH3:1][CH2:2][OH:3]", "mapped_rhs": "[CH3:1][CH:2]=[O:3]", "center_atoms": [2, 3]},
+        {"record_id": "synthetic:dealkylate_chloride", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 2, "mapping_quality": "mapped_bijection", "mapped_lhs": "[CH3:1][CH2:2][Cl:3]", "mapped_rhs": "[CH3:1][CH2:2][O:4]", "center_atoms": [2, 3]}
+      ]},
+      "substrate_smiles": "ClCCCO",
+      "max_donors": 3
+    },
+    {
+      "fixture_id": "F8_no_reliable_donor",
+      "category": "no_reliable_donor",
+      "polarity": "negative",
+      "expected": "inapplicable",
+      "expected_reasons": ["no_alignment"],
+      "target_expectation": "",
+      "reason": "没有可靠供体:酮还原模板的反应中心(C=O)在戊醇中不存在,全供体与中心子图均无法对齐。",
+      "donor": {"record_id": "synthetic:reduce_ketone", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 3, "mapping_quality": "mapped_bijection", "mapped_lhs": "[CH3:1][C:2](=[O:3])[CH3:4]", "mapped_rhs": "[CH3:1][CH:2]([OH:3])[CH3:4]", "center_atoms": [2, 3]},
+      "substrate_smiles": "CCCCCO"
+    },
+    {
+      "fixture_id": "F9_unparseable_template",
+      "category": "unparseable_or_qc_insufficient",
+      "polarity": "negative",
+      "expected": "unavailable",
+      "expected_reasons": ["transform_unparseable_lhs"],
+      "expected_fallback": "applicability_unknown",
+      "target_expectation": "",
+      "reason": "模板不可解析:mapped_lhs 非法,变换不可提取 —— 记 unavailable 与具体拒因,不补造原子映射(fallback=applicability_unknown:无法判断)。",
+      "donor": {"record_id": "synthetic:broken_template", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 4, "mapping_quality": "mapped_unparseable", "mapped_lhs": "not-a-smiles", "mapped_rhs": "[O:1]=[CH:2]", "center_atoms": [1, 2]},
+      "substrate_smiles": "CCCO"
+    },
+    {
+      "fixture_id": "F10_donor_same_as_substrate",
+      "category": "donor_same_as_substrate",
+      "polarity": "negative",
+      "expected": "inapplicable",
+      "expected_reasons": ["donor_same_as_substrate"],
+      "target_expectation": "",
+      "reason": "供体反应物与当前分子相同:属精确查找领域,不构成类比(与 analog_source.align 同语义)。",
+      "donor": {"record_id": "synthetic:oxid_primary_alcohol", "index": "synthetic", "asset_file": "synthetic", "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "line_no": 1, "mapping_quality": "mapped_bijection", "reactant_smiles": "CCO", "mapped_lhs": "[CH3:1][CH2:2][OH:3]", "mapped_rhs": "[CH3:1][CH:2]=[O:3]", "center_atoms": [2, 3]},
+      "substrate_smiles": "CCO"
+    },
+    {
+      "fixture_id": "F11_no_mapping",
+      "category": "no_mapping",
+      "polarity": "negative",
+      "expected": "unavailable",
+      "expected_reasons": [],
+      "expected_fallback": "no_mapping",
+      "target_expectation": "",
+      "reason": "来源无映射:预测卡没有任何带映射模板的 donor_refs(corpus_v1 溯源卡)—— 资格不可用,fallback=no_mapping。",
+      "card": {"evidence_id": "E-f11", "retrieval_rank": 1, "mapping_status": "unavailable", "mapping_reason": "no_mapped_template:traceability_only", "donor_refs": []},
+      "substrate_smiles": "CCCO",
+      "max_donors": 3
+    }
+  ],
+  "real_asset_integration": [
+    {
+      "fixture_id": "R1_real_corpus_template",
+      "category": "real_asset_integration",
+      "polarity": "positive",
+      "expected": "applicable",
+      "expected_reasons": [],
+      "target_expectation": "O=CCCCl",
+      "asset_rel": "analog/corpus_templates_v1.jsonl",
+      "record_id": "env:EAWAG-BBD:bt0001#r0002",
+      "line_no": 42112,
+      "reason": "真实资产可复核模板(2-氯乙醇→氯乙醛,corpus_templates_v1 第 42112 行,qc bijection=true):应用到 3-氯-1-丙醇,全供体对齐失败、中心子图(O-CH2)对齐成功,氧化迁移得 3-氯丙醛。测试须核对资产文件 SHA256 与本仓清单一致。",
+      "substrate_smiles": "OCCCCl"
+    }
+  ]
+}

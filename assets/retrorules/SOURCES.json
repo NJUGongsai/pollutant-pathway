@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "inventory_date": "2026-11-09",
+  "s1_audit_date": "2026-10-11",
+  "raw_asset_count": 3,
+  "raw_total_bytes": 764781313,
+  "source_version_status": "pending",
+  "s1_version_evidence": {
+    "local_hash_fixed": true,
+    "local_hash_recheck": "all 3 files recomputed 2026-11-09, bytes/sha256/records all match v44_retrorules_archive_20261012/assets/retrorules/MANIFEST.sha256",
+    "release_version_verified": false,
+    "website_current_release": "3.1.0 (2026-09-06), re-fetched 2026-10-11",
+    "local_download_evidence": "macOS quarantine xattr on v43 originals: Chrome download agent (rhea/USPTO) and timestamps 2026-10-11 18:45:30-18:47:57 +08:00; no URL receipt or license attachment recoverable",
+    "conclusion": "local bytes fixed and re-verified; release version of the local files remains unproven (pending), website facts are context only"
+  },
+  "website_current_release": {
+    "version": "3.1.0",
+    "release_date": "2026-09-06",
+    "reference": "https://retrorules.org/download",
+    "proves_local_file_version": false
+  },
+  "license": {
+    "website_default": "CC-BY-4.0",
+    "website_default_reconfirmed": "2026-10-11 (WebFetch of https://retrorules.org/download: 'Unless stated otherwise, data are available under CC BY 4.0')",
+    "local_license_review": "pending",
+    "local_license_review_detail": "no license file, metadata field, or download receipt present in the local files; nothing in the JSON array itself states terms",
+    "upstream_license_review": "pending",
+    "upstream_license_review_detail": "website warns MNXref/Rhea/USPTO/ChEBI/UniProt 'may have different licensing terms'; per-source closure not done; check before redistribution, especially commercial use",
+    "attribution": {
+      "required_by_website": "cite RetroRules if used in research",
+      "citation": "Duigou T, Meyer P, Faulon J-L, RetroRules 2026: an expanded database combining biochemical and organic reaction templates, Nucleic Acids Research 2026, doi:10.1093/nar/gkaf1261 (plus 2019 methodology ref doi:10.1093/nar/gky940)",
+      "source": "https://retrorules.org/docs, fetched 2026-10-11"
+    },
+    "reference": "https://retrorules.org/download",
+    "distribution": "local_only"
+  },
+  "s1_audit_summary": {
+    "report": "v44_retrorules_archive_20261012/docs/V44_P1_RETRORULES_DATA_AUDIT_2026-10-11.md",
+    "machine_stats": "v44_retrorules_archive_20261012/docs/V44_P1_RETRORULES_DATA_AUDIT_2026-10-11_stats.json",
+    "rhea_local_rdkit_parse": "reaction-level (rdChemReactions.ReactionFromSmarts): 134738/134738 ok, 0 failed (RDKit 2026.03.6)",
+    "side_paren_note": "6050 records have >=1 side wrapped in parentheses; standalone Chem.MolFromSmarts rejects those sides, reaction parser accepts them; string-form fact, not a data failure",
+    "upstream_valid_consistency": "VALID=true everywhere; valid_true_but_reaction_parse_failed=0",
+    "radius6": "21454 records contain radius 6 (with EC 10923 / without EC 10531)",
+    "derived_index": "assets/retrorules/derived/rhea_index.jsonl (gitignored) + assets/retrorules/derived/rhea_index_manifest.json (tracked), builder v44-rr-index-1, output sha256 99d697c2b835aae543223db53cd22e68e339c95926a836de5300b2e521b9e3ba",
+    "frozen_pilot_params": "configs/v44_retrorules_pilot.json"
+  },
+  "observed_record_schema": {
+    "TEMPLATE_ID": "str",
+    "SCORE": "list",
+    "TEMPLATE": "str",
+    "REACTIONS": "list",
+    "RADII": "list",
+    "REACTIONS_COUNT": "int",
+    "ECS": "list",
+    "ECS_COUNT": "int",
+    "RADIUS_MIN": "int",
+    "RADIUS_MAX": "int",
+    "VALID": "bool",
+    "DATASETS": "list"
+  },
+  "schema_cautions": [
+    "No direction or complete reactant/product fields in this export",
+    "Upstream VALID flag does not prove local parsing, complete reaction, or admission",
+    "Missing EC is retained as unknown"
+  ],
+  "entries": [
+    {
+      "path": "raw/rhea.json",
+      "original_filename": "rhea.json",
+      "local_download_path": "/Volumes/CC/Enzyme_Agent/v44/assets/rhea.json",
+      "bytes": 86773110,
+      "sha256": "8927221e4c5d866d259bba5ba269b6da995340b766e94deec440ad8503b173d9",
+      "records": 134738,
+      "upstream_dataset": "rhea",
+      "format": "JSON array",
+      "score_shape_observed": "one_element_list",
+      "missing_ec_records": 71175,
+      "all_valid_flag_true_observed": true,
+      "original_bytes_unchanged": true,
+      "candidate_source_url": "https://retrorules.org/dl/v3.1.0/rhea/templates?format=json",
+      "source_version_status": "pending",
+      "download_receipt_status": "not_provided",
+      "local_download_time": "2026-10-11T18:47:31+08:00",
+      "local_download_time_evidence": "com.apple.quarantine xattr on the v43 original: agent Chrome, timestamp 0x6acb6943"
+    },
+    {
+      "path": "raw/METANETX.json",
+      "original_filename": "METANETX.json",
+      "local_download_path": "/Volumes/CC/Enzyme_Agent/v44/assets/METANETX.json",
+      "bytes": 231290913,
+      "sha256": "d2f5e2cf935f1a07383812ecc7b288fec3a74a18bb71eb07a94fbdedd300a27f",
+      "records": 336966,
+      "upstream_dataset": "metanetx",
+      "format": "JSON array",
+      "score_shape_observed": "one_element_list",
+      "missing_ec_records": 127558,
+      "all_valid_flag_true_observed": true,
+      "original_bytes_unchanged": true,
+      "candidate_source_url": "https://retrorules.org/dl/v3.1.0/metanetx/templates?format=json",
+      "source_version_status": "pending",
+      "download_receipt_status": "not_provided",
+      "local_download_time": "2026-10-11T18:45:30+08:00",
+      "local_download_time_evidence": "com.apple.quarantine xattr on the v43 original: agent field empty, timestamp 0x6acb68ca"
+    },
+    {
+      "path": "raw/USPTO.json",
+      "original_filename": "USPTO.json",
+      "local_download_path": "/Volumes/CC/Enzyme_Agent/v44/assets/USPTO.json",
+      "bytes": 446717290,
+      "sha256": "4baebf7582fc218f5ef1d7df98dbb9837c31ce43028f9e5cf97d784667e2327e",
+      "records": 814990,
+      "upstream_dataset": "uspto",
+      "format": "JSON array",
+      "score_shape_observed": "empty_list",
+      "missing_ec_records": 814990,
+      "all_valid_flag_true_observed": true,
+      "original_bytes_unchanged": true,
+      "candidate_source_url": "https://retrorules.org/dl/v3.1.0/uspto/templates?format=json",
+      "source_version_status": "pending",
+      "download_receipt_status": "not_provided",
+      "local_download_time": "2026-10-11T18:47:57+08:00",
+      "local_download_time_evidence": "com.apple.quarantine xattr on the v43 original: agent Chrome, timestamp 0x6acb695d"
+    }
+  ]
+}
