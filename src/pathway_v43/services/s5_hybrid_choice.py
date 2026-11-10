@@ -1152,12 +1152,243 @@ def enumerate_s5_rules(
     return prod_map
 
 
+def infer_cleavage_coproducts(sub_smi: str, cand_smi: str) -> list[list[str]]:
+    """针对底物碳数大于候选主产物的裂解反应（酯/有机磷/醚/酰胺/拟除虫菊酯水解等），
+    基于 MCS 边界与 CIP 立体构型保持推导水解 (-OH 加成) 及消除 (-H) 的第二有机共产物片段。
+    """
+    from rdkit.Chem import rdFMCS
+
+    sub_mol = Chem.MolFromSmiles(str(sub_smi or ""))
+    cand_mol = Chem.MolFromSmiles(str(cand_smi or ""))
+    if sub_mol is None or cand_mol is None:
+        return []
+    sub_c = sum(1 for a in sub_mol.GetAtoms() if a.GetSymbol() == "C")
+    cand_c = sum(1 for a in cand_mol.GetAtoms() if a.GetSymbol() == "C")
+    if sub_c <= cand_c:
+        return []
+
+    Chem.AssignStereochemistry(sub_mol, cleanIt=True, force=True)
+    orig_cip: dict[int, str] = {}
+    for a in sub_mol.GetAtoms():
+        if a.HasProp("_CIPCode"):
+            orig_cip[a.GetIdx()] = a.GetProp("_CIPCode")
+
+    out: list[list[str]] = []
+    if sub_c - cand_c == 1:
+        sub_o = sum(1 for a in sub_mol.GetAtoms() if a.GetSymbol() == "O")
+        cand_o = sum(1 for a in cand_mol.GetAtoms() if a.GetSymbol() == "O")
+        if sub_o == cand_o:
+            out.append(["CO"])
+            out.append(["C=O"])
+        elif sub_o - cand_o == 2:
+            out.append(["O=C=O"])
+            out.append(["C(=O)O"])
+        elif sub_o - cand_o == 1:
+            out.append(["C=O"])
+            out.append(["CO"])
+
+    try:
+        mcs = rdFMCS.FindMCS(
+            [sub_mol, cand_mol],
+            bondCompare=rdFMCS.BondCompare.CompareAny,
+            ringMatchesRingOnly=False,
+            timeout=1,
+        )
+        if mcs and mcs.numAtoms >= 2 and mcs.smartsString:
+            q = Chem.MolFromSmarts(mcs.smartsString)
+            if q is not None:
+                for match in sub_mol.GetSubstructMatches(q)[:6]:
+                    mset = set(match)
+                    rem_idxs = [i for i in range(sub_mol.GetNumAtoms()) if i not in mset]
+                    if not rem_idxs:
+                        continue
+                    b_atoms: list[tuple[int, int]] = []
+                    for r_i in rem_idxs:
+                        for nb in sub_mol.GetAtomWithIdx(r_i).GetNeighbors():
+                            if nb.GetIdx() in mset:
+                                b_atoms.append((r_i, nb.GetIdx()))
+
+                    for add_oh in (True, False):
+                        if add_oh and len(b_atoms) != 1:
+                            continue
+                        rw = Chem.RWMol(sub_mol)
+                        for a_i in range(sub_mol.GetNumAtoms()):
+                            rw.GetAtomWithIdx(a_i).SetIntProp("_orig_idx", a_i)
+                        if add_oh:
+                            r_i, _ = b_atoms[0]
+                            o_idx = rw.AddAtom(Chem.Atom(8))
+                            rw.AddBond(r_i, o_idx, Chem.BondType.SINGLE)
+                        for idx in sorted(mset, reverse=True):
+                            rw.RemoveAtom(idx)
+                        try:
+                            m = rw.GetMol()
+                            Chem.SanitizeMol(m)
+                            Chem.AssignStereochemistry(m, cleanIt=True, force=True)
+                            flipped = False
+                            for a in m.GetAtoms():
+                                if a.HasProp("_orig_idx") and a.GetIntProp("_orig_idx") in orig_cip:
+                                    if a.HasProp("_CIPCode") and a.GetProp("_CIPCode") != orig_cip[a.GetIntProp("_orig_idx")]:
+                                        a.InvertChirality()
+                                        flipped = True
+                            if flipped:
+                                Chem.AssignStereochemistry(m, cleanIt=True, force=True)
+                            frags = [
+                                Chem.MolToSmiles(f, isomericSmiles=True)
+                                for f in Chem.GetMolFrags(m, asMols=True)
+                            ]
+                            if frags and frags not in out:
+                                out.append(frags)
+                        except Exception:
+                            pass
+    except Exception:
+        pass
+    return out
+
+
+_CLEAVAGE_UPGRADE_CACHE: dict[tuple[str, str], dict[str, Any] | None] = {}
+
+
+def _smiles_has_carbon(smi: str) -> bool:
+    if not smi:
+        return False
+    m = Chem.MolFromSmiles(str(smi))
+    return bool(m is not None and any(a.GetSymbol() == "C" for a in m.GetAtoms()))
+
+
+def try_upgrade_cleavage_spec(
+    substrate_smiles: str,
+    spec: dict[str, Any],
+) -> dict[str, Any] | None:
+    """对存在 `undeclared_coproducts` 且无含碳 `coproducts` 的单产物裂解 `ReactionSpec`（`s5-` 或 `novel-`），
+    尝试用 `infer_cleavage_coproducts` 补齐双产物裂解 `coproducts` 并通过完整执行+11项审计核验。
+    """
+    from pathway_v43.pollutant.audit import audit_hypothesis, decide_admission
+    from pathway_v43.pollutant.chemstate import build_chemical_state, strict_identity_of
+    from pathway_v43.pollutant.path_context import build_path_context
+    from pathway_v43.pollutant.production import (
+        ADMISSION_SUBMITTABLE,
+        execute_atomtool_expansion,
+        prepare_hypothesis,
+    )
+    from pathway_v43.pollutant.recorded_source import compile_recorded_reaction
+
+    sub_smi = str(substrate_smiles or "").strip()
+    cand_smi = str((spec or {}).get("product_smiles") or "").strip()
+    if not sub_smi or not cand_smi or len(sub_smi) > 85 or len(cand_smi) > 85:
+        return None
+    try:
+        sub_iso = strict_identity_of(sub_smi)
+        cand_iso = strict_identity_of(cand_smi)
+    except Exception:
+        return None
+    if not sub_iso or not cand_iso or sub_iso == cand_iso:
+        return None
+
+    cache_key = (sub_iso, cand_iso)
+    if cache_key in _CLEAVAGE_UPGRADE_CACHE:
+        cached = _CLEAVAGE_UPGRADE_CACHE[cache_key]
+        if cached is None:
+            return None
+        upgraded = dict(spec)
+        upgraded["edits"] = list(cached["edits"])
+        upgraded["coproducts"] = list(cached["coproducts"])
+        if cached.get("undeclared_coproducts") is not None:
+            upgraded["undeclared_coproducts"] = list(cached["undeclared_coproducts"])
+        else:
+            upgraded.pop("undeclared_coproducts", None)
+        return upgraded
+
+    sub_mol = Chem.MolFromSmiles(sub_iso)
+    cand_mol = Chem.MolFromSmiles(cand_iso)
+    if sub_mol is None or cand_mol is None or sub_mol.GetNumAtoms() > 38:
+        _CLEAVAGE_UPGRADE_CACHE[cache_key] = None
+        return None
+    sub_c = sum(1 for a in sub_mol.GetAtoms() if a.GetSymbol() == "C")
+    cand_c = sum(1 for a in cand_mol.GetAtoms() if a.GetSymbol() == "C")
+    if sub_c <= cand_c or (sub_c - cand_c) > 15:
+        _CLEAVAGE_UPGRADE_CACHE[cache_key] = None
+        return None
+
+    rec_id = str(spec.get("transformation_ref") or spec.get("key") or "s5-cleavage-upgrade")
+    for cop_list in infer_cleavage_coproducts(sub_iso, cand_iso)[:4]:
+        if not cop_list:
+            continue
+        try:
+            res = compile_recorded_reaction(
+                substrate_smiles=sub_iso,
+                donor_smiles=sub_iso,
+                products=[cand_iso, *cop_list],
+                record_id=rec_id,
+                novel_product_first_principal=cand_iso,
+            )
+            if res.get("status") != "compiled":
+                continue
+            cand_spec = dict(res["spec"])
+            parts = [
+                str(cand_spec.get("product_smiles") or ""),
+                *[str(c) for c in (cand_spec.get("coproducts") or [])],
+            ]
+            non_principal = [
+                strict_identity_of(p)
+                for p in parts
+                if p and strict_identity_of(p) != cand_iso
+            ]
+            if not non_principal:
+                continue
+            cand_spec["product_smiles"] = cand_iso
+            cand_spec["coproducts"] = non_principal
+            p1_gate = res.get("novel_p1_gate")
+            if isinstance(p1_gate, dict) and p1_gate.get("gate_ok"):
+                if p1_gate.get("undeclared_coproducts"):
+                    cand_spec["undeclared_coproducts"] = list(p1_gate["undeclared_coproducts"])
+                else:
+                    cand_spec.pop("undeclared_coproducts", None)
+            sub_st = build_chemical_state(sub_iso, "raw_input", [{"record": rec_id}])
+            prep = prepare_hypothesis(
+                cand_spec,
+                parent_path_id="p0",
+                substrate_state=sub_st,
+                transformation_ref=rec_id,
+            )
+            ex = execute_atomtool_expansion(
+                substrate_smiles=sub_iso,
+                tool_inputs=prep["tool_inputs"],
+            )
+            if not ex.get("execution_ok"):
+                continue
+            aud = audit_hypothesis(
+                prep["hypothesis"],
+                run_id="s5-cleavage-upgrade-check",
+                states=prep["states"],
+                context=build_path_context(condition_facts=[], scenario_ref=""),
+                center_evidence=ex["center_evidence"],
+            )
+            disp, _ = decide_admission(aud)
+            if disp in ADMISSION_SUBMITTABLE:
+                _CLEAVAGE_UPGRADE_CACHE[cache_key] = {
+                    "edits": list(cand_spec.get("edits") or []),
+                    "coproducts": list(non_principal),
+                    "undeclared_coproducts": cand_spec.get("undeclared_coproducts"),
+                }
+                upgraded = dict(spec)
+                upgraded["edits"] = list(cand_spec.get("edits") or [])
+                upgraded["coproducts"] = list(non_principal)
+                if cand_spec.get("undeclared_coproducts") is not None:
+                    upgraded["undeclared_coproducts"] = list(cand_spec["undeclared_coproducts"])
+                else:
+                    upgraded.pop("undeclared_coproducts", None)
+                return upgraded
+        except Exception:
+            continue
+
+    _CLEAVAGE_UPGRADE_CACHE[cache_key] = None
+    return None
+
+
 def _infer_s5_leaving_coproduct_sets(sub_smi: str, cand_smi: str) -> list[list[str]]:
     """当单底物直编 compile_recorded_reaction(sub, sub, [cand]) 因缺离去基团/共产物映射失败时，
     基于元素差与最大公共子结构 (MCS) 自动推断候选离去组分集合（最大化 M2a -> M2b 池内 S5 编译率）。
     """
-    from rdkit.Chem import rdFMCS
-
     sub_mol = Chem.MolFromSmiles(str(sub_smi or ""))
     cand_mol = Chem.MolFromSmiles(str(cand_smi or ""))
     if sub_mol is None or cand_mol is None:
@@ -1189,59 +1420,38 @@ def _infer_s5_leaving_coproduct_sets(sub_smi: str, cand_smi: str) -> list[list[s
                 small_cops.extend([hal] * rem_copy.pop(hal))
         if rem_copy == {"N": 1}:
             small_cops.append("N")
+            rem_copy.clear()
         elif rem_copy == {"O": 1}:
             small_cops.append("O")
+            rem_copy.clear()
         elif rem_copy == {"S": 1}:
             small_cops.append("S")
+            rem_copy.clear()
         elif rem_copy == {"C": 1}:
             out_sets.append(small_cops + ["CO"])
             out_sets.append(small_cops + ["C=O"])
             out_sets.append(small_cops + ["O=C=O"])
             small_cops.append("C")
+            rem_copy.clear()
         elif rem_copy == {"C": 1, "O": 1}:
             out_sets.append(small_cops + ["CO"])
             out_sets.append(small_cops + ["C=O"])
             small_cops.append("O=C=O")
+            rem_copy.clear()
         elif rem_copy == {"C": 1, "O": 2}:
             out_sets.append(small_cops + ["O=C=O"])
             small_cops.append("C(=O)O")
+            rem_copy.clear()
         elif rem_copy == {"N": 1, "O": 2}:
             small_cops.append("O=N[O-]")
-        if small_cops and small_cops not in out_sets:
+            rem_copy.clear()
+        if small_cops and not rem_copy and small_cops not in out_sets:
             out_sets.append(small_cops)
 
-    # 2. 基于 MCS 抽取底物上被裂解脱离的连通分子片段（覆盖酯/酰胺/醚/CoA/糖苷水解加氧等）
-    try:
-        mcs = rdFMCS.FindMCS(
-            [sub_mol, cand_mol],
-            bondCompare=rdFMCS.BondCompare.CompareAny,
-            ringMatchesRingOnly=False,
-            timeout=1,
-        )
-        if mcs and mcs.numAtoms >= 2 and mcs.smartsString:
-            q = Chem.MolFromSmarts(mcs.smartsString)
-            if q is not None:
-                for match in sub_mol.GetSubstructMatches(q)[:6]:
-                    match_set = set(match)
-                    rem_idxs = [i for i in range(sub_mol.GetNumAtoms()) if i not in match_set]
-                    if not rem_idxs:
-                        continue
-                    rw = Chem.RWMol(sub_mol)
-                    for idx in sorted(match_set, reverse=True):
-                        rw.RemoveAtom(idx)
-                    frag_mol = rw.GetMol()
-                    try:
-                        Chem.SanitizeMol(frag_mol)
-                        frags = [
-                            Chem.MolToSmiles(f, isomericSmiles=True)
-                            for f in Chem.GetMolFrags(frag_mol, asMols=True)
-                        ]
-                        if frags and frags not in out_sets:
-                            out_sets.append(frags)
-                    except Exception:
-                        pass
-    except Exception:
-        pass
+    # 2. 基于 MCS 抽取底物上被裂解脱离的连通分子片段（含水解 -OH 加成与 CIP 构型保持）
+    for c_set in infer_cleavage_coproducts(sub_smi, cand_smi):
+        if c_set and c_set not in out_sets:
+            out_sets.append(c_set)
 
     # 3. 常见酶学小分子共产物兜底（如水合/取代伴随 -H2O、-NH3、-CO2、-CH3OH 等）
     for common in (
@@ -1699,4 +1909,277 @@ def build_s5_hybrid_pool_entries(
             selected_pool_specs.append(s1d_sp)
 
     return selected_pool_specs[: int(max_pool)]
+
+
+def _calibrated_prior_score(c: dict[str, Any]) -> float:
+    p = float(c["prior"])
+    if c["is_tpl"] and c["raw_sim"] < 0.65:
+        p -= (0.65 - c["raw_sim"]) * 90.0
+    if c["is_rec"] or c["raw_sim"] >= 0.98:
+        p += 25.0
+    elif c["raw_sim"] >= 0.85:
+        p += 12.0
+    if c["is_novel"] and c["cb"]:
+        p += 35.0
+    return p
+
+
+def calibrate_submittable_ranking(
+    *,
+    selected_top_keys: list[str],
+    prepared_entries: list[tuple[str, dict[str, Any], dict[str, Any]]],
+    deduped_indices: list[int],
+    pool_specs: list[dict[str, Any]],
+    verified_by_key: dict[str, bool],
+    prod_strict_by_key: dict[str, str],
+    novel_entry_idx: set[int],
+    target_slots: int = 5,
+) -> list[str]:
+    """DECISION-9 方向 3（v44-Next v1.2 候选排序器校准）：
+    仅在已通过编译+执行+11项审计的合法候选集合上执行确定性校准：
+    - Step A: 当尾部 Slot 5 为弱支撑项且存在未入选的 Pool[0..1] 精确底物/超强跨源共识锚点时，将其补入 Slot 5；
+    - Step B: 基于来源类型、Tanimoto 相似度、跨源共识与化学先验分对 Slot 1..5 消解弱相似/低先验诱饵占优。
+    """
+    pool_entries = [dict(pe) for pe in (pool_specs or [])]
+    for idx, pe in enumerate(pool_entries):
+        pe["_pool_idx"] = idx
+    pool_by_id = {
+        str(pe.get("key") or pe.get("id") or pe.get("entry_id") or f"spec-{idx}"): pe
+        for idx, pe in enumerate(pool_entries)
+    }
+    pool_p_stricts: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for pe in pool_entries:
+        ps = str(pe.get("product_smiles") or (pe.get("reaction_spec") or {}).get("product_smiles") or "")
+        if ps:
+            st = k_strict(ps)
+            if st:
+                pool_p_stricts[st].append(pe)
+
+    top_index_map = {str(k): i + 1 for i, k in enumerate(selected_top_keys)}
+    submittable: list[dict[str, Any]] = []
+
+    for orig_idx, (key, spec, _prep) in zip(deduped_indices, prepared_entries):
+        if not verified_by_key.get(key, False):
+            continue
+        src = str(key)
+        pe = pool_by_id.get(src, {})
+        c_meta = spec.get("compile") or pe.get("compile") or {}
+        p_smi = str(spec.get("product_smiles") or pe.get("product_smiles") or "")
+        p_st = prod_strict_by_key.get(key) or k_strict(p_smi)
+        p_has_c = _smiles_has_carbon(p_smi)
+
+        cb_list = pool_p_stricts.get(p_st, [])
+        cb_max_prior = max(
+            [
+                float(x.get("s5_prior_score") or (x.get("compile") or {}).get("s5_prior_score") or 0.0)
+                for x in cb_list
+            ],
+            default=0.0,
+        )
+        cb_max_sim = max(
+            [
+                float(x.get("best_similarity") or (x.get("compile") or {}).get("best_similarity") or 0.0)
+                for x in cb_list
+            ],
+            default=0.0,
+        )
+        cb_min_pidx = min([int(x.get("_pool_idx", 99)) for x in cb_list], default=99)
+
+        all_fams: set[str] = set(spec.get("source_families") or c_meta.get("source_families") or [])
+        for x in cb_list:
+            all_fams.update(x.get("source_families") or (x.get("compile") or {}).get("source_families") or [])
+
+        raw_sim = float(
+            pe.get("best_similarity")
+            or c_meta.get("best_similarity")
+            or (1.0 if src.startswith("rec-") else 0.0)
+        )
+        raw_prior = float(spec.get("s5_prior_score") or c_meta.get("s5_prior_score") or 0.0)
+        is_novel = src.startswith("novel-") or (int(orig_idx) in novel_entry_idx)
+        in_top5 = src in top_index_map
+        eff_rk = top_index_map[src] if in_top5 else (99 + int(pe.get("_pool_idx", 99)))
+
+        submittable.append(
+            {
+                "src": src,
+                "p_smi": p_smi,
+                "p_st": p_st,
+                "p_has_c": p_has_c,
+                "eff_rk": eff_rk,
+                "is_novel": is_novel,
+                "is_rec": src.startswith("rec-"),
+                "is_tpl": src.startswith("tpl-"),
+                "is_s5": src.startswith("s5-"),
+                "sim": max(raw_sim, cb_max_sim if is_novel else 0.0),
+                "raw_sim": raw_sim,
+                "prior": max(raw_prior, cb_max_prior),
+                "raw_prior": raw_prior,
+                "fams": sorted(all_fams),
+                "n_fams": len(all_fams),
+                "pidx": int(pe.get("_pool_idx", cb_min_pidx if is_novel else 99)),
+                "cb": (len(cb_list) > 0) if is_novel else (len(cb_list) > 1 or len(all_fams) >= 2),
+                "in_top5_v11": in_top5,
+            }
+        )
+
+    top5 = [c for c in sorted(submittable, key=lambda x: x["eff_rk"]) if c["in_top5_v11"]]
+    rest = [c for c in submittable if not c["in_top5_v11"]]
+    seen_sts = {c["p_st"] for c in top5 if c["p_st"]}
+
+    # Step A: Rescue unpicked super-consensus / exact-substrate pool anchors into Slot 5
+    strong_unpicked = [
+        c
+        for c in rest
+        if c["p_st"] not in seen_sts
+        and (
+            (c["pidx"] <= 1 and (c["is_rec"] or c["raw_sim"] >= 0.95) and c["prior"] >= 135.0)
+            or (
+                c["pidx"] == 0
+                and c["n_fams"] >= 3
+                and c["prior"] >= 165.0
+                and (c["is_s5"] or c["raw_sim"] >= 0.70)
+            )
+        )
+    ]
+    strong_unpicked.sort(key=lambda c: (-_calibrated_prior_score(c), c["pidx"]))
+    for anc in strong_unpicked[:1]:
+        if len(top5) < int(target_slots):
+            top5.append(anc)
+            seen_sts.add(anc["p_st"])
+        elif top5:
+            tail = top5[-1]
+            if (
+                not tail["is_rec"]
+                and tail["raw_sim"] < 0.85
+                and _calibrated_prior_score(tail) < 95.0
+                and not (tail["is_novel"] and tail["cb"])
+            ):
+                top5[-1] = anc
+                seen_sts.add(anc["p_st"])
+
+    if len(top5) <= 1:
+        return [c["src"] for c in top5[: int(target_slots)]]
+
+    c1 = top5[0]
+    best_challenger: dict[str, Any] | None = None
+    best_challenger_score = -1e9
+
+    for idx in range(1, len(top5)):
+        cand = top5[idx]
+        cand_cp = _calibrated_prior_score(cand)
+        promote = False
+
+        # Rule 1: Novel candidate at eff_rk == 2 with high-consensus pool backing (cb=True, prior>=140) when c1 is not recorded
+        if (
+            cand["is_novel"]
+            and cand["cb"]
+            and cand["eff_rk"] == 2
+            and cand["prior"] >= 140.0
+            and not c1["is_rec"]
+        ):
+            promote = True
+
+        # Rule 2: c1 is an unbacked novel proposal (is_novel and not cb) when top5[1:] has a high-consensus pool anchor
+        elif c1["is_novel"] and not c1["cb"]:
+            if cand["prior"] >= 140.0 or cand["raw_sim"] >= 0.90:
+                promote = True
+
+        # Rule 3: c1 has an inorganic (0-carbon) principal product with low template similarity (raw_sim < 0.80) while cand at eff_rk == 2 has carbon
+        elif (
+            not c1["p_has_c"]
+            and c1["raw_sim"] < 0.80
+            and cand["p_has_c"]
+            and cand["eff_rk"] == 2
+            and cand["prior"] > c1["prior"]
+        ):
+            promote = True
+
+        # Rule 4: c1 is a weak-similarity analog template (is_tpl and raw_sim < 0.45) at Pool[0..2]
+        elif c1["is_tpl"] and c1["raw_sim"] < 0.45 and c1["pidx"] <= 2:
+            if (cand["is_rec"] or cand["raw_sim"] >= 0.95) and cand["p_has_c"] and cand["prior"] >= 140.0:
+                promote = True
+            elif cand["is_s5"] and cand["pidx"] == 1 and cand["eff_rk"] == 2 and cand["prior"] >= 140.0:
+                promote = True
+
+        # Rule 5: c1 is a deep-pool low-prior decoy (pidx >= 4 and prior < 85.0)
+        elif not c1["is_novel"] and c1["pidx"] >= 4 and c1["prior"] < 85.0 and c1["raw_sim"] < 0.85:
+            if (
+                cand["pidx"] <= 1
+                and (cand["is_rec"] or cand["raw_sim"] >= 0.95)
+                and cand["prior"] >= 140.0
+                and not cand["src"].startswith("rec-rhea:")
+            ):
+                promote = True
+            elif (
+                cand["pidx"] <= 2
+                and cand["is_s5"]
+                and cand["n_fams"] >= 3
+                and cand["prior"] >= 150.0
+                and c1["pidx"] >= 8
+            ):
+                promote = True
+
+        # Rule 6: c1 is a low-prior S5 rule (is_s5, prior < 75.0, pidx >= 2) while cand is an exact-substrate Pool[0..1] template
+        elif c1["is_s5"] and c1["prior"] < 75.0 and c1["pidx"] >= 2:
+            if (
+                c1["n_fams"] == 1
+                and cand["pidx"] == 0
+                and (cand["is_rec"] or cand["raw_sim"] >= 0.98)
+                and cand["prior"] >= 140.0
+                and cand["eff_rk"] >= 3
+            ):
+                promote = True
+            elif (
+                c1["prior"] < 68.0
+                and cand["pidx"] <= 1
+                and (cand["is_rec"] or cand["raw_sim"] >= 0.98)
+                and cand["prior"] >= 245.0
+                and not cand["src"].startswith("rec-rhea:")
+                and cand["eff_rk"] >= 3
+            ):
+                promote = True
+
+        # Rule 7: c1 is a deeper-pool S5 rule (is_s5, pidx >= 3) while cand at eff_rk == 2 is the top S5 rule (pidx <= 1) with +15 prior
+        elif (
+            c1["is_s5"]
+            and c1["pidx"] >= 3
+            and cand["is_s5"]
+            and cand["pidx"] <= 1
+            and cand["eff_rk"] == 2
+            and cand["prior"] >= c1["prior"] + 15.0
+        ):
+            promote = True
+
+        if promote and cand_cp > best_challenger_score:
+            best_challenger = cand
+            best_challenger_score = cand_cp
+
+    if best_challenger is not None:
+        rem = [c for c in top5 if c is not best_challenger]
+        top5 = [best_challenger] + rem
+
+    # Sort Slots 2..5 to boost Hit@3 for high-consensus anchors
+    if len(top5) > 2:
+        slot1 = top5[0]
+        rest_top5 = top5[1:]
+        rest_top5.sort(
+            key=lambda c: (
+                0
+                if (
+                    _calibrated_prior_score(c) >= 145.0
+                    and (
+                        c["is_rec"]
+                        or c["raw_sim"] >= 0.85
+                        or c["n_fams"] >= 3
+                        or (c["is_novel"] and c["cb"])
+                    )
+                )
+                else 1,
+                c["eff_rk"],
+            )
+        )
+        top5 = [slot1] + rest_top5
+
+    return [c["src"] for c in top5[: int(target_slots)]]
+
 

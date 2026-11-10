@@ -593,3 +593,120 @@ def test_v44_next_v1_1_three_gap_fixes(tmp_path: Path) -> None:
     )
     assert summary["counts"]["events"] == 2
 
+
+def test_v44_next_v1_2_ranker_calibration_and_cleavage_upgrade(tmp_path: Path) -> None:
+    """验证 v44-Next v1.2 候选排序器校准与多产物裂解共产物补齐（纯合成样例）：
+    1. try_upgrade_cleavage_spec 将单产物酯裂解 spec (CC(=O)Oc1ccccc1 -> Oc1ccccc1, undeclared_coproducts=['CC=O'])
+       升级为含水解共产物 CC(=O)O 的双产物合法 ReactionSpec；
+    2. calibrate_submittable_ranking 在弱相似模板 (best_similarity=0.35) 被排在 Slot 1 时，
+       自动将 Slot 2 的精确底物高共识模板 (best_similarity=1.0, s5_prior_score=168.0) 升位至 Slot 1。
+    """
+    from pathway_v43.services.s5_hybrid_choice import (
+        infer_cleavage_coproducts,
+        try_upgrade_cleavage_spec,
+    )
+
+    sub_ester = "CC(=O)Oc1ccccc1"
+    prod_phenol = "Oc1ccccc1"
+    cops_inferred = infer_cleavage_coproducts(sub_ester, prod_phenol)
+    assert any(strict_identity_of("CC(=O)O") in [strict_identity_of(x) for x in cset] for cset in cops_inferred)
+
+    spec_1prod = compile_s5_candidate_to_spec(
+        sub_ester,
+        {"cand_smiles": prod_phenol, "prior_score": 115.0},
+        index=1,
+        is_gated_supplement=True,
+    )
+    assert spec_1prod is not None
+    up_spec = try_upgrade_cleavage_spec(sub_ester, spec_1prod)
+    assert up_spec is not None
+    assert strict_identity_of("CC(=O)O") in [
+        strict_identity_of(c) for c in (up_spec.get("coproducts") or [])
+    ]
+
+    # 测试 runflow 中的候选排序器校准 (Rule 4: 弱相似 tpl 诱饵在 Slot 1 被精确底物高先验锚点超越)
+    cfg = _dummy_config(tmp_path)
+    sub = "c1ccccc1"
+    spec_weak_tpl = _compile_syn_spec(
+        sub,
+        "Oc1ccccc1",
+        key="tpl-weak-1",
+        prior_score=82.0,
+        prior_tier="MODERATE_SINGLE",
+        source_families=["analog"],
+    )
+    spec_weak_tpl["best_similarity"] = 0.35
+    spec_weak_tpl["compile"] = {"best_similarity": 0.35, "s5_prior_score": 82.0}
+
+    spec_exact_rec = _compile_syn_spec(
+        sub,
+        "Oc1ccc(O)cc1",
+        key="rec-exact-2",
+        prior_score=168.0,
+        prior_tier="HIGH_CONSENSUS",
+        source_families=["recorded", "envipath"],
+    )
+    spec_exact_rec["best_similarity"] = 1.0
+    spec_exact_rec["compile"] = {"best_similarity": 1.0, "s5_prior_score": 168.0}
+
+    from pathway_v43.domain.models import stable_id
+
+    run_id = "syn-run-v12-calib"
+    root_path_id = stable_id("spath", run_id, "root")
+    sub_state = build_chemical_state(
+        strict_identity_of(sub),
+        "raw_input",
+        [{"record": f"ppv1-substrate:{run_id}"}],
+    )
+    hid_weak = prepare_hypothesis(
+        spec_weak_tpl,
+        parent_path_id=root_path_id,
+        substrate_state=sub_state,
+        transformation_ref=spec_weak_tpl["transformation_ref"],
+    )["hypothesis"].hypothesis_id
+    hid_exact = prepare_hypothesis(
+        spec_exact_rec,
+        parent_path_id=root_path_id,
+        substrate_state=sub_state,
+        transformation_ref=spec_exact_rec["transformation_ref"],
+    )["hypothesis"].hypothesis_id
+
+    model_resp = json.dumps(
+        {
+            "proposals": [
+                {"hypothesis_id": hid_weak},
+                {"hypothesis_id": hid_exact},
+            ],
+            "rank_hypotheses": [hid_weak, hid_exact],
+        }
+    )
+    runs_root = tmp_path / "runs_v12_calib"
+    summary = start_ppv1_run(
+        config=cfg,
+        runs_root=runs_root,
+        run_id=run_id,
+        smiles=sub,
+        plan={
+            "preset": "v44-next",
+            "pools": {sub: [spec_weak_tpl, spec_exact_rec]},
+            "model": {"provider_kind": "scripted", "responses": [model_resp]},
+        },
+        preset="v44-next",
+        scripted=True,
+    )
+    assert summary["counts"]["events"] == 2
+    import sqlite3
+
+    conn = sqlite3.connect(str(runs_root / run_id / "pollutant.sqlite"))
+    rows = conn.execute(
+        "SELECT payload FROM search_actions WHERE action_kind='expand_hypothesis'"
+    ).fetchall()
+    conn.close()
+    rank_by_key = {}
+    for (p_raw,) in rows:
+        pl = json.loads(p_raw)
+        rank_by_key[pl["hypothesis_key"]] = pl["effective_rank"]
+    assert rank_by_key["rec-exact-2"] == 1
+    assert rank_by_key["tpl-weak-1"] == 2
+
+

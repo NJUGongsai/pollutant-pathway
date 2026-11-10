@@ -824,6 +824,62 @@ def consensus_and_smart_backfill(
                 break
             _try_add(k, is_backfill=True)
 
+    # 3.5 DECISION-9 方向 3（v44-Next v1.2 候选排序器校准 + 多产物裂解共产物补齐）
+    from ..services.s5_hybrid_choice import (
+        _smiles_has_carbon,
+        calibrate_submittable_ranking,
+        try_upgrade_cleavage_spec,
+    )
+
+    selected_top_keys = calibrate_submittable_ranking(
+        selected_top_keys=selected_top_keys,
+        prepared_entries=prepared_entries,
+        deduped_indices=deduped_indices,
+        pool_specs=pool_specs,
+        verified_by_key=verified_by_key,
+        prod_strict_by_key=prod_strict_by_key,
+        novel_entry_idx=novel_entry_idx,
+        target_slots=int(target_slots),
+    )
+    for k in selected_top_keys:
+        if k not in ordered_model_picks and k not in backfilled_keys:
+            backfilled_keys.append(k)
+
+    selected_top_set = set(selected_top_keys)
+    for idx_in_prep, (orig_idx, (k, spec, prep)) in enumerate(
+        zip(deduped_indices, prepared_entries)
+    ):
+        if k not in selected_top_set:
+            continue
+        is_s5_or_novel = (
+            str(k).startswith("s5-")
+            or str(k).startswith("novel-")
+            or (int(orig_idx) in novel_entry_idx)
+        )
+        if not is_s5_or_novel or not spec.get("undeclared_coproducts"):
+            continue
+        if any(_smiles_has_carbon(str(c)) for c in (spec.get("coproducts") or [])):
+            continue
+        up_spec = try_upgrade_cleavage_spec(substrate_state.smiles_isomeric, spec)
+        if up_spec is not None:
+            try:
+                src_refs = [
+                    dict(r) if isinstance(r, dict) else {"record": str(r)}
+                    for r in (getattr(prep["hypothesis"], "source_refs", None) or [])
+                ]
+                up_prep = prepare_hypothesis(
+                    up_spec,
+                    parent_path_id=str(prep["hypothesis"].parent_path_id),
+                    substrate_state=substrate_state,
+                    transformation_ref=str(up_spec.get("transformation_ref") or ""),
+                    source_refs=src_refs or None,
+                )
+                spec.clear()
+                spec.update(up_spec)
+                prepared_entries[idx_in_prep] = (k, spec, up_prep)
+            except Exception:
+                pass
+
     # 4. 生成重排后的 effective_rank_by_key 与 rank_basis_by_key
     effective_rank_by_key: dict[str, int] = {}
     rank_basis_by_key: dict[str, str] = {}
