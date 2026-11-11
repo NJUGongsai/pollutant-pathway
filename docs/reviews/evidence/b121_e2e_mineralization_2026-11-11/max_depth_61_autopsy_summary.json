@@ -1,0 +1,141 @@
+{
+  "benchmark_name": "biosysmodb121_e2e_mineralization_benchmark",
+  "analysis": "max_depth_61_and_dead_end_16_autopsy",
+  "policy": "non_backtracking_b1",
+  "timestamp_utc": "2026-11-11T09:12:13.533102+00:00",
+  "partial_branch_and_carbon_closure": {
+    "max_depth_unfinished_61": {
+      "total_cases": 61,
+      "cases_with_at_least_one_sink": 59,
+      "cases_with_at_least_one_sink_ratio": 0.9672,
+      "mean_total_branches": 5.64,
+      "mean_branch_closure_ratio": 0.637,
+      "mean_root_carbon_closure_ratio": 0.5618,
+      "split_breakdown": {
+        "tuning_36": {
+          "total_cases": 36,
+          "cases_with_at_least_one_sink": 36,
+          "cases_with_at_least_one_sink_ratio": 1.0,
+          "mean_total_branches": 6.19,
+          "mean_branch_closure_ratio": 0.6725,
+          "mean_root_carbon_closure_ratio": 0.6507
+        },
+        "holdout_23": {
+          "total_cases": 23,
+          "cases_with_at_least_one_sink": 21,
+          "cases_with_at_least_one_sink_ratio": 0.913,
+          "mean_total_branches": 4.22,
+          "mean_branch_closure_ratio": 0.5909,
+          "mean_root_carbon_closure_ratio": 0.4386
+        },
+        "non_417_2": {
+          "total_cases": 2,
+          "cases_with_at_least_one_sink": 2,
+          "cases_with_at_least_one_sink_ratio": 1.0,
+          "mean_total_branches": 12.0,
+          "mean_branch_closure_ratio": 0.5278,
+          "mean_root_carbon_closure_ratio": 0.3796
+        }
+      }
+    },
+    "dead_end_tp_16": {
+      "total_cases": 16,
+      "cases_with_at_least_one_sink": 11,
+      "cases_with_at_least_one_sink_ratio": 0.6875,
+      "mean_total_branches": 2.75,
+      "mean_branch_closure_ratio": 0.4604,
+      "mean_root_carbon_closure_ratio": 0.3128
+    }
+  },
+  "step15_leaf_chemical_state_bucketing": {
+    "total_unfinished_leaf_branches": 114,
+    "total_cases": 61,
+    "branch_level": {
+      "bucket_1_ring_opened_aliphatic": {
+        "count": 90,
+        "ratio": 0.7895
+      },
+      "bucket_2_aromatic_unring_opened": {
+        "count": 17,
+        "ratio": 0.1491
+      },
+      "bucket_3_xenobiotic_unremoved": {
+        "count": 7,
+        "ratio": 0.0614
+      }
+    },
+    "case_level": {
+      "bucket_1_ring_opened_aliphatic": {
+        "count": 48,
+        "ratio": 0.7869
+      },
+      "bucket_2_aromatic_unring_opened": {
+        "count": 16,
+        "ratio": 0.2623
+      },
+      "bucket_3_xenobiotic_unremoved": {
+        "count": 7,
+        "ratio": 0.1148
+      }
+    }
+  },
+  "trajectory_carbon_dynamics": {
+    "total_unfinished_leaf_branches": 114,
+    "branches_with_carbon_reduction_step8_to_15": {
+      "count": 97,
+      "ratio": 0.8509
+    },
+    "branches_with_ge_5_steps_isocarbon_drift": {
+      "count": 95,
+      "ratio": 0.8333
+    },
+    "mean_overall_carbon_reduction_step0_to_15": 5.31,
+    "remaining_carbon_distribution_at_step15": {
+      "1": 36,
+      "4": 1,
+      "5": 37,
+      "6": 14,
+      "7": 9,
+      "8": 3,
+      "9": 5,
+      "10": 4,
+      "11": 1,
+      "12": 2,
+      "15": 1,
+      "19": 1
+    },
+    "branches_remaining_le_5_carbons": {
+      "count": 74,
+      "ratio": 0.6491
+    },
+    "branches_remaining_le_6_carbons": {
+      "count": 88,
+      "ratio": 0.7719
+    }
+  },
+  "scientific_recommendations": {
+    "total_cases": 61,
+    "type_a_genuine_catabolism_depth_extension_needed": {
+      "description": "真降解途中：芳环已开、毒害基团已除、已达短链脂肪族(<=6碳)，仅需放宽步深(15->25步)即可矿化",
+      "total_count": 37,
+      "total_ratio": 0.6066,
+      "tuning_count": 25,
+      "tuning_ratio": 0.6944,
+      "holdout_count": 11,
+      "holdout_ratio": 0.4783,
+      "non_417_count": 1,
+      "non_417_ratio": 0.5
+    },
+    "type_b_deep_isocarbon_drift_or_unopened_ring": {
+      "description": "深层无效等碳漂移或未开环：需引入分解代谢进展约束(Catabolic Progress / Anti-Iso-Carbon-Drift Ranking)",
+      "total_count": 24,
+      "total_ratio": 0.3934,
+      "tuning_count": 11,
+      "tuning_ratio": 0.3056,
+      "holdout_count": 12,
+      "holdout_ratio": 0.5217,
+      "non_417_count": 1,
+      "non_417_ratio": 0.5
+    }
+  }
+}
