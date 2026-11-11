@@ -1,0 +1,147 @@
+{
+  "benchmark_name": "biosysmodb121_e2e_mineralization_benchmark",
+  "timestamp_utc": "2026-11-10T21:38:05.927527+00:00",
+  "elapsed_seconds": 5781.87,
+  "subset_requested": "full121",
+  "counts": {
+    "full_121": 121,
+    "tuning_76": 76,
+    "holdout_43": 43,
+    "non_417_formal": 2,
+    "evaluated_in_this_run": 121
+  },
+  "token_accounting": {
+    "input_tokens": 2522538,
+    "output_tokens": 7107032,
+    "total_tokens": 9629570,
+    "requests_total": 696,
+    "cost_status": "no_snapshot",
+    "price_snapshot": "未核实"
+  },
+  "tuning_76": {
+    "n_pathways": 76,
+    "outcomes": {
+      "MINERALIZED_CLOSED": {
+        "count": 16,
+        "ratio": 0.21052631578947367,
+        "strict_carbon_closed_count": 16,
+        "strict_carbon_closed_ratio": 0.21052631578947367,
+        "declared_branches_closed_count": 0,
+        "declared_branches_closed_ratio": 0.0
+      },
+      "DEAD_END_TP": {
+        "count": 2,
+        "ratio": 0.02631578947368421
+      },
+      "CYCLE_ABORTED": {
+        "count": 54,
+        "ratio": 0.7105263157894737
+      },
+      "MAX_DEPTH_UNFINISHED": {
+        "count": 4,
+        "ratio": 0.05263157894736842
+      }
+    },
+    "mineralized_topology": {
+      "mean_depth": 6.19,
+      "mean_leaf_branches": 2.31
+    },
+    "reference_alignment": {
+      "ref_step1_hit_strict": 0.2895,
+      "ref_step1_hit_cn": 0.3026,
+      "ref_prefix_depth": 0.43,
+      "ref_prefix_ratio": 0.11,
+      "ref_node_recall_strict": 0.1546,
+      "ref_node_recall_cn": 0.2225,
+      "ref_edge_recall": 0.1157,
+      "terminal_hit_and_mineralized_count": 5,
+      "terminal_hit_and_mineralized_ratio": 0.0658,
+      "stopped_early_model_mineralized_count": 10,
+      "stopped_early_model_mineralized_ratio": 0.1316
+    }
+  },
+  "holdout_43": {
+    "n_pathways": 43,
+    "outcomes": {
+      "MINERALIZED_CLOSED": {
+        "count": 5,
+        "ratio": 0.11627906976744186,
+        "strict_carbon_closed_count": 5,
+        "strict_carbon_closed_ratio": 0.11627906976744186,
+        "declared_branches_closed_count": 0,
+        "declared_branches_closed_ratio": 0.0
+      },
+      "DEAD_END_TP": {
+        "count": 1,
+        "ratio": 0.023255813953488372
+      },
+      "CYCLE_ABORTED": {
+        "count": 33,
+        "ratio": 0.7674418604651163
+      },
+      "MAX_DEPTH_UNFINISHED": {
+        "count": 4,
+        "ratio": 0.09302325581395349
+      }
+    },
+    "mineralized_topology": {
+      "mean_depth": 6.8,
+      "mean_leaf_branches": 2.8
+    },
+    "reference_alignment": {
+      "ref_step1_hit_strict": 0.3256,
+      "ref_step1_hit_cn": 0.3953,
+      "ref_prefix_depth": 0.44,
+      "ref_prefix_ratio": 0.1209,
+      "ref_node_recall_strict": 0.1479,
+      "ref_node_recall_cn": 0.2045,
+      "ref_edge_recall": 0.1238,
+      "terminal_hit_and_mineralized_count": 1,
+      "terminal_hit_and_mineralized_ratio": 0.0233,
+      "stopped_early_model_mineralized_count": 1,
+      "stopped_early_model_mineralized_ratio": 0.0233
+    }
+  },
+  "full_121": {
+    "n_pathways": 121,
+    "outcomes": {
+      "MINERALIZED_CLOSED": {
+        "count": 21,
+        "ratio": 0.17355371900826447,
+        "strict_carbon_closed_count": 21,
+        "strict_carbon_closed_ratio": 0.17355371900826447,
+        "declared_branches_closed_count": 0,
+        "declared_branches_closed_ratio": 0.0
+      },
+      "DEAD_END_TP": {
+        "count": 3,
+        "ratio": 0.024793388429752067
+      },
+      "CYCLE_ABORTED": {
+        "count": 89,
+        "ratio": 0.7355371900826446
+      },
+      "MAX_DEPTH_UNFINISHED": {
+        "count": 8,
+        "ratio": 0.06611570247933884
+      }
+    },
+    "mineralized_topology": {
+      "mean_depth": 6.33,
+      "mean_leaf_branches": 2.43
+    },
+    "reference_alignment": {
+      "ref_step1_hit_strict": 0.2975,
+      "ref_step1_hit_cn": 0.3306,
+      "ref_prefix_depth": 0.43,
+      "ref_prefix_ratio": 0.112,
+      "ref_node_recall_strict": 0.1552,
+      "ref_node_recall_cn": 0.2179,
+      "ref_edge_recall": 0.1167,
+      "terminal_hit_and_mineralized_count": 6,
+      "terminal_hit_and_mineralized_ratio": 0.0496,
+      "stopped_early_model_mineralized_count": 11,
+      "stopped_early_model_mineralized_ratio": 0.0909
+    }
+  }
+}
