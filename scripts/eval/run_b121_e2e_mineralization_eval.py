@@ -36,6 +36,7 @@ REPO_ROOT = Path("/Volumes/CC/Enzyme_Agent/v44")
 SRC_DIR = REPO_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
+os.environ["PYTHONPATH"] = str(SRC_DIR) + (os.pathsep + os.environ["PYTHONPATH"] if os.environ.get("PYTHONPATH") else "")
 
 from pathway_v43.domain.identity import cn_identity
 from pathway_v43.pollutant.chemstate import strict_identity_of
@@ -70,6 +71,10 @@ DEFAULT_WORK_DIR_NON_BACKTRACKING = (
     REPO_ROOT
     / "reports/ppv1_s5b/b121_e2e_mineralization_20261111/full121_non_backtracking_b1"
 )
+DEFAULT_WORK_DIR_CATABOLIC_PROGRESS = (
+    REPO_ROOT
+    / "reports/ppv1_s5b/b121_e2e_mineralization_20261111/full121_catabolic_progress_b1"
+)
 DEFAULT_PUBLIC_JSON = (
     REPO_ROOT
     / "docs/reviews/evidence/b121_e2e_mineralization_2026-11-11/e2e_mineralization_summary.json"
@@ -77,6 +82,10 @@ DEFAULT_PUBLIC_JSON = (
 DEFAULT_SUMMARY_NON_BACKTRACKING = (
     REPO_ROOT
     / "docs/reviews/evidence/b121_e2e_mineralization_2026-11-11/non_backtracking_b1_summary.json"
+)
+DEFAULT_SUMMARY_CATABOLIC_PROGRESS = (
+    REPO_ROOT
+    / "docs/reviews/evidence/b121_e2e_mineralization_2026-11-11/catabolic_progress_b1_summary.json"
 )
 DEFAULT_PUBLIC_REPORT = (
     REPO_ROOT / "docs/reports/B121_E2E_MINERALIZATION_BENCHMARK_2026-11-11.md"
@@ -411,6 +420,11 @@ def execute_substrate_batch(
         for q in q_entries:
             f.write(json.dumps(q, ensure_ascii=False) + "\n")
 
+    sub_env = dict(os.environ)
+    sub_env["PYTHONPATH"] = str(SRC_DIR) + (
+        os.pathsep + sub_env["PYTHONPATH"] if sub_env.get("PYTHONPATH") else ""
+    )
+
     # 1. build
     cmd_build = [
         sys.executable,
@@ -421,13 +435,17 @@ def execute_substrate_batch(
         str(q_file),
         "--batch-root",
         str(batch_root),
-        "--preset",
-        "v44-next",
         "--domain",
         "biosysmodb121",
+        "--assets-root",
+        str(REPO_ROOT / "assets"),
         "--recorded-source",
     ]
-    subprocess.run(cmd_build, check=True, capture_output=True)
+    try:
+        subprocess.run(cmd_build, check=True, capture_output=True, env=sub_env, text=True)
+    except subprocess.CalledProcessError as exc:
+        print(f"[Wave {wave_idx}] s5b_cli build failed:\n{exc.stderr}")
+        raise
 
     # 2. approve
     cmd_approve = [
@@ -440,7 +458,11 @@ def execute_substrate_batch(
         "--user-authorization",
         "CC-e2e-mineralization",
     ]
-    subprocess.run(cmd_approve, check=True, capture_output=True)
+    try:
+        subprocess.run(cmd_approve, check=True, capture_output=True, env=sub_env, text=True)
+    except subprocess.CalledProcessError as exc:
+        print(f"[Wave {wave_idx}] s5b_cli approve failed:\n{exc.stderr}")
+        raise
 
     # 3. budget
     cmd_budget = [
@@ -457,6 +479,11 @@ def execute_substrate_batch(
         "--user-decision-record",
         "CC-e2e-mineralization",
     ]
+    try:
+        subprocess.run(cmd_budget, check=True, capture_output=True, env=sub_env, text=True)
+    except subprocess.CalledProcessError as exc:
+        print(f"[Wave {wave_idx}] s5b_cli budget failed:\n{exc.stderr}")
+        raise
     subprocess.run(cmd_budget, check=True, capture_output=True)
 
     # 4. run batch with 36 workers
@@ -636,6 +663,7 @@ def run_e2e_mineralization_eval(
     max_depth: int = 15,
     workers: int = 36,
     policy: str = "non_backtracking_b1",
+    k_drift: int = 3,
 ) -> tuple[list[PathwayTrajectory], dict[str, Any], dict[str, Any]]:
     """波次去重并发执行全路径端到端自回归推演与评测。"""
     cache_mgr = SubstrateStepCacheManager(work_dir / "substrate_step_cache")
@@ -740,10 +768,19 @@ def run_e2e_mineralization_eval(
                 if not c_events and sres.get("rank1_event"):
                     c_events = [sres["rank1_event"]]
 
+                carbon_history = [
+                    get_carbon_count(st["substrate"])
+                    for st in b.steps
+                    if st.get("substrate")
+                ] + [get_carbon_count(b.current_smiles)]
+
                 sel_res = select_event_non_backtracking(
                     candidate_events=c_events,
                     history_strict_ids=b.history_strict_ids,
                     policy=policy,
+                    current_smiles=b.current_smiles,
+                    carbon_history=carbon_history,
+                    k_drift=k_drift,
                 )
 
                 if sel_res.status == "NO_CANDIDATES":
@@ -785,6 +822,7 @@ def run_e2e_mineralization_eval(
                     "substrate_strict_id": b.current_strict_id,
                     "event_id": ev["event_id"],
                     "event_rank": sel_res.selected_rank,
+                    "selection_reason": sel_res.reason,
                     "backtracking_skipped_events": sel_res.skipped_events,
                     "has_unaccounted_loss": ev.get("has_unaccounted_carbon_loss", False),
                     "carbon_balance": ev.get("carbon_balance", {}),
@@ -1335,9 +1373,15 @@ def main() -> None:
     )
     parser.add_argument(
         "--policy",
-        choices=["naive_b1", "non_backtracking_b1"],
-        default="non_backtracking_b1",
-        help="事件选择策略 (naive_b1 / non_backtracking_b1，默认 non_backtracking_b1)",
+        choices=["naive_b1", "non_backtracking_b1", "catabolic_progress_b1"],
+        default="catabolic_progress_b1",
+        help="事件选择策略 (naive_b1 / non_backtracking_b1 / catabolic_progress_b1，默认 catabolic_progress_b1)",
+    )
+    parser.add_argument(
+        "--k-drift",
+        type=int,
+        default=3,
+        help="抗等碳漂移触发步数阈值 (连续 >= K 步等碳时触发降解进展顺延，默认 3)",
     )
     parser.add_argument(
         "--work-dir",
@@ -1378,24 +1422,23 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    work_dir = (
-        args.work_dir
-        if args.work_dir is not None
-        else (
-            DEFAULT_WORK_DIR_NON_BACKTRACKING
-            if args.policy == "non_backtracking_b1"
-            else DEFAULT_WORK_DIR
-        )
-    )
-    out_summary = (
-        args.out_summary
-        if args.out_summary is not None
-        else (
-            DEFAULT_SUMMARY_NON_BACKTRACKING
-            if args.policy == "non_backtracking_b1"
-            else DEFAULT_PUBLIC_JSON
-        )
-    )
+    if args.work_dir is not None:
+        work_dir = args.work_dir
+    elif args.policy == "catabolic_progress_b1":
+        work_dir = DEFAULT_WORK_DIR_CATABOLIC_PROGRESS
+    elif args.policy == "non_backtracking_b1":
+        work_dir = DEFAULT_WORK_DIR_NON_BACKTRACKING
+    else:
+        work_dir = DEFAULT_WORK_DIR
+
+    if args.out_summary is not None:
+        out_summary = args.out_summary
+    elif args.policy == "catabolic_progress_b1":
+        out_summary = DEFAULT_SUMMARY_CATABOLIC_PROGRESS
+    elif args.policy == "non_backtracking_b1":
+        out_summary = DEFAULT_SUMMARY_NON_BACKTRACKING
+    else:
+        out_summary = DEFAULT_PUBLIC_JSON
 
     # 1. 加载内存凭证
     print("Loading in-memory LLM credentials...")
@@ -1439,6 +1482,7 @@ def main() -> None:
         max_depth=args.max_depth,
         workers=args.workers,
         policy=args.policy,
+        k_drift=args.k_drift,
     )
     t_elapsed = time.time() - t_start
     print(f"\nExecution finished in {t_elapsed:.1f}s.")

@@ -328,3 +328,180 @@ def test_non_backtracking_terminal_sink_does_not_collide():
     assert not chk.has_backtrack
     assert len(chk.collisions) == 0
 
+
+def test_catabolic_progress_sink_closing_priority():
+    """规则 A1：当存在非倒车候选能够一步全碎片入汇时，优先于普通推进事件选用。"""
+    smi_x = "CC(=O)CC(=O)O"  # 乙酰乙酸
+    sid_x = strict_identity_of(smi_x)
+    history = (sid_x,)
+
+    # Event #1: 还原为 3-羟基丁酸 (非终点，仍需推进)
+    ev1 = {
+        "event_id": "ev1_reduction",
+        "rank": 1,
+        "principal_products": [{"smiles": "CC(O)CC(=O)O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 硫解/水解裂解为两分子乙酸 (两分子均为中心碳代谢池 B 档终点)
+    ev2 = {
+        "event_id": "ev2_sink_closing",
+        "rank": 2,
+        "principal_products": [{"smiles": "CC(=O)O", "role": "principal_product"}],
+        "coproducts": [{"smiles": "CC(=O)O", "role": "coproduct"}],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="catabolic_progress_b1",
+        current_smiles=smi_x,
+    )
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 2
+    assert res.selected_event["event_id"] == "ev2_sink_closing"
+    assert res.reason == "sink_closing_priority"
+
+
+def test_catabolic_progress_c1_oxidation_priority():
+    """规则 A2：C1 有机物优先顺延至氧化态递增或直接入汇候选。"""
+    smi_c1 = "CO"  # 甲醇 (C1, 氧化态 1)
+    sid_c1 = strict_identity_of(smi_c1)
+    history = (sid_c1,)
+
+    # Event #1: 甲基化等无氧化递增修饰
+    ev1 = {
+        "event_id": "ev1_ether",
+        "rank": 1,
+        "principal_products": [{"smiles": "COC", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 甲醇脱氢酶氧化为甲醛 (C1, 氧化态 2)
+    ev2 = {
+        "event_id": "ev2_dehydrogenation",
+        "rank": 2,
+        "principal_products": [{"smiles": "C=O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="catabolic_progress_b1",
+        current_smiles=smi_c1,
+    )
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 2
+    assert res.selected_event["event_id"] == "ev2_dehydrogenation"
+    assert res.reason == "c1_oxidation_priority"
+
+
+def test_catabolic_progress_anti_drift_triggered_on_k_drift():
+    """规则 B1：当分支连续 >= k_drift 步等碳漂移且 Event #1 无突破时，顺延选用切碳/破环候选。"""
+    smi_curr = "c1ccccc1O"  # 苯酚 (C6, 1 个芳环)
+    sid_curr = strict_identity_of(smi_curr)
+    history = ("ancestor_1", "ancestor_2", "ancestor_3", sid_curr)
+    # 历史碳数：连续 3 步均为 6 个碳 (consec_iso = 3 >= k_drift=3)
+    carbon_hist = [6, 6, 6, 6]
+
+    # Event #1: 等碳修饰 (苯酚 -> 4-羟基苯酚/对苯二酚，依然是 C6，芳环未开)
+    ev1 = {
+        "event_id": "ev1_hydroxylation",
+        "rank": 1,
+        "principal_products": [{"smiles": "Oc1ccc(O)cc1", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 邻苯二酚邻位裂解开环 -> 粘康酸 (C6，但芳环已打开！ar_ev < ar_curr)
+    ev2 = {
+        "event_id": "ev2_ring_cleavage",
+        "rank": 2,
+        "principal_products": [{"smiles": "O=C(O)/C=C\\C=C/C(=O)O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="catabolic_progress_b1",
+        current_smiles=smi_curr,
+        carbon_history=carbon_hist,
+        k_drift=3,
+    )
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 2
+    assert res.selected_event["event_id"] == "ev2_ring_cleavage"
+    assert res.reason == "catabolic_progress_fallback"
+
+
+def test_catabolic_progress_legitimate_pre_reaction_protected():
+    """规则 B2（零退化保护）：正常的芳环单加氧/双加氧前序步骤（连续步数 < k_drift）不被误杀。"""
+    smi_curr = "c1ccccc1"  # 苯 (C6)
+    sid_curr = strict_identity_of(smi_curr)
+    history = ("root_benzene", sid_curr)
+    # 历史碳数仅有 1 步等碳 (consec_iso = 1 < 3)
+    carbon_hist = [6, 6]
+
+    # Event #1: 正常单加氧羟基化生成苯酚 (C6，合理前序步骤)
+    ev1 = {
+        "event_id": "ev1_phenol",
+        "rank": 1,
+        "principal_products": [{"smiles": "c1ccccc1O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 假想的切碳候选
+    ev2 = {
+        "event_id": "ev2_cut",
+        "rank": 2,
+        "principal_products": [{"smiles": "CCCC", "role": "principal_product"}],
+        "coproducts": [],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="catabolic_progress_b1",
+        current_smiles=smi_curr,
+        carbon_history=carbon_hist,
+        k_drift=3,
+    )
+    # 必须保留 Event #1，绝不发生提前误杀！
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 1
+    assert res.selected_event["event_id"] == "ev1_phenol"
+
+
+def test_catabolic_progress_no_progress_candidate_graceful_fallback():
+    """规则 B3：当漂移触发但后续候选均无实质降解进展时，优雅退回保持 Event #1。"""
+    smi_curr = "Oc1ccc(O)cc1"  # 对苯二酚
+    sid_curr = strict_identity_of(smi_curr)
+    history = ("a", "b", "c", sid_curr)
+    carbon_hist = [6, 6, 6, 6]  # 触发漂移
+
+    # Event #1: 依然等碳且未开环
+    ev1 = {
+        "event_id": "ev1_same",
+        "rank": 1,
+        "principal_products": [{"smiles": "Oc1cc(O)ccc1O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 也是等碳且未开环未除毒
+    ev2 = {
+        "event_id": "ev2_same",
+        "rank": 2,
+        "principal_products": [{"smiles": "Oc1c(O)cccc1O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="catabolic_progress_b1",
+        current_smiles=smi_curr,
+        carbon_history=carbon_hist,
+        k_drift=3,
+    )
+    # 优雅保留 Event #1
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 1
+    assert res.selected_event["event_id"] == "ev1_same"
+
+
