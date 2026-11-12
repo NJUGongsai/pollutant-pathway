@@ -505,3 +505,189 @@ def test_catabolic_progress_no_progress_candidate_graceful_fallback():
     assert res.selected_event["event_id"] == "ev1_same"
 
 
+def test_stage_aware_intact_ring_protected_on_drift():
+    """Stage-Aware 阶段一门控：底物含环（芳环/杂环/脂环）时，即便等碳步数 >= 5 步，也严格保护 Event #1，不触发等碳漂移顺延。"""
+    smi_curr = "c1ccccc1O"  # 苯酚 (含芳环)
+    sid_curr = strict_identity_of(smi_curr)
+    history = ("a", "b", "c", "d", "e", sid_curr)
+    carbon_hist = [6, 6, 6, 6, 6, 6]  # 连续 5 步等碳
+
+    # Event #1: 正常的邻位羟基化形成邻苯二酚 (依然含芳环)
+    ev1 = {
+        "event_id": "ev1_catechol",
+        "rank": 1,
+        "principal_products": [{"smiles": "Oc1ccccc1O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 假想的切碳反应
+    ev2 = {
+        "event_id": "ev2_cut",
+        "rank": 2,
+        "principal_products": [{"smiles": "CCCCC", "role": "principal_product"}],
+        "coproducts": [],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="stage_aware_b1",
+        current_smiles=smi_curr,
+        carbon_history=carbon_hist,
+        k_drift=3,
+    )
+    # Stage-Aware 必须保护阶段一的环系前置活化，保留 Event #1！
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 1
+    assert res.selected_event["event_id"] == "ev1_catechol"
+    assert res.reason == "stage_aware_top1"
+
+
+def test_stage_aware_sink_closing_priority_active_any_stage():
+    """Stage-Aware 规则 A1：一步全碎片直达终点池优先（全阶段通用生效）。"""
+    smi_curr = "CC(=O)CC(=O)O"  # 乙酰乙酸 (无环)
+    sid_curr = strict_identity_of(smi_curr)
+    history = ("a", sid_curr)
+    carbon_hist = [4, 4]
+
+    # Event #1: 还原为羟基丁酸 (未完全入汇)
+    ev1 = {
+        "event_id": "ev1_red",
+        "rank": 1,
+        "principal_products": [{"smiles": "CC(O)CC(=O)O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 硫解/水解为两分子乙酸 (乙酸是 A0/B 终点池成员，100% 碳入汇)
+    ev2 = {
+        "event_id": "ev2_sink_close",
+        "rank": 2,
+        "principal_products": [
+            {"smiles": "CC(=O)O", "role": "principal_product"},
+            {"smiles": "CC(=O)O", "role": "principal_product"},
+        ],
+        "coproducts": [],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="stage_aware_b1",
+        current_smiles=smi_curr,
+        carbon_history=carbon_hist,
+        k_drift=3,
+    )
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 2
+    assert res.selected_event["event_id"] == "ev2_sink_close"
+    assert res.reason == "sink_closing_priority"
+
+
+def test_stage_aware_open_chain_drift_triggered_on_k5():
+    """Stage-Aware 阶段二门控：开环脂肪族链段在连续 >= 5 步等碳漂移时，安全顺延实质切碳候选。"""
+    smi_curr = "CCCCCC(=O)O"  # 己酸 (无环)
+    sid_curr = strict_identity_of(smi_curr)
+    history = ("a", "b", "c", "d", "e", sid_curr)
+    carbon_hist = [6, 6, 6, 6, 6, 6]  # 连续 5 步等碳
+
+    # Event #1: 无实质进展的羟基化（生成新分子 6-羟基己酸，不倒车但等碳无进展）
+    ev1 = {
+        "event_id": "ev1_same_c",
+        "rank": 1,
+        "principal_products": [{"smiles": "OCCCCCC(=O)O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 实质 beta-氧化切除 2 碳生成丁酸
+    ev2 = {
+        "event_id": "ev2_beta_cut",
+        "rank": 2,
+        "principal_products": [{"smiles": "CCCC(=O)O", "role": "principal_product"}],
+        "coproducts": [{"smiles": "CC(=O)O", "role": "coproduct"}],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="stage_aware_b1",
+        current_smiles=smi_curr,
+        carbon_history=carbon_hist,
+        k_drift=3,
+    )
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 2
+    assert res.selected_event["event_id"] == "ev2_beta_cut"
+    assert res.reason == "stage_aware_catabolic_progress_fallback"
+
+
+def test_stage_aware_c1_oxidation_priority():
+    """Stage-Aware 阶段二规则 A2：C1 底物正向氧化递进优先。"""
+    smi_curr = "CO"  # 甲醇 (C1)
+    sid_curr = strict_identity_of(smi_curr)
+    history = ("parent", sid_curr)
+    carbon_hist = [1, 1]
+
+    # Event #1: 硫代或其它非氧化候选
+    ev1 = {
+        "event_id": "ev1_c1_non_ox",
+        "rank": 1,
+        "principal_products": [{"smiles": "CS", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 甲醇脱氢酶生成甲醛 (氧化态提高)
+    ev2 = {
+        "event_id": "ev2_c1_ox",
+        "rank": 2,
+        "principal_products": [{"smiles": "C=O", "role": "principal_product"}],
+        "coproducts": [],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="stage_aware_b1",
+        current_smiles=smi_curr,
+        carbon_history=carbon_hist,
+        k_drift=3,
+    )
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 2
+    assert res.selected_event["event_id"] == "ev2_c1_ox"
+    assert res.reason == "c1_oxidation_priority"
+
+
+def test_stage_aware_c1_ev1_already_oxidizing_is_protected():
+    """Stage-Aware 阶段二规则 A2 保护：当 Event #1 已经在无外源毒害前提下正向氧化 C1（如甲烷 -> 甲醇）时，严格保护 Event #1，不顺延至卤化等有害/旁路候选。"""
+    smi_curr = "C"  # 甲烷 (C1, ox=0)
+    sid_curr = strict_identity_of(smi_curr)
+    history = ("parent", sid_curr)
+    carbon_hist = [1, 1]
+
+    # Event #1: 正常甲烷单加氧酶生成甲醇 (ox=1, 无外源毒害基团)
+    ev1 = {
+        "event_id": "ev1_methanol",
+        "rank": 1,
+        "principal_products": [{"smiles": "CO", "role": "principal_product"}],
+        "coproducts": [],
+    }
+    # Event #2: 氯化生成一氯甲烷 (ox=1, 含有外源卤素毒害基团)
+    ev2 = {
+        "event_id": "ev2_chloromethane",
+        "rank": 2,
+        "principal_products": [{"smiles": "CCl", "role": "principal_product"}],
+        "coproducts": [],
+    }
+
+    res = select_event_non_backtracking(
+        [ev1, ev2],
+        history,
+        policy="stage_aware_b1",
+        current_smiles=smi_curr,
+        carbon_history=carbon_hist,
+        k_drift=3,
+    )
+    # 必须严格保护 Event #1！
+    assert res.status == "SELECTED"
+    assert res.selected_rank == 1
+    assert res.selected_event["event_id"] == "ev1_methanol"
+    assert res.reason == "stage_aware_top1"
+
+
+

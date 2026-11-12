@@ -1,0 +1,227 @@
+{
+  "benchmark_name": "biosysmodb121_e2e_mineralization_benchmark",
+  "policy": "stage_aware_b1",
+  "timestamp_utc": "2026-11-12T06:48:15.346973+00:00",
+  "elapsed_seconds": 132.6,
+  "subset_requested": "full121",
+  "counts": {
+    "full_121": 121,
+    "tuning_76": 76,
+    "holdout_43": 43,
+    "non_417_formal": 2,
+    "evaluated_in_this_run": 121
+  },
+  "token_accounting": {
+    "input_tokens": 4861609,
+    "output_tokens": 15202467,
+    "total_tokens": 20064076,
+    "requests_total": 1358,
+    "cost_status": "no_snapshot",
+    "price_snapshot": "未核实"
+  },
+  "execution_stats": {
+    "policy": "stage_aware_b1",
+    "max_depth": 20,
+    "total_branches_created": 2702,
+    "sequential_fallback_count": 845,
+    "chosen_rank_distribution": {
+      "1": 1705,
+      "2": 236,
+      "3": 183,
+      "4": 29,
+      "5": 7,
+      "6": 1
+    },
+    "skipped_collisions_by_lag": {
+      "1": 52,
+      "2": 807,
+      "3": 28,
+      "4": 31,
+      "5": 4,
+      "6": 10,
+      "7": 6,
+      "8": 7,
+      "9": 8,
+      "10": 1,
+      "11": 1,
+      "12": 1
+    },
+    "all_candidates_backtrack_count": 10
+  },
+  "flip_analysis": {
+    "transitions_full": {
+      "DEAD_END_TP -> DEAD_END_TP": 3,
+      "CYCLE_ABORTED -> DEAD_END_TP": 14,
+      "CYCLE_ABORTED -> MAX_DEPTH_UNFINISHED": 26,
+      "MINERALIZED_CLOSED -> MINERALIZED_CLOSED": 21,
+      "CYCLE_ABORTED -> MINERALIZED_CLOSED": 39,
+      "MAX_DEPTH_UNFINISHED -> MAX_DEPTH_UNFINISHED": 1,
+      "MAX_DEPTH_UNFINISHED -> MINERALIZED_CLOSED": 7,
+      "CYCLE_ABORTED -> CYCLE_ABORTED": 10
+    },
+    "transitions_tuning": {
+      "DEAD_END_TP -> DEAD_END_TP": 2,
+      "CYCLE_ABORTED -> DEAD_END_TP": 9,
+      "CYCLE_ABORTED -> MAX_DEPTH_UNFINISHED": 13,
+      "MINERALIZED_CLOSED -> MINERALIZED_CLOSED": 16,
+      "CYCLE_ABORTED -> MINERALIZED_CLOSED": 26,
+      "MAX_DEPTH_UNFINISHED -> MINERALIZED_CLOSED": 4,
+      "CYCLE_ABORTED -> CYCLE_ABORTED": 6
+    },
+    "transitions_holdout": {
+      "CYCLE_ABORTED -> MINERALIZED_CLOSED": 13,
+      "MAX_DEPTH_UNFINISHED -> MAX_DEPTH_UNFINISHED": 1,
+      "CYCLE_ABORTED -> MAX_DEPTH_UNFINISHED": 12,
+      "DEAD_END_TP -> DEAD_END_TP": 1,
+      "MINERALIZED_CLOSED -> MINERALIZED_CLOSED": 5,
+      "CYCLE_ABORTED -> CYCLE_ABORTED": 4,
+      "CYCLE_ABORTED -> DEAD_END_TP": 4,
+      "MAX_DEPTH_UNFINISHED -> MINERALIZED_CLOSED": 3
+    },
+    "transitions_non_417": {
+      "CYCLE_ABORTED -> DEAD_END_TP": 1,
+      "CYCLE_ABORTED -> MAX_DEPTH_UNFINISHED": 1
+    }
+  },
+  "tuning_76": {
+    "n_pathways": 76,
+    "outcomes": {
+      "MINERALIZED_CLOSED": {
+        "count": 46,
+        "ratio": 0.6052631578947368,
+        "strict_carbon_closed_count": 46,
+        "strict_carbon_closed_ratio": 0.6052631578947368,
+        "declared_branches_closed_count": 0,
+        "declared_branches_closed_ratio": 0.0
+      },
+      "DEAD_END_TP": {
+        "count": 11,
+        "ratio": 0.14473684210526316
+      },
+      "CYCLE_ABORTED": {
+        "count": 6,
+        "ratio": 0.07894736842105263
+      },
+      "MAX_DEPTH_UNFINISHED": {
+        "count": 13,
+        "ratio": 0.17105263157894737
+      }
+    },
+    "mineralized_topology": {
+      "mean_depth": 10.09,
+      "mean_leaf_branches": 3.91
+    },
+    "reference_alignment": {
+      "ref_step1_hit_strict": 0.2895,
+      "ref_step1_hit_cn": 0.3026,
+      "ref_prefix_depth": 0.42,
+      "ref_prefix_ratio": 0.1067,
+      "ref_node_recall_strict": 0.1796,
+      "ref_node_recall_cn": 0.2497,
+      "ref_edge_recall": 0.1151,
+      "terminal_hit_and_mineralized_count": 9,
+      "terminal_hit_and_mineralized_ratio": 0.1184,
+      "stopped_early_model_mineralized_count": 36,
+      "stopped_early_model_mineralized_ratio": 0.4737
+    },
+    "fallback_metrics": {
+      "pathways_with_fallback": 72,
+      "pathways_with_fallback_ratio": 0.9474,
+      "total_fallback_events": 4775
+    }
+  },
+  "holdout_43": {
+    "n_pathways": 43,
+    "outcomes": {
+      "MINERALIZED_CLOSED": {
+        "count": 21,
+        "ratio": 0.4883720930232558,
+        "strict_carbon_closed_count": 21,
+        "strict_carbon_closed_ratio": 0.4883720930232558,
+        "declared_branches_closed_count": 0,
+        "declared_branches_closed_ratio": 0.0
+      },
+      "DEAD_END_TP": {
+        "count": 5,
+        "ratio": 0.11627906976744186
+      },
+      "CYCLE_ABORTED": {
+        "count": 4,
+        "ratio": 0.09302325581395349
+      },
+      "MAX_DEPTH_UNFINISHED": {
+        "count": 13,
+        "ratio": 0.3023255813953488
+      }
+    },
+    "mineralized_topology": {
+      "mean_depth": 11.43,
+      "mean_leaf_branches": 3.95
+    },
+    "reference_alignment": {
+      "ref_step1_hit_strict": 0.3256,
+      "ref_step1_hit_cn": 0.3953,
+      "ref_prefix_depth": 0.44,
+      "ref_prefix_ratio": 0.1209,
+      "ref_node_recall_strict": 0.1479,
+      "ref_node_recall_cn": 0.2185,
+      "ref_edge_recall": 0.1238,
+      "terminal_hit_and_mineralized_count": 1,
+      "terminal_hit_and_mineralized_ratio": 0.0233,
+      "stopped_early_model_mineralized_count": 16,
+      "stopped_early_model_mineralized_ratio": 0.3721
+    },
+    "fallback_metrics": {
+      "pathways_with_fallback": 41,
+      "pathways_with_fallback_ratio": 0.9535,
+      "total_fallback_events": 3104
+    }
+  },
+  "full_121": {
+    "n_pathways": 121,
+    "outcomes": {
+      "MINERALIZED_CLOSED": {
+        "count": 67,
+        "ratio": 0.5537190082644629,
+        "strict_carbon_closed_count": 67,
+        "strict_carbon_closed_ratio": 0.5537190082644629,
+        "declared_branches_closed_count": 0,
+        "declared_branches_closed_ratio": 0.0
+      },
+      "DEAD_END_TP": {
+        "count": 17,
+        "ratio": 0.14049586776859505
+      },
+      "CYCLE_ABORTED": {
+        "count": 10,
+        "ratio": 0.08264462809917356
+      },
+      "MAX_DEPTH_UNFINISHED": {
+        "count": 27,
+        "ratio": 0.2231404958677686
+      }
+    },
+    "mineralized_topology": {
+      "mean_depth": 10.51,
+      "mean_leaf_branches": 3.93
+    },
+    "reference_alignment": {
+      "ref_step1_hit_strict": 0.2975,
+      "ref_step1_hit_cn": 0.3306,
+      "ref_prefix_depth": 0.42,
+      "ref_prefix_ratio": 0.11,
+      "ref_node_recall_strict": 0.1729,
+      "ref_node_recall_cn": 0.242,
+      "ref_edge_recall": 0.1163,
+      "terminal_hit_and_mineralized_count": 10,
+      "terminal_hit_and_mineralized_ratio": 0.0826,
+      "stopped_early_model_mineralized_count": 52,
+      "stopped_early_model_mineralized_ratio": 0.4298
+    },
+    "fallback_metrics": {
+      "pathways_with_fallback": 115,
+      "pathways_with_fallback_ratio": 0.9504,
+      "total_fallback_events": 8573
+    }
+  }
+}

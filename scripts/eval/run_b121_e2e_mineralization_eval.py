@@ -75,6 +75,10 @@ DEFAULT_WORK_DIR_CATABOLIC_PROGRESS = (
     REPO_ROOT
     / "reports/ppv1_s5b/b121_e2e_mineralization_20261111/full121_catabolic_progress_b1"
 )
+DEFAULT_WORK_DIR_STAGE_AWARE = (
+    REPO_ROOT
+    / "reports/ppv1_s5b/b121_e2e_mineralization_20261111/full121_stage_aware_b1"
+)
 DEFAULT_PUBLIC_JSON = (
     REPO_ROOT
     / "docs/reviews/evidence/b121_e2e_mineralization_2026-11-11/e2e_mineralization_summary.json"
@@ -86,6 +90,10 @@ DEFAULT_SUMMARY_NON_BACKTRACKING = (
 DEFAULT_SUMMARY_CATABOLIC_PROGRESS = (
     REPO_ROOT
     / "docs/reviews/evidence/b121_e2e_mineralization_2026-11-11/catabolic_progress_b1_summary.json"
+)
+DEFAULT_SUMMARY_STAGE_AWARE = (
+    REPO_ROOT
+    / "docs/reviews/evidence/b121_e2e_mineralization_2026-11-11/stage_aware_b1_summary.json"
 )
 DEFAULT_PUBLIC_REPORT = (
     REPO_ROOT / "docs/reports/B121_E2E_MINERALIZATION_BENCHMARK_2026-11-11.md"
@@ -484,7 +492,6 @@ def execute_substrate_batch(
     except subprocess.CalledProcessError as exc:
         print(f"[Wave {wave_idx}] s5b_cli budget failed:\n{exc.stderr}")
         raise
-    subprocess.run(cmd_budget, check=True, capture_output=True)
 
     # 4. run batch with 36 workers
     t0 = time.time()
@@ -1373,9 +1380,14 @@ def main() -> None:
     )
     parser.add_argument(
         "--policy",
-        choices=["naive_b1", "non_backtracking_b1", "catabolic_progress_b1"],
-        default="catabolic_progress_b1",
-        help="事件选择策略 (naive_b1 / non_backtracking_b1 / catabolic_progress_b1，默认 catabolic_progress_b1)",
+        choices=[
+            "naive_b1",
+            "non_backtracking_b1",
+            "catabolic_progress_b1",
+            "stage_aware_b1",
+        ],
+        default="stage_aware_b1",
+        help="事件选择策略 (naive_b1 / non_backtracking_b1 / catabolic_progress_b1 / stage_aware_b1，默认 stage_aware_b1)",
     )
     parser.add_argument(
         "--k-drift",
@@ -1424,6 +1436,8 @@ def main() -> None:
 
     if args.work_dir is not None:
         work_dir = args.work_dir
+    elif args.policy == "stage_aware_b1":
+        work_dir = DEFAULT_WORK_DIR_STAGE_AWARE
     elif args.policy == "catabolic_progress_b1":
         work_dir = DEFAULT_WORK_DIR_CATABOLIC_PROGRESS
     elif args.policy == "non_backtracking_b1":
@@ -1433,6 +1447,8 @@ def main() -> None:
 
     if args.out_summary is not None:
         out_summary = args.out_summary
+    elif args.policy == "stage_aware_b1":
+        out_summary = DEFAULT_SUMMARY_STAGE_AWARE
     elif args.policy == "catabolic_progress_b1":
         out_summary = DEFAULT_SUMMARY_CATABOLIC_PROGRESS
     elif args.policy == "non_backtracking_b1":

@@ -698,5 +698,157 @@ def select_event_non_backtracking(
             else "catabolic_progress_top1",
         )
 
+    if policy == "stage_aware_b1":
+        # 1. 过滤祖先倒车事件（Hard Gate）
+        non_bt_events: list[tuple[int, dict[str, Any]]] = []
+        skipped: list[dict[str, Any]] = []
+        for idx, ev in enumerate(candidate_events):
+            rank = ev.get("rank", idx + 1)
+            chk = check_event_backtracking(ev, history_strict_ids)
+            if chk.has_backtrack:
+                skipped.append({
+                    "rank": rank,
+                    "event_id": ev.get("event_id"),
+                    "collisions": chk.collisions,
+                })
+            else:
+                non_bt_events.append((rank, ev))
+
+        if not non_bt_events:
+            return EventSelectionResult(
+                status="ALL_CANDIDATES_BACKTRACK",
+                selected_event=None,
+                selected_rank=None,
+                skipped_events=skipped,
+                reason="all_candidates_backtrack",
+            )
+
+        rank1, ev1 = non_bt_events[0]
+
+        # 2. 规则 A1：全碎片一步直达终点优先（Sink-Closing Priority，全阶段通用生效）
+        if not _is_full_sink_closing_event(ev1):
+            for rank_k, ev_k in non_bt_events[1:]:
+                if _is_full_sink_closing_event(ev_k):
+                    return EventSelectionResult(
+                        status="SELECTED",
+                        selected_event=ev_k,
+                        selected_rank=rank_k,
+                        skipped_events=skipped,
+                        reason="sink_closing_priority",
+                    )
+
+        # 3. 分阶段生化门控分析（Stage-Aware Gating）
+        c_curr = _get_carbon_count(current_smiles)
+        m_curr = Chem.MolFromSmiles(current_smiles) if current_smiles else None
+        tr_curr, ar_curr = _get_ring_info(m_curr)
+        xc_curr = _get_xenobiotic_count(m_curr)
+
+        # 阶段一：前置活化与破环准备期（保护期，tr_curr > 0）
+        # 当底物仍含有环系（芳环或环烷烃）时，严格保护 Event #1，严禁使用等碳漂移打断环境微生物合规的邻位二羟基化、脱卤、异构等前序功能化准备！
+
+        # 阶段二：开环后脂肪族降解期（收尾期，tr_curr == 0）
+        if tr_curr == 0:
+            # 规则 A2：小分子 C1 有机物进终点/正向氧化优先（防止 C1 在门口反复酯化/还原）
+            if c_curr == 1 and not _is_full_sink_closing_event(ev1):
+                ox_curr = _get_c1_oxidation_level(m_curr)
+                # 检查 ev1 是否已经在无外源毒害前提下正向提升氧化态（如甲烷 -> 甲醇）
+                ev1_prods = ev1.get("principal_products", []) + ev1.get("coproducts", [])
+                ev1_c1_ox = -10
+                for p in ev1_prods:
+                    psmi = p.get("smiles", "")
+                    if _get_carbon_count(psmi) == 1:
+                        m_p = Chem.MolFromSmiles(psmi)
+                        if _get_xenobiotic_count(m_p) <= xc_curr:
+                            ev1_c1_ox = max(ev1_c1_ox, _get_c1_oxidation_level(m_p))
+
+                # 只有当 ev1 未能在无毒害前提下正向提升氧化态时，才顺延寻找更高氧化态候选
+                if ev1_c1_ox <= ox_curr:
+                    for rank_k, ev_k in non_bt_events[1:]:
+                        if _is_full_sink_closing_event(ev_k):
+                            return EventSelectionResult(
+                                status="SELECTED",
+                                selected_event=ev_k,
+                                selected_rank=rank_k,
+                                skipped_events=skipped,
+                                reason="c1_sink_closing_priority",
+                            )
+                        prods_k = ev_k.get("principal_products", []) + ev_k.get("coproducts", [])
+                        for p in prods_k:
+                            psmi = p.get("smiles", "")
+                            if _get_carbon_count(psmi) == 1:
+                                m_p = Chem.MolFromSmiles(psmi)
+                                if (
+                                    _get_xenobiotic_count(m_p) <= xc_curr
+                                    and _get_c1_oxidation_level(m_p) > ox_curr
+                                ):
+                                    return EventSelectionResult(
+                                        status="SELECTED",
+                                        selected_event=ev_k,
+                                        selected_rank=rank_k,
+                                        skipped_events=skipped,
+                                        reason="c1_oxidation_priority",
+                                    )
+
+            # 规则 B：开环链段抗等碳漂移顺延（仅在无环链段、连续 >= k_drift 步等碳时触发）
+            # 脂肪族 beta-氧化标准周期为 2 步等碳（水合 + 脱氢），第 3 步硫解切碳。
+            # 因此开环后取 max(k_drift, 5) 即可避免误伤正常 beta-氧化。
+            consec_iso = 0
+            if carbon_history and len(carbon_history) >= 2:
+                for i in range(len(carbon_history) - 1, 0, -1):
+                    if carbon_history[i] == carbon_history[i - 1]:
+                        consec_iso += 1
+                    else:
+                        break
+
+            ev1_prods = [
+                p["smiles"]
+                for p in ev1.get("principal_products", []) + ev1.get("coproducts", [])
+                if p.get("smiles")
+            ]
+            ev1_c_prods = [_get_carbon_count(s) for s in ev1_prods if _get_carbon_count(s) > 0]
+            max_c_ev1 = max(ev1_c_prods) if ev1_c_prods else 0
+            ev1_has_sink = any(
+                classify_mineralization_sink(s).is_terminal_sink for s in ev1_prods
+            )
+
+            ev1_m_main = Chem.MolFromSmiles(ev1_prods[0]) if ev1_prods else None
+            tr_ev1, ar_ev1 = _get_ring_info(ev1_m_main)
+            xc_ev1 = _get_xenobiotic_count(ev1_m_main)
+
+            is_inconsequential = (
+                max_c_ev1 == c_curr
+                and not ev1_has_sink
+                and tr_ev1 >= tr_curr
+                and ar_ev1 >= ar_curr
+                and xc_ev1 >= xc_curr
+            )
+
+            trigger_drift = (consec_iso >= max(k_drift, 5) and is_inconsequential) or (
+                max_c_ev1 > c_curr
+            )
+
+            if trigger_drift:
+                for rank_k, ev_k in non_bt_events[1:]:
+                    if _eval_substantive_catabolic_progress(
+                        ev_k, c_curr, tr_curr, ar_curr, xc_curr
+                    ):
+                        return EventSelectionResult(
+                            status="SELECTED",
+                            selected_event=ev_k,
+                            selected_rank=rank_k,
+                            skipped_events=skipped,
+                            reason="stage_aware_catabolic_progress_fallback",
+                        )
+
+        return EventSelectionResult(
+            status="SELECTED",
+            selected_event=ev1,
+            selected_rank=rank1,
+            skipped_events=skipped,
+            reason="stage_aware_first_non_backtracking"
+            if skipped
+            else "stage_aware_top1",
+        )
+
     raise ValueError(f"Unknown event selection policy: {policy}")
 
