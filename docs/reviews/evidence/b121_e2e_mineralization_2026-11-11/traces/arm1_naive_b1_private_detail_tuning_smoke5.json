@@ -1,0 +1,1848 @@
+[
+  {
+    "case_id": "BIOPATH150_001",
+    "pathway_name": "Adamantanone degradation",
+    "split": "tuning",
+    "outcome": "DEAD_END_TP",
+    "mineralization_type": null,
+    "metrics": {
+      "ref_step1_hit_strict": false,
+      "ref_step1_hit_cn": false,
+      "ref_prefix_depth": 0,
+      "ref_prefix_ratio": 0.0,
+      "ref_node_recall_strict": 0.0,
+      "ref_node_recall_cn": 0.0,
+      "ref_edge_recall": 0.0,
+      "visited_ref_terminal": false,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": false,
+      "max_depth_reached": 8,
+      "leaf_branch_count": 1
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 81,
+        "depth": 8,
+        "status": "DEAD_END_TP",
+        "sink_tier": null,
+        "current_smiles": "O=C1C(O)C(CO)OC(OC23CC4(O)CC(O)(CC(O)(C4)C2=O)C3)C1O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1C2CC3CC1CC(C2)C3=O",
+            "substrate_strict_id": "O=C1C2CC3CC(C2)CC1C3",
+            "event_id": "ppev_e67bd34870ee66f6f75f",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC12CC3CC(CC(C3)C1)C2"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 2,
+            "substrate": "OC12CC3CC(CC(C3)C1)C2",
+            "substrate_strict_id": "OC12CC3CC(CC(C3)C1)C2",
+            "event_id": "ppev_d3fe12d6cf379d9bc33e",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC12CC3CC(C1)CC(O)(C3)C2"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "OC12CC3CC(C1)CC(O)(C3)C2",
+            "substrate_strict_id": "OC12CC3CC(C1)CC(O)(C3)C2",
+            "event_id": "ppev_2e5753f13242cfa6afab",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC12CC3CC(O)(C1)CC(O)(C3)C2"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "OC12CC3CC(O)(C1)CC(O)(C3)C2",
+            "substrate_strict_id": "OC12CC3CC(O)(C1)CC(O)(C3)C2",
+            "event_id": "ppev_7d594251ea1ee7024619",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC12CC3(O)CC(O)(C1)CC(O)(C2)C3"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "OC12CC3(O)CC(O)(C1)CC(O)(C2)C3",
+            "substrate_strict_id": "OC12CC3(O)CC(O)(C1)CC(O)(C2)C3",
+            "event_id": "ppev_aed4a67030f4b3cc846d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC1C2(O)CC3(O)CC(O)(C2)CC1(O)C3"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "OC1C2(O)CC3(O)CC(O)(C2)CC1(O)C3",
+            "substrate_strict_id": "OC1C2(O)CC3(O)CC(O)(C2)CC1(O)C3",
+            "event_id": "ppev_74dc45c40c7bcd2f7bf5",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C2(O)CC3(O)CC(O)(C2)CC1(O)C3"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=C1C2(O)CC3(O)CC(O)(C2)CC1(O)C3",
+            "substrate_strict_id": "O=C1C2(O)CC3(O)CC(O)(C2)CC1(O)C3",
+            "event_id": "ppev_b46fb4b0d5366c969c93",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 16,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C2(O)CC3(O)CC(O)(C2)CC1(OC1OC(CO)C(O)C(O)C1O)C3"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "O=C1C2(O)CC3(O)CC(O)(C2)CC1(OC1OC(CO)C(O)C(O)C1O)C3",
+            "substrate_strict_id": "O=C1C2(O)CC3(O)CC(O)(C2)CC1(OC1OC(CO)C(O)C(O)C1O)C3",
+            "event_id": "ppev_db568eafd1e91894b5db",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 16,
+              "products_c": 16,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C(O)C(CO)OC(OC23CC4(O)CC(O)(CC(O)(C4)C2=O)C3)C1O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "BIOPATH150_002",
+    "pathway_name": "Asulam pathway",
+    "split": "tuning",
+    "outcome": "CYCLE_ABORTED",
+    "mineralization_type": null,
+    "metrics": {
+      "ref_step1_hit_strict": true,
+      "ref_step1_hit_cn": true,
+      "ref_prefix_depth": 1,
+      "ref_prefix_ratio": 0.1111111111111111,
+      "ref_node_recall_strict": 0.125,
+      "ref_node_recall_cn": 0.125,
+      "ref_edge_recall": 0.1111111111111111,
+      "visited_ref_terminal": false,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": false,
+      "max_depth_reached": 7,
+      "leaf_branch_count": 5
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 26,
+        "depth": 3,
+        "status": "CYCLE_ABORTED",
+        "sink_tier": null,
+        "current_smiles": "Nc1ccc(S(N)(=O)=O)cc1",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_d5d2867313777f748df8",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_99a22d997758126ac77c",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          }
+        ]
+      },
+      {
+        "branch_id": 57,
+        "depth": 5,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 58,
+        "depth": 5,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 75,
+        "depth": 7,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_d5d2867313777f748df8",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_99a22d997758126ac77c",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 76,
+        "depth": 7,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_d5d2867313777f748df8",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_99a22d997758126ac77c",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "BIOPATH150_004",
+    "pathway_name": "Caffeine (fungal) pathway",
+    "split": "tuning",
+    "outcome": "CYCLE_ABORTED",
+    "mineralization_type": null,
+    "metrics": {
+      "ref_step1_hit_strict": false,
+      "ref_step1_hit_cn": false,
+      "ref_prefix_depth": 0,
+      "ref_prefix_ratio": 0.0,
+      "ref_node_recall_strict": 0.5,
+      "ref_node_recall_cn": 0.5,
+      "ref_edge_recall": 0.17647058823529413,
+      "visited_ref_terminal": true,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": false,
+      "max_depth_reached": 7,
+      "leaf_branch_count": 4
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 44,
+        "depth": 4,
+        "status": "CYCLE_ABORTED",
+        "sink_tier": null,
+        "current_smiles": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "substrate_strict_id": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "event_id": "ppev_2c783a72bd003b424ec4",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_872691d6971339a6c743",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]cnc2[nH]1"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+            "event_id": "ppev_e6ff5e8e0118061810ae",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 61,
+        "depth": 5,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 70,
+        "depth": 6,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "substrate_strict_id": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "event_id": "ppev_2c783a72bd003b424ec4",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 77,
+        "depth": 7,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "substrate_strict_id": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "event_id": "ppev_2c783a72bd003b424ec4",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_872691d6971339a6c743",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]cnc2[nH]1"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "BIOPATH150_005",
+    "pathway_name": "4-Carboxy-4'-Sulfoazobenzene pathway",
+    "split": "tuning",
+    "outcome": "CYCLE_ABORTED",
+    "mineralization_type": null,
+    "metrics": {
+      "ref_step1_hit_strict": true,
+      "ref_step1_hit_cn": true,
+      "ref_prefix_depth": 1,
+      "ref_prefix_ratio": 0.3333333333333333,
+      "ref_node_recall_strict": 0.5,
+      "ref_node_recall_cn": 0.75,
+      "ref_edge_recall": 0.25,
+      "visited_ref_terminal": true,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": false,
+      "max_depth_reached": 8,
+      "leaf_branch_count": 5
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 50,
+        "depth": 4,
+        "status": "CYCLE_ABORTED",
+        "sink_tier": null,
+        "current_smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "substrate_strict_id": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "event_id": "ppev_005912788cec291a92de",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_f88043b7d5849c462f5b",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_75eae9deff0e85d6fadb",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          }
+        ]
+      },
+      {
+        "branch_id": 62,
+        "depth": 5,
+        "status": "CYCLE_ABORTED",
+        "sink_tier": null,
+        "current_smiles": "Oc1ccccc1O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(C(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(C(=O)[O-])cc1",
+            "event_id": "ppev_1f63aad4ee6bbfd817cd",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])c1ccc(O)c(O)c1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "O=C([O-])c1ccc(O)c(O)c1",
+            "substrate_strict_id": "O=C([O-])c1ccc(O)c(O)c1",
+            "event_id": "ppev_96ccde9c9a65f40261b8",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccccc1O"
+            ],
+            "coproducts": [
+              "C",
+              "O",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "Oc1ccccc1O",
+            "substrate_strict_id": "Oc1ccccc1O",
+            "event_id": "ppev_07a973e9bc2965ef04ee",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C=CC=CC1=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=C1C=CC=CC1=O",
+            "substrate_strict_id": "O=C1C=CC=CC1=O",
+            "event_id": "ppev_a57b2c12206b05e45f8b",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccccc1O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 78,
+        "depth": 7,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(C(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(C(=O)[O-])cc1",
+            "event_id": "ppev_1f63aad4ee6bbfd817cd",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])c1ccc(O)c(O)c1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "O=C([O-])c1ccc(O)c(O)c1",
+            "substrate_strict_id": "O=C([O-])c1ccc(O)c(O)c1",
+            "event_id": "ppev_96ccde9c9a65f40261b8",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccccc1O"
+            ],
+            "coproducts": [
+              "C",
+              "O",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 82,
+        "depth": 8,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "substrate_strict_id": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "event_id": "ppev_005912788cec291a92de",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_f88043b7d5849c462f5b",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_75eae9deff0e85d6fadb",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          },
+          {
+            "depth": 5,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 83,
+        "depth": 8,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "substrate_strict_id": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "event_id": "ppev_005912788cec291a92de",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_f88043b7d5849c462f5b",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_75eae9deff0e85d6fadb",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          },
+          {
+            "depth": 5,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "BIOPATH150_006",
+    "pathway_name": "1,2-Dichloroethane degradation pathway",
+    "split": "tuning",
+    "outcome": "MINERALIZED_CLOSED",
+    "mineralization_type": "MINERALIZED_STRICT_CARBON_CLOSED",
+    "metrics": {
+      "ref_step1_hit_strict": false,
+      "ref_step1_hit_cn": false,
+      "ref_prefix_depth": 0,
+      "ref_prefix_ratio": 0.0,
+      "ref_node_recall_strict": 0.0,
+      "ref_node_recall_cn": 0.0,
+      "ref_edge_recall": 0.0,
+      "visited_ref_terminal": false,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": true,
+      "max_depth_reached": 4,
+      "leaf_branch_count": 1
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 53,
+        "depth": 4,
+        "status": "SINK_REACHED",
+        "sink_tier": "B_central_carbon_sink",
+        "current_smiles": "CC(=O)O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C(CCl)Cl",
+            "substrate_strict_id": "ClCCCl",
+            "event_id": "ppev_3375da15ee0d648fe6d3",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 2,
+              "products_c": 2,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CCCl"
+            ],
+            "coproducts": [
+              "Cl"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "CCCl",
+            "substrate_strict_id": "CCCl",
+            "event_id": "ppev_87a79c74d63fa271c45c",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 2,
+              "products_c": 2,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CCO"
+            ],
+            "coproducts": [
+              "Cl"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "CCO",
+            "substrate_strict_id": "CCO",
+            "event_id": "ppev_b8a887136dd665632fae",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 2,
+              "products_c": 2,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC=O",
+            "substrate_strict_id": "CC=O",
+            "event_id": "ppev_c4ffa70971345c9a3e7f",
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 2,
+              "products_c": 2,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  }
+]

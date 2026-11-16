@@ -1,0 +1,4528 @@
+[
+  {
+    "case_id": "BIOPATH150_001",
+    "pathway_name": "Adamantanone degradation",
+    "split": "tuning",
+    "outcome": "DEAD_END_TP",
+    "mineralization_type": null,
+    "metrics": {
+      "ref_step1_hit_strict": false,
+      "ref_step1_hit_cn": false,
+      "ref_prefix_depth": 0,
+      "ref_prefix_ratio": 0.0,
+      "ref_node_recall_strict": 0.0,
+      "ref_node_recall_cn": 0.0,
+      "ref_edge_recall": 0.0,
+      "visited_ref_terminal": false,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": false,
+      "max_depth_reached": 8,
+      "leaf_branch_count": 1
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 88,
+        "depth": 8,
+        "status": "DEAD_END_TP",
+        "sink_tier": null,
+        "current_smiles": "O=C1C(O)C(CO)OC(OC23CC4(O)CC(O)(CC(O)(C4)C2=O)C3)C1O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1C2CC3CC1CC(C2)C3=O",
+            "substrate_strict_id": "O=C1C2CC3CC(C2)CC1C3",
+            "event_id": "ppev_e67bd34870ee66f6f75f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC12CC3CC(CC(C3)C1)C2"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 2,
+            "substrate": "OC12CC3CC(CC(C3)C1)C2",
+            "substrate_strict_id": "OC12CC3CC(CC(C3)C1)C2",
+            "event_id": "ppev_d3fe12d6cf379d9bc33e",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC12CC3CC(C1)CC(O)(C3)C2"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "OC12CC3CC(C1)CC(O)(C3)C2",
+            "substrate_strict_id": "OC12CC3CC(C1)CC(O)(C3)C2",
+            "event_id": "ppev_2e5753f13242cfa6afab",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC12CC3CC(O)(C1)CC(O)(C3)C2"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "OC12CC3CC(O)(C1)CC(O)(C3)C2",
+            "substrate_strict_id": "OC12CC3CC(O)(C1)CC(O)(C3)C2",
+            "event_id": "ppev_7d594251ea1ee7024619",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC12CC3(O)CC(O)(C1)CC(O)(C2)C3"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "OC12CC3(O)CC(O)(C1)CC(O)(C2)C3",
+            "substrate_strict_id": "OC12CC3(O)CC(O)(C1)CC(O)(C2)C3",
+            "event_id": "ppev_aed4a67030f4b3cc846d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "OC1C2(O)CC3(O)CC(O)(C2)CC1(O)C3"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "OC1C2(O)CC3(O)CC(O)(C2)CC1(O)C3",
+            "substrate_strict_id": "OC1C2(O)CC3(O)CC(O)(C2)CC1(O)C3",
+            "event_id": "ppev_74dc45c40c7bcd2f7bf5",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 10,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C2(O)CC3(O)CC(O)(C2)CC1(O)C3"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=C1C2(O)CC3(O)CC(O)(C2)CC1(O)C3",
+            "substrate_strict_id": "O=C1C2(O)CC3(O)CC(O)(C2)CC1(O)C3",
+            "event_id": "ppev_b46fb4b0d5366c969c93",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 10,
+              "products_c": 16,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C2(O)CC3(O)CC(O)(C2)CC1(OC1OC(CO)C(O)C(O)C1O)C3"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "O=C1C2(O)CC3(O)CC(O)(C2)CC1(OC1OC(CO)C(O)C(O)C1O)C3",
+            "substrate_strict_id": "O=C1C2(O)CC3(O)CC(O)(C2)CC1(OC1OC(CO)C(O)C(O)C1O)C3",
+            "event_id": "ppev_db568eafd1e91894b5db",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 16,
+              "products_c": 16,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C(O)C(CO)OC(OC23CC4(O)CC(O)(CC(O)(C4)C2=O)C3)C1O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "BIOPATH150_002",
+    "pathway_name": "Asulam pathway",
+    "split": "tuning",
+    "outcome": "DEAD_END_TP",
+    "mineralization_type": null,
+    "metrics": {
+      "ref_step1_hit_strict": true,
+      "ref_step1_hit_cn": true,
+      "ref_prefix_depth": 1,
+      "ref_prefix_ratio": 0.1111111111111111,
+      "ref_node_recall_strict": 0.125,
+      "ref_node_recall_cn": 0.125,
+      "ref_edge_recall": 0.1111111111111111,
+      "visited_ref_terminal": false,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": false,
+      "max_depth_reached": 8,
+      "leaf_branch_count": 5
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 55,
+        "depth": 5,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 56,
+        "depth": 5,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 78,
+        "depth": 7,
+        "status": "DEAD_END_TP",
+        "sink_tier": null,
+        "current_smiles": "CC(=O)Nc1c(O)cc(S(N)(=O)=O)c(O)c1O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_d5d2867313777f748df8",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_3f4796550116b3944466",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_99a22d997758126ac77c",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(N)(=O)=O)cc1",
+                    "strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+                    "lag": 2,
+                    "ancestor_index": 1
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O",
+            "event_id": "ppev_5ff1f75fed119a27a4f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1O"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          },
+          {
+            "depth": 5,
+            "substrate": "Nc1ccc(S(N)(=O)=O)cc1O",
+            "substrate_strict_id": "Nc1ccc(S(N)(=O)=O)cc1O",
+            "event_id": "ppev_4bf0789dbe486db938f0",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_8dfb7c7243645a19b7d6",
+                "collisions": [
+                  {
+                    "smiles": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O",
+                    "strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O",
+                    "lag": 2,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)c(O)c1O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "Nc1ccc(S(N)(=O)=O)c(O)c1O",
+            "substrate_strict_id": "Nc1ccc(S(N)(=O)=O)c(O)c1O",
+            "event_id": "ppev_8db2c7a5e728c20942b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)c(O)c1O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)c(O)c1O",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)c(O)c1O",
+            "event_id": "ppev_3222addf62d31fdec3f4",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_c33514ef96724e990fb4",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(N)(=O)=O)c(O)c1O",
+                    "strict_id": "Nc1ccc(S(N)(=O)=O)c(O)c1O",
+                    "lag": 2,
+                    "ancestor_index": 5
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1c(O)cc(S(N)(=O)=O)c(O)c1O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 89,
+        "depth": 8,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_d5d2867313777f748df8",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_3f4796550116b3944466",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_99a22d997758126ac77c",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(N)(=O)=O)cc1",
+                    "strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+                    "lag": 2,
+                    "ancestor_index": 1
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O",
+            "event_id": "ppev_5ff1f75fed119a27a4f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1O"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          },
+          {
+            "depth": 5,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 90,
+        "depth": 8,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "COC(=O)NS(=O)(=O)C1=CC=C(C=C1)N",
+            "substrate_strict_id": "COC(=O)NS(=O)(=O)c1ccc(N)cc1",
+            "event_id": "ppev_8b2d29459ddeaa5e8265",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O",
+              "O"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_d5d2867313777f748df8",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1",
+            "event_id": "ppev_3f4796550116b3944466",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_99a22d997758126ac77c",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(N)(=O)=O)cc1",
+                    "strict_id": "Nc1ccc(S(N)(=O)=O)cc1",
+                    "lag": 2,
+                    "ancestor_index": 1
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(N)(=O)=O)cc1O",
+            "event_id": "ppev_5ff1f75fed119a27a4f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(N)(=O)=O)cc1O"
+            ],
+            "coproducts": [
+              "C",
+              "C",
+              "O"
+            ]
+          },
+          {
+            "depth": 5,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "BIOPATH150_004",
+    "pathway_name": "Caffeine (fungal) pathway",
+    "split": "tuning",
+    "outcome": "MAX_DEPTH_UNFINISHED",
+    "mineralization_type": null,
+    "metrics": {
+      "ref_step1_hit_strict": false,
+      "ref_step1_hit_cn": false,
+      "ref_prefix_depth": 0,
+      "ref_prefix_ratio": 0.0,
+      "ref_node_recall_strict": 0.75,
+      "ref_node_recall_cn": 0.75,
+      "ref_edge_recall": 0.17647058823529413,
+      "visited_ref_terminal": true,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": false,
+      "max_depth_reached": 15,
+      "leaf_branch_count": 6
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 60,
+        "depth": 5,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 3,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 71,
+        "depth": 6,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "substrate_strict_id": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "event_id": "ppev_2c783a72bd003b424ec4",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 82,
+        "depth": 7,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "substrate_strict_id": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "event_id": "ppev_2c783a72bd003b424ec4",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_872691d6971339a6c743",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]cnc2[nH]1"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 125,
+        "depth": 13,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "substrate_strict_id": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "event_id": "ppev_2c783a72bd003b424ec4",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_872691d6971339a6c743",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]cnc2[nH]1"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+            "event_id": "ppev_1ac190eb9c9910961064",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_e6ff5e8e0118061810ae",
+                "collisions": [
+                  {
+                    "smiles": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "lag": 2,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1",
+            "substrate_strict_id": "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1",
+            "event_id": "ppev_0c1b98fa31e397baaf17",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 6,
+            "substrate": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+            "event_id": "ppev_60d843eb25d115afdbc5",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_fc015bf1d78b5e5904da",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 3,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21",
+            "event_id": "ppev_2e7791ca89daed58ca6a",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2[nH]cnc21"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 8,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+            "event_id": "ppev_4d9f02c734dd29ee7b19",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_3ca9b7302a1199c1918f",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 5,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2c1c(=O)[nH]c(=O)n2C"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 9,
+            "substrate": "Cn1cnc2c1c(=O)[nH]c(=O)n2C",
+            "substrate_strict_id": "Cn1cnc2c1c(=O)[nH]c(=O)n2C",
+            "event_id": "ppev_0b29f36aa3815e531f8f",
+            "event_rank": 4,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_d71e8f454d06149205a8",
+                "collisions": [
+                  {
+                    "smiles": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "lag": 7,
+                    "ancestor_index": 2
+                  }
+                ]
+              },
+              {
+                "rank": 2,
+                "event_id": "ppev_c3e288ce31840cab4229",
+                "collisions": [
+                  {
+                    "smiles": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+                    "strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+                    "lag": 2,
+                    "ancestor_index": 7
+                  }
+                ]
+              },
+              {
+                "rank": 3,
+                "event_id": "ppev_b39bfdcb18594bd0f3e5",
+                "collisions": [
+                  {
+                    "smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+                    "strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+                    "lag": 9,
+                    "ancestor_index": 0
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2c1ncn2CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 10,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2c1ncn2CO",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2c1ncn2CO",
+            "event_id": "ppev_568a7d119c11c7cd5db4",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2c(ncn2CO)[nH]1"
+            ],
+            "coproducts": [
+              "CO"
+            ]
+          },
+          {
+            "depth": 11,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 12,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 13,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 131,
+        "depth": 15,
+        "status": "MAX_DEPTH_UNFINISHED",
+        "sink_tier": null,
+        "current_smiles": "O=C1NC(=O)C2(O)NC(=O)NC2(O)N1",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "substrate_strict_id": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "event_id": "ppev_2c783a72bd003b424ec4",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_872691d6971339a6c743",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]cnc2[nH]1"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+            "event_id": "ppev_1ac190eb9c9910961064",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_e6ff5e8e0118061810ae",
+                "collisions": [
+                  {
+                    "smiles": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "lag": 2,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1",
+            "substrate_strict_id": "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1",
+            "event_id": "ppev_0c1b98fa31e397baaf17",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 6,
+            "substrate": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+            "event_id": "ppev_60d843eb25d115afdbc5",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_fc015bf1d78b5e5904da",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 3,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21",
+            "event_id": "ppev_2e7791ca89daed58ca6a",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2[nH]cnc21"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 8,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+            "event_id": "ppev_4d9f02c734dd29ee7b19",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_3ca9b7302a1199c1918f",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 5,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2c1c(=O)[nH]c(=O)n2C"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 9,
+            "substrate": "Cn1cnc2c1c(=O)[nH]c(=O)n2C",
+            "substrate_strict_id": "Cn1cnc2c1c(=O)[nH]c(=O)n2C",
+            "event_id": "ppev_0b29f36aa3815e531f8f",
+            "event_rank": 4,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_d71e8f454d06149205a8",
+                "collisions": [
+                  {
+                    "smiles": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "lag": 7,
+                    "ancestor_index": 2
+                  }
+                ]
+              },
+              {
+                "rank": 2,
+                "event_id": "ppev_c3e288ce31840cab4229",
+                "collisions": [
+                  {
+                    "smiles": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+                    "strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+                    "lag": 2,
+                    "ancestor_index": 7
+                  }
+                ]
+              },
+              {
+                "rank": 3,
+                "event_id": "ppev_b39bfdcb18594bd0f3e5",
+                "collisions": [
+                  {
+                    "smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+                    "strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+                    "lag": 9,
+                    "ancestor_index": 0
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2c1ncn2CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 10,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2c1ncn2CO",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2c1ncn2CO",
+            "event_id": "ppev_568a7d119c11c7cd5db4",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2c(ncn2CO)[nH]1"
+            ],
+            "coproducts": [
+              "CO"
+            ]
+          },
+          {
+            "depth": 11,
+            "substrate": "O=c1[nH]c(=O)c2c(ncn2CO)[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2c(ncn2CO)[nH]1",
+            "event_id": "ppev_39bccd737ba9d8320790",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_cd1c43d36755f0e6a4b7",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 8,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 12,
+            "substrate": "O=Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "O=Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_2bea66421424a7f93b7d",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_34b2bdc6ada358fe7bc5",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 9,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=Cn1c(O)nc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 13,
+            "substrate": "O=Cn1c(O)nc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "O=Cn1c(O)nc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_54efcbe553a329bf2fc4",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_d5d413ed3de72aa64095",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+                    "lag": 8,
+                    "ancestor_index": 5
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CN1C(O)=NC2(O)NC(=O)NC(=O)C12O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 14,
+            "substrate": "O=CN1C(O)=NC2(O)NC(=O)NC(=O)C12O",
+            "substrate_strict_id": "O=CN1C(O)=NC2(O)NC(=O)NC(=O)C12O",
+            "event_id": "ppev_3cc3af79b791b6f1cc04",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CN1C(=O)NC2(O)NC(=O)NC(=O)C12O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 15,
+            "substrate": "O=CN1C(=O)NC2(O)NC(=O)NC(=O)C12O",
+            "substrate_strict_id": "O=CN1C(=O)NC2(O)NC(=O)NC(=O)C12O",
+            "event_id": "ppev_d4a8655a20d3df80d4fb",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1NC(=O)C2(O)NC(=O)NC2(O)N1"
+            ],
+            "coproducts": [
+              "C=O"
+            ]
+          }
+        ]
+      },
+      {
+        "branch_id": 132,
+        "depth": 15,
+        "status": "MAX_DEPTH_UNFINISHED",
+        "sink_tier": null,
+        "current_smiles": "C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "substrate_strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+            "event_id": "ppev_717ffe4d38f0ff93af9f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c2ncn(C)c2c1=O"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "substrate_strict_id": "Cn1c(=O)[nH]c2ncn(C)c2c1=O",
+            "event_id": "ppev_2c783a72bd003b424ec4",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_872691d6971339a6c743",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]cnc2[nH]1"
+            ],
+            "coproducts": [
+              "C"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+            "event_id": "ppev_1ac190eb9c9910961064",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_e6ff5e8e0118061810ae",
+                "collisions": [
+                  {
+                    "smiles": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "lag": 2,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1",
+            "substrate_strict_id": "Nc1nc2[nH]c(=O)[nH]c(=O)c2[nH]1",
+            "event_id": "ppev_0c1b98fa31e397baaf17",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 6,
+            "substrate": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+            "event_id": "ppev_60d843eb25d115afdbc5",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_fc015bf1d78b5e5904da",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 3,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]c(O)nc21",
+            "event_id": "ppev_2e7791ca89daed58ca6a",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2[nH]cnc21"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 8,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+            "event_id": "ppev_4d9f02c734dd29ee7b19",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_3ca9b7302a1199c1918f",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 5,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1cnc2c1c(=O)[nH]c(=O)n2C"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 9,
+            "substrate": "Cn1cnc2c1c(=O)[nH]c(=O)n2C",
+            "substrate_strict_id": "Cn1cnc2c1c(=O)[nH]c(=O)n2C",
+            "event_id": "ppev_0b29f36aa3815e531f8f",
+            "event_rank": 4,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_d71e8f454d06149205a8",
+                "collisions": [
+                  {
+                    "smiles": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "strict_id": "Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+                    "lag": 7,
+                    "ancestor_index": 2
+                  }
+                ]
+              },
+              {
+                "rank": 2,
+                "event_id": "ppev_c3e288ce31840cab4229",
+                "collisions": [
+                  {
+                    "smiles": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+                    "strict_id": "Cn1c(=O)[nH]c(=O)c2[nH]cnc21",
+                    "lag": 2,
+                    "ancestor_index": 7
+                  }
+                ]
+              },
+              {
+                "rank": 3,
+                "event_id": "ppev_b39bfdcb18594bd0f3e5",
+                "collisions": [
+                  {
+                    "smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+                    "strict_id": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+                    "lag": 9,
+                    "ancestor_index": 0
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Cn1c(=O)[nH]c(=O)c2c1ncn2CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 10,
+            "substrate": "Cn1c(=O)[nH]c(=O)c2c1ncn2CO",
+            "substrate_strict_id": "Cn1c(=O)[nH]c(=O)c2c1ncn2CO",
+            "event_id": "ppev_568a7d119c11c7cd5db4",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=c1[nH]c(=O)c2c(ncn2CO)[nH]1"
+            ],
+            "coproducts": [
+              "CO"
+            ]
+          },
+          {
+            "depth": 11,
+            "substrate": "O=c1[nH]c(=O)c2c(ncn2CO)[nH]1",
+            "substrate_strict_id": "O=c1[nH]c(=O)c2c(ncn2CO)[nH]1",
+            "event_id": "ppev_39bccd737ba9d8320790",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_cd1c43d36755f0e6a4b7",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 8,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=Cn1cnc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 12,
+            "substrate": "O=Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "O=Cn1cnc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_2bea66421424a7f93b7d",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_34b2bdc6ada358fe7bc5",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+                    "lag": 9,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=Cn1c(O)nc2[nH]c(=O)[nH]c(=O)c21"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 13,
+            "substrate": "O=Cn1c(O)nc2[nH]c(=O)[nH]c(=O)c21",
+            "substrate_strict_id": "O=Cn1c(O)nc2[nH]c(=O)[nH]c(=O)c21",
+            "event_id": "ppev_54efcbe553a329bf2fc4",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_d5d413ed3de72aa64095",
+                "collisions": [
+                  {
+                    "smiles": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+                    "strict_id": "O=c1[nH]c(=O)c2[nH]c(O)nc2[nH]1",
+                    "lag": 8,
+                    "ancestor_index": 5
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CN1C(O)=NC2(O)NC(=O)NC(=O)C12O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 14,
+            "substrate": "O=CN1C(O)=NC2(O)NC(=O)NC(=O)C12O",
+            "substrate_strict_id": "O=CN1C(O)=NC2(O)NC(=O)NC(=O)C12O",
+            "event_id": "ppev_3cc3af79b791b6f1cc04",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CN1C(=O)NC2(O)NC(=O)NC(=O)C12O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 15,
+            "substrate": "O=CN1C(=O)NC2(O)NC(=O)NC(=O)C12O",
+            "substrate_strict_id": "O=CN1C(=O)NC2(O)NC(=O)NC(=O)C12O",
+            "event_id": "ppev_d4a8655a20d3df80d4fb",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1NC(=O)C2(O)NC(=O)NC2(O)N1"
+            ],
+            "coproducts": [
+              "C=O"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "BIOPATH150_005",
+    "pathway_name": "4-Carboxy-4'-Sulfoazobenzene pathway",
+    "split": "tuning",
+    "outcome": "MAX_DEPTH_UNFINISHED",
+    "mineralization_type": null,
+    "metrics": {
+      "ref_step1_hit_strict": true,
+      "ref_step1_hit_cn": true,
+      "ref_prefix_depth": 1,
+      "ref_prefix_ratio": 0.3333333333333333,
+      "ref_node_recall_strict": 0.75,
+      "ref_node_recall_cn": 1.0,
+      "ref_edge_recall": 0.25,
+      "visited_ref_terminal": true,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": false,
+      "max_depth_reached": 15,
+      "leaf_branch_count": 8
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 74,
+        "depth": 6,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(C(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(C(=O)[O-])cc1",
+            "event_id": "ppev_1f63aad4ee6bbfd817cd",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])c1ccc(O)c(O)c1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "O=C([O-])c1ccc(O)c(O)c1",
+            "substrate_strict_id": "O=C([O-])c1ccc(O)c(O)c1",
+            "event_id": "ppev_96ccde9c9a65f40261b8",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccccc1O"
+            ],
+            "coproducts": [
+              "C",
+              "O",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "Oc1ccccc1O",
+            "substrate_strict_id": "Oc1ccccc1O",
+            "event_id": "ppev_07a973e9bc2965ef04ee",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C=CC=CC1=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=C1C=CC=CC1=O",
+            "substrate_strict_id": "O=C1C=CC=CC1=O",
+            "event_id": "ppev_a17f6de426f9953451a3",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_a57b2c12206b05e45f8b",
+                "collisions": [
+                  {
+                    "smiles": "Oc1ccccc1O",
+                    "strict_id": "Oc1ccccc1O",
+                    "lag": 2,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 12,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C=CC=CC(=O)[O-]"
+            ],
+            "coproducts": [
+              "O=C(O)C=CC=CC(=O)O"
+            ]
+          },
+          {
+            "depth": 6,
+            "substrate": "O=C(O)C=CC=CC(=O)O",
+            "substrate_strict_id": "O=C(O)C=CC=CC(=O)O",
+            "event_id": "ppev_d96210c9a098f2b61dae",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=CC=CC(=O)O"
+            ],
+            "coproducts": [
+              "O=C=O",
+              "[H+]"
+            ]
+          }
+        ]
+      },
+      {
+        "branch_id": 85,
+        "depth": 7,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(C(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(C(=O)[O-])cc1",
+            "event_id": "ppev_1f63aad4ee6bbfd817cd",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])c1ccc(O)c(O)c1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "O=C([O-])c1ccc(O)c(O)c1",
+            "substrate_strict_id": "O=C([O-])c1ccc(O)c(O)c1",
+            "event_id": "ppev_96ccde9c9a65f40261b8",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccccc1O"
+            ],
+            "coproducts": [
+              "C",
+              "O",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "C",
+            "substrate_strict_id": "C",
+            "event_id": "ppev_a0ffe04525df23146f0d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "CO",
+            "substrate_strict_id": "CO",
+            "event_id": "ppev_327eeb86c8741249d6f0",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 111,
+        "depth": 10,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "substrate_strict_id": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "event_id": "ppev_005912788cec291a92de",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_f88043b7d5849c462f5b",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_1ca57b3f45af7480bf60",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_75eae9deff0e85d6fadb",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "lag": 2,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_0b08c341cf352724201c",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_2eeb6207e525de33399d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_aef7873df973e530f462",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_574027f9489a4736a9d3",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "lag": 5,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CNc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=C[O-]"
+            ]
+          },
+          {
+            "depth": 8,
+            "substrate": "O=C[O-]",
+            "substrate_strict_id": "O=C[O-]",
+            "event_id": "ppev_f48f972aaf047ee17ff6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "NC=O"
+            ],
+            "coproducts": [
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 9,
+            "substrate": "NC=O",
+            "substrate_strict_id": "NC=O",
+            "event_id": "ppev_8864b65c238bd3e9bc94",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "N"
+            ],
+            "coproducts": [
+              "O=CO"
+            ]
+          },
+          {
+            "depth": 10,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 115,
+        "depth": 11,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(C(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(C(=O)[O-])cc1",
+            "event_id": "ppev_1f63aad4ee6bbfd817cd",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])c1ccc(O)c(O)c1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "O=C([O-])c1ccc(O)c(O)c1",
+            "substrate_strict_id": "O=C([O-])c1ccc(O)c(O)c1",
+            "event_id": "ppev_96ccde9c9a65f40261b8",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccccc1O"
+            ],
+            "coproducts": [
+              "C",
+              "O",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "Oc1ccccc1O",
+            "substrate_strict_id": "Oc1ccccc1O",
+            "event_id": "ppev_07a973e9bc2965ef04ee",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C=CC=CC1=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=C1C=CC=CC1=O",
+            "substrate_strict_id": "O=C1C=CC=CC1=O",
+            "event_id": "ppev_a17f6de426f9953451a3",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_a57b2c12206b05e45f8b",
+                "collisions": [
+                  {
+                    "smiles": "Oc1ccccc1O",
+                    "strict_id": "Oc1ccccc1O",
+                    "lag": 2,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 12,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C=CC=CC(=O)[O-]"
+            ],
+            "coproducts": [
+              "O=C(O)C=CC=CC(=O)O"
+            ]
+          },
+          {
+            "depth": 6,
+            "substrate": "O=C([O-])C=CC=CC(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])C=CC=CC(=O)[O-]",
+            "event_id": "ppev_76e8b1446ad7b1a1a254",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C=CC(O)CC(=O)[O-]"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=C([O-])C=CC(O)CC(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])C=CC(O)CC(=O)[O-]",
+            "event_id": "ppev_d3e2eca92be36739570e",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C=CC(=O)CC(=O)[O-]"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "O=C([O-])C=CC(=O)CC(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])C=CC(=O)CC(=O)[O-]",
+            "event_id": "ppev_07695256ad12f88db98b",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)C=CC(=O)[O-]"
+            ],
+            "coproducts": [
+              "O=C[O-]"
+            ]
+          },
+          {
+            "depth": 9,
+            "substrate": "O=C[O-]",
+            "substrate_strict_id": "O=C[O-]",
+            "event_id": "ppev_f48f972aaf047ee17ff6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "NC=O"
+            ],
+            "coproducts": [
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 10,
+            "substrate": "NC=O",
+            "substrate_strict_id": "NC=O",
+            "event_id": "ppev_8864b65c238bd3e9bc94",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "N"
+            ],
+            "coproducts": [
+              "O=CO"
+            ]
+          },
+          {
+            "depth": 11,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 118,
+        "depth": 11,
+        "status": "SINK_REACHED",
+        "sink_tier": "A_inorganic_carbon",
+        "current_smiles": "O=C=O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "substrate_strict_id": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "event_id": "ppev_005912788cec291a92de",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_f88043b7d5849c462f5b",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_1ca57b3f45af7480bf60",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_75eae9deff0e85d6fadb",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "lag": 2,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_0b08c341cf352724201c",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_2eeb6207e525de33399d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_aef7873df973e530f462",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_574027f9489a4736a9d3",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "lag": 5,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CNc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=C[O-]"
+            ]
+          },
+          {
+            "depth": 8,
+            "substrate": "O=CNc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=CNc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_d0a26a8ec02899392d34",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_b115cf234b3bcf06d56a",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "lag": 6,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CNc1ccc(O)cc1"
+            ],
+            "coproducts": [
+              "O",
+              "O",
+              "S",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 9,
+            "substrate": "O=CNc1ccc(O)cc1",
+            "substrate_strict_id": "O=CNc1ccc(O)cc1",
+            "event_id": "ppev_f3c6635b73d305cbaa6e",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(O)cc1"
+            ],
+            "coproducts": [
+              "C=O"
+            ]
+          },
+          {
+            "depth": 10,
+            "substrate": "C=O",
+            "substrate_strict_id": "C=O",
+            "event_id": "ppev_052e6776893803a176b3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 11,
+            "substrate": "O=CO",
+            "substrate_strict_id": "O=CO",
+            "event_id": "ppev_7b5448c667e2508cbedc",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 1,
+              "products_c": 1,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C=O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 122,
+        "depth": 12,
+        "status": "SINK_REACHED",
+        "sink_tier": "B_central_carbon_sink",
+        "current_smiles": "O=C(O)CCC(=O)C(=O)O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(C(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(C(=O)[O-])cc1",
+            "event_id": "ppev_1f63aad4ee6bbfd817cd",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])c1ccc(O)c(O)c1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "O=C([O-])c1ccc(O)c(O)c1",
+            "substrate_strict_id": "O=C([O-])c1ccc(O)c(O)c1",
+            "event_id": "ppev_96ccde9c9a65f40261b8",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccccc1O"
+            ],
+            "coproducts": [
+              "C",
+              "O",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "Oc1ccccc1O",
+            "substrate_strict_id": "Oc1ccccc1O",
+            "event_id": "ppev_07a973e9bc2965ef04ee",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C=CC=CC1=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=C1C=CC=CC1=O",
+            "substrate_strict_id": "O=C1C=CC=CC1=O",
+            "event_id": "ppev_a17f6de426f9953451a3",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_a57b2c12206b05e45f8b",
+                "collisions": [
+                  {
+                    "smiles": "Oc1ccccc1O",
+                    "strict_id": "Oc1ccccc1O",
+                    "lag": 2,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 12,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C=CC=CC(=O)[O-]"
+            ],
+            "coproducts": [
+              "O=C(O)C=CC=CC(=O)O"
+            ]
+          },
+          {
+            "depth": 6,
+            "substrate": "O=C(O)C=CC=CC(=O)O",
+            "substrate_strict_id": "O=C(O)C=CC=CC(=O)O",
+            "event_id": "ppev_d96210c9a098f2b61dae",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=CC=CC(=O)O"
+            ],
+            "coproducts": [
+              "O=C=O",
+              "[H+]"
+            ]
+          },
+          {
+            "depth": 7,
+            "substrate": "C=CC=CC(=O)O",
+            "substrate_strict_id": "C=CC=CC(=O)O",
+            "event_id": "ppev_8229a6652712658cf961",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "C=CCCC(=O)O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "C=CCCC(=O)O",
+            "substrate_strict_id": "C=CCCC(=O)O",
+            "event_id": "ppev_81b6b0a57f93068b9363",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(O)CCC(=O)O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 9,
+            "substrate": "CC(O)CCC(=O)O",
+            "substrate_strict_id": "CC(O)CCC(=O)O",
+            "event_id": "ppev_f0dacf002e2b9ae8b62b",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)CCC(=O)O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 10,
+            "substrate": "CC(=O)CCC(=O)O",
+            "substrate_strict_id": "CC(=O)CCC(=O)O",
+            "event_id": "ppev_63e5b69bb09d76193e50",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C(O)CCC(=O)CO"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 11,
+            "substrate": "O=C(O)CCC(=O)CO",
+            "substrate_strict_id": "O=C(O)CCC(=O)CO",
+            "event_id": "ppev_e479b29a60d6fca39ad9",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CC(=O)CCC(=O)O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 12,
+            "substrate": "O=CC(=O)CCC(=O)O",
+            "substrate_strict_id": "O=CC(=O)CCC(=O)O",
+            "event_id": "ppev_7195b8492f2f97e833fd",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C(O)CCC(=O)C(=O)O"
+            ],
+            "coproducts": []
+          }
+        ]
+      },
+      {
+        "branch_id": 133,
+        "depth": 15,
+        "status": "MAX_DEPTH_UNFINISHED",
+        "sink_tier": null,
+        "current_smiles": "O=C([O-])CCC(O)C(=O)[O-]",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "Nc1ccc(C(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(C(=O)[O-])cc1",
+            "event_id": "ppev_1f63aad4ee6bbfd817cd",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])c1ccc(O)c(O)c1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "O=C([O-])c1ccc(O)c(O)c1",
+            "substrate_strict_id": "O=C([O-])c1ccc(O)c(O)c1",
+            "event_id": "ppev_96ccde9c9a65f40261b8",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccccc1O"
+            ],
+            "coproducts": [
+              "C",
+              "O",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 4,
+            "substrate": "Oc1ccccc1O",
+            "substrate_strict_id": "Oc1ccccc1O",
+            "event_id": "ppev_07a973e9bc2965ef04ee",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C=CC=CC1=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=C1C=CC=CC1=O",
+            "substrate_strict_id": "O=C1C=CC=CC1=O",
+            "event_id": "ppev_a17f6de426f9953451a3",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_a57b2c12206b05e45f8b",
+                "collisions": [
+                  {
+                    "smiles": "Oc1ccccc1O",
+                    "strict_id": "Oc1ccccc1O",
+                    "lag": 2,
+                    "ancestor_index": 3
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 12,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C=CC=CC(=O)[O-]"
+            ],
+            "coproducts": [
+              "O=C(O)C=CC=CC(=O)O"
+            ]
+          },
+          {
+            "depth": 6,
+            "substrate": "O=C([O-])C=CC=CC(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])C=CC=CC(=O)[O-]",
+            "event_id": "ppev_76e8b1446ad7b1a1a254",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C=CC(O)CC(=O)[O-]"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=C([O-])C=CC(O)CC(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])C=CC(O)CC(=O)[O-]",
+            "event_id": "ppev_d3e2eca92be36739570e",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C=CC(=O)CC(=O)[O-]"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 8,
+            "substrate": "O=C([O-])C=CC(=O)CC(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])C=CC(=O)CC(=O)[O-]",
+            "event_id": "ppev_07695256ad12f88db98b",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)C=CC(=O)[O-]"
+            ],
+            "coproducts": [
+              "O=C[O-]"
+            ]
+          },
+          {
+            "depth": 9,
+            "substrate": "CC(=O)C=CC(=O)[O-]",
+            "substrate_strict_id": "CC(=O)C=CC(=O)[O-]",
+            "event_id": "ppev_af920e6d01879736477f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)CCC(=O)[O-]"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 10,
+            "substrate": "CC(=O)CCC(=O)[O-]",
+            "substrate_strict_id": "CC(=O)CCC(=O)[O-]",
+            "event_id": "ppev_0c6de5a4aad80e8b3cd6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(O)CCC(=O)[O-]"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 11,
+            "substrate": "CC(O)CCC(=O)[O-]",
+            "substrate_strict_id": "CC(O)CCC(=O)[O-]",
+            "event_id": "ppev_8772c07416b38acce59b",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_f36739edc40588106276",
+                "collisions": [
+                  {
+                    "smiles": "CC(=O)CCC(=O)[O-]",
+                    "strict_id": "CC(=O)CCC(=O)[O-]",
+                    "lag": 2,
+                    "ancestor_index": 9
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(CCC(=O)[O-])OP(=O)(O)O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 12,
+            "substrate": "CC(CCC(=O)[O-])OP(=O)(O)O",
+            "substrate_strict_id": "CC(CCC(=O)[O-])OP(=O)(O)O",
+            "event_id": "ppev_770291e82d07d53c799e",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_650acb88ffe73baf0d0a",
+                "collisions": [
+                  {
+                    "smiles": "CC(O)CCC(=O)[O-]",
+                    "strict_id": "CC(O)CCC(=O)[O-]",
+                    "lag": 2,
+                    "ancestor_index": 10
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])CCC(CO)OP(=O)(O)O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 13,
+            "substrate": "O=C([O-])CCC(CO)OP(=O)(O)O",
+            "substrate_strict_id": "O=C([O-])CCC(CO)OP(=O)(O)O",
+            "event_id": "ppev_bff673b4c163a5226965",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CC(CCC(=O)[O-])OP(=O)(O)O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 14,
+            "substrate": "O=CC(CCC(=O)[O-])OP(=O)(O)O",
+            "substrate_strict_id": "O=CC(CCC(=O)[O-])OP(=O)(O)O",
+            "event_id": "ppev_decdb000d07c231df8af",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])CCC(OP(=O)(O)O)C(=O)[O-]"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 15,
+            "substrate": "O=C([O-])CCC(OP(=O)(O)O)C(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])CCC(OP(=O)(O)O)C(=O)[O-]",
+            "event_id": "ppev_8e889425c849abb5a884",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 5,
+              "products_c": 5,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])CCC(O)C(=O)[O-]"
+            ],
+            "coproducts": [
+              "O=[PH](O)O"
+            ]
+          }
+        ]
+      },
+      {
+        "branch_id": 134,
+        "depth": 15,
+        "status": "MAX_DEPTH_UNFINISHED",
+        "sink_tier": null,
+        "current_smiles": "COc1cc(O)c(O)cc1O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C1=CC(=CC=C1C(=O)[O-])N=NC2=CC=C(C=C2)S(=O)(=O)[O-]",
+            "substrate_strict_id": "O=C([O-])c1ccc(N=Nc2ccc(S(=O)(=O)[O-])cc2)cc1",
+            "event_id": "ppev_08a58f8c26a2629667d6",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 13,
+              "products_c": 13,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(C(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=S(=O)([O-])c1ccc(NO)cc1"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "substrate_strict_id": "O=S(=O)([O-])c1ccc(NO)cc1",
+            "event_id": "ppev_005912788cec291a92de",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_f88043b7d5849c462f5b",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_1ca57b3f45af7480bf60",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_75eae9deff0e85d6fadb",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "lag": 2,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 5,
+            "substrate": "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=C(CO)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_0b08c341cf352724201c",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 6,
+            "substrate": "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=CC(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_2eeb6207e525de33399d",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 7,
+            "substrate": "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=C([O-])C(=O)Nc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_aef7873df973e530f462",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_574027f9489a4736a9d3",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "lag": 5,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 8,
+              "products_c": 8,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CNc1ccc(S(=O)(=O)[O-])cc1"
+            ],
+            "coproducts": [
+              "O=C[O-]"
+            ]
+          },
+          {
+            "depth": 8,
+            "substrate": "O=CNc1ccc(S(=O)(=O)[O-])cc1",
+            "substrate_strict_id": "O=CNc1ccc(S(=O)(=O)[O-])cc1",
+            "event_id": "ppev_d0a26a8ec02899392d34",
+            "event_rank": 2,
+            "backtracking_skipped_events": [
+              {
+                "rank": 1,
+                "event_id": "ppev_b115cf234b3bcf06d56a",
+                "collisions": [
+                  {
+                    "smiles": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "strict_id": "Nc1ccc(S(=O)(=O)[O-])cc1",
+                    "lag": 6,
+                    "ancestor_index": 2
+                  }
+                ]
+              }
+            ],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=CNc1ccc(O)cc1"
+            ],
+            "coproducts": [
+              "O",
+              "O",
+              "S",
+              "[O-] |^1:0|"
+            ]
+          },
+          {
+            "depth": 9,
+            "substrate": "O=CNc1ccc(O)cc1",
+            "substrate_strict_id": "O=CNc1ccc(O)cc1",
+            "event_id": "ppev_f3c6635b73d305cbaa6e",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 7,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(O)cc1"
+            ],
+            "coproducts": [
+              "C=O"
+            ]
+          },
+          {
+            "depth": 10,
+            "substrate": "Nc1ccc(O)cc1",
+            "substrate_strict_id": "Nc1ccc(O)cc1",
+            "event_id": "ppev_f5076f67b3db5ace232b",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Nc1ccc(O)c(O)c1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 11,
+            "substrate": "Nc1ccc(O)c(O)c1",
+            "substrate_strict_id": "Nc1ccc(O)c(O)c1",
+            "event_id": "ppev_5deb2722956767935e2f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "O=C1C=CC(=O)C=C1"
+            ],
+            "coproducts": [
+              "N"
+            ]
+          },
+          {
+            "depth": 12,
+            "substrate": "O=C1C=CC(=O)C=C1",
+            "substrate_strict_id": "O=C1C=CC(=O)C=C1",
+            "event_id": "ppev_44c05bc8964a6c6cbc1f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccc(O)cc1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 13,
+            "substrate": "Oc1ccc(O)cc1",
+            "substrate_strict_id": "Oc1ccc(O)cc1",
+            "event_id": "ppev_fa0b60d98486d6b8ae33",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1ccc(O)c(O)c1"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 14,
+            "substrate": "Oc1ccc(O)c(O)c1",
+            "substrate_strict_id": "Oc1ccc(O)c(O)c1",
+            "event_id": "ppev_0c8b48eaced605386fd2",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 6,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "Oc1cc(O)c(O)cc1O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 15,
+            "substrate": "Oc1cc(O)c(O)cc1O",
+            "substrate_strict_id": "Oc1cc(O)c(O)cc1O",
+            "event_id": "ppev_5eb07ea33211750111af",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 6,
+              "products_c": 7,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "COc1cc(O)c(O)cc1O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "BIOPATH150_006",
+    "pathway_name": "1,2-Dichloroethane degradation pathway",
+    "split": "tuning",
+    "outcome": "MINERALIZED_CLOSED",
+    "mineralization_type": "MINERALIZED_STRICT_CARBON_CLOSED",
+    "metrics": {
+      "ref_step1_hit_strict": false,
+      "ref_step1_hit_cn": false,
+      "ref_prefix_depth": 0,
+      "ref_prefix_ratio": 0.0,
+      "ref_node_recall_strict": 0.0,
+      "ref_node_recall_cn": 0.0,
+      "ref_edge_recall": 0.0,
+      "visited_ref_terminal": false,
+      "terminal_hit_and_mineralized": false,
+      "stopped_early_model_mineralized": true,
+      "max_depth_reached": 4,
+      "leaf_branch_count": 1
+    },
+    "leaf_branches": [
+      {
+        "branch_id": 50,
+        "depth": 4,
+        "status": "SINK_REACHED",
+        "sink_tier": "B_central_carbon_sink",
+        "current_smiles": "CC(=O)O",
+        "steps": [
+          {
+            "depth": 1,
+            "substrate": "C(CCl)Cl",
+            "substrate_strict_id": "ClCCCl",
+            "event_id": "ppev_3375da15ee0d648fe6d3",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 2,
+              "products_c": 2,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CCCl"
+            ],
+            "coproducts": [
+              "Cl"
+            ]
+          },
+          {
+            "depth": 2,
+            "substrate": "CCCl",
+            "substrate_strict_id": "CCCl",
+            "event_id": "ppev_87a79c74d63fa271c45c",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 2,
+              "products_c": 2,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CCO"
+            ],
+            "coproducts": [
+              "Cl"
+            ]
+          },
+          {
+            "depth": 3,
+            "substrate": "CCO",
+            "substrate_strict_id": "CCO",
+            "event_id": "ppev_b8a887136dd665632fae",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 2,
+              "products_c": 2,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC=O"
+            ],
+            "coproducts": []
+          },
+          {
+            "depth": 4,
+            "substrate": "CC=O",
+            "substrate_strict_id": "CC=O",
+            "event_id": "ppev_c4ffa70971345c9a3e7f",
+            "event_rank": 1,
+            "backtracking_skipped_events": [],
+            "has_unaccounted_loss": false,
+            "carbon_balance": {
+              "substrate_c": 2,
+              "products_c": 2,
+              "loss_c": 0
+            },
+            "principal_products": [
+              "CC(=O)O"
+            ],
+            "coproducts": []
+          }
+        ]
+      }
+    ]
+  }
+]
