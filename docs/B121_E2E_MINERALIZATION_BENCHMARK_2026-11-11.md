@@ -1,5 +1,8 @@
 # BIOSYSMOdb121 端到端零束宽 (B=1) 完全矿化评测基准报告
 
+> [!NOTE]
+> **2026-11-16 口径与底座说明**：本表（6 臂自回归 `B=1` 矿化）基于 **`v44-Next v1.2` (`@ d40eec7`)** 底座跑批产出。零调用按 **`ppv1-criteria-v6`** 身份重对齐已有 `v1.2` 轨迹：`Arm 1` `Ref-Step1-Hit@1 = 36/121 (29.8%)`、`Ref-Node-Recall = 15.7%`；`Arm 6` `Ref-Step1-Hit@1 = 36/121 (29.8%)`、`Ref-Node-Recall = 17.3%`。**`v1.4` 底座端到端 `B=1` 矿化重跑（需在线 `deepseek-v4.1-flash-1017` 推理生成未知下游中间体）目前处于 `PENDING_LIVE_LLM_RUN` 状态**；已完成零调用重算的 `v1.4 + v6` Phase 1 多步路径串联数据见 [`B121_MULTISTEP_PATHWAY_BENCHMARK_V14_V6_2026-11-16.md`](B121_MULTISTEP_PATHWAY_BENCHMARK_V14_V6_2026-11-16.md)。
+
 > **评测规范**：[`TASK_B121_NON_BACKTRACKING_B1_EVAL_2026-11-11.md`](../tasks/active/TASK_B121_NON_BACKTRACKING_B1_EVAL_2026-11-11.md)  
 > **搜索策略**：**Stage-Aware `B=1`（分阶段生化门控零束宽）** vs **Non-Backtracking `B=1`** vs **`Naive B=1`（基线盲取 Top-1）**  
 > **执行环境**：`v44-Next v1.2` (`@ d40eec7`) + `deepseek-v4.1-flash-1017` 在线正规管线 (36 路并发)  

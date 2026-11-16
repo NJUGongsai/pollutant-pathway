@@ -1,5 +1,8 @@
 # `[biosysmodb121·调参集]` 多步反应路径（Multi-Step Pathway）能力评测基准报告（2026-11-11）
 
+> [!IMPORTANT]
+> **2026-11-16 `v1.4 + ppv1-criteria-v6` 更新说明**：本历史报告停留在 `v44-Next v1.2` 与旧 `v4/v5` 口径；**最新 `v1.4` 底座与 `ppv1-criteria-v6`（含 `N=220` 干净集与 `N=261` 全量，零 LLM 调用）完整数据见 [`B121_MULTISTEP_PATHWAY_BENCHMARK_V14_V6_2026-11-16.md`](B121_MULTISTEP_PATHWAY_BENCHMARK_V14_V6_2026-11-16.md)** 与证据 JSON [`b121_multistep_v14_v6_summary.json`](reviews/evidence/b121_multistep_eval_2026-11-16/b121_multistep_v14_v6_summary.json)。
+
 > **任务书依据**：[`docs/tasks/active/TASK_B121_MULTISTEP_PATHWAY_EVAL_2026-11-11.md`](file:///Volumes/CC/Enzyme_Agent/v44/docs/tasks/active/TASK_B121_MULTISTEP_PATHWAY_EVAL_2026-11-11.md)  
 > **评测题域与分集标签**：主验证域 **`[biosysmodb121·调参集]`**（`76` 条完整调参反应路径 / `261` 个评测反应步；其中真多步路径 $L \ge 2$ 共 `68` 条 / `253` 步，单步路径 $L = 1$ 共 `8` 条 / `8` 步）。与 `[dev-298]` 通用酶学单步域双向不外推。  
 > **红线与合规声明（`GATE-1` & `GATE-2`）**：全程零 LLM 调用（`llm_calls = 0`）、零触碰留出集（`holdout_touched = False`，留出集 `43` 条路径 / `156` 步完全锁定）；本公开报告与公开汇总 JSON 零单题路径编号、零反应编号、零化学结构式（SMILES/InChI）。
