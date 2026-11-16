@@ -1,0 +1,288 @@
+{
+ "command": "t14_step1b_gip",
+ "workers": 32,
+ "prewarm_parent": true,
+ "pool_params": {
+  "max_pool": 16,
+  "threshold": 0.25,
+  "enable_s5_hybrid_pool": true,
+  "s5_supplement_gate_max_s1d": 2,
+  "s5_supplement_min_prior_score": 70.0,
+  "s5_super_consensus_score": 115.0,
+  "s5_max_supplements": 2,
+  "preset": "v44-next"
+ },
+ "whitelist": {
+  "off": "d2-cofactor-whitelist-2 (default off)",
+  "on": "d2-cofactor-whitelist-4",
+  "include_wl2": false
+ },
+ "caliber": {
+  "v6": "neutralize_checked(T6 hardened disclosure identity) -> strict_identity_of; primary",
+  "v4": "strict_identity_of (ppv1-criteria-v4 identity); secondary",
+  "gip": "pool candidate (product_smiles as principal + coproducts) covers all gold principal_product nodes under the identity key; @8/@16 = first k candidates"
+ },
+ "elapsed_s": 1777.4,
+ "all_ok": false,
+ "domains": {
+  "b121": {
+   "domain": "b121",
+   "domain_tag": "[biosysmodb121·调参集]",
+   "reference_batch": "<HPC_BASE>/tuning_batches/v13_t8_prompt_ab_20261113/batch_v13_t8_b121_pa",
+   "worker_pool": {
+    "workers": 32,
+    "prewarm_parent": {
+     "prewarmed": true,
+     "n_specs": 16,
+     "elapsed_s": 215.05
+    },
+    "mp_start_method": "fork"
+   },
+   "n_questions": 261,
+   "n_compared": 261,
+   "n_gip_rows": 261,
+   "n_missing_rows": 0,
+   "reference_control": {
+    "pool_byte_identical": 9,
+    "pool_compared": 261,
+    "first_diff_indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   "admission": {
+    "n_specs_checked": 3639,
+    "n_admission_failures": 0,
+    "failure_kind_histogram": {},
+    "first_failure_spec_keys": []
+   },
+   "pool_sizes": {
+    "off_total": 3517,
+    "on_total": 3639,
+    "delta": 122
+   },
+   "gip": {
+    "off": {
+     "v6_8": 119,
+     "v6_16": 125,
+     "v4_8": 88,
+     "v4_16": 98
+    },
+    "on": {
+     "v6_8": 138,
+     "v6_16": 141,
+     "v4_8": 101,
+     "v4_16": 109
+    },
+    "paired": {
+     "v6_16": {
+      "off_hits": 125,
+      "on_hits": 141,
+      "net_new": 16,
+      "n_new": 16,
+      "n_lost": 0,
+      "kept": 125,
+      "neither": 120
+     },
+     "v6_8": {
+      "off_hits": 119,
+      "on_hits": 138,
+      "net_new": 19,
+      "n_new": 20,
+      "n_lost": 1,
+      "kept": 118,
+      "neither": 122
+     },
+     "v4_16": {
+      "off_hits": 98,
+      "on_hits": 109,
+      "net_new": 11,
+      "n_new": 11,
+      "n_lost": 0,
+      "kept": 98,
+      "neither": 152
+     },
+     "v4_8": {
+      "off_hits": 88,
+      "on_hits": 101,
+      "net_new": 13,
+      "n_new": 14,
+      "n_lost": 1,
+      "kept": 87,
+      "neither": 159
+     }
+    },
+    "channels": {
+     "off_pool_slots": {
+      "analog": 407,
+      "corpus": 15,
+      "recorded": 40,
+      "s5_hybrid_rule": 3055
+     },
+     "on_pool_slots": {
+      "analog": 404,
+      "corpus": 265,
+      "recorded": 42,
+      "s5_hybrid_rule": 2928
+     },
+     "on_new_candidate_slots": {
+      "analog": 51,
+      "corpus": 257,
+      "recorded": 2,
+      "s5_hybrid_rule": 553
+     },
+     "net_new_hits_v6_16": {
+      "net_new": {
+       "analog": 1,
+       "corpus": 13,
+       "recorded": 1,
+       "s5_hybrid_rule": 1
+      },
+      "lost": {}
+     },
+     "lost_hits_v6_16_off_channel": {},
+     "semantics": "pool_slots = 池槽位计数（off/on 两臂绝对量）; net_new_hits_v6_16 = 净新增命中题按「on 臂首个覆盖候选的通道」分解; lost_hits_v6_16_off_channel = 丢失题按 off 臂首覆盖通道分解; on_new_candidate_slots = on 臂中 key 不在 off 池的候选槽位通道计数"
+    }
+   },
+   "pools_path": "<HPC_BASE>/runs_t14_step4_wl4_gip_20261115/pools_v14_wl4_b121.json",
+   "ok": false
+  },
+  "298": {
+   "domain": "298",
+   "domain_tag": "[dev-298·调参集]",
+   "reference_batch": "<HPC_BASE>/tuning_batches/v13_t8_prompt_ab_20261113/batch_v13_t8_298_pa",
+   "worker_pool": {
+    "workers": 32,
+    "prewarm_parent": {
+     "prewarmed": true,
+     "n_specs": 16,
+     "elapsed_s": 7.0
+    },
+    "mp_start_method": "fork"
+   },
+   "n_questions": 196,
+   "n_compared": 196,
+   "n_gip_rows": 196,
+   "n_missing_rows": 0,
+   "reference_control": {
+    "pool_byte_identical": 65,
+    "pool_compared": 196,
+    "first_diff_indices": [
+     0,
+     1,
+     4,
+     6,
+     9,
+     10,
+     12,
+     13,
+     14,
+     15
+    ]
+   },
+   "admission": {
+    "n_specs_checked": 2523,
+    "n_admission_failures": 0,
+    "failure_kind_histogram": {},
+    "first_failure_spec_keys": []
+   },
+   "pool_sizes": {
+    "off_total": 2378,
+    "on_total": 2523,
+    "delta": 145
+   },
+   "gip": {
+    "off": {
+     "v6_8": 111,
+     "v6_16": 117,
+     "v4_8": 110,
+     "v4_16": 116
+    },
+    "on": {
+     "v6_8": 123,
+     "v6_16": 124,
+     "v4_8": 121,
+     "v4_16": 122
+    },
+    "paired": {
+     "v6_16": {
+      "off_hits": 117,
+      "on_hits": 124,
+      "net_new": 7,
+      "n_new": 7,
+      "n_lost": 0,
+      "kept": 117,
+      "neither": 72
+     },
+     "v6_8": {
+      "off_hits": 111,
+      "on_hits": 123,
+      "net_new": 12,
+      "n_new": 12,
+      "n_lost": 0,
+      "kept": 111,
+      "neither": 73
+     },
+     "v4_16": {
+      "off_hits": 116,
+      "on_hits": 122,
+      "net_new": 6,
+      "n_new": 6,
+      "n_lost": 0,
+      "kept": 116,
+      "neither": 74
+     },
+     "v4_8": {
+      "off_hits": 110,
+      "on_hits": 121,
+      "net_new": 11,
+      "n_new": 11,
+      "n_lost": 0,
+      "kept": 110,
+      "neither": 75
+     }
+    },
+    "channels": {
+     "off_pool_slots": {
+      "analog": 310,
+      "corpus": 33,
+      "recorded": 61,
+      "s5_hybrid_rule": 1974
+     },
+     "on_pool_slots": {
+      "analog": 286,
+      "corpus": 222,
+      "recorded": 62,
+      "s5_hybrid_rule": 1953
+     },
+     "on_new_candidate_slots": {
+      "analog": 6,
+      "corpus": 196,
+      "recorded": 1,
+      "s5_hybrid_rule": 648
+     },
+     "net_new_hits_v6_16": {
+      "net_new": {
+       "analog": 1,
+       "corpus": 5,
+       "recorded": 1
+      },
+      "lost": {}
+     },
+     "lost_hits_v6_16_off_channel": {},
+     "semantics": "pool_slots = 池槽位计数（off/on 两臂绝对量）; net_new_hits_v6_16 = 净新增命中题按「on 臂首个覆盖候选的通道」分解; lost_hits_v6_16_off_channel = 丢失题按 off 臂首覆盖通道分解; on_new_candidate_slots = on 臂中 key 不在 off 池的候选槽位通道计数"
+    }
+   },
+   "pools_path": "<HPC_BASE>/runs_t14_step4_wl4_gip_20261115/pools_v14_wl4_298.json",
+   "ok": false
+  }
+ }
+}

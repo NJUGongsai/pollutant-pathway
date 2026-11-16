@@ -1,0 +1,204 @@
+{
+  "task": "T14-4D Three Numerical Diagnostic Tasks on HPC Wuzhen",
+  "timestamp": "2026-11-15T23:05:00+08:00",
+  "target": {
+    "b121_hit1_min": 118,
+    "b121_hit1_pct_min": 45.21,
+    "dev298_hit1_min": 89,
+    "cv_holdout_gain_min": 0
+  },
+  "task1_summary": {
+    "n_gold_top5_not_top1": 25,
+    "rank_distribution": {
+      "rank2": 13,
+      "rank3": 6,
+      "rank4": 5,
+      "rank5": 1
+    },
+    "clean220_count": 23,
+    "cv_folds_distribution": {
+      "fold0": 8,
+      "fold1": 3,
+      "fold2": 5,
+      "fold3": 5,
+      "fold4": 4
+    },
+    "b_wins_count": 4,
+    "defender_wins_count": 13,
+    "pos_bias_count": 3,
+    "na_count": 5,
+    "hits116_inversion_cases": 8,
+    "hits116_inversion_pillars": {
+      "is_rec": 4,
+      "raw_sim": 4,
+      "elig_norm_factor": 2
+    }
+  },
+  "task2_summary": {
+    "n_b_wins_pairs": 133,
+    "outcomes": {
+      "GAIN_V6": 4,
+      "LOSS_V6": 28,
+      "SAME_V6": 101
+    },
+    "key_separators": {
+      "c1_rec_losses": "16 / 28",
+      "c1_t1_ge_6_losses": "16 / 28",
+      "cj_t1_eq_0_losses": "10 / 28",
+      "gap_ge_022_losses": "15 / 28",
+      "c1_nov_losses": "1 / 28 (P14, where c1_nov=True and cj_nov=False)"
+    }
+  },
+  "task3_benchmark_arms": {
+    "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom": {
+      "v6": [
+        116,
+        133,
+        141
+      ],
+      "clean220_v6": [
+        111,
+        220
+      ],
+      "v4": [
+        79,
+        96,
+        102
+      ]
+    },
+    "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom": {
+      "v6": [
+        116,
+        133,
+        141
+      ],
+      "clean220_v6": [
+        111,
+        220
+      ],
+      "v4": [
+        79,
+        96,
+        102
+      ]
+    },
+    "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_v6n": {
+      "v6": [
+        114,
+        133,
+        141
+      ],
+      "clean220_v6": [
+        109,
+        220
+      ],
+      "v4": [
+        76,
+        92,
+        95
+      ]
+    },
+    "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom_v6n": {
+      "v6": [
+        114,
+        133,
+        141
+      ],
+      "clean220_v6": [
+        109,
+        220
+      ],
+      "v4": [
+        76,
+        92,
+        95
+      ]
+    },
+    "b121_wl4_pb_8p_v14::v14s4_cons_v3_prom": {
+      "v6": [
+        115,
+        133,
+        141
+      ],
+      "clean220_v6": [
+        110,
+        220
+      ],
+      "v4": [
+        78,
+        95,
+        100
+      ]
+    },
+    "b121_wl4_pa_8p_v14::v14s4_cons_v3_prom": {
+      "v6": [
+        115,
+        133,
+        141
+      ],
+      "clean220_v6": [
+        110,
+        220
+      ],
+      "v4": [
+        78,
+        95,
+        100
+      ]
+    },
+    "298_v14_pa_pb::v14s4_cons_v3": {
+      "v6": [
+        94,
+        122,
+        128
+      ],
+      "v4": [
+        92,
+        118,
+        124
+      ]
+    },
+    "298_v14_pb_pa::v14s4_cons_v3": {
+      "v6": [
+        95,
+        123,
+        127
+      ],
+      "v4": [
+        92,
+        119,
+        124
+      ]
+    },
+    "298_v14_4p_w20::v14s4_cons_v3": {
+      "v6": [
+        93,
+        125,
+        128
+      ],
+      "v4": [
+        91,
+        121,
+        125
+      ]
+    }
+  },
+  "recommended_gate": {
+    "name": "Trace-Protected T14-3 Precision Gate",
+    "condition": "c1_rec == False and not (c1_nov and not cj_nov) and c1_t1 <= 5 and cj_t1 >= 4",
+    "gains": 2,
+    "losses": 0,
+    "net_gain": 2,
+    "final_v6_hit1": 118,
+    "final_v6_hit1_pct": 45.21,
+    "final_clean220_hit1": 113,
+    "final_clean220_hit1_pct": 51.36,
+    "cv_5fold_net": [
+      0,
+      1,
+      1,
+      0,
+      0
+    ]
+  }
+}

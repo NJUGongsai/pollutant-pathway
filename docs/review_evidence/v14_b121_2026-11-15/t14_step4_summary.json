@@ -1,0 +1,5207 @@
+{
+  "command": "t14_step4_hpc_driver",
+  "domains": [
+    "b121",
+    "298"
+  ],
+  "workers": 16,
+  "frozen_scorers": {
+    "all_ok": true,
+    "files": {
+      "scripts/eval/score_disclosure_v4cn.py": {
+        "expected": "0ffb8b71330653f7b0373a67d028b14a84d4c5f13a83abd17db89a3c82a28f2f",
+        "actual": "0ffb8b71330653f7b0373a67d028b14a84d4c5f13a83abd17db89a3c82a28f2f",
+        "ok": true
+      },
+      "src/pathway_v43/pollutant/evaluation.py": {
+        "expected": "ac38ea393bfb91e420e98730415cba334df2f9d3d9de4ecfde90914f45363f41",
+        "actual": "ac38ea393bfb91e420e98730415cba334df2f9d3d9de4ecfde90914f45363f41",
+        "ok": true
+      },
+      "src/pathway_v43/pollutant/s5b_scoring.py": {
+        "expected": "5a677550ef54a3a1e16d5b5a1ce4dd8d2cdcb55dd56224e8a148f50511dc456d",
+        "actual": "5a677550ef54a3a1e16d5b5a1ce4dd8d2cdcb55dd56224e8a148f50511dc456d",
+        "ok": true
+      }
+    }
+  },
+  "n_arms": 89,
+  "n_failed": 0,
+  "n_anti_violations": 0,
+  "anti_truncation": {
+    "298": {
+      "status": "ok",
+      "out": "<HPC_BASE>/runs_t14_step4_stage_a_20261115/anti_truncation_298.json",
+      "per_arm_violations": {
+        "298_ctrl_w20_p2::single": 0,
+        "298_ctrl_w20_p2_p1_pa_pb::v13": 0,
+        "298_v14_4p_w20::v14s4_cons_v3": 0,
+        "298_v14_4p_w20::v14s4_strict_elig": 0,
+        "298_v14_4p_w20::v14s4_v6n_elig": 0,
+        "298_v14_pa::single_v2": 0,
+        "298_v14_pa_pb::v14s4_cons_v3": 0,
+        "298_v14_pa_pb::v14s4_strict_elig": 0,
+        "298_v14_pb::single_v2": 0,
+        "298_v14_pb_pa::v14s4_cons_v3": 0,
+        "298_v14_pb_pa::v14s4_strict_elig": 0,
+        "298_v14_pb_pa::v14s4_v6n_elig": 0
+      },
+      "n_violations": 0
+    },
+    "biosysmodb121": {
+      "status": "ok",
+      "out": "<HPC_BASE>/runs_t14_step4_stage_a_20261115/anti_truncation_biosysmodb121.json",
+      "per_arm_violations": {
+        "b121_ctrl_pa_pb::v13": 0,
+        "b121_t8_pa::single_v2": 0,
+        "b121_t8_pb::single_v2": 0,
+        "b121_t9_pc::single_v2": 0,
+        "b121_v14_6p_at16::v14s4_strict_elig": 0,
+        "b121_v14_6p_at16::v14s4_strict_elig_prom": 0,
+        "b121_v14_6p_at16::v14s4_strict_elig_s1u": 0,
+        "b121_v14_6p_at16::v14s4_v6n_elig": 0,
+        "b121_v14_6p_at16::v14s4_v6n_elig_prom": 0,
+        "b121_v14_6p_at16::v14s4_v6n_elig_s1u": 0,
+        "b121_v14_pa::single_v2": 0,
+        "b121_v14_pb::single_v2": 0,
+        "b121_v14_pb_6p_at16::v14s4_strict_elig": 0,
+        "b121_v14_pb_6p_at16::v14s4_strict_elig_prom": 0,
+        "b121_v14_pb_6p_at16::v14s4_strict_elig_s1u": 0,
+        "b121_v14_pb_6p_at16::v14s4_v6n_elig": 0,
+        "b121_v14_pb_6p_at16::v14s4_v6n_elig_prom": 0,
+        "b121_v14_pb_6p_at16::v14s4_v6n_elig_s1u": 0,
+        "b121_v14_pb_9p_all::v14s4_strict_elig": 0,
+        "b121_v14_pb_9p_all::v14s4_strict_elig_prom": 0,
+        "b121_v14_pb_9p_all::v14s4_strict_elig_s1u": 0,
+        "b121_v14_pb_9p_all::v14s4_v6n_elig": 0,
+        "b121_v14_pb_9p_all::v14s4_v6n_elig_prom": 0,
+        "b121_v14_pb_9p_all::v14s4_v6n_elig_s1u": 0,
+        "b121_v14_pb_pa_pc::v14s4_strict_elig": 0,
+        "b121_v14_pb_pa_pc::v14s4_strict_elig_s1u": 0,
+        "b121_v14_pb_pa_pc::v14s4_v6n_elig": 0,
+        "b121_v14_pb_pa_pc::v14s4_v6n_elig_s1u": 0,
+        "b121_v14_pc::single_v2": 0,
+        "b121_wl4_pa::single_v2": 0,
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom": 0,
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj": 0,
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_v6n": 0,
+        "b121_wl4_pa_5p::v14s4_strict_elig": 0,
+        "b121_wl4_pa_6p_best3::v14s4_cons_v3_prom": 0,
+        "b121_wl4_pa_6p_v14::v14s4_cons_v3_prom": 0,
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig": 0,
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig_prom": 0,
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig_s1u": 0,
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig": 0,
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig_prom": 0,
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig_s1u": 0,
+        "b121_wl4_pa_8p_v14::v14s4_cons_v3_prom": 0,
+        "b121_wl4_pa_8p_v14::v14s4_strict_elig_prom": 0,
+        "b121_wl4_pb::single_v2": 0,
+        "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom": 0,
+        "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom_v6n": 0,
+        "b121_wl4_pb_3p::v14s4_strict_elig": 0,
+        "b121_wl4_pb_3p::v14s4_strict_elig_s1u": 0,
+        "b121_wl4_pb_3p::v14s4_v6n_elig": 0,
+        "b121_wl4_pb_3p::v14s4_v6n_elig_s1u": 0,
+        "b121_wl4_pb_5p::v14s4_strict_elig": 0,
+        "b121_wl4_pb_5p::v14s4_strict_elig_s1u": 0,
+        "b121_wl4_pb_5p::v14s4_v6n_elig": 0,
+        "b121_wl4_pb_5p::v14s4_v6n_elig_s1u": 0,
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig": 0,
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig_prom": 0,
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig_s1u": 0,
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig": 0,
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig_prom": 0,
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig_s1u": 0,
+        "b121_wl4_pb_8p_v14::v14s4_cons_v3_prom": 0,
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig": 0,
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig_prom": 0,
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig_s1u": 0,
+        "b121_wl4_pb_8p_v14::v14s4_v6n_elig": 0,
+        "b121_wl4_pb_8p_v14::v14s4_v6n_elig_s1u": 0,
+        "b121_wl4_pb_9p_at16::v14s4_cons_v3_prom": 0,
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig": 0,
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig_prom": 0,
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig_s1u": 0,
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig": 0,
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig_prom": 0,
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig_s1u": 0,
+        "b121_wl4_pc::single_v2": 0,
+        "b121_wl4_pd::single_v2": 0,
+        "b121_wl4_pe::single_v2": 0
+      },
+      "n_violations": 0
+    }
+  },
+  "cv": {
+    "biosysmodb121_all_cons": {
+      "status": "ok",
+      "domain_tag": "biosysmodb121",
+      "k": 5,
+      "n_folds_evaluated": 5,
+      "n_qids": 261,
+      "n_pathway_groups": 76,
+      "baseline_arm": "b121_ctrl_pa_pb::v13",
+      "cv": {
+        "v6_hit@1": 118,
+        "v4_hit@1": 80,
+        "base_v6_hit@1": 105,
+        "base_v4_hit@1": 71,
+        "net_gain_v6": 13,
+        "net_gain_v4": 9,
+        "flips_up": 20,
+        "flips_down": 7,
+        "flips_up_v4": 13,
+        "flips_down_v4": 4,
+        "n_distinct_selected": 1
+      },
+      "folds": [
+        {
+          "fold": 0,
+          "n_qids": 53,
+          "n_pathway_groups": 16,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 100,
+          "train_v4_hit1": 70,
+          "eval_v6_hit1": 18,
+          "eval_v4_hit1": 10,
+          "base_v6_hit1": 15,
+          "base_v4_hit1": 9,
+          "flips_up": 5,
+          "flips_down": 2,
+          "flips_up_v4": 2,
+          "flips_down_v4": 1
+        },
+        {
+          "fold": 1,
+          "n_qids": 52,
+          "n_pathway_groups": 15,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 86,
+          "train_v4_hit1": 55,
+          "eval_v6_hit1": 32,
+          "eval_v4_hit1": 25,
+          "base_v6_hit1": 29,
+          "base_v4_hit1": 23,
+          "flips_up": 4,
+          "flips_down": 1,
+          "flips_up_v4": 3,
+          "flips_down_v4": 1
+        },
+        {
+          "fold": 2,
+          "n_qids": 52,
+          "n_pathway_groups": 15,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 100,
+          "train_v4_hit1": 68,
+          "eval_v6_hit1": 18,
+          "eval_v4_hit1": 12,
+          "base_v6_hit1": 14,
+          "base_v4_hit1": 8,
+          "flips_up": 5,
+          "flips_down": 1,
+          "flips_up_v4": 4,
+          "flips_down_v4": 0
+        },
+        {
+          "fold": 3,
+          "n_qids": 52,
+          "n_pathway_groups": 15,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 90,
+          "train_v4_hit1": 65,
+          "eval_v6_hit1": 28,
+          "eval_v4_hit1": 15,
+          "base_v6_hit1": 24,
+          "base_v4_hit1": 13,
+          "flips_up": 5,
+          "flips_down": 1,
+          "flips_up_v4": 2,
+          "flips_down_v4": 0
+        },
+        {
+          "fold": 4,
+          "n_qids": 52,
+          "n_pathway_groups": 15,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 96,
+          "train_v4_hit1": 62,
+          "eval_v6_hit1": 22,
+          "eval_v4_hit1": 18,
+          "base_v6_hit1": 23,
+          "base_v4_hit1": 18,
+          "flips_up": 1,
+          "flips_down": 2,
+          "flips_up_v4": 2,
+          "flips_down_v4": 2
+        }
+      ],
+      "in_sample": {
+        "b121_ctrl_pa_pb::v13": {
+          "v6_hit@1": 105,
+          "v4_hit@1": 71
+        },
+        "b121_v14_6p_at16::v14s4_strict_elig": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 75
+        },
+        "b121_v14_6p_at16::v14s4_strict_elig_prom": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 75
+        },
+        "b121_v14_6p_at16::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 75
+        },
+        "b121_v14_6p_at16::v14s4_v6n_elig": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 73
+        },
+        "b121_v14_6p_at16::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 73
+        },
+        "b121_v14_6p_at16::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 73
+        },
+        "b121_v14_pb_6p_at16::v14s4_strict_elig": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 75
+        },
+        "b121_v14_pb_6p_at16::v14s4_strict_elig_prom": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 75
+        },
+        "b121_v14_pb_6p_at16::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 75
+        },
+        "b121_v14_pb_6p_at16::v14s4_v6n_elig": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 73
+        },
+        "b121_v14_pb_6p_at16::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 73
+        },
+        "b121_v14_pb_6p_at16::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 73
+        },
+        "b121_v14_pb_9p_all::v14s4_strict_elig": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 74
+        },
+        "b121_v14_pb_9p_all::v14s4_strict_elig_prom": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 73
+        },
+        "b121_v14_pb_9p_all::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 74
+        },
+        "b121_v14_pb_9p_all::v14s4_v6n_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 72
+        },
+        "b121_v14_pb_9p_all::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 71
+        },
+        "b121_v14_pb_9p_all::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 72
+        },
+        "b121_v14_pb_pa_pc::v14s4_strict_elig": {
+          "v6_hit@1": 106,
+          "v4_hit@1": 71
+        },
+        "b121_v14_pb_pa_pc::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 106,
+          "v4_hit@1": 71
+        },
+        "b121_v14_pb_pa_pc::v14s4_v6n_elig": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 69
+        },
+        "b121_v14_pb_pa_pc::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 69
+        },
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom": {
+          "v6_hit@1": 116,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj": {
+          "v6_hit@1": 118,
+          "v4_hit@1": 80
+        },
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_v6n": {
+          "v6_hit@1": 114,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pa_5p::v14s4_strict_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pa_6p_best3::v14s4_cons_v3_prom": {
+          "v6_hit@1": 115,
+          "v4_hit@1": 78
+        },
+        "b121_wl4_pa_6p_v14::v14s4_cons_v3_prom": {
+          "v6_hit@1": 114,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig_prom": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pa_8p_v14::v14s4_cons_v3_prom": {
+          "v6_hit@1": 115,
+          "v4_hit@1": 78
+        },
+        "b121_wl4_pa_8p_v14::v14s4_strict_elig_prom": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom": {
+          "v6_hit@1": 116,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom_v6n": {
+          "v6_hit@1": 114,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_3p::v14s4_strict_elig": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_3p::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_3p::v14s4_v6n_elig": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 73
+        },
+        "b121_wl4_pb_3p::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 73
+        },
+        "b121_wl4_pb_5p::v14s4_strict_elig": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_5p::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_5p::v14s4_v6n_elig": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_5p::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig_prom": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_8p_v14::v14s4_cons_v3_prom": {
+          "v6_hit@1": 115,
+          "v4_hit@1": 78
+        },
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig_prom": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_8p_v14::v14s4_v6n_elig": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_8p_v14::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_9p_at16::v14s4_cons_v3_prom": {
+          "v6_hit@1": 116,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig_prom": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 78
+        },
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 75
+        },
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        }
+      },
+      "best_in_sample_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+      "fold_assignment_sha256": "be5e841b4cefbbc50440b23d1346c92e9e0c8fdca36fdfe175bba5900fc73fff"
+    },
+    "biosysmodb121_wl4_family": {
+      "status": "ok",
+      "domain_tag": "biosysmodb121",
+      "k": 5,
+      "n_folds_evaluated": 5,
+      "n_qids": 261,
+      "n_pathway_groups": 76,
+      "baseline_arm": "b121_ctrl_pa_pb::v13",
+      "cv": {
+        "v6_hit@1": 118,
+        "v4_hit@1": 80,
+        "base_v6_hit@1": 105,
+        "base_v4_hit@1": 71,
+        "net_gain_v6": 13,
+        "net_gain_v4": 9,
+        "flips_up": 20,
+        "flips_down": 7,
+        "flips_up_v4": 13,
+        "flips_down_v4": 4,
+        "n_distinct_selected": 1
+      },
+      "folds": [
+        {
+          "fold": 0,
+          "n_qids": 53,
+          "n_pathway_groups": 16,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 100,
+          "train_v4_hit1": 70,
+          "eval_v6_hit1": 18,
+          "eval_v4_hit1": 10,
+          "base_v6_hit1": 15,
+          "base_v4_hit1": 9,
+          "flips_up": 5,
+          "flips_down": 2,
+          "flips_up_v4": 2,
+          "flips_down_v4": 1
+        },
+        {
+          "fold": 1,
+          "n_qids": 52,
+          "n_pathway_groups": 15,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 86,
+          "train_v4_hit1": 55,
+          "eval_v6_hit1": 32,
+          "eval_v4_hit1": 25,
+          "base_v6_hit1": 29,
+          "base_v4_hit1": 23,
+          "flips_up": 4,
+          "flips_down": 1,
+          "flips_up_v4": 3,
+          "flips_down_v4": 1
+        },
+        {
+          "fold": 2,
+          "n_qids": 52,
+          "n_pathway_groups": 15,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 100,
+          "train_v4_hit1": 68,
+          "eval_v6_hit1": 18,
+          "eval_v4_hit1": 12,
+          "base_v6_hit1": 14,
+          "base_v4_hit1": 8,
+          "flips_up": 5,
+          "flips_down": 1,
+          "flips_up_v4": 4,
+          "flips_down_v4": 0
+        },
+        {
+          "fold": 3,
+          "n_qids": 52,
+          "n_pathway_groups": 15,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 90,
+          "train_v4_hit1": 65,
+          "eval_v6_hit1": 28,
+          "eval_v4_hit1": 15,
+          "base_v6_hit1": 24,
+          "base_v4_hit1": 13,
+          "flips_up": 5,
+          "flips_down": 1,
+          "flips_up_v4": 2,
+          "flips_down_v4": 0
+        },
+        {
+          "fold": 4,
+          "n_qids": 52,
+          "n_pathway_groups": 15,
+          "selected_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+          "train_v6_hit1": 96,
+          "train_v4_hit1": 62,
+          "eval_v6_hit1": 22,
+          "eval_v4_hit1": 18,
+          "base_v6_hit1": 23,
+          "base_v4_hit1": 18,
+          "flips_up": 1,
+          "flips_down": 2,
+          "flips_up_v4": 2,
+          "flips_down_v4": 2
+        }
+      ],
+      "in_sample": {
+        "b121_ctrl_pa_pb::v13": {
+          "v6_hit@1": 105,
+          "v4_hit@1": 71
+        },
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom": {
+          "v6_hit@1": 116,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj": {
+          "v6_hit@1": 118,
+          "v4_hit@1": 80
+        },
+        "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_v6n": {
+          "v6_hit@1": 114,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pa_5p::v14s4_strict_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pa_6p_best3::v14s4_cons_v3_prom": {
+          "v6_hit@1": 115,
+          "v4_hit@1": 78
+        },
+        "b121_wl4_pa_6p_v14::v14s4_cons_v3_prom": {
+          "v6_hit@1": 114,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig_prom": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_6p_v14::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pa_6p_v14::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pa_8p_v14::v14s4_cons_v3_prom": {
+          "v6_hit@1": 115,
+          "v4_hit@1": 78
+        },
+        "b121_wl4_pa_8p_v14::v14s4_strict_elig_prom": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom": {
+          "v6_hit@1": 116,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom_v6n": {
+          "v6_hit@1": 114,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_3p::v14s4_strict_elig": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_3p::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_3p::v14s4_v6n_elig": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 73
+        },
+        "b121_wl4_pb_3p::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 107,
+          "v4_hit@1": 73
+        },
+        "b121_wl4_pb_5p::v14s4_strict_elig": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_5p::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_5p::v14s4_v6n_elig": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_5p::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig_prom": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_6p_v14::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_6p_v14::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_8p_v14::v14s4_cons_v3_prom": {
+          "v6_hit@1": 115,
+          "v4_hit@1": 78
+        },
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig_prom": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_8p_v14::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 109,
+          "v4_hit@1": 76
+        },
+        "b121_wl4_pb_8p_v14::v14s4_v6n_elig": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_8p_v14::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_9p_at16::v14s4_cons_v3_prom": {
+          "v6_hit@1": 116,
+          "v4_hit@1": 79
+        },
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig_prom": {
+          "v6_hit@1": 112,
+          "v4_hit@1": 78
+        },
+        "b121_wl4_pb_9p_at16::v14s4_strict_elig_s1u": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 77
+        },
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        },
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig_prom": {
+          "v6_hit@1": 110,
+          "v4_hit@1": 75
+        },
+        "b121_wl4_pb_9p_at16::v14s4_v6n_elig_s1u": {
+          "v6_hit@1": 108,
+          "v4_hit@1": 74
+        }
+      },
+      "best_in_sample_arm": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+      "fold_assignment_sha256": "be5e841b4cefbbc50440b23d1346c92e9e0c8fdca36fdfe175bba5900fc73fff"
+    },
+    "298_all_cons": {
+      "status": "ok",
+      "domain_tag": "298",
+      "k": 5,
+      "n_folds_evaluated": 5,
+      "n_qids": 196,
+      "n_pathway_groups": 196,
+      "baseline_arm": "298_ctrl_w20_p2_p1_pa_pb::v13",
+      "cv": {
+        "v6_hit@1": 92,
+        "v4_hit@1": 90,
+        "base_v6_hit@1": 86,
+        "base_v4_hit@1": 84,
+        "net_gain_v6": 6,
+        "net_gain_v4": 6,
+        "flips_up": 13,
+        "flips_down": 7,
+        "flips_up_v4": 13,
+        "flips_down_v4": 7,
+        "n_distinct_selected": 2
+      },
+      "folds": [
+        {
+          "fold": 0,
+          "n_qids": 40,
+          "n_pathway_groups": 40,
+          "selected_arm": "298_v14_pb_pa::v14s4_cons_v3",
+          "train_v6_hit1": 79,
+          "train_v4_hit1": 77,
+          "eval_v6_hit1": 16,
+          "eval_v4_hit1": 15,
+          "base_v6_hit1": 15,
+          "base_v4_hit1": 14,
+          "flips_up": 2,
+          "flips_down": 1,
+          "flips_up_v4": 2,
+          "flips_down_v4": 1
+        },
+        {
+          "fold": 1,
+          "n_qids": 39,
+          "n_pathway_groups": 39,
+          "selected_arm": "298_v14_pb_pa::v14s4_cons_v3",
+          "train_v6_hit1": 78,
+          "train_v4_hit1": 75,
+          "eval_v6_hit1": 17,
+          "eval_v4_hit1": 17,
+          "base_v6_hit1": 17,
+          "base_v4_hit1": 17,
+          "flips_up": 2,
+          "flips_down": 2,
+          "flips_up_v4": 2,
+          "flips_down_v4": 2
+        },
+        {
+          "fold": 2,
+          "n_qids": 39,
+          "n_pathway_groups": 39,
+          "selected_arm": "298_v14_pb_pa::v14s4_cons_v3",
+          "train_v6_hit1": 73,
+          "train_v4_hit1": 70,
+          "eval_v6_hit1": 22,
+          "eval_v4_hit1": 22,
+          "base_v6_hit1": 20,
+          "base_v4_hit1": 20,
+          "flips_up": 2,
+          "flips_down": 0,
+          "flips_up_v4": 2,
+          "flips_down_v4": 0
+        },
+        {
+          "fold": 3,
+          "n_qids": 39,
+          "n_pathway_groups": 39,
+          "selected_arm": "298_v14_pa_pb::v14s4_cons_v3",
+          "train_v6_hit1": 76,
+          "train_v4_hit1": 74,
+          "eval_v6_hit1": 18,
+          "eval_v4_hit1": 18,
+          "base_v6_hit1": 18,
+          "base_v4_hit1": 18,
+          "flips_up": 2,
+          "flips_down": 2,
+          "flips_up_v4": 2,
+          "flips_down_v4": 2
+        },
+        {
+          "fold": 4,
+          "n_qids": 39,
+          "n_pathway_groups": 39,
+          "selected_arm": "298_v14_pa_pb::v14s4_cons_v3",
+          "train_v6_hit1": 75,
+          "train_v4_hit1": 74,
+          "eval_v6_hit1": 19,
+          "eval_v4_hit1": 18,
+          "base_v6_hit1": 16,
+          "base_v4_hit1": 15,
+          "flips_up": 5,
+          "flips_down": 2,
+          "flips_up_v4": 5,
+          "flips_down_v4": 2
+        }
+      ],
+      "in_sample": {
+        "298_ctrl_w20_p2_p1_pa_pb::v13": {
+          "v6_hit@1": 86,
+          "v4_hit@1": 84
+        },
+        "298_v14_4p_w20::v14s4_cons_v3": {
+          "v6_hit@1": 93,
+          "v4_hit@1": 91
+        },
+        "298_v14_4p_w20::v14s4_strict_elig": {
+          "v6_hit@1": 92,
+          "v4_hit@1": 90
+        },
+        "298_v14_4p_w20::v14s4_v6n_elig": {
+          "v6_hit@1": 92,
+          "v4_hit@1": 90
+        },
+        "298_v14_pa_pb::v14s4_cons_v3": {
+          "v6_hit@1": 94,
+          "v4_hit@1": 92
+        },
+        "298_v14_pa_pb::v14s4_strict_elig": {
+          "v6_hit@1": 94,
+          "v4_hit@1": 92
+        },
+        "298_v14_pb_pa::v14s4_cons_v3": {
+          "v6_hit@1": 95,
+          "v4_hit@1": 92
+        },
+        "298_v14_pb_pa::v14s4_strict_elig": {
+          "v6_hit@1": 95,
+          "v4_hit@1": 92
+        },
+        "298_v14_pb_pa::v14s4_v6n_elig": {
+          "v6_hit@1": 95,
+          "v4_hit@1": 92
+        }
+      },
+      "best_in_sample_arm": "298_v14_pb_pa::v14s4_cons_v3",
+      "fold_assignment_sha256": "ce4a420a375f203af6f466d6b41cd5ee5f064d56ed5a6ec24231430c235e2e8c"
+    }
+  },
+  "cached_adjudication": {},
+  "results": [
+    {
+      "name": "298_ctrl_w20_p2::single",
+      "pool": "298_ctrl_w20_p2",
+      "variant": "single",
+      "domain_tag": "298",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 87,
+        "hit@3": 120,
+        "hit@5": 125,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 125,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 68
+        }
+      },
+      "v4": {
+        "hit@1": 84,
+        "hit@3": 115,
+        "hit@5": 121,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 121,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 72,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 130.4,
+      "target_hit1": 89,
+      "reached_target": false,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_ctrl_w20_p2_p1_pa_pb::v13",
+      "pool": "298_ctrl_w20_p2_p1_pa_pb",
+      "variant": "v13",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 86,
+        "hit@3": 118,
+        "hit@5": 127,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 127,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 65
+        }
+      },
+      "v4": {
+        "hit@1": 84,
+        "hit@3": 115,
+        "hit@5": 124,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 124,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 68,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 122.6,
+      "target_hit1": 89,
+      "reached_target": false,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": true
+    },
+    {
+      "name": "298_v14_4p_w20::v14s4_cons_v3",
+      "pool": "298_v14_4p_w20",
+      "variant": "v14s4_cons_v3",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 93,
+        "hit@3": 125,
+        "hit@5": 128,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 128,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 64
+        }
+      },
+      "v4": {
+        "hit@1": 91,
+        "hit@3": 121,
+        "hit@5": 125,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 125,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 67,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 140.2,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_4p_w20::v14s4_strict_elig",
+      "pool": "298_v14_4p_w20",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 92,
+        "hit@3": 125,
+        "hit@5": 128,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 128,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 64
+        }
+      },
+      "v4": {
+        "hit@1": 90,
+        "hit@3": 121,
+        "hit@5": 125,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 125,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 67,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 98.3,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_4p_w20::v14s4_v6n_elig",
+      "pool": "298_v14_4p_w20",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 92,
+        "hit@3": 125,
+        "hit@5": 128,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 128,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 64
+        }
+      },
+      "v4": {
+        "hit@1": 90,
+        "hit@3": 121,
+        "hit@5": 124,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 124,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 68,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 103.2,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_pa::single_v2",
+      "pool": "298_v14_pa",
+      "variant": "single_v2",
+      "domain_tag": "298",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 97,
+        "hit@3": 123,
+        "hit@5": 126,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 126,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 67
+        }
+      },
+      "v4": {
+        "hit@1": 93,
+        "hit@3": 118,
+        "hit@5": 121,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 121,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 72,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 101.9,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_pa_pb::v14s4_cons_v3",
+      "pool": "298_v14_pa_pb",
+      "variant": "v14s4_cons_v3",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 94,
+        "hit@3": 122,
+        "hit@5": 128,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 128,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 65
+        }
+      },
+      "v4": {
+        "hit@1": 92,
+        "hit@3": 118,
+        "hit@5": 124,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 124,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 69,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 108.6,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_pa_pb::v14s4_strict_elig",
+      "pool": "298_v14_pa_pb",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 94,
+        "hit@3": 122,
+        "hit@5": 128,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 128,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 65
+        }
+      },
+      "v4": {
+        "hit@1": 92,
+        "hit@3": 118,
+        "hit@5": 124,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 124,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 69,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 156.6,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_pb::single_v2",
+      "pool": "298_v14_pb",
+      "variant": "single_v2",
+      "domain_tag": "298",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 91,
+        "hit@3": 121,
+        "hit@5": 126,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 126,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 66
+        }
+      },
+      "v4": {
+        "hit@1": 88,
+        "hit@3": 118,
+        "hit@5": 124,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 124,
+          "product_hit_partial": 2,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 68,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 90.7,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_pb_pa::v14s4_cons_v3",
+      "pool": "298_v14_pb_pa",
+      "variant": "v14s4_cons_v3",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 95,
+        "hit@3": 123,
+        "hit@5": 127,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 127,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 66
+        }
+      },
+      "v4": {
+        "hit@1": 92,
+        "hit@3": 119,
+        "hit@5": 124,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 124,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 69,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 116.2,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_pb_pa::v14s4_strict_elig",
+      "pool": "298_v14_pb_pa",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 95,
+        "hit@3": 123,
+        "hit@5": 127,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 127,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 66
+        }
+      },
+      "v4": {
+        "hit@1": 92,
+        "hit@3": 119,
+        "hit@5": 124,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 124,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 69,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 86.5,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "298_v14_pb_pa::v14s4_v6n_elig",
+      "pool": "298_v14_pb_pa",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "298",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 196,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 95,
+        "hit@3": 123,
+        "hit@5": 127,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 127,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 66
+        }
+      },
+      "v4": {
+        "hit@1": 92,
+        "hit@3": 119,
+        "hit@5": 123,
+        "denominator": 196,
+        "buckets": {
+          "matched_product_hit": 123,
+          "product_hit_partial": 1,
+          "unmatched_no_event": 2,
+          "unmatched_product_mismatch": 70,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": null,
+      "elapsed_s": 85.8,
+      "target_hit1": 89,
+      "reached_target": true,
+      "hard_floor_hit1": 87,
+      "below_hard_floor": false
+    },
+    {
+      "name": "b121_ctrl_pa_pb::v13",
+      "pool": "b121_ctrl_pa_pb",
+      "variant": "v13",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 105,
+        "hit@3": 117,
+        "hit@5": 133,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 133,
+          "unmatched_product_mismatch": 128
+        }
+      },
+      "v4": {
+        "hit@1": 71,
+        "hit@3": 87,
+        "hit@5": 97,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 97,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 164,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 101,
+          "hit@3": 111,
+          "hit@5": 125
+        },
+        "v4": {
+          "hit@1": 68,
+          "hit@3": 82,
+          "hit@5": 91
+        }
+      },
+      "elapsed_s": 227.5,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_t8_pa::single_v2",
+      "pool": "b121_t8_pa",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 100,
+        "hit@3": 120,
+        "hit@5": 128,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 128,
+          "unmatched_product_mismatch": 133
+        }
+      },
+      "v4": {
+        "hit@1": 71,
+        "hit@3": 89,
+        "hit@5": 96,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 96,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 165,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 96,
+          "hit@3": 114,
+          "hit@5": 121
+        },
+        "v4": {
+          "hit@1": 67,
+          "hit@3": 84,
+          "hit@5": 90
+        }
+      },
+      "elapsed_s": 250.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_t8_pb::single_v2",
+      "pool": "b121_t8_pb",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 101,
+        "hit@3": 122,
+        "hit@5": 129,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 129,
+          "unmatched_product_mismatch": 132
+        }
+      },
+      "v4": {
+        "hit@1": 68,
+        "hit@3": 86,
+        "hit@5": 90,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 90,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 171,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 98,
+          "hit@3": 117,
+          "hit@5": 122
+        },
+        "v4": {
+          "hit@1": 65,
+          "hit@3": 82,
+          "hit@5": 85
+        }
+      },
+      "elapsed_s": 275.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_t9_pc::single_v2",
+      "pool": "b121_t9_pc",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 100,
+        "hit@3": 123,
+        "hit@5": 130,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 130,
+          "unmatched_product_mismatch": 131
+        }
+      },
+      "v4": {
+        "hit@1": 69,
+        "hit@3": 86,
+        "hit@5": 94,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 94,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 167,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 97,
+          "hit@3": 118,
+          "hit@5": 123
+        },
+        "v4": {
+          "hit@1": 66,
+          "hit@3": 83,
+          "hit@5": 90
+        }
+      },
+      "elapsed_s": 207.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_6p_at16::v14s4_strict_elig",
+      "pool": "b121_v14_6p_at16",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 128,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 75,
+        "hit@3": 91,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 87,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 745.8,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_6p_at16::v14s4_strict_elig_prom",
+      "pool": "b121_v14_6p_at16",
+      "variant": "v14s4_strict_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 128,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 75,
+        "hit@3": 91,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 87,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 761.7,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_6p_at16::v14s4_strict_elig_s1u",
+      "pool": "b121_v14_6p_at16",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 128,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 75,
+        "hit@3": 91,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 87,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 670.4,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_6p_at16::v14s4_v6n_elig",
+      "pool": "b121_v14_6p_at16",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 127,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 86,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 83,
+          "hit@5": 87
+        }
+      },
+      "elapsed_s": 674.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_6p_at16::v14s4_v6n_elig_prom",
+      "pool": "b121_v14_6p_at16",
+      "variant": "v14s4_v6n_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 127,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 86,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 83,
+          "hit@5": 87
+        }
+      },
+      "elapsed_s": 692.4,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_6p_at16::v14s4_v6n_elig_s1u",
+      "pool": "b121_v14_6p_at16",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 127,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 86,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 83,
+          "hit@5": 87
+        }
+      },
+      "elapsed_s": 680.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pa::single_v2",
+      "pool": "b121_v14_pa",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 100,
+        "hit@3": 126,
+        "hit@5": 132,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 132,
+          "unmatched_product_mismatch": 129
+        }
+      },
+      "v4": {
+        "hit@1": 68,
+        "hit@3": 85,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 96,
+          "hit@3": 121,
+          "hit@5": 125
+        },
+        "v4": {
+          "hit@1": 65,
+          "hit@3": 82,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 177.5,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb::single_v2",
+      "pool": "b121_v14_pb",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 105,
+        "hit@3": 130,
+        "hit@5": 137,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 137,
+          "unmatched_product_mismatch": 124
+        }
+      },
+      "v4": {
+        "hit@1": 68,
+        "hit@3": 89,
+        "hit@5": 95,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 95,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 166,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 101,
+          "hit@3": 123,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 65,
+          "hit@3": 85,
+          "hit@5": 91
+        }
+      },
+      "elapsed_s": 207.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_6p_at16::v14s4_strict_elig",
+      "pool": "b121_v14_pb_6p_at16",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 128,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 75,
+        "hit@3": 91,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 87,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 705.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_6p_at16::v14s4_strict_elig_prom",
+      "pool": "b121_v14_pb_6p_at16",
+      "variant": "v14s4_strict_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 128,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 75,
+        "hit@3": 91,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 87,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 752.9,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_6p_at16::v14s4_strict_elig_s1u",
+      "pool": "b121_v14_pb_6p_at16",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 128,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 75,
+        "hit@3": 91,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 87,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 669.9,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_6p_at16::v14s4_v6n_elig",
+      "pool": "b121_v14_pb_6p_at16",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 127,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 86,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 83,
+          "hit@5": 87
+        }
+      },
+      "elapsed_s": 667.2,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_6p_at16::v14s4_v6n_elig_prom",
+      "pool": "b121_v14_pb_6p_at16",
+      "variant": "v14s4_v6n_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 127,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 86,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 83,
+          "hit@5": 87
+        }
+      },
+      "elapsed_s": 696.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_6p_at16::v14s4_v6n_elig_s1u",
+      "pool": "b121_v14_pb_6p_at16",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 127,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_product_mismatch": 123
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 86,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 122,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 83,
+          "hit@5": 87
+        }
+      },
+      "elapsed_s": 674.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_9p_all::v14s4_strict_elig",
+      "pool": "b121_v14_pb_9p_all",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 131,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 89,
+        "hit@5": 98,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 98,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 163,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 107,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 72,
+          "hit@3": 86,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 1020.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_9p_all::v14s4_strict_elig_prom",
+      "pool": "b121_v14_pb_9p_all",
+      "variant": "v14s4_strict_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 91,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 86,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 1011.3,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_9p_all::v14s4_strict_elig_s1u",
+      "pool": "b121_v14_pb_9p_all",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 131,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 89,
+        "hit@5": 98,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 98,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 163,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 107,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 72,
+          "hit@3": 86,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 934.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_9p_all::v14s4_v6n_elig",
+      "pool": "b121_v14_pb_9p_all",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 131,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 72,
+        "hit@3": 87,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 107,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 70,
+          "hit@3": 84,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 932.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_9p_all::v14s4_v6n_elig_prom",
+      "pool": "b121_v14_pb_9p_all",
+      "variant": "v14s4_v6n_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 71,
+        "hit@3": 89,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 69,
+          "hit@3": 84,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 1035.5,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_9p_all::v14s4_v6n_elig_s1u",
+      "pool": "b121_v14_pb_9p_all",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 131,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 72,
+        "hit@3": 87,
+        "hit@5": 92,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 92,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 169,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 107,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 70,
+          "hit@3": 84,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 1030.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_pa_pc::v14s4_strict_elig",
+      "pool": "b121_v14_pb_pa_pc",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 106,
+        "hit@3": 130,
+        "hit@5": 136,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 136,
+          "unmatched_product_mismatch": 125
+        }
+      },
+      "v4": {
+        "hit@1": 71,
+        "hit@3": 90,
+        "hit@5": 96,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 96,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 165,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 125,
+          "hit@5": 129
+        },
+        "v4": {
+          "hit@1": 69,
+          "hit@3": 87,
+          "hit@5": 91
+        }
+      },
+      "elapsed_s": 308.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_pa_pc::v14s4_strict_elig_s1u",
+      "pool": "b121_v14_pb_pa_pc",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 106,
+        "hit@3": 130,
+        "hit@5": 136,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 136,
+          "unmatched_product_mismatch": 125
+        }
+      },
+      "v4": {
+        "hit@1": 71,
+        "hit@3": 90,
+        "hit@5": 96,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 96,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 165,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 125,
+          "hit@5": 129
+        },
+        "v4": {
+          "hit@1": 69,
+          "hit@3": 87,
+          "hit@5": 91
+        }
+      },
+      "elapsed_s": 286.8,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_pa_pc::v14s4_v6n_elig",
+      "pool": "b121_v14_pb_pa_pc",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 107,
+        "hit@3": 131,
+        "hit@5": 136,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 136,
+          "unmatched_product_mismatch": 125
+        }
+      },
+      "v4": {
+        "hit@1": 69,
+        "hit@3": 88,
+        "hit@5": 91,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 91,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 170,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 126,
+          "hit@5": 129
+        },
+        "v4": {
+          "hit@1": 67,
+          "hit@3": 85,
+          "hit@5": 86
+        }
+      },
+      "elapsed_s": 284.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pb_pa_pc::v14s4_v6n_elig_s1u",
+      "pool": "b121_v14_pb_pa_pc",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 107,
+        "hit@3": 131,
+        "hit@5": 136,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 136,
+          "unmatched_product_mismatch": 125
+        }
+      },
+      "v4": {
+        "hit@1": 69,
+        "hit@3": 88,
+        "hit@5": 91,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 91,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 170,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 126,
+          "hit@5": 129
+        },
+        "v4": {
+          "hit@1": 67,
+          "hit@3": 85,
+          "hit@5": 86
+        }
+      },
+      "elapsed_s": 284.5,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_v14_pc::single_v2",
+      "pool": "b121_v14_pc",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 104,
+        "hit@3": 129,
+        "hit@5": 137,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 137,
+          "unmatched_product_mismatch": 124
+        }
+      },
+      "v4": {
+        "hit@1": 70,
+        "hit@3": 91,
+        "hit@5": 95,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 95,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 166,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 101,
+          "hit@3": 123,
+          "hit@5": 129
+        },
+        "v4": {
+          "hit@1": 67,
+          "hit@3": 86,
+          "hit@5": 89
+        }
+      },
+      "elapsed_s": 155.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa::single_v2",
+      "pool": "b121_wl4_pa",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 107,
+        "hit@3": 130,
+        "hit@5": 136,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 136,
+          "unmatched_product_mismatch": 125
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 92,
+        "hit@5": 96,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 96,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 165,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 101,
+          "hit@3": 123,
+          "hit@5": 128
+        },
+        "v4": {
+          "hit@1": 70,
+          "hit@3": 87,
+          "hit@5": 91
+        }
+      },
+      "elapsed_s": 221.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom",
+      "pool": "b121_wl4_pa_11p_at16",
+      "variant": "v14s4_cons_v3_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 116,
+        "hit@3": 133,
+        "hit@5": 141,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 141,
+          "unmatched_product_mismatch": 120
+        }
+      },
+      "v4": {
+        "hit@1": 79,
+        "hit@3": 96,
+        "hit@5": 102,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 102,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 159,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 111,
+          "hit@3": 127,
+          "hit@5": 134
+        },
+        "v4": {
+          "hit@1": 75,
+          "hit@3": 91,
+          "hit@5": 96
+        }
+      },
+      "elapsed_s": 1552.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj",
+      "pool": "b121_wl4_pa_11p_at16",
+      "variant": "v14s4_cons_v3_prom_adj",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 118,
+        "hit@3": 133,
+        "hit@5": 141,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 141,
+          "unmatched_product_mismatch": 120
+        }
+      },
+      "v4": {
+        "hit@1": 80,
+        "hit@3": 96,
+        "hit@5": 102,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 102,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 159,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 113,
+          "hit@3": 127,
+          "hit@5": 134
+        },
+        "v4": {
+          "hit@1": 76,
+          "hit@3": 91,
+          "hit@5": 96
+        }
+      },
+      "elapsed_s": 1681.2,
+      "target_hit1": 118,
+      "reached_target": true
+    },
+    {
+      "name": "b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_v6n",
+      "pool": "b121_wl4_pa_11p_at16",
+      "variant": "v14s4_cons_v3_prom_v6n",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 114,
+        "hit@3": 133,
+        "hit@5": 141,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 141,
+          "unmatched_product_mismatch": 120
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 92,
+        "hit@5": 95,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 95,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 166,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 127,
+          "hit@5": 134
+        },
+        "v4": {
+          "hit@1": 72,
+          "hit@3": 87,
+          "hit@5": 90
+        }
+      },
+      "elapsed_s": 1522.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_5p::v14s4_strict_elig",
+      "pool": "b121_wl4_pa_5p",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 132,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 77,
+        "hit@3": 95,
+        "hit@5": 101,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 101,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 160,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 105,
+          "hit@3": 125,
+          "hit@5": 133
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 90,
+          "hit@5": 95
+        }
+      },
+      "elapsed_s": 759.5,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_6p_best3::v14s4_cons_v3_prom",
+      "pool": "b121_wl4_pa_6p_best3",
+      "variant": "v14s4_cons_v3_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 115,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 78,
+        "hit@3": 95,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 110,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 750.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_6p_v14::v14s4_cons_v3_prom",
+      "pool": "b121_wl4_pa_6p_v14",
+      "variant": "v14s4_cons_v3_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 114,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 79,
+        "hit@3": 95,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 75,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 916.9,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_6p_v14::v14s4_strict_elig",
+      "pool": "b121_wl4_pa_6p_v14",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 79,
+        "hit@3": 96,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 108,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 76,
+          "hit@3": 91,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 880.9,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_6p_v14::v14s4_strict_elig_prom",
+      "pool": "b121_wl4_pa_6p_v14",
+      "variant": "v14s4_strict_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 132,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 79,
+        "hit@3": 95,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 108,
+          "hit@3": 125,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 76,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 791.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_6p_v14::v14s4_strict_elig_s1u",
+      "pool": "b121_wl4_pa_6p_v14",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 79,
+        "hit@3": 96,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 108,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 76,
+          "hit@3": 91,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 793.8,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_6p_v14::v14s4_v6n_elig",
+      "pool": "b121_wl4_pa_6p_v14",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 92,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 87,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 881.5,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_6p_v14::v14s4_v6n_elig_prom",
+      "pool": "b121_wl4_pa_6p_v14",
+      "variant": "v14s4_v6n_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 132,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 91,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 125,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 86,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 784.8,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_6p_v14::v14s4_v6n_elig_s1u",
+      "pool": "b121_wl4_pa_6p_v14",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 92,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 87,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 789.4,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_8p_v14::v14s4_cons_v3_prom",
+      "pool": "b121_wl4_pa_8p_v14",
+      "variant": "v14s4_cons_v3_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 115,
+        "hit@3": 133,
+        "hit@5": 141,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 141,
+          "unmatched_product_mismatch": 120
+        }
+      },
+      "v4": {
+        "hit@1": 78,
+        "hit@3": 95,
+        "hit@5": 100,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 100,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 161,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 110,
+          "hit@3": 126,
+          "hit@5": 134
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 90,
+          "hit@5": 94
+        }
+      },
+      "elapsed_s": 1267.4,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pa_8p_v14::v14s4_strict_elig_prom",
+      "pool": "b121_wl4_pa_8p_v14",
+      "variant": "v14s4_strict_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 77,
+        "hit@3": 95,
+        "hit@5": 100,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 100,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 161,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 1128.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb::single_v2",
+      "pool": "b121_wl4_pb",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 129,
+        "hit@5": 135,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 135,
+          "unmatched_product_mismatch": 126
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 94,
+        "hit@5": 97,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 97,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 164,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 103,
+          "hit@3": 122,
+          "hit@5": 127
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 88,
+          "hit@5": 91
+        }
+      },
+      "elapsed_s": 230.8,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom",
+      "pool": "b121_wl4_pb_11p_at16",
+      "variant": "v14s4_cons_v3_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 116,
+        "hit@3": 133,
+        "hit@5": 141,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 141,
+          "unmatched_product_mismatch": 120
+        }
+      },
+      "v4": {
+        "hit@1": 79,
+        "hit@3": 96,
+        "hit@5": 102,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 102,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 159,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 111,
+          "hit@3": 127,
+          "hit@5": 134
+        },
+        "v4": {
+          "hit@1": 75,
+          "hit@3": 91,
+          "hit@5": 96
+        }
+      },
+      "elapsed_s": 1532.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_11p_at16::v14s4_cons_v3_prom_v6n",
+      "pool": "b121_wl4_pb_11p_at16",
+      "variant": "v14s4_cons_v3_prom_v6n",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 114,
+        "hit@3": 133,
+        "hit@5": 141,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 141,
+          "unmatched_product_mismatch": 120
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 92,
+        "hit@5": 95,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 95,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 166,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 109,
+          "hit@3": 127,
+          "hit@5": 134
+        },
+        "v4": {
+          "hit@1": 72,
+          "hit@3": 87,
+          "hit@5": 90
+        }
+      },
+      "elapsed_s": 1523.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_3p::v14s4_strict_elig",
+      "pool": "b121_wl4_pb_3p",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 107,
+        "hit@3": 130,
+        "hit@5": 137,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 137,
+          "unmatched_product_mismatch": 124
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 94,
+        "hit@5": 98,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 98,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 163,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 102,
+          "hit@3": 123,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 70,
+          "hit@3": 89,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 620.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_3p::v14s4_strict_elig_s1u",
+      "pool": "b121_wl4_pb_3p",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 107,
+        "hit@3": 130,
+        "hit@5": 137,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 137,
+          "unmatched_product_mismatch": 124
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 94,
+        "hit@5": 98,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 98,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 163,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 102,
+          "hit@3": 123,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 70,
+          "hit@3": 89,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 564.3,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_3p::v14s4_v6n_elig",
+      "pool": "b121_wl4_pb_3p",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 107,
+        "hit@3": 130,
+        "hit@5": 137,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 137,
+          "unmatched_product_mismatch": 124
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 90,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 102,
+          "hit@3": 123,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 69,
+          "hit@3": 85,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 559.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_3p::v14s4_v6n_elig_s1u",
+      "pool": "b121_wl4_pb_3p",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 107,
+        "hit@3": 130,
+        "hit@5": 137,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 137,
+          "unmatched_product_mismatch": 124
+        }
+      },
+      "v4": {
+        "hit@1": 73,
+        "hit@3": 90,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 102,
+          "hit@3": 123,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 69,
+          "hit@3": 85,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 569.3,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_5p::v14s4_strict_elig",
+      "pool": "b121_wl4_pb_5p",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 132,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 95,
+        "hit@5": 101,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 101,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 160,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 125,
+          "hit@5": 133
+        },
+        "v4": {
+          "hit@1": 72,
+          "hit@3": 90,
+          "hit@5": 95
+        }
+      },
+      "elapsed_s": 818.7,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_5p::v14s4_strict_elig_s1u",
+      "pool": "b121_wl4_pb_5p",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 132,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 95,
+        "hit@5": 101,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 101,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 160,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 125,
+          "hit@5": 133
+        },
+        "v4": {
+          "hit@1": 72,
+          "hit@3": 90,
+          "hit@5": 95
+        }
+      },
+      "elapsed_s": 738.2,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_5p::v14s4_v6n_elig",
+      "pool": "b121_wl4_pb_5p",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 132,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 91,
+        "hit@5": 94,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 94,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 167,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 103,
+          "hit@3": 125,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 70,
+          "hit@3": 86,
+          "hit@5": 89
+        }
+      },
+      "elapsed_s": 750.5,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_5p::v14s4_v6n_elig_s1u",
+      "pool": "b121_wl4_pb_5p",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 132,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 91,
+        "hit@5": 94,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 94,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 167,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 103,
+          "hit@3": 125,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 70,
+          "hit@3": 86,
+          "hit@5": 89
+        }
+      },
+      "elapsed_s": 753.2,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_6p_v14::v14s4_strict_elig",
+      "pool": "b121_wl4_pb_6p_v14",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 77,
+        "hit@3": 96,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 91,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 877.4,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_6p_v14::v14s4_strict_elig_prom",
+      "pool": "b121_wl4_pb_6p_v14",
+      "variant": "v14s4_strict_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 132,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 77,
+        "hit@3": 95,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 125,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 874.2,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_6p_v14::v14s4_strict_elig_s1u",
+      "pool": "b121_wl4_pb_6p_v14",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 77,
+        "hit@3": 96,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 91,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 783.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_6p_v14::v14s4_v6n_elig",
+      "pool": "b121_wl4_pb_6p_v14",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 92,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 87,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 872.7,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_6p_v14::v14s4_v6n_elig_prom",
+      "pool": "b121_wl4_pb_6p_v14",
+      "variant": "v14s4_v6n_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 132,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 91,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 125,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 86,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 771.2,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_6p_v14::v14s4_v6n_elig_s1u",
+      "pool": "b121_wl4_pb_6p_v14",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 92,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 87,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 786.2,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_8p_v14::v14s4_cons_v3_prom",
+      "pool": "b121_wl4_pb_8p_v14",
+      "variant": "v14s4_cons_v3_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 115,
+        "hit@3": 133,
+        "hit@5": 141,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 141,
+          "unmatched_product_mismatch": 120
+        }
+      },
+      "v4": {
+        "hit@1": 78,
+        "hit@3": 95,
+        "hit@5": 100,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 100,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 161,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 110,
+          "hit@3": 126,
+          "hit@5": 134
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 90,
+          "hit@5": 94
+        }
+      },
+      "elapsed_s": 1132.7,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_8p_v14::v14s4_strict_elig",
+      "pool": "b121_wl4_pb_8p_v14",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 134,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 96,
+        "hit@5": 100,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 100,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 161,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 105,
+          "hit@3": 127,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 91,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 1110.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_8p_v14::v14s4_strict_elig_prom",
+      "pool": "b121_wl4_pb_8p_v14",
+      "variant": "v14s4_strict_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 95,
+        "hit@5": 100,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 100,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 161,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 105,
+          "hit@3": 126,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 985.3,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_8p_v14::v14s4_strict_elig_s1u",
+      "pool": "b121_wl4_pb_8p_v14",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 109,
+        "hit@3": 134,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 76,
+        "hit@3": 96,
+        "hit@5": 100,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 100,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 161,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 105,
+          "hit@3": 127,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 73,
+          "hit@3": 91,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 985.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_8p_v14::v14s4_v6n_elig",
+      "pool": "b121_wl4_pb_8p_v14",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 134,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 92,
+        "hit@5": 94,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 94,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 167,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 127,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 87,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 1001.4,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_8p_v14::v14s4_v6n_elig_s1u",
+      "pool": "b121_wl4_pb_8p_v14",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 134,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 92,
+        "hit@5": 94,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 94,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 167,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 127,
+          "hit@5": 132
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 87,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 990.3,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_9p_at16::v14s4_cons_v3_prom",
+      "pool": "b121_wl4_pb_9p_at16",
+      "variant": "v14s4_cons_v3_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 116,
+        "hit@3": 133,
+        "hit@5": 140,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 140,
+          "unmatched_product_mismatch": 121
+        }
+      },
+      "v4": {
+        "hit@1": 79,
+        "hit@3": 94,
+        "hit@5": 100,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 100,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 161,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 111,
+          "hit@3": 126,
+          "hit@5": 133
+        },
+        "v4": {
+          "hit@1": 75,
+          "hit@3": 89,
+          "hit@5": 94
+        }
+      },
+      "elapsed_s": 1369.0,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_9p_at16::v14s4_strict_elig",
+      "pool": "b121_wl4_pb_9p_at16",
+      "variant": "v14s4_strict_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 77,
+        "hit@3": 95,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 131
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 1249.7,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_9p_at16::v14s4_strict_elig_prom",
+      "pool": "b121_wl4_pb_9p_at16",
+      "variant": "v14s4_strict_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 112,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 78,
+        "hit@3": 95,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 108,
+          "hit@3": 126,
+          "hit@5": 131
+        },
+        "v4": {
+          "hit@1": 75,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 1339.3,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_9p_at16::v14s4_strict_elig_s1u",
+      "pool": "b121_wl4_pb_9p_at16",
+      "variant": "v14s4_strict_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 77,
+        "hit@3": 95,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 162,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 131
+        },
+        "v4": {
+          "hit@1": 74,
+          "hit@3": 90,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 1158.4,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_9p_at16::v14s4_v6n_elig",
+      "pool": "b121_wl4_pb_9p_at16",
+      "variant": "v14s4_v6n_elig",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 91,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 126,
+          "hit@5": 131
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 86,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 1256.1,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_9p_at16::v14s4_v6n_elig_prom",
+      "pool": "b121_wl4_pb_9p_at16",
+      "variant": "v14s4_v6n_elig_prom",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 110,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 75,
+        "hit@3": 91,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 106,
+          "hit@3": 126,
+          "hit@5": 131
+        },
+        "v4": {
+          "hit@1": 72,
+          "hit@3": 86,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 1317.6,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pb_9p_at16::v14s4_v6n_elig_s1u",
+      "pool": "b121_wl4_pb_9p_at16",
+      "variant": "v14s4_v6n_elig_s1u",
+      "domain_tag": "biosysmodb121",
+      "single_pass": false,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 108,
+        "hit@3": 133,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 74,
+        "hit@3": 91,
+        "hit@5": 93,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 93,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 168,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 104,
+          "hit@3": 126,
+          "hit@5": 131
+        },
+        "v4": {
+          "hit@1": 71,
+          "hit@3": 86,
+          "hit@5": 88
+        }
+      },
+      "elapsed_s": 1166.9,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pc::single_v2",
+      "pool": "b121_wl4_pc",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 98,
+        "hit@3": 127,
+        "hit@5": 135,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 135,
+          "unmatched_product_mismatch": 126
+        }
+      },
+      "v4": {
+        "hit@1": 66,
+        "hit@3": 93,
+        "hit@5": 97,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 97,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 164,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 93,
+          "hit@3": 121,
+          "hit@5": 127
+        },
+        "v4": {
+          "hit@1": 62,
+          "hit@3": 88,
+          "hit@5": 91
+        }
+      },
+      "elapsed_s": 372.9,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pd::single_v2",
+      "pool": "b121_wl4_pd",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 103,
+        "hit@3": 131,
+        "hit@5": 138,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 138,
+          "unmatched_no_event": 1,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 67,
+        "hit@3": 93,
+        "hit@5": 99,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 99,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 1,
+          "unmatched_product_mismatch": 161,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 99,
+          "hit@3": 125,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 64,
+          "hit@3": 88,
+          "hit@5": 93
+        }
+      },
+      "elapsed_s": 225.5,
+      "target_hit1": 118,
+      "reached_target": false
+    },
+    {
+      "name": "b121_wl4_pe::single_v2",
+      "pool": "b121_wl4_pe",
+      "variant": "single_v2",
+      "domain_tag": "biosysmodb121",
+      "single_pass": true,
+      "status": "ok",
+      "n_qids": 261,
+      "n_failures": 0,
+      "v6": {
+        "hit@1": 106,
+        "hit@3": 134,
+        "hit@5": 139,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 139,
+          "unmatched_product_mismatch": 122
+        }
+      },
+      "v4": {
+        "hit@1": 71,
+        "hit@3": 96,
+        "hit@5": 101,
+        "denominator": 261,
+        "buckets": {
+          "matched_product_hit": 101,
+          "product_hit_partial": 0,
+          "unmatched_no_event": 0,
+          "unmatched_product_mismatch": 160,
+          "unmatched_reference_invalid": 0
+        }
+      },
+      "clean_220": {
+        "denominator": 220,
+        "v6": {
+          "hit@1": 102,
+          "hit@3": 126,
+          "hit@5": 130
+        },
+        "v4": {
+          "hit@1": 67,
+          "hit@3": 89,
+          "hit@5": 94
+        }
+      },
+      "elapsed_s": 180.5,
+      "target_hit1": 118,
+      "reached_target": false
+    }
+  ]
+}
