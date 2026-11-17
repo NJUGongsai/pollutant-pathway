@@ -22,6 +22,7 @@
 | **Stage P1-B** | **论文表 2 全满贯 7 个数据库消融池乌镇 32C 并行构建与零调用 `GIP@16` 审计**：先验正控 `DB0_full_ctrl` 与 `pools_v14_wl4_b121.json` `261/261` 逐题逐槽相等（`diffs == 0`），再构建 `DB-1..DB-7` 共 7 个 `@16` 消融池，校验 `n_admission_failures == 0` 与 `NoSelf` 零自记录泄漏，输出全表 `GIP@16` 与错池率 | 否（`0` call） | `0` | ✅ 已完成 |
 | **Stage P2** | **`[biosysmodb121]` 付费在线采样（仅 9 批单路）与乌镇 32C 终判合表**：<br>• **`AtomTool` 专项 2 批**：`AT-RawBlind`（无池+无 `AtomTool`）+ `AT-FullPool-NoGraph`（满配 `wl4@16` 池但去 `AtomTool` 分子图与编辑协议）（`522` calls）<br>• **表 2 数据库全满贯 7 批**：`DB-1..DB-7`（`1,827` calls；`DB-0` 基线直接复用现成 5 批 `wl4_pa..pe` 零新调用！）<br>跑完推回乌镇 32C 统一出齐论文表 1、表 1B（`AtomTool` 专表）、表 2、表 4 | 是 | **`2,349` calls**<br>（实耗 **`33,068,487` tokens**，`0` 失败） | ✅ 已完成 |
 | **Stage P3** | **零调用脚本回修与乌镇 32C 隔离子目录终判重跑**：修复 4 项 P1 缺陷（`T1-L6`/`T1-L12`/`DB0..DB7` 缺 `SINGLE_V2_PATCH` 重放/`runflow.py` 次级 pass 绕过+`T1-L` 仲裁基线对齐）+ 补齐 2 项表缺漏（表 2 错池率 + 表 4 世代/41 题 4 层/9 批 `ex-self`）；在隔离 `code_p3` 重跑 `49233683`/`49233684` 并更新双仓报告 | 否（`0` call） | `0` | ✅ 已完成 |
+| **Stage P4** | **回应黄老师 2026-11-17 审阅 8 项修订意见（零 LLM 调用深度核验与对齐）**：乌镇 `49266862`/`49267366` 补齐 `bare`/`bare+守恒门`/`Exp-1b A 臂`/`v1.0` 全套 `N=261 & Clean-220` (`v6/v4/ex-self`)、拆分 Full-System vs Single-Route LOO 双表、主表并列 `ex-self` & `ex_rec_only`、`61` 题自记录/模板对交叉拆解、表 2 Holm-Bonferroni 校正、明确单步边界与外部基线同口径对齐及留出集锁死声明 | 否（`0` call） | `0` | ✅ 已完成 |
 
 ---
 
@@ -217,6 +218,18 @@
    - 因在跑任务 `49232315`（`ppv1_e2e_v14_pools`）正在读取 `${HPC_BASE}/code/src`，**严禁改动 `${HPC_BASE}/code/`**；
    - Stage P3 代码全量增量同步至隔离目录 `${HPC_BASE}/paper_ablation_v14_20261116/code_p3/`，`sbatch_paper_ablation_t1_t4.sh` 与 `sbatch_paper_ablation_final.sh` 改用 `CODE_DIR="${CODE_DIR:-${HPC_BASE}/code}"`；
    - 以新输出目录 `table1_table4_p3/` 与 `final_p3/` 串联提交 32C Slurm 作业（`dependency=afterok`），回收结果并刷新 `PAPER_ABLATION_STUDY_V14_REPORT_2026-11-16.md`（双仓同步）后在 `v44_v13` 本地 commit（禁 push）。
+
+### 4.5 Stage P4（2026-11-17 黄老师审阅 8 项修订意见：零调用补充统计与报告定稿）
+
+> 全部计算为 100% 零模型调用、零触碰留出集、只读既成重放与批根；脚本置于 `scripts/hpc/paper_ablation_p4_supplement_hpc.py` 与 `scripts/hpc/sbatch_paper_ablation_p4_supplement.sh`，乌镇隔离目录 `code_p3` Slurm Job `49266862`（`00:12:46`, Exit `0:0`, `35` 臂全部 `ok`）与计算节点 `49267366`（`Exp-1b A 臂` 精确 `Tuning-261` 子集过滤）实算汇总落于 gitignored `reports/ppv1_s5b/paper_ablation_v14_20261116/final_hpc_p3/p4_supplement_summary.json`。
+
+1. **8 项审阅修订闭合清单**：
+   - **#1 & #2（真起点齐列与 `A 臂`/`v1.0` `v4` 补全）**：主表并列 `bare (T1-0)`、`bare+守恒门 (T1-0a)`、`Exp-1b A 臂`（`N=261`: `v6=86/109/115`, `v4=56/70/75`, `ex-self=48/68/71`; `Clean-220`: `v6=80`, `v4=51`）、`v1.0 原批`（`86/261`, `v4=57`）与 `T1-2` 重放（`89/261`, `v4=60`），澄清安全门净代偿 `-5/-4` 题及消除 `86 vs 80` 错觉；
+   - **#3（LOO 双表隔离）**：严格拆为 **Full-System LOO（基线 `T1-6 = 118`）** 与 **Single-Route LOO（各行显式标注单路基线）**；
+   - **#4（全表并排 `ex-self` & `ex_rec_only`）**：主表 1 与 LOO 表全程并列 `v6 ex-self`、`v6 ex_rec_only` 与 `Clean-220 / v4 ex-self`，含 `DB-0` 5 批均值±SD（`50.60 ± 2.41`）与重放 `T1-L1`（`47`）；
+   - **#5（`61` 题自记录/模板对机制拆解与跨臂交叉）**：实证 `61 = 46 rec_only + 15 tpl-other`，且这 `61` 题在 `DB-2 NoSelf` 中原本会 `45/61 (73.8%)`、在 `T1-0 bare` 中原本会 `39/61 (63.9%)`，`T1-6 ex-self (57) < DB-2 (69) < bare (89)` 主因是满配池 Rank 1 优选自记录后的事后判零占座效应（`76.9%–84.8%`）；
+   - **#6（表 2 Holm-Bonferroni 校正）**：7 组对比校正后仅 `DB-1 EmptyPool`（$p_{\text{Holm}}=0.00655$）具统计显著性；`DB-4 NoRR` 与 `DB-2 NoSelf`（均 $p_{\text{Holm}}=0.6465$）收敛为方向性下降趋势；
+   - **#7 & #8（单步适用边界、外部基线同口径对齐与留出集声明）**：声明消融结论不外推多步（多步仍用 `v1.2 PW-Exact@5=14.47%` / `v1.4 Stage-Aware 47.44%`）；将 `BioTransformer 3.0` 与 `ECLIPSE 10f` 的 `v6/v4`（`Tuning-261` & `Clean-220`）对齐至 `T1-6 all / ex-self / ex_rec_only / DB-2 NoSelf / DB-6 MNXOnly`，限定「`2× 外部基线`」于 `all` 口径，并明确 `156` 题留出集持续锁死。
 
 ---
 
