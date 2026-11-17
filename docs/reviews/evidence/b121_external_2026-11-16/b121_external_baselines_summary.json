@@ -1,0 +1,3560 @@
+{
+  "benchmark_name": "biosysmodb121_external_baselines_biotransformer_eclipse",
+  "generated_at": "2026-11-16T19:37:51Z",
+  "criteria_primary": "ppv1-criteria-v6",
+  "criteria_secondary": "ppv1-criteria-v4",
+  "models": {
+    "biotransformer": {
+      "single_step_417": {
+        "full_417": {
+          "n_steps": 417,
+          "coverage": {
+            "count": 394,
+            "pct": 94.48
+          },
+          "v6_whole": {
+            "hit_at_1": {
+              "count": 81,
+              "pct": 19.42
+            },
+            "hit_at_3": {
+              "count": 121,
+              "pct": 29.02
+            },
+            "hit_at_5": {
+              "count": 131,
+              "pct": 31.41
+            },
+            "hit_at_10": {
+              "count": 132,
+              "pct": 31.65
+            },
+            "mrr_at_10": 0.2428
+          },
+          "v6_frag": {
+            "hit_at_1": {
+              "count": 81,
+              "pct": 19.42
+            },
+            "hit_at_3": {
+              "count": 121,
+              "pct": 29.02
+            },
+            "hit_at_5": {
+              "count": 131,
+              "pct": 31.41
+            },
+            "hit_at_10": {
+              "count": 132,
+              "pct": 31.65
+            },
+            "mrr_at_10": 0.2428
+          },
+          "v4_whole": {
+            "hit_at_1": {
+              "count": 68,
+              "pct": 16.31
+            },
+            "hit_at_3": {
+              "count": 100,
+              "pct": 23.98
+            },
+            "hit_at_5": {
+              "count": 108,
+              "pct": 25.9
+            },
+            "hit_at_10": {
+              "count": 109,
+              "pct": 26.14
+            },
+            "mrr_at_10": 0.2016
+          },
+          "v4_frag": {
+            "hit_at_1": {
+              "count": 68,
+              "pct": 16.31
+            },
+            "hit_at_3": {
+              "count": 100,
+              "pct": 23.98
+            },
+            "hit_at_5": {
+              "count": 108,
+              "pct": 25.9
+            },
+            "hit_at_10": {
+              "count": 109,
+              "pct": 26.14
+            },
+            "mrr_at_10": 0.2016
+          },
+          "cn_whole": {
+            "hit_at_1": {
+              "count": 91,
+              "pct": 21.82
+            },
+            "hit_at_3": {
+              "count": 144,
+              "pct": 34.53
+            },
+            "hit_at_5": {
+              "count": 162,
+              "pct": 38.85
+            },
+            "hit_at_10": {
+              "count": 163,
+              "pct": 39.09
+            },
+            "mrr_at_10": 0.2832
+          },
+          "cn_frag": {
+            "hit_at_1": {
+              "count": 91,
+              "pct": 21.82
+            },
+            "hit_at_3": {
+              "count": 144,
+              "pct": 34.53
+            },
+            "hit_at_5": {
+              "count": 162,
+              "pct": 38.85
+            },
+            "hit_at_10": {
+              "count": 163,
+              "pct": 39.09
+            },
+            "mrr_at_10": 0.2832
+          }
+        },
+        "tuning_261": {
+          "n_steps": 261,
+          "coverage": {
+            "count": 248,
+            "pct": 95.02
+          },
+          "v6_whole": {
+            "hit_at_1": {
+              "count": 54,
+              "pct": 20.69
+            },
+            "hit_at_3": {
+              "count": 78,
+              "pct": 29.89
+            },
+            "hit_at_5": {
+              "count": 84,
+              "pct": 32.18
+            },
+            "hit_at_10": {
+              "count": 84,
+              "pct": 32.18
+            },
+            "mrr_at_10": 0.254
+          },
+          "v6_frag": {
+            "hit_at_1": {
+              "count": 54,
+              "pct": 20.69
+            },
+            "hit_at_3": {
+              "count": 78,
+              "pct": 29.89
+            },
+            "hit_at_5": {
+              "count": 84,
+              "pct": 32.18
+            },
+            "hit_at_10": {
+              "count": 84,
+              "pct": 32.18
+            },
+            "mrr_at_10": 0.254
+          },
+          "v4_whole": {
+            "hit_at_1": {
+              "count": 45,
+              "pct": 17.24
+            },
+            "hit_at_3": {
+              "count": 65,
+              "pct": 24.9
+            },
+            "hit_at_5": {
+              "count": 69,
+              "pct": 26.44
+            },
+            "hit_at_10": {
+              "count": 69,
+              "pct": 26.44
+            },
+            "mrr_at_10": 0.2099
+          },
+          "v4_frag": {
+            "hit_at_1": {
+              "count": 45,
+              "pct": 17.24
+            },
+            "hit_at_3": {
+              "count": 65,
+              "pct": 24.9
+            },
+            "hit_at_5": {
+              "count": 69,
+              "pct": 26.44
+            },
+            "hit_at_10": {
+              "count": 69,
+              "pct": 26.44
+            },
+            "mrr_at_10": 0.2099
+          },
+          "cn_whole": {
+            "hit_at_1": {
+              "count": 58,
+              "pct": 22.22
+            },
+            "hit_at_3": {
+              "count": 89,
+              "pct": 34.1
+            },
+            "hit_at_5": {
+              "count": 99,
+              "pct": 37.93
+            },
+            "hit_at_10": {
+              "count": 99,
+              "pct": 37.93
+            },
+            "mrr_at_10": 0.2823
+          },
+          "cn_frag": {
+            "hit_at_1": {
+              "count": 58,
+              "pct": 22.22
+            },
+            "hit_at_3": {
+              "count": 89,
+              "pct": 34.1
+            },
+            "hit_at_5": {
+              "count": 99,
+              "pct": 37.93
+            },
+            "hit_at_10": {
+              "count": 99,
+              "pct": 37.93
+            },
+            "mrr_at_10": 0.2823
+          }
+        },
+        "tuning_clean_220": {
+          "n_steps": 220,
+          "coverage": {
+            "count": 213,
+            "pct": 96.82
+          },
+          "v6_whole": {
+            "hit_at_1": {
+              "count": 51,
+              "pct": 23.18
+            },
+            "hit_at_3": {
+              "count": 75,
+              "pct": 34.09
+            },
+            "hit_at_5": {
+              "count": 81,
+              "pct": 36.82
+            },
+            "hit_at_10": {
+              "count": 81,
+              "pct": 36.82
+            },
+            "mrr_at_10": 0.2877
+          },
+          "v6_frag": {
+            "hit_at_1": {
+              "count": 51,
+              "pct": 23.18
+            },
+            "hit_at_3": {
+              "count": 75,
+              "pct": 34.09
+            },
+            "hit_at_5": {
+              "count": 81,
+              "pct": 36.82
+            },
+            "hit_at_10": {
+              "count": 81,
+              "pct": 36.82
+            },
+            "mrr_at_10": 0.2877
+          },
+          "v4_whole": {
+            "hit_at_1": {
+              "count": 42,
+              "pct": 19.09
+            },
+            "hit_at_3": {
+              "count": 62,
+              "pct": 28.18
+            },
+            "hit_at_5": {
+              "count": 66,
+              "pct": 30.0
+            },
+            "hit_at_10": {
+              "count": 66,
+              "pct": 30.0
+            },
+            "mrr_at_10": 0.2354
+          },
+          "v4_frag": {
+            "hit_at_1": {
+              "count": 42,
+              "pct": 19.09
+            },
+            "hit_at_3": {
+              "count": 62,
+              "pct": 28.18
+            },
+            "hit_at_5": {
+              "count": 66,
+              "pct": 30.0
+            },
+            "hit_at_10": {
+              "count": 66,
+              "pct": 30.0
+            },
+            "mrr_at_10": 0.2354
+          },
+          "cn_whole": {
+            "hit_at_1": {
+              "count": 54,
+              "pct": 24.55
+            },
+            "hit_at_3": {
+              "count": 85,
+              "pct": 38.64
+            },
+            "hit_at_5": {
+              "count": 95,
+              "pct": 43.18
+            },
+            "hit_at_10": {
+              "count": 95,
+              "pct": 43.18
+            },
+            "mrr_at_10": 0.3167
+          },
+          "cn_frag": {
+            "hit_at_1": {
+              "count": 54,
+              "pct": 24.55
+            },
+            "hit_at_3": {
+              "count": 85,
+              "pct": 38.64
+            },
+            "hit_at_5": {
+              "count": 95,
+              "pct": 43.18
+            },
+            "hit_at_10": {
+              "count": 95,
+              "pct": 43.18
+            },
+            "mrr_at_10": 0.3167
+          }
+        },
+        "holdout_156": {
+          "n_steps": 156,
+          "coverage": {
+            "count": 146,
+            "pct": 93.59
+          },
+          "v6_whole": {
+            "hit_at_1": {
+              "count": 27,
+              "pct": 17.31
+            },
+            "hit_at_3": {
+              "count": 43,
+              "pct": 27.56
+            },
+            "hit_at_5": {
+              "count": 47,
+              "pct": 30.13
+            },
+            "hit_at_10": {
+              "count": 48,
+              "pct": 30.77
+            },
+            "mrr_at_10": 0.224
+          },
+          "v6_frag": {
+            "hit_at_1": {
+              "count": 27,
+              "pct": 17.31
+            },
+            "hit_at_3": {
+              "count": 43,
+              "pct": 27.56
+            },
+            "hit_at_5": {
+              "count": 47,
+              "pct": 30.13
+            },
+            "hit_at_10": {
+              "count": 48,
+              "pct": 30.77
+            },
+            "mrr_at_10": 0.224
+          },
+          "v4_whole": {
+            "hit_at_1": {
+              "count": 23,
+              "pct": 14.74
+            },
+            "hit_at_3": {
+              "count": 35,
+              "pct": 22.44
+            },
+            "hit_at_5": {
+              "count": 39,
+              "pct": 25.0
+            },
+            "hit_at_10": {
+              "count": 40,
+              "pct": 25.64
+            },
+            "mrr_at_10": 0.1877
+          },
+          "v4_frag": {
+            "hit_at_1": {
+              "count": 23,
+              "pct": 14.74
+            },
+            "hit_at_3": {
+              "count": 35,
+              "pct": 22.44
+            },
+            "hit_at_5": {
+              "count": 39,
+              "pct": 25.0
+            },
+            "hit_at_10": {
+              "count": 40,
+              "pct": 25.64
+            },
+            "mrr_at_10": 0.1877
+          },
+          "cn_whole": {
+            "hit_at_1": {
+              "count": 33,
+              "pct": 21.15
+            },
+            "hit_at_3": {
+              "count": 55,
+              "pct": 35.26
+            },
+            "hit_at_5": {
+              "count": 63,
+              "pct": 40.38
+            },
+            "hit_at_10": {
+              "count": 64,
+              "pct": 41.03
+            },
+            "mrr_at_10": 0.2846
+          },
+          "cn_frag": {
+            "hit_at_1": {
+              "count": 33,
+              "pct": 21.15
+            },
+            "hit_at_3": {
+              "count": 55,
+              "pct": 35.26
+            },
+            "hit_at_5": {
+              "count": 63,
+              "pct": 40.38
+            },
+            "hit_at_10": {
+              "count": 64,
+              "pct": 41.03
+            },
+            "mrr_at_10": 0.2846
+          }
+        }
+      },
+      "pathway_teacher_forced": {
+        "full_119": {
+          "n_pathways": 119,
+          "v6_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 5,
+                "pct": 4.2
+              },
+              "pw_exact_ge2": {
+                "count": 3,
+                "pct": 2.73
+              },
+              "pw_prefix_depth_mean": 0.328,
+              "pw_prefix_ratio_pct": 10.75,
+              "pw_macro_recall_pct": 19.21,
+              "prefix_ge_2": {
+                "count": 10,
+                "pct": 8.4
+              },
+              "prefix_ge_3": {
+                "count": 4,
+                "pct": 3.36
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 8,
+                "pct": 6.72
+              },
+              "pw_exact_ge2": {
+                "count": 6,
+                "pct": 5.45
+              },
+              "pw_prefix_depth_mean": 0.437,
+              "pw_prefix_ratio_pct": 14.46,
+              "pw_macro_recall_pct": 28.76,
+              "prefix_ge_2": {
+                "count": 15,
+                "pct": 12.61
+              },
+              "prefix_ge_3": {
+                "count": 5,
+                "pct": 4.2
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 9,
+                "pct": 7.56
+              },
+              "pw_exact_ge2": {
+                "count": 7,
+                "pct": 6.36
+              },
+              "pw_prefix_depth_mean": 0.513,
+              "pw_prefix_ratio_pct": 16.77,
+              "pw_macro_recall_pct": 31.18,
+              "prefix_ge_2": {
+                "count": 17,
+                "pct": 14.29
+              },
+              "prefix_ge_3": {
+                "count": 6,
+                "pct": 5.04
+              }
+            }
+          },
+          "v4_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 5,
+                "pct": 4.2
+              },
+              "pw_exact_ge2": {
+                "count": 3,
+                "pct": 2.73
+              },
+              "pw_prefix_depth_mean": 0.294,
+              "pw_prefix_ratio_pct": 9.63,
+              "pw_macro_recall_pct": 16.72,
+              "prefix_ge_2": {
+                "count": 9,
+                "pct": 7.56
+              },
+              "prefix_ge_3": {
+                "count": 4,
+                "pct": 3.36
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 7,
+                "pct": 5.88
+              },
+              "pw_exact_ge2": {
+                "count": 5,
+                "pct": 4.55
+              },
+              "pw_prefix_depth_mean": 0.387,
+              "pw_prefix_ratio_pct": 12.5,
+              "pw_macro_recall_pct": 24.36,
+              "prefix_ge_2": {
+                "count": 13,
+                "pct": 10.92
+              },
+              "prefix_ge_3": {
+                "count": 5,
+                "pct": 4.2
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 8,
+                "pct": 6.72
+              },
+              "pw_exact_ge2": {
+                "count": 6,
+                "pct": 5.45
+              },
+              "pw_prefix_depth_mean": 0.445,
+              "pw_prefix_ratio_pct": 14.11,
+              "pw_macro_recall_pct": 26.08,
+              "prefix_ge_2": {
+                "count": 15,
+                "pct": 12.61
+              },
+              "prefix_ge_3": {
+                "count": 6,
+                "pct": 5.04
+              }
+            }
+          }
+        },
+        "tuning_76": {
+          "n_pathways": 76,
+          "v6_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 5,
+                "pct": 6.58
+              },
+              "pw_exact_ge2": {
+                "count": 3,
+                "pct": 4.41
+              },
+              "pw_prefix_depth_mean": 0.355,
+              "pw_prefix_ratio_pct": 12.61,
+              "pw_macro_recall_pct": 20.57,
+              "prefix_ge_2": {
+                "count": 7,
+                "pct": 9.21
+              },
+              "prefix_ge_3": {
+                "count": 2,
+                "pct": 2.63
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 7,
+                "pct": 9.21
+              },
+              "pw_exact_ge2": {
+                "count": 5,
+                "pct": 7.35
+              },
+              "pw_prefix_depth_mean": 0.487,
+              "pw_prefix_ratio_pct": 16.45,
+              "pw_macro_recall_pct": 29.34,
+              "prefix_ge_2": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "prefix_ge_3": {
+                "count": 3,
+                "pct": 3.95
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 7,
+                "pct": 9.21
+              },
+              "pw_exact_ge2": {
+                "count": 5,
+                "pct": 7.35
+              },
+              "pw_prefix_depth_mean": 0.539,
+              "pw_prefix_ratio_pct": 17.87,
+              "pw_macro_recall_pct": 31.26,
+              "prefix_ge_2": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "prefix_ge_3": {
+                "count": 4,
+                "pct": 5.26
+              }
+            }
+          },
+          "v4_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 5,
+                "pct": 6.58
+              },
+              "pw_exact_ge2": {
+                "count": 3,
+                "pct": 4.41
+              },
+              "pw_prefix_depth_mean": 0.303,
+              "pw_prefix_ratio_pct": 10.86,
+              "pw_macro_recall_pct": 17.81,
+              "prefix_ge_2": {
+                "count": 6,
+                "pct": 7.89
+              },
+              "prefix_ge_3": {
+                "count": 2,
+                "pct": 2.63
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 7,
+                "pct": 9.21
+              },
+              "pw_exact_ge2": {
+                "count": 5,
+                "pct": 7.35
+              },
+              "pw_prefix_depth_mean": 0.434,
+              "pw_prefix_ratio_pct": 14.69,
+              "pw_macro_recall_pct": 25.0,
+              "prefix_ge_2": {
+                "count": 10,
+                "pct": 13.16
+              },
+              "prefix_ge_3": {
+                "count": 3,
+                "pct": 3.95
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 7,
+                "pct": 9.21
+              },
+              "pw_exact_ge2": {
+                "count": 5,
+                "pct": 7.35
+              },
+              "pw_prefix_depth_mean": 0.461,
+              "pw_prefix_ratio_pct": 15.02,
+              "pw_macro_recall_pct": 25.82,
+              "prefix_ge_2": {
+                "count": 10,
+                "pct": 13.16
+              },
+              "prefix_ge_3": {
+                "count": 4,
+                "pct": 5.26
+              }
+            }
+          }
+        },
+        "holdout_43": {
+          "n_pathways": 43,
+          "v6_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "pw_exact_ge2": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "pw_prefix_depth_mean": 0.279,
+              "pw_prefix_ratio_pct": 7.46,
+              "pw_macro_recall_pct": 16.82,
+              "prefix_ge_2": {
+                "count": 3,
+                "pct": 6.98
+              },
+              "prefix_ge_3": {
+                "count": 2,
+                "pct": 4.65
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 1,
+                "pct": 2.33
+              },
+              "pw_exact_ge2": {
+                "count": 1,
+                "pct": 2.38
+              },
+              "pw_prefix_depth_mean": 0.349,
+              "pw_prefix_ratio_pct": 10.95,
+              "pw_macro_recall_pct": 27.74,
+              "prefix_ge_2": {
+                "count": 4,
+                "pct": 9.3
+              },
+              "prefix_ge_3": {
+                "count": 2,
+                "pct": 4.65
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "pw_exact_ge2": {
+                "count": 2,
+                "pct": 4.76
+              },
+              "pw_prefix_depth_mean": 0.465,
+              "pw_prefix_ratio_pct": 14.83,
+              "pw_macro_recall_pct": 31.04,
+              "prefix_ge_2": {
+                "count": 6,
+                "pct": 13.95
+              },
+              "prefix_ge_3": {
+                "count": 2,
+                "pct": 4.65
+              }
+            }
+          },
+          "v4_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "pw_exact_ge2": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "pw_prefix_depth_mean": 0.279,
+              "pw_prefix_ratio_pct": 7.46,
+              "pw_macro_recall_pct": 14.81,
+              "prefix_ge_2": {
+                "count": 3,
+                "pct": 6.98
+              },
+              "prefix_ge_3": {
+                "count": 2,
+                "pct": 4.65
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "pw_exact_ge2": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "pw_prefix_depth_mean": 0.302,
+              "pw_prefix_ratio_pct": 8.62,
+              "pw_macro_recall_pct": 23.24,
+              "prefix_ge_2": {
+                "count": 3,
+                "pct": 6.98
+              },
+              "prefix_ge_3": {
+                "count": 2,
+                "pct": 4.65
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 1,
+                "pct": 2.33
+              },
+              "pw_exact_ge2": {
+                "count": 1,
+                "pct": 2.38
+              },
+              "pw_prefix_depth_mean": 0.419,
+              "pw_prefix_ratio_pct": 12.5,
+              "pw_macro_recall_pct": 26.53,
+              "prefix_ge_2": {
+                "count": 5,
+                "pct": 11.63
+              },
+              "prefix_ge_3": {
+                "count": 2,
+                "pct": 4.65
+              }
+            }
+          }
+        }
+      },
+      "position_decay": {
+        "pos_1": {
+          "n_steps": 119,
+          "v6_hit1_count": 22,
+          "v6_hit1_pct": 18.49,
+          "v4_hit1_count": 19,
+          "v4_hit1_pct": 15.97
+        },
+        "pos_2": {
+          "n_steps": 110,
+          "v6_hit1_count": 29,
+          "v6_hit1_pct": 26.36,
+          "v4_hit1_count": 24,
+          "v4_hit1_pct": 21.82
+        },
+        "pos_3": {
+          "n_steps": 85,
+          "v6_hit1_count": 18,
+          "v6_hit1_pct": 21.18,
+          "v4_hit1_count": 16,
+          "v4_hit1_pct": 18.82
+        },
+        "pos_4": {
+          "n_steps": 51,
+          "v6_hit1_count": 6,
+          "v6_hit1_pct": 11.76,
+          "v4_hit1_count": 4,
+          "v4_hit1_pct": 7.84
+        },
+        "pos_5_plus": {
+          "n_steps": 52,
+          "v6_hit1_count": 6,
+          "v6_hit1_pct": 11.54,
+          "v4_hit1_count": 5,
+          "v4_hit1_pct": 9.62
+        }
+      },
+      "e2e_mineralization_121": {
+        "naive_b1_d15": {
+          "full_121": {
+            "n_pathways": 121,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 39,
+                "pct": 32.23,
+                "strict_carbon_closed": {
+                  "count": 4,
+                  "pct": 3.31
+                },
+                "declared_branches_closed": {
+                  "count": 35,
+                  "pct": 28.93
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 77,
+                "pct": 63.64
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 5,
+                "pct": 4.13
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 23,
+                "pct": 19.01
+              },
+              "ref_step1_hit_cn": {
+                "count": 24,
+                "pct": 19.83
+              },
+              "ref_prefix_depth_mean": 0.273,
+              "ref_prefix_ratio_pct": 6.33,
+              "ref_node_recall_strict_pct": 10.01,
+              "ref_node_recall_cn_pct": 12.17,
+              "ref_edge_recall_pct": 6.71,
+              "terminal_hit_and_mineralized": {
+                "count": 6,
+                "pct": 4.96
+              },
+              "stopped_early_model_mineralized": {
+                "count": 32,
+                "pct": 26.45
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 6,
+                "pct": 4.96
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 33,
+                "pct": 27.27
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 77,
+                "pct": 63.64
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 5,
+                "pct": 4.13
+              }
+            }
+          },
+          "tuning_76": {
+            "n_pathways": 76,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 23,
+                "pct": 30.26,
+                "strict_carbon_closed": {
+                  "count": 4,
+                  "pct": 5.26
+                },
+                "declared_branches_closed": {
+                  "count": 19,
+                  "pct": 25.0
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 49,
+                "pct": 64.47
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 4,
+                "pct": 5.26
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "ref_step1_hit_cn": {
+                "count": 14,
+                "pct": 18.42
+              },
+              "ref_prefix_depth_mean": 0.263,
+              "ref_prefix_ratio_pct": 5.97,
+              "ref_node_recall_strict_pct": 9.8,
+              "ref_node_recall_cn_pct": 11.33,
+              "ref_edge_recall_pct": 6.47,
+              "terminal_hit_and_mineralized": {
+                "count": 4,
+                "pct": 5.26
+              },
+              "stopped_early_model_mineralized": {
+                "count": 18,
+                "pct": 23.68
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 4,
+                "pct": 5.26
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 19,
+                "pct": 25.0
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 49,
+                "pct": 64.47
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 4,
+                "pct": 5.26
+              }
+            }
+          },
+          "holdout_43": {
+            "n_pathways": 43,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 15,
+                "pct": 34.88,
+                "strict_carbon_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                },
+                "declared_branches_closed": {
+                  "count": 15,
+                  "pct": 34.88
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 27,
+                "pct": 62.79
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 1,
+                "pct": 2.33
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 10,
+                "pct": 23.26
+              },
+              "ref_step1_hit_cn": {
+                "count": 10,
+                "pct": 23.26
+              },
+              "ref_prefix_depth_mean": 0.302,
+              "ref_prefix_ratio_pct": 7.27,
+              "ref_node_recall_strict_pct": 10.25,
+              "ref_node_recall_cn_pct": 13.64,
+              "ref_edge_recall_pct": 7.46,
+              "terminal_hit_and_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "stopped_early_model_mineralized": {
+                "count": 13,
+                "pct": 30.23
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 13,
+                "pct": 30.23
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 27,
+                "pct": 62.79
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 1,
+                "pct": 2.33
+              }
+            }
+          }
+        },
+        "naive_b1_d20": {
+          "full_121": {
+            "n_pathways": 121,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 41,
+                "pct": 33.88,
+                "strict_carbon_closed": {
+                  "count": 4,
+                  "pct": 3.31
+                },
+                "declared_branches_closed": {
+                  "count": 37,
+                  "pct": 30.58
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 78,
+                "pct": 64.46
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 2,
+                "pct": 1.65
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 23,
+                "pct": 19.01
+              },
+              "ref_step1_hit_cn": {
+                "count": 24,
+                "pct": 19.83
+              },
+              "ref_prefix_depth_mean": 0.273,
+              "ref_prefix_ratio_pct": 6.33,
+              "ref_node_recall_strict_pct": 10.01,
+              "ref_node_recall_cn_pct": 12.17,
+              "ref_edge_recall_pct": 6.71,
+              "terminal_hit_and_mineralized": {
+                "count": 6,
+                "pct": 4.96
+              },
+              "stopped_early_model_mineralized": {
+                "count": 34,
+                "pct": 28.1
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 6,
+                "pct": 4.96
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 35,
+                "pct": 28.93
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 78,
+                "pct": 64.46
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 2,
+                "pct": 1.65
+              }
+            }
+          },
+          "tuning_76": {
+            "n_pathways": 76,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 24,
+                "pct": 31.58,
+                "strict_carbon_closed": {
+                  "count": 4,
+                  "pct": 5.26
+                },
+                "declared_branches_closed": {
+                  "count": 20,
+                  "pct": 26.32
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 50,
+                "pct": 65.79
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 2,
+                "pct": 2.63
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "ref_step1_hit_cn": {
+                "count": 14,
+                "pct": 18.42
+              },
+              "ref_prefix_depth_mean": 0.263,
+              "ref_prefix_ratio_pct": 5.97,
+              "ref_node_recall_strict_pct": 9.8,
+              "ref_node_recall_cn_pct": 11.33,
+              "ref_edge_recall_pct": 6.47,
+              "terminal_hit_and_mineralized": {
+                "count": 4,
+                "pct": 5.26
+              },
+              "stopped_early_model_mineralized": {
+                "count": 19,
+                "pct": 25.0
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 4,
+                "pct": 5.26
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 20,
+                "pct": 26.32
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 50,
+                "pct": 65.79
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 2,
+                "pct": 2.63
+              }
+            }
+          },
+          "holdout_43": {
+            "n_pathways": 43,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 16,
+                "pct": 37.21,
+                "strict_carbon_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                },
+                "declared_branches_closed": {
+                  "count": 16,
+                  "pct": 37.21
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 27,
+                "pct": 62.79
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 10,
+                "pct": 23.26
+              },
+              "ref_step1_hit_cn": {
+                "count": 10,
+                "pct": 23.26
+              },
+              "ref_prefix_depth_mean": 0.302,
+              "ref_prefix_ratio_pct": 7.27,
+              "ref_node_recall_strict_pct": 10.25,
+              "ref_node_recall_cn_pct": 13.64,
+              "ref_edge_recall_pct": 7.46,
+              "terminal_hit_and_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "stopped_early_model_mineralized": {
+                "count": 14,
+                "pct": 32.56
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 14,
+                "pct": 32.56
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 27,
+                "pct": 62.79
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          }
+        },
+        "non_backtracking_b1": {
+          "full_121": {
+            "n_pathways": 121,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 41,
+                "pct": 33.88,
+                "strict_carbon_closed": {
+                  "count": 4,
+                  "pct": 3.31
+                },
+                "declared_branches_closed": {
+                  "count": 37,
+                  "pct": 30.58
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 78,
+                "pct": 64.46
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 2,
+                "pct": 1.65
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 23,
+                "pct": 19.01
+              },
+              "ref_step1_hit_cn": {
+                "count": 24,
+                "pct": 19.83
+              },
+              "ref_prefix_depth_mean": 0.273,
+              "ref_prefix_ratio_pct": 6.33,
+              "ref_node_recall_strict_pct": 10.01,
+              "ref_node_recall_cn_pct": 12.17,
+              "ref_edge_recall_pct": 6.71,
+              "terminal_hit_and_mineralized": {
+                "count": 6,
+                "pct": 4.96
+              },
+              "stopped_early_model_mineralized": {
+                "count": 34,
+                "pct": 28.1
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 6,
+                "pct": 4.96
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 35,
+                "pct": 28.93
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 78,
+                "pct": 64.46
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 2,
+                "pct": 1.65
+              }
+            }
+          },
+          "tuning_76": {
+            "n_pathways": 76,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 24,
+                "pct": 31.58,
+                "strict_carbon_closed": {
+                  "count": 4,
+                  "pct": 5.26
+                },
+                "declared_branches_closed": {
+                  "count": 20,
+                  "pct": 26.32
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 50,
+                "pct": 65.79
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 2,
+                "pct": 2.63
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "ref_step1_hit_cn": {
+                "count": 14,
+                "pct": 18.42
+              },
+              "ref_prefix_depth_mean": 0.263,
+              "ref_prefix_ratio_pct": 5.97,
+              "ref_node_recall_strict_pct": 9.8,
+              "ref_node_recall_cn_pct": 11.33,
+              "ref_edge_recall_pct": 6.47,
+              "terminal_hit_and_mineralized": {
+                "count": 4,
+                "pct": 5.26
+              },
+              "stopped_early_model_mineralized": {
+                "count": 19,
+                "pct": 25.0
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 4,
+                "pct": 5.26
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 20,
+                "pct": 26.32
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 50,
+                "pct": 65.79
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 2,
+                "pct": 2.63
+              }
+            }
+          },
+          "holdout_43": {
+            "n_pathways": 43,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 16,
+                "pct": 37.21,
+                "strict_carbon_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                },
+                "declared_branches_closed": {
+                  "count": 16,
+                  "pct": 37.21
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 27,
+                "pct": 62.79
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 10,
+                "pct": 23.26
+              },
+              "ref_step1_hit_cn": {
+                "count": 10,
+                "pct": 23.26
+              },
+              "ref_prefix_depth_mean": 0.302,
+              "ref_prefix_ratio_pct": 7.27,
+              "ref_node_recall_strict_pct": 10.25,
+              "ref_node_recall_cn_pct": 13.64,
+              "ref_edge_recall_pct": 7.46,
+              "terminal_hit_and_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "stopped_early_model_mineralized": {
+                "count": 14,
+                "pct": 32.56
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 14,
+                "pct": 32.56
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 27,
+                "pct": 62.79
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          }
+        },
+        "stage_aware_b1": {
+          "full_121": {
+            "n_pathways": 121,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 60,
+                "pct": 49.59,
+                "strict_carbon_closed": {
+                  "count": 5,
+                  "pct": 4.13
+                },
+                "declared_branches_closed": {
+                  "count": 55,
+                  "pct": 45.45
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 59,
+                "pct": 48.76
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 2,
+                "pct": 1.65
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 23,
+                "pct": 19.01
+              },
+              "ref_step1_hit_cn": {
+                "count": 24,
+                "pct": 19.83
+              },
+              "ref_prefix_depth_mean": 0.248,
+              "ref_prefix_ratio_pct": 5.79,
+              "ref_node_recall_strict_pct": 10.04,
+              "ref_node_recall_cn_pct": 11.71,
+              "ref_edge_recall_pct": 6.28,
+              "terminal_hit_and_mineralized": {
+                "count": 9,
+                "pct": 7.44
+              },
+              "stopped_early_model_mineralized": {
+                "count": 52,
+                "pct": 42.98
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 9,
+                "pct": 7.44
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 51,
+                "pct": 42.15
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 59,
+                "pct": 48.76
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 2,
+                "pct": 1.65
+              }
+            }
+          },
+          "tuning_76": {
+            "n_pathways": 76,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 38,
+                "pct": 50.0,
+                "strict_carbon_closed": {
+                  "count": 5,
+                  "pct": 6.58
+                },
+                "declared_branches_closed": {
+                  "count": 33,
+                  "pct": 43.42
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 36,
+                "pct": 47.37
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 2,
+                "pct": 2.63
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "ref_step1_hit_cn": {
+                "count": 14,
+                "pct": 18.42
+              },
+              "ref_prefix_depth_mean": 0.224,
+              "ref_prefix_ratio_pct": 5.11,
+              "ref_node_recall_strict_pct": 10.39,
+              "ref_node_recall_cn_pct": 11.39,
+              "ref_edge_recall_pct": 5.62,
+              "terminal_hit_and_mineralized": {
+                "count": 7,
+                "pct": 9.21
+              },
+              "stopped_early_model_mineralized": {
+                "count": 32,
+                "pct": 42.11
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 7,
+                "pct": 9.21
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 31,
+                "pct": 40.79
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 36,
+                "pct": 47.37
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 2,
+                "pct": 2.63
+              }
+            }
+          },
+          "holdout_43": {
+            "n_pathways": 43,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 21,
+                "pct": 48.84,
+                "strict_carbon_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                },
+                "declared_branches_closed": {
+                  "count": 21,
+                  "pct": 48.84
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 22,
+                "pct": 51.16
+              },
+              "CYCLE_ABORTED": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 10,
+                "pct": 23.26
+              },
+              "ref_step1_hit_cn": {
+                "count": 10,
+                "pct": 23.26
+              },
+              "ref_prefix_depth_mean": 0.302,
+              "ref_prefix_ratio_pct": 7.27,
+              "ref_node_recall_strict_pct": 9.32,
+              "ref_node_recall_cn_pct": 12.24,
+              "ref_edge_recall_pct": 7.75,
+              "terminal_hit_and_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "stopped_early_model_mineralized": {
+                "count": 19,
+                "pct": 44.19
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 19,
+                "pct": 44.19
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 22,
+                "pct": 51.16
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    "eclipse": {
+      "single_step_417": {
+        "full_417": {
+          "n_steps": 417,
+          "coverage": {
+            "count": 417,
+            "pct": 100.0
+          },
+          "v6_whole": {
+            "hit_at_1": {
+              "count": 93,
+              "pct": 22.3
+            },
+            "hit_at_3": {
+              "count": 152,
+              "pct": 36.45
+            },
+            "hit_at_5": {
+              "count": 175,
+              "pct": 41.97
+            },
+            "hit_at_10": {
+              "count": 192,
+              "pct": 46.04
+            },
+            "mrr_at_10": 0.3052
+          },
+          "v6_frag": {
+            "hit_at_1": {
+              "count": 93,
+              "pct": 22.3
+            },
+            "hit_at_3": {
+              "count": 153,
+              "pct": 36.69
+            },
+            "hit_at_5": {
+              "count": 176,
+              "pct": 42.21
+            },
+            "hit_at_10": {
+              "count": 193,
+              "pct": 46.28
+            },
+            "mrr_at_10": 0.306
+          },
+          "v4_whole": {
+            "hit_at_1": {
+              "count": 79,
+              "pct": 18.94
+            },
+            "hit_at_3": {
+              "count": 126,
+              "pct": 30.22
+            },
+            "hit_at_5": {
+              "count": 139,
+              "pct": 33.33
+            },
+            "hit_at_10": {
+              "count": 149,
+              "pct": 35.73
+            },
+            "mrr_at_10": 0.2507
+          },
+          "v4_frag": {
+            "hit_at_1": {
+              "count": 79,
+              "pct": 18.94
+            },
+            "hit_at_3": {
+              "count": 128,
+              "pct": 30.7
+            },
+            "hit_at_5": {
+              "count": 141,
+              "pct": 33.81
+            },
+            "hit_at_10": {
+              "count": 150,
+              "pct": 35.97
+            },
+            "mrr_at_10": 0.2522
+          },
+          "cn_whole": {
+            "hit_at_1": {
+              "count": 101,
+              "pct": 24.22
+            },
+            "hit_at_3": {
+              "count": 170,
+              "pct": 40.77
+            },
+            "hit_at_5": {
+              "count": 196,
+              "pct": 47.0
+            },
+            "hit_at_10": {
+              "count": 215,
+              "pct": 51.56
+            },
+            "mrr_at_10": 0.3359
+          },
+          "cn_frag": {
+            "hit_at_1": {
+              "count": 101,
+              "pct": 24.22
+            },
+            "hit_at_3": {
+              "count": 171,
+              "pct": 41.01
+            },
+            "hit_at_5": {
+              "count": 197,
+              "pct": 47.24
+            },
+            "hit_at_10": {
+              "count": 216,
+              "pct": 51.8
+            },
+            "mrr_at_10": 0.3367
+          }
+        },
+        "tuning_261": {
+          "n_steps": 261,
+          "coverage": {
+            "count": 261,
+            "pct": 100.0
+          },
+          "v6_whole": {
+            "hit_at_1": {
+              "count": 61,
+              "pct": 23.37
+            },
+            "hit_at_3": {
+              "count": 101,
+              "pct": 38.7
+            },
+            "hit_at_5": {
+              "count": 111,
+              "pct": 42.53
+            },
+            "hit_at_10": {
+              "count": 123,
+              "pct": 47.13
+            },
+            "mrr_at_10": 0.3172
+          },
+          "v6_frag": {
+            "hit_at_1": {
+              "count": 61,
+              "pct": 23.37
+            },
+            "hit_at_3": {
+              "count": 102,
+              "pct": 39.08
+            },
+            "hit_at_5": {
+              "count": 112,
+              "pct": 42.91
+            },
+            "hit_at_10": {
+              "count": 124,
+              "pct": 47.51
+            },
+            "mrr_at_10": 0.3184
+          },
+          "v4_whole": {
+            "hit_at_1": {
+              "count": 53,
+              "pct": 20.31
+            },
+            "hit_at_3": {
+              "count": 86,
+              "pct": 32.95
+            },
+            "hit_at_5": {
+              "count": 92,
+              "pct": 35.25
+            },
+            "hit_at_10": {
+              "count": 98,
+              "pct": 37.55
+            },
+            "mrr_at_10": 0.2673
+          },
+          "v4_frag": {
+            "hit_at_1": {
+              "count": 53,
+              "pct": 20.31
+            },
+            "hit_at_3": {
+              "count": 88,
+              "pct": 33.72
+            },
+            "hit_at_5": {
+              "count": 94,
+              "pct": 36.02
+            },
+            "hit_at_10": {
+              "count": 99,
+              "pct": 37.93
+            },
+            "mrr_at_10": 0.2698
+          },
+          "cn_whole": {
+            "hit_at_1": {
+              "count": 65,
+              "pct": 24.9
+            },
+            "hit_at_3": {
+              "count": 115,
+              "pct": 44.06
+            },
+            "hit_at_5": {
+              "count": 126,
+              "pct": 48.28
+            },
+            "hit_at_10": {
+              "count": 138,
+              "pct": 52.87
+            },
+            "mrr_at_10": 0.3486
+          },
+          "cn_frag": {
+            "hit_at_1": {
+              "count": 65,
+              "pct": 24.9
+            },
+            "hit_at_3": {
+              "count": 116,
+              "pct": 44.44
+            },
+            "hit_at_5": {
+              "count": 127,
+              "pct": 48.66
+            },
+            "hit_at_10": {
+              "count": 139,
+              "pct": 53.26
+            },
+            "mrr_at_10": 0.3498
+          }
+        },
+        "tuning_clean_220": {
+          "n_steps": 220,
+          "coverage": {
+            "count": 220,
+            "pct": 100.0
+          },
+          "v6_whole": {
+            "hit_at_1": {
+              "count": 57,
+              "pct": 25.91
+            },
+            "hit_at_3": {
+              "count": 95,
+              "pct": 43.18
+            },
+            "hit_at_5": {
+              "count": 103,
+              "pct": 46.82
+            },
+            "hit_at_10": {
+              "count": 114,
+              "pct": 51.82
+            },
+            "mrr_at_10": 0.3517
+          },
+          "v6_frag": {
+            "hit_at_1": {
+              "count": 57,
+              "pct": 25.91
+            },
+            "hit_at_3": {
+              "count": 95,
+              "pct": 43.18
+            },
+            "hit_at_5": {
+              "count": 103,
+              "pct": 46.82
+            },
+            "hit_at_10": {
+              "count": 114,
+              "pct": 51.82
+            },
+            "mrr_at_10": 0.3517
+          },
+          "v4_whole": {
+            "hit_at_1": {
+              "count": 50,
+              "pct": 22.73
+            },
+            "hit_at_3": {
+              "count": 83,
+              "pct": 37.73
+            },
+            "hit_at_5": {
+              "count": 87,
+              "pct": 39.55
+            },
+            "hit_at_10": {
+              "count": 92,
+              "pct": 41.82
+            },
+            "mrr_at_10": 0.3008
+          },
+          "v4_frag": {
+            "hit_at_1": {
+              "count": 50,
+              "pct": 22.73
+            },
+            "hit_at_3": {
+              "count": 84,
+              "pct": 38.18
+            },
+            "hit_at_5": {
+              "count": 88,
+              "pct": 40.0
+            },
+            "hit_at_10": {
+              "count": 92,
+              "pct": 41.82
+            },
+            "mrr_at_10": 0.3024
+          },
+          "cn_whole": {
+            "hit_at_1": {
+              "count": 57,
+              "pct": 25.91
+            },
+            "hit_at_3": {
+              "count": 99,
+              "pct": 45.0
+            },
+            "hit_at_5": {
+              "count": 110,
+              "pct": 50.0
+            },
+            "hit_at_10": {
+              "count": 121,
+              "pct": 55.0
+            },
+            "mrr_at_10": 0.3612
+          },
+          "cn_frag": {
+            "hit_at_1": {
+              "count": 57,
+              "pct": 25.91
+            },
+            "hit_at_3": {
+              "count": 99,
+              "pct": 45.0
+            },
+            "hit_at_5": {
+              "count": 110,
+              "pct": 50.0
+            },
+            "hit_at_10": {
+              "count": 121,
+              "pct": 55.0
+            },
+            "mrr_at_10": 0.3612
+          }
+        },
+        "holdout_156": {
+          "n_steps": 156,
+          "coverage": {
+            "count": 156,
+            "pct": 100.0
+          },
+          "v6_whole": {
+            "hit_at_1": {
+              "count": 32,
+              "pct": 20.51
+            },
+            "hit_at_3": {
+              "count": 51,
+              "pct": 32.69
+            },
+            "hit_at_5": {
+              "count": 64,
+              "pct": 41.03
+            },
+            "hit_at_10": {
+              "count": 69,
+              "pct": 44.23
+            },
+            "mrr_at_10": 0.2851
+          },
+          "v6_frag": {
+            "hit_at_1": {
+              "count": 32,
+              "pct": 20.51
+            },
+            "hit_at_3": {
+              "count": 51,
+              "pct": 32.69
+            },
+            "hit_at_5": {
+              "count": 64,
+              "pct": 41.03
+            },
+            "hit_at_10": {
+              "count": 69,
+              "pct": 44.23
+            },
+            "mrr_at_10": 0.2851
+          },
+          "v4_whole": {
+            "hit_at_1": {
+              "count": 26,
+              "pct": 16.67
+            },
+            "hit_at_3": {
+              "count": 40,
+              "pct": 25.64
+            },
+            "hit_at_5": {
+              "count": 47,
+              "pct": 30.13
+            },
+            "hit_at_10": {
+              "count": 51,
+              "pct": 32.69
+            },
+            "mrr_at_10": 0.2229
+          },
+          "v4_frag": {
+            "hit_at_1": {
+              "count": 26,
+              "pct": 16.67
+            },
+            "hit_at_3": {
+              "count": 40,
+              "pct": 25.64
+            },
+            "hit_at_5": {
+              "count": 47,
+              "pct": 30.13
+            },
+            "hit_at_10": {
+              "count": 51,
+              "pct": 32.69
+            },
+            "mrr_at_10": 0.2229
+          },
+          "cn_whole": {
+            "hit_at_1": {
+              "count": 36,
+              "pct": 23.08
+            },
+            "hit_at_3": {
+              "count": 55,
+              "pct": 35.26
+            },
+            "hit_at_5": {
+              "count": 70,
+              "pct": 44.87
+            },
+            "hit_at_10": {
+              "count": 77,
+              "pct": 49.36
+            },
+            "mrr_at_10": 0.3146
+          },
+          "cn_frag": {
+            "hit_at_1": {
+              "count": 36,
+              "pct": 23.08
+            },
+            "hit_at_3": {
+              "count": 55,
+              "pct": 35.26
+            },
+            "hit_at_5": {
+              "count": 70,
+              "pct": 44.87
+            },
+            "hit_at_10": {
+              "count": 77,
+              "pct": 49.36
+            },
+            "mrr_at_10": 0.3146
+          }
+        }
+      },
+      "pathway_teacher_forced": {
+        "full_119": {
+          "n_pathways": 119,
+          "v6_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 3,
+                "pct": 2.52
+              },
+              "pw_exact_ge2": {
+                "count": 1,
+                "pct": 0.91
+              },
+              "pw_prefix_depth_mean": 0.235,
+              "pw_prefix_ratio_pct": 8.41,
+              "pw_macro_recall_pct": 20.44,
+              "prefix_ge_2": {
+                "count": 8,
+                "pct": 6.72
+              },
+              "prefix_ge_3": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 12,
+                "pct": 10.08
+              },
+              "pw_exact_ge2": {
+                "count": 8,
+                "pct": 7.27
+              },
+              "pw_prefix_depth_mean": 0.647,
+              "pw_prefix_ratio_pct": 22.04,
+              "pw_macro_recall_pct": 37.12,
+              "prefix_ge_2": {
+                "count": 23,
+                "pct": 19.33
+              },
+              "prefix_ge_3": {
+                "count": 7,
+                "pct": 5.88
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 17,
+                "pct": 14.29
+              },
+              "pw_exact_ge2": {
+                "count": 12,
+                "pct": 10.91
+              },
+              "pw_prefix_depth_mean": 0.782,
+              "pw_prefix_ratio_pct": 26.77,
+              "pw_macro_recall_pct": 43.36,
+              "prefix_ge_2": {
+                "count": 28,
+                "pct": 23.53
+              },
+              "prefix_ge_3": {
+                "count": 10,
+                "pct": 8.4
+              }
+            }
+          },
+          "v4_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 3,
+                "pct": 2.52
+              },
+              "pw_exact_ge2": {
+                "count": 1,
+                "pct": 0.91
+              },
+              "pw_prefix_depth_mean": 0.235,
+              "pw_prefix_ratio_pct": 8.41,
+              "pw_macro_recall_pct": 18.23,
+              "prefix_ge_2": {
+                "count": 8,
+                "pct": 6.72
+              },
+              "prefix_ge_3": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 10,
+                "pct": 8.4
+              },
+              "pw_exact_ge2": {
+                "count": 7,
+                "pct": 6.36
+              },
+              "pw_prefix_depth_mean": 0.513,
+              "pw_prefix_ratio_pct": 17.76,
+              "pw_macro_recall_pct": 31.42,
+              "prefix_ge_2": {
+                "count": 18,
+                "pct": 15.13
+              },
+              "prefix_ge_3": {
+                "count": 4,
+                "pct": 3.36
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 13,
+                "pct": 10.92
+              },
+              "pw_exact_ge2": {
+                "count": 9,
+                "pct": 8.18
+              },
+              "pw_prefix_depth_mean": 0.622,
+              "pw_prefix_ratio_pct": 21.5,
+              "pw_macro_recall_pct": 35.51,
+              "prefix_ge_2": {
+                "count": 21,
+                "pct": 17.65
+              },
+              "prefix_ge_3": {
+                "count": 6,
+                "pct": 5.04
+              }
+            }
+          }
+        },
+        "tuning_76": {
+          "n_pathways": 76,
+          "v6_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 2,
+                "pct": 2.63
+              },
+              "pw_exact_ge2": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "pw_prefix_depth_mean": 0.197,
+              "pw_prefix_ratio_pct": 7.94,
+              "pw_macro_recall_pct": 20.7,
+              "prefix_ge_2": {
+                "count": 3,
+                "pct": 3.95
+              },
+              "prefix_ge_3": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "pw_exact_ge2": {
+                "count": 7,
+                "pct": 10.29
+              },
+              "pw_prefix_depth_mean": 0.671,
+              "pw_prefix_ratio_pct": 23.76,
+              "pw_macro_recall_pct": 38.46,
+              "prefix_ge_2": {
+                "count": 14,
+                "pct": 18.42
+              },
+              "prefix_ge_3": {
+                "count": 6,
+                "pct": 7.89
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "pw_exact_ge2": {
+                "count": 8,
+                "pct": 11.76
+              },
+              "pw_prefix_depth_mean": 0.776,
+              "pw_prefix_ratio_pct": 27.71,
+              "pw_macro_recall_pct": 43.49,
+              "prefix_ge_2": {
+                "count": 16,
+                "pct": 21.05
+              },
+              "prefix_ge_3": {
+                "count": 7,
+                "pct": 9.21
+              }
+            }
+          },
+          "v4_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 2,
+                "pct": 2.63
+              },
+              "pw_exact_ge2": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "pw_prefix_depth_mean": 0.197,
+              "pw_prefix_ratio_pct": 7.94,
+              "pw_macro_recall_pct": 18.8,
+              "prefix_ge_2": {
+                "count": 3,
+                "pct": 3.95
+              },
+              "prefix_ge_3": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 9,
+                "pct": 11.84
+              },
+              "pw_exact_ge2": {
+                "count": 6,
+                "pct": 8.82
+              },
+              "pw_prefix_depth_mean": 0.539,
+              "pw_prefix_ratio_pct": 19.35,
+              "pw_macro_recall_pct": 33.19,
+              "prefix_ge_2": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "prefix_ge_3": {
+                "count": 4,
+                "pct": 5.26
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "pw_exact_ge2": {
+                "count": 7,
+                "pct": 10.29
+              },
+              "pw_prefix_depth_mean": 0.645,
+              "pw_prefix_ratio_pct": 23.3,
+              "pw_macro_recall_pct": 36.92,
+              "prefix_ge_2": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "prefix_ge_3": {
+                "count": 5,
+                "pct": 6.58
+              }
+            }
+          }
+        },
+        "holdout_43": {
+          "n_pathways": 43,
+          "v6_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 1,
+                "pct": 2.33
+              },
+              "pw_exact_ge2": {
+                "count": 1,
+                "pct": 2.38
+              },
+              "pw_prefix_depth_mean": 0.302,
+              "pw_prefix_ratio_pct": 9.24,
+              "pw_macro_recall_pct": 19.99,
+              "prefix_ge_2": {
+                "count": 5,
+                "pct": 11.63
+              },
+              "prefix_ge_3": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 1,
+                "pct": 2.33
+              },
+              "pw_exact_ge2": {
+                "count": 1,
+                "pct": 2.38
+              },
+              "pw_prefix_depth_mean": 0.605,
+              "pw_prefix_ratio_pct": 19.01,
+              "pw_macro_recall_pct": 34.74,
+              "prefix_ge_2": {
+                "count": 9,
+                "pct": 20.93
+              },
+              "prefix_ge_3": {
+                "count": 1,
+                "pct": 2.33
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 4,
+                "pct": 9.3
+              },
+              "pw_exact_ge2": {
+                "count": 4,
+                "pct": 9.52
+              },
+              "pw_prefix_depth_mean": 0.791,
+              "pw_prefix_ratio_pct": 25.1,
+              "pw_macro_recall_pct": 43.13,
+              "prefix_ge_2": {
+                "count": 12,
+                "pct": 27.91
+              },
+              "prefix_ge_3": {
+                "count": 3,
+                "pct": 6.98
+              }
+            }
+          },
+          "v4_whole": {
+            "at_1": {
+              "pw_exact": {
+                "count": 1,
+                "pct": 2.33
+              },
+              "pw_exact_ge2": {
+                "count": 1,
+                "pct": 2.38
+              },
+              "pw_prefix_depth_mean": 0.302,
+              "pw_prefix_ratio_pct": 9.24,
+              "pw_macro_recall_pct": 17.23,
+              "prefix_ge_2": {
+                "count": 5,
+                "pct": 11.63
+              },
+              "prefix_ge_3": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "at_3": {
+              "pw_exact": {
+                "count": 1,
+                "pct": 2.33
+              },
+              "pw_exact_ge2": {
+                "count": 1,
+                "pct": 2.38
+              },
+              "pw_prefix_depth_mean": 0.465,
+              "pw_prefix_ratio_pct": 14.94,
+              "pw_macro_recall_pct": 28.3,
+              "prefix_ge_2": {
+                "count": 7,
+                "pct": 16.28
+              },
+              "prefix_ge_3": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "at_5": {
+              "pw_exact": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "pw_exact_ge2": {
+                "count": 2,
+                "pct": 4.76
+              },
+              "pw_prefix_depth_mean": 0.581,
+              "pw_prefix_ratio_pct": 18.32,
+              "pw_macro_recall_pct": 33.04,
+              "prefix_ge_2": {
+                "count": 8,
+                "pct": 18.6
+              },
+              "prefix_ge_3": {
+                "count": 1,
+                "pct": 2.33
+              }
+            }
+          }
+        }
+      },
+      "position_decay": {
+        "pos_1": {
+          "n_steps": 119,
+          "v6_hit1_count": 20,
+          "v6_hit1_pct": 16.81,
+          "v4_hit1_count": 20,
+          "v4_hit1_pct": 16.81
+        },
+        "pos_2": {
+          "n_steps": 110,
+          "v6_hit1_count": 28,
+          "v6_hit1_pct": 25.45,
+          "v4_hit1_count": 23,
+          "v4_hit1_pct": 20.91
+        },
+        "pos_3": {
+          "n_steps": 85,
+          "v6_hit1_count": 19,
+          "v6_hit1_pct": 22.35,
+          "v4_hit1_count": 16,
+          "v4_hit1_pct": 18.82
+        },
+        "pos_4": {
+          "n_steps": 51,
+          "v6_hit1_count": 11,
+          "v6_hit1_pct": 21.57,
+          "v4_hit1_count": 10,
+          "v4_hit1_pct": 19.61
+        },
+        "pos_5_plus": {
+          "n_steps": 52,
+          "v6_hit1_count": 15,
+          "v6_hit1_pct": 28.85,
+          "v4_hit1_count": 10,
+          "v4_hit1_pct": 19.23
+        }
+      },
+      "e2e_mineralization_121": {
+        "naive_b1_d15": {
+          "full_121": {
+            "n_pathways": 121,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 6,
+                "pct": 4.96,
+                "strict_carbon_closed": {
+                  "count": 3,
+                  "pct": 2.48
+                },
+                "declared_branches_closed": {
+                  "count": 3,
+                  "pct": 2.48
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 115,
+                "pct": 95.04
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 19,
+                "pct": 15.7
+              },
+              "ref_step1_hit_cn": {
+                "count": 21,
+                "pct": 17.36
+              },
+              "ref_prefix_depth_mean": 0.165,
+              "ref_prefix_ratio_pct": 4.34,
+              "ref_node_recall_strict_pct": 7.73,
+              "ref_node_recall_cn_pct": 9.16,
+              "ref_edge_recall_pct": 4.57,
+              "terminal_hit_and_mineralized": {
+                "count": 1,
+                "pct": 0.83
+              },
+              "stopped_early_model_mineralized": {
+                "count": 3,
+                "pct": 2.48
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 1,
+                "pct": 0.83
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 5,
+                "pct": 4.13
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 115,
+                "pct": 95.04
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          },
+          "tuning_76": {
+            "n_pathways": 76,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 3,
+                "pct": 3.95,
+                "strict_carbon_closed": {
+                  "count": 3,
+                  "pct": 3.95
+                },
+                "declared_branches_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 73,
+                "pct": 96.05
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "ref_step1_hit_cn": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "ref_prefix_depth_mean": 0.158,
+              "ref_prefix_ratio_pct": 3.63,
+              "ref_node_recall_strict_pct": 8.38,
+              "ref_node_recall_cn_pct": 10.29,
+              "ref_edge_recall_pct": 4.31,
+              "terminal_hit_and_mineralized": {
+                "count": 1,
+                "pct": 1.32
+              },
+              "stopped_early_model_mineralized": {
+                "count": 1,
+                "pct": 1.32
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 1,
+                "pct": 1.32
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 2,
+                "pct": 2.63
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 73,
+                "pct": 96.05
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          },
+          "holdout_43": {
+            "n_pathways": 43,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 2,
+                "pct": 4.65,
+                "strict_carbon_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                },
+                "declared_branches_closed": {
+                  "count": 2,
+                  "pct": 4.65
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 41,
+                "pct": 95.35
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 7,
+                "pct": 16.28
+              },
+              "ref_step1_hit_cn": {
+                "count": 7,
+                "pct": 16.28
+              },
+              "ref_prefix_depth_mean": 0.163,
+              "ref_prefix_ratio_pct": 5.04,
+              "ref_node_recall_strict_pct": 6.34,
+              "ref_node_recall_cn_pct": 6.99,
+              "ref_edge_recall_pct": 4.84,
+              "terminal_hit_and_mineralized": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "stopped_early_model_mineralized": {
+                "count": 1,
+                "pct": 2.33
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 41,
+                "pct": 95.35
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          }
+        },
+        "naive_b1_d20": {
+          "full_121": {
+            "n_pathways": 121,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 6,
+                "pct": 4.96,
+                "strict_carbon_closed": {
+                  "count": 3,
+                  "pct": 2.48
+                },
+                "declared_branches_closed": {
+                  "count": 3,
+                  "pct": 2.48
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 115,
+                "pct": 95.04
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 19,
+                "pct": 15.7
+              },
+              "ref_step1_hit_cn": {
+                "count": 21,
+                "pct": 17.36
+              },
+              "ref_prefix_depth_mean": 0.165,
+              "ref_prefix_ratio_pct": 4.34,
+              "ref_node_recall_strict_pct": 7.73,
+              "ref_node_recall_cn_pct": 9.16,
+              "ref_edge_recall_pct": 4.57,
+              "terminal_hit_and_mineralized": {
+                "count": 1,
+                "pct": 0.83
+              },
+              "stopped_early_model_mineralized": {
+                "count": 3,
+                "pct": 2.48
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 1,
+                "pct": 0.83
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 5,
+                "pct": 4.13
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 115,
+                "pct": 95.04
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          },
+          "tuning_76": {
+            "n_pathways": 76,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 3,
+                "pct": 3.95,
+                "strict_carbon_closed": {
+                  "count": 3,
+                  "pct": 3.95
+                },
+                "declared_branches_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 73,
+                "pct": 96.05
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "ref_step1_hit_cn": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "ref_prefix_depth_mean": 0.158,
+              "ref_prefix_ratio_pct": 3.63,
+              "ref_node_recall_strict_pct": 8.38,
+              "ref_node_recall_cn_pct": 10.29,
+              "ref_edge_recall_pct": 4.31,
+              "terminal_hit_and_mineralized": {
+                "count": 1,
+                "pct": 1.32
+              },
+              "stopped_early_model_mineralized": {
+                "count": 1,
+                "pct": 1.32
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 1,
+                "pct": 1.32
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 2,
+                "pct": 2.63
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 73,
+                "pct": 96.05
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          },
+          "holdout_43": {
+            "n_pathways": 43,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 2,
+                "pct": 4.65,
+                "strict_carbon_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                },
+                "declared_branches_closed": {
+                  "count": 2,
+                  "pct": 4.65
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 41,
+                "pct": 95.35
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 0,
+                "pct": 0.0
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 7,
+                "pct": 16.28
+              },
+              "ref_step1_hit_cn": {
+                "count": 7,
+                "pct": 16.28
+              },
+              "ref_prefix_depth_mean": 0.163,
+              "ref_prefix_ratio_pct": 5.04,
+              "ref_node_recall_strict_pct": 6.34,
+              "ref_node_recall_cn_pct": 6.99,
+              "ref_edge_recall_pct": 4.84,
+              "terminal_hit_and_mineralized": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "stopped_early_model_mineralized": {
+                "count": 1,
+                "pct": 2.33
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 2,
+                "pct": 4.65
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 41,
+                "pct": 95.35
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 0,
+                "pct": 0.0
+              }
+            }
+          }
+        },
+        "non_backtracking_b1": {
+          "full_121": {
+            "n_pathways": 121,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 103,
+                "pct": 85.12,
+                "strict_carbon_closed": {
+                  "count": 8,
+                  "pct": 6.61
+                },
+                "declared_branches_closed": {
+                  "count": 95,
+                  "pct": 78.51
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 8,
+                "pct": 6.61
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 10,
+                "pct": 8.26
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 22,
+                "pct": 18.18
+              },
+              "ref_step1_hit_cn": {
+                "count": 24,
+                "pct": 19.83
+              },
+              "ref_prefix_depth_mean": 0.19,
+              "ref_prefix_ratio_pct": 5.03,
+              "ref_node_recall_strict_pct": 10.45,
+              "ref_node_recall_cn_pct": 13.07,
+              "ref_edge_recall_pct": 5.21,
+              "terminal_hit_and_mineralized": {
+                "count": 14,
+                "pct": 11.57
+              },
+              "stopped_early_model_mineralized": {
+                "count": 84,
+                "pct": 69.42
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 14,
+                "pct": 11.57
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 89,
+                "pct": 73.55
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 8,
+                "pct": 6.61
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 10,
+                "pct": 8.26
+              }
+            }
+          },
+          "tuning_76": {
+            "n_pathways": 76,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 63,
+                "pct": 82.89,
+                "strict_carbon_closed": {
+                  "count": 8,
+                  "pct": 10.53
+                },
+                "declared_branches_closed": {
+                  "count": 55,
+                  "pct": 72.37
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 5,
+                "pct": 6.58
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 8,
+                "pct": 10.53
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "ref_step1_hit_cn": {
+                "count": 15,
+                "pct": 19.74
+              },
+              "ref_prefix_depth_mean": 0.184,
+              "ref_prefix_ratio_pct": 4.28,
+              "ref_node_recall_strict_pct": 11.74,
+              "ref_node_recall_cn_pct": 14.31,
+              "ref_edge_recall_pct": 5.11,
+              "terminal_hit_and_mineralized": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "stopped_early_model_mineralized": {
+                "count": 51,
+                "pct": 67.11
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 11,
+                "pct": 14.47
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 52,
+                "pct": 68.42
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 5,
+                "pct": 6.58
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 8,
+                "pct": 10.53
+              }
+            }
+          },
+          "holdout_43": {
+            "n_pathways": 43,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 38,
+                "pct": 88.37,
+                "strict_carbon_closed": {
+                  "count": 0,
+                  "pct": 0.0
+                },
+                "declared_branches_closed": {
+                  "count": 38,
+                  "pct": 88.37
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 3,
+                "pct": 6.98
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 2,
+                "pct": 4.65
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 8,
+                "pct": 18.6
+              },
+              "ref_step1_hit_cn": {
+                "count": 8,
+                "pct": 18.6
+              },
+              "ref_prefix_depth_mean": 0.186,
+              "ref_prefix_ratio_pct": 5.81,
+              "ref_node_recall_strict_pct": 8.07,
+              "ref_node_recall_cn_pct": 10.92,
+              "ref_edge_recall_pct": 5.23,
+              "terminal_hit_and_mineralized": {
+                "count": 3,
+                "pct": 6.98
+              },
+              "stopped_early_model_mineralized": {
+                "count": 31,
+                "pct": 72.09
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 3,
+                "pct": 6.98
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 35,
+                "pct": 81.4
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 3,
+                "pct": 6.98
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 2,
+                "pct": 4.65
+              }
+            }
+          }
+        },
+        "stage_aware_b1": {
+          "full_121": {
+            "n_pathways": 121,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 107,
+                "pct": 88.43,
+                "strict_carbon_closed": {
+                  "count": 9,
+                  "pct": 7.44
+                },
+                "declared_branches_closed": {
+                  "count": 98,
+                  "pct": 80.99
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 9,
+                "pct": 7.44
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 5,
+                "pct": 4.13
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 22,
+                "pct": 18.18
+              },
+              "ref_step1_hit_cn": {
+                "count": 24,
+                "pct": 19.83
+              },
+              "ref_prefix_depth_mean": 0.19,
+              "ref_prefix_ratio_pct": 5.03,
+              "ref_node_recall_strict_pct": 10.64,
+              "ref_node_recall_cn_pct": 13.1,
+              "ref_edge_recall_pct": 5.21,
+              "terminal_hit_and_mineralized": {
+                "count": 14,
+                "pct": 11.57
+              },
+              "stopped_early_model_mineralized": {
+                "count": 88,
+                "pct": 72.73
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 14,
+                "pct": 11.57
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 93,
+                "pct": 76.86
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 9,
+                "pct": 7.44
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 5,
+                "pct": 4.13
+              }
+            }
+          },
+          "tuning_76": {
+            "n_pathways": 76,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 68,
+                "pct": 89.47,
+                "strict_carbon_closed": {
+                  "count": 8,
+                  "pct": 10.53
+                },
+                "declared_branches_closed": {
+                  "count": 60,
+                  "pct": 78.95
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 5,
+                "pct": 6.58
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 3,
+                "pct": 3.95
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 13,
+                "pct": 17.11
+              },
+              "ref_step1_hit_cn": {
+                "count": 15,
+                "pct": 19.74
+              },
+              "ref_prefix_depth_mean": 0.184,
+              "ref_prefix_ratio_pct": 4.28,
+              "ref_node_recall_strict_pct": 11.39,
+              "ref_node_recall_cn_pct": 13.96,
+              "ref_edge_recall_pct": 5.11,
+              "terminal_hit_and_mineralized": {
+                "count": 10,
+                "pct": 13.16
+              },
+              "stopped_early_model_mineralized": {
+                "count": 56,
+                "pct": 73.68
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 10,
+                "pct": 13.16
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 58,
+                "pct": 76.32
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 5,
+                "pct": 6.58
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 3,
+                "pct": 3.95
+              }
+            }
+          },
+          "holdout_43": {
+            "n_pathways": 43,
+            "outcomes": {
+              "MINERALIZED_CLOSED": {
+                "count": 37,
+                "pct": 86.05,
+                "strict_carbon_closed": {
+                  "count": 1,
+                  "pct": 2.33
+                },
+                "declared_branches_closed": {
+                  "count": 36,
+                  "pct": 83.72
+                }
+              },
+              "DEAD_END_TP": {
+                "count": 0,
+                "pct": 0.0
+              },
+              "CYCLE_ABORTED": {
+                "count": 4,
+                "pct": 9.3
+              },
+              "MAX_DEPTH_UNFINISHED": {
+                "count": 2,
+                "pct": 4.65
+              }
+            },
+            "reference_alignment": {
+              "ref_step1_hit_strict": {
+                "count": 8,
+                "pct": 18.6
+              },
+              "ref_step1_hit_cn": {
+                "count": 8,
+                "pct": 18.6
+              },
+              "ref_prefix_depth_mean": 0.186,
+              "ref_prefix_ratio_pct": 5.81,
+              "ref_node_recall_strict_pct": 9.23,
+              "ref_node_recall_cn_pct": 11.62,
+              "ref_edge_recall_pct": 5.23,
+              "terminal_hit_and_mineralized": {
+                "count": 4,
+                "pct": 9.3
+              },
+              "stopped_early_model_mineralized": {
+                "count": 30,
+                "pct": 69.77
+              }
+            },
+            "taxonomy": {
+              "type_I_direct_aligned_mineralized": {
+                "count": 4,
+                "pct": 9.3
+              },
+              "type_II_novel_or_alt_mineralized": {
+                "count": 33,
+                "pct": 76.74
+              },
+              "type_III_dead_end_or_cycle": {
+                "count": 4,
+                "pct": 9.3
+              },
+              "type_IV_max_depth_unfinished": {
+                "count": 2,
+                "pct": 4.65
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
