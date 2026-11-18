@@ -38,8 +38,9 @@
    - 呈现纪律：以 `all` 口径作为知识增强系统的主指标（调参集 `118/261 = 45.21%`，`Clean-220` `113/220 = 51.36%`），但**凡在摘要、主表或结论中报告 `all` 主数字时，必须在同一页/同一表并列报告下述无自记录泛化指标**。
 2. **并列泛化 Estimand（Co-Primary Generalization Readouts：严格区分 `full-system` vs `single-route`）**：
    - **输入端清零自记录 `NoSelf`（Input-Level `self=0`，硬门校验 `self_record_hits == 0`）**：
-     - 调参集现已实测 **`DB-2 NoSelf`（`single-route` 单路臂）：`all = 96/261 (36.78%)`、`Clean-220 = 92/220 (41.82%)`**（其中 `ex_rec_only = 96/261`；继续扣除同底物-主产物严格对 `tpl-other` 后 `ex-self = 69/261 [26.44%]`、`Clean-220 = 65/220 [29.55%]`）；
-     - **架构级边界铁律**：`DB-2 NoSelf` 与 `DB-6 MNXOnly` 均为 **`single-route arms`（单路采样臂）**，不得冒充或混写为 11 路全系统泛化值；全系统 `T1-6 NoSelf`（多路共识 + `trace_protected` 裁决，输入端 `self=0`）须以真实多路 `self=0` 采样运行结果单独报出（建批与 HPC 终判管线 `paper_ablation_p5_noself_batches.py` / `paper_ablation_p5_noself_hpc.py` 已冻结就绪，并在 `T4` 留出集开箱时按同构多路 `NoSelf` 同步实测）。
+     - **调参集全系统 `T1-6 NoSelf` 实测（`full-system`，输入端 `self=0`）**：`11-pass` 达 **`v6 all = ex_rec_only = 94 / 127 / 134 (36.02%)`**、**`Clean-220 = 90 / 120 / 126 (40.91%)`**、`v4 = 61/261 (23.37%)`，严格再剔同对模板后 `ex-self = 70/261 (26.82%)`、`Clean-220 = 66/220 (30.00%)`；同构 `5-pass` `T1-6 NoSelf_5p` 达 **`94 / 125 / 130 (36.02%)`**、`Clean-220 = 91/220 (41.36%)`、`ex-self = 70/261`；
+     - **调参集单路对照 `DB-2 NoSelf`（`single-route` 单路臂）**：主复本 `pa` 为 `all = 96/261 (36.78%)`、`Clean-220 = 92/220 (41.82%)`（`ex-self = 69/261 [26.44%]`、`Clean-220 = 65/220 [29.55%]`），11 批独立均值±SD 为 `88.18 ± 3.28 / 261 (33.79%)`（`ex-self = 63.45 ± 2.88`）；
+     - **架构级边界铁律**：`DB-2 NoSelf` 与 `DB-6 MNXOnly` 均为 **`single-route arms`（单路采样臂）**，不得冒充或混写为多路全系统泛化值；全系统 `T1-6 NoSelf` 须以真实多路 `self=0` 采样运行结果单独报出，并在 `T4` 留出集开箱时按同构多路 `NoSelf` 同步实测。
    - **纯规则迁移标尺 `MNXOnly`（`single-route` 规则泛化臂）**：
      - 仅开放 MetaNetX 通用酶学规则、天然零自记录命中（调参集 **`DB-6 MNXOnly` [`single-route`]：`all = ex-self = 102/261 [39.08%]`、`Clean-220 = 95/220 [43.18%]`、`v4 = 65/261 [24.90%]`**），单独作为跨底物规则迁移基线披露，同样显式标注 `single-route`。
 3. **事后剔除指标 `ex-self` / `ex_rec_only` 的定位与禁令**：

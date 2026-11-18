@@ -23,7 +23,7 @@
 | **Stage P2** | **`[biosysmodb121]` 付费在线采样（仅 9 批单路）与乌镇 32C 终判合表**：<br>• **`AtomTool` 专项 2 批**：`AT-RawBlind`（无池+无 `AtomTool`）+ `AT-FullPool-NoGraph`（满配 `wl4@16` 池但去 `AtomTool` 分子图与编辑协议）（`522` calls）<br>• **表 2 数据库全满贯 7 批**：`DB-1..DB-7`（`1,827` calls；`DB-0` 基线直接复用现成 5 批 `wl4_pa..pe` 零新调用！）<br>跑完推回乌镇 32C 统一出齐论文表 1、表 1B（`AtomTool` 专表）、表 2、表 4 | 是 | **`2,349` calls**<br>（实耗 **`33,068,487` tokens**，`0` 失败） | ✅ 已完成 |
 | **Stage P3** | **零调用脚本回修与乌镇 32C 隔离子目录终判重跑**：修复 4 项 P1 缺陷（`T1-L6`/`T1-L12`/`DB0..DB7` 缺 `SINGLE_V2_PATCH` 重放/`runflow.py` 次级 pass 绕过+`T1-L` 仲裁基线对齐）+ 补齐 2 项表缺漏（表 2 错池率 + 表 4 世代/41 题 4 层/9 批 `ex-self`）；在隔离 `code_p3` 重跑 `49233683`/`49233684` 并更新双仓报告 | 否（`0` call） | `0` | ✅ 已完成 |
 | **Stage P4** | **回应黄老师 2026-11-17 审阅 8 项修订意见（零 LLM 调用深度核验与对齐）**：乌镇 `49266862`/`49267366` 补齐 `bare`/`bare+守恒门`/`Exp-1b A 臂`/`v1.0` 全套 `N=261 & Clean-220` (`v6/v4/ex-self`)、拆分 Full-System vs Single-Route LOO 双表、主表并列 `ex-self` & `ex_rec_only`、`61` 题自记录/模板对交叉拆解、表 2 Holm-Bonferroni 校正、明确单步边界与外部基线同口径对齐及留出集锁死声明 | 否（`0` call） | `0` | ✅ 已完成 |
-| **Stage P5** | **回应黄老师 R2 审阅 9 项清单（Estimand 预注册锁死 + Table A–D 重构 + 全系统 `T1-6 NoSelf` 管线就绪）**：① 报告重构为 Table A/B/C/D，锁死 `all` 主 Estimand 并同页并列泛化边界，全部标明 `DB-2/DB-6` 为 `single-route` 且撤除用事后“占座效应”代替全系统 `NoSelf`；② 修清 `118/261 (45.21%)` vs `113/220 (51.36%)`、`+32/+33`（vs `Exp-1b A`）与 `+32/+29`（vs `v1.0`）、移出 `T1-L2`、加外部基线非对称泄漏声明、补 `DB-7` `ex-self=46` 拆解；③ 同步增补 `docs/PREREG_V14_T4_HOLDOUT_2026-11-15.md` §1.3；④ 完成 `T1-6 NoSelf` 10 复本批根与乌镇 32C 脚本（遇 `token-plan` `429 insufficient_quota` 合规停等额度恢复后补跑） | 离线已收口<br>（`T1-6 NoSelf` 待额度恢复） | `0`（已执行部分） | ✅ R2 文字/预注册/管线已完成（`T1-6 NoSelf` 在线采样待配额恢复） |
+| **Stage P5** | **回应黄老师 R2 审阅 9 项清单（Estimand 锁死 + Table A–D + 全系统 `T1-6 NoSelf` 实测闭环）**：① 报告重构为 Table A/B/C/D，锁死 `all` 主 Estimand 并同页并列 `T1-6 NoSelf`/`DB-2`/`DB-6`/`ex-self`；② 修清 `118/261 (45.21%)` vs `113/220 (51.36%)`、`+32/+33` vs `+32/+29`、移出 `T1-L2`、加外部基线非对称泄漏声明、补 `DB-7` 拆解；③ 同步 `docs/PREREG_V14_T4_HOLDOUT_2026-11-15.md` §1.3；④ 新 key 跑通 `db2_pb..pk` 10 批采样（`2,610` calls，`38,572,516` tokens，0 失败）+ 去重裁决 `1,268` calls（`7,616,361` tokens，0 失败），乌镇 `49301927`/`49306086` 实测 **`T1-6 NoSelf_11p = 94/261 (36.02%)`（`ex-self=70`）**、`T1-6 NoSelf_5p = 94/261`、`anti_truncation = 0` 违例 | 是（`db2_pb..pk` + 裁决器） | **`3,878` calls**<br>（实耗 **`46,188,877` tokens**，`0` 失败） | ✅ 已全部完成 |
 
 ---
 
@@ -232,12 +232,16 @@
    - **#6（表 2 Holm-Bonferroni 校正）**：7 组对比校正后仅 `DB-1 EmptyPool`（$p_{\text{Holm}}=0.00655$）具统计显著性；`DB-4 NoRR` 与 `DB-2 NoSelf`（均 $p_{\text{Holm}}=0.6465$）收敛为方向性下降趋势；
    - **#7 & #8（单步适用边界、外部基线同口径对齐与留出集声明）**：声明消融结论不外推多步（多步仍用 `v1.2 PW-Exact@5=14.47%` / `v1.4 Stage-Aware 47.44%`）；将 `BioTransformer 3.0` 与 `ECLIPSE 10f` 的 `v6/v4`（`Tuning-261` & `Clean-220`）对齐至 `T1-6 all / ex-self / ex_rec_only / DB-2 NoSelf / DB-6 MNXOnly`，限定「`2× 外部基线`」于 `all` 口径，并明确 `156` 题留出集持续锁死。
 
-### 4.6 Stage P5（2026-11-18 黄老师 R2 审阅 9 项清单收口 + 全系统 `T1-6 NoSelf` 预置与配额熔断记录）
+### 4.6 Stage P5（2026-11-18 黄老师 R2 审阅 9 项清单收口 + 全系统 `T1-6 NoSelf` 实测闭环）
 
-1. **全系统 `T1-6 NoSelf`（11 路 `self=0` + 共识 v3 + `trace_protected` 裁决）工程落盘与配额状态**：
-   - 新增建批与并发采样驱动 `scripts/eval/paper_ablation_p5_noself_batches.py`（强制校验 `usage_missing_calls == 0` 且 `total_tokens > 0`），已在本地生成并通过自检 10 个干净复本批根 `db2_pb .. db2_pk`（`pools_sha256 = dfb400c4...`，与第 1 路 `db2_pa` 合计 11 路）；
-   - 新增乌镇 32C 重放、裁决构建与 5 折 CV 终判驱动 `scripts/hpc/paper_ablation_p5_noself_hpc.py` + `scripts/hpc/sbatch_paper_ablation_p5_noself.sh`（已同步至远端隔离目录 `code_p3`）；
-   - 发车采样时网关返回 `HTTP 429 {"error":{"message":"Your token-plan quota has been exhausted.","code":"insufficient_quota"}}`，按 `AGENTS.md` 账号用量限额急停规则将 `0`-token 首次尝试目录改名隔离并重建干净待跑批根；配额恢复后一键执行 `paper_ablation_p5_noself_batches.py run` $\to$ `sbatch_paper_ablation_p5_noself.sh pre-adj` $\to$ 本地 `v14_t14s3_adjudicator.py --mode run` $\to$ `sbatch_paper_ablation_p5_noself.sh post-adj` 即可回填实测值。
+1. **全系统 `T1-6 NoSelf`（11 路 & 5 路 `self=0` + 共识 v3 + `trace_protected` 裁决）实测结果与完整账单**：
+   - 新增建批与并发采样驱动 `scripts/eval/paper_ablation_p5_noself_batches.py`（强制校验 `usage_missing_calls == 0` 且 `total_tokens > 0`），完成 `db2_pb .. db2_pk` 10 批 `2,610` 次付费采样（`0` 失败，实耗 **`38,572,516` tokens**；复用 P2 `db2_pa` 后 11 路全量 `2,871` calls / `42,607,464` tokens）；
+   - 乌镇隔离目录 `code_p3` Slurm Job `49301927`（`pre-adj`, `01:08:58`, Exit `0:0`）完成 11 路单路重放、`T1-5_NoSelf_5p/11p` 共识重放及零泄漏裁决题面构建（`noself11p_v11` `1,068` 调用、`noself5p_v5` `1,014` 调用，均 `0` 泄漏）；
+   - 本机以共享内容寻址缓存跑完裁决器去重并集 `1,268` calls（`0` 失败，实耗 **`7,616,361` tokens**），传回乌镇经 Slurm Job `49306086`（`post-adj`, `00:27:14`, Exit `0:0`）完成 `trace_protected|d8|u99|e3|r2` 终版重放与 `anti_truncation_noself.json` 校验（`0` 违例），结果落于 gitignored `reports/ppv1_s5b/paper_ablation_v14_20261116/final_hpc_p3/p5_noself_full_summary.json`：
+     - **`T1-6 NoSelf_11p`（`full-system, 11-pass`）**：`v6 all = ex_rec_only = 94 / 127 / 134 (36.02%)`、`Clean-220 = 90 / 120 / 126 (40.91%)`、`v4 = 61 (23.37%)`、`v2 = 39`；严格 **`v6 ex-self = 70 / 97 / 103 (26.82%)`**（`Clean-220 = 66 [30.00%]`，反超满配池 `T1-6 ex-self = 57` 共 **`+13` 题**）；裁决较 `T1-5_NoSelf_11p (91)` 净增 `+3`（5 折通路 CV `91→96`, `+5`）；较 `DB-2 NoSelf` 11 批单路均值（`88.18 ± 3.28`）净增 `+5.82 Hit@1` / `+12.55 Hit@3` / `+10.73 Hit@5`；
+     - **`T1-6 NoSelf_5p`（`full-system, 5-pass`）**：`v6 all = ex_rec_only = 94 / 125 / 130 (36.02%)`、`Clean-220 = 91 / 119 / 124 (41.36%)`、`v6 ex-self = 70 / 94 / 99 (26.82%)`、`v4 = 62 (23.75%)`；较 `T1-5_NoSelf_5p (92)` 净增 `+2`（5 折 CV `92→94`, `+2`）；
+     - **61 题与全集逐题交叉**：在满配池被事后 `ex-self` 扣掉的 `61` 题上，`T1-6 NoSelf_11p` 独立夺回 `43 / 61 (70.49%)` `Hit@1`（`Top-5 = 56 / 61 = 91.80%`）。
+   - Stage P5 新增总账：`3,878` calls、`0` 失败、**`46,188,877` tokens**（`cost_status = no_snapshot`）。
 2. **R2 审阅全部 9 项清单收口**：
    - 明确锁死 `DB-2 NoSelf` 与 `DB-6 MNXOnly` 为 `single-route arms`（单路臂），不代表 11 路全系统，且撤除用事后“Rank 1 占座效应”代替全系统 `NoSelf` 的表述（61 题拆解退归 §4.4 方法学附录）；
    - 预注册锁死主 Estimand（`all` 口径）及同页必报泛化边界，摘要、Table A–D、结论与 `docs/PREREG_V14_T4_HOLDOUT_2026-11-15.md` §1.3 四处完全一致；
