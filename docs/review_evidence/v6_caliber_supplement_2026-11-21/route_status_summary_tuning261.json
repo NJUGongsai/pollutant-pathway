@@ -1,0 +1,213 @@
+{
+  "arm_id": "v14_t16_wl4_pa_11p_at16_cons_v3_prom_adj",
+  "caliber": "ppv1-criteria-v6",
+  "n_qid_rows": 261,
+  "n_case_rows": 76,
+  "in_per_gold_step_count": 254,
+  "missing_per_gold_step_qids": [
+    "BIOPATH150_016__S04__BSY-r00342",
+    "BIOPATH150_016__S05__BSY-r00343",
+    "BIOPATH150_016__S06__BSY-r00344",
+    "BIOPATH150_016__S07__BSY-r00345",
+    "BIOPATH150_024__S06__BSY-r03661",
+    "BIOPATH150_090__S01__BSY-r02037",
+    "BIOPATH150_139__S03__BSY-r03566"
+  ],
+  "likert_726_matched_cases": 76,
+  "v4_reference_totals": {
+    "tuning_261": {
+      "hit@1": 80,
+      "hit@3": 96,
+      "hit@5": 102
+    },
+    "clean_220": {
+      "hit@1": 76,
+      "hit@3": 91,
+      "hit@5": 96
+    }
+  },
+  "tuning_261_summary": {
+    "schema_version": "ppv1-route-status-v1",
+    "n_total": 261,
+    "n_delivery_ok": 261,
+    "n_api_or_format_failures": 0,
+    "n_no_event": 0,
+    "n_engineering_failures": 0,
+    "route_status_counts": {
+      "IN_GOLD_EXACT": 141,
+      "IN_GOLD_PARTIAL": 0,
+      "OUTSIDE_GOLD_PLAUSIBLE": 0,
+      "OUTSIDE_GOLD_CONTRADICTED": 0,
+      "UNRESOLVED": 120
+    },
+    "delivery_status_counts": {
+      "OK": 261,
+      "LENGTH_EMPTY": 0,
+      "INVALID_JSON": 0,
+      "RESULT_UNKNOWN": 0,
+      "RUN_ERROR": 0,
+      "NO_EVENT": 0
+    },
+    "scientific_eval_label_counts": {
+      "HIT_EXACT": 141,
+      "HIT_PARTIAL": 0,
+      "NE": 120,
+      "ZERO": 0
+    },
+    "zero_reason_counts": {
+      "NONE": 141,
+      "WRONG_CHEMISTRY": 0,
+      "MISSING_MODULE": 0,
+      "OUTSIDE_COVERAGE": 0,
+      "ENGINEERING_FAILURE": 0,
+      "UNRESOLVED": 120,
+      "NOT_APPLICABLE": 0
+    },
+    "primary_hit_at_k": {
+      "denominator": 261,
+      "hit@1": {
+        "count": 118,
+        "denominator": 261,
+        "pct": 45.21
+      },
+      "hit@3": {
+        "count": 133,
+        "denominator": 261,
+        "pct": 50.96
+      },
+      "hit@5": {
+        "count": 141,
+        "denominator": 261,
+        "pct": 54.02
+      }
+    },
+    "sensitivity_excl_engineering_fail_hit_at_k": {
+      "denominator": 261,
+      "hit@1": {
+        "count": 118,
+        "denominator": 261,
+        "pct": 45.21
+      },
+      "hit@3": {
+        "count": 133,
+        "denominator": 261,
+        "pct": 50.96
+      },
+      "hit@5": {
+        "count": 141,
+        "denominator": 261,
+        "pct": 54.02
+      }
+    },
+    "sensitivity_excl_no_event_hit_at_k": {
+      "denominator": 261,
+      "hit@1": {
+        "count": 118,
+        "denominator": 261,
+        "pct": 45.21
+      },
+      "hit@3": {
+        "count": 133,
+        "denominator": 261,
+        "pct": 50.96
+      },
+      "hit@5": {
+        "count": 141,
+        "denominator": 261,
+        "pct": 54.02
+      }
+    }
+  },
+  "clean_220_summary": {
+    "schema_version": "ppv1-route-status-v1",
+    "n_total": 220,
+    "n_delivery_ok": 220,
+    "n_api_or_format_failures": 0,
+    "n_no_event": 0,
+    "n_engineering_failures": 0,
+    "route_status_counts": {
+      "IN_GOLD_EXACT": 134,
+      "IN_GOLD_PARTIAL": 0,
+      "OUTSIDE_GOLD_PLAUSIBLE": 0,
+      "OUTSIDE_GOLD_CONTRADICTED": 0,
+      "UNRESOLVED": 86
+    },
+    "delivery_status_counts": {
+      "OK": 220,
+      "LENGTH_EMPTY": 0,
+      "INVALID_JSON": 0,
+      "RESULT_UNKNOWN": 0,
+      "RUN_ERROR": 0,
+      "NO_EVENT": 0
+    },
+    "scientific_eval_label_counts": {
+      "HIT_EXACT": 134,
+      "HIT_PARTIAL": 0,
+      "NE": 86,
+      "ZERO": 0
+    },
+    "zero_reason_counts": {
+      "NONE": 134,
+      "WRONG_CHEMISTRY": 0,
+      "MISSING_MODULE": 0,
+      "OUTSIDE_COVERAGE": 0,
+      "ENGINEERING_FAILURE": 0,
+      "UNRESOLVED": 86,
+      "NOT_APPLICABLE": 0
+    },
+    "primary_hit_at_k": {
+      "denominator": 220,
+      "hit@1": {
+        "count": 113,
+        "denominator": 220,
+        "pct": 51.36
+      },
+      "hit@3": {
+        "count": 127,
+        "denominator": 220,
+        "pct": 57.73
+      },
+      "hit@5": {
+        "count": 134,
+        "denominator": 220,
+        "pct": 60.91
+      }
+    },
+    "sensitivity_excl_engineering_fail_hit_at_k": {
+      "denominator": 220,
+      "hit@1": {
+        "count": 113,
+        "denominator": 220,
+        "pct": 51.36
+      },
+      "hit@3": {
+        "count": 127,
+        "denominator": 220,
+        "pct": 57.73
+      },
+      "hit@5": {
+        "count": 134,
+        "denominator": 220,
+        "pct": 60.91
+      }
+    },
+    "sensitivity_excl_no_event_hit_at_k": {
+      "denominator": 220,
+      "hit@1": {
+        "count": 113,
+        "denominator": 220,
+        "pct": 51.36
+      },
+      "hit@3": {
+        "count": 127,
+        "denominator": 220,
+        "pct": 57.73
+      },
+      "hit@5": {
+        "count": 134,
+        "denominator": 220,
+        "pct": 60.91
+      }
+    }
+  }
+}

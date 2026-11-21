@@ -1,5 +1,8 @@
 # `[biosysmodb121]` 六模型完整路径对比（去除 41 题干净集）Hit@1 重统计报告
 
+> [!IMPORTANT]
+> **对比结论暂缓声明（2026-11-21 口径治理更新）**：依据 2026-11-18《给弓赛：降解路径分支判分口径与指标分工的批复》，旧六基模原题含指定路线名与氧条件（其中 14 题存在 `ROUTE_GOLD_COLLISION` 碰撞，详见 [`route_gold_collision_14_cases_qid_audit.tsv`](review_evidence/v6_caliber_supplement_2026-11-21/route_gold_collision_14_cases_qid_audit.tsv)），且下表仅代表当时 G3 未去质子化口径下的历史切片，**在全量 6 基模去泄漏重测于统一 `ppv1-criteria-v6`、同分母、同参考集完成之前，本文暂缓“本线优于旧六基模”之比较结论**；详见 [`V6_CALIBER_SUPPLEMENTS_PACKAGE_2026-11-21.md`](V6_CALIBER_SUPPLEMENTS_PACKAGE_2026-11-21.md) §5–§6。
+
 > - **生成日期**：`2026-11-16`
 > - **源数据仓库**：[`bgruiiii/EnzymeCAGE-Teacher-Deliverables/2026-11-16_BIOSYSMODB121_Six_Model_Pathway_Enzyme_Hit1`](https://github.com/bgruiiii/EnzymeCAGE-Teacher-Deliverables/tree/main/2026-11-16_BIOSYSMODB121_Six_Model_Pathway_Enzyme_Hit1)（`results/PER_GOLD_STEP.tsv`，`3,132` 行 = `6` 模型 × `522` 金标步）
 > - **去噪剔除基准**：4 层去噪规则剔除的 `41` 题清单（参见 [`B121_41_EXCLUDED_QUESTIONS_2026-11-16.md`](B121_41_EXCLUDED_QUESTIONS_2026-11-16.md) 与 [`B121_CLEAN_SUBSET_V14_EVALUATION_2026-11-16.md`](B121_CLEAN_SUBSET_V14_EVALUATION_2026-11-16.md)）

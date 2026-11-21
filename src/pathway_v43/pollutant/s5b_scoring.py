@@ -178,7 +178,7 @@ def preregistration_from_doc(
     """从冻结稿状态行读批准(机读行
     ``preregistration_status = <值>``;非 pending ⇒ 已批准)。
 
-    缺省路径 = 本仓 docs/ 冻结稿(Remote worktree 同仓部署时在位);
+    缺省路径 = 本仓 docs/ 冻结稿(Chenyu worktree 同仓部署时在位);
     文件缺席/无状态行 ⇒ None(fail-closed 由调用方门拒,不猜)。
     """
     if doc_path is None:

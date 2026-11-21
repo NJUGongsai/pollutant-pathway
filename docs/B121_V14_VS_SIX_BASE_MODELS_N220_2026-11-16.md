@@ -1,5 +1,8 @@
 # `[biosysmodb121·干净对齐集 N=215]` `v44-Next v1.4` 终版与六个基模单步性能对比（2026-11-16）
 
+> [!IMPORTANT]
+> **对比结论暂缓声明（2026-11-21 口径治理更新）**：依据 2026-11-18《给弓赛：降解路径分支判分口径与指标分工的批复》，旧六基模题面包含指定路线名与氧条件（含 14 道 `ROUTE_GOLD_COLLISION` 题，详见 [`route_gold_collision_14_cases_qid_audit.tsv`](review_evidence/v6_caliber_supplement_2026-11-21/route_gold_collision_14_cases_qid_audit.tsv)），且当时统计采用未去质子严格 `Jaccard=1.0`。在全量 6 基模去泄漏（de-leak）重测完成并用统一 `ppv1-criteria-v6` 口径、同分母、同参考集（单/多参考分开列报）正式对照之前，**本文不对旧六基模与本线作“谁优于谁”的结论**；详见 [`V6_CALIBER_SUPPLEMENTS_PACKAGE_2026-11-21.md`](V6_CALIBER_SUPPLEMENTS_PACKAGE_2026-11-21.md) §5–§6。
+
 > - **文档范围**：仅比较 **`v44-Next v1.4 终版（主口径 `ppv1-criteria-v6`）`** 与**六个基模（完整路径拆分为单步统计）**在**统一 `N=215` 干净对齐集**上的单步 `Hit@1` 性能，并说明分母差异（`215` vs `220`）及协议口径边界。
 > - **数据来源**：`v1.4`（HPC 终验 `b121_wl4_pa_11p_at16::v14s4_cons_v3_prom_adj` `v6` 逐题切片，[`B121_CLEAN_SUBSET_V14_EVALUATION_2026-11-16.md`](B121_CLEAN_SUBSET_V14_EVALUATION_2026-11-16.md)）& 六基模（[`B121_SIX_MODEL_CLEAN_SUBSET_HIT1_2026-11-16.md`](B121_SIX_MODEL_CLEAN_SUBSET_HIT1_2026-11-16.md)，源：`bgruiiii/EnzymeCAGE-Teacher-Deliverables` `PER_GOLD_STEP.tsv`）。
 > - **合规声明**：零 SMILES、零私有题号、零触碰 `156` 题留出集。
