@@ -1420,6 +1420,11 @@ def compile_novel_product_first(
     proposal_id: str = "",
     *,
     fallback_edits: list[dict] | None = None,
+    extended_stereo_dissolution: bool = False,
+    stereo_edit_graceful_fallback: bool = False,
+    allow_ring_cleavage_and_fused_dearomatization: bool = False,
+    retained_tetrahedral_parity_check: bool = False,
+    allow_aromatic_ring_closure: bool = False,
 ) -> dict:
     """产物优先 novel 提案 → 可执行 spec + 核验分桶（单一构建源）。
 
@@ -1495,6 +1500,14 @@ def compile_novel_product_first(
                 "matched_side_or_component": {"novel_product_first": True},
             },
             novel_product_first_principal=declared_product,
+            extended_stereo_dissolution=extended_stereo_dissolution,
+            stereo_edit_graceful_fallback=stereo_edit_graceful_fallback,
+            allow_ring_cleavage_and_fused_dearomatization=(
+                allow_ring_cleavage_and_fused_dearomatization),
+            # v1.4 T14-4:编译器 v2 两开关(默认关 ⇒ 逐字节同)
+            retained_tetrahedral_parity_check=(
+                retained_tetrahedral_parity_check),
+            allow_aromatic_ring_closure=allow_aromatic_ring_closure,
         )
         if str(compiled.get("status")) != "compiled" and declared_coproducts:
             from .recorded_source import _is_co2_or_formate_smiles
@@ -1521,6 +1534,14 @@ def compile_novel_product_first(
                         },
                     },
                     novel_product_first_principal=declared_product,
+                    extended_stereo_dissolution=extended_stereo_dissolution,
+                    stereo_edit_graceful_fallback=(
+                        stereo_edit_graceful_fallback),
+                    allow_ring_cleavage_and_fused_dearomatization=(
+                        allow_ring_cleavage_and_fused_dearomatization),
+                    retained_tetrahedral_parity_check=(
+                        retained_tetrahedral_parity_check),
+                    allow_aromatic_ring_closure=allow_aromatic_ring_closure,
                 )
                 alt_gate = dict(alt.get("novel_p1_gate") or {})
                 alt_undec = list(alt_gate.get("undeclared_coproducts") or [])

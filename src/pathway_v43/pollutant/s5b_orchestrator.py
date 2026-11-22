@@ -49,7 +49,7 @@ qid 一把 flock;同 qid 双协调者结构化拒、不相交 qid 白名单多�
 不再有静默双写窗口);progress/batch_report/orchestration/profile_
 policy 落盘改原子 replace(tmp 名含 pid,分片并发写同一文件不互踩
 半截)。**版本语义**:协调契约变化由版本承载;既有 s5b-orchestrator-2
-批根(如 remote s5b_298_20261009_batch2)的 orchestration.json
+批根(如 chenyu s5b_298_20261009_batch2)的 orchestration.json
 ``orchestrator_version`` 与本版不一致 ⇒ 续跑按预注册纪律拒(改参
 须新批根);HPC 首批本来就是新批根,不受影响。**跨节点部署注意**:
 qid 白名单锁/闸门锁/driver.lock 全部依赖 flock;死亡占位回收
@@ -562,7 +562,9 @@ def validate_profile_policy(profile_policy: dict | None) -> dict:
 
 
 def validate_product_first_budget(protocol: str,
-                                  profile_policy: dict | None) -> None:
+                                  profile_policy: dict | None,
+                                  *, two_stage_routing: bool = False,
+                                  routing_stage1_only: bool = False) -> None:
     """发车预算纪律(预注册 §2/§4.3 D4:按臂精确相等 + 顶层错位键拦截)。
 
     * A 臂 ``atom_edit``:``max_real_model_requests == 1`` 且
@@ -573,12 +575,36 @@ def validate_product_first_budget(protocol: str,
       ``max_real_model_requests == 5``(盲写首发 1 + 合并调用 1 + 反馈至多 3)
       且 ``max_format_feedback_rounds == 3``(两阶段共用)。
 
+    **v1.3 T11 两段式路由**(默认关;只定义在 A 臂):
+    * ``routing_stage1_only=True``(Step 1 盲路由批):仍精确等于 1
+      (只有 Stage 1 一次请求);
+    * ``two_stage_routing=True`` 且非 stage1_only(Step 2 端到端):
+      精确等于 2(Stage 1 路由 1 + Stage 2 提案 1);反馈轮仍 0。
+
     先经 ``validate_profile_policy`` 拒绝未知/错位顶层键(防把预算键写在
     ``policy`` 顶层导致嵌套块仍为 1/0 而把 B/C 臂跑成 0 轮反馈),再按臂
     校验精确相等。不等 ⇒ 结构化拒(``kind=s5b_product_first_budget_invalid``,
     不改写策略,不自动升/降预算)。"""
     normalized = normalize_novel_protocol(protocol)
     policy = validate_profile_policy(profile_policy)
+    if routing_stage1_only and not two_stage_routing:
+        raise S5bOrchestratorError(
+            "routing_stage1_only 必须与 two_stage_routing 同时启用"
+            "(fail-closed;不得只开 stage1_only)",
+            {"kind": "s5b_product_first_budget_invalid",
+             "reason": "routing_stage1_only_without_two_stage",
+             "two_stage_routing": bool(two_stage_routing),
+             "routing_stage1_only": bool(routing_stage1_only)})
+    if (two_stage_routing or routing_stage1_only) and \
+            normalized != "atom_edit":
+        raise S5bOrchestratorError(
+            "两段式路由只定义在 A 臂(atom_edit)上(当前臂不兼容;"
+            "fail-closed,不混协议)",
+            {"kind": "s5b_product_first_budget_invalid",
+             "reason": "two_stage_routing_arm_conflict",
+             "novel_protocol": normalized,
+             "two_stage_routing": bool(two_stage_routing),
+             "routing_stage1_only": bool(routing_stage1_only)})
     if isinstance(profile_policy, dict) and "novel_protocol" in profile_policy:
         inner_proto = normalize_novel_protocol(
             profile_policy.get("novel_protocol"))
@@ -591,8 +617,18 @@ def validate_product_first_budget(protocol: str,
                  "novel_protocol": normalized,
                  "profile_policy_novel_protocol": inner_proto})
     expected_requests, expected_rounds = S5B_ARM_EXACT_BUDGETS[normalized]
+    if two_stage_routing or routing_stage1_only:
+        # T11:stage1_only 仍 1(只跑 Stage 1);完整两段 = 2
+        # (Stage 1 路由 1 + Stage 2 提案 1);反馈轮 0 不变。
+        expected_requests = 1 if routing_stage1_only else 2
+        expected_rounds = 0
     if normalized == "product_first_feedback_blind_first":
         arm_label = "C 臂(blind_first)"
+    elif two_stage_routing or routing_stage1_only:
+        arm_label = (
+            "A 臂(atom_edit)+两段式路由(仅 Stage 1)"
+            if routing_stage1_only
+            else "A 臂(atom_edit)+两段式路由(Stage 1+2)")
     elif normalized == "product_first_feedback":
         arm_label = "B 臂(product_first_feedback)"
     else:
@@ -619,9 +655,13 @@ def validate_product_first_budget(protocol: str,
             f"{expected_requests}"
             + (";盲写首发 1 + 合并调用 1 + 反馈 3"
                if normalized == "product_first_feedback_blind_first"
-               else (f";1 首发 + {expected_rounds} 反馈"
-                     if normalized == "product_first_feedback"
-                     else ";A 臂单次请求 1 + 0 反馈"))
+               else (";Stage 1 路由 1(仅此一次)+ 0 反馈"
+                     if routing_stage1_only
+                     else (";Stage 1 路由 1 + Stage 2 提案 1 + 0 反馈"
+                           if two_stage_routing
+                           else (f";1 首发 + {expected_rounds} 反馈"
+                                 if normalized == "product_first_feedback"
+                                 else ";A 臂单次请求 1 + 0 反馈"))))
             + ")",
             {"kind": "s5b_product_first_budget_invalid",
              "reason": "real_model_requests_mismatch",
@@ -631,7 +671,11 @@ def validate_product_first_budget(protocol: str,
              "max_allowed": expected_requests})
     alt_max = limits.get("max_alternative_hypotheses_per_parent")
     tot_actions = limits.get("max_total_search_actions")
-    if profile_policy is not None:
+    if profile_policy is not None and not (
+            two_stage_routing or routing_stage1_only):
+        # EXP1 三臂宽度/动作上限只约束 EXP1 实验臂;T11 两段式路由是
+        # A 臂上的单变量开关,预算策略必须与 T9 `C` 冻结批逐字节同
+        # (8 备选/48 动作)⇒ 不在此追加第二变量。
         if isinstance(alt_max, bool) or not isinstance(alt_max, int) or (
                 alt_max != S5B_EXACT_MAX_ALTERNATIVE_HYPOTHESES_PER_PARENT):
             raise S5bOrchestratorError(
@@ -656,6 +700,29 @@ def validate_product_first_budget(protocol: str,
                  "max_total_search_actions": tot_actions,
                  "expected": S5B_EXACT_MAX_TOTAL_SEARCH_ACTIONS,
                  "max_allowed": S5B_EXACT_MAX_TOTAL_SEARCH_ACTIONS})
+
+
+def two_stage_routing_profile_policy(
+        profile_policy: dict | None, *, two_stage_routing: bool,
+        routing_stage1_only: bool) -> dict | None:
+    """v1.3 T11:两段式路由批的 ``profile_policy`` 派生(默认关 ⇒ 原样)。
+
+    只改两个预算键(其它搜索上限逐字节保持):
+    - ``max_real_model_requests``:``1``(stage1_only,只有 Stage 1 一次
+      请求)或 ``2``(完整两段:Stage 1 路由 1 + Stage 2 提案 1);
+    - ``max_format_feedback_rounds``:``0``(Stage 1 解析失败走软降级,
+      不重发)。
+    """
+    if not (two_stage_routing or routing_stage1_only):
+        return profile_policy
+    base = dict(profile_policy or S5B_DEFAULT_PROFILE_POLICY)
+    limits = dict(base.get("search_limits") or {})
+    limits["max_real_model_requests"] = 1 if routing_stage1_only else 2
+    base["search_limits"] = limits
+    feedback = dict(base.get("format_feedback_policy") or {})
+    feedback["max_format_feedback_rounds"] = 0
+    base["format_feedback_policy"] = feedback
+    return base
 
 
 # ---------------------------------------------------------------- 白名单域锁
@@ -1142,6 +1209,10 @@ def run_s5b_batch(
     evidence_card_enabled: bool | None = None,
     evidence_card_version: str | None = None,
     novel_protocol: str | None = None,
+    two_stage_routing: bool = False,
+    routing_stage1_only: bool = False,
+    stage1_rank_calibration: bool = False,
+    multi_sample_consensus: bool = False,
     question_limit: int | None = None,
     qids: list[str] | None = None,
     poll_s: float = 10.0,
@@ -1264,9 +1335,20 @@ def run_s5b_batch(
                                           evidence_card_flag)
     # EXP1:novel 协议归一 + B 臂预算纪律(先于任何 worker 派发)
     protocol = normalize_novel_protocol(novel_protocol)
-    if novel_protocol is not None or (
-            isinstance(profile_policy, dict) and "novel_protocol" in profile_policy):
-        validate_product_first_budget(protocol, profile_policy)
+    # v1.3 T11:两段式路由预算派生(默认关 ⇒ profile_policy 原样;
+    # 打开 ⇒ max_real_model_requests 1/2、反馈 0)
+    effective_profile_policy = two_stage_routing_profile_policy(
+        profile_policy, two_stage_routing=two_stage_routing,
+        routing_stage1_only=routing_stage1_only)
+    if (two_stage_routing or routing_stage1_only
+            or novel_protocol is not None
+            or (isinstance(profile_policy, dict)
+                and "novel_protocol" in profile_policy)):
+        validate_product_first_budget(
+            protocol,
+            effective_profile_policy,
+            two_stage_routing=two_stage_routing,
+            routing_stage1_only=routing_stage1_only)
     # D4:采样参数快照(单一来源 = 发送侧 real_model.sampling_params_sent;
     # 本函数**只被身份/冻结消费**,不进任何请求载荷)。当前发送侧不设
     # 任何采样参数 ⇒ 每键 "provider_default_unset"。
@@ -1280,7 +1362,7 @@ def run_s5b_batch(
         "gate_tpm": int(gate_tpm),
         "gate_max_calls": int(gate_max_calls),
         "budget_guard": budget_guard,
-        "profile_policy": profile_policy or S5B_DEFAULT_PROFILE_POLICY,
+        "profile_policy": effective_profile_policy or S5B_DEFAULT_PROFILE_POLICY,
         "evidence_card_enabled": evidence_card_flag,
         "runs_root": str(runs_root),
         "frozen_at": now_iso(),
@@ -1292,6 +1374,19 @@ def run_s5b_batch(
     if protocol != S5B_NOVEL_PROTOCOLS[0]:
         # EXP1:仅 B 臂写键(A 臂/旧批冻结副本逐字节零漂移)
         frozen[S5B_NOVEL_PROTOCOL_KEY] = protocol
+    if two_stage_routing or routing_stage1_only:
+        # v1.3 T11:仅打开时写键(默认关/旧批冻结副本零漂移)
+        frozen["enable_v13_two_stage_routing"] = True
+        if routing_stage1_only:
+            frozen["v13_routing_stage1_only"] = True
+    if stage1_rank_calibration:
+        # v1.3 T12-B:响应后 Stage-1 大类精排(默认关 ⇒ 键不出现,旧批
+        # 冻结副本逐字节零漂移;开关本身不改变请求预算)。
+        frozen["enable_v13_stage1_rank_calibration"] = True
+    if multi_sample_consensus:
+        # v1.3 T13-B:多采样一致性共识(默认关 ⇒ 键不出现,旧批冻结副本
+        # 逐字节零漂移;开关只消费已存的次级回复,不改变请求预算)。
+        frozen["enable_v13_multi_sample_consensus"] = True
     orch_path = batch_root / "orchestration.json"
     # v3:读-比对-写在短 flock 内串行(分片同时首跑:后到者必读到
     # 先到者副本再比对 ⇒ 参数不一致按冲突拒,无"双双见缺文件双写"
@@ -1299,6 +1394,64 @@ def run_s5b_batch(
     with _short_flock(batch_root / "orchestration.lock"):
         if orch_path.is_file():
             existing = json.loads(orch_path.read_text(encoding="utf-8"))
+            # v1.3 T11:两段式路由开关的「在场/缺席」也是批身份 —— 路由批
+            # 不得被关闭续跑(否则 profile_policy 会被改回 1 请求预算),
+            # 普通批也不得被升级成路由批
+            existing_routing = bool(
+                existing.get("enable_v13_two_stage_routing", False))
+            if existing_routing != bool(
+                    two_stage_routing or routing_stage1_only):
+                raise S5bOrchestratorError(
+                    "同批根的冻结两段式路由开关与本次发车不一致(不得"
+                    "中途换臂;改开关须新批根)", {
+                        "kind": "s5b_orchestration_conflict",
+                        "batch_root": str(batch_root),
+                        "frozen_enable_v13_two_stage_routing":
+                            existing_routing,
+                        "requested_enable_v13_two_stage_routing":
+                            bool(two_stage_routing
+                                 or routing_stage1_only)})
+            existing_stage1_only = bool(
+                existing.get("v13_routing_stage1_only", False))
+            if existing_stage1_only != bool(routing_stage1_only):
+                raise S5bOrchestratorError(
+                    "同批根的冻结 stage1_only 开关与本次发车不一致(Step 1"
+                    " 批与 Step 2 批不得共用批根)", {
+                        "kind": "s5b_orchestration_conflict",
+                        "batch_root": str(batch_root),
+                        "frozen_v13_routing_stage1_only":
+                            existing_stage1_only,
+                        "requested_v13_routing_stage1_only":
+                            bool(routing_stage1_only)})
+            # v1.3 T12-B:Stage-1 大类精排开关的「在场/缺席」也是批身份
+            # —— 不得在同一批根中途换臂(开关本身不改变请求预算,但
+            # 排位口径变了,混批会让逐题口径不可解释)。
+            existing_stage1_rank = bool(
+                existing.get("enable_v13_stage1_rank_calibration", False))
+            if existing_stage1_rank != bool(stage1_rank_calibration):
+                raise S5bOrchestratorError(
+                    "同批根的冻结 Stage-1 精排开关与本次发车不一致(不得"
+                    "中途换臂;改开关须新批根)", {
+                        "kind": "s5b_orchestration_conflict",
+                        "batch_root": str(batch_root),
+                        "frozen_enable_v13_stage1_rank_calibration":
+                            existing_stage1_rank,
+                        "requested_enable_v13_stage1_rank_calibration":
+                            bool(stage1_rank_calibration)})
+            # v1.3 T13-B:多采样共识开关的「在场/缺席」也是批身份 ——
+            # 不得在同一批根中途换臂。
+            existing_consensus = bool(
+                existing.get("enable_v13_multi_sample_consensus", False))
+            if existing_consensus != bool(multi_sample_consensus):
+                raise S5bOrchestratorError(
+                    "同批根的冻结多采样共识开关与本次发车不一致(不得"
+                    "中途换臂;改开关须新批根)", {
+                        "kind": "s5b_orchestration_conflict",
+                        "batch_root": str(batch_root),
+                        "frozen_enable_v13_multi_sample_consensus":
+                            existing_consensus,
+                        "requested_enable_v13_multi_sample_consensus":
+                            bool(multi_sample_consensus)})
             # P2:版本键的「在场/缺席」本身是批身份 —— 旧批(无键)
             # 续跑不得被升级成版本批;版本批也不得被 None 洗成旧批。
             if S5B_EVIDENCE_CARD_VERSION_KEY in existing:

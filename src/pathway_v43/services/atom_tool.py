@@ -71,6 +71,14 @@ ATOMTOOL_VERSION = "v43-atomtool-2"
 EDIT_PROTOCOL_VERSION = "v43-editproto-2"
 
 _EDIT_OPS = ("break_bond", "form_bond", "change_bond_order", "add_atom")
+# T10-A:形式电荷扩展(**默认 OFF**;只在编译器开关 ``charge_ops`` 打开
+# 时产出 change_charge / add_atom.charge)。公开 ``EDIT_OPS`` /
+# ``_EDIT_OP_FIELDS`` 是提示词契约的权威来源(顺序 = 渲染序,内容身份
+# 一部分;``test_controlled_vocab_ci`` 逐字断言),因此扩展**另立表**,
+# 不改公开四操作面 —— 模型协议面零漂移,只有编译器显式传参才启用。
+EDIT_PROTOCOL_CHARGE_EXTENSION = "v43-charge-ops-1"
+_EDIT_OPS_CHARGE_EXTENSION = ("change_charge",)
+_EDIT_OPS_ALL = _EDIT_OPS + _EDIT_OPS_CHARGE_EXTENSION
 # 逐操作允许字段表(多余字段 = edit_invalid:unknown_field:<name>:edit[i])
 _EDIT_OP_FIELDS: dict[str, frozenset] = {
     "break_bond": frozenset({"op", "atom1", "atom2"}),
@@ -79,6 +87,13 @@ _EDIT_OP_FIELDS: dict[str, frozenset] = {
         {"op", "atom1", "atom2", "from_order", "to_order"}),
     "add_atom": frozenset({"op", "atom1", "element", "new_atom_id"}),
 }
+# T10-A 扩展字段表(``charge_ops=True`` 时执行器/校验器消费)
+_EDIT_OP_FIELDS_CHARGE_EXTENSION: dict[str, frozenset] = dict(
+    _EDIT_OP_FIELDS)
+_EDIT_OP_FIELDS_CHARGE_EXTENSION["add_atom"] = frozenset(
+    {"op", "atom1", "element", "new_atom_id", "charge"})
+_EDIT_OP_FIELDS_CHARGE_EXTENSION["change_charge"] = frozenset(
+    {"op", "atom1", "from_charge", "to_charge"})
 _BOND_TOKENS = {
     "single": Chem.BondType.SINGLE,
     "double": Chem.BondType.DOUBLE,
@@ -319,14 +334,21 @@ def check_edit_references(current: MoleculeRender,
     return (not reasons), reasons
 
 
-def validate_edits(current: MoleculeRender, edits: list) -> dict:
-    """编辑列表结构化校验(v2 协议;不执行,拓扑前提留给执行步)。
+def validate_edits(current: MoleculeRender, edits: list, *,
+                   charge_ops: bool = False) -> dict:
+    """编辑列表结构化校验(v2 协议 + T10-A 电荷扩展;不执行,拓扑前提
+    留给执行步)。
 
     校验:op 合法(严格四操作;旧别名 remove_bond/add_bond 一律
     unknown_op)、**逐操作字段表**(未声明字段 = unknown_field:<name>)、
     必填字段齐、引用原子 ID 存在、键级 token 合法、add_atom 的
     new_atom_id 合法(格式/元素一致/不冲突/列表内唯一)且 element 命中
     周期表(形状合法的 ``Xx`` 在此拒,不再漏到执行器抛异常)。
+    T10-A 电荷扩展(``charge_ops=True``;默认 False ⇒ 判据与改前逐字节
+    同,公开四操作面零漂移):``add_atom`` 可携整数 ``charge``;
+    ``change_charge`` 要求 ``atom1/from_charge/to_charge`` 且步进为 ±1
+    (多电子跳变拆条)。只有编译器开关 ``atom_tool_charge_ops`` 打开时
+    才会产出这两类形状(模型协议面不含)。
     引用按列表时点判定:先前 add_atom 声明的新 ID 可被后续操作引用
     (先增后引合法,与执行器一致)。键是否存在**不在本步判定** ——
     编辑按列表顺序执行,先断后成等序列的拓扑前提只在执行时点的图上
@@ -336,20 +358,26 @@ def validate_edits(current: MoleculeRender, edits: list) -> dict:
     ids = set(current.atom_id_map)
     seen_new: set[str] = set()
     n = len(edits or [])
+    # 表选择:默认 = 公开四操作面(提示词契约同源);charge_ops=True 才
+    # 追加 change_charge / add_atom.charge。
+    ops_allowed = _EDIT_OPS_ALL if charge_ops else _EDIT_OPS
+    fields_table = (_EDIT_OP_FIELDS_CHARGE_EXTENSION if charge_ops
+                    else _EDIT_OP_FIELDS)
     for i, edit in enumerate(edits or []):
         tag = f"edit[{i}]"
         if not isinstance(edit, dict):
             reasons.append(f"edit_invalid:not_an_object:{tag}")
             continue
         op = str(edit.get("op", "")).lower()
-        if op not in _EDIT_OPS:
+        if op not in ops_allowed:
             reasons.append(f"edit_invalid:unknown_op:{op or 'missing'}:{tag}")
             continue
         # 逐操作字段表:未声明字段一律显式拒绝(任务书 §4;R2 复核)
-        for field in sorted(set(edit) - _EDIT_OP_FIELDS[op]):
+        for field in sorted(set(edit) - fields_table[op]):
             reasons.append(f"edit_invalid:unknown_field:{field}:{tag}")
         a1, a2 = edit.get("atom1"), edit.get("atom2")
-        if a1 is None or (a2 is None and op != "add_atom"):
+        if a1 is None or (a2 is None
+                          and op not in ("add_atom", "change_charge")):
             reasons.append(f"edit_invalid:missing_atom_reference:{tag}")
             continue
         # 引用合法性按列表时点判定:既有原子或本列表**先前 add_atom 已声明**
@@ -374,6 +402,15 @@ def validate_edits(current: MoleculeRender, edits: list) -> dict:
             if not element_ok:
                 reasons.append(
                     f"edit_invalid:bad_element:{element!r}:{tag}")
+            # T10-A 电荷扩展:add_atom 可携形式电荷(整数;|q| ≤ 4 防御
+            # 上限,真实价态由执行器 sanitize 判)。缺省 0 与改前逐字节同;
+            # 关闭时该字段本就按 unknown_field 拒(不重复计 bad_charge)。
+            if charge_ops:
+                charge = edit.get("charge", 0)
+                if isinstance(charge, bool) or not isinstance(charge, int) \
+                        or abs(int(charge)) > 4:
+                    reasons.append(
+                        f"edit_invalid:bad_charge:{charge!r}:{tag}")
             new_id = edit.get("new_atom_id")
             if not new_id:
                 reasons.append(f"edit_invalid:missing_field:new_atom_id:{tag}")
@@ -397,12 +434,29 @@ def validate_edits(current: MoleculeRender, edits: list) -> dict:
             # 与执行器("非法元素不入图")保持同一语义
             if element_ok:
                 seen_new.add(new_id)
+        elif op == "change_charge":
+            # T10-A:保留原子形式电荷单步变化。from/to 必须显式整数且
+            # 只允许 ±1 步进(多电子跳变拆成多条;执行器逐步核验 from
+            # 与当前电荷一致);跑道外取值一律拒,不做静默归一。
+            frm, to = edit.get("from_charge"), edit.get("to_charge")
+            bad = False
+            for name, value in (("from_charge", frm), ("to_charge", to)):
+                if isinstance(value, bool) or not isinstance(value, int) \
+                        or abs(int(value)) > 4:
+                    reasons.append(
+                        f"edit_invalid:bad_charge:{name}={value!r}:{tag}")
+                    bad = True
+            if not bad and abs(int(to) - int(frm)) != 1:
+                reasons.append(
+                    f"edit_invalid:charge_step_not_one:"
+                    f"{frm}->{to}:{tag}")
     return {"ok": not reasons, "reasons": reasons, "protocol_version":
             EDIT_PROTOCOL_VERSION, "n_edits": n,
             "new_atom_ids": sorted(seen_new)}
 
 
-def execute_edits(current: MoleculeRender, edits: list) -> dict:
+def execute_edits(current: MoleculeRender, edits: list, *,
+                  charge_ops: bool = False) -> dict:
     """在当前分子图副本上**按列表顺序**执行编辑(事务式;任务书 §4)。
 
     每步以更新后的图核验拓扑前提(键存在/不存在、原键级);中间态允许
@@ -416,6 +470,13 @@ def execute_edits(current: MoleculeRender, edits: list) -> dict:
     由 sanitize 自动重算同口径,消除括号原子 noImplicit 固定记账的
     执行器价态墙假阴性)。存量不足截 0,真实超价仍由 sanitize 诚实拒;
     图中独立 H 原子(含同位素)与非氢原子价态检查不在此放宽面。
+
+    T10-A 电荷扩展(``charge_ops=True``;默认 False ⇒ 逐字节同改前):
+    ``change_charge`` 逐步核验 from 与当前形式电荷一致、步进 ±1;
+    ``add_atom`` 可携 ``charge``。执行后按
+    「起始电荷 + 声明增量 == 最终电荷」逐原子记账核验(未声明改写
+    即 ``charge_accounting_mismatch`` fail-closed);总电荷守恒由该
+    逐原子账目与最终 sanitize 共同承担,不放宽任何结构身份。
     """
     mol = Chem.MolFromSmiles(current.smiles)
     if mol is None:
@@ -431,6 +492,13 @@ def execute_edits(current: MoleculeRender, edits: list) -> dict:
     id_to_idx = dict(current.atom_id_map)
     idx_to_id = {v: k for k, v in id_to_idx.items()}
     reasons: list[str] = []
+    # T10-A 电荷扩展:逐原子记账(既有原子改电荷 + 新原子携电荷)。
+    # 执行后按「起始电荷 + 声明增量 == 最终电荷」逐原子核验;不声明
+    # 的电荷变化(执行器/序列化私自改写)一律 fail-closed。
+    charge_before = {i: rw.GetAtomWithIdx(i).GetFormalCharge()
+                     for i in range(rw.GetNumAtoms())}
+    declared_delta: dict[int, int] = {}
+    new_atom_charge: dict[int, int] = {}
 
     def bond_between(a1, a2):
         i1, i2 = id_to_idx.get(a1), id_to_idx.get(a2)
@@ -512,14 +580,62 @@ def execute_edits(current: MoleculeRender, edits: list) -> dict:
             # 防御(Phase C R3):非法元素在这里必须落结构化拒因,
             # 不能让 RDKit 异常逃逸成节点崩溃(预校验已挡,此处兜底)
             try:
-                idx = rw.AddAtom(Chem.Atom(element))
+                atom = Chem.Atom(element)
             except Exception:
                 reasons.append(
                     f"edit_execution_failed:bad_element:{element}:{tag}")
                 continue
+            # T10-A:新原子形式电荷(缺省 0 ⇒ 与改前逐字节同;**charge_ops
+            # 关闭时该字段一律不消费** —— 直调路径不因多给的键改行为)
+            q_raw = edit.get("charge", 0) if charge_ops else 0
+            if isinstance(q_raw, bool) or not isinstance(q_raw, int) \
+                    or abs(int(q_raw)) > 4:
+                reasons.append(
+                    f"edit_execution_failed:bad_charge:{q_raw!r}:{tag}")
+                continue
+            if int(q_raw):
+                atom.SetFormalCharge(int(q_raw))
+            try:
+                idx = rw.AddAtom(atom)
+            except Exception:
+                reasons.append(
+                    f"edit_execution_failed:bad_element:{element}:{tag}")
+                continue
+            if int(q_raw):
+                new_atom_charge[int(idx)] = int(q_raw)
             rw.AddBond(anchor, idx, Chem.BondType.SINGLE)
             id_to_idx[new_id] = idx
             idx_to_id[idx] = new_id
+        elif op == "change_charge" and charge_ops:
+            # T10-A:保留原子形式电荷单步变化(from 与当前值一致才动;
+            # ±1 步进;最终氯/价态由 sanitize 诚实核验)
+            idx = id_to_idx.get(a1)
+            if idx is None:
+                reasons.append(
+                    f"edit_execution_failed:unknown_atom:{a1}:{tag}")
+                continue
+            frm = edit.get("from_charge")
+            to = edit.get("to_charge")
+            if isinstance(frm, bool) or not isinstance(frm, int) \
+                    or isinstance(to, bool) or not isinstance(to, int):
+                reasons.append(
+                    f"edit_execution_failed:bad_charge:"
+                    f"{frm!r}->{to!r}:{tag}")
+                continue
+            have = rw.GetAtomWithIdx(idx).GetFormalCharge()
+            if int(have) != int(frm):
+                reasons.append(
+                    f"edit_execution_failed:charge_mismatch:"
+                    f"atom1={a1}:expected_{frm}_have_{have}:{tag}")
+                continue
+            if abs(int(to) - int(frm)) != 1:
+                reasons.append(
+                    f"edit_execution_failed:charge_step_not_one:"
+                    f"{frm}->{to}:{tag}")
+                continue
+            rw.GetAtomWithIdx(idx).SetFormalCharge(int(to))
+            declared_delta[int(idx)] = declared_delta.get(int(idx), 0) \
+                + int(to) - int(frm)
         else:  # validate_edits 应已拒绝;防御
             reasons.append(f"edit_execution_failed:unknown_op:{op}:{tag}")
     if reasons:
@@ -533,6 +649,25 @@ def execute_edits(current: MoleculeRender, edits: list) -> dict:
         reasons.append(
             f"edit_execution_failed:sanitize_failed:"
             f"{type(exc).__name__}:edit[last]")
+        return {"ok": False, "reasons": reasons, "product_smiles": "",
+                "atom_id_map": {}, "protocol_version": EDIT_PROTOCOL_VERSION,
+                "n_edits": len(edits or [])}
+    # T10-A 电荷记账核验:声明增量必须与最终形式电荷逐原子一致
+    # (未声明的电荷改写 = 账目破坏 ⇒ fail-closed,不静默接受)
+    for idx, delta in declared_delta.items():
+        want = int(charge_before.get(idx, 0)) + int(delta)
+        have = int(out.GetAtomWithIdx(idx).GetFormalCharge())
+        if have != want:
+            reasons.append(
+                f"edit_execution_failed:charge_accounting_mismatch:"
+                f"idx{idx}:expected_{want}_have_{have}")
+    for idx, q in new_atom_charge.items():
+        have = int(out.GetAtomWithIdx(idx).GetFormalCharge())
+        if have != int(q):
+            reasons.append(
+                f"edit_execution_failed:charge_accounting_mismatch:"
+                f"idx{idx}:expected_{q}_have_{have}")
+    if reasons:
         return {"ok": False, "reasons": reasons, "product_smiles": "",
                 "atom_id_map": {}, "protocol_version": EDIT_PROTOCOL_VERSION,
                 "n_edits": len(edits or [])}

@@ -421,13 +421,97 @@ _PROPOSALS_SYSTEM_PROMPT_V2_PF_BLIND = (
 PROPOSALS_PROMPT_VERSION_V2_PF_BLIND = hashlib.sha256(
     _PROPOSALS_SYSTEM_PROMPT_V2_PF_BLIND.encode("utf-8")).hexdigest()
 
+# ---- v1.3 T8 分域提示词(2026-11-13,默认关闭)----
+# 在 v1 提案合同**之后追加**一段通用化学指令(基础合同逐字节不变 ⇒
+# 开关关闭/旧版本哈希仍 = PROPOSALS_PROMPT_VERSION)。两段都只含
+# 通用化学规则,不含任何具体底物、金标或通路信息;都明确「排序不是
+# 预算」(不得因此少交提案/弃权),防止用截断提案数换 Hit@1。
+_PROMPT_V3_TYPE_SUFFIX = """
+Domain protocol: reaction-type-first ordering (generic; applies to every substrate in this batch).
+Before writing the JSON, identify the one or two reaction types most likely to occur for this substrate in environmental microbial degradation. Consider these generic type families: dehalogenation (hydrolytic, reductive or oxidative), aromatic ring dioxygenation or ring cleavage (ortho or meta), decarboxylation, hydroxylation, O- or N-dealkylation, ester or amide hydrolysis, alcohol or aldehyde oxidation, reduction, coenzyme A ligation, and any other single-step transformation supported by the substrate's functional groups.
+For each selected type, state one short reason in your internal analysis, grounded only in the substrate structure and generic enzymatic chemistry.
+Then rank your proposals so that the proposal ranked first belongs to your preferred reaction type. This is a ranking instruction, not a proposal budget: still submit every chemically supported single-step proposal you would otherwise submit (up to the usual limit); do not drop proposals, shorten the list, or abstain because of this classification. Rank the remaining proposals by your normal chemical preference.
+Output only the contract JSON: no extra keys, no commentary.
+"""
+
+_PROMPT_V3_SITE_SUFFIX = """
+Domain protocol: site-by-site comparison before ordering (generic; applies to every substrate in this batch).
+Identify every site on the substrate at which a single-step enzymatic transformation could plausibly occur. Compare the candidate sites one by one using generic chemical criteria: electronic effects (for example local electron density, electron-donating or electron-withdrawing substituents, bond polarization), steric hindrance (accessibility of the site within an enzyme active site), and similarity to known enzymatic reaction patterns (whether the local functional-group environment resembles a common enzyme-catalyzed transformation).
+For each candidate site, state in your internal analysis why it is preferred or excluded. Then rank your proposals so that the product formed at your preferred site is ranked first. This is a ranking instruction, not a proposal budget: still submit every chemically supported single-step proposal you would otherwise submit (up to the usual limit); do not drop proposals, shorten the list, or abstain because of this comparison. Rank the remaining proposals by your normal chemical preference.
+Output only the contract JSON: no extra keys, no commentary.
+"""
+
+_PROPOSALS_SYSTEM_PROMPT_V3_TYPE = (
+    _PROPOSALS_SYSTEM_PROMPT + _PROMPT_V3_TYPE_SUFFIX
+)
+PROPOSALS_PROMPT_VERSION_V3_TYPE = hashlib.sha256(
+    _PROPOSALS_SYSTEM_PROMPT_V3_TYPE.encode("utf-8")).hexdigest()
+
+_PROPOSALS_SYSTEM_PROMPT_V3_SITE = (
+    _PROPOSALS_SYSTEM_PROMPT + _PROMPT_V3_SITE_SUFFIX
+)
+PROPOSALS_PROMPT_VERSION_V3_SITE = hashlib.sha256(
+    _PROPOSALS_SYSTEM_PROMPT_V3_SITE.encode("utf-8")).hexdigest()
+
+# ---- 论文消融 v1.4(2026-11-16,默认关闭):v3_type_raw_smiles ----
+# ``disable_atomtool_prompt=True`` 专用合同变体:产物优先(product_smiles +
+# coproducts)+ 12 类反应大类审题引导,**零** atom_id/edits/donor/alignment
+# 与原子编号示例。装配 = v2_pf 合同外壳 + v2_pf Rules + 去原子编号示例
+# + 去 alignment/execution_graph 措辞的证据说明 + v3_type 大类后缀。
+# 默认路径不引用本常量 ⇒ 既有 prompt 逐字节不变。
+_PROMPT_V3_TYPE_RAW_SMILES_EXAMPLE = (
+    "\nExample: "
+    '{"proposals": [{"hypothesis_id": "novel-1", "proposal_context": '
+    '{"reference_hypothesis_ids": [], "output_origin": "'
+    + OUTPUT_ORIGIN_NOVEL_OUTSIDE_POOL
+    + '"}, "reaction_spec": {"product_smiles": "CC=O"}}], '
+    '"rank_hypotheses": ["novel-1"]}\n'
+)
+
+_PROMPT_PF_CONTRACT_TAIL_RAW = _replace_once(
+    _PROMPT_PF_CONTRACT_TAIL,
+    "Do NOT describe atom-level edits: the deterministic system infers",
+    "Do NOT describe atom-level operations: the deterministic system infers",
+    label="v3_type_raw_smiles 合同 edits 措辞")
+
+_PROMPT_EVIDENCE_NOTES_V2_RAW_SMILES = _replace_once(
+    _replace_once(
+        _replace_once(
+            _PROMPT_EVIDENCE_NOTES_V2,
+            "alignment status, ", "",
+            label="v3_type_raw_smiles 证据段 alignment 措辞"),
+        "the provided execution graph remains the only editable structure fact.",
+        "the substrate SMILES in the user message is the only structure fact.",
+        label="v3_type_raw_smiles 证据段执行图措辞"),
+    "hydrogen changes are implicit in the execution graph.",
+    "hydrogen changes are implicit in the substrate structure.",
+    label="v3_type_raw_smiles 证据段执行图尾措辞")
+
+_PROPOSALS_SYSTEM_PROMPT_V3_TYPE_RAW_SMILES = (
+    _PROMPT_STATIC_1
+    + _PROMPT_SEGMENT_OUTPUT_ORIGIN
+    + _PROMPT_PF_CONTRACT_TAIL_RAW
+    + _PROMPT_EVIDENCE_NOTES_V2_RAW_SMILES
+    + _PROMPT_V3_TYPE_RAW_SMILES_EXAMPLE
+    + _PROMPT_V3_TYPE_SUFFIX
+)
+PROPOSALS_PROMPT_VERSION_V3_TYPE_RAW_SMILES = hashlib.sha256(
+    _PROPOSALS_SYSTEM_PROMPT_V3_TYPE_RAW_SMILES.encode(
+        "utf-8")).hexdigest()
+
+# v1.3 T8:plan 开关 → 提示词版本(单一映射来源;runflow 与构建器共用)。
+PROMPT_V3_TYPE_PLAN_KEY = "enable_v13_prompt_v3_type"
+PROMPT_V3_SITE_PLAN_KEY = "enable_v13_prompt_v3_site"
+
 
 def proposals_system_prompt(version: str | None = None) -> str:
     """按证据卡版本选系统提示词；None/"v1"=旧版（逐字节不变）。
 
     只接受 "v2"(证据卡 v2 合同)/"v2_pf"(EXP1 产物优先合同)/
-    "v2_pf_blind"(EXP1 C 臂盲写阶段合同)作为新版本；其它非空值
-    fail-closed，避免拼写错误静默落回 v1 而把两臂 prompt 搞混。
+    "v2_pf_blind"(EXP1 C 臂盲写阶段合同)/"v3_type"(v1.3 T8 分域
+    提示词:B121 反应类型优先)/"v3_site"(v1.3 T8 分域提示词:298
+    逐位点比较)作为新版本；其它非空值 fail-closed，避免拼写错误静默
+    落回 v1 而把两臂 prompt 搞混。
     """
     if version in (None, "v1"):
         return _PROPOSALS_SYSTEM_PROMPT
@@ -437,8 +521,17 @@ def proposals_system_prompt(version: str | None = None) -> str:
         return _PROPOSALS_SYSTEM_PROMPT_V2_PF
     if version == "v2_pf_blind":
         return _PROPOSALS_SYSTEM_PROMPT_V2_PF_BLIND
+    if version == "v3_type":
+        return _PROPOSALS_SYSTEM_PROMPT_V3_TYPE
+    if version == "v3_site":
+        return _PROPOSALS_SYSTEM_PROMPT_V3_SITE
+    if version == "v13_routing":
+        return _PROPOSALS_SYSTEM_PROMPT_V13_ROUTING
+    if version == "v3_type_raw_smiles":
+        return _PROPOSALS_SYSTEM_PROMPT_V3_TYPE_RAW_SMILES
     raise ValueError(
-        f"未知证据卡版本:{version!r}(允许 None/v1/v2/v2_pf/v2_pf_blind)")
+        f"未知证据卡版本:{version!r}(允许 None/v1/v2/v2_pf/"
+        "v2_pf_blind/v3_type/v3_site/v13_routing/v3_type_raw_smiles)")
 
 
 def proposals_prompt_version(version: str | None = None) -> str:
@@ -451,8 +544,154 @@ def proposals_prompt_version(version: str | None = None) -> str:
         return PROPOSALS_PROMPT_VERSION_V2_PF
     if version == "v2_pf_blind":
         return PROPOSALS_PROMPT_VERSION_V2_PF_BLIND
+    if version == "v3_type":
+        return PROPOSALS_PROMPT_VERSION_V3_TYPE
+    if version == "v3_site":
+        return PROPOSALS_PROMPT_VERSION_V3_SITE
+    if version == "v13_routing":
+        return PROPOSALS_PROMPT_VERSION_V13_ROUTING
+    if version == "v3_type_raw_smiles":
+        return PROPOSALS_PROMPT_VERSION_V3_TYPE_RAW_SMILES
     raise ValueError(
-        f"未知证据卡版本:{version!r}(允许 None/v1/v2/v2_pf/v2_pf_blind)")
+        f"未知证据卡版本:{version!r}(允许 None/v1/v2/v2_pf/"
+        "v2_pf_blind/v3_type/v3_site/v13_routing/v3_type_raw_smiles)")
+
+
+# ---- v1.3 T11:两段式反应大类分流(Stage 1 盲底物路由)----
+# Stage 1 只给底物结构事实(底物 SMILES/原子 ID 图/执行图 + 确定性
+# RDKit 分子式/环数/杂原子/官能团摘要),**零池条目、零候选产物、零
+# 金标**。提示词把 classify_reaction_12class 的元素变化/环数边界逐条
+# 写明,避免"脱甲基误选水解""含卤反应未选脱卤"等口径错位(通用化学
+# 规则表述,不含任何题面或金标举例)。
+CLASS_ROUTING_STAGE1_SYSTEM_PROMPT = (
+    "You are a substrate-only reaction-class router for one environmental\n"
+    "transformation problem. The user message contains only the substrate:\n"
+    "an atom-id-labelled molecular graph, its molecular formula, ring counts,\n"
+    "element/heteroatom counts and deterministic RDKit functional-group hits.\n"
+    "You do NOT receive candidate products, a retrieval pool, or any answer\n"
+    "key.\n"
+    "\n"
+    "Predict the TWO most likely net-reaction classes for the single\n"
+    "environmental transformation of this substrate, chosen from exactly\n"
+    "these 12 controlled labels:\n"
+    "  monooxygenation_hydroxylation, dioxygenation_dihydroxylation,\n"
+    "  dehydrogenation_oxidation, reduction_hydrogenation,\n"
+    "  dehalogenation_or_halogenation, group_transfer_or_condensation,\n"
+    "  decarboxylation_or_c1_cleavage, beta_oxidation_or_c2_cleavage,\n"
+    "  hydrolysis_or_large_cleavage, hydration_or_dehydration,\n"
+    "  ring_cleavage, isomerization_rearrangement\n"
+    "\n"
+    "Decision procedure (use the net formula change of the substrate ->\n"
+    "product you expect; these are the same deterministic boundaries the\n"
+    "system applies when typing candidate reactions):\n"
+    "1) any change in the total halogen atom count (F, Cl, Br, I; net delta\n"
+    "   not zero), including hydrolytic, reductive or oxidative\n"
+    "   dehalogenation => dehalogenation_or_halogenation;\n"
+    "2) net formula identical (every element delta is zero): if the ring\n"
+    "   count decreases => ring_cleavage; otherwise =>\n"
+    "   isomerization_rearrangement;\n"
+    "3) carbon count unchanged and no net N/S/P/other heteroatom change:\n"
+    "   - net -H2O or +H2O (delta O = +1 with delta H = +2, or delta O = -1\n"
+    "     with delta H = -2): if the ring count decreases => ring_cleavage;\n"
+    "     otherwise => hydration_or_dehydration;\n"
+    "   - ring count decreases in any other case => ring_cleavage;\n"
+    "   - delta O = +1 with delta H = 0 => monooxygenation_hydroxylation;\n"
+    "   - delta O = +2 with delta H in {0, +2} =>\n"
+    "     dioxygenation_dihydroxylation;\n"
+    "   - net loss of hydrogen (delta H < 0 with delta O >= 0) =>\n"
+    "     dehydrogenation_oxidation;\n"
+    "   - net gain of hydrogen or net loss of oxygen (delta H > 0 with\n"
+    "     delta O <= 0, or delta O < 0 with delta H >= 0) =>\n"
+    "     reduction_hydrogenation;\n"
+    "4) net gain of C, N, P or S (e.g. CoA ligation, methylation,\n"
+    "   conjugation, phosphorylation) => group_transfer_or_condensation;\n"
+    "5) net loss of exactly one carbon (decarboxylation, O-/N-/S-\n"
+    "   demethylation, C1 cleavage) => decarboxylation_or_c1_cleavage;\n"
+    "6) net loss of exactly two carbons (beta-oxidation, acetyl cleavage)\n"
+    "   => beta_oxidation_or_c2_cleavage;\n"
+    "7) remaining multi-carbon cleavage/hydrolysis with a net loss of three\n"
+    "   or more carbons (large ester/amide/ether/aryl cleavage) =>\n"
+    "   hydrolysis_or_large_cleavage.\n"
+    "\n"
+    "Rules:\n"
+    "- use only the 12 labels above; never invent a label;\n"
+    "- \"primary_class\" is your single best guess; \"secondary_class\" must\n"
+    "  be a DIFFERENT label and is your next-best guess;\n"
+    "- decide from the substrate structure alone (functional groups, ring\n"
+    "  system, heteroatoms, expected environmental chemistry); do not assume\n"
+    "  a specific enzyme or a specific candidate product;\n"
+    "- \"rationale\" is one short sentence about the substrate only (no\n"
+    "  product SMILES);\n"
+    "- output only the contract JSON: no extra keys, no commentary.\n"
+    "\n"
+    "Output contract:\n"
+    '{"primary_class": "<label>", "secondary_class": "<different label>", '
+    '"rationale": "<short substrate-only chemical reason>"}\n'
+)
+CLASS_ROUTING_PROMPT_VERSION = hashlib.sha256(
+    CLASS_ROUTING_STAGE1_SYSTEM_PROMPT.encode("utf-8")).hexdigest()
+
+# Stage 2:在既有 proposals 合同后追加路由排序段(v1.3 T11;开关关闭
+# ⇒ 该常量不被引用 ⇒ 既有 prompt 逐字节不变)。明确"排序不是提案预算"
+# ——模型不得因路由分组删减提案或弃权。
+_PROMPT_V13_ROUTING_STAGE2_SUFFIX = (
+    "\nRouting context (this user message may carry a \"class_routing\"\n"
+    "object plus per-pool-entry \"reaction_class_12\" and \"routing_tier\"\n"
+    "fields):\n"
+    "- \"class_routing\" holds a substrate-only predicted net-reaction class\n"
+    "  pair: \"primary_class\" and \"secondary_class\";\n"
+    "- each pool entry may carry its deterministic \"reaction_class_12\"\n"
+    "(one of the 12 controlled classes) and a \"routing_tier\" of\n"
+    "  \"primary\", \"secondary\", \"other\" or \"unrouted\";\n"
+    "- the pool list is already ordered primary -> secondary -> other, and\n"
+    "  the order within a tier is unchanged from the deterministic pool.\n"
+    "Treat this routing context as a ranking hint only: routing is ordering,\n"
+    "not a proposal budget. If a primary or secondary candidate looks\n"
+    "chemically wrong, still rank a more reasonable \"other\" candidate (or\n"
+    "your own novel product) ahead of it, and still submit every chemically\n"
+    "supported single-step proposal you would otherwise submit. Do not drop\n"
+    "proposals, shorten the list, invent pool ids, or abstain because of the\n"
+    "routing context.\n"
+)
+_PROPOSALS_SYSTEM_PROMPT_V13_ROUTING = (
+    _PROPOSALS_SYSTEM_PROMPT + _PROMPT_V13_ROUTING_STAGE2_SUFFIX)
+PROPOSALS_PROMPT_VERSION_V13_ROUTING = hashlib.sha256(
+    _PROPOSALS_SYSTEM_PROMPT_V13_ROUTING.encode("utf-8")).hexdigest()
+
+
+def parse_class_routing_response(text: str) -> dict:
+    """解析 Stage 1 路由响应(严格 JSON;坏 JSON/非法标签 ⇒ ValueError)。
+
+    只接受 ``primary_class`` / ``secondary_class`` / ``rationale`` 三个
+    键;两类必须都在 12 类受控词表内且互不相同。调用方捕获 ValueError
+    走软降级(零题丢失,不重发)。
+    """
+    from ..services.s5_hybrid_choice import (
+        is_valid_reaction_class_12,
+    )
+
+    raw = str(text or "").strip()
+    if not raw:
+        raise ValueError("Stage 1 路由响应为空")
+    try:
+        obj = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Stage 1 路由响应不是合法 JSON:{exc}") from exc
+    if not isinstance(obj, dict):
+        raise ValueError("Stage 1 路由响应必须是单个 JSON 对象")
+    primary = str(obj.get("primary_class") or "").strip()
+    secondary = str(obj.get("secondary_class") or "").strip()
+    if not is_valid_reaction_class_12(primary):
+        raise ValueError(f"primary_class 非法:{primary!r}")
+    if not is_valid_reaction_class_12(secondary):
+        raise ValueError(f"secondary_class 非法:{secondary!r}")
+    if secondary == primary:
+        raise ValueError("secondary_class 与 primary_class 相同(须不同)")
+    return {
+        "primary_class": primary,
+        "secondary_class": secondary,
+        "rationale": str(obj.get("rationale") or "").strip()[:400],
+    }
 
 
 VERIFICATION_FEEDBACK_TOP_KEYS = frozenset({"failures", "round",
@@ -498,7 +737,9 @@ def build_proposals_user_payload(
         pool_entries: list[dict], feedback_error: dict | None = None,
         execution_graph: dict | None = None,
         substrate_evidence: dict | None = None,
-        schema_version: str | None = None) -> str:
+        schema_version: str | None = None,
+        class_routing: dict | None = None,
+        include_atomtool_view: bool = True) -> str:
     """组 proposals 请求的用户载荷(JSON 文本;确定性,零金标)。
 
     - substrate_smiles:题面底物;
@@ -530,11 +771,23 @@ def build_proposals_user_payload(
       (``failures``/``round``/``rounds_left``;见
       ``render_verification_feedback``),不带响应摘录/说明文本;
       旧形状(无 ``failures``)逐字节不变。
+    - **v1.3 T11 两段式路由(默认关)**:池条目**仅当显式携带**时透传
+      ``reaction_class_12``/``routing_tier``;顶层 ``class_routing`` 仅当
+      传入时渲染。开关关闭 ⇒ 池条目不带这些键、``class_routing`` 不传
+      ⇒ 载荷逐字节与改前同(零漂移)。
+    - **v1.4 论文消融(2026-11-16,默认 True ⇒ 逐字节零漂移)**:
+      ``include_atomtool_view=False`` 时**不注入** ``execution_graph``
+      与 ``substrate_atom_id_map``(只留 ``substrate_smiles`` /
+      ``pool_hypotheses`` / ``protocol_version``),供
+      ``disable_atomtool_prompt`` Raw-SMILES 协议臂使用。
     """
+    if not include_atomtool_view:
+        # "纯 SMILES 协议":载荷只保留 substrate_smiles /
+        # pool_hypotheses(+ protocol_version);底物证据卡子对象同样不
+        # 注入(消融臂不携带任何原子编号/执行图/证据卡字段)。
+        substrate_evidence = None
     payload = {
         "substrate_smiles": str(substrate_smiles),
-        "substrate_atom_id_map": {
-            str(k): str(v) for k, v in sorted(atom_id_map.items())},
         "pool_hypotheses": [
             dict(
                 {"hypothesis_id": str(e.get("hypothesis_id")),
@@ -546,12 +799,24 @@ def build_proposals_user_payload(
                    if isinstance(e.get("evidence"), dict) else {}),
                 # EXP1 C 臂:仅带 origin 的条目渲染该键(A/B 臂条目永不
                 # 携带 ⇒ 载荷逐字节不变)
-                **({"origin": str(e["origin"])} if e.get("origin") else {}))
+                **({"origin": str(e["origin"])} if e.get("origin") else {}),
+                # T11:仅条目显式携带时透传(开关关闭 ⇒ 键不出现)
+                **({"reaction_class_12": str(e["reaction_class_12"])}
+                   if e.get("reaction_class_12") else {}),
+                **({"routing_tier": str(e["routing_tier"])}
+                   if e.get("routing_tier") else {}))
             for e in (pool_entries or [])],
         "protocol_version": S5B_REAL_MODEL_VERSION,
     }
-    if execution_graph:
-        payload["execution_graph"] = dict(execution_graph)
+    if class_routing:
+        payload["class_routing"] = dict(class_routing)
+    if include_atomtool_view:
+        # 默认路径(True)⇒ 字段与改前逐字节同;消融臂(False)⇒ 两个
+        # 原子编号/执行图字段都不出现。
+        payload["substrate_atom_id_map"] = {
+            str(k): str(v) for k, v in sorted(atom_id_map.items())}
+        if execution_graph:
+            payload["execution_graph"] = dict(execution_graph)
     if isinstance(substrate_evidence, dict) and substrate_evidence:
         payload["substrate_evidence"] = dict(substrate_evidence)
         payload["candidate_evidence_schema_version"] = \
@@ -580,6 +845,78 @@ def build_proposals_user_payload(
             and schema_version == CANDIDATE_EVIDENCE_SCHEMA_VERSION_V2):
         return json.dumps(payload, ensure_ascii=False, sort_keys=True,
                           separators=(",", ":"))
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True)
+
+
+def build_class_routing_user_payload(
+        *, substrate_smiles: str, atom_id_map: dict[str, str],
+        execution_graph: dict | None = None) -> str:
+    """Stage 1 盲底物路由载荷(确定性;零池条目、零候选产物、零金标)。
+
+    只含底物侧事实:
+    - ``substrate_smiles`` / ``substrate_atom_id_map``;
+    - ``execution_graph``(与 W1 编译器同一 render 事实源;在位才渲染);
+    - ``substrate_composition``:分子式/元素计数/杂原子计数/环数/芳香
+      环数/形式电荷/平均碳氧化态(全部 RDKit 确定性计算;不可得 ⇒
+      ``unknown``,不猜);
+    - ``functional_groups``:复用 ``candidate_evidence`` 的纯 RDKit
+      官能团命中表(类→命中数);
+    - ``class_vocabulary``:12 类受控词表(与解析校验同源)。
+
+    **机器断言面**:本载荷不含 ``pool_hypotheses``/``pool_entries`` 或
+    任何池大类计数(见 ``tests/pollutant/test_v13_t11_routing.py``)。
+    """
+    from .candidate_evidence import substrate_facts_v2
+    from ..services.s5_hybrid_choice import REACTION_CLASS_12_LABELS
+
+    facts = substrate_facts_v2(str(substrate_smiles))
+    composition: dict = {
+        "molecular_formula": "unknown",
+        "element_counts": facts.get("element_counts") or "unknown",
+        "heteroatom_counts": "unknown",
+        "n_rings": "unknown",
+        "n_aromatic_rings": "unknown",
+        "formal_charge": (facts.get("formal_charge")
+                          if facts.get("formal_charge") is not None
+                          else "unknown"),
+        "mean_carbon_oxidation_state": (
+            facts.get("carbon_oxidation_state")
+            if facts.get("carbon_oxidation_state") is not None
+            else "unknown"),
+    }
+    try:
+        from rdkit import Chem, RDLogger
+        from rdkit.Chem import rdMolDescriptors
+
+        RDLogger.DisableLog("rdApp.*")
+        mol = Chem.MolFromSmiles(str(substrate_smiles))
+        if mol is not None:
+            composition["molecular_formula"] = str(
+                rdMolDescriptors.CalcMolFormula(mol))
+            counts = facts.get("element_counts") or {}
+            composition["heteroatom_counts"] = {
+                element: int(counts[element])
+                for element in ("N", "O", "S", "P", "F", "Cl", "Br", "I")
+                if int(counts.get(element) or 0) > 0}
+            composition["n_rings"] = int(mol.GetRingInfo().NumRings())
+            composition["n_aromatic_rings"] = int(
+                rdMolDescriptors.CalcNumAromaticRings(mol))
+    except Exception:  # noqa: BLE001 —— 事实不可得 ⇒ 字段如实 unknown
+        pass
+    payload: dict = {
+        "substrate_smiles": str(substrate_smiles),
+        "substrate_atom_id_map": {
+            str(k): str(v) for k, v in sorted(atom_id_map.items())},
+        "substrate_composition": composition,
+        "functional_groups": [
+            {"class": str(class_name), "n_hits": int(n_hits)}
+            for class_name, n_hits in sorted(
+                (facts.get("class_hits") or {}).items())],
+        "class_vocabulary": list(REACTION_CLASS_12_LABELS),
+        "protocol_version": S5B_REAL_MODEL_VERSION,
+    }
+    if execution_graph:
+        payload["execution_graph"] = dict(execution_graph)
     return json.dumps(payload, ensure_ascii=False, sort_keys=True)
 
 
@@ -1236,12 +1573,17 @@ class RealModelAdapter:
             "request_id": request_id, "request_key": request_key,
             "purpose": purpose, "status": "issued",
         })
-        response = self._complete(
-            # v2 显式传入 system_prompt；缺省 None ⇒ v1 常量（旧路径
-            # 逐字节不变）。
-            system_prompt=(system_prompt if system_prompt is not None
-                           else _PROPOSALS_SYSTEM_PROMPT),
-            user_payload=build_proposals_user_payload(
+        # v1.3 T11:Stage 1 盲底物路由走独立载荷构造(零池条目);其余
+        # purpose(proposals/format_feedback)逐字节沿既有路径。
+        if purpose == "class_routing":
+            user_payload = build_class_routing_user_payload(
+                substrate_smiles=str(prompt_payload.get(
+                    "substrate_smiles") or ""),
+                atom_id_map=dict(prompt_payload.get("atom_id_map") or {}),
+                execution_graph=dict(
+                    prompt_payload.get("execution_graph") or {}) or None)
+        else:
+            user_payload = build_proposals_user_payload(
                 substrate_smiles=str(prompt_payload.get(
                     "substrate_smiles") or ""),
                 atom_id_map=dict(
@@ -1254,7 +1596,21 @@ class RealModelAdapter:
                 substrate_evidence=dict(
                     prompt_payload.get("substrate_evidence") or {})
                 or None,
-                schema_version=schema_version),
+                schema_version=schema_version,
+                class_routing=dict(
+                    prompt_payload.get("class_routing") or {}) or None,
+                # v1.4 论文消融(默认缺席 ⇒ True ⇒ 载荷逐字节不变)
+                include_atomtool_view=bool(
+                    prompt_payload.get("include_atomtool_view", True)))
+        response = self._complete(
+            # v2 显式传入 system_prompt；缺省 None ⇒ v1 常量（旧路径
+            # 逐字节不变）。v1.3 T11:class_routing 缺省用 Stage 1 提示词。
+            system_prompt=(
+                system_prompt if system_prompt is not None
+                else (CLASS_ROUTING_STAGE1_SYSTEM_PROMPT
+                      if purpose == "class_routing"
+                      else _PROPOSALS_SYSTEM_PROMPT)),
+            user_payload=user_payload,
             idempotency_key=stable_id(
                 "s5b", run_id, action_id, request_key),
         )

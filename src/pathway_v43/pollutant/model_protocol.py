@@ -183,6 +183,7 @@ def parse_model_proposals(
     *,
     allowed_hypothesis_ids: list[str] | set[str] | frozenset[str],
     protocol: str | None = None,
+    drop_invalid_proposals: bool = False,
 ) -> dict:
     """解析模型响应的 proposals[](每项一条独立反应假设)。
 
@@ -222,7 +223,19 @@ def parse_model_proposals(
     - `rank_hypotheses`(可选,list)引用的 id 必须在提案集合内
       (引稳定 ID;排序是建议次序,不是已核实状态);
     - 空列表/弃权合法:proposals=[] ⇒ abstained=True;
-    - 返回 {proposals, rank_hypotheses, abstained, protocol_version}。
+    - 返回 {proposals, rank_hypotheses, abstained, protocol_version,
+      dropped_proposals}。
+
+    ``drop_invalid_proposals=True``(v1.3 T4-A 开关
+    ``enable_v13_tolerant_model_parse`` 打开时消费;**默认关闭 ⇒ 判据
+    与逐字节行为不变**):**逐条**容错 —— 单条提案的 item 级错误
+    (json_field / allowed_id / syntax / json_type)只丢弃该条并记入
+    ``dropped_proposals``(机读:index / hypothesis_id / error_kind /
+    message),其余合法提案照常入选;``rank_hypotheses`` 中引用被丢弃
+    提案的条目跳过并记 ``rank_dropped_ids``(不因排序引用连带整响应
+    失败)。**顶层结构错误仍抛**(不可解析 JSON、顶层非 dict、缺
+    proposals、proposals 非 list、rank 非 list)—— 这些不是单条提案
+    的问题,catch-all 会把损坏洗成方法失败。
     """
     protocol_value = (NOVEL_PROTOCOL_ATOM_EDIT if protocol is None
                       else str(protocol))
@@ -270,7 +283,9 @@ def parse_model_proposals(
     allowed = set(allowed_hypothesis_ids or [])
     proposals: list[dict] = []
     seen_ids: set[str] = set()
-    for i, item in enumerate(proposals_raw):
+    dropped_proposals: list[dict] = []
+
+    def _parse_item(i: int, item) -> dict:
         if not isinstance(item, dict):
             _format_error(
                 FORMAT_ERROR_JSON_TYPE,
@@ -429,7 +444,28 @@ def parse_model_proposals(
                 model_protocol_version=model_version)
         if coproducts is not None:
             entry["coproducts"] = [str(c) for c in coproducts]
-        proposals.append(entry)
+        return entry
+
+    for i, item in enumerate(proposals_raw):
+        seen_before = set(seen_ids)
+        try:
+            proposals.append(_parse_item(i, item))
+        except ModelProtocolError as exc:
+            if not drop_invalid_proposals:
+                raise
+            # 回滚本条登记过的 ID(被丢弃的提案不得占位,否则 rank
+            # 引用它时会被当成「已知 ID」而放过)
+            seen_ids.clear()
+            seen_ids.update(seen_before)
+            dropped_proposals.append({
+                "index": i,
+                "hypothesis_id": (
+                    str(item.get("hypothesis_id") or "")
+                    if isinstance(item, dict) else ""),
+                "error_kind": str(
+                    (getattr(exc, "detail", None) or {}).get("kind") or ""),
+                "message": str(exc)[:400],
+            })
     rank_raw = payload.get("rank_hypotheses")
     if rank_raw is None:
         rank_raw = [p["hypothesis_id"] for p in proposals]
@@ -438,10 +474,17 @@ def parse_model_proposals(
             FORMAT_ERROR_JSON_TYPE,
             f"rank_hypotheses 必须是 list,得到 {type(rank_raw).__name__}",
             model_protocol_version=model_version)
+    dropped_ids = {row["hypothesis_id"] for row in dropped_proposals
+                   if row["hypothesis_id"]}
     rank: list[str] = []
+    rank_dropped_ids: list[str] = []
     for i, rid in enumerate(rank_raw):
         rid = str(rid)
         if rid not in seen_ids:
+            if drop_invalid_proposals and rid in dropped_ids:
+                # 排序引用被丢弃的提案 ⇒ 跳过该位次(保留其余次序)
+                rank_dropped_ids.append(rid)
+                continue
             _format_error(
                 FORMAT_ERROR_ALLOWED_ID,
                 f"rank_hypotheses[{i}] 引用未在提案集合内的 {rid}"
@@ -449,9 +492,14 @@ def parse_model_proposals(
                 {"index": i, "hypothesis_id": rid},
                 model_protocol_version=model_version)
         rank.append(rid)
-    return {"proposals": proposals, "rank_hypotheses": rank,
-            "abstained": not proposals,
-            "protocol_version": model_version}
+    result = {"proposals": proposals, "rank_hypotheses": rank,
+              "abstained": not proposals,
+              "protocol_version": model_version}
+    if drop_invalid_proposals:
+        # 机读披露面只在开关打开时出现(关闭时返回键集合与改前逐字同)
+        result["dropped_proposals"] = dropped_proposals
+        result["rank_dropped_ids"] = rank_dropped_ids
+    return result
 
 
 def _feedback_versions(ledger: SearchLedger, run_id: str) -> dict:

@@ -240,6 +240,34 @@ RECORDED_SOURCE_VERSION = "s5b-recorded-source-4"
 # 落 plain A→P。两处单来源正控(无 corpus 块/corpus 本来缺键)
 # 保持可提交完整事件。
 CORPUS_RETRIEVAL_VERSION = "s5b-corpus-retrieval-6"
+#: v1.3 T3 §10.2:D2 共底物白名单开关(默认关)。只放行四类标准
+#: 辅因子(CoA-SH / ATP-磷酸基 / SAM-甲基 / 谷胱甘肽)的**键合原子
+#: 贡献**,且必须"补入该辅因子"后全元素守恒;不开则 bundled 拒因
+#: 与既有行为逐字节一致(零漂移)。口径是元素级代理分类(与
+#: T-4 b_class 同款诚实披露:非化学生物角色判据),只作开关门。
+D2_COFACTOR_WHITELIST_VERSION = "d2-cofactor-whitelist-1"
+#: v1.3 T10-B:d2-cofactor-whitelist-2(默认关)。在 v1 的「单一白名单
+#: 辅因子 + 全元素守恒」门之上,修**离去辅因子片段**的拷贝划分:
+#: v1 用元素计数 + any-bond 子结构(保留形式电荷/氢计数)判定
+#: "整组分属于单一 B",PPi/ADP/Pi 这类离去片段因质子化/电荷写法
+#: 差异匹配失败而被塞进 executable_products ⇒ 后续 add_atom 通道
+#: 落位失败。v2 改用**骨架匹配**(元素 + 连通性;忽略键级/形式电荷/
+#: 显式氢),仍只认"恰好单一 B 可整组分对应"。配合编译器
+#: `charge_ops`/`stereo_edit_graceful_fallback` 扩展表达键合贡献。
+D2_COFACTOR_WHITELIST_VERSION_2 = "d2-cofactor-whitelist-2"
+D2_COFACTOR_WHITELIST_CLASSES = (
+    "coa", "nucleotide_phosphate", "sam_like", "glutathione")
+#: v1.4 T14-1B:d2-cofactor-whitelist-3(默认关)。在 v2 的「单一白名单
+#: 辅因子 + 全元素守恒 + 骨架匹配划分离去片段」之上,扩到**多辅因子耦合
+#: / 无机供体(氧化还原载体、水、O2/过氧化物、氨供体、C1 无机、光/质子)**
+#: 面:改用「推断映射上的 A 锚定二分」——产物组分按是否含 A 映射原子
+#: 划为可执行/拷贝两类,再核重原子守恒与借入原子账(donor_inv ==
+#: delta_exec)。仍 100% 纯标准 4-op 编辑(charge_ops 保持 False)。
+D2_COFACTOR_WHITELIST_VERSION_3 = "d2-cofactor-whitelist-3"
+D2_COFACTOR_WHITELIST_CLASSES_V3 = frozenset({
+    "coa", "nucleotide_phosphate", "sam_like", "glutathione",
+    "other_phosphate", "redox_carrier", "water", "dioxygen_or_peroxide",
+    "ammonia_donor", "c1_inorganic", "light_proton"})
 CORPUS_RETRIEVAL_SEMANTICS = {
     "version": CORPUS_RETRIEVAL_VERSION,
     "substrate_retrieval_scope": "cn_identity_wide",
@@ -1120,6 +1148,29 @@ def _any_bond_query(mol):
     return Chem.AdjustQueryProperties(Chem.Mol(mol), params)
 
 
+def _skeleton_query(mol):
+    """骨架查询(T10-B d2-v2):元素 + 连通性;**忽略键级、形式电荷、
+    显式/隐式氢、芳香性、手性**。
+
+    用途:判定「产物组分是否为单一辅因子的整组分离去片段」。v1 的
+    ``_any_bond_query`` 保留原子电荷/氢计数约束,PPi/ADP/Pi 这类
+    在不同质子化/离子化写法下的离去片段匹配失败。本查询只核骨架
+    包含关系(必要条件),仍由上游「单一 B + 白名单类 + 全元素守恒」
+    三重门限制放行面;不是化学角色判据。
+    """
+    q = Chem.Mol(mol)
+    for atom in q.GetAtoms():
+        atom.SetFormalCharge(0)
+        atom.SetNumExplicitHs(0)
+        atom.SetNoImplicit(True)
+        atom.SetIsAromatic(False)
+        atom.SetChiralTag(Chem.ChiralType.CHI_UNSPECIFIED)
+        atom.SetNumRadicalElectrons(0)
+    params = Chem.AdjustQueryParameters.NoAdjustments()
+    params.makeBondsGeneric = True
+    return Chem.AdjustQueryProperties(q, params)
+
+
 def _mapped_copy(mol, map_of_idx: dict) -> str:
     """按 idx→map 号写原子映射号的 SMILES(确定性)。"""
     out = Chem.Mol(mol)
@@ -1428,6 +1479,384 @@ def _cosubstrate_b_class(co_comps: list[str]) -> str:
         if any(a.GetSymbol() == "C" for a in mol.GetAtoms()):
             return "organic_like"
     return "balance_like"
+
+
+def d2_cofactor_class(smiles: str) -> str:
+    """元素级辅因子代理分类(T3 §10.2 白名单门;非化学生物角色判据)。
+
+    只按重原子元素计数分四类标准辅因子 + 一个 ``other_phosphate``
+    杂项桶;不可解析返回 ``unparseable``,不属任何类返回空串。
+    """
+    mol = Chem.MolFromSmiles(str(smiles or ""))
+    if mol is None:
+        return "unparseable"
+    c = _element_counts(mol)
+    p, s, n = c.get("P", 0), c.get("S", 0), c.get("N", 0)
+    cc = c.get("C", 0)
+    if s >= 1 and p >= 2 and n >= 5:
+        return "coa"
+    if p >= 2 and n >= 5 and s == 0:
+        return "nucleotide_phosphate"
+    if s >= 1 and n >= 5 and p == 0 and 10 <= cc <= 25:
+        return "sam_like"
+    if cc == 10 and n == 3 and c.get("O", 0) == 6 and s == 1:
+        return "glutathione"
+    if p >= 1:
+        return "other_phosphate"
+    return ""
+
+
+def _heavy_counts_of(smiles: str) -> dict | None:
+    mol = Chem.MolFromSmiles(str(smiles or ""))
+    if mol is None:
+        return None
+    return _element_counts(mol)
+
+
+def d2_cofactor_class_v3(smiles: str) -> str:
+    """d2-cofactor-whitelist-3 元素级辅因子代理分类(默认关)。
+
+    先走既有 ``d2_cofactor_class``(四类标准辅因子 + other_phosphate
+    杂项桶;不可解析 ``unparseable``);base 命中即原样返回。base 为空
+    再按 v3 扩展面分类:氧化还原载体(NAD(P)/FAD/FMN 型磷酸-核苷-多碳
+    + 单原子 Fe;血红素等未登记形态不猜)、水、O2/过氧化物、氨供体、
+    C1 无机(CO/CO2/碳酸/甲酸级)、轻质子/轻氢([H+] 等 0 重原子)。
+
+    与 v1/v2 同款诚实披露:元素级代理分类,**非**化学生物角色判据,
+    只作开关门。
+    """
+    base = d2_cofactor_class(smiles)
+    if base:
+        return base
+    mol = Chem.MolFromSmiles(str(smiles or ""))
+    if mol is None:
+        return "unparseable"
+    c = _element_counts(mol)
+    if not c:
+        # 0 重原子([H+] / [H-] 等):轻质子/轻氢拷贝供体
+        return "light_proton"
+    p, s, n = c.get("P", 0), c.get("S", 0), c.get("N", 0)
+    cc, o = c.get("C", 0), c.get("O", 0)
+    tot_h = sum(c.values())
+    keys = set(c.keys())
+    if p >= 1 and n >= 4 and cc >= 10:
+        return "redox_carrier"
+    if keys == {"Fe"} and c.get("Fe", 0) == 1:
+        return "redox_carrier"
+    if keys == {"O"} and o == 1:
+        return "water"
+    if keys == {"O"} and o in (2, 3):
+        return "dioxygen_or_peroxide"
+    if keys == {"N"} and n == 1:
+        return "ammonia_donor"
+    if cc == 1 and keys <= {"C", "O"} and 1 <= o <= 3 and tot_h <= 4:
+        return "c1_inorganic"
+    return ""
+
+
+def _cofactor_whitelist_candidate(
+        *, matched_side: str, co_comps: list[str],
+        products: list[str], version: int = 1) -> dict | None:
+    """T3 §10.2:bonded 拒因能否由**单一白名单辅因子**诚实解释。
+
+    三条同时满足才放行(否则返回 None,调用方落回既有保守拒):
+
+    1. 产物相对 A 的新增重原子(元素多重集)可由**单一**共底物组分
+       覆盖,且该组分命中白名单类别(CoA/核苷酸磷酸/SAM/谷胱甘肽);
+    2. 全元素守恒:重原子计数下 A + 全部共底物 == 全量产物
+       ("补入该辅因子后"守恒审计通过;系数按 1、unknown,与既有
+       ``record_balance_status`` 同款代理口径);
+    3. 可执行子集非空(不得把整产物集降级为拷贝绕行,R32-CS2-4)。
+
+    返回 {executable_products, copy_products, disclosure};产物组分的
+    拷贝/可执行划分沿用 ``_attribute_to_single_b`` 同源归属(单一 B
+    整组分对应 ⇒ 拷贝,其余 ⇒ 可执行)。
+
+    v1.4 T14-1B:``version >= 3`` 走独立前置分支
+    ``_cofactor_whitelist_candidate_v3``(多辅因子/无机供体 + A 锚定
+    二分);``version < 3`` 原代码路径一字不改。
+    """
+    if int(version) >= 3:
+        return _cofactor_whitelist_candidate_v3(
+            matched_side=matched_side, co_comps=co_comps,
+            products=products)
+    if not co_comps or not products:
+        return None
+    a_elems = _heavy_counts_of(matched_side)
+    if a_elems is None:
+        return None
+    total: dict = {}
+    for p in products:
+        pe = _heavy_counts_of(p)
+        if pe is None:
+            return None
+        for e, n in pe.items():
+            total[e] = total.get(e, 0) + n
+    delta = {e: total.get(e, 0) - a_elems.get(e, 0)
+             for e in set(total) | set(a_elems)}
+    delta = {e: n for e, n in delta.items() if n}
+    if not delta or any(n < 0 for n in delta.values()):
+        return None
+    # 1) 单一 B 覆盖新增原子 + 白名单类别
+    b_elems = [_heavy_counts_of(c) for c in co_comps]
+    if any(x is None for x in b_elems):
+        return None
+    cover = [i for i, be in enumerate(b_elems)
+             if all(be.get(e, 0) >= n for e, n in delta.items())]
+    wl_idx = [i for i in cover
+              if d2_cofactor_class(co_comps[i])
+              in D2_COFACTOR_WHITELIST_CLASSES]
+    if not wl_idx:
+        return None
+    # 2) 全元素守恒(A + 全部共底物 == 全量产物;重原子,系数 1/unknown)
+    lhs = dict(a_elems)
+    for be in b_elems:
+        for e, n in be.items():
+            lhs[e] = lhs.get(e, 0) + n
+    if lhs != total:
+        return None
+    # 3) 产物组分划分(拷贝 = 单一 B 整组分对应;其余 = 可执行)
+    b_mols = [Chem.MolFromSmiles(str(c)) for c in co_comps]
+    if any(m is None for m in b_mols):
+        return None
+
+    def _whole_component_b(product: str) -> int | None:
+        mol = Chem.MolFromSmiles(str(product))
+        if mol is None:
+            return None
+        pe = _element_counts(mol)
+        try:
+            query = _skeleton_query(mol) if int(version) >= 2 \
+                else _any_bond_query(mol)
+        except Exception:
+            query = None
+        cover_ids = {
+            i for i, b_mol in enumerate(b_mols)
+            if all(b_elems[i].get(e, 0) >= n for e, n in pe.items())
+            and (query is None
+                 or b_mol.HasSubstructMatch(query, useChirality=False))}
+        # 只认"恰好单一 B 可整组分对应"
+        return next(iter(cover_ids)) if len(cover_ids) == 1 else None
+
+    executable: list[str] = []
+    copies: list[str] = []
+    for p in products:
+        idx = _whole_component_b(str(p))
+        if idx is None:
+            executable.append(str(p))
+        else:
+            copies.append(str(p))
+    if not executable:
+        return None
+    wl = int(wl_idx[0])
+    return {
+        "executable_products": executable,
+        "copy_products": copies,
+        "disclosure": {
+            "version": (D2_COFACTOR_WHITELIST_VERSION_2
+                        if int(version) >= 2
+                        else D2_COFACTOR_WHITELIST_VERSION),
+            "component_match": ("skeleton_element_connectivity_v2"
+                                if int(version) >= 2
+                                else "any_bond_v1"),
+            "cofactor_class": d2_cofactor_class(co_comps[wl]),
+            "cofactor_smiles": str(co_comps[wl]),
+            "borrowed_heavy_atoms": dict(sorted(delta.items())),
+            "cofactor_heavy_atoms": dict(sorted(b_elems[wl].items())),
+            "conservation": ("heavy_atom_counts(A)+sum(heavy_atom_counts("
+                             "co_substrates))==heavy_atom_counts(products);"
+                             "coefficients=1(unknown);proxy_not_full_"
+                             "balance_proof"),
+            "co_substrates": [str(c) for c in co_comps],
+            "copy_products": copies,
+            "executable_products": executable,
+            "note": ("T3 §10.2 whitelist release: B's bonded contribution "
+                     "is re-expressed as declared cofactor reactant atoms "
+                     "(add_atom channel) plus declared-copy residual "
+                     "products; only the four standard cofactor classes "
+                     "and only when the record balances with the cofactor "
+                     "added. Element-level proxy classification, not a "
+                     "chemical/biochemical role rule."),
+        },
+    }
+
+
+def _cofactor_whitelist_candidate_v3(
+        *, matched_side: str, co_comps: list[str],
+        products: list[str]) -> dict | None:
+    """d2-cofactor-whitelist-3:多辅因子/无机供体的重原子守恒配对门。
+
+    与 v1/v2 的「单一白名单辅因子整组分覆盖」不同,v3 在**推断映射**
+    上做 A 锚定二分:
+
+    1. 候选前置:共底物/产物非空、A 与全部共底物/产物重原子计数可解析;
+    2. 重原子守恒:A + Σ共底物 == Σ产物(系数 1/unknown,代理口径);
+    3. 全部共底物命中 v3 白名单(标准四类 + other_phosphate +
+       redox_carrier/water/dioxygen_or_peroxide/ammonia_donor/
+       c1_inorganic/light_proton);
+    4. 产物并集组分结构对应(``infer_reaction_mapping``;截断 ⇒ 拒);
+    5. 逐映射二分:含 A 映射原子的产物组分 = 可执行;0 个 A 映射原子的
+       组分 = 拷贝(轻质子直拷;重原子组分须由某共底物元素覆盖 + 骨架
+       匹配,或属磷酸/氧化还原/无机多辅因子耦合残基且元素由 Σ共底物
+       覆盖);再核「可执行侧覆盖 A」「拷贝侧不超 Σ共底物」与
+       ``donor_inv == delta_exec``(借入原子账单向闭合)。
+
+    全过 ⇒ 返回与 v1/v2 同形结构;任一不满足 ⇒ ``None``(调用方落回
+    既有保守拒)。判据是**重原子计数代理**,不构成配平/机制证明。
+    """
+    if not co_comps or not products:
+        return None
+    a_elems = _heavy_counts_of(matched_side)
+    if not a_elems:
+        return None
+    b_elems = [_heavy_counts_of(c) for c in co_comps]
+    if any(x is None for x in b_elems):
+        return None
+    p_elems = [_heavy_counts_of(p) for p in products]
+    if any(x is None for x in p_elems):
+        return None
+    lhs_counts: dict = dict(a_elems)
+    for be in b_elems:
+        for e, n in be.items():
+            lhs_counts[e] = lhs_counts.get(e, 0) + int(n)
+    rhs_counts: dict = {}
+    for pe in p_elems:
+        for e, n in pe.items():
+            rhs_counts[e] = rhs_counts.get(e, 0) + int(n)
+    if lhs_counts != rhs_counts:
+        return None
+    co_classes = [d2_cofactor_class_v3(c) for c in co_comps]
+    if any(cl not in D2_COFACTOR_WHITELIST_CLASSES_V3 for cl in co_classes):
+        return None
+    b_sum: dict = {}
+    for be in b_elems:
+        for e, n in be.items():
+            b_sum[e] = b_sum.get(e, 0) + int(n)
+    if not b_sum:
+        return None
+    union = Chem.MolFromSmiles(".".join(str(p) for p in products))
+    if union is None:
+        return None
+    frag_sets = [set(int(i) for i in f)
+                 for f in Chem.GetMolFrags(union, asMols=False)]
+    if len(frag_sets) != len(products):
+        return None
+    try:
+        mappings = infer_reaction_mapping(matched_side, products)
+    except RecordedSourceError:
+        return None
+    if not mappings or mappings[0].get("truncated"):
+        return None
+    b_mols = [Chem.MolFromSmiles(str(c)) for c in co_comps]
+    if any(m is None for m in b_mols):
+        return None
+
+    def _merge(dst: dict, src: dict) -> None:
+        for e, n in src.items():
+            dst[e] = dst.get(e, 0) + int(n)
+
+    _multi_residue_classes = (
+        "nucleotide_phosphate", "other_phosphate", "coa", "redox_carrier",
+        "water", "dioxygen_or_peroxide", "ammonia_donor", "c1_inorganic")
+    for mp in mappings:
+        new_u = set(int(i) for i in (mp.get("new_union") or []))
+        exec_p: list[str] = []
+        copy_p: list[str] = []
+        exec_h: dict = {}
+        copy_h: dict = {}
+        broken = False
+        for fset, prod, pe in zip(frag_sets, products, p_elems):
+            if fset - new_u:
+                # 含 ≥1 个来自底物 A 的映射原子 ⇒ 可执行侧
+                exec_p.append(str(prod))
+                _merge(exec_h, pe)
+                continue
+            if not pe:
+                # 0 重原子组分(如 [H+]):轻质子直拷
+                copy_p.append(str(prod))
+                continue
+            pmol = Chem.MolFromSmiles(str(prod))
+            if pmol is None:
+                broken = True
+                break
+            try:
+                q = _skeleton_query(pmol)
+            except Exception:  # noqa: BLE001 —— 骨架查询失败即退化比对
+                q = None
+            covered = False
+            for i, b_mol in enumerate(b_mols):
+                if all(b_elems[i].get(e, 0) >= n for e, n in pe.items()) \
+                        and (q is None
+                             or b_mol.HasSubstructMatch(
+                                 q, useChirality=False)):
+                    covered = True
+                    break
+            if not covered:
+                # 多辅因子耦合残基(ATP+CoA → Acyl-CoA+AMP+PPi 一类):
+                # 只要该残基属白名单残基类且元素由 Σ共底物覆盖,即记
+                # 声明式拷贝(不执行)。
+                covered = bool(
+                    d2_cofactor_class_v3(str(prod))
+                    in _multi_residue_classes
+                    and all(b_sum.get(e, 0) >= n
+                            for e, n in pe.items()))
+            if not covered:
+                broken = True
+                break
+            copy_p.append(str(prod))
+            _merge(copy_h, pe)
+        if broken or not exec_p:
+            continue
+        if not all(exec_h.get(e, 0) >= n for e, n in a_elems.items()):
+            continue
+        if not all(copy_h.get(e, 0) <= b_sum.get(e, 0) for e in copy_h):
+            continue
+        # ---- v1.4 T14-1B.1:NC-9 二分漏洞的结构性封堵 ----
+        # 可执行侧与拷贝侧的**严格身份集合必须互不相交**:同一 strict
+        # 身份既当可执行产物又当声明式拷贝(典型 = 二分子化学计量的
+        # 重复产物,如 ``2 A + O2 -> 2 P + 2 H2O`` 的第二份 P 不带 A
+        # 映射原子而被划入 copy_products)时,拷贝组分必然撞进执行期望
+        # 的组分集,production.prepare_hypothesis 的 NC-9
+        # (``cosubstrate_copy_in_expectation``)必拒 —— 该二分在这里
+        # 直接落回保守拒,不让坏 spec 进入池。身份不可解析同样拒。
+        exec_stricts = {_strict_of(p) for p in exec_p}
+        copy_stricts = {_strict_of(c) for c in copy_p}
+        if None in exec_stricts or None in copy_stricts:
+            continue
+        if exec_stricts & copy_stricts:
+            continue
+        donor_inv = {e: b_sum[e] - copy_h.get(e, 0)
+                     for e in b_sum if b_sum[e] - copy_h.get(e, 0) > 0}
+        delta_exec = {e: exec_h[e] - a_elems.get(e, 0)
+                      for e in exec_h
+                      if exec_h[e] - a_elems.get(e, 0) > 0}
+        if donor_inv != delta_exec:
+            continue
+        return {
+            "executable_products": exec_p,
+            "copy_products": copy_p,
+            "disclosure": {
+                "version": D2_COFACTOR_WHITELIST_VERSION_3,
+                "component_match": (
+                    "skeleton_and_conservation_pairing_v3"),
+                "cofactor_class": "+".join(sorted(set(co_classes))),
+                "cofactor_smiles": ".".join(str(c) for c in co_comps),
+                "borrowed_heavy_atoms": dict(sorted(delta_exec.items())),
+                "cofactor_heavy_atoms": dict(sorted(b_sum.items())),
+                "conservation": (
+                    "heavy_atom_counts(A)+sum(heavy_atom_counts("
+                    "co_substrates))==heavy_atom_counts(products);"
+                    "coefficients=1(unknown);proxy_not_full_balance_proof"),
+                "co_substrates": [str(c) for c in co_comps],
+                "copy_products": copy_p,
+                "executable_products": exec_p,
+                "note": (
+                    "v1.4 T14-1B d2-cofactor-whitelist-3: heavy-atom "
+                    "conserved cofactor/inorganic donor pairing with "
+                    "inferred A-anchor partitioning"),
+            },
+        }
+    return None
 
 
 def _classify_cosubstrate_candidate(
@@ -1777,6 +2206,8 @@ def _compile_formnorm_risk(artifacts: dict, donor_eff: str,
 def find_recorded_exact(
     *, substrate_smiles: str, engine,
     max_reactions: int = 24,
+    v14_compiler_ext: bool = False,
+    v14_compiler_ext_2: bool = False,
 ) -> dict:
     """当前底物的 recorded 精确源候选(W2 主入口)。
 
@@ -1843,10 +2274,34 @@ def find_recorded_exact(
                         "donor_match_kind": "whole",
                         "matched_side_index": None,
                         "matched_side": record["donor_smiles"]},
-                })
+                },
+                # v1.4 T14-1B(默认关):扩展编译器表达面(立体消解 /
+                # 立体安全回退 / 芳环裂解 + 稠环保留芳环)
+                # v1.4 T14-4:v14_compiler_ext_2 再开编译器 v2 两开关
+                # (保留立体中心奇偶核验 / 芳环新键闭合)。
+                extended_stereo_dissolution=bool(v14_compiler_ext),
+                stereo_edit_graceful_fallback=bool(v14_compiler_ext),
+                allow_ring_cleavage_and_fused_dearomatization=bool(
+                    v14_compiler_ext),
+                retained_tetrahedral_parity_check=bool(v14_compiler_ext_2),
+                allow_aromatic_ring_closure=bool(v14_compiler_ext_2))
             if compiled.get("status") != "compiled":
                 reason = str(compiled.get("reason") or "unknown")
                 failure_hist[reason] = failure_hist.get(reason, 0) + 1
+            # ---- v1.4 T14-1B.1:生产准入预检(开关关 ⇒ 零调用) ----
+            # 编译成功 ≠ 生产链可提交:二分子化学计量/NC-9/NC-10 一类
+            # 记录侧的坏 spec 在 prepare 段才会暴露。预检不过按结构化
+            # unsupported 记,不产 compile spec(不占池槽)。
+            preflight_reason = ""
+            if ((v14_compiler_ext or v14_compiler_ext_2)
+                    and compiled.get("status") == "compiled"
+                    and compiled.get("spec") is not None):
+                ok_pre, pre_reason = v14_preflight_admission_ok(
+                    str(substrate_smiles), compiled["spec"])
+                if not ok_pre:
+                    preflight_reason = pre_reason
+                    failure_hist[pre_reason] = failure_hist.get(
+                        pre_reason, 0) + 1
             fn = dict(compiled.get("formnorm") or {})
             candidates.append({
                 "record_id": rid,
@@ -1859,9 +2314,13 @@ def find_recorded_exact(
                     "cofactor_filtered": bool(row.get("cofactor_filtered")),
                     "filtered": bool(row.get("filtered")),
                 },
-                "compile": compiled.get("spec"),
-                "compile_status": str(compiled.get("status")),
-                "compile_reason": str(compiled.get("reason") or ""),
+                "compile": (compiled.get("spec")
+                            if not preflight_reason else None),
+                "compile_status": ("unsupported" if preflight_reason
+                                   else str(compiled.get("status"))),
+                "compile_reason": (preflight_reason
+                                   if preflight_reason
+                                   else str(compiled.get("reason") or "")),
                 "compile_detail": dict(compiled.get("detail") or {}),
                 # T-E(E1a):逐候选归一三值 + 全形态 trace(含编译拒行)
                 "record_side_form_norm": str(
@@ -1886,6 +2345,73 @@ def _strict_of(smiles: str) -> str | None:
         return strict_identity_of(str(smiles))
     except Exception:
         return None
+
+
+#: v1.4 T14-1B.1:生产准入预检的单一拒因标签(调用方直方图键;
+#: 具体异常类别只进 debug 层,不改变机读口径)。
+V14_ADMISSION_PREFLIGHT_REJECT = "v14_admission_preflight_reject"
+
+
+def v14_preflight_admission_ok(
+        substrate_smiles: str, spec: dict) -> tuple[bool, str]:
+    """v1.4 T14-1B.1:池放行前的**生产准入预检**(与 HPC 准入硬门同链)。
+
+    逐条跑与生产链同一顺序的四段(判据单一来源,不另写第二套):
+
+    ``prepare_hypothesis``(spec → 冻结假设/状态/工具输入)→
+    ``execute_atomtool_expansion``(须 ``execution_ok``)→
+    ``audit_hypothesis`` → ``decide_admission`` ∈ ``ADMISSION_SUBMITTABLE``。
+
+    任一环节抛异常(含 ``ProductionContractError`` —— 如 NC-9
+    ``cosubstrate_copy_in_expectation``、NC-10 事件级不变量)或准入
+    不通过 ⇒ ``(False, V14_ADMISSION_PREFLIGHT_REJECT)``;通过 ⇒
+    ``(True, "")``。**本函数不捕获后静默放行**:异常即拒,零事件面。
+
+    调用纪律:仅在 v1.4 开关(``cofactor_whitelist_3`` /
+    ``v14_compiler_ext`` / ``d2_cofactor_whitelist_3``)打开时调用;
+    开关关时零调用 ⇒ 既有路径零漂移。
+
+    惰性导入(函数内)避免编译层 ↔ 生产链的模块环;单次调用成本 =
+    一次真实 AtomTool 渲染/执行 + 审计,不做额外缓存(池供给本来
+    就要在 HPC 侧再跑一遍,这里的预检把坏 spec 挡在池外)。
+    """
+    if not isinstance(spec, dict) or not spec:
+        return False, V14_ADMISSION_PREFLIGHT_REJECT
+    from .audit import audit_hypothesis, decide_admission
+    from .chemstate import build_chemical_state, strict_identity_of
+    from .path_context import build_path_context
+    from .production import (
+        ADMISSION_SUBMITTABLE,
+        execute_atomtool_expansion,
+        prepare_hypothesis,
+    )
+
+    try:
+        sub_iso = strict_identity_of(str(substrate_smiles))
+        substrate_state = build_chemical_state(
+            sub_iso, "raw_input", [{"record": "v14-admission-preflight"}])
+        prepared = prepare_hypothesis(
+            spec, parent_path_id="v14-admission-preflight",
+            substrate_state=substrate_state,
+            transformation_ref=str(spec.get("transformation_ref") or ""))
+        exec_in = str(prepared["tool_inputs"].get(
+            "execution_input_smiles") or sub_iso)
+        execution = execute_atomtool_expansion(
+            substrate_smiles=exec_in,
+            tool_inputs=prepared["tool_inputs"])
+        if not execution.get("execution_ok"):
+            return False, V14_ADMISSION_PREFLIGHT_REJECT
+        audit_rep = audit_hypothesis(
+            prepared["hypothesis"], run_id="v14-admission-preflight",
+            states=prepared["states"],
+            context=build_path_context(),
+            center_evidence=execution["center_evidence"])
+        disposition, _reasons = decide_admission(audit_rep)
+        if disposition not in ADMISSION_SUBMITTABLE:
+            return False, V14_ADMISSION_PREFLIGHT_REJECT
+    except Exception:  # noqa: BLE001 —— 任一环节失败 = 不放行(零事件面)
+        return False, V14_ADMISSION_PREFLIGHT_REJECT
+    return True, ""
 
 
 # ---------------------------------------------------------------- W-V4.1 主入口
@@ -1967,8 +2493,92 @@ def corpus_formnorm_fields(
     return str(view.get("status")), trace
 
 
+def _align_subset_to_raw(
+        view_flat: list[str], raw_flat: list[str],
+        subset: list[str]) -> list[str] | None:
+    """v1.4 T14-4：把分类器的 view 子集按**位置**换回原文串。
+
+    对齐前提：``view_flat`` 与 ``raw_flat`` 等长且逐位同源（视体由
+    raw 逐条归一得到；分类器子集保持 ``products`` 相对序）。``subset``
+    按出现序在 ``view_flat`` 中前进匹配（重复项按位消耗）。任一守卫
+    不成立 ⇒ ``None``（放弃原文回退，不猜）。
+    """
+    if len(view_flat) != len(raw_flat):
+        return None
+    out: list[str] = []
+    cursor = 0
+    for item in subset:
+        target = str(item)
+        while cursor < len(view_flat) and view_flat[cursor] != target:
+            cursor += 1
+        if cursor >= len(view_flat):
+            return None
+        out.append(str(raw_flat[cursor]))
+        cursor += 1
+    return out
+
+
+def _raw_fallback_formnorm_fields(
+        *, record: dict, kind: str, rep_idx, corpus_sha: str,
+        raw_donor: str, raw_co_comps: list[str],
+        raw_products: list[str]) -> tuple[str, dict]:
+    """v1.4 T14-4：wl4 原文回退成功的候选级 formnorm 证据面。
+
+    回退编译消费的是**原文串**（未消费归一视体）⇒ 三值如实记
+    ``not_applicable``，事务占位与归一算子同形；``extra`` 机读披露
+    回退事实与原因。``risk_status`` 由 ``build_formnorm_trace`` 按
+    not_applicable 置位（无对齐可评，不伪填 absent/applied）。
+    """
+    entries: list[dict] = [{
+        "side": "lhs", "field": "donor_side", "entry_index": 0,
+        "smiles": str(raw_donor)}]
+    for i, c in enumerate(list(raw_co_comps or [])):
+        entries.append({"side": "lhs", "field": "co_substrates",
+                        "entry_index": int(i), "smiles": str(c)})
+    for i, p in enumerate(list(raw_products or [])):
+        entries.append({"side": "rhs", "field": "products",
+                        "entry_index": int(i), "smiles": str(p)})
+    tx = {
+        "status": "not_applicable",
+        "reason": "raw_text_fallback",
+        "values": [str(e["smiles"]) for e in entries],
+        "fields": [{"side": str(e["side"]), "field": str(e["field"]),
+                    "entry_index": int(e["entry_index"]),
+                    "status": "not_applicable"} for e in entries],
+        "changes": [],
+        "atom_correspondence": [],
+        "revert": None,
+    }
+    trace = build_formnorm_trace(
+        channel="corpus",
+        asset_sha256=str(corpus_sha or ""),
+        record_key=str(record.get("record_key") or ""),
+        matched_side_or_component={
+            "donor_match_kind": str(kind),
+            "matched_side_index": (int(rep_idx)
+                                   if kind == "component"
+                                   and rep_idx is not None else None)},
+        transaction=tx, risk=None,
+        extra={"raw_text_fallback": True,
+               "raw_text_fallback_reason":
+                   "view_compile_reject_then_raw_retry_compiled",
+               "consumed_text_domain": "raw_record_side"})
+    trace["source_fields"] = {
+        "matched_component": "raw_source_fidelity(consumed as written "
+                             "after view compile reject; the "
+                             "consumption view was NOT used for the "
+                             "compiled spec)",
+        "record_equation": "not_applicable_for_corpus_channel",
+    }
+    return "not_applicable", trace
+
+
 def find_corpus_recorded_exact(
     *, substrate_smiles: str, engine, max_reactions: int = 24,
+    cofactor_whitelist: bool = False,
+    cofactor_whitelist_2: bool = False,
+    cofactor_whitelist_3: bool = False,
+    cofactor_whitelist_4: bool = False,
 ) -> dict:
     """corpus_v1(RHEA/enviPath)recorded 直通候选(W-V4.1 主入口)。
 
@@ -2018,8 +2628,22 @@ def find_corpus_recorded_exact(
       同签名去重防);
     - 候选序(确定性):(tier, whole<component, 行号, 组分序);
       max_reactions 以候选数截断(与 EAWAG 同语义)。
+
+    **v1.4 T14-4(``cofactor_whitelist_4``,默认关)**:
+
+    - wl4 ⊇ wl3 全部行为(白名单分类走 v3 化学,``version=4`` 记录)；
+    - 额外打开编译器扩展 v2 两开关(保留立体中心奇偶核验 /
+      芳环新键闭合) + strict 键统一 + 精确供体全骨架；
+    - **原文回退**:component/whole 两分支编译失败(异常或非 compiled)
+      时,用记录**原文串**(匹配侧原文 + 展平原始产物) + ``skip_
+      formnorm=True`` 重试**一次**;成功则候选级 formnorm 证据面如实
+      记 ``not_applicable``(原文编译,未消费归一视体),并照常过
+      NC-3 / 元素守卫 / 装配 / 准入预检。默认关 ⇒ 零新增调用。
     """
     substrate = str(substrate_smiles)
+    # v1.4 T14-4：wl3 行为超集 + 编译器扩展 v2（默认全关 ⇒ 零漂移）。
+    _wl34 = bool(cofactor_whitelist_3 or cofactor_whitelist_4)
+    _ext2 = bool(cofactor_whitelist_4)
     substrate_cn = cn_identity(substrate)
     if substrate_cn is None:
         return {"candidates": [], "diagnostics": {
@@ -2208,24 +2832,126 @@ def find_corpus_recorded_exact(
                     formnorm_trace=fn_trace))
                 continue
             status = str(cls.get("status"))
+            cofactor_info: dict | None = None
+            # ---- T3 §10.2:bonded 拒因的白名单复核(开关默认关) ----
+            # T10-B:d2-cofactor-whitelist-2 用 v2 骨架匹配划分离去
+            # 辅因子片段;v1 开关行为零变化。
+            if status == "bonded" and (cofactor_whitelist
+                                       or cofactor_whitelist_2
+                                       or _wl34):
+                wl = _cofactor_whitelist_candidate(
+                    matched_side=matched_side, co_comps=co_comps,
+                    products=flat_products,
+                    version=(4 if cofactor_whitelist_4
+                             else (3 if cofactor_whitelist_3
+                                   else (2 if cofactor_whitelist_2
+                                         else 1))))
+                if wl is not None:
+                    cofactor_info = dict(wl["disclosure"])
+                    status = "split"
+                    cls = {
+                        "status": "split",
+                        "executable_products": list(
+                            wl["executable_products"]),
+                        "copy_products": list(wl["copy_products"]),
+                        "mapping_fallback": bool(
+                            cls.get("mapping_fallback")),
+                        "detail": {"cofactor_whitelist": cofactor_info},
+                    }
             if status == "split":
-                compiled = None
-                try:
-                    compiled = compile_recorded_reaction(
+                executable_products = list(cls["executable_products"])
+                copy_products = list(cls["copy_products"])
+                # ---- v1.4 T14-4(wl4)：view→raw 位置对齐(原文回退用) --
+                raw_flat_products = _flatten_product_entries(
+                    list(record["products"]))
+                raw_executable = _align_subset_to_raw(
+                    flat_products, raw_flat_products, executable_products)
+                raw_copies = _align_subset_to_raw(
+                    flat_products, raw_flat_products, copy_products)
+                can_raw_retry = bool(
+                    _ext2 and raw_executable is not None
+                    and raw_copies is not None
+                    and (raw_matched_side != matched_side
+                         or raw_flat_products != flat_products))
+
+                def _compile_split(*, donor: str, executable: list[str],
+                                   copies: list[str],
+                                   record_products_arg: list[str],
+                                   skip_formnorm: bool) -> dict:
+                    return compile_recorded_reaction(
                         substrate_smiles=substrate,
-                        donor_smiles=matched_side,
-                        products=list(cls["executable_products"]),
+                        donor_smiles=donor,
+                        products=list(executable),
                         record_id=record["record_key"],
-                        declared_copies=list(cls["copy_products"]),
-                        record_products=flat_products,
+                        declared_copies=list(copies),
+                        record_products=list(record_products_arg),
                         formnorm_source_ref={
                             "channel": "corpus",
                             "asset_sha256": corpus_sha,
                             "record_key": record["record_key"],
                             "matched_side_or_component": {
                                 "donor_match_kind": kind,
-                                "matched_side_index": _rep_idx}})
+                                "matched_side_index": _rep_idx}},
+                        # T10-B:d2-cofactor-whitelist-2 同时打开编译器
+                        # 电荷/立体表达扩展(白名单放行后仍要能落图);
+                        # 其它路径(含 v1 开关)保持 False 零漂移。
+                        # v1.4 T14-1B:d2-cofactor-whitelist-3 保持
+                        # charge_ops=False(纯标准 4-op 编辑),只开
+                        # 立体消解 / 立体安全回退 / 芳环裂解扩展。
+                        # v1.4 T14-4:wl4 在 wl3 之上再开编译器 v2 两
+                        # 开关(保留立体中心奇偶核验 / 芳环新键闭合)。
+                        charge_ops=bool(cofactor_whitelist_2),
+                        stereo_edit_graceful_fallback=bool(
+                            cofactor_whitelist_2 or _wl34),
+                        extended_stereo_dissolution=bool(_wl34),
+                        allow_ring_cleavage_and_fused_dearomatization=bool(
+                            _wl34),
+                        retained_tetrahedral_parity_check=bool(_ext2),
+                        allow_aromatic_ring_closure=bool(_ext2),
+                        # wl4 全量口径:strict 键统一 + 精确供体全骨架
+                        # (显式条件判定见 compile_recorded_reaction)。
+                        strict_key_unified=bool(_ext2),
+                        exact_donor_full_skeleton=bool(_ext2),
+                        skip_formnorm=bool(skip_formnorm))
+
+                def _try_raw_retry() -> dict | None:
+                    """wl4 原文回退：view 编译失败 ⇒ 原文串重试一次。"""
+                    if not can_raw_retry:
+                        return None
+                    try:
+                        retried = _compile_split(
+                            donor=raw_matched_side,
+                            executable=list(raw_executable or []),
+                            copies=list(raw_copies or []),
+                            record_products_arg=raw_flat_products,
+                            skip_formnorm=True)
+                    except RecordedSourceError:
+                        return None
+                    if retried.get("status") != "compiled":
+                        return None
+                    return retried
+
+                used_raw_fallback = False
+                compiled = None
+                compile_exc: RecordedSourceError | None = None
+                try:
+                    compiled = _compile_split(
+                        donor=matched_side,
+                        executable=executable_products,
+                        copies=copy_products,
+                        record_products_arg=flat_products,
+                        skip_formnorm=False)
                 except RecordedSourceError as exc:
+                    compile_exc = exc
+                if compiled is None:
+                    retried = _try_raw_retry()
+                    if retried is not None:
+                        compiled = retried
+                        used_raw_fallback = True
+                        executable_products = list(raw_executable or [])
+                        copy_products = list(raw_copies or [])
+                if compiled is None:
+                    exc = compile_exc
                     reason = str(exc.detail.get("kind")
                                  or "record_unparseable")
                     failure_hist[reason] = failure_hist.get(
@@ -2263,6 +2989,15 @@ def find_corpus_recorded_exact(
                         formnorm_status=fn_status,
                         formnorm_trace=fn_trace))
                     continue
+                # v1.4 T14-4：view 编译“诚实拒”也先试原文回退一次
+                # （失败判定 = 非 compiled，与异常路径同权）。
+                if compiled.get("status") != "compiled":
+                    retried = _try_raw_retry()
+                    if retried is not None:
+                        compiled = retried
+                        used_raw_fallback = True
+                        executable_products = list(raw_executable or [])
+                        copy_products = list(raw_copies or [])
                 if compiled.get("status") != "compiled":
                     reason = str(compiled.get("reason") or "unknown")
                     failure_hist[reason] = failure_hist.get(
@@ -2315,8 +3050,12 @@ def find_corpus_recorded_exact(
                 # 拷贝/键合已被结构性排除,component 候选产出的 spec
                 # 的 edits 不得含任何 add_atom(防未来实现漂移,触发
                 # 即结构化拒)。
-                if any(str(e.get("op")) == "add_atom"
-                       for e in spec.get("edits") or []):
+                # T3 §10.2:bonded 白名单放行分支是**唯一例外**——
+                # add_atom 只允许承载该白名单辅因子的元素(元素级
+                # 机器断言;超出部分仍按 NC-3 拒)。
+                add_atom_edits = [e for e in (spec.get("edits") or [])
+                                  if str(e.get("op")) == "add_atom"]
+                if add_atom_edits and cofactor_info is None:
                     reason = ("cosubstrate_executable_add_atom_"
                               "regression_guard")
                     failure_hist[reason] = failure_hist.get(
@@ -2360,13 +3099,73 @@ def find_corpus_recorded_exact(
                         formnorm_trace=fn_trace))
                     continue
                 spec = dict(spec)
+                if cofactor_info is not None:
+                    # ---- T3 §10.2:add_atom 元素级机器断言 ----
+                    # 只允许承载该白名单辅因子的元素;任一 add_atom 的
+                    # 元素不在辅因子元素清单 ⇒ 结构化拒(不放行)。
+                    inv = dict(cofactor_info.get(
+                        "cofactor_heavy_atoms") or {})
+                    bad = sorted({str(e.get("element") or "")
+                                  for e in add_atom_edits
+                                  if str(e.get("element") or "") not in inv})
+                    if bad:
+                        reason = ("cosubstrate_cofactor_whitelist_"
+                                  "element_guard")
+                        failure_hist[reason] = failure_hist.get(
+                            reason, 0) + 1
+                        n_cosub_rejected += 1
+                        fn_status, fn_trace = corpus_formnorm_fields(
+                            view=view, record=record, kind=kind,
+                            rep_idx=_rep_idx, corpus_sha=corpus_sha,
+                            compile_block=dict(
+                                compiled.get("formnorm") or {}),
+                            products_for_risk=[],
+                            substrate=substrate,
+                            unknown_reason=(
+                                "compile_reject:"
+                                "cosubstrate_cofactor_whitelist_"
+                                "element_guard"))
+                        candidates.append(_corpus_candidate(
+                            record, tier, kind, matched_side, co_comps,
+                            compile_spec=None,
+                            compile_status="unsupported",
+                            compile_reason=reason, compile_detail={
+                                "record_key": record["record_key"],
+                                "line_no": record["line_no"],
+                                "donor_A_smiles": record["donor_A_smiles"],
+                                "direction": record["direction"],
+                                "master_id": record["master_id"],
+                                "matched_component": raw_matched_side,
+                                "co_substrates": [
+                                    {"smiles": str(c),
+                                     "strict_identity": _strict_of(str(c))}
+                                    for c in co_comps],
+                                "products": list(record["products"]),
+                                "cofactor_whitelist": cofactor_info,
+                                "elements_outside_cofactor": bad,
+                                "note": ("add_atom edits must be carried by "
+                                         "the whitelisted cofactor's own "
+                                         "element inventory"),
+                            },
+                            matched_component_raw=raw_matched_side,
+                            formnorm_status=fn_status,
+                            formnorm_trace=fn_trace))
+                        continue
+                    cofactor_info["n_add_atom_edits"] = len(add_atom_edits)
                 try:
                     _attach_cosubstrate_spec_fields(
                         spec, substrate_smiles=substrate,
                         record=record, matched_side=raw_matched_side,
-                        co_comps=co_comps,
-                        record_products_flat=flat_products,
-                        copy_products=list(cls["copy_products"]))
+                        # v1.4 T14-4：原文回退时消费域 = 原文串 ⇒ 声明面
+                        # (B 状态 / contract record_products) 同步用原文，
+                        # 防与原文编译的 spec 在首次消费按 strict 键
+                        # 核同源一致性时自相矛盾（默认未回退 ⇒ 原值）。
+                        co_comps=(raw_co_comps if used_raw_fallback
+                                  else co_comps),
+                        record_products_flat=(
+                            raw_flat_products if used_raw_fallback
+                            else flat_products),
+                        copy_products=list(copy_products))
                 except _ChemStateBuildFailure as exc:
                     reason = str(exc.detail.get("kind"))
                     failure_hist[reason] = failure_hist.get(
@@ -2390,13 +3189,80 @@ def find_corpus_recorded_exact(
                         formnorm_status=fn_status,
                         formnorm_trace=fn_trace))
                     continue
+                # ---- v1.4 T14-1B.1:装配完成后的生产准入预检 ----
+                # 开关关 ⇒ **零调用**(默认路径逐字节不变)。装配成功的
+                # spec 仍可能在 prepare 段触发 NC-9(curated 白名单二分
+                # 的重复产物身份)/NC-10 一类契约拒 —— 预检不过按结构化
+                # unsupported 记录并不计入 n_cosub_compiled(不进池)。
+                if _wl34:
+                    ok_pre, pre_reason = v14_preflight_admission_ok(
+                        substrate, spec)
+                    if not ok_pre:
+                        failure_hist[pre_reason] = failure_hist.get(
+                            pre_reason, 0) + 1
+                        n_cosub_rejected += 1
+                        fn_status, fn_trace = corpus_formnorm_fields(
+                            view=view, record=record, kind=kind,
+                            rep_idx=_rep_idx, corpus_sha=corpus_sha,
+                            compile_block=dict(
+                                compiled.get("formnorm") or {}),
+                            products_for_risk=[],
+                            substrate=substrate,
+                            unknown_reason=(
+                                f"admission_preflight:{pre_reason}"))
+                        candidates.append(_corpus_candidate(
+                            record, tier, kind, matched_side, co_comps,
+                            compile_spec=None,
+                            compile_status="unsupported",
+                            compile_reason=pre_reason, compile_detail={
+                                "record_key": record["record_key"],
+                                "line_no": record["line_no"],
+                                "donor_A_smiles": record["donor_A_smiles"],
+                                "direction": record["direction"],
+                                "master_id": record["master_id"],
+                                "matched_component": raw_matched_side,
+                                "co_substrates": [
+                                    {"smiles": str(c),
+                                     "strict_identity": _strict_of(str(c))}
+                                    for c in co_comps],
+                                "products": list(record["products"]),
+                                "cofactor_whitelist": dict(
+                                    cofactor_info or {}),
+                                "note": (
+                                    "v1.4 T14-1B.1 admission preflight "
+                                    "rejected the assembled spec "
+                                    "(prepare/execute/audit/admission "
+                                    "chain, same source as the HPC "
+                                    "admission gate); the spec is NOT "
+                                    "released to the pool"),
+                            },
+                            matched_component_raw=raw_matched_side,
+                            formnorm_status=fn_status,
+                            formnorm_trace=fn_trace))
+                        continue
                 n_cosub_compiled += 1
-                fn_status, fn_trace = corpus_formnorm_fields(
-                    view=view, record=record, kind=kind,
-                    rep_idx=_rep_idx, corpus_sha=corpus_sha,
-                    compile_block=dict(compiled.get("formnorm") or {}),
-                    products_for_risk=[],
-                    substrate=substrate)
+                if cofactor_info is not None:
+                    # T3 §10.2:白名单放行披露(机读;进 spec.compile
+                    # 与 corpus 块,不改变参与物契约语义)
+                    spec.setdefault("compile", {})[
+                        "cofactor_whitelist"] = dict(cofactor_info)
+                    if isinstance(spec.get("corpus"), dict):
+                        spec["corpus"]["cofactor_whitelist"] = dict(
+                            cofactor_info)
+                fn_status, fn_trace = (
+                    _raw_fallback_formnorm_fields(
+                        record=record, kind=kind, rep_idx=_rep_idx,
+                        corpus_sha=corpus_sha,
+                        raw_donor=raw_matched_side,
+                        raw_co_comps=raw_co_comps,
+                        raw_products=list(record["products"]))
+                    if used_raw_fallback else
+                    corpus_formnorm_fields(
+                        view=view, record=record, kind=kind,
+                        rep_idx=_rep_idx, corpus_sha=corpus_sha,
+                        compile_block=dict(compiled.get("formnorm") or {}),
+                        products_for_risk=[],
+                        substrate=substrate))
                 # T-E:applied 视体 ⇒ 五键条件追加(首事务持有;二次
                 # 进入公共 compile 的局部 not_applicable 不覆盖——复审
                 # §4.3)。matched 来源例外另披露消费态(component 分支)
@@ -2415,7 +3281,12 @@ def find_corpus_recorded_exact(
                     stamp_formnorm_spec_keys(spec, {
                         "status": "applied", "trace": fn_trace})
                 candidates.append(_corpus_candidate(
-                    record, tier, kind, matched_side, co_comps,
+                    record, tier, kind,
+                    # v1.4 T14-4：回退成功时消费域 = 原文串（候选诊断
+                    # 如实记实际消费文本；默认未回退 ⇒ 原值）。
+                    (raw_matched_side if used_raw_fallback
+                     else matched_side),
+                    (raw_co_comps if used_raw_fallback else co_comps),
                     compile_spec=spec,
                     compile_status=str(compiled.get("status")),
                     compile_reason="",
@@ -2482,11 +3353,19 @@ def find_corpus_recorded_exact(
                 formnorm_trace=fn_trace))
             continue
         products = list(products_view)
-        try:
-            compiled = compile_recorded_reaction(
+        # ---- v1.4 T14-4(wl4)：整串分支原文回退（一次；默认关零调用）--
+        raw_flat_products = _flatten_product_entries(
+            list(record["products"]))
+        can_raw_retry = bool(
+            _ext2 and (raw_matched_side != matched_side
+                       or raw_flat_products != products))
+
+        def _compile_whole(*, donor: str, prods: list[str],
+                           skip_formnorm: bool) -> dict:
+            return compile_recorded_reaction(
                 substrate_smiles=substrate,
-                donor_smiles=matched_side,
-                products=products,
+                donor_smiles=donor,
+                products=list(prods),
                 record_id=record["record_key"],
                 formnorm_source_ref={
                     "channel": "corpus",
@@ -2495,8 +3374,52 @@ def find_corpus_recorded_exact(
                     "matched_side_or_component": {
                         "donor_match_kind": kind,
                         "matched_side_index": (
-                            _rep_idx if kind == "component" else None)}})
+                            _rep_idx if kind == "component" else None)}},
+                # v1.4 T14-1B(默认关):整串分支同步扩展编译器表达面
+                # v1.4 T14-4:wl4 在 wl3 之上再开编译器 v2 两开关
+                # (保留立体中心奇偶核验 / 芳环新键闭合)。
+                extended_stereo_dissolution=bool(_wl34),
+                stereo_edit_graceful_fallback=bool(_wl34),
+                allow_ring_cleavage_and_fused_dearomatization=bool(_wl34),
+                retained_tetrahedral_parity_check=bool(_ext2),
+                allow_aromatic_ring_closure=bool(_ext2),
+                # wl4 全量口径:strict 键统一 + 精确供体全骨架
+                # (显式条件判定见 compile_recorded_reaction)。
+                strict_key_unified=bool(_ext2),
+                exact_donor_full_skeleton=bool(_ext2),
+                skip_formnorm=bool(skip_formnorm))
+
+        def _try_raw_retry_whole() -> dict | None:
+            """wl4 原文回退：整串 view 编译失败 ⇒ 原文串重试一次。"""
+            if not can_raw_retry:
+                return None
+            try:
+                retried = _compile_whole(
+                    donor=raw_matched_side,
+                    prods=raw_flat_products,
+                    skip_formnorm=True)
+            except RecordedSourceError:
+                return None
+            if retried.get("status") != "compiled":
+                return None
+            return retried
+
+        used_raw_fallback = False
+        compiled = None
+        compile_exc: RecordedSourceError | None = None
+        try:
+            compiled = _compile_whole(
+                donor=matched_side, prods=products, skip_formnorm=False)
         except RecordedSourceError as exc:
+            compile_exc = exc
+        if compiled is None:
+            retried = _try_raw_retry_whole()
+            if retried is not None:
+                compiled = retried
+                used_raw_fallback = True
+                products = list(raw_flat_products)
+        if compiled is None:
+            exc = compile_exc
             reason = str(exc.detail.get("kind") or "record_unparseable")
             failure_hist[reason] = failure_hist.get(reason, 0) + 1
             fn_status, fn_trace = corpus_formnorm_fields(
@@ -2511,6 +3434,12 @@ def find_corpus_recorded_exact(
                 formnorm_status=fn_status,
                 formnorm_trace=fn_trace))
             continue
+        if compiled.get("status") != "compiled":
+            retried = _try_raw_retry_whole()
+            if retried is not None:
+                compiled = retried
+                used_raw_fallback = True
+                products = list(raw_flat_products)
         if compiled.get("status") != "compiled":
             reason = str(compiled.get("reason") or "unknown")
             failure_hist[reason] = failure_hist.get(reason, 0) + 1
@@ -2549,13 +3478,33 @@ def find_corpus_recorded_exact(
                     "co-substrate declaration)"),
                 "provenance_sha256": record["provenance_sha256"],
             }
-        fn_status, fn_trace = corpus_formnorm_fields(
-            view=view, record=record, kind=kind, rep_idx=_rep_idx,
-            corpus_sha=corpus_sha,
-            compile_block=dict(compiled.get("formnorm") or {}),
-            products_for_risk=products_view,
-            substrate=substrate,
-            unknown_reason=str(compiled.get("reason") or "unknown"))
+        # ---- v1.4 T14-1B.1:整串分支的生产准入预检(开关关 ⇒ 零调用)--
+        # 编译成功且 corpus 块装配完成后再核一次生产链(prepare →
+        # execute → audit → admission);不过 ⇒ spec 置 None 并按结构化
+        # unsupported 记录,不让坏 spec 进池。
+        preflight_reason = ""
+        if _wl34 and spec is not None:
+            ok_pre, pre_reason = v14_preflight_admission_ok(substrate, spec)
+            if not ok_pre:
+                preflight_reason = pre_reason
+                failure_hist[pre_reason] = failure_hist.get(
+                    pre_reason, 0) + 1
+                spec = None
+        fn_status, fn_trace = (
+            _raw_fallback_formnorm_fields(
+                record=record, kind=kind, rep_idx=_rep_idx,
+                corpus_sha=corpus_sha,
+                raw_donor=raw_matched_side,
+                raw_co_comps=raw_co_comps,
+                raw_products=list(record["products"]))
+            if used_raw_fallback else
+            corpus_formnorm_fields(
+                view=view, record=record, kind=kind, rep_idx=_rep_idx,
+                corpus_sha=corpus_sha,
+                compile_block=dict(compiled.get("formnorm") or {}),
+                products_for_risk=products_view,
+                substrate=substrate,
+                unknown_reason=str(compiled.get("reason") or "unknown")))
         if spec is not None and fn_status == "applied":
             spec["corpus"]["matched_component_consumption_view"] = \
                 str(view["donor"])
@@ -2568,10 +3517,17 @@ def find_corpus_recorded_exact(
             stamp_formnorm_spec_keys(spec, {
                 "status": "applied", "trace": fn_trace})
         candidates.append(_corpus_candidate(
-            record, tier, kind, matched_side, co_comps,
+            record, tier, kind,
+            # v1.4 T14-4：回退成功时消费域 = 原文串（如实记实际消费
+            # 文本；默认未回退 ⇒ 原值）。
+            (raw_matched_side if used_raw_fallback else matched_side),
+            (raw_co_comps if used_raw_fallback else co_comps),
             compile_spec=spec,
-            compile_status=str(compiled.get("status")),
-            compile_reason=str(compiled.get("reason") or ""),
+            compile_status=("unsupported" if preflight_reason
+                            else str(compiled.get("status"))),
+            compile_reason=(preflight_reason
+                            if preflight_reason
+                            else str(compiled.get("reason") or "")),
             compile_detail=dict(compiled.get("detail") or {}),
             matched_component_raw=raw_matched_side,
             formnorm_status=fn_status,
@@ -3248,6 +4204,15 @@ def compile_recorded_reaction(
     formnorm_source_ref: dict | None = None,
     formnorm_trace_extra: dict | None = None,
     novel_product_first_principal: str | None = None,
+    extended_stereo_dissolution: bool = False,
+    charge_ops: bool = False,
+    stereo_edit_graceful_fallback: bool = False,
+    allow_ring_cleavage_and_fused_dearomatization: bool = False,
+    retained_tetrahedral_parity_check: bool = False,
+    allow_aromatic_ring_closure: bool = False,
+    skip_formnorm: bool = False,
+    exact_donor_full_skeleton: bool = False,
+    strict_key_unified: bool = False,
 ) -> dict:
     """库记录(donor + 完整净产物集合)→ PPV1 池 spec(推断映射)。
 
@@ -3288,6 +4253,21 @@ def compile_recorded_reaction(
     (A 原子全部可溯的产物组分);扩展模式在可复现 spec 中优先选
     无 add_atom 编辑者(可执行子集原子全部 A-可溯 ⇒ 结构上不应有
     新原子;防御性选择,不改变缺省路径行为)。
+
+    **v1.4 T14-4(全部默认关 ⇒ 缺省路径逐字节零漂移)**:
+
+    - ``retained_tetrahedral_parity_check`` / ``allow_aromatic_ring_
+      closure``:转发编译器 v2 扩展(保留立体中心的奇偶性核验 / 芳环
+      新键闭合);
+    - ``skip_formnorm``:跳过记录侧形式归一(不调用归一算子,构造
+      ``status="not_applicable"`` 的事务占位),用于 wl4 原文回退——
+      编译按**原文串**进行,证据面如实标 not_applicable;
+    - ``exact_donor_full_skeleton``:``full_donor_skeleton`` 的显式
+      条件追加(供体/底物严格身份相等,或电荷中和身份相等且原子数
+      相等;不改既有判定来源);
+    - ``strict_key_unified``:strict exact 门的执行侧组分键统一到
+      ``_executed_components_strict_unified``(过滤 None),并允许
+      「多目标 = 同一组分集合」不误判 ``ambiguous_mapping``。
     """
     # ---- T-E(E1a):记录侧形式归一(单一算子;事务=一次候选消费视体) ----
     formnorm_entries: list[dict] = [{
@@ -3309,7 +4289,26 @@ def compile_recorded_reaction(
             formnorm_entries.append({
                 "side": "full_products", "field": "record_products",
                 "entry_index": int(i), "smiles": str(c)})
-    formnorm_tx = normalize_record_side_transaction(formnorm_entries)
+    if skip_formnorm:
+        # v1.4 T14-4：wl4 原文回退 —— 显式跳过记录侧形式归一。事务占位
+        # 与 ``normalize_record_side_transaction`` 同形(status/reason/
+        # values/fields/changes/atom_correspondence/revert),但全部标
+        # not_applicable、值 = 原串 ⇒ 下游切片/证据面语义不变。
+        formnorm_tx = {
+            "status": "not_applicable",
+            "reason": "skip_formnorm_requested(raw_text_fallback)",
+            "values": [str(e.get("smiles")) for e in formnorm_entries],
+            "fields": [
+                {"side": str(e["side"]), "field": str(e["field"]),
+                 "entry_index": int(e["entry_index"]),
+                 "status": "not_applicable"}
+                for e in formnorm_entries],
+            "changes": [],
+            "atom_correspondence": [],
+            "revert": None,
+        }
+    else:
+        formnorm_tx = normalize_record_side_transaction(formnorm_entries)
     donor_eff = str(formnorm_tx["values"][0])
     n_products = len(list(products or []))
     products_eff = [str(v) for v in
@@ -3377,6 +4376,20 @@ def compile_recorded_reaction(
     mapping_artifacts: dict[int, dict] = {}
     recorded = sorted(x for x in
                       _record_products_strict(products_eff) if x)
+
+    def _exec_strict(target_smiles: str) -> list[str]:
+        """执行侧组分键（strict exact 门的单一来源）。
+
+        ``strict_key_unified=False``（默认）⇒ 改前裸 MolToSmiles 键
+        排序；``True`` ⇒ ``_executed_components_strict_unified``
+        （``strict_identity_of`` 键空间，过滤 None），与 ``recorded``
+        同一键空间（R32-CS3-2）。v1.4 T14-4 新增，默认零漂移。
+        """
+        if not strict_key_unified:
+            return sorted(_executed_components_strict(target_smiles))
+        return sorted(
+            x for x in _executed_components_strict_unified(target_smiles)
+            if x is not None)
     for mapping in mappings:
         donor_to_union = mapping["donor_to_union"]
         new_union = mapping["new_union"]
@@ -3400,6 +4413,23 @@ def compile_recorded_reaction(
             novel_product_first_principal is not None
             and str(donor_smiles) == str(substrate_smiles)
         )
+        if exact_donor_full_skeleton and not full_donor_skeleton:
+            # v1.4 T14-4：exact 供体全骨架的**条件**判定（不是无条件置真）：
+            # ① 供体/底物严格身份相等；或 ② 电荷中和身份相等且原子数相等
+            # （中和只解释质子化/电荷差，不解释骨架差）。两者都不满足 ⇒
+            # 不给全骨架语义（保持既有判据）。
+            donor_strict = _strict_of(donor_eff)
+            substrate_strict = _strict_of(substrate_smiles)
+            sub_mol = Chem.MolFromSmiles(str(substrate_smiles))
+            donor_cn = cn_identity(donor_eff)
+            if (donor_strict is not None
+                    and donor_strict == substrate_strict):
+                full_donor_skeleton = True
+            elif (donor_cn is not None
+                  and donor_cn == cn_identity(str(substrate_smiles))
+                  and sub_mol is not None
+                  and donor_mol.GetNumAtoms() == sub_mol.GetNumAtoms()):
+                full_donor_skeleton = True
         if novel_product_first_principal is not None and removed_donor:
             mapped_lhs_compile, mapped_rhs_compile, rem_comp_stricts = (
                 _removed_donor_compile_view(
@@ -3412,7 +4442,16 @@ def compile_recorded_reaction(
                 record_id=record_id, mapping_origin="inferred",
                 alignment_ref=f"recorded-inferred:{record_id}",
                 key_prefix="rec",
-                full_donor_skeleton=full_donor_skeleton)
+                full_donor_skeleton=full_donor_skeleton,
+                extended_stereo_dissolution=extended_stereo_dissolution,
+                charge_ops=charge_ops,
+                stereo_edit_graceful_fallback=stereo_edit_graceful_fallback,
+                allow_ring_cleavage_and_fused_dearomatization=bool(
+                    allow_ring_cleavage_and_fused_dearomatization),
+                retained_tetrahedral_parity_check=bool(
+                    retained_tetrahedral_parity_check),
+                allow_aromatic_ring_closure=bool(
+                    allow_aromatic_ring_closure))
         else:
             mapped_lhs_compile = mapped_lhs
             mapped_rhs_compile = mapped_rhs
@@ -3425,15 +4464,24 @@ def compile_recorded_reaction(
                 record_id=record_id, mapping_origin="inferred",
                 alignment_ref=f"recorded-inferred:{record_id}",
                 key_prefix="rec",
-                full_donor_skeleton=full_donor_skeleton)
+                full_donor_skeleton=full_donor_skeleton,
+                extended_stereo_dissolution=extended_stereo_dissolution,
+                charge_ops=charge_ops,
+                stereo_edit_graceful_fallback=stereo_edit_graceful_fallback,
+                allow_ring_cleavage_and_fused_dearomatization=bool(
+                    allow_ring_cleavage_and_fused_dearomatization),
+                retained_tetrahedral_parity_check=bool(
+                    retained_tetrahedral_parity_check),
+                allow_aromatic_ring_closure=bool(
+                    allow_aromatic_ring_closure))
             if (
                 novel_product_first_principal is not None
                 and not new_union
                 and any(_is_co2_or_formate_smiles(c) for c in products_eff[1:])
                 and (
                     out.get("status") != "compiled"
-                    or sorted(_executed_components_strict(
-                        out["spec"]["expectation"]["target_smiles"])) != recorded
+                    or _exec_strict(
+                        out["spec"]["expectation"]["target_smiles"]) != recorded
                 )
             ):
                 mapped_lhs_fb, mapped_rhs_fb, rem_comp_fb = (
@@ -3447,7 +4495,16 @@ def compile_recorded_reaction(
                     record_id=record_id, mapping_origin="inferred",
                     alignment_ref=f"recorded-inferred:{record_id}",
                     key_prefix="rec",
-                    full_donor_skeleton=full_donor_skeleton)
+                    full_donor_skeleton=full_donor_skeleton,
+                    extended_stereo_dissolution=extended_stereo_dissolution,
+                charge_ops=charge_ops,
+                stereo_edit_graceful_fallback=stereo_edit_graceful_fallback,
+                allow_ring_cleavage_and_fused_dearomatization=bool(
+                    allow_ring_cleavage_and_fused_dearomatization),
+                retained_tetrahedral_parity_check=bool(
+                    retained_tetrahedral_parity_check),
+                allow_aromatic_ring_closure=bool(
+                    allow_aromatic_ring_closure))
                 if out_fb.get("status") == "compiled":
                     out = out_fb
                     rem_comp_stricts = rem_comp_fb
@@ -3471,6 +4528,15 @@ def compile_recorded_reaction(
                                    "all_reasons": sorted(reasons)[:8]}})
     targets = {spec["spec"]["expectation"]["target_smiles"]
                for spec in compiled_specs}
+    # v1.4 T14-4：strict 键统一后，「多目标 = 同一组分集合」不误判
+    # ambiguous_mapping（裸键空间不同的同一 strict 组分集合）。默认
+    # False ⇒ 既有歧义判据不变。
+    single_unified_target = False
+    if strict_key_unified:
+        single_unified_target = len({
+            tuple(_exec_strict(
+                spec["spec"]["expectation"]["target_smiles"]))
+            for spec in compiled_specs}) <= 1
     p1_eval_by_id: dict[int, dict] = {}
     if novel_product_first_principal is not None:
         for cand in compiled_specs:
@@ -3485,8 +4551,8 @@ def compile_recorded_reaction(
     # product_set_mismatch(过滤缺失/对应错误诚实拒,不冒充完整 record)。
     reproducible = [
         spec for spec in compiled_specs
-        if sorted(_executed_components_strict(
-            spec["spec"]["expectation"]["target_smiles"])) == recorded]
+        if _exec_strict(
+            spec["spec"]["expectation"]["target_smiles"]) == recorded]
     if reproducible:
         chosen = reproducible[0]
         if declared_copies is not None:
@@ -3536,7 +4602,7 @@ def compile_recorded_reaction(
                 })
         else:
             chosen = p1_valid[0] if p1_valid else compiled_specs[0]
-    elif len(targets) > 1:
+    elif len(targets) > 1 and not single_unified_target:
         return _fn_ret({"status": "unsupported",
                         "reason": "ambiguous_mapping",
                         "detail": {"record_id": record_id,
@@ -3549,8 +4615,7 @@ def compile_recorded_reaction(
         chosen = compiled_specs[0]
     spec = chosen["spec"]
     # ---- strict exact 最终门:执行产物组分 == 库记录产物(多重集) ----
-    executed = sorted(_executed_components_strict(
-        spec["expectation"]["target_smiles"]))
+    executed = _exec_strict(spec["expectation"]["target_smiles"])
     p1_chosen_eval = p1_eval_by_id.get(id(chosen)) or {}
     if executed != recorded and not p1_chosen_eval.get("gate_ok"):
         return _fn_ret({"status": "unsupported",

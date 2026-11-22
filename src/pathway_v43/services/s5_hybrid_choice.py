@@ -22,6 +22,7 @@ from rdkit.Chem import AllChem
 
 from pathway_v43.gold_health import HALOGENS, _analyze_side
 from pathway_v43.pollutant.chemstate import strict_identity_of
+from pathway_v43.domain.identity import cn_identity
 
 
 # ============================================================================
@@ -45,6 +46,31 @@ CONTROLLED_12_REACTION_CLASSES: tuple[tuple[str, str], ...] = (
 
 REACTION_CLASS_LABELS: dict[str, str] = dict(CONTROLLED_12_REACTION_CLASSES)
 
+# T11:12 类**标准序**标签元组(路由提示词/解析校验/分层共享的单一来源;
+# 只做索引与集合,不改变 CONTROLLED_12_REACTION_CLASSES 的定义序 —— 后者
+# 是既有分类器/渲染的消费面,改动会漂移既有产物)。
+REACTION_CLASS_12_LABELS: tuple[str, ...] = (
+    "monooxygenation_hydroxylation",
+    "dioxygenation_dihydroxylation",
+    "dehydrogenation_oxidation",
+    "reduction_hydrogenation",
+    "dehalogenation_or_halogenation",
+    "group_transfer_or_condensation",
+    "decarboxylation_or_c1_cleavage",
+    "beta_oxidation_or_c2_cleavage",
+    "hydrolysis_or_large_cleavage",
+    "hydration_or_dehydration",
+    "ring_cleavage",
+    "isomerization_rearrangement",
+)
+REACTION_CLASS_12_LABEL_SET: frozenset[str] = frozenset(
+    REACTION_CLASS_12_LABELS)
+
+
+def is_valid_reaction_class_12(label: str | None) -> bool:
+    """标签是否属 12 类受控词表(严格小写原名;不做模糊归一)。"""
+    return str(label or "") in REACTION_CLASS_12_LABEL_SET
+
 
 @lru_cache(maxsize=65536)
 def k_strict(smiles: str | None) -> str | None:
@@ -54,6 +80,320 @@ def k_strict(smiles: str | None) -> str | None:
         return strict_identity_of(str(smiles))
     except Exception:
         return None
+
+
+# ---- 论文消融 v1.4(2026-11-16,默认无调用者 ⇒ 零漂移)----
+# 零金标 NoSelf 辅助:只消费题面底物 SMILES + 非金标题源反应标识
+# 元数据(source reaction id / parent_reaction_ids / donor_smiles),
+# 不读取 reference_graphs 或任何金标产物。
+@lru_cache(maxsize=65536)
+def _strip_atom_map_key(smiles: str | None) -> str | None:
+    """去原子映射后的 canonical SMILES(strict/cn 身份比较前处理)。"""
+    if not smiles:
+        return None
+    mol = Chem.MolFromSmiles(str(smiles))
+    if mol is None:
+        return None
+    for atom in mol.GetAtoms():
+        atom.SetAtomMapNum(0)
+    try:
+        return Chem.MolToSmiles(mol, isomericSmiles=True)
+    except Exception:
+        return None
+
+
+def component_identity_sets(smiles: str | None) -> tuple[set[str], set[str]]:
+    """(strict 组分身份集, cn 去质子组分身份集);零金标。"""
+    text = str(smiles or "").strip()
+    if not text:
+        return set(), set()
+    parts = [p for p in text.split(".") if p.strip()]
+    strict: set[str] = set()
+    cn: set[str] = set()
+    for part in parts:
+        stripped = _strip_atom_map_key(part) or part
+        st = k_strict(stripped)
+        if st:
+            strict.add(st)
+        try:
+            cn_val = cn_identity(stripped)
+        except Exception:
+            cn_val = None
+        if cn_val:
+            cn.add(cn_val)
+    return strict, cn
+
+
+def question_source_ids(question_meta: dict | None) -> set[str]:
+    """题源反应标识集合(非金标元数据;只用于 NoSelf 规则剔除)。"""
+    meta = dict(question_meta or {})
+    ids: set[str] = set()
+    for key in ("reaction_id", "source_reaction_id", "source_id",
+                "record_id"):
+        value = meta.get(key)
+        if value:
+            ids.add(str(value))
+    for key in ("source_reaction_ids", "reaction_ids"):
+        raw = meta.get(key)
+        if isinstance(raw, (list, tuple, set)):
+            for item in raw:
+                if item:
+                    ids.add(str(item))
+    return ids
+
+
+def _same_component_set(smiles: str,
+                        target_strict: set[str],
+                        target_cn: set[str]) -> bool:
+    """组分集合是否与目标(当前输入底物)严格或去质子身份全等。"""
+    st, cn = component_identity_sets(smiles)
+    if not st or not target_strict:
+        return False
+    return bool(st == target_strict or (cn and cn == target_cn))
+
+
+def _shares_component(smiles: str,
+                      target_strict: set[str],
+                      target_cn: set[str]) -> bool:
+    """左端组分是否包含当前输入底物(严格或去质子身份交集)。"""
+    st, cn = component_identity_sets(smiles)
+    if not st:
+        return False
+    return bool((st & target_strict) or (cn & target_cn))
+
+
+def _parse_parent_reaction_ids(raw: Any) -> list[str]:
+    """REACTIONS 列(逗号/分号分隔,可能含 URL)归一为标识列表。"""
+    text = str(raw or "").strip()
+    if not text:
+        return []
+    out: list[str] = []
+    for token in text.replace(";", ",").split(","):
+        token = token.strip()
+        if not token:
+            continue
+        if "/reaction/" in token:
+            token = token.rstrip("/").rsplit("/", 1)[-1]
+        if token and token not in out:
+            out.append(token)
+    return out
+
+
+def _env_rule_is_self(rule: dict, *, source_ids: set[str],
+                      sub_strict: set[str],
+                      sub_cn: set[str]) -> bool:
+    """S5-env 单条规则的零金标自记录判定(EAWAG/enviPath)。"""
+    rule_id = str(rule.get("rule_id") or "")
+    if rule_id and rule_id in source_ids:
+        return True
+    family = str(rule.get("source_family") or "")
+    if family == "eawag":
+        reaction_id = str(rule.get("reaction_id") or "")
+        if reaction_id and reaction_id in source_ids:
+            return True
+        donor = str(rule.get("donor_smiles") or "")
+        if donor and _same_component_set(donor, sub_strict, sub_cn):
+            return True
+        return False
+    parents = {str(x) for x in (rule.get("parent_reaction_ids") or [])}
+    return bool(parents & source_ids)
+
+
+def _rr_template_is_self(
+        info: dict, *, source_ids: set[str],
+        sub_strict: set[str], sub_cn: set[str]) -> bool:
+    """S5-rr 单模板命中零金标自记录判定。
+
+    判据(任务书 §1.2 DB-2 规则 4):parent_reaction_ids 命中题源反应
+    ID;或所有支撑父反应的左端底物身份(严格/去质子组分集合)均等于
+    当前输入底物(单样本特异规则)。
+    """
+    parents = {str(x) for x in (info.get("parent_reaction_ids") or [])}
+    if parents & source_ids:
+        return True
+    lhs_list = [str(x) for x in (info.get("lhs_mapped_smiles") or [])
+                if str(x).strip()]
+    if not lhs_list:
+        return False
+    return all(_same_component_set(lhs, sub_strict, sub_cn)
+               for lhs in lhs_list)
+
+
+# ---- 论文消融 v1.4(2026-11-16):来源过滤参数化辅助(默认全 None ⇒ 零漂移)----
+# 与上方 no_self/question_meta 旧接口并存:旧接口按"题源标识 + 组分身份"
+# 自判定;新接口由调用方显式给 ``exclude_substrate_keys``(题卷底物严格
+# 身份键)与 ``drop_rule_ids``(题源反应标识),便于池层统一归因计数。
+# 两者默认 None ⇒ 不进入任何过滤分支,行为逐字节不变。
+
+
+def _ablation_bump(stats: dict | None, key: str, n: int = 1) -> None:
+    """过滤计数累加(stats=None ⇒ 无操作;零漂移)。"""
+    if stats is None:
+        return
+    stats[key] = int(stats.get(key, 0)) + int(n)
+
+
+def _split_strict_keys(smiles: str | None) -> set[str]:
+    """映射/未映射 SMILES 的组分严格身份键集(不可解析 ⇒ 空集)。"""
+    text = str(smiles or "").strip()
+    if not text:
+        return set()
+    # 延迟导入:retro_source 依赖 retro_loader(numpy),只在过滤启用时加载。
+    from pathway_v43.services.retro_source import _component_strict_keys
+
+    return set(_component_strict_keys(text))
+
+
+def _rule_lhs_strict_keys(
+        lhs_values) -> tuple[set[str], bool]:
+    """多值/单值 lhs SMILES ⇒ (组分严格键集, 是否至少有一条可用字段)。"""
+    if isinstance(lhs_values, str):
+        # 单字符串按**一条 SMILES**处理(不得逐字符迭代;resolver hit
+        # 的 lhs_mapped_smiles 就是单字符串)。
+        lhs_values = [lhs_values]
+    keys: set[str] = set()
+    available = False
+    for value in lhs_values or ():
+        text = str(value or "").strip()
+        if not text:
+            continue
+        got = _split_strict_keys(text)
+        if got:
+            available = True
+            keys |= got
+    return keys, available
+
+
+def _as_smiles_values(value) -> set[str]:
+    """hit/规则字段 ⇒ SMILES 值集(字符串保整条,不拆字符)。"""
+    if isinstance(value, str):
+        return {value} if value.strip() else set()
+    return {str(x) for x in (value or ()) if str(x).strip()}
+
+
+def _env_rule_source_ids(rule: dict) -> set[str]:
+    """S5-env 单规则的题源标识集合(非金标元数据字段)。"""
+    ids: set[str] = set()
+    for key in ("rule_id", "reaction_id", "btid"):
+        value = str(rule.get(key) or "")
+        if value:
+            ids.add(value)
+    for value in rule.get("parent_reaction_ids") or ():
+        text = str(value or "")
+        if text:
+            ids.add(text)
+    return ids
+
+
+def _filter_rules_by_source(
+        rules: list[dict[str, Any]], *,
+        exclude_substrate_keys: set[str] | None = None,
+        drop_rule_ids: set[str] | None = None,
+        stats: dict | None = None,
+        stats_prefix: str = "env",
+        lhs_field: str = "donor_smiles",
+        substrate_match: str = "equal") -> list[dict[str, Any]]:
+    """规则级来源过滤(零金标;默认两个参数均 None ⇒ 原样返回)。
+
+    - ``drop_rule_ids``:规则自身题源标识(rule_id/reaction_id/btid/
+      parent_reaction_ids)命中 ⇒ 丢弃;
+    - ``exclude_substrate_keys``:规则 ``lhs_field`` 的组分严格键集与
+      题卷底物键集关系命中(``equal`` 全等 / ``superset`` 包含)⇒ 丢弃。
+      字段不可得 ⇒ **不丢弃**,只累计 ``n_<prefix>_lhs_unavailable``,
+      由调用方如实披露覆盖缺口(不得假装过滤)。
+    """
+    if not exclude_substrate_keys and not drop_rule_ids:
+        return rules
+    drop_ids = {str(x) for x in (drop_rule_ids or ()) if str(x)}
+    sub_keys = {str(x) for x in (exclude_substrate_keys or ()) if str(x)}
+    kept: list[dict[str, Any]] = []
+    for rule in rules:
+        if stats is not None:
+            # 字段可得性覆盖(如实披露:有字段才可能按底物/父反应过滤)
+            if rule.get("parent_reaction_ids"):
+                _ablation_bump(
+                    stats,
+                    f"n_{stats_prefix}_parent_reaction_ids_available")
+            if str(rule.get(lhs_field) or "").strip():
+                _ablation_bump(
+                    stats, f"n_{stats_prefix}_lhs_field_present")
+        if drop_ids and (_env_rule_source_ids(rule) & drop_ids):
+            _ablation_bump(stats, f"n_dropped_{stats_prefix}_rule_id")
+            continue
+        if sub_keys:
+            raw_lhs = rule.get(lhs_field)
+            lhs_values = (
+                raw_lhs if isinstance(raw_lhs, (list, tuple, set))
+                else [raw_lhs])
+            lhs_keys, available = _rule_lhs_strict_keys(lhs_values)
+            if not available:
+                _ablation_bump(
+                    stats, f"n_{stats_prefix}_lhs_unavailable")
+            else:
+                _ablation_bump(
+                    stats, f"n_{stats_prefix}_lhs_available")
+                hit = (lhs_keys == sub_keys
+                       if substrate_match == "equal"
+                       else sub_keys <= lhs_keys)
+                if hit:
+                    _ablation_bump(
+                        stats, f"n_dropped_{stats_prefix}_substrate")
+                    continue
+        kept.append(rule)
+    if stats is not None:
+        stats[f"{stats_prefix}_lhs_field"] = str(lhs_field)
+        stats[f"{stats_prefix}_substrate_match"] = str(substrate_match)
+    return kept
+
+
+def _filter_rr_template_agg(
+        tpl_agg: dict[str, dict[str, Any]], *,
+        exclude_substrate_keys: set[str] | None = None,
+        drop_rule_ids: set[str] | None = None,
+        stats: dict | None = None) -> dict[str, dict[str, Any]]:
+    """S5-rr 模板聚合结果的来源过滤(零金标;默认 None ⇒ 原样返回)。
+
+    索引 hit 只带**模板级** ``lhs_mapped_smiles``(父反应级 lhs 不在
+    hit schema 内)⇒ 单样本特异判定按模板 lhs 组分键集包含题卷底物
+    键集执行,并在 stats 如实标注 ``rr_per_parent_lhs_available``。
+    """
+    if not exclude_substrate_keys and not drop_rule_ids:
+        return tpl_agg
+    drop_ids = {str(x) for x in (drop_rule_ids or ()) if str(x)}
+    sub_keys = {str(x) for x in (exclude_substrate_keys or ()) if str(x)}
+    kept: dict[str, dict[str, Any]] = {}
+    for tpl_str, info in tpl_agg.items():
+        if stats is not None:
+            if info.get("parent_reaction_ids"):
+                _ablation_bump(
+                    stats, "n_rr_parent_reaction_ids_available")
+            if info.get("rule_ids"):
+                _ablation_bump(stats, "n_rr_rule_ids_available")
+            if info.get("lhs_mapped_smiles"):
+                _ablation_bump(stats, "n_rr_lhs_field_present")
+        if drop_ids:
+            ids = {str(x) for x in (info.get("rule_ids") or ())}
+            ids |= {str(x) for x in (
+                info.get("parent_reaction_ids") or ())}
+            if ids & drop_ids:
+                _ablation_bump(stats, "n_dropped_rr_rule_id")
+                continue
+        if sub_keys:
+            lhs_keys, available = _rule_lhs_strict_keys(
+                info.get("lhs_mapped_smiles"))
+            if not available:
+                _ablation_bump(stats, "n_rr_lhs_unavailable")
+            else:
+                _ablation_bump(stats, "n_rr_lhs_available")
+                if sub_keys <= lhs_keys:
+                    _ablation_bump(stats, "n_dropped_rr_substrate")
+                    continue
+        kept[tpl_str] = info
+    if stats is not None:
+        stats["rr_lhs_scope"] = "template_level"
+        stats["rr_template_lhs_available"] = True
+        stats["rr_per_parent_lhs_available"] = False
+    return kept
 
 
 @lru_cache(maxsize=65536)
@@ -95,6 +435,195 @@ def compute_formula_delta_str(sub_smiles: str, prod_smiles: str) -> str:
         elif d < 0:
             tokens.append(f"-{abs(d) if abs(d) > 1 else ''}{e}")
     return " ".join(tokens) if tokens else "Δ0(isomer)"
+
+
+# ============================================================================
+# 1b. v1.3 T13-A：Stage-1 引导的 w32 宽池抽池（`w32@20`）
+# ============================================================================
+
+# 桶配额默认档（只作用于**新增抽取**的尾部队列；``frozen_entries`` 是
+# 保底全保留，不受配额限制）。分桶语义：
+#   primary          = 条目 12 类 == 路由 primary_class
+#   secondary        = 条目 12 类 ∈ 路由 secondary 类（且不等于 primary）
+#   general_transform = 条目 12 类 == group_transfer_or_condensation
+#                     （通用基团转移/结合类；非 primary/secondary 时单列）
+#   other            = 其余（含类缺失/不可判）
+STAGE1_GUIDED_POOL_DEFAULT_CAPS: dict[str, int] = {
+    "primary": 6,
+    "secondary": 3,
+    "general_transform": 1,
+    "other": 2,
+}
+
+_GENERAL_TRANSFORM_CLASS = "group_transfer_or_condensation"
+
+
+def _guided_pool_entry_key(entry: dict) -> tuple[str, str]:
+    """条目去重键：``(候选身份, 产物 SMILES)``（任务书口径）。
+
+    候选身份优先 ``candidate_id``，退化到生产池 spec 的逻辑键 ``key``
+    （``s5b_builder`` 池 spec 只带 ``key``，无 ``candidate_id`` —— 若
+    只认前者，同产物的不同池条目会被误折叠，冻结池前缀保底即破）。
+    产物侧优先 ``predicted_smiles``，其次 ``product_smiles``；两者都缺
+    仍以空串参与键（同身份条目按原序各保留一条）。
+    """
+    ident = (entry.get("candidate_id") or entry.get("key")
+             or entry.get("id") or entry.get("entry_id")
+             or entry.get("transformation_ref") or "")
+    return (
+        str(ident),
+        str(entry.get("predicted_smiles") or entry.get("product_smiles")
+            or ""),
+    )
+
+
+def _guided_pool_bucket(entry: dict, primary: str,
+                        secondary: frozenset[str]) -> str:
+    """条目的桶归属（优先读既有 ``reaction_class_12``，缺省再分类）。
+
+    分类需要底物；条目缺该类标签且未带底物字段时按 ``other`` 处理
+    （不猜类别）。
+    """
+    label = str(entry.get("reaction_class_12") or "")
+    if not is_valid_reaction_class_12(label):
+        sub = str(entry.get("substrate_smiles")
+                  or entry.get("substrate") or "")
+        prod = str(entry.get("predicted_smiles")
+                   or entry.get("product_smiles") or "")
+        if sub and prod:
+            try:
+                label = str(classify_reaction_12class(sub, prod)[1])
+            except Exception:  # noqa: BLE001 —— 不可判 ⇒ other（不猜）
+                label = ""
+        else:
+            label = ""
+    if primary and label == primary:
+        return "primary"
+    if label and label in secondary:
+        return "secondary"
+    if label == _GENERAL_TRANSFORM_CLASS:
+        return "general_transform"
+    return "other"
+
+
+def select_stage1_guided_pool(
+    w32_entries: list[dict],
+    frozen_entries: list[dict],
+    routing: dict | None,
+    max_pool: int = 20,
+    bucket_caps: dict[str, int] | None = None,
+) -> list[dict]:
+    """T13-A：从 ``w32`` 放大池 + 冻结参考池抽 ``w32@20`` 宽池。
+
+    规则（零删除、确定性、不改输入对象）::
+
+      1. ``frozen_entries`` **保底全保留**（按 ``(candidate_id, 产物)``
+         去重，首次出现为准）—— 冻结池（@16）是生产口径基线，先占前
+         缀 ⇒ ``@16`` 前缀与冻结池逐对象一致（GIP@16 零损失）。
+      2. ``routing`` 含有效 primary/secondary 类时：在剩余槽位内按
+         ``w32_entries`` **原序**逐条抽桶，每桶不超过 ``bucket_caps``
+         （默认 ``{"primary": 6, "secondary": 3, "general_transform": 1,
+         "other": 2}``）；桶归属优先读条目既有 ``reaction_class_12``，
+         缺省再经 ``classify_reaction_12class``（条目须带底物字段）。
+      3. 并集后仍不足 ``max_pool`` ⇒ 按 ``w32_entries`` 原序回填。
+      4. ``routing`` 为 ``None`` 或无有效类（如 298 域）⇒ 退化：
+         ``frozen_entries`` 保底 + 按 ``w32`` 原序回填至 ``max_pool``
+         （等价 ``w32 ∪ frozen`` 截断至 ``max_pool``，冻结池优先）。
+      5. 返回**新字典**列表，``pool_rank`` 重编号为 ``1..len(out)``；
+         输入对象不修改。
+
+    容量保证：``len(frozen_entries) <= max_pool`` 时 ``len(out) <=
+    max_pool`` 且 ``frozen_entries`` 一条不丢；``frozen_entries`` 本身
+    超宽（> ``max_pool``）时保守截断到 ``max_pool``（只披露、不越界）。
+    配额只作用于**新增抽取**的尾部条目，不限制冻结池。
+    """
+    limit = int(max_pool)
+    if limit <= 0:
+        return []
+    caps: dict[str, int] = dict(STAGE1_GUIDED_POOL_DEFAULT_CAPS)
+    for key, value in (bucket_caps or {}).items():
+        try:
+            caps[str(key)] = max(0, int(value))
+        except (TypeError, ValueError):
+            continue
+
+    has_pool_rank = any(
+        isinstance(e, dict) and ("pool_rank" in e)
+        for e in list(frozen_entries or []) + list(w32_entries or [])
+    )
+
+    def _finalize(items: list[dict]) -> list[dict]:
+        out_rows: list[dict] = []
+        for idx, entry in enumerate(items[:limit], 1):
+            row = dict(entry)
+            if has_pool_rank or "pool_rank" in row:
+                row["pool_rank"] = idx
+            out_rows.append(row)
+        return out_rows
+
+    frozen_out: list[dict] = []
+    frozen_keys: set[tuple[str, str]] = set()
+    for entry in (frozen_entries or []):
+        if not isinstance(entry, dict):
+            continue
+        dedupe_key = _guided_pool_entry_key(entry)
+        if dedupe_key in frozen_keys:
+            continue
+        frozen_keys.add(dedupe_key)
+        frozen_out.append(dict(entry))
+    if len(frozen_out) >= limit:
+        # 冻结池本身已超宽：只保留前 limit 条（保守截断，不越界）。
+        return _finalize(frozen_out)
+
+    primary, secondary_tuple = _guided_routing_classes(routing)
+    guided = bool(primary or secondary_tuple)
+    secondary = frozenset(secondary_tuple)
+
+    picked: list[dict] = []
+    picked_keys: set[tuple[str, str]] = set(frozen_keys)
+    bucket_used: dict[str, int] = {name: 0 for name in caps}
+    gap = limit - len(frozen_out)
+
+    if guided:
+        for entry in (w32_entries or []):
+            if len(picked) >= gap:
+                break
+            if not isinstance(entry, dict):
+                continue
+            dedupe_key = _guided_pool_entry_key(entry)
+            if dedupe_key in picked_keys:
+                continue
+            bucket = _guided_pool_bucket(entry, primary, secondary)
+            if bucket_used.get(bucket, 0) >= int(caps.get(bucket, 0)):
+                continue
+            bucket_used[bucket] = bucket_used.get(bucket, 0) + 1
+            picked_keys.add(dedupe_key)
+            picked.append(dict(entry))
+
+    out = frozen_out + picked
+    if len(out) < limit:
+        # 回填：w32 原序（guided 分支里桶配额已用尽/可用条目不足时
+        # 仍按原序补满；routing 缺失时本步即 w32 ∪ frozen 截断）。
+        for entry in (w32_entries or []):
+            if len(out) >= limit:
+                break
+            if not isinstance(entry, dict):
+                continue
+            dedupe_key = _guided_pool_entry_key(entry)
+            if dedupe_key in picked_keys:
+                continue
+            picked_keys.add(dedupe_key)
+            out.append(dict(entry))
+
+    return _finalize(out)
+
+
+def _guided_routing_classes(
+        routing: dict | None) -> tuple[str, tuple[str, ...]]:
+    """归一路由类（复用 T13-B 的 12 类校验；无效 ⇒ 空）。"""
+    from .consensus_v13 import routing_classes
+
+    return routing_classes(routing)
 
 
 def classify_reaction_12class(sub_smiles: str, prod_smiles: str) -> tuple[str, str]:
@@ -721,6 +1250,16 @@ def load_s5_env_rules(repo_root: str | Path | None = None) -> list[dict[str, Any
                                 "name": str(meta.get("NAME") or tid),
                                 "ec_numbers": ecs,
                                 "frequency": max(1, rc),
+                                # 论文消融 v1.4(默认消费方零变化):非金标
+                                # 题源标识元数据(NoSelf 判定用)
+                                "parent_reaction_ids":
+                                    _parse_parent_reaction_ids(
+                                        meta.get("REACTIONS")),
+                                "datasets": [
+                                    x.strip() for x in str(
+                                        meta.get("DATASETS") or "")
+                                    .replace(",", ";").split(";")
+                                    if x.strip()],
                                 "rxn": rxn,
                                 "rt": rxn.GetReactantTemplate(0),
                             }
@@ -750,6 +1289,14 @@ def load_s5_env_rules(repo_root: str | Path | None = None) -> list[dict[str, Any
                                 "name": tid,
                                 "ec_numbers": [],
                                 "frequency": 1,
+                                # 论文消融 v1.4(默认消费方零变化):
+                                # 非金标 donor/题源标识元数据(NoSelf)
+                                "donor_smiles": str(
+                                    d.get("donor_smiles") or ""),
+                                "product_smiles": str(
+                                    d.get("product_smiles") or ""),
+                                "reaction_id": reac_id,
+                                "btid": btid,
                                 "rxn": rxn,
                                 "rt": rxn.GetReactantTemplate(0),
                             }
@@ -861,6 +1408,11 @@ def _enumerate_s5_rr_via_resolver(
     repo_root: str | Path | None = None,
     datasets: tuple[str, ...] = ("rhea", "mnx"),
     radii: tuple[int, ...] = (2, 4, 6),
+    no_self: bool = False,
+    question_meta: dict | None = None,
+    exclude_substrate_keys: set[str] | None = None,
+    drop_rule_ids: set[str] | None = None,
+    filter_stats: dict | None = None,
 ) -> tuple[bool, dict[str, dict[str, Any]]]:
     """优先使用预构建的 PatternFingerprint 索引 (`RetroTemplateResolver`) 执行高速 S5-rr 子结构枚举。
 
@@ -871,6 +1423,10 @@ def _enumerate_s5_rr_via_resolver(
     radii_set = {int(r) for r in radii}
     tpl_agg: dict[str, dict[str, Any]] = {}
     used_any_resolver = False
+    _ns_ids = question_source_ids(question_meta) if no_self else set()
+    _ns_sub_strict, _ns_sub_cn = (
+        component_identity_sets(substrate_smiles) if no_self
+        else (set(), set()))
 
     for ds in datasets:
         ds_norm = str(ds).strip().lower()
@@ -926,6 +1482,13 @@ def _enumerate_s5_rr_via_resolver(
                     "max_rc": rc,
                     "rule_ids": {f"{ds_norm}:{tid}"},
                     "primary_rule_id": f"{ds_norm}:{tid}",
+                    # 论文消融 v1.4:非金标题源标识元数据(NoSelf)
+                    "parent_reaction_ids": {
+                        str(x) for x in (
+                            h.get("parent_reaction_ids")
+                            or h.get("reactions") or []) if str(x)},
+                    "lhs_mapped_smiles": _as_smiles_values(
+                        h.get("lhs_mapped_smiles")),
                 }
             else:
                 info["datasets"].add(ds_norm)
@@ -933,9 +1496,34 @@ def _enumerate_s5_rr_via_resolver(
                 if rc > info["max_rc"]:
                     info["max_rc"] = rc
                 info["rule_ids"].add(f"{ds_norm}:{tid}")
+                info["parent_reaction_ids"].update(
+                    str(x) for x in (h.get("parent_reaction_ids")
+                                     or h.get("reactions") or [])
+                    if str(x))
+                info["lhs_mapped_smiles"].update(
+                    _as_smiles_values(h.get("lhs_mapped_smiles")))
 
     if not used_any_resolver:
         return False, {}
+
+    if no_self:
+        # 论文消融 v1.4 DB-2 NoSelf:剔除题源反应 ID 命中与单样本特异
+        # 模板(零金标;只读题面底物与规则元数据)。
+        tpl_agg = {
+            tpl_str: info for tpl_str, info in tpl_agg.items()
+            if not _rr_template_is_self(
+                info, source_ids=_ns_ids,
+                sub_strict=_ns_sub_strict, sub_cn=_ns_sub_cn)}
+
+    # ---- 论文消融 v1.4(默认 None ⇒ 不进入 ⇒ 逐字节零漂移)----
+    if filter_stats is not None:
+        filter_stats["n_rr_templates_scanned"] = int(
+            filter_stats.get("n_rr_templates_scanned", 0)) + len(tpl_agg)
+    tpl_agg = _filter_rr_template_agg(
+        tpl_agg,
+        exclude_substrate_keys=exclude_substrate_keys,
+        drop_rule_ids=drop_rule_ids,
+        stats=filter_stats)
 
     rr_prod_map: dict[str, dict[str, Any]] = {}
     for tpl_str, info in tpl_agg.items():
@@ -998,8 +1586,14 @@ def _enumerate_s5_rr_via_resolver(
                     "rr_freq_sum": 0,
                     "primary_rule_id": primary_rid,
                     "coproduct_sets": [],
+                    # 论文消融 v1.4:非金标题源标识(NoSelf 审计/披露)
+                    "rr_parent_reaction_ids": set(
+                        info.get("parent_reaction_ids") or set()),
                 }
                 rr_prod_map[best_st] = rec
+            else:
+                rec["rr_parent_reaction_ids"].update(
+                    info.get("parent_reaction_ids") or set())
             rec["source_families"].update(fams)
             new_rids = rids - rec["rr_rule_ids"]
             if new_rids:
@@ -1022,6 +1616,11 @@ def enumerate_s5_rules(
     rr_datasets: tuple[str, ...] = ("rhea", "mnx"),
     rr_radii: tuple[int, ...] = (2, 4, 6),
     extra_rules: list[dict[str, Any]] | None = None,
+    no_self: bool = False,
+    question_meta: dict | None = None,
+    exclude_substrate_keys: set[str] | None = None,
+    drop_rule_ids: set[str] | None = None,
+    filter_stats: dict | None = None,
 ) -> dict[str, dict[str, Any]]:
     """对底物执行 S5-env (enviPath + EAWAG) 与 S5-rr (RetroRules rhea + METANETX) 规则枚举。
 
@@ -1032,9 +1631,35 @@ def enumerate_s5_rules(
         return {}
     sub_st = k_strict(substrate_smiles)
 
+    _ns_ids = question_source_ids(question_meta) if no_self else set()
+    _ns_sub_strict, _ns_sub_cn = (
+        component_identity_sets(substrate_smiles) if no_self
+        else (set(), set()))
+
     rules: list[dict[str, Any]] = []
     if include_env:
-        rules.extend(load_s5_env_rules(repo_root))
+        env_rules = load_s5_env_rules(repo_root)
+        if no_self:
+            # 论文消融 v1.4 DB-2 NoSelf(零金标):剔除题源反应 ID 命中
+            # 与仅源自当前底物的单样本特异规则。
+            env_rules = [
+                r for r in env_rules
+                if not _env_rule_is_self(
+                    r, source_ids=_ns_ids,
+                    sub_strict=_ns_sub_strict, sub_cn=_ns_sub_cn)]
+        # ---- 论文消融 v1.4(默认 None ⇒ 原样;先于枚举执行)----
+        if filter_stats is not None:
+            filter_stats["n_env_rules_scanned"] = int(
+                filter_stats.get("n_env_rules_scanned", 0)) + len(env_rules)
+        env_rules = _filter_rules_by_source(
+            env_rules,
+            exclude_substrate_keys=exclude_substrate_keys,
+            drop_rule_ids=drop_rule_ids,
+            stats=filter_stats,
+            stats_prefix="env",
+            lhs_field="donor_smiles",
+            substrate_match="equal")
+        rules.extend(env_rules)
 
     rr_from_resolver: dict[str, dict[str, Any]] = {}
     used_rr_resolver = False
@@ -1046,9 +1671,30 @@ def enumerate_s5_rules(
             repo_root=repo_root,
             datasets=rr_datasets,
             radii=rr_radii,
+            no_self=no_self,
+            question_meta=question_meta,
+            exclude_substrate_keys=exclude_substrate_keys,
+            drop_rule_ids=drop_rule_ids,
+            filter_stats=filter_stats,
         )
         if not used_rr_resolver:
-            rules.extend(load_s5_rr_rules(repo_root, datasets=rr_datasets, radii=rr_radii))
+            # 降级 TSV 规则:只有 rule_id 可判(父反应/lhs 字段不在
+            # 该 schema 内)⇒ 单样本特异过滤进覆盖缺口诊断,不假装。
+            tsv_rules = load_s5_rr_rules(
+                repo_root, datasets=rr_datasets, radii=rr_radii)
+            if filter_stats is not None:
+                filter_stats["n_rr_tsv_rules_scanned"] = int(
+                    filter_stats.get("n_rr_tsv_rules_scanned", 0)) + len(
+                    tsv_rules)
+            tsv_rules = _filter_rules_by_source(
+                tsv_rules,
+                exclude_substrate_keys=exclude_substrate_keys,
+                drop_rule_ids=drop_rule_ids,
+                stats=filter_stats,
+                stats_prefix="rr_tsv",
+                lhs_field="lhs_mapped_smiles",
+                substrate_match="superset")
+            rules.extend(tsv_rules)
 
     if extra_rules:
         for r in extra_rules:
@@ -1148,6 +1794,11 @@ def enumerate_s5_rules(
             for cops in rr_rec.get("coproduct_sets") or []:
                 if cops and cops not in rec["coproduct_sets"]:
                     rec["coproduct_sets"].append(cops)
+            # 论文消融 v1.4:非金标题源标识并集(默认路径键不出现
+            # ⇒ 下游行为零变化)
+            if rr_rec.get("rr_parent_reaction_ids"):
+                rec.setdefault("rr_parent_reaction_ids", set()).update(
+                    rr_rec["rr_parent_reaction_ids"])
 
     return prod_map
 
@@ -1484,6 +2135,11 @@ def compile_s5_candidate_to_spec(
     index: int = 1,
     is_gated_supplement: bool = True,
     coproduct_sets: list[list[str]] | None = None,
+    extended_stereo_dissolution: bool = False,
+    stereo_edit_graceful_fallback: bool = False,
+    allow_ring_cleavage_and_fused_dearomatization: bool = False,
+    retained_tetrahedral_parity_check: bool = False,
+    allow_aromatic_ring_closure: bool = False,
 ) -> dict[str, Any] | None:
     """将入选的 S5 候选产物通过 `compile_recorded_reaction` 编译为正规可执行的 `ReactionSpec`。
 
@@ -1533,6 +2189,15 @@ def compile_s5_candidate_to_spec(
                     products=prod_list,
                     record_id=record_id,
                     novel_product_first_principal=novel_p1,
+                    extended_stereo_dissolution=extended_stereo_dissolution,
+                    stereo_edit_graceful_fallback=(
+                        stereo_edit_graceful_fallback),
+                    allow_ring_cleavage_and_fused_dearomatization=(
+                        allow_ring_cleavage_and_fused_dearomatization),
+                    # v1.4 T14-4:编译器 v2 两开关(默认关 ⇒ 逐字节同)
+                    retained_tetrahedral_parity_check=(
+                        retained_tetrahedral_parity_check),
+                    allow_aromatic_ring_closure=allow_aromatic_ring_closure,
                 )
             except Exception:
                 continue
@@ -1713,6 +2378,15 @@ def build_s5_hybrid_pool_entries(
     max_pool: int = 16,
     include_s1d_in_return: bool = True,
     repo_root: str | Path | None = None,
+    enumerated_injection_k: int = 0,
+    enumerated_rule_priors: dict[str, int] | None = None,
+    v14_compiler_ext: bool = False,
+    v14_compiler_ext_2: bool = False,
+    no_self: bool = False,
+    question_meta: dict | None = None,
+    exclude_substrate_keys: set[str] | None = None,
+    drop_rule_ids: set[str] | None = None,
+    filter_stats: dict | None = None,
 ) -> list[dict[str, Any]]:
     """管线级 S1d + S5 (enviPath + EAWAG + RetroRules) 12 大类均衡混合建池与化学先验编译入口。
 
@@ -1736,6 +2410,11 @@ def build_s5_hybrid_pool_entries(
         rr_datasets=rr_datasets,
         rr_radii=rr_radii,
         extra_rules=extra_rules,
+        no_self=no_self,
+        question_meta=question_meta,
+        exclude_substrate_keys=exclude_substrate_keys,
+        drop_rule_ids=drop_rule_ids,
+        filter_stats=filter_stats,
     )
 
     cand_by_strict: dict[str, HybridCandidate] = {}
@@ -1892,6 +2571,13 @@ def build_s5_hybrid_pool_entries(
             index=s5_compile_idx,
             is_gated_supplement=is_gated,
             coproduct_sets=rec.get("coproduct_sets"),
+            extended_stereo_dissolution=bool(v14_compiler_ext),
+            stereo_edit_graceful_fallback=bool(v14_compiler_ext),
+            allow_ring_cleavage_and_fused_dearomatization=bool(
+                v14_compiler_ext),
+            # v1.4 T14-4:编译器 v2 两开关(默认关 ⇒ 调用参数逐字节同)
+            retained_tetrahedral_parity_check=bool(v14_compiler_ext_2),
+            allow_aromatic_ring_closure=bool(v14_compiler_ext_2),
         )
         if spec is not None:
             compiled_supplements.append(spec)
@@ -1908,7 +2594,18 @@ def build_s5_hybrid_pool_entries(
         if s1d_sp not in selected_pool_specs:
             selected_pool_specs.append(s1d_sp)
 
-    return selected_pool_specs[: int(max_pool)]
+    selected_pool_specs = selected_pool_specs[: int(max_pool)]
+    if int(enumerated_injection_k) > 0 and enumerated_rule_priors:
+        from .enumerated_injection import inject_enumerated_candidates
+
+        selected_pool_specs, _injection_report = inject_enumerated_candidates(
+            sub_smi,
+            selected_pool_specs,
+            k=int(enumerated_injection_k),
+            rule_priors=dict(enumerated_rule_priors),
+            max_pool=int(max_pool),
+        )
+    return selected_pool_specs
 
 
 def _calibrated_prior_score(c: dict[str, Any]) -> float:
@@ -1934,15 +2631,136 @@ def calibrate_submittable_ranking(
     prod_strict_by_key: dict[str, str],
     novel_entry_idx: set[int],
     target_slots: int = 5,
+    v13_rank_rules: bool = False,
+    v13_stage1_rank: bool = False,
+    stage1_routing: dict[str, Any] | None = None,
+    substrate_smiles: str = "",
+    stage1_params: dict[str, Any] | None = None,
+    stage1_debug_sink: dict[str, Any] | None = None,
+    v13_multi_sample_consensus: bool = False,
+    v13_consensus_params: dict[str, Any] | None = None,
+    secondary_ranked_keys_list: list[list[str]] | None = None,
+    v13_consensus_debug_sink: dict[str, Any] | None = None,
+    consensus_pass_mode: str = "",
+    collect_pass_debug: bool = False,
+    secondary_eligible_keys_list: list[list[str] | None] | None = None,
+    enable_v14_cross_pool_elig_norm: bool = False,
 ) -> list[str]:
     """DECISION-9 方向 3（v44-Next v1.2 候选排序器校准）：
     仅在已通过编译+执行+11项审计的合法候选集合上执行确定性校准：
     - Step A: 当尾部 Slot 5 为弱支撑项且存在未入选的 Pool[0..1] 精确底物/超强跨源共识锚点时，将其补入 Slot 5；
     - Step B: 基于来源类型、Tanimoto 相似度、跨源共识与化学先验分对 Slot 1..5 消解弱相似/低先验诱饵占优。
+
+    v1.3 T12-B（默认关）：``v13_stage1_rank=True`` 且给出解析成功的
+    ``stage1_routing`` ⇒ 在最末一步按 Stage-1 预测大类做零删除精排
+    （``ranking_rules_v13.apply_stage1_class_calibration``）。关闭时
+    本函数行为与改前逐字节一致。``stage1_debug_sink`` 只做研究期机读
+    记录（调用方决定落盘位置），不参与任何判据。
+
+    v1.3 T13-B（默认关）：``v13_multi_sample_consensus=True`` 且给出
+    **非空**的 ``secondary_ranked_keys_list``（次级 pass 的模型排序键
+    列表）⇒ 不用选定的 Stage-1 精排，而是把「主 pass + 每个次级 pass」
+    各跑一遍上述单 pass 流水线（Step A + Step B + 尾部排序 +
+    apply_v13_rank_rules），再用 ``consensus_v13.fuse_multi_sample_top5``
+    做 RRF + Stage-1 加成的零删除位次融合。要点：
+
+    - 每个 pass 的 ``order_keys`` 只决定该 pass 的 top-5 子集与位次；
+      Step A/B 只在该子集 + 池其余合法候选内搬运，**不新增**候选；
+    - 融合只对既有合法候选重排（零删除：未入选者仍在池内，只是位次
+      更后），落账仍走既有调度/提交面；
+    - 共识路径**不**再调用 ``apply_stage1_class_calibration``（Stage-1
+      只作融合加项/保护，避免同一信号两次生效）；``v13_stage1_rank``
+      与 ``v13_multi_sample_consensus`` 的互斥由 Driver 层 fail-closed；
+    - ``v13_multi_sample_consensus=True`` 但没有次级 pass（或全为空
+      列表）⇒ 退回默认单 pass 路径（逐字节同关闭态），只把
+      ``skipped=no_secondary_passes`` 写进 debug sink；
+    - ``v13_consensus_debug_sink`` 只在开关打开时写入；关闭时不触碰
+      （零漂移）。
+
+    v1.4 T14-1A（默认关）：``consensus_pass_mode``（显式参数，或
+    ``v13_consensus_params["consensus_pass_mode"]``）控制**共识路径各
+    pass** 是否在送入融合前被 v1.1 遗留启发式改写首位：
+
+    - ``"calibrated"``（默认）：与改前逐位一致（Rule 1..7 全量）；
+    - ``"raw_v13"``：各 pass 跳过 Rule 1..7 强制换首与 Slot 2..5 高位
+      重排，只保留候选构建 + Step A 槽位 5 兜底 + ``apply_v13_rank_rules``
+      ⇒ 送进共识的是模型原始合法序（单路规则不再提前扼杀跨路一致候选）；
+    - ``"guarded_r2_r7"``：只收紧 Rule 2 与 Rule 7 —— Rule 2 仅当挑战者
+      ``is_rec`` 或 ``raw_sim >= 0.80`` 才允许置换无共识背书的 ``novel``
+      榜首；Rule 7 仅当 ``c1`` **不**匹配 Stage-1 ``primary_class`` /
+      ``secondary_classes`` 时才允许置换。
+
+    三个值都在**共识未参与时**退回默认路径（零漂移）；未知值 ⇒
+    ``"calibrated"``（fail-safe，不静默扩权）。
+
+    v1.4 T14-4（默认关）：``enable_v14_cross_pool_elig_norm=True`` 且给出
+    ``secondary_eligible_keys_list``（与 ``secondary_ranked_keys_list``
+    **1:1** 对齐的每 pass 资格键集合；``None`` = 该 pass 无资格信息）⇒
+
+    - 共识融合对池候选的 RRF 乘跨池资格率因子
+      ``(n_pool_passes+alpha)/(n_elig+alpha)``（只在
+      ``min_elig <= n_elig < n_pool_passes`` 时），并启用资格感知全票锁
+      （见 ``consensus_v13.fuse_multi_sample_top5``）；
+    - 次级 pass 的 Step A 只从**该 pass 资格集内**的剩余候选里兜底补位
+      （资格集外的池锚不再跨池搬运）。
+
+    关闭时不读写这两个参数 ⇒ 与改前逐位一致。
     """
     pool_entries = [dict(pe) for pe in (pool_specs or [])]
     for idx, pe in enumerate(pool_entries):
         pe["_pool_idx"] = idx
+    # v1.3 T12-B：Stage-1 精排是否激活（只依赖开关与底物；提前到候选
+    # 构建前，供实例级 hypothesis id 标注使用，不改变任何判据）。
+    stage1_active = bool(v13_stage1_rank) and bool(str(substrate_smiles or ""))
+    consensus_lists: list[list[str]] = []
+    consensus_elig_lists: list[set[str] | None] = []
+    _elig_source = list(secondary_eligible_keys_list or [])
+    for _pass_idx, keys in enumerate(secondary_ranked_keys_list or []):
+        if not keys:
+            # 与改前同一条过滤：空 pass 不进共识，资格集同位置一起丢
+            # ⇒ 两列表始终 1:1。
+            continue
+        consensus_lists.append([str(key) for key in keys if str(key)])
+        if _pass_idx < len(_elig_source):
+            _eligible = _elig_source[_pass_idx]
+            consensus_elig_lists.append(
+                None if _eligible is None
+                else {str(k) for k in _eligible if str(k)})
+        else:
+            consensus_elig_lists.append(None)
+    consensus_engaged = bool(v13_multi_sample_consensus) and bool(
+        consensus_lists)
+    # v1.4 T14-4：跨池资格率归一化只在共识真正参与、且至少一个 pass 给出
+    # 资格集时生效（开关关闭或全 None ⇒ 与改前逐位一致）。
+    elig_norm_enabled = (
+        bool(enable_v14_cross_pool_elig_norm)
+        and bool(consensus_engaged)
+        and any(el is not None for el in consensus_elig_lists))
+    # v1.4 T14-1A：共识各 pass 的 Rule 1..7 处理模式（默认 "calibrated" =
+    # 与改前逐位一致；共识未参与时恒为默认 ⇒ 零漂移）。
+    _CONSENSUS_PASS_MODES = ("calibrated", "raw_v13", "guarded_r2_r7")
+    _requested_pass_mode = str(consensus_pass_mode or "").strip().lower()
+    if not _requested_pass_mode:
+        _requested_pass_mode = str(
+            (v13_consensus_params or {}).get("consensus_pass_mode") or ""
+        ).strip().lower()
+    if _requested_pass_mode not in _CONSENSUS_PASS_MODES:
+        _requested_pass_mode = "calibrated"
+    effective_pass_mode = (
+        _requested_pass_mode if consensus_engaged else "calibrated")
+    rule_primary, rule_secondary = "", ()
+    if effective_pass_mode == "guarded_r2_r7":
+        from .consensus_v13 import routing_classes as _routing_classes
+
+        rule_primary, rule_secondary = _routing_classes(stage1_routing)
+    # T13-B：共识路径需要 ``cls`` 标签（融合的 Stage-1 加项/保护）；
+    # 只在共识真正参与时扩展标注面 ⇒ 默认路径零漂移。
+    # v1.4 T14-0：研究期候选 dump 需要实例级 hyp id / 类别标签才能与
+    # 冻结 flips 的金标事件对齐；dump sink 只在诊断重放（env 显式开启）
+    # 时非 None ⇒ 生产路径零漂移。
+    labeling_active = bool(str(substrate_smiles or "")) and (
+        stage1_active or consensus_engaged
+        or (collect_pass_debug and stage1_debug_sink is not None))
     pool_by_id = {
         str(pe.get("key") or pe.get("id") or pe.get("entry_id") or f"spec-{idx}"): pe
         for idx, pe in enumerate(pool_entries)
@@ -1955,8 +2773,9 @@ def calibrate_submittable_ranking(
             if st:
                 pool_p_stricts[st].append(pe)
 
-    top_index_map = {str(k): i + 1 for i, k in enumerate(selected_top_keys)}
-    submittable: list[dict[str, Any]] = []
+    # ---- 候选行基线（与 pass 无关的身份/事实；位次字段由 _single_pass
+    # 按各自 order_keys 写入副本）----
+    base_rows: list[dict[str, Any]] = []
 
     for orig_idx, (key, spec, _prep) in zip(deduped_indices, prepared_entries):
         if not verified_by_key.get(key, False):
@@ -1996,190 +2815,473 @@ def calibrate_submittable_ranking(
         )
         raw_prior = float(spec.get("s5_prior_score") or c_meta.get("s5_prior_score") or 0.0)
         is_novel = src.startswith("novel-") or (int(orig_idx) in novel_entry_idx)
-        in_top5 = src in top_index_map
-        eff_rk = top_index_map[src] if in_top5 else (99 + int(pe.get("_pool_idx", 99)))
 
-        submittable.append(
-            {
-                "src": src,
-                "p_smi": p_smi,
-                "p_st": p_st,
-                "p_has_c": p_has_c,
-                "eff_rk": eff_rk,
-                "is_novel": is_novel,
-                "is_rec": src.startswith("rec-"),
-                "is_tpl": src.startswith("tpl-"),
-                "is_s5": src.startswith("s5-"),
-                "sim": max(raw_sim, cb_max_sim if is_novel else 0.0),
-                "raw_sim": raw_sim,
-                "prior": max(raw_prior, cb_max_prior),
-                "raw_prior": raw_prior,
-                "fams": sorted(all_fams),
-                "n_fams": len(all_fams),
-                "pidx": int(pe.get("_pool_idx", cb_min_pidx if is_novel else 99)),
-                "cb": (len(cb_list) > 0) if is_novel else (len(cb_list) > 1 or len(all_fams) >= 2),
-                "in_top5_v11": in_top5,
+        cand_row = {
+            "src": src,
+            "p_smi": p_smi,
+            "p_st": p_st,
+            "p_has_c": p_has_c,
+            # 未进入该 pass top-5 时的既有确定性位次（原式：
+            # 99 + 池序；非池条目 = 99 + 99）。
+            "_off_eff_rk": 99 + int(pe.get("_pool_idx", 99)),
+            "eff_rk": 0,
+            "is_novel": is_novel,
+            "is_rec": src.startswith("rec-"),
+            "is_tpl": src.startswith("tpl-"),
+            "is_s5": src.startswith("s5-"),
+            "sim": max(raw_sim, cb_max_sim if is_novel else 0.0),
+            "raw_sim": raw_sim,
+            "prior": max(raw_prior, cb_max_prior),
+            "raw_prior": raw_prior,
+            "fams": sorted(all_fams),
+            "n_fams": len(all_fams),
+            "pidx": int(pe.get("_pool_idx", cb_min_pidx if is_novel else 99)),
+            "cb": (len(cb_list) > 0) if is_novel else (len(cb_list) > 1 or len(all_fams) >= 2),
+            "in_top5_v11": False,
+            # v1.3 T1-C：机理规则消费的既有事实（共产物声明完整性）
+            "undeclared": list(
+                pe.get("undeclared_coproducts")
+                or c_meta.get("undeclared_coproducts")
+                or []
+            ),
+        }
+        if labeling_active:
+            # 实例级 hypothesis id（src 不是唯一键：同键可能对应不同池
+            # 位置的多个实例；只供研究期 dump 关联事件，不参与排序）。
+            cand_row["_hyp_id"] = str(_prep["hypothesis"].hypothesis_id)
+        base_rows.append(cand_row)
+
+    # ---- 候选确定性 12 类标注（Stage-1 精排或共识融合需要时计算）----
+    if labeling_active:
+        def _label(cand: dict[str, Any]) -> str:
+            try:
+                return str(classify_reaction_12class(
+                    str(substrate_smiles),
+                    str(cand.get("p_smi") or ""))[1])
+            except Exception:  # noqa: BLE001 —— 如实 unknown，不猜类别
+                return "other_unknown"
+
+        _cls_cache: dict[str, str] = {}
+        for cand in base_rows:
+            key = str(cand.get("p_st") or cand.get("p_smi") or "")
+            if key not in _cls_cache:
+                _cls_cache[key] = _label(cand)
+            cand["cls"] = _cls_cache[key]
+
+    def _single_pass(order_keys: list[str], *, apply_stage1: bool,
+                     rule_mode: str = "calibrated", pass_index: int = 0,
+                     elig_keys: set[str] | None = None
+                     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]],
+                                list[dict[str, Any]]]:
+        """单 pass 校准流水线（改前 ``calibrate_submittable_ranking`` 主体
+        等价搬移）：``order_keys`` = 该 pass 的模型排序键（1 基位次，截断
+        至 ``target_slots``）。
+
+        ``rule_mode``（v1.4 T14-1A，默认 ``"calibrated"`` = 改前逐位一致）：
+        ``"raw_v13"`` 跳过 v1.1 Rule 1..7 强制换首与 Slot 2..5 重排；
+        ``"guarded_r2_r7"`` 只收紧 Rule 2 / Rule 7（见函数 docstring）。
+
+        ``pass_index``（v1.4 T14-0，默认 0）：只写进 debug sink 的 pass
+        记录，不参与任何判据；``stage1_debug_sink is None`` 时零开销。
+
+        ``elig_keys``（v1.4 T14-4，默认 ``None`` = 不限制）：该 pass 的
+        资格键集合；非 ``None`` 时 Step A 只从集合内的剩余候选兜底补位
+        （资格集外的池锚不再跨池搬运）。Step B/规则链不受影响。
+        """
+        def _debug_row(c: dict[str, Any]) -> dict[str, Any]:
+            """候选行的机读快照（只进 debug sink；含未脱敏结构，只允许
+            写入 gitignored 研究目录）。"""
+            return {
+                "src": str(c.get("src") or ""),
+                "hyp_id": str(c.get("_hyp_id") or ""),
+                "p_smi": str(c.get("p_smi") or ""),
+                "p_st": str(c.get("p_st") or ""),
+                "cls": str(c.get("cls") or ""),
+                "is_rec": bool(c.get("is_rec")),
+                "is_tpl": bool(c.get("is_tpl")),
+                "is_s5": bool(c.get("is_s5")),
+                "is_novel": bool(c.get("is_novel")),
+                "raw_sim": float(c.get("raw_sim") or 0.0),
+                "prior": float(c.get("prior") or 0.0),
+                "n_fams": int(c.get("n_fams") or 0),
+                "pidx": int(c.get("pidx") or 99),
+                "cb": bool(c.get("cb")),
+                "eff_rk": int(c.get("eff_rk") or 0),
+                "undeclared": list(c.get("undeclared") or []),
+                "in_top5": bool(c.get("in_top5_v11")),
             }
-        )
 
-    top5 = [c for c in sorted(submittable, key=lambda x: x["eff_rk"]) if c["in_top5_v11"]]
-    rest = [c for c in submittable if not c["in_top5_v11"]]
-    seen_sts = {c["p_st"] for c in top5 if c["p_st"]}
+        def _record_pass(*, top5_now: list[dict[str, Any]],
+                         head_pre_rules: str, rule_fires: list[dict[str, Any]],
+                         top5_pre_rules: list[str]) -> None:
+            """把本 pass 的规则账本写进 debug sink（未显式开启时零操作）。"""
+            if not collect_pass_debug or stage1_debug_sink is None:
+                return
+            stage1_debug_sink.setdefault("pass_details", []).append({
+                "pass_index": int(pass_index),
+                "rule_mode": str(rule_mode),
+                "n_candidates": len(rows),
+                "head_pre_rules": str(head_pre_rules),
+                "head_after": (
+                    str(top5_now[0].get("src") or "") if top5_now else ""),
+                "top5_pre_rules": list(top5_pre_rules),
+                "top5_after": [str(c.get("src") or "") for c in top5_now],
+                "rule_fires": list(rule_fires),
+                "top5_candidates": [_debug_row(c) for c in top5_now],
+                "rest_candidates": [_debug_row(c) for c in rest],
+            })
 
-    # Step A: Rescue unpicked super-consensus / exact-substrate pool anchors into Slot 5
-    strong_unpicked = [
-        c
-        for c in rest
-        if c["p_st"] not in seen_sts
-        and (
-            (c["pidx"] <= 1 and (c["is_rec"] or c["raw_sim"] >= 0.95) and c["prior"] >= 135.0)
-            or (
-                c["pidx"] == 0
-                and c["n_fams"] >= 3
-                and c["prior"] >= 165.0
-                and (c["is_s5"] or c["raw_sim"] >= 0.70)
+        top_index_map = {
+            str(k): i + 1
+            for i, k in enumerate(
+                (order_keys or [])[: max(0, int(target_slots))])
+        }
+        rows: list[dict[str, Any]] = []
+        for base in base_rows:
+            row = dict(base)
+            src = str(row.get("src") or "")
+            in_top5 = src in top_index_map
+            row["in_top5_v11"] = in_top5
+            row["eff_rk"] = (
+                top_index_map[src] if in_top5
+                else int(row.get("_off_eff_rk", 198)))
+            row.pop("_off_eff_rk", None)
+            rows.append(row)
+        top5 = [c for c in sorted(rows, key=lambda x: x["eff_rk"])
+                if c["in_top5_v11"]]
+        rest = [c for c in rows if not c["in_top5_v11"]]
+        seen_sts = {c["p_st"] for c in top5 if c["p_st"]}
+
+        # Step A: Rescue unpicked super-consensus / exact-substrate pool anchors into Slot 5
+        strong_unpicked = [
+            c
+            for c in rest
+            if c["p_st"] not in seen_sts
+            # v1.4 T14-4：跨池资格率归一化打开时，Step A 的兜底补位只允许
+            # 本 pass 资格集内的候选（默认 None ⇒ 与改前逐位一致）。
+            and (elig_keys is None or c["src"] in elig_keys)
+            and (
+                (c["pidx"] <= 1 and (c["is_rec"] or c["raw_sim"] >= 0.95) and c["prior"] >= 135.0)
+                or (
+                    c["pidx"] == 0
+                    and c["n_fams"] >= 3
+                    and c["prior"] >= 165.0
+                    and (c["is_s5"] or c["raw_sim"] >= 0.70)
+                )
             )
-        )
-    ]
-    strong_unpicked.sort(key=lambda c: (-_calibrated_prior_score(c), c["pidx"]))
-    for anc in strong_unpicked[:1]:
-        if len(top5) < int(target_slots):
-            top5.append(anc)
-            seen_sts.add(anc["p_st"])
-        elif top5:
-            tail = top5[-1]
-            if (
-                not tail["is_rec"]
-                and tail["raw_sim"] < 0.85
-                and _calibrated_prior_score(tail) < 95.0
-                and not (tail["is_novel"] and tail["cb"])
-            ):
-                top5[-1] = anc
+        ]
+        strong_unpicked.sort(key=lambda c: (-_calibrated_prior_score(c), c["pidx"]))
+        for anc in strong_unpicked[:1]:
+            if len(top5) < int(target_slots):
+                top5.append(anc)
                 seen_sts.add(anc["p_st"])
+            elif top5:
+                tail = top5[-1]
+                if (
+                    not tail["is_rec"]
+                    and tail["raw_sim"] < 0.85
+                    and _calibrated_prior_score(tail) < 95.0
+                    and not (tail["is_novel"] and tail["cb"])
+                ):
+                    top5[-1] = anc
+                    seen_sts.add(anc["p_st"])
 
-    if len(top5) <= 1:
+        if len(top5) <= 1:
+            _record_pass(
+                top5_now=top5,
+                head_pre_rules=(str(top5[0].get("src") or "")
+                                if top5 else ""),
+                rule_fires=[],
+                top5_pre_rules=[str(c.get("src") or "") for c in top5])
+            return top5, rest, rows
+
+        # v1.4 T14-0：规则前快照 + 逐规则账本（只进 debug sink）。
+        _debug_on = collect_pass_debug and stage1_debug_sink is not None
+        _head_pre_rules = str(top5[0].get("src") or "")
+        _top5_pre_rules = [str(c.get("src") or "") for c in top5]
+        _rule_fires: list[dict[str, Any]] = []
+
+        c1 = top5[0]
+        best_challenger: dict[str, Any] | None = None
+        best_challenger_score = -1e9
+
+        # v1.4 T14-1A：``raw_v13`` 不消费 v1.1 Rule 1..7（空区间 ⇒ 零换首），
+        # 其余模式逐条判据不变（``guarded_r2_r7`` 只在 Rule 2/7 内收紧）。
+        rule_indices = (range(1, len(top5))
+                        if rule_mode != "raw_v13" else range(1, 1))
+        for idx in rule_indices:
+            cand = top5[idx]
+            cand_cp = _calibrated_prior_score(cand)
+            promote = False
+            _rule_id = ""
+            _guarded = False
+
+            # Rule 1: Novel candidate at eff_rk == 2 with high-consensus pool backing (cb=True, prior>=140) when c1 is not recorded
+            if (
+                cand["is_novel"]
+                and cand["cb"]
+                and cand["eff_rk"] == 2
+                and cand["prior"] >= 140.0
+                and not c1["is_rec"]
+            ):
+                promote = True
+                _rule_id = "R1"
+
+            # Rule 2: c1 is an unbacked novel proposal (is_novel and not cb) when top5[1:] has a high-consensus pool anchor
+            elif c1["is_novel"] and not c1["cb"]:
+                if cand["prior"] >= 140.0 or cand["raw_sim"] >= 0.90:
+                    # v1.4 guarded_r2_r7：挑战者须为 recorded 强锚点或
+                    # raw_sim >= 0.80 的强相似同源候选，才允许置换 novel
+                    # 榜首（prior 高但相似度低的通用规则不再盲踢）。
+                    _rule_id = "R2"
+                    if rule_mode == "guarded_r2_r7" and not (
+                            cand["is_rec"] or cand["raw_sim"] >= 0.80):
+                        promote = False
+                        _guarded = True
+                    else:
+                        promote = True
+
+            # Rule 3: c1 has an inorganic (0-carbon) principal product with low template similarity (raw_sim < 0.80) while cand at eff_rk == 2 has carbon
+            elif (
+                not c1["p_has_c"]
+                and c1["raw_sim"] < 0.80
+                and cand["p_has_c"]
+                and cand["eff_rk"] == 2
+                and cand["prior"] > c1["prior"]
+            ):
+                promote = True
+                _rule_id = "R3"
+
+            # Rule 4: c1 is a weak-similarity analog template (is_tpl and raw_sim < 0.45) at Pool[0..2]
+            elif c1["is_tpl"] and c1["raw_sim"] < 0.45 and c1["pidx"] <= 2:
+                if (cand["is_rec"] or cand["raw_sim"] >= 0.95) and cand["p_has_c"] and cand["prior"] >= 140.0:
+                    promote = True
+                    _rule_id = "R4"
+                elif cand["is_s5"] and cand["pidx"] == 1 and cand["eff_rk"] == 2 and cand["prior"] >= 140.0:
+                    promote = True
+                    _rule_id = "R4"
+
+            # Rule 5: c1 is a deep-pool low-prior decoy (pidx >= 4 and prior < 85.0)
+            elif not c1["is_novel"] and c1["pidx"] >= 4 and c1["prior"] < 85.0 and c1["raw_sim"] < 0.85:
+                if (
+                    cand["pidx"] <= 1
+                    and (cand["is_rec"] or cand["raw_sim"] >= 0.95)
+                    and cand["prior"] >= 140.0
+                    and not cand["src"].startswith("rec-rhea:")
+                ):
+                    promote = True
+                    _rule_id = "R5"
+                elif (
+                    cand["pidx"] <= 2
+                    and cand["is_s5"]
+                    and cand["n_fams"] >= 3
+                    and cand["prior"] >= 150.0
+                    and c1["pidx"] >= 8
+                ):
+                    promote = True
+                    _rule_id = "R5"
+
+            # Rule 6: c1 is a low-prior S5 rule (is_s5, prior < 75.0, pidx >= 2) while cand is an exact-substrate Pool[0..1] template
+            elif c1["is_s5"] and c1["prior"] < 75.0 and c1["pidx"] >= 2:
+                if (
+                    c1["n_fams"] == 1
+                    and cand["pidx"] == 0
+                    and (cand["is_rec"] or cand["raw_sim"] >= 0.98)
+                    and cand["prior"] >= 140.0
+                    and cand["eff_rk"] >= 3
+                ):
+                    promote = True
+                    _rule_id = "R6"
+                elif (
+                    c1["prior"] < 68.0
+                    and cand["pidx"] <= 1
+                    and (cand["is_rec"] or cand["raw_sim"] >= 0.98)
+                    and cand["prior"] >= 245.0
+                    and not cand["src"].startswith("rec-rhea:")
+                    and cand["eff_rk"] >= 3
+                ):
+                    promote = True
+                    _rule_id = "R6"
+
+            # Rule 7: c1 is a deeper-pool S5 rule (is_s5, pidx >= 3) while cand at eff_rk == 2 is the top S5 rule (pidx <= 1) with +15 prior
+            elif (
+                c1["is_s5"]
+                and c1["pidx"] >= 3
+                and cand["is_s5"]
+                and cand["pidx"] <= 1
+                and cand["eff_rk"] == 2
+                and cand["prior"] >= c1["prior"] + 15.0
+            ):
+                # v1.4 guarded_r2_r7：c1 已匹配 Stage-1 primary/secondary
+                # 大类时，pidx<=1 的通用 S5 不再无条件夺回首位的位次。
+                _rule_id = "R7"
+                _c1_cls = str(c1.get("cls") or "")
+                _c1_stage1_match = bool(_c1_cls) and (
+                    (_c1_cls == rule_primary) or (_c1_cls in rule_secondary))
+                if rule_mode == "guarded_r2_r7" and _c1_stage1_match:
+                    promote = False
+                    _guarded = True
+                else:
+                    promote = True
+
+            if _debug_on and _rule_id:
+                _rule_fires.append({
+                    "rule": _rule_id,
+                    "src": str(cand.get("src") or ""),
+                    "eff_rk": int(cand.get("eff_rk") or 0),
+                    "promote": bool(promote),
+                    "guarded": bool(_guarded),
+                    "c1_src": str(c1.get("src") or ""),
+                })
+
+            if promote and cand_cp > best_challenger_score:
+                best_challenger = cand
+                best_challenger_score = cand_cp
+
+        if best_challenger is not None:
+            rem = [c for c in top5 if c is not best_challenger]
+            top5 = [best_challenger] + rem
+
+        # Sort Slots 2..5 to boost Hit@3 for high-consensus anchors
+        if len(top5) > 2 and rule_mode != "raw_v13":
+            slot1 = top5[0]
+            rest_top5 = top5[1:]
+            rest_top5.sort(
+                key=lambda c: (
+                    0
+                    if (
+                        _calibrated_prior_score(c) >= 145.0
+                        and (
+                            c["is_rec"]
+                            or c["raw_sim"] >= 0.85
+                            or c["n_fams"] >= 3
+                            or (c["is_novel"] and c["cb"])
+                        )
+                    )
+                    else 1,
+                    c["eff_rk"],
+                )
+            )
+            top5 = [slot1] + rest_top5
+
+        if v13_rank_rules:
+            from .ranking_rules_v13 import apply_v13_rank_rules
+
+            top5, _rule_note = apply_v13_rank_rules(
+                top5, enabled=True, target_slots=int(target_slots))
+
+        if apply_stage1 and stage1_active and top5:
+            # v1.3 T12-B：Stage-1 大类一致性精排（默认关；最后一步 ⇒ 不改
+            # 既有校准结果，只在触发条件成立时把合规候选提到首位）。
+            from .ranking_rules_v13 import apply_stage1_class_calibration
+
+            _top5_pre = list(top5)
+            _before = [str(c.get("src") or "") for c in _top5_pre]
+            top5, _stage1_note = apply_stage1_class_calibration(
+                top5, routing=stage1_routing, params=stage1_params,
+                pool_rest=rest, target_slots=int(target_slots))
+            if stage1_debug_sink is not None:
+                stage1_debug_sink.update({
+                    "routing": dict(stage1_routing or {}),
+                    "stage1_params": dict(stage1_params or {}),
+                    "substrate_smiles": str(substrate_smiles),
+                    "stage1_note": dict(_stage1_note),
+                    "top5_before": _before,
+                    "top5_after": [str(c.get("src") or "") for c in top5],
+                    # 规则前 top-5（按当时顺序）+ 池内其余可提交候选：离线
+                    # 扫参用，与生产判据无关（只在 env 显式开启时落盘）。
+                    "top5_candidates_before": [_debug_row(c) for c in _top5_pre],
+                    "rest_candidates": [_debug_row(c) for c in rest],
+                })
+
+        _record_pass(
+            top5_now=top5,
+            head_pre_rules=_head_pre_rules,
+            rule_fires=_rule_fires,
+            top5_pre_rules=_top5_pre_rules)
+        return top5, rest, rows
+
+    if not consensus_engaged:
+        if v13_multi_sample_consensus and \
+                v13_consensus_debug_sink is not None:
+            from .consensus_v13 import CONSENSUS_VERSION
+
+            v13_consensus_debug_sink.update({
+                "version": CONSENSUS_VERSION,
+                "engaged": False,
+                "pass_mode": effective_pass_mode,
+                "skipped": ("no_secondary_passes"
+                            if not consensus_lists else "disabled"),
+            })
+        top5, _rest, _rows = _single_pass(
+            selected_top_keys, apply_stage1=True, pass_index=0)
         return [c["src"] for c in top5[: int(target_slots)]]
 
-    c1 = top5[0]
-    best_challenger: dict[str, Any] | None = None
-    best_challenger_score = -1e9
+    # ---- T13-B：多 pass 融合（每个 pass 独立走单 pass 流水线；不叠加
+    # Stage-1 精排 ⇒ 融合层的类加项/保护是唯一 Stage-1 消费面）----
+    pass0_top5, _rest0, pass0_rows = _single_pass(
+        selected_top_keys, apply_stage1=False,
+        rule_mode=effective_pass_mode, pass_index=0)
+    pass_top5_lists: list[list[dict[str, Any]]] = [pass0_top5]
+    pass_key_debug: list[list[str]] = [
+        [str(c.get("src") or "") for c in pass0_top5]]
+    for _pi, keys in enumerate(consensus_lists, start=1):
+        pass_top5, _rest_p, _rows_p = _single_pass(
+            keys, apply_stage1=False, rule_mode=effective_pass_mode,
+            pass_index=_pi,
+            elig_keys=(consensus_elig_lists[_pi - 1]
+                       if elig_norm_enabled else None))
+        pass_top5_lists.append(pass_top5)
+        pass_key_debug.append(
+            [str(c.get("src") or "") for c in pass_top5])
 
-    for idx in range(1, len(top5)):
-        cand = top5[idx]
-        cand_cp = _calibrated_prior_score(cand)
-        promote = False
+    submittable_by_key: dict[str, dict[str, Any]] = {}
+    for row in pass0_rows:
+        src = str(row.get("src") or "")
+        if src and src not in submittable_by_key:
+            submittable_by_key[src] = row
 
-        # Rule 1: Novel candidate at eff_rk == 2 with high-consensus pool backing (cb=True, prior>=140) when c1 is not recorded
-        if (
-            cand["is_novel"]
-            and cand["cb"]
-            and cand["eff_rk"] == 2
-            and cand["prior"] >= 140.0
-            and not c1["is_rec"]
-        ):
-            promote = True
+    from .consensus_v13 import fuse_multi_sample_top5
 
-        # Rule 2: c1 is an unbacked novel proposal (is_novel and not cb) when top5[1:] has a high-consensus pool anchor
-        elif c1["is_novel"] and not c1["cb"]:
-            if cand["prior"] >= 140.0 or cand["raw_sim"] >= 0.90:
-                promote = True
+    # v1.4 T14-4：跨池资格率归一化（主 pass 无资格信息 ⇒ None = 权重 1.0；
+    # 次级 pass 按各自资格集归一化 + 资格感知全票锁）。参数只由
+    # ``consensus_params_from_plan`` 按 plan 开关注入，此处不再隐式补参数。
+    fuse_pass_elig: list[set[str] | None] | None = None
+    if elig_norm_enabled:
+        fuse_pass_elig = [None] + list(consensus_elig_lists)
 
-        # Rule 3: c1 has an inorganic (0-carbon) principal product with low template similarity (raw_sim < 0.80) while cand at eff_rk == 2 has carbon
-        elif (
-            not c1["p_has_c"]
-            and c1["raw_sim"] < 0.80
-            and cand["p_has_c"]
-            and cand["eff_rk"] == 2
-            and cand["prior"] > c1["prior"]
-        ):
-            promote = True
+    fused_rows, consensus_note = fuse_multi_sample_top5(
+        pass_top5_lists, submittable_by_key, stage1_routing,
+        v13_consensus_params, target_slots=int(target_slots),
+        pass_eligible_keys=fuse_pass_elig)
+    result_keys = [
+        str(row.get("src") or "") for row in fused_rows
+        if str(row.get("src") or "")]
+    if not result_keys:
+        # 兜底：融合空结果 ⇒ 原主 pass 顺序（保守，不引入新候选）。
+        result_keys = [
+            str(c.get("src") or "") for c in pass0_top5[: int(target_slots)]]
+        consensus_note["skipped"] = (
+            consensus_note.get("skipped") or "empty_fused_fallback_pass0")
 
-        # Rule 4: c1 is a weak-similarity analog template (is_tpl and raw_sim < 0.45) at Pool[0..2]
-        elif c1["is_tpl"] and c1["raw_sim"] < 0.45 and c1["pidx"] <= 2:
-            if (cand["is_rec"] or cand["raw_sim"] >= 0.95) and cand["p_has_c"] and cand["prior"] >= 140.0:
-                promote = True
-            elif cand["is_s5"] and cand["pidx"] == 1 and cand["eff_rk"] == 2 and cand["prior"] >= 140.0:
-                promote = True
+    if v13_consensus_debug_sink is not None:
+        v13_consensus_debug_sink.update({
+            "version": str(consensus_note.get("version") or ""),
+            "engaged": True,
+            "stage1_routing": dict(stage1_routing or {}),
+            "pass_mode": effective_pass_mode,
+            "pass_top5_keys": pass_key_debug,
+            "secondary_ranked_keys": [list(keys) for keys in consensus_lists],
+            "note": consensus_note,
+            "result_keys": list(result_keys),
+        })
+        if elig_norm_enabled:
+            # v1.4 T14-4：只做研究期机读记录（键序稳定便于逐位比对）。
+            v13_consensus_debug_sink.update({
+                "cross_pool_elig_norm": True,
+                "secondary_eligible_keys_list": [
+                    (sorted(el) if el is not None else None)
+                    for el in consensus_elig_lists],
+            })
 
-        # Rule 5: c1 is a deep-pool low-prior decoy (pidx >= 4 and prior < 85.0)
-        elif not c1["is_novel"] and c1["pidx"] >= 4 and c1["prior"] < 85.0 and c1["raw_sim"] < 0.85:
-            if (
-                cand["pidx"] <= 1
-                and (cand["is_rec"] or cand["raw_sim"] >= 0.95)
-                and cand["prior"] >= 140.0
-                and not cand["src"].startswith("rec-rhea:")
-            ):
-                promote = True
-            elif (
-                cand["pidx"] <= 2
-                and cand["is_s5"]
-                and cand["n_fams"] >= 3
-                and cand["prior"] >= 150.0
-                and c1["pidx"] >= 8
-            ):
-                promote = True
-
-        # Rule 6: c1 is a low-prior S5 rule (is_s5, prior < 75.0, pidx >= 2) while cand is an exact-substrate Pool[0..1] template
-        elif c1["is_s5"] and c1["prior"] < 75.0 and c1["pidx"] >= 2:
-            if (
-                c1["n_fams"] == 1
-                and cand["pidx"] == 0
-                and (cand["is_rec"] or cand["raw_sim"] >= 0.98)
-                and cand["prior"] >= 140.0
-                and cand["eff_rk"] >= 3
-            ):
-                promote = True
-            elif (
-                c1["prior"] < 68.0
-                and cand["pidx"] <= 1
-                and (cand["is_rec"] or cand["raw_sim"] >= 0.98)
-                and cand["prior"] >= 245.0
-                and not cand["src"].startswith("rec-rhea:")
-                and cand["eff_rk"] >= 3
-            ):
-                promote = True
-
-        # Rule 7: c1 is a deeper-pool S5 rule (is_s5, pidx >= 3) while cand at eff_rk == 2 is the top S5 rule (pidx <= 1) with +15 prior
-        elif (
-            c1["is_s5"]
-            and c1["pidx"] >= 3
-            and cand["is_s5"]
-            and cand["pidx"] <= 1
-            and cand["eff_rk"] == 2
-            and cand["prior"] >= c1["prior"] + 15.0
-        ):
-            promote = True
-
-        if promote and cand_cp > best_challenger_score:
-            best_challenger = cand
-            best_challenger_score = cand_cp
-
-    if best_challenger is not None:
-        rem = [c for c in top5 if c is not best_challenger]
-        top5 = [best_challenger] + rem
-
-    # Sort Slots 2..5 to boost Hit@3 for high-consensus anchors
-    if len(top5) > 2:
-        slot1 = top5[0]
-        rest_top5 = top5[1:]
-        rest_top5.sort(
-            key=lambda c: (
-                0
-                if (
-                    _calibrated_prior_score(c) >= 145.0
-                    and (
-                        c["is_rec"]
-                        or c["raw_sim"] >= 0.85
-                        or c["n_fams"] >= 3
-                        or (c["is_novel"] and c["cb"])
-                    )
-                )
-                else 1,
-                c["eff_rk"],
-            )
-        )
-        top5 = [slot1] + rest_top5
-
-    return [c["src"] for c in top5[: int(target_slots)]]
-
-
+    return result_keys

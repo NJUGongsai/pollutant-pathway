@@ -315,6 +315,118 @@ def _substrate_state(smiles: str, label: str):
                                  [{"record": label}])
 
 
+def _declared_consistency_report(prepared: dict,
+                                 declared_product: str,
+                                 declared_coproducts: list[str],
+                                 effective_spec: dict) -> dict:
+    """v1.3 T4-A:落库结构 vs 模型声明产物的一致性核验(只披露、不改行为)。
+
+    语义(开关 ``enable_v13_declared_product_consistency`` 打开时消费;
+    默认关闭 ⇒ 本函数不被调用,行为与改前逐字节同):
+
+    - **落库侧** = ``prepared["product_states"]`` 的结构串 —— 即
+      ``prepare_hypothesis`` 之后真正进事件/落库的那组产物(含执行器
+      自动补齐的裂解/水解副产物);
+    - **声明侧** = 模型 ``reaction_spec.product_smiles`` +
+      ``coproducts``;
+    - 逐条按 ``strict_identity_of``(与 state_id 同一事实源)的严格身份
+      做**多重集包含**:每条声明组分都要在落库组分里找到同身份条目
+      (消耗式匹配,数量不够 ⇒ 不覆盖);
+    - 返回值**只进机读披露**(``v13_declared_consistency_mismatches``),
+      **不拒提案、不改排序**:T4-pre §5.3 的原始现象(atom_edit 优先
+      路径把共产物执行成别的结构)在本树不成立 —— 该路径因
+      ``execute_atomtool_expansion`` 未在 ``_run_decide`` 作用域导入而
+      恒抛 NameError(既有缺陷,本轮只报告不修),所有 novel 提案本来
+      就走产物优先回退编译;回退编译的 spec 里 ``coproducts`` 也**不是**
+      最终事件产物集(执行器会补水解副产物/水),拿 spec 当判据会误杀
+      真命中。因此本函数以落库侧 prepared 为唯一事实源。
+
+    不做的事:不做中和/互变异构/电荷规整 —— 严格身份是既定口径;
+    本函数只判「落库结构是否覆盖模型声明的那组产物」,不放宽产物身份。
+    """
+    declared: list[str] = []
+    if str(declared_product or "").strip():
+        declared.append(str(declared_product).strip())
+    for cop in (declared_coproducts or []):
+        text = str(cop or "").strip()
+        if text:
+            declared.append(text)
+    stored: list[str] = []
+    for state in (prepared or {}).get("product_states") or []:
+        smiles = str(getattr(state, "smiles_isomeric", "") or "").strip()
+        if smiles:
+            stored.append(smiles)
+    report: dict = {
+        "declared_product": str(declared_product or ""),
+        "declared_coproducts": list(declared_coproducts or []),
+        "stored_products": stored,
+        "compiled_product": str(
+            (effective_spec or {}).get("product_smiles") or ""),
+        "compiled_coproducts": [
+            str(c) for c in ((effective_spec or {}).get("coproducts") or [])],
+        "covered": False,
+        "reason": "",
+    }
+    if not declared or not stored:
+        report["reason"] = ("no_declared_components" if not declared
+                            else "no_stored_products")
+        return report
+    try:
+        rest: list[str] = [strict_identity_of(part) for part in stored]
+    except ChemicalStateError:
+        report["reason"] = "stored_identity_failed"
+        return report
+    for part in declared:
+        try:
+            want = strict_identity_of(part)
+        except ChemicalStateError:
+            report["reason"] = "declared_identity_failed"
+            return report
+        if want not in rest:
+            report["reason"] = "declared_component_not_stored"
+            report["missing_component"] = part
+            return report
+        rest.remove(want)
+    report["covered"] = True
+    report["reason"] = "covered"
+    return report
+
+
+def _execution_declaration_mismatch(exec_out: dict,
+                                    declared: list[str]) -> dict:
+    """T10-A 开关 1:执行产物组分集 vs 模型声明组分集的严格身份核验。
+
+    返回空 dict = 一致;非空 = 结构化差异(``reason`` + 两侧组分)。
+    语义:``execute_atomtool_expansion`` 实际执行的产物组分必须与模型
+    声明的 ``product_smiles + coproducts`` **严格身份多重集相等** ——
+    落库侧 ``prepared["product_states"]`` 本就由声明构建,单看它无法
+    发现「声明产物不是执行产物」;atom_edit 优先路径必须同时核对执行
+    结果,否则会把未执行出的产物写进事件(T4-A3 同根反例)。不做中和/
+    互变异构/电荷规整:严格身份是既定口径,不一致一律回退产物优先
+    编译(不朴素拒绝、不放宽身份)。
+    """
+    from .chemstate import strict_identity_of
+
+    result = (exec_out or {}).get("result") or {}
+    executed = [part for part in str(
+        result.get("product_smiles") or "").split(".") if part.strip()]
+    if not executed:
+        return {"reason": "no_executed_product"}
+    declared_parts = [part for part in
+                      [str(x) for x in (declared or [])]
+                      for part in part.split(".") if part.strip()]
+    try:
+        have = sorted(strict_identity_of(part) for part in executed)
+        want = sorted(strict_identity_of(part) for part in declared_parts)
+    except Exception:
+        return {"reason": "identity_failed"}
+    if have != want:
+        return {"reason": "executed_product_set_mismatch",
+                "executed_components": executed[:8],
+                "declared_components": declared_parts[:8]}
+    return {}
+
+
 def _worker_id(run_id: str) -> str:
     """确定性 worker 身份(同 run 的 resume 以同一逻辑 worker 幂等
     reclaim —— B1 续跑;跨进程竞争方被驱动会话互斥挡在执行前)。"""
@@ -327,6 +439,25 @@ def _task_key_for(*, run_id: str, parent_path_id: str, context_ref: str,
     return stable_id("stkey", run_id, parent_path_id, context_ref,
                      subject_ref, kind, str(int(revision)),
                      policy_version, extra)
+
+
+ROUTING_TIER_RANK: dict[str, int] = {
+    "primary": 0, "secondary": 1, "other": 2, "unrouted": 2}
+
+
+def order_pool_entries_by_routing_tier(entries: list[dict]) -> list[dict]:
+    """v1.3 T11:Stage 2 池条目按 ``routing_tier`` **稳定**分组重排。
+
+    - 组序 ``primary`` → ``secondary`` → ``other``(``unrouted`` 与
+      ``other`` 同组序,排在其后到达次序);
+    - 组内保持原相对顺序(Python sort 稳定);
+    - **零删池**:只换序,不增不减(条目对象原样返回,同一引用);
+    - 未知/缺失 tier ⇒ 归 ``other`` 组序(不丢条目)。
+    """
+    return sorted(
+        list(entries or []),
+        key=lambda entry: ROUTING_TIER_RANK.get(
+            str(entry.get("routing_tier") or "unrouted"), 2))
 
 
 def _complete_action(ledger: SearchLedger, action_id: str, *,
@@ -617,6 +748,37 @@ def _isolated_recovery_actions(recovery: dict) -> list[dict]:
     return out
 
 
+def effective_stage1_routing(
+    model_note: dict | None,
+    external: dict | None,
+) -> dict | None:
+    """T12-B 路由事实选择：运行自身 Stage-1 outcome 优先，外部映射兜底。
+
+    - 两段式路由批：``_model_proposals`` 已把 Stage-1 解析结果写进
+      ``note["class_routing"]``（T12-A 修键后非空）；解析失败时
+      ``primary_class`` 为 None ⇒ 落到外部映射（如有）。
+    - 零调用重放批（历史臂无 Stage-1 调用）：只用计划注入的外部脱敏
+      映射 ``v13_stage1_routing_external``。
+    两者都不可用 ⇒ 返回 None（该题不触发精排，原样返回）。
+    """
+    note = dict(model_note or {})
+    own = dict(note.get("class_routing") or {})
+    if own.get("primary_class"):
+        return {
+            "primary_class": own.get("primary_class"),
+            "secondary_class": own.get("secondary_class"),
+            "source": "stage1_live",
+        }
+    ext = dict(external or {})
+    if ext.get("primary_class"):
+        return {
+            "primary_class": ext.get("primary_class"),
+            "secondary_class": ext.get("secondary_class"),
+            "source": "external_replay_map",
+        }
+    return None
+
+
 def consensus_and_smart_backfill(
     *,
     substrate_state,
@@ -634,8 +796,34 @@ def consensus_and_smart_backfill(
     s5_super_consensus_score: float = 115.0,
     s5_max_supplements: int = 2,
     target_slots: int = 5,
+    v13_rank_rules: bool = False,
+    v13_stage1_rank: bool = False,
+    stage1_routing: dict | None = None,
+    stage1_params: dict | None = None,
+    stage1_debug_sink: dict | None = None,
+    v13_multi_sample_consensus: bool = False,
+    v13_consensus_params: dict | None = None,
+    secondary_ranked_keys_list: list[list[str]] | None = None,
+    v13_consensus_debug_sink: dict | None = None,
+    # v1.4 T14-4(默认关):跨池资格率归一化(1:1 对齐的每 pass 资格键)
+    secondary_eligible_keys_list: list[list[str] | None] | None = None,
+    v14_cross_pool_elig_norm: bool = False,
+    enable_v12_post_mechanism: bool = True,
+    collect_pass_debug: bool = False,
+    enable_v14_pairwise_adjudication: bool = False,
+    v14_adjudication_external: dict | None = None,
+    v14_adjudication_sink: dict | None = None,
+    disable_cleavage_upgrade: bool = False,
+    disable_ranking_calibration: bool = False,
 ) -> dict:
     """v44-Next 决策与核验后置层：跨源独立共识升位 (Consensus Boost) + 智能门控尾部回填 (Smart-Gated Backfill)。
+
+    ``enable_v12_post_mechanism=False`` 时整体关闭 v1.2 回复后机制
+    （3.5 候选排序校准 + 裂解共产物补齐），复现 v1.1 回复后行为（T2-G 硬门）。
+
+    ``enable_v14_pairwise_adjudication``（v1.4 T14-3，默认关）只在 3.5 之后
+    按外部脱敏判决**在既有 Top-N 内部**换位（3.6 段）；关闭或没有外部判决
+    ⇒ 3.6 段整段不执行，与 v1.3 逐字节一致。
 
     所有进入排序与尾部回填的候选均须通过正规 `prepare_hypothesis` + RDKit `execute_atomtool_expansion`
     + 11 项 `audit_hypothesis` + `decide_admission` 核验。
@@ -785,100 +973,177 @@ def consensus_and_smart_backfill(
             ):
                 gated_supp_keys.append(k)
 
+    def _assemble_top(picks: list[str]) -> tuple[list[str], list[str]]:
+        selected: list[str] = []
+        kept_stricts: set[str] = set()
+        backfilled: list[str] = []
+        picks_set = set(picks)
+        gate_on = bool(
+            sparse_gate or super_consensus_gate
+            or len(picks) < int(target_slots)
+        )
+
+        def _try_add(cand_k: str, *, is_backfill: bool = False) -> bool:
+            if len(selected) >= int(target_slots):
+                return False
+            if cand_k in selected:
+                return False
+            st = prod_strict_by_key.get(cand_k, "")
+            if st and st in kept_stricts:
+                return False
+            selected.append(cand_k)
+            if st:
+                kept_stricts.add(st)
+            if is_backfill and cand_k not in picks_set:
+                backfilled.append(cand_k)
+            return True
+
+        for k in picks:
+            if len(selected) >= int(target_slots):
+                break
+            _try_add(k, is_backfill=False)
+
+        if len(selected) < int(target_slots):
+            for k in gated_supp_keys:
+                if len(selected) >= int(target_slots):
+                    break
+                _try_add(k, is_backfill=True)
+
+        if gate_on and len(selected) < int(target_slots):
+            for k in verified_pool_keys:
+                if len(selected) >= int(target_slots):
+                    break
+                _try_add(k, is_backfill=True)
+
+        return selected, backfilled
+
     # 3. 组装前 target_slots (5) 槽位：
     # 模型从池内或 novel 显式选中的合法候选 100% 按模型声明序保留在前部；
     # 尾部空缺槽位优先由门控高先验补充项 (gated_supp_keys) 确定性回填，再由候选池其余高先验合法事件补满至 5 条
-    selected_top_keys: list[str] = []
-    kept_stricts: set[str] = set()
-    backfilled_keys: list[str] = []
-
-    def _try_add(cand_k: str, *, is_backfill: bool = False) -> bool:
-        if len(selected_top_keys) >= int(target_slots):
-            return False
-        if cand_k in selected_top_keys:
-            return False
-        st = prod_strict_by_key.get(cand_k, "")
-        if st and st in kept_stricts:
-            return False
-        selected_top_keys.append(cand_k)
-        if st:
-            kept_stricts.add(st)
-        if is_backfill and cand_k not in ordered_model_picks:
-            backfilled_keys.append(cand_k)
-        return True
-
-    for k in ordered_model_picks:
-        if len(selected_top_keys) >= int(target_slots):
-            break
-        _try_add(k, is_backfill=False)
-
-    if len(selected_top_keys) < int(target_slots):
-        for k in gated_supp_keys:
-            if len(selected_top_keys) >= int(target_slots):
-                break
-            _try_add(k, is_backfill=True)
-
-    if smart_gate_triggered and len(selected_top_keys) < int(target_slots):
-        for k in verified_pool_keys:
-            if len(selected_top_keys) >= int(target_slots):
-                break
-            _try_add(k, is_backfill=True)
+    selected_top_keys, backfilled_keys = _assemble_top(ordered_model_picks)
+    assembled_sec_keys_list: list[list[str]] | None = None
+    if v13_multi_sample_consensus and secondary_ranked_keys_list:
+        assembled_sec_keys_list = [
+            _assemble_top([k for k in (sec_picks or [])
+                           if verified_by_key.get(k, False)])[0]
+            for sec_picks in secondary_ranked_keys_list
+        ]
 
     # 3.5 DECISION-9 方向 3（v44-Next v1.2 候选排序器校准 + 多产物裂解共产物补齐）
-    from ..services.s5_hybrid_choice import (
-        _smiles_has_carbon,
-        calibrate_submittable_ranking,
-        try_upgrade_cleavage_spec,
-    )
-
-    selected_top_keys = calibrate_submittable_ranking(
-        selected_top_keys=selected_top_keys,
-        prepared_entries=prepared_entries,
-        deduped_indices=deduped_indices,
-        pool_specs=pool_specs,
-        verified_by_key=verified_by_key,
-        prod_strict_by_key=prod_strict_by_key,
-        novel_entry_idx=novel_entry_idx,
-        target_slots=int(target_slots),
-    )
-    for k in selected_top_keys:
-        if k not in ordered_model_picks and k not in backfilled_keys:
-            backfilled_keys.append(k)
-
-    selected_top_set = set(selected_top_keys)
-    for idx_in_prep, (orig_idx, (k, spec, prep)) in enumerate(
-        zip(deduped_indices, prepared_entries)
-    ):
-        if k not in selected_top_set:
-            continue
-        is_s5_or_novel = (
-            str(k).startswith("s5-")
-            or str(k).startswith("novel-")
-            or (int(orig_idx) in novel_entry_idx)
+    # T2-G：``enable_v12_post_mechanism=False`` 时整段跳过，等于 v1.1 回复后行为。
+    if enable_v12_post_mechanism:
+        from ..services.s5_hybrid_choice import (
+            _smiles_has_carbon,
+            calibrate_submittable_ranking,
+            try_upgrade_cleavage_spec,
         )
-        if not is_s5_or_novel or not spec.get("undeclared_coproducts"):
-            continue
-        if any(_smiles_has_carbon(str(c)) for c in (spec.get("coproducts") or [])):
-            continue
-        up_spec = try_upgrade_cleavage_spec(substrate_state.smiles_isomeric, spec)
-        if up_spec is not None:
-            try:
-                src_refs = [
-                    dict(r) if isinstance(r, dict) else {"record": str(r)}
-                    for r in (getattr(prep["hypothesis"], "source_refs", None) or [])
-                ]
-                up_prep = prepare_hypothesis(
-                    up_spec,
-                    parent_path_id=str(prep["hypothesis"].parent_path_id),
-                    substrate_state=substrate_state,
-                    transformation_ref=str(up_spec.get("transformation_ref") or ""),
-                    source_refs=src_refs or None,
-                )
-                spec.clear()
-                spec.update(up_spec)
-                prepared_entries[idx_in_prep] = (k, spec, up_prep)
-            except Exception:
-                pass
+
+        if not disable_ranking_calibration:
+            selected_top_keys = calibrate_submittable_ranking(
+                selected_top_keys=selected_top_keys,
+                prepared_entries=prepared_entries,
+                deduped_indices=deduped_indices,
+                pool_specs=pool_specs,
+                verified_by_key=verified_by_key,
+                prod_strict_by_key=prod_strict_by_key,
+                novel_entry_idx=novel_entry_idx,
+                target_slots=int(target_slots),
+                v13_rank_rules=bool(v13_rank_rules),
+                v13_stage1_rank=bool(v13_stage1_rank),
+                stage1_routing=stage1_routing,
+                substrate_smiles=str(
+                    getattr(substrate_state, "smiles_isomeric", "") or ""),
+                stage1_params=stage1_params,
+                stage1_debug_sink=stage1_debug_sink,
+                v13_multi_sample_consensus=bool(v13_multi_sample_consensus),
+                v13_consensus_params=v13_consensus_params,
+                secondary_ranked_keys_list=(
+                    assembled_sec_keys_list
+                    if assembled_sec_keys_list is not None
+                    else secondary_ranked_keys_list
+                ),
+                v13_consensus_debug_sink=v13_consensus_debug_sink,
+                collect_pass_debug=bool(collect_pass_debug),
+                secondary_eligible_keys_list=secondary_eligible_keys_list,
+                enable_v14_cross_pool_elig_norm=bool(
+                    v14_cross_pool_elig_norm),
+            )
+        for k in selected_top_keys:
+            if k not in ordered_model_picks and k not in backfilled_keys:
+                backfilled_keys.append(k)
+
+        selected_top_set = set(selected_top_keys)
+        for idx_in_prep, (orig_idx, (k, spec, prep)) in enumerate(
+            zip(deduped_indices, prepared_entries)
+        ):
+            if k not in selected_top_set:
+                continue
+            is_s5_or_novel = (
+                str(k).startswith("s5-")
+                or str(k).startswith("novel-")
+                or (int(orig_idx) in novel_entry_idx)
+            )
+            if not is_s5_or_novel or not spec.get("undeclared_coproducts"):
+                continue
+            if any(_smiles_has_carbon(str(c)) for c in (spec.get("coproducts") or [])):
+                continue
+            if disable_cleavage_upgrade:
+                # 论文消融 v1.4 ②(默认 False ⇒ 逐字节不变):关闭
+                # try_upgrade_cleavage_spec 逆向补碳升级,候选/共产物
+                # 原样保留。
+                continue
+            up_spec = try_upgrade_cleavage_spec(substrate_state.smiles_isomeric, spec)
+            if up_spec is not None:
+                try:
+                    src_refs = [
+                        dict(r) if isinstance(r, dict) else {"record": str(r)}
+                        for r in (getattr(prep["hypothesis"], "source_refs", None) or [])
+                    ]
+                    up_prep = prepare_hypothesis(
+                        up_spec,
+                        parent_path_id=str(prep["hypothesis"].parent_path_id),
+                        substrate_state=substrate_state,
+                        transformation_ref=str(up_spec.get("transformation_ref") or ""),
+                        source_refs=src_refs or None,
+                    )
+                    spec.clear()
+                    spec.update(up_spec)
+                    prepared_entries[idx_in_prep] = (k, spec, up_prep)
+                except Exception:
+                    pass
+
+    # 3.6 v1.4 T14-3 成对互换机理裁决重排（默认关；零候选增删）。
+    # 位置纪律：必须排在 ``try_upgrade_cleavage_spec`` 循环**之后**、
+    # ``effective_rank_by_key`` **之前** —— 裂解升级会改写裂解候选的共同
+    # 产物与 ``prepared_entries``，只有在此处算出的展示串才与最终落入
+    # ``pollutant.sqlite`` 的 event 逐字节一致。
+    if (
+        enable_v14_pairwise_adjudication
+        and v14_adjudication_external
+        and len(selected_top_keys) >= 2
+    ):
+        from ..services.adjudication_v14 import (
+            apply_pairwise_adjudication,
+            candidate_display_from_prepared,
+            candidate_display_sha256,
+        )
+
+        prep_by_key = {
+            str(k): prep for k, _spec, prep in prepared_entries
+        }
+        sha_by_key = {
+            str(k): candidate_display_sha256(
+                candidate_display_from_prepared(prep_by_key[k]))
+            for k in selected_top_keys
+            if k in prep_by_key
+        }
+        selected_top_keys, _adj_disclosure = apply_pairwise_adjudication(
+            selected_top_keys=list(selected_top_keys),
+            sha_by_key=sha_by_key,
+            external=v14_adjudication_external,
+        )
+        if v14_adjudication_sink is not None:
+            v14_adjudication_sink["note"] = dict(_adj_disclosure)
 
     # 4. 生成重排后的 effective_rank_by_key 与 rank_basis_by_key
     effective_rank_by_key: dict[str, int] = {}
@@ -973,6 +1238,297 @@ class _Driver:
         self.backfill_target_events = int(
             self.plan.get("backfill_target_events", backfill_target_events)
         )
+        # v1.3 T1-C：机理排序规则开关（默认关闭；关闭时与 v1.2 零漂移）
+        self.enable_v13_rank_rules = bool(
+            self.plan.get("enable_v13_rank_rules", False)
+        )
+        # v1.3 T1-D：通用枚举器吸附开关（默认关闭；枚举清单不进提示词）
+        self.enable_v13_generic_enumeration = bool(
+            self.plan.get("enable_v13_generic_enumeration", False)
+        )
+        # T2-G：v1.2 回复后机制总开关（默认开启＝v1.2 行为；关闭＝v1.1 回复后行为）
+        self.enable_v12_post_mechanism = bool(
+            self.plan.get("enable_v12_post_mechanism", True)
+        )
+        # v1.3 T4-A：立体消解扩展（断键/芳香化后手性标签消失；默认关闭）
+        self.enable_v13_stereo_dissolution_extended = bool(
+            self.plan.get("enable_v13_stereo_dissolution_extended", False)
+        )
+        # v1.3 T4-A：atom_edit 执行结果与声明产物一致性门（不一致回退
+        # 产物优先编译；默认关闭）
+        self.enable_v13_declared_product_consistency = bool(
+            self.plan.get("enable_v13_declared_product_consistency", False)
+        )
+        # v1.3 T4-A：模型回复容错解析（逐条丢弃非法提案，保留合法提案；
+        # 默认关闭＝整响应结构失败）
+        self.enable_v13_tolerant_model_parse = bool(
+            self.plan.get("enable_v13_tolerant_model_parse", False)
+        )
+        # T10-A 开关 1：_run_decide atom_edit 路径缺 execute_atomtool_
+        # expansion 导入（既有 NameError ⇒ prepared=None 恒回退产物优先
+        # 编译）。默认关闭＝与改前逐字节同；打开才局部导入并在落库前
+        # 做严格身份覆盖核验（不覆盖则回退产物优先编译，绝不放宽）。
+        self.fix_decide_atomtool_import = bool(
+            self.plan.get("fix_decide_atomtool_import", False)
+        )
+        # T10-A 开关 2：预算拒绝时的已付费响应消费（格式反馈预算用尽
+        # 时用容错解析消费已返回响应；drive 层预算拒时先跳过该 pending
+        # action、把已认领且已 responded 的 action 消费完再停）。默认
+        # 关闭＝与改前逐字节同。
+        self.fix_budget_limit_consumption = bool(
+            self.plan.get("fix_budget_limit_consumption", False)
+        )
+        # ---- 论文消融 v1.4(2026-11-16;默认全 False ⇒ 与改前逐字节同)----
+        # ① AtomTool 输入视图/纯 SMILES 协议:关断 execution_graph +
+        # substrate_atom_id_map 注入并切换 v3_type_raw_smiles 合同;
+        # 该协议只定义在产物优先(compile_novel_product_first)路径上。
+        self.disable_atomtool_prompt = bool(
+            self.plan.get("disable_atomtool_prompt", False)
+        )
+        # ② 裂解补碳逆向升级(try_upgrade_cleavage_spec)消融。
+        self.disable_cleavage_upgrade = bool(
+            self.plan.get("disable_cleavage_upgrade", False)
+        )
+        # ③ 产物优先逆向图差编译回退消融:True ⇒ 池外 novel 只能靠模型
+        # 正向手写 AtomTool edits 通过;回退失败 ⇒ 直接拒提案。
+        self.disable_product_first_fallback = bool(
+            self.plan.get("disable_product_first_fallback", False)
+        )
+        # ④ 回复后排序校准(calibrate_submittable_ranking / R1 守卫规则)
+        # 消融:True ⇒ 只跳过排序校准,保留裂解共产物补齐(后者的独立
+        # 开关见 ②;两行消融不得互相污染)。
+        self.disable_ranking_calibration = bool(
+            self.plan.get("disable_ranking_calibration", False)
+        )
+        if self.disable_atomtool_prompt:
+            # 显式指定非产物优先协议 ⇒ fail-closed(不静默混协议);
+            # 缺省原子编辑协议(null)在本开关下强制切到产物优先。
+            _explicit_protocol = str(novel_protocol or "").strip()
+            if _explicit_protocol and \
+                    _explicit_protocol != NOVEL_PROTOCOL_PRODUCT_FIRST:
+                raise PPV1RunError(
+                    "disable_atomtool_prompt 只定义在产物优先(compile_"
+                    "novel_product_first)路径上(显式非产物优先协议;"
+                    "fail-closed,不混协议)",
+                    {"kind": "disable_atomtool_prompt_protocol_conflict",
+                     "novel_protocol": _explicit_protocol,
+                     "disable_atomtool_prompt": True})
+            if self.evidence_card_version is not None:
+                raise PPV1RunError(
+                    "disable_atomtool_prompt 与证据卡版本不兼容(纯 "
+                    "SMILES 协议载荷不含证据卡;fail-closed)",
+                    {"kind": "disable_atomtool_prompt_evidence_conflict",
+                     "evidence_card_version": self.evidence_card_version,
+                     "disable_atomtool_prompt": True})
+            # 注意:本块位于 v3 开关属性赋值之前 ⇒ 从 plan 读取(不能
+            # 引用 self.enable_v13_prompt_v3_type,否则首次构造即
+            # AttributeError)。
+            _plan_v3_type = bool(
+                self.plan.get("enable_v13_prompt_v3_type", False))
+            _plan_v3_site = bool(
+                self.plan.get("enable_v13_prompt_v3_site", False))
+            if _plan_v3_type or _plan_v3_site:
+                raise PPV1RunError(
+                    "disable_atomtool_prompt 与 v1.3 分域提示词开关互斥"
+                    "(同一 system prompt 槽位;fail-closed)",
+                    {"kind": "disable_atomtool_prompt_v3_conflict",
+                     "disable_atomtool_prompt": True,
+                     "enable_v13_prompt_v3_type": _plan_v3_type,
+                     "enable_v13_prompt_v3_site": _plan_v3_site})
+            self.raw_novel_protocol = NOVEL_PROTOCOL_PRODUCT_FIRST
+            self.novel_protocol = NOVEL_PROTOCOL_PRODUCT_FIRST
+            self.format_feedback_policy_version = \
+                format_feedback_policy_version_for(self.novel_protocol)
+        # T10-A 开关 3/4：编译器表达扩展（电荷编辑 / 立体安全回退）。
+        # 默认关闭；只有池编译阶段显式传参时生效（run 期不消费）。
+        self.atom_tool_charge_ops = bool(
+            self.plan.get("atom_tool_charge_ops", False)
+        )
+        self.stereo_edit_graceful_fallback = bool(
+            self.plan.get("stereo_edit_graceful_fallback", False)
+        )
+        # v1.3 T8：分域提示词开关（默认关闭；两者互斥；只定义在原子编辑
+        # 合同 + 无证据卡路径上 —— 其它组合 fail-closed，不静默混协议）
+        self.enable_v13_prompt_v3_type = bool(
+            self.plan.get("enable_v13_prompt_v3_type", False)
+        )
+        self.enable_v13_prompt_v3_site = bool(
+            self.plan.get("enable_v13_prompt_v3_site", False)
+        )
+        # v1.3 T11：两段式反应大类分流（默认关闭）。完整两段 = Stage 1
+        # 盲底物路由 + Stage 2 路由排序提案；stage1_only 只跑 Stage 1
+        # 即落账返回（Step 1 的 457 题盲路由批用）。关闭 ⇒ 零字节漂移。
+        self.enable_v13_two_stage_routing = bool(
+            self.plan.get("enable_v13_two_stage_routing", False)
+        )
+        self.v13_routing_stage1_only = bool(
+            self.plan.get("v13_routing_stage1_only", False)
+        )
+        # v1.3 T12-B：响应后 Stage-1 大类一致性精排（默认关）。开启时
+        # 消费①运行自身 Stage-1 outcome（两段式路由批），否则②计划内
+        # 注入的外部脱敏映射（零调用重放批：qid → primary/secondary）。
+        # 两者都没有 ⇒ 该题不触发（原样返回,不改顺序）。
+        self.enable_v13_stage1_rank_calibration = bool(
+            self.plan.get("enable_v13_stage1_rank_calibration", False)
+        )
+        _ext_routing = self.plan.get("v13_stage1_routing_external")
+        self.v13_stage1_routing_external: dict | None = None
+        if isinstance(_ext_routing, dict):
+            # 只留两个类键 + 显式来源标（计划里的其它字段不进事实链）
+            self.v13_stage1_routing_external = {
+                "primary_class": _ext_routing.get("primary_class"),
+                "secondary_class": _ext_routing.get("secondary_class"),
+                "source": "external_replay_map",
+            }
+        # T12 研究期参数覆盖（只由离线重放的 plan patch 注入；缺省 None
+        # ⇒ 用 ranking_rules_v13.STAGE1_DEFAULT_PARAMS，生产默认不变）。
+        _s1_params = self.plan.get("v13_stage1_rank_params")
+        self.v13_stage1_rank_params: dict | None = (
+            dict(_s1_params) if isinstance(_s1_params, dict) else None)
+        # 研究期机读记录（默认空 ⇒ 不写任何文件；只由离线诊断脚本显式
+        # 设置,不参与判据/不改行为）。
+        self.v13_stage1_debug_dir = str(
+            os.environ.get("V13_T12_STAGE1_DUMP_DIR") or "")
+        # v1.3 T13-B：多采样一致性共识（默认关）。开启时消费计划注入的
+        # 次级 pass（同题其他采样 run 的模型回复文本；零调用重放用）：
+        # 每个次级 pass 重新解析 → 映射回本 run 的池逻辑键 → 与主 pass
+        # 一起做 RRF + Stage-1 融合。关闭 ⇒ 零字节漂移。
+        self.enable_v13_multi_sample_consensus = bool(
+            self.plan.get("enable_v13_multi_sample_consensus", False)
+        )
+        _consensus_params = self.plan.get("v13_consensus_params")
+        _base_consensus_params = (
+            dict(_consensus_params)
+            if isinstance(_consensus_params, dict) else None)
+        # v1.4 T14-1A：plan 级开关是唯一生产入口（默认全 False ⇒ 参数
+        # 维持 None/原值，与 v1.3 逐字节一致）。开关关闭时剔除研究参数
+        # 里的 v1.4 键 ⇒ 不能靠 plan patch 绕过开关激活新机制。
+        from ..services.consensus_v13 import consensus_params_from_plan
+
+        self.enable_v14_equiv_product_consensus = bool(
+            self.plan.get("enable_v14_equiv_product_consensus", False))
+        self.enable_v14_novel_low_sim_boost = bool(
+            self.plan.get("enable_v14_novel_low_sim_boost", False))
+        self.enable_v14_raw_order_consensus = bool(
+            self.plan.get("enable_v14_raw_order_consensus", False))
+        # v1.4 T14-1B(默认关):run 期扩展编译器表达面(立体消解/安全
+        # 回退/芳环裂解 + 稠环保留芳环)与次级 pass 池外 novel 对称回退。
+        self.enable_v14_compiler_ext = bool(
+            self.plan.get("enable_v14_compiler_ext", False))
+        # v1.4 T14-4(默认关):编译器扩展面 v2(立体 parity 核验 + 芳环
+        # 成键 v2)。与 v1 开关独立;两开关并集下发。
+        self.enable_v14_compiler_ext_2 = bool(
+            self.plan.get("enable_v14_compiler_ext_2", False))
+        self.enable_v14_sec_novel_backfill = bool(
+            self.plan.get("enable_v14_sec_novel_backfill", False))
+        # v1.4 T14-4(默认关):跨池资格率归一化共识。只经共识参数/融合
+        # 层消费;开关关 ⇒ 参数零注入、融合调用与改前逐字节同。
+        self.enable_v14_cross_pool_elig_norm = bool(
+            self.plan.get("enable_v14_cross_pool_elig_norm", False))
+        self.enable_v14_multipass_consensus_v3 = bool(
+            self.plan.get("enable_v14_multipass_consensus_v3", False))
+        # v1.4 T14-3（默认关）：成对互换机理裁决重排。开关关闭时**强制**
+        # 丢弃 plan 里的 ``v14_adjudication_external``（plan 残留键不得绕过
+        # 开关）；打开时只提取白名单脱敏字段（verdict / defender_sha256 /
+        # challenger_sha256 / order_sha256s / gate_tag）。
+        self.enable_v14_pairwise_adjudication = bool(
+            self.plan.get("enable_v14_pairwise_adjudication", False))
+        self.v14_adjudication_external: dict | None = None
+        if self.enable_v14_pairwise_adjudication:
+            from ..services.adjudication_v14 import (
+                sanitize_adjudication_external,
+            )
+
+            self.v14_adjudication_external = sanitize_adjudication_external(
+                self.plan.get("v14_adjudication_external"))
+        self.v13_consensus_params: dict | None = consensus_params_from_plan(
+            self.plan, _base_consensus_params)
+        self.v13_consensus_secondary_passes: list[dict] = []
+        _raw_sec_passes = self.plan.get("v13_consensus_secondary_passes")
+        if isinstance(_raw_sec_passes, list):
+            for _item in _raw_sec_passes:
+                if isinstance(_item, dict):
+                    _content = str(_item.get("content") or "")
+                    if not _content.strip():
+                        continue
+                    _pass: dict = {
+                        "run_id": str(_item.get("run_id") or ""),
+                        "content": _content,
+                    }
+                    # v1.4 T14-1A：跨池/零池次级 pass 的可选同源池输入
+                    # （缺省不出现 ⇒ 与 v1.3 映射路径 100% 相同）。
+                    if "sec_pool_specs" in _item:
+                        _pass["sec_pool_specs"] = _item.get("sec_pool_specs")
+                    if "sec_pools" in _item:
+                        _pass["sec_pools"] = _item.get("sec_pools")
+                    if "allow_verified_sec_pool_promotion" in _item:
+                        _pass["allow_verified_sec_pool_promotion"] = bool(
+                            _item.get("allow_verified_sec_pool_promotion"))
+                    self.v13_consensus_secondary_passes.append(_pass)
+                elif isinstance(_item, str) and _item.strip():
+                    self.v13_consensus_secondary_passes.append({
+                        "run_id": "", "content": _item})
+        if self.enable_v13_multi_sample_consensus:
+            if self.enable_v13_stage1_rank_calibration:
+                # 两个机制消费同一 Stage-1 信号；同时开会在单 pass 末尾
+                # 先精排、再融合（同一信号双计）⇒ 不混臂，fail-closed。
+                raise PPV1RunError(
+                    "多采样共识与响应后 Stage-1 精排不得同时打开"
+                    "(同一 Stage-1 信号双计;fail-closed)",
+                    {"kind": "v13_consensus_stage1_conflict",
+                     "enable_v13_multi_sample_consensus": True,
+                     "enable_v13_stage1_rank_calibration": True})
+            if not self.enable_smart_gated_backfill:
+                # calibrate_submittable_ranking 只挂在回复后机制链上；
+                # 共识没有排序链可挂 ⇒ fail-closed(不静默空转)。
+                raise PPV1RunError(
+                    "多采样共识只定义在 enable_smart_gated_backfill 的"
+                    "回复后排序链上(当前未打开;fail-closed)",
+                    {"kind": "v13_consensus_requires_backfill",
+                     "enable_v13_multi_sample_consensus": True,
+                     "enable_smart_gated_backfill": False})
+        if self.v13_routing_stage1_only and \
+                not self.enable_v13_two_stage_routing:
+            raise PPV1RunError(
+                "v13_routing_stage1_only 必须与 "
+                "enable_v13_two_stage_routing 同时打开(fail-closed)",
+                {"kind": "two_stage_routing_switch_conflict",
+                 "enable_v13_two_stage_routing": False,
+                 "v13_routing_stage1_only": True})
+        if (self.enable_v13_two_stage_routing
+                or self.v13_routing_stage1_only) and (
+                self.novel_protocol != NOVEL_PROTOCOL_ATOM_EDIT
+                or self.evidence_card_version is not None
+                or self.enable_v13_prompt_v3_type
+                or self.enable_v13_prompt_v3_site):
+            raise PPV1RunError(
+                "两段式路由只定义在原子编辑合同 + 无证据卡 + 非分域"
+                "提示词路径上(当前组合不兼容;fail-closed,不混协议)",
+                {"kind": "two_stage_routing_path_conflict",
+                 "novel_protocol": self.novel_protocol,
+                 "evidence_card_version": self.evidence_card_version,
+                 "enable_v13_prompt_v3_type":
+                     self.enable_v13_prompt_v3_type,
+                 "enable_v13_prompt_v3_site":
+                     self.enable_v13_prompt_v3_site})
+        if self.enable_v13_prompt_v3_type and \
+                self.enable_v13_prompt_v3_site:
+            raise PPV1RunError(
+                "分域提示词开关同时打开(v3_type 与 v3_site 互斥;"
+                "fail-closed)",
+                {"kind": "prompt_v3_switch_conflict",
+                 "enable_v13_prompt_v3_type": True,
+                 "enable_v13_prompt_v3_site": True})
+        if (self.enable_v13_prompt_v3_type
+                or self.enable_v13_prompt_v3_site) and (
+                self.novel_protocol != NOVEL_PROTOCOL_ATOM_EDIT
+                or self.evidence_card_version is not None):
+            raise PPV1RunError(
+                "分域提示词只定义在原子编辑合同 + 无证据卡路径上"
+                "(当前组合不兼容;fail-closed,不混协议)",
+                {"kind": "prompt_v3_path_conflict",
+                 "novel_protocol": self.novel_protocol,
+                 "evidence_card_version": self.evidence_card_version})
         self.refusals: list[dict] = []
         self.run_error: dict | None = None
         self.empty_pool_retrievals = 0
@@ -1126,8 +1682,13 @@ class _Driver:
     def drive(self) -> dict:
         self.reconcile_followups()
         activations_applied = False
+        # T10-A 开关 2:预算拒的 action 记入跳过集(不阻断其它在途
+        # action —— 已认领且已 responded 的付费响应必须在停止前消费完);
+        # 开关关闭时该集恒空,控制流与改前逐字节同。
+        budget_skipped: set[str] = set()
         while True:
-            pending = self._inflight_action_ids()
+            pending = [a for a in self._inflight_action_ids()
+                       if a not in budget_skipped]
             if not pending:
                 directives = self.plan.get("activations") or []
                 if not activations_applied and directives:
@@ -1148,6 +1709,12 @@ class _Driver:
                     "limit_key": exc.detail.get("limit_key"),
                     "action_id": action_id,
                     "kind": exc.detail.get("kind")})
+                if self.fix_budget_limit_consumption:
+                    # 跳过该 pending action,继续尝试其它在途 action
+                    budget_skipped.add(action_id)
+                    if any(a not in budget_skipped
+                           for a in self._inflight_action_ids()):
+                        continue
                 break  # 预算拒:停止驱动(stop_report 报主因)
             except (SearchClaimError, SearchConcurrencyError) as exc:
                 # already_claimed(并发)/锁:停止,结构化披露(SQLite
@@ -1465,6 +2032,16 @@ class _Driver:
                     verdict = _validate_edits(_current_render, edit_list)
                     edit_ok = bool(verdict.get("ok"))
                 if edit_ok:
+                    # T10-A 开关 1:补 execute_atomtool_expansion 的局部
+                    # 导入。改前该符号在 _run_decide 作用域未绑定 ⇒ atom_edit
+                    # 优先路径恒抛 NameError(prepared=None)并静默回退产物优先
+                    # 编译。默认关闭时仍走原名(保持既有 NameError 行为);
+                    # 打开时才真正尝试 atom_edit 先行。
+                    _atomtool_expand = None
+                    if self.fix_decide_atomtool_import:
+                        from .production import (
+                            execute_atomtool_expansion as _atomtool_expand,
+                        )
                     try:
                         cand_prep = prepare_hypothesis(
                             reaction_spec,
@@ -1477,10 +2054,18 @@ class _Driver:
                             cand_prep["tool_inputs"].get("execution_input_smiles")
                             or substrate.smiles_isomeric
                         )
-                        exec_out = execute_atomtool_expansion(
-                            substrate_smiles=exec_in,
-                            tool_inputs=cand_prep["tool_inputs"],
-                        )
+                        if _atomtool_expand is not None:
+                            exec_out = _atomtool_expand(
+                                substrate_smiles=exec_in,
+                                tool_inputs=cand_prep["tool_inputs"],
+                            )
+                        else:
+                            # 改前行为:未导入 ⇒ NameError(外层 except 收敛
+                            # 为 prepared=None,路径守恒)
+                            exec_out = execute_atomtool_expansion(
+                                substrate_smiles=exec_in,
+                                tool_inputs=cand_prep["tool_inputs"],
+                            )
                         if exec_out.get("execution_ok"):
                             from .audit import audit_hypothesis, decide_admission
                             from .production import ADMISSION_SUBMITTABLE
@@ -1494,11 +2079,54 @@ class _Driver:
                             )
                             disp, _ = decide_admission(audit_rep)
                             if disp in ADMISSION_SUBMITTABLE:
-                                prepared = cand_prep
+                                if self.fix_decide_atomtool_import:
+                                    # 防回归硬规则(T4-A3 教训):落库结构
+                                    # product_states 必须严格身份多重集覆盖
+                                    # 模型声明产物 + 共产物;不覆盖 ⇒ 回退产物
+                                    # 优先编译(不朴素拒绝 coproduct,也不放宽
+                                    # 身份)。
+                                    _cov = _declared_consistency_report(
+                                        cand_prep,
+                                        str(reaction_spec.get(
+                                            "product_smiles") or ""),
+                                        [str(c) for c in
+                                         (reaction_spec.get(
+                                             "coproducts") or [])],
+                                        reaction_spec)
+                                    # 叠加执行侧同源核验:声明产物必须是
+                                    # 实际执行产物(product_states 由声明
+                                    # 构建,单看它无法发现「声明≠执行」)。
+                                    _exec_cov = _execution_declaration_mismatch(
+                                        exec_out,
+                                        [str(reaction_spec.get(
+                                            "product_smiles") or "")]
+                                        + [str(c) for c in
+                                           (reaction_spec.get(
+                                               "coproducts") or [])])
+                                    if _cov.get("covered") and not _exec_cov:
+                                        prepared = cand_prep
+                                        model_note.setdefault(
+                                            "v13_atomtool_prepared",
+                                            []).append({
+                                                "hypothesis_id": novel_key})
+                                    else:
+                                        model_note.setdefault(
+                                            "v13_atomtool_coverage_rejects",
+                                            []).append({
+                                                "hypothesis_id": novel_key,
+                                                "reason": str(
+                                                    _exec_cov.get("reason")
+                                                    or _cov.get("reason")
+                                                    or "")})
+                                else:
+                                    prepared = cand_prep
                     except Exception:
                         prepared = None
 
-                if prepared is None:
+                if prepared is None and not self.disable_product_first_fallback:
+                    # 论文消融 v1.4 ③:disable_product_first_fallback=True
+                    # 时整段产物优先逆向图差编译回退不执行(池外 novel
+                    # 只能靠模型正向手写 AtomTool edits 过安检门)。
                     expect_dict = reaction_spec.get("expectation")
                     expect_smi = (
                         expect_dict.get("target_smiles")
@@ -1541,7 +2169,43 @@ class _Driver:
                             index=80 + novel_idx,
                             is_gated_supplement=False,
                             coproduct_sets=cop_sets,
+                            extended_stereo_dissolution=bool(
+                                self.enable_v13_stereo_dissolution_extended
+                                or self.enable_v14_compiler_ext),
+                            stereo_edit_graceful_fallback=bool(
+                                self.enable_v14_compiler_ext),
+                            allow_ring_cleavage_and_fused_dearomatization=(
+                                bool(self.enable_v14_compiler_ext)),
+                            # v1.4 T14-4:编译器 v2 两开关(默认关 ⇒
+                            # 调用参数逐字节同)
+                            retained_tetrahedral_parity_check=bool(
+                                self.enable_v14_compiler_ext_2),
+                            allow_aromatic_ring_closure=bool(
+                                self.enable_v14_compiler_ext_2),
                         )
+                        if fb_spec is None and cop_sets and self.enable_v14_compiler_ext_2:
+                            # v1.4 T14-4:主/次 pass novel 对称回补 ——
+                            # 声明共产物导致编译失败时,回退为「只按主
+                            # 产物」再试一次(共产物由编译器按产物优先
+                            # 规则推断;不新增任何判据)。
+                            fb_spec = compile_s5_candidate_to_spec(
+                                substrate.smiles_isomeric,
+                                {"cand_smiles": target_prod_smi},
+                                index=80 + novel_idx,
+                                is_gated_supplement=False,
+                                coproduct_sets=None,
+                                extended_stereo_dissolution=bool(
+                                    self.enable_v13_stereo_dissolution_extended
+                                    or self.enable_v14_compiler_ext),
+                                stereo_edit_graceful_fallback=bool(
+                                    self.enable_v14_compiler_ext),
+                                allow_ring_cleavage_and_fused_dearomatization=(
+                                    bool(self.enable_v14_compiler_ext)),
+                                retained_tetrahedral_parity_check=bool(
+                                    self.enable_v14_compiler_ext_2),
+                                allow_aromatic_ring_closure=bool(
+                                    self.enable_v14_compiler_ext_2),
+                            )
                         if fb_spec is not None:
                             fb_spec["key"] = novel_key
                             fb_spec["transformation_ref"] = str(
@@ -1563,12 +2227,98 @@ class _Driver:
                             except Exception:
                                 prepared = None
 
+                        # v1.3 T1-D novel 吸附：atom_edit 与产物直编都失败时，
+                        # 把目标产物吸附到通用枚举器最相近的合法产物再编译
+                        # 一次。默认关闭；枚举清单不进提示词，可零调用评估。
+                        if prepared is None and self.enable_v13_generic_enumeration:
+                            from ..services.generic_enumerator import (
+                                adsorb_to_enumeration,
+                            )
+
+                            adsorption = adsorb_to_enumeration(
+                                substrate.smiles_isomeric, target_prod_smi)
+                            if adsorption is not None:
+                                ads_spec = compile_s5_candidate_to_spec(
+                                    substrate.smiles_isomeric,
+                                    {"cand_smiles": adsorption["adsorbed_smiles"]},
+                                    index=160 + novel_idx,
+                                    is_gated_supplement=False,
+                                    coproduct_sets=None,
+                                    extended_stereo_dissolution=(
+                                        self.enable_v13_stereo_dissolution_extended),
+                                    # v1.4 T14-4:编译器 v2 两开关(默认关
+                                    # ⇒ 调用参数逐字节同)
+                                    retained_tetrahedral_parity_check=bool(
+                                        self.enable_v14_compiler_ext_2),
+                                    allow_aromatic_ring_closure=bool(
+                                        self.enable_v14_compiler_ext_2),
+                                )
+                                if ads_spec is not None:
+                                    ads_spec["key"] = novel_key
+                                    ads_spec["transformation_ref"] = str(
+                                        reaction_spec.get("transformation_ref")
+                                        or f"novel-pf:{novel_key}"
+                                    )
+                                    try:
+                                        prepared = prepare_hypothesis(
+                                            ads_spec,
+                                            parent_path_id=receipt[
+                                                "parent_path_id"],
+                                            substrate_state=substrate,
+                                            transformation_ref=str(
+                                                ads_spec.get(
+                                                    "transformation_ref") or ""
+                                            ),
+                                            source_refs=[{
+                                                "record": source_ref_record}],
+                                        )
+                                        effective_spec = ads_spec
+                                    except Exception:
+                                        prepared = None
+                                model_note.setdefault(
+                                    "v13_enumeration_adsorptions", []).append({
+                                        "hypothesis_id": novel_key,
+                                        "target_smiles": adsorption[
+                                            "target_smiles"],
+                                        "adsorbed_smiles": adsorption[
+                                            "adsorbed_smiles"],
+                                        "similarity": adsorption["similarity"],
+                                        "compiled": prepared is not None,
+                                    })
+
                 if prepared is None:
-                    novel_rejections.append({
-                        "hypothesis_id": novel_key,
-                        "kind": "novel_dual_path_compilation_failed",
-                        "reasons": ["atom_edit_and_product_first_fallback_failed"]})
+                    if self.disable_product_first_fallback:
+                        # 论文消融 v1.4 ③:回退通道被显式关断 ⇒ 如实
+                        # 记录拒绝原因(不是"双路都编译失败",而是
+                        # "回退被消融")。
+                        novel_rejections.append({
+                            "hypothesis_id": novel_key,
+                            "kind": "product_first_fallback_disabled",
+                            "reasons": [
+                                "atom_edit_not_prepared_and_product_first_"
+                                "fallback_disabled"]})
+                    else:
+                        novel_rejections.append({
+                            "hypothesis_id": novel_key,
+                            "kind": "novel_dual_path_compilation_failed",
+                            "reasons": ["atom_edit_and_product_first_fallback_failed"]})
                     continue
+
+                if self.enable_v13_declared_product_consistency:
+                    # v1.3 T4-A:落库结构 vs 模型声明产物的一致性**披露**
+                    # (严格身份多重集包含;只写机读记录,不拒提案、不改
+                    # 排序 —— 拒提案会误杀「编译 spec 少了共产物、但执行
+                    # 器补齐后事件仍命中」的真命中,见 T4 报告 A3 节)。
+                    consistency = _declared_consistency_report(
+                        prepared,
+                        str(reaction_spec.get("product_smiles") or ""),
+                        [str(c) for c in
+                         (reaction_spec.get("coproducts") or [])],
+                        effective_spec)
+                    consistency["hypothesis_id"] = novel_key
+                    model_note.setdefault(
+                        "v13_declared_consistency_mismatches",
+                        []).append(consistency)
 
                 prepared_entries.append((novel_key, effective_spec, prepared))
                 novel_entry_idx.add(len(prepared_entries) - 1)
@@ -1606,6 +2356,9 @@ class _Driver:
                     "kind": _kind or type(exc).__name__,
                     "reason": str(exc)[:200]})
                 continue
+            # 非回填入口:直接消费模型自己的 reaction_spec(声明 == 消费
+            # 的结构,无替换),声明一致性门在此**平凡成立**;有替换风险
+            # 的入口是上面的产物优先回退编译,门设在那里。
             prepared_entries.append((novel_key, reaction_spec, prepared))
             novel_entry_idx.add(len(prepared_entries) - 1)
             novel_by_key[novel_key] = proposal
@@ -1637,6 +2390,33 @@ class _Driver:
                          "detail": no_cand_detail},
                 evidence_refs=[source_event_id] if source_event_id else [])
             return
+        # ---- v1.3 T13-B：次级 pass（同题其他采样 run 的零调用回复）→
+        # 本 run 逻辑键排序表。必须在去重之前落地：次级 novel 经程序
+        # 编译核验后作为新条目参与本轮去重/排序/落账（零放宽：只消费
+        # 既有核验链的 full 级候选；解析失败只减少该 pass 贡献）。
+        _consensus_sec_keys: list[list[str]] = []
+        _consensus_sec_debug: dict = {}
+        # v1.4 T14-4：与次级排序表 1:1 的每 pass 资格键集合（默认路径
+        # 下仍采集，但只有 plan 开关打开时下游才消费）。
+        _consensus_sec_elig: list[list[str] | None] = []
+        _sec_novel_idx: set[int] = set()
+        if self.enable_v13_multi_sample_consensus:
+            _pre_sec_novel_idx = set(novel_entry_idx)
+            _consensus_sec_keys, _consensus_sec_debug = \
+                self._secondary_consensus_ranked_keys(
+                    substrate_smiles=substrate_smiles,
+                    substrate=substrate,
+                    receipt=receipt,
+                    specs=specs,
+                    prepared_entries=prepared_entries,
+                    novel_entry_idx=novel_entry_idx,
+                    novel_by_key=novel_by_key)
+            _consensus_sec_elig = [
+                (None if _el is None else [str(_k) for _k in _el])
+                for _el in (
+                    _consensus_sec_debug.get(
+                        "secondary_eligible_keys_list") or [])]
+            _sec_novel_idx = set(novel_entry_idx) - _pre_sec_novel_idx
         rank_by_key = model_note.get("rank_by_key") or {}
         # ---- W3(S5b rank-policy-1):统一选择排序规则(版本化) ----
         # logical proposal ID(池 spec key / novel hypothesis_id)→
@@ -1779,7 +2559,8 @@ class _Driver:
         pre_dedup_novel_stricts: set[str] = set()
         if self.enable_smart_gated_backfill:
             for _pidx, (_pkey, _pspec, _pprep) in enumerate(prepared_entries):
-                if _pidx in novel_entry_idx or _pidx in blind_idx_set:
+                if (_pidx in novel_entry_idx and _pidx not in _sec_novel_idx) \
+                        or _pidx in blind_idx_set:
                     _psmi = str(_pspec.get("product_smiles") or "").strip()
                     if _psmi:
                         _pst = strict_identity_of(_psmi)
@@ -1830,6 +2611,53 @@ class _Driver:
         prepared_entries = deduped_entries
         if dedup_rejections:
             model_note["dedup_rejections"] = dedup_rejections
+        # v1.3 T13-B：次级 pass 排序键随去重折叠（同净反应签名被并入
+        # 幸存者 ⇒ 次级引用同步改指幸存键；不改主 pass 的位次事实）。
+        if _consensus_sec_keys:
+            _merged_into: dict[str, str] = {}
+            for _rej in dedup_rejections:
+                _src_key = str(_rej.get("logical_proposal_id") or "")
+                _dst_key = str(_rej.get("merged_into") or "")
+                if _src_key and _dst_key:
+                    _merged_into[_src_key] = _dst_key
+
+            def _fold_key(key: str) -> str:
+                seen_fold: set[str] = set()
+                while key in _merged_into and key not in seen_fold:
+                    seen_fold.add(key)
+                    key = _merged_into[key]
+                return key
+
+            _folded_lists: list[list[str]] = []
+            _present = {str(k) for k, _s, _p in prepared_entries}
+            for _keys in _consensus_sec_keys:
+                _folded: list[str] = []
+                _seen: set[str] = set()
+                for _key in _keys:
+                    _fk = _fold_key(str(_key))
+                    if not _fk or _fk not in _present or _fk in _seen:
+                        continue
+                    _seen.add(_fk)
+                    _folded.append(_fk)
+                _folded_lists.append(_folded)
+            _consensus_sec_keys = _folded_lists
+            # v1.4 T14-4：资格集随去重折叠同源改指（同 1:1 位置；不新增
+            # 候选、不改变主 pass 事实）。
+            _folded_elig: list[list[str] | None] = []
+            for _el in _consensus_sec_elig:
+                if _el is None:
+                    _folded_elig.append(None)
+                    continue
+                _folded_el: list[str] = []
+                _seen_el: set[str] = set()
+                for _key in _el:
+                    _fk = _fold_key(str(_key))
+                    if not _fk or _fk not in _present or _fk in _seen_el:
+                        continue
+                    _seen_el.add(_fk)
+                    _folded_el.append(_fk)
+                _folded_elig.append(_folded_el)
+            _consensus_sec_elig = _folded_elig
         model_rank_by_key = {
             str(k): int(v) for k, v in (rank_by_key or {}).items()
             if str(k) in {key for key, _, _ in prepared_entries}}
@@ -1935,6 +2763,29 @@ class _Driver:
         backfilled_key_set: set[str] = set()
         effective_schedule_budget = self.plan.get("schedule_budget")
         if self.enable_smart_gated_backfill:
+            _stage1_routing = None
+            _stage1_sink: dict | None = None
+            _consensus_active = bool(
+                self.enable_v13_multi_sample_consensus)
+            _consensus_sink: dict | None = (
+                {} if _consensus_active else None)
+            # v1.4 T14-3：成对互换机理裁决披露 sink（只在开关打开时非
+            # None ⇒ 关闭时零字节漂移）。
+            _adj_sink: dict | None = (
+                {} if self.enable_v14_pairwise_adjudication else None)
+            # v1.4 T14-0：研究期候选 dump 只要 env 显式开启就收集
+            # （不参与判据；sink 只在诊断重放里非 None）。
+            if self.v13_stage1_debug_dir:
+                _stage1_sink = {}
+            if self.enable_v13_stage1_rank_calibration or _consensus_active:
+                # T12-B 精排与 T13-B 融合都消费同一条 Stage-1 路由事实
+                # （运行自身 outcome 优先、外部脱敏映射兜底）；两者互斥
+                # 由 __init__ fail-closed，不叠加。
+                _stage1_routing = effective_stage1_routing(
+                    model_note, self.v13_stage1_routing_external)
+                if _stage1_routing is not None and \
+                        self.enable_v13_stage1_rank_calibration:
+                    _stage1_sink = {}
             backfill_out = consensus_and_smart_backfill(
                 substrate_state=substrate,
                 parent_ctx=parent_ctx,
@@ -1951,7 +2802,169 @@ class _Driver:
                 s5_super_consensus_score=self.s5_super_consensus_score,
                 s5_max_supplements=self.s5_max_supplements,
                 target_slots=self.backfill_target_events,
+                v13_rank_rules=self.enable_v13_rank_rules,
+                v13_stage1_rank=self.enable_v13_stage1_rank_calibration,
+                stage1_routing=_stage1_routing,
+                stage1_params=self.v13_stage1_rank_params,
+                stage1_debug_sink=_stage1_sink,
+                v13_multi_sample_consensus=_consensus_active,
+                v13_consensus_params=self.v13_consensus_params,
+                secondary_ranked_keys_list=_consensus_sec_keys,
+                v13_consensus_debug_sink=_consensus_sink,
+                # v1.4 T14-4（默认关）：跨池资格率归一化（1:1 资格键集）
+                secondary_eligible_keys_list=(
+                    _consensus_sec_elig if _consensus_sec_elig else None),
+                v14_cross_pool_elig_norm=bool(
+                    self.enable_v14_cross_pool_elig_norm),
+                enable_v12_post_mechanism=self.enable_v12_post_mechanism,
+                collect_pass_debug=bool(self.v13_stage1_debug_dir),
+                enable_v14_pairwise_adjudication=bool(
+                    self.enable_v14_pairwise_adjudication),
+                v14_adjudication_external=self.v14_adjudication_external,
+                v14_adjudication_sink=_adj_sink,
+                # 论文消融 v1.4 ②(默认 False ⇒ 零字节漂移)
+                disable_cleavage_upgrade=self.disable_cleavage_upgrade,
+                # 论文消融 v1.4 ④(默认 False ⇒ 零字节漂移)
+                disable_ranking_calibration=self.disable_ranking_calibration,
             )
+            if self.enable_v14_pairwise_adjudication and \
+                    _adj_sink is not None and _adj_sink:
+                # v1.4 T14-3 机读披露（小体积；零 SMILES / 零 QID / 零
+                # 先验分；进 decide outcome 的 model 块）。
+                model_note["v14_pairwise_adjudication"] = dict(
+                    _adj_sink.get("note") or {
+                        "enabled": True,
+                        "applied": False,
+                        "verdict": "",
+                        "promoted_from_rank": None,
+                        "gate_tag": "",
+                        "skipped": "no_disclosure",
+                    })
+            if self.enable_v13_stage1_rank_calibration and \
+                    _stage1_sink is not None and _stage1_sink:
+                _s1_note = dict(_stage1_sink.get("stage1_note") or {})
+                # 机读披露（小体积,进 decide outcome）
+                model_note["v13_stage1_rank_calibration"] = {
+                    "enabled": True,
+                    "routing_source": str(
+                        (_stage1_routing or {}).get("source") or ""),
+                    "primary_class": (
+                        (_stage1_routing or {}).get("primary_class")),
+                    "secondary_class": (
+                        (_stage1_routing or {}).get("secondary_class")),
+                    "triggered_rules": list(
+                        _s1_note.get("triggered_rules") or []),
+                    "promoted_src": str(
+                        _s1_note.get("promoted_src") or ""),
+                    "skipped": str(_s1_note.get("skipped") or ""),
+                    "top5_before": list(
+                        _stage1_sink.get("top5_before") or []),
+                    "top5_after": list(
+                        _stage1_sink.get("top5_after") or []),
+                }
+            if _consensus_sink is not None:
+                # v1.3 T13-B 机读披露（小体积；无 SMILES；进 decide
+                # outcome 的 model 块，供离线逐题核对共识触发面）。
+                _consensus_note = dict(_consensus_sink.get("note") or {})
+                _pass_keys = list(
+                    _consensus_sink.get("pass_top5_keys") or [])
+                # v1.4 T14-4：溯源保护门禁（``trace_protected``）逐位元数据。
+                # 全票锁/强锚点保护会让 ``result_keys``（最终序）与
+                # ``note["rows"]``（融合打序）排序不同 ⇒ **按 src 建表再按
+                # 最终序逐位查找**，不假定两列表可直接 zip。找不到（未
+                # 落 row，例如未 engaged 的兜底）时按既有前缀规则降级。
+                # 只含来源类别与 pass 计数：零 SMILES / 零 QID / 零先验分。
+                _after_keys = list(
+                    _consensus_sink.get("result_keys") or [])
+                _row_by_src = {
+                    str(_r.get("src") or ""): _r
+                    for _r in (_consensus_note.get("rows") or [])
+                    if str(_r.get("src") or "")
+                }
+                _top5_row_meta: list[dict] = []
+                for _k in _after_keys:
+                    _r = _row_by_src.get(str(_k)) or {}
+                    _top5_row_meta.append({
+                        "src": str(_k),
+                        "is_rec": (
+                            bool(_r.get("is_rec")) if _r
+                            else str(_k).startswith("rec-")),
+                        "is_novel": (
+                            bool(_r.get("is_novel")) if _r
+                            else (
+                                str(_k).startswith(
+                                    ("novel-", "sec-novel-", "hyp_"))
+                                or ("@" in str(_k)))),
+                        "n_passes_present": (
+                            int(_r.get("n_passes_present") or 0)
+                            if _r else 0),
+                        "top1_votes": (
+                            sum(
+                                1 for _rk in
+                                ((_r.get("pass_ranks") or {}).values())
+                                if int(_rk) == 0)
+                            if _r else 0),
+                    })
+                model_note["v13_multi_sample_consensus"] = {
+                    "enabled": True,
+                    "engaged": bool(
+                        _consensus_sink.get("engaged", False)),
+                    "version": str(
+                        _consensus_sink.get("version") or ""),
+                    "stage1_routing_source": str(
+                        (_stage1_routing or {}).get("source") or ""),
+                    "primary_class": (
+                        (_stage1_routing or {}).get("primary_class")),
+                    "secondary_class": (
+                        (_stage1_routing or {}).get("secondary_class")),
+                    "secondary_passes": list(
+                        _consensus_sec_debug.get("passes") or []),
+                    "secondary_skipped": str(
+                        _consensus_sec_debug.get("skipped") or ""),
+                    # v1.4 T14-1A：跨池/零池映射与开关面披露（默认关 ⇒
+                    # 计数恒 0 / 模式 calibrated / 等价簇 none；不参与判分）。
+                    "n_sec_pools_cross_run": int(
+                        _consensus_sec_debug.get(
+                            "n_sec_pools_cross_run") or 0),
+                    "n_sec_pools_unmapped": int(
+                        _consensus_sec_debug.get(
+                            "n_sec_pools_unmapped") or 0),
+                    "n_sec_pools_promoted": int(
+                        _consensus_sec_debug.get(
+                            "n_sec_pools_promoted") or 0),
+                    "pass_mode": str(
+                        _consensus_sink.get("pass_mode") or ""),
+                    "equiv_cluster_mode": str(
+                        _consensus_note.get("equiv_cluster_mode") or "none"),
+                    "equiv_version": str(
+                        _consensus_note.get("equiv_version") or ""),
+                    "top5_before": list(_pass_keys[0] if _pass_keys else []),
+                    "top5_after": list(
+                        _consensus_sink.get("result_keys") or []),
+                    "n_passes": int(
+                        _consensus_note.get("n_passes") or 0),
+                    "protections": list(
+                        _consensus_note.get("protections") or []),
+                    "skipped": str(
+                        _consensus_note.get("skipped")
+                        or _consensus_sink.get("skipped") or ""),
+                    # v1.4 T14-4 溯源保护：与 ``top5_after`` 逐位对齐的
+                    # 来源类别元数据（零 SMILES / 零 QID / 零先验分）。
+                    "top5_row_meta": _top5_row_meta,
+                }
+            if _stage1_sink is not None and _stage1_sink and \
+                    self.v13_stage1_debug_dir:
+                # 研究期机读记录（只在 T12 诊断重放里显式开启；不进
+                # 判据、不进评分、不改变任何执行分支）。
+                try:
+                    _dump_dir = Path(self.v13_stage1_debug_dir)
+                    _dump_dir.mkdir(parents=True, exist_ok=True)
+                    _stage1_sink["run_id"] = self.run_id
+                    (_dump_dir / f"{self.run_id}.json").write_text(
+                        json.dumps(_stage1_sink, ensure_ascii=False),
+                        encoding="utf-8")
+                except OSError:
+                    pass
             effective_rank_by_key = backfill_out["effective_rank_by_key"]
             rank_basis_by_key = backfill_out["rank_basis_by_key"]
             consensus_boost_by_key = backfill_out["consensus_boost_by_key"]
@@ -2106,6 +3119,30 @@ class _Driver:
         循环,至多 policy 上限轮);C 臂(blind_first)改走
         ``_model_proposals_blind_first``(盲写 → 合并两阶段,反馈轮
         两阶段共用);A 臂(atom_edit)本函数体逐字节不变。"""
+        if self.enable_v13_two_stage_routing and \
+                self.v13_routing_stage1_only:
+            # v1.3 T11 Step 1:只跑 Stage 1(盲底物路由)即落账返回;
+            # 不发 Stage 2、不产提案(池保持冻结池,零删池)。路由结果
+            # 进 decide outcome 的 model 块供离线统计。
+            real_fetch = self._real_fetch_entry()
+            if real_fetch is None:
+                raise PPV1RunError(
+                    "两段式路由需要真实模型适配器(未注入 ppv1_real_fetch;"
+                    "fail-closed)", {"kind": "two_stage_routing_no_adapter"})
+            stage1 = self._stage1_class_routing(real_fetch, receipt)
+            return {
+                "request_id": stage1["request_id"],
+                "provider_kind": self.model_provider_kind,
+                "network_request_count": 1,
+                "parsed_proposals": 0,
+                "abstained": True,
+                "rank_by_key": {},
+                "model_rank_by_id": {},
+                "routing_stage1_only": True,
+                "class_routing": stage1["routing"],
+                "class_routing_parse_fallback": not stage1["parsed"],
+                "class_routing_prompt_version": stage1["prompt_version"],
+            }
         if self.novel_protocol == NOVEL_PROTOCOL_PRODUCT_FIRST:
             return self._model_proposals_product_first(
                 receipt, prepared_entries,
@@ -2149,8 +3186,10 @@ class _Driver:
                 raise
             response = fetched["response_text"]
             request = fetched["request"]
+            _class_routing_note = fetched.get("class_routing_note")
         else:
             response = self._next_model_response()
+            _class_routing_note = None
             request = self.ledger.register_model_request(
                 run_id=self.run_id, action_id=action_id,
                 attempt_id=attempt_id,
@@ -2166,9 +3205,55 @@ class _Driver:
                       "provider_kind": self.model_provider_kind,
                       "network_request_count": request.get(
                           "network_request_count", 0)}
+        if _class_routing_note:
+            # v1.3 T11:Stage 1 路由结果 + tier 计数进 decide outcome
+            # (Step 1 离线统计与 Step 2 软降级披露的机器事实源)
+            # v1.3 T12-A:``_call_real_fetch`` 的 routing_note 生产端把
+            # 路由体写在 ``"response"`` 键(见本文件 T11 路由块),此处
+            # 旧实现只读 ``"routing"`` ⇒ ``class_routing`` 恒空 ``{}``。
+            # 两键都认(``routing`` 优先,兼容未来改名),不改变生产端
+            # 写盘形状;开关关闭时本块整体不执行 ⇒ 零漂移。
+            _stage1 = dict(
+                _class_routing_note.get("routing")
+                or _class_routing_note.get("response")
+                or {})
+            note["class_routing"] = _stage1
+            note["class_routing_parsed"] = bool(
+                _class_routing_note.get("parsed"))
+            note["class_routing_parse_fallback"] = not bool(
+                _class_routing_note.get("parsed"))
+            note["class_routing_request_id"] = str(
+                _class_routing_note.get("request_id") or "")
+            note["class_routing_prompt_version"] = str(
+                _class_routing_note.get("prompt_version") or "")
+            note["routing_tier_counts"] = dict(
+                _class_routing_note.get("tier_counts") or {})
+            note["pool_entries_total"] = int(
+                _class_routing_note.get("pool_entries_total") or 0)
+
+        def _parse_response(text: str) -> tuple[dict, list[dict]]:
+            """v1.3 T4-A 逐条容错解析入口(开关关闭 ⇒ 原样单次解析)。
+
+            开关关闭时返回 ``(parsed, [])``,异常照旧上抛(判据与改前
+            逐字节同);打开时先按严格口径解析,失败再按逐条容错解析
+            (丢弃非法提案、保留合法提案,丢弃清单进机读披露)。
+            """
+            if not self.enable_v13_tolerant_model_parse:
+                return parse_model_proposals(
+                    text, allowed_hypothesis_ids=allowed), []
+            try:
+                return parse_model_proposals(
+                    text, allowed_hypothesis_ids=allowed), []
+            except ModelProtocolError:
+                tolerant = parse_model_proposals(
+                    text, allowed_hypothesis_ids=allowed,
+                    drop_invalid_proposals=True)
+                return tolerant, list(
+                    tolerant.get("dropped_proposals") or [])
+
+        dropped_proposals: list[dict] = []
         try:
-            parsed = parse_model_proposals(
-                response, allowed_hypothesis_ids=allowed)
+            parsed, dropped_proposals = _parse_response(response)
         except ModelProtocolError as exc:
             kind = exc.detail.get("kind")
             if kind in FEEDBACK_ELIGIBLE:
@@ -2207,6 +3292,7 @@ class _Driver:
                         error=exc, response_excerpt=str(response))
                 else:
                     feedback = None
+                consumed_in_place = False
                 if feedback is None:
                     try:
                         feedback = register_format_feedback_round(
@@ -2218,29 +3304,52 @@ class _Driver:
                         # 反馈轮超上限(或策略 0):结构失败保持,不以反馈
                         # 重试到通过 —— 升级为结构失败(不是真实请求预算
                         # 的资源拒绝路径)
-                        note["format_feedback_exhausted"] = {
-                            "kind": feedback_exhausted.detail.get("kind")}
-                        raise PPV1RunError(
-                            "模型响应结构失败(格式反馈耗尽或策略 0 轮;"
-                            "结构失败保持,不以反馈改分子再试到通过)",
-                            {"kind": "model_structure_failure",
-                             "error_kind": kind,
-                             "feedback_kind":
-                                 feedback_exhausted.detail.get("kind")})                         from feedback_exhausted
-                note["format_feedback_round"] = feedback["request_id"]
-                if real_fetch is not None:
-                    retry_fetched = self._call_real_fetch(
-                        real_fetch, receipt, prepared_entries,
-                        feedback_request=feedback,
-                        feedback_error={
-                            "kind": kind,
-                            "response_excerpt": str(response)},
-                        substrate_profile=substrate_profile)
-                    retry = retry_fetched["response_text"]
-                else:
-                    retry = self._next_model_response()
-                parsed = parse_model_proposals(
-                    retry, allowed_hypothesis_ids=allowed)
+                        consumed = None
+                        if self.fix_budget_limit_consumption:
+                            # T10-A 开关 2:反馈预算拒 ≠ 已付费响应不可用。
+                            # 按逐条容错口径消费**已返回**响应(丢弃非法
+                            # 提案、保留合法提案),不整条丢弃已付费内容;
+                            # 容错解析仍失败 ⇒ 按结构失败如实停止(原行为)。
+                            try:
+                                consumed = parse_model_proposals(
+                                    response,
+                                    allowed_hypothesis_ids=allowed,
+                                    drop_invalid_proposals=True)
+                            except ModelProtocolError:
+                                consumed = None
+                        if consumed is None:
+                            note["format_feedback_exhausted"] = {
+                                "kind": feedback_exhausted.detail.get("kind")}
+                            raise PPV1RunError(
+                                "模型响应结构失败(格式反馈耗尽或策略 0 轮;"
+                                "结构失败保持,不以反馈改分子再试到通过)",
+                                {"kind": "model_structure_failure",
+                                 "error_kind": kind,
+                                 "feedback_kind":
+                                     feedback_exhausted.detail.get("kind")})                         from feedback_exhausted
+                        note["format_feedback_budget_rejected"] = {
+                            "kind": str(
+                                feedback_exhausted.detail.get("kind") or ""),
+                            "consumed_with": "tolerant_parse"}
+                        dropped_proposals = list(
+                            consumed.get("dropped_proposals") or [])
+                        parsed = consumed
+                        consumed_in_place = True
+                if not consumed_in_place:
+                    note["format_feedback_round"] = feedback["request_id"]
+                    if real_fetch is not None:
+                        retry_fetched = self._call_real_fetch(
+                            real_fetch, receipt, prepared_entries,
+                            feedback_request=feedback,
+                            feedback_error={
+                                "kind": kind,
+                                "response_excerpt": str(response)},
+                            substrate_profile=substrate_profile)
+                        retry = retry_fetched["response_text"]
+                    else:
+                        retry = self._next_model_response()
+                    parsed, retry_dropped = _parse_response(retry)
+                    dropped_proposals = dropped_proposals + retry_dropped
             else:
                 # structure_unparseable:结构失败保持(不进格式反馈,
                 # 不能以反馈改分子再试到通过)
@@ -2257,6 +3366,10 @@ class _Driver:
             key = key_by_id.get(hyp_id)
             if key is not None:
                 rank_by_key[key] = position
+        if dropped_proposals:
+            # v1.3 T4-A:逐条容错丢弃清单(机读披露;含 rank 引用被丢弃
+            # 提案而跳过的 ID)。开关关闭时该键不出现。
+            note["dropped_proposals"] = dropped_proposals
         note["parsed_proposals"] = len(parsed["proposals"])
         note["abstained"] = parsed["abstained"]
         note["rank_by_key"] = rank_by_key
@@ -2308,7 +3421,19 @@ class _Driver:
                 str(spec_in.get("product_smiles") or ""),
                 [str(c) for c in (spec_in.get("coproducts") or [])],
                 hypothesis_id,
-                fallback_edits=fb_edits)
+                fallback_edits=fb_edits,
+                extended_stereo_dissolution=bool(
+                    self.enable_v13_stereo_dissolution_extended
+                    or self.enable_v14_compiler_ext),
+                stereo_edit_graceful_fallback=bool(
+                    self.enable_v14_compiler_ext),
+                allow_ring_cleavage_and_fused_dearomatization=bool(
+                    self.enable_v14_compiler_ext),
+                # v1.4 T14-4:编译器 v2 两开关(默认关 ⇒ 逐字节同)
+                retained_tetrahedral_parity_check=bool(
+                    self.enable_v14_compiler_ext_2),
+                allow_aromatic_ring_closure=bool(
+                    self.enable_v14_compiler_ext_2))
             if outcome.get("status") != "compiled":
                 failure = dict(outcome.get("feedback") or {})
                 failure["hypothesis_id"] = hypothesis_id
@@ -2357,6 +3482,587 @@ class _Driver:
         compiled.sort(key=lambda item: str(item.get("hypothesis_id") or ""))
         declared.sort(key=lambda item: str(item.get("hypothesis_id") or ""))
         return compiled, declared, failures
+
+    def _secondary_consensus_ranked_keys(
+        self,
+        *,
+        substrate_smiles: str,
+        substrate,
+        receipt: dict,
+        specs: list[dict],
+        prepared_entries: list,
+        novel_entry_idx: set[int],
+        novel_by_key: dict[str, dict],
+    ) -> tuple[list[list[str]], dict]:
+        """T13-B：把计划注入的次级 pass 回复解析成**本 run 逻辑键**排序表。
+
+        输入 = ``plan.v13_consensus_secondary_passes`` 的
+        ``{run_id, content}`` 列表（同题其他采样 run 的模型原始回复；
+        零调用重放通道）。每个 pass：
+
+        1. 用该次级 run 的根路径 + 同底物状态重建池条目 hypothesis ID
+           映射（``prepare_hypothesis`` 单一构建源；depth-0 决定的口径，
+           与任务书一致）；
+        2. ``parse_model_proposals``（逐条容错）解析；有效引用 = 池内
+           ID（映射回本 run 的池逻辑键）∪ 池外 novel（须带
+           ``proposal_context`` + ``reaction_spec``）；
+        3. novel 逐条走 ``_verify_novel_product_first``（程序编译核验，
+           零放宽）：full 级才消费；净反应签名已存在 ⇒ 复用既有条目
+           键（零新条目），否则 ``prepare_hypothesis`` 后追加进
+           ``prepared_entries`` 并标 ``novel_entry_idx``（键加
+           ``@<sec_run_id>`` 后缀防跨 pass 撞键）；
+        4. 排序 = ``rank_hypotheses`` 顺序优先，其余按 proposal 声明序；
+           映射失败/非 full 的 ID 记入 debug 的 ``skipped_ids``。
+
+        只读输入内容、只追加经既有核验链的合法候选；任何解析/编译失败
+        只让该 pass 贡献变少（如实记 debug），不改变主 pass 行为。
+
+        v1.4 T14-1A：跨池 / 零池（盲写）次级 pass 无损映射（默认关）。
+        次级元素可**可选**携带：
+
+        - ``sec_pool_specs``：次级批自身 ``run_inputs/<qid>.json`` 里
+          ``plan.pools[substrate]`` 的同源 specs 列表（首选入口）；
+        - ``sec_pools``：次级池条目列表（经同一池 spec 结构直接消费）；
+        - ``allow_verified_sec_pool_promotion``：未命中主池签名、但模型在
+          该 pass 前列（默认前 5）明确选入的外池候选，经既有合规
+          ``_verify_novel_product_first`` 编译核验后追加为合法备选
+          （默认 ``False``：只映射主池已有签名 + 正常核验次级 novel）。
+
+        给出 ``sec_pool_specs``/``sec_pools`` 时用**次级自身**的 specs +
+        ``sec_run_id`` 根 + 同底物重建 ``sec_hyp_id``，再按
+        ``net_reaction_signature`` 映射到本 run 既有键（零新条目、不把
+        外池池尾干扰项塞进主池）；显式 ``sec_pools=[]``（零池盲写批）
+        ⇒ 无可映射池候选，带 ``reaction_spec`` 的提案自然走既有
+        ``_verify_novel_product_first`` 核验后汇入共识。**未携带**任一
+        键 ⇒ 与 v1.3 的映射路径 100% 相同。
+        """
+        passes = list(self.v13_consensus_secondary_passes or [])
+        debug: dict = {
+            "passes": [],
+            "skipped": "",
+            "n_sec_pools_cross_run": 0,
+            "n_sec_pools_unmapped": 0,
+            "n_sec_pools_promoted": 0,
+        }
+        if not passes:
+            debug["skipped"] = "no_secondary_passes"
+            return [], debug
+
+        from .s5b_compiler import net_reaction_signature
+
+        # 既有条目净反应签名 → 键（novel 复用判据；确定性首见优先）
+        sig_to_key: dict[tuple, str] = {}
+        for _key, _spec, _prep in prepared_entries:
+            try:
+                _sig = net_reaction_signature(_spec)
+            except Exception:  # noqa: BLE001 —— 缺产品等非法 spec 不参与
+                continue
+            sig_to_key.setdefault(_sig, str(_key))
+
+        # v1.4 T14-4：已核验条目主产物严格身份 → 键（跨 pass 同主产物
+        # 复用；默认关 ⇒ 不建索引、不消费）。
+        from .chemstate import strict_identity_of
+
+        def _principal_strict(spec_in: dict) -> str:
+            smi = str(spec_in.get("product_smiles") or "")
+            if not smi:
+                return ""
+            try:
+                return str(strict_identity_of(smi) or "")
+            except Exception:  # noqa: BLE001 —— 不可解析 ⇒ 不复用
+                return ""
+
+        principal_to_key: dict[str, str] = {}
+        if self.enable_v14_compiler_ext_2:
+            for _key, _spec, _prep in prepared_entries:
+                _pst = _principal_strict(_spec)
+                if _pst:
+                    principal_to_key.setdefault(_pst, str(_key))
+
+        def _pass_pool_specs(sec_pass: dict) -> tuple[list | None, str, int]:
+            """次级 pass 自带的同源池输入（v1.4 T14-1A）。
+
+            返回 ``(specs | None, source, n_invalid)``：
+
+            - ``None`` ⇒ 该 pass **未携带**池输入 ⇒ 沿用 v1.3 的"同池"
+              映射路径（用本 run 的 ``specs`` 重建次级 hypothesis ID）；
+            - 列表（**含空列表**）⇒ 跨池/零池显式路径：空列表 = 零池盲写
+              批（``sec_pools=[]``）⇒ 无可映射池候选，全部带
+              ``reaction_spec`` 的提案走既有 ``_verify_novel_product_first``；
+            - ``n_invalid`` = 非 dict / 既无 ``reaction_spec`` 又无
+              ``product_smiles`` 的条目数（如实计数，不猜内容）。
+            """
+            raw = sec_pass.get("sec_pool_specs")
+            source = "sec_pool_specs"
+            if raw is None:
+                raw = sec_pass.get("sec_pools")
+                source = "sec_pools"
+                if raw is None:
+                    return None, "same_run_pool", 0
+            if not isinstance(raw, list):
+                return [], f"{source}_invalid", 1
+            kept: list = []
+            n_invalid = 0
+            for item in raw:
+                if not isinstance(item, dict):
+                    n_invalid += 1
+                    continue
+                nested = item.get("reaction_spec")
+                has_nested = isinstance(nested, dict) and bool(
+                    str(nested.get("product_smiles") or ""))
+                if has_nested or str(item.get("product_smiles") or ""):
+                    kept.append(item)
+                elif not item:
+                    # 空 dict 不构成可重建池条目
+                    n_invalid += 1
+                else:
+                    kept.append(item)
+            return kept, source, n_invalid
+
+        result_lists: list[list[str]] = []
+        # v1.4 T14-4：每 pass 资格键集合（与 ``result_lists`` 1:1）。
+        # 同池 pass（未携带 sec 池输入）⇒ ``None``（无资格信息）；
+        # 跨池/零池 pass ⇒ 该次级池映射到本 run 的逻辑键集合（空池 ⇒
+        # 空集，不计入池 pass 数）。资格集不参与本函数的映射判据。
+        elig_lists: list[set[str] | None] = []
+        for pass_idx, sec_pass in enumerate(passes):
+            sec_run_id = str(sec_pass.get("run_id") or "")
+            content = str(sec_pass.get("content") or "")
+            sec_specs, pool_source, n_pool_invalid = _pass_pool_specs(sec_pass)
+            cross_pool = sec_specs is not None
+            allow_promotion = bool(
+                sec_pass.get("allow_verified_sec_pool_promotion"))
+            entry: dict = {
+                "index": int(pass_idx),
+                "run_id": sec_run_id,
+                "parsed": False,
+                "pool_source": pool_source,
+                "cross_pool": bool(cross_pool),
+                "allow_verified_sec_pool_promotion": bool(allow_promotion),
+                "sec_pool_specs_invalid": int(n_pool_invalid),
+                "n_pool_ids": 0,
+                "n_sec_pool_ids": 0,
+                "n_sec_pool_unmapped": 0,
+                "sec_pool_promoted": 0,
+                "unmapped_pool_ids": [],
+                "n_referenced_ids": 0,
+                "n_mapped": 0,
+                "novel_added": 0,
+                "novel_reused": 0,
+                "skipped_ids": [],
+                "error": "",
+            }
+            if not sec_run_id or not content.strip():
+                entry["error"] = "missing_run_id_or_content"
+                debug["passes"].append(entry)
+                # v1.4 T14-4：错误 pass 不产排序表 ⇒ 资格集同样不追加
+                # （保持与 ``result_lists`` 1:1，防下游错位配对）。
+                continue
+
+            # 1) 次级 run 的池 hypothesis ID → 本 run 逻辑键
+            sec_root = stable_id("spath", sec_run_id, "root")
+            sec_substrate = _substrate_state(
+                substrate_smiles, f"ppv1-substrate:{sec_run_id}")
+            hyp_to_key: dict[str, str] = {}
+            unmapped_sec_ids: set[str] = set()
+            promotable_spec_by_hyp: dict[str, dict] = {}
+            pool_specs_for_mapping = sec_specs if cross_pool else list(specs)
+            for idx, spec in enumerate(pool_specs_for_mapping or []):
+                if not isinstance(spec, dict):
+                    continue
+                key = str(spec.get("key") or f"spec-{idx}")
+                try:
+                    sec_prep = prepare_hypothesis(
+                        spec, parent_path_id=sec_root,
+                        substrate_state=sec_substrate,
+                        transformation_ref=str(
+                            spec.get("transformation_ref") or ""))
+                except Exception:  # noqa: BLE001 —— 单条不可重建 ⇒ 不映射
+                    continue
+                sec_hyp_id = str(sec_prep["hypothesis"].hypothesis_id)
+                if not cross_pool:
+                    # v1.3 逐字节路径：同池 ⇒ 直接映射回本 run 的池逻辑键
+                    hyp_to_key[sec_hyp_id] = key
+                    continue
+                # 跨池：按**净反应签名**映射到本 run 既有合法键（同签名
+                # ⇒ 同反应 ⇒ 直接复用既有键；零新条目、不把外池池尾干扰
+                # 项塞进主池）
+                try:
+                    sig = net_reaction_signature(spec)
+                except Exception:  # noqa: BLE001
+                    sig = None
+                target = sig_to_key.get(sig) if sig is not None else None
+                if target is None:
+                    unmapped_sec_ids.add(sec_hyp_id)
+                    promotable_spec_by_hyp[sec_hyp_id] = spec
+                    continue
+                hyp_to_key[sec_hyp_id] = target
+            entry["n_pool_ids"] = len(hyp_to_key)
+            entry["n_sec_pool_ids"] = len(hyp_to_key) if cross_pool else 0
+            entry["n_sec_pool_unmapped"] = len(unmapped_sec_ids)
+
+            # 2) 解析（逐条容错：单条非法不拖垮整个 pass）。跨池里未映射
+            # 的**次级池引用**也进 allowed 集合：它们确实是那批池的 ID，
+            # 只是本 run 无法表示 —— 如实解析、随后记 skipped，不把它们
+            # 误判成"池外 novel"再走核验（不伪造来源）。
+            try:
+                parsed = parse_model_proposals(
+                    content,
+                    allowed_hypothesis_ids=(
+                        set(hyp_to_key) | set(unmapped_sec_ids)),
+                    protocol=self.novel_protocol,
+                    drop_invalid_proposals=True)
+            except ModelProtocolError as exc:
+                entry["error"] = (
+                    f"parse:{exc.detail.get('kind') or type(exc).__name__}")
+                debug["passes"].append(entry)
+                # v1.4 T14-4：解析失败 pass 不产排序表 ⇒ 资格集不追加
+                # （1:1 对齐守卫同上）。
+                continue
+            entry["parsed"] = True
+
+            proposal_by_id: dict[str, dict] = {}
+            ordered_ids: list[str] = []
+            for raw_id in (parsed.get("rank_hypotheses") or []):
+                hid = str(raw_id or "")
+                if hid and hid not in ordered_ids:
+                    ordered_ids.append(hid)
+            for prop in (parsed.get("proposals") or []):
+                if not isinstance(prop, dict):
+                    continue
+                hid = str(prop.get("hypothesis_id") or "")
+                if not hid:
+                    continue
+                proposal_by_id.setdefault(hid, prop)
+                if hid not in ordered_ids:
+                    ordered_ids.append(hid)
+            entry["n_referenced_ids"] = len(ordered_ids)
+
+            # 2b) 受控池候选晋升（默认关）：未命中主池签名、但模型在该
+            # 次级 pass **前列**（``promotion_max_rank`` 内）明确选入的
+            # 外池候选，可经既有合规产物优先编译核验后追加为合法备选
+            # （同一 ``_verify_novel_product_first`` 链，零放宽）。
+            promotion_max_rank = 5
+            promote_props: dict[str, dict] = {}
+            if cross_pool and allow_promotion:
+                for pos, hid in enumerate(ordered_ids):
+                    if pos >= promotion_max_rank:
+                        break
+                    spec = promotable_spec_by_hyp.get(hid)
+                    if not isinstance(spec, dict):
+                        continue
+                    nested = spec.get("reaction_spec")
+                    product = str(
+                        spec.get("product_smiles")
+                        or (nested.get("product_smiles")
+                            if isinstance(nested, dict) else "")
+                        or "")
+                    if not product:
+                        continue
+                    # 忠实转发次级池 spec 自身的共产物声明（compile 判据
+                    # 同源；缺省才由编译器按产物优先规则推断，零放宽）。
+                    coproducts = spec.get("coproducts")
+                    if coproducts is None and isinstance(nested, dict):
+                        coproducts = nested.get("coproducts")
+                    reaction_spec: dict = {"product_smiles": product}
+                    if isinstance(coproducts, (list, tuple)) and coproducts:
+                        reaction_spec["coproducts"] = [
+                            str(item) for item in coproducts]
+                    promote_props[hid] = {
+                        "hypothesis_id": hid,
+                        "proposal_context": {
+                            "reference_hypothesis_ids": [],
+                            "output_origin": "sec_pool_promotion",
+                        },
+                        "reaction_spec": reaction_spec,
+                    }
+
+            # 3) ID → 本 run 逻辑键（池引用直接映射；novel 走程序核验）
+            mapped_keys: list[str] = []
+            for hid in ordered_ids:
+                from_promotion = False
+                if hid in hyp_to_key:
+                    mapped_keys.append(hyp_to_key[hid])
+                    continue
+                if hid in unmapped_sec_ids:
+                    prop = promote_props.get(hid)
+                    if prop is None:
+                        entry["skipped_ids"].append(hid)
+                        entry["unmapped_pool_ids"].append(hid)
+                        continue
+                    from_promotion = True
+                else:
+                    prop = proposal_by_id.get(hid)
+                    if prop is None:
+                        entry["skipped_ids"].append(hid)
+                        continue
+                compiled: list[dict] = []
+                disable_pf = bool(
+                    getattr(self, "disable_product_first_fallback", False))
+                if disable_pf:
+                    # 论文消融 T1-L11：disable_product_first_fallback=True
+                    # 时次级 pass 同源禁止走产物优先逆向编译与
+                    # enable_v14_sec_novel_backfill，只允许携带原子编辑
+                    # (edits) 的提案走 AtomTool 正向执行 + 审计核验。
+                    sec_spec = dict(prop.get("reaction_spec") or {})
+                    if sec_spec.get("edits"):
+                        sec_expand = None
+                        if self.fix_decide_atomtool_import:
+                            from .production import (
+                                execute_atomtool_expansion as sec_expand,
+                            )
+                        try:
+                            from .audit import audit_hypothesis, decide_admission
+                            from .production import ADMISSION_SUBMITTABLE
+
+                            sec_parent_ctx = load_context(
+                                self.ledger.artifact_store,
+                                receipt["parent_path_id"])
+                            cand_prep = prepare_hypothesis(
+                                sec_spec,
+                                parent_path_id=sec_root,
+                                substrate_state=sec_substrate,
+                                transformation_ref=str(
+                                    sec_spec.get("transformation_ref") or ""),
+                                source_refs=[{
+                                    "record": "novel-model-proposal:"
+                                              "sec_atomtool"}])
+                            exec_in = str(
+                                cand_prep["tool_inputs"].get(
+                                    "execution_input_smiles")
+                                or sec_substrate.smiles_isomeric)
+                            if sec_expand is not None:
+                                exec_out = sec_expand(
+                                    substrate_smiles=exec_in,
+                                    tool_inputs=cand_prep["tool_inputs"])
+                            else:
+                                exec_out = execute_atomtool_expansion(
+                                    substrate_smiles=exec_in,
+                                    tool_inputs=cand_prep["tool_inputs"])
+                            if exec_out.get("execution_ok"):
+                                audit_rep = audit_hypothesis(
+                                    cand_prep["hypothesis"],
+                                    run_id=f"{sec_run_id or 'sec'}-novel-check",
+                                    states=cand_prep["states"],
+                                    context=sec_parent_ctx,
+                                    center_evidence=exec_out[
+                                        "center_evidence"])
+                                disp, _ = decide_admission(audit_rep)
+                                if disp in ADMISSION_SUBMITTABLE:
+                                    decl_prod = str(
+                                        sec_spec.get("product_smiles") or "")
+                                    decl_cops = [
+                                        str(c) for c in (
+                                            sec_spec.get("coproducts") or [])]
+                                    if self.fix_decide_atomtool_import:
+                                        _cov = _declared_consistency_report(
+                                            cand_prep, decl_prod, decl_cops,
+                                            sec_spec)
+                                        _exec_cov = (
+                                            _execution_declaration_mismatch(
+                                                exec_out,
+                                                [decl_prod] + decl_cops))
+                                        if _cov.get("covered") and not _exec_cov:
+                                            compiled = [{
+                                                "reaction_spec": dict(sec_spec)
+                                            }]
+                                    else:
+                                        compiled = [{
+                                            "reaction_spec": dict(sec_spec)}]
+                        except Exception:  # noqa: BLE001 —— 单条异常不扩权
+                            compiled = []
+                else:
+                    try:
+                        compiled, _declared, _failures = \
+                            self._verify_novel_product_first(
+                                [prop], substrate_smiles)
+                    except Exception:  # noqa: BLE001 —— 单条编译异常不扩权
+                        entry["skipped_ids"].append(hid)
+                        continue
+                if (not disable_pf
+                        and not compiled
+                        and self.enable_v14_sec_novel_backfill):
+                    # v1.4 T14-1B:池外 novel 对称回退 —— 与 _run_decide
+                    # 的池外回退同源(产物优先直编;11 门核验由
+                    # compile_s5_candidate_to_spec 内部完成)。默认关 ⇒
+                    # 该分支不存在,零字节漂移。
+                    from ..services.s5_hybrid_choice import (
+                        compile_s5_candidate_to_spec,
+                    )
+
+                    spec_in_fb = dict(prop.get("reaction_spec") or {})
+                    expect_fb = spec_in_fb.get("expectation")
+                    expect_smi_fb = (
+                        str(expect_fb.get("target_smiles") or "").strip()
+                        if isinstance(expect_fb, dict) else "")
+                    exp_prods_fb = (
+                        spec_in_fb.get("expected_products")
+                        or prop.get("expected_products") or [])
+                    first_exp_fb = (
+                        str(exp_prods_fb[0]).strip()
+                        if isinstance(exp_prods_fb, list)
+                        and exp_prods_fb else "")
+                    fb_target = str(
+                        spec_in_fb.get("product_smiles")
+                        or spec_in_fb.get("target_product_smiles")
+                        or expect_smi_fb
+                        or first_exp_fb
+                        or prop.get("product_smiles")
+                        or prop.get("target_product_smiles")
+                        or "").strip()
+                    raw_cops_fb = (
+                        spec_in_fb.get("coproducts")
+                        or prop.get("coproducts") or [])
+                    fb_cop_sets = (
+                        [[str(c).strip() for c in raw_cops_fb
+                          if str(c).strip()]]
+                        if isinstance(raw_cops_fb, list) and raw_cops_fb
+                        else None)
+                    fb_spec = None
+                    if fb_target:
+                        try:
+                            fb_spec = compile_s5_candidate_to_spec(
+                                substrate.smiles_isomeric,
+                                {"cand_smiles": fb_target},
+                                index=180 + len(mapped_keys),
+                                is_gated_supplement=False,
+                                coproduct_sets=fb_cop_sets,
+                                extended_stereo_dissolution=bool(
+                                    self.enable_v13_stereo_dissolution_extended
+                                    or self.enable_v14_compiler_ext),
+                                stereo_edit_graceful_fallback=bool(
+                                    self.enable_v14_compiler_ext),
+                                allow_ring_cleavage_and_fused_dearomatization=(
+                                    bool(self.enable_v14_compiler_ext)),
+                                retained_tetrahedral_parity_check=bool(
+                                    self.enable_v14_compiler_ext_2),
+                                allow_aromatic_ring_closure=bool(
+                                    self.enable_v14_compiler_ext_2),
+                            )
+                        except Exception:  # noqa: BLE001 —— 回退失败不扩权
+                            fb_spec = None
+                        if (fb_spec is None and fb_cop_sets
+                                and self.enable_v14_compiler_ext_2):
+                            # v1.4 T14-4：主/次 pass novel 对称回补 ——
+                            # 声明共产物编译失败时回退为「只按主产物」。
+                            try:
+                                fb_spec = compile_s5_candidate_to_spec(
+                                    substrate.smiles_isomeric,
+                                    {"cand_smiles": fb_target},
+                                    index=180 + len(mapped_keys),
+                                    is_gated_supplement=False,
+                                    coproduct_sets=None,
+                                    extended_stereo_dissolution=bool(
+                                        self.enable_v13_stereo_dissolution_extended
+                                        or self.enable_v14_compiler_ext),
+                                    stereo_edit_graceful_fallback=bool(
+                                        self.enable_v14_compiler_ext),
+                                    allow_ring_cleavage_and_fused_dearomatization=(
+                                        bool(self.enable_v14_compiler_ext)),
+                                    retained_tetrahedral_parity_check=bool(
+                                        self.enable_v14_compiler_ext_2),
+                                    allow_aromatic_ring_closure=bool(
+                                        self.enable_v14_compiler_ext_2),
+                                )
+                            except Exception:  # noqa: BLE001
+                                fb_spec = None
+                    if fb_spec is not None:
+                        compiled = [
+                            {"reaction_spec": dict(fb_spec)}]
+                        entry["sec_novel_backfilled"] = int(
+                            entry.get("sec_novel_backfilled", 0)) + 1
+                if not compiled:
+                    entry["skipped_ids"].append(hid)
+                    continue
+                item = compiled[0]
+                novel_spec = dict(item.get("reaction_spec") or {})
+                try:
+                    sig = net_reaction_signature(novel_spec)
+                except Exception:  # noqa: BLE001
+                    entry["skipped_ids"].append(hid)
+                    continue
+                existing = sig_to_key.get(sig)
+                if (existing is None
+                        and self.enable_v14_compiler_ext_2):
+                    # v1.4 T14-4：同主产物已核验键复用（净反应签名
+                    # 不同但主产物相同 ⇒ 复用既有合法条目，零新条目）。
+                    _pst_novel = _principal_strict(novel_spec)
+                    if _pst_novel:
+                        existing = principal_to_key.get(_pst_novel)
+                if existing:
+                    mapped_keys.append(existing)
+                    entry["novel_reused"] += 1
+                    if from_promotion:
+                        entry["sec_pool_promoted"] += 1
+                    continue
+                base_key = f"{hid}@{sec_run_id}" if sec_run_id else hid
+                novel_key = base_key
+                existing_keys = {str(k) for k, _s, _p in prepared_entries}
+                dup = 2
+                while novel_key in existing_keys:
+                    novel_key = f"{base_key}#{dup}"
+                    dup += 1
+                novel_spec["key"] = novel_key
+                novel_spec["transformation_ref"] = str(
+                    novel_spec.get("transformation_ref")
+                    or f"novel-consensus:{novel_key}")
+                try:
+                    novel_prep = prepare_hypothesis(
+                        novel_spec,
+                        parent_path_id=receipt["parent_path_id"],
+                        substrate_state=substrate,
+                        transformation_ref=str(
+                            novel_spec.get("transformation_ref") or ""),
+                        source_refs=[{
+                            "record": (
+                                "novel-model-proposal:consensus:"
+                                f"{sec_run_id}")}])
+                except Exception:  # noqa: BLE001 —— 编译后建假设失败 ⇒ 跳过
+                    entry["skipped_ids"].append(hid)
+                    continue
+                prepared_entries.append(
+                    (novel_key, novel_spec, novel_prep))
+                novel_entry_idx.add(len(prepared_entries) - 1)
+                novel_by_key[novel_key] = prop
+                sig_to_key[sig] = novel_key
+                if self.enable_v14_compiler_ext_2:
+                    _pst_added = _principal_strict(novel_spec)
+                    if _pst_added:
+                        principal_to_key.setdefault(_pst_added, novel_key)
+                mapped_keys.append(novel_key)
+                entry["novel_added"] += 1
+                if from_promotion:
+                    entry["sec_pool_promoted"] += 1
+
+            seen: set[str] = set()
+            sec_keys: list[str] = []
+            present_keys = {str(k) for k, _s, _p in prepared_entries}
+            for _key in mapped_keys:
+                if _key in seen or _key not in present_keys:
+                    continue
+                seen.add(_key)
+                sec_keys.append(_key)
+            entry["n_mapped"] = len(sec_keys)
+            result_lists.append(sec_keys)
+            # v1.4 T14-4：资格集在映射完成后定格（同池 ⇒ None 无信息）。
+            elig_lists.append(
+                None if not cross_pool else set(hyp_to_key.values()))
+            debug["passes"].append(entry)
+
+        debug["n_sec_pools_cross_run"] = sum(
+            1 for e in debug["passes"] if e.get("cross_pool"))
+        debug["n_sec_pools_unmapped"] = sum(
+            int(e.get("n_sec_pool_unmapped") or 0)
+            for e in debug["passes"])
+        debug["n_sec_pools_promoted"] = sum(
+            int(e.get("sec_pool_promoted") or 0)
+            for e in debug["passes"])
+
+        # v1.4 T14-4：资格集机读记录（与 result_lists 1:1；仅排序研究
+        # 期消费，缺省不开开关时下游直接忽略）。
+        debug["secondary_eligible_keys_list"] = [
+            (None if ek is None else sorted(ek)) for ek in elig_lists]
+        return result_lists, debug
 
     def _accumulate_round_full(
         self,
@@ -2661,6 +4367,10 @@ class _Driver:
             note["novel_ignored_spec_keys"] = {
                 _key: list(ignored_keys_by_id[_key])
                 for _key in sorted(ignored_keys_by_id)}
+        if self.enable_v14_compiler_ext_2 and self.enable_v14_sec_novel_backfill:
+            last_verification = self._backfill_pass0_novel_proposals(
+                substrate_smiles, last_parsed, accumulated_full_by_id,
+                last_verification)
         accumulated_compiled = sorted(
             accumulated_full_by_id.values(),
             key=lambda item: str(item.get("hypothesis_id") or ""))
@@ -2938,6 +4648,10 @@ class _Driver:
                 "盲写响应已落盘、合并调用未开始(PC5 注入点)",
                 {"action_id": action_id,
                  "request_id": str(blind_request["request_id"])})
+        if self.enable_v14_compiler_ext_2 and self.enable_v14_sec_novel_backfill:
+            blind_verification = self._backfill_pass0_novel_proposals(
+                substrate_smiles, blind_parsed, blind_accumulated_by_id,
+                blind_verification)
         blind_compiled = sorted(
             blind_accumulated_by_id.values(),
             key=lambda item: str(item.get("hypothesis_id") or ""))
@@ -3270,6 +4984,10 @@ class _Driver:
         note["verification_failures"] = final_failures
         if earliest_pool_rank:
             note["_earliest_pool_rank_by_id"] = dict(earliest_pool_rank)
+        if self.enable_v14_compiler_ext_2 and self.enable_v14_sec_novel_backfill:
+            last_verification = self._backfill_pass0_novel_proposals(
+                substrate_smiles, last_parsed, merge_accumulated_by_id,
+                last_verification)
         merge_compiled_all = sorted(
             merge_accumulated_by_id.values(),
             key=lambda item: str(item.get("hypothesis_id") or ""))
@@ -3342,6 +5060,126 @@ class _Driver:
                 for key, value in sorted(ignored_keys_by_id.items())}
         return note
 
+    def _backfill_pass0_novel_proposals(
+        self,
+        substrate_smiles: str,
+        parsed_obj: dict | None,
+        accumulated_by_id: dict[str, dict],
+        verification_tuple: tuple[list, list, list],
+    ) -> tuple[list, list, list]:
+        """v1.4 T14-4: Pass 0 (B/C 臂) 池外 novel 对称回补。
+
+        当 ``enable_v14_compiler_ext_2`` 与 ``enable_v14_sec_novel_backfill``
+        同时开启时，对反馈循环结束后未进入 ``accumulated_by_id`` 的 novel
+        提案，走与次级 pass 完全同源的 ``compile_s5_candidate_to_spec``
+        11 门核验回补（默认关闭 ⇒ 零调用、零字节漂移）。
+        """
+        if parsed_obj is None or not substrate_smiles:
+            return verification_tuple
+        from ..services.s5_hybrid_choice import compile_s5_candidate_to_spec
+
+        try:
+            sub_iso = _substrate_state(
+                substrate_smiles, f"ppv1-substrate:{self.run_id}"
+            ).smiles_isomeric
+        except Exception:  # noqa: BLE001
+            sub_iso = str(substrate_smiles)
+        added: list[dict] = []
+        for idx, prop in enumerate(parsed_obj.get("proposals") or []):
+            if not isinstance(prop, dict) or prop.get("origin") != "novel":
+                continue
+            hid = str(prop.get("hypothesis_id") or "")
+            if not hid or hid in accumulated_by_id:
+                continue
+            spec_in_fb = dict(prop.get("reaction_spec") or {})
+            expect_fb = spec_in_fb.get("expectation")
+            expect_smi_fb = (
+                str(expect_fb.get("target_smiles") or "").strip()
+                if isinstance(expect_fb, dict) else ""
+            )
+            exp_prods_fb = (
+                spec_in_fb.get("expected_products")
+                or prop.get("expected_products") or []
+            )
+            first_exp_fb = (
+                str(exp_prods_fb[0]).strip()
+                if isinstance(exp_prods_fb, list) and exp_prods_fb else ""
+            )
+            fb_target = str(
+                spec_in_fb.get("product_smiles")
+                or spec_in_fb.get("target_product_smiles")
+                or expect_smi_fb
+                or first_exp_fb
+                or prop.get("product_smiles")
+                or prop.get("target_product_smiles")
+                or ""
+            ).strip()
+            if not fb_target:
+                continue
+            raw_cops_fb = (
+                spec_in_fb.get("coproducts")
+                or prop.get("coproducts") or []
+            )
+            fb_cop_sets = (
+                [[str(c).strip() for c in raw_cops_fb if str(c).strip()]]
+                if isinstance(raw_cops_fb, list) and raw_cops_fb
+                else None
+            )
+            fb_spec = None
+            try:
+                fb_spec = compile_s5_candidate_to_spec(
+                    sub_iso,
+                    {"cand_smiles": fb_target},
+                    index=160 + idx,
+                    is_gated_supplement=False,
+                    coproduct_sets=fb_cop_sets,
+                    extended_stereo_dissolution=True,
+                    stereo_edit_graceful_fallback=True,
+                    allow_ring_cleavage_and_fused_dearomatization=True,
+                    retained_tetrahedral_parity_check=True,
+                    allow_aromatic_ring_closure=True,
+                )
+            except Exception:  # noqa: BLE001
+                fb_spec = None
+            if fb_spec is None and fb_cop_sets is not None:
+                try:
+                    fb_spec = compile_s5_candidate_to_spec(
+                        sub_iso,
+                        {"cand_smiles": fb_target},
+                        index=160 + idx,
+                        is_gated_supplement=False,
+                        coproduct_sets=None,
+                        extended_stereo_dissolution=True,
+                        stereo_edit_graceful_fallback=True,
+                        allow_ring_cleavage_and_fused_dearomatization=True,
+                        retained_tetrahedral_parity_check=True,
+                        allow_aromatic_ring_closure=True,
+                    )
+                except Exception:  # noqa: BLE001
+                    fb_spec = None
+            if fb_spec is not None:
+                entry = {
+                    "hypothesis_id": hid,
+                    "proposal_context": dict(prop.get("proposal_context") or {}),
+                    "reaction_spec": dict(fb_spec),
+                    "verification_tier": "s5_backfill",
+                    "first_pass_round": 0,
+                    "first_pass_pos": idx + 1,
+                }
+                accumulated_by_id[hid] = entry
+                added.append(entry)
+        if not added:
+            return verification_tuple
+        added_ids = {str(e.get("hypothesis_id") or "") for e in added}
+        return (
+            list(verification_tuple[0]) + added,
+            [
+                d for d in verification_tuple[1]
+                if str(d.get("hypothesis_id") or "") not in added_ids
+            ],
+            verification_tuple[2],
+        )
+
     def _real_fetch_entry(self):
         """S5b 接线判定:注入对象带 ppv1_real_fetch 即改"取响应"一步。
 
@@ -3353,6 +5191,72 @@ class _Driver:
             return None
         fetch = getattr(self.model, "ppv1_real_fetch", None)
         return fetch if callable(fetch) else None
+
+    def _stage1_class_routing(self, fetch, receipt: dict) -> dict:
+        """v1.3 T11 Stage 1:盲底物大类路由一次调用(零池条目)。
+
+        载荷只含底物 SMILES/原子 ID 映射/执行图(适配层再补确定性
+        RDKit 组成与官能团摘要);系统提示词 = Stage 1 合同。响应严格
+        解析;坏 JSON/非法标签 ⇒ ``parsed=False`` + 原错误摘要(调用方
+        走软降级,不重发、不丢题)。
+
+        传输失败仍按既有语义包装为 ``PPV1RunError``(失败/超时/悬空占
+        额度,失败题留分母)。
+        """
+        from .real_model import (
+            CLASS_ROUTING_PROMPT_VERSION,
+            CLASS_ROUTING_STAGE1_SYSTEM_PROMPT,
+            execution_graph_payload,
+            parse_class_routing_response,
+            substrate_atom_id_map,
+        )
+
+        payload = receipt.get("payload") or {}
+        substrate_smiles = str(payload.get("substrate_smiles") or "")
+        routing_payload = {
+            "substrate_smiles": substrate_smiles,
+            "atom_id_map": substrate_atom_id_map(substrate_smiles),
+            "execution_graph": execution_graph_payload(substrate_smiles),
+        }
+        try:
+            fetched = fetch(
+                ledger=self.ledger, run_id=self.run_id,
+                action_id=str(receipt["action_id"]),
+                attempt_id=(receipt.get("attempt_refs") or [""])[0],
+                prompt_payload=routing_payload,
+                request_key=(
+                    f"decide:{receipt['action_id']}:class_routing"),
+                purpose="class_routing",
+                request=None,
+                feedback_error=None,
+                provider_kind=self.model_provider_kind,
+                system_prompt=CLASS_ROUTING_STAGE1_SYSTEM_PROMPT)
+        except Exception as exc:  # 传输/装配失败 ⇒ 结构化 run 失败
+            detail = dict(getattr(exc, "detail", {}) or {})
+            detail.setdefault("kind", "real_model_call_failure")
+            raise PPV1RunError(
+                f"Stage 1 盲底物路由调用失败({type(exc).__name__};失败/"
+                "超时/悬空占额度,失败题留分母):"
+                f"{str(exc)[:300]}", detail) from exc
+        request = dict(fetched.get("request") or {})
+        text = str(fetched.get("response_text") or "")
+        try:
+            routing = parse_class_routing_response(text)
+            parsed = True
+        except ValueError as exc:
+            routing = {
+                "primary_class": None,
+                "secondary_class": None,
+                "rationale": "",
+                "parse_error": str(exc)[:200],
+            }
+            parsed = False
+        return {
+            "request_id": str(request.get("request_id") or ""),
+            "parsed": parsed,
+            "routing": routing,
+            "prompt_version": CLASS_ROUTING_PROMPT_VERSION,
+        }
 
     def _call_real_fetch(self, fetch, receipt: dict, prepared_entries,
                          *, feedback_request: dict | None = None,
@@ -3402,6 +5306,11 @@ class _Driver:
             # 模型不自猜 RDKit 解析/Kekulé)
             "execution_graph": execution_graph_payload(substrate_smiles),
         }
+        if self.disable_atomtool_prompt:
+            # 论文消融 v1.4 ①:纯 SMILES 协议 —— 适配器不注入
+            # execution_graph / substrate_atom_id_map(标志缺省 ⇒ True
+            # ⇒ 既有载荷逐字节不变)。
+            prompt_payload["include_atomtool_view"] = False
         fetch_kwargs: dict = {}
         # EXP1:系统提示词按 novel 协议选(C 臂盲写 = v2_pf_blind;B 臂
         # 与 C 臂合并 = v2_pf;A 臂 v2/缺省不变)
@@ -3412,6 +5321,63 @@ class _Driver:
             str(_pid) for _pid in (blind_prepared_ids or set())}
         prompt_version = ("v2_pf_blind" if blind
                           else ("v2_pf" if product_first else "v2"))
+        if self.disable_atomtool_prompt:
+            # 论文消融 v1.4 ①:Raw-SMILES 合同(产物优先 + 12 类大类
+            # 审题引导;零 edits/atom_id/donor/alignment 描述)。
+            prompt_version = "v3_type_raw_smiles"
+        # ---- v1.3 T11:Stage 1 盲底物路由 → Stage 2 排序提示 ----
+        # 开关关闭或盲写阶段 ⇒ 整块不执行(零字节漂移)。Stage 1 先于
+        # Stage 2 发送(实时路径与 v13_t1b_replay 按 (saved_at,
+        # request_id) 回放两个 blob 的次序一致)。解析失败 ⇒ 软降级:
+        # 默认池序 + routing_tier="unrouted",不重发、不丢题。
+        class_by_hypothesis: dict[str, str] = {}
+        tier_by_hypothesis: dict[str, str] = {}
+        routing_note: dict = {}
+        routing_classes: dict | None = None
+        if self.enable_v13_two_stage_routing and not blind:
+            stage1 = self._stage1_class_routing(fetch, receipt)
+            routing_note = {
+                "request_id": stage1["request_id"],
+                "parsed": stage1["parsed"],
+                "prompt_version": stage1["prompt_version"],
+                "response": stage1["routing"],
+            }
+            if stage1["parsed"]:
+                primary = stage1["routing"]["primary_class"]
+                secondary = stage1["routing"]["secondary_class"]
+                routing_classes = {
+                    "primary_class": primary,
+                    "secondary_class": secondary,
+                }
+            from ..services.s5_hybrid_choice import (
+                classify_reaction_12class,
+            )
+            for _key, _spec, _prepared in prepared_entries:
+                _pid = str(_prepared["hypothesis"].hypothesis_id)
+                _raw = str(_spec.get("reaction_class_12") or "").strip()
+                if not _raw or _raw.lower() in ("none", "null"):
+                    # 入口 B:池条目缺标签 ⇒ 渲染侧确定性兜底
+                    try:
+                        _raw = classify_reaction_12class(
+                            substrate_smiles,
+                            str(_spec.get("product_smiles") or ""))[1]
+                    except Exception:  # noqa: BLE001 —— 如实 unknown
+                        _raw = "other_unknown"
+                class_by_hypothesis[_pid] = _raw
+                if routing_classes is None:
+                    tier_by_hypothesis[_pid] = "unrouted"
+                elif _raw == routing_classes["primary_class"]:
+                    tier_by_hypothesis[_pid] = "primary"
+                elif _raw == routing_classes["secondary_class"]:
+                    tier_by_hypothesis[_pid] = "secondary"
+                else:
+                    tier_by_hypothesis[_pid] = "other"
+        # v1.3 T8:分域提示词(只有原子编辑合同 + 无证据卡路径可达;
+        # 构造期已 fail-closed 校验;系统提示词在下方显式注入)
+        if self.enable_v13_prompt_v3_type:
+            prompt_version = "v3_type"
+        elif self.enable_v13_prompt_v3_site:
+            prompt_version = "v3_site"
 
         def _pool_entry(_key, spec, prepared, evidence) -> dict:
             prepared_id = str(prepared["hypothesis"].hypothesis_id)
@@ -3431,6 +5397,13 @@ class _Driver:
                 # 判据 = prepared hypothesis ID(P1-2:不按逻辑 key /
                 # 模型自报 ID 匹配,同名池条目不被误标)
                 entry["origin"] = BLIND_FIRST_ORIGIN
+            if self.enable_v13_two_stage_routing and not blind:
+                # T11:仅开关打开时透传(关闭 ⇒ 键不出现 ⇒ 载荷逐字节
+                # 与改前同);类别缺失已在上方渲染侧兜底补齐。
+                entry["reaction_class_12"] = class_by_hypothesis.get(
+                    prepared_id, "other_unknown")
+                entry["routing_tier"] = tier_by_hypothesis.get(
+                    prepared_id, "unrouted")
             return entry
 
         if self.evidence_card_version == "v2":
@@ -3501,8 +5474,45 @@ class _Driver:
 
             fetch_kwargs = {
                 "system_prompt": proposals_system_prompt(prompt_version)}
+        if self.enable_v13_two_stage_routing and not blind:
+            # T11 Stage 2:零删池稳定分组重排(primary → secondary →
+            # other;组内保持原相对顺序;unrouted 归 other 组序),
+            # 顶层 class_routing 仅在解析成功时渲染(失败 ⇒ 默认池序,
+            # 不渲染 class_routing,软降级见 routing_note)。
+            _entries = list(prompt_payload.get("pool_entries") or [])
+            # 稳定排序:同 tier 保持原相对顺序(Python sort 稳定),
+            # 集合/基数零变化(零删池;条目只换序,不增不减)。
+            prompt_payload["pool_entries"] = \
+                order_pool_entries_by_routing_tier(_entries)
+            if routing_classes is not None:
+                prompt_payload["class_routing"] = dict(routing_classes)
+            from .real_model import proposals_system_prompt
+
+            fetch_kwargs = dict(fetch_kwargs)
+            fetch_kwargs["system_prompt"] = proposals_system_prompt(
+                "v13_routing")
+        if self.enable_v13_prompt_v3_type or self.enable_v13_prompt_v3_site:
+            # v1.3 T8:显式注入 v3 系统提示词(A 臂缺省路径不设
+            # fetch_kwargs ⇒ 关闭时仍走适配器默认 v1 prompt,零漂移)
+            from .real_model import proposals_system_prompt
+
+            fetch_kwargs = dict(fetch_kwargs)
+            fetch_kwargs["system_prompt"] = proposals_system_prompt(
+                prompt_version)
+        if self.enable_v13_two_stage_routing and not blind:
+            # Stage 2 分组披露(零删池:总数 = prepared 条目数)
+            _counts = {"primary": 0, "secondary": 0, "other": 0,
+                       "unrouted": 0}
+            for _tier in tier_by_hypothesis.values():
+                _counts[str(_tier)] = _counts.get(str(_tier), 0) + 1
+            routing_note["tier_counts"] = _counts
+            routing_note["pool_entries_total"] = len(
+                prompt_payload.get("pool_entries") or [])
+            # 注意:不改写 ``prompt_version``(那是 Stage 1 提示词 sha256,
+            # 供身份披露);Stage 2 提示词身份另键记录。
+            routing_note["stage2_prompt_version"] = "v13_routing"
         try:
-            return fetch(
+            fetched = fetch(
                 ledger=self.ledger, run_id=self.run_id,
                 action_id=str(receipt["action_id"]),
                 attempt_id=(receipt.get("attempt_refs") or [""])[0],
@@ -3522,6 +5532,10 @@ class _Driver:
                 f"真实模型调用失败({type(exc).__name__};失败/超时/悬空"
                 "占额度,失败题留分母;429 有界重试已在传输层完成):"
                 f"{str(exc)[:300]}", detail) from exc
+        if routing_note:
+            fetched = dict(fetched)
+            fetched["class_routing_note"] = routing_note
+        return fetched
 
     def _next_model_response(self) -> str:
         if self.model_responses:
@@ -3977,8 +5991,46 @@ def _require_v1card_evidence(version: str | None, flag: bool) -> None:
              "evidence_card_enabled": False})
 
 
+def _plan_prompt_switch(plan: dict | None) -> str | None:
+    """v1.3 T8:plan 内的分域提示词开关 → 版本名（默认关闭）。
+
+    两个开关互斥；同时打开 ⇒ 结构化拒（不猜优先顺序）。只认 bool
+    真值路径，缺省/False ⇒ None（旧批逐字节零漂移）。
+    """
+    from .real_model import (PROMPT_V3_SITE_PLAN_KEY,
+                             PROMPT_V3_TYPE_PLAN_KEY)
+    plan = plan or {}
+    want_raw = bool(plan.get("disable_atomtool_prompt", False))
+    want_type = bool(plan.get(PROMPT_V3_TYPE_PLAN_KEY, False))
+    want_site = bool(plan.get(PROMPT_V3_SITE_PLAN_KEY, False))
+    if want_raw:
+        # 论文消融 v1.4 ①:Raw-SMILES 合同与分域提示词共用同一 system
+        # prompt 槽位 ⇒ 同时打开 fail-closed;司机构造期同一拦截。
+        if want_type or want_site:
+            raise PPV1RunError(
+                "disable_atomtool_prompt 与 v1.3 分域提示词开关互斥"
+                "(同一 system prompt 槽位;fail-closed)",
+                {"kind": "prompt_v3_raw_switch_conflict",
+                 "disable_atomtool_prompt": True,
+                 "enable_v13_prompt_v3_type": want_type,
+                 "enable_v13_prompt_v3_site": want_site})
+        return "v3_type_raw_smiles"
+    if want_type and want_site:
+        raise PPV1RunError(
+            "分域提示词开关同时打开(v3_type 与 v3_site 互斥;fail-closed)",
+            {"kind": "prompt_v3_switch_conflict",
+             "enable_v13_prompt_v3_type": True,
+             "enable_v13_prompt_v3_site": True})
+    if want_type:
+        return "v3_type"
+    if want_site:
+        return "v3_site"
+    return None
+
+
 def _prediction_block(model, evidence_card_version: str | None = None,
-                      novel_protocol: str | None = None) -> dict:
+                      novel_protocol: str | None = None,
+                      prompt_switch: str | None = None) -> dict:
     """模型预测身份块；v2/v1card 时把 prompt 版本替换为 v2 哈希
     （两臂共用 v2 prompt；模型对象自身 identity_block 仍报 v1，不在
     模型构造期引入开关）。
@@ -3994,8 +6046,41 @@ def _prediction_block(model, evidence_card_version: str | None = None,
     ``provider_default_unset``）。**A 臂也写**（CC 授权的身份新增字段；
     载荷字节不受影响）。``model is None``（off，无发送）不加该键 ——
     没有请求就没有采样参数，不记空洞事实。
+
+    v1.3 T8(2026-11-13):``prompt_switch``(v3_type/v3_site,来自 plan
+    的分域提示词开关)⇒ 把 ``proposals`` 哈希替换为对应 v3 版本;只
+    允许原子编辑合同且无证据卡(v3 段按 v1 合同追加),其它组合
+    fail-closed(不静默混协议)。
     """
     protocol = _resolve_novel_protocol(novel_protocol)
+    if prompt_switch is not None:
+        if prompt_switch not in ("v3_type", "v3_site",
+                                 "v3_type_raw_smiles"):
+            raise PPV1RunError(
+                f"未知分域提示词开关:{prompt_switch!r}"
+                "(允许 v3_type/v3_site/v3_type_raw_smiles;fail-closed)",
+                {"kind": "prompt_v3_switch_invalid",
+                 "prompt_switch": repr(prompt_switch)})
+        if prompt_switch == "v3_type_raw_smiles":
+            # 论文消融 v1.4 ①:raw 合同固定在批级 atom_edit 预算身份
+            # (1 请求/0 反馈)下由 plan 开关切产物优先解析;身份块只
+            # 披露真实 prompt 哈希,不改批级协议标签。
+            pass
+        else:
+            if protocol != NOVEL_PROTOCOL_ATOM_EDIT:
+                raise PPV1RunError(
+                    "分域提示词只定义在原子编辑合同上(A 臂);当前 novel 协议"
+                    "不兼容(fail-closed,不混协议)",
+                    {"kind": "prompt_v3_protocol_conflict",
+                     "prompt_switch": prompt_switch,
+                     "novel_protocol": protocol})
+        if evidence_card_version not in (None,):
+            raise PPV1RunError(
+                "分域提示词只定义在无证据卡路径上(v1 合同);当前证据卡"
+                "版本不兼容(fail-closed)",
+                {"kind": "prompt_v3_evidence_conflict",
+                 "prompt_switch": prompt_switch,
+                 "evidence_card_version": evidence_card_version})
     if model is not None:
         from .real_model import sampling_params_sent
 
@@ -4019,6 +6104,13 @@ def _prediction_block(model, evidence_card_version: str | None = None,
 
             prompt_versions = dict(block.get("prompt_versions") or {})
             prompt_versions["proposals"] = proposals_prompt_version("v2")
+            block["prompt_versions"] = prompt_versions
+        if prompt_switch is not None:
+            from .real_model import proposals_prompt_version
+
+            prompt_versions = dict(block.get("prompt_versions") or {})
+            prompt_versions["proposals"] = \
+                proposals_prompt_version(prompt_switch)
             block["prompt_versions"] = prompt_versions
         block["sampling_params"] = sampling_params_sent(
             block.get("request_params") or {})
@@ -4149,7 +6241,9 @@ def start_ppv1_run(
                 evidence_card_version=evidence_version),
             asset_identity=asset_identity,
             v3_code_identity=v3_code_identity(config.v3_code_root),
-            prediction=_prediction_block(model, evidence_version, protocol),
+            prediction=_prediction_block(
+                model, evidence_version, protocol,
+                prompt_switch=_plan_prompt_switch(plan)),
             profile=PROFILE_POLLUTANT_PATHWAY_V1,
             profile_policy={**policy_kwargs, **(
                 {} if protocol == NOVEL_PROTOCOL_ATOM_EDIT
@@ -4361,7 +6455,9 @@ def resume_ppv1_run(
         root_cn=saved["inputs"].get("root_identity"),
         strategy=current_strategy, asset_identity=current_asset,
         v3_code_identity=v3_code_identity(config.v3_code_root),
-        prediction=_prediction_block(model, evidence_version, protocol),
+        prediction=_prediction_block(
+                model, evidence_version, protocol,
+                prompt_switch=_plan_prompt_switch(plan)),
         profile=PROFILE_POLLUTANT_PATHWAY_V1,
         profile_policy=profile_kwargs or None)
     check_resume_identity(saved, current)

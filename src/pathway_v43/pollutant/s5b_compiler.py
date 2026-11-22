@@ -146,6 +146,7 @@ from rdkit import Chem, RDLogger
 
 from ..services.atom_tool import (
     ATOM_ID_RE,
+    EDIT_PROTOCOL_CHARGE_EXTENSION,
     execute_edits,
     render,
     validate_edits,
@@ -354,7 +355,9 @@ def _kekulized_copy(mol):
 # ---------------------------------------------------------------- 供体变换表
 
 
-def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str) -> dict:
+def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str,
+                             *,
+                             extended_stereo_dissolution: bool = False) -> dict:
     """映射模板双侧 → 变化表(map 号联结;W1 #1/#5)。
 
     - retained/added/removed:map 号集合(added = rhs 独有,removed =
@@ -408,7 +411,9 @@ def extract_mapped_transform(mapped_lhs: str, mapped_rhs: str) -> dict:
         if la.GetFormalCharge() != ra.GetFormalCharge():
             charge_changed.append(n)
         if _chiral_token(la) != _chiral_token(ra):
-            if _is_stereo_dissolution(lhs, rhs, n, bond_changes):
+            if _is_stereo_dissolution(
+                    lhs, rhs, n, bond_changes,
+                    extended=bool(extended_stereo_dissolution)):
                 stereo_dissolved.append(n)
             else:
                 stereo_changed.append(n)
@@ -637,7 +642,8 @@ _ATOM_STEREO_TYPES = (
 )
 
 
-def _is_stereo_dissolution(lhs, rhs, n: int, bond_changes: list) -> bool:
+def _is_stereo_dissolution(lhs, rhs, n: int, bond_changes: list,
+                           *, extended: bool = False) -> bool:
     """P1 消解谓词(mimo r28 E2 窄化版;钉死,逐条件):
 
     0. **元素域 = 碳**(R1):lhs/rhs 元素守恒已由 map 号联结守恒门
@@ -652,6 +658,17 @@ def _is_stereo_dissolution(lhs, rhs, n: int, bond_changes: list) -> bool:
        unsupported(键表顺序不变才无 CW/CCW 重解读风险,r28 E1-2
        有机磷/硫、SN2 型配体交换);
     4. 至少一个该型变化(纯立体翻转无键级变化不消解)。
+
+    ``extended=True``(v1.3 T4-A 开关 ``enable_v13_stereo_
+    dissolution_extended``;**默认关闭**):在条件 0–2 不变的前提下,
+    条件 3 放宽为「该原子至少一个既有键变化,且不允许新成键落在该
+    原子」——覆盖 ① 单键→芳香(芳香化后 sp2 碳)、② 断键(取代基
+    离去后不再是四面体中心)两类手性标签消失。**安全网不变**:执行
+    后同源复核(_stereo_dissolution_mismatch 双轴)仍逐 map 核验
+    「已指派标签 == rhs 声明 ∧ 不在执行产物 FindPotentialStereo
+    潜在立体中心清单」;仍为潜在中心(如断键后残留三个不同取代基)
+    ⇒ stereo_derived_mismatch 拒。新成键(form)落在中心一律不消解
+    (加取代基是手性生成/改写,不是派生消解)。
     """
     la = lhs.mol.GetAtomWithIdx(lhs.maps[n])
     ra = rhs.mol.GetAtomWithIdx(rhs.maps[n])
@@ -669,6 +686,11 @@ def _is_stereo_dissolution(lhs, rhs, n: int, bond_changes: list) -> bool:
     n_changes = 0
     for ch in bond_changes:
         if n not in (int(ch["map1"]), int(ch["map2"])):
+            continue
+        if extended:
+            if ch["order_lhs"] == _NONE:
+                return False  # 新成键落中心 ⇒ 手性生成/改写,不消解
+            n_changes += 1
             continue
         if ch["order_lhs"] != "single" \
                 or ch["order_rhs"] not in ("double", "triple"):
@@ -755,6 +777,135 @@ def _chiral_token(atom) -> str:
     # 编译侧按不支持处理由 stereo_changed 判定覆盖 —— 非四面体标签在
     # lhs/rhs 间不同时同样落入 stereo_changed)
     return str(tag)
+
+
+def _tetra_bond_parity_matches(rhs_mol, ra_idx: int, exec_mapped,
+                               ex_idx: int, map_to_current_id: dict,
+                               exec_id_to_idx: dict,
+                               map_no_of_exec_idx: dict) -> bool:
+    """rhs 声明构型 vs 执行产物构型:键序置换奇偶核验(v1.4 T14-4)。
+
+    任务书逐条口径:
+
+    1. 取 ``ra = rhs_mol.GetAtomWithIdx(ra_idx)``、
+       ``ea = exec_mapped.GetAtomWithIdx(ex_idx)``;双侧均须已指派
+       **四面体**标签(CW/CCW),否则不可比(False —— 严禁放行
+       ``UNSPECIFIED -> specified`` 的手性凭空创生);
+    2. 双侧 ``GetTotalNumHs()`` 相等且 ``<= 1``(隐式 H 按 RDKit
+       语义占键表末位;显式 H 原子用 ``-1`` 哨兵 —— ``AddHs`` 保留
+       标签的实验事实保证同槽位);
+    3. ``r_seq`` 按 ``ra.GetBonds()`` 顺序:显式 H ⇒ ``-1``;重原子
+       经 ``map 号 -> map_to_current_id -> exec_id_to_idx ->
+       map_no_of_exec_idx`` 解析执行图下标(任一步 None ⇒ False);
+       ``GetTotalNumHs() == 1`` 且序列内无 ``-1`` ⇒ 末尾补 ``-1``;
+    4. ``e_seq`` 按 ``ea.GetBonds()`` 顺序:显式 H ⇒ ``-1``;重原子
+       ⇒ ``nb.GetIdx()``;``GetTotalNumHs() == 1`` 且无 ``-1`` ⇒
+       末尾补 ``-1``;
+    5. 长度/唯一性/多重集一致(否则 False);``e_seq`` 相对 ``r_seq``
+       的置换逆序数奇偶:偶置换要求两侧标签**相等**,奇置换要求
+       **不等**(同一物理构型)。
+
+    本判据**不**放宽任何结构身份:它只把「标签字面差」翻译成「物理
+    构型差」的严格核验;真实反转(执行产物构型 ≠ rhs 声明)照样失配。
+    """
+    ra = rhs_mol.GetAtomWithIdx(int(ra_idx))
+    ea = exec_mapped.GetAtomWithIdx(int(ex_idx))
+    if ra.GetChiralTag() not in _TETRAHEDRAL_TAGS:
+        return False
+    if ea.GetChiralTag() not in _TETRAHEDRAL_TAGS:
+        return False
+    if int(ra.GetTotalNumHs()) != int(ea.GetTotalNumHs()):
+        return False
+    if int(ra.GetTotalNumHs()) > 1:
+        return False
+
+    r_seq: list[int] = []
+    for bond in ra.GetBonds():
+        nb = bond.GetOtherAtom(ra)
+        if nb.GetAtomicNum() == 1:
+            r_seq.append(-1)
+            continue
+        m_nb = int(nb.GetAtomMapNum())
+        cid_nb = map_to_current_id.get(m_nb)
+        if cid_nb is None:
+            return False
+        c_idx = exec_id_to_idx.get(str(cid_nb))
+        if c_idx is None:
+            return False
+        ex_nb = map_no_of_exec_idx.get(int(c_idx))
+        if ex_nb is None:
+            return False
+        r_seq.append(int(ex_nb))
+    if int(ra.GetTotalNumHs()) == 1 and -1 not in r_seq:
+        r_seq.append(-1)
+
+    e_seq: list[int] = []
+    for bond in ea.GetBonds():
+        nb = bond.GetOtherAtom(ea)
+        if nb.GetAtomicNum() == 1:
+            e_seq.append(-1)
+        else:
+            e_seq.append(int(nb.GetIdx()))
+    if int(ea.GetTotalNumHs()) == 1 and -1 not in e_seq:
+        e_seq.append(-1)
+
+    if len(r_seq) != len(e_seq):
+        return False
+    if len(set(r_seq)) != len(r_seq):
+        return False
+    if set(r_seq) != set(e_seq):
+        return False
+    e_pos = {int(v): i for i, v in enumerate(e_seq)}
+    permutation = [e_pos[int(v)] for v in r_seq]
+    inversions = 0
+    for i in range(len(permutation)):
+        for j in range(i + 1, len(permutation)):
+            if permutation[i] > permutation[j]:
+                inversions += 1
+    even = (inversions % 2 == 0)
+    same_tag = ra.GetChiralTag() == ea.GetChiralTag()
+    return bool(same_tag) if even else (not same_tag)
+
+
+def _retained_tetra_parity_mismatch(execution: dict, rhs,
+                                    map_to_current_id: dict,
+                                    parity_maps: list) -> list:
+    """保留原子四面体构型后置核验(v1.4 T14-4;编译主入口调用)。
+
+    逐 map:rhs 声明原子 vs 执行产物(``product_mapped_smiles``)同源
+    原子,经 ``_tetra_bond_parity_matches`` 判「同一物理构型」。返回失配
+    理由清单(空 = 全过);映射缺失/产物不可解析也按失配报告
+    (fail-closed,不靠"键表重排"假设放行)。
+    """
+    maps = [int(m) for m in (parity_maps or [])]
+    if not maps:
+        return []
+    exec_mapped = Chem.MolFromSmiles(
+        str(execution.get("product_mapped_smiles") or ""))
+    if exec_mapped is None:
+        return [f"stereo_parity_mismatch:map{m}:product_unparseable"
+                for m in maps]
+    map_no_of_exec_idx = {
+        a.GetAtomMapNum() - 1: a.GetIdx()
+        for a in exec_mapped.GetAtoms() if a.GetAtomMapNum() > 0}
+    exec_id_to_idx = dict(execution.get("atom_id_map") or {})
+    failed: list[str] = []
+    for m in maps:
+        ra_idx = rhs.maps.get(m)
+        cid = map_to_current_id.get(m)
+        idx = exec_id_to_idx.get(str(cid)) if cid is not None else None
+        ex_idx = (map_no_of_exec_idx.get(int(idx))
+                  if idx is not None else None)
+        if ra_idx is None or ex_idx is None:
+            failed.append(
+                f"stereo_parity_mismatch:map{m}:index_unresolved")
+            continue
+        if not _tetra_bond_parity_matches(
+                rhs.mol, int(ra_idx), exec_mapped, int(ex_idx),
+                map_to_current_id, exec_id_to_idx, map_no_of_exec_idx):
+            failed.append(
+                f"stereo_parity_mismatch:map{m}:configuration_differs")
+    return failed
 
 
 # ---------------------------------------------------------------- 中心锚定对齐
@@ -1105,7 +1256,13 @@ def _new_atom_id(element: str, taken: set[str]) -> str:
 
 
 def _compile_edits(transform: dict, current, arom, kek,
-                   map_to_current_id: dict) -> list[dict]:
+                   map_to_current_id: dict, *,
+                   charge_ops: bool = False,
+                   stereo_edit_graceful_fallback: bool = False,
+                   allow_ring_cleavage_and_fused_dearomatization: bool = False,
+                   retained_tetrahedral_parity_check: bool = False,
+                   allow_aromatic_ring_closure: bool = False,
+                   ) -> tuple[list[dict], dict]:
     """变化表 + 对齐 → 当前 ID 编辑协议列表(W1 #2/#4/#6/#7)。
 
     - from_order 从 current kekulé 图读;模板 lhs 词面仅作上下文一致性
@@ -1115,35 +1272,45 @@ def _compile_edits(transform: dict, current, arom, kek,
       对应键级(芳香化经显式 Kekulé 落图,执行后 sanitize 重感知芳香);
     - 去芳香化(lhs aromatic → rhs 显式):该芳香环系全部键一起落显式
       键级(单键改双/单落位;部分去芳香化 = 化学不一致 ⇒ 拒);
+    - ``allow_ring_cleavage_and_fused_dearomatization=True``(v1.4
+      T14-1B,默认关)在保留「整环去芳香」判据的前提下扩展两轴:
+      ① **芳环裂解**:环系内某条 lhs 芳香键在 rhs 缺席且**已在**
+      ``bond_changes`` 里(下方产出 ``break_bond``)⇒ 记为
+      ``aromatic_ring_cleavage_pairs`` 诊断并继续,不视为部分去芳香;
+      ② **稠环保留芳环**:环系内某条 lhs 芳香键在 rhs 仍是芳香键
+      (稠环去芳化时相邻环保留芳香)⇒ 记为
+      ``fused_dearomatization_retained_pairs``;端点均在当前对齐内时
+      追加 ``aromatic→aromatic`` 变化键,由下方 ``_rhs_kek_order``
+      原生同步 Kekulé 键级。默认关闭时原代码路径一字不改;
     - add_atom 自动接 single 锚定键;新键为 double/triple ⇒ 先落位
       (single)再 change_bond_order;既有原子间新键同规则(form single
       → change);不重复 form 同键;
-    - 电荷/手性变化:现协议不支持 ⇒ 结构化 unsupported(不用空 edits
-      冒支持;W1 #7)。
+    - 电荷/手性变化:默认(V1 口径)现协议不支持 ⇒ 结构化 unsupported
+      (不用空 edits 冒支持;W1 #7)。``charge_ops=True`` 时改为显式
+      ``change_charge`` 编辑(保留原子,from/to 均显式;±1 步进)且
+      ``add_atom`` 新原子携 ``charge``;``stereo_edit_graceful_
+      fallback=True`` 时仅对「lhs 已指派 → rhs 未指派 ∧ 该原子是变键
+      端点」的立体变化走**不落立体 op 的安全回退**(执行后双轴同源
+      复核;不翻转/不擦除手性身份),其余仍结构化拒。
+    - ``retained_tetrahedral_parity_check=True``(v1.4 T14-4,默认关)
+      进一步收窄式扩展:保留原子在 lhs/rhs **双侧均为四面体手性**
+      (CW/CCW)而标签字面不等时,不再直接判 unsupported,而是登记
+      ``disclosure["stereo_parity_verified_maps"]`` 交由编译主入口在
+      离线执行后做**键序置换奇偶**核验(执行产物 vs rhs 声明的物理
+      构型;RDKit 手性标签相对原子键表顺序解释,键表重排会让同一
+      3D 构型读成不同 CW/CCW 字面)。非四面体/仅单侧指派仍按原判据
+      unsupported;默认关时本分支一字不改。
+    - ``allow_aromatic_ring_closure``(v1.4 T14-4,默认关):签名贯穿
+      参数 —— 芳香新键闭合在 ``_place_new_atoms`` / ``_emit_new_bonds``
+      消费(需要 current/kek 图);本函数不产新键,不受影响。
+
+    返回 ``(edits, disclosure)``;``disclosure`` 只含机读键(空 dict
+    = 未使用任何扩展)。
     """
     lhs, rhs = transform["lhs"], transform["rhs"]
     reasons: list[str] = []
     edits: list[dict] = []
-
-    # ---- W1 #7:电荷/手性变化 ⇒ unsupported(协议 v2 无对应 op) ----
-    # W-V4b:stereo_changed_maps 已剔除消解开的手性 map(sp3→sp2 派生
-    # 属性;谓词见 _is_stereo_dissolution)——消解例不经立体 op,由
-    # 键级编辑 + 执行器 sanitize 自然结算;执行后同源复核在编译主入口
-    # (stereo_derived_mismatch),不在此处。
-    if transform["charge_changed_maps"]:
-        raise S5bCompileError(
-            "charge_edit_unsupported",
-            "供体变换含保留原子形式电荷变化(v43-editproto-2 无电荷 "
-            "op;诚实 unsupported,不以空 edits 冒支持)",
-            {"charge_changed_maps":
-             [int(x) for x in transform["charge_changed_maps"]][:12]})
-    if transform["stereo_changed_maps"]:
-        raise S5bCompileError(
-            "stereo_edit_unsupported",
-            "供体变换含保留原子手性变化(v43-editproto-2 无立体 op;"
-            "诚实 unsupported)",
-            {"stereo_changed_maps":
-             [int(x) for x in transform["stereo_changed_maps"]][:12]})
+    disclosure: dict = {}
 
     def cur_id_of(map_no: int) -> str:
         cid = map_to_current_id.get(int(map_no))
@@ -1154,34 +1321,201 @@ def _compile_edits(transform: dict, current, arom, kek,
                 {"map_no": int(map_no)})
         return cid
 
+    # ---- 电荷变化(T10-A 扩展;默认仍 unsupported) ----
+    # W-V4b:stereo_changed_maps 已剔除消解开的手性 map(sp3→sp2 派生
+    # 属性;谓词见 _is_stereo_dissolution)——消解例不经立体 op,由
+    # 键级编辑 + 执行器 sanitize 自然结算;执行后同源复核在编译主入口
+    # (stereo_derived_mismatch),不在此处。
+    if transform["charge_changed_maps"]:
+        if not charge_ops:
+            raise S5bCompileError(
+                "charge_edit_unsupported",
+                "供体变换含保留原子形式电荷变化(v43-editproto-2 无电荷 "
+                "op;诚实 unsupported,不以空 edits 冒支持)",
+                {"charge_changed_maps":
+                 [int(x) for x in transform["charge_changed_maps"]][:12]})
+        applied: list[int] = []
+        for n in transform["charge_changed_maps"]:
+            m = int(n)
+            cid = cur_id_of(m)
+            idx = current.atom_id_map.get(cid)
+            if idx is None:
+                raise S5bCompileError(
+                    f"charge_edit_unsupported:atom_missing:map{m}",
+                    f"电荷变化 map {m} 在 current 渲染中无索引",
+                    {"map_no": m})
+            have = int(kek.GetAtomWithIdx(int(idx)).GetFormalCharge())
+            la = lhs.mol.GetAtomWithIdx(lhs.maps[m])
+            ra = rhs.mol.GetAtomWithIdx(rhs.maps[m])
+            want_from = int(la.GetFormalCharge())
+            want_to = int(ra.GetFormalCharge())
+            if have != want_from:
+                raise S5bCompileError(
+                    f"charge_context_mismatch:map{m}",
+                    f"map {m} 当前电荷 {have} 与供体 lhs {want_from} 不一致",
+                    {"map_no": m, "current": have, "donor_lhs": want_from})
+            if abs(want_to - want_from) != 1:
+                raise S5bCompileError(
+                    f"charge_edit_unsupported:step:map{m}",
+                    f"电荷变化 map {m} 步进非 ±1({want_from}→{want_to};"
+                    "多电子跳变不在扩展面)",
+                    {"map_no": m, "from": want_from, "to": want_to})
+            edits.append({"op": "change_charge", "atom1": cid,
+                          "from_charge": want_from,
+                          "to_charge": want_to})
+            applied.append(m)
+        if applied:
+            disclosure["charge_changed_maps"] = sorted(applied)
+
+    if transform["stereo_changed_maps"]:
+        stereo_maps = [int(x) for x in transform["stereo_changed_maps"]]
+        fallback_maps: list[int] = []
+        parity_maps: list[int] = []
+        unsafe: list[int] = []
+        if stereo_edit_graceful_fallback:
+            bond_endpoints: dict[int, int] = {}
+            for ch in transform["bond_changes"]:
+                if ch["order_lhs"] == _NONE:
+                    continue  # 新成键不属「立体消解」安全面
+                bond_endpoints[int(ch["map1"])] = \
+                    bond_endpoints.get(int(ch["map1"]), 0) + 1
+                bond_endpoints[int(ch["map2"])] = \
+                    bond_endpoints.get(int(ch["map2"]), 0) + 1
+            for m in stereo_maps:
+                la = lhs.mol.GetAtomWithIdx(lhs.maps[m])
+                ra = rhs.mol.GetAtomWithIdx(rhs.maps[m])
+                if retained_tetrahedral_parity_check \
+                        and la.GetChiralTag() in _TETRAHEDRAL_TAGS \
+                        and ra.GetChiralTag() in _TETRAHEDRAL_TAGS:
+                    # v1.4 T14-4:双侧四面体标签字面不等 ⇒ 键序置换
+                    # 奇偶核验(编译主入口离线执行后;见
+                    # _retained_tetra_parity_mismatch)
+                    parity_maps.append(m)
+                    continue
+                if la.GetChiralTag() in _TETRAHEDRAL_TAGS \
+                        and ra.GetChiralTag() == _UNSPECIFIED_TAG \
+                        and bond_endpoints.get(m, 0) >= 1:
+                    fallback_maps.append(m)
+                else:
+                    unsafe.append(m)
+        elif retained_tetrahedral_parity_check:
+            for m in stereo_maps:
+                la = lhs.mol.GetAtomWithIdx(lhs.maps[m])
+                ra = rhs.mol.GetAtomWithIdx(rhs.maps[m])
+                if la.GetChiralTag() in _TETRAHEDRAL_TAGS \
+                        and ra.GetChiralTag() in _TETRAHEDRAL_TAGS:
+                    parity_maps.append(m)
+                else:
+                    unsafe.append(m)
+        else:
+            unsafe = list(stereo_maps)
+        if unsafe:
+            raise S5bCompileError(
+                "stereo_edit_unsupported",
+                "供体变换含保留原子手性变化(v43-editproto-2 无立体 op;"
+                "诚实 unsupported)"
+                + ("" if not stereo_edit_graceful_fallback
+                   else "(_ 安全回退面外:非 lhs 指派→rhs 未指派或"
+                        "非变键端点)") ,
+                {"stereo_changed_maps": unsafe[:12],
+                 "stereo_graceful_fallback_maps": fallback_maps[:12]})
+        if fallback_maps:
+            disclosure["stereo_graceful_fallback_maps"] = sorted(fallback_maps)
+        if parity_maps:
+            # 名称沿用任务书机读键:登记待核验 map(主入口执行后核验,
+            # 未通过即 stereo_edit_unsupported 拒)
+            disclosure["stereo_parity_verified_maps"] = sorted(parity_maps)
+
     # ---- 去芳香化环系闭合核验(W1 #5 后半) ----
     # lhs aromatic → rhs 显式的键:所属 lhs 芳香环系的全部 map 键必须
     # 同步变显式(化学上芳香环不可半去芳香)。部分去芳香 ⇒ 拒。
+    #
+    # v1.4 T14-1B(默认关):开关打开时用**局部** ``bond_changes`` 拷贝
+    # (多对齐循环里不原地污染 ``transform["bond_changes"]``),并额外
+    # 支持「芳环裂解 = break_bond」与「稠环保留芳环 = rhs 仍 aromatic」
+    # 两轴;判据本身(整环去芳香 / 部分去芳香拒)不放松。
     dearomatize_pairs: dict = {}
-    for ch in transform["bond_changes"]:
-        if ch["order_lhs"] == _AROMATIC and ch["order_rhs"] != _NONE \
-                and ch["order_rhs"] != _AROMATIC:
-            dearomatize_pairs[frozenset((ch["map1"], ch["map2"]))] = ch
-    if dearomatize_pairs:
-        ring_members = _aromatic_ring_closure(lhs.mol, dearomatize_pairs)
-        for key in ring_members:
-            if key not in dearomatize_pairs:
-                # 环系内其他键必须在 rhs 也是显式键级(整环去芳香)
-                ch = {"map1": sorted(key)[0], "map2": sorted(key)[1],
-                      "order_lhs": _AROMATIC,
-                      "order_rhs": _rhs_order_of(rhs, key)}
-                if ch["order_rhs"] in (_NONE, _AROMATIC):
+    if not allow_ring_cleavage_and_fused_dearomatization:
+        for ch in transform["bond_changes"]:
+            if ch["order_lhs"] == _AROMATIC and ch["order_rhs"] != _NONE \
+                    and ch["order_rhs"] != _AROMATIC:
+                dearomatize_pairs[frozenset((ch["map1"], ch["map2"]))] = ch
+        if dearomatize_pairs:
+            ring_members = _aromatic_ring_closure(lhs.mol, dearomatize_pairs)
+            for key in ring_members:
+                if key not in dearomatize_pairs:
+                    # 环系内其他键必须在 rhs 也是显式键级(整环去芳香)
+                    ch = {"map1": sorted(key)[0], "map2": sorted(key)[1],
+                          "order_lhs": _AROMATIC,
+                          "order_rhs": _rhs_order_of(rhs, key)}
+                    if ch["order_rhs"] in (_NONE, _AROMATIC):
+                        raise S5bCompileError(
+                            "partial_dearomatization_inconsistent",
+                            "芳香环系仅部分键去芳香化(rhs 环内混 aromatic/"
+                            "缺席;化学不一致,不猜补)",
+                            {"ring_pairs": sorted(
+                                tuple(sorted(k)) for k in ring_members)[:8]})
+                    transform["bond_changes"].append(ch)
+                    dearomatize_pairs[key] = ch
+        bond_changes_view = transform["bond_changes"]
+    else:
+        bond_changes: list[dict] = [dict(ch)
+                                    for ch in transform["bond_changes"]]
+        for ch in bond_changes:
+            if ch["order_lhs"] == _AROMATIC and ch["order_rhs"] != _NONE \
+                    and ch["order_rhs"] != _AROMATIC:
+                dearomatize_pairs[frozenset((ch["map1"], ch["map2"]))] = ch
+        existing_pairs = {frozenset((int(c["map1"]), int(c["map2"])))
+                          for c in bond_changes}
+        ring_cleavage_pairs: list[list[int]] = []
+        fused_aromatic_pairs: list[list[int]] = []
+        if dearomatize_pairs:
+            ring_members = _aromatic_ring_closure(lhs.mol, dearomatize_pairs)
+            for key in ring_members:
+                if key in dearomatize_pairs:
+                    continue
+                m_lo, m_hi = sorted(int(x) for x in key)
+                orr = _rhs_order_of(rhs, key)
+                if orr == _NONE and key in existing_pairs:
+                    # 芳环裂解:该键已在 bond_changes(下方产出 break_bond)
+                    ring_cleavage_pairs.append([m_lo, m_hi])
+                    continue
+                if orr == _AROMATIC:
+                    # 稠环去芳化:相邻环保留芳香。端点全在当前对齐内才
+                    # 追加 aromatic→aromatic 变化键(Kekulé 同步);端点
+                    # 不在对齐内(远端未触碰稠环超出 L1+L2 两壳层)⇒
+                    # 跳过,由 validate_edits + execute_edits 严格检验
+                    # 价态/Kekulé 合法性,非法即 fail-closed。
+                    fused_aromatic_pairs.append([m_lo, m_hi])
+                    if m_lo in map_to_current_id \
+                            and m_hi in map_to_current_id:
+                        ch = {"map1": m_lo, "map2": m_hi,
+                              "order_lhs": _AROMATIC,
+                              "order_rhs": _AROMATIC}
+                        bond_changes.append(ch)
+                        dearomatize_pairs[key] = ch
+                    continue
+                if orr in (_NONE, _AROMATIC):
                     raise S5bCompileError(
                         "partial_dearomatization_inconsistent",
                         "芳香环系仅部分键去芳香化(rhs 环内混 aromatic/"
                         "缺席;化学不一致,不猜补)",
                         {"ring_pairs": sorted(
                             tuple(sorted(k)) for k in ring_members)[:8]})
-                transform["bond_changes"].append(ch)
+                ch = {"map1": m_lo, "map2": m_hi,
+                      "order_lhs": _AROMATIC, "order_rhs": orr}
+                bond_changes.append(ch)
                 dearomatize_pairs[key] = ch
+        if ring_cleavage_pairs:
+            disclosure["aromatic_ring_cleavage_pairs"] = sorted(
+                ring_cleavage_pairs)
+        if fused_aromatic_pairs:
+            disclosure["fused_dearomatization_retained_pairs"] = sorted(
+                fused_aromatic_pairs)
+        bond_changes_view = bond_changes
 
     # ---- 键级变化编辑 ----
-    for ch in transform["bond_changes"]:
+    for ch in bond_changes_view:
         m1, m2 = int(ch["map1"]), int(ch["map2"])
         ol, orr = ch["order_lhs"], ch["order_rhs"]
         if ol == _NONE:
@@ -1226,7 +1560,7 @@ def _compile_edits(transform: dict, current, arom, kek,
             edits.append({"op": "change_bond_order", "atom1": c1,
                           "atom2": c2, "from_order": cur_token,
                           "to_order": to})
-    return edits
+    return edits, disclosure
 
 
 def _rhs_order_of(rhs, key) -> str:
@@ -1289,7 +1623,11 @@ def _rhs_kek_order(rhs_mol, m1: int, m2: int) -> str:
 
 
 def _place_new_atoms(transform, current, map_to_current_id,
-                     edits: list[dict]) -> dict[int, str]:
+                     edits: list[dict], *,
+                     charge_ops: bool = False,
+                     kek=None,
+                     allow_aromatic_ring_closure: bool = False,
+                     ) -> tuple[dict[int, str], dict]:
     """新增原子按有依据锚点拓扑序落位(W1 #6/#7)。
 
     - add_atom(element, new_atom_id=S_<E>_N<n>, atom1=锚):自动接
@@ -1297,9 +1635,13 @@ def _place_new_atoms(transform, current, map_to_current_id,
     - 新键 double/triple ⇒ 先落位 single 再 change_bond_order;
     - 既有原子间新成键:form_bond(single) + 必要变阶;
     - 新原子必须可达已落位原子(无锚 ⇒ 拒,不猜);
-    - rhs 新键 aromatic ⇒ 诚实 unsupported(芳香环新合成不在 v2
-      编辑协议表达范围)。
-    返回 {新增 map 号 → new_atom_id}(供体命名空间 D_<map> 的映射值)。
+    - rhs 新键 aromatic ⇒ 默认诚实 unsupported(芳香环新合成不在 v2
+      编辑协议表达范围);``allow_aromatic_ring_closure=True``(v1.4
+      T14-4,默认关)时按 rhs 的 Kekulé 形落具体键级,并对新芳香键
+      所在环系的既有芳香键做 Kekulé 同步(见 ``_emit_new_bonds``)。
+    T10-A ``charge_ops=True``:新增原子带形式电荷 ⇒ 落
+    ``add_atom.charge``(否则维持 ``new_atom_charge_unsupported``)。
+    返回 ({新增 map 号 → new_atom_id}, disclosure)。
 
     W-V2(S5b-recorded-bonddiff-1):**无新增原子时不再早退** —— 纯
     重排对应(保留原子间断键+成键,如推断映射的有界键差 fallback)
@@ -1313,6 +1655,8 @@ def _place_new_atoms(transform, current, map_to_current_id,
     taken_ids = set(current.atom_id_map)
     new_id_of: dict[int, str] = {}
     anchor_of: dict[int, str] = {}   # 新增 map → 其 add_atom 锚 ID
+    disclosure: dict = {}
+    charged_new_atoms: list[int] = []
     if added:
         # rhs 新原子邻接(map 对):新增原子与其全部 rhs 键
         adj: dict[int, set[int]] = {m: set() for m in added}
@@ -1350,7 +1694,8 @@ def _place_new_atoms(transform, current, map_to_current_id,
                     {"map_no": m})
             atom = rhs.mol.GetAtomWithIdx(rhs.maps[m])
             element = atom.GetSymbol()
-            if atom.GetFormalCharge() != 0:
+            formal_charge = int(atom.GetFormalCharge())
+            if formal_charge != 0 and not charge_ops:
                 raise S5bCompileError(
                     "new_atom_charge_unsupported",
                     f"新增原子 map {m} 带形式电荷(协议无电荷 op)",
@@ -1360,8 +1705,12 @@ def _place_new_atoms(transform, current, map_to_current_id,
             new_id_of[m] = new_id
             anchor_of[m] = anchor
             placed.add(m)
-            edits.append({"op": "add_atom", "element": element,
-                          "new_atom_id": new_id, "atom1": anchor})
+            new_atom_edit = {"op": "add_atom", "element": element,
+                             "new_atom_id": new_id, "atom1": anchor}
+            if formal_charge:
+                new_atom_edit["charge"] = formal_charge
+                charged_new_atoms.append(int(m))
+            edits.append(new_atom_edit)
             for n in adj.get(m, ()):
                 if n in added and n not in placed:
                     frontier.append(n)
@@ -1371,28 +1720,60 @@ def _place_new_atoms(transform, current, map_to_current_id,
                 "新增原子未全部落位(锚点拓扑序未覆盖)",
                 {"unplaced": sorted(added - placed)})
     _emit_new_bonds(transform, map_to_current_id, new_id_of, anchor_of,
-                    edits)
-    return new_id_of
+                    edits,
+                    allow_aromatic_ring_closure=bool(
+                        allow_aromatic_ring_closure),
+                    current=current, kek=kek)
+    if charged_new_atoms:
+        disclosure["new_atom_charge_maps"] = sorted(charged_new_atoms)
+    return new_id_of, disclosure
 
 
 def _emit_new_bonds(transform, map_to_current_id: dict,
                     new_id_of: dict, anchor_of: dict,
-                    edits: list[dict]) -> None:
+                    edits: list[dict], *,
+                    allow_aromatic_ring_closure: bool = False,
+                    current=None, kek=None) -> None:
     """rhs 有、lhs 无的 map 键落位(form_bond + 必要变阶;W-V2:
-    无新增原子时同样执行 —— 保留原子间新成键是重排对应的表达)。"""
+    无新增原子时同样执行 —— 保留原子间新成键是重排对应的表达)。
+
+    ``allow_aromatic_ring_closure=True``(v1.4 T14-4,默认关):rhs 新键
+    为 aromatic 时不再 unsupported,而是取 rhs **Kekulé 形**的具体键级
+    落图(form single → 必要变阶);并对该新芳香键所在 rhs 芳香环系内
+    「lhs/rhs 双侧均为 aromatic」的既有键做 Kekulé 同步(当前底物
+    Kekulé 键级 ≠ rhs Kekulé 键级时补 change_bond_order)。同步只读
+    bond 类 op 的 atom1/atom2(``already`` 集合不为 add_atom/
+    change_charge 建索引);``current``/``kek`` 缺省(直调)时跳过同步。
+    默认关 ⇒ 原 unsupported 判据一字不改。
+    """
     rhs = transform["rhs"]
     lhs = transform["lhs"]
     lb = _bond_table_by_map(lhs.mol, lhs.maps)
     rb = _bond_table_by_map(rhs.mol, rhs.maps)
+    rhs_kek = None
+    arom_closed = False
     for key in sorted(set(rb) - set(lb), key=sorted):
         m1, m2 = sorted(key)
         orr = rb[key]
         if orr == _AROMATIC:
-            raise S5bCompileError(
-                "aromatic_new_bond_unsupported",
-                f"新成键 map{m1}~map{m2} 目标键级 aromatic(芳香环新"
-                "合成不在 v43-editproto-2 表达范围;诚实 unsupported)",
-                {"map_pair": sorted((m1, m2))})
+            if not allow_aromatic_ring_closure:
+                raise S5bCompileError(
+                    "aromatic_new_bond_unsupported",
+                    f"新成键 map{m1}~map{m2} 目标键级 aromatic(芳香环新"
+                    "合成不在 v43-editproto-2 表达范围;诚实 unsupported)",
+                    {"map_pair": sorted((m1, m2))})
+            # v1.4 T14-4:芳香新键按 rhs Kekulé 形落具体键级(惰性;
+            # 只有芳香新键才付 kekulé 化成本)
+            if rhs_kek is None:
+                rhs_kek = _kekulized_copy(rhs.mol)
+            orr = _rhs_kek_order(rhs_kek, m1, m2)
+            if orr not in ("single", "double", "triple"):
+                raise S5bCompileError(
+                    "aromatic_new_bond_unsupported",
+                    f"新成键 map{m1}~map{m2} 目标键级 aromatic 但 rhs "
+                    "Kekulé 形无可用键级(诚实 unsupported)",
+                    {"map_pair": sorted((m1, m2)), "rhs_kek_order": orr})
+            arom_closed = True
         # 端点解析:新增原子取 new_id_of;保留原子取 current ID
         def endpoint(m):
             if m in new_id_of:
@@ -1421,6 +1802,33 @@ def _emit_new_bonds(transform, map_to_current_id: dict,
                 edits.append({"op": "change_bond_order", "atom1": a1,
                               "atom2": a2, "from_order": "single",
                               "to_order": orr})
+    if not (arom_closed and rhs_kek is not None
+            and current is not None and kek is not None):
+        return
+    # ---- v1.4 T14-4:芳香新键所在环系的 Kekulé 同步 ----
+    # 已编辑键只读 bond 类 op(add_atom/change_charge 无 atom2,禁索引)
+    bond_ops = {"form_bond", "break_bond", "change_bond_order"}
+    already = {
+        frozenset((str(e.get("atom1")), str(e.get("atom2"))))
+        for e in edits
+        if str(e.get("op")) in bond_ops
+        and e.get("atom1") and e.get("atom2")}
+    for key, orr in sorted(rb.items(), key=lambda kv: sorted(kv[0])):
+        if orr != _AROMATIC or key not in lb:
+            continue
+        m1, m2 = sorted(int(x) for x in key)
+        a1 = map_to_current_id.get(m1)
+        a2 = map_to_current_id.get(m2)
+        if not (a1 and a2 and frozenset((str(a1), str(a2))) not in already):
+            continue
+        cur_tok = _current_bond_token(kek, current, a1, a2)
+        want_tok = _rhs_kek_order(rhs_kek, m1, m2)
+        if cur_tok in ("single", "double", "triple") \
+                and want_tok in ("single", "double", "triple") \
+                and cur_tok != want_tok:
+            edits.append({"op": "change_bond_order", "atom1": a1,
+                          "atom2": a2, "from_order": cur_tok,
+                          "to_order": want_tok})
 
 
 # ---------------------------------------------------------------- 主入口
@@ -1439,6 +1847,12 @@ def compile_donor_template(
     render_name: str = "S",
     full_donor_skeleton: bool = False,
     center_shell: int = _CENTER_QUERY_SHELL,
+    extended_stereo_dissolution: bool = False,
+    charge_ops: bool = False,
+    stereo_edit_graceful_fallback: bool = False,
+    allow_ring_cleavage_and_fused_dearomatization: bool = False,
+    retained_tetrahedral_parity_check: bool = False,
+    allow_aromatic_ring_closure: bool = False,
 ) -> dict:
     """映射供体模板 + 当前底物 → PPV1 池 spec(单一构建源;W1 全规则)。
 
@@ -1476,7 +1890,9 @@ def compile_donor_template(
         # remapped 串按既有流程重跑提取(同一事实源、确定性、无副作用;
         # 非 tnc 路径 = 两次纯解析,输出逐字节不变)。
         try:
-            extract_mapped_transform(mapped_lhs, mapped_rhs)
+            extract_mapped_transform(
+                mapped_lhs, mapped_rhs,
+                extended_stereo_dissolution=extended_stereo_dissolution)
         except S5bCompileError as exc:
             if exc.reason != "transform_no_change":
                 raise  # 其它拒因零触碰(逐字节不变)
@@ -1487,7 +1903,9 @@ def compile_donor_template(
                 raise
             lhs_used, rhs_used = remap["mapped_lhs"], remap["mapped_rhs"]
             try:
-                extract_mapped_transform(lhs_used, rhs_used)
+                extract_mapped_transform(
+                    lhs_used, rhs_used,
+                    extended_stereo_dissolution=extended_stereo_dissolution)
             except S5bCompileError as exc2:
                 if exc2.reason != "transform_no_change":
                     raise  # 如实迁移(补映射后的新拒因)
@@ -1499,7 +1917,16 @@ def compile_donor_template(
             mapping_origin=mapping_origin, alignment_ref=alignment_ref,
             key_prefix=key_prefix, render_name=render_name,
             full_donor_skeleton=full_donor_skeleton,
-            center_shell=center_shell)
+            center_shell=center_shell,
+            extended_stereo_dissolution=extended_stereo_dissolution,
+            charge_ops=charge_ops,
+            stereo_edit_graceful_fallback=stereo_edit_graceful_fallback,
+            allow_ring_cleavage_and_fused_dearomatization=bool(
+                allow_ring_cleavage_and_fused_dearomatization),
+            retained_tetrahedral_parity_check=bool(
+                retained_tetrahedral_parity_check),
+            allow_aromatic_ring_closure=bool(
+                allow_aromatic_ring_closure))
         # ---- T-H 部署轮(s5b-compiler-6):产物侧身份自洽门 ----
         # 编译产物任一组分不可经 chemstate 工厂表示(未登记 CX 类/自由基
         # 退化片段等)⇒ 结构化拒,不得入池——否则 worker 的 decide 段在
@@ -1590,8 +2017,20 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
                                  mapping_origin, alignment_ref,
                                  key_prefix, render_name,
                                  full_donor_skeleton: bool = False,
-                                 center_shell: int = _CENTER_QUERY_SHELL) -> dict:
-    transform = extract_mapped_transform(mapped_lhs, mapped_rhs)
+                                 center_shell: int = _CENTER_QUERY_SHELL,
+                                 extended_stereo_dissolution: bool = False,
+                                 charge_ops: bool = False,
+                                 stereo_edit_graceful_fallback: bool =
+                                 False,
+                                 allow_ring_cleavage_and_fused_dearomatization:
+                                 bool = False,
+                                 retained_tetrahedral_parity_check: bool =
+                                 False,
+                                 allow_aromatic_ring_closure: bool =
+                                 False) -> dict:
+    transform = extract_mapped_transform(
+        mapped_lhs, mapped_rhs,
+        extended_stereo_dissolution=extended_stereo_dissolution)
     lhs, rhs = transform["lhs"], transform["rhs"]
     current, arom, kek = _current_base(substrate_smiles)
 
@@ -1699,34 +2138,95 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
                           if m not in map_to_current_id]
         if missing_center:
             continue
-        edits = _compile_edits(transform, current, arom, kek,
-                               map_to_current_id)
-        new_id_of = _place_new_atoms(transform, current, map_to_current_id,
-                                     edits)
+        edits, edit_disclosure = _compile_edits(
+            transform, current, arom, kek, map_to_current_id,
+            charge_ops=charge_ops,
+            stereo_edit_graceful_fallback=stereo_edit_graceful_fallback,
+            allow_ring_cleavage_and_fused_dearomatization=bool(
+                allow_ring_cleavage_and_fused_dearomatization),
+            retained_tetrahedral_parity_check=bool(
+                retained_tetrahedral_parity_check),
+            allow_aromatic_ring_closure=bool(
+                allow_aromatic_ring_closure))
+        new_id_of, place_disclosure = _place_new_atoms(
+            transform, current, map_to_current_id,
+            edits, charge_ops=charge_ops, kek=kek,
+            allow_aromatic_ring_closure=bool(
+                allow_aromatic_ring_closure))
+        if place_disclosure:
+            edit_disclosure = dict(edit_disclosure or {})
+            edit_disclosure.update(place_disclosure)
         for map_no, new_id in new_id_of.items():
             map_to_current_id[int(map_no)] = str(new_id)
         # ---- 编译后 validate + 离线 execute(W1 #8) ----
-        verdict = validate_edits(current, edits)
+        # T10-A:扩展参数只在开关打开时下发(默认路径调用签名逐字节同,
+        # 既有 monkeypatch/替身零改动)。
+        _ops_kwargs = {"charge_ops": True} if charge_ops else {}
+        verdict = validate_edits(current, edits, **_ops_kwargs)
         if not verdict.get("ok"):
             compiled_per_match.append({
                 "target": None, "reason": "edit_validation_failed",
                 "reasons": verdict.get("reasons", [])[:8]})
             continue
-        execution = execute_edits(current, edits)
+        execution = execute_edits(current, edits, **_ops_kwargs)
         if not execution.get("ok"):
             compiled_per_match.append({
                 "target": None, "reason": "execution_failed",
                 "reasons": execution.get("reasons", [])[:8]})
             continue
+        # ---- T10-A 电荷扩展:执行后 H 记账同源复核 ----
+        # 形式电荷变化常伴随质子化/去质子化(rhs 的 H 数与 lhs 不同),
+        # 而编辑协议不携 H:从 SMILES 解析来的括号原子 noImplicit=True,
+        # 只改电荷不会自动补 H,会静默产出自由基(与 rhs 声明不符的
+        # 结构身份漂移)。这里对每个电荷变化原子(保留原子 +
+        # add_atom.charge 的新原子)核验「执行产物总 H 数 == rhs 声明
+        # H 数」,不等即结构化拒(不猜质子化方向、不私自补/删 H)。
+        if charge_ops and (edit_disclosure.get("charge_changed_maps")
+                           or edit_disclosure.get("new_atom_charge_maps")):
+            exec_mapped = Chem.MolFromSmiles(
+                str(execution.get("product_mapped_smiles") or ""))
+            map_no_of_exec_idx = {
+                a.GetAtomMapNum() - 1: a.GetIdx()
+                for a in (exec_mapped.GetAtoms() if exec_mapped else [])}
+            exec_id_to_idx = dict(execution.get("atom_id_map") or {})
+            h_mismatch: list[str] = []
+            for m in [int(x) for x in
+                      (edit_disclosure.get("charge_changed_maps") or [])
+                      + (edit_disclosure.get("new_atom_charge_maps")
+                         or [])]:
+                ra = rhs.mol.GetAtomWithIdx(rhs.maps[m])
+                cid = map_to_current_id.get(m)
+                idx = exec_id_to_idx.get(str(cid)) if cid else None
+                ex_idx = map_no_of_exec_idx.get(int(idx)) \
+                    if idx is not None else None
+                if exec_mapped is None or ex_idx is None:
+                    h_mismatch.append(f"map{m}:index_unresolved")
+                    continue
+                want_h = int(ra.GetTotalNumHs())
+                have_h = int(
+                    exec_mapped.GetAtomWithIdx(ex_idx).GetTotalNumHs())
+                if want_h != have_h:
+                    h_mismatch.append(
+                        f"map{m}:expected_{want_h}_have_{have_h}")
+            if h_mismatch:
+                compiled_per_match.append({
+                    "target": None, "reason": "charge_h_count_mismatch",
+                    "reasons": h_mismatch[:8]})
+                continue
         # ---- W-V4b:执行后 rhs 立体同源复核(mimo r28 E2-③;R1 双轴) ----
         # 消解开的手性 map:执行产物该原子须同时过两轴——(a) 已指派
         # 四面体标签 == rhs 声明(UNSPECIFIED);(b) 该原子不在执行产物
         # RDKit FindPotentialStereo 潜在立体中心清单(含未指派)。
         # 任一轴不等(仍为潜在立体中心/残留标签/映射缺失)⇒ 结构化
         # stereo_derived_mismatch 拒,不靠"派生"假设放行。
-        if stereo_dissolved:
+        if stereo_dissolved or (edit_disclosure or {}).get(
+                "stereo_graceful_fallback_maps"):
+            stereo_check_maps = list(stereo_dissolved) + [
+                int(m) for m in (
+                    edit_disclosure or {}).get(
+                        "stereo_graceful_fallback_maps") or []]
             mismatched = _stereo_dissolution_mismatch(
-                execution, map_to_current_id, stereo_dissolved)
+                execution, map_to_current_id, stereo_check_maps)
             if mismatched:
                 compiled_per_match.append({
                     "target": None,
@@ -1735,11 +2235,29 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
                         f"stereo_derived_mismatch:map{m}:{tag}"
                         for m, tag in mismatched][:8]})
                 continue
+        # ---- v1.4 T14-4:保留原子四面体构型后置核验 ----
+        # 双侧四面体标签字面不等(stereo_changed 但非消解/非安全回退)
+        # ⇒ 键序置换奇偶核验:执行产物该原子物理构型须 == rhs 声明。
+        # 失配 ⇒ 原判据同码拒(stereo_edit_unsupported),不放宽身份。
+        parity_maps = [int(m) for m in (
+            (edit_disclosure or {}).get(
+                "stereo_parity_verified_maps") or [])]
+        if parity_maps:
+            parity_failed = _retained_tetra_parity_mismatch(
+                execution, rhs, map_to_current_id, parity_maps)
+            if parity_failed:
+                compiled_per_match.append({
+                    "target": None,
+                    "reason": "stereo_edit_unsupported",
+                    "reasons": parity_failed[:8]})
+                continue
         target = str(execution["product_smiles"])
         compiled_per_match.append({"target": target, "reason": "",
                                    "edits": edits,
                                    "map_to_current_id": map_to_current_id,
                                    "execution": execution,
+                                   "edit_disclosure": dict(
+                                       edit_disclosure or {}),
                                    "degree_matched": bool(deg_flags[order_i]),
                                    "match": match})
         if target not in seen_targets:
@@ -1771,6 +2289,7 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
     execution = chosen["execution"]
     map_to_current_id = chosen["map_to_current_id"]
     edits = chosen["edits"]
+    edit_disclosure = dict(chosen.get("edit_disclosure") or {})
     # L3 豁免面机读披露(选定对齐;未披露=不发货)
     l3_disclosure = _l3_disclosure(
         lhs.mol, lhs.maps, l1_maps, chosen["match"], qidx_of_map, arom,
@@ -1837,6 +2356,11 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
         # 双轴,防止 sp3_to_sp2 字面被外推到非碳中心(mimo r33)
         spec["compile"]["stereo_dissolution_applied"] = [
             int(m) for m in stereo_dissolved]
+        if extended_stereo_dissolution:
+            # v1.3 T4-A:扩展消解面(断键/芳香化后手性标签消失)。
+            # 只加机读键,不改上面 pinned 语义串的字段名/取值。
+            spec["compile"]["stereo_dissolution_mode"] = (
+                "extended_v13_break_or_aromatic")
         spec["compile"]["stereo_dissolution_semantics"] = (
             "chiral_sp3_center_dissolved_by_bond_order_change_sp3_to_sp2"
             "; element domain: C only (non-carbon tetrahedral centers"
@@ -1848,6 +2372,58 @@ def _compile_donor_template_impl(*, mapped_lhs, mapped_rhs, center_atoms,
             " FindPotentialStereo potential-stereocenter list"
             " (unspecified entries included, atom-axis types only);"
             " mismatch -> stereo_derived_mismatch reject")
+    # ---- T10-A 编译器表达扩展机读披露(仅在开关产出时出现) ----
+    if edit_disclosure.get("charge_changed_maps"):
+        spec["compile"]["charge_ops_applied"] = [
+            int(m) for m in edit_disclosure["charge_changed_maps"]]
+        spec["compile"]["charge_ops_extension"] = \
+            EDIT_PROTOCOL_CHARGE_EXTENSION
+        spec["compile"]["charge_ops_semantics"] = (
+            "explicit formal-charge edits (change_charge on retained "
+            "atoms, add_atom.charge on new atoms) with per-atom "
+            "accounting (start charge + declared delta == final charge) "
+            "and sanitize valence check; no structural identity relaxed")
+    if edit_disclosure.get("new_atom_charge_maps"):
+        spec["compile"]["new_atom_charge_applied"] = [
+            int(m) for m in edit_disclosure["new_atom_charge_maps"]]
+    if edit_disclosure.get("stereo_graceful_fallback_maps"):
+        spec["compile"]["stereo_graceful_fallback_applied"] = [
+            int(m) for m in edit_disclosure["stereo_graceful_fallback_maps"]]
+        spec["compile"]["stereo_graceful_fallback_semantics"] = (
+            "stereo_changed_maps restricted to lhs-specified -> "
+            "rhs-unspecified tetrahedral tags on bond-change endpoints; "
+            "no stereo edit is emitted (never flips/erases chirality); "
+            "post-execution dual-axis homology check (assigned tag == "
+            "rhs UNSPECIFIED AND atom absent from FindPotentialStereo); "
+            "mismatch -> stereo_derived_mismatch reject")
+    # ---- v1.4 T14-1B:芳环裂解 / 稠环保留芳环扩展机读披露 ----
+    # 只在开关打开且编辑层实际产出诊断时出现(默认关 ⇒ 零新增键)。
+    if edit_disclosure.get("aromatic_ring_cleavage_pairs") or \
+            edit_disclosure.get("fused_dearomatization_retained_pairs"):
+        if edit_disclosure.get("aromatic_ring_cleavage_pairs"):
+            spec["compile"]["aromatic_ring_cleavage_pairs"] = [
+                [int(x) for x in pair] for pair in
+                edit_disclosure["aromatic_ring_cleavage_pairs"]]
+        if edit_disclosure.get("fused_dearomatization_retained_pairs"):
+            spec["compile"]["fused_dearomatization_retained_pairs"] = [
+                [int(x) for x in pair] for pair in
+                edit_disclosure["fused_dearomatization_retained_pairs"]]
+        spec["compile"]["dearomatization_extension_semantics"] = (
+            "v1.4_t14s1b:ring_cleavage_break_bond_or_fused_ring_kekule_"
+            "sync;4op_editproto2_only;validated_by_execute_edits")
+    # ---- v1.4 T14-4:四面体构型奇偶核验 / 芳香环闭合扩展机读披露 ----
+    # 只在开关打开且编辑层实际产出诊断时出现(默认关 ⇒ 零新增键)。
+    if edit_disclosure.get("stereo_parity_verified_maps"):
+        spec["compile"]["stereo_parity_verified_maps"] = [
+            int(m) for m in edit_disclosure["stereo_parity_verified_maps"]]
+        spec["compile"]["stereo_parity_check_semantics"] = (
+            "v1.4_t14s4:retained_tetrahedral_parity_check; lhs/rhs both "
+            "tetrahedral (CW/CCW) with differing literal tags accepted "
+            "only after post-execution ligand-permutation parity check "
+            "of the executed product against the rhs declaration "
+            "(H count equal and <= 1; bond-table order interpretation; "
+            "explicit H atom slot == implicit H slot 'last'); no flip/"
+            "erasure of chirality and no structural identity relaxed")
     return {"status": "compiled", "spec": spec, "diagnostics": {
         "record_id": record_id, "target_smiles": target,
         "n_alignments": len(compiled_per_match),

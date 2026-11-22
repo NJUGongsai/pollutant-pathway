@@ -1,6 +1,6 @@
 """S5b 运行时 CLI —— 构建/发车/判分的远端操作入口(主会话/运维用)。
 
-用法(Remote 部署;详见交付书 runbook):
+用法(Chenyu 部署;详见交付书 runbook):
 
 ```
 python -m pathway_v43.pollutant.s5b_cli build \
@@ -93,6 +93,62 @@ def cmd_build(args: argparse.Namespace) -> int:
     enable_backfill = bool(
         getattr(args, "enable_smart_gated_backfill", False) or preset_norm == "v44-next"
     )
+    # v1.3 T2 步骤 1：枚举候选注入（默认 0 = 关闭，零漂移）
+    injection_k = int(getattr(args, "enumerated_injection_k", 0) or 0)
+    priors_path = str(getattr(args, "enumerated_rule_priors", "") or "")
+    rule_priors = None
+    injection_meta = None
+    if injection_k > 0:
+        if not priors_path:
+            raise SystemExit(
+                "--enumerated-injection-k 需要 --enumerated-rule-priors"
+                "（步骤 0 的 rule_frequencies.json）")
+        from pathway_v43.services.enumerated_injection import (
+            INJECTION_VERSION,
+            load_rule_priors,
+            priors_sha256,
+        )
+
+        rule_priors = load_rule_priors(priors_path)
+        injection_meta = {
+            "version": INJECTION_VERSION,
+            "k": injection_k,
+            "priors_path": str(Path(priors_path).resolve()),
+            "priors_sha256": priors_sha256(priors_path),
+        }
+    enable_v13_rank_rules = bool(
+        getattr(args, "enable_v13_rank_rules", False))
+    # v1.3 T8:分域提示词(默认关;两开关互斥,由 run 期 fail-closed 再核)
+    enable_v13_prompt_v3_type = bool(
+        getattr(args, "enable_v13_prompt_v3_type", False))
+    enable_v13_prompt_v3_site = bool(
+        getattr(args, "enable_v13_prompt_v3_site", False))
+    # v1.3 T11:两段式路由(默认关;Step 1 批额外 stage1_only)
+    enable_v13_two_stage_routing = bool(
+        getattr(args, "enable_v13_two_stage_routing", False))
+    v13_routing_stage1_only = bool(
+        getattr(args, "v13_routing_stage1_only", False))
+    # v1.3 T12-B:响应后 Stage-1 大类精排(默认关;零漂移)
+    enable_v13_stage1_rank_calibration = bool(
+        getattr(args, "enable_v13_stage1_rank_calibration", False))
+    # v1.3 T13-B:多采样一致性共识(默认关;零漂移)
+    enable_v13_multi_sample_consensus = bool(
+        getattr(args, "enable_v13_multi_sample_consensus", False))
+    # v1.3 T3 §10.2:D2 共底物白名单(默认关;零漂移)
+    d2_cofactor_whitelist = bool(
+        getattr(args, "enable_d2_cofactor_whitelist", False))
+    # T10-B:d2-cofactor-whitelist-2(默认关;v1 行为零变化)
+    d2_cofactor_whitelist_2 = bool(
+        getattr(args, "enable_d2_cofactor_whitelist_2", False))
+    # v1.4 T14-1B:d2-cofactor-whitelist-3(默认关;v2 行为零变化)
+    d2_cofactor_whitelist_3 = bool(
+        getattr(args, "enable_d2_cofactor_whitelist_3", False))
+    # v1.4 T14-4:d2-cofactor-whitelist-4(默认关;wl3 行为零变化)
+    d2_cofactor_whitelist_4 = bool(
+        getattr(args, "enable_d2_cofactor_whitelist_4", False))
+    # v1.4 T14-4:编译器扩展面 v2(默认关;逐字节零漂移)
+    enable_v14_compiler_ext_2 = bool(
+        getattr(args, "enable_v14_compiler_ext_2", False))
 
     pool_provider = None
     if args.pool_mode == "template":
@@ -138,6 +194,13 @@ def cmd_build(args: argparse.Namespace) -> int:
                 ),
                 "domain": str(getattr(args, "domain", "298")),
                 "preset": preset,
+                "enumerated_injection_k": injection_k,
+                "enumerated_rule_priors": rule_priors,
+                "d2_cofactor_whitelist": d2_cofactor_whitelist,
+                "d2_cofactor_whitelist_2": d2_cofactor_whitelist_2,
+                "d2_cofactor_whitelist_3": d2_cofactor_whitelist_3,
+                "d2_cofactor_whitelist_4": d2_cofactor_whitelist_4,
+                "enable_v14_compiler_ext_2": enable_v14_compiler_ext_2,
             }
         if getattr(args, "pool_profile", "s0") == "s1d" or preset_norm == "v44-next":
             s1d_max = 16 if args.max_pool == 8 else args.max_pool
@@ -168,7 +231,24 @@ def cmd_build(args: argparse.Namespace) -> int:
         ),
         s5_max_supplements=int(getattr(args, "s5_max_supplements", 2)),
         evidence_card_version=evcard_version,
-        enable_smart_gated_backfill=enable_backfill)
+        enable_smart_gated_backfill=enable_backfill,
+        enable_v13_rank_rules=enable_v13_rank_rules,
+        enable_v13_prompt_v3_type=enable_v13_prompt_v3_type,
+        enable_v13_prompt_v3_site=enable_v13_prompt_v3_site,
+        enable_v13_two_stage_routing=enable_v13_two_stage_routing,
+        v13_routing_stage1_only=v13_routing_stage1_only,
+        enable_v13_stage1_rank_calibration=(
+            enable_v13_stage1_rank_calibration),
+        enable_v13_multi_sample_consensus=(
+            enable_v13_multi_sample_consensus),
+        enumerated_injection_meta=injection_meta,
+        enumerated_injection_k=injection_k,
+        enumerated_rule_priors=rule_priors,
+        d2_cofactor_whitelist=d2_cofactor_whitelist,
+        d2_cofactor_whitelist_2=d2_cofactor_whitelist_2,
+        d2_cofactor_whitelist_3=d2_cofactor_whitelist_3,
+        d2_cofactor_whitelist_4=d2_cofactor_whitelist_4,
+        enable_v14_compiler_ext_2=enable_v14_compiler_ext_2)
     _emit({
         "command": "build", "ok": True,
         "batch_root": str(Path(args.batch_root).resolve()),
@@ -415,12 +495,25 @@ def _cmd_budget_no_cap(args: argparse.Namespace, root: Path) -> int:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
+    routing_stage1_only = bool(
+        getattr(args, "routing_stage1_only", False))
+    two_stage_routing = bool(
+        getattr(args, "two_stage_routing", False)) or routing_stage1_only
+    stage1_rank_calibration = bool(
+        getattr(args, "stage1_rank_calibration", False))
+    multi_sample_consensus = bool(
+        getattr(args, "multi_sample_consensus", False))
     report = run_s5b_batch(
         args.batch_root, runs_root=args.runs_root,
         env_file=args.env_file, workers=args.workers,
         max_in_flight=args.max_in_flight,
         gate_rpm=args.gate_rpm, gate_tpm=args.gate_tpm,
         gate_max_calls=args.gate_max_calls,
+        evidence_card_enabled=getattr(args, "evidence_card_enabled", None),
+        two_stage_routing=two_stage_routing,
+        routing_stage1_only=routing_stage1_only,
+        stage1_rank_calibration=stage1_rank_calibration,
+        multi_sample_consensus=multi_sample_consensus,
         question_limit=args.limit,
         qids=[q for q in args.qids.split(",") if q] if args.qids else None,
         poll_s=args.poll_s, python_bin=args.python_bin)
@@ -576,6 +669,62 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--enable-smart-gated-backfill", action="store_true",
                    default=False,
                    help="开启共识升位与智能门控尾部回填(默认关闭)")
+    p.add_argument("--enable-d2-cofactor-whitelist", action="store_true",
+                   help="T3 §10.2:D2 bonded 共底物的四类标准辅因子白名单"
+                        "(CoA/核苷酸磷酸/SAM/谷胱甘肽;默认关,零漂移)")
+    p.add_argument("--enable-d2-cofactor-whitelist-2", action="store_true",
+                   default=False,
+                   help="T10-B:d2-cofactor-whitelist-2(骨架匹配划分离去"
+                        "辅因子片段 + 编译器电荷/立体表达扩展;默认关,零漂移)")
+    p.add_argument("--enable-d2-cofactor-whitelist-3", action="store_true",
+                   default=False,
+                   help="v1.4 T14-1B:d2-cofactor-whitelist-3(多辅因子/无机"
+                        "供体重原子守恒配对 + 编译器芳环裂解/稠环去芳化"
+                        "扩展;默认关,零漂移)")
+    p.add_argument("--enable-d2-cofactor-whitelist-4", action="store_true",
+                   default=False,
+                   help="v1.4 T14-4:d2-cofactor-whitelist-4(wl3 化学超集 + "
+                        "编译器立体 parity 核验/芳环成键 v2 + 原文回退;"
+                        "默认关,零漂移)")
+    p.add_argument("--enable-v14-compiler-ext-2", action="store_true",
+                   default=False,
+                   help="v1.4 T14-4:编译器扩展面 v2(立体 parity 核验 + "
+                        "芳环成键 v2;默认关,零漂移)")
+    p.add_argument("--enable-v13-rank-rules", action="store_true",
+                   default=False,
+                   help="v1.3 R1 机理排序规则(默认关闭;关闭时与 v1.2 零漂移)")
+    p.add_argument("--enable-v13-prompt-v3-type", action="store_true",
+                   default=False,
+                   help="v1.3 T8 分域提示词 v3_type(B121:先判反应类型再排"
+                        "第一提案;默认关闭,关闭时提示词哈希零漂移)")
+    p.add_argument("--enable-v13-prompt-v3-site", action="store_true",
+                   default=False,
+                   help="v1.3 T8 分域提示词 v3_site(298:逐位点比较后首选"
+                        "位点产物放第一;默认关闭,与 v3_type 互斥)")
+    p.add_argument("--enumerated-injection-k", type=int, default=0,
+                   help="v1.3 枚举候选注入条数 k(默认 0=关闭;需同时给"
+                        " --enumerated-rule-priors)")
+    p.add_argument("--enumerated-rule-priors", default="",
+                   help="步骤 0 rule_frequencies.json 路径(gitignored;"
+                        "注入时冻结进批 plan)")
+    p.add_argument("--enable-v13-two-stage-routing", action="store_true",
+                   default=False,
+                   help="v1.3 T11 两段式反应大类分流(Stage 1 盲底物路由 + "
+                        "Stage 2 路由排序;默认关闭,零漂移)")
+    p.add_argument("--v13-routing-stage1-only", action="store_true",
+                   default=False,
+                   help="v1.3 T11 Step 1:只跑 Stage 1 路由即落账(需同时给"
+                        " --enable-v13-two-stage-routing)")
+    p.add_argument("--enable-v13-stage1-rank-calibration",
+                   action="store_true", default=False,
+                   help="v1.3 T12-B 响应后 Stage-1 大类精排(默认关闭,零漂移;"
+                        "只改 top-5 顺序,不放宽任何身份/角色/写法判定)")
+    p.add_argument("--enable-v13-multi-sample-consensus",
+                   action="store_true", default=False,
+                   help="v1.3 T13-B 多采样一致性共识(默认关闭,零漂移;只消费"
+                        "计划注入的次级 pass 回复,不改变请求载荷/预算;"
+                        "须与 --enable-smart-gated-backfill 同用,与 T12-B "
+                        "精排互斥)")
     p.set_defaults(func=cmd_build)
 
     p = sub.add_parser("approve", help="落预注册批准记录(发车硬门)")
@@ -640,7 +789,34 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--qids", default=None, help="逗号分隔 qid 白名单")
     p.add_argument("--poll-s", type=float, default=10.0)
     p.add_argument("--python-bin", default=None,
-                   help="worker python(Remote 用 dev venv python)")
+                   help="worker python(Chenyu 用 dev venv python)")
+    # chain14 证据卡开关必须在发车时显式冻结:build 侧 `--preset v44-next`
+    # 已把 plan.evidence_card_version 钉成 none,发车侧缺省 True 会让
+    # worker 在每个 case 上直接判 evidence_card_flag_conflict(零调用失败)。
+    # 不给参数 = 旧行为(None ⇒ 现行 True),给 flag 即显式冻结。
+    p.add_argument("--evidence-card-enabled", dest="evidence_card_enabled",
+                   action="store_true", default=None,
+                   help="显式冻结批级证据卡开关=true(缺省:未指定)")
+    p.add_argument("--no-evidence-card", dest="evidence_card_enabled",
+                   action="store_false",
+                   help="显式冻结批级证据卡开关=false(v44-next 预设必须)")
+    p.add_argument("--two-stage-routing", action="store_true",
+                   default=False,
+                   help="v1.3 T11:两段式路由批(派发期冻结 "
+                        "max_real_model_requests=2 + 反馈 0;须与新批根同用)")
+    p.add_argument("--routing-stage1-only", action="store_true",
+                   default=False,
+                   help="v1.3 T11 Step 1:只跑 Stage 1(预算仍 1;须与 "
+                        "--two-stage-routing 同用)")
+    p.add_argument("--stage1-rank-calibration", action="store_true",
+                   default=False,
+                   help="v1.3 T12-B:批身份声明为 Stage-1 大类精排臂"
+                        "(冻结进 orchestration.json;须与新批根同用)")
+    p.add_argument("--multi-sample-consensus", action="store_true",
+                   default=False,
+                   help="v1.3 T13-B:批身份声明为多采样一致性共识臂"
+                        "(冻结进 orchestration.json;须与新批根同用;"
+                        "只消费已存次级回复,不改变请求预算)")
     p.set_defaults(func=cmd_run)
 
     p = sub.add_parser("score", help="封存答卷后判分(零 LLM)")

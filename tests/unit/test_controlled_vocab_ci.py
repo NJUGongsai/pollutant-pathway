@@ -483,6 +483,10 @@ REGISTERED_LITERAL_SINKS: frozenset[tuple[str, str]] = frozenset({
     ("substrate_profile.py", "unknown"),
     ("v3_projection.py", "product"), ("v3_projection.py", "reactant"),
     ("v3_projection.py", "recorded"),
+    # mineralization_sink.py(ppv1-mineralization-sink-v1, v44 落码 2026-11-11):
+    # 完全矿化终点判定器消费的参与物角色字面量
+    ("mineralization_sink.py", "coproduct"),
+    ("mineralization_sink.py", "principal_product"),
 })
 
 _VOCAB_UNION: set[str] = (

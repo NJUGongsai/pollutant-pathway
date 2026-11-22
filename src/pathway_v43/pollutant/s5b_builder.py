@@ -4,7 +4,7 @@
 职责与边界:
 
 - 输入 = 题卷 questions.jsonl(每行 qid/substrate_smiles/products_smiles
-  [金标]/...;运行时在 Remote 给真实路径,测试用合成夹具);
+  [金标]/...;运行时在 Chenyu 给真实路径,测试用合成夹具);
 - 输出根**必须落在 gitignored 目录**(仓内只允许 ``reports/ppv1_s5b/``
   之下的路径;仓外路径合法;仓内其它路径 fail-closed 拒)——金标承载物
   (参考图 JSON、run 输入的题面+池)只进 gitignored,仓内代码/文档零
@@ -115,7 +115,7 @@ def check_output_root(output_root: str | Path, *,
                       repo_root: str | Path | None = None) -> Path:
     """金标承载物的输出根守卫:仓内只许 gitignored 授权根。
 
-    - 仓外路径:合法(Remote 部署批次根本在仓外);
+    - 仓外路径:合法(Chenyu 部署批次根本在仓外);
     - 仓内路径:必须位于 ``reports/ppv1_s5b/`` 之下(该根已进
       .gitignore;其它仓内路径 ⇒ 结构化拒,零写入)。
     """
@@ -382,7 +382,28 @@ def build_run_input(question: dict, *, batch_tag: str,
                     provider_kind: str = "real",
                     preset: str | None = None,
                     evidence_card_version: str | None = None,
-                    enable_smart_gated_backfill: bool = False) -> dict:
+                    enable_smart_gated_backfill: bool = False,
+                    enable_v13_rank_rules: bool = False,
+                    enable_v13_prompt_v3_type: bool = False,
+                    enable_v13_prompt_v3_site: bool = False,
+                    enable_v13_two_stage_routing: bool = False,
+                    v13_routing_stage1_only: bool = False,
+                    enable_v13_stage1_rank_calibration: bool = False,
+                    enable_v13_multi_sample_consensus: bool = False,
+                    enumerated_injection_meta: dict | None = None,
+                    d2_cofactor_whitelist: bool = False,
+                    d2_cofactor_whitelist_2: bool = False,
+                    d2_cofactor_whitelist_3: bool = False,
+                    d2_cofactor_whitelist_4: bool = False,
+                    fix_decide_atomtool_import: bool = False,
+                    enable_v14_compiler_ext: bool = False,
+                    enable_v14_compiler_ext_2: bool = False,
+                    enable_v14_sec_novel_backfill: bool = False,
+                    disable_atomtool_prompt: bool = False,
+                    disable_cleavage_upgrade: bool = False,
+                    disable_product_first_fallback: bool = False,
+                    disable_ranking_calibration: bool = False,
+                    ablation_source_filter: dict | None = None) -> dict:
     """每 qid 一条 PPV1 run 输入(根底物=substrate;无人工条件注入)。
 
     plan.pools = pool_provider 对该底物的检索结果(底物侧,零金标);
@@ -406,6 +427,73 @@ def build_run_input(question: dict, *, batch_tag: str,
             plan["evidence_card_version"] = str(evidence_card_version)
         if enable_smart_gated_backfill:
             plan["enable_smart_gated_backfill"] = True
+    if enable_v13_rank_rules:
+        plan["enable_v13_rank_rules"] = True
+    # v1.3 T8:分域提示词开关(默认关;只在该题域的付费批显式打开)
+    if enable_v13_prompt_v3_type:
+        plan["enable_v13_prompt_v3_type"] = True
+    if enable_v13_prompt_v3_site:
+        plan["enable_v13_prompt_v3_site"] = True
+    # v1.3 T11:两段式反应大类分流(默认关;只在该题域的付费批显式
+    # 打开)。Step 1 批额外带 stage1_only(只跑 Stage 1 即落账)。
+    if enable_v13_two_stage_routing:
+        plan["enable_v13_two_stage_routing"] = True
+    if v13_routing_stage1_only:
+        plan["v13_routing_stage1_only"] = True
+    # v1.3 T12-B：响应后 Stage-1 大类精排（默认关；只改 top-5 顺序，
+    # 不改变请求载荷/预算，故与两段式路由开关可独立组合）。
+    if enable_v13_stage1_rank_calibration:
+        plan["enable_v13_stage1_rank_calibration"] = True
+    # v1.3 T13-B：多采样一致性共识（默认关；消费计划注入的次级 pass
+    # 回复，不改变请求载荷/预算；旧批冻结计划逐字节零漂移）。
+    if enable_v13_multi_sample_consensus:
+        plan["enable_v13_multi_sample_consensus"] = True
+    if d2_cofactor_whitelist:
+        # T3 §10.2:池构建期生效;run 期只作身份披露(池已含放行候选)
+        plan["enable_d2_cofactor_whitelist"] = True
+    if d2_cofactor_whitelist_2:
+        # T10-B:d2-cofactor-whitelist-2(骨架匹配 + 编译器电荷/立体
+        # 表达扩展)。池构建期生效;run 期只作身份披露。
+        plan["enable_d2_cofactor_whitelist_2"] = True
+    if d2_cofactor_whitelist_3:
+        # v1.4 T14-1B:d2-cofactor-whitelist-3(多辅因子/无机供体重原子
+        # 守恒配对 + 编译器芳环裂解/稠环去芳化扩展)。池构建期生效;
+        # run 期只作身份披露。
+        plan["enable_d2_cofactor_whitelist_3"] = True
+    if d2_cofactor_whitelist_4:
+        # v1.4 T14-4:d2-cofactor-whitelist-4(wl3 化学面 + 编译器立体
+        # parity 核验/芳环成键 v2;原文回退)。池构建期生效;run 期只作
+        # 身份披露。
+        plan["enable_d2_cofactor_whitelist_4"] = True
+    if fix_decide_atomtool_import:
+        # v1.4 T14-1B:T10 开关 1(decide 段 atomtool 导入修正)
+        plan["fix_decide_atomtool_import"] = True
+    if enable_v14_compiler_ext_2:
+        # v1.4 T14-4:run 期编译器扩展面 v2(立体 parity 核验 + 芳环
+        # 成键 v2;默认关 ⇒ 调用逐字节同)。
+        plan["enable_v14_compiler_ext_2"] = True
+    if enable_v14_compiler_ext:
+        # v1.4 T14-1B:run 期扩展编译器表达面(立体消解/安全回退/
+        # 芳环裂解 + 稠环保留芳环)
+        plan["enable_v14_compiler_ext"] = True
+    if enable_v14_sec_novel_backfill:
+        # v1.4 T14-1B:次级 pass 池外 novel 对称回退
+        plan["enable_v14_sec_novel_backfill"] = True
+    if enumerated_injection_meta:
+        plan["enumerated_injection"] = dict(enumerated_injection_meta)
+    # ---- 论文消融 v1.4(2026-11-16;默认全 False/None ⇒ 逐字节同)----
+    if disable_atomtool_prompt:
+        plan["disable_atomtool_prompt"] = True
+    if disable_cleavage_upgrade:
+        plan["disable_cleavage_upgrade"] = True
+    if disable_product_first_fallback:
+        plan["disable_product_first_fallback"] = True
+    if disable_ranking_calibration:
+        plan["disable_ranking_calibration"] = True
+    if ablation_source_filter:
+        plan["ablation_source_filter"] = {
+            k: (list(v) if isinstance(v, (list, tuple, set)) else v)
+            for k, v in sorted(dict(ablation_source_filter).items())}
     return {
         "qid": qid,
         "run_id": s5b_run_id(qid, batch_tag),
@@ -1101,6 +1189,108 @@ def analog_formnorm_risk(*, lhs: str, rhs: str, f4: str,
         changed_lhs_maps=chg_lhs, changed_rhs_maps=chg_rhs)
 
 
+# ---- 论文消融 v1.4(2026-11-16,默认全 None ⇒ 逐字节零漂移)----
+# ``ablation_source_filter`` 归一化:支持三种写法(优先级由内向外):
+#   1. 嵌套 dict(论文消融正式口径)
+#      ``{"recorded": {"enabled": bool, "keep_prefixes": [...]}, ...}``;
+#   2. 通道直接给 bool(``{"recorded": False}``);
+#   3. 既有扁平键(``recorded_channel`` / ``corpus_prefixes`` /
+#      ``s5_rr_datasets`` / ``no_self`` 等;兼容旧调用,不废弃)。
+# 缺省 / 空 dict ⇒ 全部通道保持现行行为。
+
+
+def _ablation_channel_options(filter_cfg: dict | None, key: str, *,
+                              legacy: dict | None = None) -> dict:
+    """归一一档来源过滤配置(嵌套 dict / bool / 扁平键兼容)。
+
+    返回 ``{"enabled": bool, "keep_prefixes": tuple[str, ...],
+    "datasets": tuple[str, ...] | None, "explicit": bool}``。
+    """
+    out: dict = {"enabled": True, "keep_prefixes": (),
+                 "datasets": None, "explicit": False}
+    raw = (filter_cfg or {}).get(key)
+    if isinstance(raw, bool):
+        out["enabled"] = bool(raw)
+        out["explicit"] = True
+    elif isinstance(raw, dict):
+        if "enabled" in raw:
+            out["enabled"] = bool(raw.get("enabled"))
+            out["explicit"] = True
+        prefixes = raw.get("keep_prefixes")
+        if prefixes is not None:
+            out["keep_prefixes"] = tuple(
+                str(p).strip() for p in prefixes if str(p).strip())
+            out["explicit"] = True
+        datasets = raw.get("datasets")
+        if datasets is not None:
+            out["datasets"] = tuple(
+                str(d).strip().lower() for d in datasets if str(d).strip())
+            out["explicit"] = True
+    legacy = legacy or {}
+    if legacy.get("enabled") is not None:
+        # 旧扁平键:只用于**关断**(取与),不用于在嵌套显式开启时反开。
+        out["enabled"] = bool(out["enabled"] and legacy.get("enabled"))
+    if legacy.get("prefixes") and not out["keep_prefixes"]:
+        out["keep_prefixes"] = tuple(
+            str(p).strip() for p in legacy["prefixes"] if str(p).strip())
+    return out
+
+
+def _ablation_noself_options(filter_cfg: dict | None) -> dict:
+    """归一一 NoSelf 配置(嵌套 ``noself`` / 扁平 ``no_self``)。"""
+    raw = (filter_cfg or {}).get("noself")
+    enabled = False
+    explicit = False
+    if isinstance(raw, bool):
+        enabled = bool(raw)
+        explicit = True
+    elif isinstance(raw, dict):
+        if "enabled" in raw:
+            enabled = bool(raw.get("enabled"))
+            explicit = True
+    legacy = (filter_cfg or {}).get("no_self")
+    if legacy is not None:
+        enabled = bool(enabled and bool(legacy))
+        explicit = True
+    return {"enabled": enabled, "explicit": explicit}
+
+
+def _ablation_bump(diag: dict, key: str, n: int = 1) -> None:
+    """诊断计数累加(仅 filter 显式启用时调用)。"""
+    diag[key] = int(diag.get(key, 0)) + int(n)
+
+
+def _ablation_question_context_from_records(
+        records) -> dict[str, dict]:
+    """题卷记录 ⇒ NoSelf 底物上下文(零金标,只读三个非金标字段)。
+
+    只读 ``substrate_smiles`` 与 ``_reaction_id``(``qid`` 仅作记录身份,
+    本函数不依赖);**不读** ``products_smiles`` / ``raw_reaction`` /
+    ``reference_graphs`` / 任何金标产物。
+
+    同底物多题 ⇒ ``drop_record_ids`` 取并集(底物级池缓存的正确性：
+    缓存条目对同底物所有题都安全);``substrate_strict_keys`` 为底物
+    组分严格身份键集(``retro_source._component_strict_keys``,建池期
+    零金标)。
+    """
+    from ..services.retro_source import _component_strict_keys
+
+    context: dict[str, dict] = {}
+    for record in records:
+        substrate = str(record["substrate_smiles"])
+        entry = context.setdefault(
+            substrate, {"drop_record_ids": [], "substrate_strict_keys": []})
+        reaction_id = record.get("_reaction_id")
+        if reaction_id:
+            rid = str(reaction_id)
+            if rid not in entry["drop_record_ids"]:
+                entry["drop_record_ids"].append(rid)
+        if not entry["substrate_strict_keys"]:
+            entry["substrate_strict_keys"] = sorted(
+                _component_strict_keys(substrate))
+    return context
+
+
 def default_pool_provider(config: V43Config | None, *,
                            max_pool: int = S5B_POOL_MAX,
                            raw_top: int = S5B_POOL_RAW_TOP,
@@ -1127,7 +1317,18 @@ def default_pool_provider(config: V43Config | None, *,
                            s5_max_supplements: int = 2,
                            s5_include_rr: bool = True,
                            domain: str = "298",
-                           preset: str | None = None):
+                           preset: str | None = None,
+                           enumerated_injection_k: int = 0,
+                           enumerated_rule_priors: dict | None = None,
+                           d2_cofactor_whitelist: bool = False,
+                           d2_cofactor_whitelist_2: bool = False,
+                           d2_cofactor_whitelist_3: bool = False,
+                           d2_cofactor_whitelist_4: bool = False,
+                           enable_v14_compiler_ext_2: bool = False,
+                           ablation_source_filter: dict | None = None,
+                           ablation_question_context:
+                               dict[str, dict] | None = None,
+                           question_meta: dict | None = None):
     """真实跑的缺省池供给(W4:编译后补位 + 有界输入侧动态检索;零金标)。
 
     通道与融合(顺序即池序;冻结配置):
@@ -1208,11 +1409,154 @@ def default_pool_provider(config: V43Config | None, *,
         if fallback_threshold == S5B_POOL_FALLBACK_THRESHOLD:
             fallback_threshold = S1D_POOL_FALLBACK_THRESHOLD
 
+    # v1.4 T14-4:编译器扩展面 v2(立体 parity 核验 + 芳环成键 v2)。
+    # wl4 = wl3 化学超集 + 编译器 v2(recorded/corpus/analog/hybrid 全通道
+    # 一致,跑单变量隔离)。默认双关 ⇒ `_ext2` 假,下面全部调用逐字节同。
+    _wl3_or_4 = bool(d2_cofactor_whitelist_3 or d2_cofactor_whitelist_4)
+    _ext2 = bool(enable_v14_compiler_ext_2 or d2_cofactor_whitelist_4)
+
     diagnostics: dict = {}
+
+    # ---- 论文消融 v1.4(2026-11-16;默认 None ⇒ 逐字节零漂移)----
+    # 正交来源过滤配置:通道开关 + 前缀 allow-list + NoSelf 零金标剔除。
+    # 归一化放在 provider 创建时(配置错误 fail-closed 早于任何建池
+    # 动作);filter=None ⇒ 全部通道保持现行行为。
+    _abl = dict(ablation_source_filter or {})
+    _abl_active = bool(_abl)
+    _rec_cfg = _ablation_channel_options(
+        _abl, "recorded",
+        legacy={"enabled": _abl.get("recorded_channel")})
+    _cor_cfg = _ablation_channel_options(
+        _abl, "corpus",
+        legacy={"enabled": _abl.get("corpus_channel")})
+    _ana_cfg = _ablation_channel_options(
+        _abl, "analog",
+        legacy={"enabled": _abl.get("analog_channel"),
+                "prefixes": _abl.get("analog_prefixes")})
+    _uspto_cfg = _ablation_channel_options(
+        _abl, "uspto",
+        legacy={"enabled": _abl.get("uspto_channel")})
+    _env_cfg = _ablation_channel_options(_abl, "s5_env")
+    _rr_cfg = _ablation_channel_options(
+        _abl, "s5_rr",
+        legacy={"enabled": _abl.get("s5_rr")})
+    _no_self = bool(_ablation_noself_options(_abl)["enabled"])
+    # NoSelf 与 recorded/corpus 建池互斥(题源记录就在这两条通道里)
+    # ⇒ fail-closed,不静默关断调用方未声明的通道。
+    if _no_self and (_rec_cfg["enabled"] or _cor_cfg["enabled"]):
+        raise ValueError(
+            "ablation_source_filter.noself requires "
+            "recorded.enabled=False and corpus.enabled=False "
+            "(fail-closed; otherwise the same-question records stay "
+            "in the pool)")
+    _rec_on = bool(recorded_channel) and bool(_rec_cfg["enabled"])
+    _cor_on = bool(corpus_channel) and bool(_cor_cfg["enabled"])
+    _ana_on = bool(analog_channel) and bool(_ana_cfg["enabled"])
+    # uspto 通道与既有 uspto_channel **取与**(deny-wins)。
+    _uspto_on = bool(uspto_channel) and bool(_uspto_cfg["enabled"])
+    _rec_prefixes = tuple(_rec_cfg["keep_prefixes"])
+    _cor_prefixes = tuple(_cor_cfg["keep_prefixes"])
+    _corpus_source_prefixes = [
+        str(p).strip().rstrip(":").lower()
+        for p in (_abl.get("corpus_prefixes") or [])
+        if str(p).strip()]
+    _analog_prefixes = tuple(_ana_cfg["keep_prefixes"])
+    _s5_env_on = bool(_env_cfg["enabled"])
+    _s5_rr_on = bool(_rr_cfg["enabled"])
+    _s5_rr_datasets = (_rr_cfg["datasets"]
+                       if _rr_cfg["datasets"] is not None
+                       else ("rhea", "mnx"))
 
     def provider(substrate_smiles: str) -> list[dict]:
         substrate = str(substrate_smiles)
         diagnostics.clear()
+        _abl_diag: dict = {}
+        if _abl_active:
+            diagnostics["ablation_source_filter"] = {
+                k: (list(v) if isinstance(v, (list, tuple, set)) else v)
+                for k, v in sorted(_abl.items())}
+            diagnostics["ablation_filter"] = _abl_diag
+            _abl_diag.update({
+                "recorded": {
+                    "enabled": bool(_rec_cfg["enabled"]),
+                    "keep_prefixes": list(_rec_cfg["keep_prefixes"]),
+                    "retrieval_skipped": not bool(_rec_cfg["enabled"]),
+                    "n_dropped_prefix": 0},
+                "corpus": {
+                    "enabled": bool(_cor_cfg["enabled"]),
+                    "keep_prefixes": list(_cor_cfg["keep_prefixes"]),
+                    "retrieval_skipped": not bool(_cor_cfg["enabled"]),
+                    "n_dropped_prefix": 0},
+                "analog": {
+                    "enabled": bool(_ana_cfg["enabled"]),
+                    "keep_prefixes": list(_ana_cfg["keep_prefixes"]),
+                    "retrieval_skipped": not bool(_ana_cfg["enabled"]),
+                    "n_dropped_prefix": 0},
+                "s5_env": {
+                    "enabled": bool(_env_cfg["enabled"]),
+                    "retrieval_skipped": not bool(_env_cfg["enabled"])},
+                "s5_rr": {
+                    "enabled": bool(_rr_cfg["enabled"]),
+                    "datasets": (list(_rr_cfg["datasets"])
+                                 if _rr_cfg["datasets"] is not None
+                                 else ["rhea", "mnx"]),
+                    "retrieval_skipped": not bool(_rr_cfg["enabled"])},
+                "uspto": {
+                    "enabled": bool(_uspto_on),
+                    "n_dropped_prefix": 0},
+                "noself": {
+                    "enabled": bool(_no_self),
+                    "n_dropped_analog_record_id": 0,
+                    "n_dropped_analog_substrate": 0},
+            })
+            if _uspto_on and not _ana_on:
+                _abl_diag["uspto"]["blocked_by"] = "analog_disabled"
+        if _abl.get("empty_pool"):
+            # DB-1 EmptyPool:池显式置空(模型 novel 仍合法)。
+            diagnostics.update({
+                "pool_policy_version": S5B_POOL_POLICY_VERSION,
+                "compiler_version": S5B_COMPILER_VERSION,
+                "channels": [], "candidates": [],
+                "note": "paper-ablation empty_pool: 池显式置空"})
+            return []
+        # ---- NoSelf 上下文:题卷底物严格身份键 + 题源反应标识 ----
+        # 只读题卷 ``substrate_smiles`` / ``_reaction_id`` 等非金标元数据;
+        # 不读 products/raw_reaction/reference_graphs。
+        _ns_ctx: dict = {}
+        if _no_self and ablation_question_context:
+            _ns_ctx = dict(
+                ablation_question_context.get(str(substrate)) or {})
+        _ns_drop_ids = {
+            str(x) for x in (_ns_ctx.get("drop_record_ids") or ())
+            if str(x)}
+        if _no_self and not _ns_drop_ids and question_meta is not None:
+            from ..services.s5_hybrid_choice import question_source_ids
+
+            _ns_drop_ids = question_source_ids(question_meta)
+        _ns_sub_keys = {
+            str(x) for x in (_ns_ctx.get("substrate_strict_keys") or ())
+            if str(x)}
+        if _no_self and not _ns_sub_keys:
+            from ..services.retro_source import _component_strict_keys
+
+            _ns_sub_keys = set(_component_strict_keys(substrate))
+        # 题源反应标识(analog/S5 规则自记录剔除)与底物组分身份
+        # (strict + cn;与 analog/S5 规则侧比较口径一致)。
+        _ns_question_ids = set(_ns_drop_ids)
+        _ns_sub_strict: set[str] = set()
+        _ns_sub_cn: set[str] = set()
+        if _no_self:
+            from ..services.s5_hybrid_choice import component_identity_sets
+
+            _ns_sub_strict, _ns_sub_cn = component_identity_sets(substrate)
+            if _ns_sub_keys:
+                _ns_sub_strict = set(_ns_sub_keys) | _ns_sub_strict
+            _ctx_cn = {str(x) for x in (
+                _ns_ctx.get("substrate_cn_keys") or ()) if str(x)}
+            if _ctx_cn:
+                _ns_sub_cn = _ctx_cn
+        _s5_filter_stats: dict | None = (
+            {} if (_no_self and (_s5_env_on or _s5_rr_on)) else None)
         # ---- T1a(s5b-pool-policy-6):逐候选谱系行(纯诊断,零控制流) ----
         # 每候选一行:三通道产出点记 compiled/compile_rejected;去重/
         # 截断段回填 merged_into/pool_rank/pool_truncated。行不进 spec
@@ -1296,8 +1640,16 @@ def default_pool_provider(config: V43Config | None, *,
         _rc_cache_dir = _os.environ.get("V43_RECORDED_CORPUS_CACHE_DIR", "").strip()
         _rc_cached_payload: dict | None = None
         if _rc_cache_dir:
+            # v1.4 T14-1B:白名单 v3 的池成员与默认不同 ⇒ 缓存文件名加
+            # 后缀,防与默认缓存碰撞(默认关 ⇒ 文件名逐字节不变)。
+            # v1.4 T14-4:wl4 再分一级后缀(编译器 v2 也会改池成员);
+            # 单开 ext2(不带白名单)同样改变池成员 ⇒ 独立后缀防缓存串味。
+            _rc_suffix = ("_wl4" if d2_cofactor_whitelist_4
+                          else ("_wl3" if d2_cofactor_whitelist_3
+                                else ("_ext2" if _ext2 else "")))
             _rc_file = Path(_rc_cache_dir) / (
-                hashlib.sha256(substrate.encode("utf-8")).hexdigest() + ".json"
+                hashlib.sha256(substrate.encode("utf-8")).hexdigest()
+                + _rc_suffix + ".json"
             )
             if _rc_file.is_file():
                 try:
@@ -1308,7 +1660,7 @@ def default_pool_provider(config: V43Config | None, *,
                     _rc_cached_payload = None
 
         # ---- 通道 1:recorded 精确源(W2;engine 注入时) ----
-        if engine is not None and recorded_channel:
+        if engine is not None and _rec_on:
             if _rc_cached_payload is not None and "recorded_exact" in _rc_cached_payload:
                 exact = _rc_cached_payload["recorded_exact"]
             else:
@@ -1316,7 +1668,11 @@ def default_pool_provider(config: V43Config | None, *,
 
                 exact = find_recorded_exact(
                     substrate_smiles=substrate, engine=engine,
-                    max_reactions=raw_top)
+                    max_reactions=raw_top,
+                    # v1.4 T14-1B(默认关):白名单 v3 同步扩展编译器
+                    # v1.4 T14-4:ext2/wl4 也走扩展面(两个开关并集)
+                    v14_compiler_ext=bool(_wl3_or_4),
+                    v14_compiler_ext_2=bool(_ext2))
             for cand in exact.get("candidates") or []:
                 if cand.get("tier") == "recorded_strict_exact":
                     n_recorded_strict += 1
@@ -1326,6 +1682,13 @@ def default_pool_provider(config: V43Config | None, *,
                 # rec-<rid>,closure 用)
                 cand_key = str(cand.get("record_key")
                                or cand.get("record_id") or "")
+                # 论文消融 v1.4:recorded 前缀 allow-list(按 cand_key
+                # 前缀;filter=None ⇒ 空 ⇒ 本分支不执行 ⇒ 零漂移)
+                if _rec_prefixes and not any(
+                        cand_key.startswith(p) for p in _rec_prefixes):
+                    _ablation_bump(
+                        _abl_diag["recorded"], "n_dropped_prefix")
+                    continue
                 spec = cand.get("compile")
                 if spec is None:
                     fail_reason = str(cand.get("compile_reason")
@@ -1351,7 +1714,7 @@ def default_pool_provider(config: V43Config | None, *,
                     exact.get("diagnostics") or {})})
 
         # ---- 通道 1b:corpus recorded 直通(W-V4.1;engine 注入时) ----
-        if engine is not None and corpus_channel:
+        if engine is not None and _cor_on:
             if _rc_cached_payload is not None and "corpus_exact" in _rc_cached_payload:
                 corpus_exact = _rc_cached_payload["corpus_exact"]
             else:
@@ -1359,8 +1722,26 @@ def default_pool_provider(config: V43Config | None, *,
 
                 corpus_exact = find_corpus_recorded_exact(
                     substrate_smiles=substrate, engine=engine,
-                    max_reactions=raw_top)
+                    max_reactions=raw_top,
+                    cofactor_whitelist=bool(d2_cofactor_whitelist),
+                    cofactor_whitelist_2=bool(d2_cofactor_whitelist_2),
+                    cofactor_whitelist_3=bool(d2_cofactor_whitelist_3),
+                    # v1.4 T14-4:wl4 = wl3 化学超集 + 编译器 v2(内部
+                    # `_wl34` 并集;原文回退随之打开)
+                    cofactor_whitelist_4=bool(d2_cofactor_whitelist_4))
             for cand in corpus_exact.get("candidates") or []:
+                if _corpus_source_prefixes:
+                    _cand_source = str(
+                        cand.get("source_type") or "").strip().lower()
+                    if _cand_source not in _corpus_source_prefixes:
+                        # 论文消融 v1.4 前缀 allow-list(仅 DB-3/5/6;
+                        # filter=None ⇒ 本分支不执行 ⇒ 零漂移)
+                        diagnostics["ablation_corpus_prefix_filtered"] = int(
+                            diagnostics.get(
+                                "ablation_corpus_prefix_filtered", 0)) + 1
+                        _ablation_bump(
+                            _abl_diag["corpus"], "n_dropped_prefix")
+                        continue
                 if cand.get("tier") == "recorded_strict_exact":
                     n_corpus_strict += 1
                 else:
@@ -1369,6 +1750,13 @@ def default_pool_provider(config: V43Config | None, *,
                 # spec key = rec-<record_key>);缺省回退 record_id)
                 cand_key = str(cand.get("record_key")
                                or cand.get("record_id") or "")
+                # 论文消融 v1.4:corpus 前缀 allow-list(按 cand_key
+                # 前缀;与上面 source_type 旧键并存,零漂移)
+                if _cor_prefixes and not any(
+                        cand_key.startswith(p) for p in _cor_prefixes):
+                    _ablation_bump(
+                        _abl_diag["corpus"], "n_dropped_prefix")
+                    continue
                 spec = cand.get("compile")
                 if spec is None:
                     fail_reason = str(cand.get("compile_reason")
@@ -1396,12 +1784,46 @@ def default_pool_provider(config: V43Config | None, *,
         # ---- 通道 2/3:类比模板 + 编译(失败补位) ----
         analog_specs: list[dict] = []
         analog_sim_by_id: dict[int, float] = {}
-        if config is not None and analog_channel:
+        if config is not None and _ana_on:
             from ..services.analog_source import AnalogSourceResolver
 
             resolver = AnalogSourceResolver(config)
+            if _no_self:
+                # 零金标底物身份:复用检索层同一组分严格键实现。
+                from ..services.retro_source import _component_strict_keys
 
             def _compile_analog_refs(refs) -> None:
+                # 论文消融 v1.4(默认 filter=None ⇒ refs 原样):
+                # ① analog 前缀 allow-list(rhea:/env:);② NoSelf 零金标
+                # 剔除(题源反应 ID 命中,或 mapped_lhs 组分**包含**
+                # 当前输入底物 ⇒ 模板来源反应用了同一底物)。被剔候选
+                # 不占编译预算、不入池。
+                if _abl_active and (_analog_prefixes or _no_self):
+                    _kept = []
+                    for _ref in refs:
+                        _rid = str(getattr(_ref, "record_id", "") or "")
+                        if _analog_prefixes and not any(
+                                _rid.startswith(p)
+                                for p in _analog_prefixes):
+                            _ablation_bump(
+                                _abl_diag["analog"], "n_dropped_prefix")
+                            continue
+                        if _no_self:
+                            if _rid and _rid in _ns_drop_ids:
+                                _ablation_bump(
+                                    _abl_diag["noself"],
+                                    "n_dropped_analog_record_id")
+                                continue
+                            _lhs_keys = _component_strict_keys(
+                                str(getattr(_ref, "mapped_lhs", "") or ""))
+                            if _ns_sub_keys and _lhs_keys \
+                                    and _ns_sub_keys <= _lhs_keys:
+                                _ablation_bump(
+                                    _abl_diag["noself"],
+                                    "n_dropped_analog_substrate")
+                                continue
+                        _kept.append(_ref)
+                    refs = _kept
                 # ---- T-G C2 R2'(s5b-pool-policy-8):路由/准入解耦接线 ----
                 # F1..F4 = 基线路由真源(**判据一字不改,原样冻结**):
                 #   F1 旧整侧元素门(template_elements_fit)=只作路由,
@@ -1423,6 +1845,15 @@ def default_pool_provider(config: V43Config | None, *,
                     compile_donor_template,
                     template_elements_fit,
                 )
+
+                # v1.4 T14-1B.1:白名单 v3 打开时,装配成功的 analog spec
+                # 在 append 前过一遍生产准入预检(与 HPC 准入硬门同链);
+                # 开关关 ⇒ 不导入、不调用(零漂移)。
+                _v14_preflight = None
+                if _wl3_or_4:
+                    from .recorded_source import (
+                        v14_preflight_admission_ok as _v14_preflight,
+                    )
 
                 def _input_hash(f4: str) -> str:
                     return hashlib.sha256(f4.encode("utf-8")).hexdigest()
@@ -1464,6 +1895,19 @@ def default_pool_provider(config: V43Config | None, *,
                 def _compile_at(f4: str, ref, lhs_view: str,
                                 rhs_view: str) -> dict:
                     # T-E(E1a):编译入参 = 归一视体(raw ref 不得再传编译)
+                    # v1.4 T14-1B:白名单 v3 时额外开扩展表达面(默认关
+                    # ⇒ 参数调用逐字节同)。
+                    _ext_kwargs = (
+                        {"extended_stereo_dissolution": True,
+                         "stereo_edit_graceful_fallback": True,
+                         "allow_ring_cleavage_and_fused_dearomatization":
+                             True}
+                        if _wl3_or_4 else {})
+                    if _ext2:
+                        # v1.4 T14-4:编译器 v2 两开关(wl4 全通道一致)
+                        _ext_kwargs = dict(_ext_kwargs)
+                        _ext_kwargs["retained_tetrahedral_parity_check"] = True
+                        _ext_kwargs["allow_aromatic_ring_closure"] = True
                     return compile_donor_template(
                         mapped_lhs=str(lhs_view or ""),
                         mapped_rhs=str(rhs_view or ""),
@@ -1475,7 +1919,8 @@ def default_pool_provider(config: V43Config | None, *,
                         alignment_ref=(
                             f"corpus-template:{ref.record_id}"),
                         key_prefix="tpl",
-                        center_shell=int(center_shell))
+                        center_shell=int(center_shell),
+                        **_ext_kwargs)
 
                 def _emit_rejected(ref, route: str, input_source: str,
                                    f4: str, f5_value: str,
@@ -1564,6 +2009,19 @@ def default_pool_provider(config: V43Config | None, *,
                         if fn_status_s == "applied":
                             stamp_formnorm_spec_keys(spec, {
                                 "status": "applied", "trace": fn_trace})
+                        if _wl3_or_4:
+                            ok_pre, pre_reason = _v14_preflight(
+                                substrate, spec)
+                            if not ok_pre:
+                                _emit_rejected(
+                                    ref, "direct_raw", "raw", substrate,
+                                    _f5_row_value(f5), early, pre_reason,
+                                    formnorm=_fn(
+                                        risk=risk,
+                                        unknown_reason=(
+                                            "admission_preflight:"
+                                            + pre_reason)))
+                                continue
                         analog_specs.append(spec)
                         row_by_spec[id(spec)] = _diag_row(
                             "analog", str(spec["key"]), "compiled",
@@ -1644,6 +2102,23 @@ def default_pool_provider(config: V43Config | None, *,
                                 stamp_formnorm_spec_keys(spec, {
                                     "status": "applied",
                                     "trace": fn_trace})
+                            if _wl3_or_4:
+                                ok_pre, pre_reason = _v14_preflight(
+                                    substrate, spec)
+                                if not ok_pre:
+                                    # 预检拒:按真实拒因计数(与编译层
+                                    # 拒同轨);供给救援计数**不**累加
+                                    # ——坏 spec 不算救援成功。
+                                    _emit_rejected(
+                                        ref, "supplied", "supplied",
+                                        sub_supplied, _f5_row_value(f5),
+                                        light_gap, pre_reason,
+                                        formnorm=_fn(
+                                            risk=risk,
+                                            unknown_reason=(
+                                                "admission_preflight:"
+                                                + pre_reason)))
+                                    continue
                             analog_specs.append(spec)
                             row_by_spec[id(spec)] = _diag_row(
                                 "analog", str(spec["key"]), "compiled",
@@ -1709,6 +2184,19 @@ def default_pool_provider(config: V43Config | None, *,
                     if fn_status_s == "applied":
                         stamp_formnorm_spec_keys(spec, {
                             "status": "applied", "trace": fn_trace})
+                    if _wl3_or_4:
+                        ok_pre, pre_reason = _v14_preflight(
+                            substrate, spec)
+                        if not ok_pre:
+                            _emit_rejected(
+                                ref, "no_supply_raw", "raw", substrate,
+                                _f5_row_value(f5), light_gap, pre_reason,
+                                formnorm=_fn(
+                                    risk=risk,
+                                    unknown_reason=(
+                                        "admission_preflight:"
+                                        + pre_reason)))
+                            continue
                     analog_specs.append(spec)
                     row_by_spec[id(spec)] = _diag_row(
                         "analog", str(spec["key"]), "compiled",
@@ -1752,7 +2240,7 @@ def default_pool_provider(config: V43Config | None, *,
                     _compile_analog_refs(
                         [r for r in more
                          if str(r.record_id) not in seen_records])
-            if uspto_channel and getattr(config, "analog_corpus", "v1") != "uspto":
+            if _uspto_on and getattr(config, "analog_corpus", "v1") != "uspto":
                 uspto_refs = resolver.uspto_templates_for_substrate(
                     substrate, top_k=raw_top)
                 _compile_analog_refs(uspto_refs)
@@ -1872,19 +2360,47 @@ def default_pool_provider(config: V43Config | None, *,
         if enable_s5_hybrid_pool:
             from ..services.s5_hybrid_choice import build_s5_hybrid_pool_entries
 
+            # 资产根一致性(2026-11-13,T2 环境漂移修正):S5-env / S5-rr
+            # 规则资产按**配置资产根**(V43_ASSET_ROOT,即 build_identity 的
+            # ``asset_identity.assets_root``)解析,而不是代码仓根
+            # (``Path(__file__).parents[3]``)。旧行为在资产与代码分离的
+            # 检出里(在缺 derived 索引的检出中:仓库内 assets/retrorules 缺 derived 索引)
+            # 会静默丢掉整条 S5-rr 通道,使池与 v1.2 不可比。
+            hybrid_repo_root = None
+            assets_root = getattr(config, "assets_root", None)
+            if assets_root:
+                hybrid_repo_root = Path(assets_root).resolve().parent
+
             base_s1d_slice = merged[: int(max_pool)]
             hybrid_entries = build_s5_hybrid_pool_entries(
                 substrate,
                 s1d_specs=base_s1d_slice,
                 domain=str(domain or "298"),
-                include_env=True,
-                include_rr=bool(s5_include_rr),
+                include_env=_s5_env_on,
+                include_rr=bool(s5_include_rr) and _s5_rr_on,
+                rr_datasets=_s5_rr_datasets,
+                # 论文消融 v1.4:显式题卷底物严格键 + 题源标识(默认
+                # None ⇒ 不进入过滤分支);统计只在本 provider 诊断内。
+                # 单一过滤口径:不再叠加旧 no_self/question_meta 自判定
+                # (默认 None/False ⇒ 旧调用零影响)。
+                exclude_substrate_keys=(
+                    set(_ns_sub_keys) if _no_self else None),
+                drop_rule_ids=(
+                    set(_ns_question_ids) if _no_self else None),
+                filter_stats=_s5_filter_stats,
                 s5_supplement_gate_max_s1d=int(s5_supplement_gate_max_s1d),
                 s5_supplement_min_prior_score=float(s5_supplement_min_prior_score),
                 s5_super_consensus_score=float(s5_super_consensus_score),
                 s5_max_supplements=int(s5_max_supplements),
                 max_pool=int(max_pool),
                 include_s1d_in_return=True,
+                repo_root=hybrid_repo_root,
+                enumerated_injection_k=int(enumerated_injection_k),
+                enumerated_rule_priors=enumerated_rule_priors,
+                # v1.4 T14-1B(默认关):白名单 v3 时 S5 直编也开扩展面
+                # v1.4 T14-4:wl4/ext2 追加编译器 v2 两开关(全通道一致)
+                v14_compiler_ext=bool(_wl3_or_4),
+                v14_compiler_ext_2=bool(_ext2),
             )
             # 将先验标注与新增 S5 混合池条目同步回 merged
             new_merged: list[dict] = []
@@ -1927,6 +2443,40 @@ def default_pool_provider(config: V43Config | None, *,
                 if tail_spec not in new_merged:
                     new_merged.append(tail_spec)
             merged = new_merged
+        if _abl_diag and _s5_filter_stats:
+            # 论文消融 v1.4(仅 filter 显式启用且 S5 混合池实际构建时
+            # 出现):S5-env/rr 规则级来源过滤覆盖与剔除计数(零金标)。
+            # 空 dict ⇒ S5 块未执行(未启用混合池)⇒ 不臆造覆盖面。
+            _abl_diag["s5"] = dict(sorted(_s5_filter_stats.items()))
+            _st = _s5_filter_stats
+            _abl_diag["noself_filter_coverage"] = {
+                # 父反应级 lhs 在现行 resolver hit / env 规则 schema
+                # 内不可得 ⇒ 单样本特异判定只能用模板级/供体级字段,
+                # 如实披露而不假装已按父反应逐条过滤。
+                "env_parent_ids_available": bool(_st.get(
+                    "n_env_parent_reaction_ids_available", 0)),
+                "env_parent_lhs_available": False,
+                "env_donor_smiles_available": bool(_st.get(
+                    "n_env_lhs_field_present", 0)),
+                "rr_template_lhs_available": bool(_st.get(
+                    "n_rr_lhs_field_present", 0)),
+                "rr_per_parent_lhs_available": False,
+                "rr_parent_ids_available": bool(_st.get(
+                    "n_rr_parent_reaction_ids_available", 0)),
+                "rr_rule_ids_available": True,
+                "rr_lhs_scope": "template_level",
+                "env_rules_scanned": int(
+                    _st.get("n_env_rules_scanned", 0)),
+                "rr_templates_scanned": int(
+                    _st.get("n_rr_templates_scanned", 0)),
+                "rr_tsv_rules_scanned": int(
+                    _st.get("n_rr_tsv_rules_scanned", 0)),
+                "note": (
+                    "per-parent reaction lhs is not carried by the "
+                    "retro resolver hit schema or S5-env rule schema; "
+                    "substrate-specific filtering uses the template/"
+                    "donor-level lhs identity only (no silent claim "
+                    "of per-parent coverage)")}
 
         # ---- T1a:截断前排序位回填(1 基;超出池宽 ⇒ pool_truncated;
         # 排序/截断本身零改动,只读 merged 序) ----
@@ -2098,6 +2648,29 @@ def build_question_batch(
     s5_max_supplements: int = 2,
     evidence_card_version: str | None = None,
     enable_smart_gated_backfill: bool = False,
+    enable_v13_rank_rules: bool = False,
+    enable_v13_prompt_v3_type: bool = False,
+    enable_v13_prompt_v3_site: bool = False,
+    enable_v13_two_stage_routing: bool = False,
+    v13_routing_stage1_only: bool = False,
+    enable_v13_stage1_rank_calibration: bool = False,
+    enable_v13_multi_sample_consensus: bool = False,
+    enumerated_injection_meta: dict | None = None,
+    enumerated_injection_k: int = 0,
+    enumerated_rule_priors: dict | None = None,
+    d2_cofactor_whitelist: bool = False,
+    d2_cofactor_whitelist_2: bool = False,
+    d2_cofactor_whitelist_3: bool = False,
+    d2_cofactor_whitelist_4: bool = False,
+    fix_decide_atomtool_import: bool = False,
+    enable_v14_compiler_ext: bool = False,
+    enable_v14_compiler_ext_2: bool = False,
+    enable_v14_sec_novel_backfill: bool = False,
+    disable_atomtool_prompt: bool = False,
+    disable_cleavage_upgrade: bool = False,
+    disable_product_first_fallback: bool = False,
+    disable_ranking_calibration: bool = False,
+    ablation_source_filter: dict | None = None,
 ) -> dict:
     """构建题卷批:参考图 + run 输入 + split 清单 + 批次清单。
 
@@ -2111,10 +2684,23 @@ def build_question_batch(
     synthetic_review=True(测试夹具)⇒ 参考图 creation_review 改标
     synthetic_rule_level(如实)。
     """
+    # 论文消融 v1.4:调用方自带 provider ⇒ 过滤参数无处生效;静默忽略
+    # 会让消融标签与实际池不符 ⇒ fail-closed(先于任何读题/写盘动作)。
+    if pool_provider is not None and ablation_source_filter is not None:
+        raise ValueError(
+            "build_question_batch: ablation_source_filter cannot be "
+            "combined with a caller-supplied pool_provider (fail-closed)")
     root = check_output_root(output_root, repo_root=repo_root)
+    _ablation_question_context: dict[str, dict] | None = None
     questions = load_questions(questions_path)
     if question_limit is not None:
         questions = questions[:int(question_limit)]
+    if ablation_source_filter:
+        # ---- 论文消融 v1.4:题卷侧 NoSelf 上下文(零金标)----
+        # 只读 ``qid`` / ``substrate_smiles`` / ``_reaction_id`` 三个非
+        # 金标字段;不读 products_smiles / raw_reaction / reference_graphs。
+        _ablation_question_context = _ablation_question_context_from_records(
+            questions)
     substrate_counts: dict[str, int] = {}
     for record in questions:
         substrate_counts[str(record["substrate_smiles"])] = \
@@ -2137,9 +2723,25 @@ def build_question_batch(
             s5_max_supplements=s5_max_supplements,
             domain=domain,
             preset=preset,
+            enumerated_injection_k=int(enumerated_injection_k),
+            enumerated_rule_priors=enumerated_rule_priors,
+            d2_cofactor_whitelist=bool(d2_cofactor_whitelist),
+            d2_cofactor_whitelist_2=bool(d2_cofactor_whitelist_2),
+            d2_cofactor_whitelist_3=bool(d2_cofactor_whitelist_3),
+            d2_cofactor_whitelist_4=bool(d2_cofactor_whitelist_4),
+            enable_v14_compiler_ext_2=bool(enable_v14_compiler_ext_2),
+            ablation_source_filter=ablation_source_filter,
+            ablation_question_context=_ablation_question_context,
         )
     else:
-        provider = default_pool_provider(None)
+        provider = default_pool_provider(
+            None, d2_cofactor_whitelist=bool(d2_cofactor_whitelist),
+            d2_cofactor_whitelist_2=bool(d2_cofactor_whitelist_2),
+            d2_cofactor_whitelist_3=bool(d2_cofactor_whitelist_3),
+            d2_cofactor_whitelist_4=bool(d2_cofactor_whitelist_4),
+            enable_v14_compiler_ext_2=bool(enable_v14_compiler_ext_2),
+            ablation_source_filter=ablation_source_filter,
+            ablation_question_context=_ablation_question_context)
     entries: list[dict] = []
     _substrate_pool_cache: dict[str, tuple[list[dict], dict]] = {}
     for record in questions:
@@ -2178,7 +2780,31 @@ def build_question_batch(
             provider_kind=provider_kind,
             preset=preset,
             evidence_card_version=evidence_card_version,
-            enable_smart_gated_backfill=enable_smart_gated_backfill)
+            enable_smart_gated_backfill=enable_smart_gated_backfill,
+            enable_v13_rank_rules=enable_v13_rank_rules,
+            enable_v13_prompt_v3_type=enable_v13_prompt_v3_type,
+            enable_v13_prompt_v3_site=enable_v13_prompt_v3_site,
+            enable_v13_two_stage_routing=enable_v13_two_stage_routing,
+            v13_routing_stage1_only=v13_routing_stage1_only,
+            enable_v13_stage1_rank_calibration=(
+                enable_v13_stage1_rank_calibration),
+            enable_v13_multi_sample_consensus=(
+                enable_v13_multi_sample_consensus),
+            enumerated_injection_meta=enumerated_injection_meta,
+            d2_cofactor_whitelist=d2_cofactor_whitelist,
+            d2_cofactor_whitelist_2=d2_cofactor_whitelist_2,
+            d2_cofactor_whitelist_3=d2_cofactor_whitelist_3,
+            d2_cofactor_whitelist_4=d2_cofactor_whitelist_4,
+            fix_decide_atomtool_import=fix_decide_atomtool_import,
+            enable_v14_compiler_ext=enable_v14_compiler_ext,
+            enable_v14_compiler_ext_2=enable_v14_compiler_ext_2,
+            enable_v14_sec_novel_backfill=enable_v14_sec_novel_backfill,
+            disable_atomtool_prompt=disable_atomtool_prompt,
+            disable_cleavage_upgrade=disable_cleavage_upgrade,
+            disable_product_first_fallback=(
+                disable_product_first_fallback),
+            disable_ranking_calibration=disable_ranking_calibration,
+            ablation_source_filter=ablation_source_filter)
         input_path = inputs_dir / f"{qid}.json"
         input_path.write_text(
             json.dumps(run_input, ensure_ascii=False, sort_keys=True,
