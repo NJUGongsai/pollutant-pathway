@@ -25,6 +25,12 @@
 | **Stage P4** | **回应黄老师 2026-11-17 审阅 8 项修订意见（零 LLM 调用深度核验与对齐）**：乌镇 `49266862`/`49267366` 补齐 `bare`/`bare+守恒门`/`Exp-1b A 臂`/`v1.0` 全套 `N=261 & Clean-220` (`v6/v4/ex-self`)、拆分 Full-System vs Single-Route LOO 双表、主表并列 `ex-self` & `ex_rec_only`、`61` 题自记录/模板对交叉拆解、表 2 Holm-Bonferroni 校正、明确单步边界与外部基线同口径对齐及留出集锁死声明 | 否（`0` call） | `0` | ✅ 已完成 |
 | **Stage P5** | **回应黄老师 R2 审阅 9 项清单（Estimand 锁死 + Table A–D + 全系统 `T1-6 NoSelf` 实测闭环）**：① 报告重构为 Table A/B/C/D，锁死 `all` 主 Estimand 并同页并列 `T1-6 NoSelf`/`DB-2`/`DB-6`/`ex-self`；② 修清 `118/261 (45.21%)` vs `113/220 (51.36%)`、`+32/+33` vs `+32/+29`、移出 `T1-L2`、加外部基线非对称泄漏声明、补 `DB-7` 拆解；③ 同步 `docs/PREREG_V14_T4_HOLDOUT_2026-11-15.md` §1.3；④ 新 key 跑通 `db2_pb..pk` 10 批采样（`2,610` calls，`38,572,516` tokens，0 失败）+ 去重裁决 `1,268` calls（`7,616,361` tokens，0 失败），乌镇 `49301927`/`49306086` 实测 **`T1-6 NoSelf_11p = 94/261 (36.02%)`（`ex-self=70`）**、`T1-6 NoSelf_5p = 94/261`、`anti_truncation = 0` 违例 | 是（`db2_pb..pk` + 裁决器） | **`3,878` calls**<br>（实耗 **`46,188,877` tokens**，`0` 失败） | ✅ 已全部完成 |
 
+> **🔒 锁状态验收记录（2026-11-22，回应 Axl 审阅门槛，0 新模型调用）**：
+> - **正文对齐已修齐**：§1.1 已移出 `T1-L2` 至独立「表 D3」、§1.1B 已补写完整 `Table B` 与 `all / ex_rec_only / ex-self / self_61` 规格、§1.2 / §3 / §4.3 已补齐 $m=7$ 组 **Holm-Bonferroni** 校正规格；
+> - **离线复算包已独立打包与验算**：由乌镇只读抽取并封装 gitignored 复算包 `v44_ablation_repro_118_94_20261122.tar.gz`（`71 MB`，`10,462` 个文件 `MANIFEST.sha256` 校验通过，tar SHA256 `071c05796019b7a9ca6672d8d0e516089ab59bb8797321fdbcbd769e8593aaca`，单独交付 Axl 不入仓）；
+> - **核心锚点零调用复算实证通过**：在独立解压沙箱通过 [`scripts/eval/recompute_ablation_anchors.py`](scripts/eval/recompute_ablation_anchors.py) 直调冻结 `score_disclosure_v4cn.py --self-check`（`--assert-anchors` 退出码 `0`），完整复现 **`T1-6 = 118/133/141` (`Clean-220 = 113`, `v4 = 80`, `ex_rec_only = 72`, `ex-self = 57`)** 与 **`T1-6 NoSelf_11p = 94/127/134` (`Clean-220 = 90`, `v4 = 61`, `ex_rec_only = 94`, `ex-self = 70`, `self_61 夺回 43/61`)**，两臂均 `self_check n_diffs == 0`，脱敏回执已存档 [`docs/review_evidence/v14_b121_2026-11-15/anchor_recompute_receipt_2026-11-22.json`](docs/review_evidence/v14_b121_2026-11-15/anchor_recompute_receipt_2026-11-22.json)；
+> - **判分器版本冻结锁**：三份 `ppv1-criteria-v6` 判分文件复算前后 SHA256 全程未变（`0ffb8b71...` / `ac38ea39...` / `5a677550...`），状态已锁定，可进入终测。
+
 ---
 
 ## 1. 论文核心消融表完整规格设计（全表题域：`[biosysmodb121]`）
@@ -33,7 +39,7 @@
 
 - **设计逻辑**：
   - **上半栏（阶梯爬坡 Additive Waterfall，`T1-0` → `T1-6`）**：以 **“真·裸大模型（无检索池、无 `AtomTool` 分子图、无 `AtomTool` 守恒安检门）”** 为第 0 阶绝对起点，第一步先单独装上 **`AtomTool`**（零外部数据库！直接证明纯 `AtomTool` 带来的提分与化学幻觉清零），随后依次装入检索池、裂解/逆编/排序、辅因子氧化还原编译扩容、多路等价共识与 `trace_protected` 对称深度思考仲裁，直达 **`118/261 (45.21%)`**（干净集 **`113/220 = 51.36%`**）！
-  - **下半栏（留一剔除 Leave-One-Out，`T1-L1` → `T1-L12`）**：从完整系统（或对应单路底座）每次单拔一个核心零件，消除叠加顺序依赖质疑。
+  - **下半栏（留一剔除 Leave-One-Out，`D1 Full-System LOO` vs `D2 Single-Route LOO`）**：从完整系统（唯一基准 **`T1-6 = 118/261`**，对应 **表 D1**）或显式标注的对应单路底座（对应 **表 D2**）每次单拔一个核心零件，消除叠加顺序依赖质疑。**历史无裁决参考 `T1-L2`（基准为 `T1-5 = 116`）与护栏负控 `T1-L1`（撤除 `trace_protected`）不混入表 D1 LOO，统一独立列入下方「表 D3：护栏负控与历史参考」**。
 - **必报分母与口径列**：每行必须同时并排输出 **`[biosysmodb121·调参集 N=261]`** 与 **`[biosysmodb121·调参干净集 N=220]`** 下的 `v6 Hit@1 / @3 / @5`（主）、`v4 Hit@1`（附）、相对锚点 $\Delta\text{Hit@1}$，以及针对 `AtomTool` 相关行同步报 **Top-1 化学幻觉/不守恒违例率（`Spurious Top-1 %`）**。
 
 | 行号 | 栏位类型 | 论文表展示名称 | 工程配置与数据源（`[biosysmodb121]`） | 是否新调 API | 核心科学论证点 |
@@ -46,20 +52,48 @@
 | **T1-4** | 阶梯爬坡 | `+ Cofactor/Redox Compiler Expansion & Type Prompt (v1.4 1-pass)` | 存量 `b121_wl4_pa..pe`（报 5 批均值±SD `104.60 ± 4.28 / 261` 及 `pa` `107/261` 代表值） | **0 call** | 辅因子借原子 + `O2/H2O/NAD(P)H` 旁观对消直编（`wl4@16`）+ 反应大类引导提示词 |
 | **T1-5** | 阶梯爬坡 | `+ Multi-Sample Equiv/Elig Consensus (Consensus v3)` | 存量 `b121_wl4_pa_11p_at16::v14s4_cons_v3`（`116/261`，干净集 `111/220`） | **0 call** | 同产物等价骨架合票 + 跨池资格归一化消除单次采样抖动与分票 |
 | **T1-6** | **全栈顶点** | **`v44-Next v1.4 Full (+ Trace-Protected Sym-Adjudicator)`** | **`118 / 133 / 141` (`45.21%`)**；干净集 **`113 / 127 / 134` (`51.36%`)**；`v4 = 80 / 96 / 102` | **0 call（官方锚点）** | 正反互换深度思考二选一 + 溯源保护门控精准捞回分歧题真金标 |
-| **T1-L1** | 留一剔除 | `w/o Trace-Protected Gate (Unconditional Sym-Adj)` | 在 `T1-6` 上将仲裁门控退回无保护双向互换（复用已存仲裁缓存） | 0 call | **关键反证**：无保护锁盲目翻盘会误伤文献强锚点与独有 novel，证明保守门控必不可少 |
-| **T1-L2** | 留一剔除 | `w/o Selective Thinking Adjudicator` | 关断仲裁器（退回 `T1-5` 纯共识 `116/261`） | 0 call | 剥离深度思考二选一仲裁的独立净贡献 |
-| **T1-L3** | 留一剔除 | `w/o Equiv-Product & Elig-Norm Consensus (v3 → v1)` | 在同组样本上关断等价簇合票与资格归一化，退回 `Consensus v1` | 0 call | 测定消除“异键同产物分票”与“跨池分母稀释”的净增益 |
-| **T1-L4** | 留一剔除 | `w/o Multi-Sample Consensus (Multi-pass → 1-pass)` | 关断多路融合，退回 `wl4` 同池单路 5 批均值（`T1-4`） | 0 call | 分离测试时多采样共识相对单次前向推理的边际贡献 |
-| **T1-L5** | 留一剔除 | `w/o Stage-1 Reaction-Type Prompt (v3-type → v1)` | 在同池存量批 `t8_c/t9_c2` vs `t8_pa/pb/t9_pc` 上重放对照 | 0 call | 测定“先判 12 类生化反应大类再写结构”的净增益 |
-| **T1-L6** | 留一剔除 | `w/o Redox & Multi-O Compiler Expansion (wl4 → w32)` | 对比 `wl4` 采样与未做氧化还原扩容的 `w32@16`（`t8_pa/pb/t9_pc`）重放 | 0 call | 测定 `O2/H2O` 直编与 `NAD(P)H` 旁观对消释放的候选池天花板与实得增益 |
-| **T1-L7** | 留一剔除 | `w/o Ranking Calibration & Guarded Rules` | 在 `v1.4` 单路与共识链中关断 `calibrate_submittable_ranking` / `R1` | 0 call | 测定回复后化学先验与共产物完整性排序校准的净贡献 |
-| **T1-L8** | 留一剔除 | `w/o Cleavage Coproduct Auto-Upgrade` | 开启新增开关 `disable_cleavage_upgrade=True` 重放 `v1.4` | 0 call | 测定裂解含碳离去碎片自动补全对严格守恒准入的独立贡献 |
-| **T1-L9** | **`AtomTool` 留一 ①** | `w/o AtomTool Graph View & Edit Prompt (Full Pool, SMILES-Only)` | 保持满配 `wl4@16` 候选池，但在提示词中**剥离 `AtomTool` 分子执行图 `execution_graph`、`atom_id_map` 与 `edits` 算子协议**（对比单路基线 `T1-4`） | Stage P2 `AT-FullPool-NoGraph`（`261` calls） | 正面证明即使在满配检索池下，**`AtomTool` 考前原子身份证分子图与算子协议**依然有独立增益 |
-| **T1-L10** | **`AtomTool` 留一 ②** | `w/o AtomTool Forward Edits (Product-First Only)` | 在 `v1.4` 存量答卷上设 `fix_decide_atomtool_import=False`，废除模型正向手写 `AtomTool edits` 先行，全部强制只走逆向反推 | **0 call** | 测定模型正向手写 `AtomTool` 原子操作指令对复杂重排/位点特异反应的独立贡献 |
-| **T1-L11** | **`AtomTool` 留一 ③** | `w/o AtomTool Inverse Compiler (Forward Edits Only)` | 在 `v1.4` 存量答卷上设 `disable_product_first_fallback=True`，废除产物优先逆向反推，只允许手写 `AtomTool edits` | **0 call** | 与 `T1-L10` 成对互证：**`AtomTool` 正向算子执行 + 逆向图差编译双通道缺一不可** |
-| **T1-L12** | **`AtomTool` 留一 ④** | `w/o AtomTool Verification Gate (Raw Unverified Proposals)` | 在 `v1.4` 单路存量答卷（及 `EmptyPool` 答卷）上跳过 `AtomTool` 可执行核验与守恒门，直接按模型原始声明的产物 SMILES 交卷判分，并统计**化学幻觉违例率** | **0 call** | 证明撤掉 `AtomTool` 安检门后，非法价态与凭空增减原子的幻觉分子会直接混入输出，破坏科学可靠性 |
+| **T1-L3** | D1 Full-System LOO | `w/o Equiv-Product & Elig-Norm Consensus (v3 → v1)` | 在同组样本上关断等价簇合票与资格归一化，退回 `Consensus v1`（含裁决器；对比 `T1-6 = 118`） | 0 call | 测定消除“异键同产物分票”与“跨池分母稀释”的净增益 |
+| **T1-L4** | D1 Full-System LOO | `w/o Multi-Sample Consensus (Multi-pass → 1-pass)` | 关断多路融合，退回 `wl4` 同池单路 `T1-4`（代表 `pa = 107/261` / 5 批均值 `104.60`；对比 `T1-6 = 118`） | 0 call | 分离测试时多采样共识相对单次前向推理的边际贡献 |
+| **T1-L5** | **`D2 Single-Route LOO`** | `w/o Stage-1 Reaction-Type Prompt (v3-type → v1)` | 在同池存量批 `t8_c/t9_c2` vs `t8_pa/pb/t9_pc` 上重放对照（单路 `w32@16` 基准 `T1-L6`） | 0 call | 测定“先判 12 类生化反应大类再写结构”的净增益 |
+| **T1-L6** | **`D2 Single-Route LOO`** | `w/o Redox & Multi-O Compiler Expansion (wl4 → w32)` | 对比 `wl4` 采样与未做氧化还原扩容的 `w32@16`（`t8_pa/pb/t9_pc`）重放（单路基准 `DB-0 均值`） | 0 call | 测定 `O2/H2O` 直编与 `NAD(P)H` 旁观对消释放的候选池天花板与实得增益 |
+| **T1-L7 / L7s** | D1 Full / D2 Single LOO | `w/o Ranking Calibration & Guarded Rules` | 在 `v1.4` 11 路全系统（`D1` vs `118`）与单路 `wl4_pa`（`D2` vs `107`）中关断 `calibrate_submittable_ranking` / `R1` | 0 call | 测定化学先验与共产物完整性排序校准的净贡献（含跨池放大效应） |
+| **T1-L8 / L8s** | D1 Full / D2 Single LOO | `w/o Cleavage Coproduct Auto-Upgrade` | 开启开关 `disable_cleavage_upgrade=True` 重放 11 路全系统（`D1` vs `118`）与单路（`D2` vs `107`） | 0 call | 测定裂解含碳离去碎片自动补全对严格守恒准入的独立贡献 |
+| **T1-L9** | **`AtomTool` D2 Single LOO ①** | `w/o AtomTool Graph View & Edit Prompt (Full Pool, SMILES-Only)` | 保持满配 `wl4@16` 候选池，但在提示词中**剥离 `AtomTool` 分子执行图 `execution_graph`、`atom_id_map` 与 `edits` 算子协议**（对比单路 `DB-0 均值 104.60`） | Stage P2 `AT-FullPool-NoGraph`（`261` calls） | 正面证明即使在满配检索池下，**`AtomTool` 考前原子身份证分子图与算子协议**依然有独立增益 |
+| **T1-L10 / L10s** | **`AtomTool` D1 / D2 LOO ②** | `w/o AtomTool Forward Edits (Product-First Only)` | 设 `fix_decide_atomtool_import=False` 废除正向手写 `AtomTool edits`，在全系统（`D1`）与单路（`D2`）上强制只走逆向反推 | **0 call** | 测定模型正向手写 `AtomTool` 原子操作指令的独立贡献与逆向兜底可替代边界 |
+| **T1-L11 / L11s** | **`AtomTool` D1 / D2 LOO ③** | `w/o AtomTool Inverse Compiler (Forward Edits Only)` | 设 `disable_product_first_fallback=True` 废除产物优先逆向反推，在全系统（`D1`）与单路（`D2`）上只允许手写 `AtomTool edits` | **0 call** | 与 `T1-L10` 成对互证：**`AtomTool` 正向算子执行 + 逆向图差编译双通道在多路协同中缺一不可** |
+| **T1-L12** | **`AtomTool` D2 Single LOO ④** | `w/o AtomTool Verification Gate (Raw Unverified Proposals)` | 在 `v1.4` 单路存量答卷 `wl4_pa` 上跳过 `AtomTool` 可执行核验与守恒门（对比 `T1-4 pa = 107`），直接按原始声明产物 SMILES 交卷判分并统计幻觉率 | **0 call** | 证明撤掉 `AtomTool` 安检门后，非法价态与凭空增减原子的幻觉分子会直接混入输出，破坏科学可靠性 |
 
-> **💡 独立专表同步产出**：报告中除生成完整主表 1 外，将自动把 `T1-0`、`T1-0a`、`T1-1` 与 `T1-L9..L12` 抽取汇总为独立的 **`论文表 1B：AtomTool 分子图表示、双向编辑与防化学幻觉专项消融表`**（并列展示 `Hit@1`、`Parse/Valence Error %`、`Atom Conservation Violation %`、`Spurious Top-1 %` 四维指标）。
+#### 表 D3：护栏负控与历史无裁决参考（已按 P5 R2 从表 D1 Full-System LOO 独立剥离）
+
+| 行号 | 栏位类型 | 论文表展示名称 | 自身对应基准 | 核心设计与结论 |
+| :--- | :---: | :--- | :---: | :--- |
+| **T1-L1** | **护栏负控** | `w/o Trace-Protected Gate (Unconditional Sym-Adj, two_tier\|d6\|u8\|e2\|r5)` | `T1-6` (`118/261`) | 将仲裁门控退回无溯源保护的宽松代理（`0` 新调用）；**反证**无保护门控会大面积误翻正确守擂强锚点与独有 `novel` |
+| **T1-L2** | **历史参考（原 P5 移入 D3）** | `w/o Selective Thinking Adjudicator`（即 `T1-5` 无裁决同构对照） | **`T1-5` (`116/261`)** | 基准为 `T1-5` 而非 `T1-6`；**Stage P5 R2 已将其从表 D1 Full-System LOO 移出至表 D3 独立归档**，避免与 `T1-6` 基线混淆（下一轮执行者不得将其回填表 D1） |
+
+> **💡 独立专表同步产出**：报告中除生成完整主表（Table A / Table D1–D3）外，将自动把 `T1-0`、`T1-0a`、`T1-1` 与 `T1-L9..L12` 抽取汇总为独立的 **`论文表 1B：AtomTool 分子图表示、双向编辑与防化学幻觉专项消融表`**（并列展示 `Hit@1`、`Parse/Valence Error %`、`Atom Conservation Violation %`、`Spurious Top-1 %` 四维指标）。
+
+---
+
+### 1.1B 论文 Table B：自记录占比与无自记录泛化边界专表（NoSelf & `ex-self` / `ex_rec_only` 完整规格）
+
+- **目标定位与双分母**：回答审稿人“剥离题目自身直接先例记录后，系统在真实未见底物/异源反应上的泛化能力到底如何？”。全表严格并列 **`[biosysmodb121·调参集 N=261]`（主分母）** 与 **`[biosysmodb121·调参干净集 N=220]`**（零触碰 `156` 题分层留出集与 `[dev-298]`），每行报告 `v6 Hit@1/@3/@5`、`Clean-220 v6` 及 `v4 Hit@1`。
+- **架构层级硬隔离（严分 `full-system` 与 `single-route`，禁止单路代替全系统）**：
+  1. **`full-system`（11 路 / 5 路全系统对比层）**：
+     - **`T1-6` (`full-system, 11-pass`)**：满配底座 11 路共识 v3 + `trace_protected` 对称裁决（分别报告 `all`、`ex_rec_only`、`ex-self` 三口径）；
+     - **`T1-6 NoSelf_11p` (`full-system, 11-pass`, 输入端 `self_record_hits == 0`)**：主全系统无自记录对照，使用表 2 `DB-2 NoSelf` 同规格输入端清零自记录池独立采样 11 路（`db2_pa` + Stage P5 增补 `db2_pb..pk`，共 `2,871` calls）+ 完整 `Consensus v3` + `trace_protected` 裁决器（并同步报告未开裁决态 **`T1-5 NoSelf_11p`**）；
+     - **`T1-6 NoSelf_5p` (`full-system, 5-pass`, 输入端 `self_record_hits == 0`)**：复用 `db2_pa..pe` 前 5 路的同源全系统 5 路稳健性对照（含 **`T1-5 NoSelf_5p`**）；
+  2. **`single-route`（单路控制与规则迁移参考层，显式标注 `single-route arms`）**：
+     - **`DB-2 NoSelf`**（`db2_pa` 代表批 + `11 批均值±SD`，标注前 5 批均值对比）；
+     - **`DB-6 MNXOnly`**（仅开 MetaNetX 跨底物通用规则、`self=0` 单路规则迁移下界标尺）；
+     - **`DB-0 / T1-4` 5 批单路均值±SD**（满配池单路对照组 `pa..pe`）；
+     - **`T1-0a bare+守恒门`**（零外部数据库空池单路基线）。
+- **三种事后判分 / 自记录过滤口径精确定义（同源实现于 P4/P5 离线统计器与 `recompute_ablation_anchors.py`）**：
+  1. **`all`（主 Estimand）**：完整允许通道内的首个命中事件（`matched_product_hit` / `ppv1-criteria-v6`）；
+  2. **`ex_rec_only`（事后仅剔 `rec-` 直接记录）**：从对应输入批 `run_inputs/<qid>.json` 中提取 `key.startswith("rec-")` 或 `origin_group_key.startswith("rec-source:")` 且产物按原串或 `v4-cn` 中和严格身份匹配金标主产物的 `transformation_ref` 集合（记为 **`rec_refs`**）；对已提交候选序列事后跳过所有溯源命中 `rec_refs` 的事件，取剩余首个命中事件的位次计分。注：对于输入端已做完 `self_record_hits == 0` 隔离的 `NoSelf` 臂（`T1-5/T1-6 NoSelf`、`DB-2 NoSelf`、`DB-6 MNXOnly`、`T1-0a`），`rec_refs` 命中数为 `0`，故严格满足 **`ex_rec_only == all`**；
+  3. **`ex-self`（事后严格剔除 `rec-` + 同底物-同主产物重合 `tpl-` 模板对）**：在 `rec_refs` 之外，再从 `run_inputs/<qid>.json` 提取 `key.startswith("tpl-")` 且产物按原串或 `v4-cn` 中和严格身份匹配金标主产物的 `transformation_ref` 集合（记为 **`tpl_refs`**）；事后同时跳过溯源命中 `rec_refs ∪ tpl_refs` 的事件后重算 Hit@k。
+- **`61` 题交叉与全集 `261` 题 Venn 规格（`self_61` 必报协议）**：
+  - 定义 **`self_61 = { q ∈ [Tuning-261] | T1-6 all Hit@1 ∧ ¬(T1-6 ex-self Hit@1) }`**（共 `61` 题：由 `rec_only` 与 `tpl_only` 两类通道触发组成）；
+  - Table B 及诊断附录必须同步核对并报告：① `self_61` 内部通道构成（`rec_only` vs `tpl_only`）；② **`T1-6 NoSelf_11p` 在 `self_61` 上的实际独立恢复率**（`Hit@1`、`Hit@2–5`、`Top-5` 覆盖率及严格剔 `tpl_refs` 后的 `strict ex-tpl` 命中数）；③ 全集 `261` 题逐题 Venn（`T1-6 all` vs `T1-6 NoSelf_11p all`；`T1-6 ex-self` vs `T1-6 NoSelf_11p ex-self`）；④ **`T1-6 NoSelf_11p` 自身 `all → ex-self` 扣分归因**（必须验明 **`rec_only == 0`**，100% 源自 `tpl_only`）。
 
 ---
 
@@ -88,6 +122,10 @@
 > 3. 在 `analog` 中剔除原始反应左端（`mapped_lhs` 去映射后严格或去质子组分集合）包含当前输入底物、或模板 ID 匹配题源反应 ID 的模板（只允许从**异源其他分子**做结构类比迁移）；
 > 4. 在 `S5-env` 与 `S5-rr` 中剔除 `parent_reaction_ids` 命中题源反应 ID 的规则，以及所有支撑父反应的左端底物均等于当前输入底物的单样本特异规则；
 > 5. 建池完成后，在离线 `GIP@16` 审计阶段调用既有只读 `ex-self` 核验器断言：**`DB-2 NoSelf` 全池 `self_record_hits == 0`（261/261 零自记录残留）**！
+>
+> **统计检验与多重比较校正规格（§1.2 必报）**：
+> - 对 `DB-1..DB-7` 共 $m = 7$ 个单路消融臂，统一以控制底座 `DB-0` 主复本 **`db0_pa`（`107/261`）** 为配对参照，使用 **`n_boot = 10,000` 次配对 Bootstrap（报告 $\Delta\text{Hit@1}$ 95% CI）** 与 **双侧精确 McNemar 检验（报告原始 $p_{\text{raw}}$）**，并在整张 Table 2 上同步执行 **Holm-Bonferroni 逐步多重比较校正（报告 $p_{\text{Holm}}$，显著性阈值 $\alpha = 0.05$）**；
+> - 全表 `DB-0..DB-7` 并列报告 `all`、`ex-self`、`ex_rec_only`、`Clean-220` 与 `错池率 %`（全空池 `DB-1` 定义为 `0.00%`）。
 
 ---
 
@@ -146,7 +184,7 @@
    - `scripts/hpc/paper_ablation_table1_table4_hpc.py` + `scripts/hpc/sbatch_paper_ablation_t1_t4.sh`：在乌镇 32C 对 `[biosysmodb121]` 一次性跑完表 1 全部零调用重放行（`T1-2..T1-6`、`T1-L1..T1-L8`、`T1-L10..T1-L12`）与表 4 五口径阶梯矩阵，含正控 `diffs == 0` 断言、`anti_truncation == 0` 检查与 `AtomTool` 幻觉率统计。
    - `scripts/hpc/paper_ablation_pools_hpc.py` + `scripts/hpc/sbatch_paper_ablation_pools.sh`（基于 `t14_step1b_gip_hpc.py` Linux 父进程预热 COW 32C 并行架构扩展，支持 `--arms` 分片参数以便多节点同时提交）：在乌镇 32C 并行构建 `[biosysmodb121]` 的 `DB0_full_ctrl` + `DB1..DB7` 全部 `@16` 池 JSON（按臂隔离独立临时缓存目录），逐池跑生产链 4 步准入硬门（`n_admission_failures == 0`）、`NoSelf` 零泄漏断言、双口径 `GIP@16`（含 `N=261` 与 `N=220`）及错池率统计。
    - `scripts/eval/paper_ablation_build_batches.py`：在本地 gitignored `reports/ppv1_s5b/paper_ablation_v14_20261116/` 下生成 Stage P2 全部 **9 个 `[biosysmodb121]` 待跑单路批根**（`AT-RawBlind`、`AT-FullPool-NoGraph`、`DB1..DB7`）。
-   - `scripts/hpc/paper_ablation_final_score_hpc.py` + `scripts/hpc/sbatch_paper_ablation_final.sh`：9 批采样完成后同步至乌镇 32C，合成完整 **论文表 1（全栈主表）**、**论文表 1B（`AtomTool` 专项深度拆解与防幻觉表）**、**论文表 2（`assets/` 数据库全满贯表，含相对 `DB-0` 5 批基线的 `n_boot=10,000` 配对 Bootstrap 95% CI 与双侧精确 McNemar $p$ 值）** 与 **论文表 4（五口径与分层透明表）**。
+   - `scripts/hpc/paper_ablation_final_score_hpc.py` + `scripts/hpc/sbatch_paper_ablation_final.sh`：9 批采样完成后同步至乌镇 32C，合成完整 **论文 Table A–D（全栈线性演进 + 无自记录边界 Table B + 外部基线 Table C + D1/D2/D3 留一分离表）**、**论文表 1B（`AtomTool` 专项深度拆解与防幻觉表）**、**论文表 2（`assets/` 数据库全满贯表，含相对 `DB-0 pa` 的 `n_boot=10,000` 配对 Bootstrap 95% CI、双侧精确 McNemar $p_{\text{raw}}$ 与 7 组 Holm-Bonferroni 校正 $p_{\text{Holm}}$）** 与 **论文表 4（五口径与分层透明表）**。
 3. **本地轻量单测**：
    - `tests/pollutant/test_paper_ablation_v14.py`：覆盖 `disable_atomtool_prompt` 开启时载荷不含 `execution_graph`/`substrate_atom_id_map` 且关闭时 SHA256 逐字节不变、后置开关默认 `False` 零漂移、7 种 `ablation_source_filter` 精确过滤、`NoSelf` 零金标底物剥离、`EmptyPool` 端到端无崩溃及 `score_raw_unverified_proposals` 幻觉率统计正负控（本地耗时 `< 15s`）。
 
@@ -192,9 +230,9 @@
 
 2. **本机并发 HTTP 采样纪律**：加载 `/Users/cc/.config/enzyme_agent/llm.env`（严禁打印任何环境变量内容），轨 C `DB1..DB7` 可多批同时起跑以缩短总耗时，但**所有并行采样进程的总并发请求数之和须受控（建议分 2–3 组并发或总 `--concurrency <= 24`）**，防止触及 API 网关 `429` 限流；实时记录每批 Input / Output / Total Tokens（无价目快照时费用栏记「未核实」），要求全 9 批 `failed_runs == 0`。
 3. **推回乌镇 32C 终判与统计检验（轨 D）**：将 9 批运行结果 `rsync` 至乌镇 `${HPC_BASE}/paper_ablation_v14_20261116/runs/`，提交 `sbatch_paper_ablation_final.sh`，32 核并发一次性生成（全部带 `[biosysmodb121·调参集 N=261]` 与 `[biosysmodb121·调参干净集 N=220]` 双分母列）：
-   - **论文表 1**：`[biosysmodb121]` 单步全栈架构主消融表（`T1-0` 真·裸模型 $\to$ `T1-6` `45.21%` 爬坡 + `T1-L1..L12` 留一剔除）；
+   - **论文主表组 Table A / B / C / D**：`T1-0` 真·裸模型 $\to$ `T1-6` `45.21%` 线性演进（Table A）、`full-system` vs `single-route` `NoSelf / ex-self / ex_rec_only / self_61`（Table B）、外部权威基线对照（Table C）、`Full-System LOO D1` vs `Single-Route LOO D2` vs `负控/历史参考 D3`（Table D）；
    - **论文表 1B**：`AtomTool` 专项深度拆解与防化学幻觉表；
-   - **论文表 2**：`[biosysmodb121]` 生化数据库（`assets/`）顶会全满贯正交消融表（含离线 `GIP@16`、错池率、端到端 `v6/v4 Hit@1/@3/@5`、Bootstrap 95% CI 与 McNemar $p$ 值）；
+   - **论文表 2**：`[biosysmodb121]` 生化数据库（`assets/`）顶会全满贯正交消融表（含离线 `GIP@16`、错池率、端到端 `v6/v4/ex-self/ex_rec_only Hit@1/@3/@5`、Bootstrap 95% CI、McNemar $p_{\text{raw}}$ 与 7 组 **Holm-Bonferroni 校正 $p_{\text{Holm}}$**）；
    - **论文表 4**：五口径判据阶梯与 `N=261/220` 四层题面边界透明披露表。
 4. **落盘正式脱敏报告与本地提交**：
    - 正式报告写入 `/Volumes/CC/Enzyme_Agent/v44_v13/docs/reports/PAPER_ABLATION_STUDY_V14_REPORT_2026-11-16.md`，并同步复制一份脱敏副本至 `/Volumes/CC/Enzyme_Agent/dependingv43/docs/reports/PAPER_ABLATION_STUDY_V14_REPORT_2026-11-16.md`；
