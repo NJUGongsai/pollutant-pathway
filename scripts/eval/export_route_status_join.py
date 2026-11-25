@@ -67,6 +67,7 @@ T1_0_COLUMN_NAMES: tuple[str, ...] = (
     "t1_0_v4_hit1",
     "t1_0_v4_hit3",
     "t1_0_v4_hit5",
+    "t1_0_spurious_top1",
 )
 
 T1_0A_COLUMN_NAMES: tuple[str, ...] = (
@@ -153,6 +154,7 @@ def _t1_0_columns(row: dict[str, object]) -> dict[str, object]:
         "t1_0_v4_hit1": int(bool(row["v4_hit_at_1"])),
         "t1_0_v4_hit3": int(bool(row["v4_hit_at_3"])),
         "t1_0_v4_hit5": int(bool(row["v4_hit_at_5"])),
+        "t1_0_spurious_top1": int(bool(row.get("spurious_top1"))),
     }
 
 
