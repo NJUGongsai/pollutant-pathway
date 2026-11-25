@@ -1,0 +1,1374 @@
+{
+  "generated_at_utc": "2026-11-24T09:48:11Z",
+  "finding": "_detailed_self_index in paper_ablation_p4_supplement_hpc.py only inspects rec- and tpl- keys, 0% coverage on s5- (s5_hybrid_rule).",
+  "arms": {
+    "Tuning261_DB6_MNXOnly": {
+      "label": "Tuning261_DB6_MNXOnly",
+      "native_run_noself_audit": {
+        "status": "noself_leak",
+        "self_record_hits": 11,
+        "n_candidates": 3177,
+        "n_checked": 3177,
+        "n_uncovered": 0,
+        "checked_rate": 1.0,
+        "n_by_reaction_id": 0,
+        "n_by_rule_source_key": 0,
+        "n_by_strict_pair": 11,
+        "hit_path_histogram": {
+          "s5_rr_strict_pair": 11
+        },
+        "by_channel": {
+          "s5_hybrid_rule": {
+            "n_candidates": 3177,
+            "n_checked": 3177,
+            "n_uncovered": 0,
+            "n_hits": 11
+          }
+        },
+        "uncovered_reasons": {},
+        "n_questions": 261,
+        "n_missing_substrates": 0,
+        "n_questions_missing_reaction_id": 0,
+        "n_questions_missing_reference_graph": 0,
+        "question_context": {
+          "n_records": 261,
+          "n_with_reaction_id": 261
+        },
+        "sources": {
+          "assets_root": "<FROZEN_ASSETS_ROOT>",
+          "retro_indices_loaded": true,
+          "retro_indices_error": null,
+          "template_pairs_loaded": true,
+          "template_pairs_error": null,
+          "env_rules_loaded": true,
+          "env_rules_error": null,
+          "rr_template_pair_datasets": [
+            "mnx"
+          ],
+          "rr_template_pairs_loaded": 336966,
+          "rxn_max_pairs_loaded": 49753,
+          "gold_aware_stage": "noself_audit_only"
+        },
+        "coverage_notes": [
+          "question_source_ids = _reaction_id ∪ load_retro_self_record_indices 的 self_ids（生产 ex-self 口径）",
+          "self_ids_by_qid 由生产 loader 以整串底物严格键索引；多组分底物的 corpus 自 ID 匹配可能偏少（check_retro_self_record 的 strict-pair 路径仍按组分键判定）",
+          "S5-env 规则若既无 parent_reaction_ids 又无 donor/product SMILES，则只能按规则 ID 判定（覆盖缺口如实计入 n_uncovered）",
+          "S5-rr 按 derived meta 的 template_id→(lhs,rhs) 补充strict-pair；无 template pair 时退回 reaction-id 路径",
+          "S5 规则缺 parent_reaction_ids 时，以 rule_id 作为身份 token 交给生产 ex-self checker（不伪造 donor lhs/rhs；不声称parent 级覆盖）"
+        ],
+        "elapsed_s": 22.74
+      },
+      "shared_pool_audit": {
+        "n_candidates": 3177,
+        "n_checked": 3177,
+        "n_uncovered": 0,
+        "self_record_hits": 11,
+        "checked_rate": 1.0,
+        "hit_path_histogram": {
+          "s5_rr_strict_pair": 11
+        },
+        "by_channel": {
+          "s5_hybrid_rule": {
+            "n_candidates": 3177,
+            "n_checked": 3177,
+            "n_hits": 11
+          }
+        }
+      },
+      "elapsed_s": 239.0,
+      "v6": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 102,
+            "hit@3": 124,
+            "hit@5": 132
+          },
+          "legacy_ex_self": {
+            "hit@1": 102,
+            "hit@3": 124,
+            "hit@5": 132
+          },
+          "true_ex_self": {
+            "hit@1": 96,
+            "hit@3": 115,
+            "hit@5": 121
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 95,
+            "hit@3": 116,
+            "hit@5": 123
+          },
+          "legacy_ex_self": {
+            "hit@1": 95,
+            "hit@3": 116,
+            "hit@5": 123
+          },
+          "true_ex_self": {
+            "hit@1": 89,
+            "hit@3": 107,
+            "hit@5": 112
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "other": 90,
+          "novel_or_unpooled": 12
+        },
+        "rank1_true_self_winners": 6,
+        "rank1_true_self_paths_hist": {
+          "s5_rr_strict_pair": 6
+        }
+      },
+      "v4": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 65,
+            "hit@3": 81,
+            "hit@5": 87
+          },
+          "legacy_ex_self": {
+            "hit@1": 65,
+            "hit@3": 81,
+            "hit@5": 87
+          },
+          "true_ex_self": {
+            "hit@1": 59,
+            "hit@3": 72,
+            "hit@5": 76
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 60,
+            "hit@3": 76,
+            "hit@5": 82
+          },
+          "legacy_ex_self": {
+            "hit@1": 60,
+            "hit@3": 76,
+            "hit@5": 82
+          },
+          "true_ex_self": {
+            "hit@1": 54,
+            "hit@3": 67,
+            "hit@5": 71
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "other": 58,
+          "novel_or_unpooled": 7
+        },
+        "rank1_true_self_winners": 6,
+        "rank1_true_self_paths_hist": {
+          "s5_rr_strict_pair": 6
+        }
+      }
+    },
+    "Holdout156_DB6_MNXOnly": {
+      "label": "Holdout156_DB6_MNXOnly",
+      "native_run_noself_audit": {
+        "status": "noself_leak",
+        "self_record_hits": 13,
+        "n_candidates": 1864,
+        "n_checked": 1864,
+        "n_uncovered": 0,
+        "checked_rate": 1.0,
+        "n_by_reaction_id": 0,
+        "n_by_rule_source_key": 0,
+        "n_by_strict_pair": 13,
+        "hit_path_histogram": {
+          "s5_rr_strict_pair": 13
+        },
+        "by_channel": {
+          "s5_hybrid_rule": {
+            "n_candidates": 1864,
+            "n_checked": 1864,
+            "n_uncovered": 0,
+            "n_hits": 13
+          }
+        },
+        "uncovered_reasons": {},
+        "n_questions": 156,
+        "n_missing_substrates": 0,
+        "n_questions_missing_reaction_id": 0,
+        "n_questions_missing_reference_graph": 0,
+        "question_context": {
+          "n_records": 156,
+          "n_with_reaction_id": 156
+        },
+        "sources": {
+          "assets_root": "<FROZEN_ASSETS_ROOT>",
+          "retro_indices_loaded": true,
+          "retro_indices_error": null,
+          "template_pairs_loaded": true,
+          "template_pairs_error": null,
+          "env_rules_loaded": true,
+          "env_rules_error": null,
+          "rr_template_pair_datasets": [
+            "mnx"
+          ],
+          "rr_template_pairs_loaded": 336966,
+          "rxn_max_pairs_loaded": 49753,
+          "gold_aware_stage": "noself_audit_only"
+        },
+        "coverage_notes": [
+          "question_source_ids = _reaction_id ∪ load_retro_self_record_indices 的 self_ids（生产 ex-self 口径）",
+          "self_ids_by_qid 由生产 loader 以整串底物严格键索引；多组分底物的 corpus 自 ID 匹配可能偏少（check_retro_self_record 的 strict-pair 路径仍按组分键判定）",
+          "S5-env 规则若既无 parent_reaction_ids 又无 donor/product SMILES，则只能按规则 ID 判定（覆盖缺口如实计入 n_uncovered）",
+          "S5-rr 按 derived meta 的 template_id→(lhs,rhs) 补充strict-pair；无 template pair 时退回 reaction-id 路径",
+          "S5 规则缺 parent_reaction_ids 时，以 rule_id 作为身份 token 交给生产 ex-self checker（不伪造 donor lhs/rhs；不声称parent 级覆盖）"
+        ],
+        "elapsed_s": 17.79
+      },
+      "shared_pool_audit": {
+        "n_candidates": 1864,
+        "n_checked": 1864,
+        "n_uncovered": 0,
+        "self_record_hits": 13,
+        "checked_rate": 1.0,
+        "hit_path_histogram": {
+          "s5_rr_strict_pair": 13
+        },
+        "by_channel": {
+          "s5_hybrid_rule": {
+            "n_candidates": 1864,
+            "n_checked": 1864,
+            "n_hits": 13
+          }
+        }
+      },
+      "elapsed_s": 160.06,
+      "v6": {
+        "full": {
+          "denominator": 156,
+          "all": {
+            "hit@1": 51,
+            "hit@3": 68,
+            "hit@5": 72
+          },
+          "legacy_ex_self": {
+            "hit@1": 51,
+            "hit@3": 68,
+            "hit@5": 72
+          },
+          "true_ex_self": {
+            "hit@1": 40,
+            "hit@3": 56,
+            "hit@5": 60
+          }
+        },
+        "clean": {
+          "denominator": 132,
+          "all": {
+            "hit@1": 49,
+            "hit@3": 63,
+            "hit@5": 65
+          },
+          "legacy_ex_self": {
+            "hit@1": 49,
+            "hit@3": 63,
+            "hit@5": 65
+          },
+          "true_ex_self": {
+            "hit@1": 38,
+            "hit@3": 51,
+            "hit@5": 53
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "novel_or_unpooled": 10,
+          "other": 41
+        },
+        "rank1_true_self_winners": 11,
+        "rank1_true_self_paths_hist": {
+          "s5_rr_strict_pair": 11
+        }
+      },
+      "v4": {
+        "full": {
+          "denominator": 156,
+          "all": {
+            "hit@1": 31,
+            "hit@3": 41,
+            "hit@5": 42
+          },
+          "legacy_ex_self": {
+            "hit@1": 31,
+            "hit@3": 41,
+            "hit@5": 42
+          },
+          "true_ex_self": {
+            "hit@1": 20,
+            "hit@3": 29,
+            "hit@5": 30
+          }
+        },
+        "clean": {
+          "denominator": 132,
+          "all": {
+            "hit@1": 31,
+            "hit@3": 41,
+            "hit@5": 42
+          },
+          "legacy_ex_self": {
+            "hit@1": 31,
+            "hit@3": 41,
+            "hit@5": 42
+          },
+          "true_ex_self": {
+            "hit@1": 20,
+            "hit@3": 29,
+            "hit@5": 30
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "novel_or_unpooled": 5,
+          "other": 26
+        },
+        "rank1_true_self_winners": 11,
+        "rank1_true_self_paths_hist": {
+          "s5_rr_strict_pair": 11
+        }
+      }
+    },
+    "Tuning261_DB2_NoSelf": {
+      "label": "Tuning261_DB2_NoSelf",
+      "native_run_noself_audit": null,
+      "shared_pool_audit": {
+        "n_candidates": 3430,
+        "n_checked": 3430,
+        "n_uncovered": 0,
+        "self_record_hits": 0,
+        "checked_rate": 1.0,
+        "hit_path_histogram": {},
+        "by_channel": {
+          "analog": {
+            "n_candidates": 360,
+            "n_checked": 360
+          },
+          "s5_hybrid_rule": {
+            "n_candidates": 3070,
+            "n_checked": 3070
+          }
+        }
+      },
+      "elapsed_s": 289.0,
+      "v6": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 96,
+            "hit@3": 117,
+            "hit@5": 122
+          },
+          "legacy_ex_self": {
+            "hit@1": 69,
+            "hit@3": 89,
+            "hit@5": 94
+          },
+          "true_ex_self": {
+            "hit@1": 96,
+            "hit@3": 117,
+            "hit@5": 122
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 92,
+            "hit@3": 112,
+            "hit@5": 116
+          },
+          "legacy_ex_self": {
+            "hit@1": 65,
+            "hit@3": 84,
+            "hit@5": 88
+          },
+          "true_ex_self": {
+            "hit@1": 92,
+            "hit@3": 112,
+            "hit@5": 116
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "other": 35,
+          "tpl-other": 46,
+          "novel_or_unpooled": 15
+        },
+        "rank1_true_self_winners": 0,
+        "rank1_true_self_paths_hist": {}
+      },
+      "v4": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 64,
+            "hit@3": 79,
+            "hit@5": 85
+          },
+          "legacy_ex_self": {
+            "hit@1": 37,
+            "hit@3": 51,
+            "hit@5": 57
+          },
+          "true_ex_self": {
+            "hit@1": 64,
+            "hit@3": 79,
+            "hit@5": 85
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 61,
+            "hit@3": 75,
+            "hit@5": 80
+          },
+          "legacy_ex_self": {
+            "hit@1": 34,
+            "hit@3": 47,
+            "hit@5": 52
+          },
+          "true_ex_self": {
+            "hit@1": 61,
+            "hit@3": 75,
+            "hit@5": 80
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "other": 29,
+          "tpl-other": 27,
+          "novel_or_unpooled": 8
+        },
+        "rank1_true_self_winners": 0,
+        "rank1_true_self_paths_hist": {}
+      }
+    },
+    "Tuning261_DB5_RheaOnly": {
+      "label": "Tuning261_DB5_RheaOnly",
+      "native_run_noself_audit": null,
+      "shared_pool_audit": {
+        "n_candidates": 3118,
+        "n_checked": 2829,
+        "n_uncovered": 289,
+        "self_record_hits": 3,
+        "checked_rate": 0.9073,
+        "hit_path_histogram": {
+          "s5_rr_strict_pair": 1,
+          "analog_strict_pair": 2,
+          "analog_source_key": 2
+        },
+        "by_channel": {
+          "analog": {
+            "n_candidates": 241,
+            "n_checked": 241,
+            "n_hits": 2
+          },
+          "recorded": {
+            "n_candidates": 289,
+            "n_uncovered": 289
+          },
+          "s5_hybrid_rule": {
+            "n_candidates": 2588,
+            "n_checked": 2588,
+            "n_hits": 1
+          }
+        }
+      },
+      "elapsed_s": 290.42,
+      "v6": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 107,
+            "hit@3": 130,
+            "hit@5": 131
+          },
+          "legacy_ex_self": {
+            "hit@1": 69,
+            "hit@3": 83,
+            "hit@5": 84
+          },
+          "true_ex_self": {
+            "hit@1": 105,
+            "hit@3": 129,
+            "hit@5": 130
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 101,
+            "hit@3": 121,
+            "hit@5": 122
+          },
+          "legacy_ex_self": {
+            "hit@1": 67,
+            "hit@3": 79,
+            "hit@5": 80
+          },
+          "true_ex_self": {
+            "hit@1": 99,
+            "hit@3": 120,
+            "hit@5": 121
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "novel_or_unpooled": 13,
+          "other": 31,
+          "rec": 56,
+          "tpl-other": 7
+        },
+        "rank1_true_self_winners": 2,
+        "rank1_true_self_paths_hist": {
+          "s5_rr_strict_pair": 1,
+          "analog_strict_pair": 1,
+          "analog_source_key": 1
+        }
+      },
+      "v4": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 66,
+            "hit@3": 84,
+            "hit@5": 84
+          },
+          "legacy_ex_self": {
+            "hit@1": 28,
+            "hit@3": 37,
+            "hit@5": 37
+          },
+          "true_ex_self": {
+            "hit@1": 65,
+            "hit@3": 84,
+            "hit@5": 84
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 62,
+            "hit@3": 79,
+            "hit@5": 79
+          },
+          "legacy_ex_self": {
+            "hit@1": 28,
+            "hit@3": 37,
+            "hit@5": 37
+          },
+          "true_ex_self": {
+            "hit@1": 61,
+            "hit@3": 79,
+            "hit@5": 79
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "novel_or_unpooled": 11,
+          "other": 17,
+          "rec": 34,
+          "tpl-other": 4
+        },
+        "rank1_true_self_winners": 1,
+        "rank1_true_self_paths_hist": {
+          "s5_rr_strict_pair": 1
+        }
+      }
+    },
+    "Tuning261_DB4_NoRR": {
+      "label": "Tuning261_DB4_NoRR",
+      "native_run_noself_audit": null,
+      "shared_pool_audit": {
+        "n_candidates": 3304,
+        "n_checked": 2976,
+        "n_uncovered": 328,
+        "self_record_hits": 46,
+        "checked_rate": 0.9007,
+        "hit_path_histogram": {
+          "s5_rule_source_key": 46,
+          "analog_strict_pair": 23,
+          "analog_source_key": 23
+        },
+        "by_channel": {
+          "analog": {
+            "n_candidates": 426,
+            "n_checked": 426,
+            "n_hits": 23
+          },
+          "recorded": {
+            "n_candidates": 328,
+            "n_uncovered": 328
+          },
+          "s5_hybrid_rule": {
+            "n_candidates": 2550,
+            "n_checked": 2550,
+            "n_hits": 23
+          }
+        }
+      },
+      "elapsed_s": 286.69,
+      "v6": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 98,
+            "hit@3": 126,
+            "hit@5": 130
+          },
+          "legacy_ex_self": {
+            "hit@1": 46,
+            "hit@3": 59,
+            "hit@5": 61
+          },
+          "true_ex_self": {
+            "hit@1": 82,
+            "hit@3": 106,
+            "hit@5": 109
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 93,
+            "hit@3": 120,
+            "hit@5": 123
+          },
+          "legacy_ex_self": {
+            "hit@1": 45,
+            "hit@3": 58,
+            "hit@5": 60
+          },
+          "true_ex_self": {
+            "hit@1": 77,
+            "hit@3": 100,
+            "hit@5": 102
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "rec": 59,
+          "tpl-other": 27,
+          "other": 11,
+          "novel_or_unpooled": 1
+        },
+        "rank1_true_self_winners": 16,
+        "rank1_true_self_paths_hist": {
+          "analog_strict_pair": 13,
+          "analog_source_key": 13,
+          "s5_rule_source_key": 6
+        }
+      },
+      "v4": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 65,
+            "hit@3": 91,
+            "hit@5": 97
+          },
+          "legacy_ex_self": {
+            "hit@1": 13,
+            "hit@3": 24,
+            "hit@5": 28
+          },
+          "true_ex_self": {
+            "hit@1": 52,
+            "hit@3": 72,
+            "hit@5": 77
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 61,
+            "hit@3": 85,
+            "hit@5": 90
+          },
+          "legacy_ex_self": {
+            "hit@1": 13,
+            "hit@3": 23,
+            "hit@5": 27
+          },
+          "true_ex_self": {
+            "hit@1": 48,
+            "hit@3": 66,
+            "hit@5": 70
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "rec": 38,
+          "tpl-other": 17,
+          "other": 10
+        },
+        "rank1_true_self_winners": 13,
+        "rank1_true_self_paths_hist": {
+          "analog_strict_pair": 10,
+          "analog_source_key": 10,
+          "s5_rule_source_key": 6
+        }
+      }
+    },
+    "Tuning261_DB3_NoEnv": {
+      "label": "Tuning261_DB3_NoEnv",
+      "native_run_noself_audit": null,
+      "shared_pool_audit": {
+        "n_candidates": 3293,
+        "n_checked": 3021,
+        "n_uncovered": 272,
+        "self_record_hits": 6,
+        "checked_rate": 0.9174,
+        "hit_path_histogram": {
+          "s5_rr_strict_pair": 4,
+          "analog_strict_pair": 2,
+          "analog_source_key": 2
+        },
+        "by_channel": {
+          "analog": {
+            "n_candidates": 236,
+            "n_checked": 236,
+            "n_hits": 2
+          },
+          "recorded": {
+            "n_candidates": 272,
+            "n_uncovered": 272
+          },
+          "s5_hybrid_rule": {
+            "n_candidates": 2785,
+            "n_checked": 2785,
+            "n_hits": 4
+          }
+        }
+      },
+      "elapsed_s": 285.67,
+      "v6": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 103,
+            "hit@3": 135,
+            "hit@5": 136
+          },
+          "legacy_ex_self": {
+            "hit@1": 67,
+            "hit@3": 87,
+            "hit@5": 88
+          },
+          "true_ex_self": {
+            "hit@1": 100,
+            "hit@3": 130,
+            "hit@5": 132
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 96,
+            "hit@3": 125,
+            "hit@5": 126
+          },
+          "legacy_ex_self": {
+            "hit@1": 64,
+            "hit@3": 83,
+            "hit@5": 84
+          },
+          "true_ex_self": {
+            "hit@1": 93,
+            "hit@3": 120,
+            "hit@5": 122
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "other": 37,
+          "rec": 53,
+          "novel_or_unpooled": 6,
+          "tpl-other": 7
+        },
+        "rank1_true_self_winners": 3,
+        "rank1_true_self_paths_hist": {
+          "s5_rr_strict_pair": 2,
+          "analog_strict_pair": 1,
+          "analog_source_key": 1
+        }
+      },
+      "v4": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 63,
+            "hit@3": 87,
+            "hit@5": 88
+          },
+          "legacy_ex_self": {
+            "hit@1": 27,
+            "hit@3": 39,
+            "hit@5": 40
+          },
+          "true_ex_self": {
+            "hit@1": 61,
+            "hit@3": 83,
+            "hit@5": 85
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 59,
+            "hit@3": 81,
+            "hit@5": 82
+          },
+          "legacy_ex_self": {
+            "hit@1": 27,
+            "hit@3": 39,
+            "hit@5": 40
+          },
+          "true_ex_self": {
+            "hit@1": 57,
+            "hit@3": 77,
+            "hit@5": 79
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "other": 23,
+          "rec": 32,
+          "novel_or_unpooled": 4,
+          "tpl-other": 4
+        },
+        "rank1_true_self_winners": 2,
+        "rank1_true_self_paths_hist": {
+          "s5_rr_strict_pair": 2
+        }
+      }
+    },
+    "Tuning261_DB7_AddUSPTO": {
+      "label": "Tuning261_DB7_AddUSPTO",
+      "native_run_noself_audit": null,
+      "shared_pool_audit": {
+        "n_candidates": 4106,
+        "n_checked": 2349,
+        "n_uncovered": 1757,
+        "self_record_hits": 39,
+        "checked_rate": 0.5721,
+        "hit_path_histogram": {
+          "s5_rule_source_key": 36,
+          "analog_strict_pair": 21,
+          "analog_source_key": 21
+        },
+        "by_channel": {
+          "analog": {
+            "n_candidates": 377,
+            "n_checked": 377,
+            "n_hits": 21
+          },
+          "recorded": {
+            "n_candidates": 289,
+            "n_uncovered": 289
+          },
+          "s5_hybrid_rule": {
+            "n_candidates": 1972,
+            "n_checked": 1972,
+            "n_hits": 18
+          },
+          "uspto": {
+            "n_candidates": 1468,
+            "n_uncovered": 1468
+          }
+        }
+      },
+      "elapsed_s": 284.37,
+      "v6": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 101,
+            "hit@3": 129,
+            "hit@5": 133
+          },
+          "legacy_ex_self": {
+            "hit@1": 46,
+            "hit@3": 58,
+            "hit@5": 63
+          },
+          "true_ex_self": {
+            "hit@1": 89,
+            "hit@3": 114,
+            "hit@5": 117
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 95,
+            "hit@3": 123,
+            "hit@5": 127
+          },
+          "legacy_ex_self": {
+            "hit@1": 45,
+            "hit@3": 57,
+            "hit@5": 62
+          },
+          "true_ex_self": {
+            "hit@1": 83,
+            "hit@3": 108,
+            "hit@5": 111
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "rec": 61,
+          "tpl-other": 20,
+          "other": 9,
+          "tpl-uspto": 6,
+          "novel_or_unpooled": 5
+        },
+        "rank1_true_self_winners": 12,
+        "rank1_true_self_paths_hist": {
+          "analog_strict_pair": 11,
+          "analog_source_key": 11,
+          "s5_rule_source_key": 2
+        }
+      },
+      "v4": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 67,
+            "hit@3": 91,
+            "hit@5": 94
+          },
+          "legacy_ex_self": {
+            "hit@1": 12,
+            "hit@3": 20,
+            "hit@5": 24
+          },
+          "true_ex_self": {
+            "hit@1": 59,
+            "hit@3": 77,
+            "hit@5": 79
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 62,
+            "hit@3": 86,
+            "hit@5": 89
+          },
+          "legacy_ex_self": {
+            "hit@1": 12,
+            "hit@3": 20,
+            "hit@5": 24
+          },
+          "true_ex_self": {
+            "hit@1": 54,
+            "hit@3": 72,
+            "hit@5": 74
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "rec": 39,
+          "tpl-other": 13,
+          "other": 7,
+          "tpl-uspto": 5,
+          "novel_or_unpooled": 3
+        },
+        "rank1_true_self_winners": 8,
+        "rank1_true_self_paths_hist": {
+          "analog_strict_pair": 7,
+          "analog_source_key": 7,
+          "s5_rule_source_key": 2
+        }
+      }
+    },
+    "Tuning261_T16_Full": {
+      "label": "Tuning261_T16_Full",
+      "native_run_noself_audit": null,
+      "shared_pool_audit": {
+        "n_candidates": 3639,
+        "n_checked": 3332,
+        "n_uncovered": 307,
+        "self_record_hits": 42,
+        "checked_rate": 0.9156,
+        "hit_path_histogram": {
+          "s5_rule_source_key": 42,
+          "analog_strict_pair": 21,
+          "analog_source_key": 21
+        },
+        "by_channel": {
+          "analog": {
+            "n_candidates": 404,
+            "n_checked": 404,
+            "n_hits": 21
+          },
+          "recorded": {
+            "n_candidates": 307,
+            "n_uncovered": 307
+          },
+          "s5_hybrid_rule": {
+            "n_candidates": 2928,
+            "n_checked": 2928,
+            "n_hits": 21
+          }
+        }
+      },
+      "elapsed_s": 308.31,
+      "v6": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 118,
+            "hit@3": 133,
+            "hit@5": 141
+          },
+          "legacy_ex_self": {
+            "hit@1": 57,
+            "hit@3": 63,
+            "hit@5": 72
+          },
+          "true_ex_self": {
+            "hit@1": 102,
+            "hit@3": 112,
+            "hit@5": 119
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 113,
+            "hit@3": 127,
+            "hit@5": 134
+          },
+          "legacy_ex_self": {
+            "hit@1": 56,
+            "hit@3": 62,
+            "hit@5": 69
+          },
+          "true_ex_self": {
+            "hit@1": 97,
+            "hit@3": 106,
+            "hit@5": 112
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "rec": 71,
+          "tpl-other": 24,
+          "other": 19,
+          "novel_or_unpooled": 4
+        },
+        "rank1_true_self_winners": 16,
+        "rank1_true_self_paths_hist": {
+          "analog_strict_pair": 12,
+          "analog_source_key": 12,
+          "s5_rule_source_key": 8
+        }
+      },
+      "v4": {
+        "full": {
+          "denominator": 261,
+          "all": {
+            "hit@1": 80,
+            "hit@3": 96,
+            "hit@5": 102
+          },
+          "legacy_ex_self": {
+            "hit@1": 19,
+            "hit@3": 26,
+            "hit@5": 32
+          },
+          "true_ex_self": {
+            "hit@1": 67,
+            "hit@3": 76,
+            "hit@5": 81
+          }
+        },
+        "clean": {
+          "denominator": 220,
+          "all": {
+            "hit@1": 76,
+            "hit@3": 91,
+            "hit@5": 96
+          },
+          "legacy_ex_self": {
+            "hit@1": 19,
+            "hit@3": 26,
+            "hit@5": 31
+          },
+          "true_ex_self": {
+            "hit@1": 63,
+            "hit@3": 71,
+            "hit@5": 75
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "rec": 47,
+          "tpl-other": 16,
+          "other": 17
+        },
+        "rank1_true_self_winners": 13,
+        "rank1_true_self_paths_hist": {
+          "analog_strict_pair": 9,
+          "analog_source_key": 9,
+          "s5_rule_source_key": 8
+        }
+      }
+    },
+    "Holdout156_T16_Full": {
+      "label": "Holdout156_T16_Full",
+      "native_run_noself_audit": null,
+      "shared_pool_audit": {
+        "n_candidates": 2153,
+        "n_checked": 1961,
+        "n_uncovered": 192,
+        "self_record_hits": 19,
+        "checked_rate": 0.9108,
+        "hit_path_histogram": {
+          "analog_strict_pair": 8,
+          "analog_source_key": 8,
+          "s5_env_strict_pair": 1,
+          "s5_rule_source_key": 16,
+          "s5_rr_strict_pair": 2
+        },
+        "by_channel": {
+          "analog": {
+            "n_candidates": 229,
+            "n_checked": 229,
+            "n_hits": 8
+          },
+          "recorded": {
+            "n_candidates": 192,
+            "n_uncovered": 192
+          },
+          "s5_hybrid_rule": {
+            "n_candidates": 1732,
+            "n_checked": 1732,
+            "n_hits": 11
+          }
+        }
+      },
+      "elapsed_s": 150.14,
+      "v6": {
+        "full": {
+          "denominator": 156,
+          "all": {
+            "hit@1": 59,
+            "hit@3": 75,
+            "hit@5": 80
+          },
+          "legacy_ex_self": {
+            "hit@1": 25,
+            "hit@3": 38,
+            "hit@5": 42
+          },
+          "true_ex_self": {
+            "hit@1": 58,
+            "hit@3": 71,
+            "hit@5": 75
+          }
+        },
+        "clean": {
+          "denominator": 132,
+          "all": {
+            "hit@1": 57,
+            "hit@3": 71,
+            "hit@5": 74
+          },
+          "legacy_ex_self": {
+            "hit@1": 23,
+            "hit@3": 34,
+            "hit@5": 36
+          },
+          "true_ex_self": {
+            "hit@1": 56,
+            "hit@3": 67,
+            "hit@5": 69
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "other": 9,
+          "tpl-other": 9,
+          "rec": 41
+        },
+        "rank1_true_self_winners": 1,
+        "rank1_true_self_paths_hist": {
+          "analog_strict_pair": 1,
+          "analog_source_key": 1
+        }
+      },
+      "v4": {
+        "full": {
+          "denominator": 156,
+          "all": {
+            "hit@1": 41,
+            "hit@3": 50,
+            "hit@5": 55
+          },
+          "legacy_ex_self": {
+            "hit@1": 7,
+            "hit@3": 13,
+            "hit@5": 17
+          },
+          "true_ex_self": {
+            "hit@1": 41,
+            "hit@3": 47,
+            "hit@5": 49
+          }
+        },
+        "clean": {
+          "denominator": 132,
+          "all": {
+            "hit@1": 41,
+            "hit@3": 50,
+            "hit@5": 55
+          },
+          "legacy_ex_self": {
+            "hit@1": 7,
+            "hit@3": 13,
+            "hit@5": 17
+          },
+          "true_ex_self": {
+            "hit@1": 41,
+            "hit@3": 47,
+            "hit@5": 49
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "other": 7,
+          "rec": 28,
+          "tpl-other": 6
+        },
+        "rank1_true_self_winners": 0,
+        "rank1_true_self_paths_hist": {}
+      }
+    },
+    "Holdout156_T16_NoSelf": {
+      "label": "Holdout156_T16_NoSelf",
+      "native_run_noself_audit": null,
+      "shared_pool_audit": {
+        "n_candidates": 2049,
+        "n_checked": 2049,
+        "n_uncovered": 0,
+        "self_record_hits": 0,
+        "checked_rate": 1.0,
+        "hit_path_histogram": {},
+        "by_channel": {
+          "analog": {
+            "n_candidates": 190,
+            "n_checked": 190
+          },
+          "s5_hybrid_rule": {
+            "n_candidates": 1859,
+            "n_checked": 1859
+          }
+        }
+      },
+      "elapsed_s": 148.63,
+      "v6": {
+        "full": {
+          "denominator": 156,
+          "all": {
+            "hit@1": 47,
+            "hit@3": 64,
+            "hit@5": 68
+          },
+          "legacy_ex_self": {
+            "hit@1": 33,
+            "hit@3": 50,
+            "hit@5": 54
+          },
+          "true_ex_self": {
+            "hit@1": 47,
+            "hit@3": 64,
+            "hit@5": 68
+          }
+        },
+        "clean": {
+          "denominator": 132,
+          "all": {
+            "hit@1": 46,
+            "hit@3": 60,
+            "hit@5": 62
+          },
+          "legacy_ex_self": {
+            "hit@1": 32,
+            "hit@3": 46,
+            "hit@5": 48
+          },
+          "true_ex_self": {
+            "hit@1": 46,
+            "hit@3": 60,
+            "hit@5": 62
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "tpl-other": 23,
+          "other": 19,
+          "novel_or_unpooled": 5
+        },
+        "rank1_true_self_winners": 0,
+        "rank1_true_self_paths_hist": {}
+      },
+      "v4": {
+        "full": {
+          "denominator": 156,
+          "all": {
+            "hit@1": 33,
+            "hit@3": 43,
+            "hit@5": 43
+          },
+          "legacy_ex_self": {
+            "hit@1": 19,
+            "hit@3": 29,
+            "hit@5": 29
+          },
+          "true_ex_self": {
+            "hit@1": 33,
+            "hit@3": 43,
+            "hit@5": 43
+          }
+        },
+        "clean": {
+          "denominator": 132,
+          "all": {
+            "hit@1": 33,
+            "hit@3": 43,
+            "hit@5": 43
+          },
+          "legacy_ex_self": {
+            "hit@1": 19,
+            "hit@3": 29,
+            "hit@5": 29
+          },
+          "true_ex_self": {
+            "hit@1": 33,
+            "hit@3": 43,
+            "hit@5": 43
+          }
+        },
+        "rank1_winner_channel_hist": {
+          "tpl-other": 14,
+          "other": 16,
+          "novel_or_unpooled": 3
+        },
+        "rank1_true_self_winners": 0,
+        "rank1_true_self_paths_hist": {}
+      }
+    }
+  },
+  "p4_db2_noself_27_dissection": {
+    "n_db2_all_hit1": 96,
+    "n_db2_ex_self_hit1": 69,
+    "n_db2_ex_rec_only_hit1": 96,
+    "n_dropped_under_ex_self": 27,
+    "trigger_breakdown": {
+      "tpl_only": 27
+    },
+    "rank1_key_prefix": {
+      "tpl-other": 27
+    },
+    "tpl_family_breakdown": {
+      "tpl-other": 27
+    }
+  }
+}

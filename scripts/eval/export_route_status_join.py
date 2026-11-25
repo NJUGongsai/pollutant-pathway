@@ -59,6 +59,156 @@ def _hit_flags(rank: int | None) -> tuple[int, int, int]:
     return (int(rank <= 1), int(rank <= 3), int(rank <= 5))
 
 
+T1_0_COLUMN_NAMES: tuple[str, ...] = (
+    "t1_0_v6_rank",
+    "t1_0_v6_hit1",
+    "t1_0_v6_hit3",
+    "t1_0_v6_hit5",
+    "t1_0_v4_hit1",
+    "t1_0_v4_hit3",
+    "t1_0_v4_hit5",
+)
+
+T1_0A_COLUMN_NAMES: tuple[str, ...] = (
+    "t1_0a_delivery_status",
+    "t1_0a_v6_rank",
+    "t1_0a_v6_hit1",
+    "t1_0a_v6_hit3",
+    "t1_0a_v6_hit5",
+    "t1_0a_v4_rank",
+    "t1_0a_v4_hit1",
+    "t1_0a_v4_hit3",
+    "t1_0a_v4_hit5",
+)
+
+
+def _validate_qid_alignment(
+    expected_qids: set[str],
+    actual_qids: set[str],
+    *,
+    label: str,
+) -> None:
+    """Verify two qid sets match 1-to-1 before merging columns."""
+    if expected_qids == actual_qids:
+        return
+    missing = sorted(expected_qids - actual_qids)
+    extra = sorted(actual_qids - expected_qids)
+    raise ValueError(
+        f"{label} qid mismatch: missing={len(missing)} ({missing[:3]}), "
+        f"extra={len(extra)} ({extra[:3]})"
+    )
+
+
+def _load_t1_0_raw_score(path: Path | None) -> dict[str, dict[str, object]]:
+    """Load T1-0 bare raw_score.json per_qid records keyed by qid."""
+    if path is None:
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("per_qid")
+    if not isinstance(records, list) or not records:
+        raise ValueError(f"Missing or invalid per_qid list in {path}")
+    by_qid: dict[str, dict[str, object]] = {}
+    for item in records:
+        qid = str(item["qid"])
+        if qid in by_qid:
+            raise ValueError(f"Duplicate qid {qid!r} in {path}")
+        rank = item.get("rank")
+        for k in (1, 3, 5):
+            rank_hit = rank is not None and int(rank) <= k
+            if rank_hit != bool(item[f"v6_hit_at_{k}"]):
+                raise ValueError(
+                    f"{path} rank/v6_hit_at_{k} inconsistency for {qid}: "
+                    f"rank={rank}, flag={item[f'v6_hit_at_{k}']}"
+                )
+        by_qid[qid] = item
+    return by_qid
+
+
+def _load_flips_by_qid(path: Path | None) -> dict[str, dict[str, object]]:
+    """Load a flips_v4cn JSONL artifact keyed by qid."""
+    if path is None:
+        return {}
+    by_qid: dict[str, dict[str, object]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        item = json.loads(line)
+        qid = str(item["qid"])
+        if qid in by_qid:
+            raise ValueError(f"Duplicate qid {qid!r} in {path}")
+        by_qid[qid] = item
+    if not by_qid:
+        raise ValueError(f"Empty flips JSONL: {path}")
+    return by_qid
+
+
+def _t1_0_columns(row: dict[str, object]) -> dict[str, object]:
+    """Extract normalized T1-0 bare (raw SMILES, no AtomTool gate) columns."""
+    rank = row.get("rank")
+    return {
+        "t1_0_v6_rank": rank if rank is not None else "NONE",
+        "t1_0_v6_hit1": int(bool(row["v6_hit_at_1"])),
+        "t1_0_v6_hit3": int(bool(row["v6_hit_at_3"])),
+        "t1_0_v6_hit5": int(bool(row["v6_hit_at_5"])),
+        "t1_0_v4_hit1": int(bool(row["v4_hit_at_1"])),
+        "t1_0_v4_hit3": int(bool(row["v4_hit_at_3"])),
+        "t1_0_v4_hit5": int(bool(row["v4_hit_at_5"])),
+    }
+
+
+def _t1_0a_columns(row: dict[str, object]) -> dict[str, object]:
+    """Extract normalized T1-0a (bare + AtomTool gate) columns from flips JSONL."""
+    after_rank = row.get("after_rank")
+    before_rank = row.get("before_rank")
+    delivery = (
+        DeliveryStatus.NO_EVENT.value
+        if row.get("after_bucket") == "unmatched_no_event"
+        else DeliveryStatus.OK.value
+    )
+    v6_h1, v6_h3, v6_h5 = _hit_flags(after_rank)
+    v4_h1, v4_h3, v4_h5 = _hit_flags(before_rank)
+    return {
+        "t1_0a_delivery_status": delivery,
+        "t1_0a_v6_rank": after_rank if after_rank is not None else "NONE",
+        "t1_0a_v6_hit1": v6_h1,
+        "t1_0a_v6_hit3": v6_h3,
+        "t1_0a_v6_hit5": v6_h5,
+        "t1_0a_v4_rank": before_rank if before_rank is not None else "NONE",
+        "t1_0a_v4_hit1": v4_h1,
+        "t1_0a_v4_hit3": v4_h3,
+        "t1_0a_v4_hit5": v4_h5,
+    }
+
+
+def _summarize_hitk_columns(
+    rows: list[dict[str, object]],
+    *,
+    prefix: str,
+    has_delivery_status: bool = False,
+) -> dict[str, object]:
+    """Compute Tuning-261 and Clean-220 Hit@1/@3/@5 totals for an arm prefix."""
+    clean_rows = [r for r in rows if r["tuning_subset"] == "Clean-220"]
+
+    def _bucket_counts(subset: list[dict[str, object]]) -> dict[str, dict[str, int]]:
+        return {
+            caliber: {
+                f"hit@{k}": sum(int(r[f"{prefix}_{caliber}_hit{k}"]) for r in subset)
+                for k in (1, 3, 5)
+            }
+            for caliber in ("v6", "v4")
+        }
+
+    result: dict[str, object] = {
+        "tuning_261": {"denominator": len(rows), **_bucket_counts(rows)},
+        "clean_220": {"denominator": len(clean_rows), **_bucket_counts(clean_rows)},
+    }
+    if has_delivery_status:
+        result["no_event_count"] = sum(
+            1 for r in rows if r.get(f"{prefix}_delivery_status") == DeliveryStatus.NO_EVENT.value
+        )
+    return result
+
+
 def export_join_tables(
     *,
     flips_jsonl: Path,
@@ -68,6 +218,8 @@ def export_join_tables(
     out_dir: Path,
     collision_audit_tsv: Path | None = None,
     expert_reviews_json: Path | None = None,
+    t1_0_raw_score_json: Path | None = None,
+    t1_0a_flips_jsonl: Path | None = None,
 ) -> dict[str, object]:
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -95,6 +247,13 @@ def export_join_tables(
 
     collision_cases = _load_collision_cases(collision_audit_tsv)
     expert_reviews = _load_expert_reviews(expert_reviews_json)
+    t1_0_map = _load_t1_0_raw_score(t1_0_raw_score_json)
+    t1_0a_map = _load_flips_by_qid(t1_0a_flips_jsonl)
+    flips_qids = {str(r["qid"]) for r in flips}
+    if t1_0_map:
+        _validate_qid_alignment(flips_qids, set(t1_0_map), label="t1_0_raw_score")
+    if t1_0a_map:
+        _validate_qid_alignment(flips_qids, set(t1_0a_map), label="t1_0a_flips")
 
     qid_rows: list[dict[str, object]] = []
     status_records = []
@@ -171,6 +330,10 @@ def export_join_tables(
             "v14_t16_expert_reviewed": rec.expert_review is not None and rec.expert_review.confirmed,
             "primary_score_immutable": rec.primary_score_immutable,
         }
+        if t1_0_map:
+            out_row.update(_t1_0_columns(t1_0_map[qid]))
+        if t1_0a_map:
+            out_row.update(_t1_0a_columns(t1_0a_map[qid]))
         qid_rows.append(out_row)
         case_buckets[case_id].append(out_row)
 
@@ -296,6 +459,12 @@ def export_join_tables(
         "tuning_261_summary": summarize_route_statuses(status_records),
         "clean_220_summary": summarize_route_statuses(clean_status_records),
     }
+    if t1_0_map or t1_0a_map:
+        summary["extra_arms"] = _build_extra_arms_summary(
+            qid_rows,
+            include_t1_0=bool(t1_0_map),
+            include_t1_0a=bool(t1_0a_map),
+        )
 
     summary_json = out_dir / "route_status_summary_tuning261.json"
     summary_json.write_text(
@@ -305,16 +474,129 @@ def export_join_tables(
     return summary
 
 
+def _build_extra_arms_summary(
+    rows: list[dict[str, object]],
+    *,
+    include_t1_0: bool,
+    include_t1_0a: bool,
+) -> dict[str, object]:
+    """Summarize extra baseline arms cleanly without duplicating totals logic."""
+    arms: dict[str, object] = {}
+    if include_t1_0:
+        arms["t1_0"] = _summarize_hitk_columns(rows, prefix="t1_0")
+    if include_t1_0a:
+        arms["t1_0a"] = _summarize_hitk_columns(
+            rows, prefix="t1_0a", has_delivery_status=True
+        )
+    return arms
+
+
+def append_baseline_arms_to_qid_tsv(
+    *,
+    qid_tsv: Path,
+    t1_0_raw_score_json: Path | None = None,
+    t1_0a_flips_jsonl: Path | None = None,
+    out_tsv: Path | None = None,
+) -> dict[str, object]:
+    """Append or refresh T1-0 / T1-0a columns on an existing Tuning-261 qid TSV."""
+    if t1_0_raw_score_json is None and t1_0a_flips_jsonl is None:
+        raise ValueError("Provide at least one of t1_0_raw_score_json or t1_0a_flips_jsonl.")
+
+    with qid_tsv.open(encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        existing_fields = list(reader.fieldnames or [])
+        rows: list[dict[str, object]] = [dict(row) for row in reader]
+
+    if not existing_fields or not rows:
+        raise ValueError(f"Existing qid TSV is empty: {qid_tsv}")
+
+    row_qids = {str(r["qid"]) for r in rows}
+    t1_0_map = _load_t1_0_raw_score(t1_0_raw_score_json)
+    t1_0a_map = _load_flips_by_qid(t1_0a_flips_jsonl)
+    if t1_0_map:
+        _validate_qid_alignment(row_qids, set(t1_0_map), label="t1_0_raw_score")
+    if t1_0a_map:
+        _validate_qid_alignment(row_qids, set(t1_0a_map), label="t1_0a_flips")
+
+    has_t1_0 = bool(t1_0_map) or all(c in existing_fields for c in T1_0_COLUMN_NAMES)
+    has_t1_0a = bool(t1_0a_map) or all(c in existing_fields for c in T1_0A_COLUMN_NAMES)
+    extra_set = set(T1_0_COLUMN_NAMES) | set(T1_0A_COLUMN_NAMES)
+    base_fields = [c for c in existing_fields if c not in extra_set]
+    out_fields = list(base_fields)
+    if has_t1_0:
+        out_fields.extend(T1_0_COLUMN_NAMES)
+    if has_t1_0a:
+        out_fields.extend(T1_0A_COLUMN_NAMES)
+
+    for row in rows:
+        qid = str(row["qid"])
+        if t1_0_map:
+            row.update(_t1_0_columns(t1_0_map[qid]))
+        if t1_0a_map:
+            row.update(_t1_0a_columns(t1_0a_map[qid]))
+
+    target_tsv = out_tsv or qid_tsv
+    with target_tsv.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=out_fields, delimiter="\t")
+        writer.writeheader()
+        writer.writerows(rows)
+
+    return {
+        "out_tsv": str(target_tsv),
+        "n_qid_rows": len(rows),
+        "n_columns": len(out_fields),
+        "added_or_refreshed_columns": [
+            *(T1_0_COLUMN_NAMES if t1_0_map else ()),
+            *(T1_0A_COLUMN_NAMES if t1_0a_map else ()),
+        ],
+        "extra_arms": _build_extra_arms_summary(
+            rows,
+            include_t1_0=has_t1_0,
+            include_t1_0a=has_t1_0a,
+        ),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Export v6 qid join & 5-state route_status summary.")
-    parser.add_argument("--flips-jsonl", type=Path, required=True)
-    parser.add_argument("--clean-classification-jsonl", type=Path, required=True)
-    parser.add_argument("--per-gold-step-tsv", type=Path, required=True)
-    parser.add_argument("--likert-scores-tsv", type=Path, required=True)
-    parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument("--flips-jsonl", type=Path, default=None)
+    parser.add_argument("--clean-classification-jsonl", type=Path, default=None)
+    parser.add_argument("--per-gold-step-tsv", type=Path, default=None)
+    parser.add_argument("--likert-scores-tsv", type=Path, default=None)
+    parser.add_argument("--out-dir", type=Path, default=None)
     parser.add_argument("--collision-audit-tsv", type=Path, default=None)
     parser.add_argument("--expert-reviews-json", type=Path, default=None)
+    parser.add_argument("--t1-0-raw-score-json", type=Path, default=None)
+    parser.add_argument("--t1-0a-flips-jsonl", type=Path, default=None)
+    parser.add_argument("--patch-existing-qid-tsv", type=Path, default=None)
+    parser.add_argument("--out-tsv", type=Path, default=None)
     args = parser.parse_args(argv)
+
+    if args.patch_existing_qid_tsv is not None:
+        if args.t1_0_raw_score_json is None and args.t1_0a_flips_jsonl is None:
+            parser.error(
+                "--patch-existing-qid-tsv requires at least one of "
+                "--t1-0-raw-score-json or --t1-0a-flips-jsonl"
+            )
+        summary = append_baseline_arms_to_qid_tsv(
+            qid_tsv=args.patch_existing_qid_tsv,
+            t1_0_raw_score_json=args.t1_0_raw_score_json,
+            t1_0a_flips_jsonl=args.t1_0a_flips_jsonl,
+            out_tsv=args.out_tsv,
+        )
+        print(json.dumps(summary, ensure_ascii=False))
+        return 0
+
+    required_full = (
+        ("--flips-jsonl", args.flips_jsonl),
+        ("--clean-classification-jsonl", args.clean_classification_jsonl),
+        ("--per-gold-step-tsv", args.per_gold_step_tsv),
+        ("--likert-scores-tsv", args.likert_scores_tsv),
+        ("--out-dir", args.out_dir),
+    )
+    missing = [flag for flag, val in required_full if val is None]
+    if missing:
+        parser.error(f"Missing required arguments for full export: {', '.join(missing)}")
 
     summary = export_join_tables(
         flips_jsonl=args.flips_jsonl,
@@ -324,12 +606,15 @@ def main(argv: list[str] | None = None) -> int:
         out_dir=args.out_dir,
         collision_audit_tsv=args.collision_audit_tsv,
         expert_reviews_json=args.expert_reviews_json,
+        t1_0_raw_score_json=args.t1_0_raw_score_json,
+        t1_0a_flips_jsonl=args.t1_0a_flips_jsonl,
     )
     print(json.dumps({
         "n_qid_rows": summary["n_qid_rows"],
         "n_case_rows": summary["n_case_rows"],
         "route_status_counts": summary["tuning_261_summary"]["route_status_counts"],
         "primary_hit_at_k": summary["tuning_261_summary"]["primary_hit_at_k"],
+        **({"extra_arms": summary["extra_arms"]} if "extra_arms" in summary else {}),
     }, ensure_ascii=False))
     return 0
 

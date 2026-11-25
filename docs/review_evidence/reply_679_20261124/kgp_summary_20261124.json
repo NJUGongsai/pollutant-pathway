@@ -1,0 +1,266 @@
+{
+  "generated_at_utc": "2026-11-24T09:55:25Z",
+  "n_steps": 715,
+  "counts_by_domain_split": {
+    "biosysmodb121:holdout_156": {
+      "K": 88,
+      "G": 34,
+      "P": 34
+    },
+    "biosysmodb121:holdout_156_clean": {
+      "K": 74,
+      "G": 27,
+      "P": 31
+    },
+    "biosysmodb121:tuning_261": {
+      "K": 170,
+      "P": 49,
+      "G": 42
+    },
+    "biosysmodb121:tuning_261_clean": {
+      "K": 142,
+      "P": 41,
+      "G": 37
+    },
+    "dev-298:holdout_102": {
+      "G": 9,
+      "K": 67,
+      "P": 26
+    },
+    "dev-298:tuning_196": {
+      "K": 123,
+      "P": 28,
+      "G": 45
+    }
+  },
+  "posthoc_t16_hit1_by_track_diagnostic": {
+    "holdout_156": {
+      "K_total": 88,
+      "K_clean_total": 74,
+      "G_total": 34,
+      "G_t16_hit1": 16,
+      "G_clean_total": 27,
+      "G_clean_t16_hit1": 16,
+      "K_t16_hit1": 43,
+      "K_clean_t16_hit1": 41,
+      "P_total": 34,
+      "P_clean_total": 31
+    },
+    "tuning_261": {
+      "K_total": 170,
+      "K_clean_total": 142,
+      "K_t16_hit1": 91,
+      "K_clean_t16_hit1": 87,
+      "P_total": 49,
+      "P_clean_total": 41,
+      "G_total": 42,
+      "G_clean_total": 37,
+      "G_t16_hit1": 27,
+      "G_clean_t16_hit1": 26
+    }
+  },
+  "elapsed_s": 170.98,
+  "merged_836_generated_at_utc": "2026-11-24T09:56:31Z",
+  "n_rows_merged": 836,
+  "merged_tsv_sha256": "6d465a86e60d1654118aa7477799235add4189724578ae91727a88a0c85e23d2",
+  "step_kgp_breakdown": {
+    "biosysmodb121:all": {
+      "K": 258,
+      "P": 83,
+      "G": 76
+    },
+    "biosysmodb121:all_clean": {
+      "K": 216,
+      "P": 72,
+      "G": 64
+    },
+    "biosysmodb121:holdout_156": {
+      "K": 88,
+      "G": 34,
+      "P": 34
+    },
+    "biosysmodb121:holdout_156_clean": {
+      "K": 74,
+      "G": 27,
+      "P": 31
+    },
+    "biosysmodb121:tuning_261": {
+      "K": 170,
+      "P": 49,
+      "G": 42
+    },
+    "biosysmodb121:tuning_261_clean": {
+      "K": 142,
+      "P": 41,
+      "G": 37
+    },
+    "dev-298:all": {
+      "K": 190,
+      "P": 54,
+      "G": 54
+    },
+    "dev-298:holdout_102": {
+      "G": 9,
+      "K": 67,
+      "P": 26
+    },
+    "dev-298:tuning_196": {
+      "K": 123,
+      "P": 28,
+      "G": 45
+    }
+  },
+  "pathway_kgp_breakdown": {
+    "e2e:full_121": {
+      "K": 34,
+      "P": 53,
+      "G": 32,
+      "UNMAPPED_NON_417_FORMAL": 2
+    },
+    "e2e:holdout": {
+      "G": 12,
+      "K": 11,
+      "P": 20
+    },
+    "e2e:mapped_119": {
+      "K": 34,
+      "P": 53,
+      "G": 32
+    },
+    "e2e:non_417_formal": {
+      "UNMAPPED_NON_417_FORMAL": 2
+    },
+    "e2e:tuning": {
+      "K": 23,
+      "P": 33,
+      "G": 20
+    }
+  },
+  "posthoc_b121_step_t16_by_track": {
+    "holdout_156:G": {
+      "total": 34,
+      "hit1": 16,
+      "hit3": 26,
+      "hit5": 29
+    },
+    "holdout_156:K": {
+      "total": 88,
+      "hit1": 43,
+      "hit3": 48,
+      "hit5": 50
+    },
+    "holdout_156:P": {
+      "total": 34,
+      "hit1": 0,
+      "hit3": 1,
+      "hit5": 1
+    },
+    "holdout_156_clean:G": {
+      "total": 27,
+      "hit1": 16,
+      "hit3": 24,
+      "hit5": 25
+    },
+    "holdout_156_clean:K": {
+      "total": 74,
+      "hit1": 41,
+      "hit3": 46,
+      "hit5": 48
+    },
+    "holdout_156_clean:P": {
+      "total": 31,
+      "hit1": 0,
+      "hit3": 1,
+      "hit5": 1
+    },
+    "tuning_261:G": {
+      "total": 42,
+      "hit1": 27,
+      "hit3": 30,
+      "hit5": 36
+    },
+    "tuning_261:K": {
+      "total": 170,
+      "hit1": 91,
+      "hit3": 101,
+      "hit5": 103
+    },
+    "tuning_261:P": {
+      "total": 49,
+      "hit1": 0,
+      "hit3": 2,
+      "hit5": 2
+    },
+    "tuning_261_clean:G": {
+      "total": 37,
+      "hit1": 26,
+      "hit3": 29,
+      "hit5": 34
+    },
+    "tuning_261_clean:K": {
+      "total": 142,
+      "hit1": 87,
+      "hit3": 96,
+      "hit5": 98
+    },
+    "tuning_261_clean:P": {
+      "total": 41,
+      "hit1": 0,
+      "hit3": 2,
+      "hit5": 2
+    }
+  },
+  "posthoc_b121_e2e_arm1_by_pathway_track": {
+    "full_121:G": {
+      "total": 32,
+      "mineralized_closed": 5,
+      "strict_carbon_closed": 5
+    },
+    "full_121:K": {
+      "total": 34,
+      "mineralized_closed": 10,
+      "strict_carbon_closed": 10
+    },
+    "full_121:P": {
+      "total": 53,
+      "mineralized_closed": 6,
+      "strict_carbon_closed": 6
+    },
+    "full_121:UNMAPPED_NON_417_FORMAL": {
+      "total": 2
+    },
+    "holdout:G": {
+      "total": 12,
+      "mineralized_closed": 1,
+      "strict_carbon_closed": 1
+    },
+    "holdout:K": {
+      "total": 11,
+      "mineralized_closed": 2,
+      "strict_carbon_closed": 2
+    },
+    "holdout:P": {
+      "total": 20,
+      "mineralized_closed": 2,
+      "strict_carbon_closed": 2
+    },
+    "non_417_formal:UNMAPPED_NON_417_FORMAL": {
+      "total": 2
+    },
+    "tuning:G": {
+      "total": 20,
+      "mineralized_closed": 4,
+      "strict_carbon_closed": 4
+    },
+    "tuning:K": {
+      "total": 23,
+      "mineralized_closed": 8,
+      "strict_carbon_closed": 8
+    },
+    "tuning:P": {
+      "total": 33,
+      "mineralized_closed": 4,
+      "strict_carbon_closed": 4
+    }
+  }
+}
